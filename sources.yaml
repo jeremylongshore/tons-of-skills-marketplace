@@ -1239,6 +1239,43 @@ sources:
       - '**/node_modules/**'
       - '**/*.log'
 
+  # ============================================================
+  # Upload-Post (Upload-Post)
+  # https://github.com/Upload-Post/upload-post-skills
+  # ============================================================
+
+  - name: upload-post
+    description: Publish and schedule to 15 social platforms from your agent — TikTok, Instagram, YouTube, LinkedIn, X, Threads, Pinterest, Bluesky, Reddit, Discord, Telegram and more — plus Instagram comment-to-DM funnels, video-to-shorts and URL-to-carousel pipelines.
+    repo: Upload-Post/upload-post-skills
+    source_path: .
+    target_path: plugins/business-tools/upload-post
+    author:
+      name: Upload-Post
+      github: Upload-Post
+      email: support@upload-post.com
+    license: MIT
+    category: business-tools
+    verified: false
+    keywords:
+      - social-media
+      - publishing
+      - scheduling
+      - content-marketing
+      - dm-automation
+    include:
+      - '/.claude-plugin/plugin.json'
+      - '/.codex-plugin/plugin.json'
+      - '/.agents/plugins/marketplace.json'
+      - '/.mcp.json'
+      - '/skills/**'
+      - '/README.md'
+      - '/LICENSE'
+    exclude:
+      - '/.git/**'
+      - '**/node_modules/**'
+      - '**/*.log'
+      - '**/.env*'
+
 # Sync configuration
 config:
   # Branch to sync from (default: main)
