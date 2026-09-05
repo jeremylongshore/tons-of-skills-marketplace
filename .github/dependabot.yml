@@ -1,37 +1,43 @@
 version: 2
+
+# Security-only policy: routine version-update PRs are disabled for every
+# ecosystem below. GitHub vulnerability alerts and security updates remain
+# enabled at the repository level; open-pull-requests-limit applies only to
+# version updates, so a vulnerable dependency can still receive a remediation
+# PR without reopening the weekly bulk-update queue.
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 0
     groups:
-      root-npm-dependencies:
+      root-security-updates:
+        applies-to: security-updates
         patterns: ['*']
 
   - package-ecosystem: npm
     directory: /marketplace
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 0
     groups:
-      marketplace-npm-dependencies:
+      marketplace-security-updates:
+        applies-to: security-updates
         patterns: ['*']
 
   - package-ecosystem: npm
     directory: /ci/emit-evidence
     schedule:
       interval: weekly
-    open-pull-requests-limit: 2
+    open-pull-requests-limit: 0
     groups:
-      evidence-npm-dependencies:
+      evidence-security-updates:
+        applies-to: security-updates
         patterns: ['*']
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
-    groups:
-      github-actions:
-        patterns: ['*']
+    open-pull-requests-limit: 0
