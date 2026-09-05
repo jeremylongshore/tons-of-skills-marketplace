@@ -74,6 +74,10 @@
 # and release evidence ship with the operator pack.
 !plugins/saas-packs/grammarly-pack/000-docs/
 !plugins/saas-packs/grammarly-pack/000-docs/**
+# EXCEPTION: Agent Systems Toolkit public research, architecture, threat model,
+# and implementation evidence ship with the repository-owned toolkit.
+!plugins/skill-enhancers/agent-systems-toolkit/000-docs/
+!plugins/skill-enhancers/agent-systems-toolkit/000-docs/**
 # EXCEPTION: Snowflake operator research and architecture records are published
 # with the curated pack, like the Databricks benchmark corpus.
 !plugins/saas-packs/snowflake-pack/000-docs/

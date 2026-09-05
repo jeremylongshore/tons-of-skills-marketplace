@@ -6694,6 +6694,38 @@
       }
     },
     {
+      "name": "agent-systems-toolkit",
+      "source": "./plugins/skill-enhancers/agent-systems-toolkit",
+      "description": "Model-neutral workflows for creating, validating, and production-upgrading Agent Skills, agents, plugins, MCP integrations, hooks, and marketplaces with Beads-backed evidence and specialist review roles.",
+      "version": "1.0.0",
+      "category": "skill-enhancers",
+      "keywords": [
+        "agent-skills",
+        "skill-creation",
+        "plugin-development",
+        "agents",
+        "mcp",
+        "validation",
+        "production-upgrade",
+        "beads"
+      ],
+      "author": {
+        "name": "Jeremy Longshore",
+        "email": "jeremy@intentsolutions.io"
+      },
+      "components": {
+        "skills": 3,
+        "agents": 5,
+        "total": 8
+      },
+      "verification": {
+        "score": 96,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-05T00:00:00.000Z"
+      }
+    },
+    {
       "name": "claude-never-forgets",
       "source": "./plugins/community/claude-never-forgets",
       "description": "Persistent memory plugin for Claude Code - remembers preferences, decisions, and corrections across sessions and context limits",

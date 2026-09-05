@@ -1,0 +1,5 @@
+MIT License
+
+Copyright (c) 2026 Jeremy Longshore
+
+See ../LICENSE for the complete license text.

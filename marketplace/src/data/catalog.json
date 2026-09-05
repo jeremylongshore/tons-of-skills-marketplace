@@ -5,10 +5,10 @@
     "generator": "marketplace/scripts/sync-catalog.mjs"
   },
   "stats": {
-    "totalPlugins": 439,
-    "totalSkills": 2937,
+    "totalPlugins": 440,
+    "totalSkills": 2940,
     "totalCommands": 85,
-    "pluginsWithSkills": 406,
+    "pluginsWithSkills": 407,
     "byCategory": {
       "productivity": 29,
       "security": 27,
@@ -21,7 +21,7 @@
       "devops": 36,
       "api-development": 26,
       "crypto": 27,
-      "skill-enhancers": 9,
+      "skill-enhancers": 10,
       "database": 26,
       "business-tools": 6,
       "community": 20,
@@ -7144,6 +7144,35 @@
       "installCommand": "/plugin install skill-creator",
       "sourcePath": "./plugins/skill-enhancers/skill-creator",
       "isFeatured": true,
+      "author": {
+        "name": "Jeremy Longshore",
+        "email": "jeremy@intentsolutions.io"
+      },
+      "type": "instruction-plugin"
+    },
+    {
+      "slug": "agent-systems-toolkit",
+      "name": "agent-systems-toolkit",
+      "displayName": "agent systems toolkit",
+      "description": "Model-neutral workflows for creating, validating, and production-upgrading Agent Skills, agents, plugins, MCP integrations, hooks, and marketplaces with Beads-backed evidence and specialist review roles.",
+      "version": "1.0.0",
+      "category": "skill-enhancers",
+      "keywords": [
+        "agent-skills",
+        "skill-creation",
+        "plugin-development",
+        "agents",
+        "mcp",
+        "validation",
+        "production-upgrade",
+        "beads"
+      ],
+      "hasSkills": true,
+      "skillCount": 3,
+      "commandCount": 0,
+      "installCommand": "/plugin install agent-systems-toolkit",
+      "sourcePath": "./plugins/skill-enhancers/agent-systems-toolkit",
+      "isFeatured": false,
       "author": {
         "name": "Jeremy Longshore",
         "email": "jeremy@intentsolutions.io"

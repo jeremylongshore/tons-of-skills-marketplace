@@ -73,6 +73,9 @@ plugins/mcp/a2a-client/dist/index.js:secret-exfil-cooccur  A2A reads only its ex
 plugins/mcp/a2a-client/dist/index.js:dynamic-exec  generated AJV schema compiler code from fixed MCP SDK schemas; no untrusted source text reaches the constructor; reviewed bundle and 126-test lane 2026-09-01
 plugins/mcp/a2a-client/dist/index.js:long-base64-blob  bundled dependency WASM payload from the pinned A2A and MCP dependency graph; npm provenance, audit, deterministic bundle, and package smoke reviewed 2026-09-01
 
+# ── agent-systems-toolkit — offline evidence-manifest validation. ──
+plugins/skill-enhancers/agent-systems-toolkit/skills/production-upgrade/scripts/audit_evidence.py:outbound-network  imports urllib.parse.urlsplit solely for offline HTTPS URL validation; contains no request client, socket use, or command execution — reviewed 2026-09-05
+
 # ── sources-change-unscanned is a ONE-SHOT waiver (enforced in code by
 # honoredWaivers, blocker 62ye.3 / #985 defect 3): a line is honored ONLY in the
 # PR whose diff adds it, so it can never persistently waive future source-list

@@ -5,10 +5,10 @@
     "generator": "marketplace/scripts/generate-unified-search.mjs"
   },
   "stats": {
-    "totalPlugins": 439,
-    "totalSkills": 2937,
+    "totalPlugins": 440,
+    "totalSkills": 2940,
     "totalDocs": 24,
-    "totalItems": 3400,
+    "totalItems": 3404,
     "categories": [
       "ai-agency",
       "ai-ml",
@@ -1294,6 +1294,7 @@
       "production",
       "production-readiness",
       "production-ready",
+      "production-upgrade",
       "production-validation",
       "productivity",
       "professional-services",
@@ -1700,11 +1701,11 @@
       "zero-cost",
       "zod"
     ],
-    "totalAgents": 347,
+    "totalAgents": 352,
     "totalHooks": 28,
-    "pluginsWithAgents": 90,
+    "pluginsWithAgents": 91,
     "pluginsWithHooks": 20,
-    "officialPlugins": 389,
+    "officialPlugins": 390,
     "communityPlugins": 50,
     "communityContributors": 39
   },
@@ -9825,6 +9826,39 @@
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "skill creator create and validate production-grade agent skills with 100-point marketplace grading. supports creation workflows, eval-driven development, and auto-fix for spec compliance. skill-enhancers skill-creation validation meta-tooling grading anthropic-spec"
+    },
+    {
+      "type": "plugin",
+      "id": "agent-systems-toolkit",
+      "slug": "agent-systems-toolkit",
+      "name": "agent-systems-toolkit",
+      "displayName": "agent systems toolkit",
+      "description": "Model-neutral workflows for creating, validating, and production-upgrading Agent Skills, agents, plugins, MCP integrations, hooks, and marketplaces with Beads-backed evidence and specialist review roles.",
+      "category": "skill-enhancers",
+      "keywords": [
+        "agent-skills",
+        "skill-creation",
+        "plugin-development",
+        "agents",
+        "mcp",
+        "validation",
+        "production-upgrade",
+        "beads"
+      ],
+      "author": {
+        "name": "Jeremy Longshore",
+        "email": "jeremy@intentsolutions.io"
+      },
+      "authorType": "official",
+      "version": "1.0.0",
+      "isFeatured": false,
+      "isNew": false,
+      "badges": [],
+      "skillCount": 3,
+      "verificationScore": 96,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "agent systems toolkit model-neutral workflows for creating, validating, and production-upgrading agent skills, agents, plugins, mcp integrations, hooks, and marketplaces with beads-backed evidence and specialist review roles. skill-enhancers agent-skills skill-creation plugin-development agents mcp validation production-upgrade beads"
     },
     {
       "type": "plugin",
@@ -21081,6 +21115,44 @@
         "category": "database"
       },
       "searchText": "archiving-databases process use when you need to archive historical database records to reduce primary database size. this skill automates moving old data to archive tables or cold storage (s3, azure blob, gcs). trigger with phrases like \"archive old database records\", \"implement data retention policy\", \"move historical data to cold storage\", or \"reduce database size with archival\". database read write edit grep glob bash(psql:*) bash(mysql:*) bash(aws:s3:*) bash(az:storage:*) "
+    },
+    {
+      "type": "skill",
+      "id": "artifact-creator",
+      "slug": "artifact-creator",
+      "name": "artifact-creator",
+      "description": "Create or revise Agent Skills, host plugins and subagents, MCP servers and client configurations, hooks, and marketplace catalogs against their actual specifications. Use when building reusable agent capabilities or consolidating creator tooling without inventing a universal host format. Trigger with \"create an agent skill\", \"build a plugin\", \"create an MCP server\", \"add a subagent\", or \"scaffold an agent integration\".",
+      "category": "skill-enhancers",
+      "allowedTools": [
+        "Read",
+        "Write",
+        "Edit"
+      ],
+      "compatibleWith": [],
+      "version": "1.0.0",
+      "parentPlugin": {
+        "name": "agent-systems-toolkit",
+        "category": "skill-enhancers"
+      },
+      "searchText": "artifact-creator create or revise agent skills, host plugins and subagents, mcp servers and client configurations, hooks, and marketplace catalogs against their actual specifications. use when building reusable agent capabilities or consolidating creator tooling without inventing a universal host format. trigger with \"create an agent skill\", \"build a plugin\", \"create an mcp server\", \"add a subagent\", or \"scaffold an agent integration\". skill-enhancers read write edit "
+    },
+    {
+      "type": "skill",
+      "id": "artifact-validator",
+      "slug": "artifact-validator",
+      "name": "artifact-validator",
+      "description": "Discover and validate Agent Skills, host plugins and subagents, MCP servers and configurations, hooks, and marketplace catalogs against the correct authority. Use when performing pre-merge review, external submission checks, portability audits, security checks, or validation of mixed agent-system repositories. Trigger with \"validate this skill\", \"audit this plugin\", \"check this agent\", \"review this MCP config\", or \"is this marketplace ready\".",
+      "category": "skill-enhancers",
+      "allowedTools": [
+        "Read"
+      ],
+      "compatibleWith": [],
+      "version": "1.0.0",
+      "parentPlugin": {
+        "name": "agent-systems-toolkit",
+        "category": "skill-enhancers"
+      },
+      "searchText": "artifact-validator discover and validate agent skills, host plugins and subagents, mcp servers and configurations, hooks, and marketplace catalogs against the correct authority. use when performing pre-merge review, external submission checks, portability audits, security checks, or validation of mixed agent-system repositories. trigger with \"validate this skill\", \"audit this plugin\", \"check this agent\", \"review this mcp config\", or \"is this marketplace ready\". skill-enhancers read "
     },
     {
       "type": "skill",
@@ -64492,6 +64564,26 @@
         "category": "productivity"
       },
       "searchText": "product-brief structured product brief and prd creation assistant. use when the user needs to write a product brief, prd, feature spec, or any document that defines what to build and why. triggers include \"product brief\", \"prd\", \"spec\", \"feature doc\", \"write a brief\", \"define this feature\", or when scoping work for engineering. productivity read glob grep "
+    },
+    {
+      "type": "skill",
+      "id": "production-upgrade",
+      "slug": "production-upgrade",
+      "name": "production-upgrade",
+      "description": "Upgrade an existing skill, plugin, agent, MCP integration, or agent-system package to a security-first production standard using pain research, architecture decisions, migration planning, deterministic implementation, adversarial tests, independent review, and revision-bound evidence. Use when modernizing a legacy capability or asking for Databricks-level diligence. Trigger with \"production upgrade\", \"modernize this skill\", \"bring this pack to production quality\", or \"audit and rebuild this plugin\".",
+      "category": "skill-enhancers",
+      "allowedTools": [
+        "Read",
+        "Write",
+        "Edit"
+      ],
+      "compatibleWith": [],
+      "version": "1.0.0",
+      "parentPlugin": {
+        "name": "agent-systems-toolkit",
+        "category": "skill-enhancers"
+      },
+      "searchText": "production-upgrade upgrade an existing skill, plugin, agent, mcp integration, or agent-system package to a security-first production standard using pain research, architecture decisions, migration planning, deterministic implementation, adversarial tests, independent review, and revision-bound evidence. use when modernizing a legacy capability or asking for databricks-level diligence. trigger with \"production upgrade\", \"modernize this skill\", \"bring this pack to production quality\", or \"audit and rebuild this plugin\". skill-enhancers read write edit "
     },
     {
       "type": "skill",

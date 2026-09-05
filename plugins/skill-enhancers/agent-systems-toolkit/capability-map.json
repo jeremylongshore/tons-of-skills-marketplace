@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "authorityPolicy": "This toolkit routes to existing authorities; it does not replace them.",
+  "capabilities": [
+    {
+      "id": "create-skill",
+      "portableSkill": "artifact-creator",
+      "legacyEntrypoints": ["skill-creator"]
+    },
+    {
+      "id": "create-agent",
+      "portableSkill": "artifact-creator",
+      "legacyEntrypoints": ["agent-creator"]
+    },
+    {
+      "id": "create-plugin",
+      "portableSkill": "artifact-creator",
+      "legacyEntrypoints": ["plugin-creator"]
+    },
+    {
+      "id": "create-mcp",
+      "portableSkill": "artifact-creator",
+      "legacyEntrypoints": []
+    },
+    {
+      "id": "validate-skill",
+      "portableSkill": "artifact-validator",
+      "legacyEntrypoints": ["validate-skillmd"],
+      "repositoryAuthority": "scripts/validate-skills-schema.py"
+    },
+    {
+      "id": "validate-agent",
+      "portableSkill": "artifact-validator",
+      "legacyEntrypoints": ["validate-agent"],
+      "repositoryAuthority": "scripts/validate-skills-schema.py --agents-only"
+    },
+    {
+      "id": "validate-plugin",
+      "portableSkill": "artifact-validator",
+      "legacyEntrypoints": ["validate-plugin"]
+    },
+    {
+      "id": "validate-mcp",
+      "portableSkill": "artifact-validator",
+      "legacyEntrypoints": ["validate-mcp"],
+      "repositoryAuthority": "scripts/validate-mcp-config.mjs"
+    },
+    {
+      "id": "validate-hook",
+      "portableSkill": "artifact-validator",
+      "legacyEntrypoints": ["validate-hook"]
+    },
+    {
+      "id": "validate-marketplace",
+      "portableSkill": "artifact-validator",
+      "legacyEntrypoints": ["validate-marketplace"]
+    },
+    {
+      "id": "production-upgrade",
+      "portableSkill": "production-upgrade",
+      "legacyEntrypoints": []
+    }
+  ]
+}

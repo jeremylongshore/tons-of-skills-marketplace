@@ -27,7 +27,12 @@ f7045fb45d69b9f97364cb6052c79fe4261bad181e8de7bd360fe2ae15d863ea  plugins/saas-p
 28663182f51bbfa739771567e951bb2fabe9d6d02680060c200df770a2a4b003  plugins/saas-packs/snowflake-pack/skills/snowflake-query-forensics/eval-spec.yaml
 21ebceeb8b3d2e243aa688df85198fc28b3fbc4c0ca009ca583868e101073535  plugins/saas-packs/snowflake-pack/skills/snowflake-strong-auth-migration-pilot/eval-spec.yaml
 4f53213f21724766085a7a4d701b5e8ffd4f30782f67880c87bac7077c0f2796  plugins/saas-packs/supabase-pack/skills/supabase-known-pitfalls/eval-spec.yaml
+bddc2fb7321bf9e17392dc6d07790b0ae2414616c6e2e025df9e47d4493cbce5  plugins/skill-enhancers/agent-systems-toolkit/skills/artifact-creator/eval-spec.yaml
+41b055cba5e19f3713a2c4885c63db105a628768924ce9b46fd6f4901831972d  plugins/skill-enhancers/agent-systems-toolkit/skills/artifact-validator/eval-spec.yaml
+4ec96e380060eeca8a3e106de6052f61927005482b007af8d090c06ca46ce0a4  plugins/skill-enhancers/agent-systems-toolkit/skills/production-upgrade/eval-spec.yaml
 81eabecbc8b79a87d105d061bd0f3380e6d74648e412fa46f20885a1abf46160  plugins/skill-enhancers/skill-creator/skills/skill-creator/eval-spec.yaml
+bddc2fb7321bf9e17392dc6d07790b0ae2414616c6e2e025df9e47d4493cbce5  skills/.curated/artifact-creator/eval-spec.yaml
+41b055cba5e19f3713a2c4885c63db105a628768924ce9b46fd6f4901831972d  skills/.curated/artifact-validator/eval-spec.yaml
 903555ec7e0e7d80db9f18076b50b8b9184a2f0a2b438859d15c9f8757428220  skills/.curated/audit-tests/eval-spec.yaml
 69f664a9b33c63c9012e95765d8b674a1d368dd6738c12c031bf6e1c2ec378e7  skills/.curated/coreweave-fabric-diagnostics/eval-spec.yaml
 359ac16d9bdcf83524cca2e919e4f1799d1b9ec04e867160e5e813bb6e580fa8  skills/.curated/coreweave-gpu-cost-leak-hunter/eval-spec.yaml
@@ -43,6 +48,7 @@ cfdbcbf984d1d4353bcf89d910e258fd4cbeb57fffca94db7fcc827a128f6fa6  skills/.curate
 2016b189ab62d8c8b464bd2682d2f7d2ec609a0b79ff8da82fd35c966f7833b1  skills/.curated/grammarly-document-evaluator/eval-spec.yaml
 aec1ccbc2020a4a52670a8ee090dbb20c6a2d9b1bcfb6a92ae5fd76d1b74f051  skills/.curated/grammarly-license-governor/eval-spec.yaml
 7312747954bc4618385908f57a7dd08f7b11fa27ca762cb840e00f8fa800161d  skills/.curated/hubspot-warehouse-sync/eval-spec.yaml
+4ec96e380060eeca8a3e106de6052f61927005482b007af8d090c06ca46ce0a4  skills/.curated/production-upgrade/eval-spec.yaml
 d543f74906821a7fa80ba90dc80d3b6ff7fbdc81078ab0a9d75e45e965b3a5d3  skills/.curated/sentry-data-handling/eval-spec.yaml
 81eabecbc8b79a87d105d061bd0f3380e6d74648e412fa46f20885a1abf46160  skills/.curated/skill-creator/eval-spec.yaml
 bcf6cd151df5eabc437ea58a67057fa5e3d24bf8bbcd7b969339f5824bfa00b7  skills/.curated/snowflake-access-guardian/eval-spec.yaml

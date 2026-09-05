@@ -1,0 +1,21 @@
+{
+  "name": "agent-systems-toolkit",
+  "version": "1.0.0",
+  "description": "Model-neutral workflows for creating, validating, and production-upgrading Agent Skills, agents, plugins, MCP integrations, hooks, and marketplaces with Beads-backed evidence and specialist review roles.",
+  "author": {
+    "name": "Jeremy Longshore",
+    "email": "jeremy@intentsolutions.io"
+  },
+  "repository": "https://github.com/jeremylongshore/tons-of-skills-marketplace",
+  "license": "MIT",
+  "keywords": [
+    "agent-skills",
+    "skill-creation",
+    "plugin-development",
+    "agents",
+    "mcp",
+    "validation",
+    "production-upgrade",
+    "beads"
+  ]
+}

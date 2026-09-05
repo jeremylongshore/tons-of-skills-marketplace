@@ -22,13 +22,13 @@
       "error_files": 719,
       "error_total": 3702,
       "grade_distribution": {
-        "A": 1881,
+        "A": 1884,
         "B": 1076,
         "C": 409,
         "D": 157,
         "F": 5
       },
-      "rows": 3528
+      "rows": 3531
     }
   },
   "rows": {
@@ -40,9 +40,9 @@
       "status": "measured",
       "target_status": "informational",
       "values": {
-        "plugin_agent_files": 347,
-        "raw_tracked_plugin_skill_files": 3028,
-        "tracked_files": 23883
+        "plugin_agent_files": 352,
+        "raw_tracked_plugin_skill_files": 3031,
+        "tracked_files": 23947
       }
     },
     "2": {
@@ -53,9 +53,9 @@
       "status": "measured",
       "target_status": "pass",
       "values": {
-        "distinct_names": 442,
+        "distinct_names": 443,
         "duplicate_names": [],
-        "entries": 442
+        "entries": 443
       }
     },
     "3": {
@@ -80,28 +80,28 @@
       "values": {
         "agent_lane": {
           "error_total_all_validated_surfaces": 236,
-          "fully_compliant_surfaces": 769,
+          "fully_compliant_surfaces": 775,
           "terminal_denominator": {
-            "agents": 358,
-            "files": 951,
+            "agents": 363,
+            "files": 957,
             "label": "agents_plus_plugin_manifests",
-            "plugin_manifests": 593
+            "plugin_manifests": 594
           },
-          "validator_reported_mixed_denominator_percent": 80.9
+          "validator_reported_mixed_denominator_percent": 81
         },
         "marketplace_terminal": {
           "error_total_all_validated_surfaces": 3939,
-          "fully_compliant_surfaces": 1147,
+          "fully_compliant_surfaces": 1153,
           "terminal_denominator": {
-            "agents": 358,
+            "agents": 363,
             "commands": 373,
-            "files": 4852,
+            "files": 4861,
             "label": "skills_plus_commands_plus_agents_plus_plugin_manifests",
-            "plugin_manifests": 593,
-            "skills": 3528
+            "plugin_manifests": 594,
+            "skills": 3531
           },
-          "validated_plugin_manifests": 601,
-          "validator_reported_mixed_denominator_percent": 23.6
+          "validated_plugin_manifests": 602,
+          "validator_reported_mixed_denominator_percent": 23.7
         },
         "skill_rows": {
           "a_error_total": 35,
@@ -112,13 +112,13 @@
           "error_files": 719,
           "error_total": 3702,
           "grade_distribution": {
-            "A": 1881,
+            "A": 1884,
             "B": 1076,
             "C": 409,
             "D": 157,
             "F": 5
           },
-          "rows": 3528
+          "rows": 3531
         }
       }
     },
@@ -131,20 +131,20 @@
       "values": {
         "average_score": 87.5,
         "grade_distribution": {
-          "A": 1881,
+          "A": 1884,
           "B": 1076,
           "C": 409,
           "D": 157,
           "F": 5
         },
         "grade_percentages": {
-          "A": 53.3,
+          "A": 53.4,
           "B": 30.5,
           "C": 11.6,
-          "D": 4.5,
+          "D": 4.4,
           "F": 0.1
         },
-        "rows": 3528
+        "rows": 3531
       }
     },
     "6": {
@@ -161,7 +161,7 @@
         "b_error_total": 568,
         "b_failing": 276,
         "certified_target": 0,
-        "skill_summary_rows": 3528
+        "skill_summary_rows": 3531
       }
     },
     "7": {
@@ -211,8 +211,8 @@
       "status": "partial",
       "values": {
         "agent_errors": 236,
-        "agent_files": 358,
-        "reported_compliance_percent": 80.9,
+        "agent_files": 363,
+        "reported_compliance_percent": 81,
         "target_errors": 0,
         "target_percent_max": 100
       }
@@ -270,12 +270,12 @@
       ],
       "status": "partial",
       "values": {
-        "declared": 3517,
+        "declared": 3520,
         "folded_scalar": 5,
         "malformed_frontmatter": 0,
         "malformed_shape": 0,
         "missing": 11,
-        "rows": 3528,
+        "rows": 3531,
         "target_malformed": 0
       }
     },
@@ -286,13 +286,25 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "distinct_values": 57,
+        "distinct_values": 60,
         "invalid_or_empty": 0,
         "target_free_text_values": 0,
         "values": [
           {
+            "count": 1,
+            "value": "Agent Skills-compatible hosts; host-specific artifacts require their native specification"
+          },
+          {
             "count": 5,
             "value": "Agent Skills-compatible hosts; requires Python 3.10+"
+          },
+          {
+            "count": 1,
+            "value": "Agent Skills-compatible hosts; subagents and Beads are capability-detected with fail-closed fallback"
+          },
+          {
+            "count": 1,
+            "value": "Agent Skills-compatible hosts; validation depth depends on available authoritative tooling"
           },
           {
             "count": 1,
@@ -1200,7 +1212,7 @@
         "answers": [
           {
             "cohort": "curated-mirror",
-            "value": 2389
+            "value": 2392
           },
           {
             "cohort": "curriculum",
@@ -1208,15 +1220,15 @@
           },
           {
             "cohort": "first-party",
-            "value": 2684
+            "value": 2687
           },
           {
             "cohort": "graded",
-            "value": 3528
+            "value": 3531
           },
           {
             "cohort": "marketplace-visible",
-            "value": 2937
+            "value": 2940
           }
         ],
         "distinct_numeric_answers": 5,
@@ -1931,7 +1943,7 @@
         "invalid_patterns": 0,
         "invisible_files": 23,
         "target_invisible_files": 0,
-        "tracked_files": 23883
+        "tracked_files": 23947
       }
     },
     "47": {
@@ -2016,17 +2028,17 @@
       "dimension": "Inventory header versus rows",
       "reproduce": "pnpm run measure:e1 --row=52 --stdout",
       "source": [
-        "freshie/reports/run-delta-36.json",
+        "freshie/reports/run-delta-37.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],
       "status": "target_met",
       "values": {
-        "dolt_commit": "lai3jk8kp7s640pnveraek6mtdsfku7j",
-        "header_total_skills": 2951,
-        "run_id": 36,
+        "dolt_commit": "5rm2klp5v6ve26iosb3gh7p8vd1s1b4n",
+        "header_total_skills": 2953,
+        "run_id": 37,
         "skill_row_delta": 0,
-        "skill_rows": 2951,
+        "skill_rows": 2953,
         "target_skill_row_delta": 0
       }
     },
@@ -2037,32 +2049,32 @@
       "source": [
         "freshie/grade-histogram.json",
         "freshie/grades.csv",
-        "freshie/reports/run-delta-36.json"
+        "freshie/reports/run-delta-37.json"
       ],
       "status": "target_met",
       "values": {
-        "compliance_rows": 3528,
-        "export_dolt_commit": "lai3jk8kp7s640pnveraek6mtdsfku7j",
-        "export_run_id": 36,
-        "grades_csv_rows": 3528,
-        "grades_csv_sha256": "e3a13f38190c5414bc69916e41db00e058aba024557858599241c25cea7e4399",
+        "compliance_rows": 3531,
+        "export_dolt_commit": "5rm2klp5v6ve26iosb3gh7p8vd1s1b4n",
+        "export_run_id": 37,
+        "grades_csv_rows": 3531,
+        "grades_csv_sha256": "25405a1c192609d289986f78c8b493fd4f05d6383001b365875625a8ef0f97ae",
         "histogram_grades": {
-          "A": 1881,
+          "A": 1884,
           "B": 1076,
           "C": 409,
           "D": 157,
           "F": 5
         },
-        "histogram_total": 3528,
+        "histogram_total": 3531,
         "immutable_grade_counts": {
-          "A": 1881,
+          "A": 1884,
           "B": 1076,
           "C": 409,
           "D": 157,
           "F": 5
         },
-        "inventory_dolt_commit": "lai3jk8kp7s640pnveraek6mtdsfku7j",
-        "inventory_run_id": 36,
+        "inventory_dolt_commit": "5rm2klp5v6ve26iosb3gh7p8vd1s1b4n",
+        "inventory_run_id": 37,
         "target_lag_runs": 0
       }
     },
@@ -2073,7 +2085,7 @@
       "source": [
         "freshie/reports/legacy-forge-proofs-demotion.json",
         "freshie/reports/run-delta-19.json",
-        "freshie/reports/run-delta-36.json",
+        "freshie/reports/run-delta-37.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py",
         "scripts/record-jrig-proofs.mjs"
@@ -2086,7 +2098,7 @@
           "E2": 0,
           "E3": 0
         },
-        "current_run_id": 36,
+        "current_run_id": 37,
         "invalid_identities": 0,
         "legacy_e0_records": 3,
         "retained_e2_e3": 0,
@@ -2111,7 +2123,7 @@
         "000-docs/807-DR-STND-evaluation-evidence.md",
         "freshie/reports/legacy-forge-proofs-demotion.json",
         "freshie/reports/run-delta-19.json",
-        "freshie/reports/run-delta-36.json",
+        "freshie/reports/run-delta-37.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],
@@ -2175,7 +2187,12 @@
         "plugins/saas-packs/snowflake-pack/skills/snowflake-query-forensics/eval-spec.yaml",
         "plugins/saas-packs/snowflake-pack/skills/snowflake-strong-auth-migration-pilot/eval-spec.yaml",
         "plugins/saas-packs/supabase-pack/skills/supabase-known-pitfalls/eval-spec.yaml",
+        "plugins/skill-enhancers/agent-systems-toolkit/skills/artifact-creator/eval-spec.yaml",
+        "plugins/skill-enhancers/agent-systems-toolkit/skills/artifact-validator/eval-spec.yaml",
+        "plugins/skill-enhancers/agent-systems-toolkit/skills/production-upgrade/eval-spec.yaml",
         "plugins/skill-enhancers/skill-creator/skills/skill-creator/eval-spec.yaml",
+        "skills/.curated/artifact-creator/eval-spec.yaml",
+        "skills/.curated/artifact-validator/eval-spec.yaml",
         "skills/.curated/audit-tests/eval-spec.yaml",
         "skills/.curated/coreweave-fabric-diagnostics/eval-spec.yaml",
         "skills/.curated/coreweave-gpu-cost-leak-hunter/eval-spec.yaml",
@@ -2191,6 +2208,7 @@
         "skills/.curated/grammarly-document-evaluator/eval-spec.yaml",
         "skills/.curated/grammarly-license-governor/eval-spec.yaml",
         "skills/.curated/hubspot-warehouse-sync/eval-spec.yaml",
+        "skills/.curated/production-upgrade/eval-spec.yaml",
         "skills/.curated/sentry-data-handling/eval-spec.yaml",
         "skills/.curated/skill-creator/eval-spec.yaml",
         "skills/.curated/snowflake-access-guardian/eval-spec.yaml",
@@ -2208,11 +2226,11 @@
       ],
       "status": "measured",
       "values": {
-        "adoption_percent": 0.96,
-        "curated_copies": 29,
-        "plugin_skill_rows": 3028,
-        "source_eval_specs": 29,
-        "tracked_eval_specs": 58
+        "adoption_percent": 1.06,
+        "curated_copies": 32,
+        "plugin_skill_rows": 3031,
+        "source_eval_specs": 32,
+        "tracked_eval_specs": 64
       }
     },
     "58": {

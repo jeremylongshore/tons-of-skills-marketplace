@@ -2986,6 +2986,9 @@ plugins/security/sql-injection-detector/skills/detecting-sql-injection-vulnerabi
 plugins/security/ssl-certificate-manager/skills/managing-ssltls-certificates,A,98
 plugins/security/vulnerability-scanner/skills/scanning-for-vulnerabilities,A,96
 plugins/security/xss-vulnerability-scanner/skills/scanning-for-xss-vulnerabilities,A,97
+plugins/skill-enhancers/agent-systems-toolkit/skills/artifact-creator,A,99
+plugins/skill-enhancers/agent-systems-toolkit/skills/artifact-validator,A,98
+plugins/skill-enhancers/agent-systems-toolkit/skills/production-upgrade,A,92
 plugins/skill-enhancers/calendar-to-workflow/skills/calendar-to-workflow,A,94
 plugins/skill-enhancers/file-to-code/skills/file-to-code,A,93
 plugins/skill-enhancers/research-to-deploy/skills/research-to-deploy,B,89

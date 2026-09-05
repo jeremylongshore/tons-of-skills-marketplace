@@ -1,0 +1,30 @@
+{
+  "name": "@intentsolutionsio/agent-systems-toolkit",
+  "version": "1.0.0",
+  "description": "Model-neutral creator, validator, and production-upgrade workflows for agent systems",
+  "keywords": [
+    "agent-skills",
+    "agents",
+    "plugins",
+    "mcp",
+    "validation",
+    "production-readiness"
+  ],
+  "author": "Jeremy Longshore <jeremy@intentsolutions.io>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
+    "directory": "plugins/skill-enhancers/agent-systems-toolkit"
+  },
+  "homepage": "https://tonsofskills.com",
+  "files": [
+    ".claude-plugin/",
+    "000-docs/",
+    "agents/",
+    "skills/",
+    "capability-map.json",
+    "LICENSE",
+    "README.md"
+  ]
+}

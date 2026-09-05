@@ -3219,6 +3219,30 @@
       "fallback_for_tools": []
     },
     {
+      "slug": "artifact-creator",
+      "name": "artifact-creator",
+      "description": "Create or revise Agent Skills, host plugins and subagents, MCP servers and client configurations, hooks, and marketplace catalogs against their actual specifications. Use when building reusable agent capabilities or consolidating creator tooling without inventing a universal host format. Trigger with \"create an agent skill\", \"build a plugin\", \"create an MCP server\", \"add a subagent\", or \"scaffold an agent integration\".",
+      "version": "1.0.0",
+      "category": "skill-enhancers",
+      "parentPlugin": "agent-systems-toolkit",
+      "requires_env": [],
+      "requires_tools": [],
+      "fallback_for_env": [],
+      "fallback_for_tools": []
+    },
+    {
+      "slug": "artifact-validator",
+      "name": "artifact-validator",
+      "description": "Discover and validate Agent Skills, host plugins and subagents, MCP servers and configurations, hooks, and marketplace catalogs against the correct authority. Use when performing pre-merge review, external submission checks, portability audits, security checks, or validation of mixed agent-system repositories. Trigger with \"validate this skill\", \"audit this plugin\", \"check this agent\", \"review this MCP config\", or \"is this marketplace ready\".",
+      "version": "1.0.0",
+      "category": "skill-enhancers",
+      "parentPlugin": "agent-systems-toolkit",
+      "requires_env": [],
+      "requires_tools": [],
+      "fallback_for_env": [],
+      "fallback_for_tools": []
+    },
+    {
       "slug": "assemblyai-ci-integration",
       "name": "assemblyai-ci-integration",
       "description": "Configure AssemblyAI CI/CD integration with GitHub Actions and testing. Use when setting up automated testing, configuring CI pipelines, or integrating AssemblyAI transcription tests into your build process. Trigger with phrases like \"assemblyai CI\", \"assemblyai GitHub Actions\", \"assemblyai automated tests\", \"CI assemblyai\".",
@@ -26871,6 +26895,18 @@
       "fallback_for_tools": []
     },
     {
+      "slug": "production-upgrade",
+      "name": "production-upgrade",
+      "description": "Upgrade an existing skill, plugin, agent, MCP integration, or agent-system package to a security-first production standard using pain research, architecture decisions, migration planning, deterministic implementation, adversarial tests, independent review, and revision-bound evidence. Use when modernizing a legacy capability or asking for Databricks-level diligence. Trigger with \"production upgrade\", \"modernize this skill\", \"bring this pack to production quality\", or \"audit and rebuild this plugin\".",
+      "version": "1.0.0",
+      "category": "skill-enhancers",
+      "parentPlugin": "agent-systems-toolkit",
+      "requires_env": [],
+      "requires_tools": [],
+      "fallback_for_env": [],
+      "fallback_for_tools": []
+    },
+    {
       "slug": "profiling-application-performance",
       "name": "profiling-application-performance",
       "description": "Execute this skill enables AI assistant to profile application performance, analyzing cpu usage, memory consumption, and execution time. it is triggered when the user requests performance analysis, bottleneck identification, or optimization recommendations. the... Use when optimizing performance. Trigger with phrases like 'optimize', 'performance', or 'speed up'.",
@@ -35247,8 +35283,8 @@
       "fallback_for_tools": []
     }
   ],
-  "count": 2937,
-  "generatedAt": "2026-09-05T06:36:51.393Z",
+  "count": 2940,
+  "generatedAt": "2026-09-05T21:34:35.617Z",
   "categories": [
     "ai-agency",
     "ai-ml",
