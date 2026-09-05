@@ -9746,6 +9746,27 @@
         "skills": 32,
         "total": 32
       }
+    },
+    {
+      "name": "postwire",
+      "source": "./plugins/business-tools/postwire",
+      "description": "Publish and schedule to TikTok, Instagram, YouTube, LinkedIn, X, Bluesky, Mastodon, Facebook, Threads, Reddit, Telegram and Discord from your agent - writing a separate native post for each network instead of the same text everywhere, and refusing posts that would fail before they are queued.",
+      "version": "1.0.0",
+      "category": "business-tools",
+      "keywords": [
+        "social-media",
+        "tiktok",
+        "instagram",
+        "scheduling",
+        "mcp"
+      ],
+      "author": {
+        "name": "PostWire",
+        "url": "https://postwire.io"
+      },
+      "homepage": "https://postwire.io",
+      "repository": "https://github.com/Perufitlife/postwire-skills",
+      "license": "MIT"
     }
   ]
 }

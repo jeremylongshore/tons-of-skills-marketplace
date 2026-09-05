@@ -1,0 +1,21 @@
+{
+  "name": "postwire",
+  "version": "1.0.0",
+  "description": "Publish and schedule to TikTok, Instagram, YouTube, LinkedIn, X, Bluesky, Mastodon, Facebook, Threads, Reddit, Telegram and Discord from your agent \u2014 writing a separate native post for each network instead of the same text everywhere, and refusing posts that would fail before they are queued.",
+  "author": {
+    "name": "PostWire",
+    "url": "https://postwire.io"
+  },
+  "homepage": "https://postwire.io",
+  "license": "MIT",
+  "keywords": [
+    "social-media",
+    "tiktok",
+    "instagram",
+    "scheduling",
+    "mcp"
+  ],
+  "skills": [
+    "./skills/postwire"
+  ]
+}
