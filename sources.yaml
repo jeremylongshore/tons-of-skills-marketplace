@@ -1239,6 +1239,28 @@ sources:
       - '**/node_modules/**'
       - '**/*.log'
 
+  # ============================================================
+  # KI SOP Pack (Keith Infinity)
+  # https://github.com/jalano0i9u8y7-lab/ki-sop-pack
+  # ============================================================
+
+  - name: ki-sop-pack-situation-router
+    description: Situation router — decide implement-directly vs. stress-test-first vs. spec-first before touching a request. Free module of KI SOP Pack v1 (adapted from mattpocock/skills ask-matt, MIT).
+    repo: jalano0i9u8y7-lab/ki-sop-pack
+    source_path: skills/situation-router
+    target_path: plugins/skill-enhancers/ki-sop-pack-situation-router
+    author:
+      name: Keith Infinity
+      github: jalano0i9u8y7-lab
+    license: MIT
+    category: skill-enhancers
+    verified: false
+    include:
+      - 'SKILL.md'
+    exclude:
+      - 'node_modules/**'
+      - '.git/**'
+
 # Sync configuration
 config:
   # Branch to sync from (default: main)
