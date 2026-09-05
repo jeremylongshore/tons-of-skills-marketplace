@@ -1239,6 +1239,38 @@ sources:
       - '**/node_modules/**'
       - '**/*.log'
 
+  # ============================================================
+  # free-vision-skill (niyongsheng)
+  # https://github.com/niyongsheng/free-vision-skill
+  # ============================================================
+
+  - name: free-vision-skill
+    description: Fully-local OCR and image understanding for vision-less models via macOS Vision (text, tables, image description, QR decode)
+    repo: niyongsheng/free-vision-skill
+    source_path: .
+    target_path: plugins/community/free-vision-skill
+    author:
+      name: Nico (niyongsheng)
+      github: niyongsheng
+    license: MIT
+    category: utilities
+    verified: false
+    keywords:
+      - ocr
+      - vision
+      - macos
+      - offline
+      - local
+    include:
+      - '/SKILL.md'
+      - '/scripts/**'
+      - '/examples/**'
+      - '/README.md'
+      - '/LICENSE'
+    exclude:
+      - '/.git/**'
+      - '**/*.log'
+
 # Sync configuration
 config:
   # Branch to sync from (default: main)
