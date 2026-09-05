@@ -29,13 +29,17 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import prettier from 'prettier';
 import { resolveCorpus } from './corpus-resolver.mjs';
 
 const require = createRequire(import.meta.url);
 const { publishedPlugins } = require('./publication-policy.cjs');
 
-const ROOT = resolve(dirname(new URL(import.meta.url).pathname), '..');
+// See the note in generate-plugin-package-jsons.mjs: `URL.pathname` resolves to
+// `C:\C:\repo` on Windows, which is what made this script the loud half of
+// issue #1436. `fileURLToPath` answers correctly on every platform.
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const EXTENDED = join(ROOT, '.claude-plugin', 'marketplace.extended.json');
 const README = join(ROOT, 'README.md');
 

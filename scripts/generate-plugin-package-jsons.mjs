@@ -17,9 +17,14 @@
 
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const ROOT = resolve(dirname(new URL(import.meta.url).pathname), '..');
+// `URL.pathname` is platform-independent and keeps a leading slash before a
+// Windows drive letter, so `/C:/repo/scripts/x.mjs` makes `resolve()` read the
+// path as drive-relative and prepend the current drive -- ROOT becomes
+// `C:\C:\repo`. `fileURLToPath` answers correctly on every platform.
+// See issue #1436.
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PLUGINS_DIR = join(ROOT, 'plugins');
 // Must be the canonical repo slug (not the legacy `/claude-code-plugins`
 // redirect). npm provenance rejects the publish if this doesn't match the
@@ -236,12 +241,54 @@ async function collisionCheck(names, { concurrency = 10 } = {}) {
   return hits;
 }
 
+/**
+ * Refuse to report success on an empty discovery.
+ *
+ * This script's failure mode is silence: `walkPluginDirs` swallows a
+ * `readdirSync` error and returns `[]`, so a ROOT pointing at nothing globs
+ * nothing, prints `Wrote 0 package.json files.` and exits 0. That is what made
+ * issue #1436's first half invisible -- the doubled-drive-letter ROOT produced
+ * `Plugins with package.json already: 0` on a tree holding 440, and only the
+ * TOC generator further down the `sync-marketplace` chain failed loudly.
+ *
+ * A run that discovers no plugins in this repository has not done its job, so
+ * it exits non-zero rather than letting a green step stand for a completed one.
+ * The message names the resolved ROOT, because when this fires the resolved
+ * path is the whole diagnosis.
+ */
+function assertDiscoveryNonEmpty(pluginDirs) {
+  if (!existsSync(PLUGINS_DIR)) {
+    console.error(
+      `No plugins directory at ${PLUGINS_DIR}.
+` +
+        `Resolved ROOT: ${ROOT}
+` +
+        'A doubled drive letter here means ROOT was derived from URL.pathname; ' +
+        'see issue #1436.',
+    );
+    process.exit(1);
+  }
+  if (pluginDirs.length === 0) {
+    console.error(
+      `Discovered 0 plugins under ${PLUGINS_DIR}.
+` +
+        `Resolved ROOT: ${ROOT}
+` +
+        'Refusing to report success on an empty discovery: this repository has ' +
+        'plugins, so zero means the walk looked in the wrong place or could not ' +
+        'read it.',
+    );
+    process.exit(1);
+  }
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run') || args.includes('--probe');
   const probe = args.includes('--probe');
 
   const pluginDirs = walkPluginDirs(PLUGINS_DIR);
+  assertDiscoveryNonEmpty(pluginDirs);
   const needsScaffold = [];
   const skipped = [];
   const existing = [];

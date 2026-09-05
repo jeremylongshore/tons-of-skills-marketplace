@@ -263,6 +263,7 @@ jobs:
           python3 -m unittest tests.test_cluster_forensics -v
           python3 -m unittest tests.test_marketplace_compliance_baseline -v
           python3 -m unittest tests.test_marketplace_compliance_ratchet -v
+          python3 -m unittest tests.test_sync_marketplace_root_resolution -v
 
       # Reject PRs that reformat .claude-plugin/marketplace.extended.json beyond
       # the line budget implied by added/modified entries. Prevents prettier or
