@@ -1543,6 +1543,20 @@
         "references/webhooks.md": "sha256:438da7371c6c607d6f2f777113a2f8e40e70f4e3e15ad48e6058d0af1c907f27",
         "references/workflows.md": "sha256:13b7fdbe8b5e070d8bb36cee770284cdf1e0ae1510fa539d8f6b662f6c989cb5"
       }
+    },
+    "hol-guard": {
+      "repo": "hashgraph-online/hol-guard-plugin",
+      "resolved_ref": "c25dc5bb1465b242c1a26f1b732d3de6dc8179be",
+      "locked_at": "2026-08-24T17:08:48.762Z",
+      "files": {
+        ".claude-plugin/marketplace.json": "sha256:76f214e49767be51db3790c8cdf4981f90d286c42f565c8c5396b7b744351234",
+        ".claude-plugin/plugin.json": "sha256:8c0071708347eedcd768c93193e1b8047edb7e8d55fb9fb9682b6c5eb5e059bb",
+        "LICENSE": "sha256:c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+        "README.md": "sha256:f52610bd005d67a2a92481d030c8e2d312f0ff830059fca87c538e990221c92b",
+        "commands/protect.md": "sha256:454a5ea8088678ac577fb7a94c5cdb7847fc2096584472d5067b83fec989ed21",
+        "commands/scan.md": "sha256:56d5f1e7a373cf64656888cb9b8120c5df1760d89201e66d05db3c973a9f3ffd",
+        "skills/plugin-scanner/SKILL.md": "sha256:dc76f6bb5733d6e09ae796fae0fe9ea6a4021131ba869e8def6e35fb741cbae0"
+      }
     }
   }
 }
