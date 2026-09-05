@@ -42,7 +42,7 @@
       "values": {
         "plugin_agent_files": 347,
         "raw_tracked_plugin_skill_files": 3028,
-        "tracked_files": 23883
+        "tracked_files": 23884
       }
     },
     "2": {
@@ -1664,6 +1664,9 @@
     "38": {
       "cohort": "exact root pins, retained npm registry observation, and coupling workflow",
       "dimension": "Kernel, eval CLI, and harness pins",
+      "limitations": [
+        "retained package-registry observation in 000-docs/810-RA-DATA-epic-9-boundary-evidence.json does not match the exact root pins (@intentsolutions/audit-harness: observed 1.3.1, pinned 1.4.0); capture a new versioned boundary observation without rewriting retained evidence"
+      ],
       "reproduce": "pnpm run measure:e1 --row=38 --stdout",
       "source": [
         ".github/workflows/kernel-vendor-hash.yml",
@@ -1671,14 +1674,14 @@
         "package.json",
         "pnpm-lock.yaml"
       ],
-      "status": "target_met",
+      "status": "partial",
       "values": {
         "one_resolved_core_version": true,
         "ordering_test_blocking": true,
         "pins": {
           "@intentsolutions/audit-harness": {
             "exact": true,
-            "version": "1.3.1"
+            "version": "1.4.0"
           },
           "@intentsolutions/core": {
             "exact": true,
@@ -1694,9 +1697,9 @@
           "@intentsolutions/core": "0.10.0",
           "@intentsolutions/jrig-cli": "0.2.0"
         },
-        "registry_matches_pins": true,
+        "registry_matches_pins": false,
         "staleness_alert_routed": true,
-        "target_met": true
+        "target_met": false
       }
     },
     "39": {
@@ -1931,7 +1934,7 @@
         "invalid_patterns": 0,
         "invisible_files": 23,
         "target_invisible_files": 0,
-        "tracked_files": 23883
+        "tracked_files": 23884
       }
     },
     "47": {

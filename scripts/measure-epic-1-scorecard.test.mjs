@@ -496,6 +496,9 @@ test('Epic 9 pin and shadow rows require retained matching boundary evidence', (
   rows = buildExtendedScorecardRows(input(base));
   assert.equal(rows[38].status, 'partial');
   assert.equal(rows[38].values.target_met, false);
+  assert.deepEqual(rows[38].limitations, [
+    'retained package-registry observation in 000-docs/810-RA-DATA-epic-9-boundary-evidence.json does not match the exact root pins (@intentsolutions/core: observed 2.0.0, pinned 1.0.0); capture a new versioned boundary observation without rewriting retained evidence',
+  ]);
   assert.equal(rows[39].status, 'stale_evidence');
 });
 

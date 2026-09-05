@@ -1757,6 +1757,29 @@ export function buildExtendedScorecardRows({
       pins['@intentsolutions/core'].version;
   const pinsAtTarget =
     registryMatchesPins && orderingTestBlocking && stalenessAlertRouted && singleResolvedCore;
+  const pinLimitations = [];
+  if (!registryMatchesPins) {
+    const mismatches = pinNames
+      .filter((name) => registryPackages?.[name]?.version !== pins[name]?.version)
+      .map(
+        (name) =>
+          `${name}: observed ${registryPackages?.[name]?.version ?? 'missing'}, pinned ${pins[name]?.version ?? 'missing'}`,
+      );
+    pinLimitations.push(
+      `retained package-registry observation in ${epic9EvidencePath} does not match the exact root pins (${mismatches.join(', ')}); capture a new versioned boundary observation without rewriting retained evidence`,
+    );
+  }
+  if (!singleResolvedCore) {
+    pinLimitations.push(
+      'the retained package graph does not resolve exactly one pinned core version',
+    );
+  }
+  if (!orderingTestBlocking) {
+    pinLimitations.push('the package version-ordering test corpus is not blocking');
+  }
+  if (!stalenessAlertRouted) {
+    pinLimitations.push('the package-coupling staleness alert is not routed');
+  }
   output[38] = epic9Evidence
     ? baseRow(
         38,
@@ -1782,9 +1805,7 @@ export function buildExtendedScorecardRows({
         pinsAtTarget
           ? {}
           : {
-              limitations: [
-                'target requires exact pins matching the retained registry observation, one resolved kernel version, a blocking ordering-test corpus, and a routed staleness alert',
-              ],
+              limitations: pinLimitations,
             },
       )
     : baseRow(38, 'not_reproducible', 'kernel, eval CLI, and harness pins', [], null, {
