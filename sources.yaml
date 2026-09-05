@@ -1239,6 +1239,28 @@ sources:
       - '**/node_modules/**'
       - '**/*.log'
 
+  - name: swift-ship
+    description: Five Agent Skills for shipping Swift/macOS apps — .icns icons, .app/DMG packaging, CI portability traps, OSS readiness audit, release flow
+    repo: chsistrying/swift-ship-skills
+    source_path: .
+    target_path: plugins/community/swift-ship
+    author:
+      name: chsistrying
+      github: chsistrying
+      email: h431523595@gmail.com
+    license: MIT
+    category: community
+    verified: false
+    include:
+      - '/.claude-plugin/**'
+      - '/skills/**'
+      - '/README.md'
+      - '/LICENSE'
+    exclude:
+      - 'node_modules/**'
+      - '.git/**'
+      - '*.log'
+
 # Sync configuration
 config:
   # Branch to sync from (default: main)
