@@ -189,10 +189,43 @@ function referencesRegistrationBinding(node) {
   return found;
 }
 
+function isStringArgument(argument) {
+  return ts.isStringLiteralLike(argument);
+}
+
+function hasSafeRegistrationArguments(entry) {
+  const args = [...entry.call.arguments];
+  switch (entry.method) {
+    case 'name':
+    case 'command':
+    case 'description':
+      return args.length === 1 && args.every(isStringArgument);
+    case 'option':
+    case 'requiredOption':
+      return args.length >= 2 && args.length <= 3 && args.every(isStringArgument);
+    case 'version':
+      return (
+        args.length === 1 &&
+        ts.isCallExpression(args[0]) &&
+        ts.isIdentifier(args[0].expression) &&
+        args[0].expression.text === 'getVersion' &&
+        args[0].arguments.length === 0
+      );
+    case 'action':
+      return args.length === 1 && (ts.isArrowFunction(args[0]) || ts.isFunctionExpression(args[0]));
+    default:
+      return false;
+  }
+}
+
 function safeFluentCalls(expression, receiver) {
   const calls = fluentCalls(expression, receiver);
   if (!calls) return null;
-  return calls.some((entry) => entry.call.arguments.some(referencesRegistrationBinding))
+  return calls.some(
+    (entry) =>
+      entry.call.arguments.some(referencesRegistrationBinding) ||
+      !hasSafeRegistrationArguments(entry),
+  )
     ? null
     : calls;
 }

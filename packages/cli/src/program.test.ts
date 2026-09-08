@@ -8,12 +8,27 @@ describe('ccpi CLI program', () => {
     const skills = program.commands.find((cmd) => cmd.name() === 'skills');
 
     expect(program.name()).toBe('ccpi');
-    expect(commandNames.filter((name) => name === 'skills')).toHaveLength(1);
+    expect(commandNames).toEqual([
+      'skills',
+      'install',
+      'upgrade',
+      'list',
+      'doctor',
+      'search',
+      'validate',
+      'analytics',
+      'marketplace',
+      'marketplace-add',
+      'marketplace-remove',
+    ]);
     expect(skills?.commands.map((cmd) => cmd.name())).toEqual([
       'list-harnesses',
       'doctor',
       'install',
     ]);
+    for (const command of skills?.commands ?? []) {
+      expect(command).toHaveProperty('_actionHandler', expect.any(Function));
+    }
     expect(commandNames).toContain('install');
     expect(commandNames).toContain('upgrade');
     expect(commandNames).toContain('list');

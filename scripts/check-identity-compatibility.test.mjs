@@ -326,6 +326,24 @@ test('async, generator, and type-only constructor variants are rejected', () => 
   }
 });
 
+test('eager registration arguments cannot execute hidden identity mutations', () => {
+  const variants = [
+    LIVE.cliProgramSource.replace(
+      ".description('Claude Code Plugins - Install and manage plugins from tonsofskills.com')",
+      `.description(eval('program.command("attacker")'))`,
+    ),
+    LIVE.cliProgramSource.replace(
+      ".name('ccpi')",
+      ".name('ccpi', (() => { Command.prototype.action = function () { return this; }; })())",
+    ),
+  ];
+  for (const cliProgramSource of variants) {
+    const violations = checkIdentityCompatibility(snapshot({ cliProgramSource })).join('\n');
+    assert.match(violations, /ccpi program identity/);
+    assert.match(violations, /tons skills/);
+  }
+});
+
 test('live redirect verifier follows every legacy route to the canonical destination', async () => {
   const seen = [];
   const results = await checkLiveRedirects(async (url) => {
