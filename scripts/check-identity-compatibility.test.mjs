@@ -223,6 +223,68 @@ test('registration bindings cannot be mutated through eagerly evaluated call arg
   assert.match(violations, /tons skills/);
 });
 
+test('the checked buildProgram must be the direct named export used by the CLI', () => {
+  const aliasedExport = snapshot({
+    cliProgramSource: [
+      "import { Command } from 'commander';",
+      'function buildProgram() {',
+      '  const program = new Command();',
+      "  program.name('ccpi');",
+      "  const skills = program.command('skills');",
+      '  return program;',
+      '}',
+      'function evil() { return new Command(); }',
+      'export { evil as buildProgram };',
+    ].join('\n'),
+  });
+  const violations = checkIdentityCompatibility(aliasedExport).join('\n');
+  assert.match(violations, /ccpi program identity/);
+  assert.match(violations, /tons skills/);
+});
+
+test('module-scope code cannot replace the checked buildProgram export', () => {
+  const reassignedExport = snapshot({
+    cliProgramSource: `${LIVE.cliProgramSource}\nbuildProgram = () => new Command();\n`,
+  });
+  const violations = checkIdentityCompatibility(reassignedExport).join('\n');
+  assert.match(violations, /ccpi program identity/);
+  assert.match(violations, /tons skills/);
+});
+
+test('the Commander import cannot be shadowed inside buildProgram', () => {
+  const shadowedConstructor = snapshot({
+    cliProgramSource: [
+      "import { Command } from 'commander';",
+      'export function buildProgram(Command = class FakeCommand {}) {',
+      '  const program = new Command();',
+      "  program.name('ccpi');",
+      "  const skills = program.command('skills');",
+      '  return program;',
+      '}',
+    ].join('\n'),
+  });
+  const violations = checkIdentityCompatibility(shadowedConstructor).join('\n');
+  assert.match(violations, /ccpi program identity/);
+  assert.match(violations, /tons skills/);
+});
+
+test('registration bindings must be declared before they are used', () => {
+  const forwardUse = snapshot({
+    cliProgramSource: [
+      "import { Command } from 'commander';",
+      'export function buildProgram() {',
+      "  const skills = program.command('skills');",
+      '  const program = new Command();',
+      "  program.name('ccpi');",
+      '  return program;',
+      '}',
+    ].join('\n'),
+  });
+  const violations = checkIdentityCompatibility(forwardUse).join('\n');
+  assert.match(violations, /ccpi program identity/);
+  assert.match(violations, /tons skills/);
+});
+
 test('live redirect verifier follows every legacy route to the canonical destination', async () => {
   const seen = [];
   const results = await checkLiveRedirects(async (url) => {

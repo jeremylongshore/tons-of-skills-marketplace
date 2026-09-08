@@ -106,13 +106,58 @@ function buildProgramFunction(source) {
     ts.ScriptKind.TS,
   );
   if (sourceFile.parseDiagnostics.length > 0) return null;
+  const commandImports = sourceFile.statements.flatMap((statement) => {
+    if (!ts.isImportDeclaration(statement) || !statement.importClause) return [];
+    const sourceName = ts.isStringLiteral(statement.moduleSpecifier)
+      ? statement.moduleSpecifier.text
+      : null;
+    const bindings = [];
+    if (statement.importClause.name?.text === 'Command') {
+      bindings.push({ sourceName, importedName: 'default' });
+    }
+    const namedBindings = statement.importClause.namedBindings;
+    if (
+      namedBindings &&
+      ts.isNamespaceImport(namedBindings) &&
+      namedBindings.name.text === 'Command'
+    ) {
+      bindings.push({ sourceName, importedName: '*' });
+    }
+    if (namedBindings && ts.isNamedImports(namedBindings)) {
+      for (const element of namedBindings.elements) {
+        if (element.name.text === 'Command') {
+          bindings.push({
+            sourceName,
+            importedName: element.propertyName?.text ?? element.name.text,
+          });
+        }
+      }
+    }
+    return bindings;
+  });
+  if (
+    commandImports.length !== 1 ||
+    commandImports[0].sourceName !== 'commander' ||
+    commandImports[0].importedName !== 'Command'
+  ) {
+    return null;
+  }
+
   const matches = sourceFile.statements.filter(
     (statement) =>
       ts.isFunctionDeclaration(statement) &&
       statement.name?.text === 'buildProgram' &&
-      statement.body,
+      statement.body &&
+      statement.parameters.length === 0 &&
+      statement.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword) &&
+      !statement.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.DefaultKeyword),
   );
-  return matches.length === 1 ? matches[0] : null;
+  if (matches.length !== 1) return null;
+  const buildProgram = matches[0];
+  const constrainedModule = sourceFile.statements.every(
+    (statement) => ts.isImportDeclaration(statement) || statement === buildProgram,
+  );
+  return constrainedModule ? buildProgram : null;
 }
 
 function fluentCalls(expression, receiver) {
@@ -159,7 +204,9 @@ function hasConstrainedBuildFlow(body) {
     return false;
   }
 
-  return statements.slice(0, -1).every((statement) => {
+  let programDeclared = false;
+  let skillsDeclared = false;
+  const valid = statements.slice(0, -1).every((statement, index) => {
     if (ts.isVariableStatement(statement)) {
       if (
         (statement.declarationList.flags & ts.NodeFlags.Const) === 0 ||
@@ -168,17 +215,30 @@ function hasConstrainedBuildFlow(body) {
         return false;
       }
       const declaration = statement.declarationList.declarations[0];
-      return (
-        ts.isIdentifier(declaration.name) &&
-        (declaration.name.text === 'program' || declaration.name.text === 'skills')
-      );
+      if (!ts.isIdentifier(declaration.name)) return false;
+      if (declaration.name.text === 'program') {
+        if (index !== 0 || programDeclared || !declaration.initializer) return false;
+        programDeclared = true;
+        return (
+          ts.isNewExpression(declaration.initializer) &&
+          ts.isIdentifier(declaration.initializer.expression) &&
+          declaration.initializer.expression.text === 'Command' &&
+          declaration.initializer.arguments?.length === 0
+        );
+      }
+      if (declaration.name.text === 'skills') {
+        if (!programDeclared || skillsDeclared || !declaration.initializer) return false;
+        skillsDeclared = true;
+        return safeFluentCalls(declaration.initializer, 'program') !== null;
+      }
+      return false;
     }
     if (!ts.isExpressionStatement(statement)) return false;
-    return (
-      safeFluentCalls(statement.expression, 'program') !== null ||
-      safeFluentCalls(statement.expression, 'skills') !== null
-    );
+    if (!programDeclared) return false;
+    if (safeFluentCalls(statement.expression, 'program') !== null) return true;
+    return skillsDeclared && safeFluentCalls(statement.expression, 'skills') !== null;
   });
+  return valid && programDeclared && skillsDeclared;
 }
 
 function stringArgument(call) {
