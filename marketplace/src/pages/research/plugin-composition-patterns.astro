@@ -291,7 +291,7 @@ import ResearchTemplate from '../../components/ResearchTemplate.astro';
     <strong>8 fields allowed in plugin.json. Zero exceptions.</strong> The CI pipeline catches extra fields before they land in the catalog.
   </div>
 
-  <p>The history of plugin ecosystems is largely a history of plugin manifests accreting complexity. NPM's <code>package.json</code> now has dozens of recognized fields and hundreds of de facto conventions that tools rely on. Cargo's <code>Cargo.toml</code> is feature-rich in ways that required careful versioning. VS Code's <code>package.json` for extensions has extension-specific sections that overlap and sometimes conflict with npm's own semantics.</p>
+  <p>The history of plugin ecosystems is largely a history of plugin manifests accreting complexity. NPM's <code>package.json</code> now has dozens of recognized fields and hundreds of de facto conventions that tools rely on. Cargo's <code>Cargo.toml</code> is feature-rich in ways that required careful versioning. VS Code's <code>package.json</code> for extensions has extension-specific sections that overlap and sometimes conflict with npm's own semantics.</p>
 
   <p>The 8-field constraint keeps plugin.json as pure metadata — identity and discoverability information, not configuration. Here's why each scope of what could be in plugin.json is intentionally excluded:</p>
 

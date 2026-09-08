@@ -1041,7 +1041,7 @@ jobs:
       - name: Install marketplace dependencies
         run: |
           cd marketplace
-          npm install
+          npm ci
 
       - name: Build marketplace
         run: |

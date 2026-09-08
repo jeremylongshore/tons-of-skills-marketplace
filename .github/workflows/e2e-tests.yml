@@ -102,12 +102,7 @@ jobs:
       - name: Install marketplace dependencies
         run: |
           cd marketplace
-          npm install --ignore-scripts
-
-      - name: Install Playwright
-        run: |
-          cd marketplace
-          npm install -D @playwright/test
+          npm ci --ignore-scripts
 
       - name: Install Playwright browsers
         run: |
@@ -188,12 +183,7 @@ jobs:
       - name: Install marketplace dependencies
         run: |
           cd marketplace
-          npm install --ignore-scripts
-
-      - name: Install Playwright
-        run: |
-          cd marketplace
-          npm install -D @playwright/test
+          npm ci --ignore-scripts
 
       - name: Install Playwright browsers
         run: |
