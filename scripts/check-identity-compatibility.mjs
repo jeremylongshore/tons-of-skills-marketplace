@@ -115,26 +115,25 @@ function buildProgramFunction(source) {
   return matches.length === 1 ? matches[0] : null;
 }
 
-function directCallsIn(node, receiver, method) {
-  const calls = [];
+function fluentCalls(expression, receiver) {
+  if (ts.isIdentifier(expression) && expression.text === receiver) return [];
+  if (!ts.isCallExpression(expression) || !ts.isPropertyAccessExpression(expression.expression)) {
+    return null;
+  }
+  const preceding = fluentCalls(expression.expression.expression, receiver);
+  if (!preceding) return null;
+  return [...preceding, { method: expression.expression.name.text, call: expression }];
+}
+
+function functionScopeReturns(body) {
+  const returns = [];
   const visit = (current) => {
-    // Calls inside any nested function are not part of buildProgram's executed
-    // registration flow. This includes a function-like node passed as the root
-    // (for example, a variable initializer containing a decoy function).
-    if (ts.isFunctionLike(current)) return;
-    if (
-      ts.isCallExpression(current) &&
-      ts.isPropertyAccessExpression(current.expression) &&
-      current.expression.name.text === method &&
-      ts.isIdentifier(current.expression.expression) &&
-      current.expression.expression.text === receiver
-    ) {
-      calls.push(current);
-    }
+    if (current !== body && ts.isFunctionLike(current)) return;
+    if (ts.isReturnStatement(current)) returns.push(current);
     ts.forEachChild(current, visit);
   };
-  visit(node);
-  return calls;
+  visit(body);
+  return returns;
 }
 
 function stringArgument(call) {
@@ -146,7 +145,12 @@ function hasProgramIdentity(source, expectedName, expectedCommand) {
   const buildProgram = buildProgramFunction(source);
   if (!buildProgram) return { name: false, command: false };
   const programDeclarations = buildProgram.body.statements.flatMap((statement) => {
-    if (!ts.isVariableStatement(statement)) return [];
+    if (
+      !ts.isVariableStatement(statement) ||
+      (statement.declarationList.flags & ts.NodeFlags.Const) === 0
+    ) {
+      return [];
+    }
     return statement.declarationList.declarations.filter(
       (declaration) =>
         ts.isIdentifier(declaration.name) &&
@@ -159,21 +163,40 @@ function hasProgramIdentity(source, expectedName, expectedCommand) {
   });
   if (programDeclarations.length !== 1) return { name: false, command: false };
 
-  const nameCalls = buildProgram.body.statements.flatMap((statement) =>
-    directCallsIn(statement, 'program', 'name'),
-  );
+  const returnedProgram = functionScopeReturns(buildProgram.body);
+  if (
+    returnedProgram.length !== 1 ||
+    !returnedProgram[0].expression ||
+    !ts.isIdentifier(returnedProgram[0].expression) ||
+    returnedProgram[0].expression.text !== 'program'
+  ) {
+    return { name: false, command: false };
+  }
+
+  const nameCalls = buildProgram.body.statements.flatMap((statement) => {
+    if (!ts.isExpressionStatement(statement)) return [];
+    const calls = fluentCalls(statement.expression, 'program');
+    return calls?.filter((entry) => entry.method === 'name').map((entry) => entry.call) ?? [];
+  });
   const name = nameCalls.length === 1 && stringArgument(nameCalls[0]) === expectedName;
 
   const skillBindings = buildProgram.body.statements.flatMap((statement) => {
-    if (!ts.isVariableStatement(statement)) return [];
+    if (
+      !ts.isVariableStatement(statement) ||
+      (statement.declarationList.flags & ts.NodeFlags.Const) === 0
+    ) {
+      return [];
+    }
     return statement.declarationList.declarations.filter(
       (declaration) => ts.isIdentifier(declaration.name) && declaration.name.text === 'skills',
     );
   });
-  const commandCalls =
+  const skillCalls =
     skillBindings.length === 1 && skillBindings[0].initializer
-      ? directCallsIn(skillBindings[0].initializer, 'program', 'command')
-      : [];
+      ? fluentCalls(skillBindings[0].initializer, 'program')
+      : null;
+  const commandCalls =
+    skillCalls?.filter((entry) => entry.method === 'command').map((entry) => entry.call) ?? [];
   const command = commandCalls.length === 1 && stringArgument(commandCalls[0]) === expectedCommand;
   return { name, command };
 }

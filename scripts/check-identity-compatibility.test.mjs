@@ -168,6 +168,32 @@ test('unreachable nested functions cannot satisfy the program identity contract'
   assert.match(violations, /tons skills/);
 });
 
+test('shadowed and unreachable calls cannot satisfy the program identity contract', () => {
+  const controlFlowSpoof = snapshot({
+    cliProgramSource: [
+      'export function buildProgram() {',
+      '  const program = new Command();',
+      "  { const program = { name() {}, command() {} }; program.name('ccpi'); }",
+      "  const skills = false && program.command('skills');",
+      '  return program;',
+      '}',
+    ].join('\n'),
+  });
+
+  const violations = checkIdentityCompatibility(controlFlowSpoof).join('\n');
+  assert.match(violations, /ccpi program identity/);
+  assert.match(violations, /tons skills/);
+});
+
+test('the registered command instance must be returned from buildProgram', () => {
+  const wrongReturn = snapshot({
+    cliProgramSource: LIVE.cliProgramSource.replace('return program;', 'return new Command();'),
+  });
+  const violations = checkIdentityCompatibility(wrongReturn).join('\n');
+  assert.match(violations, /ccpi program identity/);
+  assert.match(violations, /tons skills/);
+});
+
 test('live redirect verifier follows every legacy route to the canonical destination', async () => {
   const seen = [];
   const results = await checkLiveRedirects(async (url) => {
