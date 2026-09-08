@@ -34,6 +34,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
+          # Release verification follows the full-repository Node contract.
           node-version: '22'
 
       - name: Setup Python

@@ -41,6 +41,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
+          # Conformance installs the root workspace, so it follows the root floor.
           node-version: '22'
           cache: pnpm
 

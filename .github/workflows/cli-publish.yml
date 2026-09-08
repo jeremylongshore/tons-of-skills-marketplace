@@ -30,7 +30,9 @@ jobs:
         run: corepack enable
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        # Keep the Node 20 CLI compatibility lane scoped to the CLI package;
+        # the marketplace workspace requires the repository Node 22 floor.
+        run: pnpm install --frozen-lockfile --filter '@intentsolutionsio/ccpi...'
 
       - name: Run TypeScript type check
         run: pnpm -C packages/cli typecheck
@@ -119,7 +121,8 @@ jobs:
         run: corepack enable
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        # Publish only the independently supported CLI package dependency graph.
+        run: pnpm install --frozen-lockfile --filter '@intentsolutionsio/ccpi...'
 
       - name: Build for production
         run: pnpm -C packages/cli build
