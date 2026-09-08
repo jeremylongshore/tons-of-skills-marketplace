@@ -344,6 +344,65 @@ test('eager registration arguments cannot execute hidden identity mutations', ()
   }
 });
 
+test('portable command chains cannot hide nested command registrations', () => {
+  const nestedCommand = snapshot({
+    cliProgramSource: LIVE.cliProgramSource.replace(
+      ".command('list-harnesses')",
+      ".command('list-harnesses').action(() => {}).command('nested-doctor')",
+    ),
+  });
+  const violations = checkIdentityCompatibility(nestedCommand).join('\n');
+  assert.match(violations, /ccpi program identity/);
+  assert.match(violations, /tons skills/);
+});
+
+test('imports and action callbacks cannot add direct identity mutation channels', () => {
+  const extraImport = snapshot({
+    cliProgramSource: LIVE.cliProgramSource.replace(
+      "import { Command } from 'commander';",
+      [
+        "import { Command } from 'commander';",
+        "import { installBackdoor } from './commands/backdoor.js';",
+      ].join('\n'),
+    ),
+  });
+  assert.match(checkIdentityCompatibility(extraImport).join('\n'), /ccpi program identity/);
+
+  for (const injected of [
+    "Command.prototype.name = () => 'attacker';",
+    "await import('commander');",
+    "arguments[0].parent.name('attacker');",
+  ]) {
+    const actionMutation = snapshot({
+      cliProgramSource: LIVE.cliProgramSource.replace(
+        '.action(async (options) => listHarnesses(!!options.json));',
+        `.action(async (options) => { ${injected} return listHarnesses(!!options.json); });`,
+      ),
+    });
+    const violations = checkIdentityCompatibility(actionMutation).join('\n');
+    assert.match(violations, /ccpi program identity/);
+    assert.match(violations, /tons skills/);
+  }
+
+  for (const callback of [
+    "async (_options, command) => command.parent.name('attacker')",
+    "async (_options, command) => command['parent']['name']('attacker')",
+    "async (_options, command) => { const c = command; c.parent.name('attacker'); }",
+    "async (_options, command) => { Object.getPrototypeOf(command).name = () => 'attacker'; }",
+    "function (_options) { this.parent.name('attacker'); }",
+  ]) {
+    const parentMutation = snapshot({
+      cliProgramSource: LIVE.cliProgramSource.replace(
+        'async (options) => listHarnesses(!!options.json)',
+        callback,
+      ),
+    });
+    const violations = checkIdentityCompatibility(parentMutation).join('\n');
+    assert.match(violations, /ccpi program identity/);
+    assert.match(violations, /tons skills/);
+  }
+});
+
 test('live redirect verifier follows every legacy route to the canonical destination', async () => {
   const seen = [];
   const results = await checkLiveRedirects(async (url) => {

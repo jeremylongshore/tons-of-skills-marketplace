@@ -51,6 +51,27 @@ export const LIVE_REDIRECTS = Object.freeze([
   },
 ]);
 
+const PROGRAM_IMPORTS = Object.freeze([
+  { source: 'commander', named: ['Command'] },
+  { source: './utils/paths.js', named: ['detectClaudePaths'] },
+  { source: './commands/install.js', named: ['installPlugin'] },
+  { source: './commands/upgrade.js', named: ['upgradeCommand'] },
+  { source: './commands/list.js', named: ['listPlugins'] },
+  { source: './commands/doctor.js', named: ['doctorCheck'] },
+  {
+    source: './commands/marketplace.js',
+    named: ['marketplaceCommand', 'addMarketplace', 'removeMarketplace'],
+  },
+  { source: './commands/validate.js', named: ['validateCommand'] },
+  {
+    source: './commands/skills.js',
+    named: ['doctorSkills', 'installPortableSkill', 'listHarnesses'],
+  },
+  { source: './utils/version.js', named: ['getVersion'] },
+  { source: 'chalk', default: 'chalk' },
+  { source: 'ora', default: 'ora' },
+]);
+
 function readJson(path) {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
@@ -106,44 +127,36 @@ function buildProgramFunction(source) {
     ts.ScriptKind.TS,
   );
   if (sourceFile.parseDiagnostics.length > 0) return null;
-  const commandImports = sourceFile.statements.flatMap((statement) => {
-    if (!ts.isImportDeclaration(statement) || !statement.importClause) return [];
-    const sourceName = ts.isStringLiteral(statement.moduleSpecifier)
-      ? statement.moduleSpecifier.text
-      : null;
-    const bindings = [];
-    if (statement.importClause.name?.text === 'Command') {
-      bindings.push({ sourceName, importedName: 'default' });
-    }
-    const namedBindings = statement.importClause.namedBindings;
-    if (
-      namedBindings &&
-      ts.isNamespaceImport(namedBindings) &&
-      namedBindings.name.text === 'Command'
-    ) {
-      bindings.push({ sourceName, importedName: '*' });
-    }
-    if (namedBindings && ts.isNamedImports(namedBindings)) {
-      for (const element of namedBindings.elements) {
-        if (element.name.text === 'Command') {
-          bindings.push({
-            sourceName,
-            importedName: element.propertyName?.text ?? element.name.text,
-            typeOnly: statement.importClause.isTypeOnly || element.isTypeOnly,
-          });
-        }
+  const importStatements = sourceFile.statements.filter(ts.isImportDeclaration);
+  const exactImports =
+    importStatements.length === PROGRAM_IMPORTS.length &&
+    importStatements.every((statement, index) => {
+      const expected = PROGRAM_IMPORTS[index];
+      const clause = statement.importClause;
+      if (
+        !clause ||
+        clause.isTypeOnly ||
+        !ts.isStringLiteral(statement.moduleSpecifier) ||
+        statement.moduleSpecifier.text !== expected.source ||
+        statement.attributes
+      ) {
+        return false;
       }
-    }
-    return bindings;
-  });
-  if (
-    commandImports.length !== 1 ||
-    commandImports[0].sourceName !== 'commander' ||
-    commandImports[0].importedName !== 'Command' ||
-    commandImports[0].typeOnly
-  ) {
-    return null;
-  }
+      if ((clause.name?.text ?? null) !== (expected.default ?? null)) return false;
+      const bindings = clause.namedBindings;
+      if (!expected.named) return !bindings;
+      if (!bindings || !ts.isNamedImports(bindings)) return false;
+      return (
+        bindings.elements.length === expected.named.length &&
+        bindings.elements.every(
+          (element, elementIndex) =>
+            !element.isTypeOnly &&
+            !element.propertyName &&
+            element.name.text === expected.named[elementIndex],
+        )
+      );
+    });
+  if (!exactImports) return null;
 
   const matches = sourceFile.statements.filter(
     (statement) =>
@@ -179,7 +192,15 @@ function fluentCalls(expression, receiver) {
 function referencesRegistrationBinding(node) {
   let found = false;
   const visit = (current) => {
-    if (ts.isIdentifier(current) && (current.text === 'program' || current.text === 'skills')) {
+    if (
+      (ts.isIdentifier(current) &&
+        (current.text === 'program' ||
+          current.text === 'skills' ||
+          current.text === 'Command' ||
+          current.text === 'arguments')) ||
+      current.kind === ts.SyntaxKind.ThisKeyword ||
+      (ts.isCallExpression(current) && current.expression.kind === ts.SyntaxKind.ImportKeyword)
+    ) {
       found = true;
       return;
     }
@@ -193,7 +214,23 @@ function isStringArgument(argument) {
   return ts.isStringLiteralLike(argument);
 }
 
-function hasSafeRegistrationArguments(entry) {
+function positionalArgumentCount(command) {
+  return command.match(/<[^>]+>|\[[^\]]+\]/g)?.length ?? 0;
+}
+
+function hasSafeActionCallback(callback, calls) {
+  if (!ts.isArrowFunction(callback)) return false;
+  const commandCall = calls.find((entry) => entry.method === 'command')?.call;
+  const command = commandCall ? stringArgument(commandCall) : null;
+  if (command === null) return false;
+  if (callback.parameters.length > positionalArgumentCount(command) + 1) return false;
+  return callback.parameters.every(
+    (parameter) =>
+      ts.isIdentifier(parameter.name) && !parameter.dotDotDotToken && !parameter.initializer,
+  );
+}
+
+function hasSafeRegistrationArguments(entry, calls) {
   const args = [...entry.call.arguments];
   switch (entry.method) {
     case 'name':
@@ -212,7 +249,7 @@ function hasSafeRegistrationArguments(entry) {
         args[0].arguments.length === 0
       );
     case 'action':
-      return args.length === 1 && (ts.isArrowFunction(args[0]) || ts.isFunctionExpression(args[0]));
+      return args.length === 1 && hasSafeActionCallback(args[0], calls);
     default:
       return false;
   }
@@ -224,10 +261,44 @@ function safeFluentCalls(expression, receiver) {
   return calls.some(
     (entry) =>
       entry.call.arguments.some(referencesRegistrationBinding) ||
-      !hasSafeRegistrationArguments(entry),
+      !hasSafeRegistrationArguments(entry, calls),
   )
     ? null
     : calls;
+}
+
+function hasProgramExpressionShape(calls) {
+  const commandCount = calls.filter((entry) => entry.method === 'command').length;
+  const actionCount = calls.filter((entry) => entry.method === 'action').length;
+  if (commandCount === 0) {
+    return (
+      calls.length === 3 &&
+      calls[0].method === 'name' &&
+      calls[1].method === 'description' &&
+      calls[2].method === 'version' &&
+      actionCount === 0
+    );
+  }
+  return (
+    commandCount === 1 &&
+    actionCount === 1 &&
+    calls[0].method === 'command' &&
+    calls.at(-1).method === 'action'
+  );
+}
+
+function hasSkillsBindingShape(calls) {
+  return calls.length === 2 && calls[0].method === 'command' && calls[1].method === 'description';
+}
+
+function hasPortableCommandShape(calls) {
+  return (
+    calls.filter((entry) => entry.method === 'command').length === 1 &&
+    calls.filter((entry) => entry.method === 'action').length === 1 &&
+    calls[0].method === 'command' &&
+    calls.at(-1).method === 'action' &&
+    !calls.some((entry) => entry.method === 'name')
+  );
 }
 
 function hasConstrainedBuildFlow(body) {
@@ -268,16 +339,18 @@ function hasConstrainedBuildFlow(body) {
       if (declaration.name.text === 'skills') {
         if (!programDeclared || skillsDeclared || !declaration.initializer) return false;
         skillsDeclared = true;
-        return safeFluentCalls(declaration.initializer, 'program') !== null;
+        const calls = safeFluentCalls(declaration.initializer, 'program');
+        return calls !== null && hasSkillsBindingShape(calls);
       }
       return false;
     }
     if (!ts.isExpressionStatement(statement)) return false;
     if (!programDeclared) return false;
-    if (safeFluentCalls(statement.expression, 'program') !== null) return true;
+    const programCalls = safeFluentCalls(statement.expression, 'program');
+    if (programCalls !== null) return hasProgramExpressionShape(programCalls);
     if (!skillsDeclared) return false;
     const skillsCalls = safeFluentCalls(statement.expression, 'skills');
-    return skillsCalls !== null && !skillsCalls.some((entry) => entry.method === 'name');
+    return skillsCalls !== null && hasPortableCommandShape(skillsCalls);
   });
   return valid && programDeclared && skillsDeclared;
 }

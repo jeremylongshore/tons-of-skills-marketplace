@@ -28,17 +28,7 @@ describe('ccpi CLI program', () => {
     ]);
     for (const command of skills?.commands ?? []) {
       expect(command).toHaveProperty('_actionHandler', expect.any(Function));
+      expect(command.commands).toEqual([]);
     }
-    expect(commandNames).toContain('install');
-    expect(commandNames).toContain('upgrade');
-    expect(commandNames).toContain('list');
-    expect(commandNames).toContain('doctor');
-    expect(commandNames).toContain('search');
-    expect(commandNames).toContain('validate');
-    expect(commandNames).toContain('analytics');
-    expect(commandNames).toContain('marketplace');
-    expect(commandNames).toContain('marketplace-add');
-    expect(commandNames).toContain('marketplace-remove');
-    expect(commandNames).toContain('skills');
   });
 });
