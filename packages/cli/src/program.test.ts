@@ -6,6 +6,7 @@ describe('ccpi CLI program', () => {
     const program = buildProgram();
     const commandNames = program.commands.map((cmd) => cmd.name());
 
+    expect(program.name()).toBe('ccpi');
     expect(commandNames).toContain('install');
     expect(commandNames).toContain('upgrade');
     expect(commandNames).toContain('list');
