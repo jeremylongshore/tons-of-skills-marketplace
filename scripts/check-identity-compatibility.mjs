@@ -129,6 +129,7 @@ function buildProgramFunction(source) {
           bindings.push({
             sourceName,
             importedName: element.propertyName?.text ?? element.name.text,
+            typeOnly: statement.importClause.isTypeOnly || element.isTypeOnly,
           });
         }
       }
@@ -138,7 +139,8 @@ function buildProgramFunction(source) {
   if (
     commandImports.length !== 1 ||
     commandImports[0].sourceName !== 'commander' ||
-    commandImports[0].importedName !== 'Command'
+    commandImports[0].importedName !== 'Command' ||
+    commandImports[0].typeOnly
   ) {
     return null;
   }
@@ -149,13 +151,17 @@ function buildProgramFunction(source) {
       statement.name?.text === 'buildProgram' &&
       statement.body &&
       statement.parameters.length === 0 &&
+      !statement.asteriskToken &&
       statement.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword) &&
+      !statement.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.AsyncKeyword) &&
       !statement.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.DefaultKeyword),
   );
   if (matches.length !== 1) return null;
   const buildProgram = matches[0];
   const constrainedModule = sourceFile.statements.every(
-    (statement) => ts.isImportDeclaration(statement) || statement === buildProgram,
+    (statement) =>
+      (ts.isImportDeclaration(statement) && Boolean(statement.importClause)) ||
+      statement === buildProgram,
   );
   return constrainedModule ? buildProgram : null;
 }
@@ -236,7 +242,9 @@ function hasConstrainedBuildFlow(body) {
     if (!ts.isExpressionStatement(statement)) return false;
     if (!programDeclared) return false;
     if (safeFluentCalls(statement.expression, 'program') !== null) return true;
-    return skillsDeclared && safeFluentCalls(statement.expression, 'skills') !== null;
+    if (!skillsDeclared) return false;
+    const skillsCalls = safeFluentCalls(statement.expression, 'skills');
+    return skillsCalls !== null && !skillsCalls.some((entry) => entry.method === 'name');
   });
   return valid && programDeclared && skillsDeclared;
 }
@@ -269,11 +277,25 @@ function hasProgramIdentity(source, expectedName, expectedCommand) {
   });
   if (programDeclarations.length !== 1) return { name: false, command: false };
 
-  const nameCalls = buildProgram.body.statements.flatMap((statement) => {
-    if (!ts.isExpressionStatement(statement)) return [];
-    const calls = safeFluentCalls(statement.expression, 'program');
-    return calls?.filter((entry) => entry.method === 'name').map((entry) => entry.call) ?? [];
+  const programCalls = buildProgram.body.statements.flatMap((statement) => {
+    if (ts.isExpressionStatement(statement)) {
+      return safeFluentCalls(statement.expression, 'program') ?? [];
+    }
+    if (!ts.isVariableStatement(statement)) return [];
+    const declaration = statement.declarationList.declarations[0];
+    if (
+      !declaration ||
+      !ts.isIdentifier(declaration.name) ||
+      declaration.name.text !== 'skills' ||
+      !declaration.initializer
+    ) {
+      return [];
+    }
+    return safeFluentCalls(declaration.initializer, 'program') ?? [];
   });
+  const nameCalls = programCalls
+    .filter((entry) => entry.method === 'name')
+    .map((entry) => entry.call);
   const name = nameCalls.length === 1 && stringArgument(nameCalls[0]) === expectedName;
 
   const skillBindings = buildProgram.body.statements.flatMap((statement) => {
@@ -293,7 +315,13 @@ function hasProgramIdentity(source, expectedName, expectedCommand) {
       : null;
   const commandCalls =
     skillCalls?.filter((entry) => entry.method === 'command').map((entry) => entry.call) ?? [];
-  const command = commandCalls.length === 1 && stringArgument(commandCalls[0]) === expectedCommand;
+  const allExpectedCommandCalls = programCalls.filter(
+    (entry) => entry.method === 'command' && stringArgument(entry.call) === expectedCommand,
+  );
+  const command =
+    commandCalls.length === 1 &&
+    stringArgument(commandCalls[0]) === expectedCommand &&
+    allExpectedCommandCalls.length === 1;
   return { name, command };
 }
 

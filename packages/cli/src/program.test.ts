@@ -5,8 +5,15 @@ describe('ccpi CLI program', () => {
   test('buildProgram registers expected commands', () => {
     const program = buildProgram();
     const commandNames = program.commands.map((cmd) => cmd.name());
+    const skills = program.commands.find((cmd) => cmd.name() === 'skills');
 
     expect(program.name()).toBe('ccpi');
+    expect(commandNames.filter((name) => name === 'skills')).toHaveLength(1);
+    expect(skills?.commands.map((cmd) => cmd.name())).toEqual([
+      'list-harnesses',
+      'doctor',
+      'install',
+    ]);
     expect(commandNames).toContain('install');
     expect(commandNames).toContain('upgrade');
     expect(commandNames).toContain('list');

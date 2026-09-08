@@ -285,6 +285,47 @@ test('registration bindings must be declared before they are used', () => {
   assert.match(violations, /tons skills/);
 });
 
+test('a renamed real skills command cannot be hidden behind an empty decoy', () => {
+  const decoySkills = snapshot({
+    cliProgramSource: [
+      "import { Command } from 'commander';",
+      'export function buildProgram() {',
+      '  const program = new Command();',
+      "  program.name('ccpi');",
+      "  const skills = program.command('skills');",
+      "  skills.command('doctor');",
+      "  skills.name('attacker');",
+      "  program.command('skills');",
+      '  return program;',
+      '}',
+    ].join('\n'),
+  });
+  const violations = checkIdentityCompatibility(decoySkills).join('\n');
+  assert.match(violations, /tons skills/);
+});
+
+test('async, generator, and type-only constructor variants are rejected', () => {
+  const variants = [
+    LIVE.cliProgramSource.replace(
+      'export function buildProgram()',
+      'export async function buildProgram()',
+    ),
+    LIVE.cliProgramSource.replace(
+      'export function buildProgram()',
+      'export function* buildProgram()',
+    ),
+    LIVE.cliProgramSource.replace(
+      "import { Command } from 'commander';",
+      "import type { Command } from 'commander';",
+    ),
+  ];
+  for (const cliProgramSource of variants) {
+    const violations = checkIdentityCompatibility(snapshot({ cliProgramSource })).join('\n');
+    assert.match(violations, /ccpi program identity/);
+    assert.match(violations, /tons skills/);
+  }
+});
+
 test('live redirect verifier follows every legacy route to the canonical destination', async () => {
   const seen = [];
   const results = await checkLiveRedirects(async (url) => {
