@@ -194,6 +194,23 @@ test('the registered command instance must be returned from buildProgram', () =>
   assert.match(violations, /tons skills/);
 });
 
+test('aliases and computed calls cannot mutate identity outside the constrained build flow', () => {
+  for (const injected of [
+    "const alias = program; alias.name('attacker');",
+    "program['name']('attacker');",
+  ]) {
+    const candidate = snapshot({
+      cliProgramSource: LIVE.cliProgramSource.replace(
+        'return program;',
+        `${injected}\n  return program;`,
+      ),
+    });
+    const violations = checkIdentityCompatibility(candidate).join('\n');
+    assert.match(violations, /ccpi program identity/);
+    assert.match(violations, /tons skills/);
+  }
+});
+
 test('live redirect verifier follows every legacy route to the canonical destination', async () => {
   const seen = [];
   const results = await checkLiveRedirects(async (url) => {

@@ -125,15 +125,39 @@ function fluentCalls(expression, receiver) {
   return [...preceding, { method: expression.expression.name.text, call: expression }];
 }
 
-function functionScopeReturns(body) {
-  const returns = [];
-  const visit = (current) => {
-    if (current !== body && ts.isFunctionLike(current)) return;
-    if (ts.isReturnStatement(current)) returns.push(current);
-    ts.forEachChild(current, visit);
-  };
-  visit(body);
-  return returns;
+function hasConstrainedBuildFlow(body) {
+  const statements = body.statements;
+  const finalStatement = statements.at(-1);
+  if (
+    !finalStatement ||
+    !ts.isReturnStatement(finalStatement) ||
+    !finalStatement.expression ||
+    !ts.isIdentifier(finalStatement.expression) ||
+    finalStatement.expression.text !== 'program'
+  ) {
+    return false;
+  }
+
+  return statements.slice(0, -1).every((statement) => {
+    if (ts.isVariableStatement(statement)) {
+      if (
+        (statement.declarationList.flags & ts.NodeFlags.Const) === 0 ||
+        statement.declarationList.declarations.length !== 1
+      ) {
+        return false;
+      }
+      const declaration = statement.declarationList.declarations[0];
+      return (
+        ts.isIdentifier(declaration.name) &&
+        (declaration.name.text === 'program' || declaration.name.text === 'skills')
+      );
+    }
+    if (!ts.isExpressionStatement(statement)) return false;
+    return (
+      fluentCalls(statement.expression, 'program') !== null ||
+      fluentCalls(statement.expression, 'skills') !== null
+    );
+  });
 }
 
 function stringArgument(call) {
@@ -144,6 +168,7 @@ function stringArgument(call) {
 function hasProgramIdentity(source, expectedName, expectedCommand) {
   const buildProgram = buildProgramFunction(source);
   if (!buildProgram) return { name: false, command: false };
+  if (!hasConstrainedBuildFlow(buildProgram.body)) return { name: false, command: false };
   const programDeclarations = buildProgram.body.statements.flatMap((statement) => {
     if (
       !ts.isVariableStatement(statement) ||
@@ -162,16 +187,6 @@ function hasProgramIdentity(source, expectedName, expectedCommand) {
     );
   });
   if (programDeclarations.length !== 1) return { name: false, command: false };
-
-  const returnedProgram = functionScopeReturns(buildProgram.body);
-  if (
-    returnedProgram.length !== 1 ||
-    !returnedProgram[0].expression ||
-    !ts.isIdentifier(returnedProgram[0].expression) ||
-    returnedProgram[0].expression.text !== 'program'
-  ) {
-    return { name: false, command: false };
-  }
 
   const nameCalls = buildProgram.body.statements.flatMap((statement) => {
     if (!ts.isExpressionStatement(statement)) return [];
