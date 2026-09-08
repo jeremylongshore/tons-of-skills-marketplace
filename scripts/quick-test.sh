@@ -17,7 +17,13 @@ echo -e "${BLUE}Quick Test Suite${NC}"
 echo "================"
 echo ""
 
-# Test 1: Check tools
+# Test 1: Check the repository runtime before installing dependencies.
+echo -e "${BLUE}Checking Node.js runtime...${NC}"
+node scripts/check-node-version.mjs
+echo -e "${GREEN}✓ Node.js runtime ready${NC}"
+echo ""
+
+# Test 2: Check tools
 echo -e "${BLUE}Checking tools...${NC}"
 if ! command -v pnpm > /dev/null; then
   echo -e "${YELLOW}pnpm not found. Install it with: corepack enable pnpm${NC}"
@@ -27,13 +33,13 @@ fi
 echo -e "${GREEN}✓ Tools ready${NC}"
 echo ""
 
-# Test 2: Install dependencies
+# Test 3: Install dependencies
 echo -e "${BLUE}Installing dependencies...${NC}"
 pnpm install --frozen-lockfile > /dev/null 2>&1
 echo -e "${GREEN}✓ Dependencies installed${NC}"
 echo ""
 
-# Test 3: Build
+# Test 4: Build
 echo -e "${BLUE}Building packages...${NC}"
 if pnpm build > /tmp/quick-test-build.log 2>&1; then
     echo -e "${GREEN}✓ Build successful${NC}"
@@ -44,7 +50,7 @@ else
 fi
 echo ""
 
-# Test 4: Lint
+# Test 5: Lint
 echo -e "${BLUE}Linting...${NC}"
 if pnpm lint > /tmp/quick-test-lint.log 2>&1; then
     echo -e "${GREEN}✓ Lint passed${NC}"
@@ -54,7 +60,7 @@ else
 fi
 echo ""
 
-# Test 5: Validation
+# Test 6: Validation
 echo -e "${BLUE}Validating plugins...${NC}"
 if python3 scripts/validate-skills-schema.py > /tmp/quick-test-validate.log 2>&1; then
     echo -e "${GREEN}✓ Validation passed${NC}"

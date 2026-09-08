@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Tons of Skills — Claude Code plugins marketplace. Live at https://tonsofskills.com
 
-**Runtime:** Node `>=20.0.0`, pnpm `>=9.15.9`. Node 18 causes silent workspace-resolution failures.
+**Runtime:** Node `>=22.12.0`, pnpm `>=9.15.9`. The Astro marketplace build requires Node 22.12+. Node 18 causes silent workspace-resolution failures. Package-local lower floors remain valid only for independently run packages that do not enter the repository build or verification path; see `000-docs/814-DR-STND-node-runtime-contract.md`.
 
 **Package manager:** `pnpm` everywhere **except** `marketplace/` which uses `npm` (CI-enforced).
 

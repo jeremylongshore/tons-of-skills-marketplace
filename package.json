@@ -5,9 +5,16 @@
   "packageManager": "pnpm@9.15.9+sha512.68046141893c66fad01c079231128e9afb89ef87e2691d69e4d40eee228988295fd4682181bae55b58418c3a253bde65a505ec7c5f9403ece5cc3cd37dcf2531",
   "description": "Claude Code plugins workspace - simple plugins + MCP servers",
   "scripts": {
+    "preflight:runtime": "node scripts/check-node-version.mjs",
+    "predev": "pnpm run preflight:runtime",
+    "prebuild": "pnpm run preflight:runtime",
+    "pretest": "pnpm run preflight:runtime",
+    "pretypecheck": "pnpm run preflight:runtime",
+    "prelint": "pnpm run preflight:runtime",
+    "preverify": "pnpm run preflight:runtime",
     "dev": "pnpm --filter '*' dev --parallel",
     "build": "pnpm --filter '*' build",
-    "test": "pnpm --filter '*' test",
+    "test": "node --test scripts/check-node-version.test.mjs && pnpm --filter '*' test",
     "lint": "pnpm --filter '*' lint",
     "typecheck": "pnpm --filter '*' typecheck",
     "validate:greptile": "node scripts/validate-greptile-config.mjs",
@@ -81,8 +88,8 @@
     "url": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues"
   },
   "engines": {
-    "node": ">=20.0.0",
-    "pnpm": ">=9.0.0"
+    "node": ">=22.12.0",
+    "pnpm": ">=9.15.9"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.3",
