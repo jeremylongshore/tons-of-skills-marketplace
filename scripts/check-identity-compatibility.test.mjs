@@ -211,6 +211,18 @@ test('aliases and computed calls cannot mutate identity outside the constrained 
   }
 });
 
+test('registration bindings cannot be mutated through eagerly evaluated call arguments', () => {
+  const nestedArgument = snapshot({
+    cliProgramSource: LIVE.cliProgramSource.replace(
+      'return program;',
+      "program.description((program.name('attacker'), 'description'));\n  return program;",
+    ),
+  });
+  const violations = checkIdentityCompatibility(nestedArgument).join('\n');
+  assert.match(violations, /ccpi program identity/);
+  assert.match(violations, /tons skills/);
+});
+
 test('live redirect verifier follows every legacy route to the canonical destination', async () => {
   const seen = [];
   const results = await checkLiveRedirects(async (url) => {

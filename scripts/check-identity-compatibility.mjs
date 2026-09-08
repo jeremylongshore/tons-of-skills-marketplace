@@ -125,6 +125,27 @@ function fluentCalls(expression, receiver) {
   return [...preceding, { method: expression.expression.name.text, call: expression }];
 }
 
+function referencesRegistrationBinding(node) {
+  let found = false;
+  const visit = (current) => {
+    if (ts.isIdentifier(current) && (current.text === 'program' || current.text === 'skills')) {
+      found = true;
+      return;
+    }
+    ts.forEachChild(current, visit);
+  };
+  visit(node);
+  return found;
+}
+
+function safeFluentCalls(expression, receiver) {
+  const calls = fluentCalls(expression, receiver);
+  if (!calls) return null;
+  return calls.some((entry) => entry.call.arguments.some(referencesRegistrationBinding))
+    ? null
+    : calls;
+}
+
 function hasConstrainedBuildFlow(body) {
   const statements = body.statements;
   const finalStatement = statements.at(-1);
@@ -154,8 +175,8 @@ function hasConstrainedBuildFlow(body) {
     }
     if (!ts.isExpressionStatement(statement)) return false;
     return (
-      fluentCalls(statement.expression, 'program') !== null ||
-      fluentCalls(statement.expression, 'skills') !== null
+      safeFluentCalls(statement.expression, 'program') !== null ||
+      safeFluentCalls(statement.expression, 'skills') !== null
     );
   });
 }
@@ -190,7 +211,7 @@ function hasProgramIdentity(source, expectedName, expectedCommand) {
 
   const nameCalls = buildProgram.body.statements.flatMap((statement) => {
     if (!ts.isExpressionStatement(statement)) return [];
-    const calls = fluentCalls(statement.expression, 'program');
+    const calls = safeFluentCalls(statement.expression, 'program');
     return calls?.filter((entry) => entry.method === 'name').map((entry) => entry.call) ?? [];
   });
   const name = nameCalls.length === 1 && stringArgument(nameCalls[0]) === expectedName;
@@ -208,7 +229,7 @@ function hasProgramIdentity(source, expectedName, expectedCommand) {
   });
   const skillCalls =
     skillBindings.length === 1 && skillBindings[0].initializer
-      ? fluentCalls(skillBindings[0].initializer, 'program')
+      ? safeFluentCalls(skillBindings[0].initializer, 'program')
       : null;
   const commandCalls =
     skillCalls?.filter((entry) => entry.method === 'command').map((entry) => entry.call) ?? [];
