@@ -191,13 +191,27 @@ function fluentCalls(expression, receiver) {
 
 function referencesRegistrationBinding(node) {
   let found = false;
+  const forbiddenIdentifiers = new Set([
+    'Command',
+    'Function',
+    'arguments',
+    'eval',
+    'global',
+    'globalThis',
+    'module',
+    'program',
+    'require',
+    'skills',
+  ]);
+  const forbiddenProperties = new Set(['constructor', 'getBuiltinModule', 'mainModule']);
   const visit = (current) => {
     if (
-      (ts.isIdentifier(current) &&
-        (current.text === 'program' ||
-          current.text === 'skills' ||
-          current.text === 'Command' ||
-          current.text === 'arguments')) ||
+      (ts.isIdentifier(current) && forbiddenIdentifiers.has(current.text)) ||
+      (ts.isPropertyAccessExpression(current) && forbiddenProperties.has(current.name.text)) ||
+      (ts.isElementAccessExpression(current) &&
+        current.argumentExpression &&
+        ts.isStringLiteralLike(current.argumentExpression) &&
+        forbiddenProperties.has(current.argumentExpression.text)) ||
       current.kind === ts.SyntaxKind.ThisKeyword ||
       (ts.isCallExpression(current) && current.expression.kind === ts.SyntaxKind.ImportKeyword)
     ) {
@@ -224,9 +238,11 @@ function hasSafeActionCallback(callback, calls) {
   const command = commandCall ? stringArgument(commandCall) : null;
   if (command === null) return false;
   if (callback.parameters.length > positionalArgumentCount(command) + 1) return false;
-  return callback.parameters.every(
-    (parameter) =>
-      ts.isIdentifier(parameter.name) && !parameter.dotDotDotToken && !parameter.initializer,
+  return (
+    callback.parameters.every(
+      (parameter) =>
+        ts.isIdentifier(parameter.name) && !parameter.dotDotDotToken && !parameter.initializer,
+    ) && !referencesRegistrationBinding(callback.body)
   );
 }
 
