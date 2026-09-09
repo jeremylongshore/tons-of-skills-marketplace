@@ -393,6 +393,9 @@ test('imports and action callbacks cannot add direct identity mutation channels'
     ].join(' '),
     "const run = options.execute; run('attacker');",
     'const run = options.execute; run`attacker`;',
+    "const String = options.execute; String('attacker');",
+    "const console = { log: options.execute }; console.log('attacker');",
+    "const spinner = options; spinner.fail('attacker');",
   ]) {
     const actionMutation = snapshot({
       cliProgramSource: LIVE.cliProgramSource.replace(

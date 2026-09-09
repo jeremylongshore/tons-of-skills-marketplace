@@ -96,6 +96,11 @@ const ACTION_MEMBER_CALLS = Object.freeze({
   spinner: new Set(['fail', 'succeed']),
 });
 
+const ACTION_PROTECTED_BINDINGS = new Set([
+  ...ACTION_DIRECT_CALLS,
+  ...Object.keys(ACTION_MEMBER_CALLS),
+]);
+
 function readJson(path) {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
@@ -283,14 +288,78 @@ function isAllowedActionCall(call) {
   );
 }
 
+function isAllowedSpinnerDeclaration(declaration) {
+  if (!ts.isIdentifier(declaration.name) || declaration.name.text !== 'spinner') return false;
+  const initializer = declaration.initializer;
+  if (!initializer || !ts.isCallExpression(initializer) || initializer.arguments.length !== 0) {
+    return false;
+  }
+  const start = initializer.expression;
+  if (!ts.isPropertyAccessExpression(start) || start.name.text !== 'start') return false;
+  const oraCall = start.expression;
+  return (
+    ts.isCallExpression(oraCall) &&
+    ts.isIdentifier(oraCall.expression) &&
+    oraCall.expression.text === 'ora' &&
+    oraCall.arguments.length === 1 &&
+    ts.isStringLiteralLike(oraCall.arguments[0])
+  );
+}
+
 function hasSafeActionBody(node) {
   let safe = true;
+  let spinnerDeclarations = 0;
   const visit = (current) => {
     if (
       ts.isNewExpression(current) ||
       ts.isTaggedTemplateExpression(current) ||
       ts.isComputedPropertyName(current) ||
+      ts.isFunctionDeclaration(current) ||
+      ts.isFunctionExpression(current) ||
+      ts.isArrowFunction(current) ||
+      ts.isClassDeclaration(current) ||
+      ts.isClassExpression(current) ||
+      ts.isMethodDeclaration(current) ||
+      ts.isGetAccessorDeclaration(current) ||
+      ts.isSetAccessorDeclaration(current) ||
+      ts.isForStatement(current) ||
+      ts.isForInStatement(current) ||
+      ts.isForOfStatement(current) ||
+      (ts.isBinaryExpression(current) &&
+        current.operatorToken.kind >= ts.SyntaxKind.FirstAssignment &&
+        current.operatorToken.kind <= ts.SyntaxKind.LastAssignment) ||
+      (ts.isPrefixUnaryExpression(current) &&
+        (current.operator === ts.SyntaxKind.PlusPlusToken ||
+          current.operator === ts.SyntaxKind.MinusMinusToken)) ||
+      ts.isPostfixUnaryExpression(current) ||
       (ts.isCallExpression(current) && !isAllowedActionCall(current))
+    ) {
+      safe = false;
+      return;
+    }
+    if (ts.isVariableStatement(current)) {
+      const declarations = current.declarationList.declarations;
+      if (
+        (current.declarationList.flags & ts.NodeFlags.Const) === 0 ||
+        declarations.some((declaration) => !ts.isIdentifier(declaration.name))
+      ) {
+        safe = false;
+        return;
+      }
+      for (const declaration of declarations) {
+        if (!ACTION_PROTECTED_BINDINGS.has(declaration.name.text)) continue;
+        if (!isAllowedSpinnerDeclaration(declaration) || spinnerDeclarations > 0) {
+          safe = false;
+          return;
+        }
+        spinnerDeclarations += 1;
+      }
+    }
+    if (
+      ts.isCatchClause(current) &&
+      current.variableDeclaration &&
+      (!ts.isIdentifier(current.variableDeclaration.name) ||
+        ACTION_PROTECTED_BINDINGS.has(current.variableDeclaration.name.text))
     ) {
       safe = false;
       return;
@@ -318,7 +387,10 @@ function hasSafeActionCallback(callback, calls) {
   return (
     callback.parameters.every(
       (parameter) =>
-        ts.isIdentifier(parameter.name) && !parameter.dotDotDotToken && !parameter.initializer,
+        ts.isIdentifier(parameter.name) &&
+        !ACTION_PROTECTED_BINDINGS.has(parameter.name.text) &&
+        !parameter.dotDotDotToken &&
+        !parameter.initializer,
     ) &&
     !referencesRegistrationBinding(callback.body) &&
     hasSafeActionBody(callback.body)
