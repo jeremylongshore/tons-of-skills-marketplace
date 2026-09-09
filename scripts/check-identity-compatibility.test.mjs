@@ -376,6 +376,13 @@ test('imports and action callbacks cannot add direct identity mutation channels'
     'options.constructor.constructor("program.name(\'attacker\')")();',
     'globalThis.eval("program.name(\'attacker\')");',
     "process.getBuiltinModule('node:module');",
+    [
+      "const loader = (process as any)['get' + 'Builtin' + 'Module']('node:module');",
+      'const requireFromCli = loader.createRequire(import.meta.url);',
+      "const commanderModule = requireFromCli('commander');",
+      "commanderModule['Com' + 'mand'].prototype.name = () => 'attacker';",
+    ].join(' '),
+    "console.log['con' + 'structor']('program.name(\\'attacker\\')')();",
   ]) {
     const actionMutation = snapshot({
       cliProgramSource: LIVE.cliProgramSource.replace(

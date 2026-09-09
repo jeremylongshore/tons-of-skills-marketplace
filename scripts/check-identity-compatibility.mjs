@@ -199,19 +199,38 @@ function referencesRegistrationBinding(node) {
     'global',
     'globalThis',
     'module',
+    'process',
     'program',
     'require',
     'skills',
   ]);
   const forbiddenProperties = new Set(['constructor', 'getBuiltinModule', 'mainModule']);
+  const isAllowedProcessExit = (current) => {
+    if (!ts.isIdentifier(current) || current.text !== 'process') return false;
+    const access = current.parent;
+    if (
+      !ts.isPropertyAccessExpression(access) ||
+      access.expression !== current ||
+      access.name.text !== 'exit'
+    ) {
+      return false;
+    }
+    const call = access.parent;
+    return (
+      ts.isCallExpression(call) &&
+      call.expression === access &&
+      call.arguments.length === 1 &&
+      ts.isNumericLiteral(call.arguments[0]) &&
+      call.arguments[0].text === '1'
+    );
+  };
   const visit = (current) => {
     if (
-      (ts.isIdentifier(current) && forbiddenIdentifiers.has(current.text)) ||
+      (ts.isIdentifier(current) &&
+        forbiddenIdentifiers.has(current.text) &&
+        !isAllowedProcessExit(current)) ||
       (ts.isPropertyAccessExpression(current) && forbiddenProperties.has(current.name.text)) ||
-      (ts.isElementAccessExpression(current) &&
-        current.argumentExpression &&
-        ts.isStringLiteralLike(current.argumentExpression) &&
-        forbiddenProperties.has(current.argumentExpression.text)) ||
+      ts.isElementAccessExpression(current) ||
       current.kind === ts.SyntaxKind.ThisKeyword ||
       (ts.isCallExpression(current) && current.expression.kind === ts.SyntaxKind.ImportKeyword)
     ) {
