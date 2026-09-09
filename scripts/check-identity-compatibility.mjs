@@ -72,6 +72,30 @@ const PROGRAM_IMPORTS = Object.freeze([
   { source: 'ora', default: 'ora' },
 ]);
 
+const ACTION_DIRECT_CALLS = new Set([
+  'String',
+  'addMarketplace',
+  'detectClaudePaths',
+  'doctorCheck',
+  'doctorSkills',
+  'installPlugin',
+  'installPortableSkill',
+  'listHarnesses',
+  'listPlugins',
+  'marketplaceCommand',
+  'ora',
+  'removeMarketplace',
+  'upgradeCommand',
+  'validateCommand',
+]);
+
+const ACTION_MEMBER_CALLS = Object.freeze({
+  chalk: new Set(['blue', 'gray', 'red', 'yellow']),
+  console: new Set(['error', 'log']),
+  process: new Set(['exit']),
+  spinner: new Set(['fail', 'succeed']),
+});
+
 function readJson(path) {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
@@ -243,6 +267,40 @@ function referencesRegistrationBinding(node) {
   return found;
 }
 
+function isAllowedActionCall(call) {
+  if (call.questionDotToken || call.typeArguments?.length) return false;
+  const callee = call.expression;
+  if (ts.isIdentifier(callee)) return ACTION_DIRECT_CALLS.has(callee.text);
+  if (!ts.isPropertyAccessExpression(callee) || callee.questionDotToken) return false;
+  if (ts.isIdentifier(callee.expression)) {
+    return ACTION_MEMBER_CALLS[callee.expression.text]?.has(callee.name.text) ?? false;
+  }
+  return (
+    callee.name.text === 'start' &&
+    ts.isCallExpression(callee.expression) &&
+    ts.isIdentifier(callee.expression.expression) &&
+    callee.expression.expression.text === 'ora'
+  );
+}
+
+function hasSafeActionBody(node) {
+  let safe = true;
+  const visit = (current) => {
+    if (
+      ts.isNewExpression(current) ||
+      ts.isTaggedTemplateExpression(current) ||
+      ts.isComputedPropertyName(current) ||
+      (ts.isCallExpression(current) && !isAllowedActionCall(current))
+    ) {
+      safe = false;
+      return;
+    }
+    ts.forEachChild(current, visit);
+  };
+  visit(node);
+  return safe;
+}
+
 function isStringArgument(argument) {
   return ts.isStringLiteralLike(argument);
 }
@@ -261,7 +319,9 @@ function hasSafeActionCallback(callback, calls) {
     callback.parameters.every(
       (parameter) =>
         ts.isIdentifier(parameter.name) && !parameter.dotDotDotToken && !parameter.initializer,
-    ) && !referencesRegistrationBinding(callback.body)
+    ) &&
+    !referencesRegistrationBinding(callback.body) &&
+    hasSafeActionBody(callback.body)
   );
 }
 

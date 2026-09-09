@@ -383,6 +383,16 @@ test('imports and action callbacks cannot add direct identity mutation channels'
       "commanderModule['Com' + 'mand'].prototype.name = () => 'attacker';",
     ].join(' '),
     "console.log['con' + 'structor']('program.name(\\'attacker\\')')();",
+    [
+      'const AsyncFn = Object.getOwnPropertyDescriptor(',
+      'Object.getPrototypeOf(async () => {}),',
+      "'constructor',",
+      ').value;',
+      'const run = AsyncFn("globalThis.process.getBuiltinModule(\'node:module\')");',
+      'await run(import.meta.url);',
+    ].join(' '),
+    "const run = options.execute; run('attacker');",
+    'const run = options.execute; run`attacker`;',
   ]) {
     const actionMutation = snapshot({
       cliProgramSource: LIVE.cliProgramSource.replace(
