@@ -3,8 +3,8 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "afe95da2f2bd7b391595aeff582bd26d04a5125e0a64c8831d086eb2e18abc0b",
-    "artifact_count": 3502
+    "sha256": "0217da9d276ad664196c8e9d604bc44d6fee1c04e7681a3b710c4262aa661216",
+    "artifact_count": 3532
   },
   "rule_order": [
     "G0",
@@ -19,9 +19,9 @@
     "G9"
   ],
   "counts": {
-    "AUTO-MIGRATE": 384,
+    "AUTO-MIGRATE": 409,
     "CERTIFY": 0,
-    "CERTIFY-PENDING-EVIDENCE": 2771,
+    "CERTIFY-PENDING-EVIDENCE": 2776,
     "CERTIFY-UPSTREAM": 0,
     "DEEP-REMEDIATE": 2,
     "QUARANTINE": 345
@@ -5844,8 +5844,8 @@
     },
     {
       "path": "plugins/analytics/web-analytics/skills/web-analytics/SKILL.md",
-      "grade": "C",
-      "score": 78,
+      "grade": "A",
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9320,8 +9320,8 @@
     },
     {
       "path": "plugins/productivity/pm-ai-partner/skills/builder/SKILL.md",
-      "grade": "B",
-      "score": 80,
+      "grade": "A",
+      "score": 94,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9331,8 +9331,8 @@
     },
     {
       "path": "plugins/productivity/pm-ai-partner/skills/competitor-analyst/SKILL.md",
-      "grade": "B",
-      "score": 84,
+      "grade": "A",
+      "score": 94,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9342,8 +9342,8 @@
     },
     {
       "path": "plugins/productivity/pm-ai-partner/skills/data-analyst/SKILL.md",
-      "grade": "B",
-      "score": 82,
+      "grade": "A",
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9353,8 +9353,8 @@
     },
     {
       "path": "plugins/productivity/pm-ai-partner/skills/devil-advocate/SKILL.md",
-      "grade": "B",
-      "score": 88,
+      "grade": "A",
+      "score": 94,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9364,8 +9364,8 @@
     },
     {
       "path": "plugins/productivity/pm-ai-partner/skills/hypothesis-tester/SKILL.md",
-      "grade": "B",
-      "score": 83,
+      "grade": "A",
+      "score": 92,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9375,8 +9375,8 @@
     },
     {
       "path": "plugins/productivity/pm-ai-partner/skills/meeting-prep/SKILL.md",
-      "grade": "C",
-      "score": 79,
+      "grade": "A",
+      "score": 93,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9386,8 +9386,8 @@
     },
     {
       "path": "plugins/productivity/pm-ai-partner/skills/product-brief/SKILL.md",
-      "grade": "C",
-      "score": 76,
+      "grade": "A",
+      "score": 92,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9397,8 +9397,8 @@
     },
     {
       "path": "plugins/productivity/pm-ai-partner/skills/stakeholder-update/SKILL.md",
-      "grade": "B",
-      "score": 80,
+      "grade": "A",
+      "score": 95,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9408,8 +9408,8 @@
     },
     {
       "path": "plugins/productivity/pm-ai-partner/skills/strategic-clarity/SKILL.md",
-      "grade": "C",
-      "score": 75,
+      "grade": "A",
+      "score": 92,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9419,8 +9419,8 @@
     },
     {
       "path": "plugins/productivity/pm-ai-partner/skills/technical-analyst/SKILL.md",
-      "grade": "B",
-      "score": 84,
+      "grade": "A",
+      "score": 95,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9430,8 +9430,8 @@
     },
     {
       "path": "plugins/productivity/pm-ai-partner/skills/thought-partner/SKILL.md",
-      "grade": "B",
-      "score": 88,
+      "grade": "A",
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9441,8 +9441,8 @@
     },
     {
       "path": "plugins/productivity/pm-ai-partner/skills/writer/SKILL.md",
-      "grade": "B",
-      "score": 86,
+      "grade": "A",
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -30758,6 +30758,434 @@
       "gate": "G5",
       "reason_codes": [
         "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-advanced-troubleshooting/SKILL.md",
+      "grade": "B",
+      "score": 81,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-architecture-variants/SKILL.md",
+      "grade": "C",
+      "score": 77,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-ci-integration/SKILL.md",
+      "grade": "B",
+      "score": 80,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-common-errors/SKILL.md",
+      "grade": "A",
+      "score": 94,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
+      "reason_codes": [
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-core-workflow-a/SKILL.md",
+      "grade": "C",
+      "score": 76,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-core-workflow-b/SKILL.md",
+      "grade": "B",
+      "score": 85,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-cost-tuning/SKILL.md",
+      "grade": "B",
+      "score": 83,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-data-handling/SKILL.md",
+      "grade": "C",
+      "score": 73,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-debug-bundle/SKILL.md",
+      "grade": "B",
+      "score": 88,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-deploy-integration/SKILL.md",
+      "grade": "B",
+      "score": 82,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-enterprise-rbac/SKILL.md",
+      "grade": "B",
+      "score": 81,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-hello-world/SKILL.md",
+      "grade": "C",
+      "score": 77,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-incident-runbook/SKILL.md",
+      "grade": "B",
+      "score": 88,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
+      "reason_codes": [
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-install-auth/SKILL.md",
+      "grade": "C",
+      "score": 79,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-known-pitfalls/SKILL.md",
+      "grade": "A",
+      "score": 95,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
+      "reason_codes": [
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-load-scale/SKILL.md",
+      "grade": "B",
+      "score": 83,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-local-dev-loop/SKILL.md",
+      "grade": "B",
+      "score": 82,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-migration-deep-dive/SKILL.md",
+      "grade": "B",
+      "score": 82,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-multi-env-setup/SKILL.md",
+      "grade": "B",
+      "score": 82,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-observability/SKILL.md",
+      "grade": "B",
+      "score": 80,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-performance-tuning/SKILL.md",
+      "grade": "C",
+      "score": 77,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-policy-guardrails/SKILL.md",
+      "grade": "C",
+      "score": 79,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-prod-checklist/SKILL.md",
+      "grade": "B",
+      "score": 88,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
+      "reason_codes": [
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-rate-limits/SKILL.md",
+      "grade": "C",
+      "score": 78,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-reference-architecture/SKILL.md",
+      "grade": "B",
+      "score": 87,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
+      "reason_codes": [
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-reliability-patterns/SKILL.md",
+      "grade": "C",
+      "score": 74,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-sdk-patterns/SKILL.md",
+      "grade": "C",
+      "score": 72,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-security-basics/SKILL.md",
+      "grade": "B",
+      "score": 81,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-upgrade-migration/SKILL.md",
+      "grade": "C",
+      "score": 78,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/replit-pack/skills/replit-webhooks-events/SKILL.md",
+      "grade": "B",
+      "score": 80,
+      "diagnostics": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+      ],
+      "disposition": "AUTO-MIGRATE",
+      "gate": "G5",
+      "reason_codes": [
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
       ]
     },
     {

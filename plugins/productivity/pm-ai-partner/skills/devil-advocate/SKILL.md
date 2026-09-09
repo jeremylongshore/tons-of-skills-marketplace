@@ -1,11 +1,10 @@
 ---
 name: devil-advocate
 description: Constructive critic and stress-tester for ideas and proposals. Use when
-  the user needs someone to challenge their thinking, find weaknesses, anticipate
-  objections, or strengthen an argument. Triggers include "challenge", "critique",
-  "push back", "poke holes", "stress test", "what am I missing", or "play devil's
-  advocate".
-version: 1.8.0
+  the user needs to challenge assumptions, find weaknesses, anticipate objections,
+  or strengthen an argument. Trigger with "challenge", "critique", "push back",
+  "poke holes", "stress test", "what am I missing", or "play devil's advocate".
+version: 1.10.0
 author: Ahmed Khaled Mohamed <ahmd.khaled.a.mohamed@gmail.com>
 license: MIT
 allowed-tools: Read, Glob, Grep
@@ -15,8 +14,19 @@ tags:
 - testing
 - devil-advocate
 compatibility: Designed for Claude Code
+model: inherit
+effort: medium
+user-invocable: true
 ---
 # Devil's Advocate Mode
+
+## Overview
+
+Stress-test a concrete proposal without turning the exercise into reflexive negativity. Ground
+each challenge in available evidence and use the
+[evidence and review checklist](references/evidence-and-review.md) to rank material risks.
+
+Use `Glob` to locate plans, `Grep` to surface assumptions, and `Read` to verify the evidence.
 
 ## Instructions
 
@@ -140,10 +150,6 @@ What would you push back on?
 - Create an iOS "maintenance" track for critical bugs
 
 What's driving this proposal? Understanding the "why" might reveal a better approach.
-
-## Overview
-
-Constructive critic that stress-tests ideas and proposals by finding weaknesses, anticipating objections, and suggesting mitigations to strengthen decision-making.
 
 ## Prerequisites
 

@@ -1,11 +1,10 @@
 ---
 name: data-analyst
 description: Data exploration and analysis partner for Product Managers. Use when
-  the user needs to query databases, analyze metrics, create dashboards, or extract
-  insights from data. Triggers include "query", "analyze data", "metrics", "BigQuery",
-  "SQL", "dashboard", "what does the data say", or when working with quantitative
-  information.
-version: 1.8.0
+  the user needs to query data, analyze metrics, create dashboards, or extract insights.
+  Trigger with "query", "analyze data", "metrics", "BigQuery", "SQL", "dashboard",
+  or "what does the data say".
+version: 1.10.0
 author: Ahmed Khaled Mohamed <ahmd.khaled.a.mohamed@gmail.com>
 license: MIT
 allowed-tools: Read, Grep, Glob, Bash(npm:*), Bash(node:*)
@@ -15,8 +14,19 @@ tags:
 - database
 - dashboard
 compatibility: Designed for Claude Code
+model: inherit
+effort: medium
+user-invocable: true
 ---
 # Data Analyst Mode
+
+## Overview
+
+Turn a decision question into a reproducible analysis, show the calculation, and distinguish
+observed results from interpretation. Follow the
+[evidence and review checklist](references/evidence-and-review.md) before reporting a conclusion.
+
+Use `Glob` to locate schemas, `Grep` to trace metric definitions, and `Read` to verify the source.
 
 ## Instructions
 
@@ -140,7 +150,7 @@ WITH user_cohorts AS (
     CASE WHEN last_active_date >= DATE_ADD(signup_date, INTERVAL 7 DAY)
          THEN 1 ELSE 0 END as retained_d7
   FROM users
-  WHERE signup_date BETWEEN '2026-01-01' AND '2026-01-31'
+  WHERE signup_date BETWEEN @start_date AND @end_date
 )
 SELECT
   onboarding_version,
@@ -254,10 +264,6 @@ ORDER BY i.spec_id, i.platform
 1. Investigate actual permission grant rate (requires native event logging, not just analytics events)
 2. Propose native OS prompt for Android contextual flows (currently only Onboarding uses it)
 3. Flag `in-app-chat` instrumentation to the owning team for cleanup
-
-## Overview
-
-Data exploration and analysis partner that helps product managers query databases, analyze metrics, extract actionable insights, and make data-informed product decisions.
 
 ## Prerequisites
 

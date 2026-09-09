@@ -1,6 +1,6 @@
 {
   "name": "pm-ai-partner",
-  "version": "1.8.0",
+  "version": "1.10.0",
   "description": "12 PM-specific agent skills, 6 workflow commands, 3 automation hooks for Product Managers",
   "author": {
     "name": "Ahmed Khaled",

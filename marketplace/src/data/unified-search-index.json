@@ -13606,14 +13606,14 @@
         "email": "ahmd.khaled.a.mohamed@gmail.com"
       },
       "authorType": "community",
-      "version": "1.8.0",
+      "version": "1.10.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 12,
-      "verificationScore": 82,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
+      "verificationScore": 94,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
       "searchText": "pm ai partner 12 pm-specific agent skills, 6 workflow commands, 3 automation hooks for product managers productivity product-management pm ai-partner skills commands hooks"
     },
     {
@@ -14116,7 +14116,7 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -23416,7 +23416,7 @@
       "id": "builder",
       "slug": "builder",
       "name": "builder",
-      "description": "Hands-on implementation partner for creating tools, scripts, dashboards, and prototypes. Use when the user wants to build something tangible — apps, scripts, automations, or internal tools. Triggers include \"build\", \"create tool\", \"make app\", \"implement\", \"prototype\", \"automate\", or when the goal is working software.",
+      "description": "Hands-on implementation partner for creating tools, scripts, dashboards, and prototypes. Use when the user wants working software. Trigger with \"build\", \"create tool\", \"make app\", \"implement\", \"prototype\", or \"automate\".",
       "category": "productivity",
       "allowedTools": [
         "Read",
@@ -23428,12 +23428,12 @@
         "Bash(node:*)"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.10.0",
       "parentPlugin": {
         "name": "pm-ai-partner",
         "category": "productivity"
       },
-      "searchText": "builder hands-on implementation partner for creating tools, scripts, dashboards, and prototypes. use when the user wants to build something tangible — apps, scripts, automations, or internal tools. triggers include \"build\", \"create tool\", \"make app\", \"implement\", \"prototype\", \"automate\", or when the goal is working software. productivity read write edit glob grep bash(npm:*) bash(node:*) "
+      "searchText": "builder hands-on implementation partner for creating tools, scripts, dashboards, and prototypes. use when the user wants working software. trigger with \"build\", \"create tool\", \"make app\", \"implement\", \"prototype\", or \"automate\". productivity read write edit glob grep bash(npm:*) bash(node:*) "
     },
     {
       "type": "skill",
@@ -29552,7 +29552,7 @@
       "id": "competitor-analyst",
       "slug": "competitor-analyst",
       "name": "competitor-analyst",
-      "description": "Competitive analysis and market positioning partner for Product Managers. Use when the user needs to analyze competitors, map market positioning, identify feature gaps, or prepare for competitive conversations. Triggers include \"competitor\", \"competitive analysis\", \"market map\", \"feature comparison\", \"how does X compare\", \"positioning\", or when evaluating the competitive landscape.",
+      "description": "Competitive analysis and market positioning partner for Product Managers. Use when the user needs to analyze competitors, map positioning, or identify feature gaps. Trigger with \"competitor\", \"competitive analysis\", \"market map\", \"feature comparison\", \"how does X compare\", or \"positioning\".",
       "category": "productivity",
       "allowedTools": [
         "Read",
@@ -29560,12 +29560,12 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.10.0",
       "parentPlugin": {
         "name": "pm-ai-partner",
         "category": "productivity"
       },
-      "searchText": "competitor-analyst competitive analysis and market positioning partner for product managers. use when the user needs to analyze competitors, map market positioning, identify feature gaps, or prepare for competitive conversations. triggers include \"competitor\", \"competitive analysis\", \"market map\", \"feature comparison\", \"how does x compare\", \"positioning\", or when evaluating the competitive landscape. productivity read glob grep "
+      "searchText": "competitor-analyst competitive analysis and market positioning partner for product managers. use when the user needs to analyze competitors, map positioning, or identify feature gaps. trigger with \"competitor\", \"competitive analysis\", \"market map\", \"feature comparison\", \"how does x compare\", or \"positioning\". productivity read glob grep "
     },
     {
       "type": "skill",
@@ -32031,7 +32031,7 @@
       "id": "data-analyst",
       "slug": "data-analyst",
       "name": "data-analyst",
-      "description": "Data exploration and analysis partner for Product Managers. Use when the user needs to query databases, analyze metrics, create dashboards, or extract insights from data. Triggers include \"query\", \"analyze data\", \"metrics\", \"BigQuery\", \"SQL\", \"dashboard\", \"what does the data say\", or when working with quantitative information.",
+      "description": "Data exploration and analysis partner for Product Managers. Use when the user needs to query data, analyze metrics, create dashboards, or extract insights. Trigger with \"query\", \"analyze data\", \"metrics\", \"BigQuery\", \"SQL\", \"dashboard\", or \"what does the data say\".",
       "category": "productivity",
       "allowedTools": [
         "Read",
@@ -32041,12 +32041,12 @@
         "Bash(node:*)"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.10.0",
       "parentPlugin": {
         "name": "pm-ai-partner",
         "category": "productivity"
       },
-      "searchText": "data-analyst data exploration and analysis partner for product managers. use when the user needs to query databases, analyze metrics, create dashboards, or extract insights from data. triggers include \"query\", \"analyze data\", \"metrics\", \"bigquery\", \"sql\", \"dashboard\", \"what does the data say\", or when working with quantitative information. productivity read grep glob bash(npm:*) bash(node:*) "
+      "searchText": "data-analyst data exploration and analysis partner for product managers. use when the user needs to query data, analyze metrics, create dashboards, or extract insights. trigger with \"query\", \"analyze data\", \"metrics\", \"bigquery\", \"sql\", \"dashboard\", or \"what does the data say\". productivity read grep glob bash(npm:*) bash(node:*) "
     },
     {
       "type": "skill",
@@ -33371,7 +33371,7 @@
       "id": "devil-advocate",
       "slug": "devil-advocate",
       "name": "devil-advocate",
-      "description": "Constructive critic and stress-tester for ideas and proposals. Use when the user needs someone to challenge their thinking, find weaknesses, anticipate objections, or strengthen an argument. Triggers include \"challenge\", \"critique\", \"push back\", \"poke holes\", \"stress test\", \"what am I missing\", or \"play devil's advocate\".",
+      "description": "Constructive critic and stress-tester for ideas and proposals. Use when the user needs to challenge assumptions, find weaknesses, anticipate objections, or strengthen an argument. Trigger with \"challenge\", \"critique\", \"push back\", \"poke holes\", \"stress test\", \"what am I missing\", or \"play devil's advocate\".",
       "category": "productivity",
       "allowedTools": [
         "Read",
@@ -33379,12 +33379,12 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.10.0",
       "parentPlugin": {
         "name": "pm-ai-partner",
         "category": "productivity"
       },
-      "searchText": "devil-advocate constructive critic and stress-tester for ideas and proposals. use when the user needs someone to challenge their thinking, find weaknesses, anticipate objections, or strengthen an argument. triggers include \"challenge\", \"critique\", \"push back\", \"poke holes\", \"stress test\", \"what am i missing\", or \"play devil's advocate\". productivity read glob grep "
+      "searchText": "devil-advocate constructive critic and stress-tester for ideas and proposals. use when the user needs to challenge assumptions, find weaknesses, anticipate objections, or strengthen an argument. trigger with \"challenge\", \"critique\", \"push back\", \"poke holes\", \"stress test\", \"what am i missing\", or \"play devil's advocate\". productivity read glob grep "
     },
     {
       "type": "skill",
@@ -46212,7 +46212,7 @@
       "id": "hypothesis-tester",
       "slug": "hypothesis-tester",
       "name": "hypothesis-tester",
-      "description": "Structured hypothesis formulation, experiment design, and results interpretation for Product Managers. Use when the user needs to validate an assumption, design an A/B test, evaluate experiment results, or decide whether to ship based on data. Triggers include \"hypothesis\", \"A/B test\", \"experiment\", \"validate assumption\", \"test this\", \"should we ship\", or when making a decision that should be data-informed.",
+      "description": "Structured hypothesis formulation, experiment design, and results interpretation for Product Managers. Use when the user needs to validate an assumption, design an A/B test, or evaluate results. Trigger with \"hypothesis\", \"A/B test\", \"experiment\", \"validate assumption\", \"test this\", or \"should we ship\".",
       "category": "productivity",
       "allowedTools": [
         "Read",
@@ -46220,12 +46220,12 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.10.0",
       "parentPlugin": {
         "name": "pm-ai-partner",
         "category": "productivity"
       },
-      "searchText": "hypothesis-tester structured hypothesis formulation, experiment design, and results interpretation for product managers. use when the user needs to validate an assumption, design an a/b test, evaluate experiment results, or decide whether to ship based on data. triggers include \"hypothesis\", \"a/b test\", \"experiment\", \"validate assumption\", \"test this\", \"should we ship\", or when making a decision that should be data-informed. productivity read glob grep "
+      "searchText": "hypothesis-tester structured hypothesis formulation, experiment design, and results interpretation for product managers. use when the user needs to validate an assumption, design an a/b test, or evaluate results. trigger with \"hypothesis\", \"a/b test\", \"experiment\", \"validate assumption\", \"test this\", or \"should we ship\". productivity read glob grep "
     },
     {
       "type": "skill",
@@ -54912,7 +54912,7 @@
       "id": "meeting-prep-2",
       "slug": "meeting-prep-2",
       "name": "meeting-prep",
-      "description": "Meeting preparation assistant for Product Managers. Use when the user needs to prepare for a meeting, create talking points, anticipate questions, or structure a discussion. Triggers include \"prepare for meeting\", \"meeting prep\", \"talking points\", \"get ready for\", \"1:1 prep\", or when preparing for any scheduled conversation.",
+      "description": "Meeting preparation assistant for Product Managers. Use when the user needs to prepare a meeting, create talking points, anticipate questions, or structure a decision. Trigger with \"prepare for meeting\", \"meeting prep\", \"talking points\", \"get ready for\", or \"1:1 prep\".",
       "category": "productivity",
       "allowedTools": [
         "Read",
@@ -54920,12 +54920,12 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.10.0",
       "parentPlugin": {
         "name": "pm-ai-partner",
         "category": "productivity"
       },
-      "searchText": "meeting-prep meeting preparation assistant for product managers. use when the user needs to prepare for a meeting, create talking points, anticipate questions, or structure a discussion. triggers include \"prepare for meeting\", \"meeting prep\", \"talking points\", \"get ready for\", \"1:1 prep\", or when preparing for any scheduled conversation. productivity read glob grep "
+      "searchText": "meeting-prep meeting preparation assistant for product managers. use when the user needs to prepare a meeting, create talking points, anticipate questions, or structure a decision. trigger with \"prepare for meeting\", \"meeting prep\", \"talking points\", \"get ready for\", or \"1:1 prep\". productivity read glob grep "
     },
     {
       "type": "skill",
@@ -64566,7 +64566,7 @@
       "id": "product-brief",
       "slug": "product-brief",
       "name": "product-brief",
-      "description": "Structured product brief and PRD creation assistant. Use when the user needs to write a product brief, PRD, feature spec, or any document that defines what to build and why. Triggers include \"product brief\", \"PRD\", \"spec\", \"feature doc\", \"write a brief\", \"define this feature\", or when scoping work for engineering.",
+      "description": "Structured product brief and PRD creation assistant. Use when the user needs to create a product brief, PRD, or feature spec that defines what to build and why. Trigger with \"product brief\", \"PRD\", \"spec\", \"feature doc\", \"write a brief\", or \"define this feature\".",
       "category": "productivity",
       "allowedTools": [
         "Read",
@@ -64574,12 +64574,12 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.10.0",
       "parentPlugin": {
         "name": "pm-ai-partner",
         "category": "productivity"
       },
-      "searchText": "product-brief structured product brief and prd creation assistant. use when the user needs to write a product brief, prd, feature spec, or any document that defines what to build and why. triggers include \"product brief\", \"prd\", \"spec\", \"feature doc\", \"write a brief\", \"define this feature\", or when scoping work for engineering. productivity read glob grep "
+      "searchText": "product-brief structured product brief and prd creation assistant. use when the user needs to create a product brief, prd, or feature spec that defines what to build and why. trigger with \"product brief\", \"prd\", \"spec\", \"feature doc\", \"write a brief\", or \"define this feature\". productivity read glob grep "
     },
     {
       "type": "skill",
@@ -72609,7 +72609,7 @@
       "id": "stakeholder-update",
       "slug": "stakeholder-update",
       "name": "stakeholder-update",
-      "description": "Stakeholder communication assistant for status updates, progress reports, and executive summaries. Use when the user needs to write a stakeholder update, status report, progress summary, or any upward communication. Triggers include \"stakeholder update\", \"status update\", \"progress report\", \"update leadership\", \"weekly update\", or \"executive summary\".",
+      "description": "Create and review stakeholder status updates, progress reports, and executive summaries. Use when the user needs to write concise upward communication. Trigger with \"stakeholder update\", \"status update\", \"progress report\", \"update leadership\", \"weekly update\", or \"executive summary\".",
       "category": "productivity",
       "allowedTools": [
         "Read",
@@ -72617,19 +72617,19 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.10.0",
       "parentPlugin": {
         "name": "pm-ai-partner",
         "category": "productivity"
       },
-      "searchText": "stakeholder-update stakeholder communication assistant for status updates, progress reports, and executive summaries. use when the user needs to write a stakeholder update, status report, progress summary, or any upward communication. triggers include \"stakeholder update\", \"status update\", \"progress report\", \"update leadership\", \"weekly update\", or \"executive summary\". productivity read glob grep "
+      "searchText": "stakeholder-update create and review stakeholder status updates, progress reports, and executive summaries. use when the user needs to write concise upward communication. trigger with \"stakeholder update\", \"status update\", \"progress report\", \"update leadership\", \"weekly update\", or \"executive summary\". productivity read glob grep "
     },
     {
       "type": "skill",
       "id": "strategic-clarity",
       "slug": "strategic-clarity",
       "name": "strategic-clarity",
-      "description": "Guided workflow for establishing team identity, boundaries, and strategic clarity. Use when starting a new role, inheriting ambiguity, when a team lacks clear identity, or when you need to define \"what we own\" vs \"what we don't\". Triggers include \"strategic clarity\", \"team identity\", \"new role\", \"inherited ambiguity\", \"what does my team own\", or \"define our boundaries\".",
+      "description": "Analyze and audit team context to establish identity, boundaries, and strategic clarity. Use when starting a new role, inheriting ambiguity, or defining ownership. Trigger with \"strategic clarity\", \"team identity\", \"new role\", \"inherited ambiguity\", \"what does my team own\", or \"define our boundaries\".",
       "category": "productivity",
       "allowedTools": [
         "Read",
@@ -72637,12 +72637,12 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.10.0",
       "parentPlugin": {
         "name": "pm-ai-partner",
         "category": "productivity"
       },
-      "searchText": "strategic-clarity guided workflow for establishing team identity, boundaries, and strategic clarity. use when starting a new role, inheriting ambiguity, when a team lacks clear identity, or when you need to define \"what we own\" vs \"what we don't\". triggers include \"strategic clarity\", \"team identity\", \"new role\", \"inherited ambiguity\", \"what does my team own\", or \"define our boundaries\". productivity read glob grep "
+      "searchText": "strategic-clarity analyze and audit team context to establish identity, boundaries, and strategic clarity. use when starting a new role, inheriting ambiguity, or defining ownership. trigger with \"strategic clarity\", \"team identity\", \"new role\", \"inherited ambiguity\", \"what does my team own\", or \"define our boundaries\". productivity read glob grep "
     },
     {
       "type": "skill",
@@ -73655,7 +73655,7 @@
       "id": "technical-analyst",
       "slug": "technical-analyst",
       "name": "technical-analyst",
-      "description": "Technical analysis translator for Product Managers. Use when the user needs to understand a system, codebase, API, or technical concept in PM-friendly terms. Triggers include \"understand system\", \"explain code\", \"technical analysis\", \"how does X work\", \"what does this service do\", or when exploring unfamiliar technical territory.",
+      "description": "Technical analysis translator for Product Managers. Use when the user needs to analyze a system, codebase, API, or technical concept in PM-friendly terms. Trigger with \"understand system\", \"explain code\", \"technical analysis\", \"how does X work\", or \"what does this service do\".",
       "category": "productivity",
       "allowedTools": [
         "Read",
@@ -73664,12 +73664,12 @@
         "Bash(git:*)"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.10.0",
       "parentPlugin": {
         "name": "pm-ai-partner",
         "category": "productivity"
       },
-      "searchText": "technical-analyst technical analysis translator for product managers. use when the user needs to understand a system, codebase, api, or technical concept in pm-friendly terms. triggers include \"understand system\", \"explain code\", \"technical analysis\", \"how does x work\", \"what does this service do\", or when exploring unfamiliar technical territory. productivity read grep glob bash(git:*) "
+      "searchText": "technical-analyst technical analysis translator for product managers. use when the user needs to analyze a system, codebase, api, or technical concept in pm-friendly terms. trigger with \"understand system\", \"explain code\", \"technical analysis\", \"how does x work\", or \"what does this service do\". productivity read grep glob bash(git:*) "
     },
     {
       "type": "skill",
@@ -74188,7 +74188,7 @@
       "id": "thought-partner",
       "slug": "thought-partner",
       "name": "thought-partner",
-      "description": "Collaborative thinking partner for exploring ideas, challenges, and decisions. Use when the user says \"think through\", \"explore\", \"brainstorm\", \"help me figure out\", asks open-ended questions about strategy or priorities, or needs to work through a problem without a clear solution yet.",
+      "description": "Collaborative thinking partner for exploring ideas, challenges, and decisions. Use when the user needs to analyze ambiguity, test assumptions, or compare options. Trigger with \"think through\", \"explore\", \"brainstorm\", \"help me figure out\", or an open-ended strategy or priority question.",
       "category": "productivity",
       "allowedTools": [
         "Read",
@@ -74196,12 +74196,12 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.10.0",
       "parentPlugin": {
         "name": "pm-ai-partner",
         "category": "productivity"
       },
-      "searchText": "thought-partner collaborative thinking partner for exploring ideas, challenges, and decisions. use when the user says \"think through\", \"explore\", \"brainstorm\", \"help me figure out\", asks open-ended questions about strategy or priorities, or needs to work through a problem without a clear solution yet. productivity read glob grep "
+      "searchText": "thought-partner collaborative thinking partner for exploring ideas, challenges, and decisions. use when the user needs to analyze ambiguity, test assumptions, or compare options. trigger with \"think through\", \"explore\", \"brainstorm\", \"help me figure out\", or an open-ended strategy or priority question. productivity read glob grep "
     },
     {
       "type": "skill",
@@ -77857,27 +77857,23 @@
       "id": "web-analytics",
       "slug": "web-analytics",
       "name": "web-analytics",
-      "description": "Push-based web analytics intelligence for your entire site portfolio. Fetches data from Umami (primary) and GA4 (fallback), runs specialist analysis agents in parallel, and delivers actionable insights. Three tiers: mini (30s pulse), medium (2min brief), full (5min deep dive). Supports console, email, and Slack delivery. Trigger with \"/analytics\", \"check my analytics\", \"how's my traffic\", \"site stats\", \"traffic report\", \"analytics brief\", \"daily brief\".",
+      "description": "Analyze Umami or GA4 traffic with evidence-backed specialist reviews and deliver a concise portfolio pulse, decision brief, or deep dive. Use when the user asks to check analytics, explain a traffic change, inspect funnels, compare site performance, or prepare an analytics report. Trigger with \"/analytics\", \"check my analytics\", \"how's my traffic\", \"site stats\", \"traffic report\", or \"analytics brief\".",
       "category": "analytics",
       "allowedTools": [
         "Read",
-        "Glob",
-        "Grep",
         "Bash(date:*)",
-        "Bash(node:*)",
         "Bash(curl:*)",
         "Bash(python3:*)",
         "Bash(source:*)",
-        "Task",
-        "AskUserQuestion"
+        "Agent"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "web-analytics",
         "category": "analytics"
       },
-      "searchText": "web-analytics push-based web analytics intelligence for your entire site portfolio. fetches data from umami (primary) and ga4 (fallback), runs specialist analysis agents in parallel, and delivers actionable insights. three tiers: mini (30s pulse), medium (2min brief), full (5min deep dive). supports console, email, and slack delivery. trigger with \"/analytics\", \"check my analytics\", \"how's my traffic\", \"site stats\", \"traffic report\", \"analytics brief\", \"daily brief\". analytics read glob grep bash(date:*) bash(node:*) bash(curl:*) bash(python3:*) bash(source:*) task askuserquestion "
+      "searchText": "web-analytics analyze umami or ga4 traffic with evidence-backed specialist reviews and deliver a concise portfolio pulse, decision brief, or deep dive. use when the user asks to check analytics, explain a traffic change, inspect funnels, compare site performance, or prepare an analytics report. trigger with \"/analytics\", \"check my analytics\", \"how's my traffic\", \"site stats\", \"traffic report\", or \"analytics brief\". analytics read bash(date:*) bash(curl:*) bash(python3:*) bash(source:*) agent "
     },
     {
       "type": "skill",
@@ -79479,7 +79475,7 @@
       "id": "writer",
       "slug": "writer",
       "name": "writer",
-      "description": "Professional writing assistant for PM documents. Use when the user needs to write, draft, or polish documents like briefs, updates, emails, or presentations. Triggers include \"write\", \"draft\", \"document\", \"help me write\", \"create a brief\", \"polish this\", or when producing any written deliverable.",
+      "description": "Professional writing assistant for PM documents. Use when the user needs to create, draft, review, or polish briefs, updates, emails, or presentations. Trigger with \"write\", \"draft\", \"document\", \"help me write\", \"create a brief\", or \"polish this\".",
       "category": "productivity",
       "allowedTools": [
         "Read",
@@ -79487,12 +79483,12 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.10.0",
       "parentPlugin": {
         "name": "pm-ai-partner",
         "category": "productivity"
       },
-      "searchText": "writer professional writing assistant for pm documents. use when the user needs to write, draft, or polish documents like briefs, updates, emails, or presentations. triggers include \"write\", \"draft\", \"document\", \"help me write\", \"create a brief\", \"polish this\", or when producing any written deliverable. productivity read glob grep "
+      "searchText": "writer professional writing assistant for pm documents. use when the user needs to create, draft, review, or polish briefs, updates, emails, or presentations. trigger with \"write\", \"draft\", \"document\", \"help me write\", \"create a brief\", or \"polish this\". productivity read glob grep "
     },
     {
       "type": "skill",

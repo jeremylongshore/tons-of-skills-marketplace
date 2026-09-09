@@ -10129,7 +10129,7 @@
       "name": "pm-ai-partner",
       "source": "./plugins/productivity/pm-ai-partner",
       "description": "12 PM-specific agent skills, 6 workflow commands, 3 automation hooks for Product Managers",
-      "version": "1.8.0",
+      "version": "1.10.0",
       "category": "productivity",
       "keywords": [
         "product-management",
@@ -10150,10 +10150,10 @@
         "total": 21
       },
       "verification": {
-        "score": 82,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 94,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-09T00:00:00.000Z"
       }
     },
     {
@@ -10647,7 +10647,7 @@
       "name": "web-analytics",
       "source": "./plugins/analytics/web-analytics",
       "description": "Push-based web analytics intelligence team — self-hosted Umami via MCP (primary) + GA4 (fallback). 9 specialist agents fetch data, detect anomalies, analyze funnels, verify claims adversarially, and deliver narrative reports across your entire site portfolio. Three tiers: 30-second pulse, 2-min brief, 5-min full deep-dive. Console / email / Slack delivery.",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "category": "analytics",
       "keywords": [
         "analytics",

@@ -181,6 +181,14 @@ plugins/skill-enhancers/skill-creator/skills/skill-creator/references/validation
 # ── Google ADK lifecycle research, reviewed 2026-09-09. ──
 plugins/productivity/004-jeremy-google-cloud-agent-sdk/skills/google-cloud-agent-sdk-master/SKILL.md:allowed-tools-network  WebFetch/WebSearch are intentionally limited by the skill instructions to current official Google documentation; the skill handles no credentials or secret-bearing network requests
 
+# ── PM AI Partner advisory hooks, reviewed 2026-09-09. ──
+# The two PostToolUse handlers emit local quality/draft reminders after Write/Edit.
+# The PreToolUse handler reads the Bash command and emits a checklist only for git
+# commit. All three are fixed plugin-root scripts, non-blocking, fail closed on
+# malformed input without printing it, and perform no network, credential, or
+# dynamic execution.
+plugins/productivity/pm-ai-partner/hooks/hooks.json:hook-definition  three fixed-path advisory reminder handlers; non-blocking, no network/credentials/dynamic-exec, and no untrusted command execution — reviewed 2026-09-09
+
 # ── ops-review docs-truth pass (claude-k0h2, 2026-07-14): sources.yaml HEADER COMMENTS only. ──
 plugins/saas-packs/hubspot-pack/skills/hubspot-warehouse-sync/SKILL.md:secret-exfil-cooccur  documented backfill example reads HUBSPOT_ACCESS_TOKEN from env and sends it only to api.hubapi.com (the credential's own service); BigQuery sink uses GCP client creds, not the HubSpot token — reviewed 2026-07-16
 plugins/saas-packs/ga4-pack/skills/ga4-auth-setup/SKILL.md:secret-exfil-cooccur  documented Google Analytics Data API verification reads GOOGLE_APPLICATION_CREDENTIALS only through the official client, which sends it only to Google's own API; no third-party sink

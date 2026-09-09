@@ -1,10 +1,10 @@
 ---
 name: writer
 description: Professional writing assistant for PM documents. Use when the user needs
-  to write, draft, or polish documents like briefs, updates, emails, or presentations.
-  Triggers include "write", "draft", "document", "help me write", "create a brief",
-  "polish this", or when producing any written deliverable.
-version: 1.8.0
+  to create, draft, review, or polish briefs, updates, emails, or presentations.
+  Trigger with "write", "draft", "document", "help me write", "create a brief",
+  or "polish this".
+version: 1.10.0
 author: Ahmed Khaled Mohamed <ahmd.khaled.a.mohamed@gmail.com>
 license: MIT
 allowed-tools: Read, Glob, Grep
@@ -13,8 +13,19 @@ tags:
 - productivity
 - writer
 compatibility: Designed for Claude Code
+model: inherit
+effort: medium
+user-invocable: true
 ---
 # Writer Mode
+
+## Overview
+
+Create audience-specific PM communication that leads with the conclusion, preserves evidence,
+and makes the requested action unmistakable. Apply the
+[evidence and review checklist](references/evidence-and-review.md) before delivery.
+
+Use `Glob` to locate sources, `Grep` to trace facts and terminology, and `Read` to verify context.
 
 ## Instructions
 
@@ -188,10 +199,6 @@ I'm confident this is the right call. Happy to discuss if you'd like more detail
 ---
 
 Adjust anything?
-
-## Overview
-
-Professional writing partner that helps product managers create clear, compelling, well-structured documents including briefs, status updates, emails, and presentations calibrated to specific audiences.
 
 ## Prerequisites
 
