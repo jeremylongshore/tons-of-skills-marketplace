@@ -16,19 +16,19 @@
     "values": {
       "a_error_total": 32,
       "a_failing": 15,
-      "ab_error_total": 575,
-      "ab_failing": 270,
-      "b_failing": 255,
-      "error_files": 691,
-      "error_total": 3670,
+      "ab_error_total": 547,
+      "ab_failing": 256,
+      "b_failing": 241,
+      "error_files": 666,
+      "error_total": 3621,
       "grade_distribution": {
-        "A": 1923,
-        "B": 1046,
-        "C": 401,
+        "A": 1921,
+        "B": 1029,
+        "C": 390,
         "D": 157,
         "F": 5
       },
-      "rows": 3532
+      "rows": 3502
     }
   },
   "rows": {
@@ -41,8 +41,8 @@
       "target_status": "informational",
       "values": {
         "plugin_agent_files": 352,
-        "raw_tracked_plugin_skill_files": 3032,
-        "tracked_files": 24078
+        "raw_tracked_plugin_skill_files": 3002,
+        "tracked_files": 23992
       }
     },
     "2": {
@@ -53,9 +53,9 @@
       "status": "measured",
       "target_status": "pass",
       "values": {
-        "distinct_names": 444,
+        "distinct_names": 443,
         "duplicate_names": [],
-        "entries": 444
+        "entries": 443
       }
     },
     "3": {
@@ -80,45 +80,45 @@
       "values": {
         "agent_lane": {
           "error_total_all_validated_surfaces": 236,
-          "fully_compliant_surfaces": 776,
+          "fully_compliant_surfaces": 775,
           "terminal_denominator": {
             "agents": 363,
-            "files": 958,
+            "files": 957,
             "label": "agents_plus_plugin_manifests",
-            "plugin_manifests": 595
+            "plugin_manifests": 594
           },
           "validator_reported_mixed_denominator_percent": 81
         },
         "marketplace_terminal": {
-          "error_total_all_validated_surfaces": 3907,
-          "fully_compliant_surfaces": 1185,
+          "error_total_all_validated_surfaces": 3858,
+          "fully_compliant_surfaces": 1184,
           "terminal_denominator": {
             "agents": 363,
             "commands": 373,
-            "files": 4863,
+            "files": 4832,
             "label": "skills_plus_commands_plus_agents_plus_plugin_manifests",
-            "plugin_manifests": 595,
-            "skills": 3532
+            "plugin_manifests": 594,
+            "skills": 3502
           },
-          "validated_plugin_manifests": 603,
-          "validator_reported_mixed_denominator_percent": 24.4
+          "validated_plugin_manifests": 602,
+          "validator_reported_mixed_denominator_percent": 24.5
         },
         "skill_rows": {
           "a_error_total": 32,
           "a_failing": 15,
-          "ab_error_total": 575,
-          "ab_failing": 270,
-          "b_failing": 255,
-          "error_files": 691,
-          "error_total": 3670,
+          "ab_error_total": 547,
+          "ab_failing": 256,
+          "b_failing": 241,
+          "error_files": 666,
+          "error_total": 3621,
           "grade_distribution": {
-            "A": 1923,
-            "B": 1046,
-            "C": 401,
+            "A": 1921,
+            "B": 1029,
+            "C": 390,
             "D": 157,
             "F": 5
           },
-          "rows": 3532
+          "rows": 3502
         }
       }
     },
@@ -129,22 +129,22 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "average_score": 87.6,
+        "average_score": 87.7,
         "grade_distribution": {
-          "A": 1923,
-          "B": 1046,
-          "C": 401,
+          "A": 1921,
+          "B": 1029,
+          "C": 390,
           "D": 157,
           "F": 5
         },
         "grade_percentages": {
-          "A": 54.4,
-          "B": 29.6,
-          "C": 11.4,
-          "D": 4.4,
+          "A": 54.9,
+          "B": 29.4,
+          "C": 11.1,
+          "D": 4.5,
           "F": 0.1
         },
-        "rows": 3532
+        "rows": 3502
       }
     },
     "6": {
@@ -156,12 +156,12 @@
       "values": {
         "a_error_total": 32,
         "a_failing": 15,
-        "ab_error_total": 575,
-        "ab_failing": 270,
-        "b_error_total": 543,
-        "b_failing": 255,
+        "ab_error_total": 547,
+        "ab_failing": 256,
+        "b_error_total": 515,
+        "b_failing": 241,
         "certified_target": 0,
-        "skill_summary_rows": 3532
+        "skill_summary_rows": 3502
       }
     },
     "7": {
@@ -270,12 +270,12 @@
       ],
       "status": "partial",
       "values": {
-        "declared": 3521,
+        "declared": 3491,
         "folded_scalar": 5,
         "malformed_frontmatter": 0,
         "malformed_shape": 0,
         "missing": 11,
-        "rows": 3532,
+        "rows": 3502,
         "target_malformed": 0
       }
     },
@@ -367,7 +367,7 @@
             "value": "Cross-platform — talks WebDriver HTTP directly via Node's built-in node:https; no platform-specific binary dependency. Requires Node.js >= 18, a persistent local filesystem (the observe-decide-act loop passes state through local turn files), and ~/.kobiton/.credentials written by /automate:setup — scripts/appium.js reads that file directly and never calls the MCP getCredential tool, so it is required, not a fallback. An authenticated Kobiton MCP connection is additionally useful for device selection."
           },
           {
-            "count": 3196,
+            "count": 3166,
             "value": "Designed for Claude Code"
           },
           {
@@ -1220,7 +1220,7 @@
         "answers": [
           {
             "cohort": "curated-mirror",
-            "value": 2400
+            "value": 2381
           },
           {
             "cohort": "curriculum",
@@ -1228,15 +1228,15 @@
           },
           {
             "cohort": "first-party",
-            "value": 2687
+            "value": 2657
           },
           {
             "cohort": "graded",
-            "value": 3532
+            "value": 3502
           },
           {
             "cohort": "marketplace-visible",
-            "value": 2941
+            "value": 2911
           }
         ],
         "distinct_numeric_answers": 5,
@@ -1960,7 +1960,7 @@
         "invalid_patterns": 0,
         "invisible_files": 5,
         "target_invisible_files": 0,
-        "tracked_files": 24078
+        "tracked_files": 23992
       }
     },
     "47": {
@@ -2243,9 +2243,9 @@
       ],
       "status": "measured",
       "values": {
-        "adoption_percent": 1.06,
+        "adoption_percent": 1.07,
         "curated_copies": 32,
-        "plugin_skill_rows": 3032,
+        "plugin_skill_rows": 3002,
         "source_eval_specs": 32,
         "tracked_eval_specs": 64
       }
