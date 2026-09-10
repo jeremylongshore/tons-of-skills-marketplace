@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/miro-pack",
   "version": "1.0.4",
-  "description": "Production Miro operator workflows for OAuth, boards, governance, migration, and resilient synchronization",
+  "description": "Miro operator workflows for OAuth, boards, governance, migration, and resilient synchronization; live actions remain approval-gated",
   "main": "README.md",
   "type": "module",
   "files": [

@@ -12799,7 +12799,7 @@
       "slug": "miro-pack",
       "name": "miro-pack",
       "displayName": "miro pack",
-      "description": "Production Miro operator workflows for OAuth, boards, governance, migration, and resilient synchronization (24 skills)",
+      "description": "Miro operator workflows for OAuth, boards, governance, migration, and resilient synchronization (24 skills; live actions remain approval-gated)",
       "category": "saas-packs",
       "keywords": [
         "miro",
@@ -12821,7 +12821,7 @@
       "verificationScore": 99,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "miro pack production miro operator workflows for oauth, boards, governance, migration, and resilient synchronization (24 skills) saas-packs miro saas sdk integration"
+      "searchText": "miro pack miro operator workflows for oauth, boards, governance, migration, and resilient synchronization (24 skills; live actions remain approval-gated) saas-packs miro saas sdk integration"
     },
     {
       "type": "plugin",

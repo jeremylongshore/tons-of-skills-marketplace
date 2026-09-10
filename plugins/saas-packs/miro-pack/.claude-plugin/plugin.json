@@ -1,7 +1,7 @@
 {
   "name": "miro-pack",
   "version": "1.9.0",
-  "description": "Production Miro operator workflows for OAuth, boards, governance, migration, and resilient synchronization (24 skills)",
+  "description": "Miro operator workflows for OAuth, boards, governance, migration, and resilient synchronization (24 skills; live actions remain approval-gated)",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
