@@ -33,7 +33,6 @@ Install PostHog SDKs and configure authentication. PostHog uses two key types: *
 
 Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Grep` to locate initialization, capture, flag, and credential boundaries. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
 
-
 ### Step 1: Install the SDK
 
 ```bash

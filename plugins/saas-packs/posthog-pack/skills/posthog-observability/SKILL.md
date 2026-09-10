@@ -33,7 +33,6 @@ Observe four boundaries independently: application capture attempts and failures
 
 Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
 
-
 ### Step 1: Event Ingestion Health Check
 
 ```bash

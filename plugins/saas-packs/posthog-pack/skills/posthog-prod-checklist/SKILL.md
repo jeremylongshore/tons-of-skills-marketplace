@@ -161,7 +161,7 @@ export async function handler(request: Request) {
 
 ```bash
 set -euo pipefail
-: "${POSTHOG_PUBLIC_HOST:?Set the project's regional ingestion host}"
+: "${POSTHOG_PUBLIC_HOST:?Set the regional ingestion host for this project}"
 : "${POSTHOG_PRIVATE_HOST:?Set the matching private API host}"
 
 # 1. Verify PostHog is reachable from the release environment.

@@ -47,7 +47,6 @@ PostHog access control uses a three-level hierarchy: Organization > Project > Re
 
 Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
 
-
 ### Step 1: Set Up Project-Level Access
 
 ```bash

@@ -33,7 +33,6 @@ Set up a fast local development workflow for PostHog integrations. Covers debug 
 
 Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Grep` to locate initialization, capture, flag, and credential boundaries. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
 
-
 ### Step 1: Project Structure
 
 ```

@@ -32,7 +32,6 @@ Minimal working examples demonstrating the three core PostHog operations: captur
 
 Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
 
-
 ### Step 1: Capture Your First Event (Node.js)
 
 ```typescript

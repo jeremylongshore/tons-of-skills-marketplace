@@ -95,7 +95,7 @@ echo "Bundle complete: $BUNDLE_DIR/" >> "$BUNDLE_DIR/summary.txt"
 set -euo pipefail
 : "${POSTHOG_WRITE_PROBE_APPROVED:?Set only after the incident commander approves a synthetic write}"
 test "$POSTHOG_WRITE_PROBE_APPROVED" = "yes"
-: "${POSTHOG_PUBLIC_HOST:?Set the project's regional ingestion host}"
+: "${POSTHOG_PUBLIC_HOST:?Set the regional ingestion host for this project}"
 
 # Send a named synthetic event and verify receipt. A 200 does not prove ingestion.
 RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$POSTHOG_PUBLIC_HOST/i/v0/e/" \

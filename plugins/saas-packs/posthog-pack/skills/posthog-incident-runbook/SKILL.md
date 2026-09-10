@@ -31,7 +31,6 @@ Rapid incident response for PostHog integration failures. PostHog Cloud has its 
 
 Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Grep` to locate initialization, capture, flag, and credential boundaries.
 
-
 Follow the triage sequence below. Stop when evidence identifies a failed boundary; do not continue mutating unrelated layers.
 
 ## Severity Levels
@@ -47,7 +46,7 @@ Follow the triage sequence below. Stop when evidence identifies a failed boundar
 
 ```bash
 set -euo pipefail
-: "${POSTHOG_PUBLIC_HOST:?Set the project's US or EU ingestion host}"
+: "${POSTHOG_PUBLIC_HOST:?Set the US or EU ingestion host for this project}"
 : "${POSTHOG_PRIVATE_HOST:?Set the matching US or EU private API host}"
 
 # 1. Check PostHog's status page and the selected regional ingestion host.

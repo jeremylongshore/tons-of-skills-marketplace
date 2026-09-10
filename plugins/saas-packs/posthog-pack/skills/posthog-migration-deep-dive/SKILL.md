@@ -34,7 +34,6 @@ Migrate from Google Analytics, Mixpanel, Amplitude, or Segment to PostHog using 
 
 ## Migration Types
 
-
 | Source | Primary discovery risk | Evidence required before import |
 |--------|------------------------|---------------------------------|
 | Google Analytics (GA4) | Event and identity models differ | Approved taxonomy and identity mapping |
@@ -48,7 +47,6 @@ Migrate from Google Analytics, Mixpanel, Amplitude, or Segment to PostHog using 
 ### Tool discipline
 
 Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
-
 
 ### Step 1: Event Name Mapping
 

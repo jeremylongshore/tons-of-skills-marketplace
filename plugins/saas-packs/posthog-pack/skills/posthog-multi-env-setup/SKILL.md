@@ -39,7 +39,6 @@ Use separate PostHog projects for each environment (dev, staging, production). T
 
 Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
 
-
 ### Step 1: Create Separate PostHog Projects
 
 In PostHog Cloud (app.posthog.com), create three projects:

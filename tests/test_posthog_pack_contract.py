@@ -1,5 +1,6 @@
 """Regression contract for the public PostHog operator pack."""
 
+import json
 from pathlib import Path
 import unittest
 
@@ -13,12 +14,16 @@ class PostHogPackContractTest(unittest.TestCase):
     def setUp(self) -> None:
         self.skill_files = sorted(SKILLS.glob("*/SKILL.md"))
         self.assertEqual(24, len(self.skill_files))
+        manifest = json.loads(
+            (PACK / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8")
+        )
+        self.expected_version = manifest["version"]
 
     def test_all_skills_have_release_metadata_and_official_references(self) -> None:
         for skill_file in self.skill_files:
             with self.subTest(skill=skill_file.parent.name):
                 body = skill_file.read_text(encoding="utf-8")
-                self.assertIn("version: 1.13.0", body)
+                self.assertIn(f"version: {self.expected_version}", body)
                 self.assertIn("Use when", body)
                 self.assertIn("Trigger with", body)
                 self.assertIn("argument-hint:", body)
