@@ -13221,7 +13221,7 @@
       "slug": "salesloft-pack",
       "name": "salesloft-pack",
       "displayName": "salesloft pack",
-      "description": "Claude Code skill pack for Salesloft (18 skills)",
+      "description": "Production Salesloft operator workflows for authentication, cadences, synchronization, rate control, webhooks, security, deployment, and incident evidence",
       "category": "saas-packs",
       "keywords": [
         "salesloft",
@@ -13243,7 +13243,7 @@
       "verificationScore": 79,
       "verificationGrade": "C",
       "verificationBadge": "silver",
-      "searchText": "salesloft pack claude code skill pack for salesloft (18 skills) saas-packs salesloft saas sdk integration"
+      "searchText": "salesloft pack production salesloft operator workflows for authentication, cadences, synchronization, rate control, webhooks, security, deployment, and incident evidence saas-packs salesloft saas sdk integration"
     },
     {
       "type": "plugin",
@@ -68107,13 +68107,15 @@
       "id": "salesloft-ci-integration",
       "slug": "salesloft-ci-integration",
       "name": "salesloft-ci-integration",
-      "description": "Set up CI/CD pipelines for SalesLoft integrations with GitHub Actions. Use when automating SalesLoft integration tests, validating OAuth tokens, or running cadence sync validation in CI. Trigger: \"salesloft CI\", \"salesloft GitHub Actions\", \"salesloft automated tests\".",
+      "description": "Gate Salesloft integration changes with offline contract fixtures and an optional fork-safe read-only smoke lane. Use when wiring CI for auth, pagination, errors, rate limits, or webhooks. Trigger with \"Salesloft CI\", \"Salesloft contract tests\", or \"Salesloft GitHub Actions\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(gh:*)"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.6.0",
@@ -68121,19 +68123,22 @@
         "name": "salesloft-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesloft-ci-integration set up ci/cd pipelines for salesloft integrations with github actions. use when automating salesloft integration tests, validating oauth tokens, or running cadence sync validation in ci. trigger: \"salesloft ci\", \"salesloft github actions\", \"salesloft automated tests\". saas-packs read write edit bash(gh:*) "
+      "searchText": "salesloft-ci-integration gate salesloft integration changes with offline contract fixtures and an optional fork-safe read-only smoke lane. use when wiring ci for auth, pagination, errors, rate limits, or webhooks. trigger with \"salesloft ci\", \"salesloft contract tests\", or \"salesloft github actions\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesloft-common-errors",
       "slug": "salesloft-common-errors",
       "name": "salesloft-common-errors",
-      "description": "Diagnose and fix SalesLoft API errors: 401, 403, 422, 429, and 5xx. Use when encountering SalesLoft errors, debugging failed requests, or troubleshooting OAuth token issues. Trigger: \"salesloft error\", \"fix salesloft\", \"salesloft not working\", \"salesloft 429\".",
+      "description": "Classify Salesloft API failures from status, documented error envelopes, auth context, visibility, and rate metadata without exposing customer data. Use when an integration returns 401, 403, 404, 422, 429, or 5xx. Trigger with \"Salesloft error\", \"Salesloft request failed\", or \"debug Salesloft API\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.6.0",
@@ -68141,21 +68146,22 @@
         "name": "salesloft-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesloft-common-errors diagnose and fix salesloft api errors: 401, 403, 422, 429, and 5xx. use when encountering salesloft errors, debugging failed requests, or troubleshooting oauth token issues. trigger: \"salesloft error\", \"fix salesloft\", \"salesloft not working\", \"salesloft 429\". saas-packs read grep bash(curl:*) "
+      "searchText": "salesloft-common-errors classify salesloft api failures from status, documented error envelopes, auth context, visibility, and rate metadata without exposing customer data. use when an integration returns 401, 403, 404, 422, 429, or 5xx. trigger with \"salesloft error\", \"salesloft request failed\", or \"debug salesloft api\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesloft-core-workflow-a",
       "slug": "salesloft-core-workflow-a",
       "name": "salesloft-core-workflow-a",
-      "description": "Manage SalesLoft people, cadences, and email steps via the REST API. Use when building prospect management, enrolling people in cadences, or automating outbound sales sequences. Trigger: \"salesloft cadence\", \"salesloft people\", \"salesloft outbound sequence\".",
+      "description": "Analyze and resolve a Salesloft person, then enroll that person in an approved cadence with duplicate, visibility, and consent safeguards. Use when automating controlled prospect enrollment. Trigger with \"Salesloft cadence enrollment\", \"add person to Salesloft cadence\", or \"Salesloft person workflow\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.6.0",
@@ -68163,21 +68169,22 @@
         "name": "salesloft-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesloft-core-workflow-a manage salesloft people, cadences, and email steps via the rest api. use when building prospect management, enrolling people in cadences, or automating outbound sales sequences. trigger: \"salesloft cadence\", \"salesloft people\", \"salesloft outbound sequence\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "salesloft-core-workflow-a analyze and resolve a salesloft person, then enroll that person in an approved cadence with duplicate, visibility, and consent safeguards. use when automating controlled prospect enrollment. trigger with \"salesloft cadence enrollment\", \"add person to salesloft cadence\", or \"salesloft person workflow\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesloft-core-workflow-b",
       "slug": "salesloft-core-workflow-b",
       "name": "salesloft-core-workflow-b",
-      "description": "Track SalesLoft activities, emails, calls, and analytics via the REST API. Use when reading email engagement data, logging call dispositions, or building sales activity dashboards. Trigger: \"salesloft activities\", \"salesloft emails\", \"salesloft calls\", \"salesloft analytics\".",
+      "description": "Reconcile Salesloft cadence membership state and engagement counts with an incremental, restartable read workflow. Use when building sales outcome reporting or downstream CRM synchronization. Trigger with \"Salesloft cadence analytics\", \"Salesloft membership sync\", or \"Salesloft engagement reconciliation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.6.0",
@@ -68185,18 +68192,22 @@
         "name": "salesloft-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesloft-core-workflow-b track salesloft activities, emails, calls, and analytics via the rest api. use when reading email engagement data, logging call dispositions, or building sales activity dashboards. trigger: \"salesloft activities\", \"salesloft emails\", \"salesloft calls\", \"salesloft analytics\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "salesloft-core-workflow-b reconcile salesloft cadence membership state and engagement counts with an incremental, restartable read workflow. use when building sales outcome reporting or downstream crm synchronization. trigger with \"salesloft cadence analytics\", \"salesloft membership sync\", or \"salesloft engagement reconciliation\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesloft-cost-tuning",
       "slug": "salesloft-cost-tuning",
       "name": "salesloft-cost-tuning",
-      "description": "Optimize SalesLoft API costs by reducing request volume and deep pagination. Use when analyzing API usage, reducing rate limit consumption, or planning capacity for bulk operations. Trigger: \"salesloft cost\", \"salesloft billing\", \"reduce salesloft API usage\".",
+      "description": "Analyze and reduce Salesloft API capacity waste by measuring endpoint cost, deep pagination, redundant polling, cache churn, and retry amplification. Use when a team is exhausting shared API capacity. Trigger with \"Salesloft cost tuning\", \"reduce Salesloft API usage\", or \"Salesloft capacity waste\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.6.0",
@@ -68204,20 +68215,22 @@
         "name": "salesloft-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesloft-cost-tuning optimize salesloft api costs by reducing request volume and deep pagination. use when analyzing api usage, reducing rate limit consumption, or planning capacity for bulk operations. trigger: \"salesloft cost\", \"salesloft billing\", \"reduce salesloft api usage\". saas-packs read grep "
+      "searchText": "salesloft-cost-tuning analyze and reduce salesloft api capacity waste by measuring endpoint cost, deep pagination, redundant polling, cache churn, and retry amplification. use when a team is exhausting shared api capacity. trigger with \"salesloft cost tuning\", \"reduce salesloft api usage\", or \"salesloft capacity waste\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesloft-debug-bundle",
       "slug": "salesloft-debug-bundle",
       "name": "salesloft-debug-bundle",
-      "description": "Collect SalesLoft debug evidence for support tickets and troubleshooting. Use when encountering persistent issues, preparing support tickets, or collecting diagnostic info for SalesLoft API problems. Trigger: \"salesloft debug\", \"salesloft diagnostic\", \"salesloft support bundle\".",
+      "description": "Build a minimal redacted Salesloft escalation bundle with contract, auth-state, rate, timing, deployment, and API Logs evidence. Use when a failure needs support or engineering review. Trigger with \"Salesloft debug bundle\", \"Salesloft support evidence\", or \"Salesloft diagnostics\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Bash(tar:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.6.0",
@@ -68225,22 +68238,22 @@
         "name": "salesloft-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesloft-debug-bundle collect salesloft debug evidence for support tickets and troubleshooting. use when encountering persistent issues, preparing support tickets, or collecting diagnostic info for salesloft api problems. trigger: \"salesloft debug\", \"salesloft diagnostic\", \"salesloft support bundle\". saas-packs read bash(curl:*) bash(tar:*) grep "
+      "searchText": "salesloft-debug-bundle build a minimal redacted salesloft escalation bundle with contract, auth-state, rate, timing, deployment, and api logs evidence. use when a failure needs support or engineering review. trigger with \"salesloft debug bundle\", \"salesloft support evidence\", or \"salesloft diagnostics\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesloft-deploy-integration",
       "slug": "salesloft-deploy-integration",
       "name": "salesloft-deploy-integration",
-      "description": "Deploy SalesLoft integrations to Vercel, Fly.io, and Cloud Run. Use when deploying SalesLoft-powered apps to production, configuring platform secrets, or setting up webhook endpoints. Trigger: \"deploy salesloft\", \"salesloft Vercel\", \"salesloft Cloud Run\".",
+      "description": "Roll out a Salesloft-backed service through secret injection, contract checks, read-only smoke evidence, bounded canaries, monitoring, and rollback. Use when releasing integration code to a runtime. Trigger with \"deploy Salesloft integration\", \"Salesloft rollout\", or \"Salesloft release plan\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(fly:*)",
-        "Bash(gcloud:*)"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.6.0",
@@ -68248,21 +68261,22 @@
         "name": "salesloft-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesloft-deploy-integration deploy salesloft integrations to vercel, fly.io, and cloud run. use when deploying salesloft-powered apps to production, configuring platform secrets, or setting up webhook endpoints. trigger: \"deploy salesloft\", \"salesloft vercel\", \"salesloft cloud run\". saas-packs read write edit bash(vercel:*) bash(fly:*) bash(gcloud:*) "
+      "searchText": "salesloft-deploy-integration roll out a salesloft-backed service through secret injection, contract checks, read-only smoke evidence, bounded canaries, monitoring, and rollback. use when releasing integration code to a runtime. trigger with \"deploy salesloft integration\", \"salesloft rollout\", or \"salesloft release plan\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesloft-hello-world",
       "slug": "salesloft-hello-world",
       "name": "salesloft-hello-world",
-      "description": "Create a minimal working SalesLoft example — list people and create a person. Use when starting a new SalesLoft integration, testing your setup, or learning the People and Cadences API patterns. Trigger: \"salesloft hello world\", \"salesloft example\", \"salesloft quick start\".",
+      "description": "Prove a Salesloft credential and team boundary with one bounded read-only request and response-envelope check. Use when testing a new integration without creating CRM data. Trigger with \"Salesloft hello world\", \"first Salesloft request\", or \"test Salesloft connection\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(node:*)"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.6.0",
@@ -68270,22 +68284,22 @@
         "name": "salesloft-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesloft-hello-world create a minimal working salesloft example — list people and create a person. use when starting a new salesloft integration, testing your setup, or learning the people and cadences api patterns. trigger: \"salesloft hello world\", \"salesloft example\", \"salesloft quick start\". saas-packs read write edit bash(npm:*) bash(node:*) "
+      "searchText": "salesloft-hello-world prove a salesloft credential and team boundary with one bounded read-only request and response-envelope check. use when testing a new integration without creating crm data. trigger with \"salesloft hello world\", \"first salesloft request\", or \"test salesloft connection\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesloft-install-auth",
       "slug": "salesloft-install-auth",
       "name": "salesloft-install-auth",
-      "description": "Set up SalesLoft API authentication with OAuth 2.0 or API key. Use when configuring a new SalesLoft integration, setting up OAuth flows, or initializing API access to the SalesLoft REST API v2. Trigger: \"install salesloft\", \"setup salesloft\", \"salesloft auth\", \"salesloft API key\".",
+      "description": "Select and implement the correct Salesloft authentication flow with least-privilege scopes and safe token rotation. Use when onboarding a customer, partner, or private server integration. Trigger with \"Salesloft auth\", \"Salesloft OAuth\", or \"Salesloft API key setup\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.6.0",
@@ -68293,22 +68307,22 @@
         "name": "salesloft-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesloft-install-auth set up salesloft api authentication with oauth 2.0 or api key. use when configuring a new salesloft integration, setting up oauth flows, or initializing api access to the salesloft rest api v2. trigger: \"install salesloft\", \"setup salesloft\", \"salesloft auth\", \"salesloft api key\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "salesloft-install-auth select and implement the correct salesloft authentication flow with least-privilege scopes and safe token rotation. use when onboarding a customer, partner, or private server integration. trigger with \"salesloft auth\", \"salesloft oauth\", or \"salesloft api key setup\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesloft-local-dev-loop",
       "slug": "salesloft-local-dev-loop",
       "name": "salesloft-local-dev-loop",
-      "description": "Configure SalesLoft local development with API mocking and sandbox testing. Use when setting up a development environment, building integration tests, or creating mock SalesLoft API responses for offline development. Trigger: \"salesloft dev setup\", \"salesloft local\", \"test salesloft locally\".",
+      "description": "Build a Salesloft integration locally with sanitized contract fixtures, deterministic failure cases, and an optional guarded read-only smoke test. Use when iterating without touching real sales records. Trigger with \"Salesloft local dev\", \"mock Salesloft\", or \"Salesloft contract fixtures\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.6.0",
@@ -68316,17 +68330,20 @@
         "name": "salesloft-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesloft-local-dev-loop configure salesloft local development with api mocking and sandbox testing. use when setting up a development environment, building integration tests, or creating mock salesloft api responses for offline development. trigger: \"salesloft dev setup\", \"salesloft local\", \"test salesloft locally\". saas-packs read write edit bash(npm:*) bash(npx:*) grep "
+      "searchText": "salesloft-local-dev-loop build a salesloft integration locally with sanitized contract fixtures, deterministic failure cases, and an optional guarded read-only smoke test. use when iterating without touching real sales records. trigger with \"salesloft local dev\", \"mock salesloft\", or \"salesloft contract fixtures\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesloft-performance-tuning",
       "slug": "salesloft-performance-tuning",
       "name": "salesloft-performance-tuning",
-      "description": "Optimize SalesLoft API performance with caching, pagination strategies, and connection pooling. Use when experiencing slow API responses, reducing latency for bulk operations, or optimizing cadence sync throughput. Trigger: \"salesloft performance\", \"optimize salesloft\", \"salesloft slow\", \"salesloft caching\".",
+      "description": "Analyze and improve measured Salesloft sync latency and throughput with cursor polling, bounded page size, safe concurrency, caching, and correctness checks. Use when an integration is slow or falling behind. Trigger with \"Salesloft performance\", \"speed up Salesloft sync\", or \"Salesloft cursor poller\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
@@ -68336,19 +68353,22 @@
         "name": "salesloft-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesloft-performance-tuning optimize salesloft api performance with caching, pagination strategies, and connection pooling. use when experiencing slow api responses, reducing latency for bulk operations, or optimizing cadence sync throughput. trigger: \"salesloft performance\", \"optimize salesloft\", \"salesloft slow\", \"salesloft caching\". saas-packs read write edit "
+      "searchText": "salesloft-performance-tuning analyze and improve measured salesloft sync latency and throughput with cursor polling, bounded page size, safe concurrency, caching, and correctness checks. use when an integration is slow or falling behind. trigger with \"salesloft performance\", \"speed up salesloft sync\", or \"salesloft cursor poller\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesloft-prod-checklist",
       "slug": "salesloft-prod-checklist",
       "name": "salesloft-prod-checklist",
-      "description": "Production readiness checklist for SalesLoft API integrations. Use when deploying SalesLoft integrations to production, preparing for launch, or validating go-live requirements. Trigger: \"salesloft production\", \"deploy salesloft\", \"salesloft go-live checklist\".",
+      "description": "Produce a release-bound go or no-go decision for a Salesloft integration using auth, contract, data, rate, webhook, monitoring, rollback, and ownership evidence. Use when preparing to enable production traffic. Trigger with \"Salesloft production checklist\", \"Salesloft go live\", or \"Salesloft release readiness\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.6.0",
@@ -68356,17 +68376,20 @@
         "name": "salesloft-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesloft-prod-checklist production readiness checklist for salesloft api integrations. use when deploying salesloft integrations to production, preparing for launch, or validating go-live requirements. trigger: \"salesloft production\", \"deploy salesloft\", \"salesloft go-live checklist\". saas-packs read bash(curl:*) grep "
+      "searchText": "salesloft-prod-checklist produce a release-bound go or no-go decision for a salesloft integration using auth, contract, data, rate, webhook, monitoring, rollback, and ownership evidence. use when preparing to enable production traffic. trigger with \"salesloft production checklist\", \"salesloft go live\", or \"salesloft release readiness\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesloft-rate-limits",
       "slug": "salesloft-rate-limits",
       "name": "salesloft-rate-limits",
-      "description": "Handle SalesLoft cost-based rate limiting with backoff and request budgeting. Use when hitting 429 errors, optimizing API throughput, or implementing pagination-aware rate limit strategies. Trigger: \"salesloft rate limit\", \"salesloft 429\", \"salesloft throttling\".",
+      "description": "Analyze and govern Salesloft's team-wide cost budget with exact response headers, deep-page costs, fair scheduling, and bounded retries. Use when preventing or diagnosing 429 responses. Trigger with \"Salesloft rate limits\", \"Salesloft 429\", or \"Salesloft request budget\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
@@ -68376,36 +68399,20 @@
         "name": "salesloft-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesloft-rate-limits handle salesloft cost-based rate limiting with backoff and request budgeting. use when hitting 429 errors, optimizing api throughput, or implementing pagination-aware rate limit strategies. trigger: \"salesloft rate limit\", \"salesloft 429\", \"salesloft throttling\". saas-packs read write edit "
+      "searchText": "salesloft-rate-limits analyze and govern salesloft's team-wide cost budget with exact response headers, deep-page costs, fair scheduling, and bounded retries. use when preventing or diagnosing 429 responses. trigger with \"salesloft rate limits\", \"salesloft 429\", or \"salesloft request budget\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesloft-reference-architecture",
       "slug": "salesloft-reference-architecture",
       "name": "salesloft-reference-architecture",
-      "description": "Production architecture for SalesLoft API integrations with service layer, webhook processing, and CRM sync patterns. Use when designing new SalesLoft integrations or reviewing project structure. Trigger: \"salesloft architecture\", \"salesloft project structure\", \"salesloft design\".",
+      "description": "Design a multi-team Salesloft integration with explicit tenant, auth, client, scheduler, cursor, webhook, queue, reconciliation, and ownership boundaries. Use when reviewing or creating production architecture. Trigger with \"Salesloft architecture\", \"design Salesloft integration\", or \"Salesloft multi-tenant system\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
-      ],
-      "compatibleWith": [],
-      "version": "1.6.0",
-      "parentPlugin": {
-        "name": "salesloft-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "salesloft-reference-architecture production architecture for salesloft api integrations with service layer, webhook processing, and crm sync patterns. use when designing new salesloft integrations or reviewing project structure. trigger: \"salesloft architecture\", \"salesloft project structure\", \"salesloft design\". saas-packs read grep "
-    },
-    {
-      "type": "skill",
-      "id": "salesloft-sdk-patterns",
-      "slug": "salesloft-sdk-patterns",
-      "name": "salesloft-sdk-patterns",
-      "description": "Apply production-ready SalesLoft API patterns for TypeScript and Python. Use when building SalesLoft integrations, implementing pagination, or wrapping the REST API v2 with typed clients. Trigger: \"salesloft SDK patterns\", \"salesloft best practices\", \"salesloft client wrapper\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
@@ -68415,19 +68422,45 @@
         "name": "salesloft-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesloft-sdk-patterns apply production-ready salesloft api patterns for typescript and python. use when building salesloft integrations, implementing pagination, or wrapping the rest api v2 with typed clients. trigger: \"salesloft sdk patterns\", \"salesloft best practices\", \"salesloft client wrapper\". saas-packs read write edit "
+      "searchText": "salesloft-reference-architecture design a multi-team salesloft integration with explicit tenant, auth, client, scheduler, cursor, webhook, queue, reconciliation, and ownership boundaries. use when reviewing or creating production architecture. trigger with \"salesloft architecture\", \"design salesloft integration\", or \"salesloft multi-tenant system\". saas-packs read glob grep webfetch write edit "
+    },
+    {
+      "type": "skill",
+      "id": "salesloft-sdk-patterns",
+      "slug": "salesloft-sdk-patterns",
+      "name": "salesloft-sdk-patterns",
+      "description": "Analyze and design a typed Salesloft REST adapter with tenant-bound authentication, endpoint-specific schemas, pagination, errors, and rate metadata. Use when creating or refactoring an integration client. Trigger with \"Salesloft SDK patterns\", \"Salesloft client wrapper\", or \"typed Salesloft API\".",
+      "category": "saas-packs",
+      "allowedTools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
+      ],
+      "compatibleWith": [],
+      "version": "1.6.0",
+      "parentPlugin": {
+        "name": "salesloft-pack",
+        "category": "saas-packs"
+      },
+      "searchText": "salesloft-sdk-patterns analyze and design a typed salesloft rest adapter with tenant-bound authentication, endpoint-specific schemas, pagination, errors, and rate metadata. use when creating or refactoring an integration client. trigger with \"salesloft sdk patterns\", \"salesloft client wrapper\", or \"typed salesloft api\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesloft-security-basics",
       "slug": "salesloft-security-basics",
       "name": "salesloft-security-basics",
-      "description": "Secure SalesLoft OAuth tokens, API keys, and webhook signatures. Use when implementing token rotation, securing webhook endpoints, or auditing SalesLoft API access controls. Trigger: \"salesloft security\", \"salesloft secrets\", \"secure salesloft\", \"salesloft token rotation\".",
+      "description": "Harden Salesloft tenant isolation, OAuth and API-key storage, least-privilege scopes, CRM-data handling, and webhook verification. Use when reviewing an integration security boundary. Trigger with \"Salesloft security\", \"secure Salesloft tokens\", or \"Salesloft webhook verification\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.6.0",
@@ -68435,21 +68468,22 @@
         "name": "salesloft-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesloft-security-basics secure salesloft oauth tokens, api keys, and webhook signatures. use when implementing token rotation, securing webhook endpoints, or auditing salesloft api access controls. trigger: \"salesloft security\", \"salesloft secrets\", \"secure salesloft\", \"salesloft token rotation\". saas-packs read write grep "
+      "searchText": "salesloft-security-basics harden salesloft tenant isolation, oauth and api-key storage, least-privilege scopes, crm-data handling, and webhook verification. use when reviewing an integration security boundary. trigger with \"salesloft security\", \"secure salesloft tokens\", or \"salesloft webhook verification\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesloft-upgrade-migration",
       "slug": "salesloft-upgrade-migration",
       "name": "salesloft-upgrade-migration",
-      "description": "Migrate between SalesLoft API versions and handle breaking changes. Use when SalesLoft announces API deprecations, upgrading OAuth flows, or transitioning from legacy endpoints. Trigger: \"upgrade salesloft\", \"salesloft migration\", \"salesloft API version\".",
+      "description": "Migrate an existing Salesloft integration through an evidence-backed endpoint, auth, schema, scope, and behavior diff with shadow validation and rollback. Use when current contracts or application assumptions change. Trigger with \"Salesloft migration\", \"upgrade Salesloft integration\", or \"Salesloft API contract change\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(git:*)"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.6.0",
@@ -68457,20 +68491,22 @@
         "name": "salesloft-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesloft-upgrade-migration migrate between salesloft api versions and handle breaking changes. use when salesloft announces api deprecations, upgrading oauth flows, or transitioning from legacy endpoints. trigger: \"upgrade salesloft\", \"salesloft migration\", \"salesloft api version\". saas-packs read write edit bash(npm:*) bash(git:*) "
+      "searchText": "salesloft-upgrade-migration migrate an existing salesloft integration through an evidence-backed endpoint, auth, schema, scope, and behavior diff with shadow validation and rollback. use when current contracts or application assumptions change. trigger with \"salesloft migration\", \"upgrade salesloft integration\", or \"salesloft api contract change\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesloft-webhooks-events",
       "slug": "salesloft-webhooks-events",
       "name": "salesloft-webhooks-events",
-      "description": "Implement SalesLoft webhook handling with signature verification and event routing. Use when setting up webhook endpoints, handling activity notifications, or syncing SalesLoft data to external systems in real-time. Trigger: \"salesloft webhook\", \"salesloft events\", \"salesloft notifications\".",
+      "description": "Verify and process Salesloft webhooks using exact raw-body SHA-1 HMAC, callback-token validation, event routing, durable deduplication, and reconciliation. Use when building or auditing a webhook receiver. Trigger with \"Salesloft webhook\", \"Salesloft signature\", or \"Salesloft event handler\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.6.0",
@@ -68478,7 +68514,7 @@
         "name": "salesloft-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesloft-webhooks-events implement salesloft webhook handling with signature verification and event routing. use when setting up webhook endpoints, handling activity notifications, or syncing salesloft data to external systems in real-time. trigger: \"salesloft webhook\", \"salesloft events\", \"salesloft notifications\". saas-packs read write edit bash(curl:*) "
+      "searchText": "salesloft-webhooks-events verify and process salesloft webhooks using exact raw-body sha-1 hmac, callback-token validation, event routing, durable deduplication, and reconciliation. use when building or auditing a webhook receiver. trigger with \"salesloft webhook\", \"salesloft signature\", or \"salesloft event handler\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",

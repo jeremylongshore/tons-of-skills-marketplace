@@ -1,152 +1,87 @@
 ---
 name: salesloft-install-auth
-description: 'Set up SalesLoft API authentication with OAuth 2.0 or API key.
-
-  Use when configuring a new SalesLoft integration, setting up OAuth flows,
-
-  or initializing API access to the SalesLoft REST API v2.
-
-  Trigger: "install salesloft", "setup salesloft", "salesloft auth", "salesloft API
-  key".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
+description: >-
+  Select and implement the correct Salesloft authentication flow with least-privilege scopes and safe token rotation. Use when onboarding a customer, partner, or private server integration. Trigger with "Salesloft auth", "Salesloft OAuth", or "Salesloft API key setup".
+argument-hint: "[repository-path] [integration-type]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.6.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- sales
-- outreach
 - salesloft
+- authentication
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# SalesLoft Install & Auth
+# Salesloft Authentication Decision
 
 ## Overview
 
-Configure access to the SalesLoft REST API v2. SalesLoft supports two OAuth 2.0 flows (authorization code and client credentials) plus API key auth. All requests require `Authorization: Bearer <token>` header. Base URL: `https://api.salesloft.com/v2/`.
+This skill chooses an authentication boundary before code is written. It distinguishes partner authorization, customer API keys, and admin-enabled private client credentials instead of treating them as interchangeable.
 
 ## Prerequisites
 
-- SalesLoft account with API access enabled
-- App registered at [developers.salesloft.com](https://developers.salesloft.com) for OAuth
-- Node.js 18+ or Python 3.10+
+- A named repository, Salesloft team, and integration owner
+- The integration type: partner, customer-owned, or private backend
+- Approved callback URIs and minimum endpoint scopes
+- A secret store that supports atomic token replacement
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect existing auth code, environment schemas, and secret names. Use `WebFetch` only for current official Salesloft documentation. Use `Write` or `Edit` only after confirming the repository and auth design.
+
+## Current Contract
+
+- API requests use `Authorization: Bearer <credential>` against `https://api.salesloft.com/v2`.
+- Partners use OAuth; Salesloft does not approve partner applications that rely on API keys.
+- Customer API keys act as the issuing user and must remain server-side.
+- Client credentials are admin-enabled, private-use only, cannot be allowlisted, inherit the creating admin's permissions, expire after 7,200 seconds, and have no refresh token.
+- Authorization-code refresh returns a new refresh token and revokes the old one, so replacement must be atomic.
+
+## Authentication
+
+Use authorization code for user-authorized partner applications, client credentials only for an approved private server process, or a scoped API key for a customer-owned integration. Request only scopes required by the current endpoint reference.
 
 ## Instructions
 
-### Step 1: Install HTTP Client
+1. Inventory every Salesloft endpoint, caller, team boundary, and required scope.
+2. Select one supported flow and document why it fits the integration type.
+3. Register exact callback URIs or private-app settings in Salesloft Account.
+4. Store client secrets, API keys, access tokens, and refresh tokens outside source and logs.
+5. Implement Bearer injection plus expiry-aware refresh or reacquisition.
+6. For authorization code, replace the access and refresh token together in one durable transaction.
+7. Prove access with a bounded read such as `GET /v2/me`; never print the response body in CI.
 
-```bash
-# Node.js — no official SDK, use axios or fetch
-npm install axios dotenv
+## Approval Boundaries
 
-# Python
-pip install requests python-dotenv
-```
-
-### Step 2: Register OAuth Application
-
-1. Go to [developers.salesloft.com](https://developers.salesloft.com) > Your Applications
-2. Click "Create Application"
-3. Set redirect URI (e.g., `http://localhost:3000/callback`)
-4. Copy `client_id` and `client_secret`
-
-### Step 3: Configure Environment
-
-```bash
-# .env
-SALESLOFT_CLIENT_ID=your-client-id
-SALESLOFT_CLIENT_SECRET=your-client-secret
-SALESLOFT_REDIRECT_URI=http://localhost:3000/callback
-SALESLOFT_API_KEY=your-api-key  # If using API key auth
-```
-
-### Step 4: Implement OAuth Authorization Code Flow
-
-```typescript
-import axios from 'axios';
-
-// Step 1: Redirect user to authorize
-const authUrl = `https://accounts.salesloft.com/oauth/authorize?` +
-  `client_id=${process.env.SALESLOFT_CLIENT_ID}` +
-  `&redirect_uri=${encodeURIComponent(process.env.SALESLOFT_REDIRECT_URI!)}` +
-  `&response_type=code`;
-
-// Step 2: Exchange code for token (in callback handler)
-async function exchangeCode(code: string) {
-  const { data } = await axios.post('https://accounts.salesloft.com/oauth/token', {
-    client_id: process.env.SALESLOFT_CLIENT_ID,
-    client_secret: process.env.SALESLOFT_CLIENT_SECRET,
-    code,
-    grant_type: 'authorization_code',
-    redirect_uri: process.env.SALESLOFT_REDIRECT_URI,
-  });
-  // data.access_token, data.refresh_token, data.expires_in
-  return data;
-}
-```
-
-### Step 5: Client Credentials Flow (Server-to-Server)
-
-```typescript
-// No user interaction — recommended for background tasks
-async function getServiceToken() {
-  const { data } = await axios.post('https://accounts.salesloft.com/oauth/token', {
-    client_id: process.env.SALESLOFT_CLIENT_ID,
-    client_secret: process.env.SALESLOFT_CLIENT_SECRET,
-    grant_type: 'client_credentials',
-  });
-  return data.access_token;
-}
-```
-
-### Step 6: Verify Connection
-
-```typescript
-const token = await getServiceToken();
-const { data } = await axios.get('https://api.salesloft.com/v2/me.json', {
-  headers: { Authorization: `Bearer ${token}` },
-});
-console.log(`Authenticated as: ${data.data.name} (${data.data.email})`);
-```
+Do not broaden scopes, enable client credentials, create or revoke credentials, or change production callback URIs without the integration owner and Salesloft admin. Never expose a token in a command, URL, patch, log, or example.
 
 ## Output
 
-```
-Authenticated as: Jane Smith (jane@company.com)
-```
+Return the integration type, chosen flow, scope matrix, secret references, rotation behavior, read-only proof, and unresolved administrator actions.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Expired or invalid token | Refresh token or re-authorize |
-| `403 Forbidden` | Insufficient OAuth scopes | Check app permissions in developer portal |
-| `invalid_grant` | Authorization code already used | Codes are single-use; restart OAuth flow |
-| `invalid_client` | Wrong client_id/secret | Verify credentials in developer portal |
+| Condition | Response |
+|---|---|
+| `invalid_grant` | Recheck redirect URI and one-time code, then restart authorization if needed. |
+| 401 | Verify access-token injection and expiry; do not submit a refresh token to the API. |
+| 403 | Compare granted scopes and acting-user permissions with the endpoint contract. |
+| Concurrent refresh | Serialize refresh and atomically persist the newly rotated token pair. |
 
-## Token Refresh
+## Examples
 
-```typescript
-async function refreshAccessToken(refreshToken: string) {
-  const { data } = await axios.post('https://accounts.salesloft.com/oauth/token', {
-    client_id: process.env.SALESLOFT_CLIENT_ID,
-    client_secret: process.env.SALESLOFT_CLIENT_SECRET,
-    grant_type: 'refresh_token',
-    refresh_token: refreshToken,
-  });
-  return data; // { access_token, refresh_token, expires_in }
-}
+The example below shows the minimum redacted evidence expected from a successful invocation of this operator workflow.
+
+```text
+integration=partner; flow=authorization-code; proof=GET /v2/me; writes=forbidden
 ```
 
 ## Resources
 
-- [SalesLoft API Basics](https://developers.salesloft.com/docs/platform/api-basics/)
-- [OAuth Authorization Code](https://developers.salesloft.com/docs/platform/api-basics/oauth-authentication/)
-- [OAuth Client Credentials](https://developers.salesloft.com/docs/platform/api-basics/client-creds/)
-- API Reference (Swagger)
-
-## Next Steps
-
-After successful auth, proceed to `salesloft-hello-world` for your first API call.
+- [Skill-specific official documentation](references/official-docs.md)
+- [OAuth authorization code](https://developers.salesloft.com/docs/platform/api-basics/oauth-authentication/)
+- [OAuth client credentials](https://developers.salesloft.com/docs/platform/api-basics/client-creds/)
+- [API key authentication](https://developers.salesloft.com/docs/platform/api-basics/api-key-authentication/)

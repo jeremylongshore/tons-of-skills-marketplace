@@ -28841,7 +28841,7 @@
     {
       "slug": "salesloft-ci-integration",
       "name": "salesloft-ci-integration",
-      "description": "Set up CI/CD pipelines for SalesLoft integrations with GitHub Actions. Use when automating SalesLoft integration tests, validating OAuth tokens, or running cadence sync validation in CI. Trigger: \"salesloft CI\", \"salesloft GitHub Actions\", \"salesloft automated tests\".",
+      "description": "Gate Salesloft integration changes with offline contract fixtures and an optional fork-safe read-only smoke lane. Use when wiring CI for auth, pagination, errors, rate limits, or webhooks. Trigger with \"Salesloft CI\", \"Salesloft contract tests\", or \"Salesloft GitHub Actions\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -28853,7 +28853,7 @@
     {
       "slug": "salesloft-common-errors",
       "name": "salesloft-common-errors",
-      "description": "Diagnose and fix SalesLoft API errors: 401, 403, 422, 429, and 5xx. Use when encountering SalesLoft errors, debugging failed requests, or troubleshooting OAuth token issues. Trigger: \"salesloft error\", \"fix salesloft\", \"salesloft not working\", \"salesloft 429\".",
+      "description": "Classify Salesloft API failures from status, documented error envelopes, auth context, visibility, and rate metadata without exposing customer data. Use when an integration returns 401, 403, 404, 422, 429, or 5xx. Trigger with \"Salesloft error\", \"Salesloft request failed\", or \"debug Salesloft API\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -28865,7 +28865,7 @@
     {
       "slug": "salesloft-core-workflow-a",
       "name": "salesloft-core-workflow-a",
-      "description": "Manage SalesLoft people, cadences, and email steps via the REST API. Use when building prospect management, enrolling people in cadences, or automating outbound sales sequences. Trigger: \"salesloft cadence\", \"salesloft people\", \"salesloft outbound sequence\".",
+      "description": "Analyze and resolve a Salesloft person, then enroll that person in an approved cadence with duplicate, visibility, and consent safeguards. Use when automating controlled prospect enrollment. Trigger with \"Salesloft cadence enrollment\", \"add person to Salesloft cadence\", or \"Salesloft person workflow\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -28877,7 +28877,7 @@
     {
       "slug": "salesloft-core-workflow-b",
       "name": "salesloft-core-workflow-b",
-      "description": "Track SalesLoft activities, emails, calls, and analytics via the REST API. Use when reading email engagement data, logging call dispositions, or building sales activity dashboards. Trigger: \"salesloft activities\", \"salesloft emails\", \"salesloft calls\", \"salesloft analytics\".",
+      "description": "Reconcile Salesloft cadence membership state and engagement counts with an incremental, restartable read workflow. Use when building sales outcome reporting or downstream CRM synchronization. Trigger with \"Salesloft cadence analytics\", \"Salesloft membership sync\", or \"Salesloft engagement reconciliation\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -28889,7 +28889,7 @@
     {
       "slug": "salesloft-cost-tuning",
       "name": "salesloft-cost-tuning",
-      "description": "Optimize SalesLoft API costs by reducing request volume and deep pagination. Use when analyzing API usage, reducing rate limit consumption, or planning capacity for bulk operations. Trigger: \"salesloft cost\", \"salesloft billing\", \"reduce salesloft API usage\".",
+      "description": "Analyze and reduce Salesloft API capacity waste by measuring endpoint cost, deep pagination, redundant polling, cache churn, and retry amplification. Use when a team is exhausting shared API capacity. Trigger with \"Salesloft cost tuning\", \"reduce Salesloft API usage\", or \"Salesloft capacity waste\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -28901,7 +28901,7 @@
     {
       "slug": "salesloft-debug-bundle",
       "name": "salesloft-debug-bundle",
-      "description": "Collect SalesLoft debug evidence for support tickets and troubleshooting. Use when encountering persistent issues, preparing support tickets, or collecting diagnostic info for SalesLoft API problems. Trigger: \"salesloft debug\", \"salesloft diagnostic\", \"salesloft support bundle\".",
+      "description": "Build a minimal redacted Salesloft escalation bundle with contract, auth-state, rate, timing, deployment, and API Logs evidence. Use when a failure needs support or engineering review. Trigger with \"Salesloft debug bundle\", \"Salesloft support evidence\", or \"Salesloft diagnostics\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -28913,7 +28913,7 @@
     {
       "slug": "salesloft-deploy-integration",
       "name": "salesloft-deploy-integration",
-      "description": "Deploy SalesLoft integrations to Vercel, Fly.io, and Cloud Run. Use when deploying SalesLoft-powered apps to production, configuring platform secrets, or setting up webhook endpoints. Trigger: \"deploy salesloft\", \"salesloft Vercel\", \"salesloft Cloud Run\".",
+      "description": "Roll out a Salesloft-backed service through secret injection, contract checks, read-only smoke evidence, bounded canaries, monitoring, and rollback. Use when releasing integration code to a runtime. Trigger with \"deploy Salesloft integration\", \"Salesloft rollout\", or \"Salesloft release plan\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -28925,7 +28925,7 @@
     {
       "slug": "salesloft-hello-world",
       "name": "salesloft-hello-world",
-      "description": "Create a minimal working SalesLoft example — list people and create a person. Use when starting a new SalesLoft integration, testing your setup, or learning the People and Cadences API patterns. Trigger: \"salesloft hello world\", \"salesloft example\", \"salesloft quick start\".",
+      "description": "Prove a Salesloft credential and team boundary with one bounded read-only request and response-envelope check. Use when testing a new integration without creating CRM data. Trigger with \"Salesloft hello world\", \"first Salesloft request\", or \"test Salesloft connection\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -28937,7 +28937,7 @@
     {
       "slug": "salesloft-install-auth",
       "name": "salesloft-install-auth",
-      "description": "Set up SalesLoft API authentication with OAuth 2.0 or API key. Use when configuring a new SalesLoft integration, setting up OAuth flows, or initializing API access to the SalesLoft REST API v2. Trigger: \"install salesloft\", \"setup salesloft\", \"salesloft auth\", \"salesloft API key\".",
+      "description": "Select and implement the correct Salesloft authentication flow with least-privilege scopes and safe token rotation. Use when onboarding a customer, partner, or private server integration. Trigger with \"Salesloft auth\", \"Salesloft OAuth\", or \"Salesloft API key setup\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -28949,7 +28949,7 @@
     {
       "slug": "salesloft-local-dev-loop",
       "name": "salesloft-local-dev-loop",
-      "description": "Configure SalesLoft local development with API mocking and sandbox testing. Use when setting up a development environment, building integration tests, or creating mock SalesLoft API responses for offline development. Trigger: \"salesloft dev setup\", \"salesloft local\", \"test salesloft locally\".",
+      "description": "Build a Salesloft integration locally with sanitized contract fixtures, deterministic failure cases, and an optional guarded read-only smoke test. Use when iterating without touching real sales records. Trigger with \"Salesloft local dev\", \"mock Salesloft\", or \"Salesloft contract fixtures\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -28961,7 +28961,7 @@
     {
       "slug": "salesloft-performance-tuning",
       "name": "salesloft-performance-tuning",
-      "description": "Optimize SalesLoft API performance with caching, pagination strategies, and connection pooling. Use when experiencing slow API responses, reducing latency for bulk operations, or optimizing cadence sync throughput. Trigger: \"salesloft performance\", \"optimize salesloft\", \"salesloft slow\", \"salesloft caching\".",
+      "description": "Analyze and improve measured Salesloft sync latency and throughput with cursor polling, bounded page size, safe concurrency, caching, and correctness checks. Use when an integration is slow or falling behind. Trigger with \"Salesloft performance\", \"speed up Salesloft sync\", or \"Salesloft cursor poller\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -28973,7 +28973,7 @@
     {
       "slug": "salesloft-prod-checklist",
       "name": "salesloft-prod-checklist",
-      "description": "Production readiness checklist for SalesLoft API integrations. Use when deploying SalesLoft integrations to production, preparing for launch, or validating go-live requirements. Trigger: \"salesloft production\", \"deploy salesloft\", \"salesloft go-live checklist\".",
+      "description": "Produce a release-bound go or no-go decision for a Salesloft integration using auth, contract, data, rate, webhook, monitoring, rollback, and ownership evidence. Use when preparing to enable production traffic. Trigger with \"Salesloft production checklist\", \"Salesloft go live\", or \"Salesloft release readiness\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -28985,7 +28985,7 @@
     {
       "slug": "salesloft-rate-limits",
       "name": "salesloft-rate-limits",
-      "description": "Handle SalesLoft cost-based rate limiting with backoff and request budgeting. Use when hitting 429 errors, optimizing API throughput, or implementing pagination-aware rate limit strategies. Trigger: \"salesloft rate limit\", \"salesloft 429\", \"salesloft throttling\".",
+      "description": "Analyze and govern Salesloft's team-wide cost budget with exact response headers, deep-page costs, fair scheduling, and bounded retries. Use when preventing or diagnosing 429 responses. Trigger with \"Salesloft rate limits\", \"Salesloft 429\", or \"Salesloft request budget\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -28997,7 +28997,7 @@
     {
       "slug": "salesloft-reference-architecture",
       "name": "salesloft-reference-architecture",
-      "description": "Production architecture for SalesLoft API integrations with service layer, webhook processing, and CRM sync patterns. Use when designing new SalesLoft integrations or reviewing project structure. Trigger: \"salesloft architecture\", \"salesloft project structure\", \"salesloft design\".",
+      "description": "Design a multi-team Salesloft integration with explicit tenant, auth, client, scheduler, cursor, webhook, queue, reconciliation, and ownership boundaries. Use when reviewing or creating production architecture. Trigger with \"Salesloft architecture\", \"design Salesloft integration\", or \"Salesloft multi-tenant system\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -29009,7 +29009,7 @@
     {
       "slug": "salesloft-sdk-patterns",
       "name": "salesloft-sdk-patterns",
-      "description": "Apply production-ready SalesLoft API patterns for TypeScript and Python. Use when building SalesLoft integrations, implementing pagination, or wrapping the REST API v2 with typed clients. Trigger: \"salesloft SDK patterns\", \"salesloft best practices\", \"salesloft client wrapper\".",
+      "description": "Analyze and design a typed Salesloft REST adapter with tenant-bound authentication, endpoint-specific schemas, pagination, errors, and rate metadata. Use when creating or refactoring an integration client. Trigger with \"Salesloft SDK patterns\", \"Salesloft client wrapper\", or \"typed Salesloft API\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -29021,7 +29021,7 @@
     {
       "slug": "salesloft-security-basics",
       "name": "salesloft-security-basics",
-      "description": "Secure SalesLoft OAuth tokens, API keys, and webhook signatures. Use when implementing token rotation, securing webhook endpoints, or auditing SalesLoft API access controls. Trigger: \"salesloft security\", \"salesloft secrets\", \"secure salesloft\", \"salesloft token rotation\".",
+      "description": "Harden Salesloft tenant isolation, OAuth and API-key storage, least-privilege scopes, CRM-data handling, and webhook verification. Use when reviewing an integration security boundary. Trigger with \"Salesloft security\", \"secure Salesloft tokens\", or \"Salesloft webhook verification\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -29033,7 +29033,7 @@
     {
       "slug": "salesloft-upgrade-migration",
       "name": "salesloft-upgrade-migration",
-      "description": "Migrate between SalesLoft API versions and handle breaking changes. Use when SalesLoft announces API deprecations, upgrading OAuth flows, or transitioning from legacy endpoints. Trigger: \"upgrade salesloft\", \"salesloft migration\", \"salesloft API version\".",
+      "description": "Migrate an existing Salesloft integration through an evidence-backed endpoint, auth, schema, scope, and behavior diff with shadow validation and rollback. Use when current contracts or application assumptions change. Trigger with \"Salesloft migration\", \"upgrade Salesloft integration\", or \"Salesloft API contract change\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -29045,7 +29045,7 @@
     {
       "slug": "salesloft-webhooks-events",
       "name": "salesloft-webhooks-events",
-      "description": "Implement SalesLoft webhook handling with signature verification and event routing. Use when setting up webhook endpoints, handling activity notifications, or syncing SalesLoft data to external systems in real-time. Trigger: \"salesloft webhook\", \"salesloft events\", \"salesloft notifications\".",
+      "description": "Verify and process Salesloft webhooks using exact raw-body SHA-1 HMAC, callback-token validation, event routing, durable deduplication, and reconciliation. Use when building or auditing a webhook receiver. Trigger with \"Salesloft webhook\", \"Salesloft signature\", or \"Salesloft event handler\".",
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "salesloft-pack",
@@ -34804,7 +34804,7 @@
     }
   ],
   "count": 2900,
-  "generatedAt": "2026-09-10T12:45:12.658Z",
+  "generatedAt": "2026-09-10T14:07:22.202Z",
   "categories": [
     "ai-agency",
     "ai-ml",

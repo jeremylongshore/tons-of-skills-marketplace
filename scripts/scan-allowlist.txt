@@ -511,3 +511,25 @@ plugins/saas-packs/algolia-pack/skills/algolia-sdk-patterns/SKILL.md:allowed-too
 plugins/saas-packs/algolia-pack/skills/algolia-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
 plugins/saas-packs/algolia-pack/skills/algolia-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
 plugins/saas-packs/algolia-pack/skills/algolia-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+
+# ── Salesloft operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult current first-party Salesloft
+# documentation; no shell or general HTTP client is granted.
+plugins/saas-packs/salesloft-pack/skills/salesloft-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
