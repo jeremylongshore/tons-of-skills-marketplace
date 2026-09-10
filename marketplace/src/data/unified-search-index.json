@@ -13434,7 +13434,7 @@
       "slug": "webflow-pack",
       "name": "webflow-pack",
       "displayName": "webflow pack",
-      "description": "Claude Code skill pack for Webflow (24 skills)",
+      "description": "Verified operator workflows for Webflow Data API v2, Webflow Cloud, CLI, CMS, webhooks, security, and production operations (24 skills)",
       "category": "saas-packs",
       "keywords": [
         "webflow",
@@ -13448,7 +13448,7 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.5.0",
+      "version": "1.6.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -13456,7 +13456,7 @@
       "verificationScore": 77,
       "verificationGrade": "C",
       "verificationBadge": "silver",
-      "searchText": "webflow pack claude code skill pack for webflow (24 skills) saas-packs webflow saas sdk integration"
+      "searchText": "webflow pack verified operator workflows for webflow data api v2, webflow cloud, cli, cms, webhooks, security, and production operations (24 skills) saas-packs webflow saas sdk integration"
     },
     {
       "type": "plugin",
@@ -77439,520 +77439,552 @@
       "id": "webflow-ci-integration",
       "slug": "webflow-ci-integration",
       "name": "webflow-ci-integration",
-      "description": "Configure Webflow CI/CD with GitHub Actions — automated CMS validation, integration tests with test tokens, and publish-on-merge workflows. Use when setting up automated testing or CI pipelines for Webflow integrations. Trigger with phrases like \"webflow CI\", \"webflow GitHub Actions\", \"webflow automated tests\", \"CI webflow\", \"webflow pipeline\".",
+      "description": "Build fail-closed CI for Webflow Data API or Cloud changes with pinned tools and explicit identities. Use when adding automated tests, non-interactive CLI work, or gated deployment. Trigger with \"Webflow CI\", \"Webflow GitHub Actions\", or \"automate Webflow deploy\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(gh:*)",
-        "Bash(npm:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-ci-integration configure webflow ci/cd with github actions — automated cms validation, integration tests with test tokens, and publish-on-merge workflows. use when setting up automated testing or ci pipelines for webflow integrations. trigger with phrases like \"webflow ci\", \"webflow github actions\", \"webflow automated tests\", \"ci webflow\", \"webflow pipeline\". saas-packs read write edit bash(gh:*) bash(npm:*) "
+      "searchText": "webflow-ci-integration build fail-closed ci for webflow data api or cloud changes with pinned tools and explicit identities. use when adding automated tests, non-interactive cli work, or gated deployment. trigger with \"webflow ci\", \"webflow github actions\", or \"automate webflow deploy\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-common-errors",
       "slug": "webflow-common-errors",
       "name": "webflow-common-errors",
-      "description": "Diagnose and fix Webflow Data API v2 errors — 400, 401, 403, 404, 409, 429, 500. Use when encountering Webflow API errors, debugging failed requests, or troubleshooting integration issues. Trigger with phrases like \"webflow error\", \"fix webflow\", \"webflow not working\", \"debug webflow\", \"webflow 429\", \"webflow 401\".",
+      "description": "Diagnose Webflow Data API failures using the returned HTTP status and structured error body. Use when requests fail with 4xx, 429, or 5xx responses. Trigger with \"Webflow error\", \"Webflow 403\", or \"Webflow API failed\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)",
-        "Bash(npx:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-common-errors diagnose and fix webflow data api v2 errors — 400, 401, 403, 404, 409, 429, 500. use when encountering webflow api errors, debugging failed requests, or troubleshooting integration issues. trigger with phrases like \"webflow error\", \"fix webflow\", \"webflow not working\", \"debug webflow\", \"webflow 429\", \"webflow 401\". saas-packs read grep bash(curl:*) bash(npx:*) "
+      "searchText": "webflow-common-errors diagnose webflow data api failures using the returned http status and structured error body. use when requests fail with 4xx, 429, or 5xx responses. trigger with \"webflow error\", \"webflow 403\", or \"webflow api failed\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-core-workflow-a",
       "slug": "webflow-core-workflow-a",
       "name": "webflow-core-workflow-a",
-      "description": "Execute the primary Webflow workflow — CMS content management: list collections, CRUD items, publish items, and manage content lifecycle via the Data API v2. Use when working with Webflow CMS collections and items, managing blog posts, team members, or any dynamic content. Trigger with phrases like \"webflow CMS\", \"webflow collections\", \"webflow items\", \"create webflow content\", \"manage webflow CMS\", \"webflow content management\".",
+      "description": "Operate the Webflow CMS staged/live lifecycle with reviewable writes and publishing. Use when creating, updating, publishing, unpublishing, or archiving collection items. Trigger with \"manage Webflow CMS\", \"publish Webflow item\", or \"sync Webflow content\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-core-workflow-a execute the primary webflow workflow — cms content management: list collections, crud items, publish items, and manage content lifecycle via the data api v2. use when working with webflow cms collections and items, managing blog posts, team members, or any dynamic content. trigger with phrases like \"webflow cms\", \"webflow collections\", \"webflow items\", \"create webflow content\", \"manage webflow cms\", \"webflow content management\". saas-packs read write edit bash(npm:*) bash(npx:*) grep "
+      "searchText": "webflow-core-workflow-a operate the webflow cms staged/live lifecycle with reviewable writes and publishing. use when creating, updating, publishing, unpublishing, or archiving collection items. trigger with \"manage webflow cms\", \"publish webflow item\", or \"sync webflow content\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-core-workflow-b",
       "slug": "webflow-core-workflow-b",
       "name": "webflow-core-workflow-b",
-      "description": "Execute Webflow secondary workflows — Sites management, Pages API, Forms submissions, Ecommerce (products/orders/inventory), and Custom Code via the Data API v2. Use when managing sites, reading pages, handling form data, or working with Webflow Ecommerce products and orders. Trigger with phrases like \"webflow sites\", \"webflow pages\", \"webflow forms\", \"webflow ecommerce\", \"webflow products\", \"webflow orders\".",
+      "description": "Plan Webflow Data API operations outside the core CMS item loop, including pages, components, forms, ecommerce, assets, and custom code. Use when a request spans site resources or needs endpoint-specific scope review. Trigger with \"Webflow site API\", \"Webflow forms\", or \"Webflow ecommerce\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-core-workflow-b execute webflow secondary workflows — sites management, pages api, forms submissions, ecommerce (products/orders/inventory), and custom code via the data api v2. use when managing sites, reading pages, handling form data, or working with webflow ecommerce products and orders. trigger with phrases like \"webflow sites\", \"webflow pages\", \"webflow forms\", \"webflow ecommerce\", \"webflow products\", \"webflow orders\". saas-packs read write edit bash(npm:*) bash(npx:*) grep "
+      "searchText": "webflow-core-workflow-b plan webflow data api operations outside the core cms item loop, including pages, components, forms, ecommerce, assets, and custom code. use when a request spans site resources or needs endpoint-specific scope review. trigger with \"webflow site api\", \"webflow forms\", or \"webflow ecommerce\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-cost-tuning",
       "slug": "webflow-cost-tuning",
       "name": "webflow-cost-tuning",
-      "description": "Optimize Webflow costs through plan selection, CDN read optimization, bulk endpoint usage, and API usage monitoring with budget alerts. Use when analyzing Webflow billing, reducing API costs, or implementing usage monitoring for Webflow integrations. Trigger with phrases like \"webflow cost\", \"webflow billing\", \"reduce webflow costs\", \"webflow pricing\", \"webflow budget\".",
+      "description": "Reduce avoidable Webflow integration cost and plan pressure using measured API, storage, traffic, and deployment usage. Use when right-sizing a plan or replacing wasteful polling and origin reads. Trigger with \"Webflow cost\", \"right-size Webflow\", or \"reduce Webflow usage\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-cost-tuning optimize webflow costs through plan selection, cdn read optimization, bulk endpoint usage, and api usage monitoring with budget alerts. use when analyzing webflow billing, reducing api costs, or implementing usage monitoring for webflow integrations. trigger with phrases like \"webflow cost\", \"webflow billing\", \"reduce webflow costs\", \"webflow pricing\", \"webflow budget\". saas-packs read write edit grep "
+      "searchText": "webflow-cost-tuning reduce avoidable webflow integration cost and plan pressure using measured api, storage, traffic, and deployment usage. use when right-sizing a plan or replacing wasteful polling and origin reads. trigger with \"webflow cost\", \"right-size webflow\", or \"reduce webflow usage\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-data-handling",
       "slug": "webflow-data-handling",
       "name": "webflow-data-handling",
-      "description": "Implement Webflow data handling — CMS content delivery patterns, PII redaction in form submissions, GDPR/CCPA compliance for ecommerce data, and data retention policies. Trigger with phrases like \"webflow data\", \"webflow PII\", \"webflow GDPR\", \"webflow data retention\", \"webflow privacy\", \"webflow CCPA\", \"webflow forms data\".",
+      "description": "Design data minimization, retention, access, and deletion workflows for Webflow forms, ecommerce, CMS, logs, and webhooks. Use when personal data enters an integration or compliance evidence is needed. Trigger with \"Webflow privacy\", \"Webflow data retention\", or \"delete Webflow user data\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-data-handling implement webflow data handling — cms content delivery patterns, pii redaction in form submissions, gdpr/ccpa compliance for ecommerce data, and data retention policies. trigger with phrases like \"webflow data\", \"webflow pii\", \"webflow gdpr\", \"webflow data retention\", \"webflow privacy\", \"webflow ccpa\", \"webflow forms data\". saas-packs read write edit "
+      "searchText": "webflow-data-handling design data minimization, retention, access, and deletion workflows for webflow forms, ecommerce, cms, logs, and webhooks. use when personal data enters an integration or compliance evidence is needed. trigger with \"webflow privacy\", \"webflow data retention\", or \"delete webflow user data\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-debug-bundle",
       "slug": "webflow-debug-bundle",
       "name": "webflow-debug-bundle",
-      "description": "Collect Webflow debug evidence for support tickets and troubleshooting. Gathers SDK version, token validation, rate limit status, site connectivity, CMS health, and error logs into a single diagnostic bundle. Trigger with phrases like \"webflow debug\", \"webflow support bundle\", \"collect webflow logs\", \"webflow diagnostic\", \"webflow troubleshoot\".",
+      "description": "Collect a redacted Webflow integration evidence bundle for troubleshooting or support. Use when an incident needs reproducible versions, identities, headers, and error context without secret leakage. Trigger with \"Webflow debug bundle\", \"collect Webflow evidence\", or \"Webflow support ticket\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Bash(curl:*)",
-        "Bash(tar:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-debug-bundle collect webflow debug evidence for support tickets and troubleshooting. gathers sdk version, token validation, rate limit status, site connectivity, cms health, and error logs into a single diagnostic bundle. trigger with phrases like \"webflow debug\", \"webflow support bundle\", \"collect webflow logs\", \"webflow diagnostic\", \"webflow troubleshoot\". saas-packs read bash(npm:*) bash(npx:*) bash(curl:*) bash(tar:*) grep "
+      "searchText": "webflow-debug-bundle collect a redacted webflow integration evidence bundle for troubleshooting or support. use when an incident needs reproducible versions, identities, headers, and error context without secret leakage. trigger with \"webflow debug bundle\", \"collect webflow evidence\", or \"webflow support ticket\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-deploy-integration",
       "slug": "webflow-deploy-integration",
       "name": "webflow-deploy-integration",
-      "description": "Deploy Webflow-powered applications to Vercel, Fly.io, and Google Cloud Run with proper secrets management and Webflow-specific health checks. Trigger with phrases like \"deploy webflow\", \"webflow Vercel\", \"webflow production deploy\", \"webflow Cloud Run\", \"webflow Fly.io\".",
+      "description": "Plan and execute a Webflow Cloud deployment with explicit app identity, mount, environment, verification, and rollback. Use when shipping a Cloud app or repairing its deployment lane. Trigger with \"deploy Webflow Cloud\", \"Webflow app deploy\", or \"rollback Webflow deployment\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(fly:*)",
-        "Bash(gcloud:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-deploy-integration deploy webflow-powered applications to vercel, fly.io, and google cloud run with proper secrets management and webflow-specific health checks. trigger with phrases like \"deploy webflow\", \"webflow vercel\", \"webflow production deploy\", \"webflow cloud run\", \"webflow fly.io\". saas-packs read write edit bash(vercel:*) bash(fly:*) bash(gcloud:*) "
+      "searchText": "webflow-deploy-integration plan and execute a webflow cloud deployment with explicit app identity, mount, environment, verification, and rollback. use when shipping a cloud app or repairing its deployment lane. trigger with \"deploy webflow cloud\", \"webflow app deploy\", or \"rollback webflow deployment\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-enterprise-rbac",
       "slug": "webflow-enterprise-rbac",
       "name": "webflow-enterprise-rbac",
-      "description": "Configure Webflow enterprise access control — OAuth 2.0 app authorization, scope-based RBAC, per-site token isolation, workspace member management, and audit logging for compliance. Trigger with phrases like \"webflow RBAC\", \"webflow enterprise\", \"webflow roles\", \"webflow permissions\", \"webflow OAuth scopes\", \"webflow access control\", \"webflow workspace members\".",
+      "description": "Govern enterprise Webflow API access with native scopes, token boundaries, activity evidence, and application authorization. Use when auditing multi-site access or designing least-privilege enterprise operations. Trigger with \"Webflow enterprise access\", \"Webflow audit logs\", or \"Webflow RBAC\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-enterprise-rbac configure webflow enterprise access control — oauth 2.0 app authorization, scope-based rbac, per-site token isolation, workspace member management, and audit logging for compliance. trigger with phrases like \"webflow rbac\", \"webflow enterprise\", \"webflow roles\", \"webflow permissions\", \"webflow oauth scopes\", \"webflow access control\", \"webflow workspace members\". saas-packs read write edit "
+      "searchText": "webflow-enterprise-rbac govern enterprise webflow api access with native scopes, token boundaries, activity evidence, and application authorization. use when auditing multi-site access or designing least-privilege enterprise operations. trigger with \"webflow enterprise access\", \"webflow audit logs\", or \"webflow rbac\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-hello-world",
       "slug": "webflow-hello-world",
       "name": "webflow-hello-world",
-      "description": "Create a minimal working Webflow Data API v2 example. Use when starting a new Webflow integration, testing your setup, or learning basic Webflow API patterns — list sites, read CMS collections, create items. Trigger with phrases like \"webflow hello world\", \"webflow example\", \"webflow quick start\", \"simple webflow code\", \"first webflow API call\".",
+      "description": "Build a minimal, read-first Webflow Data API v2 integration with an official SDK. Use when proving connectivity, learning resource IDs, or establishing a safe starting point. Trigger with \"Webflow hello world\", \"test Webflow API\", or \"list my Webflow sites\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-hello-world create a minimal working webflow data api v2 example. use when starting a new webflow integration, testing your setup, or learning basic webflow api patterns — list sites, read cms collections, create items. trigger with phrases like \"webflow hello world\", \"webflow example\", \"webflow quick start\", \"simple webflow code\", \"first webflow api call\". saas-packs read write edit bash(npm:*) bash(npx:*) "
+      "searchText": "webflow-hello-world build a minimal, read-first webflow data api v2 integration with an official sdk. use when proving connectivity, learning resource ids, or establishing a safe starting point. trigger with \"webflow hello world\", \"test webflow api\", or \"list my webflow sites\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-incident-runbook",
       "slug": "webflow-incident-runbook",
       "name": "webflow-incident-runbook",
-      "description": "Execute Webflow incident response — triage by HTTP status (401/403/429/500), circuit breaker activation, cached fallback, Webflow status page checks, communication templates, and postmortem process. Trigger with phrases like \"webflow incident\", \"webflow outage\", \"webflow down\", \"webflow on-call\", \"webflow emergency\", \"webflow broken\".",
+      "description": "Triage and recover a Webflow integration incident with read-only evidence, write freezes, and verified recovery. Use when handling auth failures, 429s, 5xx errors, webhook loss, bad publication, or Cloud deploy failure. Trigger with \"Webflow incident\", \"Webflow outage\", or \"Webflow rollback\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)",
-        "Bash(npm:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-incident-runbook execute webflow incident response — triage by http status (401/403/429/500), circuit breaker activation, cached fallback, webflow status page checks, communication templates, and postmortem process. trigger with phrases like \"webflow incident\", \"webflow outage\", \"webflow down\", \"webflow on-call\", \"webflow emergency\", \"webflow broken\". saas-packs read grep bash(curl:*) bash(npm:*) "
+      "searchText": "webflow-incident-runbook triage and recover a webflow integration incident with read-only evidence, write freezes, and verified recovery. use when handling auth failures, 429s, 5xx errors, webhook loss, bad publication, or cloud deploy failure. trigger with \"webflow incident\", \"webflow outage\", or \"webflow rollback\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-install-auth",
       "slug": "webflow-install-auth",
       "name": "webflow-install-auth",
-      "description": "Install the Webflow JS SDK (webflow-api) and configure OAuth 2.0 or API token authentication. Use when setting up a new Webflow integration, configuring access tokens, or initializing the WebflowClient in your project. Trigger with phrases like \"install webflow\", \"setup webflow\", \"webflow auth\", \"configure webflow API token\", \"webflow OAuth\".",
+      "description": "Install or repair a Webflow Data API integration and choose the correct bearer-token model. Use when bootstrapping the official SDK, narrowing scopes, or diagnosing token setup. Trigger with \"install Webflow\", \"configure Webflow auth\", or \"choose a Webflow token\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-install-auth install the webflow js sdk (webflow-api) and configure oauth 2.0 or api token authentication. use when setting up a new webflow integration, configuring access tokens, or initializing the webflowclient in your project. trigger with phrases like \"install webflow\", \"setup webflow\", \"webflow auth\", \"configure webflow api token\", \"webflow oauth\". saas-packs read write edit bash(npm:*) bash(pnpm:*) grep "
+      "searchText": "webflow-install-auth install or repair a webflow data api integration and choose the correct bearer-token model. use when bootstrapping the official sdk, narrowing scopes, or diagnosing token setup. trigger with \"install webflow\", \"configure webflow auth\", or \"choose a webflow token\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-local-dev-loop",
       "slug": "webflow-local-dev-loop",
       "name": "webflow-local-dev-loop",
-      "description": "Configure a Webflow local development workflow with TypeScript, hot reload, mocked API tests, and webhook tunneling via ngrok. Use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with the Webflow Data API. Trigger with phrases like \"webflow dev setup\", \"webflow local development\", \"webflow dev environment\", \"develop with webflow\".",
+      "description": "Create a repeatable local loop for a Webflow Data API, Cloud app, or Designer extension. Use when setting up local development, fixtures, typechecking, or non-production smoke tests. Trigger with \"Webflow local dev\", \"test Webflow locally\", or \"mock Webflow API\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-local-dev-loop configure a webflow local development workflow with typescript, hot reload, mocked api tests, and webhook tunneling via ngrok. use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with the webflow data api. trigger with phrases like \"webflow dev setup\", \"webflow local development\", \"webflow dev environment\", \"develop with webflow\". saas-packs read write edit bash(npm:*) bash(pnpm:*) bash(npx:*) grep "
+      "searchText": "webflow-local-dev-loop create a repeatable local loop for a webflow data api, cloud app, or designer extension. use when setting up local development, fixtures, typechecking, or non-production smoke tests. trigger with \"webflow local dev\", \"test webflow locally\", or \"mock webflow api\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-migration-deep-dive",
       "slug": "webflow-migration-deep-dive",
       "name": "webflow-migration-deep-dive",
-      "description": "Execute major Webflow migrations — from other CMS platforms to Webflow CMS, between Webflow sites, or large-scale content re-architecture using the Data API v2 bulk endpoints, strangler fig pattern, and data validation. Trigger with phrases like \"migrate to webflow\", \"webflow migration\", \"import into webflow\", \"webflow replatform\", \"move content to webflow\", \"webflow bulk import\", \"wordpress to webflow\".",
+      "description": "Migrate external or cross-site content into Webflow CMS with schema mapping, staged batches, reconciliation, and controlled publication. Use when moving WordPress, CSV, JSON, or Webflow-to-Webflow content. Trigger with \"migrate to Webflow\", \"bulk import Webflow\", or \"move Webflow CMS\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Bash(node:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-migration-deep-dive execute major webflow migrations — from other cms platforms to webflow cms, between webflow sites, or large-scale content re-architecture using the data api v2 bulk endpoints, strangler fig pattern, and data validation. trigger with phrases like \"migrate to webflow\", \"webflow migration\", \"import into webflow\", \"webflow replatform\", \"move content to webflow\", \"webflow bulk import\", \"wordpress to webflow\". saas-packs read write edit bash(npm:*) bash(npx:*) bash(node:*) "
+      "searchText": "webflow-migration-deep-dive migrate external or cross-site content into webflow cms with schema mapping, staged batches, reconciliation, and controlled publication. use when moving wordpress, csv, json, or webflow-to-webflow content. trigger with \"migrate to webflow\", \"bulk import webflow\", or \"move webflow cms\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-multi-env-setup",
       "slug": "webflow-multi-env-setup",
       "name": "webflow-multi-env-setup",
-      "description": "Configure Webflow across development, staging, and production environments with per-environment API tokens, site IDs, and secret management via Vault/AWS/GCP. Trigger with phrases like \"webflow environments\", \"webflow staging\", \"webflow dev prod\", \"webflow environment setup\", \"webflow config by env\".",
+      "description": "Separate Webflow development, staging, and production identities, tokens, sites, and release policy. Use when preventing cross-environment writes or configuring environment-aware CI. Trigger with \"Webflow environments\", \"Webflow staging\", or \"separate Webflow tokens\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(aws:*)",
-        "Bash(gcloud:*)",
-        "Bash(vault:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-multi-env-setup configure webflow across development, staging, and production environments with per-environment api tokens, site ids, and secret management via vault/aws/gcp. trigger with phrases like \"webflow environments\", \"webflow staging\", \"webflow dev prod\", \"webflow environment setup\", \"webflow config by env\". saas-packs read write edit bash(aws:*) bash(gcloud:*) bash(vault:*) "
+      "searchText": "webflow-multi-env-setup separate webflow development, staging, and production identities, tokens, sites, and release policy. use when preventing cross-environment writes or configuring environment-aware ci. trigger with \"webflow environments\", \"webflow staging\", or \"separate webflow tokens\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-observability",
       "slug": "webflow-observability",
       "name": "webflow-observability",
-      "description": "Set up observability for Webflow integrations — Prometheus metrics for API calls, OpenTelemetry tracing, structured logging with pino, Grafana dashboards, and alerting for rate limits, errors, and latency. Trigger with phrases like \"webflow monitoring\", \"webflow metrics\", \"webflow observability\", \"monitor webflow\", \"webflow alerts\", \"webflow tracing\".",
+      "description": "Instrument a Webflow integration around API budgets, errors, cache behavior, webhooks, and deployments without leaking sensitive data. Use when adding metrics, logs, traces, or alerts. Trigger with \"monitor Webflow\", \"Webflow observability\", or \"Webflow alerts\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-observability set up observability for webflow integrations — prometheus metrics for api calls, opentelemetry tracing, structured logging with pino, grafana dashboards, and alerting for rate limits, errors, and latency. trigger with phrases like \"webflow monitoring\", \"webflow metrics\", \"webflow observability\", \"monitor webflow\", \"webflow alerts\", \"webflow tracing\". saas-packs read write edit "
+      "searchText": "webflow-observability instrument a webflow integration around api budgets, errors, cache behavior, webhooks, and deployments without leaking sensitive data. use when adding metrics, logs, traces, or alerts. trigger with \"monitor webflow\", \"webflow observability\", or \"webflow alerts\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-performance-tuning",
       "slug": "webflow-performance-tuning",
       "name": "webflow-performance-tuning",
-      "description": "Optimize Webflow API performance with response caching, bulk endpoint batching, CDN-cached live item reads, pagination optimization, and connection pooling. Use when experiencing slow API responses or optimizing request throughput. Trigger with phrases like \"webflow performance\", \"optimize webflow\", \"webflow latency\", \"webflow caching\", \"webflow slow\", \"webflow batch\".",
+      "description": "Improve Webflow integration latency and throughput with measured pagination, caching, Content Delivery, and bounded concurrency. Use when reads are slow, syncs are bursty, or origin budgets are tight. Trigger with \"speed up Webflow\", \"Webflow CDN\", or \"optimize Webflow API\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-performance-tuning optimize webflow api performance with response caching, bulk endpoint batching, cdn-cached live item reads, pagination optimization, and connection pooling. use when experiencing slow api responses or optimizing request throughput. trigger with phrases like \"webflow performance\", \"optimize webflow\", \"webflow latency\", \"webflow caching\", \"webflow slow\", \"webflow batch\". saas-packs read write edit "
+      "searchText": "webflow-performance-tuning improve webflow integration latency and throughput with measured pagination, caching, content delivery, and bounded concurrency. use when reads are slow, syncs are bursty, or origin budgets are tight. trigger with \"speed up webflow\", \"webflow cdn\", or \"optimize webflow api\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-prod-checklist",
       "slug": "webflow-prod-checklist",
       "name": "webflow-prod-checklist",
-      "description": "Execute Webflow production deployment checklist — token security, rate limit hardening, health checks, circuit breakers, gradual rollout, and rollback procedures. Use when deploying Webflow integrations to production or preparing for launch. Trigger with phrases like \"webflow production\", \"deploy webflow\", \"webflow go-live\", \"webflow launch checklist\", \"webflow production ready\".",
+      "description": "Gate a Webflow integration before production with identity, scope, retry, privacy, rollout, and rollback evidence. Use when preparing to enable live traffic or live content writes. Trigger with \"Webflow production checklist\", \"ship Webflow integration\", or \"Webflow go live\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-prod-checklist execute webflow production deployment checklist — token security, rate limit hardening, health checks, circuit breakers, gradual rollout, and rollback procedures. use when deploying webflow integrations to production or preparing for launch. trigger with phrases like \"webflow production\", \"deploy webflow\", \"webflow go-live\", \"webflow launch checklist\", \"webflow production ready\". saas-packs read write edit bash(curl:*) bash(npm:*) grep "
+      "searchText": "webflow-prod-checklist gate a webflow integration before production with identity, scope, retry, privacy, rollout, and rollback evidence. use when preparing to enable live traffic or live content writes. trigger with \"webflow production checklist\", \"ship webflow integration\", or \"webflow go live\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-rate-limits",
       "slug": "webflow-rate-limits",
       "name": "webflow-rate-limits",
-      "description": "Handle Webflow Data API v2 rate limits — per-key limits, Retry-After headers, exponential backoff, request queuing, and bulk endpoint optimization. Use when hitting 429 errors, implementing retry logic, or optimizing API request throughput. Trigger with phrases like \"webflow rate limit\", \"webflow throttling\", \"webflow 429\", \"webflow retry\", \"webflow backoff\", \"webflow too many requests\".",
+      "description": "Design Webflow request budgets, queues, and retries from current plan and endpoint limits. Use when handling 429s, bulk sync throughput, polling, or Content Delivery caching. Trigger with \"Webflow rate limit\", \"Webflow 429\", or \"throttle Webflow\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-rate-limits handle webflow data api v2 rate limits — per-key limits, retry-after headers, exponential backoff, request queuing, and bulk endpoint optimization. use when hitting 429 errors, implementing retry logic, or optimizing api request throughput. trigger with phrases like \"webflow rate limit\", \"webflow throttling\", \"webflow 429\", \"webflow retry\", \"webflow backoff\", \"webflow too many requests\". saas-packs read write edit "
+      "searchText": "webflow-rate-limits design webflow request budgets, queues, and retries from current plan and endpoint limits. use when handling 429s, bulk sync throughput, polling, or content delivery caching. trigger with \"webflow rate limit\", \"webflow 429\", or \"throttle webflow\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-reference-architecture",
       "slug": "webflow-reference-architecture",
       "name": "webflow-reference-architecture",
-      "description": "Implement Webflow reference architecture — layered project structure, client wrapper, CMS sync service, webhook handlers, and caching layer for production integrations. Trigger with phrases like \"webflow architecture\", \"webflow project structure\", \"how to organize webflow\", \"webflow integration design\", \"webflow best practices\".",
+      "description": "Design a Webflow integration architecture with explicit Data API, Content Delivery, webhook, identity, queue, and publication boundaries. Use when starting a service or untangling a coupled integration. Trigger with \"Webflow architecture\", \"design Webflow integration\", or \"Webflow service layout\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-reference-architecture implement webflow reference architecture — layered project structure, client wrapper, cms sync service, webhook handlers, and caching layer for production integrations. trigger with phrases like \"webflow architecture\", \"webflow project structure\", \"how to organize webflow\", \"webflow integration design\", \"webflow best practices\". saas-packs read write edit grep "
+      "searchText": "webflow-reference-architecture design a webflow integration architecture with explicit data api, content delivery, webhook, identity, queue, and publication boundaries. use when starting a service or untangling a coupled integration. trigger with \"webflow architecture\", \"design webflow integration\", or \"webflow service layout\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-sdk-patterns",
       "slug": "webflow-sdk-patterns",
       "name": "webflow-sdk-patterns",
-      "description": "Apply production-ready Webflow SDK patterns — singleton client, typed error handling, pagination helpers, and raw response access for the webflow-api package. Use when implementing Webflow integrations, refactoring SDK usage, or establishing team coding standards. Trigger with phrases like \"webflow SDK patterns\", \"webflow best practices\", \"webflow code patterns\", \"idiomatic webflow\", \"webflow typescript\".",
+      "description": "Apply maintainable patterns around an official Webflow SDK without inventing method contracts. Use when centralizing clients, pagination, retries, tenancy, or typed boundaries. Trigger with \"Webflow SDK pattern\", \"wrap Webflow client\", or \"paginate Webflow\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-sdk-patterns apply production-ready webflow sdk patterns — singleton client, typed error handling, pagination helpers, and raw response access for the webflow-api package. use when implementing webflow integrations, refactoring sdk usage, or establishing team coding standards. trigger with phrases like \"webflow sdk patterns\", \"webflow best practices\", \"webflow code patterns\", \"idiomatic webflow\", \"webflow typescript\". saas-packs read write edit "
+      "searchText": "webflow-sdk-patterns apply maintainable patterns around an official webflow sdk without inventing method contracts. use when centralizing clients, pagination, retries, tenancy, or typed boundaries. trigger with \"webflow sdk pattern\", \"wrap webflow client\", or \"paginate webflow\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-security-basics",
       "slug": "webflow-security-basics",
       "name": "webflow-security-basics",
-      "description": "Apply Webflow API security best practices — token management, scope least privilege, OAuth 2.0 secret rotation, webhook signature verification, and audit logging. Use when securing API tokens, implementing least privilege access, or auditing Webflow security configuration. Trigger with phrases like \"webflow security\", \"webflow secrets\", \"secure webflow\", \"webflow API key security\", \"webflow token rotation\".",
+      "description": "Harden Webflow tokens, scopes, webhook verification, logs, and live-write boundaries. Use when threat-modeling an integration or preparing it for production. Trigger with \"secure Webflow\", \"verify Webflow webhook\", or \"audit Webflow token\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-security-basics apply webflow api security best practices — token management, scope least privilege, oauth 2.0 secret rotation, webhook signature verification, and audit logging. use when securing api tokens, implementing least privilege access, or auditing webflow security configuration. trigger with phrases like \"webflow security\", \"webflow secrets\", \"secure webflow\", \"webflow api key security\", \"webflow token rotation\". saas-packs read write edit grep "
+      "searchText": "webflow-security-basics harden webflow tokens, scopes, webhook verification, logs, and live-write boundaries. use when threat-modeling an integration or preparing it for production. trigger with \"secure webflow\", \"verify webflow webhook\", or \"audit webflow token\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-upgrade-migration",
       "slug": "webflow-upgrade-migration",
       "name": "webflow-upgrade-migration",
-      "description": "Analyze, plan, and execute Webflow SDK upgrades (webflow-api v1 to v3) with breaking change detection, API v1-to-v2 migration, and deprecation handling. Trigger with phrases like \"upgrade webflow\", \"webflow migration\", \"webflow breaking changes\", \"update webflow SDK\", \"webflow v1 to v2\".",
+      "description": "Upgrade Webflow SDK, Data API, or CLI integrations with contract evidence and rollback. Use when leaving Data API v1, updating the official JavaScript SDK, or migrating Webflow CLI 1.x scripts. Trigger with \"upgrade Webflow SDK\", \"migrate Webflow v1\", or \"Webflow CLI 2\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(git:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-upgrade-migration analyze, plan, and execute webflow sdk upgrades (webflow-api v1 to v3) with breaking change detection, api v1-to-v2 migration, and deprecation handling. trigger with phrases like \"upgrade webflow\", \"webflow migration\", \"webflow breaking changes\", \"update webflow sdk\", \"webflow v1 to v2\". saas-packs read write edit bash(npm:*) bash(git:*) "
+      "searchText": "webflow-upgrade-migration upgrade webflow sdk, data api, or cli integrations with contract evidence and rollback. use when leaving data api v1, updating the official javascript sdk, or migrating webflow cli 1.x scripts. trigger with \"upgrade webflow sdk\", \"migrate webflow v1\", or \"webflow cli 2\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "webflow-webhooks-events",
       "slug": "webflow-webhooks-events",
       "name": "webflow-webhooks-events",
-      "description": "Implement Webflow webhook registration, signature verification, and event handling for form_submission, site_publish, ecomm_new_order, page_created, and more. Use when setting up webhook endpoints, implementing event-driven workflows, or handling Webflow notifications. Trigger with phrases like \"webflow webhook\", \"webflow events\", \"webflow webhook signature\", \"handle webflow events\", \"webflow notifications\".",
+      "description": "Register and operate Webflow webhooks with current event names, signature verification, replay defense, and idempotency. Use when receiving site, CMS, form, ecommerce, page, or comment events. Trigger with \"Webflow webhook\", \"verify Webflow signature\", or \"Webflow events\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "webflow-pack",
         "category": "saas-packs"
       },
-      "searchText": "webflow-webhooks-events implement webflow webhook registration, signature verification, and event handling for form_submission, site_publish, ecomm_new_order, page_created, and more. use when setting up webhook endpoints, implementing event-driven workflows, or handling webflow notifications. trigger with phrases like \"webflow webhook\", \"webflow events\", \"webflow webhook signature\", \"handle webflow events\", \"webflow notifications\". saas-packs read write edit bash(curl:*) "
+      "searchText": "webflow-webhooks-events register and operate webflow webhooks with current event names, signature verification, replay defense, and idempotency. use when receiving site, cms, form, ecommerce, page, or comment events. trigger with \"webflow webhook\", \"verify webflow signature\", or \"webflow events\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
