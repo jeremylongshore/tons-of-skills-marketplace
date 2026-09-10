@@ -45,6 +45,9 @@ jobs:
           node-version: '22'
           cache: pnpm
 
+      - name: Check repository Node.js runtime
+        run: node scripts/check-node-version.mjs
+
       - name: Install
         run: pnpm install --frozen-lockfile
 

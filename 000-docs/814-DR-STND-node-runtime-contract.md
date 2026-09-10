@@ -27,7 +27,11 @@ These paths should use the `.node-version` runtime or an equivalent Node.js
 CI jobs that run repository-wide commands or build or install the marketplace
 use the maintained Node 22 line. Using the moving LTS line in CI keeps security
 patches current while the engine and preflight preserve the explicit `22.12.0`
-compatibility floor.
+compatibility floor. Those jobs invoke the preflight explicitly after Node setup;
+package lifecycle hooks provide a second boundary for guarded root and marketplace
+build commands. Marketplace-local commands without a matching lifecycle hook are
+not independently guarded and must not be added to a full-repository CI lane
+without an explicit preflight step.
 
 Focused CI lanes may remain on Node 20 when they install only a filtered
 package/tooling slice and do not build or install the marketplace:

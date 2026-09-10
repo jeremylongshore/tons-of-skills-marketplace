@@ -50,3 +50,17 @@ test('the direct marketplace build invokes the same preflight', () => {
   assert.match(marketplacePackage.scripts.predev, /^node \.\.\/scripts\/check-node-version\.mjs/);
   assert.equal(marketplacePackage.engines.node, `>=${MIN_NODE_VERSION}`);
 });
+
+test('full-repository workflows invoke the runtime preflight explicitly', () => {
+  const workflowExpectations = new Map([
+    ['e2e-tests.yml', 2],
+    ['release.yml', 1],
+    ['skill-conform.yml', 1],
+  ]);
+
+  for (const [workflow, expectedCount] of workflowExpectations) {
+    const source = readFileSync(join(repoRoot, '.github', 'workflows', workflow), 'utf8');
+    const matches = source.match(/run: node scripts\/check-node-version\.mjs/g) ?? [];
+    assert.equal(matches.length, expectedCount, `${workflow} explicit preflight count`);
+  }
+});

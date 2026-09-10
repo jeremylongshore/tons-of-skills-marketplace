@@ -99,6 +99,9 @@ jobs:
           # marketplace before running Playwright, so it needs Node 22.
           node-version: 22
 
+      - name: Check repository Node.js runtime
+        run: node scripts/check-node-version.mjs
+
       - name: Install marketplace dependencies
         run: |
           cd marketplace
@@ -179,6 +182,9 @@ jobs:
           # The runner installs marketplace/package.json, whose engine follows
           # the repository floor even though this job does not rebuild Astro.
           node-version: 22
+
+      - name: Check repository Node.js runtime
+        run: node scripts/check-node-version.mjs
 
       - name: Install marketplace dependencies
         run: |
