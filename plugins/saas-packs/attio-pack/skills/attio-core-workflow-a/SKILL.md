@@ -4,7 +4,7 @@ description: >-
   Implement a safe Attio record lifecycle for standard or custom objects, including schema discovery, query, create or assert, update, and delete controls. Use when building record synchronization or CRM write paths. Trigger with "Attio records", "Attio CRUD", or "sync Attio objects".
 argument-hint: "[repository-path] [object-slug] [operation]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

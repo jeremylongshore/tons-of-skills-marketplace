@@ -4,7 +4,7 @@ description: >-
   Run an evidence-based production-readiness review for an Attio integration across identity, scopes, data ownership, retries, webhooks, observability, rollback, and support. Use when preparing to enable production Attio traffic. Trigger with "Attio production checklist", "Attio go-live", or "review Attio release".
 argument-hint: "[repository-path] [release-id]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

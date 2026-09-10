@@ -6386,7 +6386,7 @@
       "name": "attio-pack",
       "source": "./plugins/saas-packs/attio-pack",
       "description": "Attio CRM integration pack with 18 operator skills",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "attio",

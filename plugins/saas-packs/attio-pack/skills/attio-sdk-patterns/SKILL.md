@@ -4,7 +4,7 @@ description: >-
   Build a typed Attio REST client with tenant-aware tokens, endpoint-specific pagination, structured errors, bounded retries, and contract tests while distinguishing it from the Attio App SDK. Use when creating or refactoring Attio integration code. Trigger with "Attio SDK", "Attio client wrapper", or "typed Attio API".
 argument-hint: "[repository-path] [language-or-runtime]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

@@ -4,7 +4,7 @@ description: >-
   Analyze and design an Attio request governor with separate read and write budgets, query-score awareness, bounded retries, and observable backpressure. Use when an Attio integration receives 429 responses or needs safe concurrency controls. Trigger with "Attio rate limits", "Attio 429", or "throttle Attio requests".
 argument-hint: "[repository-path] [workload-or-endpoint]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

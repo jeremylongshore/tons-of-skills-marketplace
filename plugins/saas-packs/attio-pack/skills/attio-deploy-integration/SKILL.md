@@ -4,7 +4,7 @@ description: >-
   Plan and execute a staged deployment for an external Attio REST integration with secret injection, contract tests, read-only smoke evidence, canary writes, and rollback. Use when releasing Attio-backed services. Trigger with "deploy Attio integration", "Attio rollout", or "Attio release plan".
 argument-hint: "[repository-path] [environment]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

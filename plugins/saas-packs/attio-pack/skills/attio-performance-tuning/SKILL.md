@@ -4,7 +4,7 @@ description: >-
   Analyze and improve Attio integration latency and throughput from measured query shape, pagination, concurrency, retry, and cache evidence while preserving correctness. Use when Attio requests are slow or queues are backing up. Trigger with "Attio performance", "speed up Attio sync", or "Attio query tuning".
 argument-hint: "[repository-path] [measurement-window]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

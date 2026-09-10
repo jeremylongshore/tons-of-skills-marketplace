@@ -4,7 +4,7 @@ description: >-
   Choose and configure Attio REST authentication for a single workspace or multi-workspace OAuth app, including least-privilege scopes and a read-only verification. Use when connecting a service to Attio. Trigger with "Attio auth", "Attio API key", or "Attio OAuth setup".
 argument-hint: "[repository-path] [single-workspace|oauth]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

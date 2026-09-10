@@ -4,7 +4,7 @@ description: >-
   Design a production Attio integration architecture with tenant-bound credentials, schema discovery, queued writes, verified webhooks, idempotency, reconciliation, and rollback ownership. Use when planning or reviewing a multi-workspace Attio service. Trigger with "Attio architecture", "design Attio integration", or "Attio system design".
 argument-hint: "[repository-path] [single-workspace|multi-workspace]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

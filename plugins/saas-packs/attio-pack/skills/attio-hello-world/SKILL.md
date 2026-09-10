@@ -4,7 +4,7 @@ description: >-
   Prove the smallest safe Attio REST connection by listing objects and validating the response envelope without changing CRM data. Use when checking a new token, workspace, or integration path. Trigger with "Attio hello world", "first Attio request", or "test Attio connection".
 argument-hint: "[repository-path] [workspace-alias]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

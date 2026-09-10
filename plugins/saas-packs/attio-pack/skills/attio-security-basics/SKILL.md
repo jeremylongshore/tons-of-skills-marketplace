@@ -4,7 +4,7 @@ description: >-
   Harden an Attio integration with least-privilege credentials, tenant isolation, log redaction, raw-body webhook verification, idempotency, and incident-ready rotation. Use when reviewing Attio security controls or preparing production access. Trigger with "Attio security", "secure Attio integration", or "Attio webhook signature".
 argument-hint: "[repository-path] [integration-scope]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

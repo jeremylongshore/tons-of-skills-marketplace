@@ -4,7 +4,7 @@ description: >-
   Analyze and reduce avoidable Attio integration cost and load by measuring request volume, query complexity, synchronization churn, and retained data before changing architecture. Use when an Attio workload is wasteful or operationally expensive. Trigger with "Attio cost", "reduce Attio API usage", or "Attio sync efficiency".
 argument-hint: "[repository-path] [measurement-window]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

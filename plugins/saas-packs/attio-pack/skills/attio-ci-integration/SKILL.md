@@ -4,7 +4,7 @@ description: >-
   Build a bounded CI contract gate for an Attio integration using fixtures, schema checks, and an optional read-only smoke request. Use when Attio changes need pull-request evidence without mutating CRM data. Trigger with "Attio CI", "test Attio integration", or "Attio pull request gate".
 argument-hint: "[repository-path] [test-command]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

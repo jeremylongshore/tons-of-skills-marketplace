@@ -4,7 +4,7 @@ description: >-
   Diagnose Attio REST API failures from status, structured error fields, endpoint contract, and request context without exposing customer data. Use when an Attio request returns 400, 401, 403, 404, 409, 422, 429, or 5xx. Trigger with "Attio error", "Attio request failed", or "debug Attio API".
 argument-hint: "[repository-path] [status-or-error-code]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

@@ -4,7 +4,7 @@ description: >-
   Build and operate an Attio webhook receiver with raw-body HMAC verification, fast acknowledgement, durable queues, idempotent processing, retry awareness, and reconciliation. Use when implementing or repairing Attio event delivery. Trigger with "Attio webhooks", "Attio events", or "verify Attio signature".
 argument-hint: "[repository-path] [receiver-route]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

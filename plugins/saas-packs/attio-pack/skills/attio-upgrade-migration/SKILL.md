@@ -4,7 +4,7 @@ description: >-
   Migrate an Attio integration through a contract-led inventory, OpenAPI and documentation diff, shadow validation, canary rollout, reconciliation, and tested rollback. Use when endpoint assumptions, client versions, schemas, or integration architecture must change. Trigger with "upgrade Attio integration", "Attio migration", or "Attio API contract change".
 argument-hint: "[repository-path] [change-target]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

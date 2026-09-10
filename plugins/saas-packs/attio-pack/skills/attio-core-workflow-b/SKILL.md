@@ -4,7 +4,7 @@ description: >-
   Build an Attio workflow around lists and entries while keeping record data, list-specific attributes, notes, and tasks correctly separated. Use when implementing pipelines, queues, or operational CRM processes. Trigger with "Attio lists", "Attio entries", or "Attio pipeline workflow".
 argument-hint: "[repository-path] [list-slug] [workflow]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

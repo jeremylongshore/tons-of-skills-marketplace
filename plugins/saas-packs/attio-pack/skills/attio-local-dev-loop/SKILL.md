@@ -4,7 +4,7 @@ description: >-
   Establish a repeatable local Attio development loop with sanitized fixtures, a non-production workspace, explicit mutation switches, and cleanup receipts. Use when iterating on Attio mappings or API behavior. Trigger with "Attio local development", "Attio dev loop", or "test Attio locally".
 argument-hint: "[repository-path] [workspace-alias]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

@@ -4,7 +4,7 @@ description: >-
   Assemble a minimal redacted Attio diagnostic bundle with request fingerprints, schema context, retry evidence, and environment metadata. Use when escalating an Attio integration failure without leaking CRM data or secrets. Trigger with "Attio debug bundle", "Attio support evidence", or "collect Attio diagnostics".
 argument-hint: "[repository-path] [incident-id]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
