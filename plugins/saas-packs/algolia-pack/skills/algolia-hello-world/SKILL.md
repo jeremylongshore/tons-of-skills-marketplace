@@ -4,7 +4,7 @@ description: >-
   Create a minimal Algolia JavaScript v5 indexing and search proof using a disposable index. Use when verifying credentials, learning the client boundary, or proving first connectivity. Trigger with "Algolia hello world", "first Algolia search", or "test Algolia setup".
 argument-hint: "[project-path] [disposable-index]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

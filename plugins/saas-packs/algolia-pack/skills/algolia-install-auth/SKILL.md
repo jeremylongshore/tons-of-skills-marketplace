@@ -4,7 +4,7 @@ description: >-
   Install and verify the Algolia JavaScript v5 client with least-privilege credential separation. Use when bootstrapping a backend, browser search client, or environment configuration. Trigger with "install Algolia", "configure Algolia auth", or "Algolia API key setup".
 argument-hint: "[project-path] [runtime]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

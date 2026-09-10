@@ -4,7 +4,7 @@ description: >-
   Migrate an Algolia JavaScript client integration from v4 to v5 with inventory, compatibility tests, and rollback. Use when removing initIndex, updating client methods, or reconciling mixed major versions. Trigger with "upgrade Algolia v5", "remove initIndex", or "Algolia SDK migration".
 argument-hint: "[repository-path] [package-name]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

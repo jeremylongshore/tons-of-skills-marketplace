@@ -4,7 +4,7 @@ description: >-
   Create or review a typed application adapter around the Algolia JavaScript v5 client. Use when client calls, index names, errors, task waits, and credential usage are scattered. Trigger with "Algolia SDK patterns", "Algolia client wrapper", or "refactor search client".
 argument-hint: "[repository-path] [adapter-module]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

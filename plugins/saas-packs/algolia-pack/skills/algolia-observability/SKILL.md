@@ -4,7 +4,7 @@ description: >-
   Instrument an Algolia integration for actionable availability, latency, freshness, relevance, and event-health signals. Use when defining dashboards, alerts, traces, or service objectives. Trigger with "monitor Algolia", "Algolia metrics", or "search observability".
 argument-hint: "[repository-path] [service-or-journey]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

@@ -4,7 +4,7 @@ description: >-
   Diagnose and manage an Algolia-backed search incident with evidence, containment, and reversible recovery. Use when users see failed, stale, slow, or irrelevant search results. Trigger with "Algolia incident", "search outage", or "Algolia degraded".
 argument-hint: "[repository-path] [incident-id]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

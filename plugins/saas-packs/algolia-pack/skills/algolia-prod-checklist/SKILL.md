@@ -4,7 +4,7 @@ description: >-
   Run a fail-closed production readiness review for an Algolia-backed search release. Use when promoting new indices, settings, credentials, UI behavior, or event tracking. Trigger with "Algolia production checklist", "search go-live", or "Algolia launch review".
 argument-hint: "[repository-path] [release-sha]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

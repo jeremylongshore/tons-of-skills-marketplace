@@ -4,7 +4,7 @@ description: >-
   Create a fast local development loop for Algolia record transforms and search behavior without contaminating shared indices. Use when iterating on search code, fixtures, or client wrappers. Trigger with "Algolia local development", "mock Algolia", or "test search locally".
 argument-hint: "[repository-path] [test-mode]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

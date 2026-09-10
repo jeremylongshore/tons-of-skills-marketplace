@@ -4,7 +4,7 @@ description: >-
   Design or review an Algolia search architecture across source data, indexing, query, UI, events, and operations. Use when establishing system boundaries or evaluating an existing integration. Trigger with "Algolia architecture", "design search platform", or "review Algolia integration".
 argument-hint: "[repository-path] [system-scope]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
