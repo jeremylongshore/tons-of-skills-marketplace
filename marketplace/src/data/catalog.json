@@ -9234,14 +9234,15 @@
       "slug": "clickup-pack",
       "name": "clickup-pack",
       "displayName": "clickup pack",
-      "description": "Claude Code skill pack for ClickUp (24 skills)",
-      "version": "1.6.0",
+      "description": "Production-grade Claude Code operator workflows for governed ClickUp integrations (24 skills)",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "clickup",
         "saas",
-        "sdk",
-        "integration"
+        "operations",
+        "integration",
+        "project-management"
       ],
       "hasSkills": true,
       "skillCount": 24,

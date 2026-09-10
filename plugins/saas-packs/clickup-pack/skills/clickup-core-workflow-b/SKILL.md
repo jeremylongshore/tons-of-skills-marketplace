@@ -1,224 +1,84 @@
 ---
 name: clickup-core-workflow-b
-description: 'Manage ClickUp workspaces, spaces, folders, lists, and views via API
-  v2.
-
-  Use when creating project structures, organizing spaces and lists,
-
-  or managing the ClickUp hierarchy programmatically.
-
-  Trigger: "clickup space", "clickup folder", "clickup list", "clickup views",
-
-  "create clickup space", "organize clickup workspace", "clickup hierarchy".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Grep
-version: 1.6.0
-license: MIT
+description: >-
+  Analyze, inventory, and change ClickUp Spaces, Folders, Lists, tags, and views with parent-aware plans and reversible boundaries. Use when managing ClickUp hierarchy through API v2. Trigger with "ClickUp hierarchy", "ClickUp Lists", or "ClickUp views".
+argument-hint: "[workspace-id] [inventory|plan|apply]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- productivity
 - clickup
-compatibility: Designed for Claude Code
+- hierarchy
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; mutation requires hierarchy administration in the target Workspace
 ---
-# ClickUp Core Workflow B — Spaces, Folders, Lists & Views
+# ClickUp Hierarchy and Views
 
 ## Overview
 
-Manage the ClickUp organizational hierarchy: Workspace > Space > Folder > List. Also covers views (list, board, calendar, gantt) and tags.
-
-## Space Operations
-
-```
-POST   /api/v2/team/{team_id}/space          Create Space
-GET    /api/v2/team/{team_id}/space           Get Spaces
-GET    /api/v2/space/{space_id}               Get Space
-PUT    /api/v2/space/{space_id}               Update Space
-DELETE /api/v2/space/{space_id}               Delete Space
-```
-
-```typescript
-// Create a Space with ClickApps enabled
-async function createSpace(teamId: string, name: string) {
-  return clickupRequest(`/team/${teamId}/space`, {
-    method: 'POST',
-    body: JSON.stringify({
-      name,
-      multiple_assignees: true,
-      features: {
-        due_dates: { enabled: true, start_date: true, remap_due_dates: true },
-        time_tracking: { enabled: true },
-        tags: { enabled: true },
-        time_estimates: { enabled: true },
-        checklists: { enabled: true },
-        custom_fields: { enabled: true },
-        points: { enabled: false },
-      },
-    }),
-  });
-}
-```
-
-## Folder Operations
-
-```
-POST   /api/v2/space/{space_id}/folder        Create Folder
-GET    /api/v2/space/{space_id}/folder         Get Folders
-GET    /api/v2/folder/{folder_id}              Get Folder
-PUT    /api/v2/folder/{folder_id}              Update Folder
-DELETE /api/v2/folder/{folder_id}              Delete Folder
-```
-
-```typescript
-async function createFolder(spaceId: string, name: string) {
-  return clickupRequest(`/space/${spaceId}/folder`, {
-    method: 'POST',
-    body: JSON.stringify({ name }),
-  });
-}
-```
-
-## List Operations
-
-```
-POST   /api/v2/folder/{folder_id}/list         Create List in Folder
-POST   /api/v2/space/{space_id}/list            Create Folderless List
-GET    /api/v2/folder/{folder_id}/list           Get Lists in Folder
-GET    /api/v2/space/{space_id}/list              Get Folderless Lists
-GET    /api/v2/list/{list_id}                    Get List
-PUT    /api/v2/list/{list_id}                    Update List
-DELETE /api/v2/list/{list_id}                    Delete List
-```
-
-```typescript
-// Create list with custom statuses
-async function createList(folderId: string, name: string) {
-  return clickupRequest(`/folder/${folderId}/list`, {
-    method: 'POST',
-    body: JSON.stringify({
-      name,
-      content: 'List description here',
-      due_date: Date.now() + 604800000, // 1 week from now
-      priority: 2,
-      status: 'to do',
-    }),
-  });
-}
-
-// Create folderless list (directly in space)
-async function createFolderlessList(spaceId: string, name: string) {
-  return clickupRequest(`/space/${spaceId}/list`, {
-    method: 'POST',
-    body: JSON.stringify({ name }),
-  });
-}
-```
-
-## View Operations
-
-```
-POST   /api/v2/list/{list_id}/view             Create List View
-POST   /api/v2/folder/{folder_id}/view          Create Folder View
-POST   /api/v2/team/{team_id}/view             Create Workspace View
-GET    /api/v2/view/{view_id}                   Get View
-GET    /api/v2/view/{view_id}/task              Get View Tasks
-DELETE /api/v2/view/{view_id}                   Delete View
-```
-
-Supported view types: `list`, `board`, `calendar`, `gantt`, `table`, `timeline`, `workload`, `activity`, `map`, `chat`.
-
-```typescript
-async function createBoardView(listId: string, name: string) {
-  return clickupRequest(`/list/${listId}/view`, {
-    method: 'POST',
-    body: JSON.stringify({
-      name,
-      type: 'board',
-      grouping: { field: 'status', dir: 1 },
-      sorting: { fields: [{ field: 'due_date', dir: 1 }] },
-    }),
-  });
-}
-```
-
-## Tag Operations
-
-```
-GET    /api/v2/space/{space_id}/tag             Get Space Tags
-POST   /api/v2/task/{task_id}/tag/{tag_name}    Add Tag to Task
-DELETE /api/v2/task/{task_id}/tag/{tag_name}     Remove Tag from Task
-```
-
-## Build a Complete Project Structure
-
-```typescript
-async function scaffoldProject(teamId: string, projectName: string) {
-  // 1. Create space
-  const space = await createSpace(teamId, projectName);
-
-  // 2. Create folders for phases
-  const folders = await Promise.all(
-    ['Planning', 'Development', 'QA', 'Deployment'].map(name =>
-      createFolder(space.id, name)
-    )
-  );
-
-  // 3. Create lists in each folder
-  for (const folder of folders) {
-    await createList(folder.id, `${folder.name} Tasks`);
-  }
-
-  // 4. Create a board view on the development folder
-  const devFolder = folders[1];
-  const lists = await clickupRequest(`/folder/${devFolder.id}/list`);
-  await createBoardView(lists.lists[0].id, 'Sprint Board');
-
-  return { space, folders };
-}
-```
-
-## Error Handling
-
-| Status | Cause | Solution |
-|--------|-------|----------|
-| 400 | Missing `name` field | Name is required for spaces/folders/lists |
-| 403 | Insufficient permissions | Need admin access for space creation |
-| 404 | Invalid parent ID | Verify team_id/space_id/folder_id |
+Manage structural objects only after resolving their actual parent chain and downstream task impact. Keep discovery, planning, and mutation as separately reviewable phases.
 
 ## Prerequisites
 
-- Authorized workspace/team scope and a naming/ownership policy
-- Approved hierarchy template, permission model, and cleanup/rollback route
-- A staging or pilot workspace for scaffold validation
+- An allow-listed Workspace and authorized hierarchy administrator
+- A current inventory of Spaces, optional Folders, Lists, tags, views, and referenced tasks
+- A reviewed desired-state plan and rollback or recreation evidence
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect the repository, adapters, configuration names, tests, and evidence. Use `WebFetch` only for current official ClickUp documentation. Use `Write` or `Edit` after confirming the target file, Workspace boundary, and requested mode.
+
+## Current Contract
+
+- In v2, `team_id` is a Workspace ID; user groups are separate group resources.
+- Lists may be folderless under a Space or nested under a Folder, so the parent endpoint matters.
+- Views can exist at Workspace, Space, Folder, or List scope; use the matching endpoint.
+- Hierarchy deletion can orphan assumptions in integrations even when the API accepts it.
+
+## Authentication
+
+Use a personal token only for accountable individual/testing work or OAuth Authorization Code for a user-facing integration. Inject the token server-side through a governed secret reference, send it in `Authorization`, verify authorized Workspace IDs, and never print the token, OAuth client secret, or webhook secret.
 
 ## Instructions
 
-Resolve every parent ID and permission before creating a space, folder, list,
-or view. Create one hierarchy in a controlled pilot, verify ownership and
-sharing, then promote the template in bounded batches. On a missing parent or
-authorization failure, stop rather than selecting a broader workspace or admin
-identity.
+1. Inventory Workspace, Space, Folder, List, tag, and view IDs with parent relationships.
+2. Map every desired change to its exact v2 endpoint and current object version.
+3. Check task counts, automations, webhooks, views, and external references affected by the change.
+4. Produce a create/update/delete plan with dependency order and rollback evidence.
+5. Apply creates before dependent updates; isolate destructive actions behind approval.
+6. Re-read the hierarchy and verify names, parents, privacy, views, and downstream references.
+
+## Approval Boundaries
+
+Do not delete or privatize Spaces, Folders, Lists, views, or tags, or move production work across parents, without owner approval and an impact inventory.
 
 ## Output
 
-Return a redacted scaffold receipt with target IDs, hierarchy/template version,
-owner/permission checks, created resources, validation result, and rollback
-decision. Do not log full task data, private views, user profiles, or tokens.
+Return the before/after hierarchy graph, planned/applied operations, affected-task counts, unresolved references, and rollback evidence. Record the authorizer and exact Workspace scope.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Parent type is ambiguous | Stop and resolve folderless versus Folder-owned List scope. |
+| Object has downstream references | Defer deletion until owners approve a migration. |
+| Plan gate denies an operation | Record the gate; do not simulate success. |
+| Re-read differs from plan | Stop dependent actions and reconcile drift. |
 
 ## Examples
 
-Create one staging space with the named folders and lists, verify that the
-expected group can access only its intended resources, then delete the pilot if
-the template is not approved. If a view or list lands under the wrong parent,
-remove it and correct the ID mapping before creating another.
+The example below is a redacted operator receipt; it contains no task text, member data, credential, or webhook secret.
+
+```text
+mode=plan; workspace=approved; spaces=4; lists=27; creates=1; updates=2; deletes=0; blockers=1
+```
 
 ## Resources
 
-- [Get Spaces](https://developer.clickup.com/reference/getspaces)
-- [Get Folders](https://developer.clickup.com/reference/getfolders)
-- [Views Documentation](https://developer.clickup.com/docs/views)
-
-## Next Steps
-
-For error troubleshooting, see `clickup-common-errors`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [API v2 and v3 terminology](https://developer.clickup.com/docs/general-v2-v3-api)
+- [Authentication](https://developer.clickup.com/docs/authentication)
+- [Rate limits](https://developer.clickup.com/docs/rate-limits)

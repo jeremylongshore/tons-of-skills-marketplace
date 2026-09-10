@@ -1,183 +1,84 @@
 ---
 name: clickup-hello-world
-description: 'Make your first ClickUp API v2 calls: list workspaces, spaces, and create
-  a task.
-
-  Use when starting a new ClickUp integration, testing your setup,
-
-  or learning the ClickUp hierarchy (Workspace, Space, Folder, List, Task).
-
-  Trigger: "clickup hello world", "clickup first call", "clickup quick start",
-
-  "test clickup API", "create clickup task".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*)
-version: 1.6.0
-license: MIT
+description: >-
+  Prove the smallest safe ClickUp API connection by reading the authorized user and Workspaces without creating work. Use when validating a new ClickUp credential. Trigger with "ClickUp hello world", "test ClickUp token", or "first ClickUp API call".
+argument-hint: "[personal-token|oauth] [expected-workspace-id]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- productivity
 - clickup
-compatibility: Designed for Claude Code
+- quickstart
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; the live probe requires a ClickUp personal token or OAuth access token
 ---
-# ClickUp Hello World
+# ClickUp Verified First Read
 
 ## Overview
 
-Walk through the ClickUp hierarchy and make your first API calls. ClickUp's data model: **Workspace** (called "team" in API v2) > **Space** > **Folder** (optional) > **List** > **Task**.
+Verify authentication, JSON parsing, and Workspace scope before enabling any task or webhook mutation. Keep this first probe read-only and narrowly scoped.
 
 ## Prerequisites
 
-- Completed `clickup-install-auth` setup
-- Valid `CLICKUP_API_TOKEN` in environment
+- A personal token for individual/testing use or an OAuth token for a user-facing app
+- An expected authorized Workspace ID supplied through a safe channel
+- A server-side runtime that will not expose the token
 
-## ClickUp Hierarchy
+## Tool Discipline
 
-```
-Workspace (team_id)        GET /api/v2/team
-  └── Space (space_id)     GET /api/v2/team/{team_id}/space
-       ├── List            GET /api/v2/space/{space_id}/list  (folderless lists)
-       └── Folder          GET /api/v2/space/{space_id}/folder
-            └── List       GET /api/v2/folder/{folder_id}/list
-                 └── Task  GET /api/v2/list/{list_id}/task
-```
+Use `Read`, `Glob`, and `Grep` to inspect the repository, adapters, configuration names, tests, and evidence. Use `WebFetch` only for current official ClickUp documentation. Use `Write` or `Edit` after confirming the target file, Workspace boundary, and requested mode.
 
-## Step 1: Discover Your Workspace
+## Current Contract
 
-```bash
-# Get authorized workspaces (returns team_id needed for all subsequent calls)
-curl -s https://api.clickup.com/api/v2/team \
-  -H "Authorization: $CLICKUP_API_TOKEN" | jq '.teams[] | {id, name}'
-```
+- Send the token in the `Authorization` header; OAuth examples may use the Bearer form documented by ClickUp.
+- Use `GET /api/v2/user` to confirm caller identity and `GET /api/v2/team` for authorized Workspaces.
+- In v2, returned teams are Workspaces.
+- The probe performs zero writes and logs no names, emails, or tokens.
 
-Response shape:
+## Authentication
 
-```json
-{
-  "teams": [{
-    "id": "1234567",
-    "name": "My Workspace",
-    "color": "#536cfe",
-    "members": [{ "user": { "id": 123, "username": "john", "email": "john@example.com" } }]
-  }]
-}
-```
-
-## Step 2: List Spaces
-
-```bash
-TEAM_ID="1234567"
-curl -s "https://api.clickup.com/api/v2/team/${TEAM_ID}/space?archived=false" \
-  -H "Authorization: $CLICKUP_API_TOKEN" | jq '.spaces[] | {id, name}'
-```
-
-## Step 3: Get Lists in a Space
-
-```bash
-SPACE_ID="12345678"
-# Folderless lists (directly in Space)
-curl -s "https://api.clickup.com/api/v2/space/${SPACE_ID}/list" \
-  -H "Authorization: $CLICKUP_API_TOKEN" | jq '.lists[] | {id, name}'
-
-# Or lists inside folders
-curl -s "https://api.clickup.com/api/v2/space/${SPACE_ID}/folder" \
-  -H "Authorization: $CLICKUP_API_TOKEN" | jq '.folders[] | {id, name, lists: [.lists[] | {id, name}]}'
-```
-
-## Step 4: Create Your First Task
-
-```bash
-LIST_ID="900100200300"
-curl -s -X POST "https://api.clickup.com/api/v2/list/${LIST_ID}/task" \
-  -H "Authorization: $CLICKUP_API_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Hello from the ClickUp API!",
-    "description": "Created via API v2",
-    "priority": 3,
-    "status": "to do"
-  }' | jq '{id, name, url}'
-```
-
-```typescript
-// TypeScript equivalent
-async function createFirstTask(listId: string) {
-  const task = await clickupRequest(`/list/${listId}/task`, {
-    method: 'POST',
-    body: JSON.stringify({
-      name: 'Hello from the ClickUp API!',
-      description: 'Created via API v2',
-      priority: 3,         // 1=Urgent, 2=High, 3=Normal, 4=Low
-      status: 'to do',
-      assignees: [123456], // user IDs (optional)
-      due_date: Date.now() + 86400000, // tomorrow (Unix ms)
-      due_date_time: true,
-    }),
-  });
-
-  console.log(`Task created: ${task.name} (${task.id})`);
-  console.log(`URL: ${task.url}`);
-  return task;
-}
-```
-
-## Create Task Response Shape
-
-```json
-{
-  "id": "abc123",
-  "custom_id": null,
-  "name": "Hello from the ClickUp API!",
-  "status": { "status": "to do", "color": "#d3d3d3", "type": "open" },
-  "priority": { "id": "3", "priority": "normal", "color": "#6fddff" },
-  "date_created": "1695000000000",
-  "date_updated": "1695000000000",
-  "due_date": "1695086400000",
-  "url": "https://app.clickup.com/t/abc123",
-  "list": { "id": "900100200300", "name": "My List" },
-  "folder": { "id": "456", "name": "My Folder" },
-  "space": { "id": "12345678" }
-}
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| 401 Unauthorized | Missing/invalid token | Check `CLICKUP_API_TOKEN` |
-| 404 Not Found | Invalid list_id/team_id | Verify IDs via GET /team |
-| 400 Bad Request | Missing `name` field | Task name is required |
-| 429 Rate Limited | Too many requests | Wait for `X-RateLimit-Reset` |
+Use a personal token only for accountable individual/testing work or OAuth Authorization Code for a user-facing integration. Inject the token server-side through a governed secret reference, send it in `Authorization`, verify authorized Workspace IDs, and never print the token, OAuth client secret, or webhook secret.
 
 ## Instructions
 
-Use a dedicated staging list and scoped token, resolve the target list ID, then
-create one clearly labeled test task. Re-read the returned task to verify its
-list and status, and delete or close the test according to the environment
-policy. Do not use a personal production token or create test tasks in a shared
-operational list.
+1. Confirm the auth mode, secret reference, expected Workspace, timeout, and zero-write boundary.
+2. Inspect the local client and ensure the base URL is `https://api.clickup.com/api/v2`.
+3. Request the authorized user and validate a JSON user object without logging personal fields.
+4. Request authorized teams and compare IDs to the expected Workspace allow-list.
+5. Record status, latency, response schema, and redacted Workspace match.
+6. Keep mutation disabled until the caller explicitly selects a bounded workflow.
+
+## Approval Boundaries
+
+Do not create a test task, regenerate a token, or broaden OAuth Workspace authorization as part of this read-only proof.
 
 ## Output
 
-Return a redacted operation receipt with the target environment/list, task ID,
-observed status, token owner reference, and cleanup decision. Do not log the
-token, full task body, comments, attachments, or unneeded assignee data.
+Return auth mode, user-probe result, authorized Workspace count, expected-ID match, latency, and writes performed. A successful result must explicitly report zero writes.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| 401 or OAuth code | Verify the secret reference and auth flow without printing the token. |
+| Expected Workspace absent | Stop; ask the user to reauthorize or choose the correct account. |
+| Response is not JSON | Capture metadata only and diagnose proxy/provider behavior. |
+| Only a browser runtime exists | Create a server-side boundary; never expose the token. |
 
 ## Examples
 
-Create a single task named `integration-smoke-test` in an isolated staging
-list, confirm the API response and follow-up GET agree, then delete it. If the
-ID is unknown or authorization fails, stop and repair scope rather than trying
-another workspace or privileged credential.
+The example below is a redacted operator receipt; it contains no task text, member data, credential, or webhook secret.
+
+```text
+auth=oauth; user=verified; workspaces=2; expected-workspace=present; writes=0; secrets-exposed=0
+```
 
 ## Resources
 
-- [ClickUp Create Task Reference](https://developer.clickup.com/reference/createtask)
-- [ClickUp Get Tasks Reference](https://developer.clickup.com/reference/gettasks)
-- [ClickUp API Hierarchy](https://developer.clickup.com/docs/general-v2-v3-api)
-
-## Next Steps
-
-Proceed to `clickup-core-workflow-a` for workspace/space/task management patterns.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Authentication](https://developer.clickup.com/docs/authentication)
+- [Authentication](https://developer.clickup.com/docs/authentication)
+- [Rate limits](https://developer.clickup.com/docs/rate-limits)

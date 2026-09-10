@@ -575,3 +575,31 @@ plugins/saas-packs/together-pack/skills/together-sdk-patterns/SKILL.md:allowed-t
 plugins/saas-packs/together-pack/skills/together-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
 plugins/saas-packs/together-pack/skills/together-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
 plugins/saas-packs/together-pack/skills/together-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+
+# ── ClickUp operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult current first-party ClickUp
+# documentation; no shell or general HTTP client is granted.
+plugins/saas-packs/clickup-pack/skills/clickup-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-data-handling/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-enterprise-rbac/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-incident-runbook/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-migration-deep-dive/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-multi-env-setup/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-observability/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
