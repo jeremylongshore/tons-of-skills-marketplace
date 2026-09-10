@@ -460,3 +460,17 @@ plugins/saas-packs/webflow-pack/skills/webflow-sdk-patterns/SKILL.md:allowed-too
 plugins/saas-packs/webflow-pack/skills/webflow-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
 plugins/saas-packs/webflow-pack/skills/webflow-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
 plugins/saas-packs/webflow-pack/skills/webflow-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+
+# ── StackBlitz operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult current first-party StackBlitz and
+# WebContainers documentation; no shell or general HTTP client is granted.
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation

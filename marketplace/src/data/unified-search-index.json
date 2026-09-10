@@ -13343,7 +13343,7 @@
       "slug": "stackblitz-pack",
       "name": "stackblitz-pack",
       "displayName": "stackblitz pack",
-      "description": "Claude Code skill pack for StackBlitz (10 skills)",
+      "description": "Production StackBlitz workflows for WebContainer lifecycle, embeds, testing, diagnostics, capacity, and security (10 skills)",
       "category": "saas-packs",
       "keywords": [
         "stackblitz",
@@ -13357,7 +13357,7 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.6.0",
+      "version": "1.7.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -13365,7 +13365,7 @@
       "verificationScore": 78,
       "verificationGrade": "C",
       "verificationBadge": "silver",
-      "searchText": "stackblitz pack claude code skill pack for stackblitz (10 skills) saas-packs stackblitz saas sdk integration"
+      "searchText": "stackblitz pack production stackblitz workflows for webcontainer lifecycle, embeds, testing, diagnostics, capacity, and security (10 skills) saas-packs stackblitz saas sdk integration"
     },
     {
       "type": "plugin",
@@ -71941,210 +71941,230 @@
       "id": "stackblitz-common-errors",
       "slug": "stackblitz-common-errors",
       "name": "stackblitz-common-errors",
-      "description": "Fix WebContainer and StackBlitz errors: COOP/COEP, SharedArrayBuffer, boot failures. Use when WebContainers fail to boot, embeds don't load, or processes crash inside WebContainers. Trigger: \"stackblitz error\", \"webcontainer error\", \"SharedArrayBuffer not defined\".",
+      "description": "Diagnose WebContainer startup, isolation, Service Worker, dependency, process, preview, and browser failures from evidence before changing code or headers. Use when a StackBlitz runtime or embed fails, hangs, or behaves differently across browsers. Trigger with \"StackBlitz error\", \"WebContainer failed to boot\", or \"SharedArrayBuffer error\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "stackblitz-pack",
         "category": "saas-packs"
       },
-      "searchText": "stackblitz-common-errors fix webcontainer and stackblitz errors: coop/coep, sharedarraybuffer, boot failures. use when webcontainers fail to boot, embeds don't load, or processes crash inside webcontainers. trigger: \"stackblitz error\", \"webcontainer error\", \"sharedarraybuffer not defined\". saas-packs read grep bash(curl:*) "
+      "searchText": "stackblitz-common-errors diagnose webcontainer startup, isolation, service worker, dependency, process, preview, and browser failures from evidence before changing code or headers. use when a stackblitz runtime or embed fails, hangs, or behaves differently across browsers. trigger with \"stackblitz error\", \"webcontainer failed to boot\", or \"sharedarraybuffer error\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "stackblitz-core-workflow-a",
       "slug": "stackblitz-core-workflow-a",
       "name": "stackblitz-core-workflow-a",
-      "description": "Build a browser-based code editor with WebContainers: file tree, editor, terminal, and preview. Use when creating interactive coding environments, building educational tools, or embedding development environments in web apps. Trigger: \"webcontainer IDE\", \"browser IDE\", \"stackblitz editor\", \"code playground\".",
+      "description": "Architect a custom in-browser development experience around WebContainers with explicit file, editor, terminal, process, preview, and persistence boundaries. Use when evolving a playground into a maintainable IDE-like product. Trigger with \"build a WebContainer IDE\", \"browser code editor architecture\", or \"StackBlitz playground design\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "stackblitz-pack",
         "category": "saas-packs"
       },
-      "searchText": "stackblitz-core-workflow-a build a browser-based code editor with webcontainers: file tree, editor, terminal, and preview. use when creating interactive coding environments, building educational tools, or embedding development environments in web apps. trigger: \"webcontainer ide\", \"browser ide\", \"stackblitz editor\", \"code playground\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "stackblitz-core-workflow-a architect a custom in-browser development experience around webcontainers with explicit file, editor, terminal, process, preview, and persistence boundaries. use when evolving a playground into a maintainable ide-like product. trigger with \"build a webcontainer ide\", \"browser code editor architecture\", or \"stackblitz playground design\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "stackblitz-core-workflow-b",
       "slug": "stackblitz-core-workflow-b",
       "name": "stackblitz-core-workflow-b",
-      "description": "Embed StackBlitz projects and manage WebContainer snapshots for sharing. Use when embedding code playgrounds in docs, creating shareable examples, or building interactive tutorials with StackBlitz. Trigger: \"embed stackblitz\", \"stackblitz embed\", \"stackblitz share project\".",
+      "description": "Design and implement a StackBlitz JavaScript SDK embed with an explicit project source, load strategy, UI options, persistence expectations, and responsive fallback. Use when documentation, training, or product pages need an interactive code example without owning a custom WebContainer runtime. Trigger with \"embed StackBlitz\", \"StackBlitz SDK project\", or \"interactive code example\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "stackblitz-pack",
         "category": "saas-packs"
       },
-      "searchText": "stackblitz-core-workflow-b embed stackblitz projects and manage webcontainer snapshots for sharing. use when embedding code playgrounds in docs, creating shareable examples, or building interactive tutorials with stackblitz. trigger: \"embed stackblitz\", \"stackblitz embed\", \"stackblitz share project\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "stackblitz-core-workflow-b design and implement a stackblitz javascript sdk embed with an explicit project source, load strategy, ui options, persistence expectations, and responsive fallback. use when documentation, training, or product pages need an interactive code example without owning a custom webcontainer runtime. trigger with \"embed stackblitz\", \"stackblitz sdk project\", or \"interactive code example\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "stackblitz-debug-bundle",
       "slug": "stackblitz-debug-bundle",
       "name": "stackblitz-debug-bundle",
-      "description": "Collect WebContainer diagnostic info: boot state, file system, process list. Use when working with WebContainers or StackBlitz SDK. Trigger: \"stackblitz debug\".",
+      "description": "Produce a privacy-safe WebContainer diagnostic bundle with browser capability, isolation-header, lifecycle, event, process-exit, dependency, and resource evidence. Use when an incident needs a shareable artifact rather than ad hoc console screenshots. Trigger with \"StackBlitz debug bundle\", \"collect WebContainer diagnostics\", or \"WebContainer incident evidence\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Bash(curl:*)",
-        "Grep"
+        "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "stackblitz-pack",
         "category": "saas-packs"
       },
-      "searchText": "stackblitz-debug-bundle collect webcontainer diagnostic info: boot state, file system, process list. use when working with webcontainers or stackblitz sdk. trigger: \"stackblitz debug\". saas-packs bash(curl:*) grep "
+      "searchText": "stackblitz-debug-bundle produce a privacy-safe webcontainer diagnostic bundle with browser capability, isolation-header, lifecycle, event, process-exit, dependency, and resource evidence. use when an incident needs a shareable artifact rather than ad hoc console screenshots. trigger with \"stackblitz debug bundle\", \"collect webcontainer diagnostics\", or \"webcontainer incident evidence\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "stackblitz-hello-world",
       "slug": "stackblitz-hello-world",
       "name": "stackblitz-hello-world",
-      "description": "Boot a WebContainer, mount files, install npm packages, and run a dev server in the browser. Use when learning WebContainers, building browser-based IDEs, or running Node.js without a backend server. Trigger: \"stackblitz hello world\", \"webcontainer example\", \"run node in browser\".",
+      "description": "Build a minimal, controlled WebContainer smoke test that boots once, mounts a small project, observes process exit, and captures the preview URL. Use when proving browser/runtime compatibility before building a larger in-browser development experience. Trigger with \"StackBlitz hello world\", \"test WebContainers\", or \"run Node in the browser\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(node:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "stackblitz-pack",
         "category": "saas-packs"
       },
-      "searchText": "stackblitz-hello-world boot a webcontainer, mount files, install npm packages, and run a dev server in the browser. use when learning webcontainers, building browser-based ides, or running node.js without a backend server. trigger: \"stackblitz hello world\", \"webcontainer example\", \"run node in browser\". saas-packs read write edit bash(npm:*) bash(node:*) "
+      "searchText": "stackblitz-hello-world build a minimal, controlled webcontainer smoke test that boots once, mounts a small project, observes process exit, and captures the preview url. use when proving browser/runtime compatibility before building a larger in-browser development experience. trigger with \"stackblitz hello world\", \"test webcontainers\", or \"run node in the browser\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "stackblitz-install-auth",
       "slug": "stackblitz-install-auth",
       "name": "stackblitz-install-auth",
-      "description": "Install the WebContainer API and configure StackBlitz SDK for browser-based Node.js. Use when setting up WebContainers, embedding StackBlitz projects, or initializing the @stackblitz/sdk package. Trigger: \"install stackblitz\", \"setup webcontainers\", \"stackblitz SDK\".",
+      "description": "Prepare a StackBlitz WebContainer or JavaScript SDK integration with pinned packages, compatible isolation headers, and the correct commercial or private-package authentication path. Use when adding StackBlitz to an existing web application or reviewing its startup contract. Trigger with \"install StackBlitz\", \"set up WebContainers\", or \"configure WebContainer auth\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "stackblitz-pack",
         "category": "saas-packs"
       },
-      "searchText": "stackblitz-install-auth install the webcontainer api and configure stackblitz sdk for browser-based node.js. use when setting up webcontainers, embedding stackblitz projects, or initializing the @stackblitz/sdk package. trigger: \"install stackblitz\", \"setup webcontainers\", \"stackblitz sdk\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "stackblitz-install-auth prepare a stackblitz webcontainer or javascript sdk integration with pinned packages, compatible isolation headers, and the correct commercial or private-package authentication path. use when adding stackblitz to an existing web application or reviewing its startup contract. trigger with \"install stackblitz\", \"set up webcontainers\", or \"configure webcontainer auth\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "stackblitz-local-dev-loop",
       "slug": "stackblitz-local-dev-loop",
       "name": "stackblitz-local-dev-loop",
-      "description": "Configure local development for WebContainer applications with hot reload and testing. Use when building browser-based IDEs, testing WebContainer file operations, or setting up development workflows for WebContainer projects. Trigger: \"stackblitz dev setup\", \"webcontainer local\", \"test webcontainers locally\".",
+      "description": "Establish a reproducible local development and browser-test loop for a WebContainer host, including isolation-header assertions, single-boot behavior under HMR, and cleanup checks. Use when a StackBlitz integration works manually but lacks dependable regression coverage. Trigger with \"test WebContainers locally\", \"StackBlitz dev loop\", or \"WebContainer Playwright test\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "stackblitz-pack",
         "category": "saas-packs"
       },
-      "searchText": "stackblitz-local-dev-loop configure local development for webcontainer applications with hot reload and testing. use when building browser-based ides, testing webcontainer file operations, or setting up development workflows for webcontainer projects. trigger: \"stackblitz dev setup\", \"webcontainer local\", \"test webcontainers locally\". saas-packs read write edit bash(npm:*) bash(npx:*) grep "
+      "searchText": "stackblitz-local-dev-loop establish a reproducible local development and browser-test loop for a webcontainer host, including isolation-header assertions, single-boot behavior under hmr, and cleanup checks. use when a stackblitz integration works manually but lacks dependable regression coverage. trigger with \"test webcontainers locally\", \"stackblitz dev loop\", or \"webcontainer playwright test\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "stackblitz-rate-limits",
       "slug": "stackblitz-rate-limits",
       "name": "stackblitz-rate-limits",
-      "description": "WebContainer resource limits: memory, CPU, file system size, process count. Use when working with WebContainers or StackBlitz SDK. Trigger: \"webcontainer limits\".",
+      "description": "Establish evidence-based WebContainer capacity budgets for boot concurrency, mounted files, dependency installs, processes, previews, memory symptoms, and browser support. Use when a StackBlitz experience is slow, unstable, or being prepared for wider rollout. Trigger with \"WebContainer limits\", \"StackBlitz capacity\", or \"WebContainer performance budget\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "stackblitz-pack",
         "category": "saas-packs"
       },
-      "searchText": "stackblitz-rate-limits webcontainer resource limits: memory, cpu, file system size, process count. use when working with webcontainers or stackblitz sdk. trigger: \"webcontainer limits\". saas-packs read write edit "
+      "searchText": "stackblitz-rate-limits establish evidence-based webcontainer capacity budgets for boot concurrency, mounted files, dependency installs, processes, previews, memory symptoms, and browser support. use when a stackblitz experience is slow, unstable, or being prepared for wider rollout. trigger with \"webcontainer limits\", \"stackblitz capacity\", or \"webcontainer performance budget\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "stackblitz-sdk-patterns",
       "slug": "stackblitz-sdk-patterns",
       "name": "stackblitz-sdk-patterns",
-      "description": "Production patterns for WebContainer API: file system operations, process management, and jsh shell. Use when building browser IDEs, managing WebContainer lifecycle, or implementing terminal emulation with jsh. Trigger: \"webcontainer patterns\", \"stackblitz best practices\", \"webcontainer file system\".",
+      "description": "Design a durable WebContainer lifecycle adapter for filesystem, process, event, preview, and teardown operations. Use when multiple UI components need WebContainer access or an integration has race-prone boot and cleanup logic. Trigger with \"WebContainer SDK patterns\", \"manage WebContainer lifecycle\", or \"StackBlitz runtime adapter\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "stackblitz-pack",
         "category": "saas-packs"
       },
-      "searchText": "stackblitz-sdk-patterns production patterns for webcontainer api: file system operations, process management, and jsh shell. use when building browser ides, managing webcontainer lifecycle, or implementing terminal emulation with jsh. trigger: \"webcontainer patterns\", \"stackblitz best practices\", \"webcontainer file system\". saas-packs read write edit "
+      "searchText": "stackblitz-sdk-patterns design a durable webcontainer lifecycle adapter for filesystem, process, event, preview, and teardown operations. use when multiple ui components need webcontainer access or an integration has race-prone boot and cleanup logic. trigger with \"webcontainer sdk patterns\", \"manage webcontainer lifecycle\", or \"stackblitz runtime adapter\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "stackblitz-security-basics",
       "slug": "stackblitz-security-basics",
       "name": "stackblitz-security-basics",
-      "description": "Secure WebContainer deployments: CSP headers, sandbox isolation, input validation. Use when working with WebContainers or StackBlitz SDK. Trigger: \"stackblitz security\".",
+      "description": "Threat-model a WebContainer or StackBlitz embed across host, runtime, user-code, filesystem, dependency, network, preview, secret, and persistence boundaries. Use when preparing to execute untrusted code, enable private packages, or ship an interactive browser IDE. Trigger with \"StackBlitz security review\", \"secure WebContainers\", or \"WebContainer threat model\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "stackblitz-pack",
         "category": "saas-packs"
       },
-      "searchText": "stackblitz-security-basics secure webcontainer deployments: csp headers, sandbox isolation, input validation. use when working with webcontainers or stackblitz sdk. trigger: \"stackblitz security\". saas-packs read write grep "
+      "searchText": "stackblitz-security-basics threat-model a webcontainer or stackblitz embed across host, runtime, user-code, filesystem, dependency, network, preview, secret, and persistence boundaries. use when preparing to execute untrusted code, enable private packages, or ship an interactive browser ide. trigger with \"stackblitz security review\", \"secure webcontainers\", or \"webcontainer threat model\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",

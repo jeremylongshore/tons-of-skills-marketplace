@@ -1,111 +1,81 @@
 ---
 name: stackblitz-install-auth
-description: 'Install the WebContainer API and configure StackBlitz SDK for browser-based
-  Node.js.
-
-  Use when setting up WebContainers, embedding StackBlitz projects,
-
-  or initializing the @stackblitz/sdk package.
-
-  Trigger: "install stackblitz", "setup webcontainers", "stackblitz SDK".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.6.0
-license: MIT
+description: >-
+  Prepare a StackBlitz WebContainer or JavaScript SDK integration with pinned packages, compatible isolation headers, and the correct commercial or private-package authentication path. Use when adding StackBlitz to an existing web application or reviewing its startup contract. Trigger with "install StackBlitz", "set up WebContainers", or "configure WebContainer auth".
+argument-hint: "[project-path] [webcontainer|embed]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.7.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ide
-- webcontainers
 - stackblitz
+- webcontainers
+- setup
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# StackBlitz Install & Auth
+# StackBlitz Integration Preflight
 
 ## Overview
 
-Set up the WebContainer API for running Node.js in the browser, or the StackBlitz SDK for embedding interactive code editors. WebContainers require no auth -- they run entirely client-side. The StackBlitz SDK is for embedding projects from stackblitz.com.
+This skill produces a repo-grounded installation and startup plan for either a custom WebContainer application or a StackBlitz SDK embed. It separates ordinary browser startup from commercial API-key configuration and organization-scoped private-package authentication.
 
 ## Prerequisites
 
-- Node.js 18+ for build tooling
-- Modern browser with SharedArrayBuffer support (requires HTTPS + COOP/COEP headers)
+- A named browser application and permission to inspect its package and hosting configuration
+- A decision between `@webcontainer/api` and `@stackblitz/sdk`, or evidence that both are needed
+- A licensing decision for production commercial use before release
 
-## Instructions
+## Tool Discipline
 
-### Step 1: Install WebContainer API
+Use `Read`, `Glob`, and `Grep` to inspect package manifests, lockfiles, browser entrypoints, headers, and existing secret bindings. Use `WebFetch` only for current official StackBlitz or WebContainers documentation. Use `Write` or `Edit` only after the evidence pass, and never place API keys or OAuth material in source files.
 
-```bash
-npm install @webcontainer/api
-```
+## Current Contract
 
-### Step 2: Install StackBlitz SDK (for embedding)
+- Pin the package version selected by the repository's dependency policy; do not install an unreviewed moving tag.
+- Call `configureAPIKey` before `WebContainer.boot()` when a commercial license supplies an API key.
+- Call `auth.init` before boot when organization users need private-package access; the user must be logged in, belong to the issuing organization, and authorize the site.
+- Match the `Cross-Origin-Embedder-Policy` response header to the `coep` boot option. Use HTTPS outside localhost.
+- A StackBlitz SDK embed is a separate surface and does not require booting a custom WebContainer in the host application.
 
-```bash
-npm install @stackblitz/sdk
-```
+## Authentication
 
-### Step 3: Configure Required HTTP Headers
+Public prototypes may not need user authentication, but production commercial use requires a licensing review. Treat the WebContainer API key as a secret runtime binding. Treat the auth client ID and scope as configuration, initialize auth during page loading, and handle `need-auth`, `authorized`, and `auth-failed` explicitly. Never infer that ordinary StackBlitz login grants access to private packages.
 
-WebContainers require cross-origin isolation. Add these headers to your server:
+## Workflow
 
-```typescript
-// Express middleware
-app.use((req, res, next) => {
-  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-  next();
-});
-```
+1. Inspect the framework, package manager, lockfile, client/server boundary, CSP, and current response-header configuration.
+2. Choose the minimum package surface and record the installed or proposed pinned version.
+3. Decide whether the integration needs a commercial API key, organization auth, neither, or both.
+4. Configure consistent COOP/COEP headers and the matching boot option; verify the final HTML response, including cached responses.
+5. Add one startup module that orders API-key configuration, auth initialization, and the single boot call correctly.
+6. Validate in a supported desktop browser over the same origin and headers intended for deployment.
 
-```javascript
-// Vite config
-export default defineConfig({
-  server: {
-    headers: {
-      'Cross-Origin-Embedder-Policy': 'require-corp',
-      'Cross-Origin-Opener-Policy': 'same-origin',
-    },
-  },
-});
-```
+## Approval Boundaries
 
-### Step 4: Verify WebContainer Boot
-
-```typescript
-import { WebContainer } from '@webcontainer/api';
-
-const wc = await WebContainer.boot();
-console.log('WebContainer booted successfully');
-
-// Verify filesystem works
-await wc.mount({ 'test.txt': { file: { contents: 'Hello WebContainers!' } } });
-const content = await wc.fs.readFile('/test.txt', 'utf-8');
-console.log(`File content: ${content}`);
-```
+Default to inspection and a proposed patch. Require explicit authorization before changing production headers, CSP, identity-provider settings, licensed API-key bindings, or deployment configuration. Never create, rotate, expose, or revoke a credential without a separately authorized operational step.
 
 ## Output
 
-```
-WebContainer booted successfully
-File content: Hello WebContainers!
-```
+Return the selected integration mode, package/version evidence, licensing and auth decision, header/boot contract, changed or proposed files, verification results, rollout plan, rollback, and unresolved browser or policy risks.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `SharedArrayBuffer is not defined` | Missing COOP/COEP headers | Add cross-origin isolation headers |
-| `Failed to boot` | Multiple instances | Only one WebContainer per page |
-| `Not in secure context` | HTTP instead of HTTPS | Use HTTPS or localhost |
+| Condition | Response |
+|---|---|
+| API key configured after boot | Stop and move configuration before the first boot call. |
+| Auth reports `need-auth` | Present the user-authorized flow; do not loop or fabricate authorization. |
+| `crossOriginIsolated` is false | Inspect actual response headers and cache behavior before changing code. |
+| Integration mode is unclear | Compare custom runtime requirements with embed-only requirements before installing both SDKs. |
+
+## Examples
+
+Given an existing Vite app, identify its lockfile and hosting headers, select a pinned WebContainer API version, document whether commercial licensing applies, and propose a single ordered startup module without reading any secret value.
 
 ## Resources
 
-- [WebContainer API Docs](https://webcontainers.io/)
-- [WebContainer Quickstart](https://webcontainers.io/guides/quickstart)
-- [StackBlitz SDK](https://developer.stackblitz.com/platform/api/javascript-sdk)
-
-## Next Steps
-
-Proceed to `stackblitz-hello-world` for your first WebContainer project.
+- [Official StackBlitz and WebContainers references](references/official-docs.md)
+- [WebContainer API reference](https://webcontainers.io/api)
+- [StackBlitz JavaScript SDK](https://developer.stackblitz.com/platform/api/javascript-sdk)
