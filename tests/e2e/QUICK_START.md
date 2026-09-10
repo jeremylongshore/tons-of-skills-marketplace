@@ -13,8 +13,8 @@ Get started with E2E testing in 5 minutes.
 From repository root:
 
 ```bash
-# Install all workspace dependencies (includes E2E tests)
-pnpm install
+# Install the standalone package from its lockfile without lifecycle scripts
+pnpm --dir tests/e2e install --ignore-workspace --frozen-lockfile --ignore-scripts
 ```
 
 ## Running Tests
@@ -23,7 +23,7 @@ pnpm install
 
 ```bash
 # From repository root
-pnpm test:e2e
+pnpm --dir tests/e2e test
 
 # From tests/e2e directory
 pnpm test
@@ -33,27 +33,27 @@ pnpm test
 
 ```bash
 # Plugin installation tests only
-pnpm test:e2e -- scenarios/plugin-install.test.ts
+pnpm --dir tests/e2e exec vitest run scenarios/plugin-install.test.ts
 
 # Skill activation tests only
-pnpm test:e2e -- scenarios/skill-activation.test.ts
+pnpm --dir tests/e2e exec vitest run scenarios/skill-activation.test.ts
 
 # MCP communication tests only
-pnpm test:e2e -- scenarios/mcp-communication.test.ts
+pnpm --dir tests/e2e exec vitest run scenarios/mcp-communication.test.ts
 ```
 
 ### Watch Mode (Development)
 
 ```bash
 # Auto-run tests on file changes
-pnpm test:e2e:watch
+pnpm --dir tests/e2e run test:watch
 ```
 
 ### Coverage Report
 
 ```bash
 # Generate coverage report
-pnpm test:e2e:coverage
+pnpm --dir tests/e2e run test:coverage
 
 # Open HTML coverage report
 open tests/e2e/coverage/index.html
@@ -63,12 +63,12 @@ open tests/e2e/coverage/index.html
 
 ```bash
 # Verbose output with test artifacts preserved
-pnpm test:e2e:debug
+pnpm --dir tests/e2e run test:debug
 ```
 
 ## Test Scenarios
 
-### 1. Plugin Installation (15 tests)
+### 1. Plugin Installation (18 tests)
 
 **File:** `scenarios/plugin-install.test.ts`
 
@@ -84,10 +84,10 @@ Tests the complete plugin lifecycle:
 **Run:**
 
 ```bash
-pnpm test:e2e -- plugin-install
+pnpm --dir tests/e2e exec vitest run scenarios/plugin-install.test.ts
 ```
 
-### 2. Skill Activation (18 tests)
+### 2. Skill Activation (26 tests)
 
 **File:** `scenarios/skill-activation.test.ts`
 
@@ -98,15 +98,15 @@ Tests skill discovery and activation:
 - Trigger phrase detection
 - Tool permissions validation
 - Multi-skill scenarios
-- 2025 schema compliance
+- Current marketplace schema compliance
 
 **Run:**
 
 ```bash
-pnpm test:e2e -- skill-activation
+pnpm --dir tests/e2e exec vitest run scenarios/skill-activation.test.ts
 ```
 
-### 3. MCP Server Communication (12 tests)
+### 3. MCP Server Communication (18 tests)
 
 **File:** `scenarios/mcp-communication.test.ts`
 
@@ -121,7 +121,7 @@ Tests MCP server interactions:
 **Run:**
 
 ```bash
-pnpm test:e2e -- mcp-communication
+pnpm --dir tests/e2e exec vitest run scenarios/mcp-communication.test.ts
 ```
 
 ## Expected Output
@@ -129,14 +129,12 @@ pnpm test:e2e -- mcp-communication
 ### Successful Run
 
 ```
-✓ tests/e2e/scenarios/plugin-install.test.ts (15 tests) 2.5s
-✓ tests/e2e/scenarios/skill-activation.test.ts (18 tests) 3.1s
-✓ tests/e2e/scenarios/mcp-communication.test.ts (12 tests) 4.2s
+✓ scenarios/plugin-install.test.ts (18 tests)
+✓ scenarios/skill-activation.test.ts (26 tests)
+✓ scenarios/mcp-communication.test.ts (18 tests)
 
 Test Files  3 passed (3)
-     Tests  45 passed (45)
-  Start at  13:45:23
-  Duration  9.8s
+     Tests  62 passed (62)
 ```
 
 ### With Coverage

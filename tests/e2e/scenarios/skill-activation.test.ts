@@ -52,6 +52,72 @@ describe('Skill Activation', () => {
       expect(skill.version).toBe('1.0.0');
     });
 
+    it('should parse folded CRLF descriptions and YAML-list tools', async () => {
+      const pluginPath = path.join(__dirname, '../fixtures/test-plugin');
+      await installPlugin(env, pluginPath);
+      const skillPath = path.join(
+        env.pluginsPath,
+        'test-plugin',
+        'skills',
+        'yaml-shapes'
+      );
+      await fs.mkdir(skillPath, { recursive: true });
+      await fs.writeFile(
+        path.join(skillPath, 'SKILL.md'),
+        [
+          '---',
+          'name: yaml-shapes',
+          'description: >-',
+          '  Trigger with "folded trigger" across',
+          '  multiple source lines.',
+          'allowed-tools:',
+          '  - Read',
+          '  - Bash(git status)',
+          'version: 1.0.0',
+          'author: Test',
+          'license: MIT',
+          'compatibility: Test harness',
+          'tags: [testing, yaml]',
+          '---',
+          '# YAML shapes'
+        ].join('\r\n')
+      );
+
+      const skill = await loadSkill(env, 'test-plugin', 'yaml-shapes');
+
+      expect(skill.description).toBe(
+        'Trigger with "folded trigger" across multiple source lines.'
+      );
+      expect(skill.allowedTools).toEqual(['Read', 'Bash(git status)']);
+      expect(skill.triggerPhrases).toContain('folded trigger');
+    });
+
+    it('should fail closed on malformed and non-mapping YAML', async () => {
+      const pluginPath = path.join(__dirname, '../fixtures/test-plugin');
+      await installPlugin(env, pluginPath);
+
+      for (const [name, frontmatter] of [
+        ['duplicate-key', 'name: first\nname: second'],
+        ['non-mapping', '- name\n- description'],
+        ['unsafe-key', '__proto__: polluted\nname: unsafe']
+      ]) {
+        const skillPath = path.join(
+          env.pluginsPath,
+          'test-plugin',
+          'skills',
+          name
+        );
+        await fs.mkdir(skillPath, { recursive: true });
+        await fs.writeFile(
+          path.join(skillPath, 'SKILL.md'),
+          `---\n${frontmatter}\n---\n# Invalid`
+        );
+
+        await expect(loadSkill(env, 'test-plugin', name)).rejects.toThrow();
+      }
+      expect(Object.prototype).not.toHaveProperty('polluted');
+    });
+
     it('should extract allowed-tools from frontmatter', async () => {
       // Arrange
       const pluginPath = path.join(__dirname, '../fixtures/test-plugin');
@@ -64,7 +130,7 @@ describe('Skill Activation', () => {
       expect(skill.allowedTools).toBeInstanceOf(Array);
       expect(skill.allowedTools).toContain('Read');
       expect(skill.allowedTools).toContain('Write');
-      expect(skill.allowedTools).toContain('Bash');
+      expect(skill.allowedTools).toContain('Bash(pnpm:*)');
     });
 
     it('should reject skill with invalid frontmatter', async () => {
@@ -201,9 +267,9 @@ describe('Skill Activation', () => {
       const skill = await loadSkill(env, 'test-plugin', 'test-skill');
 
       // Assert - verify common tools
-      const basicTools = ['Read', 'Write', 'Edit', 'Bash', 'Grep'];
+      const basicTools = ['Read', 'Write', 'Edit', 'Grep'];
       const hasBasicTool = skill.allowedTools.some(tool =>
-        basicTools.includes(tool)
+        basicTools.includes(tool) || tool.startsWith('Bash(')
       );
       expect(hasBasicTool).toBe(true);
     });
@@ -229,6 +295,8 @@ allowed-tools: Bash(diff:*), Bash(grep:*)
 version: 1.0.0
 license: MIT
 author: Test
+compatibility: Test harness
+tags: [testing]
 ---
 
 Restricted skill content`
@@ -263,6 +331,8 @@ allowed-tools: Read, Grep
 version: 1.0.0
 license: MIT
 author: Test
+compatibility: Test harness
+tags: [testing]
 ---
 
 Read-only skill content`
@@ -275,6 +345,41 @@ Read-only skill content`
       expect(skill.allowedTools).toEqual(['Read', 'Grep']);
       expect(skill.allowedTools).not.toContain('Write');
       expect(skill.allowedTools).not.toContain('Edit');
+    });
+
+    it('should preserve scoped tools in canonical space-separated form', async () => {
+      const pluginPath = path.join(__dirname, '../fixtures/test-plugin');
+      await installPlugin(env, pluginPath);
+      const skillPath = path.join(
+        env.pluginsPath,
+        'test-plugin',
+        'skills',
+        'scoped-skill'
+      );
+      await fs.mkdir(skillPath, { recursive: true });
+      await fs.writeFile(
+        path.join(skillPath, 'SKILL.md'),
+        `---
+name: scoped-skill
+description: Trigger with "scoped skill"
+allowed-tools: Read Bash(git status) Bash(git diff *)
+version: 1.0.0
+license: MIT
+author: Test
+compatibility: Test harness
+tags: [testing]
+---
+
+Scoped skill content`
+      );
+
+      const skill = await loadSkill(env, 'test-plugin', 'scoped-skill');
+
+      expect(skill.allowedTools).toEqual([
+        'Read',
+        'Bash(git status)',
+        'Bash(git diff *)'
+      ]);
     });
   });
 
@@ -301,6 +406,8 @@ allowed-tools: Read
 version: 1.0.0
 license: MIT
 author: Test
+compatibility: Test harness
+tags: [testing]
 ---
 
 Second skill content`
@@ -338,6 +445,8 @@ allowed-tools: Read
 version: 1.0.0
 license: MIT
 author: Test
+compatibility: Test harness
+tags: [testing]
 ---
 
 Second skill content`
@@ -383,6 +492,8 @@ allowed-tools: Read
 version: 1.0.0
 license: MIT
 author: Test
+compatibility: Test harness
+tags: [testing]
 ---
 
 Plugin 2 skill content`
@@ -429,7 +540,7 @@ Plugin 2 skill content`
     });
   });
 
-  describe('2025 Schema Compliance', () => {
+  describe('Current Marketplace Schema Compliance', () => {
     it('should require allowed-tools field', async () => {
       // Arrange
       const pluginPath = path.join(__dirname, '../fixtures/test-plugin');
@@ -467,6 +578,16 @@ Plugin 2 skill content`
       // Assert
       expect(skill.description).toBeTruthy();
       expect(skill.triggerPhrases.length).toBeGreaterThan(0);
+    });
+
+    it('should require compatibility and tags', async () => {
+      const pluginPath = path.join(__dirname, '../fixtures/test-plugin');
+      await installPlugin(env, pluginPath);
+
+      const skill = await loadSkill(env, 'test-plugin', 'test-skill');
+
+      expect(skill.compatibility).toContain('model-agnostic');
+      expect(skill.tags).toEqual(['testing', 'e2e']);
     });
   });
 });
