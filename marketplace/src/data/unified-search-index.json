@@ -220,7 +220,6 @@
       "Bash(pipdeptree:*)",
       "Bash(pkill:*)",
       "Bash(pnpm:*)",
-      "Bash(powershell:*)",
       "Bash(profiling:*)",
       "Bash(prometheus:*)",
       "Bash(ps:*)",
@@ -557,6 +556,7 @@
       "call-center",
       "call-transcripts",
       "campaigns",
+      "camtasia",
       "canva",
       "capacity",
       "capacity-planning",
@@ -722,6 +722,7 @@
       "deployment",
       "derivatives",
       "design",
+      "desktop-automation",
       "detection",
       "detox",
       "developer-experience",
@@ -1444,6 +1445,7 @@
       "smart money",
       "smoke-tests",
       "sms",
+      "snagit",
       "snapshot",
       "snowflake",
       "soc2",
@@ -13373,13 +13375,13 @@
       "slug": "techsmith-pack",
       "name": "techsmith-pack",
       "displayName": "techsmith pack",
-      "description": "Claude Code skill pack for TechSmith (18 skills)",
+      "description": "Source-grounded operator workflows for Snagit COM, Camtasia recording and export, managed deployment, licensing, storage, security, and artifact promotion",
       "category": "saas-packs",
       "keywords": [
         "techsmith",
-        "saas",
-        "sdk",
-        "integration"
+        "snagit",
+        "camtasia",
+        "desktop-automation"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -13387,7 +13389,7 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.3.0",
+      "version": "1.6.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -13395,7 +13397,7 @@
       "verificationScore": 79,
       "verificationGrade": "C",
       "verificationBadge": "silver",
-      "searchText": "techsmith pack claude code skill pack for techsmith (18 skills) saas-packs techsmith saas sdk integration"
+      "searchText": "techsmith pack source-grounded operator workflows for snagit com, camtasia recording and export, managed deployment, licensing, storage, security, and artifact promotion saas-packs techsmith snagit camtasia desktop-automation"
     },
     {
       "type": "plugin",
@@ -73338,396 +73340,414 @@
       "id": "techsmith-ci-integration",
       "slug": "techsmith-ci-integration",
       "name": "techsmith-ci-integration",
-      "description": "TechSmith ci integration for Snagit COM API and Camtasia automation. Use when working with TechSmith screen capture and video editing automation. Trigger: \"techsmith ci integration\".",
+      "description": "Gate Snagit COM and Camtasia automation changes with secretless contract tests plus an explicitly licensed Windows smoke lane. Use when adding CI for TechSmith scripts or deployment assets. Trigger with \"TechSmith CI\", \"Snagit contract tests\", or \"Camtasia automation checks\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(powershell:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-ci-integration techsmith ci integration for snagit com api and camtasia automation. use when working with techsmith screen capture and video editing automation. trigger: \"techsmith ci integration\". saas-packs read write edit bash(powershell:*) grep "
+      "searchText": "techsmith-ci-integration gate snagit com and camtasia automation changes with secretless contract tests plus an explicitly licensed windows smoke lane. use when adding ci for techsmith scripts or deployment assets. trigger with \"techsmith ci\", \"snagit contract tests\", or \"camtasia automation checks\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "techsmith-common-errors",
       "slug": "techsmith-common-errors",
       "name": "techsmith-common-errors",
-      "description": "TechSmith common errors for Snagit COM API and Camtasia automation. Use when working with TechSmith screen capture and video editing automation. Trigger: \"techsmith common errors\".",
+      "description": "Analyze and classify Snagit COM, Camtasia recorder, project-storage, export, installation, and activation failures from redacted evidence. Use when TechSmith automation fails or behaves differently after an upgrade. Trigger with \"TechSmith error\", \"Snagit COM failure\", or \"Camtasia export problem\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(powershell:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-common-errors techsmith common errors for snagit com api and camtasia automation. use when working with techsmith screen capture and video editing automation. trigger: \"techsmith common errors\". saas-packs read write edit bash(powershell:*) grep "
+      "searchText": "techsmith-common-errors analyze and classify snagit com, camtasia recorder, project-storage, export, installation, and activation failures from redacted evidence. use when techsmith automation fails or behaves differently after an upgrade. trigger with \"techsmith error\", \"snagit com failure\", or \"camtasia export problem\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "techsmith-core-workflow-a",
       "slug": "techsmith-core-workflow-a",
       "name": "techsmith-core-workflow-a",
-      "description": "TechSmith core workflow a for Snagit COM API and Camtasia automation. Use when working with TechSmith screen capture and video editing automation. Trigger: \"techsmith core workflow a\".",
+      "description": "Build a bounded Windows Snagit image-capture workflow with the supported COM server, exact enums, asynchronous completion, and verified file output. Use when automating approved documentation captures. Trigger with \"Snagit COM capture\", \"automate Snagit screenshot\", or \"Snagit file output\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(powershell:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-core-workflow-a techsmith core workflow a for snagit com api and camtasia automation. use when working with techsmith screen capture and video editing automation. trigger: \"techsmith core workflow a\". saas-packs read write edit bash(powershell:*) grep "
+      "searchText": "techsmith-core-workflow-a build a bounded windows snagit image-capture workflow with the supported com server, exact enums, asynchronous completion, and verified file output. use when automating approved documentation captures. trigger with \"snagit com capture\", \"automate snagit screenshot\", or \"snagit file output\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "techsmith-core-workflow-b",
       "slug": "techsmith-core-workflow-b",
       "name": "techsmith-core-workflow-b",
-      "description": "TechSmith core workflow b for Snagit COM API and Camtasia automation. Use when working with TechSmith screen capture and video editing automation. Trigger: \"techsmith core workflow b\".",
+      "description": "Manage a controlled Camtasia batch export using local standalone projects and the installed version's modern exporter. Use when producing approved project queues without legacy CamtasiaProducer assumptions. Trigger with \"Camtasia batch export\", \"produce Camtasia projects\", or \"Camtasia render queue\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(powershell:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-core-workflow-b techsmith core workflow b for snagit com api and camtasia automation. use when working with techsmith screen capture and video editing automation. trigger: \"techsmith core workflow b\". saas-packs read write edit bash(powershell:*) grep "
+      "searchText": "techsmith-core-workflow-b manage a controlled camtasia batch export using local standalone projects and the installed version's modern exporter. use when producing approved project queues without legacy camtasiaproducer assumptions. trigger with \"camtasia batch export\", \"produce camtasia projects\", or \"camtasia render queue\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "techsmith-cost-tuning",
       "slug": "techsmith-cost-tuning",
       "name": "techsmith-cost-tuning",
-      "description": "TechSmith cost tuning for Snagit COM API and Camtasia automation. Use when working with TechSmith screen capture and video editing automation. Trigger: \"techsmith cost tuning\".",
+      "description": "Optimize TechSmith desktop automation cost through license assignment, workstation utilization, retention, and measured export capacity. Use when sizing Snagit or Camtasia operations without inventing API usage pricing. Trigger with \"TechSmith cost tuning\", \"Camtasia capacity cost\", or \"Snagit license optimization\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(powershell:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-cost-tuning techsmith cost tuning for snagit com api and camtasia automation. use when working with techsmith screen capture and video editing automation. trigger: \"techsmith cost tuning\". saas-packs read write edit bash(powershell:*) grep "
+      "searchText": "techsmith-cost-tuning optimize techsmith desktop automation cost through license assignment, workstation utilization, retention, and measured export capacity. use when sizing snagit or camtasia operations without inventing api usage pricing. trigger with \"techsmith cost tuning\", \"camtasia capacity cost\", or \"snagit license optimization\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "techsmith-debug-bundle",
       "slug": "techsmith-debug-bundle",
       "name": "techsmith-debug-bundle",
-      "description": "TechSmith debug bundle for Snagit COM API and Camtasia automation. Use when working with TechSmith screen capture and video editing automation. Trigger: \"techsmith debug bundle\".",
+      "description": "Assemble a minimal redacted diagnostic bundle for Snagit COM, Camtasia recorder, deployment, project, or export failures. Use when support or engineering needs reproducible TechSmith evidence. Trigger with \"TechSmith debug bundle\", \"collect Snagit diagnostics\", or \"Camtasia support evidence\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(powershell:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-debug-bundle techsmith debug bundle for snagit com api and camtasia automation. use when working with techsmith screen capture and video editing automation. trigger: \"techsmith debug bundle\". saas-packs read write edit bash(powershell:*) grep "
+      "searchText": "techsmith-debug-bundle assemble a minimal redacted diagnostic bundle for snagit com, camtasia recorder, deployment, project, or export failures. use when support or engineering needs reproducible techsmith evidence. trigger with \"techsmith debug bundle\", \"collect snagit diagnostics\", or \"camtasia support evidence\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "techsmith-deploy-integration",
       "slug": "techsmith-deploy-integration",
       "name": "techsmith-deploy-integration",
-      "description": "TechSmith deploy integration for Snagit COM API and Camtasia automation. Use when working with TechSmith screen capture and video editing automation. Trigger: \"techsmith deploy integration\".",
+      "description": "Roll out Snagit or Camtasia with TechSmith deployment tooling, immutable packages, staged endpoint rings, and licensing controls. Use when preparing enterprise Windows or macOS deployment. Trigger with \"deploy TechSmith\", \"Snagit MSI MST\", or \"Camtasia managed rollout\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(powershell:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-deploy-integration techsmith deploy integration for snagit com api and camtasia automation. use when working with techsmith screen capture and video editing automation. trigger: \"techsmith deploy integration\". saas-packs read write edit bash(powershell:*) grep "
+      "searchText": "techsmith-deploy-integration roll out snagit or camtasia with techsmith deployment tooling, immutable packages, staged endpoint rings, and licensing controls. use when preparing enterprise windows or macos deployment. trigger with \"deploy techsmith\", \"snagit msi mst\", or \"camtasia managed rollout\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "techsmith-hello-world",
       "slug": "techsmith-hello-world",
       "name": "techsmith-hello-world",
-      "description": "Capture a screenshot with Snagit COM API and produce a Camtasia video. Use when automating screen captures, batch-processing recordings, or building documentation pipelines with TechSmith tools. Trigger: \"techsmith hello world, snagit capture, camtasia render\".",
+      "description": "Prove an approved Windows Snagit installation with a non-capturing COM creation probe and optional operator-approved window capture. Use when validating a new TechSmith workstation safely. Trigger with \"TechSmith hello world\", \"test Snagit COM\", or \"verify Snagit automation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(powershell:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-hello-world capture a screenshot with snagit com api and produce a camtasia video. use when automating screen captures, batch-processing recordings, or building documentation pipelines with techsmith tools. trigger: \"techsmith hello world, snagit capture, camtasia render\". saas-packs read write edit bash(powershell:*) "
+      "searchText": "techsmith-hello-world prove an approved windows snagit installation with a non-capturing com creation probe and optional operator-approved window capture. use when validating a new techsmith workstation safely. trigger with \"techsmith hello world\", \"test snagit com\", or \"verify snagit automation\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "techsmith-install-auth",
       "slug": "techsmith-install-auth",
       "name": "techsmith-install-auth",
-      "description": "Install TechSmith Snagit COM API and register the COM server for automation. Use when setting up Snagit automation, configuring COM interop, or initializing Camtasia batch processing. Trigger: \"install techsmith, setup snagit, techsmith COM API\".",
+      "description": "Select and verify the supported Snagit or Camtasia install, license, activation, connectivity, and Snagit COM-registration path. Use when provisioning a workstation or resolving activation ambiguity. Trigger with \"install TechSmith\", \"activate Snagit\", or \"configure Camtasia license\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-install-auth install techsmith snagit com api and register the com server for automation. use when setting up snagit automation, configuring com interop, or initializing camtasia batch processing. trigger: \"install techsmith, setup snagit, techsmith com api\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "techsmith-install-auth select and verify the supported snagit or camtasia install, license, activation, connectivity, and snagit com-registration path. use when provisioning a workstation or resolving activation ambiguity. trigger with \"install techsmith\", \"activate snagit\", or \"configure camtasia license\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "techsmith-local-dev-loop",
       "slug": "techsmith-local-dev-loop",
       "name": "techsmith-local-dev-loop",
-      "description": "TechSmith local dev loop for Snagit COM API and Camtasia automation. Use when working with TechSmith screen capture and video editing automation. Trigger: \"techsmith local dev loop\".",
+      "description": "Iterate on Snagit COM automation with official samples, a fake adapter, bounded live probes, and disposable local output. Use when developing or reviewing Windows capture scripts. Trigger with \"Snagit local development\", \"test Snagit PowerShell\", or \"iterate TechSmith automation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(powershell:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-local-dev-loop techsmith local dev loop for snagit com api and camtasia automation. use when working with techsmith screen capture and video editing automation. trigger: \"techsmith local dev loop\". saas-packs read write edit bash(powershell:*) grep "
+      "searchText": "techsmith-local-dev-loop iterate on snagit com automation with official samples, a fake adapter, bounded live probes, and disposable local output. use when developing or reviewing windows capture scripts. trigger with \"snagit local development\", \"test snagit powershell\", or \"iterate techsmith automation\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "techsmith-performance-tuning",
       "slug": "techsmith-performance-tuning",
       "name": "techsmith-performance-tuning",
-      "description": "TechSmith performance tuning for Snagit COM API and Camtasia automation. Use when working with TechSmith screen capture and video editing automation. Trigger: \"techsmith performance tuning\".",
+      "description": "Optimize Snagit capture and Camtasia project/export throughput from measured workstation bottlenecks and safe concurrency limits. Use when queues are slow, unstable, or resource-bound. Trigger with \"TechSmith performance\", \"Camtasia export tuning\", or \"Snagit capture throughput\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(powershell:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-performance-tuning techsmith performance tuning for snagit com api and camtasia automation. use when working with techsmith screen capture and video editing automation. trigger: \"techsmith performance tuning\". saas-packs read write edit bash(powershell:*) grep "
+      "searchText": "techsmith-performance-tuning optimize snagit capture and camtasia project/export throughput from measured workstation bottlenecks and safe concurrency limits. use when queues are slow, unstable, or resource-bound. trigger with \"techsmith performance\", \"camtasia export tuning\", or \"snagit capture throughput\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "techsmith-prod-checklist",
       "slug": "techsmith-prod-checklist",
       "name": "techsmith-prod-checklist",
-      "description": "TechSmith prod checklist for Snagit COM API and Camtasia automation. Use when working with TechSmith screen capture and video editing automation. Trigger: \"techsmith prod checklist\".",
+      "description": "Validate a Snagit or Camtasia automation release across licensing, versioning, desktop session, storage, privacy, rollback, and support readiness. Use when preparing a production rollout or scheduled media run. Trigger with \"TechSmith production checklist\", \"Camtasia go live\", or \"Snagit automation readiness\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(powershell:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-prod-checklist techsmith prod checklist for snagit com api and camtasia automation. use when working with techsmith screen capture and video editing automation. trigger: \"techsmith prod checklist\". saas-packs read write edit bash(powershell:*) grep "
+      "searchText": "techsmith-prod-checklist validate a snagit or camtasia automation release across licensing, versioning, desktop session, storage, privacy, rollback, and support readiness. use when preparing a production rollout or scheduled media run. trigger with \"techsmith production checklist\", \"camtasia go live\", or \"snagit automation readiness\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "techsmith-rate-limits",
       "slug": "techsmith-rate-limits",
       "name": "techsmith-rate-limits",
-      "description": "TechSmith rate limits for Snagit COM API and Camtasia automation. Use when working with TechSmith screen capture and video editing automation. Trigger: \"techsmith rate limits\".",
+      "description": "Manage Snagit and Camtasia workstation capacity with explicit capture, recorder, export, disk, and queue limits. Use when scheduling desktop automation or recovering from overload. Trigger with \"TechSmith rate limits\", \"Camtasia queue limits\", or \"Snagit capacity guardrails\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(powershell:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-rate-limits techsmith rate limits for snagit com api and camtasia automation. use when working with techsmith screen capture and video editing automation. trigger: \"techsmith rate limits\". saas-packs read write edit bash(powershell:*) grep "
+      "searchText": "techsmith-rate-limits manage snagit and camtasia workstation capacity with explicit capture, recorder, export, disk, and queue limits. use when scheduling desktop automation or recovering from overload. trigger with \"techsmith rate limits\", \"camtasia queue limits\", or \"snagit capacity guardrails\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "techsmith-reference-architecture",
       "slug": "techsmith-reference-architecture",
       "name": "techsmith-reference-architecture",
-      "description": "TechSmith reference architecture for Snagit COM API and Camtasia automation. Use when working with TechSmith screen capture and video editing automation. Trigger: \"techsmith reference architecture\".",
+      "description": "Design a controlled architecture for Snagit capture and Camtasia recording/export workers with local scratch, durable manifests, validation, and artifact promotion. Use when moving beyond one-off scripts. Trigger with \"TechSmith architecture\", \"Snagit automation design\", or \"Camtasia worker topology\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(powershell:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-reference-architecture techsmith reference architecture for snagit com api and camtasia automation. use when working with techsmith screen capture and video editing automation. trigger: \"techsmith reference architecture\". saas-packs read write edit bash(powershell:*) grep "
+      "searchText": "techsmith-reference-architecture design a controlled architecture for snagit capture and camtasia recording/export workers with local scratch, durable manifests, validation, and artifact promotion. use when moving beyond one-off scripts. trigger with \"techsmith architecture\", \"snagit automation design\", or \"camtasia worker topology\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "techsmith-sdk-patterns",
       "slug": "techsmith-sdk-patterns",
       "name": "techsmith-sdk-patterns",
-      "description": "TechSmith sdk patterns for Snagit COM API and Camtasia automation. Use when working with TechSmith screen capture and video editing automation. Trigger: \"techsmith sdk patterns\".",
+      "description": "Implement Snagit image capture behind a narrow typed adapter with official enums, ordered configuration, bounded async completion, and path-safe results. Use when productionizing COM automation in PowerShell or .NET. Trigger with \"Snagit SDK patterns\", \"Snagit COM adapter\", or \"type-safe Snagit capture\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(powershell:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-sdk-patterns techsmith sdk patterns for snagit com api and camtasia automation. use when working with techsmith screen capture and video editing automation. trigger: \"techsmith sdk patterns\". saas-packs read write edit bash(powershell:*) grep "
+      "searchText": "techsmith-sdk-patterns implement snagit image capture behind a narrow typed adapter with official enums, ordered configuration, bounded async completion, and path-safe results. use when productionizing com automation in powershell or .net. trigger with \"snagit sdk patterns\", \"snagit com adapter\", or \"type-safe snagit capture\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "techsmith-security-basics",
       "slug": "techsmith-security-basics",
       "name": "techsmith-security-basics",
-      "description": "TechSmith security basics for Snagit COM API and Camtasia automation. Use when working with TechSmith screen capture and video editing automation. Trigger: \"techsmith security basics\".",
+      "description": "Harden Snagit and Camtasia automation around capture consent, license secrecy, local storage, share destinations, least privilege, and artifact review. Use when threat-modeling or approving a TechSmith workflow. Trigger with \"TechSmith security\", \"secure Snagit automation\", or \"Camtasia data controls\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(powershell:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-security-basics techsmith security basics for snagit com api and camtasia automation. use when working with techsmith screen capture and video editing automation. trigger: \"techsmith security basics\". saas-packs read write edit bash(powershell:*) grep "
+      "searchText": "techsmith-security-basics harden snagit and camtasia automation around capture consent, license secrecy, local storage, share destinations, least privilege, and artifact review. use when threat-modeling or approving a techsmith workflow. trigger with \"techsmith security\", \"secure snagit automation\", or \"camtasia data controls\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "techsmith-upgrade-migration",
       "slug": "techsmith-upgrade-migration",
       "name": "techsmith-upgrade-migration",
-      "description": "TechSmith upgrade migration for Snagit COM API and Camtasia automation. Use when working with TechSmith screen capture and video editing automation. Trigger: \"techsmith upgrade migration\".",
+      "description": "Upgrade Snagit or Camtasia with entitlement checks, immutable backups, canaries, project-format boundaries, and reversible endpoint rollout. Use when changing product versions or retiring legacy media. Trigger with \"upgrade TechSmith\", \"migrate Camtasia project\", or \"convert Snagit library\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(powershell:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-upgrade-migration techsmith upgrade migration for snagit com api and camtasia automation. use when working with techsmith screen capture and video editing automation. trigger: \"techsmith upgrade migration\". saas-packs read write edit bash(powershell:*) grep "
+      "searchText": "techsmith-upgrade-migration upgrade snagit or camtasia with entitlement checks, immutable backups, canaries, project-format boundaries, and reversible endpoint rollout. use when changing product versions or retiring legacy media. trigger with \"upgrade techsmith\", \"migrate camtasia project\", or \"convert snagit library\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "techsmith-webhooks-events",
       "slug": "techsmith-webhooks-events",
       "name": "techsmith-webhooks-events",
-      "description": "TechSmith webhooks events for Snagit COM API and Camtasia automation. Use when working with TechSmith screen capture and video editing automation. Trigger: \"techsmith webhooks events\".",
+      "description": "Process Snagit COM completion and local TechSmith artifact events with bounded watchers, stable-file checks, deduplication, and recovery. Use when a desktop workflow needs event-driven handoff without pretending TechSmith exposes webhooks. Trigger with \"TechSmith events\", \"Snagit capture event\", or \"watch Camtasia output\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(powershell:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "techsmith-pack",
         "category": "saas-packs"
       },
-      "searchText": "techsmith-webhooks-events techsmith webhooks events for snagit com api and camtasia automation. use when working with techsmith screen capture and video editing automation. trigger: \"techsmith webhooks events\". saas-packs read write edit bash(powershell:*) grep "
+      "searchText": "techsmith-webhooks-events process snagit com completion and local techsmith artifact events with bounded watchers, stable-file checks, deduplication, and recovery. use when a desktop workflow needs event-driven handoff without pretending techsmith exposes webhooks. trigger with \"techsmith events\", \"snagit capture event\", or \"watch camtasia output\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
