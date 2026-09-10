@@ -231,18 +231,6 @@
       "fallback_for_tools": []
     },
     {
-      "slug": "action-items-todoist",
-      "name": "action-items-todoist",
-      "description": "Extract action items from today's Granola/Grain meetings, create Todoist tasks, complete fulfilled tasks, and draft meeting-triggered follow-up emails. Use when running the daily action items cron, post-meeting cron, or when user asks to process meeting action items. NOT for general email drafting without meeting context.",
-      "version": "1.8.0",
-      "category": "business-tools",
-      "parentPlugin": "executive-assistant-skills",
-      "requires_env": [],
-      "requires_tools": [],
-      "fallback_for_env": [],
-      "fallback_for_tools": []
-    },
-    {
       "slug": "adapting-transfer-learning-models",
       "name": "adapting-transfer-learning-models",
       "description": "Build this skill automates the adaptation of pre-trained machine learning models using transfer learning techniques. it is triggered when the user requests assistance with fine-tuning a model, adapting a pre-trained model to a new dataset, or performing... Use when appropriate context detected. Trigger with relevant phrases based on skill purpose.",
@@ -4191,18 +4179,6 @@
       "fallback_for_tools": []
     },
     {
-      "slug": "boycott-filter",
-      "name": "boycott-filter",
-      "description": "Personal boycott list — users can conversationally tell the agent which brands they want to avoid, and why. A local sync server exposes the list at http://127.0.0.1:7847, and a bundled Chrome extension warns the user when they land on pages from boycotted brands. Use when the user says things like \"I'm done with X\", \"boycott Y\", \"never buying from Z again\", \"remove X from my boycott list\", or asks to see their list. Trigger phrases: \"boycott\", \"never buying from\", \"sick of\", \"add to boycott\", \"show my boycott list\", \"remove from boycott\".",
-      "version": "1.2.0",
-      "category": "community",
-      "parentPlugin": "boycott-filter",
-      "requires_env": [],
-      "requires_tools": [],
-      "fallback_for_env": [],
-      "fallback_for_tools": []
-    },
-    {
       "slug": "brain",
       "name": "brain",
       "description": "Answers questions about your own systems, notes, decisions, runbooks, and conventions from your governed knowledge brain, returning a qmd:// citation for every claim — receipts, not recall. Use when you want to know what your brain has captured about your own architecture, infrastructure, decisions, or conventions (e.g. \"what does my system map say about the proxy\", \"why did I pick Apache-2.0\", \"what's my deploy runbook\"). Trigger with \"/brain\", \"ask the brain\", \"what do I know about\", or \"check my knowledge base\".",
@@ -6009,18 +5985,6 @@
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "clari-pack",
-      "requires_env": [],
-      "requires_tools": [],
-      "fallback_for_env": [],
-      "fallback_for_tools": []
-    },
-    {
-      "slug": "claude-reflect",
-      "name": "claude-reflect",
-      "description": "Execute self-learning system that captures corrections during sessions and syncs them to CLAUDE.md. Use when discussing learnings, corrections, or when the user mentions remembering something. Trigger with phrases like \"remember this\", \"don't forget\", \"use X not Y\", or \"actually...\".",
-      "version": "1.12.0",
-      "category": "community",
-      "parentPlugin": "claude-reflect",
       "requires_env": [],
       "requires_tools": [],
       "fallback_for_env": [],
@@ -9927,18 +9891,6 @@
       "fallback_for_tools": []
     },
     {
-      "slug": "doctor",
-      "name": "doctor",
-      "description": "Diagnose Promptbook setup — check config, hooks, API key, and session tracking health. Use when Promptbook seems broken or the user wants to verify their setup. Trigger with \"/doctor\" or \"check promptbook health\".",
-      "version": "1.4.0",
-      "category": "business-tools",
-      "parentPlugin": "promptbook",
-      "requires_env": [],
-      "requires_tools": [],
-      "fallback_for_env": [],
-      "fallback_for_tools": []
-    },
-    {
       "slug": "documenso-ci-integration",
       "name": "documenso-ci-integration",
       "description": "Configure CI/CD pipelines for Documenso integrations. Use when setting up automated testing, deployment pipelines, or continuous integration for Documenso projects. Trigger with phrases like \"documenso CI\", \"documenso GitHub Actions\", \"documenso pipeline\", \"documenso automated testing\".",
@@ -10617,18 +10569,6 @@
       "version": "1.6.0",
       "category": "saas-packs",
       "parentPlugin": "elevenlabs-pack",
-      "requires_env": [],
-      "requires_tools": [],
-      "fallback_for_env": [],
-      "fallback_for_tools": []
-    },
-    {
-      "slug": "email-drafting",
-      "name": "email-drafting",
-      "description": "Draft email replies for Gonto's Gmail accounts (m@gon.to, gonto@hypergrowthpartners.com). Handles intro acceptances, scheduling intent, thanks/ack, and positive short replies. Use when user asks to draft or reply to an email, or when Gmail webhook triggers arrive for auto-draft classification. Draft-only mode — never sends automatically.",
-      "version": "1.8.0",
-      "category": "business-tools",
-      "parentPlugin": "executive-assistant-skills",
       "requires_env": [],
       "requires_tools": [],
       "fallback_for_env": [],
@@ -11385,18 +11325,6 @@
       "version": "1.21.0",
       "category": "business-tools",
       "parentPlugin": "excel-analyst-pro",
-      "requires_env": [],
-      "requires_tools": [],
-      "fallback_for_env": [],
-      "fallback_for_tools": []
-    },
-    {
-      "slug": "executive-digest",
-      "name": "executive-digest",
-      "description": "Generate the daily executive digest — a single WhatsApp summary of everything needing attention: stalled scheduling, pending intros, unanswered emails, promised follow-ups, open Todoist tasks, and upcoming calendar events. Use when running the daily digest cron, or when user asks for a status digest, daily summary, \"what's pending\", or \"catch me up\".",
-      "version": "1.8.0",
-      "category": "business-tools",
-      "parentPlugin": "executive-assistant-skills",
       "requires_env": [],
       "requires_tools": [],
       "fallback_for_env": [],
@@ -16911,18 +16839,6 @@
       "fallback_for_tools": []
     },
     {
-      "slug": "hyperfocus",
-      "name": "hyperfocus",
-      "description": "ADHD-friendly output formatting for Claude Code. Restructures responses with evidence-based cognitive accessibility: chunking, visual hierarchy, front-loaded key points, and progressive disclosure. Three modes: clean, flow (default), zen. Use when user says \"hyperfocus\", \"focus mode\", \"adhd mode\", \"adhd friendly\", or invokes /hyperfocus.",
-      "version": "0.2.0",
-      "category": "productivity",
-      "parentPlugin": "hyperfocus",
-      "requires_env": [],
-      "requires_tools": [],
-      "fallback_for_env": [],
-      "fallback_for_tools": []
-    },
-    {
       "slug": "hypothesis-tester",
       "name": "hypothesis-tester",
       "description": "Structured hypothesis formulation, experiment design, and results interpretation for Product Managers. Use when the user needs to validate an assumption, design an A/B test, or evaluate results. Trigger with \"hypothesis\", \"A/B test\", \"experiment\", \"validate assumption\", \"test this\", or \"should we ship\".",
@@ -20607,18 +20523,6 @@
       "fallback_for_tools": []
     },
     {
-      "slug": "local-tts",
-      "name": "local-tts",
-      "description": "Generate speech locally from text using VoxCPM2 (2B params, Apache-2.0). 30 languages, voice design (describe a voice), voice cloning (from 3-10s reference). Runs 100% offline on Apple Silicon via Metal (MPS). Zero API calls, zero cost. Use when user asks to \"say\" or \"speak\" something, wants a voiceover, wants to clone a voice, or wants to generate audio from text. Trigger phrases: \"say this\", \"read out loud\", \"clone my voice\", \"generate voiceover\", \"text to speech\", \"TTS\".",
-      "version": "1.3.0",
-      "category": "ai-ml",
-      "parentPlugin": "local-tts",
-      "requires_env": [],
-      "requires_tools": [],
-      "fallback_for_env": [],
-      "fallback_for_tools": []
-    },
-    {
       "slug": "logging-api-requests",
       "name": "logging-api-requests",
       "description": "Monitor and log API requests with correlation IDs, performance metrics, and security audit trails. Use when auditing API requests and responses. Trigger with phrases like \"log API requests\", \"add API logging\", or \"track API calls\".",
@@ -21688,18 +21592,6 @@
     },
     {
       "slug": "meeting-prep",
-      "name": "meeting-prep",
-      "description": "Prepare briefings for today's meetings — attendee research, email history, past meeting notes, LinkedIn, and company context. Use when running the daily meeting prep cron, or when user asks to prepare for meetings, review who they're meeting with, or get context on upcoming calls.",
-      "version": "1.8.0",
-      "category": "business-tools",
-      "parentPlugin": "executive-assistant-skills",
-      "requires_env": [],
-      "requires_tools": [],
-      "fallback_for_env": [],
-      "fallback_for_tools": []
-    },
-    {
-      "slug": "meeting-prep-2",
       "name": "meeting-prep",
       "description": "Meeting preparation assistant for Product Managers. Use when the user needs to prepare a meeting, create talking points, anticipate questions, or structure a decision. Trigger with \"prepare for meeting\", \"meeting prep\", \"talking points\", \"get ready for\", or \"1:1 prep\".",
       "version": "1.10.0",
@@ -29991,18 +29883,6 @@
       "fallback_for_tools": []
     },
     {
-      "slug": "setup",
-      "name": "setup",
-      "description": "Set up Promptbook — connect your account to start tracking builds. Use when the user wants to enable session analytics on promptbook.gg. Trigger with \"/setup\" or \"set up promptbook\".",
-      "version": "1.4.0",
-      "category": "business-tools",
-      "parentPlugin": "promptbook",
-      "requires_env": [],
-      "requires_tools": [],
-      "fallback_for_env": [],
-      "fallback_for_tools": []
-    },
-    {
       "slug": "shipwright-pipeline",
       "name": "shipwright-pipeline",
       "description": "Autonomous app builder that converts plain-English descriptions into fully built, tested applications. Use when the user wants to build a new app, scaffold a project, generate a full-stack application, or create an app from a description. Trigger with \"build me an app\", \"create a new app\", \"shipwright build\", \"scaffold a project\", \"generate an application\".",
@@ -32001,18 +31881,6 @@
       "version": "1.25.0",
       "category": "api-development",
       "parentPlugin": "api-throttling-manager",
-      "requires_env": [],
-      "requires_tools": [],
-      "fallback_for_env": [],
-      "fallback_for_tools": []
-    },
-    {
-      "slug": "todoist-due-drafts",
-      "name": "todoist-due-drafts",
-      "description": "Check Todoist for tasks due today (and overdue) that involve pinging, emailing, or following up with someone. Auto-draft the emails using meeting context and notify via WhatsApp. Use when running the daily due-drafts cron, or when user asks to process email tasks from Todoist.",
-      "version": "1.8.0",
-      "category": "business-tools",
-      "parentPlugin": "executive-assistant-skills",
       "requires_env": [],
       "requires_tools": [],
       "fallback_for_env": [],
@@ -34935,8 +34803,8 @@
       "fallback_for_tools": []
     }
   ],
-  "count": 2911,
-  "generatedAt": "2026-09-09T23:07:21.360Z",
+  "count": 2900,
+  "generatedAt": "2026-09-10T03:56:21.936Z",
   "categories": [
     "ai-agency",
     "ai-ml",

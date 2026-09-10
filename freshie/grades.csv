@@ -265,7 +265,6 @@ plugins/ai-ml/jeremy-google-adk/skills/adk-agent-builder,A,96
 plugins/ai-ml/jeremy-vertex-ai/skills/vertex-agent-builder,A,97
 plugins/ai-ml/jeremy-vertex-engine/skills/vertex-engine-inspector,A,100
 plugins/ai-ml/jeremy-vertex-validator/skills/validator-expert,A,100
-plugins/ai-ml/local-tts/skills/local-tts,B,87
 plugins/ai-ml/ml-model-trainer/skills/training-machine-learning-models,A,94
 plugins/ai-ml/model-deployment-helper/skills/deploying-machine-learning-models,A,94
 plugins/ai-ml/model-evaluation-suite/skills/evaluating-machine-learning-models,A,95
@@ -311,11 +310,6 @@ plugins/business-tools/excel-analyst-pro/skills/excel-dcf-modeler,A,94
 plugins/business-tools/excel-analyst-pro/skills/excel-lbo-modeler,A,96
 plugins/business-tools/excel-analyst-pro/skills/excel-pivot-wizard,A,97
 plugins/business-tools/excel-analyst-pro/skills/excel-variance-analyzer,A,95
-plugins/business-tools/executive-assistant-skills/skills/action-items-todoist,B,81
-plugins/business-tools/executive-assistant-skills/skills/email-drafting,B,82
-plugins/business-tools/executive-assistant-skills/skills/executive-digest,B,81
-plugins/business-tools/executive-assistant-skills/skills/meeting-prep,B,81
-plugins/business-tools/executive-assistant-skills/skills/todoist-due-drafts,B,86
 plugins/business-tools/general-legal-assistant/skills/agreement-generator,B,85
 plugins/business-tools/general-legal-assistant/skills/compliance-audit,B,82
 plugins/business-tools/general-legal-assistant/skills/contract-compare,B,87
@@ -328,12 +322,8 @@ plugins/business-tools/general-legal-assistant/skills/plain-english,B,86
 plugins/business-tools/general-legal-assistant/skills/privacy-generator,B,82
 plugins/business-tools/general-legal-assistant/skills/risk-analysis,B,88
 plugins/business-tools/general-legal-assistant/skills/terms-generator,B,85
-plugins/business-tools/promptbook/skills/doctor,A,90
-plugins/business-tools/promptbook/skills/setup,B,82
 plugins/community/b12-claude-plugin/skills/website-generator,A,92
-plugins/community/boycott-filter/skills/boycott-filter,B,86
 plugins/community/claude-never-forgets/skills/memory,A,98
-plugins/community/claude-reflect,B,88
 plugins/community/contributing-clanker/skills/contribute,A,97
 plugins/community/contributing-clanker/skills/contribute-prepare,A,96
 plugins/community/contributing-clanker/skills/contribute-publish,A,97
@@ -560,7 +550,6 @@ plugins/productivity/cli-power-skills/skills/web-research,C,70
 plugins/productivity/content-multiplier/skills/brand-voice,A,100
 plugins/productivity/content-multiplier/skills/channel-formats,A,100
 plugins/productivity/content-multiplier/skills/transcreation,A,100
-plugins/productivity/hyperfocus/skills/hyperfocus,B,87
 plugins/productivity/intent-labs-pack/skills/audit-tests,A,91
 plugins/productivity/intent-labs-pack/skills/validate-skillmd,A,92
 plugins/productivity/j-rig/skills/j-rig,B,81

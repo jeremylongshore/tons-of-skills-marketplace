@@ -4,8 +4,8 @@
 
 [![Release](https://img.shields.io/badge/release-v4.33.0-green)](https://github.com/jeremylongshore/tons-of-skills-marketplace/releases/latest)
 [![CLI](https://img.shields.io/badge/CLI-ccpi-blueviolet?logo=npm)](https://www.npmjs.com/package/@intentsolutionsio/ccpi)
-[![Plugins](https://img.shields.io/badge/plugins-440-blue)](https://tonsofskills.com/explore)
-[![Skills](https://img.shields.io/badge/skills-2911-green)](https://tonsofskills.com/skills)
+[![Plugins](https://img.shields.io/badge/plugins-434-blue)](https://tonsofskills.com/explore)
+[![Skills](https://img.shields.io/badge/skills-2900-green)](https://tonsofskills.com/skills)
 [![GitHub Stars](https://img.shields.io/github/stars/jeremylongshore/tons-of-skills-marketplace?style=social)](https://github.com/jeremylongshore/tons-of-skills-marketplace)
 [![skills.sh](https://skills.sh/b/jeremylongshore/tons-of-skills-marketplace)](https://skills.sh/jeremylongshore/tons-of-skills-marketplace)
 [![Sponsor: Kobiton](https://img.shields.io/badge/Sponsor-kobiton.com-0487D9)](https://kobiton.com)
@@ -45,8 +45,8 @@ Every number below names the cohort it counts and the command that reproduces it
 
 | Count | Cohort                                 | Reproduce with                                                                                                          |
 | ----: | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-|   440 | catalog plugins (catalog-entry cohort) | `node scripts/generate-readme-toc.mjs` over `marketplace.extended.json`                                                 |
-| 2,911 | marketplace-visible skills (distinct)  | `node -e "import('./scripts/corpus-resolver.mjs').then(m=>console.log(m.resolveCorpus('marketplace-visible').length))"` |
+|   434 | catalog plugins (catalog-entry cohort) | `node scripts/generate-readme-toc.mjs` over `marketplace.extended.json`                                                 |
+| 2,900 | marketplace-visible skills (distinct)  | `node -e "import('./scripts/corpus-resolver.mjs').then(m=>console.log(m.resolveCorpus('marketplace-visible').length))"` |
 |   352 | agent definitions in plugins           | `git ls-files 'plugins/**' \| grep '/agents/.*\.md'`                                                                    |
 |    19 | plugin categories                      | `ls -d plugins/*/`                                                                                                      |
 
@@ -103,11 +103,11 @@ The 19 categories below link into the live marketplace. Plugin counts are the ca
 
 |     | Category                                                            | Plugins |
 | --- | ------------------------------------------------------------------- | ------: |
-| 🤖  | [AI & Machine Learning](https://tonsofskills.com/plugins#ai-ml)     |      37 |
+| 🤖  | [AI & Machine Learning](https://tonsofskills.com/plugins#ai-ml)     |      36 |
 | 🎭  | [AI Agents & Agency](https://tonsofskills.com/plugins#ai-agency)    |       9 |
 | 🔌  | [API Development](https://tonsofskills.com/plugins#api-development) |      26 |
-| 💼  | [Business Tools](https://tonsofskills.com/plugins#business-tools)   |       6 |
-| 👥  | [Community](https://tonsofskills.com/plugins#community)             |      21 |
+| 💼  | [Business Tools](https://tonsofskills.com/plugins#business-tools)   |       4 |
+| 👥  | [Community](https://tonsofskills.com/plugins#community)             |      19 |
 | ₿   | [Crypto & Web3](https://tonsofskills.com/plugins#crypto)            |      27 |
 | 💾  | [Database](https://tonsofskills.com/plugins#database)               |      26 |
 | 🎨  | [Design](https://tonsofskills.com/plugins#design)                   |       2 |
@@ -116,7 +116,7 @@ The 19 categories below link into the live marketplace. Plugin counts are the ca
 | 🧩  | [MCP Servers](https://tonsofskills.com/plugins#mcp)                 |      17 |
 | 📦  | [Packages](https://tonsofskills.com/plugins#packages)               |       5 |
 | ⚡  | [Performance](https://tonsofskills.com/plugins#performance)         |      25 |
-| ✅  | [Productivity](https://tonsofskills.com/plugins#productivity)       |      29 |
+| ✅  | [Productivity](https://tonsofskills.com/plugins#productivity)       |      28 |
 | 🎁  | [SaaS Skill Packs](https://tonsofskills.com/plugins#saas-packs)     |     103 |
 | 🔐  | [Security](https://tonsofskills.com/plugins#security)               |      27 |
 | ✨  | [Skill Enhancers](https://tonsofskills.com/plugins#skill-enhancers) |      10 |

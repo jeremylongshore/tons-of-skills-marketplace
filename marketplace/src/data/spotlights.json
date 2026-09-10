@@ -110,19 +110,6 @@
       "quote": "My Claude Code kept leaking tokens. So I built this. Now my limits last longer, context stays fresh, and I have full visibility and control over my usage & setup."
     },
     {
-      "week": "2026-W12",
-      "pluginSlug": "executive-assistant-skills",
-      "headline": "The AI skills that fully replaced a $4k/mo executive assistant",
-      "whyKiller": "Research meeting attendees, gather email history, create meeting briefs, and manage action items via Todoist — the complete EA workflow automated by Auth0's former VP of Marketing/Growth.",
-      "author": "Martin Gontovnikas",
-      "authorGithub": "mgonto",
-      "grade": "A",
-      "skillCount": 5,
-      "category": "business-tools",
-      "link": "/plugins/executive-assistant-skills",
-      "quote": "These skills fully replaced my human executive assistant."
-    },
-    {
       "week": "2026-W11",
       "pluginSlug": "skill-creator",
       "headline": "The meta-tool that builds and grades other skills",

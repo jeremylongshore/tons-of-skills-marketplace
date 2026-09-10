@@ -28,7 +28,6 @@ plugins/ai-ml/jeremy-vertex-engine/README.md:pipe-to-shell  documented official 
 plugins/ai-ml/jeremy-vertex-validator/README.md:pipe-to-shell  documented official Google Cloud SDK installer (https://sdk.cloud.google.com) as the gcloud setup step
 plugins/devops/jeremy-adk-terraform/README.md:pipe-to-shell  documented official Google Cloud SDK installer (https://sdk.cloud.google.com) as the gcloud setup step
 plugins/devops/jeremy-vertex-terraform/README.md:pipe-to-shell  documented official Google Cloud SDK installer (https://sdk.cloud.google.com) as the gcloud setup step
-plugins/business-tools/promptbook/README.md:pipe-to-shell  upstream's own documented setup script (promptbook.gg/setup.sh) in the mirrored README
 plugins/community/mnemos/README.md:pipe-to-shell  upstream's own install.sh (raw.githubusercontent.com/polyxmedia/mnemos) documented as the install step
 plugins/community/portaljs/README.md:pipe-to-shell  upstream's own install script (raw.githubusercontent.com/datopian/portaljs) documented as the install step
 plugins/ai-ml/ollama-local-ai/**:pipe-to-shell  official Ollama installer is the documented setup path for this skill

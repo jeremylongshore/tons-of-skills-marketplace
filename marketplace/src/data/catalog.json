@@ -5,16 +5,16 @@
     "generator": "marketplace/scripts/sync-catalog.mjs"
   },
   "stats": {
-    "totalPlugins": 440,
-    "totalSkills": 2911,
-    "totalCommands": 85,
-    "pluginsWithSkills": 407,
+    "totalPlugins": 434,
+    "totalSkills": 2900,
+    "totalCommands": 82,
+    "pluginsWithSkills": 401,
     "byCategory": {
-      "productivity": 29,
+      "productivity": 28,
       "security": 27,
       "testing": 28,
       "ai-agency": 9,
-      "ai-ml": 37,
+      "ai-ml": 36,
       "mcp": 17,
       "packages": 5,
       "performance": 25,
@@ -23,14 +23,14 @@
       "crypto": 27,
       "skill-enhancers": 10,
       "database": 26,
-      "business-tools": 6,
-      "community": 21,
+      "business-tools": 4,
+      "community": 19,
       "examples": 5,
       "saas-packs": 103,
       "analytics": 1,
       "design": 2
     },
-    "featured": 40
+    "featured": 39
   },
   "plugins": [
     {
@@ -5113,34 +5113,6 @@
       "type": "instruction-plugin"
     },
     {
-      "slug": "promptbook",
-      "name": "promptbook",
-      "displayName": "promptbook",
-      "description": "Opt-in session analytics for Claude Code. After setup consent, tracks prompts, tokens, build time, and lines changed per session. Publishes shareable build cards on promptbook.gg. Strict consent gating — no data transmitted without explicit opt-in. Background submission after session end.",
-      "version": "1.4.0",
-      "category": "business-tools",
-      "keywords": [
-        "analytics",
-        "telemetry",
-        "builds",
-        "portfolio",
-        "tracking",
-        "metrics",
-        "sessions"
-      ],
-      "hasSkills": true,
-      "skillCount": 2,
-      "commandCount": 0,
-      "installCommand": "/plugin install promptbook",
-      "sourcePath": "./plugins/business-tools/promptbook",
-      "isFeatured": false,
-      "author": {
-        "name": "Promptbook",
-        "email": "contact@promptbook.gg"
-      },
-      "type": "instruction-plugin"
-    },
-    {
       "slug": "query-performance-analyzer",
       "name": "query-performance-analyzer",
       "displayName": "query performance analyzer",
@@ -8641,35 +8613,6 @@
       "type": "instruction-plugin"
     },
     {
-      "slug": "claude-reflect",
-      "name": "claude-reflect",
-      "displayName": "claude reflect",
-      "description": "Self-learning system for Claude Code that captures corrections and updates CLAUDE.md automatically",
-      "version": "1.12.0",
-      "category": "community",
-      "keywords": [
-        "claude-code",
-        "self-learning",
-        "corrections",
-        "CLAUDE.md",
-        "memory",
-        "learnings",
-        "hooks",
-        "automation"
-      ],
-      "hasSkills": true,
-      "skillCount": 1,
-      "commandCount": 3,
-      "installCommand": "/plugin install claude-reflect",
-      "sourcePath": "./plugins/community/claude-reflect",
-      "isFeatured": false,
-      "author": {
-        "name": "Bayram Annakov",
-        "url": "https://github.com/bayramannakov"
-      },
-      "type": "instruction-plugin"
-    },
-    {
       "slug": "contributing-clanker",
       "name": "contributing-clanker",
       "displayName": "contributing clanker",
@@ -10522,34 +10465,6 @@
       "type": "instruction-plugin"
     },
     {
-      "slug": "executive-assistant-skills",
-      "name": "executive-assistant-skills",
-      "displayName": "executive assistant skills",
-      "description": "AI-powered executive assistant skills that fully replace a human EA. Research meeting attendees, draft emails, create meeting briefs, and manage action items.",
-      "version": "1.8.0",
-      "category": "business-tools",
-      "keywords": [
-        "executive-assistant",
-        "meeting-prep",
-        "email",
-        "productivity",
-        "automation",
-        "todoist"
-      ],
-      "hasSkills": true,
-      "skillCount": 5,
-      "commandCount": 0,
-      "installCommand": "/plugin install executive-assistant-skills",
-      "sourcePath": "./plugins/business-tools/executive-assistant-skills",
-      "isFeatured": true,
-      "author": {
-        "name": "Martin Gontovnikas",
-        "email": "gonto@hypergrowthpartners.com",
-        "url": "https://github.com/mgonto"
-      },
-      "type": "instruction-plugin"
-    },
-    {
       "slug": "box-cloud-filesystem",
       "name": "box-cloud-filesystem",
       "displayName": "box cloud filesystem",
@@ -10773,34 +10688,6 @@
       "type": "instruction-plugin"
     },
     {
-      "slug": "hyperfocus",
-      "name": "hyperfocus",
-      "displayName": "hyperfocus",
-      "description": "ADHD-friendly output formatting for Claude Code. Restructures responses with evidence-based cognitive accessibility: chunking, visual hierarchy, front-loaded key points, and progressive disclosure.",
-      "version": "0.2.0",
-      "category": "productivity",
-      "keywords": [
-        "accessibility",
-        "adhd",
-        "neurodivergent",
-        "formatting",
-        "readability",
-        "productivity",
-        "cognitive-accessibility"
-      ],
-      "hasSkills": true,
-      "skillCount": 1,
-      "commandCount": 0,
-      "installCommand": "/plugin install hyperfocus",
-      "sourcePath": "./plugins/productivity/hyperfocus",
-      "isFeatured": false,
-      "author": {
-        "name": "Nestor Magalhaes",
-        "email": "nestor.magalhaes@appex.world"
-      },
-      "type": "instruction-plugin"
-    },
-    {
       "slug": "plane",
       "name": "plane",
       "displayName": "plane",
@@ -10825,66 +10712,6 @@
       "author": {
         "name": "Jeremy Longshore",
         "email": "jeremy@intentsolutions.io"
-      },
-      "type": "instruction-plugin"
-    },
-    {
-      "slug": "local-tts",
-      "name": "local-tts",
-      "displayName": "local tts",
-      "description": "Offline text-to-speech via VoxCPM2 — 30 languages, voice design, voice cloning. Runs locally on Apple Silicon.",
-      "version": "1.3.0",
-      "category": "ai-ml",
-      "keywords": [
-        "tts",
-        "text-to-speech",
-        "voice",
-        "voice-cloning",
-        "voice-design",
-        "offline",
-        "voxcpm",
-        "apple-silicon",
-        "audio",
-        "narration"
-      ],
-      "hasSkills": true,
-      "skillCount": 1,
-      "commandCount": 0,
-      "installCommand": "/plugin install local-tts",
-      "sourcePath": "./plugins/ai-ml/local-tts",
-      "isFeatured": false,
-      "author": {
-        "name": "Bubble Invest",
-        "email": "contact@bubbleinvest.com"
-      },
-      "type": "instruction-plugin"
-    },
-    {
-      "slug": "boycott-filter",
-      "name": "boycott-filter",
-      "displayName": "boycott filter",
-      "description": "Personal boycott list managed conversationally by your AI agent. Chrome extension warns you on pages from brands you've decided to avoid.",
-      "version": "1.2.0",
-      "category": "community",
-      "keywords": [
-        "boycott",
-        "consumer",
-        "shopping",
-        "brands",
-        "chrome-extension",
-        "conversational",
-        "privacy",
-        "ethical-consumption"
-      ],
-      "hasSkills": true,
-      "skillCount": 1,
-      "commandCount": 0,
-      "installCommand": "/plugin install boycott-filter",
-      "sourcePath": "./plugins/community/boycott-filter",
-      "isFeatured": false,
-      "author": {
-        "name": "Bubble Invest",
-        "email": "contact@bubbleinvest.com"
       },
       "type": "instruction-plugin"
     },

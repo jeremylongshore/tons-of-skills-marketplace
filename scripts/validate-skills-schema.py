@@ -216,6 +216,36 @@ except ImportError:
 # See 000-docs/SCHEMA_CHANGELOG.md.
 SCHEMA_VERSION = "4.1.0"
 
+# Rule IDs are part of the compliance-baseline contract, not a census of the
+# errors that happen to exist today. Keep the declared inventory stable when
+# the last finding for a rule is fixed or its artifact is retired; otherwise a
+# strict debt reduction is indistinguishable from disabling a validator rule.
+# Newly observed catch-all hashes are still added below and therefore fail the
+# ratchet until they receive the normal owner-reviewed baseline treatment.
+DECLARED_MARKETPLACE_RULE_INVENTORY = frozenset(
+    {
+        "E-AGENT-8355989ea80e",
+        "E-AGENT-ad4126251028",
+        "E-AGENT-e7ed4704ab0d",
+        "E-BODY-a8e5f61fa69b",
+        "E-FATAL-9a99b10dfdaf",
+        "E-FRONTMATTER-9c196f479e69",
+        "E-FRONTMATTER-a84c0ab5ddff",
+        "E-FRONTMATTER-e9c3798ae38e",
+        "E-FRONTMATTER-f666eb7a814d",
+        "E-INVALID-FIELD",
+        "E-MISSING-REQUIRED-FIELD",
+        "E-MISSING-REQUIRED-SECTION",
+        "E-REFERENCE-ESCAPES-SKILL-DIRECTORY",
+        "E-TIER2-ORCHESTRATION-BOUNDS-31b9cdf7bcb8",
+        "E-TIER2-TOOL-SAFETY-5d322e66e4de",
+        "E-VALIDATOR-696637dc3a0f",
+        "E-VALIDATOR-c457e10de492",
+        "E-VALIDATOR-fed1b0ce3bfe",
+        "E-YAML-SHELL-SUBSTITUTION",
+    }
+)
+
 
 def compute_compliance_rate(compliant_count: int, total_count: int) -> float:
     """Compliance rate with the 4.12 invariants: 0 <= rate <= 100 and
@@ -4647,7 +4677,7 @@ def marketplace_baseline_payload(
             "grade_A_plus_B": grade_a_plus_b,
             "grade_A_plus_B_pct": round((grade_a_plus_b / skill_files * 100) if skill_files else 0.0, 4),
         },
-        "rule_inventory": sorted({rule_id for _path, rule_id, _field in triples}),
+        "rule_inventory": sorted(DECLARED_MARKETPLACE_RULE_INVENTORY | {rule_id for _path, rule_id, _field in triples}),
         "entries": entries,
     }
 

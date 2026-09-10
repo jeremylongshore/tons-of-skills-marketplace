@@ -3,8 +3,8 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "b9262785a28128b3bbcfb2e0e13227ebf6d0c5ef71efc226d94f1af0d290bbf8",
-    "artifact_count": 3502
+    "sha256": "239cffba295de9a2bdeb4e4183034f8b6287bc6afd6f9d9926cd61650f81f9f7",
+    "artifact_count": 3491
   },
   "rule_order": [
     "G0",
@@ -21,9 +21,9 @@
   "counts": {
     "AUTO-MIGRATE": 384,
     "CERTIFY": 0,
-    "CERTIFY-PENDING-EVIDENCE": 2771,
+    "CERTIFY-PENDING-EVIDENCE": 2761,
     "CERTIFY-UPSTREAM": 0,
-    "DEEP-REMEDIATE": 2,
+    "DEEP-REMEDIATE": 1,
     "QUARANTINE": 345
   },
   "artifacts": [
@@ -5689,17 +5689,6 @@
       ]
     },
     {
-      "path": "plugins/ai-ml/local-tts/skills/local-tts/SKILL.md",
-      "grade": "B",
-      "score": 87,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
       "path": "plugins/ai-ml/ml-model-trainer/skills/training-machine-learning-models/SKILL.md",
       "grade": "A",
       "score": 94,
@@ -6204,61 +6193,6 @@
       ]
     },
     {
-      "path": "plugins/business-tools/executive-assistant-skills/skills/action-items-todoist/SKILL.md",
-      "grade": "B",
-      "score": 81,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/business-tools/executive-assistant-skills/skills/email-drafting/SKILL.md",
-      "grade": "B",
-      "score": 82,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/business-tools/executive-assistant-skills/skills/executive-digest/SKILL.md",
-      "grade": "B",
-      "score": 81,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/business-tools/executive-assistant-skills/skills/meeting-prep/SKILL.md",
-      "grade": "B",
-      "score": 81,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/business-tools/executive-assistant-skills/skills/todoist-due-drafts/SKILL.md",
-      "grade": "B",
-      "score": 86,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
       "path": "plugins/business-tools/general-legal-assistant/skills/agreement-generator/SKILL.md",
       "grade": "B",
       "score": 85,
@@ -6391,42 +6325,9 @@
       ]
     },
     {
-      "path": "plugins/business-tools/promptbook/skills/doctor/SKILL.md",
-      "grade": "A",
-      "score": 90,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/business-tools/promptbook/skills/setup/SKILL.md",
-      "grade": "B",
-      "score": 82,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
       "path": "plugins/community/b12-claude-plugin/skills/website-generator/SKILL.md",
       "grade": "A",
       "score": 92,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/community/boycott-filter/skills/boycott-filter/SKILL.md",
-      "grade": "B",
-      "score": 86,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -6443,19 +6344,6 @@
       "gate": "G7",
       "reason_codes": [
         "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/community/claude-reflect/SKILL.md",
-      "grade": "B",
-      "score": 88,
-      "diagnostics": [
-        "[frontmatter] 'name' contains reserved word: claude-reflect"
-      ],
-      "disposition": "DEEP-REMEDIATE",
-      "gate": "G4",
-      "reason_codes": [
-        "NON_STRUCTURAL_VALIDATION_FAILURE"
       ]
     },
     {
@@ -9205,17 +9093,6 @@
       "gate": "G1",
       "reason_codes": [
         "SOURCE_COMMIT_UNPINNED"
-      ]
-    },
-    {
-      "path": "plugins/productivity/hyperfocus/skills/hyperfocus/SKILL.md",
-      "grade": "B",
-      "score": 87,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {

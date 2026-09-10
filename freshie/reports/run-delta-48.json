@@ -3,21 +3,21 @@
   "run_id": 48,
   "from_tag": "run-47",
   "to_tag": "run-48",
-  "dolt_commit": "q9b1ugf4fumh1l88ebvg6mlmrarq6jdd",
+  "dolt_commit": "4nqh2h975kvqrtv8vgavh500svam59fe",
   "run_coherence": {
     "discovery_run_id": 48,
-    "header_total_skills": 2924,
-    "skill_rows": 2924,
+    "header_total_skills": 2944,
+    "skill_rows": 2944,
     "skill_row_delta": 0,
-    "skill_compliance_rows": 3502
+    "skill_compliance_rows": 3521
   },
   "grade_export": {
-    "row_count": 3502,
-    "csv_sha256": "b9262785a28128b3bbcfb2e0e13227ebf6d0c5ef71efc226d94f1af0d290bbf8",
+    "row_count": 3521,
+    "csv_sha256": "fcadc95550fd2c2854030c4b65c0af057ad05e3211a9b1334409e3435eb27ea6",
     "grade_counts": {
-      "A": 1921,
-      "B": 1029,
-      "C": 390,
+      "A": 1922,
+      "B": 1036,
+      "C": 401,
       "D": 157,
       "F": 5
     }
@@ -37,7 +37,7 @@
   },
   "tables_changed": 38,
   "schema_changes": [],
-  "rows_added": 81102,
+  "rows_added": 81289,
   "rows_deleted": 0,
   "rows_modified": 0,
   "tables": [
@@ -82,7 +82,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 373,
+      "rows_added": 370,
       "rows_deleted": 0,
       "rows_modified": 0
     },
@@ -91,7 +91,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 3002,
+      "rows_added": 3021,
       "rows_deleted": 0,
       "rows_modified": 0
     },
@@ -100,7 +100,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 2790,
+      "rows_added": 2791,
       "rows_deleted": 0,
       "rows_modified": 0
     },
@@ -118,7 +118,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 18154,
+      "rows_added": 18198,
       "rows_deleted": 0,
       "rows_modified": 0
     },
@@ -163,7 +163,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 23742,
+      "rows_added": 23892,
       "rows_deleted": 0,
       "rows_modified": 0
     },
@@ -172,7 +172,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 443,
+      "rows_added": 438,
       "rows_deleted": 0,
       "rows_modified": 0
     },
@@ -181,7 +181,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 122,
+      "rows_added": 123,
       "rows_deleted": 0,
       "rows_modified": 0
     },
@@ -208,7 +208,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 435,
+      "rows_added": 430,
       "rows_deleted": 0,
       "rows_modified": 0
     },
@@ -217,7 +217,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 406,
+      "rows_added": 402,
       "rows_deleted": 0,
       "rows_modified": 0
     },
@@ -253,7 +253,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 4248,
+      "rows_added": 4210,
       "rows_deleted": 0,
       "rows_modified": 0
     },
@@ -262,7 +262,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 435,
+      "rows_added": 430,
       "rows_deleted": 0,
       "rows_modified": 0
     },
@@ -280,7 +280,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 7480,
+      "rows_added": 7475,
       "rows_deleted": 0,
       "rows_modified": 0
     },
@@ -289,7 +289,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 236,
+      "rows_added": 238,
       "rows_deleted": 0,
       "rows_modified": 0
     },
@@ -298,7 +298,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 3502,
+      "rows_added": 3521,
       "rows_deleted": 0,
       "rows_modified": 0
     },
@@ -316,7 +316,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 8804,
+      "rows_added": 8810,
       "rows_deleted": 0,
       "rows_modified": 0
     },
@@ -325,7 +325,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 31,
+      "rows_added": 30,
       "rows_deleted": 0,
       "rows_modified": 0
     },
@@ -334,7 +334,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 2924,
+      "rows_added": 2944,
       "rows_deleted": 0,
       "rows_modified": 0
     },
@@ -352,7 +352,7 @@
       "diff_type": "modified",
       "schema_change": false,
       "data_change": true,
-      "rows_added": 2264,
+      "rows_added": 2255,
       "rows_deleted": 0,
       "rows_modified": 0
     },
