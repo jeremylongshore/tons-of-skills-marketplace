@@ -86,6 +86,7 @@ plugins/skill-enhancers/agent-systems-toolkit/skills/production-upgrade/scripts/
 # in git history and the intake PRs #1020/#1030 that added them.)
 sources.yaml:sources-change-unscanned  reviewed quarantine/delist of walkie-talkie: removes the active registry and matching lock approval without introducing any mirrored content
 sources.lock.json:sources-change-unscanned  reviewed quarantine/delist of walkie-talkie: removes the matching lock approval after the active registry was removed, without introducing any mirrored content
+sources.yaml:sources-change-unscanned  reviewed UIZZE source-selection repair: narrows source_path to upstream plugins/claude-directory and selects the complete anti-ui-slop package while preserving verified:false; no mirror or lock bytes change, and sync remains quarantined until a separate exact-SHA review and relock
 
 # ── hyperflow orchestrator skill: upstream web-research feature. ──
 plugins/ai-agency/hyperflow/skills/hyperflow/SKILL.md:allowed-tools-network  upstream v5.8.x added WebFetch/WebSearch to the orchestrator skill for its web-research feature (skills/hyperflow/web-research.md); mirror content hand-reviewed 2026-07-10 (evidence gate on #1008 + the be6ae2d3->eae6e34c5 delta review) — external mirror, upstream's design, no credential surface
