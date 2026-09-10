@@ -1,321 +1,79 @@
 ---
 name: webflow-sdk-patterns
-description: "Apply production-ready Webflow SDK patterns \u2014 singleton client,\
-  \ typed error handling,\npagination helpers, and raw response access for the webflow-api\
-  \ package.\nUse when implementing Webflow integrations, refactoring SDK usage,\n\
-  or establishing team coding standards.\nTrigger with phrases like \"webflow SDK\
-  \ patterns\", \"webflow best practices\",\n\"webflow code patterns\", \"idiomatic\
-  \ webflow\", \"webflow typescript\".\n"
-allowed-tools: Read, Write, Edit
+description: >-
+  Apply maintainable patterns around an official Webflow SDK without inventing method contracts. Use when centralizing clients, pagination, retries, tenancy, or typed boundaries. Trigger with "Webflow SDK pattern", "wrap Webflow client", or "paginate Webflow".
+argument-hint: "[project-path] [javascript|python]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.5.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- design
-- no-code
 - webflow
+- sdk
+- architecture
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
 # Webflow SDK Patterns
 
 ## Overview
 
-Production-ready patterns for the `webflow-api` SDK (v3.x). Covers singleton client,
-typed error handling, pagination, raw response headers, and multi-tenant factory.
+This skill produces a repo-grounded Webflow plan or implementation. It treats current official documentation and the target project's installed versions as authority, keeps discovery read-only, and separates preparation from live mutation.
 
 ## Prerequisites
 
-- `webflow-api` v3.x installed
-- TypeScript 5+ project
-- Familiarity with async/await and the Webflow Data API v2
+- A named target repository or project path and permission to inspect it
+- The intended Webflow environment and non-secret resource identities, or a plan to discover them read-only
+- Access to current official Webflow documentation; credentials stay in the user's existing secret store
 
-## Instructions
+## Tool Discipline
 
-### Pattern 1: Singleton Client with Configuration
+Use `Read` for repository instructions and relevant files, `Glob` to inventory manifests and Webflow integration paths, and `Grep` to locate API hosts, IDs, scopes, and credential names. Use `WebFetch` only for current official Webflow documentation. Use `Write` for a new user-requested artifact and `Edit` for minimal changes to existing files after the evidence pass.
 
-```typescript
-// src/webflow/client.ts
-import { WebflowClient } from "webflow-api";
+## Current Contract
 
-interface WebflowConfig {
-  accessToken: string;
-  timeout?: number;   // Request timeout in ms (default: SDK default)
-  maxRetries?: number; // Auto-retry on 429/5xx (default: 2)
-}
+- Webflow publishes official JavaScript and Python SDKs generated from the current API contract.
+- Official SDKs include exponential backoff for rate-limit responses, but applications still need bounded work queues and business-level retry policy.
+- The Content Delivery API can be selected with its documented base URL for cached live-item reads; it is not a general replacement for Data API writes.
+- SDK return shapes and method names must come from the installed package types or current official reference, not remembered examples.
 
-let instance: WebflowClient | null = null;
+## Authentication
 
-export function getWebflowClient(config?: Partial<WebflowConfig>): WebflowClient {
-  if (!instance) {
-    const token = config?.accessToken || process.env.WEBFLOW_API_TOKEN;
-    if (!token) throw new Error("WEBFLOW_API_TOKEN required");
+Authenticate Data API calls with a bearer token selected for the integration: a site token for controlled single-site work, a workspace token only for its supported workspace/read use cases, or OAuth for user-authorized applications. Derive scopes from the exact endpoints. Never read, echo, persist, or place token values in commands, patches, examples, logs, or reports.
 
-    instance = new WebflowClient({
-      accessToken: token,
-      // The SDK supports timeout and maxRetries natively
-      ...(config?.timeout && { timeout: config.timeout }),
-      ...(config?.maxRetries !== undefined && { maxRetries: config.maxRetries }),
-    });
-  }
-  return instance;
-}
+## Workflow
 
-// Reset client (useful for token rotation)
-export function resetWebflowClient(): void {
-  instance = null;
-}
-```
+1. Locate every Webflow client construction and direct API call; group them by token, site, environment, and read/write intent.
+2. Create one configuration boundary that validates the token variable name, API base URL, and expected site ID without logging values.
+3. Wrap pagination as an iterator with explicit page and item limits. Preserve cursors or offsets exactly as returned.
+4. Centralize error normalization around HTTP status, Webflow `code`, `message`, `details`, and retry headers.
+5. Use a shared limiter for callers that share an API key. Let the official SDK backoff operate inside a bounded job policy.
+6. Add contract tests against fixtures and one read-only integration smoke before migrating callers.
 
-### Pattern 2: Typed Error Handling
+## Approval Boundaries
 
-The SDK throws `WebflowError` subclasses. Handle them by type:
-
-```typescript
-import { WebflowClient } from "webflow-api";
-
-// SDK errors are subclasses of WebflowError
-// Common HTTP status codes: 400, 401, 403, 404, 409, 429, 500
-
-async function safeWebflowCall<T>(
-  operation: () => Promise<T>,
-  context: string
-): Promise<{ data: T | null; error: string | null }> {
-  try {
-    const data = await operation();
-    return { data, error: null };
-  } catch (err: any) {
-    const statusCode = err.statusCode || err.status;
-    const message = err.message || String(err);
-
-    // Log with context for debugging
-    console.error(`[Webflow] ${context} failed:`, {
-      status: statusCode,
-      message,
-      body: err.body,
-    });
-
-    // Classify the error
-    switch (statusCode) {
-      case 401:
-        console.error("Token invalid or revoked. Rotate token.");
-        break;
-      case 403:
-        console.error("Missing required scope. Check token scopes.");
-        break;
-      case 404:
-        console.error("Resource not found. Verify IDs.");
-        break;
-      case 409:
-        console.error("Conflict — item may already exist with this slug.");
-        break;
-      case 429:
-        console.error("Rate limited. SDK will auto-retry with backoff.");
-        break;
-      default:
-        if (statusCode >= 500) {
-          console.error("Webflow server error. Retry later.");
-        }
-    }
-
-    return { data: null, error: message };
-  }
-}
-
-// Usage
-const { data: sites, error } = await safeWebflowCall(
-  () => webflow.sites.list(),
-  "sites.list"
-);
-```
-
-### Pattern 3: Pagination Helper
-
-Webflow v2 uses offset-based pagination. Iterate through all pages:
-
-```typescript
-interface PaginatedResult<T> {
-  items: T[];
-  pagination: { limit: number; offset: number; total: number };
-}
-
-async function fetchAllItems<T>(
-  fetcher: (offset: number, limit: number) => Promise<PaginatedResult<T>>,
-  pageSize = 100
-): Promise<T[]> {
-  const allItems: T[] = [];
-  let offset = 0;
-
-  while (true) {
-    const result = await fetcher(offset, pageSize);
-    allItems.push(...result.items);
-
-    if (allItems.length >= result.pagination.total) break;
-    offset += pageSize;
-  }
-
-  return allItems;
-}
-
-// Usage: Fetch all items from a collection
-const allItems = await fetchAllItems((offset, limit) =>
-  webflow.collections.items.listItems(collectionId, { offset, limit })
-    .then(res => ({
-      items: res.items || [],
-      pagination: res.pagination || { limit, offset, total: 0 },
-    }))
-);
-```
-
-### Pattern 4: Raw Response Access (Headers)
-
-Access rate limit headers using `.withRawResponse()`:
-
-```typescript
-async function getWithRateLimitInfo(siteId: string) {
-  // .withRawResponse() returns { data, rawResponse }
-  const response = await webflow.sites.get(siteId)
-    // @ts-ignore — withRawResponse is available on all SDK methods
-    ;
-
-  // For rate limit monitoring, use a wrapper that extracts headers
-  const rawFetch = await fetch(
-    `https://api.webflow.com/v2/sites/${siteId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${process.env.WEBFLOW_API_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-    }
-  );
-
-  const rateLimitRemaining = rawFetch.headers.get("X-RateLimit-Remaining");
-  const rateLimitLimit = rawFetch.headers.get("X-RateLimit-Limit");
-  const retryAfter = rawFetch.headers.get("Retry-After");
-
-  console.log(`Rate limit: ${rateLimitRemaining}/${rateLimitLimit}`);
-
-  return rawFetch.json();
-}
-```
-
-### Pattern 5: Multi-Tenant Factory
-
-For apps serving multiple Webflow workspaces:
-
-```typescript
-const clients = new Map<string, WebflowClient>();
-
-export function getClientForTenant(tenantId: string): WebflowClient {
-  if (!clients.has(tenantId)) {
-    const token = getTenantToken(tenantId); // From your DB/vault
-
-    clients.set(
-      tenantId,
-      new WebflowClient({ accessToken: token })
-    );
-  }
-  return clients.get(tenantId)!;
-}
-
-// Rotate a tenant's token without downtime
-export function rotateTenantToken(tenantId: string, newToken: string): void {
-  clients.set(
-    tenantId,
-    new WebflowClient({ accessToken: newToken })
-  );
-}
-```
-
-### Pattern 6: Bulk Operations Helper
-
-The CMS bulk endpoints accept up to 100 items per request:
-
-```typescript
-async function bulkCreateItems(
-  collectionId: string,
-  items: Array<{ fieldData: Record<string, any>; isDraft?: boolean }>,
-  batchSize = 100
-): Promise<string[]> {
-  const createdIds: string[] = [];
-
-  for (let i = 0; i < items.length; i += batchSize) {
-    const batch = items.slice(i, i + batchSize);
-
-    const result = await webflow.collections.items.createItemsBulk(
-      collectionId,
-      { items: batch }
-    );
-
-    if (result.items) {
-      createdIds.push(...result.items.map(item => item.id!));
-    }
-
-    console.log(`Created batch ${Math.floor(i / batchSize) + 1}: ${batch.length} items`);
-  }
-
-  return createdIds;
-}
-```
-
-### Pattern 7: Zod Validation for API Responses
-
-```typescript
-import { z } from "zod";
-
-const WebflowSiteSchema = z.object({
-  id: z.string(),
-  displayName: z.string(),
-  shortName: z.string(),
-  lastPublished: z.string().nullable(),
-  customDomains: z.array(z.object({
-    url: z.string(),
-  })).optional(),
-});
-
-const WebflowCollectionItemSchema = z.object({
-  id: z.string(),
-  isDraft: z.boolean(),
-  isArchived: z.boolean(),
-  createdOn: z.string(),
-  lastUpdated: z.string(),
-  fieldData: z.record(z.unknown()),
-});
-
-// Validate API responses at runtime
-async function getValidatedSite(siteId: string) {
-  const site = await webflow.sites.get(siteId);
-  return WebflowSiteSchema.parse(site);
-}
-```
+Default to read-only inspection. Before any create, update, delete, publish, unpublish, archive, deploy, token revoke, or webhook registration, show the exact environment and resource IDs, the proposed change, validation method, and rollback or compensating action. Proceed only when the user's request clearly authorizes that mutation; require a fresh explicit approval for production publication or destructive work.
 
 ## Output
 
-- Type-safe singleton client with configuration
-- Structured error handling by HTTP status code
-- Pagination helper for large collections
-- Rate limit header monitoring
-- Multi-tenant client factory
-- Bulk CMS operations (100 items/batch)
-- Runtime response validation with Zod
+Return the inspected project and versions, verified Webflow identities, relevant endpoint and scope contract, changes proposed or made, validation evidence, live-mutation status, rollback readiness, and remaining risks. Distinguish documented fact, repository evidence, and inference.
 
 ## Error Handling
 
-| Pattern | Use Case | Benefit |
-|---------|----------|---------|
-| Safe wrapper | All API calls | Prevents uncaught exceptions |
-| Status classification | Error triage | Clear remediation path |
-| Pagination helper | Large datasets | No missed items |
-| Zod validation | Response integrity | Catches API changes |
-| Token rotation | Security compliance | Zero-downtime rotation |
+| Condition | Response |
+|---|---|
+| Generated method differs | Trust installed SDK types and the current reference; update the adapter, not every caller. |
+| 429 loop | Honor `Retry-After`, cap attempts, and coordinate callers sharing the same key. |
+| Cross-tenant result | Stop and require a verified site-ID allowlist before any write path. |
+
+## Examples
+
+Replace scattered client construction with a site-keyed factory, a bounded collection-item iterator, normalized errors, and tests that prove one tenant cannot request another tenant's site.
 
 ## Resources
 
-- [SDK npm package](https://www.npmjs.com/package/webflow-api)
-- [SDK GitHub repo](https://github.com/webflow/js-webflow-api)
-- [API Reference](https://developers.webflow.com/data/reference/rest-introduction)
-- [Zod Documentation](https://zod.dev/)
-
-## Next Steps
-
-Apply patterns in `webflow-core-workflow-a` for CMS content management.
+- [Official Webflow references](references/official-docs.md)
+- [Webflow developer documentation](https://developers.webflow.com/)
+- [Data API v2 index](https://developers.webflow.com/data/v2.0.0/llms.txt)

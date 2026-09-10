@@ -1,288 +1,79 @@
 ---
 name: webflow-deploy-integration
-description: 'Deploy Webflow-powered applications to Vercel, Fly.io, and Google Cloud
-  Run
-
-  with proper secrets management and Webflow-specific health checks.
-
-  Trigger with phrases like "deploy webflow", "webflow Vercel",
-
-  "webflow production deploy", "webflow Cloud Run", "webflow Fly.io".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(fly:*), Bash(gcloud:*)
+description: >-
+  Plan and execute a Webflow Cloud deployment with explicit app identity, mount, environment, verification, and rollback. Use when shipping a Cloud app or repairing its deployment lane. Trigger with "deploy Webflow Cloud", "Webflow app deploy", or "rollback Webflow deployment".
+argument-hint: "[project-path] [site-attached|project-app] [environment]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.5.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- design
-- no-code
 - webflow
+- deployment
+- cloud
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Webflow Deploy Integration
+# Webflow Cloud Deployment
 
 ## Overview
 
-Deploy Webflow Data API v2 integrations to Vercel, Fly.io, or Google Cloud Run
-with secure token management, health checks, and webhook endpoint configuration.
+This skill produces a repo-grounded Webflow plan or implementation. It treats current official documentation and the target project's installed versions as authority, keeps discovery read-only, and separates preparation from live mutation.
 
 ## Prerequisites
 
-- Working Webflow integration (tested locally)
-- Production API token with minimal scopes
-- Platform CLI installed (`vercel`, `fly`, or `gcloud`)
+- A named target repository or project path and permission to inspect it
+- The intended Webflow environment and non-secret resource identities, or a plan to discover them read-only
+- Access to current official Webflow documentation; credentials stay in the user's existing secret store
 
-## Instructions
+## Tool Discipline
 
-### Vercel Deployment
+Use `Read` for repository instructions and relevant files, `Glob` to inventory manifests and Webflow integration paths, and `Grep` to locate API hosts, IDs, scopes, and credential names. Use `WebFetch` only for current official Webflow documentation. Use `Write` for a new user-requested artifact and `Edit` for minimal changes to existing files after the evidence pass.
 
-```bash
-# Store Webflow secrets in Vercel
-vercel env add WEBFLOW_API_TOKEN production
-vercel env add WEBFLOW_SITE_ID production
-vercel env add WEBFLOW_WEBHOOK_SECRET production
+## Current Contract
 
-# Link and deploy
-vercel link
-vercel --prod
-```
+- Webflow Cloud supports site-attached apps and standalone project apps; the first deployment inputs differ.
+- Current app-management commands use the CLI `apps` namespace on the `next` channel, while stable CLI retains documented Cloud commands and deprecated aliases.
+- Webflow recommends GitHub-linked deployment for the simple continuous-deployment path; linking the repository is a one-time dashboard operation.
+- A deployment enqueue is not success. Wait for a terminal deployment status and verify the actual mounted route.
 
-```json
-// vercel.json
-{
-  "env": {
-    "WEBFLOW_API_TOKEN": "@webflow-api-token",
-    "WEBFLOW_SITE_ID": "@webflow-site-id"
-  },
-  "functions": {
-    "api/**/*.ts": {
-      "maxDuration": 30
-    }
-  },
-  "headers": [
-    {
-      "source": "/api/webhooks/webflow",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "https://api.webflow.com" }
-      ]
-    }
-  ]
-}
-```
+## Authentication
 
-Vercel serverless function for webhook endpoint:
+Authenticate Data API calls with a bearer token selected for the integration: a site token for controlled single-site work, a workspace token only for its supported workspace/read use cases, or OAuth for user-authorized applications. Derive scopes from the exact endpoints. Never read, echo, persist, or place token values in commands, patches, examples, logs, or reports.
 
-```typescript
-// api/webhooks/webflow.ts (Vercel Edge/Serverless)
-import type { VercelRequest, VercelResponse } from "@vercel/node";
-import crypto from "crypto";
+## Workflow
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+1. Inspect framework, build output, `webflow.json`, app/environment IDs, mount path, domain, and existing deployment history.
+2. Choose site-attached or project-app mode and record all IDs. Discover IDs read-only; never infer them from names alone.
+3. Pin the CLI channel/version and validate Node compatibility. Build and test locally using the project's own scripts.
+4. Prepare the exact deploy command with explicit `--no-input`, target IDs, mount, environment, and any documented mount-path option.
+5. Show rollback as a specific prior successful deployment or prior artifact, then obtain production approval.
+6. Deploy, wait for terminal success, check domains and the mounted route, and retain the deployment ID and verification receipt.
 
-  // Verify webhook signature
-  const signature = req.headers["x-webflow-signature"] as string;
-  const rawBody = JSON.stringify(req.body);
-  const expected = crypto
-    .createHmac("sha256", process.env.WEBFLOW_WEBHOOK_SECRET!)
-    .update(rawBody)
-    .digest("hex");
+## Approval Boundaries
 
-  if (signature !== expected) {
-    return res.status(401).json({ error: "Invalid signature" });
-  }
-
-  const { triggerType, payload } = req.body;
-  console.log(`Webhook received: ${triggerType}`);
-
-  // Handle different trigger types
-  switch (triggerType) {
-    case "form_submission":
-      await handleFormSubmission(payload);
-      break;
-    case "ecomm_new_order":
-      await handleNewOrder(payload);
-      break;
-    case "site_publish":
-      await handleSitePublish(payload);
-      break;
-  }
-
-  res.status(200).json({ received: true });
-}
-```
-
-### Fly.io Deployment
-
-```toml
-# fly.toml
-app = "my-webflow-app"
-primary_region = "iad"
-
-[env]
-  NODE_ENV = "production"
-  PORT = "3000"
-
-[http_service]
-  internal_port = 3000
-  force_https = true
-  auto_stop_machines = "suspend"
-  auto_start_machines = true
-  min_machines_running = 1
-
-  [[http_service.checks]]
-    grace_period = "10s"
-    interval = "30s"
-    method = "GET"
-    path = "/api/health"
-    timeout = "5s"
-```
-
-```bash
-# Set Webflow secrets
-fly secrets set WEBFLOW_API_TOKEN=your-prod-token
-fly secrets set WEBFLOW_SITE_ID=your-site-id
-fly secrets set WEBFLOW_WEBHOOK_SECRET=your-webhook-secret
-
-# Deploy
-fly deploy
-fly status
-```
-
-### Google Cloud Run Deployment
-
-```dockerfile
-# Dockerfile
-FROM node:20-slim AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-FROM node:20-slim
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-
-EXPOSE 3000
-CMD ["node", "dist/index.js"]
-```
-
-```bash
-# Store secrets in GCP Secret Manager
-echo -n "your-prod-token" | \
-  gcloud secrets create webflow-api-token --data-file=-
-
-echo -n "your-site-id" | \
-  gcloud secrets create webflow-site-id --data-file=-
-
-# Build and deploy
-gcloud builds submit --tag gcr.io/$PROJECT_ID/webflow-service
-
-gcloud run deploy webflow-service \
-  --image gcr.io/$PROJECT_ID/webflow-service \
-  --region us-central1 \
-  --platform managed \
-  --allow-unauthenticated \
-  --set-secrets="WEBFLOW_API_TOKEN=webflow-api-token:latest,WEBFLOW_SITE_ID=webflow-site-id:latest" \
-  --min-instances=1 \
-  --max-instances=10
-```
-
-### Register Webhook After Deployment
-
-Once deployed, register your webhook URL with Webflow:
-
-```bash
-# Get your deployed URL
-WEBHOOK_URL="https://your-app.vercel.app/api/webhooks/webflow"
-
-# Register webhooks for the events you need
-for TRIGGER in form_submission site_publish ecomm_new_order; do
-  curl -X POST "https://api.webflow.com/v2/sites/$WEBFLOW_SITE_ID/webhooks" \
-    -H "Authorization: Bearer $WEBFLOW_API_TOKEN" \
-    -H "Content-Type: application/json" \
-    -d "{
-      \"triggerType\": \"$TRIGGER\",
-      \"url\": \"$WEBHOOK_URL\"
-    }"
-  echo " -> Registered $TRIGGER"
-done
-
-# Verify webhooks registered
-curl -s "https://api.webflow.com/v2/sites/$WEBFLOW_SITE_ID/webhooks" \
-  -H "Authorization: Bearer $WEBFLOW_API_TOKEN" | jq '.webhooks[].triggerType'
-```
-
-### Health Check Endpoint
-
-```typescript
-// api/health.ts — works on all platforms
-import { WebflowClient } from "webflow-api";
-
-export async function healthCheck() {
-  const checks: Record<string, any> = {};
-  const start = Date.now();
-
-  // Webflow API connectivity
-  try {
-    const webflow = new WebflowClient({
-      accessToken: process.env.WEBFLOW_API_TOKEN!,
-    });
-    const { sites } = await webflow.sites.list();
-    checks.webflow = {
-      status: "connected",
-      sites: sites?.length,
-      latencyMs: Date.now() - start,
-    };
-  } catch (error: any) {
-    checks.webflow = {
-      status: "disconnected",
-      error: error.statusCode,
-      latencyMs: Date.now() - start,
-    };
-  }
-
-  return {
-    status: checks.webflow.status === "connected" ? "healthy" : "degraded",
-    services: checks,
-    env: process.env.NODE_ENV,
-    timestamp: new Date().toISOString(),
-  };
-}
-```
+Default to read-only inspection. Before any create, update, delete, publish, unpublish, archive, deploy, token revoke, or webhook registration, show the exact environment and resource IDs, the proposed change, validation method, and rollback or compensating action. Proceed only when the user's request clearly authorizes that mutation; require a fresh explicit approval for production publication or destructive work.
 
 ## Output
 
-- Application deployed to chosen platform
-- Webflow API token securely stored as platform secret
-- Webhook endpoints registered and verified
-- Health check endpoint monitoring Webflow connectivity
-- HTTPS enforced on all endpoints
+Return the inspected project and versions, verified Webflow identities, relevant endpoint and scope contract, changes proposed or made, validation evidence, live-mutation status, rollback readiness, and remaining risks. Distinguish documented fact, repository evidence, and inference.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Secret not found at runtime | Wrong secret name | Verify with `fly secrets list` or `vercel env ls` |
-| Webhook 401 | Signature mismatch | Check WEBFLOW_WEBHOOK_SECRET matches |
-| Cold start timeout | Webflow API slow on first call | Set min instances > 0 |
-| Health check fails | Token not loaded | Verify secret mounting in container |
-| Deploy timeout | Large image | Use multi-stage Docker build |
+| Condition | Response |
+|---|---|
+| Ambiguous app/environment | Stop and require an explicit ID or verified manifest value. |
+| Build succeeds, deploy fails | Collect build/runtime logs for that deployment ID and leave the previous deployment active. |
+| Smoke test fails | Trigger the approved rollback or redeploy the named prior successful deployment. |
+
+## Examples
+
+For a site-attached Astro app, verify the site and app IDs, pin the CLI version, build locally, approve `/app` on production, deploy non-interactively, wait for success, and test the exact public route.
 
 ## Resources
 
-- [Vercel Environment Variables](https://vercel.com/docs/environment-variables)
-- [Fly.io Secrets](https://fly.io/docs/reference/secrets/)
-- [Cloud Run Secrets](https://cloud.google.com/run/docs/configuring/secrets)
-- [Webflow Webhooks](https://developers.webflow.com/data/docs/working-with-webhooks)
-
-## Next Steps
-
-For webhook handling patterns, see `webflow-webhooks-events`.
+- [Official Webflow references](references/official-docs.md)
+- [Webflow developer documentation](https://developers.webflow.com/)
+- [Data API v2 index](https://developers.webflow.com/data/v2.0.0/llms.txt)

@@ -1,210 +1,79 @@
 ---
 name: webflow-install-auth
-description: 'Install the Webflow JS SDK (webflow-api) and configure OAuth 2.0 or
-  API token authentication.
-
-  Use when setting up a new Webflow integration, configuring access tokens,
-
-  or initializing the WebflowClient in your project.
-
-  Trigger with phrases like "install webflow", "setup webflow",
-
-  "webflow auth", "configure webflow API token", "webflow OAuth".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pnpm:*), Grep
+description: >-
+  Install or repair a Webflow Data API integration and choose the correct bearer-token model. Use when bootstrapping the official SDK, narrowing scopes, or diagnosing token setup. Trigger with "install Webflow", "configure Webflow auth", or "choose a Webflow token".
+argument-hint: "[project-path] [site-token|workspace-token|oauth]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.5.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- design
-- no-code
 - webflow
+- authentication
+- oauth
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Webflow Install & Auth
+# Webflow Install and Authentication
 
 ## Overview
 
-Set up the official Webflow JS SDK (`webflow-api` on npm) and configure authentication
-using either a workspace/site API token or OAuth 2.0 for Data Client Apps.
+This skill produces a repo-grounded Webflow plan or implementation. It treats current official documentation and the target project's installed versions as authority, keeps discovery read-only, and separates preparation from live mutation.
 
 ## Prerequisites
 
-- Node.js 18+
-- npm, pnpm, or yarn
-- A Webflow account with a workspace
-- An API token (workspace or site) from `https://developers.webflow.com`
+- A named target repository or project path and permission to inspect it
+- The intended Webflow environment and non-secret resource identities, or a plan to discover them read-only
+- Access to current official Webflow documentation; credentials stay in the user's existing secret store
 
-## Instructions
+## Tool Discipline
 
-### Step 1: Install the SDK
+Use `Read` for repository instructions and relevant files, `Glob` to inventory manifests and Webflow integration paths, and `Grep` to locate API hosts, IDs, scopes, and credential names. Use `WebFetch` only for current official Webflow documentation. Use `Write` for a new user-requested artifact and `Edit` for minimal changes to existing files after the evidence pass.
 
-```bash
-# npm
-npm install webflow-api
+## Current Contract
 
-# pnpm
-pnpm add webflow-api
+- Webflow Data API v2 accepts bearer tokens. Site tokens are for one site, workspace tokens are intended for read-only multi-site monitoring or auditing, and OAuth is for user-authorized or marketplace apps.
+- Site tokens expire after 365 consecutive inactive days, a site can have up to five, and site tokens cannot call authorization, custom-code, or workspace-activity endpoints.
+- Scopes are resource-specific. Determine them from the exact endpoints; do not copy a broad canned scope list.
+- The official JavaScript SDK package is `webflow-api`. Resolve and pin the version from the target lockfile instead of embedding a floating `latest` command.
 
-# yarn
-yarn add webflow-api
-```
+## Authentication
 
-The package is `webflow-api` (not `@webflow/sdk`). Current version: 3.x (Data API v2).
+Authenticate Data API calls with a bearer token selected for the integration: a site token for controlled single-site work, a workspace token only for its supported workspace/read use cases, or OAuth for user-authorized applications. Derive scopes from the exact endpoints. Never read, echo, persist, or place token values in commands, patches, examples, logs, or reports.
 
-### Step 2: Choose Authentication Method
+## Workflow
 
-Webflow offers two auth methods:
+1. Classify the integration as single-site internal automation, read-only workspace monitoring, or a user-authorized app. Record the decision and excluded token types.
+2. Inspect manifests, lockfiles, environment schemas, and existing clients. Identify the installed SDK and Data API version before editing.
+3. Build an endpoint-to-scope table from the current official endpoint pages. Request read scopes unless a named write operation is required.
+4. Store only environment-variable names and secret-manager references in source. Add `.env*` exclusions without creating sample values that resemble credentials.
+5. Initialize one server-side client and add a read-only connection check such as listing the sites visible to the token.
+6. Verify that the returned site or workspace identity matches the intended environment, then document revocation and rotation ownership.
 
-| Method | Use Case | Scope |
-|--------|----------|-------|
-| **API Token** (workspace) | Server-side scripts, internal tools | All sites in workspace |
-| **API Token** (site) | Single-site integrations | One site only |
-| **OAuth 2.0** | Public apps, Webflow Marketplace apps | User-authorized scopes |
+## Approval Boundaries
 
-### Step 3: Token-Based Authentication
-
-```bash
-# Set environment variable (never hardcode tokens)
-echo 'WEBFLOW_API_TOKEN=your-token-here' >> .env
-echo '.env' >> .gitignore
-```
-
-```typescript
-import { WebflowClient } from "webflow-api";
-
-// Initialize with workspace or site token
-const webflow = new WebflowClient({
-  accessToken: process.env.WEBFLOW_API_TOKEN!,
-});
-```
-
-### Step 4: OAuth 2.0 Flow (Data Client Apps)
-
-For apps that need user authorization, implement the OAuth 2.0 authorization code flow:
-
-```typescript
-import express from "express";
-import { WebflowClient } from "webflow-api";
-
-const app = express();
-
-const CLIENT_ID = process.env.WEBFLOW_CLIENT_ID!;
-const CLIENT_SECRET = process.env.WEBFLOW_CLIENT_SECRET!;
-const REDIRECT_URI = "https://yourapp.com/auth/webflow/callback";
-
-// Step 1: Redirect user to Webflow authorization page
-// Scopes: sites:read, sites:write, cms:read, cms:write,
-//         pages:read, pages:write, forms:read, ecommerce:read,
-//         ecommerce:write, custom_code:read, custom_code:write
-app.get("/auth/webflow", (req, res) => {
-  const scopes = "sites:read cms:read cms:write";
-  const authUrl =
-    `https://webflow.com/oauth/authorize` +
-    `?client_id=${CLIENT_ID}` +
-    `&response_type=code` +
-    `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
-    `&scope=${encodeURIComponent(scopes)}`;
-  res.redirect(authUrl);
-});
-
-// Step 2: Exchange authorization code for access token
-// The authorization code expires in 15 minutes
-app.get("/auth/webflow/callback", async (req, res) => {
-  const code = req.query.code as string;
-
-  const response = await fetch("https://api.webflow.com/oauth/access_token", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET,
-      code,
-      grant_type: "authorization_code",
-      redirect_uri: REDIRECT_URI,
-    }),
-  });
-
-  const { access_token } = await response.json();
-
-  // Store access_token securely — it does not expire but can be revoked
-  const webflow = new WebflowClient({ accessToken: access_token });
-  const { sites } = await webflow.sites.list();
-
-  res.json({ authorized: true, siteCount: sites?.length });
-});
-```
-
-### Step 5: Verify Connection
-
-```typescript
-import { WebflowClient } from "webflow-api";
-
-const webflow = new WebflowClient({
-  accessToken: process.env.WEBFLOW_API_TOKEN!,
-});
-
-async function verify() {
-  // List all sites accessible with this token
-  const { sites } = await webflow.sites.list();
-
-  if (!sites || sites.length === 0) {
-    throw new Error("No sites accessible. Check token scopes.");
-  }
-
-  for (const site of sites) {
-    console.log(`Site: ${site.displayName} (${site.id})`);
-    console.log(`  Short name: ${site.shortName}`);
-    console.log(`  Last published: ${site.lastPublished}`);
-  }
-}
-
-verify().catch(console.error);
-```
-
-## Webflow API Scopes Reference
-
-| Scope | Access |
-|-------|--------|
-| `sites:read` | List/get sites |
-| `sites:write` | Publish sites |
-| `cms:read` | Read collections and items |
-| `cms:write` | Create/update/delete CMS items |
-| `pages:read` | List/get pages |
-| `pages:write` | Update page content |
-| `forms:read` | Read form submissions |
-| `ecommerce:read` | Read products, orders, inventory |
-| `ecommerce:write` | Create/update products, fulfill orders |
-| `custom_code:read` | Read registered custom code |
-| `custom_code:write` | Register/apply custom code |
+Default to read-only inspection. Before any create, update, delete, publish, unpublish, archive, deploy, token revoke, or webhook registration, show the exact environment and resource IDs, the proposed change, validation method, and rollback or compensating action. Proceed only when the user's request clearly authorizes that mutation; require a fresh explicit approval for production publication or destructive work.
 
 ## Output
 
-- Installed `webflow-api` package
-- Environment variable with API token (`.env` file, git-ignored)
-- Working `WebflowClient` instance
-- Verified connection by listing accessible sites
+Return the inspected project and versions, verified Webflow identities, relevant endpoint and scope contract, changes proposed or made, validation evidence, live-mutation status, rollback readiness, and remaining risks. Distinguish documented fact, repository evidence, and inference.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Invalid or revoked token | Generate new token at developers.webflow.com |
-| `403 Forbidden` | Token missing required scope | Add scopes in app settings or generate new token |
-| `429 Too Many Requests` | Rate limit exceeded | Wait for `Retry-After` header (60s reset) |
-| `MODULE_NOT_FOUND` | Wrong package name | Use `webflow-api`, not `@webflow/sdk` |
-| OAuth code expired | Authorization code > 15 min old | Re-initiate OAuth flow promptly |
+| Condition | Response |
+|---|---|
+| 401 `not_authorized` | Check bearer-header construction, token revocation, and inactive-token expiry; do not print the token. |
+| 403 `forbidden` | Compare the endpoint's documented scope and token-type limitations with the issued token. |
+| Unexpected sites | Stop: the token belongs to the wrong workspace or environment; do not continue to writes. |
+
+## Examples
+
+For an internal single-site CMS reader, select a site token with `cms:read`, keep the token in the deployment secret store, verify the intended site ID, and leave all write scopes absent.
 
 ## Resources
 
-- [Webflow Developer Docs](https://developers.webflow.com)
-- [SDK npm package](https://www.npmjs.com/package/webflow-api)
-- [SDK GitHub repo](https://github.com/webflow/js-webflow-api)
-- [OAuth Reference](https://developers.webflow.com/data/reference/oauth-app)
-- [Scopes Reference](https://developers.webflow.com/data/reference/scopes)
-
-## Next Steps
-
-After successful auth, proceed to `webflow-hello-world` for your first API call.
+- [Official Webflow references](references/official-docs.md)
+- [Webflow developer documentation](https://developers.webflow.com/)
+- [Data API v2 index](https://developers.webflow.com/data/v2.0.0/llms.txt)

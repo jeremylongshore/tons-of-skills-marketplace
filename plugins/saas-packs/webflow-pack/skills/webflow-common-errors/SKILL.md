@@ -1,314 +1,79 @@
 ---
 name: webflow-common-errors
-description: "Diagnose and fix Webflow Data API v2 errors \u2014 400, 401, 403, 404,\
-  \ 409, 429, 500.\nUse when encountering Webflow API errors, debugging failed requests,\n\
-  or troubleshooting integration issues.\nTrigger with phrases like \"webflow error\"\
-  , \"fix webflow\",\n\"webflow not working\", \"debug webflow\", \"webflow 429\"\
-  , \"webflow 401\".\n"
-allowed-tools: Read, Grep, Bash(curl:*), Bash(npx:*)
+description: >-
+  Diagnose Webflow Data API failures using the returned HTTP status and structured error body. Use when requests fail with 4xx, 429, or 5xx responses. Trigger with "Webflow error", "Webflow 403", or "Webflow API failed".
+argument-hint: "[project-path] [status-or-code]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.5.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- design
-- no-code
 - webflow
+- debugging
+- errors
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Webflow Common Errors
+# Webflow API Error Diagnosis
 
 ## Overview
 
-Quick reference for the most common Webflow Data API v2 errors, their root causes,
-and concrete solutions. Covers every HTTP status code the API returns.
+This skill produces a repo-grounded Webflow plan or implementation. It treats current official documentation and the target project's installed versions as authority, keeps discovery read-only, and separates preparation from live mutation.
 
 ## Prerequisites
 
-- `webflow-api` SDK installed
-- API token configured
-- Access to application logs
+- A named target repository or project path and permission to inspect it
+- The intended Webflow environment and non-secret resource identities, or a plan to discover them read-only
+- Access to current official Webflow documentation; credentials stay in the user's existing secret store
 
-## HTTP Error Reference
+## Tool Discipline
 
-### 400 Bad Request — Invalid Input
+Use `Read` for repository instructions and relevant files, `Glob` to inventory manifests and Webflow integration paths, and `Grep` to locate API hosts, IDs, scopes, and credential names. Use `WebFetch` only for current official Webflow documentation. Use `Write` for a new user-requested artifact and `Edit` for minimal changes to existing files after the evidence pass.
 
-```
-{ "code": "validation_error", "message": "Invalid field data" }
-```
+## Current Contract
 
-**Common causes:**
+- Webflow error bodies expose `code`, `message`, `externalReference`, and `details`; preserve those fields after redaction.
+- 400 is malformed input, 401 lacks valid authentication, 403 lacks permission, 404 misses the resource, and 409 conflicts with current state.
+- 429 responses should honor `Retry-After`; official SDKs include exponential backoff.
+- 5xx errors can be transient, but retries must be bounded and idempotent. Never replay an uncertain write blindly.
 
-- Missing required field (`name` and `slug` are always required for CMS items)
-- Wrong field type (sending string for a Number field)
-- Invalid slug format (must be lowercase, hyphens only, no spaces)
-- Bulk request exceeds 100 items
+## Authentication
 
-**Fix:**
+Authenticate Data API calls with a bearer token selected for the integration: a site token for controlled single-site work, a workspace token only for its supported workspace/read use cases, or OAuth for user-authorized applications. Derive scopes from the exact endpoints. Never read, echo, persist, or place token values in commands, patches, examples, logs, or reports.
 
-```typescript
-// Check collection schema before creating items
-const collection = await webflow.collections.get(collectionId);
-const requiredFields = collection.fields?.filter(f => f.isRequired);
-console.log("Required fields:", requiredFields?.map(f => `${f.slug} (${f.type})`));
+## Workflow
 
-// Validate slug format
-function isValidSlug(slug: string): boolean {
-  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
-}
-```
+1. Capture the operation, endpoint family, HTTP status, Webflow code, request ID or headers, and a redacted error body.
+2. Reproduce with the smallest read-only request using the same client configuration; do not paste bearer tokens into shell history.
+3. Check site/resource IDs and staged/live or locale selection before changing authentication.
+4. For 401/403, compare token type and exact endpoint scope. Rotate only when revocation or compromise is established.
+5. For 429/5xx, classify read versus write, honor retry guidance, add jitter, and stop after a bounded attempt count.
+6. Return a diagnosis with evidence, a minimal correction, and an explicit statement of whether any prior write may have succeeded.
 
----
+## Approval Boundaries
 
-### 401 Unauthorized — Invalid Token
-
-```
-{ "code": "unauthorized", "message": "Not authorized" }
-```
-
-**Common causes:**
-
-- Token revoked or expired
-- Token copied with extra whitespace
-- Using v1 API key format with v2 endpoints
-
-**Fix:**
-
-```bash
-# Verify token works
-curl -s https://api.webflow.com/v2/sites \
-  -H "Authorization: Bearer $WEBFLOW_API_TOKEN" \
-  -w "\nHTTP Status: %{http_code}\n"
-
-# Check for whitespace issues
-echo -n "$WEBFLOW_API_TOKEN" | wc -c
-```
-
-```typescript
-// Programmatic token check
-async function verifyToken(): Promise<boolean> {
-  try {
-    await webflow.sites.list();
-    return true;
-  } catch (err: any) {
-    if (err.statusCode === 401) {
-      console.error("Token invalid. Generate new token at developers.webflow.com");
-      return false;
-    }
-    throw err;
-  }
-}
-```
-
----
-
-### 403 Forbidden — Missing Scope
-
-```
-{ "code": "forbidden", "message": "Insufficient permissions" }
-```
-
-**Common causes:**
-
-- Token missing required scope (e.g., calling CMS write with only `cms:read`)
-- Site token used for a different site
-- OAuth app not authorized for the scope
-
-**Fix:**
-
-```typescript
-// Required scopes by operation
-const SCOPE_MAP: Record<string, string> = {
-  "sites.list": "sites:read",
-  "sites.publish": "sites:write",
-  "collections.list": "cms:read",
-  "collections.items.createItem": "cms:write",
-  "pages.list": "pages:read",
-  "forms.list": "forms:read",
-  "products.list": "ecommerce:read",
-  "products.create": "ecommerce:write",
-  "orders.list": "ecommerce:read",
-  "orders.refund": "ecommerce:write",
-};
-```
-
-Generate a new token with the correct scopes at `https://developers.webflow.com`.
-
----
-
-### 404 Not Found — Wrong Resource ID
-
-```
-{ "code": "not_found", "message": "Resource not found" }
-```
-
-**Common causes:**
-
-- Wrong `site_id`, `collection_id`, or `item_id`
-- Resource deleted
-- Using staging ID against live endpoint (or vice versa)
-
-**Fix:**
-
-```typescript
-// Discovery chain: always start from sites.list()
-async function discoverResources() {
-  const { sites } = await webflow.sites.list();
-  console.log("Sites:", sites?.map(s => `${s.displayName}: ${s.id}`));
-
-  for (const site of sites!) {
-    const { collections } = await webflow.collections.list(site.id!);
-    console.log(`  Collections in ${site.displayName}:`);
-    for (const col of collections!) {
-      console.log(`    ${col.displayName}: ${col.id}`);
-    }
-  }
-}
-```
-
----
-
-### 409 Conflict — Duplicate Resource
-
-```
-{ "code": "conflict", "message": "Item with slug already exists" }
-```
-
-**Common causes:**
-
-- CMS item with same slug already exists in collection
-- Trying to create a resource that already exists
-
-**Fix:**
-
-```typescript
-// Check for existing slug before creating
-async function createOrUpdate(collectionId: string, slug: string, fieldData: Record<string, any>) {
-  const { items } = await webflow.collections.items.listItems(collectionId);
-  const existing = items?.find(i => i.fieldData?.slug === slug);
-
-  if (existing) {
-    return webflow.collections.items.updateItem(collectionId, existing.id!, { fieldData });
-  }
-  return webflow.collections.items.createItem(collectionId, { fieldData: { slug, ...fieldData } });
-}
-```
-
----
-
-### 429 Too Many Requests — Rate Limited
-
-```
-HTTP/1.1 429 Too Many Requests
-Retry-After: 60
-```
-
-**Common causes:**
-
-- Exceeded per-key rate limit
-- Site publish called more than once per minute
-- Rapid-fire requests without throttling
-
-**Fix:**
-
-```typescript
-// The SDK auto-retries 429s with exponential backoff.
-// For manual control:
-async function waitForRateLimit(retryAfterSeconds: number) {
-  console.log(`Rate limited. Waiting ${retryAfterSeconds}s...`);
-  await new Promise(r => setTimeout(r, retryAfterSeconds * 1000));
-}
-```
-
-See `webflow-rate-limits` for comprehensive rate limit handling.
-
----
-
-### 500/502/503 — Webflow Server Error
-
-**Fix:**
-
-```bash
-# 1. Check Webflow status
-curl -s https://status.webflow.com/api/v2/status.json | jq '.status'
-
-# 2. Retry with backoff (SDK handles this automatically)
-# 3. If persistent, check Webflow status page and open support ticket
-```
-
-## Quick Diagnostic Commands
-
-```bash
-# Test API connectivity
-curl -s -o /dev/null -w "%{http_code}" \
-  -H "Authorization: Bearer $WEBFLOW_API_TOKEN" \
-  https://api.webflow.com/v2/sites
-
-# Check rate limit headers
-curl -v -H "Authorization: Bearer $WEBFLOW_API_TOKEN" \
-  https://api.webflow.com/v2/sites 2>&1 | grep -i "x-ratelimit\|retry-after"
-
-# List sites (quick token verification)
-curl -s -H "Authorization: Bearer $WEBFLOW_API_TOKEN" \
-  https://api.webflow.com/v2/sites | jq '.sites[].displayName'
-
-# Check Webflow platform status
-curl -s https://status.webflow.com/api/v2/status.json | jq '.status.description'
-```
-
-## Error Handling Pattern
-
-```typescript
-import { WebflowClient } from "webflow-api";
-
-async function resilientCall<T>(
-  operation: () => Promise<T>,
-  label: string
-): Promise<T> {
-  try {
-    return await operation();
-  } catch (err: any) {
-    const status = err.statusCode || err.status;
-
-    const actionMap: Record<number, string> = {
-      400: "Fix request payload — check field names and types",
-      401: "Rotate token at developers.webflow.com",
-      403: "Add missing scope to token",
-      404: "Verify resource IDs with discovery chain",
-      409: "Handle duplicate — update instead of create",
-      429: "Wait for Retry-After header (SDK auto-retries)",
-      500: "Webflow server error — retry later",
-    };
-
-    console.error(`[${label}] HTTP ${status}: ${actionMap[status] || "Unknown error"}`);
-    console.error(`  Message: ${err.message}`);
-    console.error(`  Body: ${JSON.stringify(err.body)}`);
-
-    throw err;
-  }
-}
-```
-
-## Escalation Path
-
-1. Check error code against this reference
-2. Run diagnostic commands above
-3. Collect evidence with `webflow-debug-bundle`
-4. Check [Webflow Status](https://status.webflow.com)
-5. Open support ticket with request ID and error details
+Default to read-only inspection. Before any create, update, delete, publish, unpublish, archive, deploy, token revoke, or webhook registration, show the exact environment and resource IDs, the proposed change, validation method, and rollback or compensating action. Proceed only when the user's request clearly authorizes that mutation; require a fresh explicit approval for production publication or destructive work.
 
 ## Output
 
-- Identified error cause from HTTP status code
-- Applied targeted fix
-- Verified resolution
+Return the inspected project and versions, verified Webflow identities, relevant endpoint and scope contract, changes proposed or made, validation evidence, live-mutation status, rollback readiness, and remaining risks. Distinguish documented fact, repository evidence, and inference.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| 400 `bad_request` | Validate field names and types against the exact endpoint schema. |
+| 409 `conflict` | Re-read current state and design an idempotent reconciliation. |
+| Unknown 5xx write result | Check the resource before retrying to avoid a duplicate mutation. |
+
+## Examples
+
+For a 403 from a custom-code call, preserve the structured error, confirm the caller uses a site token, identify the token-type limitation, and recommend a Data Client app instead of broadening random scopes.
 
 ## Resources
 
-- [Webflow API Error Codes](https://developers.webflow.com/data/reference/rest-introduction)
-- [Webflow Status Page](https://status.webflow.com)
-- [Rate Limits Reference](https://developers.webflow.com/data/reference/rate-limits)
-
-## Next Steps
-
-For comprehensive debugging, see `webflow-debug-bundle`.
+- [Official Webflow references](references/official-docs.md)
+- [Webflow developer documentation](https://developers.webflow.com/)
+- [Data API v2 index](https://developers.webflow.com/data/v2.0.0/llms.txt)

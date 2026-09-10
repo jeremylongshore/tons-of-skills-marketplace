@@ -1,401 +1,79 @@
 ---
 name: webflow-reference-architecture
-description: "Implement Webflow reference architecture \u2014 layered project structure,\
-  \ client wrapper,\nCMS sync service, webhook handlers, and caching layer for production\
-  \ integrations.\nTrigger with phrases like \"webflow architecture\", \"webflow project\
-  \ structure\",\n\"how to organize webflow\", \"webflow integration design\", \"\
-  webflow best practices\".\n"
-allowed-tools: Read, Write, Edit, Grep
+description: >-
+  Design a Webflow integration architecture with explicit Data API, Content Delivery, webhook, identity, queue, and publication boundaries. Use when starting a service or untangling a coupled integration. Trigger with "Webflow architecture", "design Webflow integration", or "Webflow service layout".
+argument-hint: "[project-path] [single-site|multi-tenant]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.5.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- design
-- no-code
 - webflow
+- architecture
+- integration
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Webflow Reference Architecture
+# Webflow Integration Reference Architecture
 
 ## Overview
 
-Production-ready architecture for Webflow Data API v2 integrations. Layered design
-separating API access, business logic, caching, and webhook handling.
+This skill produces a repo-grounded Webflow plan or implementation. It treats current official documentation and the target project's installed versions as authority, keeps discovery read-only, and separates preparation from live mutation.
 
 ## Prerequisites
 
-- TypeScript 5+ project
-- `webflow-api` SDK (v3.x)
-- Understanding of service-oriented architecture
-- Redis (optional, for distributed caching)
+- A named target repository or project path and permission to inspect it
+- The intended Webflow environment and non-secret resource identities, or a plan to discover them read-only
+- Access to current official Webflow documentation; credentials stay in the user's existing secret store
 
-## Project Structure
+## Tool Discipline
 
-```
-my-webflow-project/
-├── src/
-│   ├── webflow/                     # Webflow API layer
-│   │   ├── client.ts                # WebflowClient singleton
-│   │   ├── types.ts                 # TypeScript types for Webflow resources
-│   │   ├── errors.ts                # Custom error classes
-│   │   └── cache.ts                 # Response caching (LRU/Redis)
-│   ├── services/                    # Business logic layer
-│   │   ├── cms.service.ts           # CMS content management
-│   │   ├── ecommerce.service.ts     # Products, orders, inventory
-│   │   ├── forms.service.ts         # Form submission processing
-│   │   └── sync.service.ts          # External data sync
-│   ├── webhooks/                    # Event handling layer
-│   │   ├── router.ts                # Event type routing
-│   │   ├── handlers/
-│   │   │   ├── form-submission.ts
-│   │   │   ├── cms-item-changed.ts
-│   │   │   └── ecomm-new-order.ts
-│   │   └── middleware.ts            # Signature verification
-│   ├── api/                         # HTTP endpoints
-│   │   ├── health.ts
-│   │   ├── webhooks.ts
-│   │   └── content.ts
-│   └── config/
-│       └── webflow.ts               # Environment-aware config
-├── tests/
-│   ├── unit/
-│   │   ├── services/
-│   │   └── webhooks/
-│   └── integration/
-│       └── webflow.integration.test.ts
-├── .env.example
-├── tsconfig.json
-└── package.json
-```
+Use `Read` for repository instructions and relevant files, `Glob` to inventory manifests and Webflow integration paths, and `Grep` to locate API hosts, IDs, scopes, and credential names. Use `WebFetch` only for current official Webflow documentation. Use `Write` for a new user-requested artifact and `Edit` for minimal changes to existing files after the evidence pass.
 
-## Layer Architecture
+## Current Contract
 
-```
-┌──────────────────────────────────────────────────┐
-│                  API Layer                        │
-│   Express routes, webhook endpoints, health      │
-├──────────────────────────────────────────────────┤
-│               Service Layer                       │
-│   CMS sync, ecommerce, form processing           │
-│   (Business logic, orchestration)                 │
-├──────────────────────────────────────────────────┤
-│             Webflow Client Layer                  │
-│   WebflowClient wrapper, error handling, types    │
-├──────────────────────────────────────────────────┤
-│           Infrastructure Layer                    │
-│   Cache (LRU/Redis), queue (p-queue), monitoring  │
-└──────────────────────────────────────────────────┘
-```
+- Data API is the fresh read/write control plane; Content Delivery is a cached live-content read surface.
+- Webhooks provide event signals but require authentication, idempotency, retries, and periodic reconciliation.
+- Token type and site identity are architectural boundaries. A multi-tenant app should not share a broad internal token.
+- CMS staging and publication are different states and should have separate application operations and approval policy.
 
-## Instructions
+## Authentication
 
-### Layer 1: Webflow Client
+Authenticate Data API calls with a bearer token selected for the integration: a site token for controlled single-site work, a workspace token only for its supported workspace/read use cases, or OAuth for user-authorized applications. Derive scopes from the exact endpoints. Never read, echo, persist, or place token values in commands, patches, examples, logs, or reports.
 
-```typescript
-// src/webflow/client.ts
-import { WebflowClient } from "webflow-api";
-import { getConfig } from "../config/webflow.js";
+## Workflow
 
-let client: WebflowClient | null = null;
+1. Inventory actors, sites, locales, data classifications, freshness needs, write paths, event paths, and operational owners.
+2. Draw trust boundaries for OAuth or site tokens, secret storage, Webflow APIs, queues, databases, logs, and public delivery.
+3. Define adapters for Data API, Content Delivery, and webhook verification so SDK-generated contracts do not leak through the domain layer.
+4. Separate read models, staged-write workflows, publication commands, and destructive operations.
+5. Specify idempotency, reconciliation, rate budgets, cache policy, observability, and recovery for each data flow.
+6. Validate the design with one happy path, one auth failure, one rate-limit event, one duplicate webhook, and one uncertain write.
 
-export function getClient(): WebflowClient {
-  if (!client) {
-    const config = getConfig();
-    client = new WebflowClient({
-      accessToken: config.accessToken,
-      maxRetries: config.maxRetries,
-    });
-  }
-  return client;
-}
+## Approval Boundaries
 
-export function resetClient(): void {
-  client = null;
-}
-```
-
-```typescript
-// src/webflow/errors.ts
-export class WebflowServiceError extends Error {
-  constructor(
-    message: string,
-    public readonly statusCode: number,
-    public readonly retryable: boolean,
-    public readonly originalError?: unknown
-  ) {
-    super(message);
-    this.name = "WebflowServiceError";
-  }
-
-  static fromApiError(error: any): WebflowServiceError {
-    const status = error.statusCode || error.status || 500;
-    const retryable = status === 429 || status >= 500;
-
-    return new WebflowServiceError(
-      error.message || "Unknown Webflow error",
-      status,
-      retryable,
-      error
-    );
-  }
-}
-```
-
-```typescript
-// src/webflow/types.ts
-export interface WebflowSite {
-  id: string;
-  displayName: string;
-  shortName: string;
-  lastPublished: string | null;
-  customDomains?: Array<{ url: string }>;
-}
-
-export interface WebflowCollection {
-  id: string;
-  displayName: string;
-  slug: string;
-  itemCount: number;
-  fields: WebflowField[];
-}
-
-export interface WebflowField {
-  slug: string;
-  displayName: string;
-  type: string;
-  isRequired: boolean;
-}
-
-export interface WebflowItem {
-  id: string;
-  isDraft: boolean;
-  isArchived: boolean;
-  createdOn: string;
-  lastUpdated: string;
-  fieldData: Record<string, any>;
-}
-```
-
-### Layer 2: Service Layer
-
-```typescript
-// src/services/cms.service.ts
-import { getClient } from "../webflow/client.js";
-import { WebflowServiceError } from "../webflow/errors.js";
-import { cachedFetch, invalidateCache } from "../webflow/cache.js";
-import type { WebflowItem } from "../webflow/types.js";
-
-export class CmsService {
-  private webflow = getClient();
-
-  async getCollections(siteId: string) {
-    return cachedFetch(
-      `collections:${siteId}`,
-      () => this.webflow.collections.list(siteId).then(r => r.collections!),
-      30 * 60 * 1000 // 30 min — schemas change rarely
-    );
-  }
-
-  async getPublishedItems(collectionId: string): Promise<WebflowItem[]> {
-    // CDN-cached — no rate limit
-    return cachedFetch(
-      `items:live:${collectionId}`,
-      () => this.webflow.collections.items.listItemsLive(collectionId, { limit: 100 })
-        .then(r => r.items as WebflowItem[]),
-      60 * 1000 // 1 min
-    );
-  }
-
-  async createItems(
-    collectionId: string,
-    items: Array<{ fieldData: Record<string, any> }>
-  ): Promise<string[]> {
-    try {
-      const result = await this.webflow.collections.items.createItemsBulk(
-        collectionId,
-        { items: items.map(i => ({ ...i, isDraft: false })) }
-      );
-      // Invalidate cache after write
-      invalidateCache(`items:live:${collectionId}`);
-      return result.items!.map(i => i.id!);
-    } catch (error) {
-      throw WebflowServiceError.fromApiError(error);
-    }
-  }
-
-  async publishItems(collectionId: string, itemIds: string[]): Promise<void> {
-    await this.webflow.collections.items.publishItem(collectionId, { itemIds });
-    invalidateCache(`items:live:${collectionId}`);
-  }
-}
-```
-
-```typescript
-// src/services/sync.service.ts
-import { CmsService } from "./cms.service.js";
-
-export class SyncService {
-  constructor(private cms: CmsService) {}
-
-  async syncFromExternal(
-    collectionId: string,
-    externalData: Array<{ title: string; body: string; slug: string }>
-  ) {
-    // Get existing items to avoid duplicates
-    const existing = await this.cms.getPublishedItems(collectionId);
-    const existingSlugs = new Set(existing.map(i => i.fieldData?.slug));
-
-    // Filter new items
-    const newItems = externalData
-      .filter(d => !existingSlugs.has(d.slug))
-      .map(d => ({
-        fieldData: {
-          name: d.title,
-          slug: d.slug,
-          "post-body": d.body,
-        },
-      }));
-
-    if (newItems.length === 0) return { synced: 0 };
-
-    // Bulk create (100 at a time)
-    const createdIds = await this.cms.createItems(collectionId, newItems.slice(0, 100));
-
-    // Publish new items
-    await this.cms.publishItems(collectionId, createdIds);
-
-    return { synced: createdIds.length };
-  }
-}
-```
-
-### Layer 3: Webhook Handling
-
-```typescript
-// src/webhooks/router.ts
-import { handleFormSubmission } from "./handlers/form-submission.js";
-import { handleCmsItemChanged } from "./handlers/cms-item-changed.js";
-import { handleNewOrder } from "./handlers/ecomm-new-order.js";
-
-type Handler = (payload: any) => Promise<void>;
-
-const handlers: Record<string, Handler> = {
-  form_submission: handleFormSubmission,
-  collection_item_created: handleCmsItemChanged,
-  collection_item_changed: handleCmsItemChanged,
-  ecomm_new_order: handleNewOrder,
-};
-
-export async function routeWebhookEvent(
-  triggerType: string,
-  payload: any
-): Promise<void> {
-  const handler = handlers[triggerType];
-  if (!handler) {
-    console.log(`No handler for: ${triggerType}`);
-    return;
-  }
-  await handler(payload);
-}
-```
-
-```typescript
-// src/webhooks/handlers/cms-item-changed.ts
-import { invalidateCache } from "../../webflow/cache.js";
-
-export async function handleCmsItemChanged(payload: any): Promise<void> {
-  const { collectionId, itemId } = payload;
-
-  // Invalidate cache for this collection
-  invalidateCache(`items:live:${collectionId}`);
-  invalidateCache(`items:staged:${collectionId}`);
-
-  // Trigger downstream updates (search index, external DB, etc.)
-  console.log(`CMS item changed: ${itemId} in collection ${collectionId}`);
-}
-```
-
-### Layer 4: Configuration
-
-```typescript
-// src/config/webflow.ts
-interface WebflowConfig {
-  accessToken: string;
-  siteId: string;
-  maxRetries: number;
-  environment: "development" | "staging" | "production";
-  webhookSecret: string;
-}
-
-export function getConfig(): WebflowConfig {
-  const env = (process.env.NODE_ENV || "development") as WebflowConfig["environment"];
-
-  return {
-    accessToken: requireEnv("WEBFLOW_API_TOKEN"),
-    siteId: requireEnv("WEBFLOW_SITE_ID"),
-    maxRetries: env === "production" ? 3 : 1,
-    environment: env,
-    webhookSecret: process.env.WEBFLOW_WEBHOOK_SECRET || "",
-  };
-}
-
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`${name} environment variable required`);
-  return value;
-}
-```
-
-## Data Flow
-
-```
-External Data Source
-       │
-       ▼
-┌─────────────────┐     ┌─────────────┐
-│  Sync Service   │────▶│  CMS Service │
-│  (orchestration)│     │  (CRUD ops)  │
-└─────────────────┘     └──────┬───────┘
-                               │
-                    ┌──────────┴──────────┐
-                    ▼                     ▼
-            ┌──────────────┐    ┌────────────────┐
-            │ Cache (LRU)  │    │ Webflow Client │
-            │ or Redis     │    │ (webflow-api)  │
-            └──────────────┘    └───────┬────────┘
-                                        │
-                                        ▼
-                               ┌────────────────┐
-                               │ Webflow API v2 │
-                               │ api.webflow.com│
-                               └────────────────┘
-```
+Default to read-only inspection. Before any create, update, delete, publish, unpublish, archive, deploy, token revoke, or webhook registration, show the exact environment and resource IDs, the proposed change, validation method, and rollback or compensating action. Proceed only when the user's request clearly authorizes that mutation; require a fresh explicit approval for production publication or destructive work.
 
 ## Output
 
-- Layered project structure with clear boundaries
-- WebflowClient wrapper with singleton and error handling
-- CMS service with caching and bulk operations
-- Webhook event router with typed handlers
-- Environment-aware configuration
-- Sync service for external data integration
+Return the inspected project and versions, verified Webflow identities, relevant endpoint and scope contract, changes proposed or made, validation evidence, live-mutation status, rollback readiness, and remaining risks. Distinguish documented fact, repository evidence, and inference.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Circular imports | Wrong layer dependencies | Services depend on client, not reverse |
-| Cache inconsistency | Missing invalidation | Invalidate on writes and webhook events |
-| Config missing | Environment not set | `requireEnv()` fails fast with clear message |
-| Type mismatches | API shape changes | Update `types.ts` from collection schema |
+| Condition | Response |
+|---|---|
+| Site identity implicit | Add an allowlisted site/tenant mapping before implementation. |
+| Publish coupled to save | Split preparation and live publication into separately authorized commands. |
+| Webhook is sole truth | Add reconciliation against the authoritative Webflow resource. |
+
+## Examples
+
+A multi-tenant CMS service stores one OAuth grant per tenant, uses Data API for staged writes, Content Delivery for eligible live reads, verifies and deduplicates webhooks, and gates publication separately.
 
 ## Resources
 
-- [Webflow API Reference](https://developers.webflow.com/data/reference/rest-introduction)
-- [CMS API](https://developers.webflow.com/data/reference/cms)
-- [SDK GitHub](https://github.com/webflow/js-webflow-api)
-
-## Next Steps
-
-For multi-environment setup, see `webflow-multi-env-setup`.
+- [Official Webflow references](references/official-docs.md)
+- [Webflow developer documentation](https://developers.webflow.com/)
+- [Data API v2 index](https://developers.webflow.com/data/v2.0.0/llms.txt)

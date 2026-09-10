@@ -1,243 +1,79 @@
 ---
 name: webflow-upgrade-migration
-description: 'Analyze, plan, and execute Webflow SDK upgrades (webflow-api v1 to v3)
-  with
-
-  breaking change detection, API v1-to-v2 migration, and deprecation handling.
-
-  Trigger with phrases like "upgrade webflow", "webflow migration",
-
-  "webflow breaking changes", "update webflow SDK", "webflow v1 to v2".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(git:*)
+description: >-
+  Upgrade Webflow SDK, Data API, or CLI integrations with contract evidence and rollback. Use when leaving Data API v1, updating the official JavaScript SDK, or migrating Webflow CLI 1.x scripts. Trigger with "upgrade Webflow SDK", "migrate Webflow v1", or "Webflow CLI 2".
+argument-hint: "[project-path] [current-version] [target-version]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.5.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- design
-- no-code
 - webflow
+- migration
+- sdk
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Webflow Upgrade & Migration
+# Webflow SDK and API Upgrade
 
 ## Overview
 
-Guide for upgrading the `webflow-api` SDK and migrating from Webflow Data API v1
-to v2. Covers breaking changes, endpoint mapping, import updates, and rollback.
+This skill produces a repo-grounded Webflow plan or implementation. It treats current official documentation and the target project's installed versions as authority, keeps discovery read-only, and separates preparation from live mutation.
 
 ## Prerequisites
 
-- Current `webflow-api` SDK installed
-- Git for version control (create upgrade branch)
-- Test suite available
-- Staging environment for validation
+- A named target repository or project path and permission to inspect it
+- The intended Webflow environment and non-secret resource identities, or a plan to discover them read-only
+- Access to current official Webflow documentation; credentials stay in the user's existing secret store
 
-## Instructions
+## Tool Discipline
 
-### Step 1: Assess Current Version
+Use `Read` for repository instructions and relevant files, `Glob` to inventory manifests and Webflow integration paths, and `Grep` to locate API hosts, IDs, scopes, and credential names. Use `WebFetch` only for current official Webflow documentation. Use `Write` for a new user-requested artifact and `Edit` for minimal changes to existing files after the evidence pass.
 
-```bash
-# Check installed version
-npm list webflow-api
+## Current Contract
 
-# Check latest available
-npm view webflow-api version
+- Data API v2 is the default current contract; use Webflow's migration guide and exact endpoint references rather than a memorized method map.
+- SDK package versions and generated method names change independently from your application adapter; inspect the installed and target package types.
+- Webflow CLI 2.x requires Node.js 22.13.0 or newer and renames documented commands while retaining deprecated aliases temporarily.
+- CLI app-management commands may require the `next` channel even when stable Cloud commands exist; record the exact installed channel and version.
 
-# View changelog
-npm view webflow-api --json | jq '.versions[-5:]'
-```
+## Authentication
 
-### Step 2: SDK Version History
+Authenticate Data API calls with a bearer token selected for the integration: a site token for controlled single-site work, a workspace token only for its supported workspace/read use cases, or OAuth for user-authorized applications. Derive scopes from the exact endpoints. Never read, echo, persist, or place token values in commands, patches, examples, logs, or reports.
 
-| SDK Version | API Version | Node.js | Key Changes |
-|-------------|-------------|---------|-------------|
-| 3.x | Data API v2 | 18+ | Current. `WebflowClient`, auto-retry, bulk ops |
-| 2.x | Data API v1/v2 | 16+ | Transitional. Mixed v1/v2 endpoints |
-| 1.x | Data API v1 | 14+ | Legacy. `Webflow` class, no types |
+## Workflow
 
-**v1 endpoints deprecation: late 2026.** Migrate before then.
+1. Inventory API hosts, headers, SDK imports, generated methods, CLI commands, Node version, scopes, and staged/live assumptions.
+2. Pin current and target versions and read their official migration notes. Build a call-site matrix with old contract, new contract, and test coverage.
+3. Add characterization tests around pagination, errors, CMS state, locale behavior, webhook verification, and write idempotency.
+4. Upgrade the adapter on a branch, then fix callers from compiler and test evidence rather than mass search-and-replace.
+5. Run read-only integration smoke tests against a non-production site; preview any changed write payloads.
+6. Obtain approval before production rollout and retain the prior lockfile, deployment artifact, and data reconciliation plan.
 
-### Step 3: API v1 to v2 Migration Map
+## Approval Boundaries
 
-#### Base URL Change
-
-```
-v1: https://api.webflow.com
-v2: https://api.webflow.com/v2
-```
-
-#### Authentication Change
-
-```typescript
-// v1 (old) — API key
-import Webflow from "webflow-api";
-const webflow = new Webflow({ token: "your-api-key" });
-
-// v2 (current) — Access token
-import { WebflowClient } from "webflow-api";
-const webflow = new WebflowClient({ accessToken: "your-access-token" });
-```
-
-#### Endpoint Migration Map
-
-| Operation | v1 Endpoint | v2 Endpoint |
-|-----------|-------------|-------------|
-| List sites | `GET /sites` | `GET /v2/sites` |
-| Get site | `GET /sites/{site_id}` | `GET /v2/sites/{site_id}` |
-| Publish site | `POST /sites/{site_id}/publish` | `POST /v2/sites/{site_id}/publish` |
-| List collections | `GET /sites/{site_id}/collections` | `GET /v2/sites/{site_id}/collections` |
-| List items | `GET /collections/{id}/items` | `GET /v2/collections/{id}/items` |
-| Create item | `POST /collections/{id}/items` | `POST /v2/collections/{id}/items` |
-| Update item | `PUT /collections/{id}/items/{item_id}` | `PATCH /v2/collections/{id}/items/{item_id}` |
-| List products | `GET /sites/{site_id}/products` | `GET /v2/sites/{site_id}/products` |
-| List orders | `GET /sites/{site_id}/orders` | `GET /v2/sites/{site_id}/orders` |
-
-**Key v2 differences:**
-
-- Update uses `PATCH` (not `PUT`) — partial updates only
-- Items created as drafts by default (`isDraft: true`)
-- Bulk endpoints added (create/update/delete up to 100 items)
-- Live (published) items have separate endpoints (`/items/live`)
-- Scopes required (e.g., `cms:read`, `cms:write`)
-
-### Step 4: SDK Method Migration
-
-```typescript
-// ===== v1 SDK (old) =====
-const webflow = new Webflow({ token: "xxx" });
-
-// List sites
-const sites = await webflow.sites();
-
-// List collections
-const collections = await webflow.collections({ siteId: "site-123" });
-
-// Get items
-const items = await webflow.items({ collectionId: "col-456" });
-
-// Create item
-const item = await webflow.createItem({
-  collectionId: "col-456",
-  fields: { name: "Test", slug: "test", _archived: false, _draft: false },
-});
-
-// Update item (full replace)
-await webflow.updateItem({
-  collectionId: "col-456",
-  itemId: "item-789",
-  fields: { name: "Updated", slug: "test" },
-});
-```
-
-```typescript
-// ===== v2 SDK (current) =====
-const webflow = new WebflowClient({ accessToken: "xxx" });
-
-// List sites
-const { sites } = await webflow.sites.list();
-
-// List collections
-const { collections } = await webflow.collections.list("site-123");
-
-// Get items (staged)
-const { items } = await webflow.collections.items.listItems("col-456");
-
-// Get items (live/published)
-const { items: live } = await webflow.collections.items.listItemsLive("col-456");
-
-// Create item (draft by default)
-const item = await webflow.collections.items.createItem("col-456", {
-  fieldData: { name: "Test", slug: "test" },
-  isDraft: false,
-});
-
-// Update item (partial update via PATCH)
-await webflow.collections.items.updateItem("col-456", "item-789", {
-  fieldData: { name: "Updated" }, // Only changed fields
-});
-
-// NEW: Bulk create (up to 100)
-await webflow.collections.items.createItemsBulk("col-456", {
-  items: [{ fieldData: { name: "Item 1", slug: "item-1" } }],
-});
-
-// NEW: Publish items
-await webflow.collections.items.publishItem("col-456", {
-  itemIds: ["item-789"],
-});
-```
-
-### Step 5: Execute Upgrade
-
-```bash
-# Create upgrade branch
-git checkout -b upgrade/webflow-api-v3
-
-# Install latest
-npm install webflow-api@latest
-
-# Run tests to find breaking changes
-npm test 2>&1 | tee upgrade-test-results.txt
-
-# Fix breaking changes (common patterns above)
-# ...
-
-# Verify in staging
-npm run test:integration
-
-# Commit and PR
-git add -A
-git commit -m "upgrade: webflow-api to v3 (Data API v2)"
-```
-
-### Step 6: Rollback if Needed
-
-```bash
-# Rollback to previous version
-npm install webflow-api@2.x.x --save-exact
-
-# Or revert the upgrade branch
-git revert HEAD
-```
-
-## Breaking Change Checklist
-
-- [ ] Import changed: `Webflow` class to `WebflowClient` named export
-- [ ] Auth changed: `token` to `accessToken`
-- [ ] Method calls changed: `webflow.sites()` to `webflow.sites.list()`
-- [ ] Field data wrapped in `fieldData` object
-- [ ] Update method changed from `PUT` to `PATCH` (partial)
-- [ ] Item status: `_draft`/`_archived` to `isDraft`/`isArchived`
-- [ ] Response shape: items now under `.items` property with `.pagination`
-- [ ] Scopes required for all operations
+Default to read-only inspection. Before any create, update, delete, publish, unpublish, archive, deploy, token revoke, or webhook registration, show the exact environment and resource IDs, the proposed change, validation method, and rollback or compensating action. Proceed only when the user's request clearly authorizes that mutation; require a fresh explicit approval for production publication or destructive work.
 
 ## Output
 
-- Updated SDK to latest version
-- All v1 endpoints migrated to v2
-- Breaking changes fixed
-- Tests passing on staging
-- Rollback procedure documented
+Return the inspected project and versions, verified Webflow identities, relevant endpoint and scope contract, changes proposed or made, validation evidence, live-mutation status, rollback readiness, and remaining risks. Distinguish documented fact, repository evidence, and inference.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `TypeError: Webflow is not a constructor` | Using v1 import with v3 SDK | Change to `import { WebflowClient }` |
-| `400 Bad Request` on create | Fields not in `fieldData` wrapper | Wrap fields: `{ fieldData: { ... } }` |
-| `405 Method Not Allowed` | Using `PUT` instead of `PATCH` | Update to `PATCH` for item updates |
-| Missing items in response | Not checking `.items` property | Destructure: `const { items } = await ...` |
+| Condition | Response |
+|---|---|
+| Method missing | Inspect target SDK types and endpoint docs; update the adapter deliberately. |
+| CLI command unknown | Check stable versus `next` channel and the CLI 2 migration table. |
+| Behavioral drift | Roll back the dependency or deployment, preserve fixtures, and isolate the changed contract. |
+
+## Examples
+
+For a Data API v1 service, first inventory endpoints and scopes, add characterization fixtures, move one adapter to v2, verify staged/live behavior on a test site, and only then roll out with the old lockfile retained.
 
 ## Resources
 
-- [Migration Guide](https://developers.webflow.com/data/docs/migrating-to-v2)
-- [SDK Releases](https://github.com/webflow/js-webflow-api/releases)
-- [v2 API Reference](https://developers.webflow.com/data/reference/rest-introduction)
-- v1 Deprecation Timeline
-
-## Next Steps
-
-For CI integration during upgrades, see `webflow-ci-integration`.
+- [Official Webflow references](references/official-docs.md)
+- [Webflow developer documentation](https://developers.webflow.com/)
+- [Data API v2 index](https://developers.webflow.com/data/v2.0.0/llms.txt)

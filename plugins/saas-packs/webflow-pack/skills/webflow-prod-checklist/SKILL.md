@@ -1,255 +1,79 @@
 ---
 name: webflow-prod-checklist
-description: "Execute Webflow production deployment checklist \u2014 token security,\
-  \ rate limit hardening,\nhealth checks, circuit breakers, gradual rollout, and rollback\
-  \ procedures.\nUse when deploying Webflow integrations to production or preparing\
-  \ for launch.\nTrigger with phrases like \"webflow production\", \"deploy webflow\"\
-  ,\n\"webflow go-live\", \"webflow launch checklist\", \"webflow production ready\"\
-  .\n"
-allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(npm:*), Grep
+description: >-
+  Gate a Webflow integration before production with identity, scope, retry, privacy, rollout, and rollback evidence. Use when preparing to enable live traffic or live content writes. Trigger with "Webflow production checklist", "ship Webflow integration", or "Webflow go live".
+argument-hint: "[project-path] [environment]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.5.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- design
-- no-code
 - webflow
+- production
+- reliability
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Webflow Production Checklist
+# Webflow Production Readiness
 
 ## Overview
 
-Complete pre-deployment checklist for Webflow Data API v2 integrations, covering
-authentication, error handling, rate limits, monitoring, and rollback.
+This skill produces a repo-grounded Webflow plan or implementation. It treats current official documentation and the target project's installed versions as authority, keeps discovery read-only, and separates preparation from live mutation.
 
 ## Prerequisites
 
-- Staging environment tested and verified
-- Production API token with minimal scopes
-- Deployment pipeline configured
-- Monitoring/alerting infrastructure ready
+- A named target repository or project path and permission to inspect it
+- The intended Webflow environment and non-secret resource identities, or a plan to discover them read-only
+- Access to current official Webflow documentation; credentials stay in the user's existing secret store
 
-## Instructions
+## Tool Discipline
 
-### Pre-Deployment Configuration
+Use `Read` for repository instructions and relevant files, `Glob` to inventory manifests and Webflow integration paths, and `Grep` to locate API hosts, IDs, scopes, and credential names. Use `WebFetch` only for current official Webflow documentation. Use `Write` for a new user-requested artifact and `Edit` for minimal changes to existing files after the evidence pass.
 
-- [ ] **Production API token** in secure vault (not .env file on server)
-- [ ] **Minimal scopes** — only scopes the integration actually uses
-- [ ] **Site token** used where workspace token is not needed
-- [ ] **Environment variables** set in deployment platform (Vercel/Fly/Cloud Run)
-- [ ] **Webhook secrets** stored securely, not hardcoded
-- [ ] **No tokens in client-side code** — all API calls server-side only
+## Current Contract
 
-### Code Quality Verification
+- Production readiness depends on the exact token type, endpoint scopes, site IDs, staged/live workflow, and plan limits—not a generic green health check.
+- Readiness must test 401/403/429/5xx handling and uncertain-write reconciliation.
+- CMS publish, unpublish, archive, delete, site publish, webhook replacement, and Cloud deploy are distinct live mutations.
+- A rollback plan must name recoverable artifacts and compensating actions; Webflow does not provide a universal transaction rollback.
 
-- [ ] **All tests passing** — unit tests with mocked SDK, integration tests with test token
-- [ ] **No hardcoded credentials** — `grep -r "Bearer " src/` returns nothing
-- [ ] **Error handling** covers 400, 401, 403, 404, 409, 429, 500
-- [ ] **Rate limit handling** — SDK `maxRetries` configured, bulk endpoints used
-- [ ] **Pagination** — all list operations handle `offset`/`limit` correctly
-- [ ] **Logging** is production-appropriate (no PII, structured JSON)
-- [ ] **Webhook signatures verified** — `verifyWebhookSignature()` on every webhook
+## Authentication
 
-### Rate Limit Readiness
+Authenticate Data API calls with a bearer token selected for the integration: a site token for controlled single-site work, a workspace token only for its supported workspace/read use cases, or OAuth for user-authorized applications. Derive scopes from the exact endpoints. Never read, echo, persist, or place token values in commands, patches, examples, logs, or reports.
 
-- [ ] **Bulk endpoints** used for multi-item operations (100 items/request max)
-- [ ] **Request queue** with concurrency control (p-queue or similar)
-- [ ] **Site publish** rate limited to max 1 per minute
-- [ ] **Retry-After** header honored in custom retry logic
-- [ ] **SDK maxRetries** set (default: 2, increase for critical paths)
+## Workflow
 
-### Health Check Endpoint
+1. Freeze the release candidate and record dependency, SDK, CLI, schema, and configuration versions.
+2. Verify production site and collection allowlists, token type, minimal scopes, secret ownership, and log redaction.
+3. Exercise read-only smoke tests and failure-path tests against fixtures or a dedicated staging site.
+4. Create a release plan listing every live mutation, target ID, expected result, validation query, and compensating action.
+5. Obtain explicit approval for the named production targets, then execute one bounded canary if mutation was requested.
+6. Verify live state, rate-limit headroom, webhook delivery, and monitoring; stop rollout on any mismatch.
 
-```typescript
-// api/health.ts
-import { WebflowClient } from "webflow-api";
+## Approval Boundaries
 
-export async function GET() {
-  const webflow = new WebflowClient({
-    accessToken: process.env.WEBFLOW_API_TOKEN!,
-  });
-
-  const checks: Record<string, any> = {};
-  const start = Date.now();
-
-  try {
-    const { sites } = await webflow.sites.list();
-    checks.webflow = {
-      status: "connected",
-      sites: sites?.length || 0,
-      latencyMs: Date.now() - start,
-    };
-  } catch (error: any) {
-    checks.webflow = {
-      status: "disconnected",
-      error: error.statusCode || error.message,
-      latencyMs: Date.now() - start,
-    };
-  }
-
-  const healthy = checks.webflow.status === "connected";
-
-  return Response.json(
-    {
-      status: healthy ? "healthy" : "degraded",
-      services: checks,
-      timestamp: new Date().toISOString(),
-    },
-    { status: healthy ? 200 : 503 }
-  );
-}
-```
-
-### Circuit Breaker Pattern
-
-```typescript
-class WebflowCircuitBreaker {
-  private failures = 0;
-  private lastFailure = 0;
-  private state: "closed" | "open" | "half-open" = "closed";
-
-  constructor(
-    private threshold = 5,      // failures before opening
-    private resetTimeMs = 60000  // time before trying again
-  ) {}
-
-  async execute<T>(operation: () => Promise<T>): Promise<T> {
-    if (this.state === "open") {
-      if (Date.now() - this.lastFailure > this.resetTimeMs) {
-        this.state = "half-open";
-      } else {
-        throw new Error("Circuit breaker is open — Webflow API unavailable");
-      }
-    }
-
-    try {
-      const result = await operation();
-      this.onSuccess();
-      return result;
-    } catch (error: any) {
-      this.onFailure();
-      throw error;
-    }
-  }
-
-  private onSuccess() {
-    this.failures = 0;
-    this.state = "closed";
-  }
-
-  private onFailure() {
-    this.failures++;
-    this.lastFailure = Date.now();
-    if (this.failures >= this.threshold) {
-      this.state = "open";
-      console.error(`Circuit breaker OPEN after ${this.failures} failures`);
-    }
-  }
-}
-
-const breaker = new WebflowCircuitBreaker();
-
-// Usage
-const sites = await breaker.execute(() => webflow.sites.list());
-```
-
-### Monitoring Alerts
-
-| Alert | Condition | Severity |
-|-------|-----------|----------|
-| API unreachable | Health check fails 3x consecutive | P1 |
-| Auth failure | Any 401 or 403 response | P1 |
-| High error rate | Error rate > 5% over 5 min | P2 |
-| Rate limited | 429 responses > 5/min | P2 |
-| High latency | P95 > 3000ms | P3 |
-| Token expiring | Token age > 90 days (rotation schedule) | P3 |
-
-### Graceful Degradation
-
-```typescript
-async function getContentWithFallback(
-  collectionId: string,
-  cachedData: any[]
-): Promise<any[]> {
-  try {
-    const { items } = await breaker.execute(() =>
-      webflow.collections.items.listItemsLive(collectionId)
-    );
-    // Update cache on success
-    await updateCache(collectionId, items);
-    return items || [];
-  } catch (error) {
-    console.warn("Webflow unavailable, serving cached content");
-    return cachedData;
-  }
-}
-```
-
-### Pre-Flight Verification Script
-
-```bash
-#!/bin/bash
-echo "=== Webflow Production Pre-Flight ==="
-
-# 1. Token works
-HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
-  -H "Authorization: Bearer $WEBFLOW_API_TOKEN" \
-  https://api.webflow.com/v2/sites)
-echo "Token valid: $([ "$HTTP" = "200" ] && echo "YES" || echo "NO (HTTP $HTTP)")"
-
-# 2. Webflow platform status
-STATUS=$(curl -s https://status.webflow.com/api/v2/status.json | \
-  python3 -c "import sys,json; print(json.load(sys.stdin)['status']['description'])" 2>/dev/null)
-echo "Webflow status: ${STATUS:-unknown}"
-
-# 3. Rate limit headroom
-curl -s -I -H "Authorization: Bearer $WEBFLOW_API_TOKEN" \
-  https://api.webflow.com/v2/sites 2>/dev/null | \
-  grep -i "x-ratelimit-remaining" || echo "Rate limit headers not available"
-
-# 4. Health endpoint
-HEALTH=$(curl -s -o /dev/null -w "%{http_code}" https://your-app.com/api/health)
-echo "Health endpoint: HTTP $HEALTH"
-```
-
-### Rollback Procedure
-
-```bash
-# Immediate rollback steps:
-# 1. Revert to previous deployment
-vercel rollback     # Vercel
-fly releases        # Fly.io — find previous release
-fly deploy --image registry/app:previous-tag  # Fly.io
-
-# 2. If using feature flags, disable Webflow integration
-# 3. Monitor error rates for resolution
-```
+Default to read-only inspection. Before any create, update, delete, publish, unpublish, archive, deploy, token revoke, or webhook registration, show the exact environment and resource IDs, the proposed change, validation method, and rollback or compensating action. Proceed only when the user's request clearly authorizes that mutation; require a fresh explicit approval for production publication or destructive work.
 
 ## Output
 
-- Production-hardened Webflow integration
-- Health check endpoint with latency tracking
-- Circuit breaker preventing cascade failures
-- Monitoring alerts configured
-- Rollback procedure documented and tested
+Return the inspected project and versions, verified Webflow identities, relevant endpoint and scope contract, changes proposed or made, validation evidence, live-mutation status, rollback readiness, and remaining risks. Distinguish documented fact, repository evidence, and inference.
 
 ## Error Handling
 
-| Issue | Response | Severity |
-|-------|----------|----------|
-| Token revoked in production | Rotate immediately, restart pods | P1 |
-| Webflow outage | Circuit breaker opens, serve cache | P2 |
-| Rate limit exhaustion | Queue backs up, requests delayed | P2 |
-| Webhook delivery failures | Check ngrok/tunnel, verify URL | P3 |
+| Condition | Response |
+|---|---|
+| Identity mismatch | Stop before mutation and correct the environment mapping. |
+| Canary differs from preview | Pause rollout, preserve evidence, and reconcile staged/live state. |
+| Rollback cannot be demonstrated | Do not approve the release; define restore data or compensating operations first. |
+
+## Examples
+
+Before a CMS launch, verify the production site allowlist and scopes, stage one canary item, approve that item ID, publish it, confirm the live representation and webhook, then continue in bounded batches.
 
 ## Resources
 
-- [Webflow Status Page](https://status.webflow.com)
-- [Rate Limits](https://developers.webflow.com/data/reference/rate-limits)
-- [API Reference](https://developers.webflow.com/data/reference/rest-introduction)
-
-## Next Steps
-
-For version upgrades, see `webflow-upgrade-migration`.
+- [Official Webflow references](references/official-docs.md)
+- [Webflow developer documentation](https://developers.webflow.com/)
+- [Data API v2 index](https://developers.webflow.com/data/v2.0.0/llms.txt)

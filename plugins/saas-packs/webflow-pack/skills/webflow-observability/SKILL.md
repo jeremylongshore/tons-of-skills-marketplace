@@ -1,371 +1,79 @@
 ---
 name: webflow-observability
-description: "Set up observability for Webflow integrations \u2014 Prometheus metrics\
-  \ for API calls,\nOpenTelemetry tracing, structured logging with pino, Grafana dashboards,\n\
-  and alerting for rate limits, errors, and latency.\nTrigger with phrases like \"\
-  webflow monitoring\", \"webflow metrics\",\n\"webflow observability\", \"monitor\
-  \ webflow\", \"webflow alerts\", \"webflow tracing\".\n"
-allowed-tools: Read, Write, Edit
+description: >-
+  Instrument a Webflow integration around API budgets, errors, cache behavior, webhooks, and deployments without leaking sensitive data. Use when adding metrics, logs, traces, or alerts. Trigger with "monitor Webflow", "Webflow observability", or "Webflow alerts".
+argument-hint: "[project-path] [service-or-environment]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.5.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- design
-- no-code
 - webflow
+- observability
+- monitoring
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Webflow Observability
+# Webflow Integration Observability
 
 ## Overview
 
-Full observability stack for Webflow Data API v2 integrations: Prometheus metrics
-for API call counting and latency, OpenTelemetry distributed tracing, structured
-JSON logging, and alerting rules for error rate and rate limit exhaustion.
+This skill produces a repo-grounded Webflow plan or implementation. It treats current official documentation and the target project's installed versions as authority, keeps discovery read-only, and separates preparation from live mutation.
 
 ## Prerequisites
 
-- `prom-client` for Prometheus metrics
-- `@opentelemetry/api` for tracing (optional)
-- `pino` for structured logging
-- Prometheus + Grafana (or compatible backend)
+- A named target repository or project path and permission to inspect it
+- The intended Webflow environment and non-secret resource identities, or a plan to discover them read-only
+- Access to current official Webflow documentation; credentials stay in the user's existing secret store
 
-## Instructions
+## Tool Discipline
 
-### Step 1: Prometheus Metrics
+Use `Read` for repository instructions and relevant files, `Glob` to inventory manifests and Webflow integration paths, and `Grep` to locate API hosts, IDs, scopes, and credential names. Use `WebFetch` only for current official Webflow documentation. Use `Write` for a new user-requested artifact and `Edit` for minimal changes to existing files after the evidence pass.
 
-```typescript
-// src/observability/metrics.ts
-import { Registry, Counter, Histogram, Gauge } from "prom-client";
+## Current Contract
 
-export const registry = new Registry();
+- Record HTTP status plus Webflow `code`, `message`, and bounded `details`; do not rely on exception text alone.
+- Rate-limit headers and `Retry-After` explain request-budget pressure; Content Delivery adds `cf-cache-status` for cache behavior.
+- Webhook registration exposes operational fields such as `lastTriggered`, while delivery health also depends on handler latency and deduplication.
+- Webflow Cloud deployment and runtime logs are tied to app, environment, and deployment IDs; successful enqueue is not a deployment success metric.
 
-// API request counter (by operation and status)
-export const apiRequests = new Counter({
-  name: "webflow_api_requests_total",
-  help: "Total Webflow API requests",
-  labelNames: ["operation", "status_code", "method"] as const,
-  registers: [registry],
-});
+## Authentication
 
-// Request duration histogram
-export const apiDuration = new Histogram({
-  name: "webflow_api_request_duration_seconds",
-  help: "Webflow API request duration in seconds",
-  labelNames: ["operation"] as const,
-  buckets: [0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10],
-  registers: [registry],
-});
+Authenticate Data API calls with a bearer token selected for the integration: a site token for controlled single-site work, a workspace token only for its supported workspace/read use cases, or OAuth for user-authorized applications. Derive scopes from the exact endpoints. Never read, echo, persist, or place token values in commands, patches, examples, logs, or reports.
 
-// Error counter by type
-export const apiErrors = new Counter({
-  name: "webflow_api_errors_total",
-  help: "Webflow API errors by status code",
-  labelNames: ["operation", "status_code", "error_type"] as const,
-  registers: [registry],
-});
+## Workflow
 
-// Rate limit remaining gauge
-export const rateLimitRemaining = new Gauge({
-  name: "webflow_rate_limit_remaining",
-  help: "Remaining API calls before rate limit",
-  registers: [registry],
-});
+1. Define service-level objectives for freshness, successful reads/writes, publish latency, webhook processing, and deployment availability.
+2. Instrument request count, latency, status, error code, retry count, endpoint family, environment, and redacted site identity.
+3. Track rate headroom and CDN HIT/MISS/BYPASS separately; avoid high-cardinality item IDs and personal data.
+4. Measure webhook verification failures, age, duplicates, queue delay, handler duration, and last successful event by trigger.
+5. For Cloud apps, correlate build/runtime logs and terminal deployment state with deployment IDs.
+6. Add actionable alerts with owner, evidence link, safe first check, and a threshold based on observed baseline.
 
-// CMS items gauge (track total items across collections)
-export const cmsItemCount = new Gauge({
-  name: "webflow_cms_items_total",
-  help: "Total CMS items by collection",
-  labelNames: ["collection", "site"] as const,
-  registers: [registry],
-});
+## Approval Boundaries
 
-// Webhook event counter
-export const webhookEvents = new Counter({
-  name: "webflow_webhook_events_total",
-  help: "Received webhook events by trigger type",
-  labelNames: ["trigger_type", "status"] as const,
-  registers: [registry],
-});
-```
-
-### Step 2: Instrumented Client Wrapper
-
-```typescript
-// src/observability/instrumented-client.ts
-import { WebflowClient } from "webflow-api";
-import { apiRequests, apiDuration, apiErrors, rateLimitRemaining } from "./metrics.js";
-
-export async function instrumentedCall<T>(
-  operation: string,
-  method: string,
-  fn: () => Promise<T>
-): Promise<T> {
-  const timer = apiDuration.startTimer({ operation });
-
-  try {
-    const result = await fn();
-
-    apiRequests.inc({ operation, status_code: "200", method });
-    timer();
-    return result;
-  } catch (error: any) {
-    const statusCode = String(error.statusCode || error.status || "unknown");
-
-    apiRequests.inc({ operation, status_code: statusCode, method });
-    apiErrors.inc({
-      operation,
-      status_code: statusCode,
-      error_type: statusCode === "429" ? "rate_limit" : statusCode >= "500" ? "server" : "client",
-    });
-
-    timer();
-    throw error;
-  }
-}
-
-// Usage
-const { sites } = await instrumentedCall("sites.list", "GET", () =>
-  webflow.sites.list()
-);
-
-const { items } = await instrumentedCall("items.listLive", "GET", () =>
-  webflow.collections.items.listItemsLive(collectionId)
-);
-
-const item = await instrumentedCall("items.create", "POST", () =>
-  webflow.collections.items.createItem(collectionId, {
-    fieldData: { name: "Test", slug: "test" },
-  })
-);
-```
-
-### Step 3: Metrics Endpoint
-
-```typescript
-// api/metrics.ts
-import express from "express";
-import { registry } from "../observability/metrics.js";
-
-const app = express();
-
-app.get("/metrics", async (req, res) => {
-  res.set("Content-Type", registry.contentType);
-  res.send(await registry.metrics());
-});
-```
-
-### Step 4: OpenTelemetry Distributed Tracing
-
-```typescript
-// src/observability/tracing.ts
-import { trace, SpanStatusCode, context } from "@opentelemetry/api";
-
-const tracer = trace.getTracer("webflow-integration", "1.0.0");
-
-export async function tracedCall<T>(
-  operationName: string,
-  attributes: Record<string, string>,
-  fn: () => Promise<T>
-): Promise<T> {
-  return tracer.startActiveSpan(`webflow.${operationName}`, async (span) => {
-    span.setAttributes({
-      "webflow.operation": operationName,
-      ...attributes,
-    });
-
-    try {
-      const result = await fn();
-      span.setStatus({ code: SpanStatusCode.OK });
-      return result;
-    } catch (error: any) {
-      span.setStatus({
-        code: SpanStatusCode.ERROR,
-        message: error.message,
-      });
-      span.recordException(error);
-      span.setAttributes({
-        "webflow.error.status_code": String(error.statusCode || "unknown"),
-      });
-      throw error;
-    } finally {
-      span.end();
-    }
-  });
-}
-
-// Usage
-const { collections } = await tracedCall(
-  "collections.list",
-  { "webflow.site_id": siteId },
-  () => webflow.collections.list(siteId)
-);
-```
-
-### Step 5: Structured Logging
-
-```typescript
-// src/observability/logger.ts
-import pino from "pino";
-
-export const logger = pino({
-  name: "webflow-integration",
-  level: process.env.LOG_LEVEL || "info",
-  serializers: {
-    err: pino.stdSerializers.err,
-  },
-  // Redact sensitive fields
-  redact: {
-    paths: ["accessToken", "apiToken", "*.authorization", "req.headers.authorization"],
-    censor: "[REDACTED]",
-  },
-});
-
-// Log API calls with consistent structure
-export function logApiCall(
-  operation: string,
-  durationMs: number,
-  status: "success" | "error",
-  metadata?: Record<string, any>
-) {
-  const logFn = status === "error" ? logger.error.bind(logger) : logger.info.bind(logger);
-
-  logFn({
-    service: "webflow",
-    operation,
-    durationMs,
-    status,
-    ...metadata,
-  }, `webflow.${operation} ${status} (${durationMs}ms)`);
-}
-
-// Log webhook events
-export function logWebhook(triggerType: string, status: "processed" | "failed" | "skipped") {
-  logger.info({
-    service: "webflow",
-    event: "webhook",
-    triggerType,
-    status,
-  }, `webhook.${triggerType} ${status}`);
-}
-```
-
-### Step 6: AlertManager Rules
-
-```yaml
-# prometheus/webflow-alerts.yml
-groups:
-  - name: webflow
-    rules:
-      - alert: WebflowHighErrorRate
-        expr: |
-          (
-            rate(webflow_api_errors_total[5m]) /
-            rate(webflow_api_requests_total[5m])
-          ) > 0.05
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Webflow API error rate > 5%"
-          description: "{{ $value | humanizePercentage }} errors in last 5m"
-
-      - alert: WebflowRateLimited
-        expr: |
-          rate(webflow_api_errors_total{status_code="429"}[5m]) > 0
-        for: 2m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Webflow API rate limited"
-
-      - alert: WebflowHighLatency
-        expr: |
-          histogram_quantile(0.95,
-            rate(webflow_api_request_duration_seconds_bucket[5m])
-          ) > 3
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Webflow P95 latency > 3s"
-
-      - alert: WebflowDown
-        expr: |
-          sum(rate(webflow_api_requests_total{status_code=~"5.."}[5m])) /
-          sum(rate(webflow_api_requests_total[5m])) > 0.5
-        for: 2m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Webflow API > 50% server errors"
-
-      - alert: WebflowRateLimitLow
-        expr: webflow_rate_limit_remaining < 10
-        for: 1m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Webflow rate limit nearly exhausted"
-```
-
-### Step 7: Grafana Dashboard Queries
-
-```json
-{
-  "panels": [
-    {
-      "title": "Request Rate by Operation",
-      "targets": [{ "expr": "sum by (operation) (rate(webflow_api_requests_total[5m]))" }]
-    },
-    {
-      "title": "Error Rate",
-      "targets": [{ "expr": "sum(rate(webflow_api_errors_total[5m])) / sum(rate(webflow_api_requests_total[5m]))" }]
-    },
-    {
-      "title": "Latency P50 / P95 / P99",
-      "targets": [
-        { "expr": "histogram_quantile(0.5, rate(webflow_api_request_duration_seconds_bucket[5m]))", "legendFormat": "p50" },
-        { "expr": "histogram_quantile(0.95, rate(webflow_api_request_duration_seconds_bucket[5m]))", "legendFormat": "p95" },
-        { "expr": "histogram_quantile(0.99, rate(webflow_api_request_duration_seconds_bucket[5m]))", "legendFormat": "p99" }
-      ]
-    },
-    {
-      "title": "Rate Limit Remaining",
-      "targets": [{ "expr": "webflow_rate_limit_remaining" }]
-    },
-    {
-      "title": "Webhook Events by Type",
-      "targets": [{ "expr": "sum by (trigger_type) (rate(webflow_webhook_events_total[5m]))" }]
-    }
-  ]
-}
-```
+Default to read-only inspection. Before any create, update, delete, publish, unpublish, archive, deploy, token revoke, or webhook registration, show the exact environment and resource IDs, the proposed change, validation method, and rollback or compensating action. Proceed only when the user's request clearly authorizes that mutation; require a fresh explicit approval for production publication or destructive work.
 
 ## Output
 
-- Prometheus metrics: request count, latency histogram, error rate, rate limit gauge
-- OpenTelemetry tracing for end-to-end request visibility
-- Structured JSON logging with PII redaction
-- AlertManager rules for error rate, latency, and rate limits
-- Grafana dashboard panels
+Return the inspected project and versions, verified Webflow identities, relevant endpoint and scope contract, changes proposed or made, validation evidence, live-mutation status, rollback readiness, and remaining risks. Distinguish documented fact, repository evidence, and inference.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Missing metrics | Calls not instrumented | Wrap with `instrumentedCall()` |
-| High cardinality | Too many label values | Limit `operation` to known set |
-| Trace gaps | Missing context propagation | Pass OTel context in async calls |
-| Alert storms | Thresholds too sensitive | Increase `for` duration |
+| Condition | Response |
+|---|---|
+| Metrics contain payload data | Remove or hash sensitive dimensions and rotate affected telemetry access if needed. |
+| Alert has no action | Tie it to a runbook step and verified identity. |
+| Success measured at enqueue | Change the signal to terminal state plus public-route verification. |
+
+## Examples
+
+Alert when a verified production token's rate headroom stays low while origin MISS traffic rises, linking the endpoint class and runbook without logging item payloads or bearer headers.
 
 ## Resources
 
-- [Prometheus Best Practices](https://prometheus.io/docs/practices/naming/)
-- [OpenTelemetry JS](https://opentelemetry.io/docs/languages/js/)
-- [pino Documentation](https://github.com/pinojs/pino)
-
-## Next Steps
-
-For incident response, see `webflow-incident-runbook`.
+- [Official Webflow references](references/official-docs.md)
+- [Webflow developer documentation](https://developers.webflow.com/)
+- [Data API v2 index](https://developers.webflow.com/data/v2.0.0/llms.txt)

@@ -10008,7 +10008,7 @@
     {
       "name": "webflow-pack",
       "source": "./plugins/saas-packs/webflow-pack",
-      "description": "Claude Code skill pack for Webflow (24 skills)",
+      "description": "Verified operator workflows for Webflow Data API v2, Webflow Cloud, CLI, CMS, webhooks, security, and production operations (24 skills)",
       "version": "1.5.0",
       "category": "saas-packs",
       "keywords": [

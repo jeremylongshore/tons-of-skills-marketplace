@@ -1,14 +1,13 @@
 {
   "name": "webflow-pack",
   "version": "1.5.0",
-  "description": "Claude Code skill pack for Webflow (24 skills)",
+  "description": "Verified operator workflows for Webflow Data API v2, Webflow Cloud, CLI, CMS, webhooks, security, and production operations (24 skills)",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
   },
   "license": "MIT",
   "keywords": [
-    "webflow",
     "webflow",
     "saas",
     "sdk",

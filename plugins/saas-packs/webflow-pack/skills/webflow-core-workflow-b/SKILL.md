@@ -1,323 +1,79 @@
 ---
 name: webflow-core-workflow-b
-description: "Execute Webflow secondary workflows \u2014 Sites management, Pages API,\
-  \ Forms submissions,\nEcommerce (products/orders/inventory), and Custom Code via\
-  \ the Data API v2.\nUse when managing sites, reading pages, handling form data,\
-  \ or working with\nWebflow Ecommerce products and orders.\nTrigger with phrases\
-  \ like \"webflow sites\", \"webflow pages\", \"webflow forms\",\n\"webflow ecommerce\"\
-  , \"webflow products\", \"webflow orders\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(npx:*), Grep
+description: >-
+  Plan Webflow Data API operations outside the core CMS item loop, including pages, components, forms, ecommerce, assets, and custom code. Use when a request spans site resources or needs endpoint-specific scope review. Trigger with "Webflow site API", "Webflow forms", or "Webflow ecommerce".
+argument-hint: "[project-path] [site-id] [resource]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.5.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- design
-- no-code
 - webflow
+- data-api
+- operations
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Webflow Core Workflow B — Sites, Pages, Forms & Ecommerce
+# Webflow Site and Extended Data Operations
 
 ## Overview
 
-Beyond CMS content management, Webflow's Data API v2 covers site operations, page
-metadata, form submissions, ecommerce (products, orders, inventory), and custom code
-injection. This skill covers all non-CMS API domains.
+This skill produces a repo-grounded Webflow plan or implementation. It treats current official documentation and the target project's installed versions as authority, keeps discovery read-only, and separates preparation from live mutation.
 
 ## Prerequisites
 
-- Completed `webflow-install-auth` setup
-- Scopes needed: `sites:read`, `sites:write`, `pages:read`, `forms:read`,
-  `ecommerce:read`, `ecommerce:write`, `custom_code:read`, `custom_code:write`
+- A named target repository or project path and permission to inspect it
+- The intended Webflow environment and non-secret resource identities, or a plan to discover them read-only
+- Access to current official Webflow documentation; credentials stay in the user's existing secret store
 
-## Instructions
+## Tool Discipline
 
-### 1. Sites Management
+Use `Read` for repository instructions and relevant files, `Glob` to inventory manifests and Webflow integration paths, and `Grep` to locate API hosts, IDs, scopes, and credential names. Use `WebFetch` only for current official Webflow documentation. Use `Write` for a new user-requested artifact and `Edit` for minimal changes to existing files after the evidence pass.
 
-```typescript
-import { WebflowClient } from "webflow-api";
+## Current Contract
 
-const webflow = new WebflowClient({
-  accessToken: process.env.WEBFLOW_API_TOKEN!,
-});
+- Pages, components, forms, ecommerce, assets, custom code, and sites have separate endpoint families and scope pairs.
+- Custom-code scopes are available to Data Client apps; site tokens cannot access custom-code endpoints.
+- Form submissions and ecommerce records can contain personal or financial-adjacent data and require minimization before logs or fixtures.
+- Site publishing is a separate write with an endpoint-specific limit and must not be coupled automatically to unrelated updates.
 
-// List all sites
-async function listSites() {
-  const { sites } = await webflow.sites.list();
-  for (const site of sites!) {
-    console.log(`${site.displayName} (${site.id})`);
-    console.log(`  Short name: ${site.shortName}`);
-    console.log(`  Timezone: ${site.timeZone}`);
-    console.log(`  Created: ${site.createdOn}`);
-    console.log(`  Last published: ${site.lastPublished}`);
-    console.log(`  Custom domains: ${site.customDomains?.map(d => d.url).join(", ")}`);
-    console.log(`  Default locale: ${site.locales?.[0]?.displayName}`);
-  }
-}
+## Authentication
 
-// Get single site details
-async function getSite(siteId: string) {
-  const site = await webflow.sites.get(siteId);
-  return site;
-}
+Authenticate Data API calls with a bearer token selected for the integration: a site token for controlled single-site work, a workspace token only for its supported workspace/read use cases, or OAuth for user-authorized applications. Derive scopes from the exact endpoints. Never read, echo, persist, or place token values in commands, patches, examples, logs, or reports.
 
-// Publish site (rate limit: 1 per minute)
-async function publishSite(siteId: string, domains?: string[]) {
-  await webflow.sites.publish(siteId, {
-    publishToWebflowSubdomain: true,
-    customDomains: domains, // Optional: publish to specific domains
-  });
-  console.log("Site published successfully");
-}
-```
+## Workflow
 
-### 2. Pages API
+1. Classify the requested resource and operation; reject a kitchen-sink implementation plan that mixes unrelated writes.
+2. Open the exact endpoint reference and record method, path, token eligibility, required scope, request fields, and pagination.
+3. Inventory existing adapters and reuse their identity, error, retry, and redaction contracts.
+4. Build a read-only probe first and verify the site and resource IDs returned.
+5. For writes, produce a resource-specific diff and rollback or compensating action. Require explicit approval for the exact target.
+6. Verify by re-reading the resource and report any downstream publish step separately.
 
-```typescript
-// List all pages for a site
-async function listPages(siteId: string) {
-  const { pages } = await webflow.pages.list(siteId);
+## Approval Boundaries
 
-  for (const page of pages!) {
-    console.log(`${page.title} (${page.id})`);
-    console.log(`  Slug: ${page.slug}`);
-    console.log(`  SEO title: ${page.seo?.title}`);
-    console.log(`  SEO description: ${page.seo?.description}`);
-    console.log(`  Open Graph image: ${page.openGraph?.titleCopied}`);
-    console.log(`  Created: ${page.createdOn}`);
-    console.log(`  Published: ${page.publishedPath}`);
-  }
-}
-
-// Get page metadata
-async function getPage(pageId: string) {
-  const page = await webflow.pages.getMetadata(pageId);
-  return page;
-}
-
-// Update page SEO metadata
-async function updatePageSEO(pageId: string) {
-  await webflow.pages.updatePageSettings(pageId, {
-    seo: {
-      title: "New SEO Title — My Site",
-      description: "Updated meta description for search engines.",
-    },
-    openGraph: {
-      title: "New OG Title",
-      description: "Updated Open Graph description for social shares.",
-    },
-  });
-}
-```
-
-### 3. Form Submissions
-
-```typescript
-// List forms on a site
-async function listForms(siteId: string) {
-  const { forms } = await webflow.forms.list(siteId);
-
-  for (const form of forms!) {
-    console.log(`Form: ${form.displayName} (${form.id})`);
-    console.log(`  Site ID: ${form.siteId}`);
-    console.log(`  Page name: ${form.pageName}`);
-    console.log(`  Submission count: ${form.submissionCount}`);
-    console.log(`  Fields:`);
-    for (const field of form.fields || []) {
-      console.log(`    ${field.displayName} (${field.type})`);
-    }
-  }
-}
-
-// Get form submissions (paginated)
-async function getFormSubmissions(formId: string) {
-  const { formSubmissions } = await webflow.forms.listSubmissions(formId, {
-    limit: 100,
-    offset: 0,
-  });
-
-  for (const sub of formSubmissions!) {
-    console.log(`Submission ${sub.id}:`);
-    console.log(`  Submitted: ${sub.submittedAt}`);
-    console.log(`  Data: ${JSON.stringify(sub.formData)}`);
-  }
-}
-
-// Export all form submissions to CSV
-async function exportFormData(formId: string) {
-  const allSubmissions = [];
-  let offset = 0;
-  const limit = 100;
-
-  while (true) {
-    const { formSubmissions, pagination } =
-      await webflow.forms.listSubmissions(formId, { limit, offset });
-
-    allSubmissions.push(...(formSubmissions || []));
-    if (allSubmissions.length >= (pagination?.total || 0)) break;
-    offset += limit;
-  }
-
-  return allSubmissions.map(sub => sub.formData);
-}
-```
-
-### 4. Ecommerce — Products & SKUs
-
-```typescript
-// List all products
-async function listProducts(siteId: string) {
-  const { items } = await webflow.products.list(siteId, {
-    limit: 100,
-    offset: 0,
-  });
-
-  for (const product of items!) {
-    console.log(`Product: ${product.product?.fieldData?.name}`);
-    console.log(`  ID: ${product.product?.id}`);
-    console.log(`  Slug: ${product.product?.fieldData?.slug}`);
-    console.log(`  SKUs:`);
-    for (const sku of product.skus || []) {
-      console.log(`    ${sku.fieldData?.name}: $${sku.fieldData?.price?.value}`);
-      console.log(`    Inventory: ${sku.fieldData?.quantity}`);
-    }
-  }
-}
-
-// Get single product with all SKUs
-async function getProduct(siteId: string, productId: string) {
-  const product = await webflow.products.get(siteId, productId);
-  return product;
-}
-
-// Create a product
-async function createProduct(siteId: string) {
-  const product = await webflow.products.create(siteId, {
-    product: {
-      fieldData: {
-        name: "Premium Widget",
-        slug: "premium-widget",
-        description: "<p>Our best-selling widget</p>",
-      },
-    },
-    sku: {
-      fieldData: {
-        name: "Default",
-        slug: "default",
-        price: { value: 2999, unit: "USD" }, // Price in cents
-        quantity: 100,
-        "sku-properties": [],
-      },
-    },
-  });
-
-  console.log(`Created product: ${product.product?.id}`);
-}
-
-// Update inventory
-async function updateInventory(
-  siteId: string,
-  collectionId: string,
-  itemId: string,
-  quantity: number
-) {
-  await webflow.inventory.update(collectionId, itemId, {
-    inventoryType: "finite",
-    updateQuantity: quantity,
-  });
-}
-```
-
-### 5. Ecommerce — Orders
-
-```typescript
-// List orders
-async function listOrders(siteId: string) {
-  const { orders } = await webflow.orders.list(siteId, {
-    limit: 100,
-  });
-
-  for (const order of orders!) {
-    console.log(`Order #${order.orderId} (${order.status})`);
-    console.log(`  Customer: ${order.customerInfo?.fullName}`);
-    console.log(`  Email: ${order.customerInfo?.email}`);
-    console.log(`  Total: $${(order.customerPaid?.value || 0) / 100}`);
-    console.log(`  Items: ${order.purchasedItems?.length}`);
-    console.log(`  Created: ${order.acceptedOn}`);
-  }
-}
-
-// Get order details
-async function getOrder(siteId: string, orderId: string) {
-  const order = await webflow.orders.get(siteId, orderId);
-  return order;
-}
-
-// Update order status (fulfill, refund)
-async function fulfillOrder(siteId: string, orderId: string) {
-  await webflow.orders.update(siteId, orderId, {
-    status: "fulfilled",
-  });
-}
-
-// Refund an order
-async function refundOrder(siteId: string, orderId: string) {
-  await webflow.orders.refund(siteId, orderId);
-  console.log(`Refunded order: ${orderId}`);
-}
-```
-
-### 6. Custom Code
-
-```typescript
-// Register custom code to the site head/footer
-async function addSiteCustomCode(siteId: string) {
-  // Register hosted script
-  await webflow.scripts.registerHosted(siteId, {
-    hostedLocation: "https://cdn.example.com/analytics.js",
-    integrityHash: "sha384-...",
-    canCopy: false,
-    version: "1.0.0",
-    displayName: "Analytics Script",
-  });
-
-  // Register inline script
-  await webflow.scripts.registerInline(siteId, {
-    sourceCode: "console.log('Hello from custom code');",
-    version: "1.0.0",
-    canCopy: true,
-    displayName: "Debug Script",
-  });
-}
-```
+Default to read-only inspection. Before any create, update, delete, publish, unpublish, archive, deploy, token revoke, or webhook registration, show the exact environment and resource IDs, the proposed change, validation method, and rollback or compensating action. Proceed only when the user's request clearly authorizes that mutation; require a fresh explicit approval for production publication or destructive work.
 
 ## Output
 
-- Sites: list, get details, publish with domain control
-- Pages: list, read SEO metadata, update Open Graph settings
-- Forms: list forms, read all submissions, export data
-- Ecommerce: CRUD products/SKUs, manage orders, update inventory
-- Custom Code: register hosted and inline scripts
+Return the inspected project and versions, verified Webflow identities, relevant endpoint and scope contract, changes proposed or made, validation evidence, live-mutation status, rollback readiness, and remaining risks. Distinguish documented fact, repository evidence, and inference.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `403 Forbidden` on ecommerce | Missing `ecommerce:read` scope | Add scope to token |
-| Site publish `429` | >1 publish/minute | Wait 60s between publishes |
-| Empty products list | Ecommerce not enabled on site | Enable Ecommerce in Webflow dashboard |
-| Form `404` | Wrong form_id | List forms with `forms.list(siteId)` first |
-| Order refund fails | Order already refunded | Check order status before refunding |
+| Condition | Response |
+|---|---|
+| 403 on custom code | Confirm the integration is a Data Client app; a site token is not eligible. |
+| Sensitive form/order payload | Redact and minimize before storing diagnostics or fixtures. |
+| Publish needed | Present it as a separate approval boundary after the resource update verifies. |
+
+## Examples
+
+For a page metadata correction, inspect the page endpoint and `pages:write` requirement, diff only the requested metadata, obtain approval, patch that page, and verify without publishing the whole site automatically.
 
 ## Resources
 
-- [Sites API](https://developers.webflow.com/data/reference/sites)
-- Pages API
-- [Forms API](https://developers.webflow.com/data/reference/forms)
-- [Ecommerce Products](https://developers.webflow.com/data/reference/ecommerce/products/list)
-- [Custom Code API](https://developers.webflow.com/data/reference/custom-code)
-
-## Next Steps
-
-For common errors, see `webflow-common-errors`.
+- [Official Webflow references](references/official-docs.md)
+- [Webflow developer documentation](https://developers.webflow.com/)
+- [Data API v2 index](https://developers.webflow.com/data/v2.0.0/llms.txt)

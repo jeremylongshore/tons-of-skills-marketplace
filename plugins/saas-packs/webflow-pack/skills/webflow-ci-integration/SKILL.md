@@ -1,284 +1,79 @@
 ---
 name: webflow-ci-integration
-description: "Configure Webflow CI/CD with GitHub Actions \u2014 automated CMS validation,\n\
-  integration tests with test tokens, and publish-on-merge workflows.\nUse when setting\
-  \ up automated testing or CI pipelines for Webflow integrations.\nTrigger with phrases\
-  \ like \"webflow CI\", \"webflow GitHub Actions\",\n\"webflow automated tests\"\
-  , \"CI webflow\", \"webflow pipeline\".\n"
-allowed-tools: Read, Write, Edit, Bash(gh:*), Bash(npm:*)
+description: >-
+  Build fail-closed CI for Webflow Data API or Cloud changes with pinned tools and explicit identities. Use when adding automated tests, non-interactive CLI work, or gated deployment. Trigger with "Webflow CI", "Webflow GitHub Actions", or "automate Webflow deploy".
+argument-hint: "[project-path] [workflow-file] [environment]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.5.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- design
-- no-code
 - webflow
+- ci-cd
+- automation
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Webflow CI Integration
+# Webflow CI and Agent Automation
 
 ## Overview
 
-Set up CI/CD pipelines for Webflow Data API v2 integrations with GitHub Actions.
-Includes unit tests with mocked SDK, integration tests with test tokens, CMS schema
-validation, and automated publish-on-merge workflows.
+This skill produces a repo-grounded Webflow plan or implementation. It treats current official documentation and the target project's installed versions as authority, keeps discovery read-only, and separates preparation from live mutation.
 
 ## Prerequisites
 
-- GitHub repository with Actions enabled
-- Webflow API token (test environment) stored as GitHub secret
-- `webflow-api` SDK with vitest test suite
+- A named target repository or project path and permission to inspect it
+- The intended Webflow environment and non-secret resource identities, or a plan to discover them read-only
+- Access to current official Webflow documentation; credentials stay in the user's existing secret store
 
-## Instructions
+## Tool Discipline
 
-### Step 1: Store Secrets
+Use `Read` for repository instructions and relevant files, `Glob` to inventory manifests and Webflow integration paths, and `Grep` to locate API hosts, IDs, scopes, and credential names. Use `WebFetch` only for current official Webflow documentation. Use `Write` for a new user-requested artifact and `Edit` for minimal changes to existing files after the evidence pass.
 
-```bash
-# Store Webflow test token as GitHub secret
-gh secret set WEBFLOW_API_TOKEN --body "your-test-token"
-gh secret set WEBFLOW_SITE_ID --body "your-test-site-id"
+## Current Contract
 
-# For production deployments
-gh secret set WEBFLOW_API_TOKEN_PROD --body "your-prod-token"
-```
+- Webflow CLI non-interactive work must pass every required ID explicitly and should add `--no-input`; missing values fail instead of opening a usable prompt.
+- Current `apps` management commands are on the CLI `next` channel. CI must pin an exact pre-release version rather than installing the moving tag.
+- `--json` changes successful output, while errors remain human-readable stderr; gate primarily on exit status.
+- Destructive app commands require `--yes` in non-interactive mode, and supported write-management commands provide `--dry-run` for previews.
 
-### Step 2: Unit Test Workflow
+## Authentication
 
-Tests that mock the SDK — run on every PR, no API calls:
+Authenticate Data API calls with a bearer token selected for the integration: a site token for controlled single-site work, a workspace token only for its supported workspace/read use cases, or OAuth for user-authorized applications. Derive scopes from the exact endpoints. Never read, echo, persist, or place token values in commands, patches, examples, logs, or reports.
 
-```yaml
-# .github/workflows/webflow-test.yml
-name: Webflow Integration Tests
+## Workflow
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+1. Inventory existing workflows, branch protections, environment approvals, package locks, `webflow.json`, and the intended Webflow surface.
+2. Pin Node and the exact SDK or CLI version. Pass app, environment, site, workspace, mount, and deployment mode explicitly.
+3. Separate pull-request checks from protected-environment mutations. PR jobs should typecheck, test fixtures, and run read-only probes only.
+4. For management writes, run the documented dry-run, archive the plan, and bind execution to an approved environment.
+5. For Cloud deploys, wait for the deployment terminal status and run a route-specific smoke test before downstream notification.
+6. Test missing secrets, wrong IDs, 429s, failed deployments, and rollback selection; preserve receipts without secret values.
 
-jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-      - run: npm ci
-      - run: npm test -- --coverage
-      - name: Upload coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: coverage/
+## Approval Boundaries
 
-  lint-and-typecheck:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-      - run: npm ci
-      - run: npx tsc --noEmit
-      - run: npm run lint
-```
-
-### Step 3: Integration Test Workflow
-
-Tests against the real Webflow API — run only on main branch with secrets:
-
-```yaml
-# .github/workflows/webflow-integration.yml
-name: Webflow Integration Tests
-
-on:
-  push:
-    branches: [main]
-  workflow_dispatch: # Manual trigger
-
-jobs:
-  integration:
-    runs-on: ubuntu-latest
-    # Only run if secrets are available
-    if: ${{ vars.WEBFLOW_TESTS_ENABLED == 'true' }}
-    env:
-      WEBFLOW_API_TOKEN: ${{ secrets.WEBFLOW_API_TOKEN }}
-      WEBFLOW_SITE_ID: ${{ secrets.WEBFLOW_SITE_ID }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-      - run: npm ci
-      - name: Verify Webflow connectivity
-        run: |
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "Authorization: Bearer $WEBFLOW_API_TOKEN" \
-            https://api.webflow.com/v2/sites)
-          if [ "$HTTP_CODE" != "200" ]; then
-            echo "Webflow API returned HTTP $HTTP_CODE"
-            exit 1
-          fi
-      - name: Run integration tests
-        run: npm run test:integration
-        timeout-minutes: 5
-```
-
-### Step 4: Integration Test Example
-
-```typescript
-// tests/integration/webflow.integration.test.ts
-import { describe, it, expect } from "vitest";
-import { WebflowClient } from "webflow-api";
-
-const SKIP = !process.env.WEBFLOW_API_TOKEN;
-
-describe.skipIf(SKIP)("Webflow API Integration", () => {
-  const webflow = new WebflowClient({
-    accessToken: process.env.WEBFLOW_API_TOKEN!,
-  });
-  const siteId = process.env.WEBFLOW_SITE_ID!;
-
-  it("should list sites", async () => {
-    const { sites } = await webflow.sites.list();
-    expect(sites).toBeDefined();
-    expect(sites!.length).toBeGreaterThan(0);
-  });
-
-  it("should get site details", async () => {
-    const site = await webflow.sites.get(siteId);
-    expect(site.id).toBe(siteId);
-    expect(site.displayName).toBeDefined();
-  });
-
-  it("should list collections", async () => {
-    const { collections } = await webflow.collections.list(siteId);
-    expect(collections).toBeDefined();
-    for (const col of collections!) {
-      expect(col.id).toBeDefined();
-      expect(col.displayName).toBeDefined();
-      expect(col.fields).toBeDefined();
-    }
-  });
-
-  it("should handle rate limits gracefully", async () => {
-    // The SDK auto-retries on 429 — this should not throw
-    const promises = Array.from({ length: 5 }, () =>
-      webflow.sites.list()
-    );
-    const results = await Promise.all(promises);
-    expect(results.every(r => r.sites!.length > 0)).toBe(true);
-  });
-});
-```
-
-### Step 5: CMS Schema Validation
-
-Ensure your code matches the live Webflow collection schema:
-
-```typescript
-// tests/integration/schema-validation.test.ts
-import { describe, it, expect } from "vitest";
-import { WebflowClient } from "webflow-api";
-
-const SKIP = !process.env.WEBFLOW_API_TOKEN;
-
-describe.skipIf(SKIP)("CMS Schema Validation", () => {
-  const webflow = new WebflowClient({
-    accessToken: process.env.WEBFLOW_API_TOKEN!,
-  });
-  const siteId = process.env.WEBFLOW_SITE_ID!;
-
-  // Define expected schema for your "Blog Posts" collection
-  const EXPECTED_FIELDS = [
-    { slug: "name", type: "PlainText", required: true },
-    { slug: "slug", type: "PlainText", required: true },
-    { slug: "post-body", type: "RichText", required: false },
-    { slug: "author-name", type: "PlainText", required: false },
-    { slug: "publish-date", type: "DateTime", required: false },
-  ];
-
-  it("should match expected collection schema", async () => {
-    const { collections } = await webflow.collections.list(siteId);
-    const blogCollection = collections!.find(c => c.slug === "blog-posts");
-    expect(blogCollection).toBeDefined();
-
-    for (const expected of EXPECTED_FIELDS) {
-      const field = blogCollection!.fields!.find(f => f.slug === expected.slug);
-      expect(field, `Field "${expected.slug}" should exist`).toBeDefined();
-      expect(field!.type).toBe(expected.type);
-    }
-  });
-});
-```
-
-### Step 6: Publish-on-Merge Workflow
-
-Automatically publish Webflow site when content changes merge to main:
-
-```yaml
-# .github/workflows/webflow-publish.yml
-name: Publish Webflow Site
-
-on:
-  push:
-    branches: [main]
-    paths:
-      - "content/**"
-      - "src/webflow/**"
-
-jobs:
-  sync-and-publish:
-    runs-on: ubuntu-latest
-    env:
-      WEBFLOW_API_TOKEN: ${{ secrets.WEBFLOW_API_TOKEN_PROD }}
-      WEBFLOW_SITE_ID: ${{ secrets.WEBFLOW_SITE_ID_PROD }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-      - run: npm ci
-      - name: Sync content to Webflow CMS
-        run: npm run sync:webflow
-      - name: Publish site
-        run: |
-          curl -X POST \
-            "https://api.webflow.com/v2/sites/$WEBFLOW_SITE_ID/publish" \
-            -H "Authorization: Bearer $WEBFLOW_API_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{"publishToWebflowSubdomain": true}'
-```
+Default to read-only inspection. Before any create, update, delete, publish, unpublish, archive, deploy, token revoke, or webhook registration, show the exact environment and resource IDs, the proposed change, validation method, and rollback or compensating action. Proceed only when the user's request clearly authorizes that mutation; require a fresh explicit approval for production publication or destructive work.
 
 ## Output
 
-- Unit test pipeline (mocked, runs on every PR)
-- Integration test pipeline (real API, runs on main)
-- CMS schema validation tests
-- Automated publish-on-merge workflow
-- GitHub secrets configured
+Return the inspected project and versions, verified Webflow identities, relevant endpoint and scope contract, changes proposed or made, validation evidence, live-mutation status, rollback readiness, and remaining risks. Distinguish documented fact, repository evidence, and inference.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Secret not found | Missing `gh secret set` | Add secret via GitHub CLI |
-| Integration tests timeout | Rate limited or slow API | Increase timeout, reduce parallelism |
-| Schema mismatch | Collection changed in Webflow | Update expected schema in tests |
-| Publish fails in CI | Wrong production token | Verify `WEBFLOW_API_TOKEN_PROD` secret |
+| Condition | Response |
+|---|---|
+| Missing required ID | Fail the job and name the approved secret or manifest key; never select an arbitrary resource. |
+| Moving CLI changed | Restore the pinned version and assess release notes before updating. |
+| Deployment not terminal | Use the documented wait operation and timeout; do not report success from enqueue alone. |
+
+## Examples
+
+A protected production workflow pins the exact CLI `next` build, passes site/app/environment IDs from environment secrets, runs read-only tests first, deploys only after approval, waits for success, and smoke-tests the mount.
 
 ## Resources
 
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [Vitest Documentation](https://vitest.dev/)
-- [Webflow API Reference](https://developers.webflow.com/data/reference/rest-introduction)
-
-## Next Steps
-
-For deployment patterns, see `webflow-deploy-integration`.
+- [Official Webflow references](references/official-docs.md)
+- [Webflow developer documentation](https://developers.webflow.com/)
+- [Data API v2 index](https://developers.webflow.com/data/v2.0.0/llms.txt)

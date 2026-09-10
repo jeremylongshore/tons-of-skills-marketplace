@@ -1,220 +1,79 @@
 ---
 name: webflow-hello-world
-description: "Create a minimal working Webflow Data API v2 example.\nUse when starting\
-  \ a new Webflow integration, testing your setup,\nor learning basic Webflow API\
-  \ patterns \u2014 list sites, read CMS collections, create items.\nTrigger with\
-  \ phrases like \"webflow hello world\", \"webflow example\",\n\"webflow quick start\"\
-  , \"simple webflow code\", \"first webflow API call\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(npx:*)
+description: >-
+  Build a minimal, read-first Webflow Data API v2 integration with an official SDK. Use when proving connectivity, learning resource IDs, or establishing a safe starting point. Trigger with "Webflow hello world", "test Webflow API", or "list my Webflow sites".
+argument-hint: "[project-path] [site-id]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.5.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- design
-- no-code
 - webflow
+- api
+- quickstart
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Webflow Hello World
+# Webflow Data API Hello World
 
 ## Overview
 
-Minimal working examples demonstrating the three core Webflow Data API v2 operations:
-listing sites, reading CMS collections/items, and creating a CMS item.
+This skill produces a repo-grounded Webflow plan or implementation. It treats current official documentation and the target project's installed versions as authority, keeps discovery read-only, and separates preparation from live mutation.
 
 ## Prerequisites
 
-- Completed `webflow-install-auth` setup
-- `webflow-api` package installed
-- Valid API token with `sites:read` and `cms:read` scopes
+- A named target repository or project path and permission to inspect it
+- The intended Webflow environment and non-secret resource identities, or a plan to discover them read-only
+- Access to current official Webflow documentation; credentials stay in the user's existing secret store
 
-## Instructions
+## Tool Discipline
 
-### Step 1: List Your Sites
+Use `Read` for repository instructions and relevant files, `Glob` to inventory manifests and Webflow integration paths, and `Grep` to locate API hosts, IDs, scopes, and credential names. Use `WebFetch` only for current official Webflow documentation. Use `Write` for a new user-requested artifact and `Edit` for minimal changes to existing files after the evidence pass.
 
-Every Webflow API call starts with a `site_id`. List your sites to find it:
+## Current Contract
 
-```typescript
-// hello-webflow.ts
-import { WebflowClient } from "webflow-api";
+- Start with `GET /v2/sites`; use the returned site ID to discover collections and other site resources.
+- CMS has staged and live representations. A first-run example should read both deliberately rather than imply they are interchangeable.
+- Connection success is not authorization for a write. Keep the hello-world path read-only until the user names the target collection and desired mutation.
+- Use the target project's installed SDK types or the current endpoint reference because generated method names can change across SDK releases.
 
-const webflow = new WebflowClient({
-  accessToken: process.env.WEBFLOW_API_TOKEN!,
-});
+## Authentication
 
-async function listSites() {
-  const { sites } = await webflow.sites.list();
+Authenticate Data API calls with a bearer token selected for the integration: a site token for controlled single-site work, a workspace token only for its supported workspace/read use cases, or OAuth for user-authorized applications. Derive scopes from the exact endpoints. Never read, echo, persist, or place token values in commands, patches, examples, logs, or reports.
 
-  for (const site of sites!) {
-    console.log(`${site.displayName}`);
-    console.log(`  ID: ${site.id}`);
-    console.log(`  Short name: ${site.shortName}`);
-    console.log(`  Custom domains: ${site.customDomains?.map(d => d.url).join(", ")}`);
-    console.log(`  Last published: ${site.lastPublished}`);
-    console.log(`  Locales: ${site.locales?.map(l => l.displayName).join(", ")}`);
-  }
-}
+## Workflow
 
-listSites().catch(console.error);
-```
+1. Inspect the project instructions, runtime, package manager, and existing environment-variable convention.
+2. Add or reuse a pinned `webflow-api` dependency and a server-only `WEBFLOW_API_TOKEN` binding.
+3. Create one small client module and a command that lists accessible sites without logging credentials or entire sensitive payloads.
+4. Select the intended site by ID, then list collections and record their IDs and display names.
+5. Read a bounded page of staged items and, separately, live items. Label which surface produced each result.
+6. Run the project's typecheck or test command if already available; otherwise provide the exact command the user should run and the expected identity fields.
 
-### Step 2: List CMS Collections
+## Approval Boundaries
 
-Collections define your content types (blog posts, team members, products, etc.):
-
-```typescript
-async function listCollections(siteId: string) {
-  const { collections } = await webflow.collections.list(siteId);
-
-  for (const col of collections!) {
-    console.log(`Collection: ${col.displayName}`);
-    console.log(`  ID: ${col.id}`);
-    console.log(`  Slug: ${col.slug}`);
-    console.log(`  Item count: ${col.itemCount}`);
-    console.log(`  Fields:`);
-    for (const field of col.fields || []) {
-      console.log(`    - ${field.displayName} (${field.type}, required: ${field.isRequired})`);
-    }
-  }
-}
-
-// Usage: pass your site_id
-listCollections("your-site-id").catch(console.error);
-```
-
-### Step 3: Read CMS Items
-
-Fetch items from a collection — staged (draft) or live (published):
-
-```typescript
-async function readItems(collectionId: string) {
-  // Get staged (draft + published) items
-  const { items } = await webflow.collections.items.listItems(collectionId, {
-    limit: 10,
-    offset: 0,
-  });
-
-  for (const item of items!) {
-    console.log(`Item: ${item.fieldData?.name || item.id}`);
-    console.log(`  ID: ${item.id}`);
-    console.log(`  Slug: ${item.fieldData?.slug}`);
-    console.log(`  Draft: ${item.isDraft}`);
-    console.log(`  Archived: ${item.isArchived}`);
-    console.log(`  Created: ${item.createdOn}`);
-  }
-
-  // Get live (published) items only
-  const live = await webflow.collections.items.listItemsLive(collectionId, {
-    limit: 10,
-  });
-  console.log(`\nLive items: ${live.items?.length}`);
-}
-```
-
-### Step 4: Create a CMS Item
-
-```typescript
-async function createBlogPost(collectionId: string) {
-  // Items are created as drafts by default (isDraft: true)
-  const item = await webflow.collections.items.createItem(collectionId, {
-    fieldData: {
-      name: "Hello from the API",
-      slug: "hello-from-api",
-      // Field names must match your collection schema
-      // Use the slug version of field names (lowercase, hyphens)
-      "post-body": "<p>This post was created via the Webflow Data API v2.</p>",
-      "author": "API Bot",
-      "published-date": new Date().toISOString(),
-    },
-    isDraft: false, // Set false to stage for publishing
-  });
-
-  console.log(`Created item: ${item.id}`);
-  console.log(`  Draft: ${item.isDraft}`);
-  console.log(`  Slug: ${item.fieldData?.slug}`);
-
-  return item;
-}
-```
-
-### Step 5: Complete Hello World Script
-
-```typescript
-import { WebflowClient } from "webflow-api";
-
-const webflow = new WebflowClient({
-  accessToken: process.env.WEBFLOW_API_TOKEN!,
-});
-
-async function main() {
-  // 1. Get first site
-  const { sites } = await webflow.sites.list();
-  const site = sites![0];
-  console.log(`Using site: ${site.displayName} (${site.id})\n`);
-
-  // 2. List collections
-  const { collections } = await webflow.collections.list(site.id!);
-  console.log(`Found ${collections!.length} collections:`);
-  for (const col of collections!) {
-    console.log(`  - ${col.displayName} (${col.itemCount} items)`);
-  }
-
-  // 3. Read items from first collection
-  if (collections!.length > 0) {
-    const firstCol = collections![0];
-    const { items } = await webflow.collections.items.listItems(firstCol.id!, {
-      limit: 5,
-    });
-    console.log(`\nFirst ${items!.length} items in "${firstCol.displayName}":`);
-    for (const item of items!) {
-      console.log(`  - ${item.fieldData?.name} (${item.id})`);
-    }
-  }
-
-  console.log("\nWebflow connection verified successfully.");
-}
-
-main().catch(console.error);
-```
-
-Run it:
-
-```bash
-npx tsx hello-webflow.ts
-```
+Default to read-only inspection. Before any create, update, delete, publish, unpublish, archive, deploy, token revoke, or webhook registration, show the exact environment and resource IDs, the proposed change, validation method, and rollback or compensating action. Proceed only when the user's request clearly authorizes that mutation; require a fresh explicit approval for production publication or destructive work.
 
 ## Output
 
-- Console listing of all accessible sites with IDs
-- Collection schemas with field types
-- CMS item data (draft and live)
-- Success confirmation: `Webflow connection verified successfully.`
+Return the inspected project and versions, verified Webflow identities, relevant endpoint and scope contract, changes proposed or made, validation evidence, live-mutation status, rollback readiness, and remaining risks. Distinguish documented fact, repository evidence, and inference.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Bad token | Re-check token at developers.webflow.com |
-| `403 Forbidden` | Missing `cms:read` scope | Add scope to token or app |
-| `404 Not Found` | Wrong `site_id` or `collection_id` | List sites first to get valid IDs |
-| `429 Too Many Requests` | Rate limited | Wait 60s (Retry-After header) |
-| Empty `sites` array | Token has no site access | Check workspace token permissions |
+| Condition | Response |
+|---|---|
+| No sites returned | Confirm token type and authorization; an empty result is not permission to guess a site ID. |
+| Collection missing | Re-list collections for the verified site and account for environment or locale differences. |
+| Write requested | Switch to the CMS lifecycle workflow and require an explicit preview plus approval. |
 
-## Key Concepts
+## Examples
 
-- **site_id**: Every API call is scoped to a site. Get it from `sites.list()`.
-- **collection_id**: CMS collections hold typed content. Get IDs from `collections.list(siteId)`.
-- **fieldData**: Item fields use the slug form of field names (e.g., `post-body`, not `Post Body`).
-- **isDraft**: New items default to `isDraft: true`. Set `false` to stage for publishing.
-- **Staged vs Live**: `listItems()` returns all items; `listItemsLive()` returns only published.
+Given a Node project and a site token, add a pinned client, list sites, select the expected site ID, list collections, and read ten staged items without publishing or modifying anything.
 
 ## Resources
 
-- [Webflow API Quick Start](https://developers.webflow.com/data/reference/rest-introduction/quick-start)
-- [CMS API Reference](https://developers.webflow.com/data/reference/cms)
-- [SDK npm package](https://www.npmjs.com/package/webflow-api)
-
-## Next Steps
-
-Proceed to `webflow-local-dev-loop` for development workflow setup.
+- [Official Webflow references](references/official-docs.md)
+- [Webflow developer documentation](https://developers.webflow.com/)
+- [Data API v2 index](https://developers.webflow.com/data/v2.0.0/llms.txt)

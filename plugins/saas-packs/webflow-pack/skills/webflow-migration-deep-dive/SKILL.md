@@ -1,453 +1,79 @@
 ---
 name: webflow-migration-deep-dive
-description: "Execute major Webflow migrations \u2014 from other CMS platforms to\
-  \ Webflow CMS,\nbetween Webflow sites, or large-scale content re-architecture using\
-  \ the Data API v2\nbulk endpoints, strangler fig pattern, and data validation.\n\
-  Trigger with phrases like \"migrate to webflow\", \"webflow migration\",\n\"import\
-  \ into webflow\", \"webflow replatform\", \"move content to webflow\",\n\"webflow\
-  \ bulk import\", \"wordpress to webflow\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(npx:*), Bash(node:*)
+description: >-
+  Migrate external or cross-site content into Webflow CMS with schema mapping, staged batches, reconciliation, and controlled publication. Use when moving WordPress, CSV, JSON, or Webflow-to-Webflow content. Trigger with "migrate to Webflow", "bulk import Webflow", or "move Webflow CMS".
+argument-hint: "[project-path] [source] [site-id] [collection-id]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.5.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- design
-- no-code
 - webflow
+- migration
+- cms
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Webflow Migration Deep Dive
+# Webflow Content Migration
 
 ## Overview
 
-Comprehensive guide for migrating content to Webflow CMS via the Data API v2.
-Covers assessment, data mapping, bulk import (100 items/batch), validation,
-and rollback. Handles WordPress, Contentful, Strapi, CSV, and JSON source formats.
+This skill produces a repo-grounded Webflow plan or implementation. It treats current official documentation and the target project's installed versions as authority, keeps discovery read-only, and separates preparation from live mutation.
 
 ## Prerequisites
 
-- `webflow-api` SDK installed
-- API token with `cms:read` and `cms:write` scopes
-- Target Webflow site with CMS collections created in the Designer
-- Source data exported (JSON, CSV, or API access)
+- A named target repository or project path and permission to inspect it
+- The intended Webflow environment and non-secret resource identities, or a plan to discover them read-only
+- Access to current official Webflow documentation; credentials stay in the user's existing secret store
 
-## Migration Types
+## Tool Discipline
 
-| Migration | Source | Complexity | Duration |
-|-----------|--------|-----------|----------|
-| CSV/JSON import | Static files | Low | Hours |
-| WordPress | WP REST API | Medium | Days |
-| Contentful/Strapi | Headless CMS API | Medium | Days |
-| Site-to-site | Another Webflow site | Low | Hours |
-| Full replatform | Custom CMS | High | Weeks |
+Use `Read` for repository instructions and relevant files, `Glob` to inventory manifests and Webflow integration paths, and `Grep` to locate API hosts, IDs, scopes, and credential names. Use `WebFetch` only for current official Webflow documentation. Use `Write` for a new user-requested artifact and `Edit` for minimal changes to existing files after the evidence pass.
 
-## Instructions
+## Current Contract
 
-### Step 1: Assess Target Collection Schema
+- Migration should target staged CMS content first; publication is a distinct operation with separate approval.
+- Field types, references, assets, locales, slugs, draft state, and archive state must be mapped explicitly.
+- Bulk limits and response shapes are endpoint-specific. Read the current create/update/publish endpoint instead of assuming a universal batch size.
+- Webflow has no universal transaction rollback for a migration; preserve source snapshots, ID maps, and compensating unpublish/archive/delete plans.
 
-Before importing, understand exactly what fields the target collection expects:
+## Authentication
 
-```typescript
-import { WebflowClient } from "webflow-api";
+Authenticate Data API calls with a bearer token selected for the integration: a site token for controlled single-site work, a workspace token only for its supported workspace/read use cases, or OAuth for user-authorized applications. Derive scopes from the exact endpoints. Never read, echo, persist, or place token values in commands, patches, examples, logs, or reports.
 
-const webflow = new WebflowClient({
-  accessToken: process.env.WEBFLOW_API_TOKEN!,
-});
+## Workflow
 
-async function assessTarget(siteId: string) {
-  const { collections } = await webflow.collections.list(siteId);
+1. Freeze and export the source with a checksum, record counts, identifiers, relationships, locales, assets, and content status.
+2. Inspect target collection schemas and build an explicit source-to-Webflow field map with transformations and rejection rules.
+3. Create a deterministic ID/slug map and validate a small fixture set without contacting production.
+4. Import a bounded canary into staged state, preserving per-record receipts and never publishing automatically.
+5. Compare counts, field values, references, asset availability, locales, and preview output; reconcile failures before the next batch.
+6. After explicit approval naming the collection and item set, publish in bounded groups and verify live state; retain source and mapping evidence through the rollback window.
 
-  const schema: Record<string, any> = {};
+## Approval Boundaries
 
-  for (const col of collections!) {
-    schema[col.slug!] = {
-      id: col.id,
-      displayName: col.displayName,
-      itemCount: col.itemCount,
-      fields: col.fields?.map(f => ({
-        slug: f.slug,
-        displayName: f.displayName,
-        type: f.type,
-        required: f.isRequired,
-        // Types: PlainText, RichText, Image, MultiImage, Video,
-        //        Link, Email, Phone, Number, DateTime, Switch,
-        //        Color, Option, File, Reference, MultiReference
-      })),
-    };
-  }
-
-  console.log(JSON.stringify(schema, null, 2));
-  return schema;
-}
-```
-
-### Step 2: Build Data Transformer
-
-Map source data format to Webflow's `fieldData` structure:
-
-```typescript
-interface SourcePost {
-  title: string;
-  content: string;      // HTML content
-  excerpt: string;
-  author: string;
-  date: string;          // ISO 8601
-  categories: string[];
-  featured_image?: string;
-  status: "published" | "draft";
-}
-
-interface WebflowFieldData {
-  name: string;          // Required system field
-  slug: string;          // Required system field
-  [key: string]: any;    // Custom fields use slug format
-}
-
-function transformPost(source: SourcePost): {
-  fieldData: WebflowFieldData;
-  isDraft: boolean;
-} {
-  return {
-    isDraft: source.status === "draft",
-    fieldData: {
-      // System fields (always required)
-      name: source.title,
-      slug: slugify(source.title),
-      // Custom fields (must match collection schema slugs)
-      "post-body": source.content,
-      "excerpt": source.excerpt,
-      "author-name": source.author,
-      "publish-date": source.date,
-      // Image fields use Webflow asset URLs
-      // You must upload images to Webflow first, or use external URLs
-      ...(source.featured_image && {
-        "hero-image": {
-          url: source.featured_image,
-          alt: source.title,
-        },
-      }),
-    },
-  };
-}
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "")
-    .substring(0, 256); // Webflow slug max length
-}
-```
-
-### Step 3: WordPress Migration
-
-```typescript
-// Export from WordPress REST API
-async function fetchWordPressPosts(wpUrl: string): Promise<SourcePost[]> {
-  const posts: SourcePost[] = [];
-  let page = 1;
-
-  while (true) {
-    const res = await fetch(`${wpUrl}/wp-json/wp/v2/posts?per_page=100&page=${page}`);
-    if (!res.ok) break;
-
-    const wpPosts = await res.json();
-    if (wpPosts.length === 0) break;
-
-    for (const wp of wpPosts) {
-      posts.push({
-        title: wp.title.rendered,
-        content: wp.content.rendered,
-        excerpt: wp.excerpt.rendered,
-        author: wp.author_name || "Unknown",
-        date: wp.date,
-        categories: wp.categories || [],
-        featured_image: wp.featured_media_url || undefined,
-        status: wp.status === "publish" ? "published" : "draft",
-      });
-    }
-
-    page++;
-  }
-
-  return posts;
-}
-```
-
-### Step 4: CSV Import
-
-```typescript
-import { parse } from "csv-parse/sync";
-import { readFileSync } from "fs";
-
-function importFromCSV(filePath: string): SourcePost[] {
-  const content = readFileSync(filePath, "utf-8");
-  const records = parse(content, {
-    columns: true,
-    skip_empty_lines: true,
-  });
-
-  return records.map((row: any) => ({
-    title: row.title || row.Title || row.name,
-    content: row.content || row.body || row.description || "",
-    excerpt: row.excerpt || row.summary || "",
-    author: row.author || "Imported",
-    date: row.date || row.published_at || new Date().toISOString(),
-    categories: (row.categories || row.tags || "").split(",").map((s: string) => s.trim()),
-    featured_image: row.image || row.featured_image || undefined,
-    status: "published" as const,
-  }));
-}
-```
-
-### Step 5: Bulk Import Engine
-
-```typescript
-interface MigrationResult {
-  total: number;
-  created: number;
-  skipped: number;
-  failed: number;
-  errors: Array<{ slug: string; error: string }>;
-  duration: number;
-}
-
-async function bulkImport(
-  collectionId: string,
-  sourceItems: SourcePost[],
-  options = { batchSize: 100, delayMs: 1000, dryRun: false }
-): Promise<MigrationResult> {
-  const start = Date.now();
-  const result: MigrationResult = {
-    total: sourceItems.length,
-    created: 0,
-    skipped: 0,
-    failed: 0,
-    errors: [],
-    duration: 0,
-  };
-
-  // Get existing items to avoid duplicates
-  const existing = await fetchAllExistingItems(collectionId);
-  const existingSlugs = new Set(existing.map(i => i.fieldData?.slug));
-
-  // Transform and filter
-  const newItems = sourceItems
-    .map(transformPost)
-    .filter(item => {
-      if (existingSlugs.has(item.fieldData.slug)) {
-        result.skipped++;
-        return false;
-      }
-      return true;
-    });
-
-  console.log(`Migration plan: ${newItems.length} new, ${result.skipped} skipped (duplicates)`);
-
-  if (options.dryRun) {
-    console.log("DRY RUN — no items will be created");
-    result.duration = Date.now() - start;
-    return result;
-  }
-
-  // Batch import
-  for (let i = 0; i < newItems.length; i += options.batchSize) {
-    const batch = newItems.slice(i, i + options.batchSize);
-    const batchNum = Math.floor(i / options.batchSize) + 1;
-    const totalBatches = Math.ceil(newItems.length / options.batchSize);
-
-    try {
-      await webflow.collections.items.createItemsBulk(collectionId, {
-        items: batch,
-      });
-      result.created += batch.length;
-      console.log(`Batch ${batchNum}/${totalBatches}: ${batch.length} items created`);
-    } catch (error: any) {
-      result.failed += batch.length;
-      result.errors.push({
-        slug: `batch-${batchNum}`,
-        error: error.message,
-      });
-      console.error(`Batch ${batchNum} failed:`, error.message);
-    }
-
-    // Delay between batches to respect rate limits
-    if (i + options.batchSize < newItems.length) {
-      await new Promise(r => setTimeout(r, options.delayMs));
-    }
-  }
-
-  result.duration = Date.now() - start;
-  return result;
-}
-
-async function fetchAllExistingItems(collectionId: string) {
-  const allItems = [];
-  let offset = 0;
-
-  while (true) {
-    const { items, pagination } = await webflow.collections.items.listItems(
-      collectionId,
-      { offset, limit: 100 }
-    );
-    allItems.push(...(items || []));
-    if (allItems.length >= (pagination?.total || 0)) break;
-    offset += 100;
-  }
-
-  return allItems;
-}
-```
-
-### Step 6: Post-Migration Validation
-
-```typescript
-async function validateMigration(
-  collectionId: string,
-  sourceCount: number
-): Promise<{ valid: boolean; checks: Array<{ name: string; passed: boolean; detail: string }> }> {
-  const checks = [];
-
-  // 1. Item count check
-  const { items, pagination } = await webflow.collections.items.listItems(
-    collectionId, { limit: 1 }
-  );
-  const webflowCount = pagination?.total || 0;
-  checks.push({
-    name: "Item count",
-    passed: webflowCount >= sourceCount,
-    detail: `Webflow: ${webflowCount}, Source: ${sourceCount}`,
-  });
-
-  // 2. Required fields check (sample first 10 items)
-  const { items: sample } = await webflow.collections.items.listItems(
-    collectionId, { limit: 10 }
-  );
-  const missingFields = (sample || []).filter(
-    i => !i.fieldData?.name || !i.fieldData?.slug
-  );
-  checks.push({
-    name: "Required fields",
-    passed: missingFields.length === 0,
-    detail: `${missingFields.length} items missing name/slug`,
-  });
-
-  // 3. No duplicate slugs
-  const allItems = await fetchAllExistingItems(collectionId);
-  const slugs = allItems.map(i => i.fieldData?.slug);
-  const uniqueSlugs = new Set(slugs);
-  checks.push({
-    name: "Unique slugs",
-    passed: slugs.length === uniqueSlugs.size,
-    detail: `${slugs.length - uniqueSlugs.size} duplicate slugs`,
-  });
-
-  // 4. Draft status check
-  const draftCount = allItems.filter(i => i.isDraft).length;
-  checks.push({
-    name: "Published items",
-    passed: true,
-    detail: `${allItems.length - draftCount} published, ${draftCount} drafts`,
-  });
-
-  const valid = checks.every(c => c.passed);
-  return { valid, checks };
-}
-```
-
-### Step 7: Publish Migrated Content
-
-```typescript
-async function publishMigratedContent(collectionId: string) {
-  const allItems = await fetchAllExistingItems(collectionId);
-  const unpublished = allItems.filter(i => !i.isDraft).map(i => i.id!);
-
-  // Publish in batches (publish endpoint accepts multiple IDs)
-  for (let i = 0; i < unpublished.length; i += 100) {
-    const batch = unpublished.slice(i, i + 100);
-    await webflow.collections.items.publishItem(collectionId, {
-      itemIds: batch,
-    });
-    console.log(`Published ${Math.min(i + 100, unpublished.length)}/${unpublished.length}`);
-
-    if (i + 100 < unpublished.length) {
-      await new Promise(r => setTimeout(r, 1000));
-    }
-  }
-}
-```
-
-### Step 8: Rollback Plan
-
-```typescript
-async function rollbackMigration(collectionId: string, createdAfter: Date) {
-  const allItems = await fetchAllExistingItems(collectionId);
-
-  const migratedItems = allItems.filter(
-    i => new Date(i.createdOn!) >= createdAfter
-  );
-
-  console.log(`Rolling back ${migratedItems.length} migrated items`);
-
-  // Delete in batches of 100
-  for (let i = 0; i < migratedItems.length; i += 100) {
-    const batch = migratedItems.slice(i, i + 100).map(item => item.id!);
-    await webflow.collections.items.deleteItemsBulk(collectionId, {
-      itemIds: batch,
-    });
-    console.log(`Deleted batch ${Math.floor(i / 100) + 1}`);
-    await new Promise(r => setTimeout(r, 500));
-  }
-}
-```
-
-## Complete Migration Script
-
-```bash
-# 1. Dry run first
-npx tsx migrate.ts --source wordpress --wp-url https://myblog.com --dry-run
-
-# 2. Execute migration
-npx tsx migrate.ts --source wordpress --wp-url https://myblog.com
-
-# 3. Validate
-npx tsx migrate.ts --validate --collection-id col-xxx
-
-# 4. Publish
-npx tsx migrate.ts --publish --collection-id col-xxx
-
-# 5. If something goes wrong:
-npx tsx migrate.ts --rollback --collection-id col-xxx --after 2026-03-22
-```
+Default to read-only inspection. Before any create, update, delete, publish, unpublish, archive, deploy, token revoke, or webhook registration, show the exact environment and resource IDs, the proposed change, validation method, and rollback or compensating action. Proceed only when the user's request clearly authorizes that mutation; require a fresh explicit approval for production publication or destructive work.
 
 ## Output
 
-- Source data assessment and schema mapping
-- Data transformer (WordPress, CSV, JSON, headless CMS)
-- Bulk import engine (100 items/batch with rate limit handling)
-- Post-migration validation (count, fields, duplicates)
-- Content publishing automation
-- Rollback procedure with time-based filtering
+Return the inspected project and versions, verified Webflow identities, relevant endpoint and scope contract, changes proposed or made, validation evidence, live-mutation status, rollback readiness, and remaining risks. Distinguish documented fact, repository evidence, and inference.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `400 Bad Request` | Field name mismatch | Compare transformer output to collection schema |
-| `409 Conflict` | Duplicate slugs | Add suffix or use `createOrUpdate` pattern |
-| `429 Rate Limited` | Too fast between batches | Increase `delayMs` |
-| Missing images | External image URLs blocked | Upload to Webflow assets first |
-| Truncated HTML | Content too long | Check Webflow field length limits |
+| Condition | Response |
+|---|---|
+| Field/reference mismatch | Quarantine the record and fix the map; do not coerce silently. |
+| Partial batch result | Record successful item IDs and retry only reconciled failures. |
+| Live validation fails | Stop publication and use the approved unpublish or prior-content recovery plan. |
+
+## Examples
+
+For a WordPress export, checksum the source, map authors and categories to Webflow references, import ten staged posts, validate previews and counts, then request approval before publishing those exact item IDs.
 
 ## Resources
 
-- [CMS API Reference](https://developers.webflow.com/data/reference/cms)
-- Bulk CMS Endpoints
-- [Managing Collections](https://developers.webflow.com/data/docs/working-with-the-cms/manage-collections-and-items)
-- [Migrating to API v2](https://developers.webflow.com/data/docs/migrating-to-v2)
-
-## Next Steps
-
-This is the final skill in the Webflow pack. For foundational setup, start with
-`webflow-install-auth`.
+- [Official Webflow references](references/official-docs.md)
+- [Webflow developer documentation](https://developers.webflow.com/)
+- [Data API v2 index](https://developers.webflow.com/data/v2.0.0/llms.txt)

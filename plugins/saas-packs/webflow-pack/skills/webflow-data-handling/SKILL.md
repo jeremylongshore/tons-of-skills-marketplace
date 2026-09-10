@@ -1,307 +1,79 @@
 ---
 name: webflow-data-handling
-description: "Implement Webflow data handling \u2014 CMS content delivery patterns,\
-  \ PII redaction in\nform submissions, GDPR/CCPA compliance for ecommerce data, and\
-  \ data retention policies.\nTrigger with phrases like \"webflow data\", \"webflow\
-  \ PII\", \"webflow GDPR\",\n\"webflow data retention\", \"webflow privacy\", \"\
-  webflow CCPA\", \"webflow forms data\".\n"
-allowed-tools: Read, Write, Edit
+description: >-
+  Design data minimization, retention, access, and deletion workflows for Webflow forms, ecommerce, CMS, logs, and webhooks. Use when personal data enters an integration or compliance evidence is needed. Trigger with "Webflow privacy", "Webflow data retention", or "delete Webflow user data".
+argument-hint: "[project-path] [data-flow]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.5.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- design
-- no-code
 - webflow
+- privacy
+- data-governance
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Webflow Data Handling
+# Webflow Data Governance
 
 ## Overview
 
-Handle sensitive data correctly when working with the Webflow Data API v2. Covers
-PII in form submissions, ecommerce customer data, CMS content classification,
-GDPR/CCPA compliance patterns, and data retention policies.
+This skill produces a repo-grounded Webflow plan or implementation. It treats current official documentation and the target project's installed versions as authority, keeps discovery read-only, and separates preparation from live mutation.
 
 ## Prerequisites
 
-- Understanding of GDPR/CCPA requirements
-- Webflow API token with `forms:read`, `ecommerce:read` scopes
-- Database for audit logging
-- Scheduled job infrastructure for data cleanup
+- A named target repository or project path and permission to inspect it
+- The intended Webflow environment and non-secret resource identities, or a plan to discover them read-only
+- Access to current official Webflow documentation; credentials stay in the user's existing secret store
 
-## Webflow Data Classification
+## Tool Discipline
 
-| Source | Data Type | PII Risk | Handling |
-|--------|-----------|----------|----------|
-| Form submissions | Email, name, phone, message | High | Encrypt at rest, redact in logs |
-| Ecommerce orders | Name, email, address, payment | High | Never log, minimal retention |
-| CMS items | Blog posts, team bios, products | Low-Medium | May contain names/photos |
-| Site analytics | Page views, sessions | Low | Aggregate when possible |
-| API tokens | Access credentials | Critical | Never log, rotate quarterly |
+Use `Read` for repository instructions and relevant files, `Glob` to inventory manifests and Webflow integration paths, and `Grep` to locate API hosts, IDs, scopes, and credential names. Use `WebFetch` only for current official Webflow documentation. Use `Write` for a new user-requested artifact and `Edit` for minimal changes to existing files after the evidence pass.
 
-## Instructions
+## Current Contract
 
-### Step 1: PII Detection in Form Submissions
+- Form submissions and ecommerce payloads can contain direct identifiers, free text, addresses, and order data; treat schemas as sensitive until classified.
+- Webflow scopes control API access but do not define your legal basis, retention period, or downstream processor obligations.
+- Deletion, unpublishing, and archiving have different effects. A compliance workflow must target the correct resource and verify downstream copies.
+- Generated examples are operational guidance, not legal advice; policy decisions require the organization's approved legal and security owners.
 
-```typescript
-const PII_PATTERNS = [
-  { type: "email", regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g },
-  { type: "phone", regex: /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/g },
-  { type: "ssn", regex: /\b\d{3}-\d{2}-\d{4}\b/g },
-  { type: "credit_card", regex: /\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b/g },
-];
+## Authentication
 
-function detectPII(text: string): Array<{ type: string; found: boolean }> {
-  return PII_PATTERNS.map(p => ({
-    type: p.type,
-    found: p.regex.test(text),
-  })).filter(r => r.found);
-}
+Authenticate Data API calls with a bearer token selected for the integration: a site token for controlled single-site work, a workspace token only for its supported workspace/read use cases, or OAuth for user-authorized applications. Derive scopes from the exact endpoints. Never read, echo, persist, or place token values in commands, patches, examples, logs, or reports.
 
-// Scan form submissions for PII before logging
-async function processFormSubmission(formId: string) {
-  const { formSubmissions } = await webflow.forms.listSubmissions(formId);
+## Workflow
 
-  for (const sub of formSubmissions || []) {
-    const rawData = JSON.stringify(sub.formData);
-    const piiFindings = detectPII(rawData);
+1. Inventory fields, event payloads, storage, logs, caches, exports, subprocessors, retention, and access roles for each data flow.
+2. Classify required versus optional data and remove collection or persistence that the stated purpose does not need.
+3. Redact sensitive fields before logs, traces, debug bundles, fixtures, and dead-letter queues.
+4. Define access/export/delete requests as authenticated workflows with resource IDs, approvals, downstream propagation, and receipts.
+5. Implement retention in each storage layer and test expiration plus legal-hold exceptions defined by policy.
+6. Verify with synthetic data and report uncovered systems or unresolved policy choices to the accountable owner.
 
-    if (piiFindings.length > 0) {
-      console.warn(`PII detected in submission ${sub.id}: ${piiFindings.map(f => f.type).join(", ")}`);
-      // Log redacted version only
-      console.log("Form data:", redactPII(sub.formData || {}));
-    }
-  }
-}
-```
+## Approval Boundaries
 
-### Step 2: PII Redaction
-
-```typescript
-function redactPII(data: Record<string, any>): Record<string, any> {
-  const sensitiveFields = new Set([
-    "email", "phone", "telephone", "mobile", "ssn",
-    "password", "credit-card", "card-number", "address",
-    "full-name", "first-name", "last-name",
-  ]);
-
-  const redacted: Record<string, any> = {};
-
-  for (const [key, value] of Object.entries(data)) {
-    const normalizedKey = key.toLowerCase().replace(/[\s_]/g, "-");
-
-    if (sensitiveFields.has(normalizedKey)) {
-      redacted[key] = "[REDACTED]";
-    } else if (typeof value === "string") {
-      // Redact inline PII patterns
-      let cleaned = value;
-      for (const pattern of PII_PATTERNS) {
-        cleaned = cleaned.replace(pattern.regex, `[${pattern.type.toUpperCase()}_REDACTED]`);
-      }
-      redacted[key] = cleaned;
-    } else {
-      redacted[key] = value;
-    }
-  }
-
-  return redacted;
-}
-
-// Usage in logging
-async function logFormData(formData: Record<string, any>) {
-  console.log("Form submission (redacted):", redactPII(formData));
-}
-```
-
-### Step 3: Ecommerce Data Handling
-
-```typescript
-// Order data contains high-sensitivity PII
-async function processOrder(siteId: string, orderId: string) {
-  const order = await webflow.orders.get(siteId, orderId);
-
-  // NEVER log full customer info
-  const safeOrderLog = {
-    orderId: order.orderId,
-    status: order.status,
-    itemCount: order.purchasedItems?.length,
-    totalCents: order.customerPaid?.value,
-    // Redact customer info
-    customer: {
-      hasEmail: !!order.customerInfo?.email,
-      hasAddress: !!order.shippingAddress,
-      // Never: order.customerInfo?.email
-      // Never: order.shippingAddress?.addressLine1
-    },
-    createdAt: order.acceptedOn,
-  };
-
-  console.log("Order processed:", safeOrderLog);
-}
-```
-
-### Step 4: GDPR — Data Subject Access Request (DSAR)
-
-```typescript
-interface DataExport {
-  source: string;
-  exportedAt: string;
-  requestedBy: string;
-  data: {
-    formSubmissions: Array<{ formName: string; submittedAt: string; data: Record<string, any> }>;
-    orders: Array<{ orderId: string; status: string; total: number; items: string[] }>;
-  };
-}
-
-async function exportUserData(siteId: string, userEmail: string): Promise<DataExport> {
-  const exportData: DataExport = {
-    source: "Webflow",
-    exportedAt: new Date().toISOString(),
-    requestedBy: userEmail,
-    data: { formSubmissions: [], orders: [] },
-  };
-
-  // 1. Find form submissions by email
-  const { forms } = await webflow.forms.list(siteId);
-  for (const form of forms || []) {
-    const { formSubmissions } = await webflow.forms.listSubmissions(form.id!);
-    for (const sub of formSubmissions || []) {
-      const formData = sub.formData || {};
-      // Check all fields for matching email
-      const hasEmail = Object.values(formData).some(
-        v => typeof v === "string" && v.toLowerCase() === userEmail.toLowerCase()
-      );
-      if (hasEmail) {
-        exportData.data.formSubmissions.push({
-          formName: form.displayName!,
-          submittedAt: sub.submittedAt!,
-          data: formData,
-        });
-      }
-    }
-  }
-
-  // 2. Find orders by email
-  const { orders } = await webflow.orders.list(siteId);
-  for (const order of orders || []) {
-    if (order.customerInfo?.email?.toLowerCase() === userEmail.toLowerCase()) {
-      exportData.data.orders.push({
-        orderId: order.orderId!,
-        status: order.status!,
-        total: (order.customerPaid?.value || 0) / 100,
-        items: order.purchasedItems?.map(i => i.productName || "Unknown") || [],
-      });
-    }
-  }
-
-  return exportData;
-}
-```
-
-### Step 5: GDPR — Right to Deletion
-
-```typescript
-async function deleteUserData(
-  siteId: string,
-  userEmail: string
-): Promise<{ deleted: string[]; retained: string[] }> {
-  const result = { deleted: [] as string[], retained: [] as string[] };
-
-  // Note: Webflow API does not currently support deleting form submissions
-  // via API. You must delete them through the Webflow dashboard.
-  // However, you can delete your local copies:
-
-  // 1. Delete local form submission copies
-  await db.formSubmissions.deleteMany({ email: userEmail, source: "webflow" });
-  result.deleted.push("Local form submission copies");
-
-  // 2. Delete local order copies (keep anonymized for accounting)
-  await db.orders.updateMany(
-    { email: userEmail, source: "webflow" },
-    { $set: { email: "[DELETED]", name: "[DELETED]", address: "[DELETED]" } }
-  );
-  result.retained.push("Anonymized order records (legal requirement)");
-
-  // 3. Audit log (required — never delete audit logs)
-  await db.auditLog.insertOne({
-    action: "GDPR_DELETION",
-    email: userEmail,
-    service: "webflow",
-    timestamp: new Date(),
-    deletedSources: result.deleted,
-    retainedSources: result.retained,
-  });
-  result.retained.push("Audit log entry");
-
-  return result;
-}
-```
-
-### Step 6: Data Retention Policy
-
-| Data Type | Retention | Reason | Auto-Cleanup |
-|-----------|-----------|--------|--------------|
-| Form submissions | 90 days | Business need | Yes |
-| Order records | 7 years | Tax/accounting | No |
-| API call logs | 30 days | Debugging | Yes |
-| Error logs | 90 days | Root cause analysis | Yes |
-| Audit logs | 7 years | Compliance | No |
-| Cached CMS content | 24 hours | Performance | Yes (TTL) |
-
-```typescript
-async function cleanupExpiredData() {
-  const now = new Date();
-
-  // Delete form submissions older than 90 days
-  const formCutoff = new Date(now);
-  formCutoff.setDate(formCutoff.getDate() - 90);
-  await db.formSubmissions.deleteMany({
-    source: "webflow",
-    createdAt: { $lt: formCutoff },
-    type: { $nin: ["audit", "compliance"] },
-  });
-
-  // Delete API logs older than 30 days
-  const logCutoff = new Date(now);
-  logCutoff.setDate(logCutoff.getDate() - 30);
-  await db.apiLogs.deleteMany({
-    service: "webflow",
-    createdAt: { $lt: logCutoff },
-  });
-
-  console.log("Data cleanup completed");
-}
-
-// Schedule daily at 3 AM
-// cron: "0 3 * * *"
-```
+Default to read-only inspection. Before any create, update, delete, publish, unpublish, archive, deploy, token revoke, or webhook registration, show the exact environment and resource IDs, the proposed change, validation method, and rollback or compensating action. Proceed only when the user's request clearly authorizes that mutation; require a fresh explicit approval for production publication or destructive work.
 
 ## Output
 
-- PII detection for form submissions and order data
-- Redaction layer for logging sensitive Webflow data
-- GDPR DSAR export (forms + orders by email)
-- Right to deletion with audit trail
-- Data retention policy with automated cleanup
+Return the inspected project and versions, verified Webflow identities, relevant endpoint and scope contract, changes proposed or made, validation evidence, live-mutation status, rollback readiness, and remaining risks. Distinguish documented fact, repository evidence, and inference.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| PII in logs | Missing redaction wrapper | Wrap all logging with `redactPII()` |
-| DSAR incomplete | Not scanning all forms | Iterate all forms in site |
-| Deletion failed | No API for form deletion | Delete via Webflow dashboard |
-| Audit gap | Missing log entries | Ensure audit logging in all deletion paths |
+| Condition | Response |
+|---|---|
+| Subject identity uncertain | Do not export or delete; escalate to the approved identity-verification process. |
+| Deletion partially fails | Preserve per-system receipts and retry only after reconciling current state. |
+| Policy undefined | Stop at inventory and options; do not invent a legal retention period. |
+
+## Examples
+
+For form submissions, retain only fields required for follow-up, redact payloads from logs, map downstream CRM copies, and make deletion an authenticated, approved, receipt-producing workflow.
 
 ## Resources
 
-- GDPR Developer Guide
-- [CCPA Compliance](https://oag.ca.gov/privacy/ccpa)
-- [Webflow Forms API](https://developers.webflow.com/data/reference/forms)
-- [Webflow Orders API](https://developers.webflow.com/data/reference/ecommerce)
-
-## Next Steps
-
-For enterprise access control, see `webflow-enterprise-rbac`.
+- [Official Webflow references](references/official-docs.md)
+- [Webflow developer documentation](https://developers.webflow.com/)
+- [Data API v2 index](https://developers.webflow.com/data/v2.0.0/llms.txt)

@@ -33809,7 +33809,7 @@
     {
       "slug": "webflow-ci-integration",
       "name": "webflow-ci-integration",
-      "description": "Configure Webflow CI/CD with GitHub Actions — automated CMS validation, integration tests with test tokens, and publish-on-merge workflows. Use when setting up automated testing or CI pipelines for Webflow integrations. Trigger with phrases like \"webflow CI\", \"webflow GitHub Actions\", \"webflow automated tests\", \"CI webflow\", \"webflow pipeline\".",
+      "description": "Build fail-closed CI for Webflow Data API or Cloud changes with pinned tools and explicit identities. Use when adding automated tests, non-interactive CLI work, or gated deployment. Trigger with \"Webflow CI\", \"Webflow GitHub Actions\", or \"automate Webflow deploy\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -33821,7 +33821,7 @@
     {
       "slug": "webflow-common-errors",
       "name": "webflow-common-errors",
-      "description": "Diagnose and fix Webflow Data API v2 errors — 400, 401, 403, 404, 409, 429, 500. Use when encountering Webflow API errors, debugging failed requests, or troubleshooting integration issues. Trigger with phrases like \"webflow error\", \"fix webflow\", \"webflow not working\", \"debug webflow\", \"webflow 429\", \"webflow 401\".",
+      "description": "Diagnose Webflow Data API failures using the returned HTTP status and structured error body. Use when requests fail with 4xx, 429, or 5xx responses. Trigger with \"Webflow error\", \"Webflow 403\", or \"Webflow API failed\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -33833,7 +33833,7 @@
     {
       "slug": "webflow-core-workflow-a",
       "name": "webflow-core-workflow-a",
-      "description": "Execute the primary Webflow workflow — CMS content management: list collections, CRUD items, publish items, and manage content lifecycle via the Data API v2. Use when working with Webflow CMS collections and items, managing blog posts, team members, or any dynamic content. Trigger with phrases like \"webflow CMS\", \"webflow collections\", \"webflow items\", \"create webflow content\", \"manage webflow CMS\", \"webflow content management\".",
+      "description": "Operate the Webflow CMS staged/live lifecycle with reviewable writes and publishing. Use when creating, updating, publishing, unpublishing, or archiving collection items. Trigger with \"manage Webflow CMS\", \"publish Webflow item\", or \"sync Webflow content\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -33845,7 +33845,7 @@
     {
       "slug": "webflow-core-workflow-b",
       "name": "webflow-core-workflow-b",
-      "description": "Execute Webflow secondary workflows — Sites management, Pages API, Forms submissions, Ecommerce (products/orders/inventory), and Custom Code via the Data API v2. Use when managing sites, reading pages, handling form data, or working with Webflow Ecommerce products and orders. Trigger with phrases like \"webflow sites\", \"webflow pages\", \"webflow forms\", \"webflow ecommerce\", \"webflow products\", \"webflow orders\".",
+      "description": "Plan Webflow Data API operations outside the core CMS item loop, including pages, components, forms, ecommerce, assets, and custom code. Use when a request spans site resources or needs endpoint-specific scope review. Trigger with \"Webflow site API\", \"Webflow forms\", or \"Webflow ecommerce\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -33857,7 +33857,7 @@
     {
       "slug": "webflow-cost-tuning",
       "name": "webflow-cost-tuning",
-      "description": "Optimize Webflow costs through plan selection, CDN read optimization, bulk endpoint usage, and API usage monitoring with budget alerts. Use when analyzing Webflow billing, reducing API costs, or implementing usage monitoring for Webflow integrations. Trigger with phrases like \"webflow cost\", \"webflow billing\", \"reduce webflow costs\", \"webflow pricing\", \"webflow budget\".",
+      "description": "Reduce avoidable Webflow integration cost and plan pressure using measured API, storage, traffic, and deployment usage. Use when right-sizing a plan or replacing wasteful polling and origin reads. Trigger with \"Webflow cost\", \"right-size Webflow\", or \"reduce Webflow usage\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -33869,7 +33869,7 @@
     {
       "slug": "webflow-data-handling",
       "name": "webflow-data-handling",
-      "description": "Implement Webflow data handling — CMS content delivery patterns, PII redaction in form submissions, GDPR/CCPA compliance for ecommerce data, and data retention policies. Trigger with phrases like \"webflow data\", \"webflow PII\", \"webflow GDPR\", \"webflow data retention\", \"webflow privacy\", \"webflow CCPA\", \"webflow forms data\".",
+      "description": "Design data minimization, retention, access, and deletion workflows for Webflow forms, ecommerce, CMS, logs, and webhooks. Use when personal data enters an integration or compliance evidence is needed. Trigger with \"Webflow privacy\", \"Webflow data retention\", or \"delete Webflow user data\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -33881,7 +33881,7 @@
     {
       "slug": "webflow-debug-bundle",
       "name": "webflow-debug-bundle",
-      "description": "Collect Webflow debug evidence for support tickets and troubleshooting. Gathers SDK version, token validation, rate limit status, site connectivity, CMS health, and error logs into a single diagnostic bundle. Trigger with phrases like \"webflow debug\", \"webflow support bundle\", \"collect webflow logs\", \"webflow diagnostic\", \"webflow troubleshoot\".",
+      "description": "Collect a redacted Webflow integration evidence bundle for troubleshooting or support. Use when an incident needs reproducible versions, identities, headers, and error context without secret leakage. Trigger with \"Webflow debug bundle\", \"collect Webflow evidence\", or \"Webflow support ticket\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -33893,7 +33893,7 @@
     {
       "slug": "webflow-deploy-integration",
       "name": "webflow-deploy-integration",
-      "description": "Deploy Webflow-powered applications to Vercel, Fly.io, and Google Cloud Run with proper secrets management and Webflow-specific health checks. Trigger with phrases like \"deploy webflow\", \"webflow Vercel\", \"webflow production deploy\", \"webflow Cloud Run\", \"webflow Fly.io\".",
+      "description": "Plan and execute a Webflow Cloud deployment with explicit app identity, mount, environment, verification, and rollback. Use when shipping a Cloud app or repairing its deployment lane. Trigger with \"deploy Webflow Cloud\", \"Webflow app deploy\", or \"rollback Webflow deployment\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -33905,7 +33905,7 @@
     {
       "slug": "webflow-enterprise-rbac",
       "name": "webflow-enterprise-rbac",
-      "description": "Configure Webflow enterprise access control — OAuth 2.0 app authorization, scope-based RBAC, per-site token isolation, workspace member management, and audit logging for compliance. Trigger with phrases like \"webflow RBAC\", \"webflow enterprise\", \"webflow roles\", \"webflow permissions\", \"webflow OAuth scopes\", \"webflow access control\", \"webflow workspace members\".",
+      "description": "Govern enterprise Webflow API access with native scopes, token boundaries, activity evidence, and application authorization. Use when auditing multi-site access or designing least-privilege enterprise operations. Trigger with \"Webflow enterprise access\", \"Webflow audit logs\", or \"Webflow RBAC\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -33917,7 +33917,7 @@
     {
       "slug": "webflow-hello-world",
       "name": "webflow-hello-world",
-      "description": "Create a minimal working Webflow Data API v2 example. Use when starting a new Webflow integration, testing your setup, or learning basic Webflow API patterns — list sites, read CMS collections, create items. Trigger with phrases like \"webflow hello world\", \"webflow example\", \"webflow quick start\", \"simple webflow code\", \"first webflow API call\".",
+      "description": "Build a minimal, read-first Webflow Data API v2 integration with an official SDK. Use when proving connectivity, learning resource IDs, or establishing a safe starting point. Trigger with \"Webflow hello world\", \"test Webflow API\", or \"list my Webflow sites\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -33929,7 +33929,7 @@
     {
       "slug": "webflow-incident-runbook",
       "name": "webflow-incident-runbook",
-      "description": "Execute Webflow incident response — triage by HTTP status (401/403/429/500), circuit breaker activation, cached fallback, Webflow status page checks, communication templates, and postmortem process. Trigger with phrases like \"webflow incident\", \"webflow outage\", \"webflow down\", \"webflow on-call\", \"webflow emergency\", \"webflow broken\".",
+      "description": "Triage and recover a Webflow integration incident with read-only evidence, write freezes, and verified recovery. Use when handling auth failures, 429s, 5xx errors, webhook loss, bad publication, or Cloud deploy failure. Trigger with \"Webflow incident\", \"Webflow outage\", or \"Webflow rollback\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -33941,7 +33941,7 @@
     {
       "slug": "webflow-install-auth",
       "name": "webflow-install-auth",
-      "description": "Install the Webflow JS SDK (webflow-api) and configure OAuth 2.0 or API token authentication. Use when setting up a new Webflow integration, configuring access tokens, or initializing the WebflowClient in your project. Trigger with phrases like \"install webflow\", \"setup webflow\", \"webflow auth\", \"configure webflow API token\", \"webflow OAuth\".",
+      "description": "Install or repair a Webflow Data API integration and choose the correct bearer-token model. Use when bootstrapping the official SDK, narrowing scopes, or diagnosing token setup. Trigger with \"install Webflow\", \"configure Webflow auth\", or \"choose a Webflow token\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -33953,7 +33953,7 @@
     {
       "slug": "webflow-local-dev-loop",
       "name": "webflow-local-dev-loop",
-      "description": "Configure a Webflow local development workflow with TypeScript, hot reload, mocked API tests, and webhook tunneling via ngrok. Use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with the Webflow Data API. Trigger with phrases like \"webflow dev setup\", \"webflow local development\", \"webflow dev environment\", \"develop with webflow\".",
+      "description": "Create a repeatable local loop for a Webflow Data API, Cloud app, or Designer extension. Use when setting up local development, fixtures, typechecking, or non-production smoke tests. Trigger with \"Webflow local dev\", \"test Webflow locally\", or \"mock Webflow API\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -33965,7 +33965,7 @@
     {
       "slug": "webflow-migration-deep-dive",
       "name": "webflow-migration-deep-dive",
-      "description": "Execute major Webflow migrations — from other CMS platforms to Webflow CMS, between Webflow sites, or large-scale content re-architecture using the Data API v2 bulk endpoints, strangler fig pattern, and data validation. Trigger with phrases like \"migrate to webflow\", \"webflow migration\", \"import into webflow\", \"webflow replatform\", \"move content to webflow\", \"webflow bulk import\", \"wordpress to webflow\".",
+      "description": "Migrate external or cross-site content into Webflow CMS with schema mapping, staged batches, reconciliation, and controlled publication. Use when moving WordPress, CSV, JSON, or Webflow-to-Webflow content. Trigger with \"migrate to Webflow\", \"bulk import Webflow\", or \"move Webflow CMS\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -33977,7 +33977,7 @@
     {
       "slug": "webflow-multi-env-setup",
       "name": "webflow-multi-env-setup",
-      "description": "Configure Webflow across development, staging, and production environments with per-environment API tokens, site IDs, and secret management via Vault/AWS/GCP. Trigger with phrases like \"webflow environments\", \"webflow staging\", \"webflow dev prod\", \"webflow environment setup\", \"webflow config by env\".",
+      "description": "Separate Webflow development, staging, and production identities, tokens, sites, and release policy. Use when preventing cross-environment writes or configuring environment-aware CI. Trigger with \"Webflow environments\", \"Webflow staging\", or \"separate Webflow tokens\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -33989,7 +33989,7 @@
     {
       "slug": "webflow-observability",
       "name": "webflow-observability",
-      "description": "Set up observability for Webflow integrations — Prometheus metrics for API calls, OpenTelemetry tracing, structured logging with pino, Grafana dashboards, and alerting for rate limits, errors, and latency. Trigger with phrases like \"webflow monitoring\", \"webflow metrics\", \"webflow observability\", \"monitor webflow\", \"webflow alerts\", \"webflow tracing\".",
+      "description": "Instrument a Webflow integration around API budgets, errors, cache behavior, webhooks, and deployments without leaking sensitive data. Use when adding metrics, logs, traces, or alerts. Trigger with \"monitor Webflow\", \"Webflow observability\", or \"Webflow alerts\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -34001,7 +34001,7 @@
     {
       "slug": "webflow-performance-tuning",
       "name": "webflow-performance-tuning",
-      "description": "Optimize Webflow API performance with response caching, bulk endpoint batching, CDN-cached live item reads, pagination optimization, and connection pooling. Use when experiencing slow API responses or optimizing request throughput. Trigger with phrases like \"webflow performance\", \"optimize webflow\", \"webflow latency\", \"webflow caching\", \"webflow slow\", \"webflow batch\".",
+      "description": "Improve Webflow integration latency and throughput with measured pagination, caching, Content Delivery, and bounded concurrency. Use when reads are slow, syncs are bursty, or origin budgets are tight. Trigger with \"speed up Webflow\", \"Webflow CDN\", or \"optimize Webflow API\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -34013,7 +34013,7 @@
     {
       "slug": "webflow-prod-checklist",
       "name": "webflow-prod-checklist",
-      "description": "Execute Webflow production deployment checklist — token security, rate limit hardening, health checks, circuit breakers, gradual rollout, and rollback procedures. Use when deploying Webflow integrations to production or preparing for launch. Trigger with phrases like \"webflow production\", \"deploy webflow\", \"webflow go-live\", \"webflow launch checklist\", \"webflow production ready\".",
+      "description": "Gate a Webflow integration before production with identity, scope, retry, privacy, rollout, and rollback evidence. Use when preparing to enable live traffic or live content writes. Trigger with \"Webflow production checklist\", \"ship Webflow integration\", or \"Webflow go live\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -34025,7 +34025,7 @@
     {
       "slug": "webflow-rate-limits",
       "name": "webflow-rate-limits",
-      "description": "Handle Webflow Data API v2 rate limits — per-key limits, Retry-After headers, exponential backoff, request queuing, and bulk endpoint optimization. Use when hitting 429 errors, implementing retry logic, or optimizing API request throughput. Trigger with phrases like \"webflow rate limit\", \"webflow throttling\", \"webflow 429\", \"webflow retry\", \"webflow backoff\", \"webflow too many requests\".",
+      "description": "Design Webflow request budgets, queues, and retries from current plan and endpoint limits. Use when handling 429s, bulk sync throughput, polling, or Content Delivery caching. Trigger with \"Webflow rate limit\", \"Webflow 429\", or \"throttle Webflow\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -34037,7 +34037,7 @@
     {
       "slug": "webflow-reference-architecture",
       "name": "webflow-reference-architecture",
-      "description": "Implement Webflow reference architecture — layered project structure, client wrapper, CMS sync service, webhook handlers, and caching layer for production integrations. Trigger with phrases like \"webflow architecture\", \"webflow project structure\", \"how to organize webflow\", \"webflow integration design\", \"webflow best practices\".",
+      "description": "Design a Webflow integration architecture with explicit Data API, Content Delivery, webhook, identity, queue, and publication boundaries. Use when starting a service or untangling a coupled integration. Trigger with \"Webflow architecture\", \"design Webflow integration\", or \"Webflow service layout\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -34049,7 +34049,7 @@
     {
       "slug": "webflow-sdk-patterns",
       "name": "webflow-sdk-patterns",
-      "description": "Apply production-ready Webflow SDK patterns — singleton client, typed error handling, pagination helpers, and raw response access for the webflow-api package. Use when implementing Webflow integrations, refactoring SDK usage, or establishing team coding standards. Trigger with phrases like \"webflow SDK patterns\", \"webflow best practices\", \"webflow code patterns\", \"idiomatic webflow\", \"webflow typescript\".",
+      "description": "Apply maintainable patterns around an official Webflow SDK without inventing method contracts. Use when centralizing clients, pagination, retries, tenancy, or typed boundaries. Trigger with \"Webflow SDK pattern\", \"wrap Webflow client\", or \"paginate Webflow\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -34061,7 +34061,7 @@
     {
       "slug": "webflow-security-basics",
       "name": "webflow-security-basics",
-      "description": "Apply Webflow API security best practices — token management, scope least privilege, OAuth 2.0 secret rotation, webhook signature verification, and audit logging. Use when securing API tokens, implementing least privilege access, or auditing Webflow security configuration. Trigger with phrases like \"webflow security\", \"webflow secrets\", \"secure webflow\", \"webflow API key security\", \"webflow token rotation\".",
+      "description": "Harden Webflow tokens, scopes, webhook verification, logs, and live-write boundaries. Use when threat-modeling an integration or preparing it for production. Trigger with \"secure Webflow\", \"verify Webflow webhook\", or \"audit Webflow token\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -34073,7 +34073,7 @@
     {
       "slug": "webflow-upgrade-migration",
       "name": "webflow-upgrade-migration",
-      "description": "Analyze, plan, and execute Webflow SDK upgrades (webflow-api v1 to v3) with breaking change detection, API v1-to-v2 migration, and deprecation handling. Trigger with phrases like \"upgrade webflow\", \"webflow migration\", \"webflow breaking changes\", \"update webflow SDK\", \"webflow v1 to v2\".",
+      "description": "Upgrade Webflow SDK, Data API, or CLI integrations with contract evidence and rollback. Use when leaving Data API v1, updating the official JavaScript SDK, or migrating Webflow CLI 1.x scripts. Trigger with \"upgrade Webflow SDK\", \"migrate Webflow v1\", or \"Webflow CLI 2\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -34085,7 +34085,7 @@
     {
       "slug": "webflow-webhooks-events",
       "name": "webflow-webhooks-events",
-      "description": "Implement Webflow webhook registration, signature verification, and event handling for form_submission, site_publish, ecomm_new_order, page_created, and more. Use when setting up webhook endpoints, implementing event-driven workflows, or handling Webflow notifications. Trigger with phrases like \"webflow webhook\", \"webflow events\", \"webflow webhook signature\", \"handle webflow events\", \"webflow notifications\".",
+      "description": "Register and operate Webflow webhooks with current event names, signature verification, replay defense, and idempotency. Use when receiving site, CMS, form, ecommerce, page, or comment events. Trigger with \"Webflow webhook\", \"verify Webflow signature\", or \"Webflow events\".",
       "version": "1.5.0",
       "category": "saas-packs",
       "parentPlugin": "webflow-pack",
@@ -34804,7 +34804,7 @@
     }
   ],
   "count": 2900,
-  "generatedAt": "2026-09-10T05:09:16.537Z",
+  "generatedAt": "2026-09-10T06:45:08.903Z",
   "categories": [
     "ai-agency",
     "ai-ml",

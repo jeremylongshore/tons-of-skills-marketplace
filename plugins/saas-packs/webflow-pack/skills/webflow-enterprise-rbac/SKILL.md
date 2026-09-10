@@ -1,339 +1,79 @@
 ---
 name: webflow-enterprise-rbac
-description: "Configure Webflow enterprise access control \u2014 OAuth 2.0 app authorization,\n\
-  scope-based RBAC, per-site token isolation, workspace member management,\nand audit\
-  \ logging for compliance.\nTrigger with phrases like \"webflow RBAC\", \"webflow\
-  \ enterprise\",\n\"webflow roles\", \"webflow permissions\", \"webflow OAuth scopes\"\
-  ,\n\"webflow access control\", \"webflow workspace members\".\n"
-allowed-tools: Read, Write, Edit
+description: >-
+  Govern enterprise Webflow API access with native scopes, token boundaries, activity evidence, and application authorization. Use when auditing multi-site access or designing least-privilege enterprise operations. Trigger with "Webflow enterprise access", "Webflow audit logs", or "Webflow RBAC".
+argument-hint: "[project-path] [workspace-or-site-id]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.5.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- design
-- no-code
 - webflow
+- enterprise
+- access-control
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Webflow Enterprise RBAC
+# Webflow Enterprise Access Governance
 
 ## Overview
 
-Enterprise-grade access control for Webflow Data API v2 integrations. Uses Webflow's
-OAuth 2.0 scope system, per-site token isolation, and application-level RBAC to
-enforce least privilege across teams and environments.
+This skill produces a repo-grounded Webflow plan or implementation. It treats current official documentation and the target project's installed versions as authority, keeps discovery read-only, and separates preparation from live mutation.
 
 ## Prerequisites
 
-- Webflow workspace (Core plan or higher for multiple members)
-- OAuth 2.0 Data Client App (for user-authorized access)
-- Understanding of Webflow scopes
+- A named target repository or project path and permission to inspect it
+- The intended Webflow environment and non-secret resource identities, or a plan to discover them read-only
+- Access to current official Webflow documentation; credentials stay in the user's existing secret store
 
-## Webflow's Native Access Model
+## Tool Discipline
 
-Webflow provides three levels of access control:
+Use `Read` for repository instructions and relevant files, `Glob` to inventory manifests and Webflow integration paths, and `Grep` to locate API hosts, IDs, scopes, and credential names. Use `WebFetch` only for current official Webflow documentation. Use `Write` for a new user-requested artifact and `Edit` for minimal changes to existing files after the evidence pass.
 
-| Level | Mechanism | Granularity |
-|-------|-----------|-------------|
-| **Workspace tokens** | API token | All sites in workspace |
-| **Site tokens** | API token | Single site |
-| **OAuth tokens** | OAuth 2.0 authorization | User-authorized scopes per site |
+## Current Contract
 
-## Scope-Based Permission Model
+- Webflow scopes authorize API resources; application roles are your application's policy and must not be presented as native Webflow role enforcement.
+- Workspace tokens are suited to supported read-only multi-site monitoring and auditing, with workspace-activity scope documented separately.
+- Site Activity and Workspace Activity APIs are enterprise surfaces with their own entitlements and scopes.
+- Custom-code access requires a Data Client app; site tokens cannot call those endpoints.
 
-Webflow scopes map directly to API access:
+## Authentication
 
-| Scope | Read Access | Write Access |
-|-------|-------------|--------------|
-| `sites:read` | List/get sites | — |
-| `sites:write` | — | Publish sites |
-| `cms:read` | List collections, read items | — |
-| `cms:write` | — | Create/update/delete CMS items |
-| `pages:read` | List/get pages | — |
-| `pages:write` | — | Update page settings |
-| `forms:read` | List forms, read submissions | — |
-| `ecommerce:read` | List products, orders, inventory | — |
-| `ecommerce:write` | — | Create products, fulfill orders |
-| `custom_code:read` | List registered scripts | — |
-| `custom_code:write` | — | Register/apply custom code |
+Authenticate Data API calls with a bearer token selected for the integration: a site token for controlled single-site work, a workspace token only for its supported workspace/read use cases, or OAuth for user-authorized applications. Derive scopes from the exact endpoints. Never read, echo, persist, or place token values in commands, patches, examples, logs, or reports.
 
-## Instructions
+## Workflow
 
-### Step 1: Define Application Roles
+1. Inventory Webflow workspace/site roles, application roles, token types, scopes, service identities, and every protected operation.
+2. Create a role-to-operation matrix, then map each operation to exact Webflow endpoints and scopes. Mark application policy versus Webflow enforcement.
+3. Use per-site tokens for controlled internal single-site services, OAuth grants for user-authorized multi-site apps, and workspace tokens only for supported workspace reads.
+4. Add server-side authorization before API calls and verify the requested site belongs to the authenticated tenant or operator.
+5. Collect activity evidence through entitled APIs and your own audit log without storing secret values or sensitive payloads.
+6. Test denied operations, cross-site attempts, revoked grants, missing entitlements, and emergency access expiration.
 
-Map your application roles to Webflow scope sets:
+## Approval Boundaries
 
-```typescript
-enum AppRole {
-  ContentViewer = "content_viewer",
-  ContentEditor = "content_editor",
-  SiteAdmin = "site_admin",
-  EcommerceManager = "ecommerce_manager",
-  FormProcessor = "form_processor",
-}
-
-// Map roles to required Webflow OAuth scopes
-const ROLE_SCOPES: Record<AppRole, string[]> = {
-  [AppRole.ContentViewer]: ["sites:read", "cms:read", "pages:read"],
-  [AppRole.ContentEditor]: ["sites:read", "cms:read", "cms:write", "pages:read"],
-  [AppRole.SiteAdmin]: [
-    "sites:read", "sites:write",
-    "cms:read", "cms:write",
-    "pages:read", "pages:write",
-    "custom_code:read", "custom_code:write",
-  ],
-  [AppRole.EcommerceManager]: [
-    "sites:read",
-    "ecommerce:read", "ecommerce:write",
-    "cms:read", // Products are CMS collections
-  ],
-  [AppRole.FormProcessor]: ["sites:read", "forms:read"],
-};
-```
-
-### Step 2: OAuth App with Role-Based Scopes
-
-Request only the scopes needed for the user's role:
-
-```typescript
-function getAuthorizationUrl(role: AppRole, state: string): string {
-  const scopes = ROLE_SCOPES[role];
-  const scopeString = scopes.join(" ");
-
-  return (
-    `https://webflow.com/oauth/authorize` +
-    `?client_id=${process.env.WEBFLOW_CLIENT_ID}` +
-    `&response_type=code` +
-    `&redirect_uri=${encodeURIComponent(process.env.REDIRECT_URI!)}` +
-    `&scope=${encodeURIComponent(scopeString)}` +
-    `&state=${state}` // CSRF protection
-  );
-}
-
-// Initiate OAuth flow with role-appropriate scopes
-app.get("/auth/webflow", (req, res) => {
-  const role = req.user.appRole as AppRole;
-  const state = generateCsrfToken(req.session.id);
-
-  res.redirect(getAuthorizationUrl(role, state));
-});
-```
-
-### Step 3: Token Storage with Role Metadata
-
-```typescript
-interface StoredToken {
-  accessToken: string;
-  userId: string;
-  role: AppRole;
-  scopes: string[];
-  siteIds: string[]; // Which sites this token can access
-  createdAt: Date;
-  lastUsed: Date;
-}
-
-async function storeToken(token: StoredToken): Promise<void> {
-  // Encrypt token before storing
-  const encrypted = encrypt(token.accessToken);
-
-  await db.webflowTokens.upsert({
-    where: { userId: token.userId },
-    create: {
-      ...token,
-      accessToken: encrypted,
-    },
-    update: {
-      accessToken: encrypted,
-      lastUsed: new Date(),
-    },
-  });
-}
-```
-
-### Step 4: Per-Site Token Isolation
-
-Use site-scoped tokens to limit blast radius:
-
-```typescript
-class SiteIsolatedClient {
-  private clients = new Map<string, WebflowClient>();
-
-  // Each site gets its own token — compromise of one doesn't affect others
-  registerSite(siteId: string, siteToken: string): void {
-    this.clients.set(siteId, new WebflowClient({ accessToken: siteToken }));
-  }
-
-  getClient(siteId: string): WebflowClient {
-    const client = this.clients.get(siteId);
-    if (!client) {
-      throw new Error(`No token registered for site ${siteId}`);
-    }
-    return client;
-  }
-
-  // Rotate a single site's token without affecting others
-  rotateToken(siteId: string, newToken: string): void {
-    this.clients.set(siteId, new WebflowClient({ accessToken: newToken }));
-    console.log(`Token rotated for site ${siteId}`);
-  }
-}
-
-const siteClients = new SiteIsolatedClient();
-siteClients.registerSite("site-prod", process.env.WEBFLOW_TOKEN_PROD!);
-siteClients.registerSite("site-staging", process.env.WEBFLOW_TOKEN_STAGING!);
-```
-
-### Step 5: Permission Check Middleware
-
-```typescript
-import { Request, Response, NextFunction } from "express";
-
-function requireWebflowScope(requiredScopes: string[]) {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    const userToken = await db.webflowTokens.findByUserId(req.user.id);
-
-    if (!userToken) {
-      return res.status(401).json({ error: "No Webflow authorization" });
-    }
-
-    // Check if user's token has the required scopes
-    const missingScopes = requiredScopes.filter(
-      s => !userToken.scopes.includes(s)
-    );
-
-    if (missingScopes.length > 0) {
-      return res.status(403).json({
-        error: "Insufficient Webflow permissions",
-        missing: missingScopes,
-        userRole: userToken.role,
-        hint: `Role "${userToken.role}" does not include: ${missingScopes.join(", ")}`,
-      });
-    }
-
-    next();
-  };
-}
-
-// Usage
-app.post(
-  "/api/cms/items",
-  requireWebflowScope(["cms:write"]),
-  createItemHandler
-);
-
-app.get(
-  "/api/forms/submissions",
-  requireWebflowScope(["forms:read"]),
-  listSubmissionsHandler
-);
-
-app.post(
-  "/api/site/publish",
-  requireWebflowScope(["sites:write"]),
-  publishSiteHandler
-);
-```
-
-### Step 6: Audit Logging
-
-```typescript
-interface WebflowAuditEntry {
-  timestamp: Date;
-  userId: string;
-  role: AppRole;
-  operation: string;
-  siteId: string;
-  resourceType: string;
-  resourceId?: string;
-  result: "success" | "denied" | "error";
-  scopes: string[];
-  ipAddress: string;
-}
-
-async function auditWebflowAccess(entry: WebflowAuditEntry): Promise<void> {
-  // Write to audit log (never delete audit entries)
-  await db.auditLog.create({
-    data: {
-      ...entry,
-      timestamp: entry.timestamp.toISOString(),
-    },
-  });
-
-  // Alert on suspicious patterns
-  if (entry.result === "denied") {
-    console.warn(`ACCESS DENIED: ${entry.userId} attempted ${entry.operation} on ${entry.resourceType}`);
-  }
-
-  // Alert on admin operations
-  if (entry.role === AppRole.SiteAdmin && entry.operation.includes("publish")) {
-    console.log(`ADMIN ACTION: ${entry.userId} published site ${entry.siteId}`);
-  }
-}
-
-// Wrap API calls with audit logging
-async function auditedCall<T>(
-  entry: Omit<WebflowAuditEntry, "timestamp" | "result">,
-  operation: () => Promise<T>
-): Promise<T> {
-  try {
-    const result = await operation();
-    await auditWebflowAccess({ ...entry, timestamp: new Date(), result: "success" });
-    return result;
-  } catch (error) {
-    await auditWebflowAccess({ ...entry, timestamp: new Date(), result: "error" });
-    throw error;
-  }
-}
-```
-
-### Step 7: Token Rotation Schedule
-
-```typescript
-async function checkTokenAge(): Promise<void> {
-  const tokens = await db.webflowTokens.findMany();
-
-  for (const token of tokens) {
-    const ageInDays = (Date.now() - token.createdAt.getTime()) / (1000 * 60 * 60 * 24);
-
-    if (ageInDays > 90) {
-      console.warn(
-        `Token for user ${token.userId} (${token.role}) is ${Math.floor(ageInDays)} days old. ` +
-        `Rotation recommended.`
-      );
-      // Send notification to user/admin
-    }
-  }
-}
-
-// Run weekly
-// cron: "0 9 * * 1"
-```
+Default to read-only inspection. Before any create, update, delete, publish, unpublish, archive, deploy, token revoke, or webhook registration, show the exact environment and resource IDs, the proposed change, validation method, and rollback or compensating action. Proceed only when the user's request clearly authorizes that mutation; require a fresh explicit approval for production publication or destructive work.
 
 ## Output
 
-- Role-to-scope mapping for Webflow OAuth
-- OAuth authorization with role-appropriate scopes
-- Per-site token isolation
-- Permission check middleware for API endpoints
-- Comprehensive audit logging
-- Token age monitoring and rotation alerts
+Return the inspected project and versions, verified Webflow identities, relevant endpoint and scope contract, changes proposed or made, validation evidence, live-mutation status, rollback readiness, and remaining risks. Distinguish documented fact, repository evidence, and inference.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| OAuth scope mismatch | App requests more scopes than configured | Match app settings in Webflow dashboard |
-| 403 on API call | Token missing required scope | Re-authorize with correct role |
-| Token not found | User never completed OAuth flow | Redirect to authorization |
-| Audit gap | Error in async logging | Add fallback logging to console |
+| Condition | Response |
+|---|---|
+| App role has scope but wrong site | Deny the request; scopes do not replace tenant/site authorization. |
+| Activity endpoint forbidden | Verify enterprise entitlement, token type, and the exact activity scope. |
+| Native/custom role confusion | Document which control Webflow enforces and which belongs to the application. |
+
+## Examples
+
+A support analyst role may read approved tenant sites through the app, but the server still verifies tenant membership and endpoint scope; a broad OAuth grant alone never authorizes cross-tenant access.
 
 ## Resources
 
-- [Webflow OAuth Reference](https://developers.webflow.com/data/reference/oauth-app)
-- [Webflow Scopes](https://developers.webflow.com/data/reference/scopes)
-- [Webflow Authentication](https://developers.webflow.com/data/reference/authentication)
-
-## Next Steps
-
-For major migrations, see `webflow-migration-deep-dive`.
+- [Official Webflow references](references/official-docs.md)
+- [Webflow developer documentation](https://developers.webflow.com/)
+- [Data API v2 index](https://developers.webflow.com/data/v2.0.0/llms.txt)
