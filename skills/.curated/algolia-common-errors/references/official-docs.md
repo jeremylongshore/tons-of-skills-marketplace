@@ -9,4 +9,3 @@ Checked on 2026-09-10 against current first-party documentation and package regi
 - [Sending and managing data](https://www.algolia.com/doc/guides/sending-and-managing-data) — record, indexing, and configuration concepts.
 
 Registry versions observed during this review: `algoliasearch` 5.59.0, `search-insights` 2.17.3, `react-instantsearch` 7.49.0, and `instantsearch.js` 4.116.0. The repository lockfile remains the implementation authority. Verify current pricing, entitlements, quotas, limits, regions, and support behavior against the account and current official source before making operational or commercial decisions.
-
