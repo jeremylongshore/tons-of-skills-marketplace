@@ -10258,7 +10258,7 @@
       "slug": "stackblitz-pack",
       "name": "stackblitz-pack",
       "displayName": "stackblitz pack",
-      "description": "Claude Code skill pack for StackBlitz (10 skills)",
+      "description": "Production StackBlitz workflows for WebContainer lifecycle, embeds, testing, diagnostics, capacity, and security (10 skills)",
       "version": "1.6.0",
       "category": "saas-packs",
       "keywords": [
