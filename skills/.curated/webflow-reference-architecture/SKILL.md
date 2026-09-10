@@ -4,7 +4,7 @@ description: >-
   Design a Webflow integration architecture with explicit Data API, Content Delivery, webhook, identity, queue, and publication boundaries. Use when starting a service or untangling a coupled integration. Trigger with "Webflow architecture", "design Webflow integration", or "Webflow service layout".
 argument-hint: "[project-path] [single-site|multi-tenant]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

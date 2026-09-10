@@ -4,7 +4,7 @@ description: >-
   Build a minimal, read-first Webflow Data API v2 integration with an official SDK. Use when proving connectivity, learning resource IDs, or establishing a safe starting point. Trigger with "Webflow hello world", "test Webflow API", or "list my Webflow sites".
 argument-hint: "[project-path] [site-id]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

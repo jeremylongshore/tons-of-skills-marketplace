@@ -4,7 +4,7 @@ description: >-
   Reduce avoidable Webflow integration cost and plan pressure using measured API, storage, traffic, and deployment usage. Use when right-sizing a plan or replacing wasteful polling and origin reads. Trigger with "Webflow cost", "right-size Webflow", or "reduce Webflow usage".
 argument-hint: "[project-path] [site-id] [workload]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

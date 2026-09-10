@@ -4,7 +4,7 @@ description: >-
   Plan and execute a Webflow Cloud deployment with explicit app identity, mount, environment, verification, and rollback. Use when shipping a Cloud app or repairing its deployment lane. Trigger with "deploy Webflow Cloud", "Webflow app deploy", or "rollback Webflow deployment".
 argument-hint: "[project-path] [site-attached|project-app] [environment]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

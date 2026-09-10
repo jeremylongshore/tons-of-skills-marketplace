@@ -4,7 +4,7 @@ description: >-
   Design data minimization, retention, access, and deletion workflows for Webflow forms, ecommerce, CMS, logs, and webhooks. Use when personal data enters an integration or compliance evidence is needed. Trigger with "Webflow privacy", "Webflow data retention", or "delete Webflow user data".
 argument-hint: "[project-path] [data-flow]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

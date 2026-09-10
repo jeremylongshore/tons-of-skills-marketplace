@@ -4,7 +4,7 @@ description: >-
   Apply maintainable patterns around an official Webflow SDK without inventing method contracts. Use when centralizing clients, pagination, retries, tenancy, or typed boundaries. Trigger with "Webflow SDK pattern", "wrap Webflow client", or "paginate Webflow".
 argument-hint: "[project-path] [javascript|python]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

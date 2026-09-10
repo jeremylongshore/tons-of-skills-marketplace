@@ -4,7 +4,7 @@ description: >-
   Gate a Webflow integration before production with identity, scope, retry, privacy, rollout, and rollback evidence. Use when preparing to enable live traffic or live content writes. Trigger with "Webflow production checklist", "ship Webflow integration", or "Webflow go live".
 argument-hint: "[project-path] [environment]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

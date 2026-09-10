@@ -4,7 +4,7 @@ description: >-
   Collect a redacted Webflow integration evidence bundle for troubleshooting or support. Use when an incident needs reproducible versions, identities, headers, and error context without secret leakage. Trigger with "Webflow debug bundle", "collect Webflow evidence", or "Webflow support ticket".
 argument-hint: "[project-path] [incident-id]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

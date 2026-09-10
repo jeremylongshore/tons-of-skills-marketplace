@@ -4,7 +4,7 @@ description: >-
   Upgrade Webflow SDK, Data API, or CLI integrations with contract evidence and rollback. Use when leaving Data API v1, updating the official JavaScript SDK, or migrating Webflow CLI 1.x scripts. Trigger with "upgrade Webflow SDK", "migrate Webflow v1", or "Webflow CLI 2".
 argument-hint: "[project-path] [current-version] [target-version]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

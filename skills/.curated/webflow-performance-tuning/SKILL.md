@@ -4,7 +4,7 @@ description: >-
   Improve Webflow integration latency and throughput with measured pagination, caching, Content Delivery, and bounded concurrency. Use when reads are slow, syncs are bursty, or origin budgets are tight. Trigger with "speed up Webflow", "Webflow CDN", or "optimize Webflow API".
 argument-hint: "[project-path] [endpoint-or-workload]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

@@ -4,7 +4,7 @@ description: >-
   Triage and recover a Webflow integration incident with read-only evidence, write freezes, and verified recovery. Use when handling auth failures, 429s, 5xx errors, webhook loss, bad publication, or Cloud deploy failure. Trigger with "Webflow incident", "Webflow outage", or "Webflow rollback".
 argument-hint: "[project-path] [incident-id] [environment]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

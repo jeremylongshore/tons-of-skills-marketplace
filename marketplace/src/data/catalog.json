@@ -10338,7 +10338,7 @@
       "name": "webflow-pack",
       "displayName": "webflow pack",
       "description": "Verified operator workflows for Webflow Data API v2, Webflow Cloud, CLI, CMS, webhooks, security, and production operations (24 skills)",
-      "version": "1.5.0",
+      "version": "1.6.0",
       "category": "saas-packs",
       "keywords": [
         "webflow",

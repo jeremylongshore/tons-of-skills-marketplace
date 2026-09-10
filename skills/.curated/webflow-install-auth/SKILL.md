@@ -4,7 +4,7 @@ description: >-
   Install or repair a Webflow Data API integration and choose the correct bearer-token model. Use when bootstrapping the official SDK, narrowing scopes, or diagnosing token setup. Trigger with "install Webflow", "configure Webflow auth", or "choose a Webflow token".
 argument-hint: "[project-path] [site-token|workspace-token|oauth]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

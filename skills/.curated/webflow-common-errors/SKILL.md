@@ -4,7 +4,7 @@ description: >-
   Diagnose Webflow Data API failures using the returned HTTP status and structured error body. Use when requests fail with 4xx, 429, or 5xx responses. Trigger with "Webflow error", "Webflow 403", or "Webflow API failed".
 argument-hint: "[project-path] [status-or-code]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

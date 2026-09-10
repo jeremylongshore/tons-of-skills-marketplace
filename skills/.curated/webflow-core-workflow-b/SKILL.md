@@ -4,7 +4,7 @@ description: >-
   Plan Webflow Data API operations outside the core CMS item loop, including pages, components, forms, ecommerce, assets, and custom code. Use when a request spans site resources or needs endpoint-specific scope review. Trigger with "Webflow site API", "Webflow forms", or "Webflow ecommerce".
 argument-hint: "[project-path] [site-id] [resource]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

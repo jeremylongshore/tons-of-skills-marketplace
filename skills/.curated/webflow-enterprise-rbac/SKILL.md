@@ -4,7 +4,7 @@ description: >-
   Govern enterprise Webflow API access with native scopes, token boundaries, activity evidence, and application authorization. Use when auditing multi-site access or designing least-privilege enterprise operations. Trigger with "Webflow enterprise access", "Webflow audit logs", or "Webflow RBAC".
 argument-hint: "[project-path] [workspace-or-site-id]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
