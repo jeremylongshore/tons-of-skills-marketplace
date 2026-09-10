@@ -7884,8 +7884,8 @@
       "slug": "posthog-pack",
       "name": "posthog-pack",
       "displayName": "posthog pack",
-      "description": "Complete PostHog integration skill pack with 24 skills covering product analytics, feature flags, session replay, and experimentation. Flagship tier vendor pack.",
-      "version": "1.12.0",
+      "description": "Verified PostHog operator pack with 24 workflows for regional ingestion, identity, flags, privacy, costs, incidents, migrations, and safe releases.",
+      "version": "1.14.0",
       "category": "saas-packs",
       "keywords": [
         "posthog",
