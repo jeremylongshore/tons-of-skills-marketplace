@@ -4,7 +4,7 @@ description: |
   Implement consent-aware PostHog collection, PII minimization, masking, retention, and deletion workflows. Use when analytics must satisfy a documented privacy or data-governance requirement. Trigger with "PostHog privacy", "PostHog PII", or "PostHog GDPR".
 argument-hint: "[project-path] [privacy-requirement]"
 allowed-tools: Read, Write, Edit
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

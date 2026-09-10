@@ -4,7 +4,7 @@ description: |
   Reduce PostHog usage cost without silently losing decision-critical data by measuring billable volume, applying product limits, and filtering noise. Use when forecasting spend or responding to a usage spike. Trigger with "PostHog cost", "PostHog billing", or "reduce PostHog usage".
 argument-hint: "[project-path] [product-or-budget]"
 allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

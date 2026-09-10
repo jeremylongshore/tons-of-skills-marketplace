@@ -4,7 +4,7 @@ description: |
   Triage a production PostHog integration incident while preserving application availability and evidence. Use when capture, flags, private API access, or downstream destinations are degraded. Trigger with "PostHog incident", "PostHog outage", or "PostHog on-call".
 argument-hint: "[service] [symptom]"
 allowed-tools: Read, Grep, Bash(kubectl:*), Bash(curl:*)
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

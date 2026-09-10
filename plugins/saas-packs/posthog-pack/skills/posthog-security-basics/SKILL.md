@@ -4,7 +4,7 @@ description: |
   Secure PostHog tokens, hosts, proxy routes, captured properties, and private-API scopes across browser and server boundaries. Use when reviewing secrets or hardening an integration. Trigger with "PostHog security", "PostHog secret scan", or "PostHog API key review".
 argument-hint: "[project-path] [security-scope]"
 allowed-tools: Read, Write, Grep
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

@@ -4,7 +4,7 @@ description: |
   Upgrade PostHog SDKs through release-note review, configuration-default comparison, focused tests, canary evidence, and rollback. Use when changing a PostHog package version or defaults date. Trigger with "upgrade PostHog SDK", "PostHog breaking change", or "PostHog version migration".
 argument-hint: "[project-path] [target-version]"
 allowed-tools: Read, Write, Edit, Grep, Bash(npm:*), Bash(npx:*), Bash(git:*), Bash(pip:*), Bash(pip3:*), Bash(grep:*)
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

@@ -4,7 +4,7 @@ description: |
   Build a deterministic local PostHog development loop with dependency injection, mocks, test identities, and optional isolated-project verification. Use when developing analytics without polluting production data. Trigger with "mock PostHog", "PostHog local development", or "test PostHog".
 argument-hint: "[project-path] [test-command]"
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pnpm:*), Grep
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

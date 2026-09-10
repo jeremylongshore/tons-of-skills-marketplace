@@ -4,7 +4,7 @@ description: |
   Plan and execute a controlled historical migration into PostHog with identity mapping, timestamp validation, dual-write evidence, and rollback boundaries. Use when moving from another analytics platform or PostHog region. Trigger with "migrate to PostHog", "PostHog historical import", or "PostHog dual write".
 argument-hint: "[source-platform] [target-project]"
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(node:*), Bash(kubectl:*)
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

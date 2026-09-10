@@ -4,7 +4,7 @@ description: |
   Tune PostHog SDK queues, serverless delivery, local flag evaluation, browser defaults, and query scope from measured bottlenecks. Use when PostHog adds latency or loses events under load. Trigger with "PostHog performance", "PostHog batching", or "slow PostHog flags".
 argument-hint: "[project-path] [bottleneck]"
 allowed-tools: Read, Write, Edit
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

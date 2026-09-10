@@ -4,7 +4,7 @@ description: |
   Build repository-specific PostHog CI gates for SDK initialization, typed capture tests, release annotations, and secret boundaries. Use when adding or reviewing PostHog checks in continuous integration. Trigger with "posthog CI", "PostHog GitHub Actions", or "test PostHog integration".
 argument-hint: "[project-path] [ci-provider]"
 allowed-tools: Read, Write, Edit, Bash(gh:*)
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

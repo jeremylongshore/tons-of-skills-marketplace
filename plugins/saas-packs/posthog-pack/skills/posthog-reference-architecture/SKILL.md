@@ -4,7 +4,7 @@ description: |
   Design a maintainable PostHog integration boundary for event taxonomy, identity, groups, flags, privacy, regional routing, and delivery ownership. Use when planning or reviewing analytics architecture. Trigger with "PostHog architecture", "organize PostHog", or "PostHog design review".
 argument-hint: "[project-path] [system-boundary]"
 allowed-tools: Read, Grep
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

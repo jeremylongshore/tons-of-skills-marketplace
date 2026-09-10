@@ -4,7 +4,7 @@ description: |
   Implement typed, lifecycle-safe PostHog SDK adapters for browser, Node.js, React, Next.js, or Python. Use when application code needs a reusable analytics boundary. Trigger with "PostHog SDK pattern", "PostHog React", or "PostHog TypeScript".
 argument-hint: "[project-path] [sdk-or-framework]"
 allowed-tools: Read, Write, Edit
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

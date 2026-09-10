@@ -4,7 +4,7 @@ description: |
   Implement a safe PostHog feature-flag and experiment lifecycle with defaults, exposure integrity, rollout ownership, and cleanup. Use when releasing behind flags or running controlled experiments. Trigger with "PostHog feature flag", "PostHog experiment", or "A/B test".
 argument-hint: "[project-path] [flag-or-experiment]"
 allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

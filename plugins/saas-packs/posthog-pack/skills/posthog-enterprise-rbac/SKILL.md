@@ -4,7 +4,7 @@ description: |
   Govern PostHog organization access with verified domains, SSO or SAML, SCIM, project roles, scoped keys, and audit evidence. Use when designing or reviewing enterprise access controls. Trigger with "PostHog SSO", "PostHog RBAC", or "PostHog SCIM".
 argument-hint: "[organization] [access-change]"
 allowed-tools: Read, Write, Edit
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

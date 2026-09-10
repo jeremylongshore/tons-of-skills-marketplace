@@ -4,7 +4,7 @@ description: |
   Design and implement a governed PostHog event taxonomy with capture, identity, group, and property contracts. Use when instrumenting a product workflow or repairing inconsistent analytics events. Trigger with "PostHog analytics", "capture events", or "PostHog identify".
 argument-hint: "[project-path] [workflow-name]"
 allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

@@ -4,7 +4,7 @@ description: |
   Collect a redacted, reproducible PostHog diagnostic bundle without capturing secrets or raw customer data. Use when an integration failure needs escalation or handoff. Trigger with "PostHog debug bundle", "collect PostHog evidence", or "PostHog support ticket".
 argument-hint: "[project-path] [output-directory]"
 allowed-tools: Read, Bash(grep:*), Bash(curl:*), Bash(tar:*), Grep
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

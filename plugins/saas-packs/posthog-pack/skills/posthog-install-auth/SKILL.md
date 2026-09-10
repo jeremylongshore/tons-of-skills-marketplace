@@ -4,7 +4,7 @@ description: |
   Install an official PostHog SDK and configure the correct project token, regional host, and server-only credentials. Use when bootstrapping or repairing SDK authentication. Trigger with "install PostHog", "configure PostHog", or "PostHog API key".
 argument-hint: "[project-path] [sdk] [region]"
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

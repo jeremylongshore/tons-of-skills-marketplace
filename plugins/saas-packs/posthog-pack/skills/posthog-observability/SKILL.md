@@ -4,7 +4,7 @@ description: |
   Observe a PostHog integration through application-side delivery metrics, ingestion warnings, billing volume, destination logs, and status evidence. Use when defining health signals or investigating silent analytics loss. Trigger with "monitor PostHog", "PostHog ingestion health", or "PostHog alerts".
 argument-hint: "[service] [signal]"
 allowed-tools: Read, Write, Edit
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

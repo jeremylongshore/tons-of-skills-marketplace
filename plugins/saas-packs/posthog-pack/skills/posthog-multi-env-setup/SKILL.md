@@ -4,7 +4,7 @@ description: |
   Separate PostHog development, staging, and production data with explicit project tokens, regional hosts, secret scopes, and promotion checks. Use when one codebase deploys to multiple environments. Trigger with "PostHog environments", "PostHog staging", or "PostHog dev prod".
 argument-hint: "[project-path] [environment-model]"
 allowed-tools: Read, Write, Edit, Bash(aws:*), Bash(gcloud:*), Bash(vault:*)
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

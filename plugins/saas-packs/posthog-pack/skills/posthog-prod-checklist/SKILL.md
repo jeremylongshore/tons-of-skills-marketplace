@@ -4,7 +4,7 @@ description: |
   Run a fail-safe production-readiness review for PostHog instrumentation, flags, secrets, privacy, delivery, and rollback. Use when enabling a new production integration or major SDK change. Trigger with "PostHog production checklist", "PostHog go-live", or "review PostHog launch".
 argument-hint: "[project-path] [release-ref]"
 allowed-tools: Read, Bash(kubectl:*), Bash(curl:*), Grep
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

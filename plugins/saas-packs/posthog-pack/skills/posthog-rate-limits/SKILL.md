@@ -4,7 +4,7 @@ description: |
   Design evidence-based PostHog private-API throttling with correct endpoint classes, team-wide budgets, backoff, and export alternatives. Use when a private API returns 429 or a polling job needs a request budget. Trigger with "PostHog rate limit", "PostHog 429", or "PostHog backoff".
 argument-hint: "[integration] [endpoint-class]"
 allowed-tools: Read, Write, Edit
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

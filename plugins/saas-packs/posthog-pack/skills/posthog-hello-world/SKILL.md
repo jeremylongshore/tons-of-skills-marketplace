@@ -4,7 +4,7 @@ description: |
   Verify a minimal PostHog integration with one controlled event, one identified test user, and one feature-flag fallback. Use when proving a new setup before broader instrumentation. Trigger with "PostHog smoke test", "verify PostHog setup", or "first PostHog event".
 argument-hint: "[project-path] [region]"
 allowed-tools: Read, Write, Edit
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

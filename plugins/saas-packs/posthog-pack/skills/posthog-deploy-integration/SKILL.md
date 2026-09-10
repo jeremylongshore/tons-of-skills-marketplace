@@ -4,7 +4,7 @@ description: |
   Deploy a PostHog application integration with correct regional hosts, reverse-proxy coverage, server lifecycle, and rollback checks. Use when shipping PostHog instrumentation to a hosted application. Trigger with "deploy PostHog", "PostHog Vercel", or "PostHog reverse proxy".
 argument-hint: "[project-path] [deployment-platform]"
 allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(fly:*), Bash(gcloud:*)
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

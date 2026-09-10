@@ -4,7 +4,7 @@ description: |
   Build and verify PostHog realtime webhook destinations and bounded private-API or HogQL event queries. Use when delivering selected events to another system or investigating event data. Trigger with "PostHog webhook", "PostHog destination", or "PostHog HogQL query".
 argument-hint: "[project] [destination-or-query]"
 allowed-tools: Read, Write, Edit, Bash(curl:*)
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

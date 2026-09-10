@@ -1,6 +1,6 @@
 {
   "name": "posthog-pack",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "Verified PostHog operator workflows for regional ingestion, flags, privacy, cost, incidents, migrations, and releases (24 skills)",
   "author": {
     "name": "Jeremy Longshore",

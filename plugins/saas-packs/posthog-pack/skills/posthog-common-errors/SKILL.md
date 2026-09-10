@@ -4,7 +4,7 @@ description: |
   Diagnose PostHog ingestion, identity, feature-flag, SDK, and private-API failures from concrete evidence. Use when events are missing, flags return unexpected values, or PostHog requests fail. Trigger with "debug PostHog", "PostHog events missing", or "PostHog 401".
 argument-hint: "[project-path] [symptom]"
 allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
