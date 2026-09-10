@@ -585,3 +585,31 @@ plugins/saas-packs/clickup-pack/skills/clickup-sdk-patterns/SKILL.md:allowed-too
 plugins/saas-packs/clickup-pack/skills/clickup-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
 plugins/saas-packs/clickup-pack/skills/clickup-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
 plugins/saas-packs/clickup-pack/skills/clickup-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+
+# ── Miro operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult current first-party Miro
+# documentation; no shell or general HTTP client is granted.
+plugins/saas-packs/miro-pack/skills/miro-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-data-handling/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-enterprise-rbac/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-incident-runbook/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-migration-deep-dive/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-multi-env-setup/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-observability/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
