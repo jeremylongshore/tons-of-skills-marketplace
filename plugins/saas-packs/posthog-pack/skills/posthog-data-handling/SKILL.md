@@ -1,16 +1,10 @@
 ---
 name: posthog-data-handling
-description: 'PostHog PII handling, GDPR compliance, consent management, data deletion,
-
-  property sanitization, and privacy-safe analytics configuration.
-
-  Trigger: "posthog data", "posthog PII", "posthog GDPR", "posthog data
-
-  retention", "posthog privacy", "posthog CCPA", "posthog consent".
-
-  '
+description: |
+  Implement consent-aware PostHog collection, PII minimization, masking, retention, and deletion workflows. Use when analytics must satisfy a documented privacy or data-governance requirement. Trigger with "PostHog privacy", "PostHog PII", or "PostHog GDPR".
+argument-hint: "[project-path] [privacy-requirement]"
 allowed-tools: Read, Write, Edit
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -27,12 +21,23 @@ Privacy-safe analytics with PostHog. Covers property sanitization to strip PII b
 
 ## Prerequisites
 
-- PostHog project (Cloud or self-hosted)
+- PostHog project with current privacy, retention, and deletion capabilities verified for its deployment model
 - `posthog-js` and/or `posthog-node` installed
 - Privacy policy covering analytics data collection
 - Cookie consent mechanism (e.g., CookieConsent banner)
 
+## Authentication
+
+- Browser capture uses the public project token; do not treat it as a secret or grant it private API access.
+- Subject-access, export, and deletion operations use a least-privilege personal API key or OAuth token against the private regional API host.
+- Load private credentials from a server-side secret manager, redact them from logs, and never expose them through client bundles or analytics properties.
+- Confirm the target project ID and US or EU region before any destructive privacy operation.
+
 ## Instructions
+
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
 
 ### Step 1: Privacy-Safe Initialization
 
@@ -143,7 +148,7 @@ async function handleSubjectAccessRequest(email: string) {
 
   // 1. Find the person by email property
   const searchResponse = await fetch(
-    `https://app.posthog.com/api/projects/${projectId}/persons/?properties=[{"key":"email","value":"${encodeURIComponent(email)}","type":"person"}]`,
+    `https://us.posthog.com/api/projects/${projectId}/persons/?properties=[{"key":"email","value":"${encodeURIComponent(email)}","type":"person"}]`,
     { headers: { Authorization: `Bearer ${personalKey}` } }
   );
   const searchData = await searchResponse.json();
@@ -157,7 +162,7 @@ async function handleSubjectAccessRequest(email: string) {
 
   // 2. Export their events (strip PII from export)
   const eventsResponse = await fetch(
-    `https://app.posthog.com/api/projects/${projectId}/query/`,
+    `https://us.posthog.com/api/projects/${projectId}/query/`,
     {
       method: 'POST',
       headers: {
@@ -197,7 +202,7 @@ async function handleDeletionRequest(email: string) {
 
   // 1. Find the person
   const searchResponse = await fetch(
-    `https://app.posthog.com/api/projects/${projectId}/persons/?properties=[{"key":"email","value":"${encodeURIComponent(email)}","type":"person"}]`,
+    `https://us.posthog.com/api/projects/${projectId}/persons/?properties=[{"key":"email","value":"${encodeURIComponent(email)}","type":"person"}]`,
     { headers: { Authorization: `Bearer ${personalKey}` } }
   );
   const searchData = await searchResponse.json();
@@ -210,7 +215,7 @@ async function handleDeletionRequest(email: string) {
 
   // 2. Delete the person (PostHog also deletes associated events)
   const deleteResponse = await fetch(
-    `https://app.posthog.com/api/projects/${projectId}/persons/${personId}/`,
+    `https://us.posthog.com/api/projects/${projectId}/persons/${personId}/`,
     {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${personalKey}` },
@@ -237,7 +242,7 @@ const BLOCKED_PROPERTIES = ['$ip', 'email', 'phone', 'name', 'address', 'ssn'];
 
 async function safeExport(hogql: string) {
   const response = await fetch(
-    `https://app.posthog.com/api/projects/${process.env.POSTHOG_PROJECT_ID}/query/`,
+    `https://us.posthog.com/api/projects/${process.env.POSTHOG_PROJECT_ID}/query/`,
     {
       method: 'POST',
       headers: {
@@ -295,7 +300,13 @@ async function safeExport(hogql: string) {
 - GDPR Data Deletion handler
 - PII-safe data export function
 
+## Examples
+
+For a consent-gated web app, start opted out, enable capture only after the consent signal, mask sensitive elements, reject prohibited properties before send, and test both consent states. Produce a data map and identify any deletion step that requires private-API authorization.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [PostHog Privacy Controls](https://posthog.com/docs/privacy)
 - [PostHog GDPR Compliance](https://posthog.com/docs/privacy/gdpr-compliance)

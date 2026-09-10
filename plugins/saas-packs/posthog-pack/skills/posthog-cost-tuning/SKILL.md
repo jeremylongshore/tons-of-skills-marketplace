@@ -1,16 +1,10 @@
 ---
 name: posthog-cost-tuning
-description: 'Optimize PostHog costs: autocapture tuning, event sampling with before_send,
-
-  bot filtering, session recording sampling, and billing monitoring.
-
-  Trigger: "posthog cost", "posthog billing", "reduce posthog costs",
-
-  "posthog pricing", "posthog expensive", "posthog budget", "posthog free tier".
-
-  '
-allowed-tools: Read, Grep
-version: 1.12.0
+description: |
+  Reduce PostHog usage cost without silently losing decision-critical data by measuring billable volume, applying product limits, and filtering noise. Use when forecasting spend or responding to a usage spike. Trigger with "PostHog cost", "PostHog billing", or "reduce PostHog usage".
+argument-hint: "[project-path] [product-or-budget]"
+allowed-tools: Read, Grep, Bash(curl:*)
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -25,7 +19,7 @@ compatibility: Designed for Claude Code
 
 ## Overview
 
-PostHog Cloud pricing is event-based: 1M events/month free, then usage-based pricing beyond that. Session recordings, feature flag evaluations, and surveys each have their own free tiers. The biggest cost drivers are typically `$autocapture` events, `$pageview` on high-traffic pages, and bot traffic. This skill covers specific techniques to reduce event volume without losing analytical value.
+Measure the live billable volume for each enabled PostHog product, trace changes to instrumentation releases, and reduce only traffic that the product owner has classified as noise or safely sampleable. Pricing, free allowances, and product entitlements are live facts; read them from the billing dashboard, pricing calculator, and approved product limits at execution time.
 
 ## Prerequisites
 
@@ -33,23 +27,28 @@ PostHog Cloud pricing is event-based: 1M events/month free, then usage-based pri
 - Application instrumented with posthog-js
 - Understanding of which events drive your analytics
 
-## PostHog Cloud Free Tiers (2025)
+## Authentication
 
-| Product | Free Tier | Overage |
-|---------|-----------|---------|
-| Product analytics | 1M events/month | ~$0.00031/event |
-| Session recordings | 5K sessions/month | ~$0.04/session |
-| Feature flags | 1M API requests/month | ~$0.0001/request |
-| Surveys | 250 responses/month | ~$0.10/response |
+- Usage inspection through private query and billing APIs requires a least-privilege personal API key or OAuth token on a trusted machine.
+- Event capture and browser-side filtering use only the public project token; never ship a personal or secure key to the browser.
+- Read private credentials from a secret manager, redact command output before sharing it, and select the private US or EU API host that matches the project.
+
+## Live Pricing Boundary
+
+Do not copy prices or free allowances into implementation code. Record the billing-dashboard timestamp, current product limit, projected usage, unit price from the live calculator, and the owner who approved any data-loss tradeoff. Recheck those values before applying a change.
 
 ## Instructions
+
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Grep` to locate initialization, capture, flag, and credential boundaries.
 
 ### Step 1: Audit Current Event Volume
 
 ```bash
 set -euo pipefail
 # See which events consume the most quota (last 30 days)
-curl "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/query/" \
+curl "https://us.posthog.com/api/projects/$POSTHOG_PROJECT_ID/query/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -98,24 +97,19 @@ posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
       return null;
     }
 
-    // 3. Sample pageviews to 25% on high-traffic pages
+    // 3. Apply only the sample rate approved for this event class.
     if (event.event === '$pageview') {
       const highTraffic = ['/', '/pricing', '/blog'];
       const url = event.properties?.$current_url || '';
       if (highTraffic.some(p => url.endsWith(p))) {
-        return Math.random() < 0.25 ? event : null;
+        return Math.random() < approvedPageviewSampleRate ? event : null;
       }
-      return event; // Keep other pageviews at 100%
+      return event;
     }
 
-    // 4. Sample autocapture to 20%
+    // 4. Use a separately approved rate for autocapture.
     if (event.event === '$autocapture') {
-      return Math.random() < 0.2 ? event : null;
-    }
-
-    // 5. Sample pageleave to 50%
-    if (event.event === '$pageleave') {
-      return Math.random() < 0.5 ? event : null;
+      return Math.random() < approvedAutocaptureSampleRate ? event : null;
     }
 
     return event; // Keep all other events
@@ -129,8 +123,8 @@ posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
 posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
   api_host: 'https://us.i.posthog.com',
   session_recording: {
-    // Record only 10% of sessions (saves 90% on recording costs)
-    sampleRate: 0.1,
+    // Load the reviewed rate from configuration; document analysis impact.
+    sampleRate: approvedSessionRecordingSampleRate,
     // Don't record sessions shorter than 5 seconds (bounces)
     minimumDurationMilliseconds: 5000,
     // Record 100% of sessions with errors (most valuable for debugging)
@@ -155,7 +149,7 @@ if (user.plan !== 'free') {
 ```bash
 set -euo pipefail
 # Check current month's event usage
-curl "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/query/" \
+curl "https://us.posthog.com/api/projects/$POSTHOG_PROJECT_ID/query/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -167,8 +161,7 @@ curl "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/query/" \
     total_events: .[0],
     unique_users: .[1],
     avg_events_per_day: .[2],
-    projected_monthly: (.[2] * 30),
-    over_free_tier: (.[2] * 30 > 1000000)
+    projected_monthly: (.[2] * 30)
   }'
 ```
 
@@ -182,25 +175,21 @@ async function checkPostHogBudget() {
   `);
 
   const eventsThisMonth = result.results[0][0];
-  const FREE_TIER = 1_000_000;
+  const approvedMonthlyLimit = Number(process.env.POSTHOG_MONTHLY_EVENT_LIMIT);
+  if (!Number.isFinite(approvedMonthlyLimit)) {
+    throw new Error('Set POSTHOG_MONTHLY_EVENT_LIMIT from the current billing configuration');
+  }
   const projectedMonthly = eventsThisMonth / (new Date().getDate() / 30);
 
-  if (projectedMonthly > FREE_TIER * 0.8) {
-    // Alert: approaching free tier limit
-    await sendSlackAlert(`PostHog usage alert: ${Math.round(projectedMonthly / 1000)}K events projected this month (free tier: 1M)`);
+  if (projectedMonthly > approvedMonthlyLimit * 0.8) {
+    await sendSlackAlert(`PostHog usage alert: ${Math.round(projectedMonthly)} events projected against reviewed limit ${approvedMonthlyLimit}`);
   }
 }
 ```
 
-## Cost Reduction Estimates
+## Decision Record
 
-| Technique | Typical Reduction | Impact on Analytics |
-|-----------|------------------|-------------------|
-| Restrict autocapture elements | 40-60% | Low (keep meaningful clicks) |
-| Filter bot traffic | 10-30% | None (bots are noise) |
-| Sample $pageview on high-traffic | 20-40% | Low (trends still accurate) |
-| Session recording at 10% | 90% on recordings | Medium (fewer sessions to review) |
-| Disable $pageleave | 15-20% | Low (rarely analyzed) |
+For each proposed filter or sample, record the baseline count, affected event or product, chosen rate, expected analytical limitation, rollback trigger, and measured result after one full review window. Never report generic savings estimates as if they were measured for the target project.
 
 ## Error Handling
 
@@ -209,17 +198,23 @@ async function checkPostHogBudget() {
 | Event volume spike | New feature without volume estimate | Forecast events before launch |
 | Bill higher than expected | Bot traffic | Add bot filtering in `before_send` |
 | Missing critical events | Sampling too aggressive | Exclude revenue events from sampling |
-| Free tier exceeded mid-month | Autocapture too broad | Restrict to `.track-click` elements only |
+| Approved product limit reached mid-month | Volume exceeds the reviewed budget | Apply the least destructive approved control and preserve conversion events |
 
 ## Output
 
 - Autocapture restricted to meaningful interactions
-- Event sampling reducing volume by 30-50%
+- Reviewed event-sampling policy with its analytical limitations recorded
 - Bot traffic filtered
-- Session recording sampled to 10%
-- Budget monitoring with alerting
+- Session-recording control derived from the live billing configuration
+- Budget monitoring against the approved product limit
+
+## Examples
+
+For an autocapture spike, compare billing-dashboard volume with the release timeline, preserve named conversion events, narrow noisy autocapture, and set a reviewed product limit. Report expected data loss explicitly; do not invent savings percentages.
 
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [PostHog Pricing](https://posthog.com/pricing)
 - [PostHog Autocapture Config](https://posthog.com/docs/product-analytics/autocapture)

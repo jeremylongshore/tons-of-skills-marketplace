@@ -1,17 +1,10 @@
 ---
 name: posthog-enterprise-rbac
-description: 'PostHog enterprise access control: organization/project hierarchy, member
-  roles,
-
-  scoped API keys, SSO/SAML configuration, and activity audit logging.
-
-  Trigger: "posthog SSO", "posthog RBAC", "posthog enterprise",
-
-  "posthog roles", "posthog permissions", "posthog SAML", "posthog access".
-
-  '
+description: |
+  Govern PostHog organization access with verified domains, SSO or SAML, SCIM, project roles, scoped keys, and audit evidence. Use when designing or reviewing enterprise access controls. Trigger with "PostHog SSO", "PostHog RBAC", or "PostHog SCIM".
+argument-hint: "[organization] [access-change]"
 allowed-tools: Read, Write, Edit
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -28,7 +21,7 @@ PostHog access control uses a three-level hierarchy: Organization > Project > Re
 
 ## Prerequisites
 
-- PostHog Cloud or self-hosted with enterprise license
+- PostHog Cloud organization with the required RBAC, SSO, and audit-log entitlements confirmed from the live plan
 - Organization admin role
 - Multiple projects configured (one per environment)
 
@@ -50,24 +43,29 @@ PostHog access control uses a three-level hierarchy: Organization > Project > Re
 
 ## Instructions
 
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
+
+
 ### Step 1: Set Up Project-Level Access
 
 ```bash
 set -euo pipefail
 # Create a production project with access control
-curl -X POST "https://app.posthog.com/api/organizations/$ORG_ID/projects/" \
+curl -X POST "https://us.posthog.com/api/organizations/$ORG_ID/projects/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"name": "Production", "access_control": true}'
 
 # Add a member to a specific project (level 1 = Member, 8 = Admin)
-curl -X POST "https://app.posthog.com/api/projects/$PROD_PROJECT_ID/members/" \
+curl -X POST "https://us.posthog.com/api/projects/$PROD_PROJECT_ID/members/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"user_id": "USER_UUID", "level": 1}'
 
 # List current project members
-curl "https://app.posthog.com/api/projects/$PROD_PROJECT_ID/members/" \
+curl "https://us.posthog.com/api/projects/$PROD_PROJECT_ID/members/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" | \
   jq '.results[] | {email: .user.email, level, joined_at}'
 ```
@@ -77,7 +75,7 @@ curl "https://app.posthog.com/api/projects/$PROD_PROJECT_ID/members/" \
 ```bash
 set -euo pipefail
 # Read-only key for BI dashboard integration
-curl -X POST "https://app.posthog.com/api/personal_api_keys/" \
+curl -X POST "https://us.posthog.com/api/personal_api_keys/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -86,7 +84,7 @@ curl -X POST "https://app.posthog.com/api/personal_api_keys/" \
   }'
 
 # Feature flag service key (read + write flags only)
-curl -X POST "https://app.posthog.com/api/personal_api_keys/" \
+curl -X POST "https://us.posthog.com/api/personal_api_keys/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -95,7 +93,7 @@ curl -X POST "https://app.posthog.com/api/personal_api_keys/" \
   }'
 
 # Event export key (read events only)
-curl -X POST "https://app.posthog.com/api/personal_api_keys/" \
+curl -X POST "https://us.posthog.com/api/personal_api_keys/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -104,7 +102,7 @@ curl -X POST "https://app.posthog.com/api/personal_api_keys/" \
   }'
 
 # List all personal API keys
-curl "https://app.posthog.com/api/personal_api_keys/" \
+curl "https://us.posthog.com/api/personal_api_keys/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" | \
   jq '.[] | {id, label, scopes, created_at}'
 ```
@@ -121,7 +119,7 @@ PostHog enterprise supports SAML 2.0 SSO. Configuration is in Organization Setti
 ```bash
 set -euo pipefail
 # Check SSO configuration status
-curl "https://app.posthog.com/api/organizations/$ORG_ID/" \
+curl "https://us.posthog.com/api/organizations/$ORG_ID/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" | \
   jq '{
     enforce_sso: .enforce_sso,
@@ -135,7 +133,7 @@ curl "https://app.posthog.com/api/organizations/$ORG_ID/" \
 ```bash
 set -euo pipefail
 # View recent activity log for permission changes
-curl "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/activity_log/?scope=Organization" \
+curl "https://us.posthog.com/api/projects/$POSTHOG_PROJECT_ID/activity_log/?scope=Organization" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" | \
   jq '[.results[] | select(.activity | contains("member") or contains("role") or contains("api_key")) | {
     user: .user.email,
@@ -145,7 +143,7 @@ curl "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/activity_log/?sco
   }] | .[:10]'
 
 # View feature flag changes (who changed what)
-curl "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/activity_log/?scope=FeatureFlag" \
+curl "https://us.posthog.com/api/projects/$POSTHOG_PROJECT_ID/activity_log/?scope=FeatureFlag" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" | \
   jq '[.results[:10][] | {
     user: .user.email,
@@ -199,7 +197,7 @@ access_matrix:
 | Member sees prod data | Project access not restricted | Remove from prod project, add to staging only |
 | SSO bypass possible | SSO not enforced | Enable "Enforce SSO" in org settings |
 | Can't create scoped key | Not org admin | Only admins can create API keys |
-| Activity log gaps | Self-hosted log rotation | Increase log retention in PostHog config |
+| Activity log gaps | Plan entitlement or retention window mismatch | Confirm the live entitlement and export required evidence before it ages out |
 
 ## Output
 
@@ -209,7 +207,13 @@ access_matrix:
 - Activity audit log queries
 - Access matrix documented
 
+## Examples
+
+For onboarding a production analytics team, verify the authentication domain, map identity-provider groups to least-privilege roles, test join and removal paths, and capture audit evidence. Recheck plan availability before promising JIT, SAML, SCIM, or advanced roles.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [PostHog API Overview](https://posthog.com/docs/api)
 - [PostHog Projects API](https://posthog.com/docs/api/projects)

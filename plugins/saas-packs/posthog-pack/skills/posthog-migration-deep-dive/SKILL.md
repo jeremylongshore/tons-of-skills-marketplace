@@ -1,18 +1,10 @@
 ---
 name: posthog-migration-deep-dive
-description: 'Migrate to PostHog from Google Analytics, Mixpanel, Amplitude, or Segment.
-
-  Covers dual-write strategy, historical data import, event name mapping,
-
-  identity resolution, and feature flag based traffic shifting.
-
-  Trigger: "migrate posthog", "posthog migration", "switch to posthog",
-
-  "posthog from mixpanel", "posthog from GA", "posthog replatform".
-
-  '
+description: |
+  Plan and execute a controlled historical migration into PostHog with identity mapping, timestamp validation, dual-write evidence, and rollback boundaries. Use when moving from another analytics platform or PostHog region. Trigger with "migrate to PostHog", "PostHog historical import", or "PostHog dual write".
+argument-hint: "[source-platform] [target-project]"
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(node:*), Bash(kubectl:*)
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -23,263 +15,83 @@ compatibility: Designed for Claude Code
 ---
 # PostHog Migration Deep Dive
 
-## Current State
-
-!`npm list posthog-js posthog-node 2>/dev/null | grep posthog || echo 'No PostHog SDK found'`
-!`npm list @segment/analytics-node mixpanel @google-analytics/data 2>/dev/null | grep -E "segment|mixpanel|google" || echo 'No competitor SDKs found'`
-
 ## Overview
 
 Migrate from Google Analytics, Mixpanel, Amplitude, or Segment to PostHog using a dual-write strategy (send events to both old and new platforms) followed by gradual traffic shifting. PostHog's capture API accepts events in a format similar to Segment's track/identify calls, making migration straightforward.
 
+## Prerequisites
+
+- A paid product analytics plan and a dedicated target project are confirmed for historical imports.
+- The event taxonomy, distinct-ID map, timestamp policy, and rollback owner are approved.
+- A representative sample can be validated before full ingestion.
+
+## Authentication
+
+- Use the target project's public project token only for event capture. It is an ingestion identifier, not a secret or a credential for private APIs.
+- Use a least-privilege personal API key or OAuth token for private project APIs, keep it in a secret manager, and never place it in browser code, logs, examples, or committed files.
+- If server-side local feature-flag evaluation is required, use a feature flags secure API key through the SDK's `personalApiKey` option; do not reuse a broadly scoped personal API key.
+- Select the matching US or EU host for the target project before any sample or bulk write.
+
 ## Migration Types
 
-| Source | Complexity | Duration | Key Challenge |
-|--------|-----------|----------|---------------|
-| Google Analytics (GA4) | Medium | 2-4 weeks | Event model is fundamentally different |
-| Mixpanel | Low | 1-2 weeks | Very similar event model |
-| Amplitude | Low | 1-2 weeks | Similar event model |
-| Segment | Low | 1 week | PostHog has a Segment destination |
-| Custom analytics | Medium | 2-4 weeks | Depends on current implementation |
+
+| Source | Primary discovery risk | Evidence required before import |
+|--------|------------------------|---------------------------------|
+| Google Analytics (GA4) | Event and identity models differ | Approved taxonomy and identity mapping |
+| Mixpanel | Similar names can hide property or identity drift | Sample export reconciliation |
+| Amplitude | Cohort and user-property semantics can differ | Property and timestamp comparison |
+| Segment | Destination behavior can differ from direct SDK capture | Dual-write sample and delivery logs |
+| Custom analytics | Source semantics are implementation-specific | Source contract, resumable export, and representative sample |
 
 ## Instructions
 
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
+
+
 ### Step 1: Event Name Mapping
 
-```typescript
-// migration/event-map.ts
-// Map old event names to PostHog event taxonomy
-const EVENT_MAP: Record<string, string> = {
-  // Mixpanel → PostHog
-  'Sign Up': 'user_signed_up',
-  'Login': 'user_logged_in',
-  'Page View': '$pageview',
-  'Button Click': 'button_clicked',
-  'Purchase': 'payment_completed',
-  'Subscription Started': 'subscription_started',
-
-  // GA4 → PostHog
-  'page_view': '$pageview',
-  'sign_up': 'user_signed_up',
-  'login': 'user_logged_in',
-  'purchase': 'payment_completed',
-  'add_to_cart': 'item_added_to_cart',
-
-  // Amplitude → PostHog
-  'Page Viewed': '$pageview',
-  'Signed Up': 'user_signed_up',
-  'Feature Used': 'feature_used',
-};
-
-// Property name mapping
-const PROPERTY_MAP: Record<string, string> = {
-  // Mixpanel → PostHog
-  '$email': 'email',
-  '$name': 'name',
-  '$city': 'city',
-  'Plan': 'plan',
-  'MRR': 'mrr',
-
-  // GA4 → PostHog
-  'page_title': '$title',
-  'page_location': '$current_url',
-  'page_referrer': '$referrer',
-};
-```
+Create a reviewed mapping table with source event, target event, source property, target property, source identity, target distinct ID, timestamp conversion, consent class, and owner. Reject unknown identities, empty event names, invalid timestamps, and unreviewed PII instead of silently coercing them.
 
 ### Step 2: Dual-Write Adapter
 
-```typescript
-// migration/analytics-adapter.ts
-import { PostHog } from 'posthog-node';
-import Mixpanel from 'mixpanel'; // or your current platform
-
-interface AnalyticsAdapter {
-  capture(userId: string, event: string, properties?: Record<string, any>): void;
-  identify(userId: string, properties: Record<string, any>): void;
-  shutdown(): Promise<void>;
-}
-
-class DualWriteAdapter implements AnalyticsAdapter {
-  private posthog: PostHog;
-  private mixpanel: typeof Mixpanel; // Replace with your current platform
-  private posthogEnabled: boolean;
-
-  constructor() {
-    this.posthog = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-      host: 'https://us.i.posthog.com',
-      personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY,
-    });
-
-    this.mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN!);
-    this.posthogEnabled = true;
-  }
-
-  capture(userId: string, event: string, properties?: Record<string, any>) {
-    // Map event name
-    const posthogEvent = EVENT_MAP[event] || event.toLowerCase().replace(/\s+/g, '_');
-    const mappedProps = this.mapProperties(properties || {});
-
-    // Write to PostHog
-    if (this.posthogEnabled) {
-      this.posthog.capture({
-        distinctId: userId,
-        event: posthogEvent,
-        properties: { ...mappedProps, migration_source: 'dual-write' },
-      });
-    }
-
-    // Write to old platform (until migration complete)
-    this.mixpanel.track(event, { distinct_id: userId, ...properties });
-  }
-
-  identify(userId: string, properties: Record<string, any>) {
-    const mappedProps = this.mapProperties(properties);
-
-    if (this.posthogEnabled) {
-      this.posthog.identify({ distinctId: userId, properties: mappedProps });
-    }
-
-    this.mixpanel.people.set(userId, properties);
-  }
-
-  private mapProperties(props: Record<string, any>): Record<string, any> {
-    const mapped: Record<string, any> = {};
-    for (const [key, value] of Object.entries(props)) {
-      const newKey = PROPERTY_MAP[key] || key.toLowerCase().replace(/\s+/g, '_');
-      mapped[newKey] = value;
-    }
-    return mapped;
-  }
-
-  async shutdown() {
-    await this.posthog.shutdown();
-  }
-}
-
-export const analytics = new DualWriteAdapter();
-```
+Wrap the existing analytics boundary once, apply the frozen mapping before either destination, and attach a migration-run identifier. Track delivery results separately for the legacy and PostHog paths. The application path must remain successful when either analytics destination fails, and the adapter must expose independent kill switches plus a bounded flush on shutdown.
 
 ### Step 3: Historical Data Import
 
 ```typescript
-// migration/import-historical.ts
 import { PostHog } from 'posthog-node';
 
-const posthog = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-  host: 'https://us.i.posthog.com',
-  flushAt: 100,        // Larger batch for import
-  flushInterval: 1000, // Flush every second
+const importer = new PostHog(process.env.POSTHOG_PROJECT_TOKEN!, {
+  host: process.env.POSTHOG_PUBLIC_HOST!,
+  historicalMigration: true,
 });
-
-interface HistoricalEvent {
-  userId: string;
-  event: string;
-  properties: Record<string, any>;
-  timestamp: string; // ISO 8601
-}
-
-async function importHistoricalEvents(events: HistoricalEvent[]) {
-  let imported = 0;
-  let errors = 0;
-
-  for (const event of events) {
-    try {
-      const posthogEvent = EVENT_MAP[event.event] || event.event;
-
-      posthog.capture({
-        distinctId: event.userId,
-        event: posthogEvent,
-        properties: {
-          ...event.properties,
-          $timestamp: event.timestamp, // Preserve original timestamp
-          migration_imported: true,
-        },
-        timestamp: new Date(event.timestamp),
-      });
-
-      imported++;
-
-      if (imported % 10000 === 0) {
-        await posthog.flush();
-        console.log(`Imported ${imported} events...`);
-      }
-    } catch (error) {
-      errors++;
-      console.error(`Failed to import event: ${event.event}`, error);
-    }
-  }
-
-  await posthog.shutdown();
-  return { imported, errors };
-}
-
-// Usage:
-// const events = await exportFromMixpanel(); // Your export function
-// await importHistoricalEvents(events);
 ```
+
+Historical imports require a paid product analytics plan even though the import itself is free. Use the Python or Node SDK, or the public batch endpoint, only with events dated at least 48 hours before import. Export to durable storage first, checkpoint every batch, preserve ISO 8601 timestamps and stable distinct IDs, and stop on the first reconciliation breach.
 
 ### Step 4: Batch Import via HTTP API
 
-```bash
-set -euo pipefail
-# Import events in batch via the /batch/ endpoint
-# Max request body: 20MB
-
-curl -X POST 'https://us.i.posthog.com/batch/' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "api_key": "'$NEXT_PUBLIC_POSTHOG_KEY'",
-    "historical_migration": true,
-    "batch": [
-      {
-        "event": "user_signed_up",
-        "distinct_id": "user-001",
-        "timestamp": "2025-01-15T10:30:00Z",
-        "properties": {"method": "email", "source": "migration"}
-      },
-      {
-        "event": "subscription_started",
-        "distinct_id": "user-001",
-        "timestamp": "2025-01-16T14:20:00Z",
-        "properties": {"plan": "pro", "source": "migration"}
-      }
-    ]
-  }'
+```json
+{
+  "api_key": "project-token-from-secret-source",
+  "historical_migration": true,
+  "batch": [
+    {
+      "event": "mapped_event_name",
+      "properties": {"distinct_id": "stable-user-id", "migration_run": "approved-run-id"},
+      "timestamp": "approved-iso-8601-timestamp"
+    }
+  ]
+}
 ```
+
+POST this shape to the selected regional `/batch/` endpoint. Keep each request below the documented body-size limit, record its checkpoint and response, and never paste a real project token into a generated file or transcript.
 
 ### Step 5: Feature Flag Controlled Cutover
 
-```typescript
-// Use a PostHog feature flag to gradually shift traffic
-import { PostHog } from 'posthog-node';
-
-const posthog = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-  host: 'https://us.i.posthog.com',
-  personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY,
-});
-
-async function getAnalyticsBackend(userId: string): Promise<'posthog' | 'legacy' | 'dual'> {
-  const migrationPhase = await posthog.getFeatureFlag('analytics-migration', userId);
-
-  switch (migrationPhase) {
-    case 'posthog-only':
-      return 'posthog';   // Phase 3: PostHog only
-    case 'dual-write':
-      return 'dual';      // Phase 2: Both platforms
-    default:
-      return 'legacy';    // Phase 1: Old platform only
-  }
-}
-
-// Rollout plan:
-// Week 1: Flag at 0% → all traffic to legacy
-// Week 2: Flag "dual-write" at 10% → dual-write for 10%
-// Week 3: Flag "dual-write" at 100% → dual-write for everyone
-// Week 4: Validate PostHog data matches legacy
-// Week 5: Flag "posthog-only" at 10% → PostHog only for 10%
-// Week 6: Flag "posthog-only" at 100% → migration complete
-```
+Use explicit `legacy`, `dual-write`, and `posthog-only` states with `legacy` as the fail-closed default. If PostHog evaluates the cutover flag server-side, pass the feature flags secure API key through the SDK's `personalApiKey` option. Advance only after the approved observation window passes identity, count, property, timestamp, and business-metric reconciliation; roll back on any breach.
 
 ### Step 6: Validation
 
@@ -287,7 +99,7 @@ async function getAnalyticsBackend(userId: string): Promise<'posthog' | 'legacy'
 set -euo pipefail
 # Compare event counts between old platform and PostHog
 echo "=== PostHog Event Counts (last 7 days) ==="
-curl "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/query/" \
+curl "https://us.posthog.com/api/projects/$POSTHOG_PROJECT_ID/query/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -302,7 +114,7 @@ curl "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/query/" \
 
 | Issue | Cause | Solution |
 |-------|-------|----------|
-| Event counts don't match | Sampling or timing differences | Compare daily totals, allow 5% variance |
+| Event counts don't match | Sampling, identity, or timing differences | Stop and compare against the migration's approved reconciliation tolerance |
 | Historical import slow | Single-threaded | Use batch endpoint, increase `flushAt` |
 | Identity mismatch | Different user ID formats | Normalize IDs in event map |
 | Duplicate events | Dual-write without dedup | Use `migration_source` property to filter |
@@ -315,7 +127,13 @@ curl "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/query/" \
 - Feature flag controlled cutover plan
 - Validation queries comparing event counts
 
+## Examples
+
+For a Mixpanel migration, freeze the event and identity map, run a tiny historical sample with `historical_migration` enabled, compare counts and properties, then expand in bounded batches. Keep live dual-write and historical import evidence separate, and stop on identity or timestamp drift.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [PostHog Capture API](https://posthog.com/docs/api/capture)
 - [PostHog Migrate from Mixpanel](https://posthog.com/docs/migrate/mixpanel)

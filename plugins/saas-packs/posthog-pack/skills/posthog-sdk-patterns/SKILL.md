@@ -1,16 +1,10 @@
 ---
 name: posthog-sdk-patterns
-description: 'Production-ready PostHog SDK patterns: singleton client, typed events,
-
-  React hooks, Next.js App Router integration, and Python patterns.
-
-  Trigger: "posthog SDK patterns", "posthog best practices",
-
-  "posthog React hook", "posthog Next.js", "posthog typescript".
-
-  '
+description: |
+  Implement typed, lifecycle-safe PostHog SDK adapters for browser, Node.js, React, Next.js, or Python. Use when application code needs a reusable analytics boundary. Trigger with "PostHog SDK pattern", "PostHog React", or "PostHog TypeScript".
+argument-hint: "[project-path] [sdk-or-framework]"
 allowed-tools: Read, Write, Edit
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -34,6 +28,10 @@ Production-ready patterns for PostHog integrations: singleton client, type-safe 
 
 ## Instructions
 
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
+
 ### Step 1: Singleton Server Client
 
 ```typescript
@@ -46,7 +44,7 @@ export function getPostHogServer(): PostHog {
   if (!client) {
     client = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
       host: process.env.POSTHOG_HOST || 'https://us.i.posthog.com',
-      personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY,
+      personalApiKey: process.env.POSTHOG_FEATURE_FLAGS_SECURE_API_KEY,
       flushAt: 20,
       flushInterval: 10000,
     });
@@ -205,7 +203,7 @@ module.exports = {
     return [
       { source: '/ingest/static/:path*', destination: 'https://us-assets.i.posthog.com/static/:path*' },
       { source: '/ingest/:path*', destination: 'https://us.i.posthog.com/:path*' },
-      { source: '/ingest/decide', destination: 'https://us.i.posthog.com/decide' },
+      { source: '/ingest/flags', destination: 'https://us.i.posthog.com/flags' },
     ];
   },
 };
@@ -228,7 +226,7 @@ def get_posthog():
     """Singleton PostHog client."""
     posthog.project_api_key = os.environ['POSTHOG_PROJECT_KEY']
     posthog.host = os.getenv('POSTHOG_HOST', 'https://us.i.posthog.com')
-    posthog.personal_api_key = os.getenv('POSTHOG_PERSONAL_API_KEY')
+    posthog.personal_api_key = os.getenv('POSTHOG_FEATURE_FLAGS_SECURE_API_KEY')
     posthog.debug = os.getenv('ENVIRONMENT') == 'development'
     return posthog
 
@@ -265,7 +263,13 @@ def is_enabled(flag_key: str, distinct_id: str, default: bool = False) -> bool:
 - Next.js App Router provider with pageview tracking
 - Reverse proxy configuration for ad blocker bypass
 
+## Examples
+
+For a Next.js application, create separate client and server adapters, keep private credentials server-only, type business events, handle pageviews deliberately, and test capture plus flag fallbacks. Verify current framework guidance before copying any proxy or initialization pattern.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [posthog-js Reference](https://posthog.com/docs/libraries/js)
 - [posthog-node Reference](https://posthog.com/docs/libraries/node)

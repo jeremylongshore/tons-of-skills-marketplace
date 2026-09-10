@@ -60,7 +60,7 @@ await ph.shutdown();
 ## Batch Ingest via API
 
 ```bash
-curl -X POST "https://app.posthog.com/capture/" \
+curl -X POST "$POSTHOG_PUBLIC_HOST/batch/" \
   -H "Content-Type: application/json" \
   -d '{
     "api_key": "'"$POSTHOG_API_KEY"'",

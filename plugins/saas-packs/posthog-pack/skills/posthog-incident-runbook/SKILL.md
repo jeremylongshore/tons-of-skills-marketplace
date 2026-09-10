@@ -1,16 +1,10 @@
 ---
 name: posthog-incident-runbook
-description: 'PostHog incident response: triage decision tree, immediate actions for
-
-  401/429/500 errors, graceful degradation, evidence collection, and postmortem.
-
-  Trigger: "posthog incident", "posthog outage", "posthog down",
-
-  "posthog on-call", "posthog emergency", "posthog broken production".
-
-  '
+description: |
+  Triage a production PostHog integration incident while preserving application availability and evidence. Use when capture, flags, private API access, or downstream destinations are degraded. Trigger with "PostHog incident", "PostHog outage", or "PostHog on-call".
+argument-hint: "[service] [symptom]"
 allowed-tools: Read, Grep, Bash(kubectl:*), Bash(curl:*)
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -25,6 +19,21 @@ compatibility: Designed for Claude Code
 
 Rapid incident response for PostHog integration failures. PostHog Cloud has its own status page (status.posthog.com) — the first step is always determining whether the issue is PostHog-side or your integration.
 
+## Prerequisites
+
+- The affected service, deployment window, and PostHog region are known.
+- Read-only evidence is preferred; production write probes require explicit authorization.
+- A safe application fallback exists for analytics and flag failures.
+
+## Instructions
+
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Grep` to locate initialization, capture, flag, and credential boundaries.
+
+
+Follow the triage sequence below. Stop when evidence identifies a failed boundary; do not continue mutating unrelated layers.
+
 ## Severity Levels
 
 | Level | Definition | Response Time | Examples |
@@ -38,41 +47,27 @@ Rapid incident response for PostHog integration failures. PostHog Cloud has its 
 
 ```bash
 set -euo pipefail
-echo "=== PostHog Triage ==="
-echo ""
+: "${POSTHOG_PUBLIC_HOST:?Set the project's US or EU ingestion host}"
+: "${POSTHOG_PRIVATE_HOST:?Set the matching US or EU private API host}"
 
-# 1. Is PostHog Cloud up?
-echo -n "PostHog US Cloud: "
-curl -sf -o /dev/null -w "%{http_code}" https://us.i.posthog.com/healthz || echo "UNREACHABLE"
-echo ""
+# 1. Check PostHog's status page and the selected regional ingestion host.
+curl -fsSI https://status.posthog.com/ | head -n 1
+curl -sf -o /dev/null -w "Regional health: %{http_code}\n" \
+  "$POSTHOG_PUBLIC_HOST/healthz"
 
-# 2. Can we capture events?
-echo -n "Event capture: "
-curl -sf -o /dev/null -w "%{http_code}" -X POST 'https://us.i.posthog.com/capture/' \
-  -H 'Content-Type: application/json' \
-  -d "{\"api_key\":\"${NEXT_PUBLIC_POSTHOG_KEY}\",\"event\":\"triage_test\",\"distinct_id\":\"triage\"}" || echo "FAILED"
-echo ""
-
-# 3. Can we evaluate flags?
-echo -n "Flag evaluation: "
-curl -sf -o /dev/null -w "%{http_code}" -X POST 'https://us.i.posthog.com/decide/?v=3' \
-  -H 'Content-Type: application/json' \
-  -d "{\"api_key\":\"${NEXT_PUBLIC_POSTHOG_KEY}\",\"distinct_id\":\"triage\"}" || echo "FAILED"
-echo ""
-
-# 4. Can we access admin API?
+# 2. Verify private API access without changing project data.
 if [ -n "${POSTHOG_PERSONAL_API_KEY:-}" ]; then
-  echo -n "Admin API: "
-  curl -sf -o /dev/null -w "%{http_code}" "https://app.posthog.com/api/projects/" \
-    -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" || echo "FAILED"
-  echo ""
+  curl -sf -o /dev/null -w "Private API: %{http_code}\n" \
+    "$POSTHOG_PRIVATE_HOST/api/projects/" \
+    -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY"
 fi
 
-# 5. Check our integration health
-echo -n "Our health endpoint: "
-curl -sf -o /dev/null -w "%{http_code}" "https://your-app.com/api/health" || echo "UNREACHABLE"
-echo ""
+# 3. Check the application's own health and recent delivery telemetry.
+curl -sf -o /dev/null -w "Application health: %{http_code}\n" \
+  "${APPLICATION_HEALTH_URL:?Set the affected service health URL}"
 ```
+
+Do not use an event capture as the default health check: it writes project data, and an HTTP 200 only confirms receipt and payload shape, not successful ingestion. If the incident commander explicitly authorizes a production write probe, use a named synthetic event and distinct ID, record the approval and timestamp, inspect `quota_limited`, and remove or exclude the probe from analysis.
 
 ## Decision Tree
 
@@ -87,7 +82,7 @@ Is PostHog Cloud healthy (status.posthog.com)?
     ├── Are we getting 401? → API key issue (see Error 401 below)
     ├── Are we getting 429? → Rate limited (see Error 429 below)
     ├── Are events just not appearing? → Check flush/shutdown (see below)
-    └── Are flags returning defaults? → Check personalApiKey (see below)
+    └── Are flags returning defaults? → Check the feature flags secure API key (see below)
 ```
 
 ## Immediate Actions by Error Type
@@ -96,17 +91,13 @@ Is PostHog Cloud healthy (status.posthog.com)?
 
 ```bash
 set -euo pipefail
-# Verify API key type and validity
-echo "Project key prefix: $(echo "$NEXT_PUBLIC_POSTHOG_KEY" | head -c 4)"
-echo "Personal key prefix: $(echo "$POSTHOG_PERSONAL_API_KEY" | head -c 4)"
-
-# Test project key (should return HTTP 200)
-curl -s -o /dev/null -w "Capture: %{http_code}\n" -X POST 'https://us.i.posthog.com/capture/' \
+# Test the public project token through flag evaluation; this does not capture an event.
+curl -s -o /dev/null -w "Flags: %{http_code}\n" -X POST "$POSTHOG_PUBLIC_HOST/flags/?v=2" \
   -H 'Content-Type: application/json' \
-  -d "{\"api_key\":\"$NEXT_PUBLIC_POSTHOG_KEY\",\"event\":\"test\",\"distinct_id\":\"test\"}"
+  -d "{\"api_key\":\"$NEXT_PUBLIC_POSTHOG_KEY\",\"distinct_id\":\"incident-readonly-probe\"}"
 
-# Test personal key (should return project list)
-curl -s -o /dev/null -w "Admin: %{http_code}\n" "https://app.posthog.com/api/projects/" \
+# Test the private credential with a read-only project list.
+curl -s -o /dev/null -w "Private API: %{http_code}\n" "$POSTHOG_PRIVATE_HOST/api/projects/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY"
 
 # Fix: If key is invalid, rotate in PostHog dashboard and update secrets
@@ -118,8 +109,9 @@ curl -s -o /dev/null -w "Admin: %{http_code}\n" "https://app.posthog.com/api/pro
 set -euo pipefail
 # PostHog rate limits (private API only):
 # - Analytics endpoints: 240/min, 1200/hour
-# - HogQL query: 1200/hour
+# - HogQL query: 2400/hour
 # - Local flag eval polling: 600/min
+# - Other private CRUD endpoints: 480/min, 4800/hour
 # - Capture endpoints: NO LIMIT
 
 # Immediate: Cache API responses, reduce polling frequency
@@ -132,28 +124,25 @@ set -euo pipefail
 set -euo pipefail
 # Most common cause: not calling flush/shutdown in serverless
 
-# Check 1: Is capture endpoint reachable?
-curl -s -X POST 'https://us.i.posthog.com/capture/' \
-  -H 'Content-Type: application/json' \
-  -d "{\"api_key\":\"$NEXT_PUBLIC_POSTHOG_KEY\",\"event\":\"debug_test\",\"distinct_id\":\"debug-$(date +%s)\"}" | jq .
-# Expected: {"status": 1}
+# Check 1: verify the regional host and inspect SDK delivery logs, queue depth,
+# ingestion warnings, and the latest expected event in PostHog.
 
-# Check 2: Verify API host is correct (common mistake)
+# Check 2: verify the API host is correct (common mistake).
 # WRONG: https://app.posthog.com (this is the UI)
-# RIGHT: https://us.i.posthog.com (this is the ingest endpoint)
+# RIGHT: the target project's US or EU ingestion endpoint
 ```
 
 ### Feature Flags Returning Defaults
 
 ```typescript
 // Most common causes:
-// 1. No personalApiKey → falls back to remote eval which may fail
+// 1. No feature flags secure API key → local definitions are unavailable
 // 2. Flags not loaded yet → check timing
 // 3. Wrong project key → flags from different project
 
-// Fix 1: Add personalApiKey
+// Fix 1: Pass the server-only feature flags secure API key via the SDK option
 const posthog = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-  personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY, // Required for local eval
+  personalApiKey: process.env.POSTHOG_FEATURE_FLAGS_SECURE_API_KEY,
 });
 
 // Fix 2: Wait for flags in browser
@@ -208,7 +197,7 @@ echo "Evidence collected: $INCIDENT_DIR.tar.gz"
 |-------|-------|----------|
 | Complete analytics outage | PostHog Cloud down | Enable graceful degradation, monitor status page |
 | Partial event loss | Serverless not flushing | Add `await posthog.shutdown()` |
-| All flags return false | `personalApiKey` missing or expired | Add/rotate personal API key |
+| All flags return false | Secure flag key missing or expired | Add or rotate the feature flags secure API key |
 | Admin API 401 | Personal key revoked | Generate new key in PostHog settings |
 | High latency | Network path to PostHog | Check reverse proxy, try direct connection |
 
@@ -219,7 +208,13 @@ echo "Evidence collected: $INCIDENT_DIR.tar.gz"
 - Graceful degradation wrappers
 - Post-incident evidence bundle
 
+## Examples
+
+For a sudden feature-flag fallback spike, first confirm application health, PostHog status, region routing, and SDK initialization lifetime. Avoid sending probe events into production until authorized; use a controlled test project when a write probe is necessary, then record containment, rollback, and recovery evidence.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [PostHog Status Page](https://status.posthog.com)
 - [PostHog Support](https://posthog.com/docs/support)

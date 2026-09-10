@@ -1,17 +1,10 @@
 ---
 name: posthog-performance-tuning
-description: 'Optimize PostHog performance: local flag evaluation, client batching
-  config,
-
-  event sampling, efficient HogQL queries, and serverless flush patterns.
-
-  Trigger: "posthog performance", "optimize posthog", "posthog latency",
-
-  "posthog caching", "posthog slow", "posthog batch", "posthog fast".
-
-  '
+description: |
+  Tune PostHog SDK queues, serverless delivery, local flag evaluation, browser defaults, and query scope from measured bottlenecks. Use when PostHog adds latency or loses events under load. Trigger with "PostHog performance", "PostHog batching", or "slow PostHog flags".
+argument-hint: "[project-path] [bottleneck]"
 allowed-tools: Read, Write, Edit
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -35,23 +28,27 @@ Optimize PostHog for production workloads. The biggest performance wins are: loc
 
 ## Instructions
 
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
+
 ### Step 1: Enable Local Feature Flag Evaluation
 
-The single biggest performance improvement. Without local evaluation, every `getFeatureFlag()` call makes a network request (~50-200ms). With local evaluation, flag definitions are cached and evaluation is instant (~0.1ms).
+With server-side local evaluation, the SDK periodically fetches flag definitions and evaluates compatible flags from its local cache. A cold cache, unsupported condition, or evaluation failure can still fall back to a remote request, so measure cache readiness and fallback behavior in the target runtime.
 
 ```typescript
 import { PostHog } from 'posthog-node';
 
 const posthog = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
   host: 'https://us.i.posthog.com',
-  // This is the key: personal API key enables local flag evaluation
-  personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY,
+  // Pass the server-only feature flags secure key through this SDK option.
+  personalApiKey: process.env.POSTHOG_FEATURE_FLAGS_SECURE_API_KEY,
   // Flag definitions are polled every 30 seconds by default
   // Adjust if you need faster flag updates:
   // featureFlagsPollingInterval: 10000, // 10 seconds
 });
 
-// With personalApiKey set, this evaluates locally (no network call)
+// With the feature flags secure key passed through personalApiKey, definitions are cached locally.
 const variant = await posthog.getFeatureFlag('pricing-experiment', 'user-123', {
   personProperties: { plan: 'pro', country: 'US' },
 });
@@ -124,7 +121,7 @@ posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
 ```typescript
 async function queryPostHog(hogql: string) {
   const response = await fetch(
-    `https://app.posthog.com/api/projects/${process.env.POSTHOG_PROJECT_ID}/query/`,
+    `https://us.posthog.com/api/projects/${process.env.POSTHOG_PROJECT_ID}/query/`,
     {
       method: 'POST',
       headers: {
@@ -199,7 +196,7 @@ posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
 
 | Operation | Without Optimization | With Optimization |
 |-----------|---------------------|-------------------|
-| Feature flag evaluation | 50-200ms (network) | <1ms (local eval) |
+| Feature flag evaluation | Remote request per evaluation | Local definition cache with measured fallback behavior |
 | Event capture | Individual sends | Batched (20 events/req) |
 | HogQL query (7d) | 2-5s | <1s (with filters) |
 | HogQL query (no filter) | 30-60s (timeout risk) | N/A (always filter) |
@@ -209,20 +206,26 @@ posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
 | Issue | Cause | Solution |
 |-------|-------|----------|
 | Events dropped on exit | No shutdown hook | Add `posthog.shutdown()` to SIGTERM handler |
-| Flag evaluation slow | No `personalApiKey` | Add personal API key for local evaluation |
+| Flag evaluation slow | No secure flag key or cold cache | Add the feature flags secure API key and inspect cache/polling behavior |
 | High event cost | Capturing everything | Implement `before_send` sampling |
 | HogQL timeout | No date filter | Always include `timestamp > now() - interval N day` |
 | Session recordings large | Recording all sessions | Set `sampleRate` to 0.1-0.25 |
 
 ## Output
 
-- Local feature flag evaluation (<1ms per check)
+- Local feature flag evaluation with cache and fallback telemetry
 - Optimized batching configuration
 - Event sampling with `before_send`
 - Efficient HogQL query patterns
 - Session recording sampling
 
+## Examples
+
+For a serverless handler losing events, measure request lifetime, use immediate capture or `flushAt: 1` and `flushInterval: 0`, await shutdown, and load-test the failure path. For flag latency, prefer the server-only feature-flags secure key and verify cold-start fallbacks before claiming local evaluation is faster.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [PostHog Local Evaluation](https://posthog.com/docs/feature-flags/local-evaluation)
 - [PostHog Node SDK Config](https://posthog.com/docs/libraries/node)

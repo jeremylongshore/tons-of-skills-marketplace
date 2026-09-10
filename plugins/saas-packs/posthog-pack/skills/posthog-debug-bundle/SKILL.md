@@ -1,18 +1,10 @@
 ---
 name: posthog-debug-bundle
-description: 'Collect PostHog debug evidence for support tickets and troubleshooting.
-
-  Gathers SDK versions, API connectivity, event flow status, flag definitions,
-
-  and redacted configuration into a support-ready archive.
-
-  Trigger: "posthog debug", "posthog support bundle", "collect posthog logs",
-
-  "posthog diagnostic", "posthog not working debug".
-
-  '
+description: |
+  Collect a redacted, reproducible PostHog diagnostic bundle without capturing secrets or raw customer data. Use when an integration failure needs escalation or handoff. Trigger with "PostHog debug bundle", "collect PostHog evidence", or "PostHog support ticket".
+argument-hint: "[project-path] [output-directory]"
 allowed-tools: Read, Bash(grep:*), Bash(curl:*), Bash(tar:*), Grep
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -22,11 +14,6 @@ tags:
 compatibility: Designed for Claude Code
 ---
 # PostHog Debug Bundle
-
-## Current State
-
-!`node --version 2>/dev/null || echo 'N/A'`
-!`npm list posthog-js posthog-node 2>/dev/null | grep posthog || echo 'No PostHog SDK found'`
 
 ## Overview
 
@@ -39,6 +26,10 @@ Collect diagnostic evidence for PostHog support tickets. Gathers SDK versions, A
 - `curl` and `jq` available
 
 ## Instructions
+
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Grep` to locate initialization, capture, flag, and credential boundaries.
 
 ### Step 1: Run Full Diagnostic Script
 
@@ -76,7 +67,7 @@ echo -n "EU Cloud ingest: " >> "$BUNDLE_DIR/summary.txt"
 curl -s -o /dev/null -w "%{http_code} (%{time_total}s)" https://eu.i.posthog.com/healthz >> "$BUNDLE_DIR/summary.txt" 2>&1
 echo "" >> "$BUNDLE_DIR/summary.txt"
 echo -n "App API: " >> "$BUNDLE_DIR/summary.txt"
-curl -s -o /dev/null -w "%{http_code} (%{time_total}s)" https://app.posthog.com/api/ >> "$BUNDLE_DIR/summary.txt" 2>&1
+curl -s -o /dev/null -w "%{http_code} (%{time_total}s)" https://us.posthog.com/api/ >> "$BUNDLE_DIR/summary.txt" 2>&1
 echo "" >> "$BUNDLE_DIR/summary.txt"
 
 # --- Environment Variables (redacted) ---
@@ -98,12 +89,16 @@ echo "" >> "$BUNDLE_DIR/summary.txt"
 echo "Bundle complete: $BUNDLE_DIR/" >> "$BUNDLE_DIR/summary.txt"
 ```
 
-### Step 2: Test Event Capture Flow
+### Step 2: Test Event Capture Flow Only When Approved
 
 ```bash
 set -euo pipefail
-# Send a test event and verify it was accepted
-RESPONSE=$(curl -s -w "\n%{http_code}" -X POST 'https://us.i.posthog.com/capture/' \
+: "${POSTHOG_WRITE_PROBE_APPROVED:?Set only after the incident commander approves a synthetic write}"
+test "$POSTHOG_WRITE_PROBE_APPROVED" = "yes"
+: "${POSTHOG_PUBLIC_HOST:?Set the project's regional ingestion host}"
+
+# Send a named synthetic event and verify receipt. A 200 does not prove ingestion.
+RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$POSTHOG_PUBLIC_HOST/i/v0/e/" \
   -H 'Content-Type: application/json' \
   -d "{
     \"api_key\": \"${NEXT_PUBLIC_POSTHOG_KEY}\",
@@ -118,23 +113,22 @@ BODY=$(echo "$RESPONSE" | head -1)
 echo "Capture test: HTTP $HTTP_CODE"
 echo "Response: $BODY"
 
-# Expected: HTTP 200, Response: {"status": 1}
+# Inspect the response for quota_limited and verify the named event plus ingestion warnings.
 ```
 
 ### Step 3: Check Feature Flag Status
 
 ```bash
 set -euo pipefail
-# Evaluate flags via the /decide endpoint
-curl -s -X POST 'https://us.i.posthog.com/decide/?v=3' \
+# Evaluate flags via the current public endpoint.
+curl -s -X POST "$POSTHOG_PUBLIC_HOST/flags?v=2" \
   -H 'Content-Type: application/json' \
   -d "{
     \"api_key\": \"${NEXT_PUBLIC_POSTHOG_KEY}\",
     \"distinct_id\": \"debug-test\"
   }" | jq '{
-    featureFlags: .featureFlags,
-    errorsWhileComputingFlags: .errorsWhileComputingFlags,
-    sessionRecording: (.sessionRecording != false)
+    flags: .flags,
+    errorsParsingFlags: .errorsParsingFlags
   }'
 ```
 
@@ -144,7 +138,7 @@ curl -s -X POST 'https://us.i.posthog.com/decide/?v=3' \
 set -euo pipefail
 # Test personal API key (if available)
 if [ -n "${POSTHOG_PERSONAL_API_KEY:-}" ]; then
-  curl -s "https://app.posthog.com/api/projects/" \
+  curl -s "https://us.posthog.com/api/projects/" \
     -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" | \
     jq '[.[] | {id, name, created_at}]' > "$BUNDLE_DIR/projects.json" 2>/dev/null || \
     echo "Personal API key failed" >> "$BUNDLE_DIR/summary.txt"
@@ -183,7 +177,7 @@ echo "Bundle created: $BUNDLE_DIR.tar.gz ($(du -h "$BUNDLE_DIR.tar.gz" | cut -f1
 |-------|-------|----------|
 | All connectivity fails | Corporate firewall | Check proxy settings, try VPN |
 | Capture returns non-200 | Invalid API key | Verify `phc_` key in project settings |
-| `/decide` fails | Key/host mismatch | Ensure key matches the host region |
+| `/flags` fails | Key/host mismatch | Ensure the project token matches the selected host region |
 | Personal API 401 | Expired key | Regenerate in Settings > Personal API Keys |
 
 ## Output
@@ -193,7 +187,13 @@ echo "Bundle created: $BUNDLE_DIR.tar.gz ($(du -h "$BUNDLE_DIR.tar.gz" | cut -f1
   - `projects.json` — Project list (if personal key available)
   - Test event capture and flag evaluation results
 
+## Examples
+
+For delayed server events, record SDK versions, configured region, sanitized option names, connectivity status, queue lifecycle, and a bounded log excerpt. Before packaging, scan the bundle for project secrets, personal keys, authorization headers, emails, and event payloads.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [PostHog Status Page](https://status.posthog.com)
 - [PostHog Support](https://posthog.com/docs/support)

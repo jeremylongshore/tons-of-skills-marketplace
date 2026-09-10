@@ -1,17 +1,10 @@
 ---
 name: posthog-security-basics
-description: 'Secure PostHog integration: API key management, project key vs personal
-  key
-
-  separation, secret rotation, scoped keys, and git-leak prevention.
-
-  Trigger: "posthog security", "posthog secrets", "secure posthog",
-
-  "posthog API key security", "posthog key rotation".
-
-  '
+description: |
+  Secure PostHog tokens, hosts, proxy routes, captured properties, and private-API scopes across browser and server boundaries. Use when reviewing secrets or hardening an integration. Trigger with "PostHog security", "PostHog secret scan", or "PostHog API key review".
+argument-hint: "[project-path] [security-scope]"
 allowed-tools: Read, Write, Grep
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -35,6 +28,10 @@ Secure PostHog API key management, least-privilege access, and secret rotation. 
 - `.gitignore` configured
 
 ## Instructions
+
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Grep` to locate initialization, capture, flag, and credential boundaries. Use `Write` only for a new, explicitly requested artifact inside the target project.
 
 ### Step 1: Understand Key Security Profiles
 
@@ -60,7 +57,7 @@ POSTHOG_PROJECT_ID=12345
 ```bash
 set -euo pipefail
 # Create a read-only key for BI dashboards
-curl -X POST "https://app.posthog.com/api/personal_api_keys/" \
+curl -X POST "https://us.posthog.com/api/personal_api_keys/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -69,7 +66,7 @@ curl -X POST "https://app.posthog.com/api/personal_api_keys/" \
   }'
 
 # Create a key scoped to feature flags only
-curl -X POST "https://app.posthog.com/api/personal_api_keys/" \
+curl -X POST "https://us.posthog.com/api/personal_api_keys/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -92,7 +89,7 @@ vercel env add POSTHOG_PERSONAL_API_KEY production
 gh secret set POSTHOG_PERSONAL_API_KEY --body "phx_new_key_here"
 
 # 3. Verify new key works
-curl -s "https://app.posthog.com/api/projects/" \
+curl -s "https://us.posthog.com/api/projects/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" | jq '.[0].name'
 
 # 4. Delete old key in PostHog dashboard
@@ -127,8 +124,8 @@ import { PostHog } from 'posthog-node';
 
 const posthog = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
   host: 'https://us.i.posthog.com',
-  // personalApiKey ONLY used server-side for local flag evaluation
-  personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY,
+  // The SDK option keeps its historical name; provide the server-only secure flag key.
+  personalApiKey: process.env.POSTHOG_FEATURE_FLAGS_SECURE_API_KEY,
 });
 
 // API routes that proxy admin operations
@@ -143,7 +140,7 @@ export async function getFeatureFlagsForUser(userId: string) {
 ```bash
 set -euo pipefail
 # Check activity log for API key operations
-curl "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/activity_log/" \
+curl "https://us.posthog.com/api/projects/$POSTHOG_PROJECT_ID/activity_log/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" | \
   jq '[.results[] | select(.scope == "PersonalAPIKey") | {
     user: .user.email,
@@ -179,7 +176,13 @@ curl "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/activity_log/" \
 - Git pre-commit hook for leak prevention
 - Audit log queries for key usage monitoring
 
+## Examples
+
+For a leaked personal API key, revoke it in PostHog, search history and deployment logs for exposure, issue a least-privilege replacement, rotate affected integrations, and verify audit evidence. Do not treat the public project token as a secret, but still constrain where it can send data.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [PostHog API Overview](https://posthog.com/docs/api)
 - [PostHog Privacy & Security](https://posthog.com/docs/privacy)

@@ -1,18 +1,10 @@
 ---
 name: posthog-upgrade-migration
-description: 'Upgrade posthog-js and posthog-node SDKs with breaking change detection.
-
-  Covers v4 to v5 posthog-node migration (sendFeatureFlags change),
-
-  posthog-js autocapture API changes, and version-specific gotchas.
-
-  Trigger: "upgrade posthog", "posthog breaking changes",
-
-  "update posthog SDK", "posthog version", "posthog migration".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(git:*)
-version: 1.12.0
+description: |
+  Upgrade PostHog SDKs through release-note review, configuration-default comparison, focused tests, canary evidence, and rollback. Use when changing a PostHog package version or defaults date. Trigger with "upgrade PostHog SDK", "PostHog breaking change", or "PostHog version migration".
+argument-hint: "[project-path] [target-version]"
+allowed-tools: Read, Write, Edit, Grep, Bash(npm:*), Bash(npx:*), Bash(git:*), Bash(pip:*), Bash(pip3:*), Bash(grep:*)
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -24,13 +16,9 @@ compatibility: Designed for Claude Code
 ---
 # PostHog Upgrade & Migration
 
-## Current State
-
-!`npm list posthog-js posthog-node 2>/dev/null | grep posthog || echo 'No PostHog SDK found'`
-
 ## Overview
 
-Upgrade posthog-js and posthog-node SDKs safely. Covers version compatibility, breaking changes between major versions (notably the v5 sendFeatureFlags change in posthog-node), and a systematic upgrade procedure.
+Upgrade PostHog SDKs from the versions actually locked by the target project to explicit target versions. Build the change list from current release notes and type surfaces, then prove capture, identity, consent, flags, flushing, and rollback behavior in the environments the application uses.
 
 ## Prerequisites
 
@@ -40,6 +28,10 @@ Upgrade posthog-js and posthog-node SDKs safely. Covers version compatibility, b
 - Staging environment for validation
 
 ## Instructions
+
+### Tool discipline
+
+Use `Read` and `Grep` to inspect manifests, lockfiles, initialization, and release-sensitive options before proposing changes. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass. Use `npm`, `npx`, `pip`, and `git` Bash commands only in the selected project and preserve the recorded rollback versions.
 
 ### Step 1: Audit Current Versions
 
@@ -59,58 +51,9 @@ npm view posthog-js version 2>/dev/null
 npm view posthog-node version 2>/dev/null
 ```
 
-### Step 2: Review Breaking Changes
+### Step 2: Build the Version Delta
 
-**posthog-node v5.x Breaking Changes:**
-
-```typescript
-// BREAKING: sendFeatureFlags no longer automatic with local evaluation
-// Before v5.5.0: feature flags auto-sent with events when using local evaluation
-// After v5.5.0: must explicitly set sendFeatureFlags: true
-
-// Before (implicit, worked in v4.x)
-posthog.capture({
-  distinctId: 'user-1',
-  event: 'page_viewed',
-  // Feature flags were automatically included
-});
-
-// After (v5.5.0+, explicit required)
-posthog.capture({
-  distinctId: 'user-1',
-  event: 'page_viewed',
-  sendFeatureFlags: true, // Must be explicit now
-});
-```
-
-**posthog-js Recent Changes:**
-
-```typescript
-// Autocapture configuration moved to object format
-// Before:
-posthog.init('phc_...', { autocapture: true });
-
-// Current: Fine-grained autocapture control
-posthog.init('phc_...', {
-  autocapture: {
-    dom_event_allowlist: ['click', 'submit'],
-    element_allowlist: ['a', 'button', 'form', 'input'],
-    css_selector_allowlist: ['.track-click'],
-    url_ignorelist: ['/health', '/api/internal'],
-  },
-});
-
-// before_send replaces older event filtering approaches
-posthog.init('phc_...', {
-  before_send: (event) => {
-    // Return null to drop event, or modified event
-    if (event.event === '$pageview' && event.properties?.$current_url?.includes('/admin')) {
-      return null; // Don't track admin pages
-    }
-    return event;
-  },
-});
-```
+Read every release note between the locked and target versions, plus the current SDK reference for each configured option. Produce a small evidence table with: package, locked version, target version, runtime requirement, changed default or API, affected source locations, required test, and rollback version. Pay particular attention to browser `defaults` dates, autocapture and persistence, consent, replay, server flush semantics, feature-flag evaluation, and whether events attach flag properties. Do not infer compatibility from a major-version number or a remembered migration note.
 
 ### Step 3: Upgrade Procedure
 
@@ -119,13 +62,11 @@ set -euo pipefail
 # Create upgrade branch
 git checkout -b upgrade/posthog-sdks
 
-# Upgrade posthog-node
-npm install posthog-node@latest
-# Check for type errors
-npx tsc --noEmit 2>&1 | grep -i posthog || echo "No PostHog type errors"
+: "${POSTHOG_NODE_TARGET:?Set the reviewed posthog-node target version}"
+: "${POSTHOG_JS_TARGET:?Set the reviewed posthog-js target version}"
 
-# Upgrade posthog-js
-npm install posthog-js@latest
+# Install the exact reviewed versions and let the lockfile record them.
+npm install "posthog-node@$POSTHOG_NODE_TARGET" "posthog-js@$POSTHOG_JS_TARGET"
 # Check for type errors
 npx tsc --noEmit 2>&1 | grep -i posthog || echo "No PostHog type errors"
 
@@ -147,16 +88,13 @@ grep -rn "posthog\|PostHog" --include="*.ts" --include="*.tsx" --include="*.js" 
 # Check for patterns that may need updating
 echo "=== Checking for deprecated patterns ==="
 
-# Old import style (posthog-node v3 and earlier)
-grep -rn "from 'posthog-node'" --include="*.ts" src/ && echo "Import style: current" || true
-
 # Direct API key in code (should be env var)
 grep -rn "phc_\|phx_" --include="*.ts" --include="*.tsx" src/ && \
   echo "WARNING: Hardcoded API key found" || echo "No hardcoded keys"
 
-# Check for sendFeatureFlags usage
-grep -rn "sendFeatureFlags" --include="*.ts" src/ || \
-  echo "NOTE: No explicit sendFeatureFlags — verify if needed after v5.5.0 upgrade"
+# Inventory options whose behavior must be checked against the target release.
+grep -rn "defaults\|autocapture\|before_send\|sendFeatureFlags\|personalApiKey\|flushAt\|flushInterval" \
+  --include="*.ts" --include="*.tsx" --include="*.js" src/ || true
 ```
 
 ### Step 5: Validate in Staging
@@ -168,7 +106,7 @@ import { PostHog } from 'posthog-node';
 async function validateUpgrade() {
   const ph = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
     host: 'https://us.i.posthog.com',
-    personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY,
+    personalApiKey: process.env.POSTHOG_FEATURE_FLAGS_SECURE_API_KEY,
   });
 
   const checks = {
@@ -209,39 +147,41 @@ validateUpgrade();
 
 ```bash
 set -euo pipefail
-# Pin to previous version
-npm install posthog-node@4.2.1 --save-exact
-npm install posthog-js@1.150.0 --save-exact
+: "${POSTHOG_NODE_PREVIOUS:?Set the previously locked posthog-node version}"
+: "${POSTHOG_JS_PREVIOUS:?Set the previously locked posthog-js version}"
+npm install "posthog-node@$POSTHOG_NODE_PREVIOUS" "posthog-js@$POSTHOG_JS_PREVIOUS" --save-exact
 
 # Verify rollback
 npm test
 ```
 
-## Version Compatibility
+## Upgrade Evidence
 
-| Package | Node.js Requirement | Key Notes |
-|---------|-------------------|-----------|
-| posthog-node 5.x | 20+ | `sendFeatureFlags` must be explicit |
-| posthog-node 4.x | 18+ | `sendFeatureFlags` was automatic with local eval |
-| posthog-js latest | Modern browsers | `before_send` for event filtering, object-based autocapture |
+Attach the completed version-delta table, dependency and lockfile diff, focused test output, staging event/flag evidence, canary window, observed ingestion warnings, and exact rollback commands. If any behavior cannot be confirmed from current official documentation or a controlled test, stop and record it as unresolved rather than guessing.
 
 ## Error Handling
 
 | Issue | Cause | Solution |
 |-------|-------|----------|
 | Type errors after upgrade | API changed | Check changelog, update types |
-| Flags not sent with events | v5.5.0 change | Add `sendFeatureFlags: true` |
-| Autocapture config ignored | Old boolean format | Migrate to object-based autocapture config |
+| Flags differ after upgrade | Changed evaluation or event-enrichment behavior | Compare release notes, targeting context, and controlled flag tests |
+| Autocapture differs after upgrade | Changed default or configuration interpretation | Compare the chosen `defaults` date and emitted event sample |
 | Test failures | Mock structure changed | Update mocks to match new SDK exports |
 
 ## Output
 
-- Upgraded PostHog SDK to latest version
+- Upgraded PostHog SDK to the explicit reviewed target version
 - Deprecated patterns identified and fixed
 - All tests passing with new version
 - Rollback procedure documented
 
+## Examples
+
+For a `posthog-js` upgrade, record the current and target versions, compare the configured `defaults` date and changed options, run capture, identity, flag, consent, and replay tests, then canary with a reversible version pin. Never infer compatibility from a stale hard-coded major-version table.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [posthog-node Changelog](https://github.com/PostHog/posthog-node/releases)
 - [posthog-js Changelog](https://github.com/PostHog/posthog-js/releases)

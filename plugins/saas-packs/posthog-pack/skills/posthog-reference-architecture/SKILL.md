@@ -1,17 +1,10 @@
 ---
 name: posthog-reference-architecture
-description: 'Production PostHog architecture: event taxonomy, SDK layering, feature
-  flag
-
-  strategy, analytics module layout, and data pipeline integration patterns.
-
-  Trigger: "posthog architecture", "posthog best practices", "posthog project
-
-  structure", "how to organize posthog", "posthog design".
-
-  '
+description: |
+  Design a maintainable PostHog integration boundary for event taxonomy, identity, groups, flags, privacy, regional routing, and delivery ownership. Use when planning or reviewing analytics architecture. Trigger with "PostHog architecture", "organize PostHog", or "PostHog design review".
+argument-hint: "[project-path] [system-boundary]"
 allowed-tools: Read, Grep
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -28,9 +21,16 @@ Production-grade architecture for PostHog analytics in a web application. Covers
 
 ## Prerequisites
 
-- PostHog Cloud or self-hosted instance
+- PostHog Cloud project, or an explicitly risk-accepted hobby self-hosted instance with its reduced feature and support boundaries documented
 - `posthog-js` and `posthog-node` SDKs
 - Next.js or React application (patterns adapt to other frameworks)
+
+## Authentication
+
+- Browser and server capture use the public project token and the regional ingestion host.
+- Private API automation uses a least-privilege personal API key or OAuth token only on trusted servers.
+- Local feature-flag evaluation uses a feature flags secure API key passed through the Node SDK's `personalApiKey` option.
+- Keep every secret in the deployment platform's secret manager; never expose private or secure keys in browser code, logs, source control, or event properties.
 
 ## Architecture
 
@@ -66,6 +66,10 @@ Production-grade architecture for PostHog analytics in a web application. Covers
 ```
 
 ## Instructions
+
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Grep` to locate initialization, capture, flag, and credential boundaries.
 
 ### Step 1: Project File Structure
 
@@ -262,7 +266,13 @@ export async function handlePostHogWebhook(event: string, payload: any) {
 - Feature flag constants with safe defaults
 - Data pipeline integration via CDP webhooks
 
+## Examples
+
+For a multi-service B2B product, place browser and server SDK adapters behind one typed analytics contract, define identity and group ownership, isolate environment tokens, centralize safe defaults, and document failure behavior. Return a component map plus decision and rollback records, not generic sample code.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [PostHog Documentation](https://posthog.com/docs)
 - [PostHog JavaScript Web SDK](https://posthog.com/docs/libraries/js)

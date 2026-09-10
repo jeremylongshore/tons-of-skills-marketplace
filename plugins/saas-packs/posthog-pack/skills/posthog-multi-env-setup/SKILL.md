@@ -1,18 +1,10 @@
 ---
 name: posthog-multi-env-setup
-description: 'Configure PostHog across development, staging, and production environments.
-
-  Separate PostHog projects per environment, environment-specific SDK config,
-
-  feature flag rollout per env, and session recording controls.
-
-  Trigger: "posthog environments", "posthog staging", "posthog dev prod",
-
-  "posthog environment setup", "posthog project per env".
-
-  '
+description: |
+  Separate PostHog development, staging, and production data with explicit project tokens, regional hosts, secret scopes, and promotion checks. Use when one codebase deploys to multiple environments. Trigger with "PostHog environments", "PostHog staging", or "PostHog dev prod".
+argument-hint: "[project-path] [environment-model]"
 allowed-tools: Read, Write, Edit, Bash(aws:*), Bash(gcloud:*), Bash(vault:*)
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -29,7 +21,7 @@ Use separate PostHog projects for each environment (dev, staging, production). T
 
 ## Prerequisites
 
-- PostHog Cloud account or self-hosted instance
+- PostHog Cloud organization that supports the required project and feature-flag environment model
 - Admin access to create multiple projects
 - Deployment platform with environment variable support
 
@@ -42,6 +34,11 @@ Use separate PostHog projects for each environment (dev, staging, production). T
 | Production | `myapp-prod` | 10% sampled | Tuned | Gradual rollout |
 
 ## Instructions
+
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
+
 
 ### Step 1: Create Separate PostHog Projects
 
@@ -178,7 +175,7 @@ export function getPostHogServer(): PostHog {
 
   client = new PostHog(posthogConfig.apiKey, {
     host: posthogConfig.host,
-    personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY,
+    personalApiKey: process.env.POSTHOG_FEATURE_FLAGS_SECURE_API_KEY,
     flushAt: 20,
     flushInterval: 10000,
   });
@@ -203,10 +200,10 @@ const enabled = await ph.isFeatureEnabled('new-checkout', userId);
 ```bash
 set -euo pipefail
 # Set all flags to 100% in staging project (for QA)
-curl "https://app.posthog.com/api/projects/$POSTHOG_STAGING_PROJECT_ID/feature_flags/" \
+curl "https://us.posthog.com/api/projects/$POSTHOG_STAGING_PROJECT_ID/feature_flags/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" | \
   jq -r '.results[].id' | while read FLAG_ID; do
-    curl -X PATCH "https://app.posthog.com/api/projects/$POSTHOG_STAGING_PROJECT_ID/feature_flags/$FLAG_ID/" \
+    curl -X PATCH "https://us.posthog.com/api/projects/$POSTHOG_STAGING_PROJECT_ID/feature_flags/$FLAG_ID/" \
       -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{"filters": {"groups": [{"rollout_percentage": 100}]}}'
@@ -231,7 +228,13 @@ curl "https://app.posthog.com/api/projects/$POSTHOG_STAGING_PROJECT_ID/feature_f
 - Feature flags at 100% in staging, gradual in production
 - Server SDK with no-op fallback when unconfigured
 
+## Examples
+
+For dev, staging, and production, map each deployment to an explicit project token and host, keep server-only keys in the matching secret store, prefix synthetic identities, and test that no environment can write to another project. Promote flag definitions deliberately; do not assume projects synchronize automatically.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - PostHog Multi-Environment Feature Flags
 - [PostHog Next.js Integration](https://posthog.com/docs/libraries/next-js)

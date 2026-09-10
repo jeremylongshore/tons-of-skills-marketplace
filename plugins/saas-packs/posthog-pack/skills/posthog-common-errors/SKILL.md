@@ -1,17 +1,10 @@
 ---
 name: posthog-common-errors
-description: 'Diagnose and fix common PostHog errors: events not appearing, flags
-  returning
-
-  undefined, 401/429 errors, SDK initialization failures, and identity issues.
-
-  Trigger: "posthog error", "fix posthog", "posthog not working",
-
-  "debug posthog", "posthog events missing", "posthog broken".
-
-  '
+description: |
+  Diagnose PostHog ingestion, identity, feature-flag, SDK, and private-API failures from concrete evidence. Use when events are missing, flags return unexpected values, or PostHog requests fail. Trigger with "debug PostHog", "PostHog events missing", or "PostHog 401".
+argument-hint: "[project-path] [symptom]"
 allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -33,6 +26,10 @@ Diagnosis and solutions for the most common PostHog integration errors. Covers e
 - PostHog project API key (`phc_...`) available
 
 ## Instructions
+
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Grep` to locate initialization, capture, flag, and credential boundaries.
 
 ### Error 1: Events Not Appearing in Dashboard
 
@@ -75,13 +72,13 @@ posthog.onFeatureFlags(() => {
   const value = posthog.isFeatureEnabled('my-flag'); // Now has correct value
 });
 
-// Problem (server): No personalApiKey — falls back to remote evaluation
-const ph = new PostHog('phc_...'); // Missing personalApiKey
+// Problem (server): no feature flags secure key, so local definitions are unavailable
+const ph = new PostHog('phc_...');
 const flag = await ph.getFeatureFlag('my-flag', 'user-1'); // Slow, may fail
 
-// FIX: Add personalApiKey for local evaluation
+// FIX: Pass the server-only feature flags secure key through the SDK's option
 const ph = new PostHog('phc_...', {
-  personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY, // phx_...
+  personalApiKey: process.env.POSTHOG_FEATURE_FLAGS_SECURE_API_KEY,
 });
 // Now evaluates locally — faster and more reliable
 ```
@@ -91,12 +88,12 @@ const ph = new PostHog('phc_...', {
 ```bash
 set -euo pipefail
 # Symptom: 401 when calling admin endpoints
-curl "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/feature_flags/" \
+curl "https://us.posthog.com/api/projects/$POSTHOG_PROJECT_ID/feature_flags/" \
   -H "Authorization: Bearer phc_wrong_key_type"
 # Returns: {"detail": "Authentication credentials were not provided."}
 
 # FIX: Use Personal API Key (phx_...) for admin endpoints, not project key (phc_...)
-curl "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/feature_flags/" \
+curl "https://us.posthog.com/api/projects/$POSTHOG_PROJECT_ID/feature_flags/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY"  # Must be phx_...
 
 # Check which key type you have:
@@ -134,7 +131,7 @@ async function getInsights() {
   if (cachedInsights && Date.now() < cacheExpiry) return cachedInsights;
 
   const res = await postHogRequest(
-    `https://app.posthog.com/api/projects/${PROJECT_ID}/insights/trend/`,
+    `https://us.posthog.com/api/projects/${PROJECT_ID}/insights/trend/`,
     { headers: { Authorization: `Bearer ${PERSONAL_KEY}` } }
   );
   cachedInsights = await res.json();
@@ -196,13 +193,13 @@ set -euo pipefail
 # 1. Check PostHog API reachability
 curl -s -o /dev/null -w "HTTP %{http_code}\n" https://us.i.posthog.com/healthz
 
-# 2. Verify project API key works (send test event)
-curl -s -X POST 'https://us.i.posthog.com/capture/' \
+# 2. Verify the project token without adding an event.
+curl -s -X POST "$POSTHOG_PUBLIC_HOST/flags?v=2" \
   -H 'Content-Type: application/json' \
-  -d "{\"api_key\":\"$NEXT_PUBLIC_POSTHOG_KEY\",\"event\":\"diagnostic_test\",\"distinct_id\":\"debug\"}" | jq .
+  -d "{\"api_key\":\"$NEXT_PUBLIC_POSTHOG_KEY\",\"distinct_id\":\"diagnostic-check\"}" | jq '{flags, errorsParsingFlags}'
 
 # 3. Verify personal API key works
-curl -s "https://app.posthog.com/api/projects/" \
+curl -s "$POSTHOG_PRIVATE_HOST/api/projects/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" | jq '.[0].name'
 
 # 4. Check installed SDK versions
@@ -229,7 +226,13 @@ env | grep -i posthog | sed 's/=.*/=***/'
 - Fix applied with verification steps
 - Diagnostic output confirming resolution
 
+## Examples
+
+Given “server-side flags return undefined after deploy,” verify the region host, project token, feature-flags secure key, initialization lifetime, and fallback behavior. Return the first failed boundary, the evidence that proves it, and the smallest reversible correction.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [PostHog Troubleshooting](https://posthog.com/docs/feature-flags/common-questions)
 - [PostHog Status Page](https://status.posthog.com)

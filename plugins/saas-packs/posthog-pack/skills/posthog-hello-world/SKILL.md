@@ -1,19 +1,10 @@
 ---
 name: posthog-hello-world
-description: 'Create a minimal working PostHog example with event capture, identify,
-  and feature flags.
-
-  Use when starting a new PostHog integration, testing your setup,
-
-  or learning basic posthog-js and posthog-node patterns.
-
-  Trigger: "posthog hello world", "posthog example", "posthog quick start",
-
-  "simple posthog code", "first posthog event".
-
-  '
+description: |
+  Verify a minimal PostHog integration with one controlled event, one identified test user, and one feature-flag fallback. Use when proving a new setup before broader instrumentation. Trigger with "PostHog smoke test", "verify PostHog setup", or "first PostHog event".
+argument-hint: "[project-path] [region]"
 allowed-tools: Read, Write, Edit
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -36,6 +27,11 @@ Minimal working examples demonstrating the three core PostHog operations: captur
 - `posthog-js` and/or `posthog-node` installed
 
 ## Instructions
+
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
+
 
 ### Step 1: Capture Your First Event (Node.js)
 
@@ -147,8 +143,8 @@ print(f'Flag enabled: {is_enabled}')
 
 ```bash
 set -euo pipefail
-# Capture event via POST to /capture/
-curl -X POST 'https://us.i.posthog.com/capture/' \
+# Capture one explicitly intended tutorial event through the current single-event endpoint.
+curl -X POST 'https://us.i.posthog.com/i/v0/e/' \
   -H 'Content-Type: application/json' \
   -d '{
     "api_key": "phc_your_project_key",
@@ -188,7 +184,13 @@ curl -X POST 'https://us.i.posthog.com/batch/' \
 - Feature flag evaluation result logged
 - Console output confirming each operation
 
+## Examples
+
+In a disposable test environment, initialize the official SDK with the project token and selected region, capture one namespaced smoke event, verify its arrival in PostHog, and exercise a flag with an explicit fallback. Record the test distinct ID so the evidence can be removed or filtered later.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [PostHog Getting Started](https://posthog.com/docs/getting-started/install)
 - [Capture Events](https://posthog.com/docs/product-analytics/capture-events)

@@ -1,17 +1,10 @@
 ---
 name: posthog-ci-integration
-description: 'Configure PostHog CI/CD with GitHub Actions: unit tests with mocked
-  PostHog,
-
-  integration tests against a dev project, and deployment annotations.
-
-  Trigger: "posthog CI", "posthog GitHub Actions", "posthog automated tests",
-
-  "CI posthog", "posthog pipeline".
-
-  '
+description: |
+  Build repository-specific PostHog CI gates for SDK initialization, typed capture tests, release annotations, and secret boundaries. Use when adding or reviewing PostHog checks in continuous integration. Trigger with "posthog CI", "PostHog GitHub Actions", or "test PostHog integration".
+argument-hint: "[project-path] [ci-provider]"
 allowed-tools: Read, Write, Edit, Bash(gh:*)
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -35,6 +28,10 @@ Set up CI/CD pipelines for PostHog integrations. Covers mocked unit tests (no AP
 - npm/pnpm project with vitest or jest
 
 ## Instructions
+
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
 
 ### Step 1: Configure GitHub Secrets
 
@@ -102,7 +99,7 @@ jobs:
           POSTHOG_PERSONAL_API_KEY: ${{ secrets.POSTHOG_PERSONAL_API_KEY }}
           POSTHOG_PROJECT_ID: ${{ secrets.POSTHOG_PROJECT_ID }}
         run: |
-          curl -X POST "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/annotations/" \
+          curl -X POST "https://us.posthog.com/api/projects/$POSTHOG_PROJECT_ID/annotations/" \
             -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" \
             -H "Content-Type: application/json" \
             -d "{
@@ -202,15 +199,15 @@ describe.skipIf(!KEY)('PostHog Integration', () => {
     expect(typeof flags).toBe('object');
   });
 
-  it('resolves decide endpoint', async () => {
-    const response = await fetch('https://us.i.posthog.com/decide/?v=3', {
+  it('resolves the flags endpoint', async () => {
+    const response = await fetch(`${process.env.POSTHOG_HOST}/flags?v=2`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ api_key: KEY, distinct_id: 'ci-test' }),
     });
     expect(response.status).toBe(200);
     const data = await response.json();
-    expect(data).toHaveProperty('featureFlags');
+    expect(data).toHaveProperty('flags');
   });
 });
 ```
@@ -243,7 +240,13 @@ describe.skipIf(!KEY)('PostHog Integration', () => {
 - Deployment annotations marking each release in PostHog timeline
 - GitHub Actions workflow with proper secret management
 
+## Examples
+
+For a Next.js service, inspect the analytics wrapper and test setup, add a mocked capture contract, and gate the workflow on type checks plus the focused test. Report the changed files, commands run, and whether a deployment annotation remains opt-in behind protected credentials.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [GitHub Actions Secrets](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions)
 - [PostHog Annotations API](https://posthog.com/docs/api/annotations)

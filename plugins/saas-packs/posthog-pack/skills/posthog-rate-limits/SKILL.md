@@ -1,16 +1,10 @@
 ---
 name: posthog-rate-limits
-description: 'Handle PostHog API rate limits with exponential backoff, request queuing,
-
-  and understanding PostHog''s actual limit tiers (240/min analytics, 600/min flags).
-
-  Trigger: "posthog rate limit", "posthog throttling", "posthog 429",
-
-  "posthog retry", "posthog backoff", "posthog too many requests".
-
-  '
+description: |
+  Design evidence-based PostHog private-API throttling with correct endpoint classes, team-wide budgets, backoff, and export alternatives. Use when a private API returns 429 or a polling job needs a request budget. Trigger with "PostHog rate limit", "PostHog 429", or "PostHog backoff".
+argument-hint: "[integration] [endpoint-class]"
 allowed-tools: Read, Write, Edit
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -23,11 +17,11 @@ compatibility: Designed for Claude Code
 
 ## Overview
 
-PostHog rate limits apply to private API endpoints authenticated with a personal API key (`phx_...`). Public capture endpoints (`/capture/`, `/batch/`, `/decide/`) are **not** rate limited. Understanding which endpoints have limits is critical to avoiding 429 errors.
+PostHog rate limits apply to private API endpoints authenticated with a personal API key, project secret key where available, or OAuth. Public POST-only capture and flag endpoints have no PostHog request-level rate limit, but capture can still report billing limits in a successful response.
 
 ## Prerequisites
 
-- PostHog personal API key (`phx_...`) for admin endpoints
+- A least-privilege personal API key, project secret key where available, or OAuth token for private endpoints
 - Understanding of which endpoints you call and how often
 - `posthog-node` or direct API usage
 
@@ -35,14 +29,21 @@ PostHog rate limits apply to private API endpoints authenticated with a personal
 
 | Endpoint Category | Rate Limit | Examples |
 |-------------------|-----------|----------|
-| Event capture (`/capture/`, `/batch/`) | **No limit** | `posthog.capture()`, batch ingestion |
-| Feature flag decide (`/decide/`) | **No limit** | Client-side flag evaluation |
+| Public event capture (`/e`, `/i/v0/e`, `/batch/`) | **No request-level limit** | SDK capture and batch ingestion |
+| Public feature flags (`/flags`) | **No request-level limit** | Client-side flag evaluation |
 | Analytics API (insights, persons, recordings) | **240/min, 1200/hour** | Trend queries, person lookup |
-| HogQL query API (`/api/projects/:id/query/`) | **1200/hour** | Custom SQL queries |
+| Events values (`/events/values`) | **60/min, 300/hour** | Event-property value lookup |
+| Query API (`/api/projects/:id/query/`) | **2400/hour** | HogQL and structured queries |
 | Feature flag local evaluation polling | **600/min** | Server SDK flag definition fetch |
-| All other private endpoints | **240/min, 1200/hour** | Feature flag CRUD, cohorts, annotations |
+| Other private CRUD endpoints | **480/min, 4800/hour** | Feature flag CRUD, cohorts, annotations |
+
+These budgets apply to the whole PostHog team, not to each key or process. Coordinate workers through a shared limiter when more than one caller uses the same endpoint class.
 
 ## Instructions
+
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
 
 ### Step 1: Implement Exponential Backoff with Retry-After
 
@@ -103,11 +104,12 @@ async function postHogApiCall<T>(
 ```typescript
 import PQueue from 'p-queue';
 
-// Enforce 240 requests/minute = 4 requests/second
+// Conservative analytics budget: 20/min averages to 1200/hour.
+// A shared limiter is required when multiple workers use the same PostHog team.
 const posthogQueue = new PQueue({
   concurrency: 2,       // Max parallel requests
-  interval: 1000,       // Per second
-  intervalCap: 4,       // Max 4 requests per second
+  interval: 60_000,
+  intervalCap: 20,
 });
 
 async function queuedPostHogCall<T>(
@@ -119,7 +121,7 @@ async function queuedPostHogCall<T>(
 
 // Usage: all calls are automatically throttled
 const insights = await queuedPostHogCall(
-  `https://app.posthog.com/api/projects/${PROJECT_ID}/insights/trend/`,
+  `https://us.posthog.com/api/projects/${PROJECT_ID}/insights/trend/`,
   { method: 'GET' }
 );
 ```
@@ -151,7 +153,7 @@ const phCache = new PostHogCache();
 
 // Cache trend data for 5 minutes
 const trends = await phCache.get('weekly-pageviews', () =>
-  queuedPostHogCall(`https://app.posthog.com/api/projects/${PROJECT_ID}/insights/trend/?events=[{"id":"$pageview"}]&date_from=-7d`, { method: 'GET' })
+  queuedPostHogCall(`https://us.posthog.com/api/projects/${PROJECT_ID}/insights/trend/?events=[{"id":"$pageview"}]&date_from=-7d`, { method: 'GET' })
 );
 ```
 
@@ -200,24 +202,33 @@ if (rateLimits.shouldThrottle()) {
 |-------|-------|----------|
 | HTTP 429 on insights | >240 req/min on analytics | Queue requests, cache results |
 | 429 on flag polling | >600 req/min local eval fetch | Increase `featureFlagsPollingInterval` |
-| 429 on HogQL | >1200 req/hour | Cache query results, reduce frequency |
+| 429 on query API | >2400 req/hour across the team | Cache query results, reduce frequency, or use an export product |
+| 429 on events values | >60 req/min or >300 req/hour | Cache dimensions and avoid interactive polling |
+| 429 on other CRUD | >480 req/min or >4800 req/hour | Coordinate callers through a team-wide limiter |
 | Thundering herd on retry | All clients retry simultaneously | Add random jitter to backoff |
 
 ## Key Points
 
-- **Capture endpoints are NOT rate limited** — `posthog.capture()` calls will never 429
-- **Only private API calls are limited** — endpoints requiring `Authorization: Bearer phx_...`
+- **Public capture and `/flags` have no PostHog request-level limit** — still inspect successful capture responses for `quota_limited` and check ingestion warnings.
+- **Private endpoints are limited by class** — authentication may be a personal key, project secret key where available, or OAuth.
+- **Limits are team-wide** — separate keys do not create separate budgets.
 - **Cache aggressively** — insight data rarely needs real-time refresh
 - **Honor Retry-After** — PostHog tells you exactly how long to wait
 
 ## Output
 
 - Exponential backoff with Retry-After header support
-- Request queue enforcing 4 req/sec
+- Endpoint-class request queue that respects both minute and hour budgets
 - In-memory cache for API responses
 - Rate limit header monitoring
 
+## Examples
+
+For a scheduled HogQL query job, budget against the documented query limit, serialize retries from `Retry-After`, add jitter, and stop after a bounded attempt count. Do not apply private-API limits to public capture endpoints; inspect `quota_limited` and ingestion warnings separately.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [PostHog API Overview (rate limits)](https://posthog.com/docs/api)
 - [PostHog Feature Flag Local Evaluation](https://posthog.com/docs/feature-flags/local-evaluation)

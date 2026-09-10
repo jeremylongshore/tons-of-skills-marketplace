@@ -1,16 +1,10 @@
 ---
 name: posthog-core-workflow-a
-description: 'Implement PostHog product analytics: event capture, user identification,
-
-  group analytics, and property management using posthog-js and posthog-node.
-
-  Trigger: "posthog analytics", "capture events", "track users posthog",
-
-  "posthog identify", "posthog group analytics", "product analytics".
-
-  '
+description: |
+  Design and implement a governed PostHog event taxonomy with capture, identity, group, and property contracts. Use when instrumenting a product workflow or repairing inconsistent analytics events. Trigger with "PostHog analytics", "capture events", or "PostHog identify".
+argument-hint: "[project-path] [workflow-name]"
 allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -33,6 +27,10 @@ Primary PostHog workflow covering event capture, user identification, group anal
 - Project API key (`phc_...`) configured
 
 ## Instructions
+
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Grep` to locate initialization, capture, flag, and credential boundaries. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
 
 ### Step 1: Define Event Taxonomy
 
@@ -199,7 +197,7 @@ await posthog.flush();
 ```bash
 set -euo pipefail
 # Mark a deployment or product change in PostHog
-curl -X POST "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/annotations/" \
+curl -X POST "https://us.posthog.com/api/projects/$POSTHOG_PROJECT_ID/annotations/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -227,7 +225,13 @@ curl -X POST "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/annotatio
 - Server-side event capture with proper flushing
 - Annotations marking deployments and product changes
 
+## Examples
+
+For a B2B checkout flow, define stable event names and properties, identify only after authentication, attach the company group, and add focused capture tests. Produce an instrumentation table plus the exact files changed and validation evidence.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [Capture Events](https://posthog.com/docs/product-analytics/capture-events)
 - [Identifying Users](https://posthog.com/docs/product-analytics/identify)

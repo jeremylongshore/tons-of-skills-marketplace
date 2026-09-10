@@ -1,18 +1,10 @@
 ---
 name: posthog-local-dev-loop
-description: 'Configure PostHog local development with mocking, debug mode, and testing.
-
-  Use when setting up a development environment, mocking PostHog for tests,
-
-  or establishing a fast iteration cycle with posthog-js or posthog-node.
-
-  Trigger: "posthog dev setup", "posthog local development",
-
-  "posthog dev environment", "mock posthog", "test posthog".
-
-  '
+description: |
+  Build a deterministic local PostHog development loop with dependency injection, mocks, test identities, and optional isolated-project verification. Use when developing analytics without polluting production data. Trigger with "mock PostHog", "PostHog local development", or "test PostHog".
+argument-hint: "[project-path] [test-command]"
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pnpm:*), Grep
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -36,6 +28,11 @@ Set up a fast local development workflow for PostHog integrations. Covers debug 
 - Separate PostHog project for development (recommended)
 
 ## Instructions
+
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Grep` to locate initialization, capture, flag, and credential boundaries. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
+
 
 ### Step 1: Project Structure
 
@@ -229,7 +226,13 @@ describe.skipIf(!POSTHOG_KEY)('PostHog Integration', () => {
 - Mocked posthog-node for unit tests
 - Integration test suite for real PostHog connectivity
 
+## Examples
+
+For a feature-flagged component, inject a small analytics interface, use an in-memory fake for unit tests, and reserve network verification for an isolated PostHog project. Test enabled, disabled, undefined, and capture-failure paths without putting real keys in fixtures.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [posthog-node Documentation](https://posthog.com/docs/libraries/node)
 - [posthog-js Debug Mode](https://posthog.com/docs/libraries/js)

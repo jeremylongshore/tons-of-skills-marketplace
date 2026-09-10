@@ -1,18 +1,10 @@
 ---
 name: posthog-deploy-integration
-description: 'Deploy PostHog to Vercel, Docker (self-hosted), and Cloud Run.
-
-  Covers Next.js reverse proxy, server-side capture in edge functions,
-
-  self-hosted PostHog setup, and platform-specific environment configuration.
-
-  Trigger: "deploy posthog", "posthog Vercel", "posthog production deploy",
-
-  "posthog Cloud Run", "posthog self-hosted", "posthog Docker".
-
-  '
+description: |
+  Deploy a PostHog application integration with correct regional hosts, reverse-proxy coverage, server lifecycle, and rollback checks. Use when shipping PostHog instrumentation to a hosted application. Trigger with "deploy PostHog", "PostHog Vercel", or "PostHog reverse proxy".
+argument-hint: "[project-path] [deployment-platform]"
 allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(fly:*), Bash(gcloud:*)
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -25,15 +17,20 @@ compatibility: Designed for Claude Code
 
 ## Overview
 
-Deploy PostHog analytics to production platforms. Covers Next.js with Vercel (reverse proxy, server-side capture, edge functions), self-hosted PostHog with Docker, and Google Cloud Run deployment patterns.
+Ship an application's PostHog integration with regional routing, a supported reverse proxy, server-side flushing, validation evidence, and an instrumentation rollback. This workflow deploys the application integration; it does not present open-source self-hosting as a supported production PostHog service.
 
 ## Prerequisites
 
 - PostHog project API key (`phc_...`)
-- PostHog personal API key (`phx_...`) for server features
-- Platform CLI installed (`vercel`, `docker`, or `gcloud`)
+- A feature flags secure API key only when server-side local evaluation is required
+- A scoped private-API credential only when deployment annotations are required
+- Platform CLI installed (`vercel`, `fly`, or `gcloud`)
 
 ## Instructions
+
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass. Use the `vercel`, `fly`, or `gcloud` Bash allowance only for the deployment platform actually selected by the user.
 
 ### Step 1: Next.js + Vercel Deployment
 
@@ -42,7 +39,8 @@ set -euo pipefail
 # Set environment variables in Vercel
 vercel env add NEXT_PUBLIC_POSTHOG_KEY production     # phc_... (public)
 vercel env add NEXT_PUBLIC_POSTHOG_HOST production    # /ingest (if using proxy)
-vercel env add POSTHOG_PERSONAL_API_KEY production    # phx_... (server-only)
+vercel env add POSTHOG_FEATURE_FLAGS_SECURE_API_KEY production # only for local evaluation
+vercel env add POSTHOG_PERSONAL_API_KEY production    # only for scoped private API automation
 vercel env add POSTHOG_PROJECT_ID production          # Project ID number
 ```
 
@@ -113,51 +111,37 @@ export async function POST(request: Request) {
 }
 ```
 
-### Step 3: Self-Hosted PostHog (Docker)
+### Step 3: Validate the Proxy and Rollback Boundary
 
 ```bash
 set -euo pipefail
-# Deploy PostHog self-hosted (hobby tier)
-git clone https://github.com/PostHog/posthog.git
-cd posthog
+# Use the deployed application URL; do not test against a guessed region.
+: "${APPLICATION_URL:?Set the deployed application URL}"
+: "${NEXT_PUBLIC_POSTHOG_KEY:?Set the public project token}"
 
-# Configure environment
-cat > .env <<'EOF'
-SECRET_KEY=your-random-secret-key-here
-SITE_URL=https://posthog.yourcompany.com
-IS_BEHIND_PROXY=true
-EOF
-
-# Start PostHog
-docker compose -f docker-compose.hobby.yml up -d
-
-# PostHog runs at http://localhost:8000
-# Complete setup wizard in browser
-
-# Health check
-curl -s http://localhost:8000/_health | jq .
+# Static asset and flag routes should traverse the same proxy configuration.
+curl -fsSI "$APPLICATION_URL/ingest/static/array.js" | head -n 1
+curl -fsS -X POST "$APPLICATION_URL/ingest/flags/?v=2" \
+  -H 'Content-Type: application/json' \
+  -d "{\"api_key\":\"$NEXT_PUBLIC_POSTHOG_KEY\",\"distinct_id\":\"deployment-proxy-check\"}" \
+  | jq '{errorsParsingFlags, flags}'
 ```
 
-```typescript
-// Point SDKs to your self-hosted instance
-posthog.init('phc_your_key', {
-  api_host: 'https://posthog.yourcompany.com', // Your self-hosted URL
-});
-```
+The rollback must disable the new SDK initialization or restore the previous proxy mapping without blocking the application. PostHog's open-source self-hosted distribution is explicitly a hobbyist, single-machine option with limited support and no recovery guarantee; evaluate it as a separate infrastructure project, not as a step in this application-deployment workflow.
 
 ### Step 4: Google Cloud Run Deployment
 
 ```bash
 set -euo pipefail
-# Set secrets in GCP Secret Manager
-echo -n "phc_your_key" | gcloud secrets create posthog-project-key --data-file=-
-echo -n "phx_your_key" | gcloud secrets create posthog-personal-key --data-file=-
+# Reference secrets that were created through the organization's approved secret workflow.
+gcloud secrets describe posthog-project-token >/dev/null
+gcloud secrets describe posthog-feature-flags-secure-key >/dev/null
 
 # Deploy with PostHog secrets
 gcloud run deploy my-app \
   --image gcr.io/my-project/my-app:latest \
-  --set-secrets "NEXT_PUBLIC_POSTHOG_KEY=posthog-project-key:latest" \
-  --set-secrets "POSTHOG_PERSONAL_API_KEY=posthog-personal-key:latest" \
+  --set-secrets "NEXT_PUBLIC_POSTHOG_KEY=posthog-project-token:latest" \
+  --set-secrets "POSTHOG_FEATURE_FLAGS_SECURE_API_KEY=posthog-feature-flags-secure-key:latest" \
   --set-env-vars "POSTHOG_HOST=https://us.i.posthog.com" \
   --region us-central1 \
   --allow-unauthenticated
@@ -168,7 +152,7 @@ gcloud run deploy my-app \
 ```bash
 set -euo pipefail
 # Create annotation on each deploy so you can correlate metric changes with releases
-curl -X POST "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/annotations/" \
+curl -X POST "https://us.posthog.com/api/projects/$POSTHOG_PROJECT_ID/annotations/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" \
   -H "Content-Type: application/json" \
   -d "{
@@ -185,20 +169,26 @@ curl -X POST "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/annotatio
 | Events not appearing | Wrong `api_host` | Use `us.i.posthog.com` (not `app.posthog.com`) |
 | Ad blocker blocks events | Direct PostHog requests | Set up reverse proxy via Next.js rewrites |
 | Edge function events lost | No `shutdown()` call | Always `await posthog.shutdown()` in serverless |
-| Self-hosted 502 | Under-provisioned | Increase Docker memory (min 4GB RAM) |
-| Cloud Run cold start lag | PostHog init in handler | Move init to module scope, only shutdown in handler |
+| Proxy assets load but flags fail | Proxy does not cover `/flags` | Compare all proxy paths with the official platform guide |
+| Cloud Run cold start lag | Client initialized per request | Reuse a module-scoped client where the runtime permits it and flush at lifecycle boundaries |
 
 ## Output
 
-- PostHog deployed to chosen platform with secrets configured
+- Application integration deployed to the chosen platform with credential boundaries documented
 - Reverse proxy enabled for ad blocker bypass (Vercel/Next.js)
 - Server-side event capture with proper shutdown hooks
 - Deployment annotations marking releases in PostHog timeline
 
+## Examples
+
+For a Vercel-hosted Next.js app, verify the region-specific ingest and asset routes, keep private keys server-only, test capture and flags through the proxy, and record a rollback that disables instrumentation without blocking the application.
+
 ## Resources
 
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
+
 - [PostHog Next.js Integration](https://posthog.com/docs/libraries/next-js)
-- [PostHog Self-Hosting](https://posthog.com/docs/self-host)
+- [PostHog open-source self-hosting disclaimer](https://posthog.com/docs/self-host/open-source/disclaimer)
 - [PostHog Vercel Integration](https://posthog.com/docs/libraries/vercel)
 - [PostHog Annotations API](https://posthog.com/docs/api/annotations)
 

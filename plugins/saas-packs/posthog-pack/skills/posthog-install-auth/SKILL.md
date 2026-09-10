@@ -1,18 +1,10 @@
 ---
 name: posthog-install-auth
-description: 'Install and configure PostHog SDKs with authentication.
-
-  Use when setting up posthog-js (browser), posthog-node (server),
-
-  or configuring API keys for a new PostHog integration.
-
-  Trigger: "install posthog", "setup posthog", "posthog auth",
-
-  "configure posthog API key", "posthog init".
-
-  '
+description: |
+  Install an official PostHog SDK and configure the correct project token, regional host, and server-only credentials. Use when bootstrapping or repairing SDK authentication. Trigger with "install PostHog", "configure PostHog", or "PostHog API key".
+argument-hint: "[project-path] [sdk] [region]"
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -37,6 +29,11 @@ Install PostHog SDKs and configure authentication. PostHog uses two key types: *
 
 ## Instructions
 
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Grep` to locate initialization, capture, flag, and credential boundaries. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
+
+
 ### Step 1: Install the SDK
 
 ```bash
@@ -58,6 +55,7 @@ pip install posthog
 NEXT_PUBLIC_POSTHOG_KEY=phc_your_project_api_key    # Safe for frontend
 POSTHOG_HOST=https://us.i.posthog.com               # US Cloud (or eu.i.posthog.com)
 POSTHOG_PERSONAL_API_KEY=phx_your_personal_key      # Server-only, never expose
+POSTHOG_FEATURE_FLAGS_SECURE_API_KEY=your_project_specific_secure_key # Server-side only
 POSTHOG_PROJECT_ID=12345                             # From project URL
 ```
 
@@ -99,7 +97,8 @@ export function getPostHog(): PostHog {
       host: process.env.POSTHOG_HOST || 'https://us.i.posthog.com',
       flushAt: 20,           // Send batch when 20 events queued
       flushInterval: 10000,  // Or every 10 seconds
-      personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY, // Enables local flag eval
+      // The option name is retained by the SDK; pass the feature flags secure API key.
+      personalApiKey: process.env.POSTHOG_FEATURE_FLAGS_SECURE_API_KEY,
     });
   }
   return client;
@@ -122,7 +121,7 @@ import os
 
 posthog.project_api_key = os.getenv('NEXT_PUBLIC_POSTHOG_KEY')
 posthog.host = os.getenv('POSTHOG_HOST', 'https://us.i.posthog.com')
-posthog.personal_api_key = os.getenv('POSTHOG_PERSONAL_API_KEY')
+posthog.personal_api_key = os.getenv('POSTHOG_FEATURE_FLAGS_SECURE_API_KEY')
 posthog.debug = os.getenv('NODE_ENV') == 'development'
 
 # Capture an event
@@ -153,7 +152,8 @@ verifyPostHog();
 | Key Type | Prefix | Use | Expose to Client? |
 |----------|--------|-----|-------------------|
 | Project API Key | `phc_` | Capture events, evaluate flags | Yes (public) |
-| Personal API Key | `phx_` | Admin API, local flag eval, HogQL queries | Never |
+| Personal API Key | `phx_` | Private API scripts and HogQL queries | Never |
+| Feature Flags Secure API Key | project-specific secret | Server-side local flag evaluation | Never |
 
 ## API Hosts
 
@@ -180,7 +180,13 @@ verifyPostHog();
 - Initialization code for browser and/or server
 - Verified event delivery to PostHog dashboard
 
+## Examples
+
+For a Node service, install `posthog-node`, initialize one long-lived client with the project token and regional ingest host, and add a shutdown path. Add a feature-flags secure key only for server-side local evaluation; use a scoped personal key, project secret key where available, or OAuth for private API calls.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [PostHog API Overview](https://posthog.com/docs/api)
 - [posthog-js Documentation](https://posthog.com/docs/libraries/js)
