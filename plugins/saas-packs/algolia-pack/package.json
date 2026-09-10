@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/algolia-pack",
   "version": "1.0.5",
-  "description": "Grade-A Algolia operator pack with 24 skills for search, indexing, security, events, and operations",
+  "description": "Algolia integration pack with 24 skills for search, indexing, security, events, and operations",
   "main": "README.md",
   "type": "module",
   "files": [

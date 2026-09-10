@@ -6258,7 +6258,7 @@
     {
       "name": "algolia-pack",
       "source": "./plugins/saas-packs/algolia-pack",
-      "description": "Grade-A Algolia search operator pack with 24 skills",
+      "description": "Algolia search integration pack with 24 operator skills",
       "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [

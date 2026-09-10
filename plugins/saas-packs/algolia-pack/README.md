@@ -1,6 +1,6 @@
 # Algolia Skill Pack
 
-> 24 Grade-A Claude Code skills for building, releasing, and operating Algolia search safely.
+> 24 Claude Code skills for building, releasing, and operating Algolia search safely.
 
 ## What This Is
 

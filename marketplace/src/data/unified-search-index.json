@@ -11740,7 +11740,7 @@
       "slug": "algolia-pack",
       "name": "algolia-pack",
       "displayName": "algolia pack",
-      "description": "Grade-A Algolia search operator pack with 24 skills",
+      "description": "Algolia search integration pack with 24 operator skills",
       "category": "saas-packs",
       "keywords": [
         "algolia",
@@ -11762,7 +11762,7 @@
       "verificationScore": 79,
       "verificationGrade": "C",
       "verificationBadge": "silver",
-      "searchText": "algolia pack grade-a algolia search operator pack with 24 skills saas-packs algolia saas sdk integration"
+      "searchText": "algolia pack algolia search integration pack with 24 operator skills saas-packs algolia saas sdk integration"
     },
     {
       "type": "plugin",
