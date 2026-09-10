@@ -5,10 +5,10 @@
     "generator": "marketplace/scripts/sync-catalog.mjs"
   },
   "stats": {
-    "totalPlugins": 435,
-    "totalSkills": 2930,
+    "totalPlugins": 434,
+    "totalSkills": 2900,
     "totalCommands": 82,
-    "pluginsWithSkills": 402,
+    "pluginsWithSkills": 401,
     "byCategory": {
       "productivity": 28,
       "security": 27,
@@ -26,7 +26,7 @@
       "business-tools": 4,
       "community": 19,
       "examples": 5,
-      "saas-packs": 104,
+      "saas-packs": 103,
       "analytics": 1,
       "design": 2
     },
@@ -7644,35 +7644,6 @@
       "commandCount": 0,
       "installCommand": "/plugin install openrouter-pack",
       "sourcePath": "./plugins/saas-packs/openrouter-pack",
-      "isFeatured": false,
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      },
-      "type": "instruction-plugin"
-    },
-    {
-      "slug": "replit-pack",
-      "name": "replit-pack",
-      "displayName": "replit pack",
-      "description": "Complete Replit integration skill pack with 30 skills covering cloud IDE, deployments, AI assistance, and collaborative coding. Flagship+ tier vendor pack.",
-      "version": "1.14.0",
-      "category": "saas-packs",
-      "keywords": [
-        "replit",
-        "cloud-ide",
-        "deployments",
-        "collaborative",
-        "ai-coding",
-        "browser-ide",
-        "hosting"
-      ],
-      "hasSkills": true,
-      "skillCount": 30,
-      "commandCount": 0,
-      "installCommand": "/plugin install replit-pack",
-      "sourcePath": "./plugins/saas-packs/replit-pack",
       "isFeatured": false,
       "author": {
         "name": "Jeremy Longshore",

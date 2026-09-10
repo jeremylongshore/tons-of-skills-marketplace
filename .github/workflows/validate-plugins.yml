@@ -285,9 +285,6 @@ jobs:
       - name: Verify README TOC is in sync with catalog
         run: node scripts/generate-readme-toc.mjs --check
 
-      - name: Verify README Killer-Skill block is in sync with spotlights.json
-        run: node scripts/render-spotlight.mjs --check
-
       # Epic 1.6: a public skill total is valid only when its cohort and exact
       # corpus-resolver command travel with it. Keep this inside the existing
       # validate job so the gate adds no fourth required status context.

@@ -740,8 +740,6 @@ importers:
 
   plugins/saas-packs/remofirst-pack: {}
 
-  plugins/saas-packs/replit-pack: {}
-
   plugins/saas-packs/retellai-pack: {}
 
   plugins/saas-packs/runway-pack: {}

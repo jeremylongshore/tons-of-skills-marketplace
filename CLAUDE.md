@@ -289,17 +289,15 @@ Reject: gradients on cards, glassmorphism, drop-shadow stacks, `hover:scale-105`
 
 ## Killer Skill of the Week
 
-Editorial — Jeremy picks manually. Tooling only syncs two render surfaces.
+Editorial — Jeremy picks manually for the marketplace website.
 
 ```bash
 # Promote a new spotlight
 node scripts/promote-spotlight.mjs path/to/new-spotlight.json
-
-# Sync README block only (no rotation)
-node scripts/render-spotlight.mjs
 ```
 
-Source of truth: `marketplace/src/data/spotlights.json`.
+Source of truth: `marketplace/src/data/spotlights.json`. The root README deliberately
+does not carry a spotlight copy.
 
 ## Key Identifiers — Do Not "Normalize"
 

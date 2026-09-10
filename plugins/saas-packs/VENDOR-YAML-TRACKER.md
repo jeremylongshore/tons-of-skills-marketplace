@@ -19,7 +19,6 @@ Every pack needs a real vendor YAML with actual SDK names, real API URLs, real w
 - [ ] windsurf (developer-tools)
 - [ ] firecrawl (developer-tools)
 - [ ] clay (sales-crm)
-- [ ] replit (developer-tools)
 - [ ] exa (ai-ml)
 - [ ] anthropic (ai-ml)
 - [ ] databricks (data-platform)

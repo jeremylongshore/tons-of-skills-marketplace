@@ -1,4 +1,4 @@
-# 50-Vendor SaaS Skill Packs - Post-Compaction Recovery
+# 49-Vendor SaaS Skill Packs - Post-Compaction Recovery
 
 > **READ THIS FIRST** after any context loss, compaction, or new session.
 
@@ -19,15 +19,15 @@ bd blocked | head -20
 
 ## What Is This Project?
 
-**918 skills across 50 SaaS vendors** organized as individual installable packs.
+**888 skills across 49 SaaS vendors** organized as individual installable packs.
 
 | Tier | Vendors | Skills Each | Total |
 |------|---------|-------------|-------|
-| Flagship+ | 5 | 30 | 150 |
+| Flagship+ | 4 | 30 | 120 |
 | Flagship | 8 | 24 | 192 |
 | Pro | 22 | 18 | 396 |
 | Standard | 15 | 12 | 180 |
-| **TOTAL** | **50** | - | **918** |
+| **TOTAL** | **49** | - | **888** |
 
 ## Key Locations
 
@@ -97,7 +97,7 @@ MAIN AGENT (You)
 1. **One skill at a time** - No batch generation
 2. **CSV update on every close** - `bd close <id> --reason "... CSV: column=value"`
 3. **Dependency graph enforced** - Only work on `bd ready` tasks
-4. **1 PR per pack** - Not per skill (50 PRs total, not 918)
+4. **1 PR per pack** - Not per skill (49 PRs total, not 888)
 5. **Gemini reviews PRs** - Auto-fix, auto-merge when approved
 
 ## First Steps After Fresh Context
@@ -111,7 +111,7 @@ MAIN AGENT (You)
 
 ```bash
 # 1. Create master epic
-bd create "EPIC: 50-Vendor SaaS Skill Packs" -t epic -p 0
+bd create "EPIC: 49-Vendor SaaS Skill Packs" -t epic -p 0
 
 # 2. Create infrastructure epic
 bd create "EPIC: Infrastructure" -t epic -p 0 --parent ccpi-saas
@@ -126,9 +126,9 @@ python3 scripts/generate-saas-beads.py --deps-only | bash
 bd ready  # Should show only infra tasks
 ```
 
-## Company List (50 total)
+## Company List (49 total)
 
-**Flagship+ (30 skills):** Supabase, Vercel, Sentry, LangChain, Replit
+**Flagship+ (30 skills):** Supabase, Vercel, Sentry, LangChain
 
 **Flagship (24 skills):** Clerk, PostHog, ClickHouse, Together AI, Mistral AI, Alchemy, Apify, Bright Data
 
@@ -140,7 +140,7 @@ bd ready  # Should show only infra tasks
 
 | Slots | Name | All Vendors? |
 |-------|------|--------------|
-| S01-S12 | Standard (install, hello world, etc.) | Yes (50) |
+| S01-S12 | Standard (install, hello world, etc.) | Yes (49) |
 | P13-P18 | Pro (CI, deploy, webhooks, perf, cost, arch) | 35 vendors |
 | F19-F24 | Flagship (multi-env, observability, incident, data, RBAC, migration) | 13 vendors |
 | X25-X30 | Flagship+ (advanced debug, scale, reliability, policy, arch variants, pitfalls) | 5 vendors |
