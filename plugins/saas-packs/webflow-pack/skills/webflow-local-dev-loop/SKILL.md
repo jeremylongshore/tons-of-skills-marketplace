@@ -4,7 +4,7 @@ description: >-
   Create a repeatable local loop for a Webflow Data API, Cloud app, or Designer extension. Use when setting up local development, fixtures, typechecking, or non-production smoke tests. Trigger with "Webflow local dev", "test Webflow locally", or "mock Webflow API".
 argument-hint: "[project-path] [data-api|cloud|extension]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

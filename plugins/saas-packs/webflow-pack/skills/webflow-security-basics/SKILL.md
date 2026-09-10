@@ -4,7 +4,7 @@ description: >-
   Harden Webflow tokens, scopes, webhook verification, logs, and live-write boundaries. Use when threat-modeling an integration or preparing it for production. Trigger with "secure Webflow", "verify Webflow webhook", or "audit Webflow token".
 argument-hint: "[project-path] [site-id]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

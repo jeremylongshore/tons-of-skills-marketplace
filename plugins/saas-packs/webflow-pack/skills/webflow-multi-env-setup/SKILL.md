@@ -4,7 +4,7 @@ description: >-
   Separate Webflow development, staging, and production identities, tokens, sites, and release policy. Use when preventing cross-environment writes or configuring environment-aware CI. Trigger with "Webflow environments", "Webflow staging", or "separate Webflow tokens".
 argument-hint: "[project-path] [dev|staging|production]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

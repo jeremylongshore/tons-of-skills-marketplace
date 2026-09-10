@@ -4,7 +4,7 @@ description: >-
   Operate the Webflow CMS staged/live lifecycle with reviewable writes and publishing. Use when creating, updating, publishing, unpublishing, or archiving collection items. Trigger with "manage Webflow CMS", "publish Webflow item", or "sync Webflow content".
 argument-hint: "[project-path] [site-id] [collection-id]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

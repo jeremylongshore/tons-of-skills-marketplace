@@ -4,7 +4,7 @@ description: >-
   Migrate external or cross-site content into Webflow CMS with schema mapping, staged batches, reconciliation, and controlled publication. Use when moving WordPress, CSV, JSON, or Webflow-to-Webflow content. Trigger with "migrate to Webflow", "bulk import Webflow", or "move Webflow CMS".
 argument-hint: "[project-path] [source] [site-id] [collection-id]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

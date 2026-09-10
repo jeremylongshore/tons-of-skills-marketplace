@@ -4,7 +4,7 @@ description: >-
   Design Webflow request budgets, queues, and retries from current plan and endpoint limits. Use when handling 429s, bulk sync throughput, polling, or Content Delivery caching. Trigger with "Webflow rate limit", "Webflow 429", or "throttle Webflow".
 argument-hint: "[project-path] [site-plan] [endpoint]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

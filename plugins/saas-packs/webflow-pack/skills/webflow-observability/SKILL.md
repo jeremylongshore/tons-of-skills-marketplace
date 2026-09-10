@@ -4,7 +4,7 @@ description: >-
   Instrument a Webflow integration around API budgets, errors, cache behavior, webhooks, and deployments without leaking sensitive data. Use when adding metrics, logs, traces, or alerts. Trigger with "monitor Webflow", "Webflow observability", or "Webflow alerts".
 argument-hint: "[project-path] [service-or-environment]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

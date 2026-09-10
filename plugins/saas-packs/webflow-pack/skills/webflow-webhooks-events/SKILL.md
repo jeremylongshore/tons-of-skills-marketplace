@@ -4,7 +4,7 @@ description: >-
   Register and operate Webflow webhooks with current event names, signature verification, replay defense, and idempotency. Use when receiving site, CMS, form, ecommerce, page, or comment events. Trigger with "Webflow webhook", "verify Webflow signature", or "Webflow events".
 argument-hint: "[project-path] [site-id] [trigger-type]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

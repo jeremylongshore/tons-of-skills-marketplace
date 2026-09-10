@@ -4,7 +4,7 @@ description: >-
   Build fail-closed CI for Webflow Data API or Cloud changes with pinned tools and explicit identities. Use when adding automated tests, non-interactive CLI work, or gated deployment. Trigger with "Webflow CI", "Webflow GitHub Actions", or "automate Webflow deploy".
 argument-hint: "[project-path] [workflow-file] [environment]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
