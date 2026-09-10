@@ -4,7 +4,7 @@ description: >-
   Establish a reproducible local development and browser-test loop for a WebContainer host, including isolation-header assertions, single-boot behavior under HMR, and cleanup checks. Use when a StackBlitz integration works manually but lacks dependable regression coverage. Trigger with "test WebContainers locally", "StackBlitz dev loop", or "WebContainer Playwright test".
 argument-hint: "[project-path] [test-command]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.6.0
+version: 1.7.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

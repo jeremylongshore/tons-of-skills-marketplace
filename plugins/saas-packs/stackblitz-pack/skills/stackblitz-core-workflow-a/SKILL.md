@@ -4,7 +4,7 @@ description: >-
   Architect a custom in-browser development experience around WebContainers with explicit file, editor, terminal, process, preview, and persistence boundaries. Use when evolving a playground into a maintainable IDE-like product. Trigger with "build a WebContainer IDE", "browser code editor architecture", or "StackBlitz playground design".
 argument-hint: "[project-path] [experience-scope]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.6.0
+version: 1.7.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

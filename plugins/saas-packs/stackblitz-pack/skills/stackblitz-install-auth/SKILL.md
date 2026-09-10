@@ -4,7 +4,7 @@ description: >-
   Prepare a StackBlitz WebContainer or JavaScript SDK integration with pinned packages, compatible isolation headers, and the correct commercial or private-package authentication path. Use when adding StackBlitz to an existing web application or reviewing its startup contract. Trigger with "install StackBlitz", "set up WebContainers", or "configure WebContainer auth".
 argument-hint: "[project-path] [webcontainer|embed]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.6.0
+version: 1.7.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

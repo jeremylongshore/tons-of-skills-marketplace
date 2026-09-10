@@ -4,7 +4,7 @@ description: >-
   Design a durable WebContainer lifecycle adapter for filesystem, process, event, preview, and teardown operations. Use when multiple UI components need WebContainer access or an integration has race-prone boot and cleanup logic. Trigger with "WebContainer SDK patterns", "manage WebContainer lifecycle", or "StackBlitz runtime adapter".
 argument-hint: "[project-path] [runtime-module]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.6.0
+version: 1.7.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

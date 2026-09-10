@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/stackblitz-pack",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Production StackBlitz workflows for WebContainer lifecycle, embeds, testing, diagnostics, capacity, and security",
   "main": "README.md",
   "type": "module",

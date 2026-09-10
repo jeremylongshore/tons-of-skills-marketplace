@@ -7226,7 +7226,7 @@
       "name": "stackblitz-pack",
       "source": "./plugins/saas-packs/stackblitz-pack",
       "description": "Production StackBlitz workflows for WebContainer lifecycle, embeds, testing, diagnostics, capacity, and security (10 skills)",
-      "version": "1.6.0",
+      "version": "1.7.0",
       "category": "saas-packs",
       "keywords": [
         "stackblitz",

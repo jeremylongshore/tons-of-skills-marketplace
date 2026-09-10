@@ -4,7 +4,7 @@ description: >-
   Diagnose WebContainer startup, isolation, Service Worker, dependency, process, preview, and browser failures from evidence before changing code or headers. Use when a StackBlitz runtime or embed fails, hangs, or behaves differently across browsers. Trigger with "StackBlitz error", "WebContainer failed to boot", or "SharedArrayBuffer error".
 argument-hint: "[project-path] [symptom]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.6.0
+version: 1.7.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

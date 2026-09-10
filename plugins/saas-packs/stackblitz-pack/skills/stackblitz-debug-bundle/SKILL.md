@@ -4,7 +4,7 @@ description: >-
   Produce a privacy-safe WebContainer diagnostic bundle with browser capability, isolation-header, lifecycle, event, process-exit, dependency, and resource evidence. Use when an incident needs a shareable artifact rather than ad hoc console screenshots. Trigger with "StackBlitz debug bundle", "collect WebContainer diagnostics", or "WebContainer incident evidence".
 argument-hint: "[project-path] [output-path]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.6.0
+version: 1.7.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
