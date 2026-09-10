@@ -1,210 +1,83 @@
 ---
 name: miro-debug-bundle
-description: 'Collect Miro REST API v2 diagnostic evidence for support tickets.
-
-  Use when encountering persistent issues, preparing support tickets,
-
-  or collecting diagnostic information for Miro integration problems.
-
-  Trigger with phrases like "miro debug", "miro support bundle",
-
-  "collect miro logs", "miro diagnostic", "miro support ticket".
-
-  '
-allowed-tools: Read, Bash(curl:*), Bash(tar:*), Bash(jq:*), Grep
-version: 1.7.0
-license: MIT
+description: "Analyze and execute this workflow: assemble a shareable Miro integration diagnostic bundle with bounded metadata and automatic redaction. Use when escalating a Miro failure. Trigger with \"build Miro debug bundle\"."
+argument-hint: "[incident-id] [time-window]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - miro
 - debugging
-- diagnostics
-compatibility: Designed for Claude Code
+- support
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live work requires an authorized Miro app and redacted evidence
 ---
-# Miro Debug Bundle
+# Miro Redacted Debug Bundle
 
 ## Overview
 
-Collect all diagnostic information needed to troubleshoot Miro REST API v2 integration issues and file effective support tickets.
+Create evidence useful to maintainers or Miro support while excluding credentials, authorization codes, board content, personal data, and unrestricted configuration; use the evidence produced here to make the next decision explicit and reviewable.
 
 ## Prerequisites
 
-- Access token (even expired ones are useful for diagnostics)
-- `curl` and `jq` available
-- Application logs accessible
+- Incident identifier and narrow UTC window
+- Approved evidence destination and retention period
+- Known redaction rules for identifiers, URLs, headers, and payloads
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary.
+
+## Current Contract
+
+- Safe evidence includes versions, operation names, status/code, latency, rate headers, counts, hashes, and timestamps.
+- Authorization headers, cookies, tokens, client secrets, callback query strings, and raw board payloads are never safe evidence.
+- Access-token context is useful only after user/team identifiers are pseudonymized.
+- Official status evidence should include observation time because incidents change.
+
+## Authentication
+
+For REST work, use OAuth 2.0 Authorization Code with the narrowest Miro scopes. Bind each encrypted token record to its user, application, authorized team, and granted scopes. Never print access tokens, refresh tokens, client secrets, authorization codes, or board content.
 
 ## Instructions
 
-### Step 1: Create the Debug Bundle Script
+1. Define the incident window, failing operations, recipient, purpose, and retention.
+2. Collect repository version, deployment version, app mode, safe configuration names, and dependency lock facts.
+3. Extract bounded request metadata and rate headers; replace identifiers with stable incident-local hashes.
+4. Record token-context match as a boolean and include no credential or raw context response.
+5. Scan the bundle for bearer patterns, secrets, emails, callback codes, board text, and private URLs.
+6. Review the manifest and redaction report before writing the approved artifact.
 
-```bash
-#!/bin/bash
-# miro-debug-bundle.sh — Collect Miro API diagnostics
-set -euo pipefail
+## Approval Boundaries
 
-BUNDLE_DIR="miro-debug-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE_DIR"
-
-echo "=== Miro Debug Bundle ===" | tee "$BUNDLE_DIR/summary.txt"
-echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)" | tee -a "$BUNDLE_DIR/summary.txt"
-echo "" >> "$BUNDLE_DIR/summary.txt"
-```
-
-### Step 2: Collect Environment Info
-
-```bash
-# Runtime environment
-echo "--- Environment ---" >> "$BUNDLE_DIR/summary.txt"
-echo "Node.js: $(node --version 2>/dev/null || echo 'not installed')" >> "$BUNDLE_DIR/summary.txt"
-echo "npm: $(npm --version 2>/dev/null || echo 'not installed')" >> "$BUNDLE_DIR/summary.txt"
-echo "OS: $(uname -srm)" >> "$BUNDLE_DIR/summary.txt"
-
-# SDK version
-echo "--- SDK Version ---" >> "$BUNDLE_DIR/summary.txt"
-npm list @mirohq/miro-api 2>/dev/null >> "$BUNDLE_DIR/summary.txt" || echo "@mirohq/miro-api: not found" >> "$BUNDLE_DIR/summary.txt"
-
-# Token presence (never log the actual token)
-echo "--- Token Status ---" >> "$BUNDLE_DIR/summary.txt"
-echo "MIRO_ACCESS_TOKEN: ${MIRO_ACCESS_TOKEN:+SET (length: ${#MIRO_ACCESS_TOKEN})}" >> "$BUNDLE_DIR/summary.txt"
-echo "MIRO_CLIENT_ID: ${MIRO_CLIENT_ID:+SET}" >> "$BUNDLE_DIR/summary.txt"
-echo "MIRO_REFRESH_TOKEN: ${MIRO_REFRESH_TOKEN:+SET}" >> "$BUNDLE_DIR/summary.txt"
-```
-
-### Step 3: API Connectivity Tests
-
-```bash
-echo "--- API Connectivity ---" >> "$BUNDLE_DIR/summary.txt"
-
-# DNS resolution
-echo -n "DNS resolve api.miro.com: " >> "$BUNDLE_DIR/summary.txt"
-nslookup api.miro.com 2>/dev/null | grep "Address" | tail -1 >> "$BUNDLE_DIR/summary.txt" || echo "FAILED" >> "$BUNDLE_DIR/summary.txt"
-
-# HTTPS connectivity (no auth needed)
-echo -n "HTTPS to api.miro.com: " >> "$BUNDLE_DIR/summary.txt"
-curl -s -o /dev/null -w "%{http_code} (%{time_total}s)" https://api.miro.com 2>&1 >> "$BUNDLE_DIR/summary.txt"
-echo "" >> "$BUNDLE_DIR/summary.txt"
-
-# Authenticated API test
-echo -n "GET /v2/boards: " >> "$BUNDLE_DIR/summary.txt"
-curl -s -o "$BUNDLE_DIR/boards-response.json" -w "%{http_code} (%{time_total}s)" \
-  -H "Authorization: Bearer ${MIRO_ACCESS_TOKEN:-none}" \
-  "https://api.miro.com/v2/boards?limit=1" 2>&1 >> "$BUNDLE_DIR/summary.txt"
-echo "" >> "$BUNDLE_DIR/summary.txt"
-
-# Rate limit status from response headers
-echo "--- Rate Limit Status ---" >> "$BUNDLE_DIR/summary.txt"
-curl -s -D "$BUNDLE_DIR/response-headers.txt" -o /dev/null \
-  -H "Authorization: Bearer ${MIRO_ACCESS_TOKEN:-none}" \
-  "https://api.miro.com/v2/boards?limit=1" 2>/dev/null
-grep -i "x-ratelimit\|retry-after" "$BUNDLE_DIR/response-headers.txt" >> "$BUNDLE_DIR/summary.txt" 2>/dev/null || echo "No rate limit headers found" >> "$BUNDLE_DIR/summary.txt"
-
-# Token info (scopes, user_id, team_id)
-echo "--- Token Info ---" >> "$BUNDLE_DIR/summary.txt"
-curl -s -H "Authorization: Bearer ${MIRO_ACCESS_TOKEN:-none}" \
-  "https://api.miro.com/v1/oauth-token" 2>/dev/null | \
-  jq '{scopes, team_id: .team.id, user_id: .user.id}' >> "$BUNDLE_DIR/summary.txt" 2>/dev/null || echo "Token introspection failed" >> "$BUNDLE_DIR/summary.txt"
-
-# Miro platform status
-echo "--- Miro Platform Status ---" >> "$BUNDLE_DIR/summary.txt"
-curl -s "https://status.miro.com/api/v2/status.json" 2>/dev/null | \
-  jq '.status' >> "$BUNDLE_DIR/summary.txt" 2>/dev/null || echo "Status page unreachable" >> "$BUNDLE_DIR/summary.txt"
-```
-
-### Step 4: Capture Recent Errors (Redacted)
-
-```bash
-echo "--- Recent Application Errors ---" >> "$BUNDLE_DIR/summary.txt"
-
-# Search for Miro-related errors in common log locations
-for logpath in \
-  "$(npm prefix 2>/dev/null)/logs" \
-  "$HOME/.npm/_logs" \
-  "/var/log/app" \
-  "./logs"; do
-  if [ -d "$logpath" ]; then
-    grep -ri "miro\|api\.miro\.com" "$logpath"/*.log 2>/dev/null | \
-      tail -30 | \
-      sed 's/Bearer [A-Za-z0-9._-]*/Bearer [REDACTED]/g' \
-      >> "$BUNDLE_DIR/error-logs.txt" 2>/dev/null
-  fi
-done
-
-# Redact .env file
-if [ -f .env ]; then
-  echo "--- Config (redacted) ---" > "$BUNDLE_DIR/config-redacted.txt"
-  sed 's/=.*/=[REDACTED]/' .env >> "$BUNDLE_DIR/config-redacted.txt"
-fi
-```
-
-### Step 5: Package the Bundle
-
-```bash
-# Remove raw response bodies that might contain sensitive data
-rm -f "$BUNDLE_DIR/boards-response.json" "$BUNDLE_DIR/response-headers.txt"
-
-tar -czf "$BUNDLE_DIR.tar.gz" "$BUNDLE_DIR"
-rm -rf "$BUNDLE_DIR"
-
-echo ""
-echo "Bundle created: $BUNDLE_DIR.tar.gz"
-echo "Review contents before sharing with Miro support."
-```
-
-## Sensitive Data Handling
-
-**ALWAYS redact before sharing:**
-
-- Access tokens and refresh tokens
-- Client secrets
-- User email addresses and names
-- Board content that may contain proprietary information
-
-**Safe to include:**
-
-- HTTP status codes and error messages
-- Rate limit header values
-- SDK and Node.js versions
-- Token scopes (not the token itself)
-- Request IDs (`X-Request-Id` header)
-
-## One-Liner Diagnostics
-
-```bash
-# Quick API health check
-curl -sw "\n%{http_code}" -H "Authorization: Bearer $MIRO_ACCESS_TOKEN" https://api.miro.com/v2/boards?limit=1 | tail -1
-
-# Current rate limit status
-curl -sI -H "Authorization: Bearer $MIRO_ACCESS_TOKEN" https://api.miro.com/v2/boards?limit=1 2>/dev/null | grep -i ratelimit
-
-# Token scopes
-curl -s -H "Authorization: Bearer $MIRO_ACCESS_TOKEN" https://api.miro.com/v1/oauth-token | jq '.scopes'
-```
+Do not collect raw payloads, full environment/configuration dumps, database exports, or user content without data-owner and security approval. Pause when the responsible owner or exact target is uncertain.
 
 ## Output
 
-Following this guide produces the Miro integration outcome for its topic—configuration, validation evidence, operational recovery, or a documented migration result. Record command output and relevant identifiers so a failed step is traceable.
-
-## Examples
-
-Start with the smallest applicable command or code example in the relevant section, using a dedicated test board and non-production credentials. Confirm the expected response or validation result before applying the pattern to production.
+Return bundle path, manifest, time window, redaction counts, evidence gaps, sensitivity label, recipient, and deletion date. State what was not inspected or changed so the receipt cannot overclaim coverage.
 
 ## Error Handling
 
-| Diagnostic | What It Reveals | If It Fails |
-|-----------|----------------|-------------|
-| DNS lookup | Network/firewall issues | Check DNS config, VPN |
-| HTTPS check | TLS/proxy issues | Check corporate proxy settings |
-| Auth test | Token validity | Refresh or re-authorize |
-| Rate limit headers | Credit consumption | Implement backoff |
-| Token introspection | Scope configuration | Re-check app settings |
+| Condition | Response |
+|---|---|
+| Redaction scanner matches | Quarantine the bundle and regenerate from safer fields. |
+| Evidence source exceeds scope | Skip it and document the gap. |
+| Timestamps disagree | Normalize to UTC and preserve original offsets. |
+| Destination is not approved | Do not write or upload the bundle. |
+
+## Examples
+
+The example is a redacted operator receipt; identifiers are hashes or bounded labels, not board content or credentials.
+
+```text
+incident=INC-204; window=18m; requests=14; ids-hashed=9; secrets-found=0; content-fields=0; retention=7d
+```
 
 ## Resources
 
-- [Miro Status Page](https://status.miro.com)
-- [Miro Developer Support](https://developers.miro.com/docs/getting-help)
-- [OAuth Token Endpoint](https://developers.miro.com/docs/getting-started-with-oauth)
-
-## Next Steps
-
-For rate limit issues specifically, see `miro-rate-limits`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Security guidelines](https://developers.miro.com/docs/security-guidelines)
+- [Rate limiting](https://developers.miro.com/reference/rate-limiting)

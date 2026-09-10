@@ -1,294 +1,83 @@
 ---
 name: miro-common-errors
-description: 'Diagnose and fix Miro REST API v2 errors by HTTP status code.
-
-  Use when encountering Miro API errors, debugging failed requests,
-
-  or troubleshooting authentication and permission issues.
-
-  Trigger with phrases like "miro error", "fix miro",
-
-  "miro not working", "debug miro", "miro 401", "miro 403", "miro 429".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.7.0
-license: MIT
+description: "Diagnose Miro OAuth and REST failures from status, context, scopes, rate headers, and safe evidence. Use when a Miro integration returns errors. Trigger with \"debug Miro API error\"."
+argument-hint: "[http-status] [operation]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - miro
 - errors
-- troubleshooting
-compatibility: Designed for Claude Code
+- diagnostics
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live work requires an authorized Miro app and redacted evidence
 ---
-# Miro Common Errors
+# Miro API Error Diagnosis
 
 ## Overview
 
-Quick reference for Miro REST API v2 errors organized by HTTP status code, with real error response bodies and proven fixes.
+Classify the failing layer before changing code or credentials. Preserve the response status, safe error code, request timing, and tenant context without retaining board content; use the evidence produced here to make the next decision explicit and reviewable.
 
 ## Prerequisites
 
-- Access token configured
-- `curl` available for diagnostic requests
+- Failing operation and sanitized response metadata
+- Expected user, app, team, board, and scopes
+- Deployment and token-mode context
 
-## Quick Diagnostic
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary.
+
+## Current Contract
+
+- 401 generally indicates missing, invalid, expired, or revoked authorization; one refresh attempt is the safe ceiling.
+- 403/404 can represent scope, membership, role, plan, resource, or tenant-boundary failures.
+- 409 means current state conflicts with the requested mutation and requires a re-read.
+- 429 responses must be handled from rate-limit headers; 5xx and network failures do not prove a write was absent.
+
+## Authentication
+
+For REST work, use OAuth 2.0 Authorization Code with the narrowest Miro scopes. Bind each encrypted token record to its user, application, authorized team, and granted scopes. Never print access tokens, refresh tokens, client secrets, authorization codes, or board content.
 
 ## Instructions
 
-Run the diagnostic requests in order, identify the returned HTTP status, then use the matching entry in the error reference. Apply one corrective action at a time and repeat the original request to confirm the failure is resolved.
+1. Reproduce once with the smallest safe request and capture status, safe code, timing, and rate headers.
+2. Verify URL, method, API version, token context, required scope, plan, and resource ownership.
+3. Separate authorization, validation, conflict, throttling, vendor, and network hypotheses.
+4. Test the leading hypothesis with a read-only probe or local schema fixture.
+5. For ambiguous mutations, reconcile target state before considering a replay.
+6. Return the root cause or a ranked evidence table with one bounded next test.
+
+## Approval Boundaries
+
+Do not broaden scopes, reinstall an app, rotate credentials, or repeat a destructive mutation merely to diagnose an error without owner approval. Pause when the responsible owner or exact target is uncertain.
 
 ## Output
 
-The investigation produces a status code, an identified cause, and a verified remediation step. Preserve the response code and any request or board identifiers needed for escalation without exposing access tokens.
-
-## Examples
-
-Start with the connectivity check below using a non-production token. For example, a `401` result directs you to the token-expiry entry, while a `429` result directs you to the backoff guidance.
-
-```bash
-# 1. Verify API connectivity
-curl -s -o /dev/null -w "%{http_code}" https://api.miro.com/v2/boards \
-  -H "Authorization: Bearer $MIRO_ACCESS_TOKEN"
-
-# 2. Check token validity
-curl -s https://api.miro.com/v1/oauth-token \
-  -H "Authorization: Bearer $MIRO_ACCESS_TOKEN" | jq
-
-# 3. Check Miro status page
-curl -s https://status.miro.com/api/v2/status.json | jq '.status.description'
-```
-
-## Error Reference
-
-### 400 — Bad Request
-
-```json
-{
-  "status": 400,
-  "code": "invalidInput",
-  "message": "Could not resolve the value for parameter: data.content",
-  "context": { "fields": [{ "field": "data.content", "message": "Required" }] }
-}
-```
-
-**Common causes:**
-
-- Missing required fields in request body
-- Wrong data types (string instead of number for position)
-- Invalid enum values (e.g., `shape: 'oval'` — correct is `shape: 'circle'`)
-
-**Fix:** Cross-reference your request body with the [REST API reference](https://developers.miro.com/docs/rest-api-reference-guide). Each item type has specific required fields.
-
-**Sticky note required fields:** `data.content`, `data.shape` (`square` or `rectangle`)
-**Shape required fields:** `data.shape` (see `miro-sdk-patterns` for valid shapes)
-**Connector required fields:** `startItem.id`, `endItem.id`
-
----
-
-### 401 — Unauthorized
-
-```json
-{
-  "status": 401,
-  "code": "tokenNotProvided",
-  "message": "Access token is not provided"
-}
-```
-
-```json
-{
-  "status": 401,
-  "code": "tokenExpired",
-  "message": "Access token has expired"
-}
-```
-
-**Common causes:**
-
-- Missing `Authorization: Bearer <token>` header
-- Access token expired (tokens last 3599 seconds / ~1 hour)
-- Using client_id/client_secret instead of access_token
-
-**Fix:**
-
-```bash
-# Check if token is set
-echo "Token length: ${#MIRO_ACCESS_TOKEN}"
-
-# Refresh expired token
-curl -X POST https://api.miro.com/v1/oauth/token \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "grant_type=refresh_token" \
-  -d "client_id=$MIRO_CLIENT_ID" \
-  -d "client_secret=$MIRO_CLIENT_SECRET" \
-  -d "refresh_token=$MIRO_REFRESH_TOKEN"
-```
-
----
-
-### 403 — Forbidden
-
-```json
-{
-  "status": 403,
-  "code": "insufficientPermissions",
-  "message": "Required scopes: boards:write",
-  "context": { "requiredScopes": ["boards:write"] }
-}
-```
-
-**Common causes:**
-
-- Token lacks required OAuth scope
-- User does not have board-level permission (viewer trying to write)
-- Team-level restrictions prevent the operation
-
-**Fix:**
-
-1. Check which scopes your token has vs. what the endpoint requires
-2. Update scopes in your Miro app settings at https://developers.miro.com
-3. Re-authorize the user to get a token with updated scopes
-
-| Endpoint Category | Required Scope |
-|-------------------|---------------|
-| GET boards/items | `boards:read` |
-| POST/PATCH/DELETE boards/items | `boards:write` |
-| GET team/members | `team:read` |
-| Organization endpoints | `organizations:read` |
-
----
-
-### 404 — Not Found
-
-```json
-{
-  "status": 404,
-  "code": "boardNotFound",
-  "message": "Board not found or access denied"
-}
-```
-
-**Common causes:**
-
-- Board ID is wrong or has been deleted
-- Item ID references a deleted item
-- Token owner does not have access to the board
-
-**Fix:**
-
-```bash
-# Verify board exists and you have access
-curl -s https://api.miro.com/v2/boards/$BOARD_ID \
-  -H "Authorization: Bearer $MIRO_ACCESS_TOKEN" | jq '.id, .name'
-
-# List boards to find correct ID
-curl -s "https://api.miro.com/v2/boards?limit=10" \
-  -H "Authorization: Bearer $MIRO_ACCESS_TOKEN" | jq '.data[] | {id, name}'
-```
-
----
-
-### 409 — Conflict
-
-```json
-{
-  "status": 409,
-  "code": "duplicateTagTitle",
-  "message": "A tag with this title already exists"
-}
-```
-
-**Common causes:**
-
-- Creating a tag with a title that already exists on the board
-- Concurrent modifications to the same item
-
-**Fix:** Fetch existing tags first and reuse their IDs instead of creating duplicates.
-
----
-
-### 429 — Rate Limited
-
-```json
-{
-  "status": 429,
-  "code": "rateLimitExceeded",
-  "message": "Rate limit exceeded"
-}
-```
-
-**Response headers:**
-
-```
-X-RateLimit-Limit: 100000
-X-RateLimit-Remaining: 0
-X-RateLimit-Reset: 1700000060
-Retry-After: 30
-```
-
-**Fix:** Honor the `Retry-After` header. See `miro-rate-limits` for complete backoff patterns. The global limit is 100,000 credits/minute.
-
----
-
-### 500 / 502 / 503 — Server Error
-
-**Common causes:**
-
-- Miro platform issue (check https://status.miro.com)
-- Transient infrastructure error
-
-**Fix:**
-
-1. Check Miro status page
-2. Retry with exponential backoff (see `miro-rate-limits`)
-3. If persistent (>5 min), it is a Miro-side issue — enable fallback mode
-
-## Programmatic Error Handler
-
-```typescript
-async function handleMiroError(response: Response, context: string): Promise<never> {
-  const body = await response.json().catch(() => ({}));
-
-  switch (response.status) {
-    case 401:
-      console.error(`[Miro:${context}] Token expired/invalid. Refreshing...`);
-      // Trigger token refresh
-      break;
-    case 403:
-      console.error(`[Miro:${context}] Missing scopes: ${body.context?.requiredScopes?.join(', ')}`);
-      break;
-    case 429:
-      const retryAfter = response.headers.get('Retry-After') ?? '60';
-      console.warn(`[Miro:${context}] Rate limited. Retry after ${retryAfter}s`);
-      break;
-    default:
-      console.error(`[Miro:${context}] ${response.status}: ${body.message ?? 'Unknown error'}`);
-  }
-
-  throw new Error(`Miro API ${response.status}: ${body.message ?? context}`);
-}
-```
-
-## Escalation Path
-
-1. Run diagnostics above
-2. Collect evidence with `miro-debug-bundle`
-3. Check https://status.miro.com
-4. File support ticket with request ID (from `X-Request-Id` response header)
+Return classification, evidence, ruled-out causes, tenant/scope result, retry safety, remediation, and unresolved uncertainty. State what was not inspected or changed so the receipt cannot overclaim coverage.
 
 ## Error Handling
 
-If the diagnostic result does not match a documented status or persists after the corrective step, stop retrying destructive operations, capture the sanitized response details, and follow the escalation path. Treat repeated `5xx` responses as a service-health incident rather than a credential problem.
+| Condition | Response |
+|---|---|
+| Response body contains board content | Redact it before storing or sharing evidence. |
+| Refresh does not fix 401 | Stop and repair/reinstall authorization. |
+| 404 remains ambiguous | Check context and membership with an authorized owner. |
+| Vendor outage is plausible | Consult official status and open a bounded circuit. |
+
+## Examples
+
+The example is a redacted operator receipt; identifiers are hashes or bounded labels, not board content or credentials.
+
+```text
+operation=get-items; status=403; token-context=expected-team; boards:read=missing; retry-safe=yes; action=request-scope-approval
+```
 
 ## Resources
 
-- [Miro Status Page](https://status.miro.com)
-- [REST API Reference Guide](https://developers.miro.com/docs/rest-api-reference-guide)
-- [Permission Scopes](https://developers.miro.com/reference/scopes)
-- [Rate Limiting](https://developers.miro.com/reference/rate-limiting)
-
-## Next Steps
-
-For comprehensive debugging, see `miro-debug-bundle`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [OAuth troubleshooting](https://developers.miro.com/docs/troubleshooting-oauth20)
+- [Miro status](https://status.miro.com/)

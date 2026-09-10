@@ -230,26 +230,8 @@ plugins/saas-packs/notion-pack/skills/notion-common-errors/references/examples.m
 plugins/saas-packs/notion-pack/skills/notion-debug-bundle/references/implementation.md:secret-exfil-cooccur  documented SaaS API-client example: reads own-service credential from env and sends it only to its own service (NOTION_TOKEN→Notion API); no third-party sink (foreign-host scan empty) — reviewed 2026-07-17
 plugins/saas-packs/notion-pack/skills/notion-deploy-integration/references/examples.md:secret-exfil-cooccur  documented SaaS API-client example: reads own-service credential from env and sends it only to its own service (NOTION_TOKEN→Notion API); no third-party sink (foreign-host scan empty) — reviewed 2026-07-17
 
-# ── Miro internal pack remediation (2026-08-23). ──
-# Each reviewed example sends a Miro OAuth credential only as an Authorization
-# header to Miro's own documented API endpoints; no example forwards that
-# credential to a third-party host or logs it.
-plugins/saas-packs/miro-pack/skills/miro-ci-integration/SKILL.md:secret-exfil-cooccur  documented Miro CI example sends its Miro test token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-core-workflow-a/SKILL.md:secret-exfil-cooccur  documented Miro board-client example sends its Miro token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-deploy-integration/SKILL.md:secret-exfil-cooccur  documented deployment example sends its Miro credential only to Miro's API
-plugins/saas-packs/miro-pack/skills/miro-hello-world/SKILL.md:secret-exfil-cooccur  documented starter API request sends its Miro token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-install-auth/SKILL.md:secret-exfil-cooccur  documented OAuth example sends Miro credentials only to Miro's token endpoint
 plugins/saas-packs/langfuse-pack/skills/langfuse-common-errors/SKILL.md:secret-exfil-cooccur  diagnostic curl uses Langfuse project credentials only with the configured Langfuse base URL; output redacts credentials and no foreign sink is present — reviewed 2026-08-27
 plugins/saas-packs/langfuse-pack/skills/langfuse-incident-runbook/SKILL.md:secret-exfil-cooccur  post-incident trace verification sends Langfuse project credentials only to the configured LANGFUSE_BASE_URL; output reports a count and does not print credentials or payloads — reviewed 2026-08-28
-plugins/saas-packs/miro-pack/skills/miro-local-dev-loop/SKILL.md:secret-exfil-cooccur  documented local development example sends its Miro token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-multi-env-setup/SKILL.md:secret-exfil-cooccur  documented environment example sends its Miro credential only to Miro's API
-plugins/saas-packs/miro-pack/skills/miro-observability/SKILL.md:secret-exfil-cooccur  documented telemetry example sends its Miro token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-performance-tuning/SKILL.md:secret-exfil-cooccur  documented performance request sends its Miro token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-rate-limits/SKILL.md:secret-exfil-cooccur  documented rate-limit request sends its Miro token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-reference-architecture/SKILL.md:secret-exfil-cooccur  documented architecture client sends its Miro token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-sdk-patterns/SKILL.md:secret-exfil-cooccur  documented SDK example sends its Miro token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-security-basics/SKILL.md:secret-exfil-cooccur  documented security example sends its Miro token only to Miro's API
-plugins/saas-packs/miro-pack/skills/miro-webhooks-events/SKILL.md:secret-exfil-cooccur  documented webhook management example sends its Miro token only to api.miro.com
 plugins/saas-packs/notion-pack/skills/notion-enterprise-rbac/references/implementation.md:secret-exfil-cooccur  documented SaaS API-client example: reads own-service credential from env and sends it only to its own service (NOTION_TOKEN→Notion API); no third-party sink (foreign-host scan empty) — reviewed 2026-07-17
 plugins/saas-packs/notion-pack/skills/notion-incident-runbook/SKILL.md:secret-exfil-cooccur  documented SaaS API-client example: reads own-service credential from env and sends it only to its own service (NOTION_TOKEN→Notion API); no third-party sink (foreign-host scan empty) — reviewed 2026-07-17
 plugins/saas-packs/notion-pack/skills/notion-load-scale/references/implementation.md:secret-exfil-cooccur  documented SaaS API-client example: reads own-service credential from env and sends it only to its own service (NOTION_TOKEN→Notion API); no third-party sink (foreign-host scan empty) — reviewed 2026-07-17
