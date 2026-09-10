@@ -3,7 +3,7 @@ name: miro-webhooks-events
 description: "Analyze and execute this workflow: replace retired Miro REST webhooks with explicit freshness requirements, bounded reconciliation, or in-board Web SDK events. Use when designing Miro change detection. Trigger with \"Miro webhooks\"."
 argument-hint: "[event-use-case] [freshness-slo]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

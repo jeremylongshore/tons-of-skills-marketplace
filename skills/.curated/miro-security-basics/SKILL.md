@@ -3,7 +3,7 @@ name: miro-security-basics
 description: "Analyze and execute this workflow: harden Miro OAuth, sessions, storage, scopes, logging, and board-data access against common integration failures. Use when security-reviewing a Miro app. Trigger with \"secure Miro integration\"."
 argument-hint: "[environment] [threat-scope]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

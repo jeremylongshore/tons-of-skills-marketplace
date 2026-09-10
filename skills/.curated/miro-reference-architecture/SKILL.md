@@ -3,7 +3,7 @@ name: miro-reference-architecture
 description: "Analyze and execute this workflow: design tenant-safe Miro boundaries across Web SDK, backend OAuth, REST adapters, queues, and reconciliation. Use when planning a Miro integration. Trigger with \"miro integration reference architecture\"."
 argument-hint: "[use-case] [deployment-model]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

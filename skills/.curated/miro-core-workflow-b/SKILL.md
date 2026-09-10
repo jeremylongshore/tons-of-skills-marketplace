@@ -3,7 +3,7 @@ name: miro-core-workflow-b
 description: "Analyze and execute this workflow: read and reconcile Miro boards and items with cursor-safe pagination, bounded snapshots, and drift reports. Use when syncing or auditing Miro content. Trigger with \"reconcile Miro board\"."
 argument-hint: "[board-id] [scope]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

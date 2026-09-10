@@ -3,7 +3,7 @@ name: miro-debug-bundle
 description: "Analyze and execute this workflow: assemble a shareable Miro integration diagnostic bundle with bounded metadata and automatic redaction. Use when escalating a Miro failure. Trigger with \"build Miro debug bundle\"."
 argument-hint: "[incident-id] [time-window]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

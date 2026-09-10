@@ -3,7 +3,7 @@ name: miro-incident-runbook
 description: "Analyze and execute this workflow: triage and recover Miro authorization, capacity, outage, and data-correctness incidents with bounded actions. Use when responding to a Miro service incident. Trigger with \"Miro incident\"."
 argument-hint: "[incident-id] [symptom]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

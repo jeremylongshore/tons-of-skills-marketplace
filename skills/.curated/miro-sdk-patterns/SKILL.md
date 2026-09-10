@@ -3,7 +3,7 @@ name: miro-sdk-patterns
 description: "Analyze and execute this workflow: choose and harden Miro Node client or raw REST patterns with typed boundaries, pagination, and tenant isolation. Use when designing a Miro API adapter. Trigger with \"review Miro SDK pattern\"."
 argument-hint: "[runtime] [operation-set]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

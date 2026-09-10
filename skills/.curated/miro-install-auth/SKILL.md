@@ -3,7 +3,7 @@ name: miro-install-auth
 description: "Analyze and execute this workflow: configure a production Miro REST integration with OAuth, least-privilege scopes, tenant-bound storage, and token rotation. Use when installing or repairing Miro authorization. Trigger with \"set up Miro OAuth\"."
 argument-hint: "[app-environment] [required-capabilities]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

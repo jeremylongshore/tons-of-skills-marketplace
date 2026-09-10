@@ -3,7 +3,7 @@ name: miro-common-errors
 description: "Diagnose Miro OAuth and REST failures from status, context, scopes, rate headers, and safe evidence. Use when a Miro integration returns errors. Trigger with \"debug Miro API error\"."
 argument-hint: "[http-status] [operation]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

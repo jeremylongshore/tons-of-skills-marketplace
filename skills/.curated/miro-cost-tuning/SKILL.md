@@ -3,7 +3,7 @@ name: miro-cost-tuning
 description: "Analyze and execute this workflow: reduce Miro API credit consumption while preserving freshness, completeness, and user experience. Use when right-sizing polling or synchronization. Trigger with \"reduce Miro API usage\"."
 argument-hint: "[workload] [freshness-slo]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

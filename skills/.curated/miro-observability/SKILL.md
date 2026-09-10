@@ -3,7 +3,7 @@ name: miro-observability
 description: "Analyze and execute this workflow: instrument Miro operations with safe metrics, rate-credit headers, semantic outcomes, and actionable alerts. Use when operating a Miro integration. Trigger with \"monitor Miro integration\"."
 argument-hint: "[service] [slo]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

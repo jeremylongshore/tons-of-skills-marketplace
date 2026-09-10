@@ -3,7 +3,7 @@ name: miro-rate-limits
 description: "Analyze and execute this workflow: control Miro REST traffic from credit weights, observed headers, bounded queues, and reset-aware retries. Use when preventing or recovering from Miro 429 responses. Trigger with \"Miro rate limit\"."
 argument-hint: "[traffic-window] [workload]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

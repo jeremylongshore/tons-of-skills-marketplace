@@ -3,7 +3,7 @@ name: miro-upgrade-migration
 description: "Analyze and execute this workflow: upgrade a Miro integration through contract inventory, pinned dependencies, shadow reads, and reversible rollout. Use when changing API or SDK versions. Trigger with \"upgrade Miro integration\"."
 argument-hint: "[current-version] [target-version]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

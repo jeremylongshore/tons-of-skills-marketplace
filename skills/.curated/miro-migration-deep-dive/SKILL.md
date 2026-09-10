@@ -3,7 +3,7 @@ name: miro-migration-deep-dive
 description: "Analyze and execute this workflow: migrate v1 widgets and relationships to v2 item endpoints with translation, shadow comparison, and rollback. Use when modernizing a legacy Miro REST integration. Trigger with \"miro v1-to-v2 resource migration\"."
 argument-hint: "[legacy-surface] [cohort]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
