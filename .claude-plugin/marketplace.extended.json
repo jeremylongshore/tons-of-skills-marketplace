@@ -9816,7 +9816,7 @@
     {
       "name": "salesloft-pack",
       "source": "./plugins/saas-packs/salesloft-pack",
-      "description": "Claude Code skill pack for Salesloft (18 skills)",
+      "description": "Production Salesloft operator workflows for authentication, cadences, synchronization, rate control, webhooks, security, deployment, and incident evidence",
       "version": "1.6.0",
       "category": "saas-packs",
       "keywords": [
