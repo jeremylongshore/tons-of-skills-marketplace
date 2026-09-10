@@ -1,14 +1,13 @@
 {
   "name": "attio-pack",
   "version": "1.7.0",
-  "description": "Claude Code skill pack for Attio (18 skills)",
+  "description": "Attio CRM integration pack with 18 operator skills",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
   },
   "license": "MIT",
   "keywords": [
-    "attio",
     "attio",
     "saas",
     "sdk",

@@ -1,8 +1,10 @@
 # Attio Skill Pack
 
-> 18 production-grade Claude Code skills for the Attio CRM REST API — real endpoints, real data models, real error codes.
+> 18 Claude Code skills for building, releasing, and operating Attio CRM integrations safely.
 
-Build Attio integrations with `https://api.attio.com/v2` using typed TypeScript patterns, from first API call through production deployment. Every skill uses actual Attio endpoints, the real object/record/list data model, real attribute types, and actual error response formats.
+## What This Is
+
+A production operator pack grounded in Attio's current REST, OAuth, App SDK, rate-limit, and webhook documentation. The skills cover records, lists, authentication, typed clients, testing, deployment, security, reliability, migration, cost, and performance without fabricated universal pagination, historical migration, or signature contracts.
 
 ## Installation
 
@@ -12,62 +14,41 @@ Build Attio integrations with `https://api.attio.com/v2` using typed TypeScript 
 
 ## Skills
 
-### Standard Skills (S01-S12)
+| Skill | Operator outcome |
+|---|---|
+| `attio-install-auth` | Select workspace-key or OAuth access and prove least-privilege scopes safely |
+| `attio-hello-world` | Run a bounded read-first connectivity and schema-discovery check |
+| `attio-local-dev-loop` | Combine sanitized fixtures, workspace guards, optional live checks, and cleanup |
+| `attio-sdk-patterns` | Build a typed REST wrapper with tenant-bound auth and endpoint-specific pagination |
+| `attio-core-workflow-a` | Operate a controlled record lifecycle without overwriting foreign fields |
+| `attio-core-workflow-b` | Manage lists, entries, notes, and tasks with correct resource boundaries |
+| `attio-common-errors` | Diagnose API failures from redacted evidence and the exact endpoint contract |
+| `attio-debug-bundle` | Produce a minimal, checksummed, redacted escalation artifact |
+| `attio-rate-limits` | Govern reads, writes, query score, backpressure, and bounded retries |
+| `attio-security-basics` | Enforce tenant isolation, least privilege, redaction, HMAC, and rotation controls |
+| `attio-prod-checklist` | Make a release-bound go/no-go decision with receipts and rollback evidence |
+| `attio-upgrade-migration` | Migrate current contracts through diffs, shadow checks, canaries, and rollback |
+| `attio-ci-integration` | Gate changes with fixtures and an optional fork-safe read-only smoke check |
+| `attio-deploy-integration` | Stage a release through target checks, read smoke, canary writes, and rollback |
+| `attio-webhooks-events` | Verify raw-body signatures and process at-least-once events idempotently |
+| `attio-performance-tuning` | Improve measured latency and throughput while preserving correctness |
+| `attio-cost-tuning` | Reduce measured request, query, synchronization, and retention waste |
+| `attio-reference-architecture` | Design tenant, schema, queue, webhook, reconciliation, and ownership boundaries |
 
-| Skill | What it does |
-|-------|-------------|
-| `attio-install-auth` | Access tokens, OAuth 2.0, scope configuration, Bearer auth |
-| `attio-hello-world` | First API calls -- list objects, create person, query companies |
-| `attio-local-dev-loop` | Project structure, typed client, MSW mocks, integration tests |
-| `attio-sdk-patterns` | Typed client wrapper, retry, pagination iterator, multi-tenant factory |
-| `attio-core-workflow-a` | Full record CRUD -- create, read, update, delete, search, filter |
-| `attio-core-workflow-b` | Lists, entries, notes, tasks -- pipeline management and activity tracking |
-| `attio-common-errors` | Every HTTP error code with real response format, causes, and fixes |
-| `attio-debug-bundle` | Diagnostic script -- auth, scopes, schemas, rate limits, connectivity |
-| `attio-rate-limits` | Sliding window, Retry-After parsing, p-queue throttling, circuit breaker |
-| `attio-security-basics` | Token scoping, rotation, webhook signatures, secret scanning |
-| `attio-prod-checklist` | 9-phase launch checklist -- auth, errors, rate limits, monitoring, rollback |
-| `attio-upgrade-migration` | V1-to-V2 migration, endpoint mapping, community SDK upgrades |
+## Current Contract
 
-### Pro Skills (P13-P18)
+- Attio REST uses `https://api.attio.com/v2`; required scopes remain endpoint-specific.
+- OAuth is the default for multi-workspace applications, while a workspace API key suits one controlled workspace. Both can use Bearer authentication.
+- Pagination is endpoint-specific. Record and entry queries use limit and offset, while other endpoints can expose cursor pagination.
+- Attio currently documents global ceilings of 100 read requests per second and 25 write requests per second, plus score-based query limits. Reverify hosted limits before production rollout.
+- Webhook signatures use SHA-256 HMAC over the exact raw request body. Delivery is at least once, so durable idempotency and reconciliation remain application responsibilities.
+- Production mutations require explicit target validation, owned-field boundaries, read-after-write evidence, and rollback or cleanup receipts.
 
-| Skill | What it does |
-|-------|-------------|
-| `attio-ci-integration` | GitHub Actions with MSW mocks, gated live API tests, release workflow |
-| `attio-deploy-integration` | Vercel, Fly.io, Cloud Run deployment with secrets and webhook registration |
-| `attio-webhooks-events` | All event types, signature verification, filtered subscriptions, idempotency |
-| `attio-performance-tuning` | LRU caching, batch queries with $in, streaming pagination, keep-alive |
-| `attio-cost-tuning` | Usage auditing, polling-to-webhook migration, tiered caching, budget alerts |
-| `attio-reference-architecture` | Layered project structure, sync patterns, webhook router, multi-env config |
+Each skill includes a dated `references/official-docs.md` and declares only the file and documentation tools it uses.
 
-## Attio API Quick Reference
+## Quality
 
-| Resource | Endpoint | Method |
-|----------|----------|--------|
-| List objects | `/v2/objects` | GET |
-| Get object | `/v2/objects/{slug}` | GET |
-| List attributes | `/v2/objects/{slug}/attributes` | GET |
-| Query records | `/v2/objects/{slug}/records/query` | POST |
-| Create record | `/v2/objects/{slug}/records` | POST |
-| Get record | `/v2/objects/{slug}/records/{id}` | GET |
-| Update record | `/v2/objects/{slug}/records/{id}` | PATCH/PUT |
-| Delete record | `/v2/objects/{slug}/records/{id}` | DELETE |
-| Search records | `/v2/records/search` | POST |
-| Query list entries | `/v2/lists/{slug}/entries/query` | POST |
-| Create list entry | `/v2/lists/{slug}/entries` | POST |
-| Create note | `/v2/notes` | POST |
-| Create task | `/v2/tasks` | POST |
-| Manage webhooks | `/v2/webhooks` | GET/POST/PATCH/DELETE |
-
-## Usage
-
-Skills trigger automatically when you discuss Attio topics:
-
-- "Set up Attio API auth" triggers `attio-install-auth`
-- "Create an Attio person record" triggers `attio-core-workflow-a`
-- "Add a record to a pipeline list" triggers `attio-core-workflow-b`
-- "Fix this Attio 429 error" triggers `attio-rate-limits`
-- "Deploy my Attio webhook handler" triggers `attio-deploy-integration`
+All 18 operator skills pass the marketplace validator at Grade A and the five-check Tier-2 production gate. Regression coverage prevents universal cursor-pagination claims, timestamp-based signature inventions, unsafe diagnostic dumping, and generic historical migration claims from returning.
 
 ## License
 

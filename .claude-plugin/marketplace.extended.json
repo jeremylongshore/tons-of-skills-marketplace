@@ -8672,7 +8672,7 @@
     {
       "name": "attio-pack",
       "source": "./plugins/saas-packs/attio-pack",
-      "description": "Claude Code skill pack for Attio (18 skills)",
+      "description": "Attio CRM integration pack with 18 operator skills",
       "version": "1.7.0",
       "category": "saas-packs",
       "keywords": [

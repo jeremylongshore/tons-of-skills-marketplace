@@ -1,245 +1,102 @@
 ---
 name: attio-common-errors
-description: 'Diagnose and fix the top Attio REST API errors by HTTP status code.
-
-  Real error response formats, actual error codes, and proven fixes.
-
-  Trigger: "attio error", "fix attio", "attio not working",
-
-  "attio 429", "attio 403", "attio 422", "debug attio".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*)
+description: >-
+  Diagnose Attio REST API failures from status, structured error fields, endpoint contract, and request context without exposing customer data. Use when an Attio request returns 400, 401, 403, 404, 409, 422, 429, or 5xx. Trigger with "Attio error", "Attio request failed", or "debug Attio API".
+argument-hint: "[repository-path] [status-or-error-code]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.7.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- crm
 - attio
+- troubleshooting
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Attio Common Errors
+# Attio Error Triage
 
 ## Overview
 
-Every Attio API error returns a consistent JSON body. This skill covers the real error codes, response format, and proven solutions for each.
-
-## Attio Error Response Format
-
-All errors from `https://api.attio.com/v2` return this structure:
-
-```json
-{
-  "status_code": 429,
-  "type": "rate_limit_error",
-  "code": "rate_limit_exceeded",
-  "message": "Rate limit exceeded, please try again later"
-}
-```
-
-Fields: `status_code` (HTTP status), `type` (error category), `code` (specific code), `message` (human-readable).
-
-## Error Reference
-
-### 400 Bad Request -- `invalid_request`
-
-```json
-{ "status_code": 400, "type": "invalid_request_error", "code": "invalid_request", "message": "..." }
-```
-
-**Common causes and fixes:**
-
-| Message pattern | Cause | Fix |
-|----------------|-------|-----|
-| `Invalid value for attribute` | Wrong type for attribute slug | Check attribute type with `GET /v2/objects/{obj}/attributes` |
-| `Cannot query historic values` | Used history param on unsupported type | Remove `show_historic` for that attribute |
-| `Missing required field` | Required attribute not provided | Check `is_required` on attribute definition |
-| `Invalid filter format` | Malformed filter object | Use shorthand `{ "email": "x" }` or verbose `{ "$and": [...] }` |
-
-**Diagnostic:**
-
-```bash
-# List attributes to verify types
-curl -s https://api.attio.com/v2/objects/people/attributes \
-  -H "Authorization: Bearer ${ATTIO_API_KEY}" \
-  | jq '.data[] | {slug: .api_slug, type: .type, required: .is_required}'
-```
-
-### 401 Unauthorized -- `authentication_error`
-
-```json
-{ "status_code": 401, "type": "authentication_error", "code": "invalid_api_key", "message": "..." }
-```
-
-| Cause | Fix |
-|-------|-----|
-| Missing `Authorization` header | Add `Authorization: Bearer sk_...` |
-| Token revoked or deleted | Generate new token in Attio dashboard |
-| Malformed header | Ensure format is `Bearer <token>` (one space, no quotes) |
-
-**Diagnostic:**
-
-```bash
-# Verify token works
-curl -s -o /dev/null -w "%{http_code}" \
-  https://api.attio.com/v2/objects \
-  -H "Authorization: Bearer ${ATTIO_API_KEY}"
-# Should return 200
-```
-
-### 403 Forbidden -- `insufficient_scopes`
-
-```json
-{ "status_code": 403, "type": "authorization_error", "code": "insufficient_scopes",
-  "message": "Token requires 'record_permission:read-write' scope" }
-```
-
-| Operation | Required scopes |
-|-----------|----------------|
-| List/get records | `object_configuration:read` + `record_permission:read` |
-| Create/update records | `object_configuration:read` + `record_permission:read-write` |
-| List entries | `object_configuration:read` + `record_permission:read` + `list_entry:read` |
-| Create/update entries | Above + `list_entry:read-write` |
-| Create notes | `note:read-write` + `object_configuration:read` + `record_permission:read` |
-| List tasks | `task:read` + `object_configuration:read` + `record_permission:read` + `user_management:read` |
-| Manage webhooks | `webhook:read-write` |
-
-**Fix:** Edit token in **Settings > Developers > Access tokens**, add missing scope, save. No need to regenerate.
-
-### 404 Not Found -- `not_found`
-
-```json
-{ "status_code": 404, "type": "not_found_error", "code": "not_found", "message": "..." }
-```
-
-| Cause | Fix |
-|-------|-----|
-| Wrong object slug | Verify with `GET /v2/objects` -- use `api_slug` field |
-| Invalid record_id | Record may have been deleted or merged |
-| Wrong list slug | Verify with `GET /v2/lists` |
-| Typo in endpoint path | Check path starts with `/v2/` |
-
-### 409 Conflict -- `conflict`
-
-Occurs when creating a record with a value that conflicts with an existing unique attribute (e.g., duplicate email or domain).
-
-**Fix:** Use `PUT` (assert) instead of `POST` to upsert:
-
-```typescript
-// Assert: create or update matching record
-await client.put("/objects/people/records", {
-  data: {
-    values: {
-      email_addresses: ["existing@example.com"],
-      name: [{ first_name: "Updated", last_name: "Name" }],
-    },
-  },
-});
-```
-
-### 422 Unprocessable Entity -- `validation_error`
-
-| Message pattern | Cause | Fix |
-|----------------|-------|-----|
-| `Invalid email address` | Malformed email string | Validate email format before sending |
-| `Invalid phone number` | Not E.164 format | Prefix with country code: `+14155551234` |
-| `Unknown attribute` | Attribute slug does not exist | List attributes first |
-| `Invalid record reference` | target_record_id doesn't exist | Verify record exists first |
-
-### 429 Too Many Requests -- `rate_limit_exceeded`
-
-```json
-{
-  "status_code": 429,
-  "type": "rate_limit_error",
-  "code": "rate_limit_exceeded",
-  "message": "Rate limit exceeded, please try again later"
-}
-```
-
-Attio uses a **sliding window algorithm** with a **10-second window**. The `Retry-After` response header contains a date (usually the next second).
-
-**Immediate fix:**
-
-```typescript
-if (res.status === 429) {
-  const retryAfter = res.headers.get("Retry-After");
-  const waitMs = retryAfter
-    ? new Date(retryAfter).getTime() - Date.now()
-    : 1000;
-  await new Promise((r) => setTimeout(r, Math.max(waitMs, 100)));
-  // Retry the request
-}
-```
-
-See `attio-rate-limits` for full backoff and queue patterns.
-
-### 500+ Server Error
-
-Rare, but Attio may reduce rate limits during incidents. Always implement retry for 5xx.
-
-**Check:** [status.attio.com](https://status.attio.com)
-
-## Quick Diagnostic Script
-
-```bash
-#!/bin/bash
-echo "=== Attio Diagnostic ==="
-echo -n "Auth: "
-curl -s -o /dev/null -w "%{http_code}" \
-  https://api.attio.com/v2/objects \
-  -H "Authorization: Bearer ${ATTIO_API_KEY}"
-echo ""
-
-echo -n "Status page: "
-curl -s https://status.attio.com/api/v2/status.json | jq -r '.status.description'
-
-echo "Objects:"
-curl -s https://api.attio.com/v2/objects \
-  -H "Authorization: Bearer ${ATTIO_API_KEY}" \
-  | jq -r '.data[].api_slug' 2>/dev/null || echo "FAILED"
-```
+This skill classifies an Attio failure before changing code or credentials. It preserves the response's structured fields while keeping tokens and CRM values out of diagnostics.
 
 ## Prerequisites
 
-Confirm that you have an Attio workspace appropriate to the task, a dedicated non-production record or workspace for testing, and only the API token scopes or administrative access required by the procedure.
+- The HTTP method, path template, status, and redacted response body
+- The endpoint's documented required scopes
+- The request's pagination mode and mutation semantics
+- A correlation or application request identifier when available
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to locate the caller, response parser, retry policy, and logs. Use `WebFetch` only for current official Attio documentation. Use `Write` or `Edit` only after the failing contract and safe verification path are known.
+
+## Current Contract
+
+Attio error responses can include `status_code`, `type`, `code`, and `message`. Diagnose from observed fields instead of inventing a fixed code list; endpoint references remain authoritative for request shape and scopes.
+
+## Authentication
+
+Confirm that a Bearer token exists at runtime and belongs to the intended workspace. For 401, rotate or replace the invalid credential; for 403, compare granted scopes with the endpoint's required scopes before requesting any change.
 
 ## Instructions
 
-Use the ordered procedures and code samples in this guide as a sequence: begin with the prerequisites, apply the configuration or operational step for the target environment, then perform the documented validation or cleanup before proceeding. Keep credentials in the documented secret store; never hard-code them in source.
+1. Capture method, path template, status, response content type, and redacted structured error fields.
+2. Reconcile the request with the exact endpoint reference, including path slug versus UUID and body envelope.
+3. Classify authentication, authorization, validation, uniqueness, not-found, throttling, or provider failure.
+4. For 429, parse `Retry-After` as an HTTP date and retry only after the indicated time.
+5. For ambiguous 5xx failures, preserve a minimal reproduction and check Attio status before changing business logic.
+6. Apply the smallest correction and repeat the same bounded request.
+
+## Approval Boundaries
+
+Do not broaden scopes, rotate a shared production credential, replay an ambiguous mutation, or expose customer payloads while troubleshooting without the responsible owner and a recovery plan.
+
+## Decision Table
+
+| Signal | Likely class | Safe next check |
+|---|---|---|
+| 400 or 422 | Shape or attribute-value validation | Compare body and attribute type with endpoint docs. |
+| 401 | Missing or invalid token | Inspect credential injection without printing the token. |
+| 403 | Insufficient scope | Compare exact required scopes. |
+| 404 | Wrong resource identifier | Resolve current object, list, record, or entry ID. |
+| 409 | Uniqueness conflict | Inspect the documented uniqueness boundary. |
+| 429 | Global or score-based throttle | Honor `Retry-After`; simplify expensive queries. |
+| 5xx | Provider or transient failure | Bound retries and retain redacted evidence. |
 
 ## Output
 
-Following this guide produces the Attio integration outcome for its topic—configuration, validation evidence, operational recovery, or a documented migration result. Record command output and relevant identifiers so a failed step is traceable.
-
-## Examples
-
-Start with the smallest applicable command or code example in the relevant section, using a dedicated test record or workspace and non-production credentials. Confirm the expected response or validation result before applying the pattern to production.
+Return a redacted failure fingerprint, diagnosis, evidence, minimal correction, replay result, and any remaining uncertainty.
 
 ## Error Handling
 
-```typescript
-import { AttioApiError } from "./client";
+| Condition | Response |
+|---|---|
+| Response is not JSON | Preserve status and content type; do not force JSON parsing. |
+| Token appears in evidence | Stop and redact before storing or sharing it. |
+| Retry repeats a permanent 4xx | Stop retrying and fix the request contract. |
+| Resource identity is uncertain | Resolve it with a read-only discovery request. |
 
-async function handleAttioError(err: AttioApiError): Promise<void> {
-  switch (err.statusCode) {
-    case 401: throw new Error("Attio auth failed -- check ATTIO_API_KEY");
-    case 403: throw new Error(`Missing scope: ${err.message}`);
-    case 404: console.warn("Resource not found, may have been deleted");  break;
-    case 409: console.warn("Conflict -- use PUT to upsert instead");     break;
-    case 429: /* handled by retry wrapper */ break;
-    default:  throw err;
-  }
-}
+## Examples
+
+Input:
+
+```text
+method=POST; path=/v2/objects/companies/records/query; status=403; code=forbidden
 ```
+
+Expected handoff:
+
+```text
+class=authorization; missing-scope=confirmed-from-endpoint; replay=pass
+```
+
+This result ties the correction to endpoint evidence and a safe replay.
 
 ## Resources
 
-- [Attio REST API Overview](https://docs.attio.com/rest-api/overview)
-- [Attio Rate Limiting Guide](https://docs.attio.com/rest-api/guides/rate-limiting)
-- [Attio Status Page](https://status.attio.com)
-
-## Next Steps
-
-For evidence collection, see `attio-debug-bundle`. For retry patterns, see `attio-rate-limits`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Authentication](https://docs.attio.com/rest-api/guides/authentication)
+- [Rate limiting](https://docs.attio.com/rest-api/guides/rate-limiting)
+- [REST API overview](https://docs.attio.com/rest-api/overview)

@@ -1,267 +1,93 @@
 ---
 name: attio-ci-integration
-description: 'Configure CI/CD pipelines for Attio integrations with GitHub Actions,
-
-  mock-based unit tests, and live API integration tests.
-
-  Trigger: "attio CI", "attio GitHub Actions", "attio automated tests",
-
-  "CI attio", "attio pipeline", "test attio in CI".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*)
+description: >-
+  Build a bounded CI contract gate for an Attio integration using fixtures, schema checks, and an optional read-only smoke request. Use when Attio changes need pull-request evidence without mutating CRM data. Trigger with "Attio CI", "test Attio integration", or "Attio pull request gate".
+argument-hint: "[repository-path] [test-command]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.7.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- crm
 - attio
+- ci
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Attio CI Integration
+# Attio Contract Gate for CI
 
 ## Overview
 
-Set up CI/CD pipelines that validate Attio integrations without burning API quota on every push. Uses MSW mocks for unit tests and gated live API tests for pre-release validation.
+This skill turns an Attio integration change into deterministic pull-request evidence. It separates offline contract tests from an explicitly enabled read-only API smoke test.
 
 ## Prerequisites
 
-- GitHub repository with Actions enabled
-- Attio test workspace token (separate from production)
-- Node.js project with vitest
+- A named repository and existing test runner
+- Sanitized Attio response fixtures or generated contract fixtures
+- A separately scoped CI credential only if a live smoke test is approved
+- The endpoint's current required scopes and pagination contract
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect workflows, fixtures, client code, and secret names. Use `WebFetch` only for current official Attio documentation. Use `Write` or `Edit` only after identifying the target files, constraints, and verification plan.
+
+## Current Contract
+
+- Test the `https://api.attio.com/v2` response envelope and application-owned normalization separately.
+- Treat pagination as endpoint-specific: some endpoints use `limit` and `offset`; others return `pagination.next_cursor`.
+- Keep mutation tests offline unless a dedicated disposable workspace and cleanup plan are approved.
+- Never expose an access token in logs, snapshots, test names, or artifacts.
+
+## Authentication
+
+Use a single-workspace access token for one controlled workspace or OAuth for a multi-workspace app. Grant only the endpoint scopes required by the smoke test and pass the token through the CI secret store as a Bearer credential.
 
 ## Instructions
 
-### Step 1: GitHub Actions Workflow
+1. Inspect the changed endpoints, request methods, scopes, and response shapes.
+2. Add fixture tests for success, structured Attio errors, pagination termination, and retry classification.
+3. Validate that snapshots redact tokens, record values, webhook secrets, and personal data.
+4. Add a disabled-by-default live job that performs only an approved read request such as listing objects.
+5. Require explicit environment configuration before that job runs; skip it cleanly on forks.
+6. Record the exact test command, fixture revision, and live-smoke disposition in the PR evidence.
 
-```yaml
-# .github/workflows/attio-integration.yml
-name: Attio Integration
+## Approval Boundaries
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-jobs:
-  unit-tests:
-    name: Unit Tests (mocked API)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm test -- --coverage
-      - uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: coverage/
-
-  integration-tests:
-    name: Integration Tests (live API)
-    runs-on: ubuntu-latest
-    # Only run on main branch pushes and manual triggers
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: unit-tests
-    env:
-      ATTIO_API_KEY: ${{ secrets.ATTIO_API_KEY_TEST }}
-      ATTIO_LIVE: "1"
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-      - run: npm ci
-      - name: Verify Attio connectivity
-        run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "Authorization: Bearer ${ATTIO_API_KEY}" \
-            https://api.attio.com/v2/objects)
-          if [ "$STATUS" != "200" ]; then
-            echo "Attio API unreachable (HTTP $STATUS). Skipping live tests."
-            exit 0
-          fi
-      - run: npm run test:integration
-        timeout-minutes: 5
-```
-
-### Step 2: Configure GitHub Secrets
-
-```bash
-# Use a dedicated test workspace token with minimal scopes
-gh secret set ATTIO_API_KEY_TEST --body "sk_test_workspace_token"
-
-# Optional: webhook secret for webhook handler tests
-gh secret set ATTIO_WEBHOOK_SECRET_TEST --body "whsec_test_secret"
-```
-
-### Step 3: Unit Tests with MSW Mocks
-
-```typescript
-// tests/unit/attio-service.test.ts
-import { describe, it, expect, beforeAll, afterAll, afterEach } from "vitest";
-import { http, HttpResponse } from "msw";
-import { setupServer } from "msw/node";
-
-const BASE = "https://api.attio.com/v2";
-
-const server = setupServer(
-  http.get(`${BASE}/objects`, () =>
-    HttpResponse.json({
-      data: [
-        { api_slug: "people", singular_noun: "Person" },
-        { api_slug: "companies", singular_noun: "Company" },
-      ],
-    })
-  ),
-  http.post(`${BASE}/objects/people/records/query`, async ({ request }) => {
-    const body = await request.json() as Record<string, unknown>;
-    const limit = (body as any).limit || 10;
-    return HttpResponse.json({
-      data: Array.from({ length: Math.min(limit as number, 3) }, (_, i) => ({
-        id: { object_id: "obj_people", record_id: `rec_${i}` },
-        values: {
-          name: [{ full_name: `Person ${i}` }],
-          email_addresses: [{ email_address: `person${i}@test.com` }],
-        },
-      })),
-    });
-  }),
-  // Simulate rate limiting
-  http.post(`${BASE}/objects/companies/records`, () =>
-    HttpResponse.json(
-      { status_code: 429, type: "rate_limit_error", code: "rate_limit_exceeded", message: "Rate limited" },
-      {
-        status: 429,
-        headers: { "Retry-After": new Date(Date.now() + 1000).toUTCString() },
-      }
-    )
-  )
-);
-
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
-
-describe("Attio Service", () => {
-  it("lists workspace objects", async () => {
-    const res = await fetch(`${BASE}/objects`, {
-      headers: { Authorization: "Bearer sk_test" },
-    });
-    const data = await res.json();
-    expect(data.data).toHaveLength(2);
-    expect(data.data[0].api_slug).toBe("people");
-  });
-
-  it("handles rate limit responses", async () => {
-    const res = await fetch(`${BASE}/objects/companies/records`, {
-      method: "POST",
-      headers: { Authorization: "Bearer sk_test", "Content-Type": "application/json" },
-      body: JSON.stringify({ data: { values: {} } }),
-    });
-    expect(res.status).toBe(429);
-    expect(res.headers.get("Retry-After")).toBeTruthy();
-  });
-});
-```
-
-### Step 4: Integration Tests (Live API)
-
-```typescript
-// tests/integration/attio-live.test.ts
-import { describe, it, expect } from "vitest";
-import { AttioClient } from "../../src/attio/client";
-
-const LIVE = process.env.ATTIO_LIVE === "1" && !!process.env.ATTIO_API_KEY;
-const client = LIVE ? new AttioClient(process.env.ATTIO_API_KEY!) : null;
-
-describe.skipIf(!LIVE)("Attio Live API", () => {
-  it("lists objects", async () => {
-    const res = await client!.get<{ data: Array<{ api_slug: string }> }>("/objects");
-    expect(res.data.map((o) => o.api_slug)).toContain("people");
-  });
-
-  it("queries people with filter", async () => {
-    const res = await client!.post<{ data: any[] }>(
-      "/objects/people/records/query",
-      { limit: 1 }
-    );
-    expect(Array.isArray(res.data)).toBe(true);
-  });
-
-  it("lists attributes on people object", async () => {
-    const res = await client!.get<{ data: Array<{ api_slug: string; type: string }> }>(
-      "/objects/people/attributes"
-    );
-    const slugs = res.data.map((a) => a.api_slug);
-    expect(slugs).toContain("name");
-    expect(slugs).toContain("email_addresses");
-  });
-});
-```
-
-### Step 5: Release Workflow with Attio Smoke Test
-
-```yaml
-# .github/workflows/release.yml
-name: Release
-on:
-  push:
-    tags: ["v*"]
-
-jobs:
-  release:
-    runs-on: ubuntu-latest
-    env:
-      ATTIO_API_KEY: ${{ secrets.ATTIO_API_KEY_PROD }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - run: npm ci
-      - run: npm test
-      - name: Attio smoke test
-        run: |
-          curl -sf https://api.attio.com/v2/objects \
-            -H "Authorization: Bearer ${ATTIO_API_KEY}" \
-            | jq '.data | length' | xargs -I{} echo "Attio: {} objects accessible"
-      - run: npm run build
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-```
+Do not create, update, or delete records from ordinary PR CI. A mutation smoke test requires a named disposable workspace, bounded fixtures, cleanup verification, and repository-owner approval.
 
 ## Output
 
-Following this guide produces the Attio integration outcome for its topic—configuration, validation evidence, operational recovery, or a documented migration result. Record command output and relevant identifiers so a failed step is traceable.
-
-## Examples
-
-Start with the smallest applicable command or code example in the relevant section, using a dedicated test record or workspace and non-production credentials. Confirm the expected response or validation result before applying the pattern to production.
+Return the endpoint contract matrix, fixture coverage, redaction result, workflow change, local command result, and live-smoke status.
 
 ## Error Handling
 
-| CI Issue | Cause | Solution |
-|----------|-------|----------|
-| Integration tests flaky | Attio rate limits in CI | Run live tests only on main, not PRs |
-| Secret not found | Missing GitHub secret | `gh secret set ATTIO_API_KEY_TEST` |
-| Live tests timeout | Slow API or network | Add `timeout-minutes: 5` and connectivity check |
-| MSW not intercepting | Version mismatch | Match MSW v2 imports (`msw/node`) |
+| Condition | Response |
+|---|---|
+| Fork has no secret | Skip only the live job; keep offline tests required. |
+| Fixture differs from docs | Confirm the live endpoint and refresh the fixture deliberately. |
+| Smoke returns 403 | Check the endpoint's required scopes; do not broaden blindly. |
+| Mutation detected | Fail the job and remove the mutating request. |
+
+## Examples
+
+Input:
+
+```text
+change=record-query-filter; live-smoke=read-only; fork-policy=skip-secret-job
+```
+
+Expected handoff:
+
+```text
+fixtures=pass; redaction=pass; live-read=pass; writes=none
+```
+
+This result proves the pull-request gate exercised the contract without receiving mutation authority.
 
 ## Resources
 
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [MSW Documentation](https://mswjs.io/docs/getting-started)
-- [Vitest Documentation](https://vitest.dev/)
-
-## Next Steps
-
-For deployment patterns, see `attio-deploy-integration`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [REST API overview](https://docs.attio.com/rest-api/overview)
+- [Authentication](https://docs.attio.com/rest-api/guides/authentication)
+- [Pagination](https://docs.attio.com/rest-api/guides/pagination)

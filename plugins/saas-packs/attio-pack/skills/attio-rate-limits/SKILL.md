@@ -1,256 +1,91 @@
 ---
 name: attio-rate-limits
-description: 'Handle Attio API rate limits with exponential backoff, queue-based
-
-  throttling, and Retry-After header parsing.
-
-  Trigger: "attio rate limit", "attio 429", "attio throttling",
-
-  "attio retry", "attio backoff", "attio too many requests".
-
-  '
-allowed-tools: Read, Write, Edit
+description: >-
+  Analyze and design an Attio request governor with separate read and write budgets, query-score awareness, bounded retries, and observable backpressure. Use when an Attio integration receives 429 responses or needs safe concurrency controls. Trigger with "Attio rate limits", "Attio 429", or "throttle Attio requests".
+argument-hint: "[repository-path] [workload-or-endpoint]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.7.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- crm
 - attio
+- reliability
+model: inherit
+effort: high
 compatibility: Designed for Claude Code
 ---
-# Attio Rate Limits
+# Attio Rate-Limit Governor
 
 ## Overview
 
-Attio uses a **sliding window algorithm** with a **10-second window**. Rate limit scores are summed across all apps and access tokens hitting the API. When exceeded, you get HTTP 429 with a `Retry-After` header containing a date (usually the next second). Attio may temporarily reduce limits during incidents.
-
-## Rate Limit Response
-
-```
-HTTP/1.1 429 Too Many Requests
-Retry-After: Sat, 22 Mar 2025 14:30:01 GMT
-Content-Type: application/json
-
-{
-  "status_code": 429,
-  "type": "rate_limit_error",
-  "code": "rate_limit_exceeded",
-  "message": "Rate limit exceeded, please try again later"
-}
-```
-
-**Key fact:** The `Retry-After` header is a date string (not seconds). Parse it as a Date to calculate wait time.
-
-## Instructions
-
-### Step 1: Parse Retry-After Header
-
-```typescript
-function parseRetryAfter(headers: Headers): number {
-  const retryAfter = headers.get("Retry-After");
-  if (!retryAfter) return 1000; // Default 1s
-
-  // Attio sends a date string
-  const retryDate = new Date(retryAfter);
-  const waitMs = retryDate.getTime() - Date.now();
-  return Math.max(waitMs, 100); // Minimum 100ms
-}
-```
-
-### Step 2: Exponential Backoff with Retry-After Awareness
-
-```typescript
-import { AttioApiError } from "./client";
-
-interface RetryConfig {
-  maxRetries: number;
-  baseMs: number;
-  maxMs: number;
-}
-
-async function withRateLimitRetry<T>(
-  operation: () => Promise<{ data: T; headers?: Headers }>,
-  config: RetryConfig = { maxRetries: 5, baseMs: 1000, maxMs: 30000 }
-): Promise<T> {
-  for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
-    try {
-      const result = await operation();
-      return result.data;
-    } catch (err) {
-      if (attempt === config.maxRetries) throw err;
-
-      if (err instanceof AttioApiError) {
-        if (!err.retryable) throw err; // Only retry 429 and 5xx
-
-        // Use Retry-After if available, otherwise exponential backoff
-        const backoff = config.baseMs * Math.pow(2, attempt);
-        const jitter = Math.random() * 500;
-        const delay = Math.min(backoff + jitter, config.maxMs);
-
-        console.warn(
-          `Attio ${err.statusCode} on attempt ${attempt + 1}/${config.maxRetries}. ` +
-          `Retrying in ${delay.toFixed(0)}ms...`
-        );
-        await new Promise((r) => setTimeout(r, delay));
-      } else {
-        throw err;
-      }
-    }
-  }
-  throw new Error("Unreachable");
-}
-```
-
-### Step 3: Queue-Based Throttling
-
-Prevent 429s proactively by limiting concurrency and request rate:
-
-```typescript
-import PQueue from "p-queue";
-
-// Attio: sliding 10-second window. Stay well under the limit.
-const attioQueue = new PQueue({
-  concurrency: 5,           // Max parallel requests
-  interval: 1000,           // 1 second interval
-  intervalCap: 8,           // Max 8 requests per second
-});
-
-async function throttledAttioCall<T>(
-  operation: () => Promise<T>
-): Promise<T> {
-  return attioQueue.add(operation) as Promise<T>;
-}
-
-// Usage
-const results = await Promise.all(
-  recordIds.map((id) =>
-    throttledAttioCall(() =>
-      client.get(`/objects/people/records/${id}`)
-    )
-  )
-);
-```
-
-### Step 4: Rate Limit Monitor
-
-```typescript
-class AttioRateLimitMonitor {
-  private windowStart = Date.now();
-  private requestCount = 0;
-
-  recordRequest(responseHeaders?: Headers): void {
-    const now = Date.now();
-    // Reset counter every 10 seconds (Attio's sliding window)
-    if (now - this.windowStart > 10000) {
-      this.windowStart = now;
-      this.requestCount = 0;
-    }
-    this.requestCount++;
-  }
-
-  shouldThrottle(threshold = 0.8): boolean {
-    // Conservative: throttle at 80% of observed capacity
-    return this.requestCount > 50 * threshold; // Adjust 50 based on your limit
-  }
-
-  getStats(): { requestsInWindow: number; windowAgeMs: number } {
-    return {
-      requestsInWindow: this.requestCount,
-      windowAgeMs: Date.now() - this.windowStart,
-    };
-  }
-}
-```
-
-### Step 5: Batch Operations to Reduce Request Count
-
-```typescript
-// Instead of N individual GET calls, use the query endpoint (1 POST)
-// BAD: N requests
-for (const email of emails) {
-  await client.post("/objects/people/records/query", {
-    filter: { email_addresses: email },
-    limit: 1,
-  });
-}
-
-// GOOD: 1 request with $in filter
-const results = await client.post("/objects/people/records/query", {
-  filter: {
-    email_addresses: {
-      email_address: { $in: emails },
-    },
-  },
-  limit: emails.length,
-});
-```
-
-### Step 6: Circuit Breaker for Sustained Rate Limiting
-
-```typescript
-class AttioCircuitBreaker {
-  private failures = 0;
-  private lastFailure = 0;
-  private state: "closed" | "open" | "half-open" = "closed";
-  private readonly threshold = 5;       // Open after 5 consecutive 429s
-  private readonly resetMs = 30000;     // Try again after 30s
-
-  async execute<T>(operation: () => Promise<T>): Promise<T> {
-    if (this.state === "open") {
-      if (Date.now() - this.lastFailure > this.resetMs) {
-        this.state = "half-open";
-      } else {
-        throw new Error("Circuit open: Attio rate limited. Retry after 30s.");
-      }
-    }
-
-    try {
-      const result = await operation();
-      this.failures = 0;
-      this.state = "closed";
-      return result;
-    } catch (err) {
-      if (err instanceof AttioApiError && err.statusCode === 429) {
-        this.failures++;
-        this.lastFailure = Date.now();
-        if (this.failures >= this.threshold) {
-          this.state = "open";
-        }
-      }
-      throw err;
-    }
-  }
-}
-```
+This skill turns Attio's current published limits into a conservative client policy without treating the documented ceilings as reserved capacity.
 
 ## Prerequisites
 
-Confirm that you have an Attio workspace appropriate to the task, a dedicated non-production record or workspace for testing, and only the API token scopes or administrative access required by the procedure.
+- Request metrics split by workspace, method, and endpoint
+- Queue depth, retry count, and 429 response samples
+- The endpoint-specific pagination and query contract
+- An agreed maximum retry age and failure budget
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect concurrency, queues, retries, and pagination. Use `WebFetch` only to recheck current official Attio limits and response semantics. Use `Write` or `Edit` after the governor policy and rollback threshold are explicit.
+
+## Current Contract
+
+- Attio currently publishes global ceilings of 100 read requests per second and 25 write requests per second.
+- Record and entry query endpoints also use a score budget over a 10-second window; complex filters and sorts consume more score.
+- A 429 response can include `Retry-After` as an HTTP date, so do not assume an integer delay.
+- Limits can change and are shared with other workspace traffic; reverify the official guide before rollout.
+
+## Authentication
+
+Keep the existing least-privilege Bearer token and partition governor state by workspace credential. Never expose tokens in rate-limit telemetry.
+
+## Instructions
+
+1. Inventory calls by read, write, workspace, endpoint, and query shape.
+2. Reverify the official limits and endpoint-specific query scoring.
+3. Implement separate conservative read and write token buckets below the published ceilings.
+4. Add per-workspace queues, bounded concurrency, jitter, and backpressure.
+5. On 429, parse `Retry-After` as an HTTP date when present; otherwise use capped exponential backoff.
+6. Retry only idempotent or explicitly idempotency-protected work and only for 429 or eligible transient 5xx responses.
+7. Load-test below production limits and record throughput, tail latency, queue age, and retry amplification.
+
+## Approval Boundaries
+
+Do not increase concurrency, replay non-idempotent writes, or drop queued work without the service owner's approval and a rollback plan.
 
 ## Output
 
-Following this guide produces the Attio integration outcome for its topic—configuration, validation evidence, operational recovery, or a documented migration result. Record command output and relevant identifiers so a failed step is traceable.
-
-## Examples
-
-Start with the smallest applicable command or code example in the relevant section, using a dedicated test record or workspace and non-production credentials. Confirm the expected response or validation result before applying the pattern to production.
+Return verified limits, queue partitions, bucket settings, retry eligibility, maximum retry age, load-test evidence, and rollback thresholds.
 
 ## Error Handling
 
-| Symptom | Cause | Solution |
-|---------|-------|----------|
-| Burst of 429s on startup | No throttling | Add `PQueue` with `intervalCap` |
-| 429s during bulk import | Too many parallel requests | Reduce concurrency, batch with query |
-| Intermittent 429s | Multiple apps sharing limit | Coordinate rate across apps |
-| 429s after long silence | Attio reduced limit during incident | Check `status.attio.com`, honor `Retry-After` |
+| Condition | Response |
+|---|---|
+| `Retry-After` is malformed | Use capped jittered backoff and preserve the response evidence. |
+| Low request count still gets 429 | Inspect query score and other traffic sharing the workspace. |
+| Queue age exceeds its objective | Shed optional work or pause producers; do not burst harder. |
+| Write result is ambiguous | Reconcile state before any retry. |
+
+## Examples
+
+Input:
+
+```text
+workload=record queries plus writes; symptom=429 bursts; scope=one workspace
+```
+
+Expected handoff:
+
+```text
+governor=split read/write; retry=http-date aware; load-test=pass; rollback=defined
+```
 
 ## Resources
 
-- [Attio Rate Limiting Guide](https://docs.attio.com/rest-api/guides/rate-limiting)
-- [p-queue Documentation](https://github.com/sindresorhus/p-queue)
-- [Attio Status Page](https://status.attio.com)
-
-## Next Steps
-
-For security best practices, see `attio-security-basics`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Rate limiting](https://docs.attio.com/rest-api/guides/rate-limiting)
+- [Pagination](https://docs.attio.com/rest-api/guides/pagination)

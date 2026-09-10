@@ -1,196 +1,91 @@
 ---
 name: attio-hello-world
-description: 'Make your first Attio API calls -- list objects, create a person,
-
-  query companies, and read attributes.
-
-  Use when starting a new Attio integration or learning the API.
-
-  Trigger: "attio hello world", "attio example", "first attio call",
-
-  "attio quick start", "try attio API".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(npx:*)
+description: >-
+  Prove the smallest safe Attio REST connection by listing objects and validating the response envelope without changing CRM data. Use when checking a new token, workspace, or integration path. Trigger with "Attio hello world", "first Attio request", or "test Attio connection".
+argument-hint: "[repository-path] [workspace-alias]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.7.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- crm
 - attio
+- getting-started
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Attio Hello World
+# Attio Verified First Read
 
 ## Overview
 
-Five progressively deeper API calls that exercise the Attio object/record model. Every call targets `https://api.attio.com/v2` and returns JSON.
+This skill proves authentication, workspace reachability, JSON parsing, and object discovery with one read-only request. It does not create a demonstration contact in a real CRM.
 
 ## Prerequisites
 
-- Completed `attio-install-auth` (valid `ATTIO_API_KEY` in env)
-- Scopes: `object_configuration:read`, `record_permission:read`, `record_permission:read-write`
+- A named repository and non-production or approved workspace
+- A single-workspace access token or OAuth access token
+- The `object_configuration:read` scope required by the object-list endpoint
+- A runtime with HTTPS and JSON support
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect the local client, environment-variable names, and tests. Use `WebFetch` only for current official Attio documentation. Use `Write` or `Edit` after confirming the repository and intended implementation file.
+
+## Current Contract
+
+- Base URL: `https://api.attio.com/v2`.
+- Send `Authorization: Bearer <access_token>`; Bearer authentication is the recommended form.
+- Start with `GET /v2/objects` and validate a `{ data: [...] }` response.
+- Keep the credential out of source, output, exceptions, and request logging.
+
+## Authentication
+
+Use a workspace API key for a single workspace or OAuth for an app serving multiple workspaces. Do not request write scopes for this proof.
 
 ## Instructions
 
-### Step 1: List Workspace Objects
+1. Confirm the repository, runtime, workspace alias, secret source, and granted scope.
+2. Add or inspect a tiny request wrapper with explicit base URL and Bearer header injection.
+3. Request `/objects` with a bounded timeout and capture status plus content type.
+4. On success, parse `data` and record only object slugs or counts that are safe to expose.
+5. Assert that at least one expected object is visible to the workspace.
+6. Add a fixture test for success plus 401, 403, and non-JSON failure handling.
 
-Every Attio workspace has system objects (people, companies) and optional objects (deals, users, workspaces). Custom objects can be created.
+## Approval Boundaries
 
-```bash
-curl -s https://api.attio.com/v2/objects \
-  -H "Authorization: Bearer ${ATTIO_API_KEY}" | jq '.data[] | {slug: .api_slug, singular: .singular_noun}'
-```
-
-```json
-{"slug": "people", "singular": "Person"}
-{"slug": "companies", "singular": "Company"}
-{"slug": "deals", "singular": "Deal"}
-```
-
-### Step 2: List Attributes on an Object
-
-Objects have attributes (fields). Use the slug from Step 1.
-
-```bash
-curl -s "https://api.attio.com/v2/objects/people/attributes" \
-  -H "Authorization: Bearer ${ATTIO_API_KEY}" | jq '.data[] | {slug: .api_slug, type: .type}'
-```
-
-Common people attributes: `name` (personal-name), `email_addresses` (email-address), `phone_numbers` (phone-number), `description` (text), `primary_location` (location), `company` (record-reference).
-
-### Step 3: Create a Person Record
-
-```typescript
-const person = await attioFetch<{ data: { id: { record_id: string } } }>({
-  method: "POST",
-  path: "/objects/people/records",
-  body: {
-    data: {
-      values: {
-        email_addresses: ["ada@example.com"],
-        name: [
-          {
-            first_name: "Ada",
-            last_name: "Lovelace",
-            full_name: "Ada Lovelace",
-          },
-        ],
-        description: ["First computer programmer"],
-      },
-    },
-  },
-});
-
-console.log("Created person:", person.data.id.record_id);
-```
-
-**Key detail:** Values are keyed by attribute slug. Most attributes accept an array (Attio supports multiselect by default). String shortcuts work for emails and domains.
-
-### Step 4: Query Records with Filters
-
-```typescript
-// List people whose email contains "example.com"
-const results = await attioFetch<{
-  data: Array<{ id: { record_id: string }; values: Record<string, any> }>;
-}>({
-  method: "POST",
-  path: "/objects/people/records/query",
-  body: {
-    filter: {
-      email_addresses: {
-        email_address: { $contains: "example.com" },
-      },
-    },
-    sorts: [
-      {
-        attribute: "created_at",
-        field: "created_at",
-        direction: "desc",
-      },
-    ],
-    limit: 10,
-  },
-});
-
-console.log(`Found ${results.data.length} people`);
-```
-
-### Step 5: Create a Company and Link It
-
-```typescript
-// Create company
-const company = await attioFetch<{ data: { id: { record_id: string } } }>({
-  method: "POST",
-  path: "/objects/companies/records",
-  body: {
-    data: {
-      values: {
-        name: ["Acme Corp"],
-        domains: ["acme.com"],
-        description: ["Enterprise widget manufacturer"],
-      },
-    },
-  },
-});
-
-// Update person to link to company via record-reference
-await attioFetch({
-  method: "PATCH",
-  path: `/objects/people/records/${person.data.id.record_id}`,
-  body: {
-    data: {
-      values: {
-        company: [
-          {
-            target_object: "companies",
-            target_record_id: company.data.id.record_id,
-          },
-        ],
-      },
-    },
-  },
-});
-```
-
-## Attio Data Model Quick Reference
-
-```
-Workspace
- └── Objects (people, companies, deals, custom)
-      ├── Attributes (name, email, phone, custom)
-      └── Records (individual people, companies)
-           └── Values (attribute data on each record)
-
- └── Lists (pipelines, boards, custom groupings)
-      └── Entries (records added to a list with list-specific attributes)
-```
+Do not add create, update, assert, or delete calls to the first-read proof. Never print the access token or persist a raw workspace response.
 
 ## Output
 
-Following this guide produces the Attio integration outcome for its topic—configuration, validation evidence, operational recovery, or a documented migration result. Record command output and relevant identifiers so a failed step is traceable.
-
-## Examples
-
-Start with the smallest applicable command or code example in the relevant section, using a dedicated test record or workspace and non-production credentials. Confirm the expected response or validation result before applying the pattern to production.
+Return the redacted configuration, status, response-envelope assertion, safe object summary, fixture-test result, and next integration boundary.
 
 ## Error Handling
 
-| Error | Status | Cause | Solution |
-|-------|--------|-------|----------|
-| `not_found` | 404 | Wrong object slug or record ID | Verify slug with `GET /v2/objects` |
-| `validation_error` | 422 | Invalid attribute value format | Check attribute type in docs |
-| `insufficient_scopes` | 403 | Token missing write scope | Add `record_permission:read-write` |
-| `duplicate_record` | 409 | Record with same unique field exists | Use `PUT` (assert) instead |
+| Condition | Response |
+|---|---|
+| 401 | Verify credential injection and replace an invalid token. |
+| 403 | Confirm `object_configuration:read` without broadening other scopes. |
+| Non-JSON response | Preserve status/content type and stop parsing. |
+| Unexpected workspace data | Stop and verify workspace identity. |
+
+## Examples
+
+Input:
+
+```text
+workspace=development; request=GET /v2/objects; writes=forbidden
+```
+
+Expected handoff:
+
+```text
+auth=pass; envelope=pass; expected-object=present; secrets-exposed=0
+```
 
 ## Resources
 
-- [Attio Create Record](https://docs.attio.com/rest-api/endpoint-reference/records/create-a-record)
-- [Attio List Records](https://docs.attio.com/rest-api/endpoint-reference/records/list-records)
-- [Attio Attribute Types](https://docs.attio.com/docs/attribute-types/attribute-types)
-- [Attio Slugs and IDs](https://docs.attio.com/docs/slugs-and-ids)
-
-## Next Steps
-
-Proceed to `attio-local-dev-loop` for development workflow, or `attio-core-workflow-a` for record CRUD patterns.
+- [Skill-specific official documentation](references/official-docs.md)
+- [REST API overview](https://docs.attio.com/rest-api/overview)
+- [Authentication](https://docs.attio.com/rest-api/guides/authentication)
+- [Objects and lists](https://docs.attio.com/docs/objects-and-lists)
