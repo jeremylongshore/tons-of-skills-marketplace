@@ -5,9 +5,16 @@
   "packageManager": "pnpm@9.15.9+sha512.68046141893c66fad01c079231128e9afb89ef87e2691d69e4d40eee228988295fd4682181bae55b58418c3a253bde65a505ec7c5f9403ece5cc3cd37dcf2531",
   "description": "Claude Code plugins workspace - simple plugins + MCP servers",
   "scripts": {
+    "preflight:runtime": "node scripts/check-node-version.mjs",
+    "predev": "pnpm run preflight:runtime",
+    "prebuild": "pnpm run preflight:runtime",
+    "pretest": "pnpm run preflight:runtime",
+    "pretypecheck": "pnpm run preflight:runtime",
+    "prelint": "pnpm run preflight:runtime",
+    "preverify": "pnpm run preflight:runtime",
     "dev": "pnpm --filter '*' dev --parallel",
     "build": "pnpm --filter '*' build",
-    "test": "pnpm --filter '*' test",
+    "test": "node --test scripts/check-node-version.test.mjs && pnpm --filter '*' test",
     "lint": "pnpm --filter '*' lint",
     "typecheck": "pnpm --filter '*' typecheck",
     "validate:greptile": "node scripts/validate-greptile-config.mjs",
@@ -81,8 +88,8 @@
     "url": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues"
   },
   "engines": {
-    "node": ">=20.0.0",
-    "pnpm": ">=9.0.0"
+    "node": ">=22.12.0",
+    "pnpm": ">=9.15.9"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.3",
@@ -100,7 +107,7 @@
     "js-yaml": "^4.3.1",
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.3",
-    "smol-toml": "1.6.1",
+    "smol-toml": "1.8.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.60.0",
     "vitest": "^3.2.6"
@@ -109,14 +116,29 @@
     "overrides": {
       "@hono/node-server": "1.19.15",
       "@intentsolutions/core": "0.10.0",
-      "ajv>fast-uri": "3.1.5",
-      "esbuild": ">=0.25.0",
+      "ajv>fast-uri": "3.1.6",
+      "axios": "1.18.0",
+      "browserslist": "4.28.7",
+      "esbuild": "0.28.2",
+      "express@4.22.2>body-parser": "1.20.6",
       "express@5.2.1>body-parser": "2.3.0",
       "express-rate-limit>ip-address": "10.3.1",
+      "form-data": "4.0.6",
+      "gray-matter>js-yaml": "3.15.2",
       "hono": "4.12.34",
-      "vite": ">=6.4.2",
-      "vitest@<3.2.6": "3.2.7",
-      "qs": ">=6.15.2"
+      "js-yaml": "4.3.2",
+      "minimatch@3>brace-expansion": "1.1.18",
+      "minimatch@5>brace-expansion": "2.1.4",
+      "minimatch@9>brace-expansion": "2.1.4",
+      "minimatch@10>brace-expansion": "5.0.9",
+      "nanoid": "3.3.18",
+      "postcss": "8.5.28",
+      "sharp": "0.35.4",
+      "smol-toml": "1.8.0",
+      "svgo": "4.1.0",
+      "typed-rest-client>qs": "6.15.2",
+      "vite@6.4.3>esbuild": "0.25.12",
+      "vitest@<3.2.6": "3.2.7"
     }
   }
 }

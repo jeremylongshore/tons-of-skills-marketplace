@@ -57,7 +57,8 @@ jobs:
           cache: pnpm
 
       - name: Install
-        run: pnpm install --frozen-lockfile
+        # Advisory evaluation needs root tooling, not the Node-22 marketplace.
+        run: pnpm install --frozen-lockfile --filter "claude-code-plugins-monorepo"
 
       - name: Detect changed skills with eval-spec.yaml
         id: detect

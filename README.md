@@ -35,6 +35,15 @@ pnpm add -g @intentsolutionsio/ccpi
 ccpi install devops-automation-pack
 ```
 
+### Development prerequisites
+
+Repository-level development and verification require Node.js `>=22.12.0`
+and pnpm `>=9.15.9`. The tested Node version is recorded in `.node-version`.
+Run `node scripts/check-node-version.mjs` before installing dependencies when
+working on a fresh checkout. The independently consumable packages retain
+their own lower runtime declarations where applicable; see
+`000-docs/814-DR-STND-node-runtime-contract.md` for the compatibility matrix.
+
 **[Browse the marketplace](https://tonsofskills.com)** · **[Explore plugins](https://tonsofskills.com/explore)** · **[Download bundles](https://tonsofskills.com/cowork)**
 
 <!-- SCALE:START — do not edit; run `node scripts/generate-readme-toc.mjs` -->

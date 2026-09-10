@@ -51,7 +51,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
+
+      - name: Check repository Node.js runtime
+        run: node scripts/check-node-version.mjs
 
       - name: Install root dev dependencies
         run: pnpm install --frozen-lockfile --filter "claude-code-plugins-monorepo"
@@ -658,7 +661,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 22
+
+      - name: Check repository Node.js runtime
+        run: node scripts/check-node-version.mjs
 
       - name: Run verification pipeline
         run: node scripts/run-verification-pipeline.mjs
@@ -946,9 +952,8 @@ jobs:
       - name: Build ccpi CLI
         if: matrix.test-type == 'validation-scripts'
         run: |
-          cd packages/cli
-          pnpm install --frozen-lockfile
-          pnpm build
+          pnpm install --frozen-lockfile --filter '@intentsolutionsio/ccpi...'
+          pnpm -C packages/cli build
 
       - name: Run validation with universal validator
         if: matrix.test-type == 'validation-scripts'
@@ -1027,10 +1032,13 @@ jobs:
           # pre-existing failure that started 2026-05-30 22:58Z on main.
           node-version: 22
 
+      - name: Check repository Node.js runtime
+        run: node scripts/check-node-version.mjs
+
       - name: Install marketplace dependencies
         run: |
           cd marketplace
-          npm install
+          npm ci
 
       - name: Build marketplace
         run: |
@@ -1167,9 +1175,7 @@ jobs:
         uses: pnpm/action-setup@v4
 
       - name: Install CLI dependencies
-        run: |
-          cd packages/cli
-          pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --filter '@intentsolutionsio/ccpi...'
 
       - name: Build CLI
         run: |
@@ -1379,7 +1385,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install root dev dependencies
         run: pnpm install --frozen-lockfile --filter "claude-code-plugins-monorepo"
@@ -1400,7 +1406,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install root dev dependencies
         run: pnpm install --frozen-lockfile --filter "claude-code-plugins-monorepo"
@@ -1460,7 +1466,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
+
+      - name: Check repository Node.js runtime
+        run: node scripts/check-node-version.mjs
 
       # Synced-plugin lint exclusions must be present BEFORE markdownlint runs,
       # so a new external-synced plugin fails here with an actionable "run this
@@ -1756,7 +1765,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
+
+      - name: Check repository Node.js runtime
+        run: node scripts/check-node-version.mjs
 
       - name: Check deterministic marketplace projections
         run: |
