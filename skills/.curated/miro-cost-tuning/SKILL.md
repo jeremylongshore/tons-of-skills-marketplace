@@ -12,7 +12,7 @@ tags:
 - credits
 - efficiency
 model: inherit
-effort: high
+effort: medium
 compatibility: Designed for Claude Code; live work requires an authorized Miro app and redacted evidence
 ---
 # Miro Credit-Efficiency Planning

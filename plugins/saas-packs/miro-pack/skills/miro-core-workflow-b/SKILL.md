@@ -13,7 +13,7 @@ tags:
 - reconciliation
 - sync
 model: inherit
-effort: high
+effort: medium
 compatibility: Designed for Claude Code; live work requires an authorized Miro app and redacted evidence
 ---
 # Miro Board Read and Reconciliation

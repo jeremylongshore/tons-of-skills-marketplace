@@ -47,6 +47,7 @@ class MiroPackContractTest(unittest.TestCase):
 
     def test_all_skills_have_release_metadata_and_official_references(self) -> None:
         headings = set()
+        reference_bodies = set()
         for skill_file in self.skill_files:
             with self.subTest(skill=skill_file.parent.name):
                 body = skill_file.read_text(encoding="utf-8")
@@ -70,9 +71,16 @@ class MiroPackContractTest(unittest.TestCase):
                 self.assertTrue(reference.is_file())
                 reference_body = reference.read_text(encoding="utf-8")
                 self.assertIn("2026-09-10", reference_body)
-                self.assertGreaterEqual(reference_body.count("https://developers.miro.com"), 20)
+                self.assertIn(skill_file.parent.name, reference_body.splitlines()[0])
+                self.assertGreaterEqual(reference_body.count("https://"), 4)
+                reference_bodies.add(reference_body)
 
         self.assertEqual(len(self.skill_files), len(headings))
+        self.assertEqual(
+            len(self.skill_files),
+            len(reference_bodies),
+            "each workflow must carry a distinct, skill-specific primary-source bundle",
+        )
 
     def test_retired_or_invented_contracts_do_not_return(self) -> None:
         skills_markdown = "\n".join(path.read_text() for path in SKILLS.glob("*/SKILL.md"))
