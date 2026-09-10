@@ -1,97 +1,84 @@
 ---
 name: techsmith-install-auth
-description: 'Install TechSmith Snagit COM API and register the COM server for automation.
-
-  Use when setting up Snagit automation, configuring COM interop,
-
-  or initializing Camtasia batch processing.
-
-  Trigger: "install techsmith, setup snagit, techsmith COM API".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.3.0
-license: MIT
+description: >-
+  Select and verify the supported Snagit or Camtasia install, license, activation, connectivity, and Snagit COM-registration path. Use when provisioning a workstation or resolving activation ambiguity. Trigger with "install TechSmith", "activate Snagit", or "configure Camtasia license".
+argument-hint: "[product] [operating-system] [license-model]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
-- saas
-- screen-capture
-- video
+- desktop-automation
 - techsmith
-compatibility: Designed for Claude Code
+- setup
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; TechSmith product execution requires an approved Windows or macOS desktop as documented
 ---
-# TechSmith Install & Auth
+# TechSmith Installation and Activation Decision
 
 ## Overview
 
-TechSmith products (Snagit, Camtasia) offer automation through the Snagit COM Server API (Windows) and Camtasia's command-line batch processing. No traditional API keys -- COM registration is the auth mechanism.
+This skill treats activation as a product and entitlement decision, not API authentication. Individual subscriptions activate by account sign-in, while business licenses use a software key and support managed deployment and, where documented, offline activation.
 
 ## Prerequisites
 
-- Windows OS (COM API is Windows-only)
-- Snagit 2023+ or Camtasia 2023+ installed
-- PowerShell 5.1+ or .NET SDK for COM interop
+- Product, operating system, target version, architecture, and system requirements
+- Authoritative entitlement owner and license model: individual, business, or legacy
+- Approved installer source and endpoint-management channel
+- Connectivity, proxy, offline-use, update, and connected-feature policy
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect local scripts, manifests, logs, and tests. Use `WebFetch` only for current primary TechSmith documentation. Use `Write` or `Edit` only after confirming the target repository file and approval boundary.
+
+## Current Contract
+
+- Individual subscriptions require the purchasing account to sign in and do not use a software key.
+- Business subscriptions use software keys; approved offline activation is a business-license path.
+- Subscription software normally needs initial activation connectivity and periodic verification within the vendor's current interval.
+- Snagit COM should register during Windows installation; `SnagitCapture.exe /register` is an elevated recovery, not a default step.
+
+## Licensing and Authentication
+
+TechSmith desktop activation is not API authentication. Resolve individual sign-in versus business-key or approved offline activation before execution. Redact all keys, account identifiers, activation artifacts, and sensitive endpoint details.
 
 ## Instructions
 
-### Step 1: Verify Snagit COM Server Registration
+1. Resolve product/version and confirm the entitlement before downloading or installing anything.
+2. Choose standard interactive installation, managed Windows MSI/MST, documented macOS deployment, or approved offline activation.
+3. Verify installer origin and checksum, then install through the approved endpoint channel.
+4. Activate by individual sign-in, managed business key, or the documented offline exchange without logging secret material.
+5. Confirm product launch, displayed version/license state, and required connectivity.
+6. For Windows Snagit automation, create the COM object; use vendor registration recovery only if creation fails and approval is recorded.
 
-```powershell
-# Check if Snagit COM server is registered
-$snagit = New-Object -ComObject Snagit.ImageCapture
-if ($snagit) { Write-Host "Snagit COM server registered successfully" }
-```
+## Approval Boundaries
 
-### Step 2: Re-register COM Server (if needed)
+Never paste a license key into chat, source control, a public CI variable, or diagnostic output. Do not convert an individual subscription into an unattended shared-worker credential.
 
-```powershell
-# Run as Administrator
-$snagitPath = "C:\Program Files\TechSmith\Snagit 2025\Snagit32.exe"
-& $snagitPath /register
-```
+## Output
 
-### Step 3: Python COM Interop
-
-```python
-# pip install pywin32
-import win32com.client
-
-snagit = win32com.client.Dispatch("Snagit.ImageCapture")
-print(f"Snagit version: Connected via COM")
-```
-
-### Step 4: C# COM Interop
-
-```csharp
-using SNAGITLib;
-
-var capture = new ImageCaptureClass();
-Console.WriteLine("Snagit COM initialized");
-```
-
-### Step 5: Verify Camtasia CLI
-
-```powershell
-# Camtasia batch producer
-$camtasia = "C:\Program Files\TechSmith\Camtasia 2025\CamtasiaProducer.exe"
-& $camtasia --help
-```
+Return product/version, installer hash, deployment mode, redacted license model, activation result, connectivity disposition, COM probe result where applicable, and owner.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `REGDB_E_CLASSNOTREG` | COM not registered | Run Snagit32.exe /register as admin |
-| `Class not registered` | Wrong bitness | Use 32-bit PowerShell for 32-bit Snagit |
-| `pywin32 not found` | Missing package | `pip install pywin32` |
-| Camtasia CLI not found | Not in PATH | Use full path to CamtasiaProducer.exe |
+| Condition | Response |
+|---|---|
+| Entitlement cannot be confirmed | Stop before installation and contact the license owner. |
+| Individual sign-in unavailable | Do not substitute a shared account; resolve assignment or use an authorized business license. |
+| Offline activation requested for individual plan | Reject the path and explain the documented business-license requirement. |
+| COM registration recovery fails | Capture redacted install/version evidence and escalate to TechSmith support. |
+
+## Examples
+
+The example below shows the minimum redacted evidence expected from a successful invocation of this operator workflow.
+
+```text
+product=Snagit; platform=Windows; license=business-key(redacted); install=managed; com_probe=pass
+```
 
 ## Resources
 
-- [Snagit COM Samples](https://github.com/TechSmith/Snagit-COM-Samples)
-- [Snagit COM Server Guide (PDF)](https://assets.techsmith.com/Docs/Snagit-2022-COM-Server-Guide.pdf)
-- [TechSmith GitHub](https://github.com/TechSmith)
-
-## Next Steps
-
-Proceed to `techsmith-hello-world` for your first capture.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Activation overview](https://support.techsmith.com/hc/en-us/articles/45353457739149-How-to-Activate-Snagit-or-Camtasia)
+- [Deployment overview](https://support.techsmith.com/hc/en-us/articles/43771074923021-Deploying-TechSmith-Products)

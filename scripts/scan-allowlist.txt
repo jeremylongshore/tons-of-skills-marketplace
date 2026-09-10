@@ -533,3 +533,25 @@ plugins/saas-packs/salesloft-pack/skills/salesloft-sdk-patterns/SKILL.md:allowed
 plugins/saas-packs/salesloft-pack/skills/salesloft-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
 plugins/saas-packs/salesloft-pack/skills/salesloft-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
 plugins/saas-packs/salesloft-pack/skills/salesloft-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+
+# ── TechSmith operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult current first-party TechSmith
+# documentation; no shell or general HTTP client is granted.
+plugins/saas-packs/techsmith-pack/skills/techsmith-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation

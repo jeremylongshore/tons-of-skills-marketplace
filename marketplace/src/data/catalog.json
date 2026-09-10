@@ -10284,14 +10284,14 @@
       "slug": "techsmith-pack",
       "name": "techsmith-pack",
       "displayName": "techsmith pack",
-      "description": "Claude Code skill pack for TechSmith (18 skills)",
-      "version": "1.3.0",
+      "description": "Source-grounded operator workflows for Snagit COM, Camtasia recording and export, managed deployment, licensing, storage, security, and artifact promotion",
+      "version": "1.6.0",
       "category": "saas-packs",
       "keywords": [
         "techsmith",
-        "saas",
-        "sdk",
-        "integration"
+        "snagit",
+        "camtasia",
+        "desktop-automation"
       ],
       "hasSkills": true,
       "skillCount": 18,
