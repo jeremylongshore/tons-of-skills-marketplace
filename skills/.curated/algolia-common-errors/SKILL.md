@@ -4,7 +4,7 @@ description: >-
   Diagnose Algolia request, credential, index, task, and query failures from concrete evidence. Use when an integration returns 4xx or 5xx responses, stale results, or unexpected empty hits. Trigger with "debug Algolia error", "Algolia 403", or "Algolia search failed".
 argument-hint: "[repository-path] [error-or-request-id]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

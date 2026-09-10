@@ -4,7 +4,7 @@ description: >-
   Build and review a bounded CI gate for Algolia index configuration and disposable-index smoke tests. Use when search changes need pull-request evidence without mutating production. Trigger with "Algolia CI", "test Algolia in GitHub Actions", or "search deployment gate".
 argument-hint: "[repository-path] [test-index-prefix]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

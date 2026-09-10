@@ -4,7 +4,7 @@ description: >-
   Design isolated Algolia development, staging, preview, and production targets with explicit promotion rules. Use when environments share credentials or index names, or previews need bounded search data. Trigger with "Algolia environments", "Algolia staging setup", or "preview index".
 argument-hint: "[repository-path] [environment-map]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

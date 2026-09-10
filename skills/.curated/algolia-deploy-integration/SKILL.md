@@ -4,7 +4,7 @@ description: >-
   Plan and verify deployment of an Algolia-backed application with separated browser and server credentials. Use when releasing search code, index configuration, or event instrumentation. Trigger with "deploy Algolia", "Algolia production rollout", or "search release checklist".
 argument-hint: "[repository-path] [environment]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

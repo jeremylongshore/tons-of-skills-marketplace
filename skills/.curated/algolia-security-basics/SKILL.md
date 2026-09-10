@@ -4,7 +4,7 @@ description: >-
   Audit and harden Algolia credentials, record exposure, index restrictions, and tenant search controls. Use when reviewing frontend keys, backend ACLs, key rotation, or data visibility. Trigger with "secure Algolia", "Algolia key audit", or "Algolia security review".
 argument-hint: "[repository-path] [application-id]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

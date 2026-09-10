@@ -4,7 +4,7 @@ description: >-
   Monitor and optimize Algolia request pressure using observed responses and bounded client behavior. Use when requests return 429, queues grow, or search and indexing compete for capacity. Trigger with "Algolia rate limit", "Algolia 429", or "throttle indexing".
 argument-hint: "[repository-path] [operation]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

@@ -4,7 +4,7 @@ description: >-
   Design and audit the data lifecycle for records and user events sent to Algolia. Use when minimizing indexed fields, handling deletion requests, or documenting retention and privacy boundaries. Trigger with "Algolia privacy", "delete Algolia user data", or "index data review".
 argument-hint: "[repository-path] [dataset-or-request-id]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

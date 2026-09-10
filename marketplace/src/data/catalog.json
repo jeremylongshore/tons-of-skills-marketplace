@@ -8868,7 +8868,7 @@
       "name": "algolia-pack",
       "displayName": "algolia pack",
       "description": "Grade-A Algolia search operator pack with 24 skills",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "algolia",

@@ -4,7 +4,7 @@ description: >-
   Plan and execute a reversible migration from another search system or legacy index design to Algolia. Use when translating schemas, queries, relevance behavior, or production traffic. Trigger with "migrate to Algolia", "Algolia cutover", or "search engine migration".
 argument-hint: "[repository-path] [source-system] [target-index]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

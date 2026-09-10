@@ -4,7 +4,7 @@ description: >-
   Analyze and optimize an Algolia search path using repository and production evidence instead of universal latency targets. Use when search feels slow, payloads are large, or rendering regresses. Trigger with "tune Algolia performance", "slow Algolia search", or "search latency".
 argument-hint: "[repository-path] [journey-or-query-set]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

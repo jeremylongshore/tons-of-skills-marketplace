@@ -4,7 +4,7 @@ description: >-
   Collect a bounded, secret-safe Algolia diagnostic bundle for an incident or support escalation. Use when a reproducible search or indexing failure needs portable evidence. Trigger with "Algolia debug bundle", "collect Algolia diagnostics", or "Algolia support evidence".
 argument-hint: "[repository-path] [incident-id]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

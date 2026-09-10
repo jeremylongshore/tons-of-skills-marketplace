@@ -4,7 +4,7 @@ description: >-
   Map workforce roles and application actors to Algolia team permissions, API-key ACLs, and secured-key restrictions. Use when reviewing least privilege, tenancy, SSO requirements, or access rotation. Trigger with "Algolia RBAC", "Algolia SSO", or "Algolia tenant access".
 argument-hint: "[repository-path] [application-or-role]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

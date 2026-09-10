@@ -4,7 +4,7 @@ description: >-
   Implement and validate Algolia click, conversion, and view events while separating them from source-to-index synchronization. Use when adding Insights, query attribution, or event-driven record updates. Trigger with "Algolia Insights", "track search conversion", or "sync database to Algolia".
 argument-hint: "[repository-path] [event-or-sync-flow]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

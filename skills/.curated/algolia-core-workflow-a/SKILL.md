@@ -4,7 +4,7 @@ description: >-
   Implement or review a single-index Algolia search contract with filters, facets, pagination, and highlighting. Use when building product or content search against the JavaScript v5 client. Trigger with "Algolia search workflow", "add facets", or "searchSingleIndex".
 argument-hint: "[repository-path] [index-name]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

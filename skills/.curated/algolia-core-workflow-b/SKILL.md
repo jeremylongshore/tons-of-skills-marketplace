@@ -4,7 +4,7 @@ description: >-
   Build a reliable Algolia indexing pipeline for full replacements, incremental updates, settings, synonyms, and rules. Use when a source of truth must publish deterministic search state. Trigger with "Algolia indexing workflow", "replace index records", or "sync Algolia".
 argument-hint: "[repository-path] [source-dataset] [index-name]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

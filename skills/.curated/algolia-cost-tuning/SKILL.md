@@ -4,7 +4,7 @@ description: >-
   Audit Algolia usage drivers and propose measurable cost controls without hard-coded plan prices. Use when search spend, request volume, record count, replicas, or optional features need investigation. Trigger with "Algolia cost audit", "reduce Algolia usage", or "Algolia bill".
 argument-hint: "[repository-path] [billing-window]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.7.0
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
