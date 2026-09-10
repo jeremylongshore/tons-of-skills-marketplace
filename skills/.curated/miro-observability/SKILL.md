@@ -1,6 +1,6 @@
 ---
 name: miro-observability
-description: "Analyze and execute this workflow: instrument Miro operations with safe metrics, rate-credit headers, semantic outcomes, and actionable alerts. Use when operating a Miro integration. Trigger with \"monitor Miro integration\"."
+description: "Design and implement repository-side Miro instrumentation with safe metrics, rate-credit headers, semantic outcomes, and actionable alerts. Use when operating a Miro integration. Trigger with \"monitor Miro integration\"."
 argument-hint: "[service] [slo]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.9.0
@@ -29,7 +29,7 @@ Observe vendor transport and business correctness without turning board content,
 
 ## Tool Discipline
 
-Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary.
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary. These declared tools do not call authenticated Miro APIs or deployment CLIs; implement client, configuration, and test changes, then return exact operator commands or an approval-gated handoff for live execution.
 
 ## Current Contract
 

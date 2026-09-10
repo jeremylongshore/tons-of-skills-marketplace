@@ -1,6 +1,6 @@
 ---
 name: miro-ci-integration
-description: "Analyze and execute this workflow: build hermetic and bounded live Miro CI gates with schema-faithful fixtures, test-board isolation, and cleanup proof. Use when adding Miro checks to CI. Trigger with \"test Miro in CI\"."
+description: "Design and implement repository-side Miro CI gates with schema-faithful fixtures, protected live-test handoffs, test-board isolation, and cleanup proof. Use when adding Miro checks to CI. Trigger with \"test Miro in CI\"."
 argument-hint: "[pipeline] [test-scope]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.9.0
@@ -29,7 +29,7 @@ Keep pull-request checks credential-free and reserve live Miro calls for protect
 
 ## Tool Discipline
 
-Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary.
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary. These declared tools do not call authenticated Miro APIs or deployment CLIs; implement client, configuration, and test changes, then return exact operator commands or an approval-gated handoff for live execution.
 
 ## Current Contract
 

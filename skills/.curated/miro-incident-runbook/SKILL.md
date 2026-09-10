@@ -1,6 +1,6 @@
 ---
 name: miro-incident-runbook
-description: "Analyze and execute this workflow: triage and recover Miro authorization, capacity, outage, and data-correctness incidents with bounded actions. Use when responding to a Miro service incident. Trigger with \"Miro incident\"."
+description: "Plan and implement repository-side containment and recovery controls for Miro authorization, capacity, outage, and data-correctness incidents, with approval-gated live actions. Use when responding to a Miro service incident. Trigger with \"Miro incident\"."
 argument-hint: "[incident-id] [symptom]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.9.0
@@ -29,7 +29,7 @@ Stabilize user impact before changing authorization or replaying writes. Keep an
 
 ## Tool Discipline
 
-Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary.
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary. These declared tools do not call authenticated Miro APIs or deployment CLIs; implement client, configuration, and test changes, then return exact operator commands or an approval-gated handoff for live execution.
 
 ## Current Contract
 

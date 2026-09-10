@@ -1,6 +1,6 @@
 ---
 name: miro-hello-world
-description: "Analyze and execute this workflow: prove Miro connectivity and authorization with a bounded, read-only board query before enabling writes. Use when smoke-testing a new Miro integration. Trigger with \"test Miro connection\"."
+description: "Design and implement a bounded, read-only Miro connectivity probe that proves authorization context before writes are enabled. Use when smoke-testing a new Miro integration. Trigger with \"test Miro connection\"."
 argument-hint: "[environment] [team-id]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.9.0
@@ -29,7 +29,7 @@ Run the smallest useful REST probe and produce a redacted receipt. A successful 
 
 ## Tool Discipline
 
-Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary.
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary. These declared tools do not call authenticated Miro APIs or deployment CLIs; implement client, configuration, and test changes, then return exact operator commands or an approval-gated handoff for live execution.
 
 ## Current Contract
 

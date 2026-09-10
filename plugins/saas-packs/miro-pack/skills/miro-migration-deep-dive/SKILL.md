@@ -1,6 +1,6 @@
 ---
 name: miro-migration-deep-dive
-description: "Analyze and execute this workflow: migrate v1 widgets and relationships to v2 item endpoints with translation, shadow comparison, and rollback. Use when modernizing a legacy Miro REST integration. Trigger with \"miro v1-to-v2 resource migration\"."
+description: "Plan and implement a reversible client migration from v1 widgets and relationships to v2 item endpoints with translation and shadow comparison. Use when modernizing a legacy Miro REST integration. Trigger with \"miro v1-to-v2 resource migration\"."
 argument-hint: "[legacy-surface] [cohort]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.9.0
@@ -29,7 +29,7 @@ Modernize legacy resources without changing OAuth unnecessarily or flattening di
 
 ## Tool Discipline
 
-Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary.
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary. These declared tools do not call authenticated Miro APIs or deployment CLIs; implement client, configuration, and test changes, then return exact operator commands or an approval-gated handoff for live execution.
 
 ## Current Contract
 

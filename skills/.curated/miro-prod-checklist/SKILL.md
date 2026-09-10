@@ -1,6 +1,6 @@
 ---
 name: miro-prod-checklist
-description: "Analyze and execute this workflow: run a fail-closed Miro production-readiness review across authorization, data, resilience, rollback, and operations. Use when preparing to enable a Miro integration in production. Trigger with \"ship Miro integration\"."
+description: "Audit repository readiness for a fail-closed Miro production release across authorization, data, resilience, rollback, and an approval-gated live handoff. Use when preparing to enable a Miro integration in production. Trigger with \"ship Miro integration\"."
 argument-hint: "[release-sha] [environment]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.9.0
@@ -29,7 +29,7 @@ Turn production approval into an evidence-backed decision bound to one immutable
 
 ## Tool Discipline
 
-Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary.
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary. These declared tools do not call authenticated Miro APIs or deployment CLIs; implement client, configuration, and test changes, then return exact operator commands or an approval-gated handoff for live execution.
 
 ## Current Contract
 

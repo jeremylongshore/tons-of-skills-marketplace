@@ -1,6 +1,6 @@
 ---
 name: miro-multi-env-setup
-description: "Analyze and execute this workflow: separate Miro development, staging, and production apps, redirects, tokens, teams, and boards with hard guards. Use when configuring multiple environments. Trigger with \"miro multi-environment isolation\"."
+description: "Design and implement repository-side isolation for Miro development, staging, and production apps, redirects, token references, teams, and boards with hard guards. Use when configuring multiple environments. Trigger with \"miro multi-environment isolation\"."
 argument-hint: "[environments] [deployment-model]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.9.0
@@ -29,7 +29,7 @@ Make environment confusion detectable before a request leaves the process; use t
 
 ## Tool Discipline
 
-Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary.
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary. These declared tools do not call authenticated Miro APIs or deployment CLIs; implement client, configuration, and test changes, then return exact operator commands or an approval-gated handoff for live execution.
 
 ## Current Contract
 

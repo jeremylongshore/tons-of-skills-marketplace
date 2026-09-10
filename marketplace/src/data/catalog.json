@@ -9784,7 +9784,7 @@
       "name": "miro-pack",
       "displayName": "miro pack",
       "description": "Production Miro operator workflows for OAuth, boards, governance, migration, and resilient synchronization (24 skills)",
-      "version": "1.8.0",
+      "version": "1.9.0",
       "category": "saas-packs",
       "keywords": [
         "miro",

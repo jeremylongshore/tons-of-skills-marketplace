@@ -1,6 +1,6 @@
 ---
 name: miro-reference-architecture
-description: "Analyze and execute this workflow: design tenant-safe Miro boundaries across Web SDK, backend OAuth, REST adapters, queues, and reconciliation. Use when planning a Miro integration. Trigger with \"miro integration reference architecture\"."
+description: "Analyze requirements and design tenant-safe Miro boundaries across Web SDK, backend OAuth, REST adapters, queues, reconciliation, and approval-gated live operations. Use when planning a Miro integration. Trigger with \"miro integration reference architecture\"."
 argument-hint: "[use-case] [deployment-model]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.9.0
@@ -29,7 +29,7 @@ Put each capability at the correct browser, backend, tenant, and persistence bou
 
 ## Tool Discipline
 
-Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary.
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary. These declared tools do not call authenticated Miro APIs or deployment CLIs; implement client, configuration, and test changes, then return exact operator commands or an approval-gated handoff for live execution.
 
 ## Current Contract
 

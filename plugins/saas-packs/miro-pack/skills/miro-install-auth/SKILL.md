@@ -1,6 +1,6 @@
 ---
 name: miro-install-auth
-description: "Analyze and execute this workflow: configure a production Miro REST integration with OAuth, least-privilege scopes, tenant-bound storage, and token rotation. Use when installing or repairing Miro authorization. Trigger with \"set up Miro OAuth\"."
+description: "Design and implement a production Miro REST authorization flow with least-privilege scopes, tenant-bound storage, token rotation, and an approval-gated installation handoff. Use when installing or repairing Miro authorization. Trigger with \"set up Miro OAuth\"."
 argument-hint: "[app-environment] [required-capabilities]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.9.0
@@ -29,7 +29,7 @@ Establish an auditable authorization boundary before any board operation. Prefer
 
 ## Tool Discipline
 
-Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary.
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary. These declared tools do not call authenticated Miro APIs or deployment CLIs; implement client, configuration, and test changes, then return exact operator commands or an approval-gated handoff for live execution.
 
 ## Current Contract
 

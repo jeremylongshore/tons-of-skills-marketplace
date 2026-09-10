@@ -1,6 +1,6 @@
 ---
 name: miro-sdk-patterns
-description: "Analyze and execute this workflow: choose and harden Miro Node client or raw REST patterns with typed boundaries, pagination, and tenant isolation. Use when designing a Miro API adapter. Trigger with \"review Miro SDK pattern\"."
+description: "Choose and implement Miro Node client or raw REST adapter patterns with typed boundaries, pagination, tenant isolation, and explicit operator commands. Use when designing a Miro API adapter. Trigger with \"review Miro SDK pattern\"."
 argument-hint: "[runtime] [operation-set]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.9.0
@@ -29,7 +29,7 @@ Keep vendor transport details behind a narrow adapter so auth rotation, response
 
 ## Tool Discipline
 
-Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary.
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary. These declared tools do not call authenticated Miro APIs or deployment CLIs; implement client, configuration, and test changes, then return exact operator commands or an approval-gated handoff for live execution.
 
 ## Current Contract
 

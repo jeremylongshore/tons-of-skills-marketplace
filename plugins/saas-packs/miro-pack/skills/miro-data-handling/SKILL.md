@@ -1,6 +1,6 @@
 ---
 name: miro-data-handling
-description: "Analyze and execute this workflow: govern Miro reads, storage, exports, redaction, retention, and deletion by purpose and data class. Use when processing collaborative board content. Trigger with \"miro board data handling\"."
+description: "Design and implement repository-side controls for Miro reads, storage, exports, redaction, retention, and deletion by purpose and data class. Use when processing collaborative board content. Trigger with \"miro board data handling\"."
 argument-hint: "[workflow] [data-class]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.9.0
@@ -29,7 +29,7 @@ Assume collaborative canvases can contain personal, confidential, regulated, or 
 
 ## Tool Discipline
 
-Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary.
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary. These declared tools do not call authenticated Miro APIs or deployment CLIs; implement client, configuration, and test changes, then return exact operator commands or an approval-gated handoff for live execution.
 
 ## Current Contract
 

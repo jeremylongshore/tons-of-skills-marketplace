@@ -1,6 +1,6 @@
 ---
 name: miro-core-workflow-a
-description: "Analyze and execute this workflow: plan and execute governed Miro board and item mutations with preconditions, bounded batches, and rollback evidence. Use when creating or changing Miro content. Trigger with \"update Miro board\"."
+description: "Plan and implement an approval-gated Miro client workflow for board and item mutations with preconditions, bounded batches, and rollback evidence. Use when creating or changing Miro content. Trigger with \"update Miro board\"."
 argument-hint: "[board-id] [requested-change]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.9.0
@@ -30,7 +30,7 @@ Convert a requested canvas change into an explicit write set. Confirm board iden
 
 ## Tool Discipline
 
-Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary.
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary. These declared tools do not call authenticated Miro APIs or deployment CLIs; implement client, configuration, and test changes, then return exact operator commands or an approval-gated handoff for live execution.
 
 ## Current Contract
 

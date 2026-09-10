@@ -1,6 +1,6 @@
 ---
 name: miro-security-basics
-description: "Analyze and execute this workflow: harden Miro OAuth, sessions, storage, scopes, logging, and board-data access against common integration failures. Use when security-reviewing a Miro app. Trigger with \"secure Miro integration\"."
+description: "Audit and harden repository-side Miro OAuth, session, storage, scope, logging, and board-data controls against common integration failures. Use when security-reviewing a Miro app. Trigger with \"secure Miro integration\"."
 argument-hint: "[environment] [threat-scope]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.9.0
@@ -29,7 +29,7 @@ Apply a minimum security baseline tied to Miro's supported authorization model a
 
 ## Tool Discipline
 
-Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary.
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary. These declared tools do not call authenticated Miro APIs or deployment CLIs; implement client, configuration, and test changes, then return exact operator commands or an approval-gated handoff for live execution.
 
 ## Current Contract
 
