@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/algolia-pack",
   "version": "1.0.4",
-  "description": "Claude Code skill pack for Algolia - 24 skills covering search, recommendations, and discovery APIs",
+  "description": "Grade-A Algolia operator pack with 24 skills for search, indexing, security, events, and operations",
   "main": "README.md",
   "type": "module",
   "files": [

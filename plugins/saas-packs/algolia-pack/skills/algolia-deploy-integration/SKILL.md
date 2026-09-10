@@ -1,251 +1,93 @@
 ---
 name: algolia-deploy-integration
-description: 'Deploy Algolia-powered apps to Vercel, Fly.io, and Cloud Run with proper
-
-  API key management and InstantSearch frontend integration.
-
-  Trigger: "deploy algolia", "algolia Vercel", "algolia production deploy",
-
-  "algolia Cloud Run", "algolia Fly.io", "algolia InstantSearch".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(fly:*), Bash(gcloud:*), Bash(npm:*)
+description: >-
+  Plan and verify deployment of an Algolia-backed application with separated browser and server credentials. Use when releasing search code, index configuration, or event instrumentation. Trigger with "deploy Algolia", "Algolia production rollout", or "search release checklist".
+argument-hint: "[repository-path] [environment]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.7.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- search
 - algolia
+- deployment
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Algolia Deploy Integration
+# Algolia Deployment Integration
 
 ## Overview
 
-Deploy Algolia-powered applications to production platforms with proper API key separation (Admin on backend, Search-Only on frontend) and InstantSearch widget integration.
+This skill coordinates application deployment with the Algolia assets it depends on. It treats code, records, settings, keys, and events as separate release surfaces with explicit ordering and rollback.
 
 ## Prerequisites
 
-- Algolia App ID + Admin key (backend) + Search-Only key (frontend)
-- Platform CLI installed (vercel, fly, or gcloud)
-- `algoliasearch` v5 for backend, `react-instantsearch` or `instantsearch.js` for frontend
+- A named repository, environment, and Algolia application or index in scope
+- The local lockfile and installed client types as implementation authority
+- A safe read-only query or explicitly disposable test target
+- Current first-party documentation for any provider behavior that affects the change
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect local code, configuration names, tests, and dependency versions. Use `WebFetch` only for current official Algolia documentation. Use `Write` or `Edit` only after identifying the target files, constraints, and verification plan.
+
+## Current Contract
+
+- The browser receives only a search-only or secured key; write-capable keys stay in trusted server or job environments.
+- Pin application and index names per environment rather than deriving production targets from branch names.
+- Complete indexing tasks and representative queries before routing production traffic.
+- Deploy event instrumentation only after user-token, consent, query ID, and validation behavior are reviewed.
+
+## Authentication
+
+Provision custom least-privilege keys through the approved secret store. Never place Admin keys in static build variables, client bundles, deployment logs, or preview environments.
 
 ## Instructions
 
-## Examples
+1. Map the deploy platform, runtime boundaries, environment variables, index targets, and current rollback mechanism.
+2. Verify client packages and API usage against the pinned lockfile and current first-party docs.
+3. Prepare or verify target records, settings, synonyms, and rules before the application cutover.
+4. Deploy server and browser configuration with credential separation and redacted logging.
+5. Run a read-only health check plus representative search tests against the intended target.
+6. Record release SHA, index state, task receipts, smoke results, and rollback trigger.
 
-The deployment patterns below keep the Admin key server-side and give the frontend only a search-safe credential. Exercise the health endpoint after rollout before directing user traffic to the new search surface.
+## Approval Boundaries
 
-### Step 1: Backend API Key Configuration
-
-#### Vercel
-
-```bash
-# Environment variables in Vercel
-vercel env add ALGOLIA_APP_ID production       # Your Application ID
-vercel env add ALGOLIA_ADMIN_KEY production     # Admin key (server-side only)
-vercel env add ALGOLIA_SEARCH_KEY production    # Search-only key (can be public)
-
-# For client-side access (Next.js convention)
-vercel env add NEXT_PUBLIC_ALGOLIA_APP_ID production
-vercel env add NEXT_PUBLIC_ALGOLIA_SEARCH_KEY production
-```
-
-#### Fly.io
-
-```bash
-fly secrets set \
-  ALGOLIA_APP_ID=YourApplicationID \
-  ALGOLIA_ADMIN_KEY=your_admin_key \
-  ALGOLIA_SEARCH_KEY=your_search_key
-```
-
-#### Google Cloud Run
-
-```bash
-# Store in Secret Manager
-echo -n "your_admin_key" | gcloud secrets create algolia-admin-key --data-file=-
-echo -n "your_search_key" | gcloud secrets create algolia-search-key --data-file=-
-
-# Deploy with secrets mounted as env vars
-gcloud run deploy search-service \
-  --image gcr.io/$PROJECT_ID/search-service \
-  --set-secrets=ALGOLIA_ADMIN_KEY=algolia-admin-key:latest,ALGOLIA_SEARCH_KEY=algolia-search-key:latest \
-  --region us-central1
-```
-
-### Step 2: Backend Search API (Next.js API Route)
-
-```typescript
-// app/api/search/route.ts
-import { algoliasearch } from 'algoliasearch';
-import { NextRequest, NextResponse } from 'next/server';
-
-const client = algoliasearch(
-  process.env.ALGOLIA_APP_ID!,
-  process.env.ALGOLIA_ADMIN_KEY!
-);
-
-export async function GET(request: NextRequest) {
-  const query = request.nextUrl.searchParams.get('q') || '';
-  const page = parseInt(request.nextUrl.searchParams.get('page') || '0');
-
-  const { hits, nbHits, nbPages } = await client.searchSingleIndex({
-    indexName: 'products',
-    searchParams: {
-      query,
-      hitsPerPage: 20,
-      page,
-      attributesToRetrieve: ['name', 'price', 'image_url', 'category'],
-      attributesToHighlight: ['name'],
-    },
-  });
-
-  return NextResponse.json({ hits, totalHits: nbHits, totalPages: nbPages, page });
-}
-```
-
-### Step 3: Frontend with InstantSearch (React)
-
-```bash
-npm install react-instantsearch algoliasearch
-```
-
-```tsx
-// components/AlgoliaSearch.tsx
-import { liteClient } from 'algoliasearch/lite';
-import {
-  InstantSearch,
-  SearchBox,
-  Hits,
-  RefinementList,
-  Pagination,
-  Highlight,
-} from 'react-instantsearch';
-
-const searchClient = liteClient(
-  process.env.NEXT_PUBLIC_ALGOLIA_APP_ID!,
-  process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY!
-);
-
-function Hit({ hit }: { hit: any }) {
-  return (
-    <article>
-      <h3><Highlight attribute="name" hit={hit} /></h3>
-      <p>${hit.price}</p>
-      <p>{hit.category}</p>
-    </article>
-  );
-}
-
-export default function AlgoliaSearch() {
-  return (
-    <InstantSearch searchClient={searchClient} indexName="products">
-      <SearchBox placeholder="Search products..." />
-      <div style={{ display: 'flex', gap: '2rem' }}>
-        <aside>
-          <h4>Category</h4>
-          <RefinementList attribute="category" />
-          <h4>Brand</h4>
-          <RefinementList attribute="brand" searchable />
-        </aside>
-        <main>
-          <Hits hitComponent={Hit} />
-          <Pagination />
-        </main>
-      </div>
-    </InstantSearch>
-  );
-}
-```
-
-### Step 4: Frontend with Vanilla InstantSearch.js
-
-```bash
-npm install instantsearch.js algoliasearch
-```
-
-```typescript
-import instantsearch from 'instantsearch.js';
-import { searchBox, hits, refinementList, pagination } from 'instantsearch.js/es/widgets';
-import { liteClient } from 'algoliasearch/lite';
-
-const searchClient = liteClient('YourAppID', 'YourSearchOnlyKey');
-
-const search = instantsearch({
-  indexName: 'products',
-  searchClient,
-});
-
-search.addWidgets([
-  searchBox({ container: '#searchbox' }),
-  hits({
-    container: '#hits',
-    templates: {
-      item: (hit, { html, components }) => html`
-        <article>
-          <h3>${components.Highlight({ hit, attribute: 'name' })}</h3>
-          <p>$${hit.price}</p>
-        </article>
-      `,
-    },
-  }),
-  refinementList({ container: '#category-filter', attribute: 'category' }),
-  pagination({ container: '#pagination' }),
-]);
-
-search.start();
-```
-
-### Step 5: Health Check Endpoint
-
-```typescript
-// app/api/health/route.ts
-import { algoliasearch } from 'algoliasearch';
-
-const client = algoliasearch(process.env.ALGOLIA_APP_ID!, process.env.ALGOLIA_ADMIN_KEY!);
-
-export async function GET() {
-  const start = Date.now();
-  try {
-    const { items } = await client.listIndices();
-    return Response.json({
-      status: 'healthy',
-      algolia: {
-        connected: true,
-        latencyMs: Date.now() - start,
-        indexCount: items.length,
-      },
-    });
-  } catch (error) {
-    return Response.json({
-      status: 'degraded',
-      algolia: { connected: false, error: String(error) },
-    }, { status: 503 });
-  }
-}
-```
+Do not overwrite production indices, rotate keys, promote settings, or enable events as an implicit side effect of application deployment.
 
 ## Output
 
-The deployed application exposes a backend search path, a browser-safe InstantSearch integration, and a health check that verifies the intended index can be queried. The Admin key remains confined to the server environment.
+Return the release topology, environment map, credential classification, ordered deployment plan, smoke evidence, rollback steps, and unresolved approvals.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `NEXT_PUBLIC_` var undefined | Not set in Vercel env | Add with `vercel env add` |
-| InstantSearch shows no results | Wrong Search-Only key | Verify key ACL includes `search` |
-| Backend write fails on Vercel | Using search key for indexing | Use `ALGOLIA_ADMIN_KEY` (non-public) |
-| Cold start timeout | Large client init | Use lite client where possible |
+| Condition | Response |
+|---|---|
+| Browser bundle contains write key | Stop deployment and rotate the exposed credential. |
+| Target index is stale | Hold traffic and complete or rollback indexing. |
+| Health check passes but relevance fails | Use representative query gates, not connectivity alone. |
+| Rollback target unknown | Do not cut over. |
+
+## Examples
+
+Use this compact input and expected handoff to calibrate scope and evidence quality.
+
+Input:
+
+```text
+release=abc123; environment=production; browser-key=search-only; server-key=custom-write
+```
+
+Expected handoff:
+
+```text
+index-task=complete; smoke=pass; representative-queries=pass; rollback=previous-release
+```
 
 ## Resources
 
-- [InstantSearch.js](https://www.algolia.com/doc/guides/building-search-ui/what-is-instantsearch/js/)
-- [React InstantSearch](https://www.algolia.com/doc/guides/building-search-ui/what-is-instantsearch/react/)
-- [Vercel Environment Variables](https://vercel.com/docs/environment-variables)
-
-## Next Steps
-
-For event tracking and analytics, see `algolia-webhooks-events`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [API keys](https://www.algolia.com/doc/guides/security/api-keys)
+- [JavaScript API client](https://www.algolia.com/doc/libraries/javascript)
+- [Sending events](https://www.algolia.com/doc/guides/sending-events)

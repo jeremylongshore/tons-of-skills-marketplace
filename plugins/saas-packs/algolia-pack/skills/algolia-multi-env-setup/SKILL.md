@@ -1,277 +1,93 @@
 ---
 name: algolia-multi-env-setup
-description: 'Configure Algolia across dev/staging/production: index prefixing, per-environment
-
-  API keys, settings-as-code, and environment isolation guards.
-
-  Trigger: "algolia environments", "algolia staging", "algolia dev prod",
-
-  "algolia environment setup", "algolia config by env".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(gcloud:*), Bash(vault:*)
+description: >-
+  Design isolated Algolia development, staging, preview, and production targets with explicit promotion rules. Use when environments share credentials or index names, or previews need bounded search data. Trigger with "Algolia environments", "Algolia staging setup", or "preview index".
+argument-hint: "[repository-path] [environment-map]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.7.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- search
 - algolia
+- environments
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
 # Algolia Multi-Environment Setup
 
 ## Overview
 
-Algolia doesn't have built-in environment separation. You either use **separate Algolia applications** (strongest isolation) or **index prefixing** within one application (simpler). This skill covers both approaches.
+This skill makes environment isolation an application-owned contract. It does not assume one provider topology: separate applications, index namespaces, or a combination may be selected from security, data, cost, and operational requirements.
 
 ## Prerequisites
 
-- Separate environment names or application credentials and a clear production promotion policy.
-- CI secrets scoped to the environment that performs indexing.
-- A naming convention that prevents a staging job from writing to the production index.
+- A named repository, environment, and Algolia application or index in scope
+- The local lockfile and installed client types as implementation authority
+- A safe read-only query or explicitly disposable test target
+- Current first-party documentation for any provider behavior that affects the change
 
-## Environment Strategies
+## Tool Discipline
 
-| Strategy | Isolation | Cost | Complexity |
-|----------|-----------|------|------------|
-| Index prefixing | Shared app, prefixed names | Lowest | Low |
-| Separate API keys | Shared app, scoped keys | Low | Medium |
-| Separate applications | Full isolation | Highest | High |
+Use `Read`, `Glob`, and `Grep` to inspect local code, configuration names, tests, and dependency versions. Use `WebFetch` only for current official Algolia documentation. Use `Write` or `Edit` only after identifying the target files, constraints, and verification plan.
+
+## Current Contract
+
+- Map every runtime environment to an explicit application ID, index namespace, credential owner, and data classification.
+- Prevent preview or branch input from selecting an arbitrary production index.
+- Promote versioned settings and transforms through review rather than copying unknown live state.
+- Define lifecycle and cleanup for ephemeral indices before creating them.
+
+## Authentication
+
+Use separate custom keys and secret scopes for each environment. Browser builds receive only the search credential for their resolved environment.
 
 ## Instructions
 
-## Examples
+1. Inventory applications, indices, replicas, keys, deployment environments, data sources, and retention rules.
+2. Choose isolation boundaries based on blast radius, data policy, feature parity, and verified current commercial terms.
+3. Implement an allowlisted environment resolver with no production fallback for unknown values.
+4. Define reproducible record, settings, synonym, and rule promotion artifacts.
+5. Test cross-environment denial, preview naming, cleanup, and production-selection safeguards.
+6. Document owners, rotation, promotion, rollback, retention, and orphan-index review.
 
-The index-prefix and configuration examples below demonstrate environment isolation and controlled promotion. Keep the same convention in local tooling, CI, and runtime configuration to avoid cross-environment writes.
+## Approval Boundaries
 
-### Step 1: Index Prefixing (Recommended for Most Teams)
-
-```typescript
-// src/algolia/config.ts
-import { algoliasearch, type Algoliasearch } from 'algoliasearch';
-
-type Environment = 'development' | 'staging' | 'production';
-
-interface AlgoliaConfig {
-  appId: string;
-  apiKey: string;
-  searchKey: string;
-  environment: Environment;
-}
-
-function getConfig(): AlgoliaConfig {
-  const env = (process.env.NODE_ENV || 'development') as Environment;
-
-  return {
-    appId: process.env.ALGOLIA_APP_ID!,
-    apiKey: process.env.ALGOLIA_ADMIN_KEY!,
-    searchKey: process.env.ALGOLIA_SEARCH_KEY!,
-    environment: env,
-  };
-}
-
-// Prefix index names with environment
-export function indexName(base: string): string {
-  const { environment } = getConfig();
-  if (environment === 'production') return base;  // No prefix in prod
-  return `${environment}_${base}`;
-  // development_products, staging_products, products
-}
-
-let _client: Algoliasearch | null = null;
-
-export function getClient(): Algoliasearch {
-  if (!_client) {
-    const config = getConfig();
-    _client = algoliasearch(config.appId, config.apiKey);
-  }
-  return _client;
-}
-```
-
-### Step 2: Scoped API Keys Per Environment
-
-```typescript
-import { algoliasearch } from 'algoliasearch';
-
-const adminClient = algoliasearch(process.env.ALGOLIA_APP_ID!, process.env.ALGOLIA_ADMIN_KEY!);
-
-// Create environment-scoped keys that can ONLY access their own indices
-async function createEnvironmentKeys() {
-  // Staging key: can only access staging_* indices
-  const { key: stagingKey } = await adminClient.addApiKey({
-    apiKey: {
-      acl: ['search', 'addObject', 'deleteObject', 'editSettings', 'browse'],
-      description: 'Staging environment — full access to staging indices only',
-      indexes: ['staging_*'],
-      maxQueriesPerIPPerHour: 10000,
-    },
-  });
-  console.log(`Staging key: ${stagingKey}`);
-
-  // Dev key: can only access development_* indices
-  const { key: devKey } = await adminClient.addApiKey({
-    apiKey: {
-      acl: ['search', 'addObject', 'deleteObject', 'editSettings', 'browse'],
-      description: 'Development environment — full access to dev indices only',
-      indexes: ['development_*'],
-      maxQueriesPerIPPerHour: 5000,
-    },
-  });
-  console.log(`Dev key: ${devKey}`);
-
-  // Production search key: search only, restricted
-  const { key: prodSearchKey } = await adminClient.addApiKey({
-    apiKey: {
-      acl: ['search'],
-      description: 'Production search — read only',
-      indexes: ['products', 'articles', 'faq'],
-      maxQueriesPerIPPerHour: 50000,
-      maxHitsPerQuery: 100,
-    },
-  });
-  console.log(`Prod search key: ${prodSearchKey}`);
-}
-```
-
-### Step 3: Environment Variables Per Platform
-
-```bash
-# .env.development
-ALGOLIA_APP_ID=YourAppID
-ALGOLIA_ADMIN_KEY=dev_scoped_key_here
-ALGOLIA_SEARCH_KEY=dev_search_key_here
-NODE_ENV=development
-
-# .env.staging
-ALGOLIA_APP_ID=YourAppID
-ALGOLIA_ADMIN_KEY=staging_scoped_key_here
-ALGOLIA_SEARCH_KEY=staging_search_key_here
-NODE_ENV=staging
-
-# Production: use secret manager, not env files
-# GitHub Actions:
-#   ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY_PROD }}
-# GCP Secret Manager:
-#   gcloud secrets versions access latest --secret=algolia-admin-key
-# Vercel:
-#   vercel env add ALGOLIA_ADMIN_KEY production
-```
-
-### Step 4: Settings-as-Code with Environment Overrides
-
-```typescript
-// config/algolia-settings.ts
-import type { IndexSettings } from 'algoliasearch';
-
-const baseSettings: IndexSettings = {
-  searchableAttributes: ['name', 'brand', 'category', 'unordered(description)'],
-  attributesForFaceting: ['searchable(brand)', 'category', 'filterOnly(price)'],
-  customRanking: ['desc(review_count)', 'desc(rating)'],
-};
-
-const envOverrides: Partial<Record<string, Partial<IndexSettings>>> = {
-  development: {
-    // Faster iteration: no replicas in dev
-    replicas: [],
-  },
-  staging: {
-    // Mirror prod replicas for testing
-    replicas: ['virtual(staging_products_price_asc)'],
-  },
-  production: {
-    replicas: [
-      'virtual(products_price_asc)',
-      'virtual(products_price_desc)',
-      'virtual(products_newest)',
-    ],
-  },
-};
-
-export function getSettings(env: string): IndexSettings {
-  return { ...baseSettings, ...envOverrides[env] };
-}
-```
-
-### Step 5: Environment Isolation Guard
-
-```typescript
-// Prevent accidental cross-environment operations
-export function guardEnvironment(operation: string, targetIndex: string) {
-  const env = process.env.NODE_ENV || 'development';
-
-  if (env === 'production') {
-    // In production, block access to dev/staging indices
-    if (targetIndex.startsWith('development_') || targetIndex.startsWith('staging_')) {
-      throw new Error(`Blocked: ${operation} on ${targetIndex} from production`);
-    }
-  } else {
-    // In dev/staging, block access to production indices (no prefix = production)
-    if (!targetIndex.startsWith(`${env}_`)) {
-      throw new Error(`Blocked: ${operation} on ${targetIndex} from ${env}. Use prefixed index.`);
-    }
-  }
-}
-
-// Usage in service layer
-async function deleteIndex(name: string) {
-  guardEnvironment('deleteIndex', name);
-  await getClient().deleteIndex({ indexName: name });
-}
-```
-
-### Step 6: Seed Script Per Environment
-
-```typescript
-// scripts/seed-environment.ts
-import { getClient, indexName } from '../src/algolia/config';
-import { getSettings } from '../config/algolia-settings';
-
-async function seedEnvironment() {
-  const env = process.env.NODE_ENV || 'development';
-  const client = getClient();
-  const idx = indexName('products');
-
-  console.log(`Seeding ${env} environment → index: ${idx}`);
-
-  // Apply settings
-  await client.setSettings({ indexName: idx, indexSettings: getSettings(env) });
-
-  // Seed data (dev/staging only)
-  if (env !== 'production') {
-    const testData = await import('../fixtures/products.json');
-    const { taskID } = await client.replaceAllObjects({
-      indexName: idx,
-      objects: testData.default,
-    });
-    await client.waitForTask({ indexName: idx, taskID });
-    console.log(`Seeded ${testData.default.length} records`);
-  }
-}
-
-seedEnvironment().catch(console.error);
-```
+Do not create applications, copy production data, share keys, or delete preview indices until topology and data-policy owners approve.
 
 ## Output
 
-Each environment resolves to the intended index and credentials, with promotion and rollback paths that do not expose production keys or overwrite production data from staging.
+Return the environment matrix, selected topology and tradeoffs, configuration resolver, key scopes, promotion flow, isolation tests, and lifecycle controls.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Wrong index in production | Missing prefix logic | Use `indexName()` helper everywhere |
-| Staging data leaking to prod | Shared API key | Use scoped keys restricted to index patterns |
-| Settings drift between envs | Manual dashboard changes | Apply settings from code in CI |
-| Dev index polluting record count | Old test indices | Scheduled cleanup job for `development_*` indices |
+| Condition | Response |
+|---|---|
+| Unknown environment | Fail closed instead of selecting production. |
+| Preview requests production data | Reject unless an explicit approved sanitized source exists. |
+| Settings drift | Rebuild from versioned artifacts and review the diff. |
+| Orphan cleanup uncertain | Report candidates without deleting them. |
+
+## Examples
+
+Use this compact input and expected handoff to calibrate scope and evidence quality.
+
+Input:
+
+```text
+env=preview-482; app=nonprod; index=preview_482_products; data=synthetic
+```
+
+Expected handoff:
+
+```text
+resolver=allowlisted; prod-fallback=none; cleanup-after=reviewed-policy
+```
 
 ## Resources
 
-- [API Key Index Restrictions](https://www.algolia.com/doc/guides/security/api-keys/in-depth/api-key-restrictions/)
-- [Settings API](https://www.algolia.com/doc/api-reference/api-methods/set-settings/)
-- [12-Factor App Config](https://12factor.net/config)
-
-## Next Steps
-
-For observability setup, see `algolia-observability`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [API keys](https://www.algolia.com/doc/guides/security/api-keys)
+- [Sending and managing data](https://www.algolia.com/doc/guides/sending-and-managing-data)
+- [Algolia pricing](https://www.algolia.com/pricing/)

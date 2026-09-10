@@ -1,247 +1,93 @@
 ---
 name: algolia-sdk-patterns
-description: 'Apply production-ready algoliasearch v5 patterns: singleton client,
-  typed search,
-
-  error handling, and batch operations.
-
-  Use when implementing Algolia integrations, refactoring SDK usage,
-
-  or establishing team coding standards.
-
-  Trigger: "algolia SDK patterns", "algolia best practices", "algolia code patterns",
-  "idiomatic algolia".
-
-  '
-allowed-tools: Read, Write, Edit
+description: >-
+  Create or review a typed application adapter around the Algolia JavaScript v5 client. Use when client calls, index names, errors, task waits, and credential usage are scattered. Trigger with "Algolia SDK patterns", "Algolia client wrapper", or "refactor search client".
+argument-hint: "[repository-path] [adapter-module]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.7.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- search
 - algolia
+- sdk
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Algolia SDK Patterns
+# Algolia JavaScript v5 SDK Boundary
 
 ## Overview
 
-Production-ready patterns for `algoliasearch` v5. Key architectural change from v4: all methods live on the client directly — no more `client.initIndex()`. Index name is passed as a parameter to every call.
+This skill centralizes the application contract around the installed v5 client without hiding important provider results. It keeps search, writes, task waits, and error metadata testable and explicit.
 
 ## Prerequisites
 
-- `algoliasearch` v5+ installed
-- Completed `algolia-install-auth` setup
-- TypeScript project (patterns work in JS too, you just lose type safety)
+- A named repository, environment, and Algolia application or index in scope
+- The local lockfile and installed client types as implementation authority
+- A safe read-only query or explicitly disposable test target
+- Current first-party documentation for any provider behavior that affects the change
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect local code, configuration names, tests, and dependency versions. Use `WebFetch` only for current official Algolia documentation. Use `Write` or `Edit` only after identifying the target files, constraints, and verification plan.
+
+## Current Contract
+
+- Create clients at trust boundaries and inject them into adapters rather than constructing them in every call site.
+- For v5, call operations on the client and pass `indexName`; do not restore `initIndex`.
+- Return typed application results while preserving request IDs, task IDs, and provider error context.
+- Put retry, timeout, batching, and index resolution policies in one reviewed layer.
+
+## Authentication
+
+Accept credentials from the approved runtime configuration and never expose them through adapter return values, exceptions, logs, or browser/server boundary mistakes.
 
 ## Instructions
 
-## Examples
+1. Inventory every SDK import, installed version, client construction, index name, and direct call.
+2. Group use cases into search, indexing, configuration, events, analytics, or administration boundaries.
+3. Define typed inputs and outputs plus explicit timeout, task-wait, and error behavior.
+4. Implement the smallest adapter and migrate one caller with contract tests.
+5. Test success, authorization denial, timeout, stale task, malformed filters, and cancellation.
+6. Migrate remaining callers incrementally and remove duplicate credential or retry logic.
 
-The client, result, error, batch, and tenant examples below establish a consistent v5 SDK boundary. Centralize credentials and index naming in that boundary so individual callers do not reimplement error or retry policy.
+## Approval Boundaries
 
-### Pattern 1: Typed Singleton Client
-
-```typescript
-// src/algolia/client.ts
-import { algoliasearch, type Algoliasearch } from 'algoliasearch';
-
-let _client: Algoliasearch | null = null;
-
-export function getClient(): Algoliasearch {
-  if (!_client) {
-    const appId = process.env.ALGOLIA_APP_ID;
-    const apiKey = process.env.ALGOLIA_ADMIN_KEY;
-    if (!appId || !apiKey) {
-      throw new Error(
-        'ALGOLIA_APP_ID and ALGOLIA_ADMIN_KEY must be set. '
-        + 'Get them from dashboard.algolia.com > Settings > API Keys'
-      );
-    }
-    _client = algoliasearch(appId, apiKey);
-  }
-  return _client;
-}
-
-// For testing: reset singleton
-export function resetClient(): void {
-  _client = null;
-}
-```
-
-### Pattern 2: Typed Search Results
-
-```typescript
-// src/algolia/types.ts
-
-// Define your record shape — extends Algolia's Hit type
-interface Product {
-  objectID: string;
-  name: string;
-  category: string;
-  price: number;
-  description: string;
-  image_url: string;
-}
-
-// src/algolia/search.ts
-import { getClient } from './client';
-
-export async function searchProducts(
-  query: string,
-  options?: {
-    filters?: string;
-    facetFilters?: string[][];
-    hitsPerPage?: number;
-    page?: number;
-  }
-) {
-  const client = getClient();
-
-  const { hits, nbHits, nbPages, page } = await client.searchSingleIndex<Product>({
-    indexName: 'products',
-    searchParams: {
-      query,
-      filters: options?.filters,
-      facetFilters: options?.facetFilters,
-      hitsPerPage: options?.hitsPerPage ?? 20,
-      page: options?.page ?? 0,
-      attributesToRetrieve: ['name', 'category', 'price', 'image_url'],
-      attributesToHighlight: ['name', 'description'],
-    },
-  });
-
-  return { hits, totalHits: nbHits, totalPages: nbPages, currentPage: page };
-}
-
-// Usage: const { hits } = await searchProducts('laptop', { filters: 'price < 1000' });
-```
-
-### Pattern 3: Error Handling with Algolia Error Types
-
-```typescript
-// src/algolia/errors.ts
-import { ApiError } from 'algoliasearch';
-
-export async function safeAlgoliaCall<T>(
-  operation: string,
-  fn: () => Promise<T>
-): Promise<{ data: T | null; error: string | null }> {
-  try {
-    const data = await fn();
-    return { data, error: null };
-  } catch (err) {
-    if (err instanceof ApiError) {
-      // ApiError has status and message from Algolia API
-      const msg = `Algolia ${operation} failed [${err.status}]: ${err.message}`;
-      console.error(msg);
-
-      // Specific handling for common codes
-      if (err.status === 429) {
-        console.warn('Rate limited — reduce request frequency or contact Algolia');
-      } else if (err.status === 404) {
-        console.warn('Index or object not found — verify index name');
-      }
-
-      return { data: null, error: msg };
-    }
-    // Non-Algolia error (network, etc.)
-    const msg = err instanceof Error ? err.message : 'Unknown error';
-    console.error(`${operation} error: ${msg}`);
-    return { data: null, error: msg };
-  }
-}
-
-// Usage:
-// const { data, error } = await safeAlgoliaCall('search', () =>
-//   client.searchSingleIndex({ indexName: 'products', searchParams: { query: 'foo' } })
-// );
-```
-
-### Pattern 4: Batch Operations
-
-```typescript
-// src/algolia/batch.ts
-import { getClient } from './client';
-
-// saveObjects handles batching internally — send up to 1000 objects per call
-export async function bulkIndex(indexName: string, records: Record<string, any>[]) {
-  const client = getClient();
-  const BATCH_SIZE = 1000;
-
-  for (let i = 0; i < records.length; i += BATCH_SIZE) {
-    const batch = records.slice(i, i + BATCH_SIZE);
-    const { taskID } = await client.saveObjects({
-      indexName,
-      objects: batch,
-    });
-    await client.waitForTask({ indexName, taskID });
-    console.log(`Indexed ${Math.min(i + BATCH_SIZE, records.length)}/${records.length}`);
-  }
-}
-
-// Partial update — only send changed fields
-export async function updateFields(
-  indexName: string,
-  objectID: string,
-  fields: Record<string, any>
-) {
-  const client = getClient();
-  return client.partialUpdateObject({
-    indexName,
-    objectID,
-    attributesToUpdate: fields,
-  });
-}
-```
-
-### Pattern 5: Multi-Tenant Client Factory
-
-```typescript
-// src/algolia/multi-tenant.ts
-import { algoliasearch, type Algoliasearch } from 'algoliasearch';
-
-const tenantClients = new Map<string, Algoliasearch>();
-
-export function getClientForTenant(tenantId: string): Algoliasearch {
-  if (!tenantClients.has(tenantId)) {
-    // Each tenant might have their own Algolia app, or use index prefixes
-    const appId = process.env[`ALGOLIA_APP_ID_${tenantId.toUpperCase()}`]
-      || process.env.ALGOLIA_APP_ID!;
-    const apiKey = process.env[`ALGOLIA_ADMIN_KEY_${tenantId.toUpperCase()}`]
-      || process.env.ALGOLIA_ADMIN_KEY!;
-
-    tenantClients.set(tenantId, algoliasearch(appId, apiKey));
-  }
-  return tenantClients.get(tenantId)!;
-}
-
-// Or use a single app with index prefixing
-export function tenantIndex(tenantId: string, base: string): string {
-  return `${tenantId}_${base}`; // "acme_products"
-}
-```
+Do not conceal destructive index operations behind generic methods, silently retry writes, or migrate all callers without a compatibility and rollback plan.
 
 ## Output
 
-The application gains typed, reusable SDK access patterns for search and write paths, with explicit error classification and post-write task waiting. Callers receive structured results without duplicating connection or credential logic.
+Return the call-site inventory, adapter API, trust boundaries, migrated callers, contract tests, preserved metadata, and remaining direct-client exceptions.
 
 ## Error Handling
 
-| Pattern | Use Case | Benefit |
-|---------|----------|---------|
-| `safeAlgoliaCall` wrapper | All API calls | Prevents uncaught exceptions, structured error info |
-| `ApiError` check | Distinguishing API vs network errors | Targeted retry/recovery logic |
-| `waitForTask` | After every write operation | Ensures reads see latest data |
-| Batch chunking | Large datasets | Avoids record-too-big and timeout errors |
+| Condition | Response |
+|---|---|
+| Installed types differ from docs | Follow the lockfile and types; schedule version review separately. |
+| Provider error is flattened | Preserve status and correlation metadata. |
+| Task wait is omitted | Make completion semantics explicit in write results. |
+| Adapter gains unrelated policy | Split the boundary by use case. |
+
+## Examples
+
+Use this compact input and expected handoff to calibrate scope and evidence quality.
+
+Input:
+
+```text
+module=src/search/algolia.ts; version=5.59.0; callers=14
+```
+
+Expected handoff:
+
+```text
+adapter=SearchGateway+IndexPublisher; migrated=3; contract-tests=pass; retries=centralized
+```
 
 ## Resources
 
-- [algoliasearch v5 Methods](https://www.algolia.com/doc/libraries/javascript/v5/methods/search/)
-- v4 to v5 Migration Guide
-- API Error Codes
-
-## Next Steps
-
-Apply patterns in `algolia-core-workflow-a` for search implementation.
+- [Skill-specific official documentation](references/official-docs.md)
+- [JavaScript API client](https://www.algolia.com/doc/libraries/javascript)
+- [JavaScript v5 upgrade](https://www.algolia.com/doc/libraries/sdk/upgrade/javascript)
+- [API keys](https://www.algolia.com/doc/guides/security/api-keys)

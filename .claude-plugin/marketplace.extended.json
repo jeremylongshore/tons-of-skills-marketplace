@@ -8482,7 +8482,7 @@
     {
       "name": "algolia-pack",
       "source": "./plugins/saas-packs/algolia-pack",
-      "description": "Claude Code skill pack for Algolia (24 skills)",
+      "description": "Grade-A Algolia search operator pack with 24 skills",
       "version": "1.7.0",
       "category": "saas-packs",
       "keywords": [

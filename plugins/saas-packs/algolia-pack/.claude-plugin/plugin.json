@@ -1,14 +1,13 @@
 {
   "name": "algolia-pack",
   "version": "1.7.0",
-  "description": "Claude Code skill pack for Algolia (24 skills)",
+  "description": "Grade-A Algolia search operator pack with 24 skills",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
   },
   "license": "MIT",
   "keywords": [
-    "algolia",
     "algolia",
     "saas",
     "sdk",

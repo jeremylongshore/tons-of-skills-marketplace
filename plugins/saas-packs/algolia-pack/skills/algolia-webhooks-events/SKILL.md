@@ -1,232 +1,93 @@
 ---
 name: algolia-webhooks-events
-description: 'Implement Algolia Insights API for click/conversion tracking, search
-  analytics,
-
-  and real-time event-driven index updates via database change listeners.
-
-  Trigger: "algolia events", "algolia analytics", "algolia insights",
-
-  "algolia click tracking", "algolia conversion", "algolia event tracking".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*)
+description: >-
+  Implement and validate Algolia click, conversion, and view events while separating them from source-to-index synchronization. Use when adding Insights, query attribution, or event-driven record updates. Trigger with "Algolia Insights", "track search conversion", or "sync database to Algolia".
+argument-hint: "[repository-path] [event-or-sync-flow]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.7.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- search
 - algolia
+- events
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Algolia Events & Insights
+# Algolia Search Events and Source Sync
 
 ## Overview
 
-Algolia doesn't use traditional webhooks. Instead, it provides the **Insights API** for sending user behavior events (clicks, conversions, views) back to Algolia, and the **Analytics API** for reading search performance data. For keeping your index in sync, you build event-driven pipelines from your database to Algolia.
+This skill corrects a common category error: user interaction events go to the Insights API, while database or business events drive an application-owned indexing pipeline. These flows have different identity, delivery, privacy, and retry contracts.
 
 ## Prerequisites
 
-- `algoliasearch` v5 installed (Insights client is included)
-- Index with records and `queryID` enabled (for click analytics)
-- `search-insights` npm package for frontend event tracking
+- A named repository, environment, and Algolia application or index in scope
+- The local lockfile and installed client types as implementation authority
+- A safe read-only query or explicitly disposable test target
+- Current first-party documentation for any provider behavior that affects the change
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect local code, configuration names, tests, and dependency versions. Use `WebFetch` only for current official Algolia documentation. Use `Write` or `Edit` only after identifying the target files, constraints, and verification plan.
+
+## Current Contract
+
+- Use the dedicated `search-insights` client or supported framework integration for browser events; it is not the Search API client.
+- Set `clickAnalytics` when a search-related event needs a returned query ID.
+- Use a stable pseudonymous user token and preserve query ID, object IDs, positions, and event names as required.
+- Design source-to-index updates as idempotent writes with ordering, dead-letter, replay, and reconciliation.
+
+## Authentication
+
+Browser events use the documented Insights credential pattern and must not contain write-capable keys or personal identifiers. Index sync uses a separate restricted backend key.
 
 ## Instructions
 
-## Examples
+1. Classify the requested flow as user interaction telemetry, source-data synchronization, or both.
+2. Map consent, user identity, query ID, object IDs, event taxonomy, and downstream feature consumers.
+3. Implement events with the pinned `search-insights` or framework API and validate payloads using provider tooling.
+4. Implement source sync separately with stable IDs, idempotency, bounded retry, dead-letter handling, and task waits.
+5. Test missing query ID, duplicate delivery, consent denial, offline clients, reordered source events, and replay.
+6. Measure event validity and index reconciliation, then document ownership and rollback.
 
-The search, Insights, analytics, and database-sync snippets below show the event correlation contract end to end. Preserve the query ID and a stable user token, and route failed source-database events to a retryable queue rather than dropping them.
+## Approval Boundaries
 
-### Step 1: Enable Click Analytics in Search
-
-```typescript
-import { algoliasearch } from 'algoliasearch';
-
-const client = algoliasearch(process.env.ALGOLIA_APP_ID!, process.env.ALGOLIA_ADMIN_KEY!);
-
-// Enable clickAnalytics to get queryID in search results
-const { hits, queryID } = await client.searchSingleIndex({
-  indexName: 'products',
-  searchParams: {
-    query: 'running shoes',
-    clickAnalytics: true,  // Returns queryID for event correlation
-  },
-});
-// queryID links this search to subsequent click/conversion events
-```
-
-### Step 2: Send Click and Conversion Events (Backend)
-
-```typescript
-// The Insights API is built into the algoliasearch client
-// Events connect user behavior back to specific search queries
-
-// Track a click on a search result
-await client.pushEvents({
-  events: [{
-    eventType: 'click',
-    eventName: 'Product Clicked',
-    index: 'products',
-    userToken: 'user-123',        // Unique user identifier
-    queryID: queryID,              // From search response
-    objectIDs: ['product-456'],    // What was clicked
-    positions: [3],                // Position in results (1-indexed)
-    timestamp: Date.now(),
-  }],
-});
-
-// Track a conversion (purchase, add-to-cart)
-await client.pushEvents({
-  events: [{
-    eventType: 'conversion',
-    eventName: 'Product Purchased',
-    index: 'products',
-    userToken: 'user-123',
-    queryID: queryID,
-    objectIDs: ['product-456'],
-    timestamp: Date.now(),
-  }],
-});
-
-// Track a view (product page visit, no search context)
-await client.pushEvents({
-  events: [{
-    eventType: 'view',
-    eventName: 'Product Viewed',
-    index: 'products',
-    userToken: 'user-123',
-    objectIDs: ['product-456'],
-    timestamp: Date.now(),
-  }],
-});
-```
-
-### Step 3: Frontend Event Tracking with search-insights
-
-```bash
-npm install search-insights
-```
-
-```typescript
-// Frontend: lightweight event tracking
-import { default as aa } from 'search-insights';
-
-aa('init', {
-  appId: 'YourAppID',
-  apiKey: 'YourSearchOnlyKey',  // Search-only key is fine for events
-});
-
-// Set user token (anonymous or authenticated)
-aa('setUserToken', 'user-123');
-
-// After user clicks a search result
-aa('clickedObjectIDsAfterSearch', {
-  eventName: 'Product Clicked',
-  index: 'products',
-  queryID: 'abc123',          // From search response
-  objectIDs: ['product-456'],
-  positions: [3],
-});
-
-// After user converts (purchases)
-aa('convertedObjectIDsAfterSearch', {
-  eventName: 'Product Purchased',
-  index: 'products',
-  queryID: 'abc123',
-  objectIDs: ['product-456'],
-});
-```
-
-### Step 4: Read Search Analytics
-
-```typescript
-// The analytics client is part of algoliasearch
-const analyticsClient = client.initAnalytics({ region: 'us' });
-
-// Top searches
-const { searches } = await client.getTopSearches({
-  index: 'products',
-  startDate: '2025-01-01',
-  endDate: '2025-01-31',
-});
-searches.forEach(s => console.log(`"${s.search}" — ${s.count} searches, ${s.nbHits} avg hits`));
-
-// Searches with no results (critical for relevance tuning)
-const { searches: noResults } = await client.getSearchesNoResults({
-  index: 'products',
-  startDate: '2025-01-01',
-  endDate: '2025-01-31',
-});
-noResults.forEach(s => console.log(`"${s.search}" — ${s.count} times, 0 results`));
-
-// Click-through rate and conversion rate
-const { clickRate, conversionRate } = await client.getClickThroughRate({
-  index: 'products',
-});
-console.log(`CTR: ${(clickRate * 100).toFixed(1)}%, CVR: ${(conversionRate * 100).toFixed(1)}%`);
-```
-
-### Step 5: Database-to-Algolia Sync Pipeline
-
-```typescript
-// Real-time index updates from your database change events
-// Works with Prisma, Drizzle, Mongoose change streams, PostgreSQL LISTEN/NOTIFY
-
-import { getClient } from './algolia/client';
-
-// Prisma middleware example
-prisma.$use(async (params, next) => {
-  const result = await next(params);
-  const client = getClient();
-
-  if (params.model === 'Product') {
-    switch (params.action) {
-      case 'create':
-      case 'update':
-        await client.saveObject({
-          indexName: 'products',
-          body: {
-            objectID: result.id,
-            name: result.name,
-            price: result.price,
-            category: result.category,
-          },
-        });
-        break;
-      case 'delete':
-        await client.deleteObject({
-          indexName: 'products',
-          objectID: params.args.where.id,
-        });
-        break;
-    }
-  }
-
-  return result;
-});
-```
+Do not send personal identifiers as user tokens, invent attribution when query IDs are absent, or treat interaction events as database webhooks.
 
 ## Output
 
-The search experience emits correlated click and conversion events, provides analytics reads, and keeps index updates synchronized with source-database changes. Operators can diagnose whether missing insight data originates in search, event capture, or the sync pipeline.
+Return the flow classification, event and sync contracts, credential boundaries, validation results, retry and replay behavior, privacy decisions, and operational ownership.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `queryID` is null | `clickAnalytics: true` not set | Add to search params |
-| Events not appearing in dashboard | Wrong `userToken` format | Use stable, non-empty string identifiers |
-| Analytics shows 0 CTR | Events not correlated | Ensure `queryID` matches between search and click |
-| Sync pipeline losing events | No retry on failure | Add dead-letter queue for failed updates |
+| Condition | Response |
+|---|---|
+| Query ID missing | Send only an appropriate non-search event or fix search attribution. |
+| Consent denied | Do not emit the event. |
+| Duplicate source event | Use idempotent version or event identity handling. |
+| Validation rejects payload | Correct the contract before enabling downstream features. |
+
+## Examples
+
+Use this compact input and expected handoff to calibrate scope and evidence quality.
+
+Input:
+
+```text
+flow=search-clicks+catalog-updates; client=search-insights-2.17.3; consent=required
+```
+
+Expected handoff:
+
+```text
+events=validated; queryID-coverage=measured; sync=idempotent; dead-letter=tested
+```
 
 ## Resources
 
-- [Insights API](https://www.algolia.com/doc/guides/sending-events/getting-started/)
-- [Analytics API](https://www.algolia.com/doc/libraries/javascript/v5/methods/analytics/)
-- [search-insights](https://www.npmjs.com/package/search-insights)
-- [Click Analytics Guide](https://www.algolia.com/doc/guides/getting-analytics/search-analytics/out-of-the-box-analytics/)
-
-## Next Steps
-
-For performance optimization, see `algolia-performance-tuning`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Click and conversion events](https://www.algolia.com/doc/guides/sending-events)
+- [Send events](https://www.algolia.com/doc/libraries/search-insights/send-events)
+- [JavaScript API client](https://www.algolia.com/doc/libraries/javascript)

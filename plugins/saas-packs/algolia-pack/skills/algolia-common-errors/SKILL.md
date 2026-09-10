@@ -1,275 +1,93 @@
 ---
 name: algolia-common-errors
-description: 'Diagnose and fix the top Algolia API errors: 400, 403, 404, 429, ApiError,
-
-  RetryError, and indexing failures.
-
-  Trigger: "algolia error", "fix algolia", "algolia not working",
-
-  "debug algolia", "algolia 429", "algolia 403".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*), Bash(npm:*)
+description: >-
+  Diagnose Algolia request, credential, index, task, and query failures from concrete evidence. Use when an integration returns 4xx or 5xx responses, stale results, or unexpected empty hits. Trigger with "debug Algolia error", "Algolia 403", or "Algolia search failed".
+argument-hint: "[repository-path] [error-or-request-id]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.7.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- search
 - algolia
+- debugging
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Algolia Common Errors
+# Algolia Error Triage
 
 ## Overview
 
-Quick reference for the most common Algolia errors, their root causes, and fixes. All examples use `algoliasearch` v5 client error types.
+This skill turns an Algolia symptom into a reproducible diagnosis. It favors the response status, message, request ID, client version, operation, and target index over generic error folklore.
 
 ## Prerequisites
 
-- The Algolia application ID and the least-privileged API key needed for the failing operation.
-- `curl`, `jq`, and the relevant application runtime available where you run diagnostics.
-- A safe test index when reproducing write failures; do not investigate against production with an unrestricted Admin key.
+- A named repository, environment, and Algolia application or index in scope
+- The local lockfile and installed client types as implementation authority
+- A safe read-only query or explicitly disposable test target
+- Current first-party documentation for any provider behavior that affects the change
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect local code, configuration names, tests, and dependency versions. Use `WebFetch` only for current official Algolia documentation. Use `Write` or `Edit` only after identifying the target files, constraints, and verification plan.
+
+## Current Contract
+
+- A 403 is an authorization fact, not proof that an unrestricted key is required.
+- A successful write is asynchronous; compare the returned task ID and wait behavior before calling data stale.
+- A 404 can identify a missing index, application, route, or regional endpoint; preserve the full response.
+- A 429 must be interpreted from the returned message and current plan or key restrictions, not from a guessed universal quota.
+
+## Authentication
+
+Inspect only redacted key metadata and ACL intent. Never print, paste, or replace a credential with an Admin key merely to make a failing request succeed.
 
 ## Instructions
 
-Match the exact response status and request ID to the reference below, run the diagnostic script only with scoped credentials, then apply the smallest listed corrective action before retrying.
-
-## Error Handling
-
-### 1. Invalid Application-ID or API key (403)
-
-```
-ApiError: Invalid Application-ID or API key
-```
-
-**Cause:** App ID or API key is wrong, expired, or deleted.
-
-**Fix:**
-
-```bash
-# Verify your env vars are set
-echo "APP_ID: $ALGOLIA_APP_ID"
-echo "KEY set: ${ALGOLIA_ADMIN_KEY:+yes}"
-
-# Test with curl
-curl -s "https://${ALGOLIA_APP_ID}-dsn.algolia.net/1/indexes" \
-  -H "X-Algolia-Application-Id: ${ALGOLIA_APP_ID}" \
-  -H "X-Algolia-API-Key: ${ALGOLIA_ADMIN_KEY}" | head -c 200
-```
-
-Get fresh keys: dashboard.algolia.com > Settings > API Keys.
-
----
-
-### 2. Method not allowed with this API key (403)
-
-```
-ApiError: Method not allowed with this API key
-```
-
-**Cause:** Using a Search-Only key for a write operation (saveObjects, setSettings, etc.).
-
-**Fix:** Use the Admin API key for write operations. Search-Only keys only permit `search` ACL.
-
-```typescript
-// Wrong: search-only key for indexing
-const client = algoliasearch(appId, searchOnlyKey);
-await client.saveObjects({ ... }); // 403
-
-// Right: admin key for indexing
-const client = algoliasearch(appId, adminKey);
-await client.saveObjects({ ... }); // Works
-```
-
----
-
-### 3. Index does not exist (404)
-
-```
-ApiError: Index products_staging does not exist
-```
-
-**Cause:** Searching an index that hasn't been created yet. Algolia creates indices lazily on first `saveObjects`.
-
-**Fix:** Index some data first, or check the index name for typos:
-
-```bash
-# List all indices in your app
-curl -s "https://${ALGOLIA_APP_ID}-dsn.algolia.net/1/indexes" \
-  -H "X-Algolia-Application-Id: ${ALGOLIA_APP_ID}" \
-  -H "X-Algolia-API-Key: ${ALGOLIA_ADMIN_KEY}" | jq '.items[].name'
-```
-
----
-
-### 4. Rate limit exceeded (429)
-
-```
-ApiError: Too Many Requests
-```
-
-**Cause:** API key's `maxQueriesPerIPPerHour` exceeded, or server-side indexing rate limit hit.
-
-**Fix:**
-
-```typescript
-// Algolia's built-in retry handles transient 429s.
-// For sustained rate limits:
-
-// 1. Reduce batch frequency
-const BATCH_SIZE = 500;  // Down from 1000
-
-// 2. Add delay between batches
-for (const batch of chunks) {
-  await client.saveObjects({ indexName: 'products', objects: batch });
-  await new Promise(r => setTimeout(r, 200)); // 200ms pause between batches
-}
-
-// 3. Check/increase key rate limit
-// Dashboard > Settings > API Keys > Edit key > Rate limit
-```
-
----
-
-### 5. Record is too big (400)
-
-```
-ApiError: Record at the position 0 is too big size=15234 bytes. Contact us if you need a higher quota.
-```
-
-**Cause:** Single record exceeds 10KB (free/Build plan) or 100KB (paid plans).
-
-**Fix:**
-
-```typescript
-// Strip unnecessary fields before indexing
-function trimForAlgolia(record: any) {
-  const { full_html, raw_content, internal_notes, ...searchable } = record;
-  return searchable;
-}
-
-// Or split long text into chunks
-function truncateDescription(record: any, maxChars = 5000) {
-  return {
-    ...record,
-    description: record.description?.substring(0, maxChars),
-  };
-}
-```
-
----
-
-### 6. Attribute not valid for filtering (400)
-
-```
-ApiError: Attribute "price" is not in attributesForFaceting
-```
-
-**Cause:** Using `filters` or `facetFilters` on an attribute not configured for faceting.
-
-**Fix:**
-
-```typescript
-await client.setSettings({
-  indexName: 'products',
-  indexSettings: {
-    attributesForFaceting: ['category', 'brand', 'filterOnly(price)', 'filterOnly(in_stock)'],
-  },
-});
-// Wait for settings to propagate
-```
-
----
-
-### 7. RetryError: Unreachable hosts
-
-```
-RetryError: Unreachable hosts - yourass might not be connected to the internet
-```
-
-**Cause:** Network/DNS issue. Can't reach `*.algolia.net` or `*.algolianet.com`.
-
-**Fix:**
-
-```bash
-# Test DNS resolution
-nslookup ${ALGOLIA_APP_ID}-dsn.algolia.net
-
-# Test HTTPS connectivity
-curl -v "https://${ALGOLIA_APP_ID}-dsn.algolia.net/1/indexes" 2>&1 | grep "Connected to"
-
-# Check firewall — Algolia needs outbound HTTPS (443) to:
-# ${APP_ID}.algolia.net
-# ${APP_ID}-1.algolianet.com
-# ${APP_ID}-2.algolianet.com
-# ${APP_ID}-3.algolianet.com
-```
-
----
-
-### 8. Invalid filter syntax (400)
-
-```
-ApiError: Invalid syntax for filter: 'price > AND < 100'
-```
-
-**Fix:** Algolia filter syntax reference:
-
-```
-# Correct syntax
-price > 50 AND price < 100        # Numeric range
-category:shoes                     # String equality
-NOT category:sandals               # Negation
-(brand:Nike OR brand:Adidas)       # Grouped OR
-in_stock = true                    # Boolean (stored as 0/1)
-_tags:featured                     # Tag filter
-```
-
-## Examples
-
-The diagnostic script is a read-only example: it checks credential presence, API connectivity, SDK version, and service status without printing the API key itself.
-
-## Quick Diagnostic Script
-
-```bash
-#!/bin/bash
-echo "=== Algolia Diagnostics ==="
-echo "App ID: ${ALGOLIA_APP_ID:-NOT SET}"
-echo "Admin key: ${ALGOLIA_ADMIN_KEY:+SET (${#ALGOLIA_ADMIN_KEY} chars)}"
-echo ""
-
-echo "=== Connectivity ==="
-curl -s -o /dev/null -w "HTTP %{http_code} in %{time_total}s" \
-  "https://${ALGOLIA_APP_ID}-dsn.algolia.net/1/indexes" \
-  -H "X-Algolia-Application-Id: ${ALGOLIA_APP_ID}" \
-  -H "X-Algolia-API-Key: ${ALGOLIA_ADMIN_KEY}"
-echo ""
-
-echo "=== SDK Version ==="
-npm list algoliasearch 2>/dev/null || echo "Not installed"
-
-echo "=== Algolia Status ==="
-curl -s https://status.algolia.com/api/v2/status.json | jq -r '.status.description' 2>/dev/null
-```
-
-## Escalation Path
-
-1. Check [status.algolia.com](https://status.algolia.com) first
-2. Collect debug info with `algolia-debug-bundle` skill
-3. Search [Algolia Support](https://support.algolia.com) articles
-4. Open support ticket with request ID from error response
+1. Capture the smallest failing call, status, message, request ID, application ID suffix, index name, and package version.
+2. Classify the operation as search, indexing, settings, key management, analytics, or events.
+3. Compare the operation with the intended key ACLs and index restrictions.
+4. Reproduce against a safe test index or read-only query with the same client boundary.
+5. Check task completion, index spelling, filters, attributes, and environment routing in that order.
+6. Apply one correction, rerun the minimal reproduction, and record before-and-after evidence.
+
+## Approval Boundaries
+
+Do not broaden ACLs, rotate keys, change production settings, or replay writes until the target and failure class are confirmed.
 
 ## Output
 
-You will have a classified failure, a reproducible diagnostic result, and the next recovery action or escalation path. Preserve the request ID from any API response when handing the case to Algolia support.
+Return the symptom, evidence, root-cause hypothesis, ruled-out alternatives, minimum fix, verification result, and any remaining uncertainty.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| 401 or 403 | Verify application/key pairing and required ACL; do not escalate privilege blindly. |
+| 404 | Confirm endpoint, application, and exact index name. |
+| 429 | Honor the response and measure request pressure before adding bounded retry. |
+| Stale result | Wait for the specific task and verify the queried index. |
+
+## Examples
+
+Use this compact input and expected handoff to calibrate scope and evidence quality.
+
+Input:
+
+```text
+operation=saveObjects; status=403; index=products_stage
+```
+
+Expected handoff:
+
+```text
+cause=missing-addObject-ACL; fix=request-scoped-key; admin-key-used=no
+```
 
 ## Resources
 
-- [Algolia Status Page](https://status.algolia.com)
-- [API Key Restrictions](https://www.algolia.com/doc/guides/security/api-keys/in-depth/api-key-restrictions/)
-- [Troubleshooting FAQ](https://support.algolia.com/hc/en-us/categories/4406981828753)
-
-## Next Steps
-
-For comprehensive debugging, see `algolia-debug-bundle`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [API keys](https://www.algolia.com/doc/guides/security/api-keys)
+- [JavaScript API client](https://www.algolia.com/doc/libraries/javascript)
+- [Algolia status](https://status.algolia.com/)

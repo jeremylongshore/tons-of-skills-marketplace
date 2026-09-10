@@ -1,241 +1,93 @@
 ---
 name: algolia-performance-tuning
-description: 'Optimize Algolia search performance: record size, searchable attributes,
-
-  replica strategy, response caching, and query-time parameter tuning.
-
-  Trigger: "algolia performance", "optimize algolia", "algolia latency",
-
-  "algolia slow", "algolia caching", "algolia response time".
-
-  '
-allowed-tools: Read, Write, Edit
+description: >-
+  Analyze and optimize an Algolia search path using repository and production evidence instead of universal latency targets. Use when search feels slow, payloads are large, or rendering regresses. Trigger with "tune Algolia performance", "slow Algolia search", or "search latency".
+argument-hint: "[repository-path] [journey-or-query-set]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.7.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- search
 - algolia
+- performance
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Algolia Performance Tuning
+# Algolia Evidence-Based Performance Tuning
 
 ## Overview
 
-Algolia's edge infrastructure typically delivers search in < 50ms globally. When performance degrades, the causes are usually: oversized records, too many searchable attributes, unoptimized faceting, or missing client-side caching. This skill covers server-side and client-side optimizations.
+This skill decomposes perceived search time into input handling, network, provider request, response transfer, transformation, and render work. Optimization starts with an owned baseline and ends with a comparable measurement.
 
 ## Prerequisites
 
-- Baseline search latency, relevance, payload size, and error-rate measurements from production-like traffic.
-- A representative test index and query corpus for evaluating changes before rollout.
-- Access to index settings and an owner for accepting relevance trade-offs.
+- A named repository, environment, and Algolia application or index in scope
+- The local lockfile and installed client types as implementation authority
+- A safe read-only query or explicitly disposable test target
+- Current first-party documentation for any provider behavior that affects the change
 
-## Performance Baselines
+## Tool Discipline
 
-| Metric | Good | Warning | Action Needed |
-|--------|------|---------|---------------|
-| Search latency (P50) | < 20ms | 20-100ms | > 100ms |
-| Search latency (P95) | < 50ms | 50-200ms | > 200ms |
-| Indexing time per 1K records | < 2s | 2-10s | > 10s |
-| Record size (avg) | < 5KB | 5-50KB | > 50KB |
+Use `Read`, `Glob`, and `Grep` to inspect local code, configuration names, tests, and dependency versions. Use `WebFetch` only for current official Algolia documentation. Use `Write` or `Edit` only after identifying the target files, constraints, and verification plan.
+
+## Current Contract
+
+- Set targets from the application's SLO, user geography, device mix, and measured baseline.
+- Inspect record and response shape before changing relevance or faceting settings.
+- Separate query count amplification from individual request latency.
+- Preserve correctness and relevance assertions alongside performance measurements.
+
+## Authentication
+
+Run measurements with search-only or secured keys and sanitized representative queries. Do not expose write credentials or sensitive query logs.
 
 ## Instructions
 
-## Examples
+1. Define the journey, environment, representative query set, device/network profile, and success criteria.
+2. Capture request count, component timings, payload size, cache behavior, result correctness, and render cost.
+3. Locate the dominant segment before proposing changes.
+4. Test bounded changes such as debouncing, stalled-search handling, requested attributes, query batching, or render work.
+5. Compare before and after with the same harness and inspect relevance and freshness regressions.
+6. Document the accepted change, uncertainty, monitoring signal, and rollback trigger.
 
-The record, attribute, facet, cache, query, and replica examples below are measured tuning levers. Change one lever at a time and compare the stated baseline rather than optimizing for a synthetic request alone.
+## Approval Boundaries
 
-### Step 1: Optimize Record Size
-
-```typescript
-import { algoliasearch } from 'algoliasearch';
-
-const client = algoliasearch(process.env.ALGOLIA_APP_ID!, process.env.ALGOLIA_ADMIN_KEY!);
-
-// BAD: Full record with unnecessary data
-const badRecord = {
-  objectID: '1',
-  name: 'Running Shoes',
-  full_html_description: '<div>...5000 chars of HTML...</div>',  // Too big
-  internal_notes: 'Supplier ref: ABC-123',                       // Not searchable
-  all_reviews: [/* 200 reviews */],                                // Huge array
-};
-
-// GOOD: Lean record for search
-const goodRecord = {
-  objectID: '1',
-  name: 'Running Shoes',
-  description: 'Lightweight running shoes with cushioned sole',  // Plain text, truncated
-  category: 'shoes',
-  brand: 'Nike',
-  price: 129.99,
-  rating: 4.5,
-  review_count: 200,          // Count, not full reviews
-  in_stock: true,
-  image_url: '/images/1.jpg', // URL, not base64
-};
-```
-
-### Step 2: Optimize Searchable Attributes
-
-```typescript
-await client.setSettings({
-  indexName: 'products',
-  indexSettings: {
-    // Order matters: first attribute = highest priority in ranking
-    // Fewer searchable attributes = faster search
-    searchableAttributes: [
-      'name',                    // Highest priority
-      'brand',
-      'category',
-      'unordered(description)',  // unordered = position in attribute doesn't affect ranking
-    ],
-    // DON'T make IDs, URLs, or numeric fields searchable
-
-    // unretrievableAttributes: fields searchable but never returned in hits
-    // Use for fields users should match against but not see
-    unretrievableAttributes: ['internal_tags'],
-
-    // attributesToRetrieve: limit what comes back (smaller response = faster)
-    attributesToRetrieve: ['name', 'brand', 'price', 'image_url', 'category'],
-  },
-});
-```
-
-### Step 3: Optimize Faceting
-
-```typescript
-await client.setSettings({
-  indexName: 'products',
-  indexSettings: {
-    attributesForFaceting: [
-      'category',              // Regular facet: counts computed
-      'brand',                 // Regular facet
-      'filterOnly(price)',     // filterOnly: no counts = faster
-      'filterOnly(in_stock)',  // Use for boolean/numeric filters
-      'filterOnly(created_at)',
-    ],
-    // filterOnly() saves CPU — use it when you don't need facet counts
-    // searchable(brand) lets users search within facet values
-  },
-});
-```
-
-### Step 4: Client-Side Response Caching
-
-```typescript
-import { LRUCache } from 'lru-cache';
-
-const searchCache = new LRUCache<string, any>({
-  max: 500,           // Max cached queries
-  ttl: 60 * 1000,     // 1 minute TTL
-});
-
-async function cachedSearch(query: string, filters?: string) {
-  const cacheKey = `${query}|${filters || ''}`;
-  const cached = searchCache.get(cacheKey);
-  if (cached) return cached;
-
-  const result = await client.searchSingleIndex({
-    indexName: 'products',
-    searchParams: { query, filters, hitsPerPage: 20 },
-  });
-
-  searchCache.set(cacheKey, result);
-  return result;
-}
-```
-
-### Step 5: Query-Time Optimization Parameters
-
-```typescript
-const { hits } = await client.searchSingleIndex({
-  indexName: 'products',
-  searchParams: {
-    query: 'laptop',
-
-    // Reduce response size
-    attributesToRetrieve: ['name', 'price', 'image_url'],  // Only what UI needs
-    attributesToHighlight: ['name'],                         // Fewer = faster
-    attributesToSnippet: [],                                 // Skip snippets if not used
-    responseFields: ['hits', 'nbHits', 'page', 'nbPages'],  // Skip unnecessary metadata
-
-    // Limit processing
-    hitsPerPage: 20,              // Don't over-fetch
-    maxValuesPerFacet: 10,        // Limit facet values returned
-
-    // Disable features you don't use
-    // typoTolerance: false,      // Uncomment if exact matching is fine
-    // removeStopWords: false,    // Keep stop words in query
-  },
-});
-```
-
-### Step 6: Replica Strategy for Sort Orders
-
-```typescript
-// Standard replicas share data but have their own ranking
-// Virtual replicas share data AND ranking config (less storage cost)
-await client.setSettings({
-  indexName: 'products',
-  indexSettings: {
-    replicas: [
-      'virtual(products_price_asc)',   // Virtual: cheaper, limited customization
-      'virtual(products_price_desc)',
-      'products_newest',               // Standard: full ranking control
-    ],
-  },
-});
-
-// Virtual replica can only override: customRanking and ranking
-// Standard replica can override all settings
-```
-
-## Performance Monitoring
-
-```typescript
-async function measureSearchLatency(query: string, iterations = 10) {
-  const latencies: number[] = [];
-
-  for (let i = 0; i < iterations; i++) {
-    const start = performance.now();
-    await client.searchSingleIndex({
-      indexName: 'products',
-      searchParams: { query, hitsPerPage: 20 },
-    });
-    latencies.push(performance.now() - start);
-  }
-
-  latencies.sort((a, b) => a - b);
-  console.log({
-    p50: latencies[Math.floor(iterations * 0.5)].toFixed(1),
-    p95: latencies[Math.floor(iterations * 0.95)].toFixed(1),
-    p99: latencies[Math.floor(iterations * 0.99)].toFixed(1),
-    avg: (latencies.reduce((a, b) => a + b) / iterations).toFixed(1),
-  });
-}
-```
+Do not change ranking, remove required facets, cache personalized responses, or publish claimed improvements without comparable evidence.
 
 ## Output
 
-The tuning process produces a documented baseline, a tested set of index or client changes, and monitored latency and relevance results. It preserves an explicit rollback path if a faster configuration harms search quality.
+Return the benchmark protocol, baseline distribution, bottleneck attribution, tested changes, before/after evidence, relevance checks, and rollout guardrails.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| P95 > 200ms | Oversized records | Trim records, use `unretrievableAttributes` |
-| Facet queries slow | Too many facet values | Use `filterOnly()` or `maxValuesPerFacet` |
-| Indexing slow | Large batch + complex settings | Reduce batch size, simplify `searchableAttributes` |
-| Cache stampede | TTL expired, burst traffic | Use stale-while-revalidate pattern |
+| Condition | Response |
+|---|---|
+| Results are noisy | Increase samples and control geography, device, cache, and query set. |
+| Faster response changes hits | Reject or obtain product acceptance for the relevance tradeoff. |
+| Client emits duplicate requests | Fix lifecycle or input handling before provider tuning. |
+| No SLO exists | Report the baseline without inventing a target. |
+
+## Examples
+
+Use this compact input and expected handoff to calibrate scope and evidence quality.
+
+Input:
+
+```text
+journey=mobile-typeahead; queries=approved-100; network=recorded-profile
+```
+
+Expected handoff:
+
+```text
+dominant=duplicate-client-requests; requests-keystroke=3-to-1; relevance=unchanged
+```
 
 ## Resources
 
-- [Performance Best Practices](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/)
-- [Record Size Tips](https://support.algolia.com/hc/en-us/articles/4406981897617)
-- [Virtual Replicas](https://www.algolia.com/doc/guides/managing-results/refine-results/sorting/how-to/sort-an-index-by-date/)
-
-## Next Steps
-
-For cost optimization, see `algolia-cost-tuning`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Search performance](https://www.algolia.com/doc/guides/building-search-ui/going-further/improve-performance/js)
+- [JavaScript API client](https://www.algolia.com/doc/libraries/javascript)
+- [Monitoring API](https://www.algolia.com/doc/rest-api/monitoring)

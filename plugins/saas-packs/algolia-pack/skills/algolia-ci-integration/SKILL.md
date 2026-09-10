@@ -1,237 +1,93 @@
 ---
 name: algolia-ci-integration
-description: 'Configure Algolia CI/CD: GitHub Actions for index validation, automated
-  reindexing
-
-  on deploy, and integration testing against real Algolia indices.
-
-  Trigger: "algolia CI", "algolia GitHub Actions", "algolia automated tests",
-
-  "CI algolia", "algolia deploy pipeline".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*), Bash(npm:*)
+description: >-
+  Build and review a bounded CI gate for Algolia index configuration and disposable-index smoke tests. Use when search changes need pull-request evidence without mutating production. Trigger with "Algolia CI", "test Algolia in GitHub Actions", or "search deployment gate".
+argument-hint: "[repository-path] [test-index-prefix]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.7.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- search
 - algolia
+- ci
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
 # Algolia CI Integration
 
 ## Overview
 
-Set up CI/CD pipelines for Algolia: run integration tests against a test index, validate index settings before deploy, and trigger reindexing on release.
+This skill adds a deterministic CI lane for code that owns Algolia records, settings, or query behavior. It separates offline contract tests from an optional network smoke test against an explicitly disposable index.
 
 ## Prerequisites
 
-- GitHub repository with Actions enabled
-- Algolia App ID and Admin key (stored as GitHub secrets)
-- npm/pnpm project with `algoliasearch` v5
+- A named repository, environment, and Algolia application or index in scope
+- The local lockfile and installed client types as implementation authority
+- A safe read-only query or explicitly disposable test target
+- Current first-party documentation for any provider behavior that affects the change
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect local code, configuration names, tests, and dependency versions. Use `WebFetch` only for current official Algolia documentation. Use `Write` or `Edit` only after identifying the target files, constraints, and verification plan.
+
+## Current Contract
+
+- Pin the Node dependency and runner version already supported by the repository.
+- Keep production application IDs, index names, and write credentials out of pull-request workflows.
+- Name disposable indices with a run-specific suffix and record their cleanup result.
+- Test the exact client methods used by the application; for JavaScript v5, index operations live on the client.
+
+## Authentication
+
+Use a repository secret containing a custom key limited to the disposable index and required ACLs. Do not use an Admin key or expose any write key to forked pull requests.
 
 ## Instructions
 
-## Examples
+1. Map the package manager, test runner, Algolia wrapper, and current CI event permissions.
+2. Add offline tests for record shaping, settings serialization, and query contracts.
+3. Make the live smoke job opt-in or protected, with a unique non-production index name.
+4. Create records, wait for the task, perform one known query, and collect request IDs on failure.
+5. Delete the disposable index in a guaranteed cleanup step and report cleanup failure separately.
+6. Verify untrusted forks cannot read secrets or execute the credentialed job.
 
-The workflow definitions below show the complete test, validation, and release-triggered reindex paths. Adapt only the index names and secret names to your repository; keep the test index isolated from production.
+## Approval Boundaries
 
-### Step 1: Store Algolia Secrets
-
-```bash
-gh secret set ALGOLIA_APP_ID --body "YourApplicationID"
-gh secret set ALGOLIA_ADMIN_KEY --body "your_admin_api_key"
-gh secret set ALGOLIA_SEARCH_KEY --body "your_search_only_key"
-```
-
-### Step 2: GitHub Actions — Test & Validate
-
-```yaml
-# .github/workflows/algolia-ci.yml
-name: Algolia CI
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    env:
-      ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
-      ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - name: Unit tests (mocked Algolia)
-        run: npm test
-      - name: Integration tests (real Algolia)
-        if: env.ALGOLIA_APP_ID != ''
-        run: npm run test:integration
-        env:
-          # Use timestamped index to avoid cross-PR collision
-          ALGOLIA_TEST_INDEX: ci_test_${{ github.run_id }}_products
-
-  validate-settings:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    env:
-      ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
-      ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
-      - name: Validate index settings match config
-        run: npx tsx scripts/validate-algolia-settings.ts
-```
-
-### Step 3: Index Settings Validation Script
-
-```typescript
-// scripts/validate-algolia-settings.ts
-import { algoliasearch } from 'algoliasearch';
-import expectedSettings from '../config/algolia-settings.json' assert { type: 'json' };
-
-const client = algoliasearch(process.env.ALGOLIA_APP_ID!, process.env.ALGOLIA_ADMIN_KEY!);
-
-async function validateSettings() {
-  const actual = await client.getSettings({ indexName: 'products' });
-  const errors: string[] = [];
-
-  // Check critical settings match
-  const checks: [string, any, any][] = [
-    ['searchableAttributes', actual.searchableAttributes, expectedSettings.searchableAttributes],
-    ['attributesForFaceting', actual.attributesForFaceting, expectedSettings.attributesForFaceting],
-    ['customRanking', actual.customRanking, expectedSettings.customRanking],
-  ];
-
-  for (const [field, actual, expected] of checks) {
-    if (JSON.stringify(actual) !== JSON.stringify(expected)) {
-      errors.push(`${field}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
-    }
-  }
-
-  if (errors.length > 0) {
-    console.error('Settings drift detected:');
-    errors.forEach(e => console.error(`  - ${e}`));
-    process.exit(1);
-  }
-
-  console.log('All Algolia settings match expected configuration.');
-}
-
-validateSettings().catch(e => { console.error(e); process.exit(1); });
-```
-
-### Step 4: Integration Test Pattern
-
-```typescript
-// tests/integration/algolia.integration.test.ts
-import { describe, it, expect, afterAll } from 'vitest';
-import { algoliasearch } from 'algoliasearch';
-
-const client = algoliasearch(process.env.ALGOLIA_APP_ID!, process.env.ALGOLIA_ADMIN_KEY!);
-const testIndex = process.env.ALGOLIA_TEST_INDEX || `test_${Date.now()}`;
-
-describe.skipIf(!process.env.ALGOLIA_APP_ID)('Algolia Integration', () => {
-  afterAll(async () => {
-    // Clean up test index
-    try { await client.deleteIndex({ indexName: testIndex }); } catch {}
-  });
-
-  it('indexes records and searches', async () => {
-    const { taskID } = await client.saveObjects({
-      indexName: testIndex,
-      objects: [
-        { objectID: '1', name: 'Test Widget', category: 'tools' },
-        { objectID: '2', name: 'Test Gadget', category: 'electronics' },
-      ],
-    });
-    await client.waitForTask({ indexName: testIndex, taskID });
-
-    const { hits, nbHits } = await client.searchSingleIndex({
-      indexName: testIndex,
-      searchParams: { query: 'widget' },
-    });
-
-    expect(nbHits).toBe(1);
-    expect(hits[0].name).toBe('Test Widget');
-  });
-
-  it('applies filters correctly', async () => {
-    await client.setSettings({
-      indexName: testIndex,
-      indexSettings: { attributesForFaceting: ['category'] },
-    });
-    // Wait for settings propagation
-    await new Promise(r => setTimeout(r, 2000));
-
-    const { hits } = await client.searchSingleIndex({
-      indexName: testIndex,
-      searchParams: { query: '', filters: 'category:tools' },
-    });
-
-    expect(hits.every(h => h.category === 'tools')).toBe(true);
-  });
-});
-```
-
-### Step 5: Deploy-Triggered Reindex
-
-```yaml
-# .github/workflows/algolia-deploy.yml
-name: Algolia Reindex on Deploy
-
-on:
-  push:
-    tags: ['v*']
-
-jobs:
-  reindex:
-    runs-on: ubuntu-latest
-    env:
-      ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
-      ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
-      - name: Full reindex from data source
-        run: npx tsx scripts/full-reindex.ts
-      - name: Verify index health
-        run: npx tsx scripts/verify-index-health.ts
-```
+Do not enable secrets for untrusted fork code, reuse a production index, or delete an index whose generated name was not validated. Require review for workflow-permission changes.
 
 ## Output
 
-The pipeline validates index configuration and search behavior before deployment, then performs and verifies a production reindex only after a release tag. Each run leaves actionable logs for the failed stage rather than silently shipping stale search data.
+Return the workflow diff, secret and ACL requirements, offline results, smoke-test evidence, cleanup receipt, and the exact conditions under which the network job runs.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Secret not available | Secrets not set or wrong name | `gh secret list` to verify |
-| Test index collision | Parallel CI runs | Use `${{ github.run_id }}` in index name |
-| Integration test timeout | Network latency to Algolia | Increase vitest timeout: `{ test: { timeout: 30000 } }` |
-| Settings drift | Manual dashboard change | Run settings validation in CI |
+| Condition | Response |
+|---|---|
+| Secret unavailable | Skip the protected smoke job while keeping offline tests required. |
+| Index name is not disposable | Fail before the first write. |
+| Task does not complete | Capture task ID and request ID; preserve cleanup. |
+| Cleanup fails | Fail the job and identify the retained test index. |
+
+## Examples
+
+Use this compact input and expected handoff to calibrate scope and evidence quality.
+
+Input:
+
+```text
+repository=search-service; event=pull_request; smoke=protected
+```
+
+Expected handoff:
+
+```text
+offline=pass; live=skipped-for-fork; production-writes=0
+```
 
 ## Resources
 
-- [GitHub Actions Secrets](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions)
-- [Algolia API Key Security](https://www.algolia.com/doc/guides/security/api-keys/)
-- [Vitest Documentation](https://vitest.dev/)
-
-## Next Steps
-
-For deployment patterns, see `algolia-deploy-integration`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [JavaScript API client](https://www.algolia.com/doc/libraries/javascript)
+- [API keys](https://www.algolia.com/doc/guides/security/api-keys)
+- [JavaScript v5 upgrade](https://www.algolia.com/doc/libraries/sdk/upgrade/javascript)

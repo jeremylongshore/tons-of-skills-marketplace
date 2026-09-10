@@ -1,227 +1,93 @@
 ---
 name: algolia-core-workflow-b
-description: 'Implement Algolia indexing pipeline: data sync, partial updates, synonyms,
-  and rules.
-
-  The secondary money-path workflow: keep your index in sync with source data.
-
-  Trigger: "algolia indexing", "sync data to algolia", "algolia synonyms",
-
-  "algolia rules", "algolia partial update", "algolia reindex".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
+description: >-
+  Build a reliable Algolia indexing pipeline for full replacements, incremental updates, settings, synonyms, and rules. Use when a source of truth must publish deterministic search state. Trigger with "Algolia indexing workflow", "replace index records", or "sync Algolia".
+argument-hint: "[repository-path] [source-dataset] [index-name]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.7.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- search
 - algolia
+- indexing
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Algolia Core Workflow B — Indexing & Data Sync
+# Algolia Indexing Contract
 
 ## Overview
 
-Keep your Algolia index synchronized with your source database. Covers full reindex, incremental updates, partial updates, synonyms, and query rules.
+This skill designs the write path from an authoritative dataset to Algolia. It separates record transformation, validation, transport, task completion, and publication so a failed run cannot silently leave ambiguous search state.
 
 ## Prerequisites
 
-- Completed `algolia-install-auth` setup
-- Familiarity with `algolia-core-workflow-a` (search)
-- Source database or API with change tracking (timestamps, events)
+- A named repository, environment, and Algolia application or index in scope
+- The local lockfile and installed client types as implementation authority
+- A safe read-only query or explicitly disposable test target
+- Current first-party documentation for any provider behavior that affects the change
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect local code, configuration names, tests, and dependency versions. Use `WebFetch` only for current official Algolia documentation. Use `Write` or `Edit` only after identifying the target files, constraints, and verification plan.
+
+## Current Contract
+
+- Generate stable `objectID` values from source identities and reject duplicates before upload.
+- Choose `saveObjects` for bounded upserts and `replaceAllObjects` only for an intentional full-state replacement.
+- Wait for returned task IDs before verification or traffic cutover.
+- Version settings, synonyms, and rules as reviewable inputs; do not infer them from production state during deployment.
+
+## Authentication
+
+Run indexing only from a trusted backend with a custom key restricted to the target indices and required write ACLs. Keep search-only keys out of indexing jobs.
 
 ## Instructions
 
-### Step 1: Full Reindex with replaceAllObjects
+1. Identify the source of truth, deletion semantics, index aliases or replicas, and acceptable publication window.
+2. Transform and validate records locally, including size, required fields, stable IDs, and prohibited data.
+3. Select incremental or full replacement based on source deletion guarantees and rollback needs.
+4. Submit bounded batches, retain task IDs, and wait for completion with an overall timeout.
+5. Verify counts, sentinel records, settings hashes, and representative queries.
+6. Record the source snapshot, target index, completed tasks, and rollback or prior-index path.
 
-```typescript
-import { algoliasearch } from 'algoliasearch';
+## Approval Boundaries
 
-const client = algoliasearch(process.env.ALGOLIA_APP_ID!, process.env.ALGOLIA_ADMIN_KEY!);
-
-// replaceAllObjects atomically swaps index content
-// Internally: creates temp index → indexes all records → moves temp to target
-// Search continues on old data until swap is complete — zero downtime
-async function fullReindex(records: Record<string, any>[]) {
-  const { taskID } = await client.replaceAllObjects({
-    indexName: 'products',
-    objects: records,
-    batchSize: 1000,  // Records per batch (default 1000)
-  });
-  await client.waitForTask({ indexName: 'products', taskID });
-  console.log(`Full reindex complete: ${records.length} records`);
-}
-```
-
-### Step 2: Incremental Updates with partialUpdateObject
-
-```typescript
-// Only update changed fields — much faster than full saveObjects
-async function updateProductPrice(objectID: string, newPrice: number) {
-  await client.partialUpdateObject({
-    indexName: 'products',
-    objectID,
-    attributesToUpdate: {
-      price: newPrice,
-      updated_at: new Date().toISOString(),
-    },
-    createIfNotExists: false,  // Don't create if missing
-  });
-}
-
-// Batch partial updates
-async function syncPriceChanges(changes: { id: string; price: number }[]) {
-  const { taskID } = await client.partialUpdateObjects({
-    indexName: 'products',
-    objects: changes.map(c => ({
-      objectID: c.id,
-      price: c.price,
-      updated_at: new Date().toISOString(),
-    })),
-    createIfNotExists: false,
-  });
-  await client.waitForTask({ indexName: 'products', taskID });
-}
-```
-
-### Step 3: Manage Synonyms
-
-```typescript
-// Synonyms help users find products with different terminology
-await client.saveSynonyms({
-  indexName: 'products',
-  synonymHit: [
-    // Two-way synonym: any of these terms match each other
-    {
-      objectID: 'syn-1',
-      type: 'synonym',
-      synonyms: ['laptop', 'notebook', 'portable computer'],
-    },
-    // One-way synonym: "phone" also searches for "smartphone" but not reverse
-    {
-      objectID: 'syn-2',
-      type: 'oneWaySynonym',
-      input: 'phone',
-      synonyms: ['smartphone', 'mobile phone', 'cell phone'],
-    },
-    // Alt correction: minor typos/variations
-    {
-      objectID: 'syn-3',
-      type: 'altCorrection1',
-      word: 'color',
-      corrections: ['colour'],
-    },
-    // Placeholder: replace pattern with alternatives
-    {
-      objectID: 'syn-4',
-      type: 'placeholder',
-      placeholder: '<size>',
-      replacements: ['small', 'medium', 'large', 'XL'],
-    },
-  ],
-  forwardToReplicas: true,
-  replaceExistingSynonyms: false,  // true = wipe existing first
-});
-```
-
-### Step 4: Configure Query Rules
-
-```typescript
-// Rules let you pin, hide, boost, or filter results for specific queries
-await client.saveRule({
-  indexName: 'products',
-  objectID: 'rule-sale-banner',
-  rule: {
-    conditions: [{
-      anchoring: 'contains',
-      pattern: 'sale',
-    }],
-    consequence: {
-      // Pin a specific record to position 1
-      promote: [{ objectID: 'promo-banner-sale', position: 0 }],
-
-      // Add automatic filter
-      params: {
-        filters: 'on_sale = true',
-      },
-    },
-    description: 'When user searches "sale", filter to sale items and pin banner',
-    enabled: true,
-  },
-});
-
-// Hide a product from search results
-await client.saveRule({
-  indexName: 'products',
-  objectID: 'rule-hide-discontinued',
-  rule: {
-    conditions: [{ anchoring: 'is', pattern: '' }],  // Matches all queries
-    consequence: {
-      hide: [{ objectID: 'discontinued-product-123' }],
-    },
-    description: 'Hide discontinued product from all searches',
-    enabled: true,
-  },
-});
-```
+Do not run a full replacement, delete records, change settings, or swap a production target until the source snapshot and rollback plan are approved.
 
 ## Output
 
-The synchronization workflow produces an atomically replaced full index or a confirmed incremental update, with every write awaited before dependent reads. Synonyms and query rules remain versioned alongside the data pipeline.
+Return the data contract, operation choice, validation report, task receipts, post-write checks, deletion behavior, and rollback instructions.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Record is too big (limit: 10KB)` | Object exceeds free-tier limit | Strip unnecessary fields; paid plans allow 100KB |
-| `Synonym already exists` | Duplicate objectID | Use `replaceExistingSynonyms: true` or unique IDs |
-| `Invalid rule condition` | Wrong `anchoring` value | Use `is`, `startsWith`, `endsWith`, or `contains` |
-| Partial update creates new record | `createIfNotExists` default is `true` | Set `createIfNotExists: false` |
+| Condition | Response |
+|---|---|
+| Duplicate objectID | Fail before upload and report source records. |
+| Partial batch failure | Stop publication and preserve successful task IDs. |
+| Task timeout | Do not assume failure or success; query task state. |
+| Verification mismatch | Keep the prior production target and investigate. |
 
 ## Examples
 
-### Database Change Listener → Algolia Sync
+Use this compact input and expected handoff to calibrate scope and evidence quality.
 
-```typescript
-// Listen for DB changes and push to Algolia
-import { getClient } from './algolia/client';
+Input:
 
-async function onDatabaseChange(event: { type: string; record: any }) {
-  const client = getClient();
-  const idx = 'products';
-
-  switch (event.type) {
-    case 'INSERT':
-    case 'UPDATE':
-      await client.saveObject({ indexName: idx, body: event.record });
-      break;
-    case 'DELETE':
-      await client.deleteObject({ indexName: idx, objectID: event.record.id });
-      break;
-  }
-}
+```text
+source=snapshot-2026-09-10; mode=full-replacement; target=products_next
 ```
 
-### Search for Synonyms
+Expected handoff:
 
-```typescript
-// List all synonyms matching a query
-const { hits } = await client.searchSynonyms({
-  indexName: 'products',
-  searchSynonymsParams: { query: 'phone', type: 'synonym' },
-});
-console.log(`Found ${hits.length} synonym sets matching "phone"`);
+```text
+records=48012; tasks=49-complete; sentinel-query=pass; cutover=pending-approval
 ```
 
 ## Resources
 
-- [Indexing Guide](https://www.algolia.com/doc/guides/sending-and-managing-data/send-and-update-your-data/)
-- [Synonyms Guide](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/adding-synonyms/)
-- [Rules Guide](https://www.algolia.com/doc/guides/managing-results/rules/rules-overview/)
-- [replaceAllObjects Reference](https://www.algolia.com/doc/api-reference/api-methods/replace-all-objects/)
-
-## Next Steps
-
-For common errors, see `algolia-common-errors`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [JavaScript API client](https://www.algolia.com/doc/libraries/javascript)
+- [Indexing guidance](https://www.algolia.com/doc/guides/sending-and-managing-data)
+- [API keys](https://www.algolia.com/doc/guides/security/api-keys)
