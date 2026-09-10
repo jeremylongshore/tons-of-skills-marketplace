@@ -3,7 +3,7 @@ name: miro-performance-tuning
 description: "Analyze and execute this workflow: tune Miro reads and writes from measured latency, cursor behavior, bulk semantics, and credit cost. Use when improving Miro throughput or freshness. Trigger with \"miro integration performance tuning\"."
 argument-hint: "[operation] [target-slo]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

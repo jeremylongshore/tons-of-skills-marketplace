@@ -3,7 +3,7 @@ name: miro-multi-env-setup
 description: "Analyze and execute this workflow: separate Miro development, staging, and production apps, redirects, tokens, teams, and boards with hard guards. Use when configuring multiple environments. Trigger with \"miro multi-environment isolation\"."
 argument-hint: "[environments] [deployment-model]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

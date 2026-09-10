@@ -3,7 +3,7 @@ name: miro-prod-checklist
 description: "Analyze and execute this workflow: run a fail-closed Miro production-readiness review across authorization, data, resilience, rollback, and operations. Use when preparing to enable a Miro integration in production. Trigger with \"ship Miro integration\"."
 argument-hint: "[release-sha] [environment]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

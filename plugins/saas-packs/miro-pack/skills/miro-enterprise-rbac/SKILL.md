@@ -3,7 +3,7 @@ name: miro-enterprise-rbac
 description: "Audit organization, team, board, role, and Enterprise-scope access with plan-aware evidence. Use when reviewing Miro enterprise governance. Trigger with \"miro enterprise access governance\"."
 argument-hint: "[organization-scope] [review-mode]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

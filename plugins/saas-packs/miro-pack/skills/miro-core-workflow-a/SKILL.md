@@ -3,7 +3,7 @@ name: miro-core-workflow-a
 description: "Analyze and execute this workflow: plan and execute governed Miro board and item mutations with preconditions, bounded batches, and rollback evidence. Use when creating or changing Miro content. Trigger with \"update Miro board\"."
 argument-hint: "[board-id] [requested-change]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

@@ -3,7 +3,7 @@ name: miro-hello-world
 description: "Analyze and execute this workflow: prove Miro connectivity and authorization with a bounded, read-only board query before enabling writes. Use when smoke-testing a new Miro integration. Trigger with \"test Miro connection\"."
 argument-hint: "[environment] [team-id]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

@@ -3,7 +3,7 @@ name: miro-ci-integration
 description: "Analyze and execute this workflow: build hermetic and bounded live Miro CI gates with schema-faithful fixtures, test-board isolation, and cleanup proof. Use when adding Miro checks to CI. Trigger with \"test Miro in CI\"."
 argument-hint: "[pipeline] [test-scope]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

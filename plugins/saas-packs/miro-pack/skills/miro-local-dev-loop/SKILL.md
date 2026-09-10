@@ -3,7 +3,7 @@ name: miro-local-dev-loop
 description: "Analyze and execute this workflow: build a repeatable Miro development loop with isolated apps, fixture boards, contract tests, and cleanup. Use when developing Miro integrations locally. Trigger with \"start Miro dev loop\"."
 argument-hint: "[feature] [test-board-id]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

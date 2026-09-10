@@ -3,7 +3,7 @@ name: miro-deploy-integration
 description: "Analyze and execute this workflow: deploy a Miro service with isolated configuration, health checks, canaries, and rollback. Use when promoting a Miro-backed release. Trigger with \"miro integration deployment\"."
 argument-hint: "[environment] [release-sha]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

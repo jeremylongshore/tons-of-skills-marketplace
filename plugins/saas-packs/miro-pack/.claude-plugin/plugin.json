@@ -1,6 +1,6 @@
 {
   "name": "miro-pack",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Production Miro operator workflows for OAuth, boards, governance, migration, and resilient synchronization (24 skills)",
   "author": {
     "name": "Jeremy Longshore",

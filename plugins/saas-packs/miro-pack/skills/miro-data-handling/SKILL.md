@@ -3,7 +3,7 @@ name: miro-data-handling
 description: "Analyze and execute this workflow: govern Miro reads, storage, exports, redaction, retention, and deletion by purpose and data class. Use when processing collaborative board content. Trigger with \"miro board data handling\"."
 argument-hint: "[workflow] [data-class]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
