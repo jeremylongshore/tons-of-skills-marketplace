@@ -1,141 +1,82 @@
 ---
 name: stackblitz-core-workflow-a
-description: 'Build a browser-based code editor with WebContainers: file tree, editor,
-  terminal, and preview.
-
-  Use when creating interactive coding environments, building educational tools,
-
-  or embedding development environments in web apps.
-
-  Trigger: "webcontainer IDE", "browser IDE", "stackblitz editor", "code playground".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
+description: >-
+  Architect a custom in-browser development experience around WebContainers with explicit file, editor, terminal, process, preview, and persistence boundaries. Use when evolving a playground into a maintainable IDE-like product. Trigger with "build a WebContainer IDE", "browser code editor architecture", or "StackBlitz playground design".
+argument-hint: "[project-path] [experience-scope]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.6.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ide
-- webcontainers
 - stackblitz
+- architecture
+- browser-ide
+model: inherit
+effort: high
 compatibility: Designed for Claude Code
 ---
-# StackBlitz Core Workflow A: Browser IDE
+# Custom WebContainer Experience Architecture
 
 ## Overview
 
-Build a complete browser-based IDE using WebContainers: file explorer, code editor (Monaco/CodeMirror), integrated terminal (xterm.js + jsh), and live preview iframe. This is the architecture behind bolt.new.
+This skill converts an IDE-like feature request into a bounded architecture. It keeps the host UI, virtual filesystem, editor models, terminal streams, runtime processes, preview frames, and persistence strategy separate so a prototype does not accidentally become an unsafe monolith.
 
-## Instructions
+## Prerequisites
 
-### Step 1: HTML Layout
+- Named user journeys and a target browser application
+- A decision that a custom WebContainer experience is preferable to a StackBlitz SDK embed
+- Product, licensing, security, and persistence owners for production use
 
-```html
-<div id="app">
-  <div id="file-tree"></div>
-  <div id="editor"></div>
-  <div id="terminal"></div>
-  <iframe id="preview"></iframe>
-</div>
-```
+## Tool Discipline
 
-### Step 2: Boot and Mount Project
+Use `Read`, `Glob`, and `Grep` to map the host framework, editor and terminal libraries, application state, persistence, and runtime boundary. Use `WebFetch` only for current official StackBlitz or WebContainers documentation. Use `Write` or `Edit` only for a user-approved bounded slice.
 
-```typescript
-import { WebContainer, FileSystemTree } from '@webcontainer/api';
+## Current Contract
 
-const files: FileSystemTree = {
-  'package.json': {
-    file: { contents: JSON.stringify({
-      name: 'playground', type: 'module',
-      scripts: { dev: 'vite' },
-      dependencies: { vite: '^5.0.0' },
-    }) },
-  },
-  'index.html': {
-    file: { contents: '<!DOCTYPE html><html><body><div id="app"></div><script type="module" src="/src/main.js"></script></body></html>' },
-  },
-  src: { directory: {
-    'main.js': { file: { contents: 'document.getElementById("app").innerHTML = "<h1>Hello!</h1>";' } },
-  }},
-};
+- The host application owns a single lifecycle adapter; individual panes do not call `boot()` or `teardown()`.
+- File explorer paths are validated and normalized before virtual-filesystem operations; editor models use stable canonical paths.
+- Terminal input/output is explicitly bound to one process and released on disposal.
+- Preview URLs come from runtime events and are treated as untrusted application content, not trusted host UI.
+- The WebContainer filesystem is not a persistence guarantee. Define an explicit save/export/versioning path before claiming durable work.
+- Register error, port, and server readiness observers with bounded logging and unsubscribe ownership.
 
-const wc = await WebContainer.boot();
-await wc.mount(files);
-```
+## Authentication
 
-### Step 3: File Tree with Live Updates
+Do not mount host secrets, auth tokens, customer `.env` files, or ambient browser credentials into user-controlled projects. If private packages are required, use the documented organization auth boundary and disclose which project code can access installed material.
 
-```typescript
-async function renderFileTree(path = '/') {
-  const entries = await wc.fs.readdir(path, { withFileTypes: true });
-  const tree = document.getElementById('file-tree')!;
+## Workflow
 
-  for (const entry of entries) {
-    if (entry.name === 'node_modules') continue;
-    const fullPath = `${path}${path === '/' ? '' : '/'}${entry.name}`;
-    const el = document.createElement('div');
-    el.textContent = entry.isDirectory() ? `📁 ${entry.name}` : `📄 ${entry.name}`;
-    el.onclick = async () => {
-      if (!entry.isDirectory()) {
-        const content = await wc.fs.readFile(fullPath, 'utf-8');
-        editor.setValue(content); // Monaco editor
-        currentFile = fullPath;
-      }
-    };
-    tree.appendChild(el);
-  }
-}
-```
+1. Define the smallest user journey and decide which panes and runtime capabilities it truly needs.
+2. Draw ownership for host state, lifecycle adapter, filesystem, editor models, process/terminal handles, preview, and persistence.
+3. Establish a typed message/event contract between panes instead of sharing raw runtime globals.
+4. Implement one vertical slice: open a synthetic file, edit it, write it, run a bounded command, and display the emitted preview URL.
+5. Add path-policy, process-cancellation, preview isolation, save/export, and permanent-disposal behavior.
+6. Verify keyboard/accessibility behavior, HMR ownership, memory cleanup, and recovery from failed startup before expanding features.
 
-### Step 4: Save Editor Changes to WebContainer
+## Approval Boundaries
 
-```typescript
-let currentFile = '/src/main.js';
+Require explicit approval before executing arbitrary user code, persisting or exporting user files, connecting private registries, injecting preview scripts, or enabling collaboration/telemetry. Present data flow, abuse cases, retention, and rollback first.
 
-// Monaco editor onChange
-editor.onDidChangeModelContent(async () => {
-  const content = editor.getValue();
-  await wc.fs.writeFile(currentFile, content);
-  // Vite HMR will auto-reload the preview
-});
-```
+## Output
 
-### Step 5: Terminal + Preview
-
-```typescript
-// Terminal
-const jsh = await wc.spawn('jsh', { terminal: { cols: 80, rows: 12 } });
-jsh.output.pipeTo(new WritableStream({
-  write(data) { terminal.write(data); },
-}));
-
-// Install and start dev server
-const install = await wc.spawn('npm', ['install']);
-await install.exit;
-await wc.spawn('npm', ['run', 'dev']);
-
-// Preview iframe
-wc.on('server-ready', (port, url) => {
-  document.getElementById('preview')!.src = url;
-});
-```
+Return the user journey, component and trust-boundary map, lifecycle and data contracts, implemented slice, verification evidence, persistence semantics, rollout stages, rollback, and open product/security decisions.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Preview blank | Server not ready yet | Wait for `server-ready` event |
-| HMR not working | Vite not running | Check npm install succeeded |
-| File tree empty | Mount failed | Verify FileSystemTree structure |
+| Condition | Response |
+|---|---|
+| UI panes share raw runtime state | Introduce a scoped adapter and typed events before adding features. |
+| Editor and filesystem diverge | Reconcile by canonical path and explicit write acknowledgements. |
+| Preview is treated as trusted | Isolate it and define allowed host-preview communication. |
+| Persistence is unspecified | Label the experience ephemeral and stop durability claims. |
+
+## Examples
+
+For an educational playground, implement one synthetic project with a file pane, editor, bounded terminal command, preview, and explicit download/export action while leaving collaboration and private packages out of scope.
 
 ## Resources
 
-- [WebContainer Tutorial](https://webcontainers.io/tutorial/2-setting-up-webcontainers)
-- [bolt.new Source](https://github.com/stackblitz/bolt.new)
-- [Add Interactivity](https://webcontainers.io/tutorial/7-add-interactivity)
-
-## Next Steps
-
-For embedding and sharing projects, see `stackblitz-core-workflow-b`.
+- [Official StackBlitz and WebContainers references](references/official-docs.md)
+- [WebContainers introduction](https://webcontainers.io/guides/introduction)
+- [Working with the filesystem](https://webcontainers.io/guides/working-with-the-file-system.html)

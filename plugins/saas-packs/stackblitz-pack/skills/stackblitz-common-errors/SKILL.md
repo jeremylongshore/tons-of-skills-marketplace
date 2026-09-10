@@ -1,127 +1,82 @@
 ---
 name: stackblitz-common-errors
-description: 'Fix WebContainer and StackBlitz errors: COOP/COEP, SharedArrayBuffer,
-  boot failures.
-
-  Use when WebContainers fail to boot, embeds don''t load,
-
-  or processes crash inside WebContainers.
-
-  Trigger: "stackblitz error", "webcontainer error", "SharedArrayBuffer not defined".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*)
+description: >-
+  Diagnose WebContainer startup, isolation, Service Worker, dependency, process, preview, and browser failures from evidence before changing code or headers. Use when a StackBlitz runtime or embed fails, hangs, or behaves differently across browsers. Trigger with "StackBlitz error", "WebContainer failed to boot", or "SharedArrayBuffer error".
+argument-hint: "[project-path] [symptom]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.6.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ide
-- webcontainers
 - stackblitz
+- troubleshooting
+- webcontainers
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# StackBlitz Common Errors
+# WebContainer Failure Triage
 
-## Error Reference
+## Overview
 
-### SharedArrayBuffer is not defined
+This skill follows a deterministic diagnosis order: browser capability, served headers, lifecycle ownership, runtime events, process exit, dependency compatibility, and preview behavior. It avoids speculative retries and unsafe header weakening.
 
-**Cause:** Missing cross-origin isolation headers.
+## Prerequisites
 
-```
-Cross-Origin-Embedder-Policy: require-corp
-Cross-Origin-Opener-Policy: same-origin
-```
+- A reproducible URL or local command and the affected browser/version
+- Permission to inspect application code, response headers, and bounded browser/runtime logs
+- A synthetic reproduction when the failing project contains sensitive data
 
-**Fix:** Add both headers to your server. In Vite: `server.headers` config.
+## Tool Discipline
 
-### Failed to boot WebContainer
+Use `Read`, `Glob`, and `Grep` to find boot calls, headers, runtime events, process handling, and dependency manifests. Use `WebFetch` only for current official StackBlitz or WebContainers documentation. Use `Write` or `Edit` only after the failing layer is identified; never retrieve secrets or full user projects for diagnosis.
 
-**Cause:** Only one WebContainer instance allowed per page.
+## Current Contract
 
-```typescript
-// BAD: Multiple boot calls
-const wc1 = await WebContainer.boot();
-const wc2 = await WebContainer.boot(); // Fails!
+- A SharedArrayBuffer or `crossOriginIsolated` failure starts with the actual HTML response's COOP/COEP headers, including `304` behavior.
+- A released proxy or duplicate-start failure requires proving whether `boot()` ran more than once, including under HMR.
+- Dependency installs should preserve exit code and bounded output; a lockfile can improve repeatability and startup time.
+- Native Node addons are unavailable unless an alternative is implemented in JavaScript or WebAssembly.
+- Browser privacy controls can block required Service Worker or third-party storage behavior.
+- Preview failures are investigated through process exit plus `error`, `port`, and `server-ready` events.
 
-// GOOD: Singleton pattern
-let instance: WebContainer | null = null;
-async function getWC() {
-  if (!instance) instance = await WebContainer.boot();
-  return instance;
-}
-```
+## Authentication
 
-### npm install hangs or fails
+Redact API keys, registry tokens, OAuth details, cookies, source contents, and dynamic preview URLs from shared evidence. For private-package failures, report auth state and package identity without printing credential values.
 
-**Cause:** Large dependency tree or network issue in WebContainer.
+## Workflow
 
-```typescript
-// Use --prefer-offline and minimal deps
-const proc = await wc.spawn('npm', ['install', '--prefer-offline']);
-const code = await proc.exit;
-if (code !== 0) {
-  console.error('Install failed, retrying...');
-  const retry = await wc.spawn('npm', ['install']);
-  await retry.exit;
-}
-```
+1. Reproduce with the smallest synthetic project and record browser, URL, secure-context, and isolation state.
+2. Inspect the final document headers and cached response behavior.
+3. Count boot paths and trace HMR, navigation, and teardown ownership.
+4. Capture bounded runtime events, spawned command, exit code, and the final useful output lines.
+5. Compare the dependency with documented WebContainer constraints, especially native addons and install behavior.
+6. Apply one layer-specific fix, repeat the reproduction, and record rollback plus remaining browser variance.
 
-### server-ready event never fires
+## Approval Boundaries
 
-**Cause:** Application not listening on a port.
+Do not disable browser security, relax COOP/COEP or CSP broadly, clear user browser data, replace dependencies, or change production hosting without explicit authorization. Present the failing layer and narrow fix first.
 
-```typescript
-// Ensure your app calls listen()
-// app.listen(3000) -- required for server-ready event
-// Also check process exit code for crashes
-wc.on('error', (err) => console.error('WC error:', err));
-```
+## Output
 
-### File operations fail with ENOENT
-
-**Cause:** Parent directory doesn't exist.
-
-```typescript
-// Create parent directories first
-await wc.fs.mkdir('/src/components', { recursive: true });
-await wc.fs.writeFile('/src/components/Button.tsx', content);
-```
-
-## Quick Diagnostic
-
-```typescript
-// Check WebContainer state
-async function diagnose(wc: WebContainer) {
-  try {
-    await wc.fs.readdir('/');
-    console.log('FS: OK');
-  } catch { console.error('FS: FAILED'); }
-
-  try {
-    const proc = await wc.spawn('node', ['-v']);
-    await proc.exit;
-    console.log('Node: OK');
-  } catch { console.error('Node: FAILED'); }
-}
-```
+Return the reproduction, evidence by layer, root cause or ranked hypotheses, exact fix made or proposed, verification, redactions, rollback, and unresolved compatibility risk.
 
 ## Error Handling
 
-| Error | Retryable | Action |
-|-------|-----------|--------|
-| Missing COOP/COEP | No | Fix server headers |
-| Multiple boot | No | Use singleton pattern |
-| npm install fail | Yes | Retry once, then report |
-| ENOENT | No | Create parent dirs |
-| Process crash | Yes | Restart process |
+| Symptom | Evidence-led response |
+|---|---|
+| SharedArrayBuffer transfer fails | Verify secure context, COOP/COEP, matching boot option, and cached headers. |
+| Proxy is released | Find duplicate boot or premature teardown paths, including HMR. |
+| Install stalls or fails | Preserve lockfile state, exit code, and bounded output; inspect native-addon use. |
+| Preview never appears | Correlate process exit with `port`, `error`, and `server-ready` events. |
+
+## Examples
+
+For a preview that works in Chromium but fails in Firefox private browsing, record browser constraints and Service Worker evidence, preserve a static fallback, and avoid changing the runtime code without a cross-browser reproduction.
 
 ## Resources
 
-- [WebContainer API Reference](https://webcontainers.io/api)
-- [Browser Compatibility](https://webcontainers.io/guides/browser-support)
-
-## Next Steps
-
-For debugging, see `stackblitz-debug-bundle`.
+- [Official StackBlitz and WebContainers references](references/official-docs.md)
+- [WebContainers troubleshooting](https://webcontainers.io/guides/troubleshooting)
+- [Browser configuration](https://webcontainers.io/guides/browser-config)

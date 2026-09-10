@@ -1,138 +1,81 @@
 ---
 name: stackblitz-hello-world
-description: 'Boot a WebContainer, mount files, install npm packages, and run a dev
-  server in the browser.
-
-  Use when learning WebContainers, building browser-based IDEs,
-
-  or running Node.js without a backend server.
-
-  Trigger: "stackblitz hello world", "webcontainer example", "run node in browser".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(node:*)
+description: >-
+  Build a minimal, controlled WebContainer smoke test that boots once, mounts a small project, observes process exit, and captures the preview URL. Use when proving browser/runtime compatibility before building a larger in-browser development experience. Trigger with "StackBlitz hello world", "test WebContainers", or "run Node in the browser".
+argument-hint: "[project-path] [entrypoint]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.6.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ide
-- webcontainers
 - stackblitz
+- webcontainers
+- quickstart
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# StackBlitz Hello World
+# WebContainer Controlled Smoke Test
 
 ## Overview
 
-Boot a WebContainer, mount a file system tree, install dependencies with npm, and start a dev server -- all running inside the browser tab. No backend server needed.
+This skill adds or plans the smallest useful WebContainer proof: one instance, one deterministic file tree, one bounded dependency install, one server process, and one preview readiness observation. It avoids presenting a tutorial snippet as a production architecture.
 
 ## Prerequisites
 
-- `@webcontainer/api` installed (see `stackblitz-install-auth`)
-- Cross-origin isolation headers configured
-- Modern browser (Chrome 90+, Firefox 90+, Safari 16.4+)
+- A browser application already passing the StackBlitz integration preflight
+- Cross-origin isolation and HTTPS behavior verified for the target environment
+- A small synthetic project that contains no proprietary source or secrets
 
-## Instructions
+## Tool Discipline
 
-### Step 1: Define File System Tree
+Use `Read`, `Glob`, and `Grep` to establish the application entrypoint, package versions, and existing lifecycle ownership. Use `WebFetch` only for current official StackBlitz or WebContainers documentation. Use `Write` or `Edit` for a user-requested smoke-test implementation after inspection.
 
-```typescript
-import { WebContainer, FileSystemTree } from '@webcontainer/api';
+## Current Contract
 
-const files: FileSystemTree = {
-  'package.json': {
-    file: {
-      contents: JSON.stringify({
-        name: 'wc-hello',
-        scripts: { start: 'node index.js', dev: 'nodemon index.js' },
-        dependencies: { express: '^4.18.0' },
-      }),
-    },
-  },
-  'index.js': {
-    file: {
-      contents: `
-const express = require('express');
-const app = express();
-app.get('/', (req, res) => res.send('Hello from WebContainer!'));
-app.listen(3000, () => console.log('Server running on port 3000'));
-      `.trim(),
-    },
-  },
-  src: {
-    directory: {
-      'utils.js': { file: { contents: 'module.exports = { greet: (n) => "Hello " + n };' } },
-    },
-  },
-};
-```
+- `WebContainer.boot()` is expensive and permits only one concurrent instance; centralize ownership.
+- `mount()` accepts a `FileSystemTree` or supported binary snapshot and copies it into the virtual filesystem.
+- Check a spawned install process through its `exit` promise before starting the server.
+- Register `server-ready`, `error`, and cleanup handlers before relying on a preview URL; retain the unsubscribe functions.
+- Use the URL emitted by `server-ready` rather than constructing a preview host.
 
-### Step 2: Boot and Mount
+## Authentication
 
-```typescript
-const wc = await WebContainer.boot();
-await wc.mount(files);
+The smoke test must not contain API keys, registry tokens, cookies, or `.env` data. If commercial API-key configuration or organization auth is required, consume the existing runtime binding and initialization module without displaying its value or duplicating the flow.
 
-console.log('Files mounted. Installing dependencies...');
-```
+## Workflow
 
-### Step 3: Install Dependencies
+1. Confirm the current package and browser support assumptions from repository evidence.
+2. Reuse or create a singleton owner for the WebContainer instance.
+3. Define a tiny synthetic project with a locked dependency set and explicit start script.
+4. Mount the tree, spawn the repository-approved install command, stream bounded status output, and fail on a nonzero exit.
+5. Subscribe to readiness and error events, start the server, and attach the emitted URL to the intended preview element.
+6. Record cleanup behavior for listeners, processes, and `teardown()` when the owning view is permanently disposed.
 
-```typescript
-const installProcess = await wc.spawn('npm', ['install']);
+## Approval Boundaries
 
-// Stream install output
-installProcess.output.pipeTo(new WritableStream({
-  write(data) { console.log(data); },
-}));
-
-const installCode = await installProcess.exit;
-if (installCode !== 0) throw new Error(`npm install failed: exit ${installCode}`);
-console.log('Dependencies installed.');
-```
-
-### Step 4: Start Dev Server
-
-```typescript
-const serverProcess = await wc.spawn('npm', ['start']);
-
-serverProcess.output.pipeTo(new WritableStream({
-  write(data) { console.log(data); },
-}));
-
-// Listen for server-ready event
-wc.on('server-ready', (port, url) => {
-  console.log(`Server ready at ${url} (port ${port})`);
-  // Display in iframe
-  document.querySelector('iframe')!.src = url;
-});
-```
+Do not add arbitrary user source, private packages, production secrets, telemetry, or broad network access to the smoke test without explicit authorization and a security review. Do not alter production isolation headers merely to make a local example pass.
 
 ## Output
 
-```
-added 57 packages in 3s
-Dependencies installed.
-Server running on port 3000
-Server ready at https://xxx.webcontainer.io (port 3000)
-```
+Return the exact test surface, package and header evidence, lifecycle owner, expected state sequence, bounded logs, preview readiness result, cleanup path, and any environment-specific limitation.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `npm install` hangs | Large dependency tree | Use `--prefer-offline` or fewer deps |
-| `server-ready` never fires | App not listening on a port | Ensure `app.listen()` is called |
-| Port conflict | Another process on same port | Use a different port |
-| `ENOENT` for file | File not in mount tree | Verify FileSystemTree structure |
+| Condition | Response |
+|---|---|
+| A second boot path exists | Stop and consolidate lifecycle ownership before testing. |
+| Install exits nonzero | Preserve the exit code and bounded output; do not blindly retry. |
+| Preview never becomes ready | Check process exit and `port`/`error` events before changing ports. |
+| Test needs real customer code | Replace it with a synthetic fixture and report the missing contract separately. |
+
+## Examples
+
+For a Vite host, mount a two-file synthetic Node project, wait for a successful install exit, start its server, and verify the `server-ready` URL in one supported browser without committing any generated dependency tree.
 
 ## Resources
 
-- [WebContainer Quickstart](https://webcontainers.io/guides/quickstart)
-- [FileSystemTree API](https://webcontainers.io/api#filesystemtree)
-- [WebContainer Tutorial](https://webcontainers.io/tutorial/2-setting-up-webcontainers)
-
-## Next Steps
-
-Proceed to `stackblitz-local-dev-loop` for development workflow setup.
+- [Official StackBlitz and WebContainers references](references/official-docs.md)
+- [WebContainers quickstart](https://webcontainers.io/guides/quickstart)
+- [WebContainer API reference](https://webcontainers.io/api)

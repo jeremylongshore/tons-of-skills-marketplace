@@ -1,183 +1,82 @@
 ---
 name: stackblitz-sdk-patterns
-description: 'Production patterns for WebContainer API: file system operations, process
-  management, and jsh shell.
-
-  Use when building browser IDEs, managing WebContainer lifecycle,
-
-  or implementing terminal emulation with jsh.
-
-  Trigger: "webcontainer patterns", "stackblitz best practices", "webcontainer file
-  system".
-
-  '
-allowed-tools: Read, Write, Edit
+description: >-
+  Design a durable WebContainer lifecycle adapter for filesystem, process, event, preview, and teardown operations. Use when multiple UI components need WebContainer access or an integration has race-prone boot and cleanup logic. Trigger with "WebContainer SDK patterns", "manage WebContainer lifecycle", or "StackBlitz runtime adapter".
+argument-hint: "[project-path] [runtime-module]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.6.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ide
-- webcontainers
 - stackblitz
+- architecture
+- webcontainers
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# StackBlitz SDK Patterns
+# WebContainer Lifecycle Adapter
 
 ## Overview
 
-Production patterns for the WebContainer API: singleton boot, file system CRUD, process spawning and management, jsh interactive shell, and the StackBlitz SDK for embedding projects.
+This skill creates or reviews one application-owned boundary around WebContainer startup and capabilities. The adapter makes boot idempotent, exposes explicit runtime states, tracks event unsubscriptions and processes, and prevents UI components from independently manipulating a shared instance.
 
-## Instructions
+## Prerequisites
 
-### Step 1: Singleton WebContainer Instance
+- A named repository and the components that currently own runtime behavior
+- The installed `@webcontainer/api` type definitions as the local API authority
+- Expected mount, process, preview, export, and disposal use cases
 
-```typescript
-import { WebContainer } from '@webcontainer/api';
+## Tool Discipline
 
-let instance: WebContainer | null = null;
+Use `Read`, `Glob`, and `Grep` to map imports, boot calls, process ownership, filesystem mutations, event subscriptions, and teardown paths. Use `WebFetch` only for current official StackBlitz or WebContainers documentation. Use `Write` or `Edit` after proposing the adapter boundary and compatibility impact.
 
-export async function getWebContainer(): Promise<WebContainer> {
-  if (!instance) {
-    instance = await WebContainer.boot();
-  }
-  return instance;
-}
+## Current Contract
 
-// Teardown
-export async function teardownWebContainer() {
-  if (instance) {
-    instance.teardown();
-    instance = null;
-  }
-}
-```
+- Cache the boot promise, not only the resolved instance, so concurrent callers cannot race into two boots.
+- Model at least idle, booting, ready, failed, and disposed states; make invalid transitions visible.
+- Retain the unsubscribe function returned by `on()` and the handles returned by `spawn()`.
+- Treat filesystem writes and `export()` as explicit data operations with caller-owned paths and size bounds.
+- `teardown()` invalidates the instance, processes, and filesystem; call it only at the permanent owner boundary.
+- Prefer adding preview instrumentation in the served application; use `setPreviewScript` only after reviewing its advanced-feature warning and compatibility risk.
 
-### Step 2: File System Operations
+## Authentication
 
-```typescript
-const wc = await getWebContainer();
+The adapter may accept already-resolved configuration but must not expose secret values through state, logs, errors, or browser storage. Initialize commercial keys and organization auth before adapter boot through the dedicated preflight layer.
 
-// Write file
-await wc.fs.writeFile('/src/app.ts', 'export const hello = "world";');
+## Workflow
 
-// Read file
-const content = await wc.fs.readFile('/src/app.ts', 'utf-8');
+1. Inventory every WebContainer import, boot call, event listener, process handle, filesystem writer, and teardown call.
+2. Define the adapter's state machine and minimum methods from observed consumers.
+3. Centralize a single boot promise and make failed startup recoverable only through an explicit reset or disposal policy.
+4. Wrap spawn with exit, output-bound, cancellation, and ownership metadata.
+5. Wrap subscriptions so each consumer can unsubscribe and the owner can perform final cleanup.
+6. Add focused concurrency, failure, HMR, and teardown tests before migrating consumers incrementally.
 
-// Read directory
-const entries = await wc.fs.readdir('/src', { withFileTypes: true });
-entries.forEach(entry => {
-  console.log(`${entry.name} (${entry.isDirectory() ? 'dir' : 'file'})`);
-});
+## Approval Boundaries
 
-// Create directory
-await wc.fs.mkdir('/src/components', { recursive: true });
+Do not migrate all consumers, change persistent/export behavior, terminate active processes, or alter production preview instrumentation without explicit scope. Show the compatibility plan and rollback before replacing an existing runtime singleton.
 
-// Delete file
-await wc.fs.rm('/src/old.ts');
+## Output
 
-// Delete directory
-await wc.fs.rm('/dist', { recursive: true });
-
-// Watch for changes
-wc.fs.watch('/src', { recursive: true }, (event, filename) => {
-  console.log(`${event}: ${filename}`);
-});
-```
-
-### Step 3: Process Management
-
-```typescript
-// Spawn a process
-const proc = await wc.spawn('node', ['script.js']);
-
-// Stream stdout
-const reader = proc.output.getReader();
-while (true) {
-  const { done, value } = await reader.read();
-  if (done) break;
-  console.log(value);
-}
-
-// Write to stdin
-const writer = proc.input.getWriter();
-await writer.write('user input\n');
-await writer.close();
-
-// Wait for exit
-const exitCode = await proc.exit;
-
-// Kill a process
-proc.kill();
-```
-
-### Step 4: jsh Interactive Shell
-
-```typescript
-// jsh is WebContainer's built-in shell
-const jshProcess = await wc.spawn('jsh', {
-  terminal: { cols: 80, rows: 24 },
-});
-
-// Connect to xterm.js
-import { Terminal } from 'xterm';
-const terminal = new Terminal();
-terminal.open(document.getElementById('terminal')!);
-
-jshProcess.output.pipeTo(new WritableStream({
-  write(data) { terminal.write(data); },
-}));
-
-terminal.onData((data) => {
-  const writer = jshProcess.input.getWriter();
-  writer.write(data);
-  writer.releaseLock();
-});
-```
-
-### Step 5: StackBlitz SDK (Embedding)
-
-```typescript
-import sdk from '@stackblitz/sdk';
-
-// Embed an existing project
-sdk.embedProjectId('container', 'vitejs-vite-template', {
-  height: 500,
-  openFile: 'src/App.tsx',
-  terminalHeight: 30,
-});
-
-// Embed from GitHub
-sdk.embedGithubProject('container', 'user/repo', {
-  openFile: 'README.md',
-});
-
-// Create new project programmatically
-sdk.embedProject('container', {
-  title: 'My Project',
-  template: 'node',
-  files: {
-    'index.js': 'console.log("Hello!")',
-    'package.json': '{"name":"demo","scripts":{"start":"node index.js"}}',
-  },
-});
-```
+Return the lifecycle inventory, proposed state machine and API, migrated call sites, concurrency and cleanup evidence, authentication boundary, compatibility risks, and rollback procedure.
 
 ## Error Handling
 
-| Pattern | Use Case | Benefit |
-|---------|----------|---------|
-| Singleton boot | Multiple components need WC | Only one instance allowed per page |
-| Process kill on teardown | Page navigation | Prevents orphaned processes |
-| fs.watch | Live preview | Auto-rebuild on file changes |
-| jsh + xterm.js | Terminal emulator | Full shell experience in browser |
+| Condition | Response |
+|---|---|
+| Concurrent callers race | Share one boot promise and test simultaneous acquisition. |
+| Process output never closes | Apply cancellation and output bounds; retain the process handle. |
+| A consumer tears down globally | Move teardown to the permanent owner and give consumers scoped unsubscribe methods. |
+| Installed types differ from docs | Follow the pinned local types and record the planned version review. |
+
+## Examples
+
+Given three React components that each call `boot()`, replace them with one tested adapter whose cached promise owns the runtime while components receive scoped filesystem, process, and subscription capabilities.
 
 ## Resources
 
-- [WebContainer API Reference](https://webcontainers.io/api)
-- [File System Guide](https://webcontainers.io/guides/working-with-the-file-system)
-- [StackBlitz SDK Reference](https://developer.stackblitz.com/platform/api/javascript-sdk)
-
-## Next Steps
-
-Apply patterns in `stackblitz-core-workflow-a`.
+- [Official StackBlitz and WebContainers references](references/official-docs.md)
+- [WebContainer API reference](https://webcontainers.io/api)
+- [API versioning and support](https://webcontainers.io/guides/api-support)

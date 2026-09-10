@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/stackblitz-pack",
   "version": "1.0.3",
-  "description": "Claude Code skill pack for StackBlitz - 10 skills covering browser-based IDE, WebContainers, and instant dev environments",
+  "description": "Production StackBlitz workflows for WebContainer lifecycle, embeds, testing, diagnostics, capacity, and security",
   "main": "README.md",
   "type": "module",
   "files": [
