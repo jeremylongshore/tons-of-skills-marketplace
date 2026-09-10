@@ -1,222 +1,84 @@
 ---
 name: clickup-rate-limits
-description: 'Handle ClickUp API rate limits with backoff, queuing, and header monitoring.
-
-  Use when hitting 429 errors, implementing retry logic, or optimizing
-
-  API throughput against ClickUp''s per-plan rate limits.
-
-  Trigger: "clickup rate limit", "clickup 429", "clickup throttling",
-
-  "clickup retry", "clickup backoff", "clickup request queue".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.6.0
-license: MIT
+description: >-
+  Analyze and control ClickUp request concurrency from plan-aware per-token limits, response headers, bounded queues, and reset-based retries. Use when preventing or recovering from ClickUp 429 responses. Trigger with "ClickUp rate limit", "ClickUp 429", or "size ClickUp concurrency".
+argument-hint: "[workspace-plan] [traffic-window]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- productivity
 - clickup
-compatibility: Designed for Claude Code
+- rate-limits
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live analysis requires sanitized ClickUp response headers
 ---
-# ClickUp Rate Limits
+# ClickUp Rate-Limit Control
 
 ## Overview
 
-ClickUp enforces per-token, per-minute rate limits that vary by Workspace plan. When exceeded, the API returns HTTP 429 with rate limit headers.
-
-## Rate Limit Tiers
-
-| Workspace Plan | Requests/Min/Token | Burst Support |
-|----------------|-------------------|---------------|
-| Free Forever | 100 | No |
-| Unlimited | 100 | No |
-| Business | 100 | No |
-| Business Plus | 1,000 | Yes |
-| Enterprise | 10,000 | Yes |
-
-## Rate Limit Headers
-
-Every ClickUp API response includes these headers:
-
-| Header | Description | Example |
-|--------|-------------|---------|
-| `X-RateLimit-Limit` | Max requests in window | `100` |
-| `X-RateLimit-Remaining` | Requests left in window | `95` |
-| `X-RateLimit-Reset` | Unix timestamp when limit resets | `1695000060` |
-
-## Exponential Backoff with Jitter
-
-```typescript
-async function clickupRequestWithRetry<T>(
-  path: string,
-  options: RequestInit = {},
-  config = { maxRetries: 5, baseDelayMs: 1000, maxDelayMs: 60000 }
-): Promise<T> {
-  for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
-    const response = await fetch(`https://api.clickup.com/api/v2${path}`, {
-      ...options,
-      headers: {
-        'Authorization': process.env.CLICKUP_API_TOKEN!,
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-    });
-
-    if (response.ok) return response.json();
-
-    if (response.status === 429) {
-      // Use server-provided reset time when available
-      const resetTimestamp = response.headers.get('X-RateLimit-Reset');
-      let waitMs: number;
-
-      if (resetTimestamp) {
-        waitMs = Math.max(0, parseInt(resetTimestamp) * 1000 - Date.now()) + 1000;
-      } else {
-        // Exponential backoff with jitter
-        const exponential = config.baseDelayMs * Math.pow(2, attempt);
-        const jitter = Math.random() * 1000;
-        waitMs = Math.min(exponential + jitter, config.maxDelayMs);
-      }
-
-      console.warn(`Rate limited. Waiting ${(waitMs / 1000).toFixed(1)}s (attempt ${attempt + 1})`);
-      await new Promise(r => setTimeout(r, waitMs));
-      continue;
-    }
-
-    // Non-retryable errors
-    if (response.status < 500 && response.status !== 429) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(`ClickUp ${response.status}: ${error.err ?? 'Unknown error'}`);
-    }
-
-    // Server errors: retry with backoff
-    if (attempt < config.maxRetries) {
-      const delay = config.baseDelayMs * Math.pow(2, attempt);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-
-  throw new Error(`ClickUp API: max retries exceeded for ${path}`);
-}
-```
-
-## Rate Limit Monitor
-
-```typescript
-class ClickUpRateLimitMonitor {
-  private remaining = 100;
-  private limit = 100;
-  private resetAt = 0;
-
-  updateFromResponse(response: Response): void {
-    const remaining = response.headers.get('X-RateLimit-Remaining');
-    const limit = response.headers.get('X-RateLimit-Limit');
-    const reset = response.headers.get('X-RateLimit-Reset');
-
-    if (remaining) this.remaining = parseInt(remaining);
-    if (limit) this.limit = parseInt(limit);
-    if (reset) this.resetAt = parseInt(reset) * 1000;
-  }
-
-  shouldThrottle(): boolean {
-    return this.remaining < 10 && Date.now() < this.resetAt;
-  }
-
-  getWaitMs(): number {
-    return Math.max(0, this.resetAt - Date.now());
-  }
-
-  getUsagePercent(): number {
-    return ((this.limit - this.remaining) / this.limit) * 100;
-  }
-}
-```
-
-## Queue-Based Rate Limiting
-
-```typescript
-import PQueue from 'p-queue';
-
-// Stay under 100 req/min for Free/Unlimited/Business
-const clickupQueue = new PQueue({
-  concurrency: 5,        // Max parallel requests
-  interval: 1000,        // Per second window
-  intervalCap: 1,         // 1 request per second = 60/min (safe margin)
-});
-
-async function queuedClickUpRequest<T>(path: string, options?: RequestInit): Promise<T> {
-  return clickupQueue.add(() => clickupRequestWithRetry(path, options));
-}
-
-// Bulk operations stay within limits automatically
-const taskIds = ['abc', 'def', 'ghi', 'jkl'];
-const tasks = await Promise.all(
-  taskIds.map(id => queuedClickUpRequest(`/task/${id}`))
-);
-```
-
-## Pre-Flight Throttling
-
-```typescript
-// Check headers before sending burst of requests
-async function preFlightCheck(): Promise<{ safe: boolean; waitMs: number }> {
-  const response = await fetch('https://api.clickup.com/api/v2/user', {
-    headers: { 'Authorization': process.env.CLICKUP_API_TOKEN! },
-  });
-
-  const remaining = parseInt(response.headers.get('X-RateLimit-Remaining') || '100');
-  const reset = parseInt(response.headers.get('X-RateLimit-Reset') || '0') * 1000;
-
-  if (remaining < 10) {
-    return { safe: false, waitMs: Math.max(0, reset - Date.now()) };
-  }
-  return { safe: true, waitMs: 0 };
-}
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Constant 429s | Exceeding plan limit | Upgrade plan or add request queuing |
-| Thundering herd | All retries fire at same time | Add random jitter to backoff |
-| Missing reset header | Older API version | Fall back to exponential backoff |
-| Burst rejected | Too many concurrent | Reduce `concurrency` in queue |
+Size traffic from the token's observed budget and workload rather than hard-coded optimistic concurrency. Preserve headroom for every caller sharing that token.
 
 ## Prerequisites
 
-- Scoped API identity and durable idempotency/job state
-- Queue with bounded concurrency, retry budget, jitter, and dead-letter route
-- Monitoring for remaining quota, reset timing, queue depth, and terminal errors
+- Sanitized `X-RateLimit-Limit`, `Remaining`, and Unix `Reset` values plus 429 history
+- The Workspace plan hosting the token and inventory of all callers sharing it
+- Queue, freshness, retry, and priority requirements
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect the repository, adapters, configuration names, tests, and evidence. Use `WebFetch` only for current official ClickUp documentation. Use `Write` or `Edit` after confirming the target file, Workspace boundary, and requested mode.
+
+## Current Contract
+
+- Limits apply per personal or OAuth token and vary by the hosting Workspace plan.
+- Current published limits are 100 requests/minute for Free Forever, Unlimited, and Business; 1,000 for Business Plus; 10,000 for Enterprise.
+- A 429 response includes `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`; reset is a Unix timestamp.
+- Plan values are ceilings, not target throughput; leave headroom for interactive and recovery traffic.
+
+## Authentication
+
+Use a personal token only for accountable individual/testing work or OAuth Authorization Code for a user-facing integration. Inject the token server-side through a governed secret reference, send it in `Authorization`, verify authorized Workspace IDs, and never print the token, OAuth client secret, or webhook secret.
 
 ## Instructions
 
-Send mutations through the centralized queue, honor reset/retry headers, and
-persist the job’s idempotency state before retrying. A 429 or timeout defers the
-same work; it never triggers an unbounded parallel replay or a different,
-broader identity. Stop intake when the configured budget guardrail is reached.
+1. Inventory tokens, Workspaces, plans, callers, endpoints, request bursts, and retry loops.
+2. Capture current headers from bounded calls and convert reset timestamps safely.
+3. Allocate budgets by priority and reserve explicit headroom for user and recovery operations.
+4. Implement a bounded queue/token bucket with jitter and a maximum elapsed retry time.
+5. Pause at 429 until reset; do not fan out retries or switch tokens to bypass policy.
+6. Load-test with synthetic work and verify throughput, fairness, queue age, and zero lost operations.
+
+## Approval Boundaries
+
+Do not upgrade a plan, add tokens to multiply limits, or starve interactive traffic without account and service-owner approval.
 
 ## Output
 
-Emit a request-control record with resource scope, job ID, attempts, applied
-delay, quota/reset state, terminal decision, and safe correlation data. Exclude
-tokens, task bodies, comments, and full provider responses.
+Return observed limit/reset, caller inventory, concurrency and queue policy, headroom, test results, 429 rate, and alternatives.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Headers conflict with assumed plan | Trust observed authorized headers and re-check account facts. |
+| Reset value is malformed | Stop automatic retry and use conservative operator review. |
+| Queue exceeds freshness SLO | Reduce demand or choose an approved architecture change. |
+| Retry storm detected | Open the circuit and drain under a single scheduler. |
 
 ## Examples
 
-Queue one staging task update, capture a 429 reset time, and reschedule the
-same idempotent job after the wait. If the retry budget expires, return a
-retryable unavailable result and alert the owner instead of submitting a second
-update or bypassing the queue.
+The example below is a redacted operator receipt; it contains no task text, member data, credential, or webhook secret.
+
+```text
+plan=business-plus; observed-limit=1000/min; allocated=720/min; headroom=28%; 429=0; queue-p95=9s
+```
 
 ## Resources
 
-- [ClickUp Rate Limits](https://developer.clickup.com/docs/rate-limits)
-- [p-queue Library](https://github.com/sindresorhus/p-queue)
-
-## Next Steps
-
-For security configuration, see `clickup-security-basics`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Rate limits](https://developer.clickup.com/docs/rate-limits)
+- [Authentication](https://developer.clickup.com/docs/authentication)
+- [Rate limits](https://developer.clickup.com/docs/rate-limits)

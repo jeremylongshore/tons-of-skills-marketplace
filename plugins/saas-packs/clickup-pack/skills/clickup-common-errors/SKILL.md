@@ -1,205 +1,84 @@
 ---
 name: clickup-common-errors
-description: 'Diagnose and fix ClickUp API v2 errors by HTTP status and error code.
-
-  Use when encountering ClickUp API errors, debugging failed requests,
-
-  or troubleshooting OAUTH_* error codes, 401s, 429s, and 500s.
-
-  Trigger: "clickup error", "fix clickup", "clickup not working",
-
-  "clickup 401", "clickup 429", "OAUTH error", "debug clickup API".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.6.0
-license: MIT
+description: >-
+  Analyze and diagnose ClickUp authentication, authorization, plan, request, pagination, throttling, webhook, and provider failures from redacted evidence. Use when a ClickUp integration fails or behaves inconsistently. Trigger with "ClickUp error", "ClickUp 429", or "diagnose ClickUp API".
+argument-hint: "[status-code-or-error] [endpoint]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- productivity
 - clickup
-compatibility: Designed for Claude Code
+- troubleshooting
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live diagnosis requires authorized ClickUp access and sanitized evidence
 ---
-# ClickUp Common Errors
+# ClickUp Error Diagnosis
 
 ## Overview
 
-Reference for ClickUp API v2 errors. All errors return JSON with `err` (message) and optionally `ECODE` (error code).
-
-## Error Response Format
-
-```json
-{
-  "err": "Space not found",
-  "ECODE": "ITEM_015"
-}
-```
-
-## HTTP Status Errors
-
-### 400 Bad Request
-
-| Situation | Response | Fix |
-|-----------|----------|-----|
-| Missing required field | `{"err": "Task name required"}` | Include `name` in request body |
-| Invalid field value | `{"err": "Invalid priority"}` | Priority must be 1-4 or null |
-| Malformed JSON | `{"err": "Unexpected token"}` | Validate JSON before sending |
-| Invalid custom field value | `{"err": "Invalid value for field"}` | Match value to field type |
-
-### 401 Unauthorized — OAuth Errors
-
-| ECODE | Cause | Solution |
-|-------|-------|----------|
-| OAUTH_017 | Token malformed or missing | Include `Authorization: <token>` header |
-| OAUTH_023 | Workspace not authorized for token | User must re-authorize workspace in OAuth flow |
-| OAUTH_026 | Token revoked by user | Generate new personal token or re-authenticate |
-| OAUTH_027 | Workspace not authorized | Re-authorize via OAuth, ensuring workspace scope |
-| OAUTH_029-045 | Various workspace auth failures | Re-run OAuth flow for the specific workspace |
-
-```bash
-# Diagnose: verify your token works
-curl -s -w "\nHTTP %{http_code}\n" \
-  https://api.clickup.com/api/v2/user \
-  -H "Authorization: $CLICKUP_API_TOKEN"
-```
-
-### 403 Forbidden
-
-| Situation | Fix |
-|-----------|-----|
-| No access to space/folder/list | Verify user has access to that part of the hierarchy |
-| Insufficient role permissions | Need admin role for destructive operations |
-| Guest access limitation | Guests have restricted API access |
-
-### 404 Not Found
-
-```bash
-# Common causes: wrong ID, deleted resource, wrong hierarchy level
-# Verify the resource exists:
-curl -s https://api.clickup.com/api/v2/task/TASK_ID \
-  -H "Authorization: $CLICKUP_API_TOKEN" | jq '.id, .name'
-```
-
-### 429 Rate Limited
-
-Rate limits vary by plan (per token, per minute):
-
-- **Free/Unlimited/Business**: 100 req/min
-- **Business Plus**: 1,000 req/min
-- **Enterprise**: 10,000 req/min
-
-```bash
-# Check rate limit headers on any response
-curl -s -D - https://api.clickup.com/api/v2/user \
-  -H "Authorization: $CLICKUP_API_TOKEN" 2>&1 | grep -i ratelimit
-
-# Headers returned:
-# X-RateLimit-Limit: 100
-# X-RateLimit-Remaining: 95
-# X-RateLimit-Reset: 1695000060  (Unix timestamp)
-```
-
-### 500/503 Server Errors
-
-Check [ClickUp Status Page](https://status.clickup.com) first.
-
-```bash
-# Quick status check
-curl -s https://status.clickup.com/api/v2/summary.json | \
-  jq '.status.description'
-```
-
-## Diagnostic Script
-
-```bash
-#!/bin/bash
-echo "=== ClickUp API Diagnostics ==="
-
-# 1. Auth check
-echo -n "Auth: "
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-  https://api.clickup.com/api/v2/user \
-  -H "Authorization: $CLICKUP_API_TOKEN")
-[ "$HTTP_CODE" = "200" ] && echo "OK" || echo "FAILED ($HTTP_CODE)"
-
-# 2. Rate limit check
-echo -n "Rate limit remaining: "
-curl -s -D - https://api.clickup.com/api/v2/user \
-  -H "Authorization: $CLICKUP_API_TOKEN" 2>&1 | \
-  grep "X-RateLimit-Remaining" | awk '{print $2}'
-
-# 3. Workspace access
-echo "Workspaces:"
-curl -s https://api.clickup.com/api/v2/team \
-  -H "Authorization: $CLICKUP_API_TOKEN" | jq -r '.teams[] | "  \(.id): \(.name)"'
-```
-
-## Error Handler Pattern
-
-```typescript
-async function handleClickUpError(response: Response): Promise<never> {
-  const body = await response.json().catch(() => ({ err: 'Unknown' }));
-
-  switch (response.status) {
-    case 401:
-      throw new Error(`Auth failed (${body.ECODE}): Re-check token or re-authorize`);
-    case 429: {
-      const resetAt = response.headers.get('X-RateLimit-Reset');
-      const waitMs = resetAt ? (parseInt(resetAt) * 1000 - Date.now()) : 60000;
-      throw new Error(`Rate limited. Retry after ${Math.ceil(waitMs / 1000)}s`);
-    }
-    case 404:
-      throw new Error(`Resource not found: ${body.err}`);
-    default:
-      throw new Error(`ClickUp API ${response.status}: ${body.err}`);
-  }
-}
-```
+Classify the failure before changing code so authentication, workspace scope, plan gates, schema drift, and transient provider faults receive different remedies.
 
 ## Prerequisites
 
-- Authorized access to the affected environment and a scoped diagnostic identity
-- Redacted request/correlation metadata and last certified integration state
-- A known owner for workspace, token, task data, and production change approval
-- Access to rate-limit and platform-status information
+- A redacted status code, ClickUp error code/message, endpoint version, and request shape
+- The authorized Workspace ID, auth mode, and current plan facts from an owner
+- Access to current ClickUp docs and status information
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect the repository, adapters, configuration names, tests, and evidence. Use `WebFetch` only for current official ClickUp documentation. Use `Write` or `Edit` after confirming the target file, Workspace boundary, and requested mode.
+
+## Current Contract
+
+- `OAUTH_017` can indicate a missing Authorization header; workspace authorization and revoked-token families have distinct codes.
+- Browser-side CORS failures require a server-side boundary, not a permissive token-bearing frontend workaround.
+- A 429 is per token; inspect `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and Unix `X-RateLimit-Reset`.
+- Retry only bounded transient failures; do not retry malformed requests or permission denials.
+
+## Authentication
+
+Use a personal token only for accountable individual/testing work or OAuth Authorization Code for a user-facing integration. Inject the token server-side through a governed secret reference, send it in `Authorization`, verify authorized Workspace IDs, and never print the token, OAuth client secret, or webhook secret.
 
 ## Instructions
 
-Identify the target workspace/list and error class, collect only the minimum
-redacted response metadata, then apply the matching recovery path. Change one
-variable at a time and preserve the prior certified state; do not retry 401,
-403, 429, or data-integrity errors with broader credentials or unbounded loops.
+1. Capture the method, versioned path, status, ClickUp error code, response type, and sanitized headers.
+2. Confirm whether the caller uses a personal token or OAuth and whether the Workspace was authorized.
+3. Validate path parameters, JSON content type, endpoint version, pagination cursor/page, and plan eligibility.
+4. Separate 401/403, 404, 409-style state conflicts, 429, timeout, and 5xx classes.
+5. Reproduce with the smallest read-only request and compare against the official reference.
+6. Recommend the narrowest correction and record the post-fix probe.
 
-## Error Handling
+## Approval Boundaries
 
-| Failure class | Safe response |
-|---|---|
-| Authentication or authorization | Stop requests and route token/scope repair to its owner. |
-| Rate limit or provider outage | Preserve retry timing, defer through the scheduler, and protect queued work. |
-| Resource or mapping mismatch | Do not mutate; re-resolve IDs/schema and reconcile state first. |
-| Possible data exposure | Restrict access and follow the incident process with redacted evidence. |
+Do not regenerate credentials, reauthorize Workspaces, upgrade a plan, replay writes, or disclose task content merely to diagnose an error.
 
 ## Output
 
-Produce a diagnostic record with environment, affected resource ID, symptom,
-safe correlation data, containment action, retry/rollback decision, and
-escalation owner. Never include tokens, full task content, attachments, or
-unapproved member data in general logs or tickets.
+Return failure class, evidence, likely cause, safe correction, retry decision, owner action, and verification result.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Evidence contains a token or work content | Stop, redact it, and rotate the exposed credential if necessary. |
+| Workspace scope is unknown | Do not infer permission; obtain authorized Workspace facts. |
+| 429 lacks usable reset data | Pause with bounded backoff and re-probe conservatively. |
+| Provider status is degraded | Defer writes and retain the incident window. |
 
 ## Examples
 
-On a 429, capture the reset header and defer the same idempotent job; do not
-submit a duplicate task. On a 401, halt the worker and verify the secret
-reference with its owner. If a mapping is wrong, compare the certified target
-state before retrying rather than overwriting tasks.
+The example below is a redacted operator receipt; it contains no task text, member data, credential, or webhook secret.
+
+```text
+status=401; code=OAUTH_017; class=auth-header; retry=no; correction=restore-server-secret-reference
+```
 
 ## Resources
 
-- [ClickUp Common Errors](https://developer.clickup.com/docs/common_errors)
-- [ClickUp API Error Handling](https://clickup.com/api/developer-portal/general-errorhandling/)
-- [ClickUp Status Page](https://status.clickup.com)
-
-## Next Steps
-
-For comprehensive debugging, see `clickup-debug-bundle`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Common errors](https://developer.clickup.com/docs/common_errors)
+- [Authentication](https://developer.clickup.com/docs/authentication)
+- [Rate limits](https://developer.clickup.com/docs/rate-limits)

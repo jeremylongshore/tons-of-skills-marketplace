@@ -1,210 +1,84 @@
 ---
 name: clickup-security-basics
-description: 'Secure ClickUp API tokens, implement least-privilege access, and audit
-  usage.
-
-  Use when securing API keys, rotating tokens, configuring per-environment
-
-  credentials, or auditing ClickUp API access patterns.
-
-  Trigger: "clickup security", "clickup secrets", "secure clickup token",
-
-  "clickup API key rotation", "clickup access audit".
-
-  '
-allowed-tools: Read, Write, Grep
-version: 1.6.0
-license: MIT
+description: >-
+  Harden ClickUp credentials, OAuth callbacks, Workspace boundaries, webhooks, logging, and incident response with least-privilege controls. Use when threat-modeling or reviewing a ClickUp integration. Trigger with "secure ClickUp", "ClickUp security review", or "ClickUp token rotation".
+argument-hint: "[repository-or-service] [assessment|remediation]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- productivity
 - clickup
-compatibility: Designed for Claude Code
+- security
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; credential and access changes require authorized security and Workspace owners
 ---
-# ClickUp Security Basics
+# ClickUp Integration Security
 
 ## Overview
 
-Secure ClickUp API credentials and access patterns. ClickUp personal tokens never expire, making rotation discipline critical. OAuth tokens also do not expire but can be revoked.
-
-## Token Types and Risk
-
-| Token Type | Prefix | Expires | Scope | Risk Level |
-|------------|--------|---------|-------|------------|
-| Personal API Token | `pk_` | Never | Full user access | High -- treat like password |
-| OAuth Access Token | Varies | Never | Per-authorized workspace | Medium -- per-user |
-| OAuth Client Secret | N/A | Never | App-level | Critical -- server-side only |
-
-## Secure Storage
-
-```bash
-# .env (NEVER commit)
-CLICKUP_API_TOKEN=pk_12345678_ABCDEFGHIJKLMNOPQRSTUVWXYZ
-
-# .gitignore (mandatory)
-.env
-.env.local
-.env.*.local
-*.pem
-```
-
-```bash
-# Git pre-commit hook to catch leaked tokens
-# .git/hooks/pre-commit
-#!/bin/bash
-if git diff --cached --diff-filter=ACM | grep -qE "pk_[a-zA-Z0-9_]{30,}"; then
-  echo "ERROR: ClickUp API token detected in staged files!"
-  echo "Remove the token and use environment variables instead."
-  exit 1
-fi
-```
-
-## Token Rotation Procedure
-
-```bash
-# 1. Generate new token: ClickUp > Settings > Apps > Regenerate
-# 2. Update environment
-export CLICKUP_API_TOKEN="pk_NEW_TOKEN_HERE"
-
-# 3. Verify new token works
-curl -sf https://api.clickup.com/api/v2/user \
-  -H "Authorization: $CLICKUP_API_TOKEN" | jq '.user.username'
-
-# 4. Update secrets in deployment platform
-gh secret set CLICKUP_API_TOKEN --body "$CLICKUP_API_TOKEN"
-# or: vault kv put secret/clickup/api-token value="$CLICKUP_API_TOKEN"
-# or: aws secretsmanager update-secret --secret-id clickup-api-token --secret-string "$CLICKUP_API_TOKEN"
-
-# 5. Old token is automatically invalidated when you regenerate
-```
-
-## Least Privilege with OAuth Scopes
-
-When building OAuth apps, request only needed access. ClickUp OAuth grants workspace-level access per authorized workspace.
-
-```typescript
-// OAuth: only request the workspaces you need
-function getAuthUrl(workspaceId?: string): string {
-  const params = new URLSearchParams({
-    client_id: process.env.CLICKUP_CLIENT_ID!,
-    redirect_uri: process.env.CLICKUP_REDIRECT_URI!,
-  });
-  return `https://app.clickup.com/api?${params}`;
-}
-```
-
-## Environment-Specific Tokens
-
-```typescript
-function getClickUpToken(): string {
-  const env = process.env.NODE_ENV ?? 'development';
-  const tokenKey = {
-    development: 'CLICKUP_API_TOKEN_DEV',
-    staging: 'CLICKUP_API_TOKEN_STAGING',
-    production: 'CLICKUP_API_TOKEN_PROD',
-  }[env] ?? 'CLICKUP_API_TOKEN';
-
-  const token = process.env[tokenKey];
-  if (!token) throw new Error(`Missing ${tokenKey} for environment: ${env}`);
-  return token;
-}
-```
-
-## Audit Logging
-
-```typescript
-interface ClickUpAuditEntry {
-  timestamp: string;
-  method: string;
-  endpoint: string;
-  statusCode: number;
-  rateLimitRemaining: number;
-  userId?: string;
-}
-
-function logApiCall(entry: ClickUpAuditEntry): void {
-  // Structured log for SIEM/audit systems
-  console.log(JSON.stringify({
-    level: 'audit',
-    service: 'clickup',
-    ...entry,
-  }));
-}
-
-// Wrap all API calls
-async function auditedRequest(path: string, options: RequestInit = {}) {
-  const response = await fetch(`https://api.clickup.com/api/v2${path}`, {
-    ...options,
-    headers: { 'Authorization': getClickUpToken(), ...options.headers },
-  });
-
-  logApiCall({
-    timestamp: new Date().toISOString(),
-    method: options.method ?? 'GET',
-    endpoint: path,
-    statusCode: response.status,
-    rateLimitRemaining: parseInt(
-      response.headers.get('X-RateLimit-Remaining') ?? '-1'
-    ),
-  });
-
-  return response;
-}
-```
-
-## Security Checklist
-
-- [ ] API tokens stored in environment variables, never in code
-- [ ] `.env` files listed in `.gitignore`
-- [ ] Pre-commit hook scanning for token patterns (`pk_*`)
-- [ ] Separate tokens for dev/staging/production
-- [ ] Token rotation procedure documented and tested
-- [ ] Audit logging on all API calls
-- [ ] OAuth client secret server-side only (never in frontend)
-- [ ] Webhook endpoints use HTTPS only
-
-## Error Handling
-
-| Issue | Detection | Mitigation |
-|-------|-----------|------------|
-| Token in git history | `git log -p --all -S 'pk_'` | Rotate token immediately; use BFG Repo-Cleaner |
-| Token in client bundle | Build output grep | Move to server-side only |
-| Stale token after rotation | 401 errors spike | Update all deployments |
+Protect long-lived credentials and sensitive work content across outbound API calls, inbound webhooks, queues, logs, and operator tooling.
 
 ## Prerequisites
 
-- Named credential owner, approved secret manager, and rotation/incident path
-- Environment-specific identities and least-privilege workspace/list inventory
-- Secret scanning, log-redaction, and callback security checks in CI/runtime
+- A data-flow and trust-boundary diagram plus credential/Workspace inventory
+- Named security, service, data, and ClickUp Workspace owners
+- Synthetic fixtures and an incident/rotation runbook
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect the repository, adapters, configuration names, tests, and evidence. Use `WebFetch` only for current official ClickUp documentation. Use `Write` or `Edit` after confirming the target file, Workspace boundary, and requested mode.
+
+## Current Contract
+
+- Personal tokens do not expire; OAuth tokens currently do not expire but that behavior is subject to change.
+- OAuth Authorization Code callbacks require exact redirects, state validation, and server-side client-secret handling.
+- Webhook requests use per-webhook secrets and raw-body HMAC-SHA256 in `X-Signature`; ClickUp has no fixed webhook source IP.
+- API authorization reflects the user and authorized Workspaces, so the app must enforce its own tenant policy.
+
+## Authentication
+
+Use a personal token only for accountable individual/testing work or OAuth Authorization Code for a user-facing integration. Inject the token server-side through a governed secret reference, send it in `Authorization`, verify authorized Workspace IDs, and never print the token, OAuth client secret, or webhook secret.
 
 ## Instructions
 
-Store credentials only through approved injection, restrict each identity to its
-environment and required resources, validate authorization before mutations,
-and test rotation/revocation in staging. Treat a leaked credential or unexpected
-scope as an incident: revoke/contain it, review access logs, and restore only a
-scoped replacement.
+1. Inventory credentials, callbacks, Workspaces, scopes/capabilities, webhooks, queues, stores, logs, and operator access.
+2. Remove client-side or repository secrets; inject environment-specific references at runtime.
+3. Enforce OAuth state, exact redirect handling, Workspace allow-lists, and deny-by-default write policies.
+4. Verify webhook signatures with constant-time comparison before JSON processing; apply replay/idempotency controls.
+5. Redact content and secrets from errors, traces, bundles, analytics, and CI artifacts.
+6. Exercise leak, revocation, cross-tenant, forged/replayed webhook, partial-write, and incident recovery scenarios.
+
+## Approval Boundaries
+
+Do not rotate shared credentials, reauthorize Workspaces, change ACLs, or inspect private content without accountable owner approval.
 
 ## Output
 
-Maintain a security record with identity/secret reference, effective scope,
-rotation test, scanning/redaction evidence, webhook controls, incident owner,
-and exceptions. Never place live tokens, raw task content, or private audit
-records in this documentation or its logs.
+Return threats, controls, credential/tenant map, webhook findings, data exposures, tested incident paths, residual risk, and owners.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Credential found in source or logs | Revoke/regenerate, scrub accessible artifacts, and open an incident. |
+| Webhook signature is absent/invalid | Reject before parsing or enqueueing. |
+| Workspace guard is missing | Disable writes until tenant enforcement exists. |
+| Security owner is absent | Do not approve production use. |
 
 ## Examples
 
-Rotate a staging service token, verify only its intended list is accessible,
-and confirm a revoked token produces a safe 401 without leaking headers. If a
-token appears in history or a client bundle, revoke it immediately and block
-release until secret scanning and deployment references are corrected.
+The example below is a redacted operator receipt; it contains no task text, member data, credential, or webhook secret.
+
+```text
+secrets-in-source=0; oauth-state=pass; workspace-guard=pass; webhook-hmac=pass; replay-test=pass; residual=2
+```
 
 ## Resources
 
-- [ClickUp Authentication](https://developer.clickup.com/docs/authentication)
-- [ClickUp Common Errors](https://developer.clickup.com/docs/common_errors)
-
-## Next Steps
-
-For production deployment, see `clickup-prod-checklist`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Webhook signature](https://developer.clickup.com/docs/webhooksignature)
+- [Authentication](https://developer.clickup.com/docs/authentication)
+- [Rate limits](https://developer.clickup.com/docs/rate-limits)

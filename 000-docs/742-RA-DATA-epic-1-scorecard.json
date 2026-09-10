@@ -22,9 +22,9 @@
       "error_files": 556,
       "error_total": 3385,
       "grade_distribution": {
-        "A": 2071,
-        "B": 971,
-        "C": 287,
+        "A": 2095,
+        "B": 958,
+        "C": 276,
         "D": 157,
         "F": 5
       },
@@ -42,7 +42,7 @@
       "values": {
         "plugin_agent_files": 352,
         "raw_tracked_plugin_skill_files": 2991,
-        "tracked_files": 24335
+        "tracked_files": 24397
       }
     },
     "2": {
@@ -91,7 +91,7 @@
         },
         "marketplace_terminal": {
           "error_total_all_validated_surfaces": 3622,
-          "fully_compliant_surfaces": 1283,
+          "fully_compliant_surfaces": 1307,
           "terminal_denominator": {
             "agents": 363,
             "commands": 370,
@@ -101,7 +101,7 @@
             "skills": 3491
           },
           "validated_plugin_manifests": 595,
-          "validator_reported_mixed_denominator_percent": 26.7
+          "validator_reported_mixed_denominator_percent": 27.2
         },
         "skill_rows": {
           "a_error_total": 31,
@@ -112,9 +112,9 @@
           "error_files": 556,
           "error_total": 3385,
           "grade_distribution": {
-            "A": 2071,
-            "B": 971,
-            "C": 287,
+            "A": 2095,
+            "B": 958,
+            "C": 276,
             "D": 157,
             "F": 5
           },
@@ -129,18 +129,18 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "average_score": 88.5,
+        "average_score": 88.7,
         "grade_distribution": {
-          "A": 2071,
-          "B": 971,
-          "C": 287,
+          "A": 2095,
+          "B": 958,
+          "C": 276,
           "D": 157,
           "F": 5
         },
         "grade_percentages": {
-          "A": 59.3,
-          "B": 27.8,
-          "C": 8.2,
+          "A": 60,
+          "B": 27.4,
+          "C": 7.9,
           "D": 4.5,
           "F": 0.1
         },
@@ -286,7 +286,7 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "distinct_values": 79,
+        "distinct_values": 103,
         "invalid_or_empty": 0,
         "target_free_text_values": 0,
         "values": [
@@ -367,7 +367,7 @@
             "value": "Cross-platform — talks WebDriver HTTP directly via Node's built-in node:https; no platform-specific binary dependency. Requires Node.js >= 18, a persistent local filesystem (the observe-decide-act loop passes state through local turn files), and ~/.kobiton/.credentials written by /automate:setup — scripts/appium.js reads that file directly and never calls the MCP getCredential tool, so it is required, not a fallback. An authenticated Kobiton MCP connection is additionally useful for device selection."
           },
           {
-            "count": 3121,
+            "count": 3097,
             "value": "Designed for Claude Code"
           },
           {
@@ -415,8 +415,36 @@
             "value": "Designed for Claude Code. The TUI itself requires an interactive terminal (the user runs it with the '!' prefix); requires bash 3.2+ and a terminal of at least 50x22."
           },
           {
+            "count": 1,
+            "value": "Designed for Claude Code; OAuth setup requires a ClickUp app owned by a Workspace owner or admin"
+          },
+          {
             "count": 18,
             "value": "Designed for Claude Code; TechSmith product execution requires an approved Windows or macOS desktop as documented"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; a live lane requires a protected non-production ClickUp credential"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; apply mode requires authorized ClickUp task access"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; apply mode requires authorized source/destination access and migration-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; approval requires service, Workspace, security, and data owners"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; benchmarks require authorized synthetic or non-sensitive data"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; credential and access changes require authorized security and Workspace owners"
           },
           {
             "count": 1,
@@ -425,6 +453,18 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; deployment requires platform access and Together AI project authorization"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; deployment requires platform access and environment-specific ClickUp credentials"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; each live environment requires separately governed ClickUp authorization"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; enterprise endpoints require the relevant plan, owner authority, and approved identities"
           },
           {
             "count": 1,
@@ -440,7 +480,15 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; legal retention and data-subject decisions require authorized owners"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; live CI requires a protected Together AI development project key"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live analysis requires sanitized ClickUp response headers"
           },
           {
             "count": 1,
@@ -448,7 +496,23 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; live canaries require authorized non-production ClickUp access"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live client verification requires a scoped ClickUp credential"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live collection requires authorized ClickUp access and local retention controls"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; live diagnosis may require network access and authorized Together project access"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live diagnosis requires authorized ClickUp access and sanitized evidence"
           },
           {
             "count": 1,
@@ -460,6 +524,14 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; live response requires authorized operational access and an incident commander"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live telemetry must follow approved data and secret-handling policy"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; live verification requires network access and a Together AI project key"
           },
           {
@@ -468,7 +540,19 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; mutation requires hierarchy administration in the target Workspace"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; optional live probes require network access and a Together AI project key"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; ordinary tests are offline and the live probe needs a non-production credential"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; plan and commercial decisions require current account-owner data"
           },
           {
             "count": 1,
@@ -477,6 +561,14 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; portable to Codex/OpenCode/Antigravity"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; production design requires current ClickUp plan, data, and authorization facts"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; registration requires authorized ClickUp access and public HTTPS ingress"
           },
           {
             "count": 1,
@@ -501,6 +593,10 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; submission requires network access, a project key, training data, and funded Together AI usage"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; the live probe requires a ClickUp personal token or OAuth access token"
           },
           {
             "count": 1,
@@ -1288,7 +1384,7 @@
         "answers": [
           {
             "cohort": "curated-mirror",
-            "value": 2473
+            "value": 2484
           },
           {
             "cohort": "curriculum",
@@ -2028,7 +2124,7 @@
         "invalid_patterns": 0,
         "invisible_files": 5,
         "target_invisible_files": 0,
-        "tracked_files": 24335
+        "tracked_files": 24397
       }
     },
     "47": {
@@ -2113,15 +2209,15 @@
       "dimension": "Inventory header versus rows",
       "reproduce": "pnpm run measure:e1 --row=52 --stdout",
       "source": [
-        "freshie/reports/run-delta-65.json",
+        "freshie/reports/run-delta-68.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],
       "status": "target_met",
       "values": {
-        "dolt_commit": "lt1e9kops9dmg6tpvm4m70pv4bmd46e4",
+        "dolt_commit": "ehdp345esbd36egqbuojp9q9013pvofb",
         "header_total_skills": 2914,
-        "run_id": 65,
+        "run_id": 68,
         "skill_row_delta": 0,
         "skill_rows": 2914,
         "target_skill_row_delta": 0
@@ -2134,32 +2230,32 @@
       "source": [
         "freshie/grade-histogram.json",
         "freshie/grades.csv",
-        "freshie/reports/run-delta-65.json"
+        "freshie/reports/run-delta-68.json"
       ],
       "status": "target_met",
       "values": {
         "compliance_rows": 3491,
-        "export_dolt_commit": "lt1e9kops9dmg6tpvm4m70pv4bmd46e4",
-        "export_run_id": 65,
+        "export_dolt_commit": "ehdp345esbd36egqbuojp9q9013pvofb",
+        "export_run_id": 68,
         "grades_csv_rows": 3491,
-        "grades_csv_sha256": "b235215b128843411238de3feeabcc983e021aab6677c72801eacb516389ec62",
+        "grades_csv_sha256": "ee6763964d633964bbc333a1545644faa09683f55245746df12b785153888b96",
         "histogram_grades": {
-          "A": 2071,
-          "B": 971,
-          "C": 287,
+          "A": 2095,
+          "B": 958,
+          "C": 276,
           "D": 157,
           "F": 5
         },
         "histogram_total": 3491,
         "immutable_grade_counts": {
-          "A": 2071,
-          "B": 971,
-          "C": 287,
+          "A": 2095,
+          "B": 958,
+          "C": 276,
           "D": 157,
           "F": 5
         },
-        "inventory_dolt_commit": "lt1e9kops9dmg6tpvm4m70pv4bmd46e4",
-        "inventory_run_id": 65,
+        "inventory_dolt_commit": "ehdp345esbd36egqbuojp9q9013pvofb",
+        "inventory_run_id": 68,
         "target_lag_runs": 0
       }
     },
@@ -2170,7 +2266,7 @@
       "source": [
         "freshie/reports/legacy-forge-proofs-demotion.json",
         "freshie/reports/run-delta-19.json",
-        "freshie/reports/run-delta-65.json",
+        "freshie/reports/run-delta-68.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py",
         "scripts/record-jrig-proofs.mjs"
@@ -2183,7 +2279,7 @@
           "E2": 0,
           "E3": 0
         },
-        "current_run_id": 65,
+        "current_run_id": 68,
         "invalid_identities": 0,
         "legacy_e0_records": 3,
         "retained_e2_e3": 0,
@@ -2208,7 +2304,7 @@
         "000-docs/807-DR-STND-evaluation-evidence.md",
         "freshie/reports/legacy-forge-proofs-demotion.json",
         "freshie/reports/run-delta-19.json",
-        "freshie/reports/run-delta-65.json",
+        "freshie/reports/run-delta-68.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],

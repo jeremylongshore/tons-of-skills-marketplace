@@ -6513,14 +6513,15 @@
     {
       "name": "clickup-pack",
       "source": "./plugins/saas-packs/clickup-pack",
-      "description": "Claude Code skill pack for ClickUp (24 skills)",
-      "version": "1.6.0",
+      "description": "Production-grade Claude Code operator workflows for governed ClickUp integrations (24 skills)",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "clickup",
         "saas",
-        "sdk",
-        "integration"
+        "operations",
+        "integration",
+        "project-management"
       ],
       "author": {
         "name": "Jeremy Longshore",

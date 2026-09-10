@@ -12166,13 +12166,14 @@
       "slug": "clickup-pack",
       "name": "clickup-pack",
       "displayName": "clickup pack",
-      "description": "Claude Code skill pack for ClickUp (24 skills)",
+      "description": "Production-grade Claude Code operator workflows for governed ClickUp integrations (24 skills)",
       "category": "saas-packs",
       "keywords": [
         "clickup",
         "saas",
-        "sdk",
-        "integration"
+        "operations",
+        "integration",
+        "project-management"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -12180,7 +12181,7 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.6.0",
+      "version": "1.8.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -12188,7 +12189,7 @@
       "verificationScore": 80,
       "verificationGrade": "B",
       "verificationBadge": "silver",
-      "searchText": "clickup pack claude code skill pack for clickup (24 skills) saas-packs clickup saas sdk integration"
+      "searchText": "clickup pack production-grade claude code operator workflows for governed clickup integrations (24 skills) saas-packs clickup saas operations integration project-management"
     },
     {
       "type": "plugin",
@@ -27700,504 +27701,552 @@
       "id": "clickup-ci-integration",
       "slug": "clickup-ci-integration",
       "name": "clickup-ci-integration",
-      "description": "Set up CI/CD pipelines for ClickUp API integrations with GitHub Actions, automated testing, and task status sync. Trigger: \"clickup CI\", \"clickup GitHub Actions\", \"clickup automated tests\", \"CI clickup integration\", \"clickup pipeline\", \"clickup CI/CD\".",
+      "description": "Gate ClickUp adapters with offline OpenAPI contracts and a protected read-only live probe. Use when adding CI for a ClickUp-backed repository. Trigger with \"ClickUp CI\", \"test ClickUp integration\", or \"ClickUp contract tests\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(gh:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-ci-integration set up ci/cd pipelines for clickup api integrations with github actions, automated testing, and task status sync. trigger: \"clickup ci\", \"clickup github actions\", \"clickup automated tests\", \"ci clickup integration\", \"clickup pipeline\", \"clickup ci/cd\". saas-packs read write edit bash(gh:*) "
+      "searchText": "clickup-ci-integration gate clickup adapters with offline openapi contracts and a protected read-only live probe. use when adding ci for a clickup-backed repository. trigger with \"clickup ci\", \"test clickup integration\", or \"clickup contract tests\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-common-errors",
       "slug": "clickup-common-errors",
       "name": "clickup-common-errors",
-      "description": "Diagnose and fix ClickUp API v2 errors by HTTP status and error code. Use when encountering ClickUp API errors, debugging failed requests, or troubleshooting OAUTH_* error codes, 401s, 429s, and 500s. Trigger: \"clickup error\", \"fix clickup\", \"clickup not working\", \"clickup 401\", \"clickup 429\", \"OAUTH error\", \"debug clickup API\".",
+      "description": "Analyze and diagnose ClickUp authentication, authorization, plan, request, pagination, throttling, webhook, and provider failures from redacted evidence. Use when a ClickUp integration fails or behaves inconsistently. Trigger with \"ClickUp error\", \"ClickUp 429\", or \"diagnose ClickUp API\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-common-errors diagnose and fix clickup api v2 errors by http status and error code. use when encountering clickup api errors, debugging failed requests, or troubleshooting oauth_* error codes, 401s, 429s, and 500s. trigger: \"clickup error\", \"fix clickup\", \"clickup not working\", \"clickup 401\", \"clickup 429\", \"oauth error\", \"debug clickup api\". saas-packs read grep bash(curl:*) "
+      "searchText": "clickup-common-errors analyze and diagnose clickup authentication, authorization, plan, request, pagination, throttling, webhook, and provider failures from redacted evidence. use when a clickup integration fails or behaves inconsistently. trigger with \"clickup error\", \"clickup 429\", or \"diagnose clickup api\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-core-workflow-a",
       "slug": "clickup-core-workflow-a",
       "name": "clickup-core-workflow-a",
-      "description": "Manage ClickUp tasks via API v2: create, read, update, delete tasks with assignees, priorities, due dates, subtasks, and statuses. Trigger: \"clickup task\", \"create clickup task\", \"update task status\", \"manage clickup tasks\", \"clickup CRUD\", \"clickup task management\".",
+      "description": "Create, reconcile, update, and retire ClickUp tasks with schema validation, durable source identity, and explicit destructive approval. Use when automating task lifecycle work through ClickUp API v2. Trigger with \"ClickUp task sync\", \"create ClickUp tasks\", or \"ClickUp task CRUD\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-core-workflow-a manage clickup tasks via api v2: create, read, update, delete tasks with assignees, priorities, due dates, subtasks, and statuses. trigger: \"clickup task\", \"create clickup task\", \"update task status\", \"manage clickup tasks\", \"clickup crud\", \"clickup task management\". saas-packs read write edit bash(curl:*) grep "
+      "searchText": "clickup-core-workflow-a create, reconcile, update, and retire clickup tasks with schema validation, durable source identity, and explicit destructive approval. use when automating task lifecycle work through clickup api v2. trigger with \"clickup task sync\", \"create clickup tasks\", or \"clickup task crud\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-core-workflow-b",
       "slug": "clickup-core-workflow-b",
       "name": "clickup-core-workflow-b",
-      "description": "Manage ClickUp workspaces, spaces, folders, lists, and views via API v2. Use when creating project structures, organizing spaces and lists, or managing the ClickUp hierarchy programmatically. Trigger: \"clickup space\", \"clickup folder\", \"clickup list\", \"clickup views\", \"create clickup space\", \"organize clickup workspace\", \"clickup hierarchy\".",
+      "description": "Analyze, inventory, and change ClickUp Spaces, Folders, Lists, tags, and views with parent-aware plans and reversible boundaries. Use when managing ClickUp hierarchy through API v2. Trigger with \"ClickUp hierarchy\", \"ClickUp Lists\", or \"ClickUp views\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-core-workflow-b manage clickup workspaces, spaces, folders, lists, and views via api v2. use when creating project structures, organizing spaces and lists, or managing the clickup hierarchy programmatically. trigger: \"clickup space\", \"clickup folder\", \"clickup list\", \"clickup views\", \"create clickup space\", \"organize clickup workspace\", \"clickup hierarchy\". saas-packs read write edit bash(curl:*) grep "
+      "searchText": "clickup-core-workflow-b analyze, inventory, and change clickup spaces, folders, lists, tags, and views with parent-aware plans and reversible boundaries. use when managing clickup hierarchy through api v2. trigger with \"clickup hierarchy\", \"clickup lists\", or \"clickup views\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-cost-tuning",
       "slug": "clickup-cost-tuning",
       "name": "clickup-cost-tuning",
-      "description": "Optimize ClickUp API usage costs through plan selection, request reduction, caching, and usage monitoring. Trigger: \"clickup cost\", \"clickup billing\", \"reduce clickup usage\", \"clickup pricing\", \"clickup plan comparison\", \"clickup API usage\".",
+      "description": "Reduce ClickUp integration cost and request load using measured traffic, pagination, cache policy, webhooks, and current plan facts. Use when forecasting or optimizing ClickUp operations. Trigger with \"ClickUp cost\", \"reduce ClickUp requests\", or \"ClickUp plan sizing\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-cost-tuning optimize clickup api usage costs through plan selection, request reduction, caching, and usage monitoring. trigger: \"clickup cost\", \"clickup billing\", \"reduce clickup usage\", \"clickup pricing\", \"clickup plan comparison\", \"clickup api usage\". saas-packs read grep "
+      "searchText": "clickup-cost-tuning reduce clickup integration cost and request load using measured traffic, pagination, cache policy, webhooks, and current plan facts. use when forecasting or optimizing clickup operations. trigger with \"clickup cost\", \"reduce clickup requests\", or \"clickup plan sizing\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-data-handling",
       "slug": "clickup-data-handling",
       "name": "clickup-data-handling",
-      "description": "Handle ClickUp data exports, PII redaction, GDPR compliance, and data retention for ClickUp API integrations. Trigger: \"clickup data\", \"clickup PII\", \"clickup GDPR\", \"clickup data retention\", \"clickup privacy\", \"clickup CCPA\", \"clickup data export\".",
+      "description": "Analyze, map, minimize, redact, retain, export, and delete ClickUp-derived work data under an application-owned governance policy. Use when ClickUp tasks, comments, attachments, or member data enter another system. Trigger with \"ClickUp data handling\", \"ClickUp PII\", or \"ClickUp retention\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-data-handling handle clickup data exports, pii redaction, gdpr compliance, and data retention for clickup api integrations. trigger: \"clickup data\", \"clickup pii\", \"clickup gdpr\", \"clickup data retention\", \"clickup privacy\", \"clickup ccpa\", \"clickup data export\". saas-packs read write edit "
+      "searchText": "clickup-data-handling analyze, map, minimize, redact, retain, export, and delete clickup-derived work data under an application-owned governance policy. use when clickup tasks, comments, attachments, or member data enter another system. trigger with \"clickup data handling\", \"clickup pii\", or \"clickup retention\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-debug-bundle",
       "slug": "clickup-debug-bundle",
       "name": "clickup-debug-bundle",
-      "description": "Collect ClickUp API diagnostic information for troubleshooting and support. Use when encountering persistent issues, preparing support tickets, or collecting API connectivity and rate limit diagnostics. Trigger: \"clickup debug\", \"clickup diagnostics\", \"clickup support bundle\", \"collect clickup logs\", \"clickup health check\".",
+      "description": "Collect a minimal redacted ClickUp connectivity and contract bundle without task bodies, tokens, or webhook secrets. Use when escalating a ClickUp API incident. Trigger with \"ClickUp debug bundle\", \"ClickUp diagnostics\", or \"collect ClickUp evidence\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Bash(tar:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-debug-bundle collect clickup api diagnostic information for troubleshooting and support. use when encountering persistent issues, preparing support tickets, or collecting api connectivity and rate limit diagnostics. trigger: \"clickup debug\", \"clickup diagnostics\", \"clickup support bundle\", \"collect clickup logs\", \"clickup health check\". saas-packs read bash(curl:*) bash(tar:*) grep "
+      "searchText": "clickup-debug-bundle collect a minimal redacted clickup connectivity and contract bundle without task bodies, tokens, or webhook secrets. use when escalating a clickup api incident. trigger with \"clickup debug bundle\", \"clickup diagnostics\", or \"collect clickup evidence\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-deploy-integration",
       "slug": "clickup-deploy-integration",
       "name": "clickup-deploy-integration",
-      "description": "Deploy ClickUp API integrations to Vercel, Fly.io, and Cloud Run with secure secrets management and health checks. Trigger: \"deploy clickup\", \"clickup Vercel\", \"clickup production deploy\", \"clickup Cloud Run\", \"clickup Fly.io\", \"clickup hosting\".",
+      "description": "Deploy and roll back a server-side ClickUp API and webhook service with secret injection, workspace guards, health probes, and durable queues. Use when releasing a ClickUp integration. Trigger with \"deploy ClickUp\", \"ClickUp production release\", or \"ClickUp webhook service\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(fly:*)",
-        "Bash(gcloud:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-deploy-integration deploy clickup api integrations to vercel, fly.io, and cloud run with secure secrets management and health checks. trigger: \"deploy clickup\", \"clickup vercel\", \"clickup production deploy\", \"clickup cloud run\", \"clickup fly.io\", \"clickup hosting\". saas-packs read write edit bash(vercel:*) bash(fly:*) bash(gcloud:*) "
+      "searchText": "clickup-deploy-integration deploy and roll back a server-side clickup api and webhook service with secret injection, workspace guards, health probes, and durable queues. use when releasing a clickup integration. trigger with \"deploy clickup\", \"clickup production release\", or \"clickup webhook service\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-enterprise-rbac",
       "slug": "clickup-enterprise-rbac",
       "name": "clickup-enterprise-rbac",
-      "description": "Implement ClickUp Enterprise SSO, OAuth 2.0 multi-workspace access, role-based permissions, and organization management via API v2. Trigger: \"clickup SSO\", \"clickup RBAC\", \"clickup enterprise\", \"clickup roles\", \"clickup permissions\", \"clickup OAuth app\", \"clickup multi-workspace\".",
+      "description": "Assess and change ClickUp roles, custom roles, groups, object ACLs, and audit access with plan-aware approvals. Use when governing enterprise ClickUp authorization. Trigger with \"ClickUp RBAC\", \"ClickUp custom roles\", or \"ClickUp ACL audit\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-enterprise-rbac implement clickup enterprise sso, oauth 2.0 multi-workspace access, role-based permissions, and organization management via api v2. trigger: \"clickup sso\", \"clickup rbac\", \"clickup enterprise\", \"clickup roles\", \"clickup permissions\", \"clickup oauth app\", \"clickup multi-workspace\". saas-packs read write edit "
+      "searchText": "clickup-enterprise-rbac assess and change clickup roles, custom roles, groups, object acls, and audit access with plan-aware approvals. use when governing enterprise clickup authorization. trigger with \"clickup rbac\", \"clickup custom roles\", or \"clickup acl audit\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-hello-world",
       "slug": "clickup-hello-world",
       "name": "clickup-hello-world",
-      "description": "Make your first ClickUp API v2 calls: list workspaces, spaces, and create a task. Use when starting a new ClickUp integration, testing your setup, or learning the ClickUp hierarchy (Workspace, Space, Folder, List, Task). Trigger: \"clickup hello world\", \"clickup first call\", \"clickup quick start\", \"test clickup API\", \"create clickup task\".",
+      "description": "Prove the smallest safe ClickUp API connection by reading the authorized user and Workspaces without creating work. Use when validating a new ClickUp credential. Trigger with \"ClickUp hello world\", \"test ClickUp token\", or \"first ClickUp API call\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-hello-world make your first clickup api v2 calls: list workspaces, spaces, and create a task. use when starting a new clickup integration, testing your setup, or learning the clickup hierarchy (workspace, space, folder, list, task). trigger: \"clickup hello world\", \"clickup first call\", \"clickup quick start\", \"test clickup api\", \"create clickup task\". saas-packs read write edit bash(curl:*) "
+      "searchText": "clickup-hello-world prove the smallest safe clickup api connection by reading the authorized user and workspaces without creating work. use when validating a new clickup credential. trigger with \"clickup hello world\", \"test clickup token\", or \"first clickup api call\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-incident-runbook",
       "slug": "clickup-incident-runbook",
       "name": "clickup-incident-runbook",
-      "description": "Execute ClickUp API incident response: triage, diagnosis, mitigation, and postmortem for API failures and integration outages. Trigger: \"clickup incident\", \"clickup outage\", \"clickup down\", \"clickup on-call\", \"clickup emergency\", \"clickup API broken\".",
+      "description": "Triage, contain, recover, and review ClickUp API and webhook incidents with bounded read-only evidence. Use when ClickUp-backed production behavior is degraded. Trigger with \"ClickUp incident\", \"ClickUp outage\", or \"ClickUp webhook failing\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(kubectl:*)",
-        "Bash(curl:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-incident-runbook execute clickup api incident response: triage, diagnosis, mitigation, and postmortem for api failures and integration outages. trigger: \"clickup incident\", \"clickup outage\", \"clickup down\", \"clickup on-call\", \"clickup emergency\", \"clickup api broken\". saas-packs read grep bash(kubectl:*) bash(curl:*) "
+      "searchText": "clickup-incident-runbook triage, contain, recover, and review clickup api and webhook incidents with bounded read-only evidence. use when clickup-backed production behavior is degraded. trigger with \"clickup incident\", \"clickup outage\", or \"clickup webhook failing\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-install-auth",
       "slug": "clickup-install-auth",
       "name": "clickup-install-auth",
-      "description": "Set up ClickUp API v2 authentication with personal tokens or OAuth 2.0. Use when configuring a new ClickUp integration, setting up API access, or initializing OAuth flows for multi-user apps. Trigger: \"install clickup\", \"setup clickup auth\", \"clickup API token\", \"clickup OAuth\", \"configure clickup credentials\".",
+      "description": "Configure ClickUp personal-token or OAuth authorization with server-side storage, state validation, Workspace verification, and rotation ownership. Use when connecting an application to ClickUp. Trigger with \"ClickUp auth\", \"install ClickUp API\", or \"ClickUp OAuth setup\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-install-auth set up clickup api v2 authentication with personal tokens or oauth 2.0. use when configuring a new clickup integration, setting up api access, or initializing oauth flows for multi-user apps. trigger: \"install clickup\", \"setup clickup auth\", \"clickup api token\", \"clickup oauth\", \"configure clickup credentials\". saas-packs read write edit bash(curl:*) bash(npm:*) grep "
+      "searchText": "clickup-install-auth configure clickup personal-token or oauth authorization with server-side storage, state validation, workspace verification, and rotation ownership. use when connecting an application to clickup. trigger with \"clickup auth\", \"install clickup api\", or \"clickup oauth setup\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-local-dev-loop",
       "slug": "clickup-local-dev-loop",
       "name": "clickup-local-dev-loop",
-      "description": "Set up local development for ClickUp API integrations with testing, mocking, and hot reload. Trigger: \"clickup dev setup\", \"clickup local development\", \"clickup dev environment\", \"develop with clickup\", \"clickup testing setup\", \"mock clickup API\".",
+      "description": "Develop ClickUp adapters with a fake transport, schema fixtures, deterministic clocks, and an opt-in bounded live probe. Use when iterating without mutating a real Workspace. Trigger with \"ClickUp local dev\", \"mock ClickUp API\", or \"ClickUp fixtures\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-local-dev-loop set up local development for clickup api integrations with testing, mocking, and hot reload. trigger: \"clickup dev setup\", \"clickup local development\", \"clickup dev environment\", \"develop with clickup\", \"clickup testing setup\", \"mock clickup api\". saas-packs read write edit bash(npm:*) bash(pnpm:*) grep "
+      "searchText": "clickup-local-dev-loop develop clickup adapters with a fake transport, schema fixtures, deterministic clocks, and an opt-in bounded live probe. use when iterating without mutating a real workspace. trigger with \"clickup local dev\", \"mock clickup api\", or \"clickup fixtures\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-migration-deep-dive",
       "slug": "clickup-migration-deep-dive",
       "name": "clickup-migration-deep-dive",
-      "description": "Migrate to ClickUp from other project management tools (Jira, Asana, Trello) or migrate data between ClickUp workspaces using API v2. Trigger: \"migrate to clickup\", \"clickup migration\", \"jira to clickup\", \"asana to clickup\", \"trello to clickup\", \"clickup data migration\", \"move tasks to clickup\", \"clickup import\".",
+      "description": "Plan and execute resumable migrations into or between ClickUp Workspaces with explicit mapping, stable source IDs, bounded writes, and reconciliation. Use when moving Jira, Asana, Trello, or ClickUp data. Trigger with \"migrate to ClickUp\", \"ClickUp migration\", or \"clone ClickUp Workspace\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(node:*)",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-migration-deep-dive migrate to clickup from other project management tools (jira, asana, trello) or migrate data between clickup workspaces using api v2. trigger: \"migrate to clickup\", \"clickup migration\", \"jira to clickup\", \"asana to clickup\", \"trello to clickup\", \"clickup data migration\", \"move tasks to clickup\", \"clickup import\". saas-packs read write edit bash(npm:*) bash(node:*) bash(curl:*) "
+      "searchText": "clickup-migration-deep-dive plan and execute resumable migrations into or between clickup workspaces with explicit mapping, stable source ids, bounded writes, and reconciliation. use when moving jira, asana, trello, or clickup data. trigger with \"migrate to clickup\", \"clickup migration\", or \"clone clickup workspace\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-multi-env-setup",
       "slug": "clickup-multi-env-setup",
       "name": "clickup-multi-env-setup",
-      "description": "Configure ClickUp API access across dev, staging, and production environments with per-environment tokens and workspace isolation. Trigger: \"clickup environments\", \"clickup staging\", \"clickup dev prod\", \"clickup environment setup\", \"clickup config by env\", \"clickup multi-env\".",
+      "description": "Separate ClickUp development, staging, and production identities, Workspaces, callbacks, queues, and data with fail-closed guards. Use when one integration spans multiple environments. Trigger with \"ClickUp environments\", \"ClickUp staging setup\", or \"ClickUp tenant isolation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(aws:*)",
-        "Bash(gcloud:*)",
-        "Bash(vault:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-multi-env-setup configure clickup api access across dev, staging, and production environments with per-environment tokens and workspace isolation. trigger: \"clickup environments\", \"clickup staging\", \"clickup dev prod\", \"clickup environment setup\", \"clickup config by env\", \"clickup multi-env\". saas-packs read write edit bash(aws:*) bash(gcloud:*) bash(vault:*) "
+      "searchText": "clickup-multi-env-setup separate clickup development, staging, and production identities, workspaces, callbacks, queues, and data with fail-closed guards. use when one integration spans multiple environments. trigger with \"clickup environments\", \"clickup staging setup\", or \"clickup tenant isolation\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-observability",
       "slug": "clickup-observability",
       "name": "clickup-observability",
-      "description": "Monitor ClickUp API integrations with metrics, tracing, structured logging, and alerting using Prometheus, OpenTelemetry, and Grafana. Trigger: \"clickup monitoring\", \"clickup metrics\", \"clickup observability\", \"monitor clickup\", \"clickup alerts\", \"clickup tracing\", \"clickup dashboard\".",
+      "description": "Instrument ClickUp requests, queues, webhooks, and reconciliation with content-free metrics, traces, alerts, and health evidence. Use when operating a ClickUp integration in production. Trigger with \"ClickUp observability\", \"ClickUp metrics\", or \"monitor ClickUp webhooks\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-observability monitor clickup api integrations with metrics, tracing, structured logging, and alerting using prometheus, opentelemetry, and grafana. trigger: \"clickup monitoring\", \"clickup metrics\", \"clickup observability\", \"monitor clickup\", \"clickup alerts\", \"clickup tracing\", \"clickup dashboard\". saas-packs read write edit "
+      "searchText": "clickup-observability instrument clickup requests, queues, webhooks, and reconciliation with content-free metrics, traces, alerts, and health evidence. use when operating a clickup integration in production. trigger with \"clickup observability\", \"clickup metrics\", or \"monitor clickup webhooks\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-performance-tuning",
       "slug": "clickup-performance-tuning",
       "name": "clickup-performance-tuning",
-      "description": "Optimize ClickUp API v2 performance with caching, pagination, connection pooling, and request batching patterns. Trigger: \"clickup performance\", \"optimize clickup\", \"clickup latency\", \"clickup caching\", \"clickup slow\", \"clickup batch requests\", \"clickup pagination\".",
+      "description": "Analyze and improve ClickUp throughput and freshness with endpoint-aware pagination, bounded concurrency, caching, and webhook invalidation. Use when ClickUp syncs are slow or rate constrained. Trigger with \"ClickUp performance\", \"speed up ClickUp sync\", or \"ClickUp pagination\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-performance-tuning optimize clickup api v2 performance with caching, pagination, connection pooling, and request batching patterns. trigger: \"clickup performance\", \"optimize clickup\", \"clickup latency\", \"clickup caching\", \"clickup slow\", \"clickup batch requests\", \"clickup pagination\". saas-packs read write edit "
+      "searchText": "clickup-performance-tuning analyze and improve clickup throughput and freshness with endpoint-aware pagination, bounded concurrency, caching, and webhook invalidation. use when clickup syncs are slow or rate constrained. trigger with \"clickup performance\", \"speed up clickup sync\", or \"clickup pagination\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-prod-checklist",
       "slug": "clickup-prod-checklist",
       "name": "clickup-prod-checklist",
-      "description": "Production readiness checklist for ClickUp API v2 integrations covering auth, rate limits, error handling, monitoring, and rollback. Trigger: \"clickup production\", \"clickup go-live\", \"clickup launch checklist\", \"clickup prod ready\", \"deploy clickup to production\".",
+      "description": "Issue an evidence-backed go or no-go decision for a ClickUp integration across auth, versions, plans, data, limits, webhooks, recovery, and ownership. Use when reviewing a production launch or major change. Trigger with \"ClickUp production checklist\", \"ClickUp go-live\", or \"review ClickUp release\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-prod-checklist production readiness checklist for clickup api v2 integrations covering auth, rate limits, error handling, monitoring, and rollback. trigger: \"clickup production\", \"clickup go-live\", \"clickup launch checklist\", \"clickup prod ready\", \"deploy clickup to production\". saas-packs read bash(curl:*) grep "
+      "searchText": "clickup-prod-checklist issue an evidence-backed go or no-go decision for a clickup integration across auth, versions, plans, data, limits, webhooks, recovery, and ownership. use when reviewing a production launch or major change. trigger with \"clickup production checklist\", \"clickup go-live\", or \"review clickup release\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-rate-limits",
       "slug": "clickup-rate-limits",
       "name": "clickup-rate-limits",
-      "description": "Handle ClickUp API rate limits with backoff, queuing, and header monitoring. Use when hitting 429 errors, implementing retry logic, or optimizing API throughput against ClickUp's per-plan rate limits. Trigger: \"clickup rate limit\", \"clickup 429\", \"clickup throttling\", \"clickup retry\", \"clickup backoff\", \"clickup request queue\".",
+      "description": "Analyze and control ClickUp request concurrency from plan-aware per-token limits, response headers, bounded queues, and reset-based retries. Use when preventing or recovering from ClickUp 429 responses. Trigger with \"ClickUp rate limit\", \"ClickUp 429\", or \"size ClickUp concurrency\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-rate-limits handle clickup api rate limits with backoff, queuing, and header monitoring. use when hitting 429 errors, implementing retry logic, or optimizing api throughput against clickup's per-plan rate limits. trigger: \"clickup rate limit\", \"clickup 429\", \"clickup throttling\", \"clickup retry\", \"clickup backoff\", \"clickup request queue\". saas-packs read write edit "
+      "searchText": "clickup-rate-limits analyze and control clickup request concurrency from plan-aware per-token limits, response headers, bounded queues, and reset-based retries. use when preventing or recovering from clickup 429 responses. trigger with \"clickup rate limit\", \"clickup 429\", or \"size clickup concurrency\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-reference-architecture",
       "slug": "clickup-reference-architecture",
       "name": "clickup-reference-architecture",
-      "description": "Production architecture for ClickUp API v2 integrations with layered design, custom fields, time tracking, goals, and two-way sync patterns. Trigger: \"clickup architecture\", \"clickup design\", \"clickup project structure\", \"clickup custom fields\", \"clickup time tracking\", \"clickup goals API\".",
+      "description": "Analyze and design a governed ClickUp integration with typed v2/v3 adapters, Workspace policy, durable events, reconciliation, telemetry, and reversible writes. Use when shaping a production ClickUp service. Trigger with \"ClickUp architecture\", \"design ClickUp sync\", or \"ClickUp integration blueprint\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-reference-architecture production architecture for clickup api v2 integrations with layered design, custom fields, time tracking, goals, and two-way sync patterns. trigger: \"clickup architecture\", \"clickup design\", \"clickup project structure\", \"clickup custom fields\", \"clickup time tracking\", \"clickup goals api\". saas-packs read grep "
+      "searchText": "clickup-reference-architecture analyze and design a governed clickup integration with typed v2/v3 adapters, workspace policy, durable events, reconciliation, telemetry, and reversible writes. use when shaping a production clickup service. trigger with \"clickup architecture\", \"design clickup sync\", or \"clickup integration blueprint\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-sdk-patterns",
       "slug": "clickup-sdk-patterns",
       "name": "clickup-sdk-patterns",
-      "description": "Production-ready ClickUp API v2 client patterns with typed wrappers, error handling, caching, and multi-tenant support. Trigger: \"clickup client wrapper\", \"clickup SDK patterns\", \"clickup best practices\", \"clickup typescript client\", \"clickup API wrapper\", \"production clickup code\".",
+      "description": "Build a typed ClickUp client from official OpenAPI contracts with explicit version routing, auth injection, error typing, pagination, and retry policy. Use when creating a reusable ClickUp adapter. Trigger with \"ClickUp SDK\", \"ClickUp client wrapper\", or \"typed ClickUp API\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-sdk-patterns production-ready clickup api v2 client patterns with typed wrappers, error handling, caching, and multi-tenant support. trigger: \"clickup client wrapper\", \"clickup sdk patterns\", \"clickup best practices\", \"clickup typescript client\", \"clickup api wrapper\", \"production clickup code\". saas-packs read write edit "
+      "searchText": "clickup-sdk-patterns build a typed clickup client from official openapi contracts with explicit version routing, auth injection, error typing, pagination, and retry policy. use when creating a reusable clickup adapter. trigger with \"clickup sdk\", \"clickup client wrapper\", or \"typed clickup api\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-security-basics",
       "slug": "clickup-security-basics",
       "name": "clickup-security-basics",
-      "description": "Secure ClickUp API tokens, implement least-privilege access, and audit usage. Use when securing API keys, rotating tokens, configuring per-environment credentials, or auditing ClickUp API access patterns. Trigger: \"clickup security\", \"clickup secrets\", \"secure clickup token\", \"clickup API key rotation\", \"clickup access audit\".",
+      "description": "Harden ClickUp credentials, OAuth callbacks, Workspace boundaries, webhooks, logging, and incident response with least-privilege controls. Use when threat-modeling or reviewing a ClickUp integration. Trigger with \"secure ClickUp\", \"ClickUp security review\", or \"ClickUp token rotation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-security-basics secure clickup api tokens, implement least-privilege access, and audit usage. use when securing api keys, rotating tokens, configuring per-environment credentials, or auditing clickup api access patterns. trigger: \"clickup security\", \"clickup secrets\", \"secure clickup token\", \"clickup api key rotation\", \"clickup access audit\". saas-packs read write grep "
+      "searchText": "clickup-security-basics harden clickup credentials, oauth callbacks, workspace boundaries, webhooks, logging, and incident response with least-privilege controls. use when threat-modeling or reviewing a clickup integration. trigger with \"secure clickup\", \"clickup security review\", or \"clickup token rotation\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-upgrade-migration",
       "slug": "clickup-upgrade-migration",
       "name": "clickup-upgrade-migration",
-      "description": "Migrate between ClickUp API versions (v2 to v3) and handle breaking changes. Use when upgrading API versions, adapting to endpoint changes, or migrating between ClickUp plan tiers. Trigger: \"upgrade clickup API\", \"clickup v2 to v3\", \"clickup breaking changes\", \"clickup API migration\", \"clickup deprecation\".",
+      "description": "Migrate ClickUp endpoints, schemas, clients, and terminology with version inventory, dual contracts, canaries, and rollback. Use when adopting selected API v3 surfaces or provider changes. Trigger with \"upgrade ClickUp API\", \"ClickUp v3 migration\", or \"ClickUp schema change\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-upgrade-migration migrate between clickup api versions (v2 to v3) and handle breaking changes. use when upgrading api versions, adapting to endpoint changes, or migrating between clickup plan tiers. trigger: \"upgrade clickup api\", \"clickup v2 to v3\", \"clickup breaking changes\", \"clickup api migration\", \"clickup deprecation\". saas-packs read write edit bash(npm:*) bash(curl:*) "
+      "searchText": "clickup-upgrade-migration migrate clickup endpoints, schemas, clients, and terminology with version inventory, dual contracts, canaries, and rollback. use when adopting selected api v3 surfaces or provider changes. trigger with \"upgrade clickup api\", \"clickup v3 migration\", or \"clickup schema change\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "clickup-webhooks-events",
       "slug": "clickup-webhooks-events",
       "name": "clickup-webhooks-events",
-      "description": "Create and manage ClickUp webhooks for real-time event notifications. Use when setting up webhook listeners for task/list/space events, implementing two-way sync, or handling ClickUp event payloads. Trigger: \"clickup webhook\", \"clickup events\", \"clickup notifications\", \"clickup real-time\", \"clickup event listener\", \"clickup webhook create\".",
+      "description": "Register, verify, process, monitor, and reconcile ClickUp webhooks with raw-body HMAC, durable idempotency, fast acknowledgment, and gap recovery. Use when building event-driven ClickUp integrations. Trigger with \"ClickUp webhook\", \"verify X-Signature\", or \"ClickUp events\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "clickup-pack",
         "category": "saas-packs"
       },
-      "searchText": "clickup-webhooks-events create and manage clickup webhooks for real-time event notifications. use when setting up webhook listeners for task/list/space events, implementing two-way sync, or handling clickup event payloads. trigger: \"clickup webhook\", \"clickup events\", \"clickup notifications\", \"clickup real-time\", \"clickup event listener\", \"clickup webhook create\". saas-packs read write edit bash(curl:*) "
+      "searchText": "clickup-webhooks-events register, verify, process, monitor, and reconcile clickup webhooks with raw-body hmac, durable idempotency, fast acknowledgment, and gap recovery. use when building event-driven clickup integrations. trigger with \"clickup webhook\", \"verify x-signature\", or \"clickup events\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
