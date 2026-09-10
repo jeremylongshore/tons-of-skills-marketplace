@@ -4,7 +4,7 @@ description: >-
   Establish evidence-based WebContainer capacity budgets for boot concurrency, mounted files, dependency installs, processes, previews, memory symptoms, and browser support. Use when a StackBlitz experience is slow, unstable, or being prepared for wider rollout. Trigger with "WebContainer limits", "StackBlitz capacity", or "WebContainer performance budget".
 argument-hint: "[project-path] [journey]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.6.0
+version: 1.7.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

@@ -4,7 +4,7 @@ description: >-
   Build a minimal, controlled WebContainer smoke test that boots once, mounts a small project, observes process exit, and captures the preview URL. Use when proving browser/runtime compatibility before building a larger in-browser development experience. Trigger with "StackBlitz hello world", "test WebContainers", or "run Node in the browser".
 argument-hint: "[project-path] [entrypoint]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.6.0
+version: 1.7.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

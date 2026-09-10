@@ -4,7 +4,7 @@ description: >-
   Design and implement a StackBlitz JavaScript SDK embed with an explicit project source, load strategy, UI options, persistence expectations, and responsive fallback. Use when documentation, training, or product pages need an interactive code example without owning a custom WebContainer runtime. Trigger with "embed StackBlitz", "StackBlitz SDK project", or "interactive code example".
 argument-hint: "[project-path] [project-id|github-path|inline]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.6.0
+version: 1.7.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

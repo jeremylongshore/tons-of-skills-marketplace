@@ -4,7 +4,7 @@ description: >-
   Threat-model a WebContainer or StackBlitz embed across host, runtime, user-code, filesystem, dependency, network, preview, secret, and persistence boundaries. Use when preparing to execute untrusted code, enable private packages, or ship an interactive browser IDE. Trigger with "StackBlitz security review", "secure WebContainers", or "WebContainer threat model".
 argument-hint: "[project-path] [trust-boundary]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.6.0
+version: 1.7.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
