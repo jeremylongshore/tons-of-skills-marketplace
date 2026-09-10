@@ -13,21 +13,23 @@ allowed-tools: "{{TOOLS_CSV}}"
 version: 1.0.0
 author: {{AUTHOR_NAME}} <{{AUTHOR_EMAIL}}>
 license: MIT
+compatibility: "{{ENVIRONMENT_REQUIREMENTS}}"
+tags: [{{TAG_1}}, {{TAG_2}}]
 
 # Claude Code extensions (include as needed)
 model: inherit
+# effort: high
 # argument-hint: "[arg-description]"
+# arguments: [arg-name]
 # disable-model-invocation: false
 # user-invocable: true
 # context: fork
 # agent: general-purpose
-
-# Discovery (optional)
-# compatible-with: claude-code, codex, openclaw
-# tags: [{{TAG_1}}, {{TAG_2}}]
+# background: false
+# paths: ["src/**"]
+# shell: bash
 
 # Optional spec fields
-# compatibility: "{{ENVIRONMENT_REQUIREMENTS}}"
 # metadata:
 #   category: {{CATEGORY}}
 ---

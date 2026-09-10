@@ -5,16 +5,16 @@
     "generator": "marketplace/scripts/sync-catalog.mjs"
   },
   "stats": {
-    "totalPlugins": 441,
-    "totalSkills": 2941,
-    "totalCommands": 85,
-    "pluginsWithSkills": 408,
+    "totalPlugins": 434,
+    "totalSkills": 2900,
+    "totalCommands": 82,
+    "pluginsWithSkills": 401,
     "byCategory": {
-      "productivity": 29,
+      "productivity": 28,
       "security": 27,
       "testing": 28,
       "ai-agency": 9,
-      "ai-ml": 37,
+      "ai-ml": 36,
       "mcp": 17,
       "packages": 5,
       "performance": 25,
@@ -23,14 +23,14 @@
       "crypto": 27,
       "skill-enhancers": 10,
       "database": 26,
-      "business-tools": 6,
-      "community": 21,
+      "business-tools": 4,
+      "community": 19,
       "examples": 5,
-      "saas-packs": 104,
+      "saas-packs": 103,
       "analytics": 1,
       "design": 2
     },
-    "featured": 40
+    "featured": 39
   },
   "plugins": [
     {
@@ -130,18 +130,19 @@
       "slug": "google-cloud-agent-sdk",
       "name": "004-jeremy-google-cloud-agent-sdk",
       "displayName": "google cloud agent sdk",
-      "description": "Google Cloud Agent Development Kit (ADK) and Agent Starter Pack mastery - build containerized multi-agent systems with production-ready templates, deploy to Cloud Run/GKE/Agent Engine, RAG agents, ReAct agents, and multi-agent orchestration.",
-      "version": "2.24.0",
+      "description": "Build, evaluate, deploy, publish, and migrate Google ADK applications with Google's maintained agents-cli workflow for Agent Runtime, Cloud Run, GKE, and Gemini Enterprise.",
+      "version": "2.26.0",
       "category": "productivity",
       "keywords": [
         "agent-development-kit",
         "adk",
         "agent-starter-pack",
+        "agents-cli",
         "multi-agent",
         "containerized-agents",
         "cloud-run",
         "gke",
-        "agent-engine",
+        "agent-runtime",
         "rag-agents",
         "react-agents",
         "google-cloud",
@@ -5112,34 +5113,6 @@
       "type": "instruction-plugin"
     },
     {
-      "slug": "promptbook",
-      "name": "promptbook",
-      "displayName": "promptbook",
-      "description": "Opt-in session analytics for Claude Code. After setup consent, tracks prompts, tokens, build time, and lines changed per session. Publishes shareable build cards on promptbook.gg. Strict consent gating — no data transmitted without explicit opt-in. Background submission after session end.",
-      "version": "1.4.0",
-      "category": "business-tools",
-      "keywords": [
-        "analytics",
-        "telemetry",
-        "builds",
-        "portfolio",
-        "tracking",
-        "metrics",
-        "sessions"
-      ],
-      "hasSkills": true,
-      "skillCount": 2,
-      "commandCount": 0,
-      "installCommand": "/plugin install promptbook",
-      "sourcePath": "./plugins/business-tools/promptbook",
-      "isFeatured": false,
-      "author": {
-        "name": "Promptbook",
-        "email": "contact@promptbook.gg"
-      },
-      "type": "instruction-plugin"
-    },
-    {
       "slug": "query-performance-analyzer",
       "name": "query-performance-analyzer",
       "displayName": "query performance analyzer",
@@ -7153,7 +7126,7 @@
       "name": "skill-creator",
       "displayName": "skill creator",
       "description": "Create and validate production-grade agent skills with 100-point marketplace grading. Supports creation workflows, eval-driven development, and auto-fix for spec compliance.",
-      "version": "5.20.0",
+      "version": "5.22.0",
       "category": "skill-enhancers",
       "keywords": [
         "skill-creation",
@@ -7680,35 +7653,6 @@
       "type": "instruction-plugin"
     },
     {
-      "slug": "replit-pack",
-      "name": "replit-pack",
-      "displayName": "replit pack",
-      "description": "Complete Replit integration skill pack with 30 skills covering cloud IDE, deployments, AI assistance, and collaborative coding. Flagship+ tier vendor pack.",
-      "version": "1.14.0",
-      "category": "saas-packs",
-      "keywords": [
-        "replit",
-        "cloud-ide",
-        "deployments",
-        "collaborative",
-        "ai-coding",
-        "browser-ide",
-        "hosting"
-      ],
-      "hasSkills": true,
-      "skillCount": 30,
-      "commandCount": 0,
-      "installCommand": "/plugin install replit-pack",
-      "sourcePath": "./plugins/saas-packs/replit-pack",
-      "isFeatured": false,
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      },
-      "type": "instruction-plugin"
-    },
-    {
       "slug": "retellai-pack",
       "name": "retellai-pack",
       "displayName": "retellai pack",
@@ -7770,17 +7714,17 @@
       "slug": "windsurf-pack",
       "name": "windsurf-pack",
       "displayName": "windsurf pack",
-      "description": "Complete Windsurf integration skill pack with 30 skills covering AI code editing, Cascade workflows, codebase understanding, and developer productivity. Flagship+ tier vendor pack.",
-      "version": "1.11.0",
+      "description": "Current Devin Desktop (formerly Windsurf) operations pack with 30 Grade-A skills for Cascade, Rules, Skills, Workflows, Hooks, MCP, quota governance, security, and enterprise rollout.",
+      "version": "1.12.0",
       "category": "saas-packs",
       "keywords": [
         "windsurf",
+        "devin-desktop",
         "ai-editor",
         "cascade",
-        "codeium",
         "ai-coding",
-        "code-completion",
-        "refactoring"
+        "rules",
+        "quota"
       ],
       "hasSkills": true,
       "skillCount": 30,
@@ -7940,8 +7884,8 @@
       "slug": "posthog-pack",
       "name": "posthog-pack",
       "displayName": "posthog pack",
-      "description": "Complete PostHog integration skill pack with 24 skills covering product analytics, feature flags, session replay, and experimentation. Flagship tier vendor pack.",
-      "version": "1.12.0",
+      "description": "Verified PostHog operator pack with 24 workflows for regional ingestion, identity, flags, privacy, costs, incidents, migrations, and safe releases.",
+      "version": "1.14.0",
       "category": "saas-packs",
       "keywords": [
         "posthog",
@@ -8669,35 +8613,6 @@
       "type": "instruction-plugin"
     },
     {
-      "slug": "claude-reflect",
-      "name": "claude-reflect",
-      "displayName": "claude reflect",
-      "description": "Self-learning system for Claude Code that captures corrections and updates CLAUDE.md automatically",
-      "version": "1.12.0",
-      "category": "community",
-      "keywords": [
-        "claude-code",
-        "self-learning",
-        "corrections",
-        "CLAUDE.md",
-        "memory",
-        "learnings",
-        "hooks",
-        "automation"
-      ],
-      "hasSkills": true,
-      "skillCount": 1,
-      "commandCount": 3,
-      "installCommand": "/plugin install claude-reflect",
-      "sourcePath": "./plugins/community/claude-reflect",
-      "isFeatured": false,
-      "author": {
-        "name": "Bayram Annakov",
-        "url": "https://github.com/bayramannakov"
-      },
-      "type": "instruction-plugin"
-    },
-    {
       "slug": "contributing-clanker",
       "name": "contributing-clanker",
       "displayName": "contributing clanker",
@@ -8952,8 +8867,8 @@
       "slug": "algolia-pack",
       "name": "algolia-pack",
       "displayName": "algolia pack",
-      "description": "Claude Code skill pack for Algolia (24 skills)",
-      "version": "1.7.0",
+      "description": "Algolia search integration pack with 24 operator skills",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "algolia",
@@ -9135,8 +9050,8 @@
       "slug": "attio-pack",
       "name": "attio-pack",
       "displayName": "attio pack",
-      "description": "Claude Code skill pack for Attio (18 skills)",
-      "version": "1.7.0",
+      "description": "Attio CRM integration pack with 18 operator skills",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "attio",
@@ -9319,14 +9234,15 @@
       "slug": "clickup-pack",
       "name": "clickup-pack",
       "displayName": "clickup pack",
-      "description": "Claude Code skill pack for ClickUp (24 skills)",
-      "version": "1.6.0",
+      "description": "Production-grade Claude Code operator workflows for governed ClickUp integrations (24 skills)",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "clickup",
         "saas",
-        "sdk",
-        "integration"
+        "operations",
+        "integration",
+        "project-management"
       ],
       "hasSkills": true,
       "skillCount": 24,
@@ -10237,7 +10153,7 @@
       "slug": "salesloft-pack",
       "name": "salesloft-pack",
       "displayName": "salesloft pack",
-      "description": "Claude Code skill pack for Salesloft (18 skills)",
+      "description": "Production Salesloft operator workflows for authentication, cadences, synchronization, rate control, webhooks, security, deployment, and incident evidence",
       "version": "1.6.0",
       "category": "saas-packs",
       "keywords": [
@@ -10343,8 +10259,8 @@
       "slug": "stackblitz-pack",
       "name": "stackblitz-pack",
       "displayName": "stackblitz pack",
-      "description": "Claude Code skill pack for StackBlitz (10 skills)",
-      "version": "1.6.0",
+      "description": "Production StackBlitz workflows for WebContainer lifecycle, embeds, testing, diagnostics, capacity, and security (10 skills)",
+      "version": "1.7.0",
       "category": "saas-packs",
       "keywords": [
         "stackblitz",
@@ -10369,14 +10285,14 @@
       "slug": "techsmith-pack",
       "name": "techsmith-pack",
       "displayName": "techsmith pack",
-      "description": "Claude Code skill pack for TechSmith (18 skills)",
-      "version": "1.3.0",
+      "description": "Source-grounded operator workflows for Snagit COM, Camtasia recording and export, managed deployment, licensing, storage, security, and artifact promotion",
+      "version": "1.6.0",
       "category": "saas-packs",
       "keywords": [
         "techsmith",
-        "saas",
-        "sdk",
-        "integration"
+        "snagit",
+        "camtasia",
+        "desktop-automation"
       ],
       "hasSkills": true,
       "skillCount": 18,
@@ -10395,15 +10311,15 @@
       "slug": "together-pack",
       "name": "together-pack",
       "displayName": "together pack",
-      "description": "Claude Code skill pack for Together AI (16 skills)",
-      "version": "1.7.0",
+      "description": "Source-grounded operator workflows for Together AI inference, batch, fine-tuning, v2 Dedicated Model Inference, security, cost, and production operations",
+      "version": "1.9.0",
       "category": "saas-packs",
       "keywords": [
-        "together",
-        "together ai",
-        "saas",
-        "sdk",
-        "integration"
+        "together-ai",
+        "inference",
+        "batch-inference",
+        "fine-tuning",
+        "model-operations"
       ],
       "hasSkills": true,
       "skillCount": 16,
@@ -10422,8 +10338,8 @@
       "slug": "webflow-pack",
       "name": "webflow-pack",
       "displayName": "webflow pack",
-      "description": "Claude Code skill pack for Webflow (24 skills)",
-      "version": "1.5.0",
+      "description": "Verified operator workflows for Webflow Data API v2, Webflow Cloud, CLI, CMS, webhooks, security, and production operations (24 skills)",
+      "version": "1.6.0",
       "category": "saas-packs",
       "keywords": [
         "webflow",
@@ -10475,7 +10391,7 @@
       "name": "pm-ai-partner",
       "displayName": "pm ai partner",
       "description": "12 PM-specific agent skills, 6 workflow commands, 3 automation hooks for Product Managers",
-      "version": "1.8.0",
+      "version": "1.10.0",
       "category": "productivity",
       "keywords": [
         "product-management",
@@ -10546,34 +10462,6 @@
       "author": {
         "name": "Jeremy Longshore",
         "email": "jeremy@intentsolutions.io"
-      },
-      "type": "instruction-plugin"
-    },
-    {
-      "slug": "executive-assistant-skills",
-      "name": "executive-assistant-skills",
-      "displayName": "executive assistant skills",
-      "description": "AI-powered executive assistant skills that fully replace a human EA. Research meeting attendees, draft emails, create meeting briefs, and manage action items.",
-      "version": "1.8.0",
-      "category": "business-tools",
-      "keywords": [
-        "executive-assistant",
-        "meeting-prep",
-        "email",
-        "productivity",
-        "automation",
-        "todoist"
-      ],
-      "hasSkills": true,
-      "skillCount": 5,
-      "commandCount": 0,
-      "installCommand": "/plugin install executive-assistant-skills",
-      "sourcePath": "./plugins/business-tools/executive-assistant-skills",
-      "isFeatured": true,
-      "author": {
-        "name": "Martin Gontovnikas",
-        "email": "gonto@hypergrowthpartners.com",
-        "url": "https://github.com/mgonto"
       },
       "type": "instruction-plugin"
     },
@@ -10801,34 +10689,6 @@
       "type": "instruction-plugin"
     },
     {
-      "slug": "hyperfocus",
-      "name": "hyperfocus",
-      "displayName": "hyperfocus",
-      "description": "ADHD-friendly output formatting for Claude Code. Restructures responses with evidence-based cognitive accessibility: chunking, visual hierarchy, front-loaded key points, and progressive disclosure.",
-      "version": "0.2.0",
-      "category": "productivity",
-      "keywords": [
-        "accessibility",
-        "adhd",
-        "neurodivergent",
-        "formatting",
-        "readability",
-        "productivity",
-        "cognitive-accessibility"
-      ],
-      "hasSkills": true,
-      "skillCount": 1,
-      "commandCount": 0,
-      "installCommand": "/plugin install hyperfocus",
-      "sourcePath": "./plugins/productivity/hyperfocus",
-      "isFeatured": false,
-      "author": {
-        "name": "Nestor Magalhaes",
-        "email": "nestor.magalhaes@appex.world"
-      },
-      "type": "instruction-plugin"
-    },
-    {
       "slug": "plane",
       "name": "plane",
       "displayName": "plane",
@@ -10857,71 +10717,11 @@
       "type": "instruction-plugin"
     },
     {
-      "slug": "local-tts",
-      "name": "local-tts",
-      "displayName": "local tts",
-      "description": "Offline text-to-speech via VoxCPM2 — 30 languages, voice design, voice cloning. Runs locally on Apple Silicon.",
-      "version": "1.3.0",
-      "category": "ai-ml",
-      "keywords": [
-        "tts",
-        "text-to-speech",
-        "voice",
-        "voice-cloning",
-        "voice-design",
-        "offline",
-        "voxcpm",
-        "apple-silicon",
-        "audio",
-        "narration"
-      ],
-      "hasSkills": true,
-      "skillCount": 1,
-      "commandCount": 0,
-      "installCommand": "/plugin install local-tts",
-      "sourcePath": "./plugins/ai-ml/local-tts",
-      "isFeatured": false,
-      "author": {
-        "name": "Bubble Invest",
-        "email": "contact@bubbleinvest.com"
-      },
-      "type": "instruction-plugin"
-    },
-    {
-      "slug": "boycott-filter",
-      "name": "boycott-filter",
-      "displayName": "boycott filter",
-      "description": "Personal boycott list managed conversationally by your AI agent. Chrome extension warns you on pages from brands you've decided to avoid.",
-      "version": "1.2.0",
-      "category": "community",
-      "keywords": [
-        "boycott",
-        "consumer",
-        "shopping",
-        "brands",
-        "chrome-extension",
-        "conversational",
-        "privacy",
-        "ethical-consumption"
-      ],
-      "hasSkills": true,
-      "skillCount": 1,
-      "commandCount": 0,
-      "installCommand": "/plugin install boycott-filter",
-      "sourcePath": "./plugins/community/boycott-filter",
-      "isFeatured": false,
-      "author": {
-        "name": "Bubble Invest",
-        "email": "contact@bubbleinvest.com"
-      },
-      "type": "instruction-plugin"
-    },
-    {
       "slug": "web-analytics",
       "name": "web-analytics",
       "displayName": "web analytics",
       "description": "Push-based web analytics intelligence team — self-hosted Umami via MCP (primary) + GA4 (fallback). 9 specialist agents fetch data, detect anomalies, analyze funnels, verify claims adversarially, and deliver narrative reports across your entire site portfolio. Three tiers: 30-second pulse, 2-min brief, 5-min full deep-dive. Console / email / Slack delivery.",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "category": "analytics",
       "keywords": [
         "analytics",

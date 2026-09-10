@@ -4,8 +4,8 @@
 
 [![Release](https://img.shields.io/badge/release-v4.33.0-green)](https://github.com/jeremylongshore/tons-of-skills-marketplace/releases/latest)
 [![CLI](https://img.shields.io/badge/CLI-ccpi-blueviolet?logo=npm)](https://www.npmjs.com/package/@intentsolutionsio/ccpi)
-[![Plugins](https://img.shields.io/badge/plugins-441-blue)](https://tonsofskills.com/explore)
-[![Skills](https://img.shields.io/badge/skills-2941-green)](https://tonsofskills.com/skills)
+[![Plugins](https://img.shields.io/badge/plugins-434-blue)](https://tonsofskills.com/explore)
+[![Skills](https://img.shields.io/badge/skills-2900-green)](https://tonsofskills.com/skills)
 [![GitHub Stars](https://img.shields.io/github/stars/jeremylongshore/tons-of-skills-marketplace?style=social)](https://github.com/jeremylongshore/tons-of-skills-marketplace)
 [![skills.sh](https://skills.sh/b/jeremylongshore/tons-of-skills-marketplace)](https://skills.sh/jeremylongshore/tons-of-skills-marketplace)
 [![Sponsor: Kobiton](https://img.shields.io/badge/Sponsor-kobiton.com-0487D9)](https://kobiton.com)
@@ -46,22 +46,6 @@ their own lower runtime declarations where applicable; see
 
 **[Browse the marketplace](https://tonsofskills.com)** · **[Explore plugins](https://tonsofskills.com/explore)** · **[Download bundles](https://tonsofskills.com/cowork)**
 
-<!-- KILLER-SKILL:START — do not edit; run `node scripts/render-spotlight.mjs` -->
-
-> **Killer Skill of the Week** — [no-ai-slop](https://github.com/petergyang/no-ai-slop) by [Peter Yang](https://github.com/petergyang)
->
-> **Strip AI slop from any draft — named-pattern edits that keep the writer's real voice**
->
-> no-ai-slop does two jobs and refuses to fake a third. In Edit mode it makes the minimum effective edit — cutting throat-clearing, weak verbs, and abstract nouns while deliberately preserving the writer's cadence, bluntness, humor, and honest admissions, so a rough draft still sounds like the same person afterward. In Detect mode it names each AI-slop pattern it finds, quotes the offending line, and gives the fix in a few words — and pointedly does NOT score the draft or guess whether an AI wrote it. That restraint is the whole point: AI detectors guess; named patterns are evidence the reader can check. MIT-licensed, single focused skill, actively maintained by Peter Yang.
->
-> _"AI detectors guess. Named patterns are evidence the user can check."_ — Peter Yang
->
-> Grade: A | Week of July 22, 2026 (W30) | [View on GitHub](https://github.com/petergyang/no-ai-slop)
->
-> Previous picks: [tonone](https://github.com/tonone-ai/tonone), [mnemos](https://github.com/polyxmedia/mnemos), [databricks-pack](https://tonsofskills.com/plugins/databricks-pack), [kobiton-automate](https://tonsofskills.com/plugins/kobiton-automate), [code-cleanup](https://tonsofskills.com/plugins/code-cleanup), [web-analytics](https://tonsofskills.com/plugins/web-analytics), [token-optimizer](https://github.com/alexgreensh/token-optimizer), [executive-assistant-skills](https://tonsofskills.com/plugins/executive-assistant-skills), [skill-creator](https://tonsofskills.com/plugins/skill-creator), [cursor-pack](https://tonsofskills.com/plugins/cursor-pack), [crypto-portfolio-tracker](https://tonsofskills.com/plugins/crypto-portfolio-tracker). See all at [tonsofskills.com](https://tonsofskills.com).
-
-<!-- KILLER-SKILL:END -->
-
 <!-- SCALE:START — do not edit; run `node scripts/generate-readme-toc.mjs` -->
 
 ## Scale, labeled
@@ -70,8 +54,8 @@ Every number below names the cohort it counts and the command that reproduces it
 
 | Count | Cohort                                 | Reproduce with                                                                                                          |
 | ----: | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-|   441 | catalog plugins (catalog-entry cohort) | `node scripts/generate-readme-toc.mjs` over `marketplace.extended.json`                                                 |
-| 2,941 | marketplace-visible skills (distinct)  | `node -e "import('./scripts/corpus-resolver.mjs').then(m=>console.log(m.resolveCorpus('marketplace-visible').length))"` |
+|   434 | catalog plugins (catalog-entry cohort) | `node scripts/generate-readme-toc.mjs` over `marketplace.extended.json`                                                 |
+| 2,900 | marketplace-visible skills (distinct)  | `node -e "import('./scripts/corpus-resolver.mjs').then(m=>console.log(m.resolveCorpus('marketplace-visible').length))"` |
 |   352 | agent definitions in plugins           | `git ls-files 'plugins/**' \| grep '/agents/.*\.md'`                                                                    |
 |    19 | plugin categories                      | `ls -d plugins/*/`                                                                                                      |
 
@@ -106,7 +90,7 @@ Across **393 published packages** in the [claude-code-plugins](https://www.npmjs
 | 9   | [`@intentsolutionsio/openbb-terminal`](https://www.npmjs.com/package/@intentsolutionsio/openbb-terminal)                 |      116 |
 | 10  | [`@intentsolutionsio/penetration-tester`](https://www.npmjs.com/package/@intentsolutionsio/penetration-tester)           |      113 |
 
-<sub>Last refreshed 2026-09-08T01:29:49.047Z.</sub>
+<sub>Last refreshed 2026-09-10T01:27:04.252Z.</sub>
 
 <!-- NPM-STATS:END -->
 
@@ -128,11 +112,11 @@ The 19 categories below link into the live marketplace. Plugin counts are the ca
 
 |     | Category                                                            | Plugins |
 | --- | ------------------------------------------------------------------- | ------: |
-| 🤖  | [AI & Machine Learning](https://tonsofskills.com/plugins#ai-ml)     |      37 |
+| 🤖  | [AI & Machine Learning](https://tonsofskills.com/plugins#ai-ml)     |      36 |
 | 🎭  | [AI Agents & Agency](https://tonsofskills.com/plugins#ai-agency)    |       9 |
 | 🔌  | [API Development](https://tonsofskills.com/plugins#api-development) |      26 |
-| 💼  | [Business Tools](https://tonsofskills.com/plugins#business-tools)   |       6 |
-| 👥  | [Community](https://tonsofskills.com/plugins#community)             |      21 |
+| 💼  | [Business Tools](https://tonsofskills.com/plugins#business-tools)   |       4 |
+| 👥  | [Community](https://tonsofskills.com/plugins#community)             |      19 |
 | ₿   | [Crypto & Web3](https://tonsofskills.com/plugins#crypto)            |      27 |
 | 💾  | [Database](https://tonsofskills.com/plugins#database)               |      26 |
 | 🎨  | [Design](https://tonsofskills.com/plugins#design)                   |       2 |
@@ -141,8 +125,8 @@ The 19 categories below link into the live marketplace. Plugin counts are the ca
 | 🧩  | [MCP Servers](https://tonsofskills.com/plugins#mcp)                 |      17 |
 | 📦  | [Packages](https://tonsofskills.com/plugins#packages)               |       5 |
 | ⚡  | [Performance](https://tonsofskills.com/plugins#performance)         |      25 |
-| ✅  | [Productivity](https://tonsofskills.com/plugins#productivity)       |      29 |
-| 🎁  | [SaaS Skill Packs](https://tonsofskills.com/plugins#saas-packs)     |     104 |
+| ✅  | [Productivity](https://tonsofskills.com/plugins#productivity)       |      28 |
+| 🎁  | [SaaS Skill Packs](https://tonsofskills.com/plugins#saas-packs)     |     103 |
 | 🔐  | [Security](https://tonsofskills.com/plugins#security)               |      27 |
 | ✨  | [Skill Enhancers](https://tonsofskills.com/plugins#skill-enhancers) |      10 |
 | 🧪  | [Testing](https://tonsofskills.com/plugins#testing)                 |      28 |

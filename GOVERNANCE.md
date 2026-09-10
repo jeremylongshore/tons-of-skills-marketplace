@@ -143,8 +143,8 @@ The pick stays **editorial** — a human chooses a genuinely killer skill; there
 no auto-picker. What rotates is **who picks**, so it comes off the Lead's plate.
 The rotation roster lives in `MAINTAINERS.md`. The picker for the week runs
 `node scripts/promote-spotlight.mjs path/to/new-spotlight.json` (bookkeeping is
-automated; only the judgment is human) and `node scripts/render-spotlight.mjs` to
-sync the README block. Source of truth: `marketplace/src/data/spotlights.json`.
+automated; only the judgment is human). Source of truth:
+`marketplace/src/data/spotlights.json`; the root README does not mirror it.
 
 ---
 

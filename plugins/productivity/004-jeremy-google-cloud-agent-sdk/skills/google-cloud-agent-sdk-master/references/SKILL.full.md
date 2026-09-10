@@ -1,609 +1,199 @@
----
-name: google-cloud-agent-sdk-master
-description: |
-  Automatic activation for all google cloud agent development kit (adk) Use when appropriate context detected. Trigger with relevant phrases based on skill purpose.
-allowed-tools: Read, WebFetch, WebSearch, Grep
-version: 1.0.0
-author: Jeremy Longshore <jeremy@intentsolutions.io>
-license: MIT
----
-# Google Cloud Agent SDK Master - Production-Ready Agent Systems
+# Google agents-cli Lifecycle Reference
 
-This Agent Skill provides comprehensive mastery of Google's Agent Development Kit (ADK) and Agent Starter Pack for building and deploying production-grade containerized agents.
+Source baseline: [`google/agents-cli`](https://github.com/google/agents-cli),
+verified 2026-09-09. Always prefer the installed command's `--help` when a flag
+or target differs from this reference.
 
-## Overview
+## Product Boundary
 
-This skill provides automated assistance for building and deploying Google Cloud ADK agents.
+`agents-cli` is a lifecycle tool for applications built with Google ADK. It is
+not itself a coding agent and it is not a replacement for Claude Code, Codex, or
+Antigravity. It provides commands and Agent Skills that help those coding agents
+build, evaluate, deploy, publish, and observe ADK applications.
 
-## Examples
+Agent Starter Pack is in maintenance mode. New projects should use
+`google-agents-cli`; existing Starter Pack projects should migrate rather than
+accumulate new template-specific work.
 
-### Minimal ADK agent (Python)
+## Installation and Discovery
 
-```python
-from google.adk.agents import Agent
-
-root_agent = Agent(
-    name="hello_agent",
-    model="gemini-2.0-flash",
-    description="A simple greeting agent.",
-    instruction="Greet the user warmly and answer any questions.",
-)
-```
-
-### Deploy with Agent Starter Pack
+Check prerequisites before modifying the machine:
 
 ```bash
-# Clone starter pack, create agent, deploy to Cloud Run
-git clone https://github.com/GoogleCloudPlatform/agent-starter-pack
-cd agent-starter-pack
-make new-agent NAME=my_agent
-make deploy PROJECT_ID=my-gcp-project REGION=us-central1
+python --version
+uvx --version
+node --version
 ```
 
-## Core Capabilities
-
-### 🤖 Agent Development Kit (ADK)
-
-**Framework Overview:**
-
-- **Open-source Python framework** from Google
-- Same framework powering Google Agentspace and CES
-- Build production agents in <100 lines of code
-- Model-agnostic (optimized for Gemini)
-- Deployment-agnostic (local, Cloud Run, GKE, Agent Engine)
-
-**Supported Agent Types:**
-
-1. **LLM Agents**: Dynamic routing with intelligence
-2. **Workflow Agents**:
-   - Sequential: Linear execution
-   - Loop: Iterative processing
-   - Parallel: Concurrent execution
-3. **Custom Agents**: User-defined implementations
-4. **Multi-agent Systems**: Hierarchical coordination
-
-**Key Features:**
-
-- Flexible orchestration (workflow & LLM-driven)
-- Tool ecosystem (search, code execution, custom functions)
-- Third-party integrations (LangChain, CrewAI)
-- Agents-as-tools capability
-- Built-in evaluation framework
-- Cloud Trace integration
-
-### 📦 Agent Starter Pack
-
-**Production Templates:**
-
-1. **adk_base** - ReAct agent using ADK
-2. **agentic_rag** - Document retrieval + Q&A with search
-3. **langgraph_base_react** - LangGraph ReAct implementation
-4. **crewai_coding_crew** - Multi-agent coding system
-5. **adk_live** - Multimodal RAG (audio/video/text)
-
-**Infrastructure Automation:**
-
-- CI/CD setup with single command
-- GitHub Actions or Cloud Build pipelines
-- Multi-environment support (dev, staging, prod)
-- Automated testing and evaluation
-- Deployment rollback mechanisms
-
-### 🚀 Deployment Targets
-
-**1. Vertex AI Agent Engine**
-
-- Fully managed runtime
-- Auto-scaling and load balancing
-- Built-in observability
-- Serverless architecture
-- Best for: Production-scale agents
-
-**2. Cloud Run**
-
-- Containerized serverless
-- Pay-per-use pricing
-- Custom domain support
-- Traffic splitting
-- Best for: Web-facing agents
-
-**3. Google Kubernetes Engine (GKE)**
-
-- Full container orchestration
-- Advanced networking
-- Resource management
-- Multi-cluster support
-- Best for: Complex multi-agent systems
-
-**4. Local/Docker**
-
-- Development and testing
-- Custom infrastructure
-- On-premises deployment
-- Best for: POC and debugging
-
-### 🔧 Technical Implementation
-
-**Installation:**
+The maintained setup entry point is:
 
 ```bash
-# Agent Starter Pack (recommended)
-pip install agent-starter-pack
-
-# or direct from GitHub
-uvx agent-starter-pack create my-agent
-
-# ADK only
-pip install google-cloud-aiplatform[adk,agent_engines]>=1.111
+uvx google-agents-cli setup
 ```
 
-**Create Agent (ADK):**
-
-```python
-from google.cloud.aiplatform import agent
-from vertexai.preview.agents import ADKAgent
-
-# Simple ReAct agent
-@agent.adk_agent
-class MyAgent(ADKAgent):
-    def __init__(self):
-        super().__init__(
-            model="gemini-2.5-pro",
-            tools=[search_tool, code_exec_tool]
-        )
-
-    def run(self, query: str):
-        return self.generate(query)
-
-# Multi-agent orchestration
-class OrchestratorAgent(ADKAgent):
-    def __init__(self):
-        self.research_agent = ResearchAgent()
-        self.analysis_agent = AnalysisAgent()
-        self.writer_agent = WriterAgent()
-
-    def run(self, task: str):
-        research = self.research_agent.run(task)
-        analysis = self.analysis_agent.run(research)
-        output = self.writer_agent.run(analysis)
-        return output
-```
-
-**Using Agent Starter Pack:**
+For skills only, Google's repository documents:
 
 ```bash
-# Create project with template
-uvx agent-starter-pack create my-rag-agent \
-    --template agentic_rag \
-    --deployment cloud_run
-
-# Generates complete structure:
-my-rag-agent/
-├── src/
-│   ├── agent.py          # Agent implementation
-│   ├── tools/            # Custom tools
-│   └── config.py         # Configuration
-├── deployment/
-│   ├── Dockerfile
-│   ├── cloudbuild.yaml
-│   └── terraform/
-├── tests/
-│   ├── unit_tests.py
-│   └── integration_tests.py
-└── .github/workflows/    # CI/CD pipelines
+npx skills add google/agents-cli
 ```
 
-**Deploy to Cloud Run:**
+Inspect commands rather than guessing flags:
 
 ```bash
-# Using ADK CLI
-adk deploy \
-    --target cloud_run \
-    --region us-central1 \
-    --service-account sa@project.iam.gserviceaccount.com
-
-# Manual with Docker
-docker build -t gcr.io/PROJECT/agent:latest .
-docker push gcr.io/PROJECT/agent:latest
-gcloud run deploy agent \
-    --image gcr.io/PROJECT/agent:latest \
-    --region us-central1 \
-    --allow-unauthenticated
+uvx google-agents-cli --help
+agents-cli --help
+agents-cli info
 ```
 
-**Deploy to Agent Engine:**
+## Scaffold
+
+Create a new project:
 
 ```bash
-# Using Agent Starter Pack
-asp deploy \
-    --env production \
-    --target agent_engine
-
-# Manual deployment
-from google.cloud.aiplatform import agent_engines
-agent_engines.deploy_agent(
-    agent_id="my-agent",
-    project="PROJECT_ID",
-    location="us-central1"
-)
+agents-cli create PROJECT_NAME
 ```
 
-### 📊 RAG Agent Implementation
-
-**Vector Search Integration:**
-
-```python
-from vertexai.preview.rag import VectorSearchTool
-from google.cloud import aiplatform
-
-# Set up vector search
-vector_search = VectorSearchTool(
-    index_endpoint="projects/PROJECT/locations/LOCATION/indexEndpoints/INDEX_ID",
-    deployed_index_id="deployed_index"
-)
-
-# RAG agent with ADK
-class RAGAgent(ADKAgent):
-    def __init__(self):
-        super().__init__(
-            model="gemini-2.5-pro",
-            tools=[vector_search, web_search_tool]
-        )
-
-    def run(self, query: str):
-        # Retrieves relevant docs automatically
-        response = self.generate(
-            f"Answer this using retrieved context: {query}"
-        )
-        return response
-```
-
-**Vertex AI Search Integration:**
-
-```python
-from vertexai.preview.search import VertexAISearchTool
-
-# Enterprise search integration
-vertex_search = VertexAISearchTool(
-    data_store_id="DATA_STORE_ID",
-    project="PROJECT_ID"
-)
-
-agent = ADKAgent(
-    model="gemini-2.5-pro",
-    tools=[vertex_search]
-)
-```
-
-### 🔄 CI/CD Automation
-
-**GitHub Actions (auto-generated):**
-
-```yaml
-name: Deploy Agent
-on:
-  push:
-    branches: [main]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Test Agent
-        run: pytest tests/
-      - name: Deploy to Cloud Run
-        run: |
-          gcloud run deploy agent \
-            --source . \
-            --region us-central1
-```
-
-**Cloud Build Pipeline:**
-
-```yaml
-steps:
-  # Build container
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/agent', '.']
-
-  # Run tests
-  - name: 'gcr.io/$PROJECT_ID/agent'
-    args: ['pytest', 'tests/']
-
-  # Deploy to Cloud Run
-  - name: 'gcr.io/cloud-builders/gcloud'
-    args:
-      - 'run'
-      - 'deploy'
-      - 'agent'
-      - '--image=gcr.io/$PROJECT_ID/agent'
-      - '--region=us-central1'
-```
-
-### 🎯 Multi-Agent Orchestration
-
-**Hierarchical Agents:**
-
-```python
-# Coordinator agent with specialized sub-agents
-class ProjectManagerAgent(ADKAgent):
-    def __init__(self):
-        self.researcher = ResearchAgent()
-        self.analyst = AnalysisAgent()
-        self.writer = WriterAgent()
-        self.reviewer = ReviewAgent()
-
-    def run(self, project_brief: str):
-        # Coordinate multiple agents
-        research = self.researcher.run(project_brief)
-        analysis = self.analyst.run(research)
-        draft = self.writer.run(analysis)
-        final = self.reviewer.run(draft)
-        return final
-```
-
-**Parallel Agent Execution:**
-
-```python
-import asyncio
-
-class ParallelResearchAgent(ADKAgent):
-    async def research_topic(self, topics: list[str]):
-        # Run multiple agents concurrently
-        tasks = [
-            self.specialized_agent(topic)
-            for topic in topics
-        ]
-        results = await asyncio.gather(*tasks)
-        return self.synthesize(results)
-```
-
-### 📈 Evaluation & Monitoring
-
-**Built-in Evaluation:**
-
-```python
-from google.cloud.aiplatform import agent_evaluation
-
-# Define evaluation metrics
-eval_config = agent_evaluation.EvaluationConfig(
-    metrics=["accuracy", "relevance", "safety"],
-    test_dataset="gs://bucket/eval_data.jsonl"
-)
-
-# Run evaluation
-results = agent.evaluate(eval_config)
-print(f"Accuracy: {results.accuracy}")
-print(f"Relevance: {results.relevance}")
-```
-
-**Cloud Trace Integration:**
-
-```python
-from google.cloud import trace_v1
-
-# Automatic tracing
-@traced_agent
-class MonitoredAgent(ADKAgent):
-    def run(self, query: str):
-        # All calls automatically traced
-        with self.trace_span("retrieval"):
-            docs = self.retrieve(query)
-
-        with self.trace_span("generation"):
-            response = self.generate(query, docs)
-
-        return response
-```
-
-### 🔒 Security & Best Practices
-
-**1. Service Account Management:**
+Enhance or upgrade an existing project:
 
 ```bash
-# Create minimal-permission service account
-gcloud iam service-accounts create agent-sa \
-    --display-name "Agent Service Account"
-
-# Grant only required permissions
-gcloud projects add-iam-policy-binding PROJECT_ID \
-    --member="serviceAccount:agent-sa@PROJECT.iam.gserviceaccount.com" \
-    --role="roles/aiplatform.user"
+agents-cli scaffold enhance
+agents-cli scaffold upgrade
 ```
 
-**2. Secret Management:**
+Before running a scaffold command:
 
-```python
-from google.cloud import secretmanager
+1. Confirm the absolute destination.
+2. Inspect existing files and repository instructions.
+3. Record the CLI version.
+4. Show the exact command and expected write scope.
+5. Require approval if files will be created or overwritten.
 
-def get_api_key():
-    client = secretmanager.SecretManagerServiceClient()
-    name = "projects/PROJECT/secrets/api-key/versions/latest"
-    response = client.access_secret_version(name=name)
-    return response.payload.data.decode('UTF-8')
-```
+Do not preserve old Agent Starter Pack template names as if they were current
+`agents-cli` choices. Ask `agents-cli create --help` for the installed release's
+supported languages, frameworks, and flags.
 
-**3. VPC Service Controls:**
+## Develop
+
+Current command families include:
 
 ```bash
-# Enable VPC SC for data security
-gcloud access-context-manager perimeters create agent-perimeter \
-    --resources=projects/PROJECT_ID \
-    --restricted-services=aiplatform.googleapis.com
+agents-cli install
+agents-cli run "PROMPT"
+agents-cli lint
 ```
 
-### 💰 Cost Optimization
+Use the generated project's configuration and tests as authoritative. Define:
 
-**Strategies:**
+- agent purpose and instruction contract
+- tool and user-visible description
+- model selection rationale
+- tool input, output, timeout, and error behavior
+- session state and persistence boundaries
+- callbacks and policy checks
+- unit, integration, and evaluation cases
 
-- Use Gemini 2.5 Flash for most operations
-- Cache embeddings for RAG systems
-- Implement request batching
-- Use preemptible GKE nodes
-- Monitor token usage in Cloud Monitoring
+Never store an AI Studio key, service-account JSON, access token, or generated
+credential in tracked files.
 
-**Pricing Examples:**
+## Evaluate
 
-- Cloud Run: $0.00024/GB-second
-- Agent Engine: Pay-per-request pricing
-- GKE: Standard cluster costs
-- Gemini API: $3.50/1M tokens (Pro)
-
-### 📚 Reference Architecture
-
-**Production Agent System:**
-
-```
-┌─────────────────┐
-│   Load Balancer │
-└────────┬────────┘
-         │
-    ┌────▼────┐
-    │Cloud Run│ (Agent containers)
-    └────┬────┘
-         │
-    ┌────▼──────────┐
-    │ Agent Engine  │ (Orchestration)
-    └────┬──────────┘
-         │
-    ┌────▼────────────────┐
-    │  Vertex AI Search   │ (RAG)
-    │  Vector Search      │
-    │  Gemini 2.5 Pro     │
-    └─────────────────────┘
-```
-
-### 🎯 Best Practices for Jeremy
-
-**1. Start with Templates:**
+The maintained CLI separates generation, grading, comparison, analysis, and
+optimization:
 
 ```bash
-# Use Agent Starter Pack templates
-uvx agent-starter-pack create my-agent --template agentic_rag
+agents-cli eval run
+agents-cli eval generate
+agents-cli eval grade
+agents-cli eval compare
+agents-cli eval analyze
+agents-cli eval metric list
+agents-cli eval dataset synthesize
+agents-cli eval optimize
 ```
 
-**2. Local Development:**
+An evaluation receipt should identify the dataset, metric configuration, model,
+CLI version, environment, result artifact, and exit status. Treat LLM-as-judge
+scores as measured evidence with variance, not deterministic proof.
+
+## Deploy
+
+Google's current skills cover Agent Runtime, Cloud Run, and GKE deployment.
+Resolve available targets and flags from:
 
 ```bash
-# Test locally first
-adk serve --port 8080
-curl http://localhost:8080/query -d '{"question": "test"}'
+agents-cli deploy --help
+agents-cli infra --help
 ```
 
-**3. Gradual Deployment:**
+Before deployment, state:
+
+- Google Cloud project and region
+- runtime and why it fits
+- identity and least-privilege IAM plan
+- secret storage and injection path
+- APIs and quotas required
+- network exposure and authentication
+- observability and rollback checks
+- pricing pages that must be reviewed
+
+The CLI also exposes infrastructure workflows including `infra single-project`
+and `infra cicd`. These provision external resources; require explicit approval
+for the exact project and target.
+
+## Publish
+
+Gemini Enterprise registration is a separate external mutation:
 
 ```bash
-# Deploy to dev → staging → prod
-asp deploy --env dev
-# Test thoroughly
-asp deploy --env staging
-# Final production push
-asp deploy --env production
+agents-cli publish gemini-enterprise --help
 ```
 
-**4. Monitor Everything:**
+Do not equate a successful cloud deployment with successful publication. Report
+the deployed service and the registered Gemini Enterprise resource separately.
 
-- Enable Cloud Trace
-- Set up error reporting
-- Track token usage
-- Monitor response times
-- Set up alerting
+## Observe and Operate
 
-### 📖 Official Documentation
+Verify the generated project's logging and tracing configuration. For each live
+deployment capture:
 
-**Core Resources:**
+- health and readiness result
+- one successful smoke invocation
+- one expected failure path
+- trace or log correlation identifier
+- rollback command or prior revision
+- quota and billing-alert ownership
 
-- ADK Docs: https://google.github.io/adk-docs/
-- Agent Starter Pack: https://github.com/GoogleCloudPlatform/agent-starter-pack
-- Agent Engine: https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/overview
-- Agent Builder: https://cloud.google.com/products/agent-builder
+Avoid absolute security claims. Cloud deployment inherits the security of its
+IAM, network, tool, data, and secret configuration.
 
-**Tutorials:**
+## Agent Starter Pack Migration
 
-- Building AI Agents: https://codelabs.developers.google.com/devsite/codelabs/building-ai-agents-vertexai
-- Multi-agent Systems: https://cloud.google.com/blog/products/ai-machine-learning/build-and-manage-multi-system-agents-with-vertex-ai
+Use Google's current migration guide. A migration should preserve agent code,
+tests, Terraform, and CI/CD where supported, then replace obsolete Makefile and
+Starter Pack CLI instructions with the corresponding `agents-cli` workflow.
 
-## When This Skill Activates
+Inventory before changing:
 
-This skill automatically activates when you mention:
+```text
+agent code
+evaluation datasets and metrics
+deployment configuration
+Terraform state and modules
+CI/CD identities and secrets
+observability configuration
+environment-specific variables
+```
 
-- Agent development, ADK, or Agent Starter Pack
-- Multi-agent systems or orchestration
-- Containerized agent deployment
-- Cloud Run, GKE, or Agent Engine deployment
-- RAG agents or ReAct agents
-- Agent templates or scaffolding
-- CI/CD for agents
-- Production agent systems
+Run the upgraded lint, local smoke, evaluation, and infrastructure plan before
+any deployment. Keep the old deployment available until the new health and
+rollback checks pass.
 
-## Integration with Other Services
+## Current Primary Sources
 
-**Google Cloud:**
-
-- Vertex AI (Gemini, Search, Vector Search)
-- Cloud Storage (data storage)
-- Cloud Functions (triggers)
-- Cloud Scheduler (automation)
-- Cloud Logging & Monitoring
-
-**Third-party:**
-
-- LangChain integration
-- CrewAI orchestration
-- Custom tool frameworks
-
-## Success Metrics
-
-**Track:**
-
-- Agent response time (target: <2s)
-- Evaluation scores (target: >85% accuracy)
-- Deployment frequency (target: daily)
-- System uptime (target: 99.9%)
-- Cost per query (target: <$0.01)
-
----
-
-**This skill makes Jeremy a Google Cloud agent architecture expert with instant access to ADK, Agent Starter Pack, and production deployment patterns.**
-
-## Prerequisites
-
-- Access to project files in ${CLAUDE_SKILL_DIR}/
-- Required tools and dependencies installed
-- Understanding of skill functionality
-- Permissions for file operations
-
-## Instructions
-
-1. Identify skill activation trigger and context
-2. Gather required inputs and parameters
-3. Execute skill workflow systematically
-4. Validate outputs meet requirements
-5. Handle errors and edge cases appropriately
-6. Provide clear results and next steps
-
-## Output
-
-- Primary deliverables based on skill purpose
-- Status indicators and success metrics
-- Generated files or configurations
-- Reports and summaries as applicable
-- Recommendations for follow-up actions
-
-## Error Handling
-
-If execution fails:
-
-- Verify prerequisites are met
-- Check input parameters and formats
-- Validate file paths and permissions
-- Review error messages for root cause
-- Consult documentation for troubleshooting
-
-## Resources
-
-- Official documentation for related tools
-- Best practices guides
-- Example use cases and templates
-- Community forums and support channels
+- https://github.com/google/agents-cli
+- https://google.github.io/agents-cli/
+- https://google.github.io/agents-cli/reference/from-agent-starter-pack/
+- https://google.github.io/adk-docs/
+- https://cloud.google.com/run/pricing
+- https://cloud.google.com/kubernetes-engine/pricing
+- https://cloud.google.com/vertex-ai/generative-ai/pricing

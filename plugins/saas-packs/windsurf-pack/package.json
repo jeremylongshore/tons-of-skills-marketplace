@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/windsurf-pack",
-  "version": "1.0.2",
-  "description": "Claude Code skill pack for Windsurf - 30 skills covering AI code editor by Codeium",
+  "version": "1.12.0",
+  "description": "Claude Code skill pack for Devin Desktop (formerly Windsurf) with 30 current operations skills",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -13,7 +13,7 @@
     "claude-code",
     "claude-code-plugin",
     "windsurf",
-    "codeium",
+    "devin-desktop",
     "code-editor",
     "agentic",
     "ai-skills",

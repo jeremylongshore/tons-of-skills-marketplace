@@ -1,9 +1,9 @@
 ---
 name: windsurf-sdk-patterns
-description: 'Apply production-ready Windsurf workspace configuration and Cascade
+description: 'Analyze and apply production-ready Devin Desktop (formerly Windsurf) workspace configuration and Cascade
   interaction patterns.
 
-  Use when configuring .windsurfrules, workspace rules, MCP servers,
+  Use when configuring .devin/rules/project.md, workspace rules, MCP servers,
 
   or establishing team coding standards for Windsurf AI.
 
@@ -13,7 +13,8 @@ description: 'Apply production-ready Windsurf workspace configuration and Cascad
 
   '
 allowed-tools: Read, Write, Edit, Grep
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -33,17 +34,24 @@ Production-ready configuration patterns for Windsurf IDE: rules files, workspace
 ## Prerequisites
 
 - Windsurf authenticated and operational
-- Understanding of Cascade Write vs Chat modes
+- Understanding of Cascade Code and Chat modes
 - Project with established coding conventions
+
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Grep` to locate relevant settings, rules, logs, or code without broad collection.
+- Use `Write` only for a new artifact the user requested; never write credentials or unreviewed production configuration.
+- Use `Edit` for bounded, reviewable changes and preserve unrelated user work.
 
 ## Instructions
 
-### Step 1: Root-Level .windsurfrules (Permanent Context)
+### Step 1: Root-Level .devin/rules/project.md (Permanent Context)
 
-The `.windsurfrules` file is the single highest-impact configuration for Cascade output quality. It provides persistent context every session.
+The `.devin/rules/project.md` file is the single highest-impact configuration for Cascade output quality. It provides persistent context every session.
 
 ```markdown
-<!-- .windsurfrules -->
+<!-- .devin/rules/project.md -->
 
 # Project: payments-api
 
@@ -80,10 +88,10 @@ The `.windsurfrules` file is the single highest-impact configuration for Cascade
 
 ### Step 2: Workspace Rules with Trigger Modes
 
-Create granular rules in `.windsurf/rules/` with YAML frontmatter:
+Create granular rules in `.devin/rules/` with YAML frontmatter:
 
 ```markdown
-<!-- .windsurf/rules/testing.md -->
+<!-- .devin/rules/testing.md -->
 ---
 trigger: glob
 globs: **/*.test.ts, **/*.spec.ts
@@ -97,7 +105,7 @@ All test files must:
 ```
 
 ```markdown
-<!-- .windsurf/rules/api-routes.md -->
+<!-- .devin/rules/api-routes.md -->
 ---
 trigger: glob
 globs: src/routes/**/*.ts
@@ -110,7 +118,7 @@ API route handlers must:
 ```
 
 ```markdown
-<!-- .windsurf/rules/security.md -->
+<!-- .devin/rules/security.md -->
 ---
 trigger: model_decision
 description: Apply when code touches authentication, authorization, or secrets
@@ -124,7 +132,7 @@ Security requirements:
 ```
 
 ```markdown
-<!-- .windsurf/rules/migrations.md -->
+<!-- .devin/rules/migrations.md -->
 ---
 trigger: manual
 ---
@@ -185,12 +193,16 @@ BAD prompts (vague, unscoped):
 "Make it better"
 ```
 
+## Output
+
+Create a minimal customization set using the correct mechanism—Rule, `AGENTS.md`, Workflow, Skill, Hook, or MCP configuration—with activation behavior, ownership, secret handling, and a verification example. Avoid undocumented settings keys.
+
 ## Error Handling
 
 | Issue | Cause | Solution |
 |-------|-------|----------|
 | Rules ignored by Cascade | File over 6,000 chars | Trim to essentials, split into workspace rules |
-| Workspace rules not loading | Wrong directory | Must be `.windsurf/rules/`, not `.windsurfrules/` |
+| Workspace rules not loading | Wrong directory or invalid frontmatter | Use `.devin/rules/*.md` and validate the `trigger:` mode |
 | MCP server not connecting | Command not found | Ensure npx can resolve the package |
 | Too many MCP tools | Over 100 tool limit | Disable unused tools per MCP server |
 | Glob trigger not firing | Wrong pattern syntax | Use gitignore-style globs: `**/*.test.ts` |
@@ -200,7 +212,7 @@ BAD prompts (vague, unscoped):
 ### Global Rules (Apply to All Projects)
 
 ```markdown
-<!-- ~/.windsurf/global_rules.md (6,000 char limit) -->
+<!-- ~/.codeium/windsurf/memories/global_rules.md (6,000 char limit) -->
 - Always use English for code comments and commit messages
 - Prefer functional programming patterns over OOP
 - Write self-documenting code; add comments only for "why", not "what"
@@ -212,15 +224,16 @@ BAD prompts (vague, unscoped):
 
 ```bash
 # Verify Windsurf config exists
-ls -la .windsurfrules .codeiumignore .windsurf/rules/ 2>/dev/null
+ls -la .devin/rules/project.md .codeiumignore .devin/rules/ 2>/dev/null
 ```
 
 ## Resources
 
+- [Focused first-party references](references/official-docs.md)
 - [Windsurf Rules Directory](https://windsurf.com/editor/directory)
-- [Cascade Memories](https://docs.windsurf.com/windsurf/cascade/memories)
-- [MCP Integration](https://docs.windsurf.com/windsurf/cascade/mcp)
+- [Cascade Memories](https://docs.devin.ai/desktop/cascade/memories)
+- [MCP Integration](https://docs.devin.ai/desktop/cascade/mcp)
 
-## Next Steps
+## Related Skill
 
-Apply patterns in `windsurf-core-workflow-a` for real-world Cascade usage.
+Continue with `windsurf-core-workflow-a` to apply these configuration patterns in a bounded Cascade session with explicit validation and rollback checkpoints.

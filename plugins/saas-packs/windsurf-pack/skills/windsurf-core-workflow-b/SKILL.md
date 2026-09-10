@@ -1,217 +1,125 @@
 ---
 name: windsurf-core-workflow-b
-description: 'Execute Windsurf''s secondary workflow: Workflows, Memories, and reusable
-  automation.
-
-  Use when creating reusable Cascade workflows, managing persistent memories,
-
-  or automating repetitive development tasks.
-
-  Trigger with phrases like "windsurf workflow", "windsurf automation",
-
-  "windsurf memories", "cascade workflow", "windsurf slash command".
-
-  '
+description: 'Choose and create Devin Desktop customizations: Rules, AGENTS.md,
+  Workflows, Skills, and Memories. Use when making Cascade behavior reusable or
+  deciding how a procedure should activate. Trigger with "windsurf workflow",
+  "Cascade skill", "windsurf rule", "AGENTS.md", or "Cascade memory".'
 allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
 - windsurf
 - workflows
-- memories
-- automation
+- skills
+- rules
 compatibility: Designed for Claude Code
 ---
-# Windsurf Core Workflow B — Workflows & Memories
+
+# Devin Desktop Customizations
 
 ## Overview
 
-Windsurf Workflows are reusable, multi-step automation sequences saved as markdown files and invoked via slash commands in Cascade. Memories are persistent facts that survive across sessions. Together they eliminate repetitive prompting and maintain project context.
+Devin Desktop is the current name for Windsurf. Select the smallest customization that matches the task instead of treating Workflows and Memories as interchangeable automation.
 
 ## Prerequisites
 
-- Windsurf with Cascade enabled
-- Understanding of `windsurf-core-workflow-a` (Write mode)
-- `.windsurfrules` configured
+- Devin Desktop with Cascade enabled
+- A version-controlled workspace for shared customizations
+- A concrete behavior or procedure to encode
+
+## Authentication
+
+Rules, `AGENTS.md`, Workflows, and Skills require no separate authentication. MCP-backed steps use provider OAuth or environment-backed secrets; never embed tokens in customization files.
+
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Grep` to locate relevant settings, rules, logs, or code without broad collection.
+- Use `Write` only for a new artifact the user requested; never write credentials or unreviewed production configuration.
+- Use `Edit` for bounded, reviewable changes and preserve unrelated user work.
+- Use only the command-scoped `Bash` entries declared in frontmatter, with non-destructive checks before mutations.
 
 ## Instructions
 
-### Step 1: Create a Workflow File
+### Step 1: Choose the mechanism
 
-Workflows live in `.windsurf/workflows/` as markdown files. Each becomes a slash command.
+| Mechanism | Activation | Use for |
+|---|---|---|
+| Rule | `always_on`, `glob`, `model_decision`, or `manual` | Short behavioral constraints |
+| `AGENTS.md` | Root always-on; subdirectory location-scoped | Repository conventions without frontmatter |
+| Workflow | Manual only through `/workflow-name` | Repeatable prompt sequences |
+| Skill | Dynamic model invocation or `@mention` | Multi-step procedures with supporting files |
+| Memory | Automatic local retrieval | Ephemeral facts; not durable team knowledge |
 
-```markdown
-<!-- .windsurf/workflows/new-feature.md -->
----
-name: new-feature
-description: Scaffold a new feature with service, route, and tests
----
+Prefer `.devin/rules/*.md` for Rules. Legacy `.windsurf/rules/` remains a fallback. Keep durable team knowledge in version control rather than relying on local auto-generated Memories.
 
-## Steps
+### Step 2: Create a Rule or `AGENTS.md`
 
-1. Ask the user for: feature name, description, and which database tables are involved
-2. Create `src/services/${feature-name}.ts` with:
-   - CRUD methods using Result<T,E> pattern
-   - Input validation with zod schemas
-   - JSDoc comments on all public methods
-3. Create `src/routes/${feature-name}.ts` with:
-   - GET, POST, PUT, DELETE route handlers
-   - Request validation middleware
-   - Consistent error response format
-4. Create `tests/services/${feature-name}.test.ts` with:
-   - Unit tests for all service methods
-   - Both success and error paths
-5. Run `npx vitest run tests/services/${feature-name}.test.ts`
-6. If tests pass, report success. If not, fix and re-run.
-```
-
-Invoke in Cascade: `/new-feature`
-
-### Step 2: Build a Deployment Workflow
+Use a Rule for controlled activation:
 
 ```markdown
-<!-- .windsurf/workflows/deploy.md -->
 ---
-name: deploy
-description: Deploy to staging with pre-flight checks
+trigger: glob
+globs: "src/api/**/*.ts"
 ---
 
-## Pre-Flight Checks
-1. Run `npm run typecheck` — stop if errors
-2. Run `npm test` — stop if failures
-3. Run `npm run lint` — stop if errors
-4. Check `git status` — stop if uncommitted changes
-
-## Deploy
-5. Run `git push origin HEAD`
-6. Run `npm run build`
-7. Run `npm run deploy:staging`
-
-## Post-Deploy
-8. Run `curl -sf https://staging.example.com/health | jq .`
-9. Report deploy status with health check result
+# API constraints
+- Validate external input at the route boundary.
+- Return the repository's standard error envelope.
 ```
 
-### Step 3: Enable Turbo Annotations in Workflows
+Use a root or directory-level `AGENTS.md` when location alone should determine scope.
 
-Add turbo annotations to auto-execute specific commands:
+### Step 3: Create a Workflow
+
+Save manual procedures under `.windsurf/workflows/<name>.md`, within the documented 12,000-character limit:
 
 ```markdown
-<!-- In any workflow step -->
-Run the following command:
-```bash
-// turbo
-npm run typecheck
+# Review current pull request
+
+1. Read the diff against the target branch.
+2. Run the repository's required tests.
+3. Report correctness, security, and regression findings with file locations.
+4. Stop and ask for clarification when a finding cannot be resolved safely.
 ```
 
-Or auto-run all commands in the workflow:
+Invoke it explicitly as `/review-current-pr`. Workflows are Cascade-specific and are not automatically selected.
 
-```markdown
-// turbo-all
-```
+### Step 4: Create a Skill
 
-Turbo annotations respect allow/deny lists configured in settings.
+Use `.windsurf/skills/<name>/SKILL.md` when the procedure needs scripts, templates, or reference files. Devin Desktop also discovers cross-agent skills under `.agents/skills/`; use that location when portability is intentional.
 
-### Step 4: Manage Cascade Memories
+### Step 5: Verify activation
 
-Memories persist facts across sessions. They are auto-generated or manually created.
+Test one matching and one non-matching request. Confirm a Rule's trigger, a Workflow's slash command, or a Skill's dynamic/explicit invocation. Record the file location and visible outcome.
 
-**Create a memory manually:**
+## Output
 
-```
-Cascade prompt: "Remember that our API uses snake_case for JSON
-field names but camelCase for TypeScript interfaces. We transform
-with a middleware layer in src/middleware/transform.ts."
-```
-
-**View and manage memories:**
-
-- Click Customizations icon (top-right of Cascade panel)
-- Navigate to Memories tab
-- Delete outdated memories
-- Memories are stored at `~/.codeium/windsurf/memories/`
-
-**Key difference: Rules vs Memories:**
-
-| Aspect | Rules | Memories |
-|--------|-------|---------|
-| Created by | Developer | Cascade (auto) or developer |
-| Stored in | `.windsurfrules` or `.windsurf/rules/` | `~/.codeium/windsurf/memories/` |
-| Scope | Workspace or global | Workspace-specific |
-| Version controlled | Yes (committed to git) | No (local only) |
-| Reliability | High (always applied) | Medium (model decides relevance) |
-| Best for | Standards, patterns | Decisions, discoveries |
-
-### Step 5: Chain Workflows Together
-
-Reference other workflows within a workflow:
-
-```markdown
-<!-- .windsurf/workflows/release.md -->
----
-name: release
-description: Full release workflow
----
-
-1. Run /deploy workflow first
-2. After staging deploy succeeds, ask user to confirm production deploy
-3. Run `npm run deploy:production`
-4. Create GitHub release: `gh release create v$(node -p "require('./package.json').version")`
-5. Post to #releases channel via webhook
-```
+Create the selected customization in its documented location, explain why it is a Rule, `AGENTS.md`, Workflow, Skill, or Memory, state its activation behavior and scope, and provide matching and non-matching verification evidence.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Slash command not found | File not in `.windsurf/workflows/` | Check file location and name |
-| Workflow skips steps | Ambiguous instructions | Use numbered steps with clear conditions |
-| Memory not recalled | Low relevance score | Convert important memories to Rules |
-| Turbo runs dangerous command | Not in deny list | Add to `cascadeCommandsDenyList` |
-| Workflow too long | Over context limit | Split into smaller, composable workflows |
+| Issue | Response |
+|---|---|
+| Workflow is not listed | Confirm `.windsurf/workflows/*.md`, discovery scope, and character limit |
+| Skill is not invoked | Improve `name`/`description`, then test with `@mention` |
+| Rule applies too broadly | Replace `always_on` with a narrower glob, model decision, or `AGENTS.md` scope |
+| Memory is stale | Remove it through Customizations and encode durable knowledge as a Rule |
 
 ## Examples
 
-### PR Review Workflow
-
-```markdown
-<!-- .windsurf/workflows/review-pr.md -->
----
-name: review-pr
-description: Review current PR changes
----
-1. Run `git diff main...HEAD --stat` to see changed files
-2. For each changed file, analyze the diff for:
-   - Missing error handling
-   - Missing tests for new code
-   - Security issues (hardcoded secrets, SQL injection)
-   - Performance concerns (N+1 queries, missing indexes)
-3. Summarize findings as a bulleted list
-```
-
-### Code Quality Workflow
-
-```markdown
-<!-- .windsurf/workflows/quality-check.md -->
----
-name: quality-check
-description: Run full code quality suite
----
-// turbo-all
-1. Run `npm run typecheck`
-2. Run `npm run lint`
-3. Run `npm test -- --coverage`
-4. Report: types, lint issues, test results, coverage percentage
-```
+"Use a Workflow for a release checklist that a human must start; use a Skill for test-and-fix guidance Cascade should select automatically with bundled scripts."
 
 ## Resources
 
-- [Windsurf Workflows](https://docs.windsurf.com/windsurf/cascade/workflows)
-- [Cascade Memories](https://docs.windsurf.com/windsurf/cascade/memories)
-- [Workflow Samples](https://github.com/Windsurf-Samples/cascade-customizations-catalog)
+- [Focused first-party references](references/official-docs.md)
+- [Rules, `AGENTS.md`, and Memories](https://docs.devin.ai/desktop/cascade/memories)
+- [Workflows](https://docs.devin.ai/desktop/cascade/workflows)
+- [Skills](https://docs.devin.ai/desktop/cascade/skills)
 
-## Next Steps
+## Related Skill
 
-For common errors, see `windsurf-common-errors`.
+Use `windsurf-policy-guardrails` when the customization must be enforced through Hooks, CI, repository protection, or an organization-wide administrative policy.

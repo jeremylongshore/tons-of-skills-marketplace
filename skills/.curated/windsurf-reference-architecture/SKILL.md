@@ -1,6 +1,6 @@
 ---
 name: windsurf-reference-architecture
-description: 'Implement Windsurf reference architecture with optimal project structure
+description: 'Implement Devin Desktop (formerly Windsurf) reference architecture with optimal project structure
   and AI configuration.
 
   Use when designing workspace configuration for Windsurf, setting up team standards,
@@ -13,7 +13,8 @@ description: 'Implement Windsurf reference architecture with optimal project str
 
   '
 allowed-tools: Read, Grep
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -42,7 +43,7 @@ Complete project architecture optimized for Windsurf AI. Covers workspace config
 ┌──────────────────────────────────────────────────────┐
 │              Windsurf Workspace                       │
 │  ┌───────────────┐  ┌────────────────────────────┐    │
-│  │ .windsurfrules│  │ .windsurf/                 │    │
+│  │ .devin/rules/project.md│  │ .windsurf/                 │    │
 │  │ (AI context)  │  │  ├── rules/ (trigger rules)│    │
 │  │               │  │  ├── workflows/ (automation)│    │
 │  │               │  │  └── settings.json         │    │
@@ -66,13 +67,18 @@ Complete project architecture optimized for Windsurf AI. Covers workspace config
 └──────────────────────────────────────────────────────┘
 ```
 
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Grep` to locate relevant settings, rules, logs, or code without broad collection.
+
 ## Instructions
 
 ### Step 1: Project File Structure
 
 ```
 my-project/
-├── .windsurfrules              # AI context (stack, patterns, constraints)
+├── .devin/rules/project.md              # AI context (stack, patterns, constraints)
 ├── .codeiumignore              # Indexing exclusions
 ├── .windsurf/
 │   ├── settings.json           # IDE settings (committed)
@@ -104,19 +110,19 @@ my-project/
 # Priority order (highest to lowest):
 rules_hierarchy:
   1_global_rules:
-    path: ~/.windsurf/global_rules.md
+    path: ~/.codeium/windsurf/memories/global_rules.md
     limit: 6000 chars
     scope: All workspaces
     use_for: "Personal coding preferences, universal standards"
 
-  2_windsurfrules:
-    path: .windsurfrules (project root)
-    limit: 6000 chars
+  2_workspace_rule:
+    path: .devin/rules/project.md (project root)
+    limit: 12000 chars
     scope: Current workspace
     use_for: "Project stack, architecture, conventions"
 
-  3_workspace_rules:
-    path: .windsurf/rules/*.md
+  3_location_scoped_rules:
+    path: .devin/rules/*.md or AGENTS.md in subdirectories
     limit: 12000 chars each
     scope: Triggered by glob, model_decision, or manual
     use_for: "File-type-specific patterns, conditional rules"
@@ -151,18 +157,18 @@ rules_hierarchy:
 
 ```
 monorepo/
-├── .windsurfrules              # Shared conventions (brief)
+├── .devin/rules/project.md              # Shared conventions (brief)
 ├── .codeiumignore              # Broad exclusions
 ├── apps/
 │   ├── web/
-│   │   └── .windsurfrules      # Next.js-specific rules
+│   │   └── .devin/rules/project.md      # Next.js-specific rules
 │   └── mobile/
-│       └── .windsurfrules      # React Native rules
+│       └── .devin/rules/project.md      # React Native rules
 ├── packages/
 │   ├── api/
-│   │   └── .windsurfrules      # Express/Fastify rules
+│   │   └── .devin/rules/project.md      # Express/Fastify rules
 │   └── shared/
-│       └── .windsurfrules      # Library conventions
+│       └── .devin/rules/project.md      # Library conventions
 └── .windsurf/
     └── workflows/              # Cross-package workflows
 
@@ -188,28 +194,35 @@ How to pin:
 - Limit: pin 3-5 files max (more = diluted context)
 ```
 
+## Output
+
+Deliver a repository-grounded architecture showing Rules, `AGENTS.md`, Workflows, Skills, Hooks, MCP boundaries, ignore files, CI gates, ownership, and validation commands. Explain why each customization mechanism was chosen and how it activates.
+
 ## Error Handling
 
 | Issue | Cause | Solution |
 |-------|-------|----------|
-| Cascade ignores project patterns | Missing/empty .windsurfrules | Add stack and architecture details |
+| Cascade ignores project patterns | Missing/empty .devin/rules/project.md | Add stack and architecture details |
 | Rules truncated | Over 12,000 combined chars | Split into workspace rules with triggers |
-| Wrong patterns for file type | No glob-triggered rules | Add `.windsurf/rules/` with glob triggers |
+| Wrong patterns for file type | No glob-triggered rules | Add `.devin/rules/` with glob triggers |
 | Team inconsistency | No shared config | Commit `.windsurf/` directory to git |
 | Slow indexing in monorepo | Root workspace open | Open specific package/app directory |
 
 ## Examples
 
-### Minimal .windsurfrules for Any Project
+### Minimal .devin/rules/project.md for Any Project
 
 ```markdown
-# Project: [name]
-## Stack: [language] + [framework] + [database]
-## Testing: [test framework]
-## Conventions:
-- [3-5 key coding patterns]
-## Don't:
-- [2-3 explicit anti-patterns]
+# Project: Inventory API
+Stack: TypeScript, Fastify, and PostgreSQL.
+Testing: Run Vitest unit tests and the repository integration suite.
+Conventions:
+- Validate external input at the route boundary.
+- Keep database access behind repository modules.
+- Add or update a regression test with every bug fix.
+Avoid:
+- Writing secrets, production data, or generated output into source files.
+- Bypassing protected migrations or deployment approval.
 ```
 
 ### Verify Architecture Setup
@@ -217,18 +230,19 @@ How to pin:
 ```bash
 set -euo pipefail
 echo "=== Windsurf Architecture Check ==="
-echo "Rules: $([ -f .windsurfrules ] && wc -c < .windsurfrules || echo 'MISSING') chars"
+echo "Rules: $([ -f .devin/rules/project.md ] && wc -c < .devin/rules/project.md || echo 'MISSING') chars"
 echo "Ignore: $([ -f .codeiumignore ] && wc -l < .codeiumignore || echo 'MISSING') patterns"
-echo "Rules dir: $(ls .windsurf/rules/ 2>/dev/null | wc -l || echo 0) files"
+echo "Rules dir: $(ls .devin/rules/ 2>/dev/null | wc -l || echo 0) files"
 echo "Workflows: $(ls .windsurf/workflows/ 2>/dev/null | wc -l || echo 0) files"
 ```
 
 ## Resources
 
+- [Focused first-party references](references/official-docs.md)
 - [Windsurf Rules Directory](https://windsurf.com/editor/directory)
-- [Context Awareness](https://docs.windsurf.com/context-awareness/overview)
+- [Context Awareness](https://docs.devin.ai/desktop/context-awareness/overview)
 - [Cascade Customizations Catalog](https://github.com/Windsurf-Samples/cascade-customizations-catalog)
 
-## Next Steps
+## Related Skill
 
-For workspace variant strategies, see `windsurf-architecture-variants`.
+Continue with `windsurf-architecture-variants` to adapt this baseline to monorepos, multi-service workspaces, polyglot stacks, and large organizations.

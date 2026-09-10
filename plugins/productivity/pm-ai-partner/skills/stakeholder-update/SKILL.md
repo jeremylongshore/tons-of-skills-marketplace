@@ -1,11 +1,10 @@
 ---
 name: stakeholder-update
-description: Stakeholder communication assistant for status updates, progress reports,
-  and executive summaries. Use when the user needs to write a stakeholder update,
-  status report, progress summary, or any upward communication. Triggers include "stakeholder
-  update", "status update", "progress report", "update leadership", "weekly update",
-  or "executive summary".
-version: 1.8.0
+description: Create and review stakeholder status updates, progress reports, and executive
+  summaries. Use when the user needs to write concise upward communication.
+  Trigger with "stakeholder update", "status update", "progress report", "update
+  leadership", "weekly update", or "executive summary".
+version: 1.10.0
 author: Ahmed Khaled Mohamed <ahmd.khaled.a.mohamed@gmail.com>
 license: MIT
 allowed-tools: Read, Glob, Grep
@@ -14,12 +13,28 @@ tags:
 - productivity
 - stakeholder-update
 compatibility: Designed for Claude Code
+model: inherit
+effort: medium
+user-invocable: true
 ---
 # Stakeholder Update Skill
+
+## Overview
+
+Turn current evidence into a concise update that leads with status, names risks plainly, and
+makes decisions or help requests explicit. Use the
+[evidence and review checklist](references/evidence-and-review.md) before sending it.
+
+Use `Glob` to locate status artifacts, `Grep` to trace commitments, and `Read` to verify the data.
 
 ## Instructions
 
 Help create clear, concise stakeholder updates that communicate progress, risks, and asks effectively.
+
+### Authentication
+
+Use only existing authenticated access when source systems are involved. Never request or expose
+credentials, tokens, or API keys; if access is unavailable, report the last verified timestamp.
 
 ### Behavior
 
@@ -163,7 +178,7 @@ Adjust anything?
 
 ---
 
-## Client Messaging Q1 2026 — Executive Summary
+## Client Messaging — Executive Summary
 
 ### Bottom Line
 
@@ -180,7 +195,7 @@ Adjust anything?
 
 ### Key Metrics
 
-| Metric | Q4 2025 | Q1 2026 | Target | Status |
+| Metric | Previous period | Current period | Target | Status |
 |--------|---------|---------|--------|--------|
 | Push delivery rate | 89% | 94% | 95% | At Risk |
 | Message success rate | 10% | 14% | 15% | At Risk |
@@ -241,10 +256,6 @@ No action needed — will update if anything changes.
 ---
 
 Good for Slack?
-
-## Overview
-
-Stakeholder communication assistant that helps product managers craft clear, concise status updates, progress reports, and executive summaries with actionable asks.
 
 ## Prerequisites
 

@@ -31,7 +31,7 @@ author: {name} <{email}>
 license: MIT
 ```
 
-**IMPORTANT**: `version`, `author`, `license`, `tags`, and `compatible-with` are TOP-LEVEL fields.
+**IMPORTANT**: `version`, `author`, `license`, `compatibility`, and `tags` are top-level fields.
 Do NOT nest them under `metadata:`. The marketplace 100-point validator checks them at top-level.
 
 Recommended fields:
@@ -70,7 +70,6 @@ agent: general-purpose              # Subagent type (with context: fork)
 disable-model-invocation: true      # If explicit /name only (no auto-activation)
 user-invocable: false               # If background knowledge only
 compatibility: "Python 3.10+"      # If environment-specific
-compatible-with: claude-code, codex # Platforms this works on
 tags: [devops, ci]                  # Discovery tags
 ```
 

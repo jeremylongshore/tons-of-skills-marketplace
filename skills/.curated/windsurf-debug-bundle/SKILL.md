@@ -1,6 +1,6 @@
 ---
 name: windsurf-debug-bundle
-description: 'Collect Windsurf diagnostic information for troubleshooting and support
+description: 'Collect Devin Desktop (formerly Windsurf) diagnostic information for troubleshooting and support
   tickets.
 
   Use when encountering persistent issues, preparing support tickets,
@@ -13,7 +13,8 @@ description: 'Collect Windsurf diagnostic information for troubleshooting and su
 
   '
 allowed-tools: Read, Bash(grep:*), Bash(ls:*), Bash(tar:*), Grep
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -27,19 +28,23 @@ compatibility: Designed for Claude Code
 
 ## Current State
 
-!`windsurf --version 2>/dev/null || echo 'Windsurf CLI not in PATH'`
-!`node --version 2>/dev/null || echo 'N/A'`
-!`uname -a`
+Collect editor, runtime, and operating-system versions only after the user requests a diagnostic bundle; do not execute shell substitutions while loading this skill.
 
 ## Overview
 
-Collect all diagnostic information needed to troubleshoot Windsurf issues or submit effective support tickets.
+Collect a minimal, redacted diagnostic package for troubleshooting Devin Desktop issues or preparing an effective support request without sweeping unrelated user data.
 
 ## Prerequisites
 
 - Windsurf installed (even if malfunctioning)
 - Terminal access
 - Permission to read Windsurf config directories
+
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Grep` to locate relevant settings, rules, logs, or code without broad collection.
+- Use only the command-scoped `Bash` entries declared in frontmatter, with non-destructive checks before mutations.
 
 ## Instructions
 
@@ -71,10 +76,10 @@ if [ -f ~/.codeium/windsurf/mcp_config.json ]; then
 fi
 
 # 4. Workspace config
-cp .windsurfrules "$BUNDLE/workspace/" 2>/dev/null || true
+cp .devin/rules/project.md "$BUNDLE/workspace/" 2>/dev/null || true
 cp .codeiumignore "$BUNDLE/workspace/" 2>/dev/null || true
 ls -la .windsurf/ >> "$BUNDLE/workspace/windsurf-dir.txt" 2>/dev/null || true
-ls -la .windsurf/rules/ >> "$BUNDLE/workspace/rules-dir.txt" 2>/dev/null || true
+ls -la .devin/rules/ >> "$BUNDLE/workspace/rules-dir.txt" 2>/dev/null || true
 
 # 5. Extension list
 windsurf --list-extensions > "$BUNDLE/config/extensions.txt" 2>/dev/null || echo "Cannot list extensions" > "$BUNDLE/config/extensions.txt"
@@ -110,9 +115,9 @@ fi
 # Workspace analysis
 echo "--- Workspace Health ---" >> "$BUNDLE/summary.txt"
 echo "File count: $(find . -type f -not -path '*/node_modules/*' -not -path '*/.git/*' | wc -l)" >> "$BUNDLE/summary.txt"
-echo "Has .windsurfrules: $([ -f .windsurfrules ] && echo 'YES' || echo 'NO')" >> "$BUNDLE/summary.txt"
+echo "Has .devin/rules/project.md: $([ -f .devin/rules/project.md ] && echo 'YES' || echo 'NO')" >> "$BUNDLE/summary.txt"
 echo "Has .codeiumignore: $([ -f .codeiumignore ] && echo 'YES' || echo 'NO')" >> "$BUNDLE/summary.txt"
-echo "Has .windsurf/rules/: $([ -d .windsurf/rules ] && echo 'YES' || echo 'NO')" >> "$BUNDLE/summary.txt"
+echo "Has .devin/rules/: $([ -d .devin/rules ] && echo 'YES' || echo 'NO')" >> "$BUNDLE/summary.txt"
 
 # Check for common issues
 if [ ! -f .codeiumignore ] && [ -d node_modules ]; then
@@ -129,6 +134,8 @@ echo "Review for sensitive data before submitting to support."
 ```
 
 ## Support Ticket Template
+
+Populate the template only from reviewed bundle evidence, and replace every bracketed field before sharing it with support.
 
 ```markdown
 ## Windsurf Support Request
@@ -151,7 +158,7 @@ echo "Review for sensitive data before submitting to support."
 ### Attachments
 - [ ] Debug bundle (windsurf-debug-*.tar.gz)
 - [ ] Screenshot of error (if visual)
-- [ ] Relevant .windsurfrules (if context-related)
+- [ ] Relevant .devin/rules/project.md (if context-related)
 
 ### Already Tried
 - [ ] Restart Cascade
@@ -159,6 +166,10 @@ echo "Review for sensitive data before submitting to support."
 - [ ] Reset Indexing
 - [ ] Disable conflicting extensions
 ```
+
+## Output
+
+Create a sanitized diagnostic bundle plus a manifest listing included files, redactions, collection time, editor version, operating system, and reproduction steps. Do not include source code, tokens, cookies, environment secrets, or unreviewed MCP configuration values.
 
 ## Error Handling
 
@@ -183,15 +194,16 @@ echo "Review for sensitive data before submitting to support."
 
 ```bash
 echo "Windsurf: $(windsurf --version 2>/dev/null || echo 'N/A')" && \
-echo "Rules: $([ -f .windsurfrules ] && wc -c < .windsurfrules || echo 'none')" && \
+echo "Rules: $([ -f .devin/rules/project.md ] && wc -c < .devin/rules/project.md || echo 'none')" && \
 echo "Ignore: $([ -f .codeiumignore ] && wc -l < .codeiumignore || echo 'none')"
 ```
 
 ## Resources
 
-- [Windsurf GitHub Issues](https://github.com/Exafunction/codeium/issues)
+- [Focused first-party references](references/official-docs.md)
+- [Windsurf GitHub Issues](https://windsurf.com/support)
 - [Windsurf Status](https://status.windsurf.com)
 
-## Next Steps
+## Related Skill
 
-For rate limit issues, see `windsurf-rate-limits`.
+Continue with `windsurf-rate-limits` when the bundle shows quota exhaustion, reset-window confusion, or unexpectedly expensive session behavior.

@@ -116,10 +116,11 @@ except ImportError:
 #                             background for ALL agents (=> 11 on a plugin agent),
 #                             + hooks, mcpServers, permissionMode for STANDALONE
 #                             agents (=> 14; those three are plugin-level and
-#                             runtime-ignored on a plugin agent). The five fields
-#                             with no valid empty value (effort, maxTurns, memory,
-#                             isolation, initialPrompt) are carried as a commented
-#                             "upgrade levers" body block, not parser-required.
+#                             runtime-ignored on a plugin agent). Six optional
+#                             tuning fields (effort, maxTurns, memory, isolation,
+#                             initialPrompt, experimental) are carried as a
+#                             commented "upgrade levers" body block, not
+#                             parser-required.
 #                       `fable` added to the agent model enum. Banned agent fields
 #                       (capabilities, expertise_level, activation_priority,
 #                       activation_triggers, type, category + kernel
@@ -207,8 +208,43 @@ except ImportError:
 #                       at every tier; unknown but well-formed names remain
 #                       advisory. Approved by ratified blueprint 727 E1.11 and
 #                       the owner's written execution directive.
+# 4.1.0 (2026-09-09 amendment) — current Anthropic subagent contract: recognize the
+#                       optional experimental object and validate cacheTtl as
+#                       5m|1h; accept permissionMode: manual and documented full
+#                       Claude model IDs. Required fields and tier semantics are
+#                       unchanged. Source: code.claude.com/docs/en/sub-agents.
 # See 000-docs/SCHEMA_CHANGELOG.md.
 SCHEMA_VERSION = "4.1.0"
+
+# Rule IDs are part of the compliance-baseline contract, not a census of the
+# errors that happen to exist today. Keep the declared inventory stable when
+# the last finding for a rule is fixed or its artifact is retired; otherwise a
+# strict debt reduction is indistinguishable from disabling a validator rule.
+# Newly observed catch-all hashes are still added below and therefore fail the
+# ratchet until they receive the normal owner-reviewed baseline treatment.
+DECLARED_MARKETPLACE_RULE_INVENTORY = frozenset(
+    {
+        "E-AGENT-8355989ea80e",
+        "E-AGENT-ad4126251028",
+        "E-AGENT-e7ed4704ab0d",
+        "E-BODY-a8e5f61fa69b",
+        "E-FATAL-9a99b10dfdaf",
+        "E-FRONTMATTER-9c196f479e69",
+        "E-FRONTMATTER-a84c0ab5ddff",
+        "E-FRONTMATTER-e9c3798ae38e",
+        "E-FRONTMATTER-f666eb7a814d",
+        "E-INVALID-FIELD",
+        "E-MISSING-REQUIRED-FIELD",
+        "E-MISSING-REQUIRED-SECTION",
+        "E-REFERENCE-ESCAPES-SKILL-DIRECTORY",
+        "E-TIER2-ORCHESTRATION-BOUNDS-31b9cdf7bcb8",
+        "E-TIER2-TOOL-SAFETY-5d322e66e4de",
+        "E-VALIDATOR-696637dc3a0f",
+        "E-VALIDATOR-c457e10de492",
+        "E-VALIDATOR-fed1b0ce3bfe",
+        "E-YAML-SHELL-SUBSTITUTION",
+    }
+)
 
 
 def compute_compliance_rate(compliant_count: int, total_count: int) -> float:
@@ -502,7 +538,7 @@ RE_TIME_SENSITIVE = [
 
 SKILL_FIELDS = {
     # === Anthropic published spec — code.claude.com/docs/en/skills "Frontmatter reference" ===
-    # All fields below are documented at code.claude.com/docs/en/skills as of 2026-04-28.
+    # All fields below are documented at code.claude.com/docs/en/skills as of 2026-09-09.
     # `name` and `description` are required at every tier. The remaining Anthropic
     # fields are accepted as valid optional and validated for type/format only.
     "name": {"type": "string", "source": "anthropic", "tier": "standard"},
@@ -524,7 +560,7 @@ SKILL_FIELDS = {
         "type": "string",
         "source": "anthropic",
         "tier": "standard",
-        "valid": ["sonnet", "haiku", "opus", "inherit"],
+        "valid": ["sonnet", "haiku", "opus", "fable", "inherit"],
     },
     "effort": {
         "type": "string",
@@ -534,6 +570,7 @@ SKILL_FIELDS = {
     },
     "context": {"type": "string", "source": "anthropic", "tier": "standard", "valid": ["fork"]},
     "agent": {"type": "string", "source": "anthropic", "tier": "standard"},
+    "background": {"type": "boolean", "source": "anthropic", "tier": "standard", "default": True},
     "hooks": {"type": "object", "source": "anthropic", "tier": "standard"},
     "paths": {"type": "string|array", "source": "anthropic", "tier": "standard"},
     "shell": {"type": "string", "source": "anthropic", "tier": "standard", "valid": ["bash", "powershell"]},
@@ -577,12 +614,11 @@ SKILL_FIELDS = {
 AGENT_FIELDS = {
     "name": {"type": "string", "source": "anthropic"},
     "description": {"type": "string", "source": "anthropic"},
-    # model — documented aliases sonnet/opus/haiku/fable plus `inherit` (or a full
-    # model ID, an upstream latitude the IS contract intentionally narrows to the
-    # alias set). `fable` added 2026-06-17 to match the kernel agent-definition enum
+    # model — documented aliases sonnet/opus/haiku/fable plus `inherit`, or a full
+    # Claude model ID. `fable` added 2026-06-17 to match the kernel agent-definition enum
     # (@intentsolutions/core schemas/authoring/v1/upstream-base/agent-definition.v1.json)
     # and code.claude.com/docs/en/sub-agents § "Choose a model".
-    "model": {"type": "string", "source": "anthropic", "valid": ["sonnet", "haiku", "opus", "fable", "inherit"]},
+    "model": {"type": "string", "source": "anthropic"},
     "effort": {"type": "string", "source": "anthropic", "valid": ["low", "medium", "high", "xhigh", "max"]},
     "maxTurns": {"type": "integer", "source": "anthropic"},
     # tools — the kernel narrows the wire form to a YAML array of tool identifiers,
@@ -593,7 +629,10 @@ AGENT_FIELDS = {
     "tools": {"type": "string|array", "source": "anthropic"},
     "disallowedTools": {"type": "array", "source": "anthropic"},
     "skills": {"type": "array", "source": "anthropic"},
-    "mcpServers": {"type": "object", "source": "anthropic"},
+    # Current upstream form is a list whose entries are string references or
+    # one-key inline server definitions. Accept an object too for compatibility
+    # with existing IS standalone-agent templates that used an empty map.
+    "mcpServers": {"type": "object|array", "source": "anthropic"},
     "hooks": {"type": "object", "source": "anthropic"},
     "memory": {"type": "string", "source": "anthropic", "valid": ["user", "project", "local"]},
     "background": {"type": "boolean", "source": "anthropic"},
@@ -601,7 +640,7 @@ AGENT_FIELDS = {
     "permissionMode": {
         "type": "string",
         "source": "anthropic",
-        "valid": ["default", "acceptEdits", "auto", "dontAsk", "bypassPermissions", "plan"],
+        "valid": ["default", "acceptEdits", "auto", "dontAsk", "bypassPermissions", "plan", "manual"],
     },
     # Spec fields confirmed against code.claude.com/docs/en/sub-agents (snapshot at
     # ~/.claude/skills/agent-creator/references/anthropic-sub-agents-spec.md, captured
@@ -613,6 +652,9 @@ AGENT_FIELDS = {
         "valid": ["red", "blue", "green", "yellow", "purple", "orange", "pink", "cyan"],
     },
     "initialPrompt": {"type": "string", "source": "anthropic"},
+    # Added in Claude Code v2.1.248. Only cacheTtl is currently interpreted;
+    # other keys are ignored by Claude Code and therefore surfaced as warnings.
+    "experimental": {"type": "object", "source": "anthropic"},
     # === Intent Solutions enterprise tracking fields (required at every tier for agents) ===
     # Net-new IS-required tracking trio mirrored from the kernel agent-definition
     # is-overlay (@intentsolutions/core schemas/authoring/v1/is-overlay/agent-
@@ -643,10 +685,10 @@ AGENT_ALWAYS_REQUIRED = {"name", "description", "tools", "model", "color", "vers
 # NOT tier-gated).
 #
 # Two spec realities shape the set:
-#   1. Fields whose enum/semantics have NO neutral value (effort, maxTurns, memory,
-#      isolation, initialPrompt) cannot be blanked, so they are carried as a
-#      commented "upgrade levers" block in the body template — visible, not
-#      parser-required. See AGENT_UPGRADE_LEVERS.
+#   1. Optional tuning fields (effort, maxTurns, memory, isolation,
+#      initialPrompt, experimental) are carried as a commented "upgrade levers"
+#      block in the body template — visible, not parser-required. See
+#      AGENT_UPGRADE_LEVERS.
 #   2. hooks / mcpServers / permissionMode are configured at the PLUGIN level and
 #      ignored on a plugin agent, so they are required only on STANDALONE agents.
 #
@@ -654,12 +696,13 @@ AGENT_ALWAYS_REQUIRED = {"name", "description", "tools", "model", "color", "vers
 # disallowedTools ([]), skills ([]), background (false). => 11 fields on a plugin agent.
 AGENT_ENTERPRISE_LIVE_COMMON = {"disallowedTools", "skills", "background"}
 # Live-required for STANDALONE agents only (plugin agents don't support these):
-# hooks ({}), mcpServers ({}), permissionMode (default). => 14 fields total standalone.
+# hooks ({}), mcpServers ([]), permissionMode (default). => 14 live-required
+# fields total on a standalone agent.
 AGENT_STANDALONE_ONLY_REQUIRED = {"hooks", "mcpServers", "permissionMode"}
-# The "upgrade levers" carried as a commented block in every authored agent's body —
-# present so they're a standing menu of how to tune the agent, but not parser-required
-# (they have no valid empty value).
-AGENT_UPGRADE_LEVERS = ("effort", "maxTurns", "memory", "isolation", "initialPrompt")
+# The "upgrade levers" carried as a commented block in every authored agent's
+# body — present so they're a standing menu of how to tune the agent, but not
+# parser-required because defaults should remain authoritative until selected.
+AGENT_UPGRADE_LEVERS = ("effort", "maxTurns", "memory", "isolation", "initialPrompt", "experimental")
 
 # Fields NOT supported in plugin agents (silently ignored by runtime)
 AGENT_PLUGIN_RESTRICTED = {"hooks", "mcpServers", "permissionMode"}
@@ -1459,7 +1502,9 @@ def score_spec_compliance(path: Path, body: str, fm: dict) -> dict:
     opt_notes = []
     if "model" in fm:
         model = fm["model"]
-        if model not in ["inherit", "sonnet", "haiku", "opus"] and not str(model).startswith("claude-"):
+        if model not in ["inherit", "sonnet", "haiku", "opus", "fable"] and not re.fullmatch(
+            r"claude-[a-z0-9][a-z0-9.-]*", str(model)
+        ):
             opt_score -= 1
             opt_notes.append("invalid model value")
     if not opt_notes:
@@ -2112,9 +2157,9 @@ def validate_agent(path: Path) -> Dict[str, Any]:
     # floor (prefer kernel-derived, else inline mirror) plus the enterprise live
     # set: disallowedTools/skills/background for all agents, plus
     # hooks/mcpServers/permissionMode for STANDALONE agents (those three are
-    # plugin-level and runtime-ignored on a plugin agent). The five upgrade levers
-    # (AGENT_UPGRADE_LEVERS) have no valid empty value, so they live as a commented
-    # body block and are not parser-required.
+    # plugin-level and runtime-ignored on a plugin agent). The six optional
+    # upgrade levers (AGENT_UPGRADE_LEVERS) live as a commented body block and
+    # are not parser-required.
     required_set = set(load_kernel_agent_required() or AGENT_ALWAYS_REQUIRED) | AGENT_ENTERPRISE_LIVE_COMMON
     if not is_plugin_agent:
         required_set |= AGENT_STANDALONE_ONLY_REQUIRED
@@ -2182,6 +2227,15 @@ def validate_agent(path: Path) -> Dict[str, Any]:
         if len(desc) > 1536:
             warnings.append("[agent] 'description' should be 1536 characters or less (kernel disclosureMarkers cap)")
 
+    if "model" in fm and isinstance(fm["model"], str):
+        model = fm["model"].strip()
+        aliases = {"sonnet", "haiku", "opus", "fable", "inherit"}
+        if model not in aliases and not re.fullmatch(r"claude-[a-z0-9][a-z0-9.-]*", model):
+            errors.append(
+                "[agent] 'model' must be sonnet, haiku, opus, fable, inherit, "
+                "or a full Claude model ID such as claude-opus-5"
+            )
+
     if "maxTurns" in fm and isinstance(fm["maxTurns"], int):
         if fm["maxTurns"] < 1:
             errors.append("[agent] 'maxTurns' must be a positive integer")
@@ -2195,6 +2249,22 @@ def validate_agent(path: Path) -> Dict[str, Any]:
         for i, skill in enumerate(fm["skills"]):
             if not isinstance(skill, str):
                 errors.append(f"[agent] 'skills[{i}]' must be a string")
+
+    if "mcpServers" in fm and isinstance(fm["mcpServers"], list):
+        for i, server in enumerate(fm["mcpServers"]):
+            if isinstance(server, str):
+                continue
+            if not isinstance(server, dict) or len(server) != 1:
+                errors.append(
+                    f"[agent] 'mcpServers[{i}]' must be a server-name string or a one-key inline server definition"
+                )
+
+    if "experimental" in fm and isinstance(fm["experimental"], dict):
+        experimental = fm["experimental"]
+        if "cacheTtl" in experimental and experimental["cacheTtl"] not in {"5m", "1h"}:
+            errors.append("[agent] 'experimental.cacheTtl' must be one of: 5m, 1h")
+        for key in sorted(set(experimental) - {"cacheTtl"}):
+            warnings.append(f"[agent] Unknown experimental field: '{key}' (Claude Code currently ignores it)")
 
     # tags — required array; every entry must be a string (kernel is-overlay
     # agent-definition: tags = array of strings).
@@ -2676,11 +2746,15 @@ def validate_frontmatter(path: Path, fm: dict, tier: str = TIER_STANDARD) -> Tup
     # model field
     if "model" in fm:
         model = fm["model"]
-        valid_models = ["inherit", "sonnet", "haiku", "opus"]
-        if model not in valid_models and not str(model).startswith("claude-"):
+        valid_models = ["inherit", "sonnet", "haiku", "opus", "fable"]
+        if model not in valid_models and not re.fullmatch(r"claude-[a-z0-9][a-z0-9.-]*", str(model)):
             warnings.append(
-                f"[frontmatter] 'model' value '{model}' not standard (use: inherit, sonnet, haiku, opus, or claude-*)"
+                f"[frontmatter] 'model' value '{model}' not standard "
+                "(use: inherit, sonnet, haiku, opus, fable, or a full Claude model ID)"
             )
+
+    if "background" in fm and not isinstance(fm["background"], bool):
+        errors.append(f"[frontmatter] 'background' must be boolean, got: {type(fm['background']).__name__}")
 
     # disable-model-invocation field
     if "disable-model-invocation" in fm:
@@ -4603,7 +4677,7 @@ def marketplace_baseline_payload(
             "grade_A_plus_B": grade_a_plus_b,
             "grade_A_plus_B_pct": round((grade_a_plus_b / skill_files * 100) if skill_files else 0.0, 4),
         },
-        "rule_inventory": sorted({rule_id for _path, rule_id, _field in triples}),
+        "rule_inventory": sorted(DECLARED_MARKETPLACE_RULE_INVENTORY | {rule_id for _path, rule_id, _field in triples}),
         "entries": entries,
     }
 

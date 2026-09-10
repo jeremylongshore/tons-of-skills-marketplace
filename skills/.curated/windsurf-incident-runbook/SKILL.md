@@ -1,6 +1,6 @@
 ---
 name: windsurf-incident-runbook
-description: 'Execute Windsurf incident response when AI features fail or cause production
+description: 'Execute Devin Desktop (formerly Windsurf) incident response when AI features fail or cause production
   issues.
 
   Use when Cascade breaks code, Windsurf service is down, AI-generated code causes
@@ -13,7 +13,8 @@ description: 'Execute Windsurf incident response when AI features fail or cause 
 
   '
 allowed-tools: Read, Grep, Bash(git:*), Bash(curl:*)
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -35,6 +36,19 @@ Incident response procedures for Windsurf-related issues: Cascade service outage
 - Access to Windsurf dashboard and status page
 - Git access to affected repositories
 - Team communication channel (Slack, Teams)
+
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Grep` to locate relevant settings, rules, logs, or code without broad collection.
+- Use only the command-scoped `Bash` entries declared in frontmatter, with non-destructive checks before mutations.
+
+## Instructions
+
+1. Classify severity and assign an incident commander.
+2. Preserve evidence, stop unsafe automation, and check the official service status.
+3. Use the matching playbook below; prefer a reviewed revert through the protected delivery path.
+4. Validate recovery with production health signals and record follow-up owners.
 
 ## Severity Levels
 
@@ -63,7 +77,7 @@ Is Windsurf service itself down?
     │   4. Post-incident: update review policy
     │
     └─ NO: Is Cascade giving bad suggestions?
-        ├─ YES → Check .windsurfrules, start fresh Cascade session
+        ├─ YES → Check .devin/rules/project.md, start fresh Cascade session
         └─ NO → See windsurf-common-errors
 ```
 
@@ -76,14 +90,14 @@ set -euo pipefail
 # Revert the deployment
 git log --oneline -10  # Find the bad commit(s)
 
-# If tagged with [cascade]:
-git revert HEAD --no-edit  # Revert most recent commit
-git push origin main       # Deploy revert
+# On a dedicated incident branch created through the normal repository process:
+git revert HEAD --no-edit  # Revert the confirmed bad commit
+git status --short
 
 # If multiple Cascade commits:
 git revert --no-commit HEAD~3..HEAD  # Revert last 3 commits
 git commit -m "revert: undo cascade changes causing [issue]"
-git push origin main
+# Push the incident branch and use the protected emergency PR/deploy lane.
 ```
 
 ### Step 2: Identify Root Cause
@@ -155,9 +169,9 @@ Symptoms and fixes:
 
 Slow Cascade → Start fresh session, reduce workspace size
 No Supercomplete → Check status bar widget, verify enabled
-Wrong model → Check credit balance, switch to available model
+Wrong model → Check quota and policy state, then select an available model
 MCP disconnected → Restart MCP servers (Command Palette)
-Indexing stuck → Reset indexing (Command Palette > "Codeium: Reset Indexing")
+Indexing stuck → Download diagnostics, then use the current indexing reset control
 ```
 
 ## Post-Incident Actions
@@ -169,7 +183,7 @@ set -euo pipefail
 # Collect relevant data
 mkdir incident-$(date +%Y%m%d)
 git log --since="1 day ago" --stat > incident-$(date +%Y%m%d)/commits.txt
-cp .windsurfrules incident-$(date +%Y%m%d)/ 2>/dev/null || true
+cp .devin/rules/project.md incident-$(date +%Y%m%d)/ 2>/dev/null || true
 # See windsurf-debug-bundle for full diagnostic collection
 ```
 
@@ -194,15 +208,19 @@ cp .windsurfrules incident-$(date +%Y%m%d)/ 2>/dev/null || true
 ### What Went Wrong
 - [ ] AI-generated code not reviewed thoroughly
 - [ ] Missing tests for AI-modified code
-- [ ] .windsurfrules didn't prevent the bad pattern
+- [ ] .devin/rules/project.md didn't prevent the bad pattern
 - [ ] Cascade modified shared code without constraint
 
 ### Action Items
-- [ ] Update .windsurfrules to prevent this pattern
+- [ ] Update .devin/rules/project.md to prevent this pattern
 - [ ] Add test coverage for affected module
 - [ ] Update team Cascade usage policy
 - [ ] Add CI gate for AI-modified code
 ```
+
+## Output
+
+Maintain an incident record with severity, commander, timeline, affected revision, containment action, recovery evidence, customer impact, and follow-up owners. Never place credentials or sensitive source in the record, and never bypass protected-branch controls for speed.
 
 ## Error Handling
 
@@ -229,9 +247,10 @@ git log --all --oneline --since="7 days ago" | grep -i cascade
 
 ## Resources
 
+- [Focused first-party references](references/official-docs.md)
 - [Windsurf Status Page](https://status.windsurf.com)
-- [Windsurf GitHub Issues](https://github.com/Exafunction/codeium/issues)
+- [Windsurf GitHub Issues](https://windsurf.com/support)
 
-## Next Steps
+## Related Skill
 
-For data handling compliance, see `windsurf-data-handling`.
+Continue with `windsurf-data-handling` when the incident involves sensitive context, retention questions, diagnostic evidence, or regulated-data exposure.

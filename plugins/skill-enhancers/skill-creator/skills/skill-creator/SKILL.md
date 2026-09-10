@@ -15,8 +15,9 @@ description: 'Create production-grade agent skills aligned with the 2026 AgentSk
   capability.
 
   '
-allowed-tools: Read,Write,Edit,Glob,Grep,Bash(mkdir:*),Bash(chmod:*),Bash(python:*),Bash(claude:*),Task,AskUserQuestion
-version: 5.20.0
+argument-hint: "<create|validate|optimize> [skill-path]"
+allowed-tools: Read,Write,Edit,Glob,Grep,Bash(mkdir:*),Bash(chmod:*),Bash(python:*),Bash(claude:*),Agent,AskUserQuestion
+version: 5.22.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
@@ -24,6 +25,7 @@ tags:
 - validation
 - meta-tooling
 model: inherit
+effort: high
 compatibility: Designed for Claude Code
 ---
 # Skill Creator
@@ -82,7 +84,7 @@ Ask the user with AskUserQuestion:
 
 **Required Tools:**
 
-- Read, Write, Edit, Glob, Grep, WebFetch, WebSearch, Task, AskUserQuestion, Skill
+- Read, Write, Edit, Glob, Grep, WebFetch, WebSearch, Agent, AskUserQuestion, Skill
 - Bash must be scoped: `Bash(git:*)`, `Bash(npm:*)`, etc.
 - MCP tools: `ServerName:tool_name`
 
@@ -162,7 +164,7 @@ For detailed guidance on writing SKILL.md (frontmatter rules, description scorin
 
 Key rules:
 
-- `version`, `author`, `license`, `tags`, `compatible-with` are TOP-LEVEL fields (not nested under `metadata:`)
+- `version`, `author`, `license`, `compatibility`, and `tags` are top-level fields (not nested under `metadata:`)
 - Scope Bash: `Bash(git:*)` not bare `Bash`
 - Optional `disallowed-tools` denylist (schema 3.7.0+) must never overlap `allowed-tools` (validator ERROR)
 - Keep under 500 lines; offload to `references/` if longer

@@ -1,10 +1,10 @@
 ---
 name: thought-partner
 description: Collaborative thinking partner for exploring ideas, challenges, and decisions.
-  Use when the user says "think through", "explore", "brainstorm", "help me figure
-  out", asks open-ended questions about strategy or priorities, or needs to work through
-  a problem without a clear solution yet.
-version: 1.8.0
+  Use when the user needs to analyze ambiguity, test assumptions, or compare options.
+  Trigger with "think through", "explore", "brainstorm", "help me figure out",
+  or an open-ended strategy or priority question.
+version: 1.10.0
 author: Ahmed Khaled Mohamed <ahmd.khaled.a.mohamed@gmail.com>
 license: MIT
 allowed-tools: Read, Glob, Grep
@@ -13,8 +13,20 @@ tags:
 - productivity
 - thought-partner
 compatibility: Designed for Claude Code
+model: inherit
+effort: medium
+user-invocable: true
 ---
 # Thought Partner Mode
+
+## Overview
+
+Help the user turn an ambiguous problem into explicit assumptions, decision criteria, and a
+concrete next step. Use the
+[evidence and review checklist](references/evidence-and-review.md) whenever local context can
+resolve uncertainty.
+
+Use `Glob` to locate plans, `Grep` to surface assumptions, and `Read` to verify available context.
 
 ## Instructions
 
@@ -101,10 +113,6 @@ Before diagnosing, a few questions:
 4. How are deadlines set — collaboratively or handed down?
 
 What pattern do you see when you think about the last 3-4 missed deadlines?
-
-## Overview
-
-Collaborative thinking partner that helps product managers explore ideas, challenge assumptions, and work through ambiguous problems by asking clarifying questions and offering multiple perspectives.
 
 ## Prerequisites
 

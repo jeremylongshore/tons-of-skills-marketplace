@@ -150,6 +150,30 @@ compliance are welcome; structural changes to the IS rubric are not.
 
 ---
 
+## [4.1.0] — 2026-09-09 compatibility amendment
+
+### Added
+
+- Recognize the optional subagent `experimental` map documented by Anthropic in
+  Claude Code v2.1.248. Validate its current `cacheTtl` setting as `5m` or `1h`
+  and warn when a key would be ignored by Claude Code.
+
+### Changed
+
+- Accept `manual` as the documented alias for `permissionMode: default`.
+- Accept full Claude model IDs such as `claude-opus-5` in addition to the
+  `sonnet`, `opus`, `haiku`, `fable`, and `inherit` aliases.
+- Reconcile the `ccpi validate` compatibility path with the same contract. It
+  no longer requires retired `capabilities` metadata and now validates the
+  current model, effort, permission, MCP, and experimental forms.
+- Recognize the current skill `background` field and `fable`/full-model forms
+  documented in Claude Code's live skills frontmatter reference.
+
+This is a spec-compliance update under NON-NEGOTIABLE #6. It changes no required
+field set, tier boundary, or error-versus-warning policy. Primary source:
+[`code.claude.com/docs/en/sub-agents`](https://code.claude.com/docs/en/sub-agents),
+fetched 2026-09-09.
+
 ## [4.1.0] — 2026-08-19
 
 **Added** (blueprint 727 E4.3/E4.4): `--safety-metrics` mode — emits the

@@ -1,6 +1,6 @@
 ---
 name: windsurf-known-pitfalls
-description: 'Identify and avoid Windsurf anti-patterns and common mistakes.
+description: 'Identify and avoid Devin Desktop (formerly Windsurf) anti-patterns and common mistakes.
 
   Use when onboarding new developers to Windsurf, reviewing AI workflow practices,
 
@@ -12,7 +12,8 @@ description: 'Identify and avoid Windsurf anti-patterns and common mistakes.
 
   '
 allowed-tools: Read, Grep
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -27,7 +28,7 @@ compatibility: Designed for Claude Code
 
 ## Overview
 
-Real gotchas when using Windsurf IDE. Cascade, Supercomplete, workspace indexing, and the rules system each have behaviors that catch developers off guard. Learn from these before they catch you.
+Avoid common failure modes involving Cascade, Supercomplete, workspace indexing, Rules, review, checkpoints, secrets, and terminal auto-execution. Verify mutable limits and labels against current first-party documentation.
 
 ## Prerequisites
 
@@ -35,9 +36,14 @@ Real gotchas when using Windsurf IDE. Cascade, Supercomplete, workspace indexing
 - Understanding of Cascade vs Supercomplete
 - Awareness of workspace indexing behavior
 
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Grep` to locate relevant settings, rules, logs, or code without broad collection.
+
 ## Instructions
 
-### Pitfall 1: Using Cascade for Simple Tasks
+### Step 1: Avoid Using Cascade for Simple Tasks
 
 **The mistake:** Opening Cascade (Cmd+L) to complete a single line of code.
 
@@ -46,7 +52,7 @@ BAD: Opening Cascade to write "add a console.log"
 → Cascade spins up full agent context, reads multiple files = slow and expensive
 
 GOOD: Use Supercomplete (Tab) for inline completions
-→ Instant, free, no credits consumed
+→ Instant; verify the current model's usage label before assuming no quota charge
 
 RULE OF THUMB:
 - Single line / simple completion → Tab (Supercomplete)
@@ -54,7 +60,7 @@ RULE OF THUMB:
 - Multi-file task / complex reasoning → Cmd+L (Cascade)
 ```
 
-### Pitfall 2: Opening Monorepo Root in Windsurf
+### Step 2: Avoid Opening a Monorepo Root
 
 **The mistake:** Opening a 100K+ file monorepo as a single workspace.
 
@@ -70,7 +76,7 @@ A focused workspace with 5K files gives better suggestions than
 a bloated workspace with 100K files.
 ```
 
-### Pitfall 3: Vague Cascade Prompts
+### Step 3: Replace Vague Cascade Prompts
 
 **The mistake:** Giving Cascade broad, unscoped instructions.
 
@@ -89,7 +95,7 @@ endpoint. Validate email format, name length (2-50 chars), and role
 must be 'admin' or 'user'. Return 400 with field-level errors."
 ```
 
-### Pitfall 4: Accepting Changes Without Review
+### Step 4: Review Every Proposed Change
 
 **The mistake:** Accepting all Cascade changes without reading the diffs.
 
@@ -106,7 +112,7 @@ GOOD:
 5. Use revert button if any file looks wrong
 ```
 
-### Pitfall 5: Not Checkpointing Before Cascade
+### Step 5: Create a Checkpoint Before Cascade
 
 **The mistake:** Running Cascade on a dirty working tree without a Git checkpoint.
 
@@ -120,7 +126,7 @@ GOOD: git add -A && git commit -m "checkpoint: before cascade"
 → Easy revert: git checkout -- .
 ```
 
-### Pitfall 6: Conflicting AI Extensions
+### Step 6: Isolate Conflicting AI Extensions
 
 **The mistake:** Running GitHub Copilot alongside Windsurf.
 
@@ -139,27 +145,24 @@ FIX: Disable competing extensions
 Settings > Extensions > search "copilot" > Disable
 ```
 
-### Pitfall 7: Ignoring .windsurfrules Character Limits
+### Step 7: Respect Rule Character Limits
 
-**The mistake:** Writing a 20,000 character .windsurfrules file.
+**The mistake:** Writing an oversized `.devin/rules/project.md` file.
 
-```
 LIMITS:
-- .windsurfrules: 6,000 characters max
-- Global rules (global_rules.md): 6,000 characters max
-- Combined total: 12,000 characters max
-- Individual workspace rules (.windsurf/rules/*.md): 12,000 chars each
+
+- Workspace Rules under `.devin/rules/*.md`: 12,000 characters each (current documented per-rule limit)
+- Global rules (`global_rules.md`): 6,000 characters (current documented global limit)
 
 WHAT HAPPENS WHEN EXCEEDED:
-- Content is SILENTLY TRUNCATED
-- Global rules take priority over workspace rules
-- You won't get an error — just missing context
 
-FIX: Keep .windsurfrules concise (stack, patterns, don'ts)
-Move detailed rules to .windsurf/rules/ with trigger modes
-```
+- Oversized rules are outside the documented contract and may not load as intended
+- Re-check the live rules documentation before relying on boundary behavior
 
-### Pitfall 8: Long Cascade Conversations
+FIX: Keep .devin/rules/project.md concise (stack, patterns, don'ts)
+Move detailed rules to .devin/rules/ with trigger modes
+
+### Step 8: Bound Cascade Conversations
 
 **The mistake:** Using a single Cascade conversation for hours of work.
 
@@ -174,7 +177,7 @@ GOOD: One task per Cascade session
 → Use Memories for facts that should persist across sessions
 ```
 
-### Pitfall 9: Pasting Secrets into Cascade
+### Step 9: Keep Secrets Out of Cascade
 
 **The mistake:** Sharing API keys or credentials in Cascade chat.
 
@@ -187,7 +190,7 @@ message is 'Invalid API key'. What should I check?"
 → Cascade can help without seeing the actual secret
 ```
 
-### Pitfall 10: Not Using Turbo Mode Safely
+### Step 10: Configure Turbo Mode Safely
 
 **The mistake:** Enabling Turbo mode without configuring deny lists.
 
@@ -202,6 +205,10 @@ GOOD: Turbo mode ON + configured deny list
 CONFIGURE:
 Settings > cascadeCommandsDenyList > add destructive commands
 ```
+
+## Output
+
+Return a prioritized audit table with each observed pitfall, evidence location, risk, recommended correction, and verification step. Distinguish current Devin Desktop behavior from legacy Windsurf behavior so teams do not institutionalize obsolete settings.
 
 ## Error Handling
 
@@ -225,9 +232,10 @@ Settings > cascadeCommandsDenyList > add destructive commands
 ```bash
 set -euo pipefail
 echo "=== Pre-Cascade Checklist ==="
+readonly WORKSPACE_RULE_LIMIT=12000 # Current documented maximum for one workspace rule.
 echo "Git clean: $(git status --porcelain | wc -l | xargs) uncommitted files"
 echo "On branch: $(git branch --show-current)"
-echo "Rules: $(wc -c < .windsurfrules 2>/dev/null || echo 0) chars (max 6000)"
+echo "Rules: $(wc -c < .devin/rules/project.md 2>/dev/null || echo 0) chars (max $WORKSPACE_RULE_LIMIT)"
 echo "Conflicting exts: $(windsurf --list-extensions 2>/dev/null | grep -ci 'copilot\|tabnine\|cody' || echo 0)"
 ```
 
@@ -247,10 +255,11 @@ imports. Run tests after. Don't change public API signatures."
 
 ## Resources
 
-- [Windsurf Documentation](https://docs.windsurf.com)
-- [Cascade Best Practices](https://docs.windsurf.com/windsurf/cascade/cascade)
+- [Focused first-party references](references/official-docs.md)
+- [Windsurf Documentation](https://docs.devin.ai/desktop)
+- [Cascade Best Practices](https://docs.devin.ai/desktop/cascade/cascade)
 - [Windsurf Rules Directory](https://windsurf.com/editor/directory)
 
-## Next Steps
+## Related Skills
 
-Start with `windsurf-install-auth` if you're new, or `windsurf-reference-architecture` for team setup.
+Start with `windsurf-install-auth` for a new workstation, or use `windsurf-reference-architecture` to establish a reviewed team configuration baseline.

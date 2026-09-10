@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/skill-creator",
-  "version": "5.0.7",
+  "version": "5.0.8",
   "description": "Create and validate production-grade agent skills with 100-point marketplace grading",
   "keywords": [
     "skill-creation",

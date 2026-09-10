@@ -222,7 +222,7 @@ function curatedBySource(root) {
     if (
       typeof row?.source_path !== 'string' ||
       typeof row?.curated_name !== 'string' ||
-      !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(row.curated_name) ||
+      !/^[a-z0-9]+(?:-[a-z0-9]+)*(?:__[a-z0-9]+(?:-[a-z0-9]+)*)?$/.test(row.curated_name) ||
       path.posix.normalize(row.source_path) !== row.source_path ||
       path.posix.isAbsolute(row.source_path) ||
       row.source_path === '..' ||

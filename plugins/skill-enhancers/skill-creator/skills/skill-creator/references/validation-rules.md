@@ -31,7 +31,7 @@ Everything in Standard, plus ALL 8 core fields REQUIRED as hard ERRORS:
 | 4 | `version` | Semver format (`X.Y.Z`) — top-level, NOT under metadata |
 | 5 | `author` | Non-empty string, email recommended (`Name <email>`) — top-level, NOT under metadata |
 | 6 | `license` | Non-empty string, SPDX identifier — top-level |
-| 7 | `compatible-with` | Non-empty, values from known platforms (`claude-code`, `cursor`, `codex`, `openclaw`, `windsurf`, `cline`) |
+| 7 | `compatibility` | Non-empty environment requirements, maximum 500 chars |
 | 8 | `tags` | Non-empty array of discovery tags |
 
 Conditional fields (required when relevant):
@@ -81,10 +81,8 @@ Any field not in the Anthropic spec is an ERROR, not a warning. No "tolerated" o
 | `activation_triggers` | Invented — not in Anthropic spec |
 | `type` | Invented — not in Anthropic spec |
 | `category` | Invented — not in Anthropic spec |
-| `compatibility` | Not Anthropic — remove or move to description prose |
-| `metadata` | Not Anthropic — move nested fields to top-level |
-| `when_to_use` | Deprecated — move content to `description` |
 | `mode` | Deprecated — use `disable-model-invocation` |
+| `compatible-with` | Deprecated IS extension — replace with `compatibility` prose |
 
 ---
 
@@ -101,41 +99,63 @@ allowed-tools: "Read,Write,Edit,Bash(git:*)"
 version: 1.0.0
 author: Name <email>
 license: MIT
-compatible-with: claude-code, cursor
+compatibility: Requires Claude Code 2.1.248+.
 tags: [devops, ci]
 
 # Optional (Anthropic spec)
+when_to_use: Use after changing a validation contract.
 disallowed-tools: "Bash(rm:*)"   # Schema 3.7.0+ denylist (kebab-case on skills) — overlap with allowed-tools = ERROR
-model: sonnet                     # sonnet | haiku | opus | inherit
-effort: low                      # low | medium | high | max (max requires Opus 4.6)
+model: sonnet                     # sonnet | haiku | opus | fable | inherit | full model ID
+effort: low                      # low | medium | high | xhigh | max; model-dependent
 context: fork                    # Must be "fork" if present
 agent: general-purpose           # Non-empty string; requires context: fork
+background: false                # With context: fork, wait for result
 argument-hint: "<file-path>"     # Autocomplete hint for $ARGUMENTS
+arguments: [file-path]
 user-invocable: false            # Boolean — hide from / menu
 disable-model-invocation: true   # Boolean — prevent auto-activation
+paths: ["packages/**"]
+shell: bash
 hooks:                           # Valid object with known event keys
   pre-tool-call: ...
+metadata:
+  category: development
 ```
 
-### Agent Fields (Anthropic 2026 — 14 total)
+### Agent Fields (Anthropic 2026 — 17 upstream fields)
 
 ```yaml
-# Required
+# Upstream required
 name: agent-name
-description: "20-200 char description"
+description: "Concise 20-1536 char description"
 
-# Optional (Anthropic spec)
+# IS marketplace-required overlay
+tools: [Read, Glob, Grep]
 model: sonnet
-effort: low | medium | high
-maxTurns: 10
-disallowedTools: ["mcp__servername"]
-permissionMode: default
+color: blue
+version: 1.0.0
+author: "Name <email@example.com>"
+tags: [validation]
+disallowedTools: []
+skills: []
+background: false
 
-# Valid but less common
-capabilities: []                  # NOTE: valid for agents ONLY, not skills
+# Optional tuning
+# effort: high                    # low | medium | high | xhigh | max
+# maxTurns: 10
+# memory: project
+# isolation: worktree
+# initialPrompt: "Start validation."
+# experimental:
+#   cacheTtl: 5m
+
+# Standalone IS fields; omit in plugin agents
+# hooks: {}
+# mcpServers: []
+# permissionMode: default
 ```
 
-**Plugin agents CANNOT use** (WARN if present):
+**Claude Code ignores these on plugin agents** (WARN if present):
 
 - `hooks` — plugin-level only, not agent-level
 - `mcpServers` — plugin-level only
@@ -143,7 +163,8 @@ capabilities: []                  # NOTE: valid for agents ONLY, not skills
 
 **Invalid for agents** (ERROR):
 
-- `expertise_level`, `activation_priority`, `color`, `activation_triggers`, `type`, `category` — invented, not Anthropic
+- `capabilities`, `expertise_level`, `activation_priority`, `activation_triggers`,
+  `type`, and `category` — invented, not Anthropic. `color` is valid.
 
 ---
 
@@ -227,9 +248,10 @@ A component is flagged as a "stub" (ERROR at enterprise tier, WARNING at standar
 ### Valid Tool Names
 
 ```
-Read, Write, Edit, Bash, Glob, Grep,
-WebFetch, WebSearch, Task, NotebookEdit,
-AskUserQuestion, Skill
+Common built-ins: Read, Write, Edit, Bash, Glob, Grep,
+WebFetch, WebSearch, Agent, NotebookEdit,
+AskUserQuestion, Skill. Use the validator's VALID_TOOLS registry for the
+current complete set.
 ```
 
 Plus MCP tools in `ServerName:tool_name` format.
@@ -273,7 +295,7 @@ Validate each SKILL.md against the active tier (standard or enterprise). Each sk
 
 ### 3. Walk `agents/*.md`
 
-Validate each agent against the 14-field Anthropic agent schema. Flag plugin agents using standalone-only fields (`permissionMode`).
+Validate each agent against the 17-field Anthropic agent schema. Flag plugin agents using runtime-ignored fields (`hooks`, `mcpServers`, or `permissionMode`).
 
 ### 4. Walk `commands/*.md`
 
@@ -301,19 +323,22 @@ Plugin score = weighted average of component scores:
 
 ## Agent Validation Rules
 
-Anthropic defines 14 valid fields for agents. `name` and `description` are REQUIRED (both tiers).
+Anthropic defines 17 valid fields for agents. `name` and `description` are the
+upstream-required pair; the IS marketplace overlay requires its documented
+enterprise field set as well.
 
 ### Valid Agent Fields
 
 | Field | Required | Validation |
 |-------|----------|-----------|
 | `name` | Yes | 1-64 chars, kebab-case |
-| `description` | Yes | 20-200 chars, specific to agent's specialty |
-| `model` | No | `sonnet`, `haiku`, `opus`, or valid model ID |
-| `effort` | No | `low`, `medium`, `high` |
+| `description` | Yes | 20-1536 chars under the IS contract; keep it specific and concise |
+| `model` | No | `sonnet`, `haiku`, `opus`, `fable`, `inherit`, or full Claude model ID |
+| `effort` | No | `low`, `medium`, `high`, `xhigh`, `max` |
 | `maxTurns` | No | Positive integer, controls autonomous iteration |
 | `disallowedTools` | No | Array of tool names (denylist — camelCase on agents; skills use kebab-case `disallowed-tools`) |
-| `permissionMode` | No | `default` — standalone agents only, NOT plugin agents |
+| `permissionMode` | No | Includes `manual` as a `default` alias; ignored on plugin agents |
+| `experimental` | No | Object; `cacheTtl` accepts `5m` or `1h` |
 
 ### Context-Aware Rules
 
@@ -331,7 +356,8 @@ Anthropic defines 14 valid fields for agents. `name` and `description` are REQUI
 
 These are invented fields that appear in no Anthropic documentation:
 
-`capabilities` (valid for agents only per spec, but flag if used as a freeform list), `expertise_level`, `activation_priority`, `color`, `activation_triggers`, `type`, `category`
+`capabilities`, `expertise_level`, `activation_priority`, `activation_triggers`,
+`type`, and `category`. `color` is a valid upstream field.
 
 ---
 

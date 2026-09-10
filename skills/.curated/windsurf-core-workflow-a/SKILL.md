@@ -1,6 +1,6 @@
 ---
 name: windsurf-core-workflow-a
-description: 'Execute Windsurf''s primary workflow: Cascade Write mode for multi-file
+description: 'Execute Devin Desktop''s primary workflow: Cascade Code mode for multi-file
   agentic coding.
 
   Use when building features, refactoring across files, or performing complex code
@@ -8,32 +8,41 @@ description: 'Execute Windsurf''s primary workflow: Cascade Write mode for multi
 
   Trigger with phrases like "windsurf cascade write", "windsurf agentic coding",
 
-  "windsurf multi-file edit", "cascade write mode", "windsurf build feature".
+  "windsurf multi-file edit", "cascade code mode", "windsurf build feature".
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
 - windsurf
 - cascade
-- write-mode
+- code-mode
 - agentic
 compatibility: Designed for Claude Code
 ---
-# Windsurf Core Workflow A — Cascade Write Mode
+# Windsurf Core Workflow A — Cascade Code Mode
 
 ## Overview
 
-Cascade Write mode is Windsurf's primary productivity tool. It acts as an autonomous agent that can create files, modify code across multiple files, run terminal commands, install dependencies, and debug errors -- all from a single natural language prompt. This is the "money-path" workflow for Windsurf users.
+Devin Desktop is the current name for Windsurf. Cascade Code mode is its agentic editing workflow: it can create and modify files, call tools, run approved terminal commands, inspect diagnostics, and iterate on failures.
 
 ## Prerequisites
 
-- Windsurf IDE with Cascade enabled
-- `.windsurfrules` configured (see `windsurf-sdk-patterns`)
+- Devin Desktop with Cascade enabled
+- `.devin/rules/project.md` configured (see `windsurf-sdk-patterns`)
 - Git initialized with clean working tree
+
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Grep` to locate relevant settings, rules, logs, or code without broad collection.
+- Use `Write` only for a new artifact the user requested; never write credentials or unreviewed production configuration.
+- Use `Edit` for bounded, reviewable changes and preserve unrelated user work.
+- Use only the command-scoped `Bash` entries declared in frontmatter, with non-destructive checks before mutations.
 
 ## Instructions
 
@@ -47,9 +56,9 @@ git add -A && git commit -m "checkpoint: before cascade session"
 git stash push -m "pre-cascade stash"
 ```
 
-### Step 2: Open Cascade in Write Mode
+### Step 2: Open Cascade in Code Mode
 
-Press **Cmd/Ctrl+L** to open the Cascade panel. Ensure "Write" mode is selected (not "Chat"). Write mode allows Cascade to:
+Open the Cascade panel and select **Code** rather than **Chat**. Keyboard shortcuts can vary by imported profile, so use the visible command or confirm the current binding before documenting it.
 
 - Create and modify files
 - Run terminal commands (with Turbo or per-command approval)
@@ -85,7 +94,7 @@ Cascade output flow:
 6. Reports results
 ```
 
-**Review each file diff in the Cascade output.** You can:
+**Review each file diff in the Cascade output.** Then:
 
 - **Revert** individual steps by hovering over a step and clicking the revert arrow
 - **Revert all** to return to the state before the Cascade session
@@ -124,8 +133,8 @@ Cascade reads the error, understands its own recent changes, and applies targete
 | Cascade modifies wrong files | Vague prompt | Specify exact file paths and constraints |
 | Changes break existing tests | No constraint on existing code | Add "don't modify existing files" to prompt |
 | Cascade loops on error | Insufficient context | Paste the full error message, reference relevant files |
-| Write mode not available | On Free plan with no credits | Check credit balance at windsurf.com/account |
-| Cascade ignores .windsurfrules | Rules file > 6,000 chars | Trim rules or split into workspace rules |
+| Code mode is unavailable | Account, policy, or quota restriction | Check the visible account and organization state |
+| Cascade ignores `.devin/rules/project.md` | Wrong path, trigger, or file over 12,000 characters | Validate frontmatter and split the workspace rule |
 
 ## Examples
 
@@ -152,9 +161,10 @@ Update all imports across the codebase. Run tests after."
 
 ## Resources
 
-- [Cascade Write Mode](https://docs.windsurf.com/windsurf/cascade/cascade)
-- [Cascade Checkpoints](https://docs.windsurf.com/windsurf/cascade/cascade)
+- [Focused first-party references](references/official-docs.md)
+- [Cascade Code and Chat modes](https://docs.devin.ai/desktop/cascade/cascade)
+- [Cascade Checkpoints](https://docs.devin.ai/desktop/cascade/cascade)
 
-## Next Steps
+## Related Skill
 
-For configuration management workflow, see `windsurf-core-workflow-b`.
+Continue with `windsurf-core-workflow-b` to convert repeated session guidance into the appropriate Rules, Skills, Workflows, or Memories layer.

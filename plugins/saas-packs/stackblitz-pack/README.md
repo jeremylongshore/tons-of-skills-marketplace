@@ -1,10 +1,6 @@
-# StackBlitz Skill Pack
+# StackBlitz Operator Pack
 
-> 10 production-ready Claude Code skills for StackBlitz WebContainers -- real browser-based Node.js runtime code.
-
-## What This Is
-
-A complete skill pack for building browser-based development environments with StackBlitz WebContainers. Every skill contains real WebContainer API code: `WebContainer.boot()`, `mount()`, `spawn()`, `fs.readFile()`, jsh shell integration, and StackBlitz SDK embedding. No placeholder imports, no fake patterns.
+Ten production-oriented skills for StackBlitz WebContainers and JavaScript SDK integrations. The pack covers integration preflight, lifecycle ownership, controlled runtime verification, browser testing, custom experience architecture, embeds, evidence-led troubleshooting, privacy-safe diagnostics, measured capacity, and security review.
 
 ## Installation
 
@@ -14,30 +10,22 @@ A complete skill pack for building browser-based development environments with S
 
 ## Skills
 
-### Skills (S01-S10)
+| Skill | Operator outcome |
+|---|---|
+| `stackblitz-install-auth` | Reconcile packages, licensing, commercial API keys, organization auth, and isolation headers before boot. |
+| `stackblitz-hello-world` | Prove the runtime with a synthetic single-boot mount/process/preview smoke test. |
+| `stackblitz-local-dev-loop` | Split pure unit coverage from real-browser isolation, HMR, and cleanup tests. |
+| `stackblitz-sdk-patterns` | Centralize filesystem, process, event, preview, and teardown behavior in a lifecycle adapter. |
+| `stackblitz-core-workflow-a` | Architect a custom browser development experience with explicit trust and persistence boundaries. |
+| `stackblitz-core-workflow-b` | Ship an accessible SDK embed with a supported source method, load policy, and fallback. |
+| `stackblitz-common-errors` | Triage browser, header, lifecycle, install, process, and preview failures from evidence. |
+| `stackblitz-debug-bundle` | Produce a bounded, redacted, reviewable incident artifact. |
+| `stackblitz-rate-limits` | Replace invented quotas with measured application capacity budgets and graceful degradation. |
+| `stackblitz-security-basics` | Threat-model code, dependencies, filesystem, network, preview, secrets, auth, and persistence. |
 
-| # | Skill | What It Does |
-|---|-------|-------------|
-| S01 | `stackblitz-install-auth` | Install `@webcontainer/api`, configure COOP/COEP headers |
-| S02 | `stackblitz-hello-world` | Boot WebContainer, mount files, npm install, start dev server |
-| S03 | `stackblitz-local-dev-loop` | Vite dev setup with cross-origin headers, Vitest for file tree |
-| S04 | `stackblitz-sdk-patterns` | Singleton boot, FS CRUD, process management, jsh shell, SDK embedding |
-| S05 | `stackblitz-core-workflow-a` | Build browser IDE: file tree, Monaco editor, terminal, live preview |
-| S06 | `stackblitz-core-workflow-b` | Embed projects from GitHub, inline code, URL-based iframes |
-| S07 | `stackblitz-common-errors` | Fix SharedArrayBuffer, COOP/COEP, boot failures, npm install |
-| S08 | `stackblitz-debug-bundle` | Diagnose boot state, FS health, Node.js version, browser support |
-| S09 | `stackblitz-rate-limits` | Memory limits, FS size, process count, native addon restrictions |
-| S10 | `stackblitz-security-basics` | Browser sandbox model, input validation, CSP headers |
+## Authority and Safety
 
-## Key Concepts Covered
-
-- **WebContainer.boot()**: Single instance per page, runs Node.js in browser
-- **mount()**: Load FileSystemTree into virtual FS (ephemeral, in-memory)
-- **spawn()**: Run npm, node, jsh, or any Node.js CLI tool
-- **server-ready event**: Detect when spawned server is listening
-- **jsh**: Built-in shell for interactive terminal (pairs with xterm.js)
-- **COOP/COEP headers**: Required for SharedArrayBuffer (cross-origin isolation)
-- **StackBlitz SDK**: Embed interactive editors from GitHub repos or inline code
+Each skill links to checked first-party StackBlitz and WebContainers documentation. Installed dependency types and repository configuration govern implementation details. The workflows do not assume that browser containment makes user code trustworthy, do not mount secrets into user-controlled projects, and do not claim undocumented universal resource quotas.
 
 ## License
 

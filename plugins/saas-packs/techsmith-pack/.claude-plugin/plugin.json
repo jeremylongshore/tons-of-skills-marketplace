@@ -1,7 +1,7 @@
 {
   "name": "techsmith-pack",
-  "version": "1.3.0",
-  "description": "Claude Code skill pack for TechSmith (18 skills)",
+  "version": "1.6.0",
+  "description": "18 source-grounded operator skills for safe Snagit and Camtasia desktop automation",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,9 @@
   "license": "MIT",
   "keywords": [
     "techsmith",
-    "techsmith",
-    "saas",
-    "sdk",
-    "integration"
+    "snagit",
+    "camtasia",
+    "desktop-automation",
+    "media-operations"
   ]
 }

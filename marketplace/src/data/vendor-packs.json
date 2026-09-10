@@ -281,25 +281,6 @@
       "dashboardUrl": "https://app.clay.com"
     },
     {
-      "id": "replit",
-      "name": "Replit",
-      "tier": "flagship+",
-      "skillCount": 30,
-      "description": "Cloud development platform with AI coding assistant and deployments",
-      "icon": "terminal",
-      "color": "#F26207",
-      "installCommand": "/plugin install replit-pack@claude-code-plugins-plus",
-      "categories": [
-        { "name": "Onboarding & Foundations", "skills": ["replit-install-auth", "replit-hello-world", "replit-local-dev-loop", "replit-sdk-patterns", "replit-core-workflow-a", "replit-core-workflow-b"] },
-        { "name": "Operations & Debugging", "skills": ["replit-common-errors", "replit-debug-bundle", "replit-rate-limits", "replit-security-basics", "replit-prod-checklist", "replit-upgrade-migration"] },
-        { "name": "CI/CD & Deployment", "skills": ["replit-ci-integration", "replit-deploy-integration", "replit-webhooks-events", "replit-performance-tuning", "replit-cost-tuning", "replit-reference-architecture"] },
-        { "name": "Enterprise & Compliance", "skills": ["replit-multi-env-setup", "replit-observability", "replit-incident-runbook", "replit-data-handling", "replit-enterprise-rbac", "replit-migration-deep-dive"] },
-        { "name": "Advanced Patterns", "skills": ["replit-advanced-troubleshooting", "replit-load-scale", "replit-reliability-patterns", "replit-policy-guardrails", "replit-architecture-variants", "replit-known-pitfalls"] }
-      ],
-      "docsUrl": "https://docs.replit.com",
-      "dashboardUrl": "https://replit.com/~"
-    },
-    {
       "id": "exa",
       "name": "Exa",
       "tier": "flagship+",

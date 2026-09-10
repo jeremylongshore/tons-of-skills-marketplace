@@ -1,6 +1,6 @@
 ---
 name: windsurf-common-errors
-description: 'Diagnose and fix common Windsurf IDE and Cascade errors.
+description: 'Diagnose and fix common Devin Desktop (formerly Windsurf) IDE and Cascade errors.
 
   Use when Cascade stops working, Supercomplete fails, indexing hangs,
 
@@ -12,7 +12,8 @@ description: 'Diagnose and fix common Windsurf IDE and Cascade errors.
 
   '
 allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -33,6 +34,18 @@ Quick reference for the most common Windsurf IDE errors and their solutions. Cov
 - Windsurf installed and previously working
 - Access to Windsurf settings and logs
 
+Reproduce the issue with a harmless workspace before changing shared configuration or collecting diagnostic data.
+
+## Authentication
+
+The public status page requires no authentication. Account, organization, and MCP diagnostics use the operator's existing Devin Desktop session plus provider-specific OAuth or environment-backed credentials; redact all values from logs and support bundles.
+
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Grep` to locate relevant settings, rules, logs, or code without broad collection.
+- Use only the command-scoped `Bash` entries declared in frontmatter, with non-destructive checks before mutations.
+
 ## Instructions
 
 ### Error 1: Cascade Not Responding
@@ -43,7 +56,7 @@ Quick reference for the most common Windsurf IDE errors and their solutions. Cov
 
 1. Check internet connection -- Cascade requires cloud access
 2. Check Windsurf status: https://status.windsurf.com
-3. Check credit balance: Windsurf widget (status bar) > Account
+3. Check the usage meter and account state in Devin Desktop
 4. Restart Cascade: Command Palette > "Cascade: Restart"
 5. Restart Windsurf: Cmd/Ctrl+Shift+P > "Reload Window"
 
@@ -72,7 +85,7 @@ Quick reference for the most common Windsurf IDE errors and their solutions. Cov
 
 **Solutions:**
 
-1. Check workspace size: Windsurf struggles with 100K+ files without ignore rules
+1. Compare workspace file count and available memory with the current indexing guidance
 2. Create or update `.codeiumignore`:
 
 ```gitignore
@@ -90,7 +103,7 @@ __pycache__/
 ```
 
 1. Open a subdirectory instead of monorepo root
-2. Command Palette > "Codeium: Reset Indexing"
+2. Use the current indexing controls in Devin Desktop settings; preserve diagnostics before resetting
 
 ### Error 4: Extension Conflicts
 
@@ -119,20 +132,20 @@ Extensions sidebar > Search "copilot" > Disable
 
 1. Be specific in prompts: name exact file paths
 2. Add constraints: "Don't modify any files except src/services/auth.ts"
-3. Use `.windsurfignore` to protect sensitive directories
+3. Use `.codeiumignore` to exclude sensitive directories from Cascade context
 4. Review diffs before accepting -- use the Revert button per step
 5. Always commit before Cascade sessions for safe rollback
 
-### Error 6: "Model not available" or Credit Exhausted
+### Error 6: "Model not available" or Quota Exhausted
 
-**Symptoms:** "You've used all your credits" or specific model unavailable.
+**Symptoms:** The usage meter shows exhausted daily or weekly quota, or a selected model is unavailable.
 
 **Solutions:**
 
-- Free plan: 25 credits/month. Switch to SWE-1 Lite (unlimited)
-- Pro plan: 500 credits/month. Buy additional credits at windsurf.com/account
-- Switch model: Use the model dropdown in Cascade to select a different model
-- Check credit usage: Windsurf widget > Account > Usage
+- Check the displayed daily and weekly reset times.
+- Use a currently available free or lower-cost SWE-family model for routine work.
+- On eligible paid plans, use extra usage only within an approved spending limit.
+- Confirm the current plan at `windsurf.com/subscription/manage-plan`.
 
 ### Error 7: MCP Server Not Connecting
 
@@ -158,13 +171,17 @@ Extensions sidebar > Search "copilot" > Disable
 4. Convert key decisions to Memories: "Remember that we're using JWT, not sessions"
 5. For long tasks, use Workflows instead of multi-turn conversations
 
+## Output
+
+Return the observed symptom, likely cause, evidence gathered, smallest corrective action, and a verification step. If the issue remains unresolved, include a sanitized reproduction and the exact support channel or documentation page to use next.
+
 ## Error Handling
 
 | Issue | Quick Fix | Root Cause |
 |-------|-----------|------------|
 | No AI features | Check auth in status bar | Token expired, re-sign-in |
 | Cascade slow | Add `.codeiumignore` | Indexing too many files |
-| Wrong suggestions | Update `.windsurfrules` | Missing project context |
+| Wrong suggestions | Update `.devin/rules/project.md` | Missing project context |
 | Preview broken | Close and re-open Preview | Dev server disconnected |
 | Terminal errors | Cmd/Ctrl+Shift+. | Auto-debug via Cascade |
 
@@ -184,17 +201,18 @@ ls ~/.codeium/
 
 ```
 Command Palette (Cmd/Ctrl+Shift+P):
-1. "Codeium: Reset Indexing"
+1. Download diagnostics, then use the current indexing reset control.
 2. "Cascade: Restart"
 3. "Developer: Reload Window"
 ```
 
 ## Resources
 
+- [Focused first-party references](references/official-docs.md)
 - [Windsurf Status Page](https://status.windsurf.com)
-- [Windsurf GitHub Issues](https://github.com/Exafunction/codeium/issues)
-- [Windsurf Documentation](https://docs.windsurf.com)
+- [Windsurf GitHub Issues](https://windsurf.com/support)
+- [Windsurf Documentation](https://docs.devin.ai/desktop)
 
-## Next Steps
+## Related Skill
 
-For comprehensive debugging, see `windsurf-debug-bundle`.
+Continue with `windsurf-debug-bundle` when the quick fixes do not resolve the issue and support-ready evidence must be collected safely.

@@ -1,104 +1,85 @@
 ---
 name: together-common-errors
-description: 'Together AI common errors for inference, fine-tuning, and model deployment.
-
-  Use when working with Together AI''s OpenAI-compatible API.
-
-  Trigger: "together common errors".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(pip:*), Grep
-version: 1.7.0
-license: MIT
+description: >-
+  Analyze and diagnose Together AI authentication, billing, request, model, throttling, overload, batch, fine-tuning, and endpoint failures from redacted evidence. Use when a Together integration fails or behaves inconsistently. Trigger with "Together error", "Together 429", or "Together model not found".
+argument-hint: "[repository-path] [redacted-error-or-job-id]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ai
-- inference
-- together
-compatibility: Designed for Claude Code
+- together-ai
+- troubleshooting
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live diagnosis may require network access and authorized Together project access
 ---
-# Together AI Common Errors
+# Together AI Error Diagnosis
 
 ## Overview
 
-Together AI provides OpenAI-compatible inference, fine-tuning, and batch processing across 100+ open-source models (Llama, Mixtral, Qwen, FLUX). Common errors include model-not-available failures when requesting deprecated or gated models, token limit violations that differ per model architecture, and fine-tune job failures from dataset formatting issues. The API is compatible with any OpenAI client library at `base_url = 'https://api.together.xyz/v1'`. Model IDs use the full namespace format (e.g., `meta-llama/Meta-Llama-3.1-8B-Instruct`) and must match exactly. This reference covers inference, fine-tuning, and deployment errors.
+This skill classifies failures by status and workload state, preserves evidence, and avoids turning permanent errors into costly retry storms.
 
-## Error Reference
+## Prerequisites
 
-| Code | Message | Cause | Fix |
-|------|---------|-------|-----|
-| `401` | `Unauthorized` | Invalid or missing `TOGETHER_API_KEY` | Verify key at api.together.xyz > Settings |
-| `400` | `Model not found` | Wrong model ID or model deprecated | Use `client.models.list()` to get valid model IDs |
-| `400` | `Token limit exceeded` | Input + max_tokens exceeds model context | Reduce input length or lower `max_tokens` parameter |
-| `400` | `Invalid fine-tune dataset` | JSONL format errors or missing required fields | Each line must be valid JSON with `messages` array |
-| `402` | `Insufficient credits` | Account balance depleted | Add credits at api.together.xyz > Billing |
-| `404` | `Fine-tune job not found` | Invalid job ID or job expired | List active jobs with `client.fine_tuning.list()` |
-| `429` | `Rate limit exceeded` | Too many concurrent requests | Implement backoff; use batch API for 50% cost reduction |
-| `500` | `Model overloaded` | High demand on specific model | Retry with backoff; try alternative model of same family |
+- Redacted status, response body, headers, SDK version, and request shape
+- The current model ID, endpoint type, and Together project alias
+- Batch, fine-tune, endpoint, file, or deployment IDs when applicable
+- The caller's timeout and retry policy
 
-## Error Handler
+## Tool Discipline
 
-```typescript
-interface TogetherError {
-  code: number;
-  message: string;
-  category: "auth" | "rate_limit" | "validation" | "billing";
-}
+Use `Read`, `Glob`, and `Grep` to inspect the adapter, logs, retry code, and manifests. Use `WebFetch` for current error, model, and lifecycle documentation. Use `Write` or `Edit` only for the approved fix or regression test after the failure class is proven.
 
-function classifyTogetherError(status: number, body: string): TogetherError {
-  if (status === 401) {
-    return { code: 401, message: body, category: "auth" };
-  }
-  if (status === 402) {
-    return { code: 402, message: body, category: "billing" };
-  }
-  if (status === 429) {
-    return { code: 429, message: "Rate limit exceeded", category: "rate_limit" };
-  }
-  return { code: status, message: body, category: "validation" };
-}
-```
+## Current Contract
 
-## Debugging Guide
+- `400` means request/schema trouble; `401` authentication; `402` spend limit; `404` endpoint/model; `429` throttling; `500`/`503` server or overload.
+- Context overflow can surface as `403` in Together's error table; inspect the body rather than classifying by status alone.
+- Model availability and redirects change. Resolve `404` against the current catalog and deprecation page.
+- A completed asynchronous job can still contain line-level failures; inspect its error artifact.
 
-### Authentication Errors
+## Authentication
 
-Together uses Bearer token authentication. Pass `TOGETHER_API_KEY` via `Authorization: Bearer` header or set it in the client constructor. Keys do not expire but can be revoked. If using the OpenAI client library, set `base_url='https://api.together.xyz/v1'` and pass the Together key as `api_key`.
+Together APIs use a project-scoped Bearer key from `TOGETHER_API_KEY`. Verify presence and project routing without echoing the key. Treat a leaked header as a credential incident, not merely a request bug.
 
-### Rate Limit Errors
+## Instructions
 
-Rate limits vary by plan tier and are enforced per-key. Free tier allows 5 requests/second; paid tiers scale higher. Use the batch inference API (`/v1/batch`) for non-real-time workloads at 50% cost reduction. Check `X-RateLimit-Remaining` header to monitor quota.
+1. Reproduce once with a sanitized minimal request and capture status, body, useful headers, latency, and SDK version.
+2. Classify the error as credential, billing, request, model lifecycle, dynamic limit, transient provider, or asynchronous-job failure.
+3. Compare the exact request and model to current primary documentation.
+4. Apply the narrowest correction and add a deterministic regression case.
+5. Retry only `429`, `500`, `503`, or `504` with bounded jitter and an overall deadline.
+6. Verify recovery, redact evidence, and report any provider-side incident separately.
 
-### Validation Errors
+## Approval Boundaries
 
-Model IDs must match exactly (e.g., `meta-llama/Meta-Llama-3.1-8B-Instruct`). Use `client.models.list()` to enumerate available models. Token limits vary per model -- Llama 3.1 supports 128K context while older models may support only 4K. Fine-tune datasets must be JSONL with each line containing a `messages` array in chat format. Empty `messages` arrays or missing `role` fields cause silent validation failures. Validate each JSONL line independently before uploading.
+Do not broaden credentials, raise spend limits, switch models, or resubmit paid jobs automatically. Each changes authority, behavior, or cost and requires the relevant owner.
+
+## Output
+
+Return the failure class, sanitized evidence, root cause, correction, retry disposition, regression coverage, and any required owner action.
 
 ## Error Handling
 
-| Scenario | Pattern | Recovery |
-|----------|---------|----------|
-| Model deprecated | 400 with "not found" | Check model list; migrate to successor model |
-| Token limit exceeded | 400 on long prompts | Truncate input or use model with larger context window |
-| Fine-tune dataset rejected | JSONL validation errors | Validate each line independently; fix and re-upload |
-| Credits depleted mid-batch | 402 after N successful calls | Add credits, resume from last successful request |
-| Model overloaded at peak | 500 on popular models | Fall back to alternative model in same family |
+| Condition | Response |
+|---|---|
+| `401` | Repair credential injection or project selection; do not retry. |
+| `402` | Stop and route to the billing owner. |
+| `404` | Check URL, model catalog, and deprecations before changing code. |
+| `429` or `503` | Honor current headers, jitter, and the bounded retry budget. |
 
-## Quick Diagnostic
+## Examples
 
-```bash
-# Verify API connectivity and list available models
-curl -s -o /dev/null -w "%{http_code}" \
-  -H "Authorization: Bearer $TOGETHER_API_KEY" \
-  https://api.together.xyz/v1/models
+The example below shows the minimum redacted evidence expected from a successful invocation of this operator workflow.
+
+```text
+status=404; class=model-lifecycle; catalog=checked; substitution=approval-required; retry=no
 ```
 
 ## Resources
 
-- [Together AI Documentation](https://docs.together.ai/)
-- [API Reference](https://docs.together.ai/reference/chat-completions-1)
-- [Supported Models](https://docs.together.ai/docs/inference-models)
-
-## Next Steps
-
-See `together-rate-limits` for quota-specific retry patterns.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Error codes](https://docs.together.ai/docs/error-codes)
+- [Deprecations](https://docs.together.ai/docs/deprecations)
+- [Dynamic rate limits](https://docs.together.ai/docs/serverless/rate-limits)

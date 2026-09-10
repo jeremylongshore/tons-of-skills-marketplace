@@ -1,15 +1,16 @@
 {
   "name": "windsurf-pack",
-  "version": "1.11.0",
-  "description": "Claude Code skill pack for Windsurf (30 skills)",
+  "version": "1.12.0",
+  "description": "Claude Code skill pack for Devin Desktop (formerly Windsurf): 30 current operations skills",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
   },
+  "repository": "https://github.com/jeremylongshore/tons-of-skills-marketplace",
   "license": "MIT",
   "keywords": [
     "windsurf",
-    "windsurf",
+    "devin-desktop",
     "saas",
     "sdk",
     "integration"

@@ -205,7 +205,6 @@ SAAS_SERVICE_HINTS: dict[str, list[str]] = {
     "quicknode": ["blockchain", "web3"],
     "ramp": ["finance", "fintech"],
     "remofirst": ["hr", "remote-work"],
-    "replit": ["ide", "cloud"],
     "retellai": ["voice", "ai"],
     "runway": ["ai", "video"],
     "salesforce": ["crm", "salesforce"],

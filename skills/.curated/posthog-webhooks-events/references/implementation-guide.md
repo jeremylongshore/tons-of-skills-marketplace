@@ -4,7 +4,7 @@
 
 ```bash
 # Create an Action via API that fires a webhook
-curl -X POST https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/actions/ \
+curl -X POST "$POSTHOG_PRIVATE_HOST/api/projects/$POSTHOG_PROJECT_ID/actions/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -100,7 +100,7 @@ async function onFeatureActivated(person: any, properties: any) {
 ```typescript
 async function queryRecentEvents(eventName: string, days: number = 7) {
   const response = await fetch(
-    `https://app.posthog.com/api/projects/${process.env.POSTHOG_PROJECT_ID}/events/?event=${eventName}&after=-${days}d`,
+    `${process.env.POSTHOG_PRIVATE_HOST}/api/projects/${process.env.POSTHOG_PROJECT_ID}/events/?event=${eventName}&after=-${days}d`,
     {
       headers: { "Authorization": `Bearer ${process.env.POSTHOG_PERSONAL_API_KEY}` },
     }

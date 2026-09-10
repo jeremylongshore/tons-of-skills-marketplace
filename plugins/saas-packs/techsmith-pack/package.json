@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/techsmith-pack",
-  "version": "1.0.0",
-  "description": "Claude Code skill pack for TechSmith - 18 skills covering screen capture, video editing, and visual communication",
+  "version": "1.0.1",
+  "description": "18 source-grounded operator skills for safe Snagit and Camtasia desktop automation",
   "main": "README.md",
   "type": "module",
   "files": [

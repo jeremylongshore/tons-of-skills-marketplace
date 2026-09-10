@@ -1,18 +1,9 @@
 ---
 name: windsurf-enterprise-rbac
-description: 'Configure Windsurf enterprise SSO, RBAC, and organization-level controls.
-
-  Use when implementing SSO/SAML, configuring role-based seat management,
-
-  or setting up organization-wide Windsurf policies.
-
-  Trigger with phrases like "windsurf SSO", "windsurf RBAC",
-
-  "windsurf enterprise", "windsurf admin", "windsurf SAML", "windsurf team management".
-
-  '
+description: 'Analyze and design Devin Desktop (formerly Windsurf) enterprise SSO, SCIM, RBAC, and team controls. Use when defining least-privilege roles, identity lifecycle, model or terminal policy, MCP access, or organization-wide rollout governance. Trigger with "Windsurf SSO", "Devin Desktop RBAC", "enterprise rollout", or "team permissions".'
+argument-hint: "[organization, identity provider, and access-policy requirements]"
 allowed-tools: Read, Write, Edit
-version: 1.11.0
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -24,233 +15,125 @@ tags:
 - admin
 compatibility: Designed for Claude Code
 ---
-# Windsurf Enterprise RBAC
+# Devin Desktop Enterprise Access Control
 
 ## Overview
 
-Manage enterprise Windsurf deployment: SSO/SAML configuration, role-based seat management, organization-wide AI policies, and admin portal controls. Covers Teams and Enterprise plan features.
+Build an evidence-backed enterprise access model for Devin Desktop, the current name for Windsurf. RBAC is an Enterprise feature; verify plan eligibility and current control labels in the admin console before promising a capability.
 
 ## Prerequisites
 
-- Windsurf Teams ($30/user/mo) or Enterprise (custom pricing) plan
-- Organization admin access at windsurf.com/dashboard
-- Identity provider for SSO (Enterprise only): Okta, Entra ID, Google Workspace
+- An Enterprise organization and an authenticated administrator
+- Named identity, security, billing, and developer-experience owners
+- The organization's identity lifecycle, least-privilege, and break-glass requirements
+- Current first-party documentation and contract terms for any mutable product claim
+
+## Authentication
+
+Perform administrative changes only from a protected enterprise-admin session. Treat SAML metadata, SCIM tokens, service keys, recovery codes, cookies, and exported member data as secrets; keep values in approved identity or secret systems and place only redacted references in deliverables.
+
+## Tool Use
+
+- Use `Read` to inspect only the repository policy and configuration files needed for the access design.
+- Use `Write` only for a new access matrix or rollout artifact explicitly requested by the user.
+- Use `Edit` for bounded changes to existing policy documents, preserving unrelated work and all credential boundaries.
 
 ## Instructions
 
-### Step 1: Configure SSO / SAML (Enterprise Only)
+### Step 1: Establish the administrative boundary
 
-Navigate to Admin Dashboard > Security > SSO:
+Record the organization, administrator group, identity provider, affected teams, repositories, and environments. Use the Devin Desktop admin console under the team settings surface; do not invent SAML endpoints or API scopes from examples.
 
-```yaml
-# SSO Configuration Steps
-sso_setup:
-  1_choose_idp:
-    supported: ["Okta", "Microsoft Entra ID", "Google Workspace", "Any SAML 2.0 IdP"]
+### Step 2: Design roles from documented permissions
 
-  2_configure_saml:
-    entity_id: "https://windsurf.com/saml/your-org-id"
-    acs_url: "https://windsurf.com/saml/callback"
-    # Get these from Admin Dashboard > SSO > SAML Configuration
+Devin Desktop provides default Admin and User roles and supports custom Enterprise roles. Start the User role with no administrative permissions, then grant only the documented actions required for the job.
 
-  3_idp_settings:
-    # Configure in your IdP:
-    sign_on_url: "https://windsurf.com/saml/login/your-org-id"
-    audience_uri: "https://windsurf.com/saml/your-org-id"
-    name_id_format: "emailAddress"
-    attribute_statements:
-      email: "user.email"
-      firstName: "user.firstName"
-      lastName: "user.lastName"
+Map needs against the current permission families:
 
-  4_enforce:
-    enforce_sso: true  # Block password login after SSO is verified
-    auto_provision: true  # New IdP users get Windsurf seats automatically
-    domain_restriction: ["yourcompany.com"]  # Only allow company emails
-```
+- Attribution and analytics read access
+- Team read, update, delete, and invite actions
+- Index read, create, update, delete, and management actions
+- SSO read and write actions
+- Service-key read, create, update, and delete actions
+- Billing read and write actions
+- Role read, create, update, and delete actions
 
-### Step 2: Configure Roles and Permissions
+Never copy a role name from this skill without checking the live permissions list. The product can add, rename, or split permissions.
 
-```yaml
-# Windsurf RBAC Model
-roles:
-  owner:
-    description: "Organization owner — full control"
-    permissions:
-      - Manage billing and subscription
-      - Add/remove admins
-      - Configure SSO
-      - View all analytics
-      - Manage all seats
+### Step 3: Connect SSO and SCIM lifecycle
 
-  admin:
-    description: "Team administrator"
-    permissions:
-      - Add/remove members
-      - Assign seat tiers (Pro, Free)
-      - View team analytics
-      - Configure org-wide settings
-      - Manage MCP server allowlist
+Use SSO for authentication and SCIM for automated provisioning, deprovisioning, and group-to-team mapping where supported. Define:
 
-  member:
-    description: "Standard developer"
-    permissions:
-      - Use assigned AI features
-      - Configure personal settings
-      - Create workspace rules
-      - Cannot view team analytics
+1. The IdP group that grants base access.
+2. The IdP groups that map to Devin Desktop teams.
+3. The role each team receives.
+4. The offboarding event and maximum revocation time.
+5. A tested break-glass path with a named owner and audit requirement.
 
-# Assign roles via Admin Dashboard > Members > Edit Role
-```
+Enable enforcement only after a pilot administrator and a non-administrator complete sign-in, role, and recovery tests.
 
-### Step 3: Organization-Wide AI Policies
+### Step 4: Configure team feature controls
 
-```yaml
-# Admin Dashboard > Settings > AI Policies
-org_policies:
-  # Control which AI models are available
-  allowed_models:
-    - "swe-1"
-    - "swe-1-lite"
-    - "claude-sonnet"
-    # Disable models not approved by security team
+Review each organization-level control in the current admin guide and record the chosen state, owner, and reason. Current control families include:
 
-  # Terminal command execution controls
-  cascade_terminal:
-    max_execution_level: "normal"  # Options: turbo, normal, manual
-    global_deny_list:
-      - "rm -rf"
-      - "sudo"
-      - "curl | bash"
-      - "DROP TABLE"
-      - "format"
+- Model access by specific model or provider, plus the initial Cascade default
+- Maximum terminal auto-execution level: Disabled, Allowlist Only, Auto, or Turbo
+- Team terminal allowlists and denylists, with deny taking precedence
+- MCP availability and approved-server policy
+- App Deploys, conversation sharing, PR-review integration, and knowledge-base access
 
-  # Data controls
-  data_policies:
-    telemetry: "off"                      # No telemetry for enterprise
-    data_retention: "zero"                 # Zero-data retention
-    code_context_sharing: "workspace_only" # AI sees only current workspace
+Prefer the lowest terminal level that supports the workflow. Review MCP servers as external capabilities because they may create or mutate resources outside Devin Desktop.
 
-  # Feature controls
-  feature_flags:
-    previews_enabled: true
-    mcp_enabled: true
-    workflows_enabled: true
-    auto_deploy_enabled: false  # Disable direct deployment from IDE
-```
+### Step 5: Separate product controls from external enforcement
 
-### Step 4: Seat Management Workflow
+For every requirement, identify the authoritative enforcement point. Repository permissions, branch protection, identity-provider policy, secret management, deployment approval, and data-loss controls remain authoritative even when Devin Desktop provides a related toggle.
 
-```yaml
-# Seat lifecycle management
-seat_management:
-  onboarding:
-    1. "Admin invites user via Admin Dashboard > Members > Invite"
-    2. "User receives email with SSO login link"
-    3. "SSO authenticates user with company IdP"
-    4. "User gets assigned tier (Pro/Free) based on role"
-    5. "User opens project — .windsurfrules provides context"
+| Requirement | Devin Desktop control | External control | Owner | Evidence |
+|---|---|---|---|---|
+| Member lifecycle | SCIM team mapping | IdP group and termination workflow | Identity | Provision/deprovision test |
+| Model access | Model/provider filter | Approved-model policy | Security | Admin export or screenshot |
+| Terminal safety | Maximum level and lists | Repository permissions and CI | DevEx | Allowed/denied canary |
+| MCP access | MCP toggle and allowlist | Vendor review and scoped credentials | Platform | Server inventory and test |
+| Production deploy | App Deploys toggle | Protected deployment environment | SRE | Approval and rollback receipt |
 
-  offboarding:
-    1. "Disable user in IdP (SSO will auto-block)"
-    2. "Remove seat in Admin Dashboard > Members"
-    3. "Seat becomes available for reassignment"
-    4. "User's local memories/config remain on their machine"
+### Step 6: Pilot and verify
 
-  tier_changes:
-    upgrade: "Admin Dashboard > Members > Select user > Change to Pro"
-    downgrade: "Admin Dashboard > Members > Select user > Change to Free"
-    note: "Downgraded users keep Supercomplete, lose Cascade Write mode"
-```
+Test at least one user in every proposed role. Verify allowed and denied admin pages, team membership, analytics visibility, indexing controls, SSO recovery, SCIM deprovisioning, terminal policy, MCP policy, and any enabled sharing or deployment feature.
 
-### Step 5: Audit and Compliance
+Stop rollout on unexpected privilege, failed deprovisioning, missing audit evidence, or a control whose behavior cannot be confirmed from the current console and documentation.
 
-```yaml
-# Admin Dashboard > Analytics > Audit
-audit_capabilities:
-  available:
-    - User login events (SSO audit trail)
-    - Credit usage per user per day
-    - Feature usage patterns
-    - Seat assignment changes
-    - Admin actions
+### Step 7: Define recurring review
 
-  exportable:
-    - CSV export of member usage
-    - API access for SIEM integration (Enterprise)
+Set review owners and intervals for privileged roles, service keys, team membership, model/provider access, terminal lists, MCP allowlists, feature toggles, billing access, and break-glass accounts. Record changes as reviewable evidence rather than embedding secrets in the report.
 
-  compliance_certifications:
-    - SOC 2 Type II
-    - FedRAMP High
-    - HIPAA BAA (on request)
-    - GDPR compliant
-```
+## Output
 
-### Step 6: Service Keys for API Access (Enterprise)
-
-```yaml
-# For programmatic access to admin APIs
-service_keys:
-  purpose: "CI/CD integration, usage reporting, automated provisioning"
-  create: "Admin Dashboard > Settings > Service Keys > Create"
-  scopes:
-    - "admin:read" — read analytics and member data
-    - "admin:write" — manage members and settings
-    - "usage:read" — read usage metrics
-  rotation: "Rotate every 90 days, revoke immediately on compromise"
-```
+Deliver an access-control matrix, IdP-to-team mapping, role definitions, feature-control decisions, pilot evidence, offboarding test, break-glass procedure, exceptions, and recurring review schedule. Label every item as a Devin Desktop control, an external enforcement control, or an unverified contract-dependent claim.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| SSO login fails | SAML certificate expired | Update certificate in IdP and Windsurf |
-| User can't access Cascade | No Pro seat assigned | Assign Pro tier in Admin Dashboard |
-| Admin can't see analytics | Wrong role | Upgrade to admin role in Dashboard |
-| New user auto-provisioned to wrong tier | Default tier not set | Configure default seat tier in Settings |
-| Service key rejected | Expired or wrong scope | Generate new key with correct scopes |
+| Issue | Safe response |
+|---|---|
+| A documented permission is absent | Stop and re-check the live Enterprise console and current first-party docs |
+| SSO blocks all administrators | Use the pre-tested break-glass path, then repair IdP configuration before enforcement |
+| SCIM leaves a terminated user active | Disable access directly, preserve evidence, and investigate the identity lifecycle |
+| A role grants unexpected access | Remove the grant, compare the effective role, and rerun the denied-path test |
+| An MCP or deploy control is ambiguous | Keep it disabled until ownership, credential scope, and rollback are approved |
 
 ## Examples
 
-### Quick Admin Dashboard Tasks
+For an engineering lead who needs team analytics but no billing or identity access, create a custom role with the current analytics-read permission only, assign it through the appropriate team, and prove both the allowed analytics view and denied billing, SSO, service-key, and role-management paths.
 
-```
-Add user: Admin Dashboard > Members > Invite > email@company.com
-Remove user: Members > Select > Remove from organization
-Change tier: Members > Select > Change Plan > Pro/Free
-View usage: Analytics > Overview (or per-member view)
-```
-
-### Team Structure Example
-
-```yaml
-engineering_org:
-  platform_team:
-    seats: 8
-    tier: Pro
-    admins: ["tech-lead@company.com"]
-
-  frontend_team:
-    seats: 6
-    tier: Pro
-    admins: ["frontend-lead@company.com"]
-
-  design_team:
-    seats: 3
-    tier: Free  # Mainly CSS, limited AI use
-
-  contractors:
-    seats: 4
-    tier: Free
-    note: "Temporary, upgrade to Pro if AI use increases"
-```
+For automated offboarding, map an IdP group to the target Devin Desktop team through SCIM, remove a synthetic pilot identity from the IdP group, and record the observed revocation time without exposing the SCIM credential.
 
 ## Resources
 
-- [Windsurf Admin Guide](https://docs.windsurf.com/windsurf/guide-for-admins)
-- [Windsurf Enterprise](https://windsurf.com/enterprise)
-- [Windsurf Security](https://windsurf.com/security)
+- [Role Based Access and Management](https://docs.devin.ai/desktop/accounts/rbac-role-management)
+- [Devin Desktop Guide for Admins](https://docs.devin.ai/desktop/guide-for-admins)
+- [SSO and SCIM](https://docs.devin.ai/desktop/accounts/sso-scim)
 
-## Next Steps
+See [references/official-docs.md](references/official-docs.md) for the maintained first-party source list.
 
-For migration strategies, see `windsurf-migration-deep-dive`.
+## Related Skills
+
+Continue with `windsurf-migration-deep-dive` for staged adoption and `windsurf-policy-guardrails` for repository, terminal, MCP, and deployment enforcement.

@@ -1,104 +1,84 @@
 ---
 name: techsmith-sdk-patterns
-description: 'TechSmith sdk patterns for Snagit COM API and Camtasia automation.
-
-  Use when working with TechSmith screen capture and video editing automation.
-
-  Trigger: "techsmith sdk patterns".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(powershell:*), Grep
-version: 1.3.0
-license: MIT
+description: >-
+  Implement Snagit image capture behind a narrow typed adapter with official enums, ordered configuration, bounded async completion, and path-safe results. Use when productionizing COM automation in PowerShell or .NET. Trigger with "Snagit SDK patterns", "Snagit COM adapter", or "type-safe Snagit capture".
+argument-hint: "[repository-path] [language]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
-- saas
-- screen-capture
-- video
+- desktop-automation
 - techsmith
-compatibility: Designed for Claude Code
+- sdk
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; TechSmith product execution requires an approved Windows or macOS desktop as documented
 ---
-# TechSmith Sdk Patterns
+# Snagit Typed COM Adapter
 
 ## Overview
 
-Production patterns for TechSmith COM API: capture factories, output configuration, and batch processing.
+This skill isolates vendor COM details from business workflow code. The adapter owns object creation, enum translation, configuration order, completion deadlines, event or polling behavior, normalized errors, result validation, disposal, and a fake implementation for tests.
+
+## Prerequisites
+
+- Windows and a language/runtime capable of COM interop
+- The installed Snagit type library plus TechSmith's current guide and official samples
+- A repository boundary for adapter, domain request/result, and fakes
+- Approved capture inputs, destinations, timeout, and retention policy
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect local scripts, manifests, logs, and tests. Use `WebFetch` only for current primary TechSmith documentation. Use `Write` or `Edit` only after confirming the target repository file and approval boundary.
+
+## Current Contract
+
+- Resolve `Snagit.ImageCapture.1` through one factory and report registration errors distinctly.
+- Represent inputs with typed values desktop `0`, window `1`, region `4`; outputs file `2`, clipboard `4`.
+- Configure file type, naming, directory, preview, and cursor before `Capture()`.
+- Normalize asynchronous completion to a deadline-bound result containing success, state, and canonical file path.
+
+## Licensing and Authentication
+
+TechSmith desktop activation is not API authentication. Resolve individual sign-in versus business-key or approved offline activation before execution. Redact all keys, account identifiers, activation artifacts, and sensitive endpoint details.
 
 ## Instructions
 
-### Step 1: Capture Factory Pattern
+1. Read repository conventions and locate every direct COM creation or raw enum use.
+2. Define `CaptureRequest`, `CaptureResult`, typed enums, normalized error categories, and cancellation behavior.
+3. Implement a factory and adapter around the smallest official COM interface needed by the workflow.
+4. Add bounded event or polling completion, success checks, canonical path containment, file validation, and disposal.
+5. Write a fake adapter and tests for configuration order, timeout, failure, path escape, and cleanup.
+6. Migrate one caller at a time and compare results with one approved live capture.
 
-```powershell
-function New-SnagitCapture {
-    param(
-        [ValidateSet('Desktop', 'Window', 'Region')]
-        [string]$InputType = 'Window',
-        [ValidateSet('PNG', 'JPEG', 'BMP', 'GIF')]
-        [string]$Format = 'PNG',
-        [string]$OutputDir = "C:\Screenshots",
-        [bool]$Preview = $false
-    )
+## Approval Boundaries
 
-    $inputMap = @{ Desktop = 0; Window = 4; Region = 2 }
-    $formatMap = @{ PNG = 3; JPEG = 4; BMP = 0; GIF = 2 }
+Do not expose the raw COM object to application layers, accept arbitrary ProgIDs or output paths, or make unbounded capture calls from request handlers.
 
-    $capture = New-Object -ComObject Snagit.ImageCapture
-    $capture.Input = $inputMap[$InputType]
-    $capture.Output = 2  # File
-    $capture.OutputImageFile.FileType = $formatMap[$Format]
-    $capture.OutputImageFile.Directory = $OutputDir
-    $capture.OutputImageFile.Filename = "capture_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
-    $capture.EnablePreview = $Preview
+## Output
 
-    return $capture
-}
-
-# Usage
-$cap = New-SnagitCapture -InputType Window -Format PNG
-$cap.Capture()
-```
-
-### Step 2: Batch Camtasia Rendering
-
-```powershell
-function Invoke-CamtasiaBatchRender {
-    param(
-        [string[]]$ProjectFiles,
-        [string]$OutputDir,
-        [string]$Preset = "MP4 - Smart Player (up to 1080p)"
-    )
-
-    $producer = "C:\Program Files\TechSmith\Camtasia 2025\CamtasiaProducer.exe"
-    $results = @()
-
-    foreach ($project in $ProjectFiles) {
-        $name = [System.IO.Path]::GetFileNameWithoutExtension($project)
-        $output = Join-Path $OutputDir "$name.mp4"
-
-        $proc = Start-Process -FilePath $producer -ArgumentList @(
-            "/i", "`"$project`"",
-            "/o", "`"$output`"",
-            "/preset", "`"$Preset`""
-        ) -Wait -PassThru
-
-        $results += @{ File = $name; ExitCode = $proc.ExitCode }
-    }
-    return $results
-}
-```
+Return adapter interface, enum source, migrated callers, test matrix, live verification, compatibility notes, and remaining raw-COM sites.
 
 ## Error Handling
 
-| Pattern | Use Case | Benefit |
-|---------|----------|---------|
-| Factory function | Different capture types | Consistent configuration |
-| Batch rendering | Multiple projects | Automated pipeline |
-| Timestamped names | Avoid overwrites | Unique filenames |
+| Condition | Response |
+|---|---|
+| Type library differs | Generate or bind against the installed version and record compatibility instead of forcing a cast. |
+| Completion timeout | Return a typed timeout and block output consumption. |
+| COM success but file invalid | Return an artifact-validation failure and quarantine the path. |
+| Disposal fails | Record it and recycle the worker before accepting more jobs. |
+
+## Examples
+
+The example below shows the minimum redacted evidence expected from a successful invocation of this operator workflow.
+
+```text
+CaptureRequest(Input.Window, Output.File, approvedDir, timeout) -> CaptureResult(success, canonicalPath, elapsed)
+```
 
 ## Resources
 
-- [Snagit COM Server Guide](https://assets.techsmith.com/Docs/Snagit-2022-COM-Server-Guide.pdf)
-
-## Next Steps
-
-Apply patterns in `techsmith-core-workflow-a`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Snagit 2025 COM guide](https://assets.techsmith.com/Docs/Snagit-2025-COM-Server-Guide.pdf)
+- [Official C# and PowerShell samples](https://github.com/TechSmith/Snagit-COM-Samples)

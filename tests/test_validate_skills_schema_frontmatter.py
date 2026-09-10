@@ -38,7 +38,7 @@ def _frontmatter(fm: dict, tier: str):
     return validator.validate_frontmatter(SKILL_PATH, fm, tier=tier)
 
 
-def test_schema_version_records_fail_closed_allowed_tools_change():
+def test_schema_version_records_current_agent_contract():
     # 4.1.0: E4.3/E4.4 added the --safety-metrics ratchet feed (bare-Bash /
     # tier-2 tool-safety / shell-substitution sets, mirrors excluded).
     # 4.0.2: E4.12 corrected the compliance-rate denominator to include the
@@ -46,6 +46,25 @@ def test_schema_version_records_fail_closed_allowed_tools_change():
     # ${SKILL_DIR}/${PLUGIN_ROOT} spellings. The fail-closed allowed-tools
     # semantics this test pins are unchanged from 4.0.0.
     assert validator.SCHEMA_VERSION == "4.1.0"
+
+
+def test_current_skill_model_and_background_fields_are_accepted():
+    for model in ("fable", "claude-opus-5"):
+        fm = {
+            "name": "my-skill",
+            "description": GOOD_DESC,
+            "model": model,
+            "background": False,
+        }
+        errors, warnings, _infos = _frontmatter(fm, validator.TIER_STANDARD)
+        assert not any("model" in item or "background" in item for item in errors), (model, errors)
+        assert not any("model" in item or "background" in item for item in warnings), (model, warnings)
+
+
+def test_skill_background_must_be_boolean():
+    fm = {"name": "my-skill", "description": GOOD_DESC, "background": "false"}
+    errors, _warnings, _infos = _frontmatter(fm, validator.TIER_STANDARD)
+    assert any("background" in error and "boolean" in error for error in errors), errors
 
 
 # =========================================================================
@@ -540,6 +559,61 @@ def test_843_end_to_end_validate_agent_surfaces_check3(tmp_path):
     )
     result = validator.validate_agent(agent)
     assert any("CHECK 3" in e for e in result["errors"]), result["errors"]
+
+
+def _write_current_standalone_agent(tmp_path: Path, optional: str) -> Path:
+    agent = tmp_path / ".claude" / "agents" / "current.md"
+    agent.parent.mkdir(parents=True)
+    agent.write_text(
+        "---\n"
+        "name: current\n"
+        "description: Use when verifying the current Anthropic subagent contract.\n"
+        "tools: [Read]\n"
+        "model: claude-opus-5\n"
+        "color: blue\n"
+        "version: 1.0.0\n"
+        "author: T <t@example.com>\n"
+        "tags: [validation]\n"
+        "disallowedTools: []\n"
+        "skills: []\n"
+        "background: false\n"
+        "hooks: {}\n"
+        "mcpServers: [github]\n"
+        "permissionMode: manual\n"
+        f"{optional}"
+        "---\n\n"
+        "Read the requested files and report contract drift.\n"
+    )
+    return agent
+
+
+def test_agent_accepts_full_model_id_manual_mode_and_experimental_cache_ttl(tmp_path):
+    agent = _write_current_standalone_agent(
+        tmp_path,
+        "experimental:\n  cacheTtl: 1h\n",
+    )
+    result = validator.validate_agent(agent)
+    assert result["errors"] == [], result
+    assert result["warnings"] == [], result
+
+
+def test_agent_rejects_invalid_experimental_cache_ttl(tmp_path):
+    agent = _write_current_standalone_agent(
+        tmp_path,
+        "experimental:\n  cacheTtl: forever\n",
+    )
+    result = validator.validate_agent(agent)
+    assert any("experimental.cacheTtl" in error for error in result["errors"]), result
+
+
+def test_agent_warns_when_experimental_key_will_be_ignored(tmp_path):
+    agent = _write_current_standalone_agent(
+        tmp_path,
+        "experimental:\n  cacheTtl: 5m\n  futureFlag: true\n",
+    )
+    result = validator.validate_agent(agent)
+    assert result["errors"] == [], result
+    assert any("futureFlag" in warning for warning in result["warnings"]), result
 
 
 # =========================================================================

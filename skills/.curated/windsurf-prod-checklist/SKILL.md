@@ -1,6 +1,6 @@
 ---
 name: windsurf-prod-checklist
-description: 'Execute Windsurf production readiness checklist for team and enterprise
+description: 'Execute Devin Desktop (formerly Windsurf) production readiness checklist for team and enterprise
   deployments.
 
   Use when rolling out Windsurf to a team, preparing for enterprise deployment,
@@ -13,7 +13,8 @@ description: 'Execute Windsurf production readiness checklist for team and enter
 
   '
 allowed-tools: Read, Grep
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -37,15 +38,20 @@ Complete checklist for rolling out Windsurf to production teams. Covers workspac
 - Git repositories identified for rollout
 - Team agreement on AI usage policy
 
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Grep` to locate relevant settings, rules, logs, or code without broad collection.
+
 ## Instructions
 
-### Phase 1: Pre-Deployment Configuration
+### Step 1: Complete Pre-Deployment Configuration
 
 **Workspace Config (per repository):**
 
-- [ ] `.windsurfrules` created with project stack, patterns, and constraints
+- [ ] `.devin/rules/project.md` created with project stack, patterns, and constraints
 - [ ] `.codeiumignore` excludes secrets, build artifacts, and large binaries
-- [ ] `.windsurf/rules/` contains glob-triggered rules for file-type-specific patterns
+- [ ] `.devin/rules/` contains glob-triggered rules for file-type-specific patterns
 - [ ] Workspace settings committed to `.windsurf/settings.json`
 
 **Security:**
@@ -54,7 +60,7 @@ Complete checklist for rolling out Windsurf to production teams. Covers workspac
 - [ ] `.codeiumignore` covers all secret file patterns
 - [ ] Autocomplete disabled for secret-containing file types (.env, .key)
 - [ ] Enterprise: SSO/SAML configured and enforced
-- [ ] Enterprise: zero-data-retention verified with Codeium
+- [ ] Enterprise retention and training-use terms verified against the current contract
 
 **Team Policy:**
 
@@ -63,7 +69,7 @@ Complete checklist for rolling out Windsurf to production teams. Covers workspac
 - [ ] Code review requirements for AI-generated changes defined
 - [ ] Competing AI extensions disabled (Copilot, TabNine)
 
-### Phase 2: Team Onboarding
+### Step 2: Complete Team Onboarding
 
 **Per-Developer Setup:**
 
@@ -77,7 +83,7 @@ echo "Setting up Windsurf for this project..."
 windsurf --version || { echo "Install Windsurf first: https://windsurf.com/download"; exit 1; }
 
 # Verify config files exist
-[ -f .windsurfrules ] || echo "WARNING: .windsurfrules missing"
+[ -f .devin/rules/project.md ] || echo "WARNING: .devin/rules/project.md missing"
 [ -f .codeiumignore ] || echo "WARNING: .codeiumignore missing"
 
 # Install recommended extensions
@@ -93,15 +99,15 @@ echo "Setup complete. Open project folder (not monorepo root) for best AI contex
 **Training Checklist:**
 
 - [ ] Demo: Supercomplete (Tab) vs Cascade (Cmd+L) vs Command (Cmd+I)
-- [ ] Demo: Write mode vs Chat mode
+- [ ] Demo: Code mode vs Chat mode
 - [ ] Demo: @ mentions for file context
 - [ ] Demo: Turbo mode with allow/deny lists
 - [ ] Demo: Previews for UI development
 - [ ] Demo: Git checkpoint before Cascade workflow
-- [ ] Share: `.windsurfrules` explained
-- [ ] Share: Credit system and model selection
+- [ ] Share: `.devin/rules/project.md` explained
+- [ ] Share: Daily/weekly quota, extra usage, and model selection
 
-### Phase 3: Monitoring and Optimization
+### Step 3: Establish Monitoring and Optimization
 
 **Admin Dashboard Monitoring:**
 
@@ -109,25 +115,25 @@ echo "Setup complete. Open project folder (not monorepo root) for best AI contex
 # Metrics to track weekly (Admin Dashboard > Analytics)
 metrics:
   adoption:
-    - active_users_vs_total_seats    # target: >80%
+    - active_users_vs_total_seats    # compare with organization-defined target
     - daily_active_users             # trend: increasing
   quality:
-    - completion_acceptance_rate     # target: >25%
-    - cascade_success_rate           # target: >70%
+    - completion_acceptance_rate     # baseline before setting a target
+    - cascade_success_rate           # baseline before setting a target
   efficiency:
-    - credits_consumed_per_user      # watch for outliers
+    - included_vs_on_demand_usage    # review with authorized billing owner
     - tasks_completed_per_day        # proxy for productivity
 ```
 
 **Quarterly Review:**
 
 - [ ] Audit seat utilization -- downgrade inactive seats
-- [ ] Review `.windsurfrules` -- update with new patterns
+- [ ] Review `.devin/rules/project.md` -- update with new patterns
 - [ ] Check for new Windsurf features in changelog
 - [ ] Survey team satisfaction and pain points
-- [ ] Analyze credit usage patterns
+- [ ] Analyze quota and on-demand usage patterns
 
-### Phase 4: Rollback Procedure
+### Step 4: Prove the Rollback Procedure
 
 If Windsurf causes issues:
 
@@ -139,6 +145,10 @@ If Windsurf causes issues:
 5. File support ticket with debug bundle (see windsurf-debug-bundle)
 ```
 
+## Output
+
+Return a signed readiness checklist with evidence for identity, repository access, data boundaries, policy controls, pilot results, support ownership, usage monitoring, incident response, and rollback. List every incomplete item with an owner and due date.
+
 ## Error Handling
 
 | Issue | Severity | Mitigation |
@@ -146,7 +156,7 @@ If Windsurf causes issues:
 | Cascade generates broken code | Medium | Enforce tests-pass-before-merge policy |
 | AI exposes secrets in suggestions | High | Audit `.codeiumignore`, rotate exposed secrets |
 | Team not adopting | Low | Training session, share productivity data |
-| Credits exhausted mid-sprint | Medium | Monitor usage, buy additional credits proactively |
+| Quota exhausted mid-sprint | Medium | Check reset timing and use approved extra usage or lower-cost models |
 
 ## Examples
 
@@ -171,17 +181,18 @@ If Windsurf causes issues:
 
 ```bash
 set -euo pipefail
-echo "Config: $([ -f .windsurfrules ] && echo 'OK' || echo 'MISSING')"
+echo "Config: $([ -f .devin/rules/project.md ] && echo 'OK' || echo 'MISSING')"
 echo "Ignore: $([ -f .codeiumignore ] && echo 'OK' || echo 'MISSING')"
-echo "Rules:  $([ -d .windsurf/rules ] && echo 'OK' || echo 'MISSING')"
+echo "Rules:  $([ -d .devin/rules ] && echo 'OK' || echo 'MISSING')"
 ```
 
 ## Resources
 
-- [Windsurf Admin Guide](https://docs.windsurf.com/windsurf/guide-for-admins)
+- [Focused first-party references](references/official-docs.md)
+- [Windsurf Admin Guide](https://docs.devin.ai/desktop/guide-for-admins)
 - [Windsurf Enterprise](https://windsurf.com/enterprise)
 - [Windsurf Security](https://windsurf.com/security)
 
-## Next Steps
+## Related Skill
 
-For version upgrades, see `windsurf-upgrade-migration`.
+Continue with `windsurf-upgrade-migration` to preserve these production controls through editor, extension, configuration, and policy changes.

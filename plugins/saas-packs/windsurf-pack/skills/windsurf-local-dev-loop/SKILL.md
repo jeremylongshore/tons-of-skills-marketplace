@@ -1,6 +1,6 @@
 ---
 name: windsurf-local-dev-loop
-description: 'Configure Windsurf local development workflow with Cascade, Previews,
+description: 'Configure Devin Desktop (formerly Windsurf) local development workflow with Cascade, Previews,
   and terminal integration.
 
   Use when setting up a development environment, configuring Turbo mode,
@@ -13,7 +13,8 @@ description: 'Configure Windsurf local development workflow with Cascade, Previe
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pnpm:*), Grep
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -36,12 +37,20 @@ Set up a fast, AI-augmented local development workflow using Windsurf's Cascade,
 - Node.js 18+ or Python 3.10+
 - Git initialized in project
 
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Grep` to locate relevant settings, rules, logs, or code without broad collection.
+- Use `Write` only for a new artifact the user requested; never write credentials or unreviewed production configuration.
+- Use `Edit` for bounded, reviewable changes and preserve unrelated user work.
+- Use only the command-scoped `Bash` entries declared in frontmatter, with non-destructive checks before mutations.
+
 ## Instructions
 
-### Step 1: Create .windsurfrules for Project Context
+### Step 1: Create .devin/rules/project.md for Project Context
 
 ```markdown
-<!-- .windsurfrules - placed at project root, committed to git -->
+<!-- .devin/rules/project.md - placed at project root, committed to git -->
 
 # Project: my-app
 
@@ -145,11 +154,15 @@ Windsurf generates: npx vitest run src/auth/
 
 Highlight terminal errors and press Cmd/Ctrl+L to send to Cascade for diagnosis.
 
+## Output
+
+Produce a repository-local development recipe with setup commands, durable Rules or `AGENTS.md`, ignore boundaries, test and lint gates, preview instructions, and a definition of done. Keep environment-specific secrets out of committed customization files.
+
 ## Error Handling
 
 | Issue | Cause | Solution |
 |-------|-------|----------|
-| Cascade not seeing project context | No `.windsurfrules` | Create rules file at project root |
+| Cascade not seeing project context | No `.devin/rules/project.md` | Create rules file at project root |
 | Slow AI suggestions | Large repo indexed | Add `.codeiumignore` |
 | Turbo mode running dangerous commands | Missing deny list | Configure `cascadeCommandsDenyList` |
 | Preview not loading | Dev server not started | Ask Cascade to start it first |
@@ -162,7 +175,7 @@ Highlight terminal errors and press Cmd/Ctrl+L to send to Cascade for diagnosis.
 ```
 Cascade prompt: "Initialize a new Next.js 14 project with TypeScript,
 Tailwind CSS, and Vitest. Set up the folder structure matching
-our .windsurfrules conventions."
+our .devin/rules/project.md conventions."
 ```
 
 ### Debug-Fix Loop
@@ -176,10 +189,11 @@ our .windsurfrules conventions."
 
 ## Resources
 
-- [Windsurf Terminal Docs](https://docs.windsurf.com/windsurf/terminal)
-- [Windsurf Previews](https://docs.windsurf.com/windsurf/previews)
-- [Cascade Overview](https://docs.windsurf.com/windsurf/cascade/cascade)
+- [Focused first-party references](references/official-docs.md)
+- [Windsurf Terminal Docs](https://docs.devin.ai/desktop/terminal)
+- [Windsurf Previews](https://docs.devin.ai/desktop/previews)
+- [Cascade Overview](https://docs.devin.ai/desktop/cascade/cascade)
 
-## Next Steps
+## Related Skill
 
-See `windsurf-sdk-patterns` for workspace configuration patterns.
+Continue with `windsurf-sdk-patterns` to formalize the working loop as reviewed workspace Rules, MCP configuration, and reusable team guidance.

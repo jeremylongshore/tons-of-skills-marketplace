@@ -1,12 +1,10 @@
-# ClickUp Skill Pack
+# ClickUp Operator Skill Pack
 
-> 24 production-ready Claude Code skills for ClickUp API v2 integration — from first API call to enterprise multi-workspace apps.
+> 24 production-grade Claude Code skills for designing, building, testing, and operating governed ClickUp integrations.
 
-Build, test, deploy, and operate ClickUp integrations using real API v2 endpoints (`https://api.clickup.com/api/v2/`), real response shapes, and real error codes. No fake SDKs, no placeholder code.
+The pack is grounded in ClickUp's current official API documentation. It treats API v2 as the primary work-management surface and routes selected v3 capabilities endpoint by endpoint; it does not assume a platform-wide v2-to-v3 cutover. Every skill includes explicit authentication, plan, approval, redaction, failure, and verification boundaries.
 
-**Links:** [ClickUp API Docs](https://developer.clickup.com/) | [ClickUp Status](https://status.clickup.com) | [Tons of Skills](https://tonsofskills.com)
-
----
+**Links:** [ClickUp developer documentation](https://developer.clickup.com/) · [ClickUp status](https://status.clickup.com/) · [Tons of Skills](https://tonsofskills.com)
 
 ## Installation
 
@@ -14,55 +12,47 @@ Build, test, deploy, and operate ClickUp integrations using real API v2 endpoint
 /plugin install clickup-pack@claude-code-plugins-plus
 ```
 
-## What You Get
+## Current provider contract
 
-| Tier | Skills | Coverage |
-|------|--------|----------|
-| **Standard (S01-S12)** | Auth, hello world, task CRUD, hierarchy management, error handling, rate limits, security, debug, testing, CI, deploy, upgrades | Day-to-day ClickUp API development |
-| **Pro (P13-P18)** | Webhooks, performance tuning, cost optimization, reference architecture (custom fields, time tracking, goals), CI/CD, deployment | Production integrations |
-| **Flagship (F19-F24)** | Multi-environment setup, observability, incident response, data handling (GDPR/PII), enterprise RBAC (OAuth multi-workspace), migration (Jira/Asana/Trello) | Enterprise operations |
+- Personal tokens begin with `pk_`; user-facing apps use OAuth Authorization Code with server-side secret handling and Workspace verification.
+- Rate limits are per personal or OAuth token and depend on the hosting Workspace plan. Operators use `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and Unix `X-RateLimit-Reset` rather than hard-coded concurrency.
+- Get Tasks uses 100-item, zero-based pages. Closed tasks, subtasks, and Tasks in Multiple Lists require deliberate request options.
+- Webhooks use raw-body HMAC-SHA256 in hexadecimal `X-Signature`, durable idempotency, fast acknowledgement, and reconciliation.
+- ClickUp publishes separate v2 and v3 OpenAPI specifications. Generated or custom clients must route each operation to its documented version.
+- Enterprise-only user/guest management, audit logs, and ACL effects are treated as plan- and authority-gated operations.
 
-## ClickUp API Coverage
+## Skills
 
-- **Hierarchy**: Workspace > Space > Folder > List > Task (full CRUD)
-- **Tasks**: Create, read, update, delete, subtasks, bulk operations, filtering, pagination
-- **Custom Fields**: All types (text, number, dropdown, label, date, currency, checkbox, email, phone, URL, rating, location)
-- **Time Tracking**: Create/get/update entries, running timers, date range queries
-- **Goals & Key Results**: OKR management, target tracking
-- **Webhooks**: 20+ event types (task/list/folder/space/goal), payload handling, idempotency
-- **Views**: Board, list, calendar, gantt, table, timeline
-- **Auth**: Personal tokens (`pk_*`), OAuth 2.0 Authorization Code flow
-- **Rate Limits**: Per-plan tiers (100/1K/10K req/min), `X-RateLimit-*` headers
-- **Error Codes**: `OAUTH_017`, `OAUTH_023`, `OAUTH_027`, HTTP 400/401/403/404/429/500
+| Skill | Operator outcome |
+|---|---|
+| `clickup-install-auth` | Configure personal-token or OAuth access and verify authorized Workspaces. |
+| `clickup-hello-world` | Prove a minimal, read-only connection with zero writes. |
+| `clickup-core-workflow-a` | Reconcile task lifecycle operations with durable source identity. |
+| `clickup-core-workflow-b` | Inventory and change Spaces, Folders, Lists, tags, and views safely. |
+| `clickup-common-errors` | Diagnose authentication, plan, schema, throttling, and provider failures. |
+| `clickup-debug-bundle` | Produce a minimal redacted diagnostic artifact with retention controls. |
+| `clickup-rate-limits` | Size queues and concurrency from observed per-token budgets. |
+| `clickup-security-basics` | Threat-model credentials, tenants, webhooks, logs, and write boundaries. |
+| `clickup-sdk-patterns` | Build typed, version-explicit transports from official OpenAPI inputs. |
+| `clickup-local-dev-loop` | Keep routine development deterministic and offline with bounded live probes. |
+| `clickup-ci-integration` | Gate adapters with offline contracts and a protected read-only live lane. |
+| `clickup-deploy-integration` | Deploy with server-side secrets, canaries, health checks, and rollback. |
+| `clickup-prod-checklist` | Issue an evidence-backed production go/no-go decision. |
+| `clickup-upgrade-migration` | Evolve endpoint and schema contracts without assuming a global version swap. |
+| `clickup-webhooks-events` | Register, verify, queue, monitor, and reconcile signed webhooks. |
+| `clickup-performance-tuning` | Improve throughput without losing completeness or freshness. |
+| `clickup-cost-tuning` | Reduce avoidable request and plan cost while preserving SLOs. |
+| `clickup-reference-architecture` | Design trust, tenancy, version, event, reconciliation, and evidence boundaries. |
+| `clickup-multi-env-setup` | Isolate development, staging, and production Workspaces and credentials. |
+| `clickup-observability` | Instrument content-free metrics, traces, alerts, and reconciliation. |
+| `clickup-incident-runbook` | Triage, contain, recover, and review ClickUp integration incidents. |
+| `clickup-data-handling` | Govern ClickUp-derived work data across retention and deletion flows. |
+| `clickup-enterprise-rbac` | Enforce role, group, audit-log, ACL, and Enterprise plan boundaries. |
+| `clickup-migration-deep-dive` | Run resumable, mapped, reconciled migrations into or between Workspaces. |
 
-## Skills Reference
+## Quality contract
 
-| Skill | What It Does |
-|-------|-------------|
-| `clickup-install-auth` | Personal tokens, OAuth 2.0 flow, connection verification |
-| `clickup-hello-world` | First API calls: discover hierarchy, create a task |
-| `clickup-core-workflow-a` | Task CRUD: create, read, update, delete, subtasks, assignees, priorities |
-| `clickup-core-workflow-b` | Spaces, folders, lists, views (board/gantt/calendar), tags |
-| `clickup-common-errors` | Error reference: OAUTH_* codes, 401/403/429/500, diagnostic script |
-| `clickup-debug-bundle` | Health check script, diagnostic archive, rate limit inspection |
-| `clickup-rate-limits` | Per-plan limits, exponential backoff, queue-based throttling |
-| `clickup-security-basics` | Token rotation, git pre-commit hooks, audit logging |
-| `clickup-sdk-patterns` | Typed REST client wrapper, singleton, multi-tenant factory, Zod validation |
-| `clickup-local-dev-loop` | Project setup, mock API for tests, vitest integration, hot reload |
-| `clickup-ci-integration` | GitHub Actions workflows, integration tests, task status sync from CI |
-| `clickup-deploy-integration` | Vercel, Fly.io, Cloud Run deployment with secrets management |
-| `clickup-prod-checklist` | Go-live checklist, health verification script, rollback procedures |
-| `clickup-upgrade-migration` | API v2-to-v3 migration, adapter pattern, feature flags |
-| `clickup-webhooks-events` | Create webhooks, 20+ events, payload format, idempotent handlers |
-| `clickup-performance-tuning` | LRU caching, pagination generators, connection pooling, webhook cache invalidation |
-| `clickup-cost-tuning` | Plan comparison, request reduction, polling-to-webhook migration |
-| `clickup-reference-architecture` | Custom fields API, time tracking, goals/OKRs, two-way sync |
-| `clickup-multi-env-setup` | Per-environment tokens, workspace isolation, environment guards |
-| `clickup-observability` | Prometheus metrics, OpenTelemetry traces, Grafana alerts |
-| `clickup-incident-runbook` | Triage script, decision tree, circuit breaker, postmortem template |
-| `clickup-data-handling` | PII detection, response redaction, GDPR export, data retention |
-| `clickup-enterprise-rbac` | OAuth multi-workspace apps, role checking, user groups, permission middleware |
-| `clickup-migration-deep-dive` | Jira/Asana/Trello import, workspace cloning, validation |
+Each published `SKILL.md` carries marketplace metadata, explicit tool discipline, a current-contract snapshot, numbered execution steps, approval boundaries, structured output, failure handling, and an official-source reference file. The pack's regression test protects the provider facts most likely to drift or be overgeneralized.
 
 ## License
 
