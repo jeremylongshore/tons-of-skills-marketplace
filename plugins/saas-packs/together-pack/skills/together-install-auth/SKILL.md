@@ -1,112 +1,91 @@
 ---
 name: together-install-auth
-description: 'Install Together AI SDK and configure API key for inference and fine-tuning.
-
-  Use when setting up Together AI, configuring the OpenAI-compatible API,
-
-  or initializing the together Python package.
-
-  Trigger: "install together, setup together ai, together API key".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.7.0
-license: MIT
+description: >-
+  Install Together AI SDK v2 and configure a project-scoped API key with least-privilege storage and a read-only model-list verification. Use when connecting a service or workstation to Together AI. Trigger with "Together auth", "install Together SDK", or "TOGETHER_API_KEY setup".
+argument-hint: "[repository-path] [python|typescript|rest]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ai
-- inference
-- together
-compatibility: Designed for Claude Code
+- together-ai
+- authentication
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and a Together AI project key
 ---
-# Together AI Install & Auth
+# Together AI Installation and Authentication
 
 ## Overview
 
-Together AI provides an OpenAI-compatible API for open-source model inference and fine-tuning. Base URL: `https://api.together.xyz/v1`. Works with the official `together` Python SDK or any OpenAI-compatible client.
+This skill selects the current Together client, keeps credentials outside source control, and proves access with a non-generating model-list request.
 
 ## Prerequisites
 
-- Together AI account at [api.together.xyz](https://api.together.xyz)
-- API key from Settings > API Keys
-- Python 3.8+ or Node.js 18+
+- A Together AI project and an administrator-approved key owner
+- Python 3.10+ for `together>=2.0.0`, Node.js for the TypeScript SDK, or an HTTPS client
+- An approved secret manager for deployed environments
+- The repository and runtime that will consume the credential
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect dependency manifests, environment-variable names, and existing client wrappers. Use `WebFetch` only for current Together documentation. Use `Write` or `Edit` only after confirming the target files; never write a real key or `.env` value.
+
+## Current Contract
+
+- New Python integrations target the v2 SDK: `together>=2.0.0`.
+- SDK clients read `TOGETHER_API_KEY` by default; REST uses `Authorization: Bearer <token>`.
+- API keys are scoped to a Together project. Separate development, CI, and production keys.
+- Verify with `client.models.list()` or `GET /v1/models`; do not spend inference tokens for an auth probe.
+
+## Authentication
+
+Create the key in the intended Together project, copy it once into the approved secret store, and inject it at runtime as `TOGETHER_API_KEY`. Redact the value, authorization header, and secret-manager path from logs and examples. Rotation means creating a replacement, deploying it, verifying, and revoking the old key.
 
 ## Instructions
 
-### Step 1: Install SDK
+1. Inventory the language, package manager, existing OpenAI-compatible client, and deployment environments.
+2. Pin the current major SDK and record the resolved version in the lockfile.
+3. Define `TOGETHER_API_KEY` in local documentation and deployment configuration without adding a value to the repository.
+4. Initialize the native Together client, or configure an OpenAI client with `https://api.together.ai/v1`.
+5. Run or hand off one read-only model-list probe and record only status, project alias, SDK version, and model count.
+6. Document key ownership, rotation, revocation, and environment separation.
 
-```bash
-# Python (official)
-pip install together
+## Approval Boundaries
 
-# Node.js (use OpenAI SDK with custom base URL)
-npm install openai
-```
+Do not create, reveal, broaden, rotate, or revoke a production key without the owning project administrator. Do not add a credential to tracked files, command history, test fixtures, or CI available to untrusted forks.
 
-### Step 2: Configure API Key
+## Output
 
-```bash
-# .env
-TOGETHER_API_KEY=your-api-key-here
-```
-
-### Step 3: Verify Connection (Python)
-
-```python
-from together import Together
-
-client = Together(api_key=os.environ["TOGETHER_API_KEY"])
-response = client.chat.completions.create(
-    model="meta-llama/Llama-3.3-70B-Instruct-Turbo",
-    messages=[{"role": "user", "content": "Say hello"}],
-    max_tokens=10,
-)
-print(f"Connected! Response: {response.choices[0].message.content}")
-```
-
-### Step 4: Verify with OpenAI Client (Node.js)
-
-```typescript
-import OpenAI from 'openai';
-
-const client = new OpenAI({
-  apiKey: process.env.TOGETHER_API_KEY,
-  baseURL: 'https://api.together.xyz/v1',
-});
-
-const response = await client.chat.completions.create({
-  model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
-  messages: [{ role: 'user', content: 'Say hello' }],
-  max_tokens: 10,
-});
-console.log(`Connected! ${response.choices[0].message.content}`);
-```
-
-### Step 5: List Available Models
-
-```python
-models = client.models.list()
-for m in models.data[:5]:
-    print(f"{m.id} ({m.type})")
-```
+Return the selected client, pinned version, environment-variable contract, secret reference, read-only verification result, and rotation owner.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Invalid API key | Check key at api.together.xyz |
-| `Model not found` | Wrong model ID | Use `client.models.list()` to verify |
-| `ModuleNotFoundError` | SDK not installed | `pip install together` |
-| `429 Too Many Requests` | Rate limit | Back off and retry |
+| Condition | Response |
+|---|---|
+| `401` | Confirm injection and project selection; never print the key. |
+| `402` | Report the billing/spend-limit condition to the project owner. |
+| `404` on an OpenAI model ID | Resolve a current Together model ID; do not retry the foreign name. |
+| Key exposed | Revoke or rotate it and scrub retained logs immediately. |
+
+## Examples
+
+Input:
+
+```text
+runtime=python; environment=ci; probe=GET /v1/models; secret=approved-reference
+```
+
+Expected handoff:
+
+```text
+sdk=together-v2; auth=bearer-project-key; probe=pass; secret-value=redacted
+```
 
 ## Resources
 
-- [Together AI Docs](https://docs.together.ai/)
+- [Skill-specific official documentation](references/official-docs.md)
+- [Authentication](https://docs.together.ai/docs/api-keys-authentication)
 - [Quickstart](https://docs.together.ai/docs/quickstart)
-- [OpenAI Compatibility](https://docs.together.ai/docs/openai-api-compatibility)
-- [Supported Models](https://docs.together.ai/docs/inference-models)
-
-## Next Steps
-
-Proceed to `together-hello-world` for inference examples.
+- [Model-list API](https://docs.together.ai/reference/models)

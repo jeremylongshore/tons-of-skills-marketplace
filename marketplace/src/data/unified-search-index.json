@@ -515,6 +515,7 @@
       "backward-compatibility",
       "bamboohr",
       "batch",
+      "batch-inference",
       "batch-operations",
       "batch-recording",
       "bd",
@@ -1111,6 +1112,7 @@
       "model-context-protocol",
       "model-deployment",
       "model-garden",
+      "model-operations",
       "model-selection",
       "models",
       "modernization",
@@ -1544,8 +1546,7 @@
       "timezone",
       "titles",
       "tms",
-      "together",
-      "together ai",
+      "together-ai",
       "token-budget",
       "token-launch",
       "tokenization",
@@ -13405,14 +13406,14 @@
       "slug": "together-pack",
       "name": "together-pack",
       "displayName": "together pack",
-      "description": "Claude Code skill pack for Together AI (16 skills)",
+      "description": "Source-grounded operator workflows for Together AI inference, batch, fine-tuning, v2 Dedicated Model Inference, security, cost, and production operations",
       "category": "saas-packs",
       "keywords": [
-        "together",
-        "together ai",
-        "saas",
-        "sdk",
-        "integration"
+        "together-ai",
+        "inference",
+        "batch-inference",
+        "fine-tuning",
+        "model-operations"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -13420,7 +13421,7 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -13428,7 +13429,7 @@
       "verificationScore": 79,
       "verificationGrade": "C",
       "verificationBadge": "silver",
-      "searchText": "together pack claude code skill pack for together ai (16 skills) saas-packs together together ai saas sdk integration"
+      "searchText": "together pack source-grounded operator workflows for together ai inference, batch, fine-tuning, v2 dedicated model inference, security, cost, and production operations saas-packs together-ai inference batch-inference fine-tuning model-operations"
     },
     {
       "type": "plugin",
@@ -73913,353 +73914,368 @@
       "id": "together-ci-integration",
       "slug": "together-ci-integration",
       "name": "together-ci-integration",
-      "description": "Together AI ci integration for inference, fine-tuning, and model deployment. Use when working with Together AI's OpenAI-compatible API. Trigger: \"together ci integration\".",
+      "description": "Gate Together AI client, batch, fine-tuning, and deployment changes with offline contract tests plus a protected bounded live lane. Use when adding CI for a Together-backed repository. Trigger with \"Together CI\", \"test Together integration\", or \"Together contract tests\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "together-pack",
         "category": "saas-packs"
       },
-      "searchText": "together-ci-integration together ai ci integration for inference, fine-tuning, and model deployment. use when working with together ai's openai-compatible api. trigger: \"together ci integration\". saas-packs read write edit bash(pip:*) grep "
+      "searchText": "together-ci-integration gate together ai client, batch, fine-tuning, and deployment changes with offline contract tests plus a protected bounded live lane. use when adding ci for a together-backed repository. trigger with \"together ci\", \"test together integration\", or \"together contract tests\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "together-common-errors",
       "slug": "together-common-errors",
       "name": "together-common-errors",
-      "description": "Together AI common errors for inference, fine-tuning, and model deployment. Use when working with Together AI's OpenAI-compatible API. Trigger: \"together common errors\".",
+      "description": "Analyze and diagnose Together AI authentication, billing, request, model, throttling, overload, batch, fine-tuning, and endpoint failures from redacted evidence. Use when a Together integration fails or behaves inconsistently. Trigger with \"Together error\", \"Together 429\", or \"Together model not found\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "together-pack",
         "category": "saas-packs"
       },
-      "searchText": "together-common-errors together ai common errors for inference, fine-tuning, and model deployment. use when working with together ai's openai-compatible api. trigger: \"together common errors\". saas-packs read write edit bash(pip:*) grep "
+      "searchText": "together-common-errors analyze and diagnose together ai authentication, billing, request, model, throttling, overload, batch, fine-tuning, and endpoint failures from redacted evidence. use when a together integration fails or behaves inconsistently. trigger with \"together error\", \"together 429\", or \"together model not found\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "together-core-workflow-a",
       "slug": "together-core-workflow-a",
       "name": "together-core-workflow-a",
-      "description": "Together AI core workflow a for inference, fine-tuning, and model deployment. Use when working with Together AI's OpenAI-compatible API. Trigger: \"together core workflow a\".",
+      "description": "Prepare, submit, monitor, and disposition a Together AI fine-tuning job using SDK v2, validated training data, explicit cost approval, and separate deployment verification. Use when adapting a model to custom examples or preferences. Trigger with \"Together fine-tune\", \"train a Together model\", or \"Together DPO job\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "together-pack",
         "category": "saas-packs"
       },
-      "searchText": "together-core-workflow-a together ai core workflow a for inference, fine-tuning, and model deployment. use when working with together ai's openai-compatible api. trigger: \"together core workflow a\". saas-packs read write edit bash(pip:*) grep "
+      "searchText": "together-core-workflow-a prepare, submit, monitor, and disposition a together ai fine-tuning job using sdk v2, validated training data, explicit cost approval, and separate deployment verification. use when adapting a model to custom examples or preferences. trigger with \"together fine-tune\", \"train a together model\", or \"together dpo job\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "together-core-workflow-b",
       "slug": "together-core-workflow-b",
       "name": "together-core-workflow-b",
-      "description": "Together AI core workflow b for inference, fine-tuning, and model deployment. Use when working with Together AI's OpenAI-compatible API. Trigger: \"together core workflow b\".",
+      "description": "Run Together AI asynchronous batch inference from validated JSONL through upload, job polling, output/error download, and custom-id reconciliation. Use when bulk work can trade latency for lower cost. Trigger with \"Together batch inference\", \"bulk Together requests\", or \"Together Batch API\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "together-pack",
         "category": "saas-packs"
       },
-      "searchText": "together-core-workflow-b together ai core workflow b for inference, fine-tuning, and model deployment. use when working with together ai's openai-compatible api. trigger: \"together core workflow b\". saas-packs read write edit bash(pip:*) grep "
+      "searchText": "together-core-workflow-b run together ai asynchronous batch inference from validated jsonl through upload, job polling, output/error download, and custom-id reconciliation. use when bulk work can trade latency for lower cost. trigger with \"together batch inference\", \"bulk together requests\", or \"together batch api\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "together-cost-tuning",
       "slug": "together-cost-tuning",
       "name": "together-cost-tuning",
-      "description": "Together AI cost tuning for inference, fine-tuning, and model deployment. Use when working with Together AI's OpenAI-compatible API. Trigger: \"together cost tuning\".",
+      "description": "Reduce Together AI spend using measured token usage, live per-model prices, cached-input evidence, batch discounts, model evaluation, and dedicated break-even analysis. Use when forecasting or optimizing Together workloads. Trigger with \"Together cost\", \"optimize Together spend\", or \"Together batch savings\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "together-pack",
         "category": "saas-packs"
       },
-      "searchText": "together-cost-tuning together ai cost tuning for inference, fine-tuning, and model deployment. use when working with together ai's openai-compatible api. trigger: \"together cost tuning\". saas-packs read write edit bash(pip:*) grep "
+      "searchText": "together-cost-tuning reduce together ai spend using measured token usage, live per-model prices, cached-input evidence, batch discounts, model evaluation, and dedicated break-even analysis. use when forecasting or optimizing together workloads. trigger with \"together cost\", \"optimize together spend\", or \"together batch savings\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "together-deploy-integration",
       "slug": "together-deploy-integration",
       "name": "together-deploy-integration",
-      "description": "Together AI deploy integration for inference, fine-tuning, and model deployment. Use when working with Together AI's OpenAI-compatible API. Trigger: \"together deploy integration\".",
+      "description": "Deploy and roll back Together AI integrations across serverless inference or v2 Dedicated Model Inference with secret injection, health probes, traffic control, and cost shutdown. Use when releasing Together-backed services or dedicated models. Trigger with \"deploy Together\", \"Together dedicated endpoint\", or \"Together rollout\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "together-pack",
         "category": "saas-packs"
       },
-      "searchText": "together-deploy-integration together ai deploy integration for inference, fine-tuning, and model deployment. use when working with together ai's openai-compatible api. trigger: \"together deploy integration\". saas-packs read write edit bash(pip:*) grep "
+      "searchText": "together-deploy-integration deploy and roll back together ai integrations across serverless inference or v2 dedicated model inference with secret injection, health probes, traffic control, and cost shutdown. use when releasing together-backed services or dedicated models. trigger with \"deploy together\", \"together dedicated endpoint\", or \"together rollout\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "together-hello-world",
       "slug": "together-hello-world",
       "name": "together-hello-world",
-      "description": "Run inference with Together AI -- chat completions, streaming, and model selection. Use when testing open-source models, comparing model performance, or learning the Together AI API. Trigger: \"together hello world, together AI example, run llama\".",
+      "description": "Build a bounded Together AI chat-completion probe with a current model selected from the live catalog, optional streaming, usage capture, and redacted evidence. Use when proving a new inference connection. Trigger with \"Together hello world\", \"first Together request\", or \"stream Together chat\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(python3:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "together-pack",
         "category": "saas-packs"
       },
-      "searchText": "together-hello-world run inference with together ai -- chat completions, streaming, and model selection. use when testing open-source models, comparing model performance, or learning the together ai api. trigger: \"together hello world, together ai example, run llama\". saas-packs read write edit bash(pip:*) bash(python3:*) "
+      "searchText": "together-hello-world build a bounded together ai chat-completion probe with a current model selected from the live catalog, optional streaming, usage capture, and redacted evidence. use when proving a new inference connection. trigger with \"together hello world\", \"first together request\", or \"stream together chat\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "together-install-auth",
       "slug": "together-install-auth",
       "name": "together-install-auth",
-      "description": "Install Together AI SDK and configure API key for inference and fine-tuning. Use when setting up Together AI, configuring the OpenAI-compatible API, or initializing the together Python package. Trigger: \"install together, setup together ai, together API key\".",
+      "description": "Install Together AI SDK v2 and configure a project-scoped API key with least-privilege storage and a read-only model-list verification. Use when connecting a service or workstation to Together AI. Trigger with \"Together auth\", \"install Together SDK\", or \"TOGETHER_API_KEY setup\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "together-pack",
         "category": "saas-packs"
       },
-      "searchText": "together-install-auth install together ai sdk and configure api key for inference and fine-tuning. use when setting up together ai, configuring the openai-compatible api, or initializing the together python package. trigger: \"install together, setup together ai, together api key\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "together-install-auth install together ai sdk v2 and configure a project-scoped api key with least-privilege storage and a read-only model-list verification. use when connecting a service or workstation to together ai. trigger with \"together auth\", \"install together sdk\", or \"together_api_key setup\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "together-local-dev-loop",
       "slug": "together-local-dev-loop",
       "name": "together-local-dev-loop",
-      "description": "Together AI local dev loop for inference, fine-tuning, and model deployment. Use when working with Together AI's OpenAI-compatible API. Trigger: \"together local dev loop\".",
+      "description": "Develop Together AI integrations with a fake transport, recorded response shapes, deterministic assertions, and an opt-in bounded live probe. Use when iterating without spending tokens on every test. Trigger with \"Together local dev\", \"mock Together API\", or \"test Together client\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "together-pack",
         "category": "saas-packs"
       },
-      "searchText": "together-local-dev-loop together ai local dev loop for inference, fine-tuning, and model deployment. use when working with together ai's openai-compatible api. trigger: \"together local dev loop\". saas-packs read write edit bash(pip:*) grep "
+      "searchText": "together-local-dev-loop develop together ai integrations with a fake transport, recorded response shapes, deterministic assertions, and an opt-in bounded live probe. use when iterating without spending tokens on every test. trigger with \"together local dev\", \"mock together api\", or \"test together client\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "together-prod-checklist",
       "slug": "together-prod-checklist",
       "name": "together-prod-checklist",
-      "description": "Together AI prod checklist for inference, fine-tuning, and model deployment. Use when working with Together AI's OpenAI-compatible API. Trigger: \"together prod checklist\".",
+      "description": "Review a Together AI production release across model policy, auth, data controls, dynamic limits, retries, observability, cost, deprecations, asynchronous recovery, and rollback. Use when reviewing go-live or a material model change. Trigger with \"Together production checklist\", \"Together go live\", or \"Together readiness review\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "together-pack",
         "category": "saas-packs"
       },
-      "searchText": "together-prod-checklist together ai prod checklist for inference, fine-tuning, and model deployment. use when working with together ai's openai-compatible api. trigger: \"together prod checklist\". saas-packs read write edit bash(pip:*) grep "
+      "searchText": "together-prod-checklist review a together ai production release across model policy, auth, data controls, dynamic limits, retries, observability, cost, deprecations, asynchronous recovery, and rollback. use when reviewing go-live or a material model change. trigger with \"together production checklist\", \"together go live\", or \"together readiness review\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "together-rate-limits",
       "slug": "together-rate-limits",
       "name": "together-rate-limits",
-      "description": "Together AI rate limits for inference, fine-tuning, and model deployment. Use when working with Together AI's OpenAI-compatible API. Trigger: \"together rate limits\".",
+      "description": "Analyze and control Together AI serverless concurrency from dynamic per-model request/token headers, bounded queues, jittered retries, and batch or dedicated alternatives. Use when preventing throttling or sizing inference traffic. Trigger with \"Together rate limit\", \"Together 429\", or \"Together concurrency control\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "together-pack",
         "category": "saas-packs"
       },
-      "searchText": "together-rate-limits together ai rate limits for inference, fine-tuning, and model deployment. use when working with together ai's openai-compatible api. trigger: \"together rate limits\". saas-packs read write edit bash(pip:*) grep "
+      "searchText": "together-rate-limits analyze and control together ai serverless concurrency from dynamic per-model request/token headers, bounded queues, jittered retries, and batch or dedicated alternatives. use when preventing throttling or sizing inference traffic. trigger with \"together rate limit\", \"together 429\", or \"together concurrency control\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "together-reference-architecture",
       "slug": "together-reference-architecture",
       "name": "together-reference-architecture",
-      "description": "Together AI reference architecture for inference, fine-tuning, and model deployment. Use when working with Together AI's OpenAI-compatible API. Trigger: \"together reference architecture\".",
+      "description": "Design a production Together AI service with a typed provider boundary, policy-based model routing, serverless and dedicated lanes, batch workers, telemetry, budgets, and reversible degradation. Use when defining the integration topology. Trigger with \"Together architecture\", \"Together model gateway\", or \"design Together service\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "together-pack",
         "category": "saas-packs"
       },
-      "searchText": "together-reference-architecture together ai reference architecture for inference, fine-tuning, and model deployment. use when working with together ai's openai-compatible api. trigger: \"together reference architecture\". saas-packs read write edit bash(pip:*) grep "
+      "searchText": "together-reference-architecture design a production together ai service with a typed provider boundary, policy-based model routing, serverless and dedicated lanes, batch workers, telemetry, budgets, and reversible degradation. use when defining the integration topology. trigger with \"together architecture\", \"together model gateway\", or \"design together service\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "together-sdk-patterns",
       "slug": "together-sdk-patterns",
       "name": "together-sdk-patterns",
-      "description": "Together AI sdk patterns for inference, fine-tuning, and model deployment. Use when working with Together AI's OpenAI-compatible API. Trigger: \"together sdk patterns\".",
+      "description": "Encapsulate Together AI SDK v2 behind a typed adapter with catalog-resolved models, bounded retries, streaming normalization, usage capture, and OpenAI-compatible migration seams. Use when building a reusable Together client layer. Trigger with \"Together SDK pattern\", \"Together client wrapper\", or \"OpenAI compatibility on Together\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "together-pack",
         "category": "saas-packs"
       },
-      "searchText": "together-sdk-patterns together ai sdk patterns for inference, fine-tuning, and model deployment. use when working with together ai's openai-compatible api. trigger: \"together sdk patterns\". saas-packs read write edit bash(pip:*) grep "
+      "searchText": "together-sdk-patterns encapsulate together ai sdk v2 behind a typed adapter with catalog-resolved models, bounded retries, streaming normalization, usage capture, and openai-compatible migration seams. use when building a reusable together client layer. trigger with \"together sdk pattern\", \"together client wrapper\", or \"openai compatibility on together\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "together-security-basics",
       "slug": "together-security-basics",
       "name": "together-security-basics",
-      "description": "Together AI security basics for inference, fine-tuning, and model deployment. Use when working with Together AI's OpenAI-compatible API. Trigger: \"together security basics\".",
+      "description": "Secure Together AI integrations with project-scoped keys, environment isolation, prompt/output data controls, bounded model behavior, safe logging, rotation, and incident response. Use when threat-modeling or hardening Together usage. Trigger with \"Together security\", \"protect Together API key\", or \"Together data controls\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "together-pack",
         "category": "saas-packs"
       },
-      "searchText": "together-security-basics together ai security basics for inference, fine-tuning, and model deployment. use when working with together ai's openai-compatible api. trigger: \"together security basics\". saas-packs read write edit bash(pip:*) grep "
+      "searchText": "together-security-basics secure together ai integrations with project-scoped keys, environment isolation, prompt/output data controls, bounded model behavior, safe logging, rotation, and incident response. use when threat-modeling or hardening together usage. trigger with \"together security\", \"protect together api key\", or \"together data controls\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "together-upgrade-migration",
       "slug": "together-upgrade-migration",
       "name": "together-upgrade-migration",
-      "description": "Together AI upgrade migration for inference, fine-tuning, and model deployment. Use when working with Together AI's OpenAI-compatible API. Trigger: \"together upgrade migration\".",
+      "description": "Migrate Together AI Python SDK v1, OpenAI-compatible clients, deprecated models, or legacy dedicated endpoints with inventory, contract tests, canaries, and rollback. Use when upgrading Together dependencies or provider resources. Trigger with \"upgrade Together SDK\", \"Together model migration\", or \"migrate Together endpoint v1\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "together-pack",
         "category": "saas-packs"
       },
-      "searchText": "together-upgrade-migration together ai upgrade migration for inference, fine-tuning, and model deployment. use when working with together ai's openai-compatible api. trigger: \"together upgrade migration\". saas-packs read write edit bash(pip:*) grep "
+      "searchText": "together-upgrade-migration migrate together ai python sdk v1, openai-compatible clients, deprecated models, or legacy dedicated endpoints with inventory, contract tests, canaries, and rollback. use when upgrading together dependencies or provider resources. trigger with \"upgrade together sdk\", \"together model migration\", or \"migrate together endpoint v1\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "together-webhooks-events",
       "slug": "together-webhooks-events",
       "name": "together-webhooks-events",
-      "description": "Together AI webhooks events for inference, fine-tuning, and model deployment. Use when working with Together AI's OpenAI-compatible API. Trigger: \"together webhooks events\".",
+      "description": "Convert Together AI batch, fine-tuning, upload, and dedicated-deployment job states into idempotent internal events using bounded polling and an optional owned callback. Use when integrating asynchronous Together work. Trigger with \"Together job events\", \"Together callback\", or \"poll Together status\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "together-pack",
         "category": "saas-packs"
       },
-      "searchText": "together-webhooks-events together ai webhooks events for inference, fine-tuning, and model deployment. use when working with together ai's openai-compatible api. trigger: \"together webhooks events\". saas-packs read write edit bash(pip:*) grep "
+      "searchText": "together-webhooks-events convert together ai batch, fine-tuning, upload, and dedicated-deployment job states into idempotent internal events using bounded polling and an optional owned callback. use when integrating asynchronous together work. trigger with \"together job events\", \"together callback\", or \"poll together status\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
