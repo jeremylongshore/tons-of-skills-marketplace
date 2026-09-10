@@ -4,7 +4,7 @@ description: >-
   Convert Together AI batch, fine-tuning, upload, and dedicated-deployment job states into idempotent internal events using bounded polling and an optional owned callback. Use when integrating asynchronous Together work. Trigger with "Together job events", "Together callback", or "poll Together status".
 argument-hint: "[repository-path] [batch|fine-tune|upload|deployment]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

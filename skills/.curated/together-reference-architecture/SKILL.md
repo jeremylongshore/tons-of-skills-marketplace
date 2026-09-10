@@ -4,7 +4,7 @@ description: >-
   Design a production Together AI service with a typed provider boundary, policy-based model routing, serverless and dedicated lanes, batch workers, telemetry, budgets, and reversible degradation. Use when defining the integration topology. Trigger with "Together architecture", "Together model gateway", or "design Together service".
 argument-hint: "[repository-path] [workload-profile]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

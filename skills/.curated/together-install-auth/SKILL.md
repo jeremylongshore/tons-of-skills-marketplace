@@ -4,7 +4,7 @@ description: >-
   Install Together AI SDK v2 and configure a project-scoped API key with least-privilege storage and a read-only model-list verification. Use when connecting a service or workstation to Together AI. Trigger with "Together auth", "install Together SDK", or "TOGETHER_API_KEY setup".
 argument-hint: "[repository-path] [python|typescript|rest]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

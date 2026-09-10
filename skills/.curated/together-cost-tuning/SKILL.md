@@ -4,7 +4,7 @@ description: >-
   Reduce Together AI spend using measured token usage, live per-model prices, cached-input evidence, batch discounts, model evaluation, and dedicated break-even analysis. Use when forecasting or optimizing Together workloads. Trigger with "Together cost", "optimize Together spend", or "Together batch savings".
 argument-hint: "[repository-path] [usage-window] [budget]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

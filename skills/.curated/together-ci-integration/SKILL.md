@@ -4,7 +4,7 @@ description: >-
   Gate Together AI client, batch, fine-tuning, and deployment changes with offline contract tests plus a protected bounded live lane. Use when adding CI for a Together-backed repository. Trigger with "Together CI", "test Together integration", or "Together contract tests".
 argument-hint: "[repository-path] [live-test-environment]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

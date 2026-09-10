@@ -4,7 +4,7 @@ description: >-
   Run Together AI asynchronous batch inference from validated JSONL through upload, job polling, output/error download, and custom-id reconciliation. Use when bulk work can trade latency for lower cost. Trigger with "Together batch inference", "bulk Together requests", or "Together Batch API".
 argument-hint: "[input-jsonl] [endpoint] [output-directory]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

@@ -4,7 +4,7 @@ description: >-
   Prepare, submit, monitor, and disposition a Together AI fine-tuning job using SDK v2, validated training data, explicit cost approval, and separate deployment verification. Use when adapting a model to custom examples or preferences. Trigger with "Together fine-tune", "train a Together model", or "Together DPO job".
 argument-hint: "[repository-path] [training-file] [sft|dpo]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

@@ -4,7 +4,7 @@ description: >-
   Review a Together AI production release across model policy, auth, data controls, dynamic limits, retries, observability, cost, deprecations, asynchronous recovery, and rollback. Use when reviewing go-live or a material model change. Trigger with "Together production checklist", "Together go live", or "Together readiness review".
 argument-hint: "[repository-path] [environment] [model-or-endpoint]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

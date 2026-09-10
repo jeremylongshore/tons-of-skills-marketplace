@@ -4,7 +4,7 @@ description: >-
   Build a bounded Together AI chat-completion probe with a current model selected from the live catalog, optional streaming, usage capture, and redacted evidence. Use when proving a new inference connection. Trigger with "Together hello world", "first Together request", or "stream Together chat".
 argument-hint: "[repository-path] [python|typescript|rest]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
