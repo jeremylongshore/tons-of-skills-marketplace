@@ -107,7 +107,7 @@
     "js-yaml": "^4.3.1",
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.3",
-    "smol-toml": "1.6.1",
+    "smol-toml": "1.8.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.60.0",
     "vitest": "^3.2.6"
@@ -134,6 +134,7 @@
       "nanoid": "3.3.18",
       "postcss": "8.5.28",
       "sharp": "0.35.4",
+      "smol-toml": "1.8.0",
       "svgo": "4.1.0",
       "typed-rest-client>qs": "6.15.2",
       "vite@6.4.3>esbuild": "0.25.12",

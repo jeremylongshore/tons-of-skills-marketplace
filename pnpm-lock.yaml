@@ -25,6 +25,7 @@ overrides:
   nanoid: 3.3.18
   postcss: 8.5.28
   sharp: 0.35.4
+  smol-toml: 1.8.0
   svgo: 4.1.0
   typed-rest-client>qs: 6.15.2
   vite@6.4.3>esbuild: 0.25.12
@@ -80,8 +81,8 @@ importers:
         specifier: ^3.8.3
         version: 3.8.3
       smol-toml:
-        specifier: 1.6.1
-        version: 1.6.1
+        specifier: 1.8.0
+        version: 1.8.0
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -5326,8 +5327,8 @@ packages:
     resolution: {integrity: sha512-stxByr12oeeOyY2BlviTNQlYV5xOj47GirPr4yA1hE9JCtxfQN0+tVbkxwCtYDQWhEKWFHsEK48ORg5jrouCAg==}
     engines: {node: '>=20'}
 
-  smol-toml@1.6.1:
-    resolution: {integrity: sha512-dWUG8F5sIIARXih1DTaQAX4SsiTXhInKf1buxdY9DIg4ZYPZK5nGM1VRIYmEbDbsHt7USo99xSLFu5Q1IqTmsg==}
+  smol-toml@1.8.0:
+    resolution: {integrity: sha512-kCZr2V3ch9i00x8zXRhjUNVcjG9ijES5dDudkXvUVCT5QlJNQWElSJdZqyPemffHoLNUYwOcou0Fy+ojN0uHSQ==}
     engines: {node: '>= 18'}
 
   source-map-js@1.2.1:
@@ -6106,7 +6107,7 @@ snapshots:
       picomatch: 4.0.4
       retext-smartypants: 6.2.0
       shiki: 4.1.0
-      smol-toml: 1.6.1
+      smol-toml: 1.8.0
       unified: 11.0.5
 
   '@astrojs/markdown-satteri@0.4.1':
@@ -8305,7 +8306,7 @@ snapshots:
       picomatch: 4.0.4
       semver: 7.8.5
       shiki: 4.1.0
-      smol-toml: 1.6.1
+      smol-toml: 1.8.0
       svgo: 4.1.0
       tinyclip: 0.1.13
       tinyexec: 1.2.3
@@ -10682,7 +10683,7 @@ snapshots:
       ansi-styles: 6.2.3
       is-fullwidth-code-point: 5.1.0
 
-  smol-toml@1.6.1: {}
+  smol-toml@1.8.0: {}
 
   source-map-js@1.2.1: {}
 
