@@ -3,7 +3,7 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "ce255e5ed022c3c5d7b97bf5d6c9b41d5792d5847839516f8f73dedd090081f2",
+    "sha256": "144549863d64177bf25e8f9422aafeba11cb3c50fc9e2d345ac611e5893e5b3f",
     "artifact_count": 3491
   },
   "rule_order": [
@@ -25984,7 +25984,7 @@
     {
       "path": "plugins/saas-packs/miro-pack/skills/miro-core-workflow-a/SKILL.md",
       "grade": "A",
-      "score": 97,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26149,7 +26149,7 @@
     {
       "path": "plugins/saas-packs/miro-pack/skills/miro-prod-checklist/SKILL.md",
       "grade": "A",
-      "score": 100,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26160,7 +26160,7 @@
     {
       "path": "plugins/saas-packs/miro-pack/skills/miro-rate-limits/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26215,7 +26215,7 @@
     {
       "path": "plugins/saas-packs/miro-pack/skills/miro-webhooks-events/SKILL.md",
       "grade": "A",
-      "score": 99,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",

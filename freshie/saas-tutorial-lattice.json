@@ -4,10 +4,10 @@
   "semantics": "Family-name matches are review candidates, not automatic quality or retirement verdicts.",
   "sources": {
     "catalog": ".claude-plugin/marketplace.extended.json",
-    "catalog_sha256": "04b7fc30491493f8397e1b35eced1a0c40bdf364dcffbf9a8abf48b5f08e0571",
+    "catalog_sha256": "67344a5587ca80334110ec326f57a85c4d169dc47d443791603d84119df4f971",
     "curated_manifest": "skills/.curated/MANIFEST.json",
     "curated_manifest_sha256": "8f694f292e65dad4c9894e5395eb5c2b7a762fcd4b32c6fd5b43624d1b96d4b2",
-    "tracked_inventory_sha256": "05560203b0bb22dea998e7614de035526b30d830ee0219f154fbeeae7d5b1953"
+    "tracked_inventory_sha256": "7fc4937b7019d12b5c058bc48c74a4d5a83efdef3b42328806f7904021d9d3c4"
   },
   "family_definition": [
     "advanced-troubleshooting",
@@ -1110,8 +1110,8 @@
       "candidate_basis_points": 10000,
       "verification_grade": "A",
       "verification_score": 99,
-      "pack_inventory_sha256": "8f3554e608184c33e0f83a9c70d2a98e08249b969e971518b2707bc2d2e0c8bb",
-      "candidate_set_sha256": "2ed4657707238997655b32d10158fa0e2bea2cdb49e0e58d1524acbe619ba98a",
+      "pack_inventory_sha256": "a4585e74598355a669f85067e3b926f58669aeb556c6b394e051955c78d82c3a",
+      "candidate_set_sha256": "92c71759538f3befcf2ba26d0d46433efb1664d606d956c63392d950c67d3573",
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
@@ -24634,14 +24634,14 @@
     {
       "name": "miro-pack",
       "source": "plugins/saas-packs/miro-pack",
-      "version": "1.8.0",
+      "version": "1.9.0",
       "verification": {
         "grade": "A",
         "score": 99
       },
       "npm_candidate": {
         "name": "@intentsolutionsio/miro-pack",
-        "version": "1.0.3",
+        "version": "1.0.4",
         "private": false,
         "files_include_skills": true,
         "live_registry_check": "REQUIRED_BEFORE_MUTATION"
@@ -24650,8 +24650,8 @@
       "ownership": {
         "status": "first-party"
       },
-      "pack_inventory_sha256": "8f3554e608184c33e0f83a9c70d2a98e08249b969e971518b2707bc2d2e0c8bb",
-      "candidate_set_sha256": "2ed4657707238997655b32d10158fa0e2bea2cdb49e0e58d1524acbe619ba98a",
+      "pack_inventory_sha256": "a4585e74598355a669f85067e3b926f58669aeb556c6b394e051955c78d82c3a",
+      "candidate_set_sha256": "92c71759538f3befcf2ba26d0d46433efb1664d606d956c63392d950c67d3573",
       "skill_count": 24,
       "catalog_declared_skill_count": 24,
       "tutorial_lattice_count": 24,

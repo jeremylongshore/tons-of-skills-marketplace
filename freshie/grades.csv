@@ -2044,7 +2044,7 @@ plugins/saas-packs/mindtickle-pack/skills/mindtickle-upgrade-migration,C,76
 plugins/saas-packs/mindtickle-pack/skills/mindtickle-webhooks-events,C,79
 plugins/saas-packs/miro-pack/skills/miro-ci-integration,A,98
 plugins/saas-packs/miro-pack/skills/miro-common-errors,A,99
-plugins/saas-packs/miro-pack/skills/miro-core-workflow-a,A,97
+plugins/saas-packs/miro-pack/skills/miro-core-workflow-a,A,98
 plugins/saas-packs/miro-pack/skills/miro-core-workflow-b,A,98
 plugins/saas-packs/miro-pack/skills/miro-cost-tuning,A,98
 plugins/saas-packs/miro-pack/skills/miro-data-handling,A,99
@@ -2059,13 +2059,13 @@ plugins/saas-packs/miro-pack/skills/miro-migration-deep-dive,A,98
 plugins/saas-packs/miro-pack/skills/miro-multi-env-setup,A,98
 plugins/saas-packs/miro-pack/skills/miro-observability,A,100
 plugins/saas-packs/miro-pack/skills/miro-performance-tuning,A,100
-plugins/saas-packs/miro-pack/skills/miro-prod-checklist,A,100
-plugins/saas-packs/miro-pack/skills/miro-rate-limits,A,96
+plugins/saas-packs/miro-pack/skills/miro-prod-checklist,A,99
+plugins/saas-packs/miro-pack/skills/miro-rate-limits,A,97
 plugins/saas-packs/miro-pack/skills/miro-reference-architecture,A,98
 plugins/saas-packs/miro-pack/skills/miro-sdk-patterns,A,98
 plugins/saas-packs/miro-pack/skills/miro-security-basics,A,100
 plugins/saas-packs/miro-pack/skills/miro-upgrade-migration,A,100
-plugins/saas-packs/miro-pack/skills/miro-webhooks-events,A,99
+plugins/saas-packs/miro-pack/skills/miro-webhooks-events,A,100
 plugins/saas-packs/mistral-pack/skills/mistral-ci-integration,B,81
 plugins/saas-packs/mistral-pack/skills/mistral-common-errors,A,95
 plugins/saas-packs/mistral-pack/skills/mistral-core-workflow-a,C,79
