@@ -1684,7 +1684,7 @@
       "status": "measured",
       "values": {
         "present": false,
-        "target_present": true
+        "target_present": false
       }
     },
     "38": {
