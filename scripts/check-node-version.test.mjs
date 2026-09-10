@@ -56,6 +56,7 @@ test('full-repository workflows invoke the runtime preflight explicitly', () => 
     ['e2e-tests.yml', 2],
     ['release.yml', 1],
     ['skill-conform.yml', 1],
+    ['validate-plugins.yml', 5],
   ]);
 
   for (const [workflow, expectedCount] of workflowExpectations) {
