@@ -1,188 +1,93 @@
 ---
 name: algolia-security-basics
-description: 'Apply Algolia security best practices: API key scoping, secured API
-  keys,
-
-  frontend vs backend key separation, and key rotation.
-
-  Trigger: "algolia security", "algolia API key security", "secure algolia",
-
-  "algolia secrets", "algolia key rotation", "algolia secured key".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.7.0
-license: MIT
+description: >-
+  Audit and harden Algolia credentials, record exposure, index restrictions, and tenant search controls. Use when reviewing frontend keys, backend ACLs, key rotation, or data visibility. Trigger with "secure Algolia", "Algolia key audit", or "Algolia security review".
+argument-hint: "[repository-path] [application-id]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- search
 - algolia
+- security
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Algolia Security Basics
+# Algolia Security Baseline
 
 ## Overview
 
-Algolia's security model is built around **scoped API keys**. Every Algolia app has three default keys (Admin, Search-Only, Monitoring). For production, create custom keys with minimal permissions and use Secured API Keys for per-user/per-tenant restrictions.
+This skill reviews the actual security boundary of an Algolia integration. A browser search-only key is intentionally visible, so record contents, index restrictions, secured-key design, and abuse controls remain essential.
 
 ## Prerequisites
 
-- An inventory of current API keys, their consumers, and the indices each consumer needs.
-- A secure secret store and a tested rotation process for backend credentials.
-- Authority to revoke or restrict exposed keys immediately if the audit finds a violation.
+- A named repository, environment, and Algolia application or index in scope
+- The local lockfile and installed client types as implementation authority
+- A safe read-only query or explicitly disposable test target
+- Current first-party documentation for any provider behavior that affects the change
 
-## Key Types and Where to Use Them
+## Tool Discipline
 
-| Key Type | ACL | Expose to Frontend? | Use Case |
-|----------|-----|---------------------|----------|
-| Admin | All operations | **NEVER** | Backend indexing, settings, key management |
-| Search-Only | `search` only | Yes (safe) | Frontend search widgets |
-| Monitoring | Read monitoring data | No | Health checks, dashboards |
-| Custom | You define ACL | Depends on ACL | Scoped backend services |
-| Secured | Derived from parent key | Yes | Per-user filtered search |
+Use `Read`, `Glob`, and `Grep` to inspect local code, configuration names, tests, and dependency versions. Use `WebFetch` only for current official Algolia documentation. Use `Write` or `Edit` only after identifying the target files, constraints, and verification plan.
+
+## Current Contract
+
+- Never index data that must remain secret merely because an attribute is not displayed.
+- Use custom main keys with minimum ACLs and restrictions; rotate long-lived keys under an owned policy.
+- Generate secured keys on a trusted backend and require restrictions appropriate to the user or tenant.
+- Treat referer restrictions, rate limits, filters, and ACLs as layers whose current behavior must be verified.
+
+## Authentication
+
+Inspect key metadata without exporting secret values. Admin credentials stay out of application defaults, browser bundles, logs, support artifacts, and developer examples.
 
 ## Instructions
 
-## Examples
+1. Inventory every application ID, environment variable, client constructor, key owner, ACL, restriction, and exposed index.
+2. Scan source, built assets, history, logs, and documentation for write-capable key exposure.
+3. Review record fields and index settings for data a search-only client could retrieve or scrape.
+4. Map backend operations to custom key ACLs and tenant search to secured-key restrictions.
+5. Test allowed and denied paths, including cross-index and cross-tenant attempts.
+6. Document rotation, revocation, incident response, ownership, exceptions, and retest dates.
 
-The environment, scoped-key, secured-key, and rotation examples demonstrate least privilege at each trust boundary. Replace placeholder values through the secret store and validate the resulting ACL before a client receives the key.
+## Approval Boundaries
 
-### Step 1: Environment Variable Setup
-
-```bash
-# .env (NEVER commit — add to .gitignore)
-ALGOLIA_APP_ID=YourApplicationID
-ALGOLIA_ADMIN_KEY=admin_api_key_here        # Backend only
-ALGOLIA_SEARCH_KEY=search_only_key_here     # OK for frontend
-
-# .gitignore — MUST include:
-.env
-.env.local
-.env.*.local
-```
-
-### Step 2: Create Scoped API Keys
-
-```typescript
-import { algoliasearch } from 'algoliasearch';
-
-const client = algoliasearch(process.env.ALGOLIA_APP_ID!, process.env.ALGOLIA_ADMIN_KEY!);
-
-// Create a write-only key for a specific microservice
-const { key: indexingKey } = await client.addApiKey({
-  apiKey: {
-    acl: ['addObject', 'deleteObject', 'editSettings'],
-    description: 'Product sync service — write only',
-    indexes: ['products', 'products_staging'],  // Restrict to specific indices
-    maxQueriesPerIPPerHour: 5000,
-    referers: [],  // Empty = no referer restriction (backend use)
-  },
-});
-
-// Create a search key restricted to specific referers (frontend)
-const { key: frontendKey } = await client.addApiKey({
-  apiKey: {
-    acl: ['search'],
-    description: 'Frontend search — domain-restricted',
-    indexes: ['products'],
-    referers: ['https://mystore.com/*', 'https://*.mystore.com/*'],
-    maxQueriesPerIPPerHour: 1000,
-    maxHitsPerQuery: 50,
-  },
-});
-```
-
-### Step 3: Generate Secured API Keys (Per-User Filtering)
-
-```typescript
-// Secured API keys are generated on YOUR server, not via Algolia API.
-// They embed restrictions that the client can't bypass.
-
-function generateUserSearchKey(userId: string, tenantId: string): string {
-  const client = algoliasearch(process.env.ALGOLIA_APP_ID!, process.env.ALGOLIA_ADMIN_KEY!);
-
-  return client.generateSecuredApiKey({
-    parentApiKey: process.env.ALGOLIA_SEARCH_KEY!,
-    restrictions: {
-      // User can only see their tenant's data
-      filters: `tenant_id:${tenantId}`,
-      // Key expires in 1 hour
-      validUntil: Math.floor(Date.now() / 1000) + 3600,
-      // Restrict to specific indices
-      restrictIndices: ['products'],
-      // Optional: restrict sources (IPs)
-      restrictSources: '',
-    },
-  });
-}
-
-// Usage in your API endpoint:
-// const userKey = generateUserSearchKey(req.user.id, req.user.tenantId);
-// return { appId: process.env.ALGOLIA_APP_ID, searchKey: userKey };
-```
-
-### Step 4: Key Rotation Procedure
-
-```typescript
-async function rotateApiKey(oldKeyDescription: string) {
-  const client = algoliasearch(process.env.ALGOLIA_APP_ID!, process.env.ALGOLIA_ADMIN_KEY!);
-
-  // 1. List keys to find the old one
-  const { keys } = await client.listApiKeys();
-  const oldKey = keys.find(k => k.description === oldKeyDescription);
-  if (!oldKey) throw new Error(`Key not found: ${oldKeyDescription}`);
-
-  // 2. Create new key with same ACL
-  const { key: newKey } = await client.addApiKey({
-    apiKey: {
-      acl: oldKey.acl,
-      description: `${oldKeyDescription} (rotated ${new Date().toISOString().split('T')[0]})`,
-      indexes: oldKey.indexes || [],
-      maxQueriesPerIPPerHour: oldKey.maxQueriesPerIPPerHour || 0,
-      referers: oldKey.referers || [],
-    },
-  });
-
-  console.log(`New key created: ...${newKey.slice(-8)}`);
-  console.log('Update your env vars, then delete the old key:');
-  console.log(`  client.deleteApiKey({ key: '${oldKey.value}' })`);
-
-  return newKey;
-}
-```
-
-## Security Checklist
-
-- [ ] Admin key in env vars, never in frontend code or git
-- [ ] `.env` files in `.gitignore`
-- [ ] Frontend uses Search-Only or Secured API key
-- [ ] Custom keys have minimal ACL (least privilege)
-- [ ] `referers` set on frontend keys to prevent abuse
-- [ ] `maxQueriesPerIPPerHour` set on all public keys
-- [ ] Secured API keys have `validUntil` (expiration)
-- [ ] Key rotation scheduled quarterly
-- [ ] Git history scanned for accidentally committed keys
+Do not rotate or revoke production keys, alter index restrictions, or remove access until dependencies and recovery paths are verified.
 
 ## Output
 
-The application separates Admin, search-only, monitoring, custom, and secured keys by use case, with documented ACLs and a revocation path. Browser clients never receive a credential capable of indexing or changing settings.
+Return the key and actor inventory, exposure findings, data-visibility review, allowed/denied tests, remediation plan, rotation procedure, and residual risks.
 
 ## Error Handling
 
-| Security Issue | Detection | Mitigation |
-|----------------|-----------|------------|
-| Admin key exposed in frontend | Code review, git scanning | Rotate immediately, restrict referers |
-| Key in git history | `git log -S 'ALGOLIA'` | Rotate key, use git-secrets or gitleaks |
-| Excessive ACL on key | Audit key permissions | Create scoped replacement key |
-| Expired secured key | `validUntil` in the past | Generate fresh secured key |
+| Condition | Response |
+|---|---|
+| Write key found in browser | Contain and rotate through the incident process. |
+| Search key exposes sensitive records | Remove the data and review index design. |
+| Tenant restriction bypassed | Disable affected path and correct server-generated restrictions. |
+| Key owner unknown | Treat it as orphaned and investigate before revocation. |
+
+## Examples
+
+Use this compact input and expected handoff to calibrate scope and evidence quality.
+
+Input:
+
+```text
+app=APP…9X; actors=browser,indexer,ops; indices=products_*
+```
+
+Expected handoff:
+
+```text
+browser=search-only; indexer=custom-minimum; tenant-denial=pass; exposed-write-key=none
+```
 
 ## Resources
 
-- [API Keys Guide](https://www.algolia.com/doc/guides/security/api-keys/)
-- Secured API Keys
-- [API Key Restrictions](https://www.algolia.com/doc/guides/security/api-keys/in-depth/api-key-restrictions/)
-
-## Next Steps
-
-For production deployment, see `algolia-prod-checklist`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [API keys](https://www.algolia.com/doc/guides/security/api-keys)
+- [Secured API keys](https://www.algolia.com/doc/guides/building-search-ui/going-further/api-keys-security/react)
+- [Security best practices](https://www.algolia.com/doc/guides/security/security-best-practices)

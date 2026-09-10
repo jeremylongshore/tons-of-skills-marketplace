@@ -8867,8 +8867,8 @@
       "slug": "algolia-pack",
       "name": "algolia-pack",
       "displayName": "algolia pack",
-      "description": "Claude Code skill pack for Algolia (24 skills)",
-      "version": "1.7.0",
+      "description": "Algolia search integration pack with 24 operator skills",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "algolia",
