@@ -4,7 +4,7 @@ description: >-
   Secure Together AI integrations with project-scoped keys, environment isolation, prompt/output data controls, bounded model behavior, safe logging, rotation, and incident response. Use when threat-modeling or hardening Together usage. Trigger with "Together security", "protect Together API key", or "Together data controls".
 argument-hint: "[repository-path] [environment] [data-classification]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

@@ -4,7 +4,7 @@ description: >-
   Analyze and diagnose Together AI authentication, billing, request, model, throttling, overload, batch, fine-tuning, and endpoint failures from redacted evidence. Use when a Together integration fails or behaves inconsistently. Trigger with "Together error", "Together 429", or "Together model not found".
 argument-hint: "[repository-path] [redacted-error-or-job-id]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

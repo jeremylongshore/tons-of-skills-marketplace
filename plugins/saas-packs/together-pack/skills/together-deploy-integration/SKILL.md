@@ -4,7 +4,7 @@ description: >-
   Deploy and roll back Together AI integrations across serverless inference or v2 Dedicated Model Inference with secret injection, health probes, traffic control, and cost shutdown. Use when releasing Together-backed services or dedicated models. Trigger with "deploy Together", "Together dedicated endpoint", or "Together rollout".
 argument-hint: "[repository-path] [serverless|dedicated-v2] [environment]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

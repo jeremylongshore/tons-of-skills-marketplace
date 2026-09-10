@@ -4,7 +4,7 @@ description: >-
   Migrate Together AI Python SDK v1, OpenAI-compatible clients, deprecated models, or legacy dedicated endpoints with inventory, contract tests, canaries, and rollback. Use when upgrading Together dependencies or provider resources. Trigger with "upgrade Together SDK", "Together model migration", or "migrate Together endpoint v1".
 argument-hint: "[repository-path] [sdk|model|endpoint] [target]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

@@ -4,7 +4,7 @@ description: >-
   Encapsulate Together AI SDK v2 behind a typed adapter with catalog-resolved models, bounded retries, streaming normalization, usage capture, and OpenAI-compatible migration seams. Use when building a reusable Together client layer. Trigger with "Together SDK pattern", "Together client wrapper", or "OpenAI compatibility on Together".
 argument-hint: "[repository-path] [python|typescript]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

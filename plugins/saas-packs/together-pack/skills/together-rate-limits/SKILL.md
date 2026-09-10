@@ -4,7 +4,7 @@ description: >-
   Analyze and control Together AI serverless concurrency from dynamic per-model request/token headers, bounded queues, jittered retries, and batch or dedicated alternatives. Use when preventing throttling or sizing inference traffic. Trigger with "Together rate limit", "Together 429", or "Together concurrency control".
 argument-hint: "[repository-path] [model-id] [traffic-profile]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.8.0
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

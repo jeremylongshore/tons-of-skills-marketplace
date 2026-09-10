@@ -9981,7 +9981,7 @@
       "name": "together-pack",
       "source": "./plugins/saas-packs/together-pack",
       "description": "Source-grounded operator workflows for Together AI inference, batch, fine-tuning, v2 Dedicated Model Inference, security, cost, and production operations",
-      "version": "1.8.0",
+      "version": "1.9.0",
       "category": "saas-packs",
       "keywords": [
         "together-ai",
