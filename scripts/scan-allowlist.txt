@@ -555,3 +555,23 @@ plugins/saas-packs/techsmith-pack/skills/techsmith-sdk-patterns/SKILL.md:allowed
 plugins/saas-packs/techsmith-pack/skills/techsmith-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
 plugins/saas-packs/techsmith-pack/skills/techsmith-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
 plugins/saas-packs/techsmith-pack/skills/techsmith-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+
+# ── Together AI operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult current first-party Together AI
+# documentation; no shell or general HTTP client is granted.
+plugins/saas-packs/together-pack/skills/together-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation

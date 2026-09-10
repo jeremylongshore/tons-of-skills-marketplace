@@ -9980,15 +9980,15 @@
     {
       "name": "together-pack",
       "source": "./plugins/saas-packs/together-pack",
-      "description": "Claude Code skill pack for Together AI (16 skills)",
-      "version": "1.7.0",
+      "description": "Source-grounded operator workflows for Together AI inference, batch, fine-tuning, v2 Dedicated Model Inference, security, cost, and production operations",
+      "version": "1.9.0",
       "category": "saas-packs",
       "keywords": [
-        "together",
-        "together ai",
-        "saas",
-        "sdk",
-        "integration"
+        "together-ai",
+        "inference",
+        "batch-inference",
+        "fine-tuning",
+        "model-operations"
       ],
       "author": {
         "name": "Jeremy Longshore",
