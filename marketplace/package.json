@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",
-    "astro": "^6.4.2",
+    "astro": "^7.2.8",
     "fuse.js": "^7.3.0",
     "tailwindcss": "^4.3.0"
   },
