@@ -131,6 +131,32 @@ plugins/saas-packs/grammarly-pack/skills/grammarly-document-evaluator/scripts/gr
 plugins/saas-packs/grammarly-pack/skills/grammarly-data-safety-guardian/scripts/audit_submission_manifest.py:outbound-network  false positive: urllib.parse.urlsplit validates an origin string offline; the script contains no socket or request operation
 plugins/saas-packs/grammarly-pack/skills/grammarly-document-evaluator/scripts/audit_submission_manifest.py:outbound-network  bundled standalone evaluator runtime; false positive: urllib.parse.urlsplit validates an origin string offline and performs no network I/O
 
+# ── PostHog operator pack — reviewed first-party API-client examples. ──
+# Project tokens are public ingestion identifiers and personal or secure keys are
+# server-only. Each example sends a credential only to its matching PostHog SDK,
+# fixed PostHog Cloud origin, or an operator-selected matching PostHog regional
+# host. The destination examples use their own provider credential and endpoint.
+# No example sends a PostHog credential to a third-party sink. Reviewed 2026-09-10.
+plugins/saas-packs/posthog-pack/skills/posthog-ci-integration/SKILL.md:secret-exfil-cooccur  test project token goes only to the PostHog SDK/flags endpoint and the personal key only to fixed us.posthog.com annotations
+plugins/saas-packs/posthog-pack/skills/posthog-common-errors/SKILL.md:secret-exfil-cooccur  diagnostic project and personal keys go only to fixed or operator-selected matching PostHog regional endpoints
+plugins/saas-packs/posthog-pack/skills/posthog-core-workflow-a/SKILL.md:secret-exfil-cooccur  project token goes only to the PostHog SDK and the personal key only to fixed us.posthog.com annotations
+plugins/saas-packs/posthog-pack/skills/posthog-core-workflow-b/SKILL.md:secret-exfil-cooccur  project and feature-flags secure keys go only to the PostHog SDK; personal key calls use fixed us.posthog.com APIs
+plugins/saas-packs/posthog-pack/skills/posthog-cost-tuning/SKILL.md:secret-exfil-cooccur  project token goes only to PostHog ingestion and personal-key HogQL calls use fixed us.posthog.com
+plugins/saas-packs/posthog-pack/skills/posthog-data-handling/SKILL.md:secret-exfil-cooccur  project token goes only to PostHog ingestion and personal-key privacy operations use fixed us.posthog.com
+plugins/saas-packs/posthog-pack/skills/posthog-deploy-integration/SKILL.md:secret-exfil-cooccur  deployment stores named PostHog secrets without printing them; runtime tokens go only to PostHog SDK/proxy/API endpoints
+plugins/saas-packs/posthog-pack/skills/posthog-hello-world/SKILL.md:secret-exfil-cooccur  public project token is used only by PostHog SDKs and fixed PostHog ingestion endpoints
+plugins/saas-packs/posthog-pack/skills/posthog-incident-runbook/SKILL.md:secret-exfil-cooccur  incident credentials go only to operator-selected matching PostHog regional hosts and the PostHog SDK
+plugins/saas-packs/posthog-pack/skills/posthog-migration-deep-dive/SKILL.md:secret-exfil-cooccur  migration project token goes only to PostHog ingestion and personal-key reconciliation uses fixed us.posthog.com
+plugins/saas-packs/posthog-pack/skills/posthog-multi-env-setup/SKILL.md:secret-exfil-cooccur  per-environment keys stay in their PostHog SDK/project boundary; administrative calls use fixed us.posthog.com
+plugins/saas-packs/posthog-pack/skills/posthog-observability/SKILL.md:secret-exfil-cooccur  project and secure keys go only to the PostHog SDK; personal-key telemetry queries use fixed us.posthog.com
+plugins/saas-packs/posthog-pack/skills/posthog-performance-tuning/SKILL.md:secret-exfil-cooccur  project and secure keys go only to PostHog SDKs; personal-key performance queries use fixed us.posthog.com
+plugins/saas-packs/posthog-pack/skills/posthog-prod-checklist/SKILL.md:secret-exfil-cooccur  release checks send project/personal credentials only to matching PostHog SDK and regional endpoints
+plugins/saas-packs/posthog-pack/skills/posthog-rate-limits/SKILL.md:secret-exfil-cooccur  queue examples attach the PostHog personal key only to fixed us.posthog.com private API calls
+plugins/saas-packs/posthog-pack/skills/posthog-security-basics/SKILL.md:secret-exfil-cooccur  rotation and audit examples send the personal or secure key only to fixed PostHog Cloud APIs/SDK
+plugins/saas-packs/posthog-pack/skills/posthog-webhooks-events/SKILL.md:secret-exfil-cooccur  PostHog personal key uses fixed us.posthog.com; HubSpot and Slack examples use only their own provider credential and endpoint
+plugins/saas-packs/posthog-pack/skills/posthog-webhooks-events/references/implementation-guide.md:secret-exfil-cooccur  personal key is sent only to the operator-selected matching PostHog private regional host
+plugins/saas-packs/posthog-pack/skills/posthog-webhooks-events/references/implementation.md:secret-exfil-cooccur  public project token is sent only to the fixed PostHog ingestion SDK/endpoint
+
 # ── databricks-streaming-guardian: the PreToolUse guard IS the skill's purpose. ──
 # The pack's only blocking hook. It intercepts Bash and BLOCKS a DROP/CREATE-OR-
 # REPLACE/VACUUM only when it positively confirms an active streaming consumer of

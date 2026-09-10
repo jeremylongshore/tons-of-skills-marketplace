@@ -215,6 +215,7 @@
       "Bash(pgrep:*)",
       "Bash(ping:*)",
       "Bash(pip-audit:*)",
+      "Bash(pip3:*)",
       "Bash(pip:*)",
       "Bash(pipdeptree:*)",
       "Bash(pkill:*)",
@@ -10620,7 +10621,7 @@
       "slug": "posthog-pack",
       "name": "posthog-pack",
       "displayName": "posthog pack",
-      "description": "Complete PostHog integration skill pack with 24 skills covering product analytics, feature flags, session replay, and experimentation. Flagship tier vendor pack.",
+      "description": "Verified PostHog operator pack with 24 workflows for regional ingestion, identity, flags, privacy, costs, incidents, migrations, and safe releases.",
       "category": "saas-packs",
       "keywords": [
         "posthog",
@@ -10636,15 +10637,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.12.0",
+      "version": "1.14.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 77,
-      "verificationGrade": "C",
-      "verificationBadge": "silver",
-      "searchText": "posthog pack complete posthog integration skill pack with 24 skills covering product analytics, feature flags, session replay, and experimentation. flagship tier vendor pack. saas-packs posthog product-analytics feature-flags session-replay ab-testing experimentation"
+      "verificationScore": 92,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "posthog pack verified posthog operator pack with 24 workflows for regional ingestion, identity, flags, privacy, costs, incidents, migrations, and safe releases. saas-packs posthog product-analytics feature-flags session-replay ab-testing experimentation"
     },
     {
       "type": "plugin",
@@ -62735,7 +62736,7 @@
       "id": "posthog-ci-integration",
       "slug": "posthog-ci-integration",
       "name": "posthog-ci-integration",
-      "description": "Configure PostHog CI/CD with GitHub Actions: unit tests with mocked PostHog, integration tests against a dev project, and deployment annotations. Trigger: \"posthog CI\", \"posthog GitHub Actions\", \"posthog automated tests\", \"CI posthog\", \"posthog pipeline\".",
+      "description": "Build repository-specific PostHog CI gates for SDK initialization, typed capture tests, release annotations, and secret boundaries. Use when adding or reviewing PostHog checks in continuous integration. Trigger with \"posthog CI\", \"PostHog GitHub Actions\", or \"test PostHog integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -62744,19 +62745,19 @@
         "Bash(gh:*)"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-ci-integration configure posthog ci/cd with github actions: unit tests with mocked posthog, integration tests against a dev project, and deployment annotations. trigger: \"posthog ci\", \"posthog github actions\", \"posthog automated tests\", \"ci posthog\", \"posthog pipeline\". saas-packs read write edit bash(gh:*) "
+      "searchText": "posthog-ci-integration build repository-specific posthog ci gates for sdk initialization, typed capture tests, release annotations, and secret boundaries. use when adding or reviewing posthog checks in continuous integration. trigger with \"posthog ci\", \"posthog github actions\", or \"test posthog integration\". saas-packs read write edit bash(gh:*) "
     },
     {
       "type": "skill",
       "id": "posthog-common-errors",
       "slug": "posthog-common-errors",
       "name": "posthog-common-errors",
-      "description": "Diagnose and fix common PostHog errors: events not appearing, flags returning undefined, 401/429 errors, SDK initialization failures, and identity issues. Trigger: \"posthog error\", \"fix posthog\", \"posthog not working\", \"debug posthog\", \"posthog events missing\", \"posthog broken\".",
+      "description": "Diagnose PostHog ingestion, identity, feature-flag, SDK, and private-API failures from concrete evidence. Use when events are missing, flags return unexpected values, or PostHog requests fail. Trigger with \"debug PostHog\", \"PostHog events missing\", or \"PostHog 401\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -62764,19 +62765,19 @@
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-common-errors diagnose and fix common posthog errors: events not appearing, flags returning undefined, 401/429 errors, sdk initialization failures, and identity issues. trigger: \"posthog error\", \"fix posthog\", \"posthog not working\", \"debug posthog\", \"posthog events missing\", \"posthog broken\". saas-packs read grep bash(curl:*) "
+      "searchText": "posthog-common-errors diagnose posthog ingestion, identity, feature-flag, sdk, and private-api failures from concrete evidence. use when events are missing, flags return unexpected values, or posthog requests fail. trigger with \"debug posthog\", \"posthog events missing\", or \"posthog 401\". saas-packs read grep bash(curl:*) "
     },
     {
       "type": "skill",
       "id": "posthog-core-workflow-a",
       "slug": "posthog-core-workflow-a",
       "name": "posthog-core-workflow-a",
-      "description": "Implement PostHog product analytics: event capture, user identification, group analytics, and property management using posthog-js and posthog-node. Trigger: \"posthog analytics\", \"capture events\", \"track users posthog\", \"posthog identify\", \"posthog group analytics\", \"product analytics\".",
+      "description": "Design and implement a governed PostHog event taxonomy with capture, identity, group, and property contracts. Use when instrumenting a product workflow or repairing inconsistent analytics events. Trigger with \"PostHog analytics\", \"capture events\", or \"PostHog identify\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -62786,19 +62787,19 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-core-workflow-a implement posthog product analytics: event capture, user identification, group analytics, and property management using posthog-js and posthog-node. trigger: \"posthog analytics\", \"capture events\", \"track users posthog\", \"posthog identify\", \"posthog group analytics\", \"product analytics\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "posthog-core-workflow-a design and implement a governed posthog event taxonomy with capture, identity, group, and property contracts. use when instrumenting a product workflow or repairing inconsistent analytics events. trigger with \"posthog analytics\", \"capture events\", or \"posthog identify\". saas-packs read write edit bash(npm:*) grep "
     },
     {
       "type": "skill",
       "id": "posthog-core-workflow-b",
       "slug": "posthog-core-workflow-b",
       "name": "posthog-core-workflow-b",
-      "description": "Implement PostHog feature flags, A/B experiments, and cohort management. Use when rolling out features with flags, running A/B tests, creating cohorts, or evaluating multivariate experiments with PostHog. Trigger: \"posthog feature flag\", \"posthog experiment\", \"posthog A/B test\", \"posthog cohort\", \"feature rollout posthog\", \"posthog multivariate\".",
+      "description": "Implement a safe PostHog feature-flag and experiment lifecycle with defaults, exposure integrity, rollout ownership, and cleanup. Use when releasing behind flags or running controlled experiments. Trigger with \"PostHog feature flag\", \"PostHog experiment\", or \"A/B test\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -62808,38 +62809,39 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-core-workflow-b implement posthog feature flags, a/b experiments, and cohort management. use when rolling out features with flags, running a/b tests, creating cohorts, or evaluating multivariate experiments with posthog. trigger: \"posthog feature flag\", \"posthog experiment\", \"posthog a/b test\", \"posthog cohort\", \"feature rollout posthog\", \"posthog multivariate\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "posthog-core-workflow-b implement a safe posthog feature-flag and experiment lifecycle with defaults, exposure integrity, rollout ownership, and cleanup. use when releasing behind flags or running controlled experiments. trigger with \"posthog feature flag\", \"posthog experiment\", or \"a/b test\". saas-packs read write edit bash(npm:*) grep "
     },
     {
       "type": "skill",
       "id": "posthog-cost-tuning",
       "slug": "posthog-cost-tuning",
       "name": "posthog-cost-tuning",
-      "description": "Optimize PostHog costs: autocapture tuning, event sampling with before_send, bot filtering, session recording sampling, and billing monitoring. Trigger: \"posthog cost\", \"posthog billing\", \"reduce posthog costs\", \"posthog pricing\", \"posthog expensive\", \"posthog budget\", \"posthog free tier\".",
+      "description": "Reduce PostHog usage cost without silently losing decision-critical data by measuring billable volume, applying product limits, and filtering noise. Use when forecasting spend or responding to a usage spike. Trigger with \"PostHog cost\", \"PostHog billing\", or \"reduce PostHog usage\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Grep",
+        "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-cost-tuning optimize posthog costs: autocapture tuning, event sampling with before_send, bot filtering, session recording sampling, and billing monitoring. trigger: \"posthog cost\", \"posthog billing\", \"reduce posthog costs\", \"posthog pricing\", \"posthog expensive\", \"posthog budget\", \"posthog free tier\". saas-packs read grep "
+      "searchText": "posthog-cost-tuning reduce posthog usage cost without silently losing decision-critical data by measuring billable volume, applying product limits, and filtering noise. use when forecasting spend or responding to a usage spike. trigger with \"posthog cost\", \"posthog billing\", or \"reduce posthog usage\". saas-packs read grep bash(curl:*) "
     },
     {
       "type": "skill",
       "id": "posthog-data-handling",
       "slug": "posthog-data-handling",
       "name": "posthog-data-handling",
-      "description": "PostHog PII handling, GDPR compliance, consent management, data deletion, property sanitization, and privacy-safe analytics configuration. Trigger: \"posthog data\", \"posthog PII\", \"posthog GDPR\", \"posthog data retention\", \"posthog privacy\", \"posthog CCPA\", \"posthog consent\".",
+      "description": "Implement consent-aware PostHog collection, PII minimization, masking, retention, and deletion workflows. Use when analytics must satisfy a documented privacy or data-governance requirement. Trigger with \"PostHog privacy\", \"PostHog PII\", or \"PostHog GDPR\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -62847,19 +62849,19 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-data-handling posthog pii handling, gdpr compliance, consent management, data deletion, property sanitization, and privacy-safe analytics configuration. trigger: \"posthog data\", \"posthog pii\", \"posthog gdpr\", \"posthog data retention\", \"posthog privacy\", \"posthog ccpa\", \"posthog consent\". saas-packs read write edit "
+      "searchText": "posthog-data-handling implement consent-aware posthog collection, pii minimization, masking, retention, and deletion workflows. use when analytics must satisfy a documented privacy or data-governance requirement. trigger with \"posthog privacy\", \"posthog pii\", or \"posthog gdpr\". saas-packs read write edit "
     },
     {
       "type": "skill",
       "id": "posthog-debug-bundle",
       "slug": "posthog-debug-bundle",
       "name": "posthog-debug-bundle",
-      "description": "Collect PostHog debug evidence for support tickets and troubleshooting. Gathers SDK versions, API connectivity, event flow status, flag definitions, and redacted configuration into a support-ready archive. Trigger: \"posthog debug\", \"posthog support bundle\", \"collect posthog logs\", \"posthog diagnostic\", \"posthog not working debug\".",
+      "description": "Collect a redacted, reproducible PostHog diagnostic bundle without capturing secrets or raw customer data. Use when an integration failure needs escalation or handoff. Trigger with \"PostHog debug bundle\", \"collect PostHog evidence\", or \"PostHog support ticket\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -62869,19 +62871,19 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-debug-bundle collect posthog debug evidence for support tickets and troubleshooting. gathers sdk versions, api connectivity, event flow status, flag definitions, and redacted configuration into a support-ready archive. trigger: \"posthog debug\", \"posthog support bundle\", \"collect posthog logs\", \"posthog diagnostic\", \"posthog not working debug\". saas-packs read bash(grep:*) bash(curl:*) bash(tar:*) grep "
+      "searchText": "posthog-debug-bundle collect a redacted, reproducible posthog diagnostic bundle without capturing secrets or raw customer data. use when an integration failure needs escalation or handoff. trigger with \"posthog debug bundle\", \"collect posthog evidence\", or \"posthog support ticket\". saas-packs read bash(grep:*) bash(curl:*) bash(tar:*) grep "
     },
     {
       "type": "skill",
       "id": "posthog-deploy-integration",
       "slug": "posthog-deploy-integration",
       "name": "posthog-deploy-integration",
-      "description": "Deploy PostHog to Vercel, Docker (self-hosted), and Cloud Run. Covers Next.js reverse proxy, server-side capture in edge functions, self-hosted PostHog setup, and platform-specific environment configuration. Trigger: \"deploy posthog\", \"posthog Vercel\", \"posthog production deploy\", \"posthog Cloud Run\", \"posthog self-hosted\", \"posthog Docker\".",
+      "description": "Deploy a PostHog application integration with correct regional hosts, reverse-proxy coverage, server lifecycle, and rollback checks. Use when shipping PostHog instrumentation to a hosted application. Trigger with \"deploy PostHog\", \"PostHog Vercel\", or \"PostHog reverse proxy\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -62892,19 +62894,19 @@
         "Bash(gcloud:*)"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-deploy-integration deploy posthog to vercel, docker (self-hosted), and cloud run. covers next.js reverse proxy, server-side capture in edge functions, self-hosted posthog setup, and platform-specific environment configuration. trigger: \"deploy posthog\", \"posthog vercel\", \"posthog production deploy\", \"posthog cloud run\", \"posthog self-hosted\", \"posthog docker\". saas-packs read write edit bash(vercel:*) bash(fly:*) bash(gcloud:*) "
+      "searchText": "posthog-deploy-integration deploy a posthog application integration with correct regional hosts, reverse-proxy coverage, server lifecycle, and rollback checks. use when shipping posthog instrumentation to a hosted application. trigger with \"deploy posthog\", \"posthog vercel\", or \"posthog reverse proxy\". saas-packs read write edit bash(vercel:*) bash(fly:*) bash(gcloud:*) "
     },
     {
       "type": "skill",
       "id": "posthog-enterprise-rbac",
       "slug": "posthog-enterprise-rbac",
       "name": "posthog-enterprise-rbac",
-      "description": "PostHog enterprise access control: organization/project hierarchy, member roles, scoped API keys, SSO/SAML configuration, and activity audit logging. Trigger: \"posthog SSO\", \"posthog RBAC\", \"posthog enterprise\", \"posthog roles\", \"posthog permissions\", \"posthog SAML\", \"posthog access\".",
+      "description": "Govern PostHog organization access with verified domains, SSO or SAML, SCIM, project roles, scoped keys, and audit evidence. Use when designing or reviewing enterprise access controls. Trigger with \"PostHog SSO\", \"PostHog RBAC\", or \"PostHog SCIM\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -62912,19 +62914,19 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-enterprise-rbac posthog enterprise access control: organization/project hierarchy, member roles, scoped api keys, sso/saml configuration, and activity audit logging. trigger: \"posthog sso\", \"posthog rbac\", \"posthog enterprise\", \"posthog roles\", \"posthog permissions\", \"posthog saml\", \"posthog access\". saas-packs read write edit "
+      "searchText": "posthog-enterprise-rbac govern posthog organization access with verified domains, sso or saml, scim, project roles, scoped keys, and audit evidence. use when designing or reviewing enterprise access controls. trigger with \"posthog sso\", \"posthog rbac\", or \"posthog scim\". saas-packs read write edit "
     },
     {
       "type": "skill",
       "id": "posthog-hello-world",
       "slug": "posthog-hello-world",
       "name": "posthog-hello-world",
-      "description": "Create a minimal working PostHog example with event capture, identify, and feature flags. Use when starting a new PostHog integration, testing your setup, or learning basic posthog-js and posthog-node patterns. Trigger: \"posthog hello world\", \"posthog example\", \"posthog quick start\", \"simple posthog code\", \"first posthog event\".",
+      "description": "Verify a minimal PostHog integration with one controlled event, one identified test user, and one feature-flag fallback. Use when proving a new setup before broader instrumentation. Trigger with \"PostHog smoke test\", \"verify PostHog setup\", or \"first PostHog event\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -62932,19 +62934,19 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-hello-world create a minimal working posthog example with event capture, identify, and feature flags. use when starting a new posthog integration, testing your setup, or learning basic posthog-js and posthog-node patterns. trigger: \"posthog hello world\", \"posthog example\", \"posthog quick start\", \"simple posthog code\", \"first posthog event\". saas-packs read write edit "
+      "searchText": "posthog-hello-world verify a minimal posthog integration with one controlled event, one identified test user, and one feature-flag fallback. use when proving a new setup before broader instrumentation. trigger with \"posthog smoke test\", \"verify posthog setup\", or \"first posthog event\". saas-packs read write edit "
     },
     {
       "type": "skill",
       "id": "posthog-incident-runbook",
       "slug": "posthog-incident-runbook",
       "name": "posthog-incident-runbook",
-      "description": "PostHog incident response: triage decision tree, immediate actions for 401/429/500 errors, graceful degradation, evidence collection, and postmortem. Trigger: \"posthog incident\", \"posthog outage\", \"posthog down\", \"posthog on-call\", \"posthog emergency\", \"posthog broken production\".",
+      "description": "Triage a production PostHog integration incident while preserving application availability and evidence. Use when capture, flags, private API access, or downstream destinations are degraded. Trigger with \"PostHog incident\", \"PostHog outage\", or \"PostHog on-call\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -62953,19 +62955,19 @@
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-incident-runbook posthog incident response: triage decision tree, immediate actions for 401/429/500 errors, graceful degradation, evidence collection, and postmortem. trigger: \"posthog incident\", \"posthog outage\", \"posthog down\", \"posthog on-call\", \"posthog emergency\", \"posthog broken production\". saas-packs read grep bash(kubectl:*) bash(curl:*) "
+      "searchText": "posthog-incident-runbook triage a production posthog integration incident while preserving application availability and evidence. use when capture, flags, private api access, or downstream destinations are degraded. trigger with \"posthog incident\", \"posthog outage\", or \"posthog on-call\". saas-packs read grep bash(kubectl:*) bash(curl:*) "
     },
     {
       "type": "skill",
       "id": "posthog-install-auth",
       "slug": "posthog-install-auth",
       "name": "posthog-install-auth",
-      "description": "Install and configure PostHog SDKs with authentication. Use when setting up posthog-js (browser), posthog-node (server), or configuring API keys for a new PostHog integration. Trigger: \"install posthog\", \"setup posthog\", \"posthog auth\", \"configure posthog API key\", \"posthog init\".",
+      "description": "Install an official PostHog SDK and configure the correct project token, regional host, and server-only credentials. Use when bootstrapping or repairing SDK authentication. Trigger with \"install PostHog\", \"configure PostHog\", or \"PostHog API key\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -62976,19 +62978,19 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-install-auth install and configure posthog sdks with authentication. use when setting up posthog-js (browser), posthog-node (server), or configuring api keys for a new posthog integration. trigger: \"install posthog\", \"setup posthog\", \"posthog auth\", \"configure posthog api key\", \"posthog init\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "posthog-install-auth install an official posthog sdk and configure the correct project token, regional host, and server-only credentials. use when bootstrapping or repairing sdk authentication. trigger with \"install posthog\", \"configure posthog\", or \"posthog api key\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
     },
     {
       "type": "skill",
       "id": "posthog-local-dev-loop",
       "slug": "posthog-local-dev-loop",
       "name": "posthog-local-dev-loop",
-      "description": "Configure PostHog local development with mocking, debug mode, and testing. Use when setting up a development environment, mocking PostHog for tests, or establishing a fast iteration cycle with posthog-js or posthog-node. Trigger: \"posthog dev setup\", \"posthog local development\", \"posthog dev environment\", \"mock posthog\", \"test posthog\".",
+      "description": "Build a deterministic local PostHog development loop with dependency injection, mocks, test identities, and optional isolated-project verification. Use when developing analytics without polluting production data. Trigger with \"mock PostHog\", \"PostHog local development\", or \"test PostHog\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -62999,19 +63001,19 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-local-dev-loop configure posthog local development with mocking, debug mode, and testing. use when setting up a development environment, mocking posthog for tests, or establishing a fast iteration cycle with posthog-js or posthog-node. trigger: \"posthog dev setup\", \"posthog local development\", \"posthog dev environment\", \"mock posthog\", \"test posthog\". saas-packs read write edit bash(npm:*) bash(pnpm:*) grep "
+      "searchText": "posthog-local-dev-loop build a deterministic local posthog development loop with dependency injection, mocks, test identities, and optional isolated-project verification. use when developing analytics without polluting production data. trigger with \"mock posthog\", \"posthog local development\", or \"test posthog\". saas-packs read write edit bash(npm:*) bash(pnpm:*) grep "
     },
     {
       "type": "skill",
       "id": "posthog-migration-deep-dive",
       "slug": "posthog-migration-deep-dive",
       "name": "posthog-migration-deep-dive",
-      "description": "Migrate to PostHog from Google Analytics, Mixpanel, Amplitude, or Segment. Covers dual-write strategy, historical data import, event name mapping, identity resolution, and feature flag based traffic shifting. Trigger: \"migrate posthog\", \"posthog migration\", \"switch to posthog\", \"posthog from mixpanel\", \"posthog from GA\", \"posthog replatform\".",
+      "description": "Plan and execute a controlled historical migration into PostHog with identity mapping, timestamp validation, dual-write evidence, and rollback boundaries. Use when moving from another analytics platform or PostHog region. Trigger with \"migrate to PostHog\", \"PostHog historical import\", or \"PostHog dual write\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -63022,19 +63024,19 @@
         "Bash(kubectl:*)"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-migration-deep-dive migrate to posthog from google analytics, mixpanel, amplitude, or segment. covers dual-write strategy, historical data import, event name mapping, identity resolution, and feature flag based traffic shifting. trigger: \"migrate posthog\", \"posthog migration\", \"switch to posthog\", \"posthog from mixpanel\", \"posthog from ga\", \"posthog replatform\". saas-packs read write edit bash(npm:*) bash(node:*) bash(kubectl:*) "
+      "searchText": "posthog-migration-deep-dive plan and execute a controlled historical migration into posthog with identity mapping, timestamp validation, dual-write evidence, and rollback boundaries. use when moving from another analytics platform or posthog region. trigger with \"migrate to posthog\", \"posthog historical import\", or \"posthog dual write\". saas-packs read write edit bash(npm:*) bash(node:*) bash(kubectl:*) "
     },
     {
       "type": "skill",
       "id": "posthog-multi-env-setup",
       "slug": "posthog-multi-env-setup",
       "name": "posthog-multi-env-setup",
-      "description": "Configure PostHog across development, staging, and production environments. Separate PostHog projects per environment, environment-specific SDK config, feature flag rollout per env, and session recording controls. Trigger: \"posthog environments\", \"posthog staging\", \"posthog dev prod\", \"posthog environment setup\", \"posthog project per env\".",
+      "description": "Separate PostHog development, staging, and production data with explicit project tokens, regional hosts, secret scopes, and promotion checks. Use when one codebase deploys to multiple environments. Trigger with \"PostHog environments\", \"PostHog staging\", or \"PostHog dev prod\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -63045,19 +63047,19 @@
         "Bash(vault:*)"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-multi-env-setup configure posthog across development, staging, and production environments. separate posthog projects per environment, environment-specific sdk config, feature flag rollout per env, and session recording controls. trigger: \"posthog environments\", \"posthog staging\", \"posthog dev prod\", \"posthog environment setup\", \"posthog project per env\". saas-packs read write edit bash(aws:*) bash(gcloud:*) bash(vault:*) "
+      "searchText": "posthog-multi-env-setup separate posthog development, staging, and production data with explicit project tokens, regional hosts, secret scopes, and promotion checks. use when one codebase deploys to multiple environments. trigger with \"posthog environments\", \"posthog staging\", or \"posthog dev prod\". saas-packs read write edit bash(aws:*) bash(gcloud:*) bash(vault:*) "
     },
     {
       "type": "skill",
       "id": "posthog-observability",
       "slug": "posthog-observability",
       "name": "posthog-observability",
-      "description": "Monitor PostHog integration health: event ingestion rates, feature flag evaluation latency, billing volume tracking, and Prometheus/Grafana alerting. Trigger: \"posthog monitoring\", \"posthog metrics\", \"posthog observability\", \"monitor posthog\", \"posthog alerts\", \"posthog dashboard\".",
+      "description": "Observe a PostHog integration through application-side delivery metrics, ingestion warnings, billing volume, destination logs, and status evidence. Use when defining health signals or investigating silent analytics loss. Trigger with \"monitor PostHog\", \"PostHog ingestion health\", or \"PostHog alerts\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -63065,19 +63067,19 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-observability monitor posthog integration health: event ingestion rates, feature flag evaluation latency, billing volume tracking, and prometheus/grafana alerting. trigger: \"posthog monitoring\", \"posthog metrics\", \"posthog observability\", \"monitor posthog\", \"posthog alerts\", \"posthog dashboard\". saas-packs read write edit "
+      "searchText": "posthog-observability observe a posthog integration through application-side delivery metrics, ingestion warnings, billing volume, destination logs, and status evidence. use when defining health signals or investigating silent analytics loss. trigger with \"monitor posthog\", \"posthog ingestion health\", or \"posthog alerts\". saas-packs read write edit "
     },
     {
       "type": "skill",
       "id": "posthog-performance-tuning",
       "slug": "posthog-performance-tuning",
       "name": "posthog-performance-tuning",
-      "description": "Optimize PostHog performance: local flag evaluation, client batching config, event sampling, efficient HogQL queries, and serverless flush patterns. Trigger: \"posthog performance\", \"optimize posthog\", \"posthog latency\", \"posthog caching\", \"posthog slow\", \"posthog batch\", \"posthog fast\".",
+      "description": "Tune PostHog SDK queues, serverless delivery, local flag evaluation, browser defaults, and query scope from measured bottlenecks. Use when PostHog adds latency or loses events under load. Trigger with \"PostHog performance\", \"PostHog batching\", or \"slow PostHog flags\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -63085,19 +63087,19 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-performance-tuning optimize posthog performance: local flag evaluation, client batching config, event sampling, efficient hogql queries, and serverless flush patterns. trigger: \"posthog performance\", \"optimize posthog\", \"posthog latency\", \"posthog caching\", \"posthog slow\", \"posthog batch\", \"posthog fast\". saas-packs read write edit "
+      "searchText": "posthog-performance-tuning tune posthog sdk queues, serverless delivery, local flag evaluation, browser defaults, and query scope from measured bottlenecks. use when posthog adds latency or loses events under load. trigger with \"posthog performance\", \"posthog batching\", or \"slow posthog flags\". saas-packs read write edit "
     },
     {
       "type": "skill",
       "id": "posthog-prod-checklist",
       "slug": "posthog-prod-checklist",
       "name": "posthog-prod-checklist",
-      "description": "Production readiness checklist for PostHog integrations: SDK configuration, graceful degradation, health checks, shutdown hooks, and rollback procedures. Trigger: \"posthog production\", \"deploy posthog\", \"posthog go-live\", \"posthog launch checklist\", \"posthog production ready\".",
+      "description": "Run a fail-safe production-readiness review for PostHog instrumentation, flags, secrets, privacy, delivery, and rollback. Use when enabling a new production integration or major SDK change. Trigger with \"PostHog production checklist\", \"PostHog go-live\", or \"review PostHog launch\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -63106,19 +63108,19 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-prod-checklist production readiness checklist for posthog integrations: sdk configuration, graceful degradation, health checks, shutdown hooks, and rollback procedures. trigger: \"posthog production\", \"deploy posthog\", \"posthog go-live\", \"posthog launch checklist\", \"posthog production ready\". saas-packs read bash(kubectl:*) bash(curl:*) grep "
+      "searchText": "posthog-prod-checklist run a fail-safe production-readiness review for posthog instrumentation, flags, secrets, privacy, delivery, and rollback. use when enabling a new production integration or major sdk change. trigger with \"posthog production checklist\", \"posthog go-live\", or \"review posthog launch\". saas-packs read bash(kubectl:*) bash(curl:*) grep "
     },
     {
       "type": "skill",
       "id": "posthog-rate-limits",
       "slug": "posthog-rate-limits",
       "name": "posthog-rate-limits",
-      "description": "Handle PostHog API rate limits with exponential backoff, request queuing, and understanding PostHog's actual limit tiers (240/min analytics, 600/min flags). Trigger: \"posthog rate limit\", \"posthog throttling\", \"posthog 429\", \"posthog retry\", \"posthog backoff\", \"posthog too many requests\".",
+      "description": "Design evidence-based PostHog private-API throttling with correct endpoint classes, team-wide budgets, backoff, and export alternatives. Use when a private API returns 429 or a polling job needs a request budget. Trigger with \"PostHog rate limit\", \"PostHog 429\", or \"PostHog backoff\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -63126,38 +63128,38 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-rate-limits handle posthog api rate limits with exponential backoff, request queuing, and understanding posthog's actual limit tiers (240/min analytics, 600/min flags). trigger: \"posthog rate limit\", \"posthog throttling\", \"posthog 429\", \"posthog retry\", \"posthog backoff\", \"posthog too many requests\". saas-packs read write edit "
+      "searchText": "posthog-rate-limits design evidence-based posthog private-api throttling with correct endpoint classes, team-wide budgets, backoff, and export alternatives. use when a private api returns 429 or a polling job needs a request budget. trigger with \"posthog rate limit\", \"posthog 429\", or \"posthog backoff\". saas-packs read write edit "
     },
     {
       "type": "skill",
       "id": "posthog-reference-architecture",
       "slug": "posthog-reference-architecture",
       "name": "posthog-reference-architecture",
-      "description": "Production PostHog architecture: event taxonomy, SDK layering, feature flag strategy, analytics module layout, and data pipeline integration patterns. Trigger: \"posthog architecture\", \"posthog best practices\", \"posthog project structure\", \"how to organize posthog\", \"posthog design\".",
+      "description": "Design a maintainable PostHog integration boundary for event taxonomy, identity, groups, flags, privacy, regional routing, and delivery ownership. Use when planning or reviewing analytics architecture. Trigger with \"PostHog architecture\", \"organize PostHog\", or \"PostHog design review\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-reference-architecture production posthog architecture: event taxonomy, sdk layering, feature flag strategy, analytics module layout, and data pipeline integration patterns. trigger: \"posthog architecture\", \"posthog best practices\", \"posthog project structure\", \"how to organize posthog\", \"posthog design\". saas-packs read grep "
+      "searchText": "posthog-reference-architecture design a maintainable posthog integration boundary for event taxonomy, identity, groups, flags, privacy, regional routing, and delivery ownership. use when planning or reviewing analytics architecture. trigger with \"posthog architecture\", \"organize posthog\", or \"posthog design review\". saas-packs read grep "
     },
     {
       "type": "skill",
       "id": "posthog-sdk-patterns",
       "slug": "posthog-sdk-patterns",
       "name": "posthog-sdk-patterns",
-      "description": "Production-ready PostHog SDK patterns: singleton client, typed events, React hooks, Next.js App Router integration, and Python patterns. Trigger: \"posthog SDK patterns\", \"posthog best practices\", \"posthog React hook\", \"posthog Next.js\", \"posthog typescript\".",
+      "description": "Implement typed, lifecycle-safe PostHog SDK adapters for browser, Node.js, React, Next.js, or Python. Use when application code needs a reusable analytics boundary. Trigger with \"PostHog SDK pattern\", \"PostHog React\", or \"PostHog TypeScript\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -63165,19 +63167,19 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-sdk-patterns production-ready posthog sdk patterns: singleton client, typed events, react hooks, next.js app router integration, and python patterns. trigger: \"posthog sdk patterns\", \"posthog best practices\", \"posthog react hook\", \"posthog next.js\", \"posthog typescript\". saas-packs read write edit "
+      "searchText": "posthog-sdk-patterns implement typed, lifecycle-safe posthog sdk adapters for browser, node.js, react, next.js, or python. use when application code needs a reusable analytics boundary. trigger with \"posthog sdk pattern\", \"posthog react\", or \"posthog typescript\". saas-packs read write edit "
     },
     {
       "type": "skill",
       "id": "posthog-security-basics",
       "slug": "posthog-security-basics",
       "name": "posthog-security-basics",
-      "description": "Secure PostHog integration: API key management, project key vs personal key separation, secret rotation, scoped keys, and git-leak prevention. Trigger: \"posthog security\", \"posthog secrets\", \"secure posthog\", \"posthog API key security\", \"posthog key rotation\".",
+      "description": "Secure PostHog tokens, hosts, proxy routes, captured properties, and private-API scopes across browser and server boundaries. Use when reviewing secrets or hardening an integration. Trigger with \"PostHog security\", \"PostHog secret scan\", or \"PostHog API key review\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -63185,41 +63187,46 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-security-basics secure posthog integration: api key management, project key vs personal key separation, secret rotation, scoped keys, and git-leak prevention. trigger: \"posthog security\", \"posthog secrets\", \"secure posthog\", \"posthog api key security\", \"posthog key rotation\". saas-packs read write grep "
+      "searchText": "posthog-security-basics secure posthog tokens, hosts, proxy routes, captured properties, and private-api scopes across browser and server boundaries. use when reviewing secrets or hardening an integration. trigger with \"posthog security\", \"posthog secret scan\", or \"posthog api key review\". saas-packs read write grep "
     },
     {
       "type": "skill",
       "id": "posthog-upgrade-migration",
       "slug": "posthog-upgrade-migration",
       "name": "posthog-upgrade-migration",
-      "description": "Upgrade posthog-js and posthog-node SDKs with breaking change detection. Covers v4 to v5 posthog-node migration (sendFeatureFlags change), posthog-js autocapture API changes, and version-specific gotchas. Trigger: \"upgrade posthog\", \"posthog breaking changes\", \"update posthog SDK\", \"posthog version\", \"posthog migration\".",
+      "description": "Upgrade PostHog SDKs through release-note review, configuration-default comparison, focused tests, canary evidence, and rollback. Use when changing a PostHog package version or defaults date. Trigger with \"upgrade PostHog SDK\", \"PostHog breaking change\", or \"PostHog version migration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
         "Write",
         "Edit",
+        "Grep",
         "Bash(npm:*)",
-        "Bash(git:*)"
+        "Bash(npx:*)",
+        "Bash(git:*)",
+        "Bash(pip:*)",
+        "Bash(pip3:*)",
+        "Bash(grep:*)"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-upgrade-migration upgrade posthog-js and posthog-node sdks with breaking change detection. covers v4 to v5 posthog-node migration (sendfeatureflags change), posthog-js autocapture api changes, and version-specific gotchas. trigger: \"upgrade posthog\", \"posthog breaking changes\", \"update posthog sdk\", \"posthog version\", \"posthog migration\". saas-packs read write edit bash(npm:*) bash(git:*) "
+      "searchText": "posthog-upgrade-migration upgrade posthog sdks through release-note review, configuration-default comparison, focused tests, canary evidence, and rollback. use when changing a posthog package version or defaults date. trigger with \"upgrade posthog sdk\", \"posthog breaking change\", or \"posthog version migration\". saas-packs read write edit grep bash(npm:*) bash(npx:*) bash(git:*) bash(pip:*) bash(pip3:*) bash(grep:*) "
     },
     {
       "type": "skill",
       "id": "posthog-webhooks-events",
       "slug": "posthog-webhooks-events",
       "name": "posthog-webhooks-events",
-      "description": "Implement PostHog webhook destinations, Action-triggered notifications, and event querying via the Events API and HogQL. Trigger: \"posthog webhook\", \"posthog events API\", \"posthog actions\", \"posthog notifications\", \"posthog event query\", \"posthog HogQL\".",
+      "description": "Build and verify PostHog realtime webhook destinations and bounded private-API or HogQL event queries. Use when delivering selected events to another system or investigating event data. Trigger with \"PostHog webhook\", \"PostHog destination\", or \"PostHog HogQL query\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -63228,12 +63235,12 @@
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "posthog-pack",
         "category": "saas-packs"
       },
-      "searchText": "posthog-webhooks-events implement posthog webhook destinations, action-triggered notifications, and event querying via the events api and hogql. trigger: \"posthog webhook\", \"posthog events api\", \"posthog actions\", \"posthog notifications\", \"posthog event query\", \"posthog hogql\". saas-packs read write edit bash(curl:*) "
+      "searchText": "posthog-webhooks-events build and verify posthog realtime webhook destinations and bounded private-api or hogql event queries. use when delivering selected events to another system or investigating event data. trigger with \"posthog webhook\", \"posthog destination\", or \"posthog hogql query\". saas-packs read write edit bash(curl:*) "
     },
     {
       "type": "skill",
