@@ -26,7 +26,7 @@ Each skill is source-grounded in current official Miro documentation, declares i
 - REST resources use `https://api.miro.com/v2`; OAuth exchange remains at `https://api.miro.com/v1/oauth/token`.
 - Expiring-token apps use one-hour access tokens and rotating refresh tokens with a sixty-day lifetime.
 - REST limits are per user/application and credit weighted. Responses expose limit, remaining, and reset headers.
-- Miro discontinued `/v2-experimental/webhooks/board_subscriptions` in 2025. There is no documented production REST webhook replacement. Web SDK UI events are active-board session behavior, not durable server event delivery.
+- Miro discontinued `/v2-experimental/webhooks/board_subscriptions` [on December 5, 2025](https://developers.miro.com/changelog/removed-experimental-webhooks-support). There is no documented production REST webhook replacement. Web SDK UI events are active-board session behavior, not durable server event delivery.
 
 See each skill's `references/official-docs.md` for the verified primary-source set.
 

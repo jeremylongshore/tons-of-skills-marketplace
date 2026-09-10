@@ -42,8 +42,15 @@ class MiroPackContractTest(unittest.TestCase):
     def setUp(self) -> None:
         self.skill_files = sorted(SKILLS.glob("*/SKILL.md"))
         self.assertEqual(EXPECTED_SKILLS, {path.parent.name for path in self.skill_files})
-        manifest = json.loads((PACK / ".claude-plugin" / "plugin.json").read_text())
-        self.expected_version = manifest["version"]
+        self.manifest = json.loads((PACK / ".claude-plugin" / "plugin.json").read_text())
+        self.expected_version = self.manifest["version"]
+
+    def test_manifest_retains_one_product_keyword(self) -> None:
+        self.assertEqual(
+            1,
+            self.manifest["keywords"].count("miro"),
+            "deduplicate the Miro keyword without removing product-name discovery",
+        )
 
     def test_all_skills_have_release_metadata_and_official_references(self) -> None:
         headings = set()
