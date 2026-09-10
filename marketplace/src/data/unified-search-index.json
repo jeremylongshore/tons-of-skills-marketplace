@@ -11951,7 +11951,7 @@
       "slug": "attio-pack",
       "name": "attio-pack",
       "displayName": "attio pack",
-      "description": "Claude Code skill pack for Attio (18 skills)",
+      "description": "Attio CRM integration pack with 18 operator skills",
       "category": "saas-packs",
       "keywords": [
         "attio",
@@ -11965,7 +11965,7 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -11973,7 +11973,7 @@
       "verificationScore": 79,
       "verificationGrade": "C",
       "verificationBadge": "silver",
-      "searchText": "attio pack claude code skill pack for attio (18 skills) saas-packs attio saas sdk integration"
+      "searchText": "attio pack attio crm integration pack with 18 operator skills saas-packs attio saas sdk integration"
     },
     {
       "type": "plugin",
@@ -21552,384 +21552,414 @@
       "id": "attio-ci-integration",
       "slug": "attio-ci-integration",
       "name": "attio-ci-integration",
-      "description": "Configure CI/CD pipelines for Attio integrations with GitHub Actions, mock-based unit tests, and live API integration tests. Trigger: \"attio CI\", \"attio GitHub Actions\", \"attio automated tests\", \"CI attio\", \"attio pipeline\", \"test attio in CI\".",
+      "description": "Build a bounded CI contract gate for an Attio integration using fixtures, schema checks, and an optional read-only smoke request. Use when Attio changes need pull-request evidence without mutating CRM data. Trigger with \"Attio CI\", \"test Attio integration\", or \"Attio pull request gate\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(gh:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-ci-integration configure ci/cd pipelines for attio integrations with github actions, mock-based unit tests, and live api integration tests. trigger: \"attio ci\", \"attio github actions\", \"attio automated tests\", \"ci attio\", \"attio pipeline\", \"test attio in ci\". saas-packs read write edit bash(gh:*) "
+      "searchText": "attio-ci-integration build a bounded ci contract gate for an attio integration using fixtures, schema checks, and an optional read-only smoke request. use when attio changes need pull-request evidence without mutating crm data. trigger with \"attio ci\", \"test attio integration\", or \"attio pull request gate\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "attio-common-errors",
       "slug": "attio-common-errors",
       "name": "attio-common-errors",
-      "description": "Diagnose and fix the top Attio REST API errors by HTTP status code. Real error response formats, actual error codes, and proven fixes. Trigger: \"attio error\", \"fix attio\", \"attio not working\", \"attio 429\", \"attio 403\", \"attio 422\", \"debug attio\".",
+      "description": "Diagnose Attio REST API failures from status, structured error fields, endpoint contract, and request context without exposing customer data. Use when an Attio request returns 400, 401, 403, 404, 409, 422, 429, or 5xx. Trigger with \"Attio error\", \"Attio request failed\", or \"debug Attio API\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-common-errors diagnose and fix the top attio rest api errors by http status code. real error response formats, actual error codes, and proven fixes. trigger: \"attio error\", \"fix attio\", \"attio not working\", \"attio 429\", \"attio 403\", \"attio 422\", \"debug attio\". saas-packs read grep bash(curl:*) "
+      "searchText": "attio-common-errors diagnose attio rest api failures from status, structured error fields, endpoint contract, and request context without exposing customer data. use when an attio request returns 400, 401, 403, 404, 409, 422, 429, or 5xx. trigger with \"attio error\", \"attio request failed\", or \"debug attio api\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "attio-core-workflow-a",
       "slug": "attio-core-workflow-a",
       "name": "attio-core-workflow-a",
-      "description": "Full CRUD on Attio records -- create, read, update, delete, and search across people, companies, deals, and custom objects. Trigger: \"attio records\", \"attio CRUD\", \"create attio record\", \"update attio person\", \"search attio companies\", \"attio objects\".",
+      "description": "Implement a safe Attio record lifecycle for standard or custom objects, including schema discovery, query, create or assert, update, and delete controls. Use when building record synchronization or CRM write paths. Trigger with \"Attio records\", \"Attio CRUD\", or \"sync Attio objects\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-core-workflow-a full crud on attio records -- create, read, update, delete, and search across people, companies, deals, and custom objects. trigger: \"attio records\", \"attio crud\", \"create attio record\", \"update attio person\", \"search attio companies\", \"attio objects\". saas-packs read write edit bash(curl:*) grep "
+      "searchText": "attio-core-workflow-a implement a safe attio record lifecycle for standard or custom objects, including schema discovery, query, create or assert, update, and delete controls. use when building record synchronization or crm write paths. trigger with \"attio records\", \"attio crud\", or \"sync attio objects\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "attio-core-workflow-b",
       "slug": "attio-core-workflow-b",
       "name": "attio-core-workflow-b",
-      "description": "Manage Attio lists, entries, notes, and tasks via the REST API. Use when working with sales pipelines, kanban boards, CRM notes, or task assignments in Attio. Trigger: \"attio lists\", \"attio entries\", \"attio pipeline\", \"attio notes\", \"attio tasks\", \"add to attio list\".",
+      "description": "Build an Attio workflow around lists and entries while keeping record data, list-specific attributes, notes, and tasks correctly separated. Use when implementing pipelines, queues, or operational CRM processes. Trigger with \"Attio lists\", \"Attio entries\", or \"Attio pipeline workflow\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-core-workflow-b manage attio lists, entries, notes, and tasks via the rest api. use when working with sales pipelines, kanban boards, crm notes, or task assignments in attio. trigger: \"attio lists\", \"attio entries\", \"attio pipeline\", \"attio notes\", \"attio tasks\", \"add to attio list\". saas-packs read write edit bash(curl:*) grep "
+      "searchText": "attio-core-workflow-b build an attio workflow around lists and entries while keeping record data, list-specific attributes, notes, and tasks correctly separated. use when implementing pipelines, queues, or operational crm processes. trigger with \"attio lists\", \"attio entries\", or \"attio pipeline workflow\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "attio-cost-tuning",
       "slug": "attio-cost-tuning",
       "name": "attio-cost-tuning",
-      "description": "Optimize Attio API usage costs -- reduce request volume, select the right plan, monitor usage, and implement budget alerts. Trigger: \"attio cost\", \"attio billing\", \"reduce attio costs\", \"attio pricing\", \"attio expensive\", \"attio budget\", \"attio usage\".",
+      "description": "Analyze and reduce avoidable Attio integration cost and load by measuring request volume, query complexity, synchronization churn, and retained data before changing architecture. Use when an Attio workload is wasteful or operationally expensive. Trigger with \"Attio cost\", \"reduce Attio API usage\", or \"Attio sync efficiency\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-cost-tuning optimize attio api usage costs -- reduce request volume, select the right plan, monitor usage, and implement budget alerts. trigger: \"attio cost\", \"attio billing\", \"reduce attio costs\", \"attio pricing\", \"attio expensive\", \"attio budget\", \"attio usage\". saas-packs read grep "
+      "searchText": "attio-cost-tuning analyze and reduce avoidable attio integration cost and load by measuring request volume, query complexity, synchronization churn, and retained data before changing architecture. use when an attio workload is wasteful or operationally expensive. trigger with \"attio cost\", \"reduce attio api usage\", or \"attio sync efficiency\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "attio-debug-bundle",
       "slug": "attio-debug-bundle",
       "name": "attio-debug-bundle",
-      "description": "Collect Attio integration diagnostic evidence -- API health, scopes, object schema, and rate limit status -- for debugging or support tickets. Trigger: \"attio debug\", \"attio support bundle\", \"attio diagnostic\", \"collect attio logs\", \"attio not working debug\".",
+      "description": "Assemble a minimal redacted Attio diagnostic bundle with request fingerprints, schema context, retry evidence, and environment metadata. Use when escalating an Attio integration failure without leaking CRM data or secrets. Trigger with \"Attio debug bundle\", \"Attio support evidence\", or \"collect Attio diagnostics\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Bash(jq:*)",
-        "Bash(tar:*)",
-        "Bash(node:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-debug-bundle collect attio integration diagnostic evidence -- api health, scopes, object schema, and rate limit status -- for debugging or support tickets. trigger: \"attio debug\", \"attio support bundle\", \"attio diagnostic\", \"collect attio logs\", \"attio not working debug\". saas-packs read bash(curl:*) bash(jq:*) bash(tar:*) bash(node:*) grep "
+      "searchText": "attio-debug-bundle assemble a minimal redacted attio diagnostic bundle with request fingerprints, schema context, retry evidence, and environment metadata. use when escalating an attio integration failure without leaking crm data or secrets. trigger with \"attio debug bundle\", \"attio support evidence\", or \"collect attio diagnostics\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "attio-deploy-integration",
       "slug": "attio-deploy-integration",
       "name": "attio-deploy-integration",
-      "description": "Deploy Attio integrations to Vercel, Fly.io, Railway, and Cloud Run with proper secrets, health checks, and webhook endpoint configuration. Trigger: \"deploy attio\", \"attio Vercel\", \"attio production deploy\", \"attio Cloud Run\", \"attio Fly.io\", \"attio Railway\".",
+      "description": "Plan and execute a staged deployment for an external Attio REST integration with secret injection, contract tests, read-only smoke evidence, canary writes, and rollback. Use when releasing Attio-backed services. Trigger with \"deploy Attio integration\", \"Attio rollout\", or \"Attio release plan\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(fly:*)",
-        "Bash(gcloud:*)",
-        "Bash(railway:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-deploy-integration deploy attio integrations to vercel, fly.io, railway, and cloud run with proper secrets, health checks, and webhook endpoint configuration. trigger: \"deploy attio\", \"attio vercel\", \"attio production deploy\", \"attio cloud run\", \"attio fly.io\", \"attio railway\". saas-packs read write edit bash(vercel:*) bash(fly:*) bash(gcloud:*) bash(railway:*) "
+      "searchText": "attio-deploy-integration plan and execute a staged deployment for an external attio rest integration with secret injection, contract tests, read-only smoke evidence, canary writes, and rollback. use when releasing attio-backed services. trigger with \"deploy attio integration\", \"attio rollout\", or \"attio release plan\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "attio-hello-world",
       "slug": "attio-hello-world",
       "name": "attio-hello-world",
-      "description": "Make your first Attio API calls -- list objects, create a person, query companies, and read attributes. Use when starting a new Attio integration or learning the API. Trigger: \"attio hello world\", \"attio example\", \"first attio call\", \"attio quick start\", \"try attio API\".",
+      "description": "Prove the smallest safe Attio REST connection by listing objects and validating the response envelope without changing CRM data. Use when checking a new token, workspace, or integration path. Trigger with \"Attio hello world\", \"first Attio request\", or \"test Attio connection\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Bash(npx:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-hello-world make your first attio api calls -- list objects, create a person, query companies, and read attributes. use when starting a new attio integration or learning the api. trigger: \"attio hello world\", \"attio example\", \"first attio call\", \"attio quick start\", \"try attio api\". saas-packs read write edit bash(curl:*) bash(npx:*) "
+      "searchText": "attio-hello-world prove the smallest safe attio rest connection by listing objects and validating the response envelope without changing crm data. use when checking a new token, workspace, or integration path. trigger with \"attio hello world\", \"first attio request\", or \"test attio connection\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "attio-install-auth",
       "slug": "attio-install-auth",
       "name": "attio-install-auth",
-      "description": "Set up Attio REST API authentication with access tokens or OAuth 2.0. Use when configuring API keys, setting token scopes, initializing the Attio client, or connecting an app via OAuth. Trigger: \"install attio\", \"setup attio\", \"attio auth\", \"attio API key\", \"attio OAuth\", \"attio access token\".",
+      "description": "Choose and configure Attio REST authentication for a single workspace or multi-workspace OAuth app, including least-privilege scopes and a read-only verification. Use when connecting a service to Attio. Trigger with \"Attio auth\", \"Attio API key\", or \"Attio OAuth setup\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-install-auth set up attio rest api authentication with access tokens or oauth 2.0. use when configuring api keys, setting token scopes, initializing the attio client, or connecting an app via oauth. trigger: \"install attio\", \"setup attio\", \"attio auth\", \"attio api key\", \"attio oauth\", \"attio access token\". saas-packs read write edit bash(npm:*) bash(npx:*) grep "
+      "searchText": "attio-install-auth choose and configure attio rest authentication for a single workspace or multi-workspace oauth app, including least-privilege scopes and a read-only verification. use when connecting a service to attio. trigger with \"attio auth\", \"attio api key\", or \"attio oauth setup\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "attio-local-dev-loop",
       "slug": "attio-local-dev-loop",
       "name": "attio-local-dev-loop",
-      "description": "Set up a fast local development loop for Attio integrations with hot reload, mock server, and integration tests. Trigger: \"attio dev setup\", \"attio local development\", \"attio dev environment\", \"develop with attio\", \"attio project setup\".",
+      "description": "Establish a repeatable local Attio development loop with sanitized fixtures, a non-production workspace, explicit mutation switches, and cleanup receipts. Use when iterating on Attio mappings or API behavior. Trigger with \"Attio local development\", \"Attio dev loop\", or \"test Attio locally\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-local-dev-loop set up a fast local development loop for attio integrations with hot reload, mock server, and integration tests. trigger: \"attio dev setup\", \"attio local development\", \"attio dev environment\", \"develop with attio\", \"attio project setup\". saas-packs read write edit bash(npm:*) bash(pnpm:*) bash(npx:*) grep "
+      "searchText": "attio-local-dev-loop establish a repeatable local attio development loop with sanitized fixtures, a non-production workspace, explicit mutation switches, and cleanup receipts. use when iterating on attio mappings or api behavior. trigger with \"attio local development\", \"attio dev loop\", or \"test attio locally\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "attio-performance-tuning",
       "slug": "attio-performance-tuning",
       "name": "attio-performance-tuning",
-      "description": "Optimize Attio API performance -- caching, batch queries, pagination strategies, connection pooling, and latency reduction. Trigger: \"attio performance\", \"optimize attio\", \"attio slow\", \"attio latency\", \"attio caching\", \"attio batch requests\".",
+      "description": "Analyze and improve Attio integration latency and throughput from measured query shape, pagination, concurrency, retry, and cache evidence while preserving correctness. Use when Attio requests are slow or queues are backing up. Trigger with \"Attio performance\", \"speed up Attio sync\", or \"Attio query tuning\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-performance-tuning optimize attio api performance -- caching, batch queries, pagination strategies, connection pooling, and latency reduction. trigger: \"attio performance\", \"optimize attio\", \"attio slow\", \"attio latency\", \"attio caching\", \"attio batch requests\". saas-packs read write edit "
+      "searchText": "attio-performance-tuning analyze and improve attio integration latency and throughput from measured query shape, pagination, concurrency, retry, and cache evidence while preserving correctness. use when attio requests are slow or queues are backing up. trigger with \"attio performance\", \"speed up attio sync\", or \"attio query tuning\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "attio-prod-checklist",
       "slug": "attio-prod-checklist",
       "name": "attio-prod-checklist",
-      "description": "Production readiness checklist for Attio API integrations -- auth, error handling, rate limits, health checks, monitoring, and rollback. Trigger: \"attio production\", \"deploy attio\", \"attio go-live\", \"attio launch checklist\", \"attio production ready\".",
+      "description": "Run an evidence-based production-readiness review for an Attio integration across identity, scopes, data ownership, retries, webhooks, observability, rollback, and support. Use when preparing to enable production Attio traffic. Trigger with \"Attio production checklist\", \"Attio go-live\", or \"review Attio release\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-prod-checklist production readiness checklist for attio api integrations -- auth, error handling, rate limits, health checks, monitoring, and rollback. trigger: \"attio production\", \"deploy attio\", \"attio go-live\", \"attio launch checklist\", \"attio production ready\". saas-packs read bash(curl:*) grep "
+      "searchText": "attio-prod-checklist run an evidence-based production-readiness review for an attio integration across identity, scopes, data ownership, retries, webhooks, observability, rollback, and support. use when preparing to enable production attio traffic. trigger with \"attio production checklist\", \"attio go-live\", or \"review attio release\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "attio-rate-limits",
       "slug": "attio-rate-limits",
       "name": "attio-rate-limits",
-      "description": "Handle Attio API rate limits with exponential backoff, queue-based throttling, and Retry-After header parsing. Trigger: \"attio rate limit\", \"attio 429\", \"attio throttling\", \"attio retry\", \"attio backoff\", \"attio too many requests\".",
+      "description": "Analyze and design an Attio request governor with separate read and write budgets, query-score awareness, bounded retries, and observable backpressure. Use when an Attio integration receives 429 responses or needs safe concurrency controls. Trigger with \"Attio rate limits\", \"Attio 429\", or \"throttle Attio requests\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-rate-limits handle attio api rate limits with exponential backoff, queue-based throttling, and retry-after header parsing. trigger: \"attio rate limit\", \"attio 429\", \"attio throttling\", \"attio retry\", \"attio backoff\", \"attio too many requests\". saas-packs read write edit "
+      "searchText": "attio-rate-limits analyze and design an attio request governor with separate read and write budgets, query-score awareness, bounded retries, and observable backpressure. use when an attio integration receives 429 responses or needs safe concurrency controls. trigger with \"attio rate limits\", \"attio 429\", or \"throttle attio requests\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "attio-reference-architecture",
       "slug": "attio-reference-architecture",
       "name": "attio-reference-architecture",
-      "description": "Production reference architecture for Attio CRM integrations -- layered project structure, sync patterns, webhook processing, and multi-environment setup. Trigger: \"attio architecture\", \"attio best practices\", \"attio project structure\", \"how to organize attio\", \"attio integration design\".",
+      "description": "Design a production Attio integration architecture with tenant-bound credentials, schema discovery, queued writes, verified webhooks, idempotency, reconciliation, and rollback ownership. Use when planning or reviewing a multi-workspace Attio service. Trigger with \"Attio architecture\", \"design Attio integration\", or \"Attio system design\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-reference-architecture production reference architecture for attio crm integrations -- layered project structure, sync patterns, webhook processing, and multi-environment setup. trigger: \"attio architecture\", \"attio best practices\", \"attio project structure\", \"how to organize attio\", \"attio integration design\". saas-packs read grep "
+      "searchText": "attio-reference-architecture design a production attio integration architecture with tenant-bound credentials, schema discovery, queued writes, verified webhooks, idempotency, reconciliation, and rollback ownership. use when planning or reviewing a multi-workspace attio service. trigger with \"attio architecture\", \"design attio integration\", or \"attio system design\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "attio-sdk-patterns",
       "slug": "attio-sdk-patterns",
       "name": "attio-sdk-patterns",
-      "description": "Production-ready patterns for the Attio REST API: typed client, retry with backoff, pagination iterators, and multi-tenant factory. Trigger: \"attio SDK patterns\", \"attio best practices\", \"attio client wrapper\", \"idiomatic attio\", \"attio TypeScript patterns\".",
+      "description": "Build a typed Attio REST client with tenant-aware tokens, endpoint-specific pagination, structured errors, bounded retries, and contract tests while distinguishing it from the Attio App SDK. Use when creating or refactoring Attio integration code. Trigger with \"Attio SDK\", \"Attio client wrapper\", or \"typed Attio API\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-sdk-patterns production-ready patterns for the attio rest api: typed client, retry with backoff, pagination iterators, and multi-tenant factory. trigger: \"attio sdk patterns\", \"attio best practices\", \"attio client wrapper\", \"idiomatic attio\", \"attio typescript patterns\". saas-packs read write edit "
+      "searchText": "attio-sdk-patterns build a typed attio rest client with tenant-aware tokens, endpoint-specific pagination, structured errors, bounded retries, and contract tests while distinguishing it from the attio app sdk. use when creating or refactoring attio integration code. trigger with \"attio sdk\", \"attio client wrapper\", or \"typed attio api\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "attio-security-basics",
       "slug": "attio-security-basics",
       "name": "attio-security-basics",
-      "description": "Secure Attio API integrations -- token scoping, secret management, scope auditing, webhook signature verification, and rotation procedures. Trigger: \"attio security\", \"attio secrets\", \"secure attio\", \"attio API key security\", \"attio scopes\", \"attio token rotation\".",
+      "description": "Harden an Attio integration with least-privilege credentials, tenant isolation, log redaction, raw-body webhook verification, idempotency, and incident-ready rotation. Use when reviewing Attio security controls or preparing production access. Trigger with \"Attio security\", \"secure Attio integration\", or \"Attio webhook signature\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-security-basics secure attio api integrations -- token scoping, secret management, scope auditing, webhook signature verification, and rotation procedures. trigger: \"attio security\", \"attio secrets\", \"secure attio\", \"attio api key security\", \"attio scopes\", \"attio token rotation\". saas-packs read write edit grep "
+      "searchText": "attio-security-basics harden an attio integration with least-privilege credentials, tenant isolation, log redaction, raw-body webhook verification, idempotency, and incident-ready rotation. use when reviewing attio security controls or preparing production access. trigger with \"attio security\", \"secure attio integration\", or \"attio webhook signature\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "attio-upgrade-migration",
       "slug": "attio-upgrade-migration",
       "name": "attio-upgrade-migration",
-      "description": "Migrate between Attio API versions, handle breaking changes in the v1-to-v2 transition, and plan for future deprecations. Trigger: \"upgrade attio\", \"attio migration\", \"attio v1 to v2\", \"attio breaking changes\", \"attio API version\", \"attio deprecation\".",
+      "description": "Migrate an Attio integration through a contract-led inventory, OpenAPI and documentation diff, shadow validation, canary rollout, reconciliation, and tested rollback. Use when endpoint assumptions, client versions, schemas, or integration architecture must change. Trigger with \"upgrade Attio integration\", \"Attio migration\", or \"Attio API contract change\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(git:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-upgrade-migration migrate between attio api versions, handle breaking changes in the v1-to-v2 transition, and plan for future deprecations. trigger: \"upgrade attio\", \"attio migration\", \"attio v1 to v2\", \"attio breaking changes\", \"attio api version\", \"attio deprecation\". saas-packs read write edit bash(npm:*) bash(git:*) grep "
+      "searchText": "attio-upgrade-migration migrate an attio integration through a contract-led inventory, openapi and documentation diff, shadow validation, canary rollout, reconciliation, and tested rollback. use when endpoint assumptions, client versions, schemas, or integration architecture must change. trigger with \"upgrade attio integration\", \"attio migration\", or \"attio api contract change\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "attio-webhooks-events",
       "slug": "attio-webhooks-events",
       "name": "attio-webhooks-events",
-      "description": "Implement Attio v2 webhooks -- subscribe to record/list/note/task events, verify signatures, filter by object or attribute, and handle idempotently. Trigger: \"attio webhook\", \"attio events\", \"attio webhook signature\", \"handle attio events\", \"attio notifications\", \"attio real-time\".",
+      "description": "Build and operate an Attio webhook receiver with raw-body HMAC verification, fast acknowledgement, durable queues, idempotent processing, retry awareness, and reconciliation. Use when implementing or repairing Attio event delivery. Trigger with \"Attio webhooks\", \"Attio events\", or \"verify Attio signature\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "attio-pack",
         "category": "saas-packs"
       },
-      "searchText": "attio-webhooks-events implement attio v2 webhooks -- subscribe to record/list/note/task events, verify signatures, filter by object or attribute, and handle idempotently. trigger: \"attio webhook\", \"attio events\", \"attio webhook signature\", \"handle attio events\", \"attio notifications\", \"attio real-time\". saas-packs read write edit bash(curl:*) "
+      "searchText": "attio-webhooks-events build and operate an attio webhook receiver with raw-body hmac verification, fast acknowledgement, durable queues, idempotent processing, retry awareness, and reconciliation. use when implementing or repairing attio event delivery. trigger with \"attio webhooks\", \"attio events\", or \"verify attio signature\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",

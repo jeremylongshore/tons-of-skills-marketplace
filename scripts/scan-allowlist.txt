@@ -412,18 +412,27 @@ plugins/saas-packs/adobe-pack/skills/adobe-sdk-patterns/SKILL.md:secret-exfil-co
 plugins/saas-packs/adobe-pack/skills/adobe-upgrade-migration/SKILL.md:secret-exfil-cooccur  documented upgrade example sends Adobe credential only to Adobe's API
 plugins/saas-packs/adobe-pack/skills/adobe-webhooks-events/SKILL.md:secret-exfil-cooccur  documented webhook example sends Adobe credential only to Adobe's API
 
-# ── Attio internal pack remediation (2026-08-23). ──
-# Each reviewed example sends an Attio API credential only to Attio's documented
-# API endpoints; no example forwards that credential to a third-party host or logs it.
-plugins/saas-packs/attio-pack/skills/attio-ci-integration/SKILL.md:secret-exfil-cooccur  documented Attio CI example sends its Attio test credential only to api.attio.com
-plugins/saas-packs/attio-pack/skills/attio-debug-bundle/SKILL.md:secret-exfil-cooccur  documented Attio diagnostic request sends its Attio credential only to api.attio.com
-plugins/saas-packs/attio-pack/skills/attio-deploy-integration/SKILL.md:secret-exfil-cooccur  documented deployment example sends its Attio credential only to Attio's API
-plugins/saas-packs/attio-pack/skills/attio-install-auth/SKILL.md:secret-exfil-cooccur  documented authentication example sends Attio credentials only to Attio's API
-plugins/saas-packs/attio-pack/skills/attio-prod-checklist/SKILL.md:secret-exfil-cooccur  documented production verification sends its Attio credential only to api.attio.com
-plugins/saas-packs/attio-pack/skills/attio-sdk-patterns/SKILL.md:secret-exfil-cooccur  documented SDK example sends its Attio credential only to api.attio.com
-plugins/saas-packs/attio-pack/skills/attio-security-basics/SKILL.md:secret-exfil-cooccur  documented security example sends its Attio credential only to Attio's API
-plugins/saas-packs/attio-pack/skills/attio-upgrade-migration/SKILL.md:secret-exfil-cooccur  documented upgrade request sends its Attio credential only to api.attio.com
-plugins/saas-packs/attio-pack/skills/attio-webhooks-events/SKILL.md:secret-exfil-cooccur  documented webhook management example sends its Attio credential only to api.attio.com
+# ── Attio operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult the current official Attio documentation
+# named in its checked reference file; it grants no shell or general HTTP client.
+plugins/saas-packs/attio-pack/skills/attio-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
 plugins/saas-packs/langfuse-pack/skills/langfuse-webhooks-events/SKILL.md:secret-exfil-cooccur  reviewed webhook tutorial: the Langfuse signing secret is used only for local HMAC verification; separately configured Slack and GitHub credentials are sent only to their respective notification and dispatch APIs, never forwarded with the Langfuse secret
 plugins/saas-packs/lindy-pack/skills/lindy-ci-integration/SKILL.md:secret-exfil-cooccur  reviewed CI documentation: the Lindy API key is sent only to public.lindy.ai, and the configured webhook secret is sent only to the configured Lindy webhook endpoint; the local test secret is not forwarded
 plugins/saas-packs/lindy-pack/skills/lindy-deploy-integration/SKILL.md:secret-exfil-cooccur  reviewed deployment documentation: LINDY_CALLBACK_SECRET is sent only to the operator's configured callback endpoint, while LINDY_TRIGGER_SECRET is sent only to public.lindy.ai; the two credentials are intentionally distinct and never forwarded to a third-party host
