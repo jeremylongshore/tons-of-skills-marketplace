@@ -9433,8 +9433,8 @@
     {
       "name": "miro-pack",
       "source": "./plugins/saas-packs/miro-pack",
-      "description": "Claude Code skill pack for Miro (24 skills)",
-      "version": "1.7.0",
+      "description": "Miro operator workflows for OAuth, boards, governance, migration, and resilient synchronization (24 skills; live actions remain approval-gated)",
+      "version": "1.9.0",
       "category": "saas-packs",
       "keywords": [
         "miro",
@@ -9451,10 +9451,10 @@
         "skills": 24
       },
       "verification": {
-        "score": 80,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 99,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-10T00:00:00.000Z"
       }
     },
     {

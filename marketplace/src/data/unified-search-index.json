@@ -12799,7 +12799,7 @@
       "slug": "miro-pack",
       "name": "miro-pack",
       "displayName": "miro pack",
-      "description": "Claude Code skill pack for Miro (24 skills)",
+      "description": "Miro operator workflows for OAuth, boards, governance, migration, and resilient synchronization (24 skills; live actions remain approval-gated)",
       "category": "saas-packs",
       "keywords": [
         "miro",
@@ -12813,15 +12813,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.7.0",
+      "version": "1.9.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 80,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "miro pack claude code skill pack for miro (24 skills) saas-packs miro saas sdk integration"
+      "verificationScore": 99,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "miro pack miro operator workflows for oauth, boards, governance, migration, and resilient synchronization (24 skills; live actions remain approval-gated) saas-packs miro saas sdk integration"
     },
     {
       "type": "plugin",
@@ -55068,507 +55068,552 @@
       "id": "miro-ci-integration",
       "slug": "miro-ci-integration",
       "name": "miro-ci-integration",
-      "description": "Configure CI/CD pipelines for Miro REST API v2 integrations with GitHub Actions, test board isolation, and automated validation. Trigger with phrases like \"miro CI\", \"miro GitHub Actions\", \"miro automated tests\", \"CI miro\", \"miro pipeline\".",
+      "description": "Design and implement repository-side Miro CI gates with schema-faithful fixtures, protected live-test handoffs, test-board isolation, and cleanup proof. Use when adding Miro checks to CI. Trigger with \"test Miro in CI\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(gh:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-ci-integration configure ci/cd pipelines for miro rest api v2 integrations with github actions, test board isolation, and automated validation. trigger with phrases like \"miro ci\", \"miro github actions\", \"miro automated tests\", \"ci miro\", \"miro pipeline\". saas-packs read write edit bash(gh:*) "
+      "searchText": "miro-ci-integration design and implement repository-side miro ci gates with schema-faithful fixtures, protected live-test handoffs, test-board isolation, and cleanup proof. use when adding miro checks to ci. trigger with \"test miro in ci\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-common-errors",
       "slug": "miro-common-errors",
       "name": "miro-common-errors",
-      "description": "Diagnose and fix Miro REST API v2 errors by HTTP status code. Use when encountering Miro API errors, debugging failed requests, or troubleshooting authentication and permission issues. Trigger with phrases like \"miro error\", \"fix miro\", \"miro not working\", \"debug miro\", \"miro 401\", \"miro 403\", \"miro 429\".",
+      "description": "Diagnose Miro OAuth and REST failures from status, context, scopes, rate headers, and safe evidence. Use when a Miro integration returns errors. Trigger with \"debug Miro API error\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-common-errors diagnose and fix miro rest api v2 errors by http status code. use when encountering miro api errors, debugging failed requests, or troubleshooting authentication and permission issues. trigger with phrases like \"miro error\", \"fix miro\", \"miro not working\", \"debug miro\", \"miro 401\", \"miro 403\", \"miro 429\". saas-packs read grep bash(curl:*) "
+      "searchText": "miro-common-errors diagnose miro oauth and rest failures from status, context, scopes, rate headers, and safe evidence. use when a miro integration returns errors. trigger with \"debug miro api error\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-core-workflow-a",
       "slug": "miro-core-workflow-a",
       "name": "miro-core-workflow-a",
-      "description": "Manage Miro boards and items — create, read, update, delete boards, sticky notes, shapes, cards, frames, and tags via REST API v2. Trigger with phrases like \"miro board management\", \"create miro board\", \"miro items CRUD\", \"miro sticky notes\", \"organize miro board\".",
+      "description": "Plan and implement an approval-gated Miro client workflow for board and item mutations with preconditions, bounded batches, and rollback evidence. Use when creating or changing Miro content. Trigger with \"update Miro board\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-core-workflow-a manage miro boards and items — create, read, update, delete boards, sticky notes, shapes, cards, frames, and tags via rest api v2. trigger with phrases like \"miro board management\", \"create miro board\", \"miro items crud\", \"miro sticky notes\", \"organize miro board\". saas-packs read write edit bash(npm:*) bash(curl:*) grep "
+      "searchText": "miro-core-workflow-a plan and implement an approval-gated miro client workflow for board and item mutations with preconditions, bounded batches, and rollback evidence. use when creating or changing miro content. trigger with \"update miro board\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-core-workflow-b",
       "slug": "miro-core-workflow-b",
       "name": "miro-core-workflow-b",
-      "description": "Manage Miro connectors, images, embeds, app cards, and document items via REST API v2. Use for visual workflows, embedding content, and building rich board layouts. Trigger with phrases like \"miro connectors\", \"miro embed\", \"miro app card\", \"miro image upload\", \"connect miro items\".",
+      "description": "Design and implement a Miro read-and-reconcile client with cursor-safe pagination, bounded snapshots, and drift reports. Use when syncing or auditing Miro content. Trigger with \"reconcile Miro board\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-core-workflow-b manage miro connectors, images, embeds, app cards, and document items via rest api v2. use for visual workflows, embedding content, and building rich board layouts. trigger with phrases like \"miro connectors\", \"miro embed\", \"miro app card\", \"miro image upload\", \"connect miro items\". saas-packs read write edit bash(npm:*) bash(curl:*) grep "
+      "searchText": "miro-core-workflow-b design and implement a miro read-and-reconcile client with cursor-safe pagination, bounded snapshots, and drift reports. use when syncing or auditing miro content. trigger with \"reconcile miro board\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-cost-tuning",
       "slug": "miro-cost-tuning",
       "name": "miro-cost-tuning",
-      "description": "Optimize Miro API costs through credit monitoring, request reduction, and plan selection based on the credit-based rate limiting model. Trigger with phrases like \"miro cost\", \"miro billing\", \"reduce miro costs\", \"miro pricing\", \"miro credits usage\".",
+      "description": "Diagnose Miro API credit demand and implement repository-side traffic controls that preserve freshness, completeness, and user experience. Use when right-sizing polling or synchronization. Trigger with \"reduce Miro API usage\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-cost-tuning optimize miro api costs through credit monitoring, request reduction, and plan selection based on the credit-based rate limiting model. trigger with phrases like \"miro cost\", \"miro billing\", \"reduce miro costs\", \"miro pricing\", \"miro credits usage\". saas-packs read grep "
+      "searchText": "miro-cost-tuning diagnose miro api credit demand and implement repository-side traffic controls that preserve freshness, completeness, and user experience. use when right-sizing polling or synchronization. trigger with \"reduce miro api usage\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-data-handling",
       "slug": "miro-data-handling",
       "name": "miro-data-handling",
-      "description": "Implement Miro REST API v2 data handling with PII detection in board content, data export via API, retention policies, and GDPR/CCPA compliance patterns. Trigger with phrases like \"miro data\", \"miro PII\", \"miro GDPR\", \"miro data export\", \"miro privacy\", \"miro compliance\".",
+      "description": "Design and implement repository-side controls for Miro reads, storage, exports, redaction, retention, and deletion by purpose and data class. Use when processing collaborative board content. Trigger with \"miro board data handling\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-data-handling implement miro rest api v2 data handling with pii detection in board content, data export via api, retention policies, and gdpr/ccpa compliance patterns. trigger with phrases like \"miro data\", \"miro pii\", \"miro gdpr\", \"miro data export\", \"miro privacy\", \"miro compliance\". saas-packs read write edit "
+      "searchText": "miro-data-handling design and implement repository-side controls for miro reads, storage, exports, redaction, retention, and deletion by purpose and data class. use when processing collaborative board content. trigger with \"miro board data handling\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-debug-bundle",
       "slug": "miro-debug-bundle",
       "name": "miro-debug-bundle",
-      "description": "Collect Miro REST API v2 diagnostic evidence for support tickets. Use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for Miro integration problems. Trigger with phrases like \"miro debug\", \"miro support bundle\", \"collect miro logs\", \"miro diagnostic\", \"miro support ticket\".",
+      "description": "Design and implement a repository-side Miro diagnostic-bundle workflow with bounded metadata and automatic redaction. Use when escalating a Miro failure. Trigger with \"build Miro debug bundle\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Bash(tar:*)",
-        "Bash(jq:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-debug-bundle collect miro rest api v2 diagnostic evidence for support tickets. use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for miro integration problems. trigger with phrases like \"miro debug\", \"miro support bundle\", \"collect miro logs\", \"miro diagnostic\", \"miro support ticket\". saas-packs read bash(curl:*) bash(tar:*) bash(jq:*) grep "
+      "searchText": "miro-debug-bundle design and implement a repository-side miro diagnostic-bundle workflow with bounded metadata and automatic redaction. use when escalating a miro failure. trigger with \"build miro debug bundle\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-deploy-integration",
       "slug": "miro-deploy-integration",
       "name": "miro-deploy-integration",
-      "description": "Deploy Miro REST API v2 integrations to Vercel, Fly.io, and Cloud Run with proper OAuth token management and webhook configuration. Trigger with phrases like \"deploy miro\", \"miro Vercel\", \"miro production deploy\", \"miro Cloud Run\", \"miro Fly.io\".",
+      "description": "Prepare and verify repository-side deployment configuration for a Miro service with isolated settings, health checks, canaries, rollback, and an approval-gated live handoff. Use when promoting a Miro-backed release. Trigger with \"miro integration deployment\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(fly:*)",
-        "Bash(gcloud:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-deploy-integration deploy miro rest api v2 integrations to vercel, fly.io, and cloud run with proper oauth token management and webhook configuration. trigger with phrases like \"deploy miro\", \"miro vercel\", \"miro production deploy\", \"miro cloud run\", \"miro fly.io\". saas-packs read write edit bash(vercel:*) bash(fly:*) bash(gcloud:*) "
+      "searchText": "miro-deploy-integration prepare and verify repository-side deployment configuration for a miro service with isolated settings, health checks, canaries, rollback, and an approval-gated live handoff. use when promoting a miro-backed release. trigger with \"miro integration deployment\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-enterprise-rbac",
       "slug": "miro-enterprise-rbac",
       "name": "miro-enterprise-rbac",
-      "description": "Configure Miro Enterprise features: organization management, SCIM provisioning, board-level access control, audit logs, and SSO integration via REST API v2. Trigger with phrases like \"miro SSO\", \"miro RBAC\", \"miro enterprise\", \"miro SCIM\", \"miro permissions\", \"miro organization\".",
+      "description": "Audit organization, team, board, role, and Enterprise-scope access with plan-aware evidence. Use when reviewing Miro enterprise governance. Trigger with \"miro enterprise access governance\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-enterprise-rbac configure miro enterprise features: organization management, scim provisioning, board-level access control, audit logs, and sso integration via rest api v2. trigger with phrases like \"miro sso\", \"miro rbac\", \"miro enterprise\", \"miro scim\", \"miro permissions\", \"miro organization\". saas-packs read write edit "
+      "searchText": "miro-enterprise-rbac audit organization, team, board, role, and enterprise-scope access with plan-aware evidence. use when reviewing miro enterprise governance. trigger with \"miro enterprise access governance\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-hello-world",
       "slug": "miro-hello-world",
       "name": "miro-hello-world",
-      "description": "Create a minimal working Miro example with real board and item operations. Use when starting a new Miro integration, testing your setup, or learning the Miro REST API v2 item model. Trigger with phrases like \"miro hello world\", \"miro example\", \"miro quick start\", \"first miro board\", \"create miro sticky note\".",
+      "description": "Design and implement a bounded, read-only Miro connectivity probe that proves authorization context before writes are enabled. Use when smoke-testing a new Miro integration. Trigger with \"test Miro connection\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-hello-world create a minimal working miro example with real board and item operations. use when starting a new miro integration, testing your setup, or learning the miro rest api v2 item model. trigger with phrases like \"miro hello world\", \"miro example\", \"miro quick start\", \"first miro board\", \"create miro sticky note\". saas-packs read write edit bash(npm:*) bash(npx:*) "
+      "searchText": "miro-hello-world design and implement a bounded, read-only miro connectivity probe that proves authorization context before writes are enabled. use when smoke-testing a new miro integration. trigger with \"test miro connection\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-incident-runbook",
       "slug": "miro-incident-runbook",
       "name": "miro-incident-runbook",
-      "description": "Execute Miro REST API v2 incident response with triage, mitigation, and postmortem. Use when responding to Miro-related outages, investigating API errors, or running post-incident reviews for Miro integration failures. Trigger with phrases like \"miro incident\", \"miro outage\", \"miro down\", \"miro on-call\", \"miro emergency\", \"miro broken\".",
+      "description": "Plan and implement repository-side containment and recovery controls for Miro authorization, capacity, outage, and data-correctness incidents, with approval-gated live actions. Use when responding to a Miro service incident. Trigger with \"Miro incident\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)",
-        "Bash(jq:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-incident-runbook execute miro rest api v2 incident response with triage, mitigation, and postmortem. use when responding to miro-related outages, investigating api errors, or running post-incident reviews for miro integration failures. trigger with phrases like \"miro incident\", \"miro outage\", \"miro down\", \"miro on-call\", \"miro emergency\", \"miro broken\". saas-packs read grep bash(curl:*) bash(jq:*) "
+      "searchText": "miro-incident-runbook plan and implement repository-side containment and recovery controls for miro authorization, capacity, outage, and data-correctness incidents, with approval-gated live actions. use when responding to a miro service incident. trigger with \"miro incident\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-install-auth",
       "slug": "miro-install-auth",
       "name": "miro-install-auth",
-      "description": "Install and configure Miro REST API v2 authentication with OAuth 2.0. Use when setting up a new Miro app, configuring OAuth tokens, or initializing the @mirohq/miro-api Node.js client. Trigger with phrases like \"install miro\", \"setup miro\", \"miro auth\", \"miro OAuth\", \"configure miro API\".",
+      "description": "Design and implement a production Miro REST authorization flow with least-privilege scopes, tenant-bound storage, token rotation, and an approval-gated installation handoff. Use when installing or repairing Miro authorization. Trigger with \"set up Miro OAuth\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-install-auth install and configure miro rest api v2 authentication with oauth 2.0. use when setting up a new miro app, configuring oauth tokens, or initializing the @mirohq/miro-api node.js client. trigger with phrases like \"install miro\", \"setup miro\", \"miro auth\", \"miro oauth\", \"configure miro api\". saas-packs read write edit bash(npm:*) bash(npx:*) grep "
+      "searchText": "miro-install-auth design and implement a production miro rest authorization flow with least-privilege scopes, tenant-bound storage, token rotation, and an approval-gated installation handoff. use when installing or repairing miro authorization. trigger with \"set up miro oauth\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-local-dev-loop",
       "slug": "miro-local-dev-loop",
       "name": "miro-local-dev-loop",
-      "description": "Configure Miro local development with hot reload, testing, and ngrok tunneling. Use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with the Miro REST API v2. Trigger with phrases like \"miro dev setup\", \"miro local development\", \"miro dev environment\", \"develop with miro\", \"miro testing\".",
+      "description": "Build repository-side scaffolding for a repeatable Miro development loop with isolated apps, fixture boards, contract tests, cleanup, and explicit operator commands. Use when developing Miro integrations locally. Trigger with \"start Miro dev loop\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-local-dev-loop configure miro local development with hot reload, testing, and ngrok tunneling. use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with the miro rest api v2. trigger with phrases like \"miro dev setup\", \"miro local development\", \"miro dev environment\", \"develop with miro\", \"miro testing\". saas-packs read write edit bash(npm:*) bash(npx:*) grep "
+      "searchText": "miro-local-dev-loop build repository-side scaffolding for a repeatable miro development loop with isolated apps, fixture boards, contract tests, cleanup, and explicit operator commands. use when developing miro integrations locally. trigger with \"start miro dev loop\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-migration-deep-dive",
       "slug": "miro-migration-deep-dive",
       "name": "miro-migration-deep-dive",
-      "description": "Execute major Miro migrations — migrate boards between teams/orgs, export board content to external systems, import data into Miro, and re-platform from competing whiteboard tools using REST API v2. Trigger with phrases like \"migrate miro\", \"miro migration\", \"export miro boards\", \"import to miro\", \"miro data migration\".",
+      "description": "Plan and implement a reversible client migration from v1 widgets and relationships to v2 item endpoints with translation and shadow comparison. Use when modernizing a legacy Miro REST integration. Trigger with \"miro v1-to-v2 resource migration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(node:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-migration-deep-dive execute major miro migrations — migrate boards between teams/orgs, export board content to external systems, import data into miro, and re-platform from competing whiteboard tools using rest api v2. trigger with phrases like \"migrate miro\", \"miro migration\", \"export miro boards\", \"import to miro\", \"miro data migration\". saas-packs read write edit bash(npm:*) bash(node:*) "
+      "searchText": "miro-migration-deep-dive plan and implement a reversible client migration from v1 widgets and relationships to v2 item endpoints with translation and shadow comparison. use when modernizing a legacy miro rest integration. trigger with \"miro v1-to-v2 resource migration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-multi-env-setup",
       "slug": "miro-multi-env-setup",
       "name": "miro-multi-env-setup",
-      "description": "Configure Miro REST API v2 across development, staging, and production with separate OAuth apps, isolated test boards, and secret management. Trigger with phrases like \"miro environments\", \"miro staging\", \"miro dev prod\", \"miro environment setup\", \"miro multi env\".",
+      "description": "Design and implement repository-side isolation for Miro development, staging, and production apps, redirects, token references, teams, and boards with hard guards. Use when configuring multiple environments. Trigger with \"miro multi-environment isolation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(gcloud:*)",
-        "Bash(aws:*)",
-        "Bash(vault:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-multi-env-setup configure miro rest api v2 across development, staging, and production with separate oauth apps, isolated test boards, and secret management. trigger with phrases like \"miro environments\", \"miro staging\", \"miro dev prod\", \"miro environment setup\", \"miro multi env\". saas-packs read write edit bash(gcloud:*) bash(aws:*) bash(vault:*) "
+      "searchText": "miro-multi-env-setup design and implement repository-side isolation for miro development, staging, and production apps, redirects, token references, teams, and boards with hard guards. use when configuring multiple environments. trigger with \"miro multi-environment isolation\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-observability",
       "slug": "miro-observability",
       "name": "miro-observability",
-      "description": "Set up observability for Miro REST API v2 integrations with Prometheus metrics, OpenTelemetry traces, structured logging, and Grafana dashboards. Trigger with phrases like \"miro monitoring\", \"miro metrics\", \"miro observability\", \"monitor miro\", \"miro alerts\", \"miro tracing\".",
+      "description": "Design and implement repository-side Miro instrumentation with safe metrics, rate-credit headers, semantic outcomes, and actionable alerts. Use when operating a Miro integration. Trigger with \"monitor Miro integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-observability set up observability for miro rest api v2 integrations with prometheus metrics, opentelemetry traces, structured logging, and grafana dashboards. trigger with phrases like \"miro monitoring\", \"miro metrics\", \"miro observability\", \"monitor miro\", \"miro alerts\", \"miro tracing\". saas-packs read write edit "
+      "searchText": "miro-observability design and implement repository-side miro instrumentation with safe metrics, rate-credit headers, semantic outcomes, and actionable alerts. use when operating a miro integration. trigger with \"monitor miro integration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-performance-tuning",
       "slug": "miro-performance-tuning",
       "name": "miro-performance-tuning",
-      "description": "Optimize Miro REST API v2 performance with caching, cursor pagination, request batching, and connection pooling for high-throughput integrations. Trigger with phrases like \"miro performance\", \"optimize miro\", \"miro latency\", \"miro caching\", \"miro slow\", \"miro batch\".",
+      "description": "Diagnose supplied Miro latency and credit evidence, then implement repository-side read/write controls for cursor behavior, bulk semantics, throughput, and freshness. Use when improving Miro throughput or freshness. Trigger with \"miro integration performance tuning\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-performance-tuning optimize miro rest api v2 performance with caching, cursor pagination, request batching, and connection pooling for high-throughput integrations. trigger with phrases like \"miro performance\", \"optimize miro\", \"miro latency\", \"miro caching\", \"miro slow\", \"miro batch\". saas-packs read write edit "
+      "searchText": "miro-performance-tuning diagnose supplied miro latency and credit evidence, then implement repository-side read/write controls for cursor behavior, bulk semantics, throughput, and freshness. use when improving miro throughput or freshness. trigger with \"miro integration performance tuning\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-prod-checklist",
       "slug": "miro-prod-checklist",
       "name": "miro-prod-checklist",
-      "description": "Execute Miro REST API v2 production deployment checklist and rollback procedures. Use when deploying Miro integrations to production, preparing for launch, or implementing go-live procedures for Miro apps. Trigger with phrases like \"miro production\", \"deploy miro\", \"miro go-live\", \"miro launch checklist\", \"miro production ready\".",
+      "description": "Audit repository readiness for a fail-closed Miro production release across authorization, data, resilience, rollback, and an approval-gated live handoff. Use when preparing to enable a Miro integration in production. Trigger with \"ship Miro integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-prod-checklist execute miro rest api v2 production deployment checklist and rollback procedures. use when deploying miro integrations to production, preparing for launch, or implementing go-live procedures for miro apps. trigger with phrases like \"miro production\", \"deploy miro\", \"miro go-live\", \"miro launch checklist\", \"miro production ready\". saas-packs read bash(curl:*) grep "
+      "searchText": "miro-prod-checklist audit repository readiness for a fail-closed miro production release across authorization, data, resilience, rollback, and an approval-gated live handoff. use when preparing to enable a miro integration in production. trigger with \"ship miro integration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-rate-limits",
       "slug": "miro-rate-limits",
       "name": "miro-rate-limits",
-      "description": "Implement Miro REST API v2 rate limiting with the credit-based system, exponential backoff, and request queuing. Trigger with phrases like \"miro rate limit\", \"miro throttling\", \"miro 429\", \"miro retry\", \"miro backoff\", \"miro credits\".",
+      "description": "Design and implement repository-side Miro REST traffic controls from credit weights, supplied headers, bounded queues, and reset-aware retries. Use when preventing or recovering from Miro 429 responses. Trigger with \"Miro rate limit\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-rate-limits implement miro rest api v2 rate limiting with the credit-based system, exponential backoff, and request queuing. trigger with phrases like \"miro rate limit\", \"miro throttling\", \"miro 429\", \"miro retry\", \"miro backoff\", \"miro credits\". saas-packs read write edit "
+      "searchText": "miro-rate-limits design and implement repository-side miro rest traffic controls from credit weights, supplied headers, bounded queues, and reset-aware retries. use when preventing or recovering from miro 429 responses. trigger with \"miro rate limit\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-reference-architecture",
       "slug": "miro-reference-architecture",
       "name": "miro-reference-architecture",
-      "description": "Implement a production-ready reference architecture for Miro REST API v2 integrations with layered design, caching, and event processing. Trigger with phrases like \"miro architecture\", \"miro project structure\", \"how to organize miro integration\", \"miro design patterns\".",
+      "description": "Analyze requirements and design tenant-safe Miro boundaries across Web SDK, backend OAuth, REST adapters, queues, reconciliation, and approval-gated live operations. Use when planning a Miro integration. Trigger with \"miro integration reference architecture\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-reference-architecture implement a production-ready reference architecture for miro rest api v2 integrations with layered design, caching, and event processing. trigger with phrases like \"miro architecture\", \"miro project structure\", \"how to organize miro integration\", \"miro design patterns\". saas-packs read grep "
+      "searchText": "miro-reference-architecture analyze requirements and design tenant-safe miro boundaries across web sdk, backend oauth, rest adapters, queues, reconciliation, and approval-gated live operations. use when planning a miro integration. trigger with \"miro integration reference architecture\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-sdk-patterns",
       "slug": "miro-sdk-patterns",
       "name": "miro-sdk-patterns",
-      "description": "Apply production-ready patterns for @mirohq/miro-api client usage. Use when implementing Miro integrations, refactoring SDK usage, or establishing coding standards for Miro REST API v2. Trigger with phrases like \"miro SDK patterns\", \"miro best practices\", \"miro code patterns\", \"miro client wrapper\", \"miro typescript\".",
+      "description": "Choose and implement Miro Node client or raw REST adapter patterns with typed boundaries, pagination, tenant isolation, and explicit operator commands. Use when designing a Miro API adapter. Trigger with \"review Miro SDK pattern\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-sdk-patterns apply production-ready patterns for @mirohq/miro-api client usage. use when implementing miro integrations, refactoring sdk usage, or establishing coding standards for miro rest api v2. trigger with phrases like \"miro sdk patterns\", \"miro best practices\", \"miro code patterns\", \"miro client wrapper\", \"miro typescript\". saas-packs read write edit "
+      "searchText": "miro-sdk-patterns choose and implement miro node client or raw rest adapter patterns with typed boundaries, pagination, tenant isolation, and explicit operator commands. use when designing a miro api adapter. trigger with \"review miro sdk pattern\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-security-basics",
       "slug": "miro-security-basics",
       "name": "miro-security-basics",
-      "description": "Apply Miro REST API v2 security best practices — OAuth scope minimization, token storage, webhook signature validation, and secret rotation. Trigger with phrases like \"miro security\", \"miro secrets\", \"secure miro\", \"miro token security\", \"miro webhook signature\".",
+      "description": "Audit and harden repository-side Miro OAuth, session, storage, scope, logging, and board-data controls against common integration failures. Use when security-reviewing a Miro app. Trigger with \"secure Miro integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-security-basics apply miro rest api v2 security best practices — oauth scope minimization, token storage, webhook signature validation, and secret rotation. trigger with phrases like \"miro security\", \"miro secrets\", \"secure miro\", \"miro token security\", \"miro webhook signature\". saas-packs read write grep "
+      "searchText": "miro-security-basics audit and harden repository-side miro oauth, session, storage, scope, logging, and board-data controls against common integration failures. use when security-reviewing a miro app. trigger with \"secure miro integration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-upgrade-migration",
       "slug": "miro-upgrade-migration",
       "name": "miro-upgrade-migration",
-      "description": "Migrate Miro integrations from REST API v1 to v2 and upgrade @mirohq/miro-api SDK. Use when upgrading SDK versions, migrating v1 widget endpoints to v2 item endpoints, or handling breaking changes in the Miro platform. Trigger with phrases like \"upgrade miro\", \"miro migration\", \"miro v1 to v2\", \"update miro SDK\", \"miro breaking changes\".",
+      "description": "Plan and implement a Miro integration upgrade through contract inventory, pinned dependencies, shadow-read design, reversible rollout, and an approval-gated live handoff. Use when changing API or SDK versions. Trigger with \"upgrade Miro integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-upgrade-migration migrate miro integrations from rest api v1 to v2 and upgrade @mirohq/miro-api sdk. use when upgrading sdk versions, migrating v1 widget endpoints to v2 item endpoints, or handling breaking changes in the miro platform. trigger with phrases like \"upgrade miro\", \"miro migration\", \"miro v1 to v2\", \"update miro sdk\", \"miro breaking changes\". saas-packs read write edit bash(npm:*) bash(npx:*) "
+      "searchText": "miro-upgrade-migration plan and implement a miro integration upgrade through contract inventory, pinned dependencies, shadow-read design, reversible rollout, and an approval-gated live handoff. use when changing api or sdk versions. trigger with \"upgrade miro integration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "miro-webhooks-events",
       "slug": "miro-webhooks-events",
       "name": "miro-webhooks-events",
-      "description": "Implement Miro REST API v2 webhooks with board subscriptions, event handling, and signature verification for real-time board change notifications. Trigger with phrases like \"miro webhook\", \"miro events\", \"miro board subscription\", \"miro real-time\", \"miro notifications\".",
+      "description": "Design and implement a repository-side replacement for retired Miro REST webhooks using explicit freshness requirements, bounded reconciliation, or in-board Web SDK events. Use when designing Miro change detection. Trigger with \"Miro webhooks\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "miro-pack",
         "category": "saas-packs"
       },
-      "searchText": "miro-webhooks-events implement miro rest api v2 webhooks with board subscriptions, event handling, and signature verification for real-time board change notifications. trigger with phrases like \"miro webhook\", \"miro events\", \"miro board subscription\", \"miro real-time\", \"miro notifications\". saas-packs read write edit bash(curl:*) "
+      "searchText": "miro-webhooks-events design and implement a repository-side replacement for retired miro rest webhooks using explicit freshness requirements, bounded reconciliation, or in-board web sdk events. use when designing miro change detection. trigger with \"miro webhooks\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",

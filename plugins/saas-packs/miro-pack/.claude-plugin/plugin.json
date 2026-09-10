@@ -1,14 +1,13 @@
 {
   "name": "miro-pack",
-  "version": "1.7.0",
-  "description": "Claude Code skill pack for Miro (24 skills)",
+  "version": "1.9.0",
+  "description": "Miro operator workflows for OAuth, boards, governance, migration, and resilient synchronization (24 skills; live actions remain approval-gated)",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
   },
   "license": "MIT",
   "keywords": [
-    "miro",
     "miro",
     "saas",
     "sdk",

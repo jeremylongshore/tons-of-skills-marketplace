@@ -1,220 +1,83 @@
 ---
 name: miro-install-auth
-description: 'Install and configure Miro REST API v2 authentication with OAuth 2.0.
-
-  Use when setting up a new Miro app, configuring OAuth tokens,
-
-  or initializing the @mirohq/miro-api Node.js client.
-
-  Trigger with phrases like "install miro", "setup miro",
-
-  "miro auth", "miro OAuth", "configure miro API".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(npx:*), Grep
-version: 1.7.0
-license: MIT
+description: "Design and implement a production Miro REST authorization flow with least-privilege scopes, tenant-bound storage, token rotation, and an approval-gated installation handoff. Use when installing or repairing Miro authorization. Trigger with \"set up Miro OAuth\"."
+argument-hint: "[app-environment] [required-capabilities]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - miro
 - oauth
 - authentication
-compatibility: Designed for Claude Code
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live work requires an authorized Miro app and redacted evidence
 ---
-# Miro Install & Auth
+# Miro OAuth Installation and Token Lifecycle
 
 ## Overview
 
-Set up the official `@mirohq/miro-api` Node.js client and configure OAuth 2.0 authentication against the Miro REST API v2 (`https://api.miro.com/v2/`).
+Establish an auditable authorization boundary before any board operation. Prefer expiring-token apps and prove tenant context without exposing credentials; use the evidence produced here to make the next decision explicit and reviewable.
 
 ## Prerequisites
 
-- Node.js 18+
-- A Miro account (Free, Business, or Enterprise)
-- A Miro app created at https://developers.miro.com (Your apps > Create new app)
-- Client ID, Client Secret, and OAuth redirect URI from the app settings
+- A Miro Developer team and an app configuration for the target environment
+- Approved redirect URIs and a server-side encrypted token store
+- A capability-to-scope map and accountable installation owner
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary. These declared tools do not call authenticated Miro APIs or deployment CLIs; implement client, configuration, and test changes, then return exact operator commands or an approval-gated handoff for live execution.
+
+## Current Contract
+
+- REST apps use OAuth 2.0 Authorization Code; authorization starts at `https://miro.com/oauth/authorize` and exchange uses `https://api.miro.com/v1/oauth/token`.
+- The REST resource base is `https://api.miro.com/v2`; OAuth endpoints remain v1 and are not deprecated by the REST v2 migration.
+- Expiring-token mode provides a one-hour access token and a sixty-day refresh token; refresh rotates both values and invalidates the prior pair.
+- Token-expiration mode is chosen when the app is created and cannot later be enabled, disabled, or changed.
+
+## Authentication
+
+For REST work, use OAuth 2.0 Authorization Code with the narrowest Miro scopes. Bind each encrypted token record to its user, application, authorized team, and granted scopes. Never print access tokens, refresh tokens, client secrets, authorization codes, or board content.
 
 ## Instructions
 
-### Step 1: Install the Official SDK
+1. Inventory environments, redirect URIs, requested capabilities, scopes, and installation owners.
+2. Create or inspect the environment-specific app and select expiring-token mode for new production apps.
+3. Generate the authorization URL with an unguessable, session-bound `state` value and an exact registered redirect URI.
+4. Exchange the single-use code server-side, atomically store both tokens and expiry metadata, and discard the code.
+5. Call access-token context, compare the returned user/team context with the intended tenant, then perform a read-only board probe.
+6. Exercise refresh rotation, concurrent-refresh locking, revocation, reinstall, and recovery before enabling writes.
 
-```bash
-# Official Miro Node.js client
-npm install @mirohq/miro-api
+## Approval Boundaries
 
-# For Express-based OAuth callback server
-npm install express dotenv
-```
-
-### Step 2: Configure OAuth 2.0 Credentials
-
-```bash
-# .env (NEVER commit — add to .gitignore)
-MIRO_CLIENT_ID=your_client_id
-MIRO_CLIENT_SECRET=your_client_secret
-MIRO_REDIRECT_URI=http://localhost:3000/auth/miro/callback
-MIRO_ACCESS_TOKEN=              # Filled after OAuth flow
-MIRO_REFRESH_TOKEN=             # Filled after OAuth flow
-```
-
-Miro uses standard OAuth 2.0 authorization code flow. Tokens expire in 3599 seconds (approximately 1 hour). Always store and use the refresh token.
-
-### Step 3: OAuth 2.0 Authorization Flow
-
-```typescript
-// src/auth.ts
-import { Miro } from '@mirohq/miro-api';
-import express from 'express';
-
-// High-level client handles token management
-const miro = new Miro({
-  clientId: process.env.MIRO_CLIENT_ID!,
-  clientSecret: process.env.MIRO_CLIENT_SECRET!,
-  redirectUrl: process.env.MIRO_REDIRECT_URI!,
-  // Storage adapter for tokens (implement for production)
-  storage: {
-    async get(userId: string) {
-      // Return stored token for user
-      return getTokenFromDB(userId);
-    },
-    async set(userId: string, token) {
-      // Persist token
-      await saveTokenToDB(userId, token);
-    },
-  },
-});
-
-const app = express();
-
-// Step 1: Redirect user to Miro authorization page
-app.get('/auth/miro', (req, res) => {
-  const authUrl = miro.getAuthUrl();
-  res.redirect(authUrl);
-});
-
-// Step 2: Handle OAuth callback
-app.get('/auth/miro/callback', async (req, res) => {
-  const { code } = req.query;
-  if (!code || typeof code !== 'string') {
-    return res.status(400).send('Missing authorization code');
-  }
-
-  try {
-    // Exchange code for access_token + refresh_token
-    await miro.exchangeCodeForAccessToken('default-user', code);
-    res.send('Miro connected successfully!');
-  } catch (err) {
-    console.error('Token exchange failed:', err);
-    res.status(500).send('Authentication failed');
-  }
-});
-
-app.listen(3000, () => console.log('OAuth server at http://localhost:3000'));
-```
-
-### Step 4: Direct API Access (Access Token Only)
-
-For scripts and automation where you already have an access token:
-
-```typescript
-// src/client.ts
-import { MiroApi } from '@mirohq/miro-api';
-
-// Low-level stateless client — pass token directly
-const api = new MiroApi(process.env.MIRO_ACCESS_TOKEN!);
-
-// Verify connection by listing boards
-async function verifyConnection() {
-  const boards = await api.getBoards();
-  console.log(`Connected! Found ${boards.body.data?.length ?? 0} boards`);
-  return true;
-}
-
-verifyConnection().catch(console.error);
-```
-
-### Step 5: Configure OAuth Scopes
-
-In your Miro app settings (https://developers.miro.com), enable the scopes your app requires:
-
-| Scope | Purpose | Required For |
-|-------|---------|-------------|
-| `boards:read` | Read board data, items, members | GET endpoints |
-| `boards:write` | Create/update/delete boards and items | POST/PUT/PATCH/DELETE endpoints |
-| `team:read` | Read team info and members | Team management |
-| `team:write` | Manage team membership | Team provisioning |
-| `organizations:read` | Read org structure | Enterprise features |
-| `identity:read` | Read user profile | User identification |
-| `auditlogs:read` | Read audit logs | Enterprise compliance |
-
-Token response after successful exchange:
-
-```json
-{
-  "access_token": "eyJ...",
-  "refresh_token": "eyJ...",
-  "token_type": "bearer",
-  "expires_in": 3599,
-  "scope": "boards:read boards:write",
-  "user_id": "1234567890",
-  "team_id": "9876543210"
-}
-```
+Do not add scopes, register a new redirect origin, create a production app, or authorize a different team without the application and data owners' approval. Pause when the responsible owner or exact target is uncertain.
 
 ## Output
 
-Following this guide produces the Miro integration outcome for its topic—configuration, validation evidence, operational recovery, or a documented migration result. Record command output and relevant identifiers so a failed step is traceable.
-
-## Examples
-
-Start with the smallest applicable command or code example in the relevant section, using a dedicated test board and non-production credentials. Confirm the expected response or validation result before applying the pattern to production.
+Return app/environment identity, redirect-URI match, approved scopes, token mode, context result, refresh/revocation evidence, and remaining risks. State what was not inspected or changed so the receipt cannot overclaim coverage.
 
 ## Error Handling
 
-| Error | HTTP Status | Cause | Solution |
-|-------|-------------|-------|----------|
-| `insufficientPermissions` | 403 | Missing OAuth scope | Add required scope in app settings and re-authorize |
-| `tokenExpired` | 401 | Access token expired | Use refresh token to get new access token |
-| `invalidGrant` | 400 | Auth code already used or expired | Restart OAuth flow from the beginning |
-| `invalidClient` | 401 | Wrong client_id or client_secret | Verify credentials in Miro app settings |
-| `ENOTFOUND api.miro.com` | N/A | DNS/network failure | Check internet and firewall rules |
+| Condition | Response |
+|---|---|
+| OAuth callback has an error or state mismatch | Reject it; do not exchange the code, and restart from a clean session. |
+| Token exchange returns 400 | Check one-time code use, exact redirect URI, app identity, and server clock. |
+| Context resolves to the wrong team | Quarantine the token and require an intentional reinstall. |
+| Refresh races or returns invalid grant | Serialize rotation per installation and recover through reauthorization if the stored pair is stale. |
 
-## Token Refresh Pattern
+## Examples
 
-```typescript
-async function refreshAccessToken(): Promise<string> {
-  const response = await fetch('https://api.miro.com/v1/oauth/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'refresh_token',
-      client_id: process.env.MIRO_CLIENT_ID!,
-      client_secret: process.env.MIRO_CLIENT_SECRET!,
-      refresh_token: process.env.MIRO_REFRESH_TOKEN!,
-    }),
-  });
+The example is a redacted operator receipt; identifiers are hashes or bounded labels, not board content or credentials.
 
-  if (!response.ok) {
-    throw new Error(`Token refresh failed: ${response.status}`);
-  }
-
-  const data = await response.json();
-  // Store new tokens
-  process.env.MIRO_ACCESS_TOKEN = data.access_token;
-  process.env.MIRO_REFRESH_TOKEN = data.refresh_token;
-  return data.access_token;
-}
+```text
+environment=staging; scopes=boards:read; expiring=yes; context=matched; refresh-rotation=passed; write-access=disabled
 ```
 
 ## Resources
 
-- [Miro OAuth 2.0 Guide](https://developers.miro.com/docs/getting-started-with-oauth)
-- [Permission Scopes Reference](https://developers.miro.com/reference/scopes)
-- [Miro Node.js Client](https://developers.miro.com/docs/miro-nodejs-readme)
-- [@mirohq/miro-api on npm](https://www.npmjs.com/package/@mirohq/miro-api)
-- [Troubleshoot OAuth 2.0](https://developers.miro.com/docs/troubleshooting-oauth20)
-
-## Next Steps
-
-After successful auth, proceed to `miro-hello-world` for your first board and item operations.
+- [Skill-specific official documentation](references/official-docs.md)
+- [OAuth guide](https://developers.miro.com/docs/getting-started-with-oauth)
+- [Token context](https://developers.miro.com/reference/get-access-token-context)

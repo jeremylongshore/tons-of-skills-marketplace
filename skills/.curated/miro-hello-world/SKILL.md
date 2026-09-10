@@ -1,262 +1,83 @@
 ---
 name: miro-hello-world
-description: 'Create a minimal working Miro example with real board and item operations.
-
-  Use when starting a new Miro integration, testing your setup,
-
-  or learning the Miro REST API v2 item model.
-
-  Trigger with phrases like "miro hello world", "miro example",
-
-  "miro quick start", "first miro board", "create miro sticky note".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(npx:*)
-version: 1.7.0
-license: MIT
+description: "Design and implement a bounded, read-only Miro connectivity probe that proves authorization context before writes are enabled. Use when smoke-testing a new Miro integration. Trigger with \"test Miro connection\"."
+argument-hint: "[environment] [team-id]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - miro
 - quickstart
-compatibility: Designed for Claude Code
+- connectivity
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live work requires an authorized Miro app and redacted evidence
 ---
-# Miro Hello World
+# Miro Read-Only Connection Probe
 
 ## Overview
 
-Minimal working example: create a board, add a sticky note, add a shape, connect them, and read the results back — all using the Miro REST API v2.
+Run the smallest useful REST probe and produce a redacted receipt. A successful HTTP response is insufficient unless tenant and scope context also match; use the evidence produced here to make the next decision explicit and reviewable.
 
 ## Prerequisites
 
-- Completed `miro-install-auth` setup
-- Valid access token with `boards:read` and `boards:write` scopes
-- `@mirohq/miro-api` installed
+- An approved OAuth installation with `boards:read`
+- Expected team and user context
+- A test board or permission to list board metadata
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary. These declared tools do not call authenticated Miro APIs or deployment CLIs; implement client, configuration, and test changes, then return exact operator commands or an approval-gated handoff for live execution.
+
+## Current Contract
+
+- `GET https://api.miro.com/v2/boards` requires `boards:read`.
+- Filtering by `team_id` or `project_id` is indexed immediately; other search filters can lag by several seconds.
+- Board-list responses are paginated and must not be treated as a complete inventory from one page.
+- Response bodies can contain confidential names, descriptions, owners, and links.
+
+## Authentication
+
+For REST work, use OAuth 2.0 Authorization Code with the narrowest Miro scopes. Bind each encrypted token record to its user, application, authorized team, and granted scopes. Never print access tokens, refresh tokens, client secrets, authorization codes, or board content.
 
 ## Instructions
 
-### Step 1: Create a Board
+1. Inspect the integration configuration without reading credential values.
+2. Confirm token context and expected team before querying board resources.
+3. Request one bounded board page filtered to the approved team when available.
+4. Record status, latency, rate-limit headers, page size, and only redacted board identifiers.
+5. Verify the response shape and pagination cursor handling against the official reference.
+6. Keep writes disabled and return the minimal evidence needed to authorize the next stage.
 
-```typescript
-import { MiroApi } from '@mirohq/miro-api';
+## Approval Boundaries
 
-const api = new MiroApi(process.env.MIRO_ACCESS_TOKEN!);
-
-async function createBoard() {
-  // POST https://api.miro.com/v2/boards
-  const response = await api.createBoard({
-    name: 'Hello World Board',
-    description: 'Created via REST API v2',
-    policy: {
-      sharingPolicy: {
-        access: 'private',          // 'private' | 'view' | 'comment' | 'edit'
-        inviteToAccountAndBoardLinkAccess: 'no_access',
-      },
-      permissionsPolicy: {
-        collaborationToolsStartAccess: 'all_editors',
-        copyAccess: 'anyone',
-        sharingAccess: 'owners_and_coowners',
-      },
-    },
-  });
-
-  const boardId = response.body.id;
-  console.log(`Board created: ${boardId}`);
-  console.log(`View at: https://miro.com/app/board/${boardId}/`);
-  return boardId;
-}
-```
-
-### Step 2: Add a Sticky Note
-
-```typescript
-async function addStickyNote(boardId: string) {
-  // POST https://api.miro.com/v2/boards/{board_id}/sticky_notes
-  const response = await fetch(
-    `https://api.miro.com/v2/boards/${boardId}/sticky_notes`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.MIRO_ACCESS_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        data: {
-          content: 'Hello from the API!',
-          shape: 'square',          // 'square' | 'rectangle'
-        },
-        style: {
-          fillColor: 'light_yellow', // light_yellow | light_green | light_blue | light_pink | etc.
-          textAlign: 'center',       // 'left' | 'center' | 'right'
-          textAlignVertical: 'middle',
-        },
-        position: { x: 0, y: 0 },
-        geometry: { width: 200 },
-      }),
-    }
-  );
-
-  const note = await response.json();
-  console.log(`Sticky note created: ${note.id} (type: ${note.type})`);
-  return note.id;
-}
-```
-
-### Step 3: Add a Shape
-
-```typescript
-async function addShape(boardId: string) {
-  // POST https://api.miro.com/v2/boards/{board_id}/shapes
-  const response = await fetch(
-    `https://api.miro.com/v2/boards/${boardId}/shapes`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.MIRO_ACCESS_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        data: {
-          content: 'Next Step',
-          shape: 'round_rectangle',  // rectangle | circle | triangle | rhombus | round_rectangle | etc.
-        },
-        style: {
-          fillColor: '#4262ff',
-          fontFamily: 'arial',
-          fontSize: 14,
-          textAlign: 'center',
-          borderColor: '#1a1a2e',
-          borderWidth: 2,
-          borderStyle: 'normal',     // 'normal' | 'dashed' | 'dotted'
-        },
-        position: { x: 400, y: 0 },
-        geometry: { width: 200, height: 100 },
-      }),
-    }
-  );
-
-  const shape = await response.json();
-  console.log(`Shape created: ${shape.id} (type: ${shape.type})`);
-  return shape.id;
-}
-```
-
-### Step 4: Connect Items with a Connector
-
-```typescript
-async function connectItems(boardId: string, startId: string, endId: string) {
-  // POST https://api.miro.com/v2/boards/{board_id}/connectors
-  const response = await fetch(
-    `https://api.miro.com/v2/boards/${boardId}/connectors`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.MIRO_ACCESS_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        startItem: { id: startId },
-        endItem: { id: endId },
-        captions: [{ content: 'leads to' }],
-        style: {
-          strokeColor: '#1a1a2e',
-          strokeWidth: 2,
-          startStrokeCap: 'none',
-          endStrokeCap: 'stealth',   // none | stealth | arrow | filled_triangle | etc.
-        },
-      }),
-    }
-  );
-
-  const connector = await response.json();
-  console.log(`Connector created: ${connector.id}`);
-  return connector.id;
-}
-```
-
-### Step 5: List All Items on the Board
-
-```typescript
-async function listBoardItems(boardId: string) {
-  // GET https://api.miro.com/v2/boards/{board_id}/items
-  // Returns cursor-paginated results
-  const response = await fetch(
-    `https://api.miro.com/v2/boards/${boardId}/items?limit=50`,
-    {
-      headers: {
-        'Authorization': `Bearer ${process.env.MIRO_ACCESS_TOKEN}`,
-      },
-    }
-  );
-
-  const result = await response.json();
-  console.log(`Board has ${result.data.length} items:`);
-  for (const item of result.data) {
-    console.log(`  - ${item.type}: ${item.id} (${item.data?.content ?? 'no content'})`);
-  }
-
-  // Handle pagination
-  if (result.cursor) {
-    console.log(`More items available. Next cursor: ${result.cursor}`);
-  }
-}
-```
-
-### Step 6: Run the Complete Flow
-
-```typescript
-async function main() {
-  const boardId = await createBoard();
-  const noteId = await addStickyNote(boardId);
-  const shapeId = await addShape(boardId);
-  await connectItems(boardId, noteId, shapeId);
-  await listBoardItems(boardId);
-  console.log('\nDone! Open the board in Miro to see your items.');
-}
-
-main().catch(console.error);
-```
-
-## Miro REST API v2 Item Types
-
-| Type | Create Endpoint | Key Properties |
-|------|----------------|----------------|
-| `sticky_note` | `/v2/boards/{id}/sticky_notes` | content, shape, fillColor |
-| `shape` | `/v2/boards/{id}/shapes` | content, shape, fillColor, borderStyle |
-| `card` | `/v2/boards/{id}/cards` | title, description, dueDate, assigneeId |
-| `text` | `/v2/boards/{id}/texts` | content, fontSize |
-| `frame` | `/v2/boards/{id}/frames` | title, showContent, childrenIds |
-| `image` | `/v2/boards/{id}/images` | url or data (base64) |
-| `document` | `/v2/boards/{id}/documents` | url |
-| `embed` | `/v2/boards/{id}/embeds` | url |
-| `app_card` | `/v2/boards/{id}/app_cards` | title, description, fields, status |
-| `connector` | `/v2/boards/{id}/connectors` | startItem, endItem, captions |
-
-All create endpoints require `boards:write` scope. All GET endpoints require `boards:read`.
+Do not create a sample board or item as part of a connectivity probe unless the user explicitly authorizes that mutation and identifies the test board. Pause when the responsible owner or exact target is uncertain.
 
 ## Output
 
-Following this guide produces the Miro integration outcome for its topic—configuration, validation evidence, operational recovery, or a documented migration result. Record command output and relevant identifiers so a failed step is traceable.
-
-## Examples
-
-Start with the smallest applicable command or code example in the relevant section, using a dedicated test board and non-production credentials. Confirm the expected response or validation result before applying the pattern to production.
+Return environment, context match, scope sufficiency, HTTP status, latency, rate-limit headroom, page/cursor facts, and go/no-go. State what was not inspected or changed so the receipt cannot overclaim coverage.
 
 ## Error Handling
 
-| Error | HTTP Status | Cause | Solution |
-|-------|-------------|-------|----------|
-| `boardNotFound` | 404 | Invalid board_id | Verify board exists and token has access |
-| `insufficientPermissions` | 403 | Missing `boards:write` | Add scope in app settings |
-| `invalidInput` | 400 | Bad request body | Check required fields per item type |
-| `rateLimitExceeded` | 429 | Too many requests | Implement backoff (see `miro-rate-limits`) |
+| Condition | Response |
+|---|---|
+| 401 | Refresh once if eligible, then stop and repair authorization. |
+| 403 or 404 | Check scope, membership, board visibility, and tenant context without guessing. |
+| 429 | Honor reset headers and stop the probe. |
+| Unexpected response shape | Capture a redacted schema diff and hold writes. |
+
+## Examples
+
+The example is a redacted operator receipt; identifiers are hashes or bounded labels, not board content or credentials.
+
+```text
+environment=dev; context=matched; status=200; boards-returned=1; cursor=present; remaining-credits=99500; writes=off
+```
 
 ## Resources
 
-- [Miro REST API Reference](https://developers.miro.com/docs/rest-api-reference-guide)
-- [Create Board Endpoint](https://developers.miro.com/reference/create-board)
-- [Board Items Overview](https://developers.miro.com/docs/board-items)
-
-## Next Steps
-
-Proceed to `miro-local-dev-loop` for development workflow setup, or `miro-core-workflow-a` for board management patterns.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Get boards](https://developers.miro.com/reference/get-boards)
+- [Permission scopes](https://developers.miro.com/reference/scopes)
