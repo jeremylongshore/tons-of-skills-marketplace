@@ -965,7 +965,7 @@
     {
       "slug": "algolia-ci-integration",
       "name": "algolia-ci-integration",
-      "description": "Configure Algolia CI/CD: GitHub Actions for index validation, automated reindexing on deploy, and integration testing against real Algolia indices. Trigger: \"algolia CI\", \"algolia GitHub Actions\", \"algolia automated tests\", \"CI algolia\", \"algolia deploy pipeline\".",
+      "description": "Build and review a bounded CI gate for Algolia index configuration and disposable-index smoke tests. Use when search changes need pull-request evidence without mutating production. Trigger with \"Algolia CI\", \"test Algolia in GitHub Actions\", or \"search deployment gate\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -977,7 +977,7 @@
     {
       "slug": "algolia-common-errors",
       "name": "algolia-common-errors",
-      "description": "Diagnose and fix the top Algolia API errors: 400, 403, 404, 429, ApiError, RetryError, and indexing failures. Trigger: \"algolia error\", \"fix algolia\", \"algolia not working\", \"debug algolia\", \"algolia 429\", \"algolia 403\".",
+      "description": "Diagnose Algolia request, credential, index, task, and query failures from concrete evidence. Use when an integration returns 4xx or 5xx responses, stale results, or unexpected empty hits. Trigger with \"debug Algolia error\", \"Algolia 403\", or \"Algolia search failed\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -989,7 +989,7 @@
     {
       "slug": "algolia-core-workflow-a",
       "name": "algolia-core-workflow-a",
-      "description": "Implement Algolia search with filters, facets, highlighting, and pagination. The primary money-path workflow: search records, apply filters, display results. Trigger: \"algolia search\", \"search with algolia\", \"algolia filters\", \"algolia facets\", \"algolia search implementation\".",
+      "description": "Implement or review a single-index Algolia search contract with filters, facets, pagination, and highlighting. Use when building product or content search against the JavaScript v5 client. Trigger with \"Algolia search workflow\", \"add facets\", or \"searchSingleIndex\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1001,7 +1001,7 @@
     {
       "slug": "algolia-core-workflow-b",
       "name": "algolia-core-workflow-b",
-      "description": "Implement Algolia indexing pipeline: data sync, partial updates, synonyms, and rules. The secondary money-path workflow: keep your index in sync with source data. Trigger: \"algolia indexing\", \"sync data to algolia\", \"algolia synonyms\", \"algolia rules\", \"algolia partial update\", \"algolia reindex\".",
+      "description": "Build a reliable Algolia indexing pipeline for full replacements, incremental updates, settings, synonyms, and rules. Use when a source of truth must publish deterministic search state. Trigger with \"Algolia indexing workflow\", \"replace index records\", or \"sync Algolia\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1013,7 +1013,7 @@
     {
       "slug": "algolia-cost-tuning",
       "name": "algolia-cost-tuning",
-      "description": "Optimize Algolia costs: understand search request vs record pricing, reduce operations with batching and caching, monitor usage via Analytics API. Trigger: \"algolia cost\", \"algolia billing\", \"reduce algolia costs\", \"algolia pricing\", \"algolia expensive\", \"algolia budget\".",
+      "description": "Audit Algolia usage drivers and propose measurable cost controls without hard-coded plan prices. Use when search spend, request volume, record count, replicas, or optional features need investigation. Trigger with \"Algolia cost audit\", \"reduce Algolia usage\", or \"Algolia bill\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1025,7 +1025,7 @@
     {
       "slug": "algolia-data-handling",
       "name": "algolia-data-handling",
-      "description": "Implement Algolia data handling: record transforms, PII filtering before indexing, data retention, GDPR/CCPA compliance with Algolia's deleteByQuery and Insights deletion. Trigger: \"algolia data\", \"algolia PII\", \"algolia GDPR\", \"algolia data retention\", \"algolia privacy\", \"algolia CCPA\", \"algolia data sync\".",
+      "description": "Design and audit the data lifecycle for records and user events sent to Algolia. Use when minimizing indexed fields, handling deletion requests, or documenting retention and privacy boundaries. Trigger with \"Algolia privacy\", \"delete Algolia user data\", or \"index data review\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1037,7 +1037,7 @@
     {
       "slug": "algolia-debug-bundle",
       "name": "algolia-debug-bundle",
-      "description": "Collect Algolia debug evidence: index stats, API key ACLs, query logs, and network diagnostics for support tickets. Trigger: \"algolia debug\", \"algolia support bundle\", \"collect algolia logs\", \"algolia diagnostic\", \"algolia troubleshoot\".",
+      "description": "Collect a bounded, secret-safe Algolia diagnostic bundle for an incident or support escalation. Use when a reproducible search or indexing failure needs portable evidence. Trigger with \"Algolia debug bundle\", \"collect Algolia diagnostics\", or \"Algolia support evidence\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1049,7 +1049,7 @@
     {
       "slug": "algolia-deploy-integration",
       "name": "algolia-deploy-integration",
-      "description": "Deploy Algolia-powered apps to Vercel, Fly.io, and Cloud Run with proper API key management and InstantSearch frontend integration. Trigger: \"deploy algolia\", \"algolia Vercel\", \"algolia production deploy\", \"algolia Cloud Run\", \"algolia Fly.io\", \"algolia InstantSearch\".",
+      "description": "Plan and verify deployment of an Algolia-backed application with separated browser and server credentials. Use when releasing search code, index configuration, or event instrumentation. Trigger with \"deploy Algolia\", \"Algolia production rollout\", or \"search release checklist\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1061,7 +1061,7 @@
     {
       "slug": "algolia-enterprise-rbac",
       "name": "algolia-enterprise-rbac",
-      "description": "Configure Algolia enterprise access control: team-scoped API keys, Secured API Keys for multi-tenant RBAC, dashboard team management, and audit logging. Trigger: \"algolia RBAC\", \"algolia enterprise\", \"algolia roles\", \"algolia permissions\", \"algolia team access\", \"algolia multi-tenant\", \"algolia SSO\".",
+      "description": "Map workforce roles and application actors to Algolia team permissions, API-key ACLs, and secured-key restrictions. Use when reviewing least privilege, tenancy, SSO requirements, or access rotation. Trigger with \"Algolia RBAC\", \"Algolia SSO\", or \"Algolia tenant access\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1073,7 +1073,7 @@
     {
       "slug": "algolia-hello-world",
       "name": "algolia-hello-world",
-      "description": "Create a minimal working Algolia example — index records and search them. Use when starting a new Algolia integration, testing your setup, or learning the saveObjects/searchSingleIndex pattern. Trigger: \"algolia hello world\", \"algolia example\", \"algolia quick start\", \"first algolia search\".",
+      "description": "Create a minimal Algolia JavaScript v5 indexing and search proof using a disposable index. Use when verifying credentials, learning the client boundary, or proving first connectivity. Trigger with \"Algolia hello world\", \"first Algolia search\", or \"test Algolia setup\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1085,7 +1085,7 @@
     {
       "slug": "algolia-incident-runbook",
       "name": "algolia-incident-runbook",
-      "description": "Execute Algolia incident response: triage search failures, distinguish Algolia-side vs your-side issues, apply fallbacks, and run postmortems. Trigger: \"algolia incident\", \"algolia outage\", \"algolia down\", \"algolia on-call\", \"algolia emergency\", \"algolia broken\", \"search is down\".",
+      "description": "Diagnose and manage an Algolia-backed search incident with evidence, containment, and reversible recovery. Use when users see failed, stale, slow, or irrelevant search results. Trigger with \"Algolia incident\", \"search outage\", or \"Algolia degraded\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1097,7 +1097,7 @@
     {
       "slug": "algolia-install-auth",
       "name": "algolia-install-auth",
-      "description": "Install and configure the Algolia JavaScript v5 client with proper API key management. Use when setting up a new Algolia integration, configuring Application ID and API keys, or initializing the algoliasearch client in a Node.js/TypeScript project. Trigger: \"install algolia\", \"setup algolia\", \"algolia auth\", \"configure algolia keys\".",
+      "description": "Install and verify the Algolia JavaScript v5 client with least-privilege credential separation. Use when bootstrapping a backend, browser search client, or environment configuration. Trigger with \"install Algolia\", \"configure Algolia auth\", or \"Algolia API key setup\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1109,7 +1109,7 @@
     {
       "slug": "algolia-local-dev-loop",
       "name": "algolia-local-dev-loop",
-      "description": "Configure Algolia local development with separate dev index, mocking, and testing. Use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with Algolia. Trigger: \"algolia dev setup\", \"algolia local development\", \"algolia dev environment\", \"test algolia locally\".",
+      "description": "Create a fast local development loop for Algolia record transforms and search behavior without contaminating shared indices. Use when iterating on search code, fixtures, or client wrappers. Trigger with \"Algolia local development\", \"mock Algolia\", or \"test search locally\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1121,7 +1121,7 @@
     {
       "slug": "algolia-migration-deep-dive",
       "name": "algolia-migration-deep-dive",
-      "description": "Migrate to Algolia from Elasticsearch, Typesense, or Meilisearch. Covers data migration, query translation, replaceAllObjects zero-downtime swap, and strangler fig traffic shifting. Trigger: \"migrate to algolia\", \"switch to algolia\", \"algolia migration\", \"elasticsearch to algolia\", \"replace search engine\", \"algolia replatform\".",
+      "description": "Plan and execute a reversible migration from another search system or legacy index design to Algolia. Use when translating schemas, queries, relevance behavior, or production traffic. Trigger with \"migrate to Algolia\", \"Algolia cutover\", or \"search engine migration\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1133,7 +1133,7 @@
     {
       "slug": "algolia-multi-env-setup",
       "name": "algolia-multi-env-setup",
-      "description": "Configure Algolia across dev/staging/production: index prefixing, per-environment API keys, settings-as-code, and environment isolation guards. Trigger: \"algolia environments\", \"algolia staging\", \"algolia dev prod\", \"algolia environment setup\", \"algolia config by env\".",
+      "description": "Design isolated Algolia development, staging, preview, and production targets with explicit promotion rules. Use when environments share credentials or index names, or previews need bounded search data. Trigger with \"Algolia environments\", \"Algolia staging setup\", or \"preview index\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1145,7 +1145,7 @@
     {
       "slug": "algolia-observability",
       "name": "algolia-observability",
-      "description": "Set up observability for Algolia: Prometheus metrics for search latency/errors, OpenTelemetry tracing, structured logging, and Grafana dashboards. Trigger: \"algolia monitoring\", \"algolia metrics\", \"algolia observability\", \"monitor algolia\", \"algolia alerts\", \"algolia tracing\", \"algolia dashboard\".",
+      "description": "Instrument an Algolia integration for actionable availability, latency, freshness, relevance, and event-health signals. Use when defining dashboards, alerts, traces, or service objectives. Trigger with \"monitor Algolia\", \"Algolia metrics\", or \"search observability\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1157,7 +1157,7 @@
     {
       "slug": "algolia-performance-tuning",
       "name": "algolia-performance-tuning",
-      "description": "Optimize Algolia search performance: record size, searchable attributes, replica strategy, response caching, and query-time parameter tuning. Trigger: \"algolia performance\", \"optimize algolia\", \"algolia latency\", \"algolia slow\", \"algolia caching\", \"algolia response time\".",
+      "description": "Analyze and optimize an Algolia search path using repository and production evidence instead of universal latency targets. Use when search feels slow, payloads are large, or rendering regresses. Trigger with \"tune Algolia performance\", \"slow Algolia search\", or \"search latency\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1169,7 +1169,7 @@
     {
       "slug": "algolia-prod-checklist",
       "name": "algolia-prod-checklist",
-      "description": "Execute Algolia production readiness checklist: index settings, key security, replica configuration, monitoring, and rollback procedures. Trigger: \"algolia production\", \"deploy algolia\", \"algolia go-live\", \"algolia launch checklist\", \"algolia production ready\".",
+      "description": "Run a fail-closed production readiness review for an Algolia-backed search release. Use when promoting new indices, settings, credentials, UI behavior, or event tracking. Trigger with \"Algolia production checklist\", \"search go-live\", or \"Algolia launch review\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1181,7 +1181,7 @@
     {
       "slug": "algolia-rate-limits",
       "name": "algolia-rate-limits",
-      "description": "Handle Algolia rate limits and throttling: per-key limits, indexing queue limits, 429 responses, and backoff strategies. Trigger: \"algolia rate limit\", \"algolia throttling\", \"algolia 429\", \"algolia retry\", \"algolia backoff\", \"algolia too many requests\".",
+      "description": "Monitor and optimize Algolia request pressure using observed responses and bounded client behavior. Use when requests return 429, queues grow, or search and indexing compete for capacity. Trigger with \"Algolia rate limit\", \"Algolia 429\", or \"throttle indexing\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1193,7 +1193,7 @@
     {
       "slug": "algolia-reference-architecture",
       "name": "algolia-reference-architecture",
-      "description": "Implement Algolia reference architecture: index design, multi-index strategy, data pipeline, search service layer, and frontend/backend separation. Trigger: \"algolia architecture\", \"algolia best practices\", \"algolia project structure\", \"how to organize algolia\", \"algolia index design\".",
+      "description": "Design or review an Algolia search architecture across source data, indexing, query, UI, events, and operations. Use when establishing system boundaries or evaluating an existing integration. Trigger with \"Algolia architecture\", \"design search platform\", or \"review Algolia integration\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1205,7 +1205,7 @@
     {
       "slug": "algolia-sdk-patterns",
       "name": "algolia-sdk-patterns",
-      "description": "Apply production-ready algoliasearch v5 patterns: singleton client, typed search, error handling, and batch operations. Use when implementing Algolia integrations, refactoring SDK usage, or establishing team coding standards. Trigger: \"algolia SDK patterns\", \"algolia best practices\", \"algolia code patterns\", \"idiomatic algolia\".",
+      "description": "Create or review a typed application adapter around the Algolia JavaScript v5 client. Use when client calls, index names, errors, task waits, and credential usage are scattered. Trigger with \"Algolia SDK patterns\", \"Algolia client wrapper\", or \"refactor search client\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1217,7 +1217,7 @@
     {
       "slug": "algolia-security-basics",
       "name": "algolia-security-basics",
-      "description": "Apply Algolia security best practices: API key scoping, secured API keys, frontend vs backend key separation, and key rotation. Trigger: \"algolia security\", \"algolia API key security\", \"secure algolia\", \"algolia secrets\", \"algolia key rotation\", \"algolia secured key\".",
+      "description": "Audit and harden Algolia credentials, record exposure, index restrictions, and tenant search controls. Use when reviewing frontend keys, backend ACLs, key rotation, or data visibility. Trigger with \"secure Algolia\", \"Algolia key audit\", or \"Algolia security review\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1229,7 +1229,7 @@
     {
       "slug": "algolia-upgrade-migration",
       "name": "algolia-upgrade-migration",
-      "description": "Upgrade algoliasearch from v4 to v5 with breaking change detection and codemod. Use when upgrading SDK versions, detecting deprecations, or migrating initIndex patterns. Trigger: \"upgrade algolia\", \"algolia migration v5\", \"algolia breaking changes\", \"update algolia SDK\", \"algolia v4 to v5\".",
+      "description": "Migrate an Algolia JavaScript client integration from v4 to v5 with inventory, compatibility tests, and rollback. Use when removing initIndex, updating client methods, or reconciling mixed major versions. Trigger with \"upgrade Algolia v5\", \"remove initIndex\", or \"Algolia SDK migration\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -1241,7 +1241,7 @@
     {
       "slug": "algolia-webhooks-events",
       "name": "algolia-webhooks-events",
-      "description": "Implement Algolia Insights API for click/conversion tracking, search analytics, and real-time event-driven index updates via database change listeners. Trigger: \"algolia events\", \"algolia analytics\", \"algolia insights\", \"algolia click tracking\", \"algolia conversion\", \"algolia event tracking\".",
+      "description": "Implement and validate Algolia click, conversion, and view events while separating them from source-to-index synchronization. Use when adding Insights, query attribution, or event-driven record updates. Trigger with \"Algolia Insights\", \"track search conversion\", or \"sync database to Algolia\".",
       "version": "1.7.0",
       "category": "saas-packs",
       "parentPlugin": "algolia-pack",
@@ -34804,7 +34804,7 @@
     }
   ],
   "count": 2900,
-  "generatedAt": "2026-09-10T09:05:26.274Z",
+  "generatedAt": "2026-09-10T10:03:51.849Z",
   "categories": [
     "ai-agency",
     "ai-ml",

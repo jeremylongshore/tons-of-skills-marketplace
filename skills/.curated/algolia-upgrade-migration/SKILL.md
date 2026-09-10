@@ -1,184 +1,93 @@
 ---
 name: algolia-upgrade-migration
-description: 'Upgrade algoliasearch from v4 to v5 with breaking change detection and
-  codemod.
-
-  Use when upgrading SDK versions, detecting deprecations, or migrating initIndex
-  patterns.
-
-  Trigger: "upgrade algolia", "algolia migration v5", "algolia breaking changes",
-
-  "update algolia SDK", "algolia v4 to v5".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(git:*), Bash(npx:*), Grep
+description: >-
+  Migrate an Algolia JavaScript client integration from v4 to v5 with inventory, compatibility tests, and rollback. Use when removing initIndex, updating client methods, or reconciling mixed major versions. Trigger with "upgrade Algolia v5", "remove initIndex", or "Algolia SDK migration".
+argument-hint: "[repository-path] [package-name]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.7.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- search
 - algolia
+- upgrade
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Algolia Upgrade & Migration (v4 to v5)
+# Algolia JavaScript v4 to v5 Upgrade
 
 ## Overview
 
-Guide for upgrading `algoliasearch` from v4 to v5. The v5 release is a major rewrite: `initIndex()` is removed, all methods move to the client, and the import style changes.
+This skill follows the official v5 migration contract and the repository's pinned dependency graph. It treats import, method, parameter, response, wait, and test changes as one controlled migration.
 
 ## Prerequisites
 
-- Current `algoliasearch` v4 installed
-- Git for version control (work in a branch)
-- Test suite passing on current version
+- A named repository, environment, and Algolia application or index in scope
+- The local lockfile and installed client types as implementation authority
+- A safe read-only query or explicitly disposable test target
+- Current first-party documentation for any provider behavior that affects the change
 
-## Breaking Changes Summary
+## Tool Discipline
 
-| v4 Pattern | v5 Replacement |
-|-----------|----------------|
-| `const client = algoliasearch(appId, key)` | `import { algoliasearch } from 'algoliasearch'; const client = algoliasearch(appId, key);` |
-| `const index = client.initIndex('name')` | Removed — pass `indexName` to every method |
-| `index.search('query')` | `client.searchSingleIndex({ indexName, searchParams: { query } })` |
-| `index.saveObjects(records)` | `client.saveObjects({ indexName, objects })` |
-| `index.saveObject(record)` | `client.saveObject({ indexName, body: record })` |
-| `index.partialUpdateObject(data)` | `client.partialUpdateObject({ indexName, objectID, attributesToUpdate })` |
-| `index.deleteObject('id')` | `client.deleteObject({ indexName, objectID })` |
-| `index.setSettings(settings)` | `client.setSettings({ indexName, indexSettings })` |
-| `index.getSettings()` | `client.getSettings({ indexName })` |
-| `index.browse()` | `client.browse({ indexName, browseParams })` |
-| `index.findObject(cb)` | `client.findObject({ indexName, ... })` |
-| `index.replaceAllObjects(records)` | `client.replaceAllObjects({ indexName, objects })` |
-| `index.saveSynonyms(syns)` | `client.saveSynonyms({ indexName, synonymHit })` |
-| `index.saveRule(rule)` | `client.saveRule({ indexName, objectID, rule })` |
-| `index.waitTask(taskID)` | `client.waitForTask({ indexName, taskID })` |
+Use `Read`, `Glob`, and `Grep` to inspect local code, configuration names, tests, and dependency versions. Use `WebFetch` only for current official Algolia documentation. Use `Write` or `Edit` only after identifying the target files, constraints, and verification plan.
+
+## Current Contract
+
+- Version 5 removes `initIndex`; methods live on the client and receive `indexName`.
+- Upgrade search-only imports and multi-search calls according to the official guide, not a mechanical rename.
+- Replace chained write waits with the documented v5 wait helpers and retain task IDs.
+- Check all Algolia packages, frameworks, wrappers, mocks, generated types, and examples for major-version coupling.
+
+## Authentication
+
+Do not change key privilege during an SDK upgrade. Use existing least-privilege test credentials only for safe verification targets.
 
 ## Instructions
 
-## Examples
+1. Inventory package versions, imports, `initIndex`, client wrappers, methods, waits, mocks, and runtime targets.
+2. Read the current official v5 migration guide and installed types for every used method.
+3. Update the dependency and lockfile through the repository's package manager.
+4. Migrate one boundary at a time, adapting parameters, responses, tasks, and errors.
+5. Run type, unit, integration, build, and representative query tests; use a disposable index for writes.
+6. Record compatibility gaps, final versions, release notes, rollback commit, and follow-up cleanup.
 
-The upgrade steps are concrete v4-to-v5 examples: replace client initialization and method calls, then run the search and type-check suite before widening rollout. Keep the pre-upgrade branch available until production verification succeeds.
+## Approval Boundaries
 
-### Step 1: Create Upgrade Branch and Install v5
-
-```bash
-git checkout -b upgrade/algoliasearch-v5
-npm install algoliasearch@latest
-npm list algoliasearch  # Verify v5.x.x
-```
-
-### Step 2: Update Imports
-
-```typescript
-// v4
-import algoliasearch from 'algoliasearch';
-const client = algoliasearch('APP_ID', 'API_KEY');
-
-// v5
-import { algoliasearch } from 'algoliasearch';
-const client = algoliasearch('APP_ID', 'API_KEY');
-
-// v5 lite client (search-only, frontend)
-import { liteClient } from 'algoliasearch/lite';
-const searchClient = liteClient('APP_ID', 'SEARCH_KEY');
-
-// v5 individual API client (if you only need one)
-import { searchClient } from '@algolia/client-search';
-```
-
-### Step 3: Remove initIndex and Update Method Calls
-
-```typescript
-// v4: index-based API
-const index = client.initIndex('products');
-const { hits } = await index.search('laptop');
-await index.saveObjects(records);
-await index.setSettings({ searchableAttributes: ['name'] });
-
-// v5: client-based API with indexName parameter
-const { hits } = await client.searchSingleIndex({
-  indexName: 'products',
-  searchParams: { query: 'laptop' },
-});
-await client.saveObjects({ indexName: 'products', objects: records });
-await client.setSettings({
-  indexName: 'products',
-  indexSettings: { searchableAttributes: ['name'] },
-});
-```
-
-### Step 4: Update waitTask
-
-```typescript
-// v4
-const { taskID } = await index.saveObjects(records);
-await index.waitTask(taskID);
-
-// v5
-const { taskID } = await client.saveObjects({ indexName: 'products', objects: records });
-await client.waitForTask({ indexName: 'products', taskID });
-```
-
-### Step 5: Update Error Handling
-
-```typescript
-// v4: error classes from algoliasearch
-import { AlgoliaError } from 'algoliasearch';
-
-// v5: error classes
-import { ApiError } from 'algoliasearch';
-
-try {
-  await client.searchSingleIndex({ indexName: 'products', searchParams: { query: 'test' } });
-} catch (error) {
-  if (error instanceof ApiError) {
-    console.error(`HTTP ${error.status}: ${error.message}`);
-  }
-}
-```
-
-### Step 6: Find All Usage and Verify
-
-```bash
-# Find all files using Algolia v4 patterns
-grep -rn "initIndex\|\.search(\|\.saveObjects\|\.setSettings\|\.deleteObject\|\.waitTask" \
-  --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" src/
-
-# Run tests
-npm test
-
-# Type-check
-npx tsc --noEmit
-```
-
-## Rollback Procedure
-
-```bash
-# If v5 breaks things, revert to v4
-npm install algoliasearch@4
-git checkout -- src/  # Restore v4 code
-npm test              # Verify v4 still works
-```
+Do not combine the SDK upgrade with relevance, index schema, credential, or broad architectural changes unless separately scoped and tested.
 
 ## Output
 
-The codebase uses the v5 client API with verified imports, parameter shapes, and task waiting, while retaining a tested rollback procedure to the prior package version and source revision.
+Return the usage inventory, official mapping, dependency diff, migrated boundaries, test evidence, remaining v4 patterns, compatibility notes, and rollback.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `initIndex is not a function` | v5 installed but v4 code | Remove `initIndex`, pass `indexName` to methods |
-| `searchSingleIndex is not a function` | v4 installed but v5 code | Run `npm install algoliasearch@latest` |
-| Type errors after upgrade | Changed type signatures | Update to new parameter objects |
-| `default import` error | v5 uses named exports | Change `import algoliasearch` to `import { algoliasearch }` |
+| Condition | Response |
+|---|---|
+| `initIndex` remains | Locate the call or generated artifact and migrate it. |
+| Method signature differs | Follow installed v5 types and current official reference. |
+| Mock passes but live test fails | Correct the application adapter contract. |
+| Rollback changes lockfile only | Revert source and lockfile as one unit. |
+
+## Examples
+
+Use this compact input and expected handoff to calibrate scope and evidence quality.
+
+Input:
+
+```text
+from=algoliasearch-4; to=pinned-5; initIndex-calls=9; wrappers=2
+```
+
+Expected handoff:
+
+```text
+initIndex=0; typecheck=pass; integration=pass; disposable-write-cleaned=yes
+```
 
 ## Resources
 
-- Official v4 to v5 Migration Guide
-- [v5 Method Reference](https://www.algolia.com/doc/libraries/javascript/v5/methods/search/)
-- [algoliasearch npm](https://www.npmjs.com/package/algoliasearch)
-
-## Next Steps
-
-For CI integration during upgrades, see `algolia-ci-integration`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [JavaScript v5 upgrade](https://www.algolia.com/doc/libraries/sdk/upgrade/javascript)
+- [JavaScript API client](https://www.algolia.com/doc/libraries/javascript)
+- [API keys](https://www.algolia.com/doc/guides/security/api-keys)

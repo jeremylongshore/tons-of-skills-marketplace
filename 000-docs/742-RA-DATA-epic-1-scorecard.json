@@ -22,9 +22,9 @@
       "error_files": 607,
       "error_total": 3537,
       "grade_distribution": {
-        "A": 1977,
-        "B": 1005,
-        "C": 347,
+        "A": 2001,
+        "B": 994,
+        "C": 334,
         "D": 157,
         "F": 5
       },
@@ -42,7 +42,7 @@
       "values": {
         "plugin_agent_files": 352,
         "raw_tracked_plugin_skill_files": 2991,
-        "tracked_files": 24073
+        "tracked_files": 24136
       }
     },
     "2": {
@@ -91,7 +91,7 @@
         },
         "marketplace_terminal": {
           "error_total_all_validated_surfaces": 3774,
-          "fully_compliant_surfaces": 1189,
+          "fully_compliant_surfaces": 1213,
           "terminal_denominator": {
             "agents": 363,
             "commands": 370,
@@ -101,7 +101,7 @@
             "skills": 3491
           },
           "validated_plugin_manifests": 595,
-          "validator_reported_mixed_denominator_percent": 24.7
+          "validator_reported_mixed_denominator_percent": 25.2
         },
         "skill_rows": {
           "a_error_total": 31,
@@ -112,9 +112,9 @@
           "error_files": 607,
           "error_total": 3537,
           "grade_distribution": {
-            "A": 1977,
-            "B": 1005,
-            "C": 347,
+            "A": 2001,
+            "B": 994,
+            "C": 334,
             "D": 157,
             "F": 5
           },
@@ -129,18 +129,18 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "average_score": 88,
+        "average_score": 88.2,
         "grade_distribution": {
-          "A": 1977,
-          "B": 1005,
-          "C": 347,
+          "A": 2001,
+          "B": 994,
+          "C": 334,
           "D": 157,
           "F": 5
         },
         "grade_percentages": {
-          "A": 56.6,
-          "B": 28.8,
-          "C": 9.9,
+          "A": 57.3,
+          "B": 28.5,
+          "C": 9.6,
           "D": 4.5,
           "F": 0.1
         },
@@ -1220,7 +1220,7 @@
         "answers": [
           {
             "cohort": "curated-mirror",
-            "value": 2413
+            "value": 2426
           },
           {
             "cohort": "curriculum",
@@ -1960,7 +1960,7 @@
         "invalid_patterns": 0,
         "invisible_files": 5,
         "target_invisible_files": 0,
-        "tracked_files": 24073
+        "tracked_files": 24136
       }
     },
     "47": {
@@ -2045,15 +2045,15 @@
       "dimension": "Inventory header versus rows",
       "reproduce": "pnpm run measure:e1 --row=52 --stdout",
       "source": [
-        "freshie/reports/run-delta-57.json",
+        "freshie/reports/run-delta-58.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],
       "status": "target_met",
       "values": {
-        "dolt_commit": "jegrlovguq8cj4ac5d0c6qmguecq0r8o",
+        "dolt_commit": "l676pggmlk1g4mr4smup6bheojeedjkd",
         "header_total_skills": 2914,
-        "run_id": 57,
+        "run_id": 58,
         "skill_row_delta": 0,
         "skill_rows": 2914,
         "target_skill_row_delta": 0
@@ -2066,32 +2066,32 @@
       "source": [
         "freshie/grade-histogram.json",
         "freshie/grades.csv",
-        "freshie/reports/run-delta-57.json"
+        "freshie/reports/run-delta-58.json"
       ],
       "status": "target_met",
       "values": {
         "compliance_rows": 3491,
-        "export_dolt_commit": "jegrlovguq8cj4ac5d0c6qmguecq0r8o",
-        "export_run_id": 57,
+        "export_dolt_commit": "l676pggmlk1g4mr4smup6bheojeedjkd",
+        "export_run_id": 58,
         "grades_csv_rows": 3491,
-        "grades_csv_sha256": "9952bb42551314e629f61c25002c12e97e94e2a41d5199ddd38f383f05099817",
+        "grades_csv_sha256": "e5018b2209ee0006e97ac2d891e0ed098f707aa50f3081a9f225c5d42b568733",
         "histogram_grades": {
-          "A": 1977,
-          "B": 1005,
-          "C": 347,
+          "A": 2001,
+          "B": 994,
+          "C": 334,
           "D": 157,
           "F": 5
         },
         "histogram_total": 3491,
         "immutable_grade_counts": {
-          "A": 1977,
-          "B": 1005,
-          "C": 347,
+          "A": 2001,
+          "B": 994,
+          "C": 334,
           "D": 157,
           "F": 5
         },
-        "inventory_dolt_commit": "jegrlovguq8cj4ac5d0c6qmguecq0r8o",
-        "inventory_run_id": 57,
+        "inventory_dolt_commit": "l676pggmlk1g4mr4smup6bheojeedjkd",
+        "inventory_run_id": 58,
         "target_lag_runs": 0
       }
     },
@@ -2102,7 +2102,7 @@
       "source": [
         "freshie/reports/legacy-forge-proofs-demotion.json",
         "freshie/reports/run-delta-19.json",
-        "freshie/reports/run-delta-57.json",
+        "freshie/reports/run-delta-58.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py",
         "scripts/record-jrig-proofs.mjs"
@@ -2115,7 +2115,7 @@
           "E2": 0,
           "E3": 0
         },
-        "current_run_id": 57,
+        "current_run_id": 58,
         "invalid_identities": 0,
         "legacy_e0_records": 3,
         "retained_e2_e3": 0,
@@ -2140,7 +2140,7 @@
         "000-docs/807-DR-STND-evaluation-evidence.md",
         "freshie/reports/legacy-forge-proofs-demotion.json",
         "freshie/reports/run-delta-19.json",
-        "freshie/reports/run-delta-57.json",
+        "freshie/reports/run-delta-58.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],

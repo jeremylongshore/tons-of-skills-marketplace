@@ -11740,7 +11740,7 @@
       "slug": "algolia-pack",
       "name": "algolia-pack",
       "displayName": "algolia pack",
-      "description": "Claude Code skill pack for Algolia (24 skills)",
+      "description": "Grade-A Algolia search operator pack with 24 skills",
       "category": "saas-packs",
       "keywords": [
         "algolia",
@@ -11762,7 +11762,7 @@
       "verificationScore": 79,
       "verificationGrade": "C",
       "verificationBadge": "silver",
-      "searchText": "algolia pack claude code skill pack for algolia (24 skills) saas-packs algolia saas sdk integration"
+      "searchText": "algolia pack grade-a algolia search operator pack with 24 skills saas-packs algolia saas sdk integration"
     },
     {
       "type": "plugin",
@@ -16746,14 +16746,15 @@
       "id": "algolia-ci-integration",
       "slug": "algolia-ci-integration",
       "name": "algolia-ci-integration",
-      "description": "Configure Algolia CI/CD: GitHub Actions for index validation, automated reindexing on deploy, and integration testing against real Algolia indices. Trigger: \"algolia CI\", \"algolia GitHub Actions\", \"algolia automated tests\", \"CI algolia\", \"algolia deploy pipeline\".",
+      "description": "Build and review a bounded CI gate for Algolia index configuration and disposable-index smoke tests. Use when search changes need pull-request evidence without mutating production. Trigger with \"Algolia CI\", \"test Algolia in GitHub Actions\", or \"search deployment gate\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(gh:*)",
-        "Bash(npm:*)"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.7.0",
@@ -16761,20 +16762,22 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-ci-integration configure algolia ci/cd: github actions for index validation, automated reindexing on deploy, and integration testing against real algolia indices. trigger: \"algolia ci\", \"algolia github actions\", \"algolia automated tests\", \"ci algolia\", \"algolia deploy pipeline\". saas-packs read write edit bash(gh:*) bash(npm:*) "
+      "searchText": "algolia-ci-integration build and review a bounded ci gate for algolia index configuration and disposable-index smoke tests. use when search changes need pull-request evidence without mutating production. trigger with \"algolia ci\", \"test algolia in github actions\", or \"search deployment gate\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-common-errors",
       "slug": "algolia-common-errors",
       "name": "algolia-common-errors",
-      "description": "Diagnose and fix the top Algolia API errors: 400, 403, 404, 429, ApiError, RetryError, and indexing failures. Trigger: \"algolia error\", \"fix algolia\", \"algolia not working\", \"debug algolia\", \"algolia 429\", \"algolia 403\".",
+      "description": "Diagnose Algolia request, credential, index, task, and query failures from concrete evidence. Use when an integration returns 4xx or 5xx responses, stale results, or unexpected empty hits. Trigger with \"debug Algolia error\", \"Algolia 403\", or \"Algolia search failed\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)",
-        "Bash(npm:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.7.0",
@@ -16782,21 +16785,22 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-common-errors diagnose and fix the top algolia api errors: 400, 403, 404, 429, apierror, retryerror, and indexing failures. trigger: \"algolia error\", \"fix algolia\", \"algolia not working\", \"debug algolia\", \"algolia 429\", \"algolia 403\". saas-packs read grep bash(curl:*) bash(npm:*) "
+      "searchText": "algolia-common-errors diagnose algolia request, credential, index, task, and query failures from concrete evidence. use when an integration returns 4xx or 5xx responses, stale results, or unexpected empty hits. trigger with \"debug algolia error\", \"algolia 403\", or \"algolia search failed\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-core-workflow-a",
       "slug": "algolia-core-workflow-a",
       "name": "algolia-core-workflow-a",
-      "description": "Implement Algolia search with filters, facets, highlighting, and pagination. The primary money-path workflow: search records, apply filters, display results. Trigger: \"algolia search\", \"search with algolia\", \"algolia filters\", \"algolia facets\", \"algolia search implementation\".",
+      "description": "Implement or review a single-index Algolia search contract with filters, facets, pagination, and highlighting. Use when building product or content search against the JavaScript v5 client. Trigger with \"Algolia search workflow\", \"add facets\", or \"searchSingleIndex\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.7.0",
@@ -16804,21 +16808,22 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-core-workflow-a implement algolia search with filters, facets, highlighting, and pagination. the primary money-path workflow: search records, apply filters, display results. trigger: \"algolia search\", \"search with algolia\", \"algolia filters\", \"algolia facets\", \"algolia search implementation\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "algolia-core-workflow-a implement or review a single-index algolia search contract with filters, facets, pagination, and highlighting. use when building product or content search against the javascript v5 client. trigger with \"algolia search workflow\", \"add facets\", or \"searchsingleindex\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-core-workflow-b",
       "slug": "algolia-core-workflow-b",
       "name": "algolia-core-workflow-b",
-      "description": "Implement Algolia indexing pipeline: data sync, partial updates, synonyms, and rules. The secondary money-path workflow: keep your index in sync with source data. Trigger: \"algolia indexing\", \"sync data to algolia\", \"algolia synonyms\", \"algolia rules\", \"algolia partial update\", \"algolia reindex\".",
+      "description": "Build a reliable Algolia indexing pipeline for full replacements, incremental updates, settings, synonyms, and rules. Use when a source of truth must publish deterministic search state. Trigger with \"Algolia indexing workflow\", \"replace index records\", or \"sync Algolia\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.7.0",
@@ -16826,18 +16831,22 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-core-workflow-b implement algolia indexing pipeline: data sync, partial updates, synonyms, and rules. the secondary money-path workflow: keep your index in sync with source data. trigger: \"algolia indexing\", \"sync data to algolia\", \"algolia synonyms\", \"algolia rules\", \"algolia partial update\", \"algolia reindex\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "algolia-core-workflow-b build a reliable algolia indexing pipeline for full replacements, incremental updates, settings, synonyms, and rules. use when a source of truth must publish deterministic search state. trigger with \"algolia indexing workflow\", \"replace index records\", or \"sync algolia\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-cost-tuning",
       "slug": "algolia-cost-tuning",
       "name": "algolia-cost-tuning",
-      "description": "Optimize Algolia costs: understand search request vs record pricing, reduce operations with batching and caching, monitor usage via Analytics API. Trigger: \"algolia cost\", \"algolia billing\", \"reduce algolia costs\", \"algolia pricing\", \"algolia expensive\", \"algolia budget\".",
+      "description": "Audit Algolia usage drivers and propose measurable cost controls without hard-coded plan prices. Use when search spend, request volume, record count, replicas, or optional features need investigation. Trigger with \"Algolia cost audit\", \"reduce Algolia usage\", or \"Algolia bill\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.7.0",
@@ -16845,17 +16854,20 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-cost-tuning optimize algolia costs: understand search request vs record pricing, reduce operations with batching and caching, monitor usage via analytics api. trigger: \"algolia cost\", \"algolia billing\", \"reduce algolia costs\", \"algolia pricing\", \"algolia expensive\", \"algolia budget\". saas-packs read grep "
+      "searchText": "algolia-cost-tuning audit algolia usage drivers and propose measurable cost controls without hard-coded plan prices. use when search spend, request volume, record count, replicas, or optional features need investigation. trigger with \"algolia cost audit\", \"reduce algolia usage\", or \"algolia bill\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-data-handling",
       "slug": "algolia-data-handling",
       "name": "algolia-data-handling",
-      "description": "Implement Algolia data handling: record transforms, PII filtering before indexing, data retention, GDPR/CCPA compliance with Algolia's deleteByQuery and Insights deletion. Trigger: \"algolia data\", \"algolia PII\", \"algolia GDPR\", \"algolia data retention\", \"algolia privacy\", \"algolia CCPA\", \"algolia data sync\".",
+      "description": "Design and audit the data lifecycle for records and user events sent to Algolia. Use when minimizing indexed fields, handling deletion requests, or documenting retention and privacy boundaries. Trigger with \"Algolia privacy\", \"delete Algolia user data\", or \"index data review\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
@@ -16865,22 +16877,22 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-data-handling implement algolia data handling: record transforms, pii filtering before indexing, data retention, gdpr/ccpa compliance with algolia's deletebyquery and insights deletion. trigger: \"algolia data\", \"algolia pii\", \"algolia gdpr\", \"algolia data retention\", \"algolia privacy\", \"algolia ccpa\", \"algolia data sync\". saas-packs read write edit "
+      "searchText": "algolia-data-handling design and audit the data lifecycle for records and user events sent to algolia. use when minimizing indexed fields, handling deletion requests, or documenting retention and privacy boundaries. trigger with \"algolia privacy\", \"delete algolia user data\", or \"index data review\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-debug-bundle",
       "slug": "algolia-debug-bundle",
       "name": "algolia-debug-bundle",
-      "description": "Collect Algolia debug evidence: index stats, API key ACLs, query logs, and network diagnostics for support tickets. Trigger: \"algolia debug\", \"algolia support bundle\", \"collect algolia logs\", \"algolia diagnostic\", \"algolia troubleshoot\".",
+      "description": "Collect a bounded, secret-safe Algolia diagnostic bundle for an incident or support escalation. Use when a reproducible search or indexing failure needs portable evidence. Trigger with \"Algolia debug bundle\", \"collect Algolia diagnostics\", or \"Algolia support evidence\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Bash(npm:*)",
-        "Bash(tar:*)",
-        "Bash(jq:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.7.0",
@@ -16888,23 +16900,22 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-debug-bundle collect algolia debug evidence: index stats, api key acls, query logs, and network diagnostics for support tickets. trigger: \"algolia debug\", \"algolia support bundle\", \"collect algolia logs\", \"algolia diagnostic\", \"algolia troubleshoot\". saas-packs read bash(curl:*) bash(npm:*) bash(tar:*) bash(jq:*) grep "
+      "searchText": "algolia-debug-bundle collect a bounded, secret-safe algolia diagnostic bundle for an incident or support escalation. use when a reproducible search or indexing failure needs portable evidence. trigger with \"algolia debug bundle\", \"collect algolia diagnostics\", or \"algolia support evidence\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-deploy-integration",
       "slug": "algolia-deploy-integration",
       "name": "algolia-deploy-integration",
-      "description": "Deploy Algolia-powered apps to Vercel, Fly.io, and Cloud Run with proper API key management and InstantSearch frontend integration. Trigger: \"deploy algolia\", \"algolia Vercel\", \"algolia production deploy\", \"algolia Cloud Run\", \"algolia Fly.io\", \"algolia InstantSearch\".",
+      "description": "Plan and verify deployment of an Algolia-backed application with separated browser and server credentials. Use when releasing search code, index configuration, or event instrumentation. Trigger with \"deploy Algolia\", \"Algolia production rollout\", or \"search release checklist\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(fly:*)",
-        "Bash(gcloud:*)",
-        "Bash(npm:*)"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.7.0",
@@ -16912,17 +16923,20 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-deploy-integration deploy algolia-powered apps to vercel, fly.io, and cloud run with proper api key management and instantsearch frontend integration. trigger: \"deploy algolia\", \"algolia vercel\", \"algolia production deploy\", \"algolia cloud run\", \"algolia fly.io\", \"algolia instantsearch\". saas-packs read write edit bash(vercel:*) bash(fly:*) bash(gcloud:*) bash(npm:*) "
+      "searchText": "algolia-deploy-integration plan and verify deployment of an algolia-backed application with separated browser and server credentials. use when releasing search code, index configuration, or event instrumentation. trigger with \"deploy algolia\", \"algolia production rollout\", or \"search release checklist\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-enterprise-rbac",
       "slug": "algolia-enterprise-rbac",
       "name": "algolia-enterprise-rbac",
-      "description": "Configure Algolia enterprise access control: team-scoped API keys, Secured API Keys for multi-tenant RBAC, dashboard team management, and audit logging. Trigger: \"algolia RBAC\", \"algolia enterprise\", \"algolia roles\", \"algolia permissions\", \"algolia team access\", \"algolia multi-tenant\", \"algolia SSO\".",
+      "description": "Map workforce roles and application actors to Algolia team permissions, API-key ACLs, and secured-key restrictions. Use when reviewing least privilege, tenancy, SSO requirements, or access rotation. Trigger with \"Algolia RBAC\", \"Algolia SSO\", or \"Algolia tenant access\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
@@ -16932,22 +16946,22 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-enterprise-rbac configure algolia enterprise access control: team-scoped api keys, secured api keys for multi-tenant rbac, dashboard team management, and audit logging. trigger: \"algolia rbac\", \"algolia enterprise\", \"algolia roles\", \"algolia permissions\", \"algolia team access\", \"algolia multi-tenant\", \"algolia sso\". saas-packs read write edit "
+      "searchText": "algolia-enterprise-rbac map workforce roles and application actors to algolia team permissions, api-key acls, and secured-key restrictions. use when reviewing least privilege, tenancy, sso requirements, or access rotation. trigger with \"algolia rbac\", \"algolia sso\", or \"algolia tenant access\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-hello-world",
       "slug": "algolia-hello-world",
       "name": "algolia-hello-world",
-      "description": "Create a minimal working Algolia example — index records and search them. Use when starting a new Algolia integration, testing your setup, or learning the saveObjects/searchSingleIndex pattern. Trigger: \"algolia hello world\", \"algolia example\", \"algolia quick start\", \"first algolia search\".",
+      "description": "Create a minimal Algolia JavaScript v5 indexing and search proof using a disposable index. Use when verifying credentials, learning the client boundary, or proving first connectivity. Trigger with \"Algolia hello world\", \"first Algolia search\", or \"test Algolia setup\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(node:*)",
-        "Bash(npx:*)"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.7.0",
@@ -16955,20 +16969,22 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-hello-world create a minimal working algolia example — index records and search them. use when starting a new algolia integration, testing your setup, or learning the saveobjects/searchsingleindex pattern. trigger: \"algolia hello world\", \"algolia example\", \"algolia quick start\", \"first algolia search\". saas-packs read write edit bash(npm:*) bash(node:*) bash(npx:*) "
+      "searchText": "algolia-hello-world create a minimal algolia javascript v5 indexing and search proof using a disposable index. use when verifying credentials, learning the client boundary, or proving first connectivity. trigger with \"algolia hello world\", \"first algolia search\", or \"test algolia setup\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-incident-runbook",
       "slug": "algolia-incident-runbook",
       "name": "algolia-incident-runbook",
-      "description": "Execute Algolia incident response: triage search failures, distinguish Algolia-side vs your-side issues, apply fallbacks, and run postmortems. Trigger: \"algolia incident\", \"algolia outage\", \"algolia down\", \"algolia on-call\", \"algolia emergency\", \"algolia broken\", \"search is down\".",
+      "description": "Diagnose and manage an Algolia-backed search incident with evidence, containment, and reversible recovery. Use when users see failed, stale, slow, or irrelevant search results. Trigger with \"Algolia incident\", \"search outage\", or \"Algolia degraded\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)",
-        "Bash(npm:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.7.0",
@@ -16976,23 +16992,22 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-incident-runbook execute algolia incident response: triage search failures, distinguish algolia-side vs your-side issues, apply fallbacks, and run postmortems. trigger: \"algolia incident\", \"algolia outage\", \"algolia down\", \"algolia on-call\", \"algolia emergency\", \"algolia broken\", \"search is down\". saas-packs read grep bash(curl:*) bash(npm:*) "
+      "searchText": "algolia-incident-runbook diagnose and manage an algolia-backed search incident with evidence, containment, and reversible recovery. use when users see failed, stale, slow, or irrelevant search results. trigger with \"algolia incident\", \"search outage\", or \"algolia degraded\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-install-auth",
       "slug": "algolia-install-auth",
       "name": "algolia-install-auth",
-      "description": "Install and configure the Algolia JavaScript v5 client with proper API key management. Use when setting up a new Algolia integration, configuring Application ID and API keys, or initializing the algoliasearch client in a Node.js/TypeScript project. Trigger: \"install algolia\", \"setup algolia\", \"algolia auth\", \"configure algolia keys\".",
+      "description": "Install and verify the Algolia JavaScript v5 client with least-privilege credential separation. Use when bootstrapping a backend, browser search client, or environment configuration. Trigger with \"install Algolia\", \"configure Algolia auth\", or \"Algolia API key setup\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.7.0",
@@ -17000,23 +17015,22 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-install-auth install and configure the algolia javascript v5 client with proper api key management. use when setting up a new algolia integration, configuring application id and api keys, or initializing the algoliasearch client in a node.js/typescript project. trigger: \"install algolia\", \"setup algolia\", \"algolia auth\", \"configure algolia keys\". saas-packs read write edit bash(npm:*) bash(pnpm:*) bash(npx:*) grep "
+      "searchText": "algolia-install-auth install and verify the algolia javascript v5 client with least-privilege credential separation. use when bootstrapping a backend, browser search client, or environment configuration. trigger with \"install algolia\", \"configure algolia auth\", or \"algolia api key setup\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-local-dev-loop",
       "slug": "algolia-local-dev-loop",
       "name": "algolia-local-dev-loop",
-      "description": "Configure Algolia local development with separate dev index, mocking, and testing. Use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with Algolia. Trigger: \"algolia dev setup\", \"algolia local development\", \"algolia dev environment\", \"test algolia locally\".",
+      "description": "Create a fast local development loop for Algolia record transforms and search behavior without contaminating shared indices. Use when iterating on search code, fixtures, or client wrappers. Trigger with \"Algolia local development\", \"mock Algolia\", or \"test search locally\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.7.0",
@@ -17024,22 +17038,22 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-local-dev-loop configure algolia local development with separate dev index, mocking, and testing. use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with algolia. trigger: \"algolia dev setup\", \"algolia local development\", \"algolia dev environment\", \"test algolia locally\". saas-packs read write edit bash(npm:*) bash(pnpm:*) bash(npx:*) grep "
+      "searchText": "algolia-local-dev-loop create a fast local development loop for algolia record transforms and search behavior without contaminating shared indices. use when iterating on search code, fixtures, or client wrappers. trigger with \"algolia local development\", \"mock algolia\", or \"test search locally\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-migration-deep-dive",
       "slug": "algolia-migration-deep-dive",
       "name": "algolia-migration-deep-dive",
-      "description": "Migrate to Algolia from Elasticsearch, Typesense, or Meilisearch. Covers data migration, query translation, replaceAllObjects zero-downtime swap, and strangler fig traffic shifting. Trigger: \"migrate to algolia\", \"switch to algolia\", \"algolia migration\", \"elasticsearch to algolia\", \"replace search engine\", \"algolia replatform\".",
+      "description": "Plan and execute a reversible migration from another search system or legacy index design to Algolia. Use when translating schemas, queries, relevance behavior, or production traffic. Trigger with \"migrate to Algolia\", \"Algolia cutover\", or \"search engine migration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(node:*)",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.7.0",
@@ -17047,22 +17061,22 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-migration-deep-dive migrate to algolia from elasticsearch, typesense, or meilisearch. covers data migration, query translation, replaceallobjects zero-downtime swap, and strangler fig traffic shifting. trigger: \"migrate to algolia\", \"switch to algolia\", \"algolia migration\", \"elasticsearch to algolia\", \"replace search engine\", \"algolia replatform\". saas-packs read write edit bash(npm:*) bash(node:*) bash(curl:*) "
+      "searchText": "algolia-migration-deep-dive plan and execute a reversible migration from another search system or legacy index design to algolia. use when translating schemas, queries, relevance behavior, or production traffic. trigger with \"migrate to algolia\", \"algolia cutover\", or \"search engine migration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-multi-env-setup",
       "slug": "algolia-multi-env-setup",
       "name": "algolia-multi-env-setup",
-      "description": "Configure Algolia across dev/staging/production: index prefixing, per-environment API keys, settings-as-code, and environment isolation guards. Trigger: \"algolia environments\", \"algolia staging\", \"algolia dev prod\", \"algolia environment setup\", \"algolia config by env\".",
+      "description": "Design isolated Algolia development, staging, preview, and production targets with explicit promotion rules. Use when environments share credentials or index names, or previews need bounded search data. Trigger with \"Algolia environments\", \"Algolia staging setup\", or \"preview index\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(gcloud:*)",
-        "Bash(vault:*)"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.7.0",
@@ -17070,17 +17084,20 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-multi-env-setup configure algolia across dev/staging/production: index prefixing, per-environment api keys, settings-as-code, and environment isolation guards. trigger: \"algolia environments\", \"algolia staging\", \"algolia dev prod\", \"algolia environment setup\", \"algolia config by env\". saas-packs read write edit bash(npm:*) bash(gcloud:*) bash(vault:*) "
+      "searchText": "algolia-multi-env-setup design isolated algolia development, staging, preview, and production targets with explicit promotion rules. use when environments share credentials or index names, or previews need bounded search data. trigger with \"algolia environments\", \"algolia staging setup\", or \"preview index\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-observability",
       "slug": "algolia-observability",
       "name": "algolia-observability",
-      "description": "Set up observability for Algolia: Prometheus metrics for search latency/errors, OpenTelemetry tracing, structured logging, and Grafana dashboards. Trigger: \"algolia monitoring\", \"algolia metrics\", \"algolia observability\", \"monitor algolia\", \"algolia alerts\", \"algolia tracing\", \"algolia dashboard\".",
+      "description": "Instrument an Algolia integration for actionable availability, latency, freshness, relevance, and event-health signals. Use when defining dashboards, alerts, traces, or service objectives. Trigger with \"monitor Algolia\", \"Algolia metrics\", or \"search observability\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
@@ -17090,17 +17107,20 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-observability set up observability for algolia: prometheus metrics for search latency/errors, opentelemetry tracing, structured logging, and grafana dashboards. trigger: \"algolia monitoring\", \"algolia metrics\", \"algolia observability\", \"monitor algolia\", \"algolia alerts\", \"algolia tracing\", \"algolia dashboard\". saas-packs read write edit "
+      "searchText": "algolia-observability instrument an algolia integration for actionable availability, latency, freshness, relevance, and event-health signals. use when defining dashboards, alerts, traces, or service objectives. trigger with \"monitor algolia\", \"algolia metrics\", or \"search observability\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-performance-tuning",
       "slug": "algolia-performance-tuning",
       "name": "algolia-performance-tuning",
-      "description": "Optimize Algolia search performance: record size, searchable attributes, replica strategy, response caching, and query-time parameter tuning. Trigger: \"algolia performance\", \"optimize algolia\", \"algolia latency\", \"algolia slow\", \"algolia caching\", \"algolia response time\".",
+      "description": "Analyze and optimize an Algolia search path using repository and production evidence instead of universal latency targets. Use when search feels slow, payloads are large, or rendering regresses. Trigger with \"tune Algolia performance\", \"slow Algolia search\", or \"search latency\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
@@ -17110,20 +17130,22 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-performance-tuning optimize algolia search performance: record size, searchable attributes, replica strategy, response caching, and query-time parameter tuning. trigger: \"algolia performance\", \"optimize algolia\", \"algolia latency\", \"algolia slow\", \"algolia caching\", \"algolia response time\". saas-packs read write edit "
+      "searchText": "algolia-performance-tuning analyze and optimize an algolia search path using repository and production evidence instead of universal latency targets. use when search feels slow, payloads are large, or rendering regresses. trigger with \"tune algolia performance\", \"slow algolia search\", or \"search latency\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-prod-checklist",
       "slug": "algolia-prod-checklist",
       "name": "algolia-prod-checklist",
-      "description": "Execute Algolia production readiness checklist: index settings, key security, replica configuration, monitoring, and rollback procedures. Trigger: \"algolia production\", \"deploy algolia\", \"algolia go-live\", \"algolia launch checklist\", \"algolia production ready\".",
+      "description": "Run a fail-closed production readiness review for an Algolia-backed search release. Use when promoting new indices, settings, credentials, UI behavior, or event tracking. Trigger with \"Algolia production checklist\", \"search go-live\", or \"Algolia launch review\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Bash(npm:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.7.0",
@@ -17131,17 +17153,20 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-prod-checklist execute algolia production readiness checklist: index settings, key security, replica configuration, monitoring, and rollback procedures. trigger: \"algolia production\", \"deploy algolia\", \"algolia go-live\", \"algolia launch checklist\", \"algolia production ready\". saas-packs read bash(curl:*) bash(npm:*) grep "
+      "searchText": "algolia-prod-checklist run a fail-closed production readiness review for an algolia-backed search release. use when promoting new indices, settings, credentials, ui behavior, or event tracking. trigger with \"algolia production checklist\", \"search go-live\", or \"algolia launch review\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-rate-limits",
       "slug": "algolia-rate-limits",
       "name": "algolia-rate-limits",
-      "description": "Handle Algolia rate limits and throttling: per-key limits, indexing queue limits, 429 responses, and backoff strategies. Trigger: \"algolia rate limit\", \"algolia throttling\", \"algolia 429\", \"algolia retry\", \"algolia backoff\", \"algolia too many requests\".",
+      "description": "Monitor and optimize Algolia request pressure using observed responses and bounded client behavior. Use when requests return 429, queues grow, or search and indexing compete for capacity. Trigger with \"Algolia rate limit\", \"Algolia 429\", or \"throttle indexing\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
@@ -17151,36 +17176,20 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-rate-limits handle algolia rate limits and throttling: per-key limits, indexing queue limits, 429 responses, and backoff strategies. trigger: \"algolia rate limit\", \"algolia throttling\", \"algolia 429\", \"algolia retry\", \"algolia backoff\", \"algolia too many requests\". saas-packs read write edit "
+      "searchText": "algolia-rate-limits monitor and optimize algolia request pressure using observed responses and bounded client behavior. use when requests return 429, queues grow, or search and indexing compete for capacity. trigger with \"algolia rate limit\", \"algolia 429\", or \"throttle indexing\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-reference-architecture",
       "slug": "algolia-reference-architecture",
       "name": "algolia-reference-architecture",
-      "description": "Implement Algolia reference architecture: index design, multi-index strategy, data pipeline, search service layer, and frontend/backend separation. Trigger: \"algolia architecture\", \"algolia best practices\", \"algolia project structure\", \"how to organize algolia\", \"algolia index design\".",
+      "description": "Design or review an Algolia search architecture across source data, indexing, query, UI, events, and operations. Use when establishing system boundaries or evaluating an existing integration. Trigger with \"Algolia architecture\", \"design search platform\", or \"review Algolia integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
-      ],
-      "compatibleWith": [],
-      "version": "1.7.0",
-      "parentPlugin": {
-        "name": "algolia-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "algolia-reference-architecture implement algolia reference architecture: index design, multi-index strategy, data pipeline, search service layer, and frontend/backend separation. trigger: \"algolia architecture\", \"algolia best practices\", \"algolia project structure\", \"how to organize algolia\", \"algolia index design\". saas-packs read grep "
-    },
-    {
-      "type": "skill",
-      "id": "algolia-sdk-patterns",
-      "slug": "algolia-sdk-patterns",
-      "name": "algolia-sdk-patterns",
-      "description": "Apply production-ready algoliasearch v5 patterns: singleton client, typed search, error handling, and batch operations. Use when implementing Algolia integrations, refactoring SDK usage, or establishing team coding standards. Trigger: \"algolia SDK patterns\", \"algolia best practices\", \"algolia code patterns\", \"idiomatic algolia\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
@@ -17190,20 +17199,45 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-sdk-patterns apply production-ready algoliasearch v5 patterns: singleton client, typed search, error handling, and batch operations. use when implementing algolia integrations, refactoring sdk usage, or establishing team coding standards. trigger: \"algolia sdk patterns\", \"algolia best practices\", \"algolia code patterns\", \"idiomatic algolia\". saas-packs read write edit "
+      "searchText": "algolia-reference-architecture design or review an algolia search architecture across source data, indexing, query, ui, events, and operations. use when establishing system boundaries or evaluating an existing integration. trigger with \"algolia architecture\", \"design search platform\", or \"review algolia integration\". saas-packs read glob grep webfetch write edit "
+    },
+    {
+      "type": "skill",
+      "id": "algolia-sdk-patterns",
+      "slug": "algolia-sdk-patterns",
+      "name": "algolia-sdk-patterns",
+      "description": "Create or review a typed application adapter around the Algolia JavaScript v5 client. Use when client calls, index names, errors, task waits, and credential usage are scattered. Trigger with \"Algolia SDK patterns\", \"Algolia client wrapper\", or \"refactor search client\".",
+      "category": "saas-packs",
+      "allowedTools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
+      ],
+      "compatibleWith": [],
+      "version": "1.7.0",
+      "parentPlugin": {
+        "name": "algolia-pack",
+        "category": "saas-packs"
+      },
+      "searchText": "algolia-sdk-patterns create or review a typed application adapter around the algolia javascript v5 client. use when client calls, index names, errors, task waits, and credential usage are scattered. trigger with \"algolia sdk patterns\", \"algolia client wrapper\", or \"refactor search client\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-security-basics",
       "slug": "algolia-security-basics",
       "name": "algolia-security-basics",
-      "description": "Apply Algolia security best practices: API key scoping, secured API keys, frontend vs backend key separation, and key rotation. Trigger: \"algolia security\", \"algolia API key security\", \"secure algolia\", \"algolia secrets\", \"algolia key rotation\", \"algolia secured key\".",
+      "description": "Audit and harden Algolia credentials, record exposure, index restrictions, and tenant search controls. Use when reviewing frontend keys, backend ACLs, key rotation, or data visibility. Trigger with \"secure Algolia\", \"Algolia key audit\", or \"Algolia security review\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.7.0",
@@ -17211,23 +17245,22 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-security-basics apply algolia security best practices: api key scoping, secured api keys, frontend vs backend key separation, and key rotation. trigger: \"algolia security\", \"algolia api key security\", \"secure algolia\", \"algolia secrets\", \"algolia key rotation\", \"algolia secured key\". saas-packs read write edit grep "
+      "searchText": "algolia-security-basics audit and harden algolia credentials, record exposure, index restrictions, and tenant search controls. use when reviewing frontend keys, backend acls, key rotation, or data visibility. trigger with \"secure algolia\", \"algolia key audit\", or \"algolia security review\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-upgrade-migration",
       "slug": "algolia-upgrade-migration",
       "name": "algolia-upgrade-migration",
-      "description": "Upgrade algoliasearch from v4 to v5 with breaking change detection and codemod. Use when upgrading SDK versions, detecting deprecations, or migrating initIndex patterns. Trigger: \"upgrade algolia\", \"algolia migration v5\", \"algolia breaking changes\", \"update algolia SDK\", \"algolia v4 to v5\".",
+      "description": "Migrate an Algolia JavaScript client integration from v4 to v5 with inventory, compatibility tests, and rollback. Use when removing initIndex, updating client methods, or reconciling mixed major versions. Trigger with \"upgrade Algolia v5\", \"remove initIndex\", or \"Algolia SDK migration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(git:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.7.0",
@@ -17235,21 +17268,22 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-upgrade-migration upgrade algoliasearch from v4 to v5 with breaking change detection and codemod. use when upgrading sdk versions, detecting deprecations, or migrating initindex patterns. trigger: \"upgrade algolia\", \"algolia migration v5\", \"algolia breaking changes\", \"update algolia sdk\", \"algolia v4 to v5\". saas-packs read write edit bash(npm:*) bash(git:*) bash(npx:*) grep "
+      "searchText": "algolia-upgrade-migration migrate an algolia javascript client integration from v4 to v5 with inventory, compatibility tests, and rollback. use when removing initindex, updating client methods, or reconciling mixed major versions. trigger with \"upgrade algolia v5\", \"remove initindex\", or \"algolia sdk migration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "algolia-webhooks-events",
       "slug": "algolia-webhooks-events",
       "name": "algolia-webhooks-events",
-      "description": "Implement Algolia Insights API for click/conversion tracking, search analytics, and real-time event-driven index updates via database change listeners. Trigger: \"algolia events\", \"algolia analytics\", \"algolia insights\", \"algolia click tracking\", \"algolia conversion\", \"algolia event tracking\".",
+      "description": "Implement and validate Algolia click, conversion, and view events while separating them from source-to-index synchronization. Use when adding Insights, query attribution, or event-driven record updates. Trigger with \"Algolia Insights\", \"track search conversion\", or \"sync database to Algolia\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
       "version": "1.7.0",
@@ -17257,7 +17291,7 @@
         "name": "algolia-pack",
         "category": "saas-packs"
       },
-      "searchText": "algolia-webhooks-events implement algolia insights api for click/conversion tracking, search analytics, and real-time event-driven index updates via database change listeners. trigger: \"algolia events\", \"algolia analytics\", \"algolia insights\", \"algolia click tracking\", \"algolia conversion\", \"algolia event tracking\". saas-packs read write edit bash(npm:*) bash(curl:*) "
+      "searchText": "algolia-webhooks-events implement and validate algolia click, conversion, and view events while separating them from source-to-index synchronization. use when adding insights, query attribution, or event-driven record updates. trigger with \"algolia insights\", \"track search conversion\", or \"sync database to algolia\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
