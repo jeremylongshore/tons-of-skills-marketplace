@@ -1,7 +1,7 @@
 {
   "name": "bamboohr-pack",
-  "version": "1.4.0",
-  "description": "Claude Code skill pack for BambooHR (18 skills)",
+  "version": "1.5.0",
+  "description": "Operator-grade BambooHR pack with 18 source-grounded skills for authentication, HR data pipelines, webhooks, security, reliability, and release governance.",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,10 @@
   "license": "MIT",
   "keywords": [
     "bamboohr",
-    "bamboohr",
     "saas",
-    "sdk",
-    "integration"
+    "hr-integrations",
+    "employee-data",
+    "oauth",
+    "webhooks"
   ]
 }
