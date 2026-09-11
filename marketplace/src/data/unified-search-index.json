@@ -157,10 +157,11 @@
       "Bash(gzip:*)",
       "Bash(head:*)",
       "Bash(helm:*)",
-      "Bash(heroku:*)",
       "Bash(httpx*)",
       "Bash(hurl*)",
       "Bash(iac-check:*)",
+      "Bash(identify:*)",
+      "Bash(inkscape:*)",
       "Bash(iostat:*)",
       "Bash(j-rig:*)",
       "Bash(java:*)",
@@ -181,6 +182,7 @@
       "Bash(logs:*)",
       "Bash(lokalise2:*)",
       "Bash(ls:*)",
+      "Bash(magick:*)",
       "Bash(memory:*)",
       "Bash(metrics:*)",
       "Bash(mkdir:*)",
@@ -242,6 +244,7 @@
       "Bash(restic*)",
       "Bash(rg:*)",
       "Bash(rm:*)",
+      "Bash(rsvg-convert:*)",
       "Bash(rsync:*)",
       "Bash(ruff*)",
       "Bash(rum:*)",
@@ -255,7 +258,6 @@
       "Bash(security:*)",
       "Bash(sed:*)",
       "Bash(sentry-cli:*)",
-      "Bash(sf:*)",
       "Bash(sha256sum:*)",
       "Bash(shellcheck*)",
       "Bash(shopify:*)",
@@ -380,6 +382,7 @@
       "ab-testing",
       "abridge",
       "accessibility",
+      "accessible-svg",
       "account-abstraction",
       "accounting",
       "adam",
@@ -443,7 +446,6 @@
       "ai-tutor",
       "ai-video",
       "ai-website",
-      "ai-writing",
       "alb",
       "alchemy",
       "alert",
@@ -529,7 +531,6 @@
       "billingcenter",
       "bitcoin",
       "blockchain",
-      "blogging",
       "bottleneck",
       "box",
       "box-cli",
@@ -603,6 +604,7 @@
       "clustering",
       "clusters",
       "cmms",
+      "cms",
       "code-coverage",
       "code-editor",
       "code-examples",
@@ -770,6 +772,7 @@
       "edge-cases",
       "edge-functions",
       "edge-tts",
+      "editorial-workflow",
       "edtech",
       "education",
       "elevenlabs",
@@ -890,7 +893,6 @@
       "generator",
       "genkit",
       "genkit-examples",
-      "ghost",
       "git",
       "git-churn",
       "git-hooks",
@@ -1297,6 +1299,7 @@
       "protobuf",
       "provenance",
       "proxy",
+      "pub-sub",
       "publishing",
       "pull-request",
       "pulumi",
@@ -1465,6 +1468,7 @@
       "socket.io",
       "software-engineer",
       "source-of-truth",
+      "source-verification",
       "sow",
       "spark",
       "speak",
@@ -13210,12 +13214,13 @@
       "slug": "salesforce-pack",
       "name": "salesforce-pack",
       "displayName": "salesforce pack",
-      "description": "Claude Code skill pack for Salesforce (30 skills)",
+      "description": "Governed Salesforce operator workflows for API access, data, events, security, delivery, and production operations. Use when authenticating to a Salesforce org, querying or moving data, deploying metadata, handling events, or operating a production change.",
       "category": "saas-packs",
       "keywords": [
         "salesforce",
-        "saas",
-        "sdk",
+        "crm",
+        "api",
+        "pub-sub",
         "integration"
       ],
       "author": {
@@ -13224,15 +13229,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 30,
-      "verificationScore": 81,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "salesforce pack claude code skill pack for salesforce (30 skills) saas-packs salesforce saas sdk integration"
+      "verificationScore": 94,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "salesforce pack governed salesforce operator workflows for api access, data, events, security, delivery, and production operations. use when authenticating to a salesforce org, querying or moving data, deploying metadata, handling events, or operating a production change. saas-packs salesforce crm api pub-sub integration"
     },
     {
       "type": "plugin",
@@ -14445,16 +14450,15 @@
       "slug": "publishing-skills",
       "name": "publishing-skills",
       "displayName": "publishing skills",
-      "description": "Four composable skills that turn an AI agent into a platform-agnostic long-tail SEO publishing pipeline — topic research, drafting, SVG figures, and an editorial calendar. Ships Ghost, WordPress, and static-site adapters.",
+      "description": "Governed editorial workflows for evidence-backed topic research, content scheduling, accessible SVG figures, source-grounded drafting, and approved CMS handoff. Use when planning, researching, illustrating, drafting, or handing off a publication-ready article.",
       "category": "productivity",
       "keywords": [
-        "ghost",
-        "blogging",
         "seo",
-        "content-creation",
+        "editorial-workflow",
+        "source-verification",
+        "accessible-svg",
         "publishing",
-        "claude-code",
-        "ai-writing"
+        "cms"
       ],
       "author": {
         "name": "AutomateLab",
@@ -14462,15 +14466,15 @@
         "email": "hello@automatelab.tech"
       },
       "authorType": "community",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 4,
-      "verificationScore": 61,
-      "verificationGrade": "D",
-      "verificationBadge": "bronze",
-      "searchText": "publishing skills four composable skills that turn an ai agent into a platform-agnostic long-tail seo publishing pipeline — topic research, drafting, svg figures, and an editorial calendar. ships ghost, wordpress, and static-site adapters. productivity ghost blogging seo content-creation publishing claude-code ai-writing"
+      "verificationScore": 95,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "publishing skills governed editorial workflows for evidence-backed topic research, content scheduling, accessible svg figures, source-grounded drafting, and approved cms handoff. use when planning, researching, illustrating, drafting, or handing off a publication-ready article. productivity seo editorial-workflow source-verification accessible-svg publishing cms"
     },
     {
       "type": "plugin",
@@ -22670,66 +22674,70 @@
       "id": "blog-editorial-calendar",
       "slug": "blog-editorial-calendar",
       "name": "blog-editorial-calendar",
-      "description": "Run your blog like a queue, not a guessing game. This skill is the orchestration layer on top of blog-topic-research and seo-blog-writer: it keeps an evidence-backed backlog, picks the next topic so your corpus drifts toward the cluster + format mix you defined, schedules posts into a rolling daily cadence, and marks them done — autonomously, two posts a day if you want. It scores every pick by how far each topic cluster is from its target weight (so you never end up with 40 troubleshooting posts and no comparisons), reconciles the backlog against what's actually live on your CMS, and auto-refills by calling blog-topic-research when the queue runs dry. Platform-agnostic: it drives whatever publish adapter seo-blog-writer is configured for (Ghost, WordPress, static site). Built for founders, indie hackers, and content teams who want a hands-off long-tail SEO pipeline that publishes on a schedule and stays balanced. Trigger when the user says: 'what should I write next', 'pick the next topic', 'schedule the next N posts', 'editorial calendar status', 'add this to the backlog', 'mark this post done', or any variant of running a recurring publish cadence.",
+      "description": "Operate an evidence-backed editorial queue, balance topic and format coverage, schedule approved drafts, and reconcile backlog state with the publishing system. Use when choosing or scheduling the next blog work. Trigger with \"show the editorial calendar\" or \"pick the next topic\".",
       "category": "productivity",
       "allowedTools": [
+        "Read",
         "WebSearch",
         "WebFetch",
-        "Read",
         "Write",
-        "Bash"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.0.0",
+      "version": "1.1.0",
       "parentPlugin": {
         "name": "publishing-skills",
         "category": "productivity"
       },
-      "searchText": "blog-editorial-calendar run your blog like a queue, not a guessing game. this skill is the orchestration layer on top of blog-topic-research and seo-blog-writer: it keeps an evidence-backed backlog, picks the next topic so your corpus drifts toward the cluster + format mix you defined, schedules posts into a rolling daily cadence, and marks them done — autonomously, two posts a day if you want. it scores every pick by how far each topic cluster is from its target weight (so you never end up with 40 troubleshooting posts and no comparisons), reconciles the backlog against what's actually live on your cms, and auto-refills by calling blog-topic-research when the queue runs dry. platform-agnostic: it drives whatever publish adapter seo-blog-writer is configured for (ghost, wordpress, static site). built for founders, indie hackers, and content teams who want a hands-off long-tail seo pipeline that publishes on a schedule and stays balanced. trigger when the user says: 'what should i write next', 'pick the next topic', 'schedule the next n posts', 'editorial calendar status', 'add this to the backlog', 'mark this post done', or any variant of running a recurring publish cadence. productivity websearch webfetch read write bash "
+      "searchText": "blog-editorial-calendar operate an evidence-backed editorial queue, balance topic and format coverage, schedule approved drafts, and reconcile backlog state with the publishing system. use when choosing or scheduling the next blog work. trigger with \"show the editorial calendar\" or \"pick the next topic\". productivity read websearch webfetch write edit "
     },
     {
       "type": "skill",
       "id": "blog-figure-svg",
       "slug": "blog-figure-svg",
       "name": "blog-figure-svg",
-      "description": "Stop using stock photos. Generate accessible, lightweight SVG figures for any blog or CMS - flow diagrams, comparison bar charts, taxonomy/Venn diagrams, annotated terminal mocks, and 1600x840 OG feature cards. Hand-authored SVG (no embedded fonts, no external assets, no AI-image latency) with a consistent palette, screen-reader metadata (title + desc + aria-labelledby), and a figcaption-required handoff to the writer. Rasterizes to compressed PNG ready for Ghost, WordPress, Webflow, or any static-site generator. Built for content marketers, indie hackers, and dev-tool blogs that want unique illustrations on every post without paying a designer or burning Midjourney credits. Trigger when the user says: 'add a figure to the post', 'illustrate this comparison', 'draw a flow diagram for X', 'make a feature/OG image', or any request to produce a chart/diagram for editorial use.",
+      "description": "Design accessible, source-backed SVG editorial figures and optionally rasterize reviewed assets for a blog or CMS. Use when a post needs a flow, comparison, taxonomy, terminal mock, or feature card. Trigger with \"add a figure to this post\" or \"make an SVG diagram\".",
       "category": "productivity",
       "allowedTools": [
-        "WebSearch",
-        "WebFetch",
-        "Bash(python3:*)",
         "Read",
-        "Write"
+        "Write",
+        "Edit",
+        "Bash(command:*)",
+        "Bash(magick:*)",
+        "Bash(identify:*)",
+        "Bash(rsvg-convert:*)",
+        "Bash(inkscape:*)",
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "parentPlugin": {
         "name": "publishing-skills",
         "category": "productivity"
       },
-      "searchText": "blog-figure-svg stop using stock photos. generate accessible, lightweight svg figures for any blog or cms - flow diagrams, comparison bar charts, taxonomy/venn diagrams, annotated terminal mocks, and 1600x840 og feature cards. hand-authored svg (no embedded fonts, no external assets, no ai-image latency) with a consistent palette, screen-reader metadata (title + desc + aria-labelledby), and a figcaption-required handoff to the writer. rasterizes to compressed png ready for ghost, wordpress, webflow, or any static-site generator. built for content marketers, indie hackers, and dev-tool blogs that want unique illustrations on every post without paying a designer or burning midjourney credits. trigger when the user says: 'add a figure to the post', 'illustrate this comparison', 'draw a flow diagram for x', 'make a feature/og image', or any request to produce a chart/diagram for editorial use. productivity websearch webfetch bash(python3:*) read write "
+      "searchText": "blog-figure-svg design accessible, source-backed svg editorial figures and optionally rasterize reviewed assets for a blog or cms. use when a post needs a flow, comparison, taxonomy, terminal mock, or feature card. trigger with \"add a figure to this post\" or \"make an svg diagram\". productivity read write edit bash(command:*) bash(magick:*) bash(identify:*) bash(rsvg-convert:*) bash(inkscape:*) bash(python3:*) "
     },
     {
       "type": "skill",
       "id": "blog-topic-research",
       "slug": "blog-topic-research",
       "name": "blog-topic-research",
-      "description": "Stop writing blog posts nobody searches for. This skill builds your editorial backlog from real, verifiable user demand - never from AI vibes. It mines candidates from Google Suggest, People Also Ask, Reddit, Stack Overflow, GitHub issues, vendor forums, and changelogs; captures every signal as a citable URL with verbatim evidence; classifies each topic by post format (how-to-fix, x-vs-y, listicle, migration, release-recap, ...); checks against your existing backlog so you don't cannibalize what you already published; and outputs a writer-ready scaffold with primary sources, problem summary, confirmed fixes, version context, and FAQ variants. Built for content marketers, founders, indie hackers, and dev-tool teams who want a long-tail SEO pipeline backed by evidence instead of hallucinated keyword volumes. Trigger when the user says: 'research blog topics', 'find topics with real demand', 'expand the editorial backlog', 'research N long-tail topics', or any variant of growing a content pipeline with verified candidates.",
+      "description": "Build a deduplicated editorial backlog from current, traceable demand and authoritative product evidence. Use when deciding which long-tail topics are worth writing before drafting begins. Trigger with \"research blog topics\" or \"find evidence-backed content ideas\".",
       "category": "productivity",
       "allowedTools": [
+        "Read",
         "WebSearch",
         "WebFetch",
-        "Bash(python3:*)",
-        "Read",
-        "Write"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "parentPlugin": {
         "name": "publishing-skills",
         "category": "productivity"
       },
-      "searchText": "blog-topic-research stop writing blog posts nobody searches for. this skill builds your editorial backlog from real, verifiable user demand - never from ai vibes. it mines candidates from google suggest, people also ask, reddit, stack overflow, github issues, vendor forums, and changelogs; captures every signal as a citable url with verbatim evidence; classifies each topic by post format (how-to-fix, x-vs-y, listicle, migration, release-recap, ...); checks against your existing backlog so you don't cannibalize what you already published; and outputs a writer-ready scaffold with primary sources, problem summary, confirmed fixes, version context, and faq variants. built for content marketers, founders, indie hackers, and dev-tool teams who want a long-tail seo pipeline backed by evidence instead of hallucinated keyword volumes. trigger when the user says: 'research blog topics', 'find topics with real demand', 'expand the editorial backlog', 'research n long-tail topics', or any variant of growing a content pipeline with verified candidates. productivity websearch webfetch bash(python3:*) read write "
+      "searchText": "blog-topic-research build a deduplicated editorial backlog from current, traceable demand and authoritative product evidence. use when deciding which long-tail topics are worth writing before drafting begins. trigger with \"research blog topics\" or \"find evidence-backed content ideas\". productivity read websearch webfetch write edit "
     },
     {
       "type": "skill",
@@ -67725,634 +67733,690 @@
       "id": "salesforce-advanced-troubleshooting",
       "slug": "salesforce-advanced-troubleshooting",
       "name": "salesforce-advanced-troubleshooting",
-      "description": "Apply Salesforce advanced debugging with debug logs, SOQL query plans, and EventLogFile analysis. Use when standard troubleshooting fails, investigating SOQL performance issues, or analyzing Apex governor limit violations. Trigger with phrases like \"salesforce hard bug\", \"salesforce debug log\", \"salesforce governor limit\", \"salesforce query plan\", \"salesforce deep debug\", \"SOQL slow\".",
+      "description": "Analyze complex Salesforce integration failures across request traces, metadata, query plans, automation, locks, jobs, events, and limits. Use when basic triage stalls. Trigger with \"deep diagnose Salesforce\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(sf:*)",
-        "Bash(curl:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-advanced-troubleshooting apply salesforce advanced debugging with debug logs, soql query plans, and eventlogfile analysis. use when standard troubleshooting fails, investigating soql performance issues, or analyzing apex governor limit violations. trigger with phrases like \"salesforce hard bug\", \"salesforce debug log\", \"salesforce governor limit\", \"salesforce query plan\", \"salesforce deep debug\", \"soql slow\". saas-packs read grep bash(sf:*) bash(curl:*) "
+      "searchText": "salesforce-advanced-troubleshooting analyze complex salesforce integration failures across request traces, metadata, query plans, automation, locks, jobs, events, and limits. use when basic triage stalls. trigger with \"deep diagnose salesforce\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-architecture-variants",
       "slug": "salesforce-architecture-variants",
       "name": "salesforce-architecture-variants",
-      "description": "Choose and implement Salesforce integration architecture patterns for different scales. Use when designing new Salesforce integrations, choosing between polling/event-driven/Heroku Connect, or planning migration paths for Salesforce applications. Trigger with phrases like \"salesforce architecture\", \"salesforce integration pattern\", \"how to structure salesforce integration\", \"salesforce event-driven\", \"salesforce Heroku Connect\".",
+      "description": "Analyze Salesforce direct API, middleware, event-driven, replicated-data, and hybrid integration architectures against explicit constraints. Use when making architecture decisions. Trigger with \"compare Salesforce architectures\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-architecture-variants choose and implement salesforce integration architecture patterns for different scales. use when designing new salesforce integrations, choosing between polling/event-driven/heroku connect, or planning migration paths for salesforce applications. trigger with phrases like \"salesforce architecture\", \"salesforce integration pattern\", \"how to structure salesforce integration\", \"salesforce event-driven\", \"salesforce heroku connect\". saas-packs read grep "
+      "searchText": "salesforce-architecture-variants analyze salesforce direct api, middleware, event-driven, replicated-data, and hybrid integration architectures against explicit constraints. use when making architecture decisions. trigger with \"compare salesforce architectures\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-ci-integration",
       "slug": "salesforce-ci-integration",
       "name": "salesforce-ci-integration",
-      "description": "Configure Salesforce CI/CD with GitHub Actions, SFDX deployments, and Apex testing. Use when setting up automated testing, configuring CI pipelines for metadata deployment, or integrating Salesforce tests into your build process. Trigger with phrases like \"salesforce CI\", \"salesforce GitHub Actions\", \"salesforce automated tests\", \"CI salesforce\", \"sfdx deploy CI\".",
+      "description": "Build fork-safe Salesforce CI with secretless static and fixture gates, protected non-production validation, and separately approved production promotion. Use when automating delivery. Trigger with \"add Salesforce CI\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(gh:*)",
-        "Bash(sf:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-ci-integration configure salesforce ci/cd with github actions, sfdx deployments, and apex testing. use when setting up automated testing, configuring ci pipelines for metadata deployment, or integrating salesforce tests into your build process. trigger with phrases like \"salesforce ci\", \"salesforce github actions\", \"salesforce automated tests\", \"ci salesforce\", \"sfdx deploy ci\". saas-packs read write edit bash(gh:*) bash(sf:*) "
+      "searchText": "salesforce-ci-integration build fork-safe salesforce ci with secretless static and fixture gates, protected non-production validation, and separately approved production promotion. use when automating delivery. trigger with \"add salesforce ci\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-common-errors",
       "slug": "salesforce-common-errors",
       "name": "salesforce-common-errors",
-      "description": "Diagnose and fix Salesforce common errors, SOQL issues, and API exceptions. Use when encountering Salesforce errors, debugging failed requests, or troubleshooting integration issues. Trigger with phrases like \"salesforce error\", \"fix salesforce\", \"salesforce not working\", \"debug salesforce\", \"SOQL error\", \"salesforce exception\".",
+      "description": "Analyze Salesforce authorization, permission, schema, validation, locking, limit, async-job, and event-delivery failures from evidence. Use when triaging an integration. Trigger with \"diagnose a Salesforce error\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)",
-        "Bash(sf:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-common-errors diagnose and fix salesforce common errors, soql issues, and api exceptions. use when encountering salesforce errors, debugging failed requests, or troubleshooting integration issues. trigger with phrases like \"salesforce error\", \"fix salesforce\", \"salesforce not working\", \"debug salesforce\", \"soql error\", \"salesforce exception\". saas-packs read grep bash(curl:*) bash(sf:*) "
+      "searchText": "salesforce-common-errors analyze salesforce authorization, permission, schema, validation, locking, limit, async-job, and event-delivery failures from evidence. use when triaging an integration. trigger with \"diagnose a salesforce error\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-core-workflow-a",
       "slug": "salesforce-core-workflow-a",
       "name": "salesforce-core-workflow-a",
-      "description": "Execute Salesforce CRUD operations on standard sObjects with SOQL and REST API. Use when creating, reading, updating, or deleting Accounts, Contacts, Leads, or Opportunities via the Salesforce API. Trigger with phrases like \"salesforce CRUD\", \"salesforce create record\", \"salesforce update account\", \"salesforce SOQL query\", \"salesforce REST API\".",
+      "description": "Run a metadata-aware Salesforce record workflow with bounded SOQL, CRUD and field-access checks, mutation preview, and reconciliation. Use when operating transactional objects. Trigger with \"operate Salesforce records\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-core-workflow-a execute salesforce crud operations on standard sobjects with soql and rest api. use when creating, reading, updating, or deleting accounts, contacts, leads, or opportunities via the salesforce api. trigger with phrases like \"salesforce crud\", \"salesforce create record\", \"salesforce update account\", \"salesforce soql query\", \"salesforce rest api\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "salesforce-core-workflow-a run a metadata-aware salesforce record workflow with bounded soql, crud and field-access checks, mutation preview, and reconciliation. use when operating transactional objects. trigger with \"operate salesforce records\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-core-workflow-b",
       "slug": "salesforce-core-workflow-b",
       "name": "salesforce-core-workflow-b",
-      "description": "Execute Salesforce Bulk API 2.0 and Composite API operations for high-volume data. Use when importing/exporting large datasets, performing multi-object transactions, or chaining dependent API calls. Trigger with phrases like \"salesforce bulk API\", \"salesforce composite\", \"salesforce batch\", \"salesforce mass import\", \"salesforce large data\".",
+      "description": "Analyze and run the correct Salesforce high-volume operation using Bulk API 2.0, Composite, Graph, or sObject Collections with reconciliation. Use when handling large or dependent batches. Trigger with \"run a Salesforce bulk workflow\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-core-workflow-b execute salesforce bulk api 2.0 and composite api operations for high-volume data. use when importing/exporting large datasets, performing multi-object transactions, or chaining dependent api calls. trigger with phrases like \"salesforce bulk api\", \"salesforce composite\", \"salesforce batch\", \"salesforce mass import\", \"salesforce large data\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "salesforce-core-workflow-b analyze and run the correct salesforce high-volume operation using bulk api 2.0, composite, graph, or sobject collections with reconciliation. use when handling large or dependent batches. trigger with \"run a salesforce bulk workflow\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-cost-tuning",
       "slug": "salesforce-cost-tuning",
       "name": "salesforce-cost-tuning",
-      "description": "Optimize Salesforce costs through API call reduction, edition selection, and license management. Use when analyzing Salesforce costs, reducing API consumption, or choosing the right Salesforce edition for your integration needs. Trigger with phrases like \"salesforce cost\", \"salesforce pricing\", \"reduce salesforce costs\", \"salesforce license\", \"salesforce API usage\", \"salesforce budget\".",
+      "description": "Analyze Salesforce license, add-on, storage, event, API, support, middleware, and operating costs from current customer evidence. Use when making cost and value decisions. Trigger with \"optimize Salesforce cost\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-cost-tuning optimize salesforce costs through api call reduction, edition selection, and license management. use when analyzing salesforce costs, reducing api consumption, or choosing the right salesforce edition for your integration needs. trigger with phrases like \"salesforce cost\", \"salesforce pricing\", \"reduce salesforce costs\", \"salesforce license\", \"salesforce api usage\", \"salesforce budget\". saas-packs read grep "
+      "searchText": "salesforce-cost-tuning analyze salesforce license, add-on, storage, event, api, support, middleware, and operating costs from current customer evidence. use when making cost and value decisions. trigger with \"optimize salesforce cost\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-data-handling",
       "slug": "salesforce-data-handling",
       "name": "salesforce-data-handling",
-      "description": "Implement Salesforce data privacy, GDPR/CCPA compliance, and field-level encryption patterns. Use when handling PII in Salesforce records, implementing data subject access requests, or configuring Salesforce Shield encryption. Trigger with phrases like \"salesforce data privacy\", \"salesforce PII\", \"salesforce GDPR\", \"salesforce data retention\", \"salesforce encryption\", \"salesforce CCPA\".",
+      "description": "Review Salesforce data classification, minimum access, extraction, transformation, retention, subject requests, deletion, legal hold, and evidence. Use when operating privacy-sensitive workflows. Trigger with \"review Salesforce data handling\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-data-handling implement salesforce data privacy, gdpr/ccpa compliance, and field-level encryption patterns. use when handling pii in salesforce records, implementing data subject access requests, or configuring salesforce shield encryption. trigger with phrases like \"salesforce data privacy\", \"salesforce pii\", \"salesforce gdpr\", \"salesforce data retention\", \"salesforce encryption\", \"salesforce ccpa\". saas-packs read write edit "
+      "searchText": "salesforce-data-handling review salesforce data classification, minimum access, extraction, transformation, retention, subject requests, deletion, legal hold, and evidence. use when operating privacy-sensitive workflows. trigger with \"review salesforce data handling\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-debug-bundle",
       "slug": "salesforce-debug-bundle",
       "name": "salesforce-debug-bundle",
-      "description": "Collect Salesforce debug evidence including API limits, debug logs, and org info for support tickets. Use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for Salesforce problems. Trigger with phrases like \"salesforce debug\", \"salesforce support bundle\", \"collect salesforce logs\", \"salesforce diagnostic\", \"salesforce debug log\".",
+      "description": "Build a privacy-safe Salesforce support bundle with request, limits, metadata, job, event, and change evidence. Use when escalating an integration defect. Trigger with \"build a Salesforce debug bundle\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(grep:*)",
-        "Bash(curl:*)",
-        "Bash(sf:*)",
-        "Bash(tar:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-debug-bundle collect salesforce debug evidence including api limits, debug logs, and org info for support tickets. use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for salesforce problems. trigger with phrases like \"salesforce debug\", \"salesforce support bundle\", \"collect salesforce logs\", \"salesforce diagnostic\", \"salesforce debug log\". saas-packs read bash(grep:*) bash(curl:*) bash(sf:*) bash(tar:*) grep "
+      "searchText": "salesforce-debug-bundle build a privacy-safe salesforce support bundle with request, limits, metadata, job, event, and change evidence. use when escalating an integration defect. trigger with \"build a salesforce debug bundle\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-deploy-integration",
       "slug": "salesforce-deploy-integration",
       "name": "salesforce-deploy-integration",
-      "description": "Deploy Salesforce-connected applications to Heroku, Vercel, and Cloud Run with proper credential management. Use when deploying Salesforce-powered applications to production, configuring platform-specific secrets, or setting up Heroku Connect. Trigger with phrases like \"deploy salesforce app\", \"salesforce Heroku\", \"salesforce production deploy\", \"salesforce Cloud Run\", \"Heroku Connect\".",
+      "description": "Deploy a Salesforce-connected application through immutable artifacts, environment binding, canary traffic, reconciliation, and rollback. Use when releasing adapter code. Trigger with \"deploy a Salesforce integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(heroku:*)",
-        "Bash(vercel:*)",
-        "Bash(gcloud:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-deploy-integration deploy salesforce-connected applications to heroku, vercel, and cloud run with proper credential management. use when deploying salesforce-powered applications to production, configuring platform-specific secrets, or setting up heroku connect. trigger with phrases like \"deploy salesforce app\", \"salesforce heroku\", \"salesforce production deploy\", \"salesforce cloud run\", \"heroku connect\". saas-packs read write edit bash(heroku:*) bash(vercel:*) bash(gcloud:*) "
+      "searchText": "salesforce-deploy-integration deploy a salesforce-connected application through immutable artifacts, environment binding, canary traffic, reconciliation, and rollback. use when releasing adapter code. trigger with \"deploy a salesforce integration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-enterprise-rbac",
       "slug": "salesforce-enterprise-rbac",
       "name": "salesforce-enterprise-rbac",
-      "description": "Configure Salesforce Profiles, Permission Sets, and Sharing Rules for enterprise access control. Use when implementing role-based access, configuring SSO with Salesforce, or setting up organization-wide sharing defaults. Trigger with phrases like \"salesforce permissions\", \"salesforce RBAC\", \"salesforce profiles\", \"salesforce SSO\", \"salesforce sharing rules\", \"salesforce OWD\".",
+      "description": "Review and govern Salesforce enterprise access across profiles, permission sets and groups, sharing, field access, OAuth apps, SSO, and privileged roles. Use when designing access. Trigger with \"review Salesforce access\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-enterprise-rbac configure salesforce profiles, permission sets, and sharing rules for enterprise access control. use when implementing role-based access, configuring sso with salesforce, or setting up organization-wide sharing defaults. trigger with phrases like \"salesforce permissions\", \"salesforce rbac\", \"salesforce profiles\", \"salesforce sso\", \"salesforce sharing rules\", \"salesforce owd\". saas-packs read write edit "
+      "searchText": "salesforce-enterprise-rbac review and govern salesforce enterprise access across profiles, permission sets and groups, sharing, field access, oauth apps, sso, and privileged roles. use when designing access. trigger with \"review salesforce access\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-hello-world",
       "slug": "salesforce-hello-world",
       "name": "salesforce-hello-world",
-      "description": "Create a minimal working Salesforce example with SOQL queries and sObject CRUD. Use when starting a new Salesforce integration, testing your setup, or learning basic Salesforce API patterns. Trigger with phrases like \"salesforce hello world\", \"salesforce example\", \"salesforce quick start\", \"first salesforce query\", \"salesforce SOQL\".",
+      "description": "Verify a Salesforce org connection with version discovery, identity evidence, and a read-only resource probe before previewing any mutation. Use when running first connections and smoke tests. Trigger with \"test Salesforce safely\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-hello-world create a minimal working salesforce example with soql queries and sobject crud. use when starting a new salesforce integration, testing your setup, or learning basic salesforce api patterns. trigger with phrases like \"salesforce hello world\", \"salesforce example\", \"salesforce quick start\", \"first salesforce query\", \"salesforce soql\". saas-packs read write edit "
+      "searchText": "salesforce-hello-world verify a salesforce org connection with version discovery, identity evidence, and a read-only resource probe before previewing any mutation. use when running first connections and smoke tests. trigger with \"test salesforce safely\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-incident-runbook",
       "slug": "salesforce-incident-runbook",
       "name": "salesforce-incident-runbook",
-      "description": "Execute Salesforce incident response procedures with triage, mitigation, and postmortem. Use when responding to Salesforce-related outages, investigating API errors, or running post-incident reviews for Salesforce integration failures. Trigger with phrases like \"salesforce incident\", \"salesforce outage\", \"salesforce down\", \"salesforce on-call\", \"salesforce emergency\", \"salesforce broken\".",
+      "description": "Run evidence-led Salesforce integration incident response from detection through containment, recovery, reconciliation, and prevention. Use when handling service or data incidents. Trigger with \"respond to Salesforce incident\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(sf:*)",
-        "Bash(curl:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-incident-runbook execute salesforce incident response procedures with triage, mitigation, and postmortem. use when responding to salesforce-related outages, investigating api errors, or running post-incident reviews for salesforce integration failures. trigger with phrases like \"salesforce incident\", \"salesforce outage\", \"salesforce down\", \"salesforce on-call\", \"salesforce emergency\", \"salesforce broken\". saas-packs read grep bash(sf:*) bash(curl:*) "
+      "searchText": "salesforce-incident-runbook run evidence-led salesforce integration incident response from detection through containment, recovery, reconciliation, and prevention. use when handling service or data incidents. trigger with \"respond to salesforce incident\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-install-auth",
       "slug": "salesforce-install-auth",
       "name": "salesforce-install-auth",
-      "description": "Install and configure Salesforce SDK/CLI authentication with jsforce or Salesforce CLI. Use when setting up a new Salesforce integration, configuring OAuth flows, or initializing Salesforce connectivity in your project. Trigger with phrases like \"install salesforce\", \"setup salesforce\", \"salesforce auth\", \"configure salesforce\", \"jsforce setup\", \"sf cli login\".",
+      "description": "Select and document a supported Salesforce authorization path using an External Client App or an approved existing Connected App. Use when onboarding or repairing API access. Trigger with \"configure Salesforce authentication\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(sf:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-install-auth install and configure salesforce sdk/cli authentication with jsforce or salesforce cli. use when setting up a new salesforce integration, configuring oauth flows, or initializing salesforce connectivity in your project. trigger with phrases like \"install salesforce\", \"setup salesforce\", \"salesforce auth\", \"configure salesforce\", \"jsforce setup\", \"sf cli login\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(sf:*) grep "
+      "searchText": "salesforce-install-auth select and document a supported salesforce authorization path using an external client app or an approved existing connected app. use when onboarding or repairing api access. trigger with \"configure salesforce authentication\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-known-pitfalls",
       "slug": "salesforce-known-pitfalls",
       "name": "salesforce-known-pitfalls",
-      "description": "Identify and avoid Salesforce anti-patterns including SOQL N+1, governor limit violations, and API waste. Use when reviewing Salesforce code for issues, onboarding new developers, or auditing existing Salesforce integrations for best practices violations. Trigger with phrases like \"salesforce mistakes\", \"salesforce anti-patterns\", \"salesforce pitfalls\", \"salesforce what not to do\", \"salesforce code review\".",
+      "description": "Review a Salesforce integration for fixed API versions, unsafe auth, N-plus-one queries, shared-limit blindness, stale metadata, blind retries, event gaps, and missing reconciliation. Use when preparing a release. Trigger with \"audit Salesforce pitfalls\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-known-pitfalls identify and avoid salesforce anti-patterns including soql n+1, governor limit violations, and api waste. use when reviewing salesforce code for issues, onboarding new developers, or auditing existing salesforce integrations for best practices violations. trigger with phrases like \"salesforce mistakes\", \"salesforce anti-patterns\", \"salesforce pitfalls\", \"salesforce what not to do\", \"salesforce code review\". saas-packs read grep "
+      "searchText": "salesforce-known-pitfalls review a salesforce integration for fixed api versions, unsafe auth, n-plus-one queries, shared-limit blindness, stale metadata, blind retries, event gaps, and missing reconciliation. use when preparing a release. trigger with \"audit salesforce pitfalls\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-load-scale",
       "slug": "salesforce-load-scale",
       "name": "salesforce-load-scale",
-      "description": "Implement Salesforce load testing, API limit capacity planning, and Bulk API scaling. Use when running performance tests against Salesforce, planning API consumption, or scaling high-volume Salesforce integrations. Trigger with phrases like \"salesforce load test\", \"salesforce scale\", \"salesforce performance test\", \"salesforce capacity planning\", \"salesforce high volume\".",
+      "description": "Test Salesforce integration capacity in an authorized non-production org with synthetic data, bounded load, org limits, and business-invariant checks. Use when planning scale. Trigger with \"load test Salesforce\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(k6:*)",
-        "Bash(sf:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-load-scale implement salesforce load testing, api limit capacity planning, and bulk api scaling. use when running performance tests against salesforce, planning api consumption, or scaling high-volume salesforce integrations. trigger with phrases like \"salesforce load test\", \"salesforce scale\", \"salesforce performance test\", \"salesforce capacity planning\", \"salesforce high volume\". saas-packs read write edit bash(k6:*) bash(sf:*) "
+      "searchText": "salesforce-load-scale test salesforce integration capacity in an authorized non-production org with synthetic data, bounded load, org limits, and business-invariant checks. use when planning scale. trigger with \"load test salesforce\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-local-dev-loop",
       "slug": "salesforce-local-dev-loop",
       "name": "salesforce-local-dev-loop",
-      "description": "Configure Salesforce local development with scratch orgs, SFDX, and testing. Use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with Salesforce. Trigger with phrases like \"salesforce dev setup\", \"salesforce local development\", \"salesforce scratch org\", \"sfdx project\", \"develop with salesforce\".",
+      "description": "Build a repeatable Salesforce DX development loop using source format, synthetic tests, and an authorized scratch org or sandbox. Use when changing metadata or integration code. Trigger with \"build a Salesforce dev loop\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)",
-        "Bash(sf:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-local-dev-loop configure salesforce local development with scratch orgs, sfdx, and testing. use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with salesforce. trigger with phrases like \"salesforce dev setup\", \"salesforce local development\", \"salesforce scratch org\", \"sfdx project\", \"develop with salesforce\". saas-packs read write edit bash(npm:*) bash(pnpm:*) bash(sf:*) grep "
+      "searchText": "salesforce-local-dev-loop build a repeatable salesforce dx development loop using source format, synthetic tests, and an authorized scratch org or sandbox. use when changing metadata or integration code. trigger with \"build a salesforce dev loop\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-migration-deep-dive",
       "slug": "salesforce-migration-deep-dive",
       "name": "salesforce-migration-deep-dive",
-      "description": "Execute Salesforce data migrations using Bulk API, Data Loader, and ETL patterns. Use when migrating data to/from Salesforce, performing org-to-org migrations, or re-platforming CRM data into Salesforce. Trigger with phrases like \"migrate to salesforce\", \"salesforce data migration\", \"salesforce import data\", \"salesforce ETL\", \"CRM migration to salesforce\".",
+      "description": "Run a dependency-ordered Salesforce data migration with mapping, external IDs, Bulk API selection, quarantine, cutover, reconciliation, and rollback. Use when conducting large migrations. Trigger with \"migrate Salesforce data\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(sf:*)",
-        "Bash(node:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-migration-deep-dive execute salesforce data migrations using bulk api, data loader, and etl patterns. use when migrating data to/from salesforce, performing org-to-org migrations, or re-platforming crm data into salesforce. trigger with phrases like \"migrate to salesforce\", \"salesforce data migration\", \"salesforce import data\", \"salesforce etl\", \"crm migration to salesforce\". saas-packs read write edit bash(npm:*) bash(sf:*) bash(node:*) "
+      "searchText": "salesforce-migration-deep-dive run a dependency-ordered salesforce data migration with mapping, external ids, bulk api selection, quarantine, cutover, reconciliation, and rollback. use when conducting large migrations. trigger with \"migrate salesforce data\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-multi-env-setup",
       "slug": "salesforce-multi-env-setup",
       "name": "salesforce-multi-env-setup",
-      "description": "Configure Salesforce across Developer, Sandbox, and Production environments with proper org management. Use when setting up multi-environment deployments, configuring per-environment credentials, or implementing sandbox-to-production promotion flows. Trigger with phrases like \"salesforce environments\", \"salesforce sandbox\", \"salesforce dev prod\", \"salesforce org management\", \"salesforce sandbox types\".",
+      "description": "Build Salesforce development, scratch-org, sandbox, staging, and production environments with explicit promotion and drift controls. Use when designing org topology. Trigger with \"set up Salesforce environments\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(sf:*)",
-        "Bash(gcloud:*)",
-        "Bash(vault:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-multi-env-setup configure salesforce across developer, sandbox, and production environments with proper org management. use when setting up multi-environment deployments, configuring per-environment credentials, or implementing sandbox-to-production promotion flows. trigger with phrases like \"salesforce environments\", \"salesforce sandbox\", \"salesforce dev prod\", \"salesforce org management\", \"salesforce sandbox types\". saas-packs read write edit bash(sf:*) bash(gcloud:*) bash(vault:*) "
+      "searchText": "salesforce-multi-env-setup build salesforce development, scratch-org, sandbox, staging, and production environments with explicit promotion and drift controls. use when designing org topology. trigger with \"set up salesforce environments\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-observability",
       "slug": "salesforce-observability",
       "name": "salesforce-observability",
-      "description": "Set up observability for Salesforce integrations with API limit monitoring, error tracking, and alerting. Use when implementing monitoring for Salesforce operations, tracking API consumption, or configuring alerting for Salesforce integration health. Trigger with phrases like \"salesforce monitoring\", \"salesforce metrics\", \"salesforce observability\", \"monitor salesforce\", \"salesforce alerts\", \"salesforce API usage dashboard\".",
+      "description": "Build Salesforce integration observability across application traces, platform status, limits, async jobs, events, logs, and business reconciliation. Use when designing monitoring. Trigger with \"monitor Salesforce integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-observability set up observability for salesforce integrations with api limit monitoring, error tracking, and alerting. use when implementing monitoring for salesforce operations, tracking api consumption, or configuring alerting for salesforce integration health. trigger with phrases like \"salesforce monitoring\", \"salesforce metrics\", \"salesforce observability\", \"monitor salesforce\", \"salesforce alerts\", \"salesforce api usage dashboard\". saas-packs read write edit "
+      "searchText": "salesforce-observability build salesforce integration observability across application traces, platform status, limits, async jobs, events, logs, and business reconciliation. use when designing monitoring. trigger with \"monitor salesforce integration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-performance-tuning",
       "slug": "salesforce-performance-tuning",
       "name": "salesforce-performance-tuning",
-      "description": "Optimize Salesforce API performance with SOQL tuning, Composite API batching, and caching. Use when experiencing slow API responses, optimizing SOQL queries, or reducing API call count for Salesforce integrations. Trigger with phrases like \"salesforce performance\", \"optimize salesforce\", \"salesforce latency\", \"salesforce caching\", \"salesforce slow\", \"SOQL optimization\".",
+      "description": "Analyze and tune Salesforce query, pagination, batching, caching, automation, and asynchronous performance using measured org evidence. Use when resolving latency or throughput problems. Trigger with \"tune Salesforce performance\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-performance-tuning optimize salesforce api performance with soql tuning, composite api batching, and caching. use when experiencing slow api responses, optimizing soql queries, or reducing api call count for salesforce integrations. trigger with phrases like \"salesforce performance\", \"optimize salesforce\", \"salesforce latency\", \"salesforce caching\", \"salesforce slow\", \"soql optimization\". saas-packs read write edit "
+      "searchText": "salesforce-performance-tuning analyze and tune salesforce query, pagination, batching, caching, automation, and asynchronous performance using measured org evidence. use when resolving latency or throughput problems. trigger with \"tune salesforce performance\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-policy-guardrails",
       "slug": "salesforce-policy-guardrails",
       "name": "salesforce-policy-guardrails",
-      "description": "Implement Salesforce lint rules, SOQL injection prevention, and API usage guardrails. Use when enforcing Salesforce integration code quality, preventing SOQL injection, or configuring CI policy checks for Salesforce best practices. Trigger with phrases like \"salesforce policy\", \"salesforce lint\", \"salesforce guardrails\", \"SOQL injection\", \"salesforce eslint\", \"salesforce code review\".",
+      "description": "Gate Salesforce code and configuration for SOQL injection, secret exposure, unsafe API versions, missing access checks, destructive writes, and unreviewed org changes. Use when running CI or review. Trigger with \"add Salesforce guardrails\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npx:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-policy-guardrails implement salesforce lint rules, soql injection prevention, and api usage guardrails. use when enforcing salesforce integration code quality, preventing soql injection, or configuring ci policy checks for salesforce best practices. trigger with phrases like \"salesforce policy\", \"salesforce lint\", \"salesforce guardrails\", \"soql injection\", \"salesforce eslint\", \"salesforce code review\". saas-packs read write edit bash(npx:*) "
+      "searchText": "salesforce-policy-guardrails gate salesforce code and configuration for soql injection, secret exposure, unsafe api versions, missing access checks, destructive writes, and unreviewed org changes. use when running ci or review. trigger with \"add salesforce guardrails\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-prod-checklist",
       "slug": "salesforce-prod-checklist",
       "name": "salesforce-prod-checklist",
-      "description": "Execute Salesforce production deployment checklist with sandbox testing and rollback. Use when deploying Salesforce integrations to production, preparing for launch, or implementing go-live procedures. Trigger with phrases like \"salesforce production\", \"deploy salesforce\", \"salesforce go-live\", \"salesforce launch checklist\", \"salesforce sandbox to prod\".",
+      "description": "Gate a Salesforce integration or metadata change for production with contract, security, capacity, validation, canary, reconciliation, and rollback evidence. Use when preparing for go-live. Trigger with \"review Salesforce production readiness\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(sf:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-prod-checklist execute salesforce production deployment checklist with sandbox testing and rollback. use when deploying salesforce integrations to production, preparing for launch, or implementing go-live procedures. trigger with phrases like \"salesforce production\", \"deploy salesforce\", \"salesforce go-live\", \"salesforce launch checklist\", \"salesforce sandbox to prod\". saas-packs read bash(sf:*) bash(curl:*) grep "
+      "searchText": "salesforce-prod-checklist gate a salesforce integration or metadata change for production with contract, security, capacity, validation, canary, reconciliation, and rollback evidence. use when preparing for go-live. trigger with \"review salesforce production readiness\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-rate-limits",
       "slug": "salesforce-rate-limits",
       "name": "salesforce-rate-limits",
-      "description": "Implement Salesforce API limit management, backoff, and quota monitoring. Use when handling REQUEST_LIMIT_EXCEEDED errors, implementing retry logic, or optimizing API request throughput for Salesforce. Trigger with phrases like \"salesforce rate limit\", \"salesforce API limit\", \"salesforce 403\", \"salesforce retry\", \"salesforce governor limits\", \"API quota\".",
+      "description": "Analyze and govern Salesforce API, asynchronous, bulk, and event capacity from current org allocations and usage evidence. Use when preventing or resolving exhaustion. Trigger with \"govern Salesforce limits\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-rate-limits implement salesforce api limit management, backoff, and quota monitoring. use when handling request_limit_exceeded errors, implementing retry logic, or optimizing api request throughput for salesforce. trigger with phrases like \"salesforce rate limit\", \"salesforce api limit\", \"salesforce 403\", \"salesforce retry\", \"salesforce governor limits\", \"api quota\". saas-packs read write edit "
+      "searchText": "salesforce-rate-limits analyze and govern salesforce api, asynchronous, bulk, and event capacity from current org allocations and usage evidence. use when preventing or resolving exhaustion. trigger with \"govern salesforce limits\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-reference-architecture",
       "slug": "salesforce-reference-architecture",
       "name": "salesforce-reference-architecture",
-      "description": "Implement Salesforce integration reference architecture with jsforce, SFDX, and event-driven patterns. Use when designing new Salesforce integrations, reviewing project structure, or establishing architecture standards for Salesforce-connected applications. Trigger with phrases like \"salesforce architecture\", \"salesforce project structure\", \"salesforce integration design\", \"how to organize salesforce code\", \"salesforce layout\".",
+      "description": "Design a governed Salesforce integration architecture with explicit authority, identity, API, event, data, evidence, limit, and recovery boundaries. Use when conducting architecture reviews. Trigger with \"design Salesforce architecture\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-reference-architecture implement salesforce integration reference architecture with jsforce, sfdx, and event-driven patterns. use when designing new salesforce integrations, reviewing project structure, or establishing architecture standards for salesforce-connected applications. trigger with phrases like \"salesforce architecture\", \"salesforce project structure\", \"salesforce integration design\", \"how to organize salesforce code\", \"salesforce layout\". saas-packs read grep "
+      "searchText": "salesforce-reference-architecture design a governed salesforce integration architecture with explicit authority, identity, api, event, data, evidence, limit, and recovery boundaries. use when conducting architecture reviews. trigger with \"design salesforce architecture\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-reliability-patterns",
       "slug": "salesforce-reliability-patterns",
       "name": "salesforce-reliability-patterns",
-      "description": "Implement Salesforce reliability patterns including circuit breakers, idempotent upserts, and fallback caching. Use when building fault-tolerant Salesforce integrations, implementing retry strategies, or adding resilience to production Salesforce services. Trigger with phrases like \"salesforce reliability\", \"salesforce circuit breaker\", \"salesforce idempotent\", \"salesforce resilience\", \"salesforce fallback\", \"salesforce retry\".",
+      "description": "Build Salesforce integration reliability with idempotency, bounded retries, durable state, dead letters, reconciliation, backfill, and tested recovery. Use when designing resilient systems. Trigger with \"harden Salesforce reliability\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-reliability-patterns implement salesforce reliability patterns including circuit breakers, idempotent upserts, and fallback caching. use when building fault-tolerant salesforce integrations, implementing retry strategies, or adding resilience to production salesforce services. trigger with phrases like \"salesforce reliability\", \"salesforce circuit breaker\", \"salesforce idempotent\", \"salesforce resilience\", \"salesforce fallback\", \"salesforce retry\". saas-packs read write edit "
+      "searchText": "salesforce-reliability-patterns build salesforce integration reliability with idempotency, bounded retries, durable state, dead letters, reconciliation, backfill, and tested recovery. use when designing resilient systems. trigger with \"harden salesforce reliability\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-sdk-patterns",
       "slug": "salesforce-sdk-patterns",
       "name": "salesforce-sdk-patterns",
-      "description": "Apply production-ready Salesforce jsforce patterns for TypeScript and Python. Use when implementing Salesforce integrations, refactoring SDK usage, or establishing team coding standards for Salesforce. Trigger with phrases like \"salesforce SDK patterns\", \"jsforce best practices\", \"salesforce code patterns\", \"idiomatic salesforce\", \"salesforce typescript\".",
+      "description": "Build a version-negotiated Salesforce adapter around the customer-selected CLI or client library with typed boundaries and contract tests. Use when standardizing application access. Trigger with \"design a Salesforce adapter\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-sdk-patterns apply production-ready salesforce jsforce patterns for typescript and python. use when implementing salesforce integrations, refactoring sdk usage, or establishing team coding standards for salesforce. trigger with phrases like \"salesforce sdk patterns\", \"jsforce best practices\", \"salesforce code patterns\", \"idiomatic salesforce\", \"salesforce typescript\". saas-packs read write edit "
+      "searchText": "salesforce-sdk-patterns build a version-negotiated salesforce adapter around the customer-selected cli or client library with typed boundaries and contract tests. use when standardizing application access. trigger with \"design a salesforce adapter\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-security-basics",
       "slug": "salesforce-security-basics",
       "name": "salesforce-security-basics",
-      "description": "Apply Salesforce security best practices for Connected Apps, OAuth, and field-level security. Use when securing API credentials, implementing least privilege access, or auditing Salesforce security configuration. Trigger with phrases like \"salesforce security\", \"salesforce secrets\", \"secure salesforce\", \"salesforce connected app security\", \"salesforce FLS\".",
+      "description": "Secure a Salesforce integration across OAuth, principals, permissions, sharing, fields, secrets, encryption, logging, and revocation. Use when reviewing threats or hardening controls. Trigger with \"secure Salesforce integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-security-basics apply salesforce security best practices for connected apps, oauth, and field-level security. use when securing api credentials, implementing least privilege access, or auditing salesforce security configuration. trigger with phrases like \"salesforce security\", \"salesforce secrets\", \"secure salesforce\", \"salesforce connected app security\", \"salesforce fls\". saas-packs read write grep "
+      "searchText": "salesforce-security-basics secure a salesforce integration across oauth, principals, permissions, sharing, fields, secrets, encryption, logging, and revocation. use when reviewing threats or hardening controls. trigger with \"secure salesforce integration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-upgrade-migration",
       "slug": "salesforce-upgrade-migration",
       "name": "salesforce-upgrade-migration",
-      "description": "Analyze, plan, and execute Salesforce API version upgrades and jsforce major version migrations. Use when upgrading Salesforce API versions, migrating jsforce v1 to v3, or adapting to deprecated API changes. Trigger with phrases like \"upgrade salesforce\", \"salesforce API version\", \"jsforce upgrade\", \"salesforce deprecation\", \"salesforce version migration\".",
+      "description": "Migrate Salesforce API, seasonal release, CLI, client-library, metadata, and integration contracts under compatibility and rollback controls. Use when planning platform upgrades. Trigger with \"plan a Salesforce upgrade\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(sf:*)",
-        "Bash(git:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-upgrade-migration analyze, plan, and execute salesforce api version upgrades and jsforce major version migrations. use when upgrading salesforce api versions, migrating jsforce v1 to v3, or adapting to deprecated api changes. trigger with phrases like \"upgrade salesforce\", \"salesforce api version\", \"jsforce upgrade\", \"salesforce deprecation\", \"salesforce version migration\". saas-packs read write edit bash(npm:*) bash(sf:*) bash(git:*) "
+      "searchText": "salesforce-upgrade-migration migrate salesforce api, seasonal release, cli, client-library, metadata, and integration contracts under compatibility and rollback controls. use when planning platform upgrades. trigger with \"plan a salesforce upgrade\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "salesforce-webhooks-events",
       "slug": "salesforce-webhooks-events",
       "name": "salesforce-webhooks-events",
-      "description": "Implement Salesforce Platform Events, Change Data Capture (CDC), and Outbound Messages. Use when building real-time integrations, listening for record changes, or implementing event-driven architecture with Salesforce. Trigger with phrases like \"salesforce events\", \"salesforce CDC\", \"salesforce platform events\", \"salesforce streaming\", \"salesforce outbound message\", \"salesforce real-time\".",
+      "description": "Select and govern Salesforce change delivery across Pub/Sub API, Change Data Capture, Platform Events, event relay, Streaming API, Outbound Messages, or polling. Use when building event-driven integrations. Trigger with \"design Salesforce events\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Bash(sf:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "salesforce-pack",
         "category": "saas-packs"
       },
-      "searchText": "salesforce-webhooks-events implement salesforce platform events, change data capture (cdc), and outbound messages. use when building real-time integrations, listening for record changes, or implementing event-driven architecture with salesforce. trigger with phrases like \"salesforce events\", \"salesforce cdc\", \"salesforce platform events\", \"salesforce streaming\", \"salesforce outbound message\", \"salesforce real-time\". saas-packs read write edit bash(curl:*) bash(sf:*) "
+      "searchText": "salesforce-webhooks-events select and govern salesforce change delivery across pub/sub api, change data capture, platform events, event relay, streaming api, outbound messages, or polling. use when building event-driven integrations. trigger with \"design salesforce events\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
@@ -69873,22 +69937,23 @@
       "id": "seo-blog-writer",
       "slug": "seo-blog-writer",
       "name": "seo-blog-writer",
-      "description": "Turn a single long-tail query into a publish-ready blog post that ranks in search and gets quoted by AI assistants. Runs the full pipeline: classify the topic, research it against real sources, draft clean HTML, scrub LLM-tell vocabulary and typography, audit for AI-SEO (TL;DR block, query-phrased H2s, FAQ section, FAQPage + BreadcrumbList + HowTo JSON-LD), then publish through a platform adapter (Ghost Admin API, WordPress REST, or static-site file output). Platform-agnostic core; swap the publish step without rewriting the writing pipeline. Built for indie hackers, founders, and content marketers who want AI to draft posts that are actually citable - not paraphrased docs, not hallucinated benchmarks. Trigger when the user says: 'write a blog post on X', 'draft an article about X', 'publish a post on X to Ghost / WordPress / the static site', or any request to ship editorial content for a long-tail query.",
+      "description": "Research, draft, validate, and hand off one source-grounded long-tail article through an approved CMS or static-site adapter. Use when turning a confirmed topic into publish-ready editorial content. Trigger with \"write an SEO blog post\" or \"draft an article about this topic\".",
       "category": "productivity",
       "allowedTools": [
+        "Read",
         "WebSearch",
         "WebFetch",
-        "Bash(python3:*)",
-        "Read",
-        "Write"
+        "Write",
+        "Edit",
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "2.2.0",
+      "version": "2.3.0",
       "parentPlugin": {
         "name": "publishing-skills",
         "category": "productivity"
       },
-      "searchText": "seo-blog-writer turn a single long-tail query into a publish-ready blog post that ranks in search and gets quoted by ai assistants. runs the full pipeline: classify the topic, research it against real sources, draft clean html, scrub llm-tell vocabulary and typography, audit for ai-seo (tl;dr block, query-phrased h2s, faq section, faqpage + breadcrumblist + howto json-ld), then publish through a platform adapter (ghost admin api, wordpress rest, or static-site file output). platform-agnostic core; swap the publish step without rewriting the writing pipeline. built for indie hackers, founders, and content marketers who want ai to draft posts that are actually citable - not paraphrased docs, not hallucinated benchmarks. trigger when the user says: 'write a blog post on x', 'draft an article about x', 'publish a post on x to ghost / wordpress / the static site', or any request to ship editorial content for a long-tail query. productivity websearch webfetch bash(python3:*) read write "
+      "searchText": "seo-blog-writer research, draft, validate, and hand off one source-grounded long-tail article through an approved cms or static-site adapter. use when turning a confirmed topic into publish-ready editorial content. trigger with \"write an seo blog post\" or \"draft an article about this topic\". productivity read websearch webfetch write edit bash(python3:*) "
     },
     {
       "type": "skill",

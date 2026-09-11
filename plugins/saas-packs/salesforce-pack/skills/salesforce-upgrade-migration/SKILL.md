@@ -1,178 +1,79 @@
 ---
 name: salesforce-upgrade-migration
-description: 'Analyze, plan, and execute Salesforce API version upgrades and jsforce
-  major version migrations.
-
-  Use when upgrading Salesforce API versions, migrating jsforce v1 to v3,
-
-  or adapting to deprecated API changes.
-
-  Trigger with phrases like "upgrade salesforce", "salesforce API version",
-
-  "jsforce upgrade", "salesforce deprecation", "salesforce version migration".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(sf:*), Bash(git:*)
-version: 1.7.0
-license: MIT
+description: 'Migrate Salesforce API, seasonal release, CLI, client-library, metadata, and integration contracts under compatibility and rollback controls. Use when planning platform upgrades. Trigger with "plan a Salesforce upgrade".'
+argument-hint: "[repository] [target-release]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- crm
-- salesforce
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, salesforce, upgrade, api-lifecycle, compatibility]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; API version, dependency, metadata, and production changes require code and Salesforce platform owner approval
 ---
-# Salesforce Upgrade & Migration
+# Salesforce API and Toolchain Upgrade Control
 
 ## Overview
 
-Guide for upgrading Salesforce API versions (v55.0 to v59.0+), migrating between jsforce major versions, and handling Salesforce seasonal release changes.
+Replace fixed-version guesswork with a complete inventory, compatibility matrix, staged validation, explicit ownership, and reversible consumer migration.
 
 ## Prerequisites
 
-- Current jsforce or simple-salesforce installed
-- Git for version control
-- Test suite with Salesforce integration tests
-- Sandbox environment for validation
+- Repository and org inventory with API versions, libraries, CLI, metadata, events, packages, and consumers
+- Current Salesforce API EOL policy, seasonal release notes, dependency releases, and customer support constraints
+- Test environments, representative fixtures, compatibility owner, migration window, and rollback point
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect approved repository and evidence files, `WebFetch` to re-check current first-party Salesforce documentation, and `Write` or `Edit` only for secretless plans, fixtures, configuration, and redacted receipts.
+
+## Current Contract
+
+Salesforce supports REST API versions for a documented lifecycle and retires older versions after notice. As of this review, versions 21.0 through 30.0 are unavailable, while the current support table must be re-fetched before every migration.
+
+## Authentication
+
+Use existing approved app and principal contracts for compatibility tests. Do not add a password fallback, copy production tokens into test, or broaden access to compensate for an upgrade defect.
 
 ## Instructions
 
-### Step 1: Check Current Versions
+1. Inventory every explicit and library-default API version, CLI and library version, endpoint, schema snapshot, event client, and metadata consumer.
+2. Re-fetch the API EOL table, release notes, client-library releases, CLI contract, and org upgrade schedule.
+3. Classify each dependency as supported, deprecated, retired, preview, beta, or customer-specific and name an owner.
+4. Build fixtures for response, error, pagination, metadata, event schema, limits, and partial-failure compatibility.
+5. Upgrade one boundary at a time in a branch and validate static, unit, contract, sandbox, and deployment checks.
+6. Canary representative reads and approved non-production writes, then migrate consumers in reversible cohorts.
+7. Reconcile results, remove old versions only after all consumers and rollback windows close, and schedule the next review.
 
-```bash
-# jsforce version
-npm list jsforce
+## Approval Boundaries
 
-# Current API version in use
-node -e "const jsforce = require('jsforce'); const c = new jsforce.Connection({}); console.log('Default API version:', c.version)"
-
-# Available API versions from your org
-sf org display --target-org my-org --json | jq '.result.apiVersion'
-```
-
-### Step 2: Salesforce API Version Changes
-
-| API Version | Release | Key Changes |
-|------------|---------|-------------|
-| v59.0 | Winter '24 | Composite Graph improvements, Einstein AI endpoints |
-| v58.0 | Summer '23 | Enhanced Bulk API 2.0, Flow API updates |
-| v57.0 | Spring '23 | SOQL `TYPEOF` improvements, new standard fields |
-| v56.0 | Winter '23 | sObject Collections batch size changes |
-| v55.0 | Summer '22 | Retirement of old SOAP API features |
-
-**Salesforce retires API versions periodically.** Versions older than 3 years are typically deprecated. Check [Salesforce Release Notes](https://help.salesforce.com/s/articleView?id=release-notes.salesforce_release_notes.htm) each season.
-
-### Step 3: jsforce Major Version Migration
-
-```typescript
-// jsforce v1.x → v2.x/v3.x migration
-// Key breaking changes:
-
-// BEFORE (v1.x): Callback-based
-import jsforce from 'jsforce';
-const conn = new jsforce.Connection();
-conn.login(username, password, (err, userInfo) => {
-  conn.query('SELECT Id FROM Account', (err, result) => {});
-});
-
-// AFTER (v2.x+): Promise-based (still supports callbacks)
-import jsforce from 'jsforce';
-const conn = new jsforce.Connection();
-await conn.login(username, password);
-const result = await conn.query('SELECT Id FROM Account');
-
-// BEFORE (v1.x): Bulk API v1
-const job = conn.bulk.createJob('Account', 'insert');
-const batch = job.createBatch();
-
-// AFTER (v2.x+): Bulk API 2.0
-const results = await conn.bulk2.loadAndWaitForResults({
-  object: 'Account',
-  operation: 'insert',
-  input: csvData,
-});
-```
-
-### Step 4: Update API Version in Code
-
-```typescript
-// Pin API version explicitly (recommended for stability)
-const conn = new jsforce.Connection({
-  loginUrl: process.env.SF_LOGIN_URL,
-  version: '59.0', // Pin to specific version
-});
-
-// Or use latest (auto-detected from org)
-const conn = new jsforce.Connection({
-  loginUrl: process.env.SF_LOGIN_URL,
-  // version defaults to org's latest
-});
-```
-
-### Step 5: Create Upgrade Branch and Test
-
-```bash
-# Create upgrade branch
-git checkout -b upgrade/jsforce-v3
-
-# Upgrade jsforce
-npm install jsforce@latest
-
-# Run tests against sandbox
-SF_LOGIN_URL=https://test.salesforce.com npm test
-
-# Check for deprecation warnings
-npm test 2>&1 | grep -i "deprecat"
-
-# If tests pass, merge
-```
-
-### Step 6: Handle Seasonal Release Breaking Changes
-
-```typescript
-// Salesforce releases 3 times/year (Spring, Summer, Winter)
-// Check release notes for:
-// 1. Retired API versions
-// 2. Changed field behavior (e.g., field becoming read-only)
-// 3. New required fields on standard objects
-// 4. Permission model changes
-
-// Query org's supported API versions
-const versions = await conn.request('/services/data/');
-console.log('Supported versions:', versions.map((v: any) => v.version));
-// If your pinned version isn't listed, you must upgrade
-```
+Do not change API versions, dependencies, org settings, metadata, event consumers, or production traffic without code, platform, security, and business-owner approval.
 
 ## Output
 
-- Updated jsforce/simple-salesforce to latest
-- API version pinned to current stable release
-- Breaking changes identified and resolved
-- Test suite passing against sandbox
-- Rollback procedure documented
+Return the version inventory, authority evidence, compatibility matrix, changed contracts, test results, cohort plan, rollback point, and retirement date.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `UNSUPPORTED_API_VERSION` | API version retired | Upgrade version string in Connection |
-| `INVALID_FIELD` after upgrade | Field removed in new version | Check release notes for field changes |
-| `MODULE_NOT_FOUND` | Import path changed in jsforce v3 | Update import statements |
-| Bulk API errors | v1 vs v2 API mismatch | Migrate to `conn.bulk2` methods |
+| Condition | Response |
+|---|---|
+| Requested API version is retired | Stop requests and migrate through a supported version after contract testing; do not retry the retired URI. |
+| Library default differs from configured version | Pin and test the effective version at the raw request boundary. |
+| Seasonal release changes org behavior | Hold rollout, reproduce in the preview or sandbox path, and update the compatibility decision. |
 
-## Examples
+## Example
 
-### Upgrade an API version behind a sandbox verification gate
+A redacted completion receipt might look like this:
 
-Pin the candidate API and SDK versions in a branch, deploy the metadata and application to a sandbox, and run regression tests covering queries, bulk operations, and authentication refresh. Compare error codes and response shapes to the previous version before approving production promotion. Keep the prior dependency lock and deployment artifact available for rollback, and split incompatible field or endpoint changes into separately reviewed migrations.
+```text
+apis=14; retired=2; target=discovered-supported; fixtures=12; sandbox=pass; cohorts=3; rollback=tagged
+```
 
 ## Resources
 
-- [Salesforce Release Notes](https://help.salesforce.com/s/articleView?id=release-notes.salesforce_release_notes.htm)
-- [jsforce Changelog](https://github.com/jsforce/jsforce/releases)
-- [API Version Lifecycle](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_api_versioning.htm)
-- [Minimum API Version Retirement](https://help.salesforce.com/s/articleView?id=000381744)
+- [REST API end-of-life policy](https://developer.salesforce.com/docs/platform/api-rest/guide/api-rest-eol.html)
+- [Salesforce release notes](https://help.salesforce.com/s/articleView?id=release-notes.salesforce_release_notes.htm)
 
 ## Next Steps
 
-For CI integration during upgrades, see `salesforce-ci-integration`.
+Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.

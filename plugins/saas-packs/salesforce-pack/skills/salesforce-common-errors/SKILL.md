@@ -1,266 +1,79 @@
 ---
 name: salesforce-common-errors
-description: 'Diagnose and fix Salesforce common errors, SOQL issues, and API exceptions.
-
-  Use when encountering Salesforce errors, debugging failed requests,
-
-  or troubleshooting integration issues.
-
-  Trigger with phrases like "salesforce error", "fix salesforce",
-
-  "salesforce not working", "debug salesforce", "SOQL error", "salesforce exception".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*), Bash(sf:*)
-version: 1.7.0
-license: MIT
+description: 'Analyze Salesforce authorization, permission, schema, validation, locking, limit, async-job, and event-delivery failures from evidence. Use when triaging an integration. Trigger with "diagnose a Salesforce error".'
+argument-hint: "[org-alias] [request-or-job-id]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- crm
-- salesforce
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, salesforce, errors, diagnostics, triage]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; diagnostic reads and log access require the affected org owner and data-handling policy
 ---
-# Salesforce Common Errors
+# Salesforce Integration Error Triage
 
 ## Overview
 
-Quick reference for the most common Salesforce API errors with real error codes, messages, and solutions.
+Classify the failed layer, preserve request context, and test one evidence-backed hypothesis before proposing a bounded, reversible correction.
 
 ## Prerequisites
 
-- Salesforce connection established (jsforce or simple-salesforce)
-- Access to Setup in your Salesforce org
-- Familiarity with sObject field API names
+- Timestamp, environment, principal, operation, request or job ID, and redacted response
+- Expected API version, object and field contract, permissions, limits, automation, and recent changes
+- Incident, application, Salesforce platform, security, and data owners
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect approved repository and evidence files, `WebFetch` to re-check current first-party Salesforce documentation, and `Write` or `Edit` only for secretless plans, fixtures, configuration, and redacted receipts.
+
+## Current Contract
+
+Salesforce exposes documented HTTP and API errors, but the same symptom can originate from OAuth, permissions, sharing, schema, validation, automation, locks, limits, asynchronous processing, or event state. Diagnose the returned evidence in org context.
+
+## Authentication
+
+Use read-only diagnostic access with the approved principal or a separately authorized support principal. Do not collect tokens, session IDs, passwords, private keys, raw personal data, or broad debug logs.
 
 ## Instructions
 
-### Step 1: Identify the Error
+1. Freeze the first failure timestamp, environment, release, principal, API, request or job ID, payload shape, and retry history.
+2. Confirm org status, identity, API support, resource entitlement, and whether other integrations are affected.
+3. Classify the layer: transport, OAuth, scope, CRUD or field access, sharing, schema, validation, automation, locking, limit, async job, or event.
+4. Correlate the minimum Salesforce response, application trace, limits snapshot, metadata, job result, and recent change evidence.
+5. Reproduce with a synthetic or read-only request in the lowest-risk authorized org.
+6. Propose one hypothesis-specific correction and define success, stop, rollback, and no-blind-retry rules.
+7. Apply only after approval, verify the original invariant, and document prevention and monitoring changes.
 
-Check the `errorCode` field in the API response or the exception from jsforce.
+## Approval Boundaries
 
-### Step 2: Match to Error Below
+Do not reset credentials, broaden permissions, disable automation, alter records, increase capacity, or replay writes as a diagnostic shortcut.
 
----
+## Output
 
-### INVALID_LOGIN — Authentication Failed
-
-```
-[{"message":"INVALID_LOGIN: Invalid username, password, security token; or user locked out.","errorCode":"INVALID_LOGIN"}]
-```
-
-**Cause:** Wrong credentials or security token.
-**Solution:**
-
-```bash
-# Reset security token: Setup > My Personal Information > Reset My Security Token
-# Append token to password: password + securityToken
-# Verify IP is whitelisted or token is appended
-echo "Password format: ${SF_PASSWORD}${SF_SECURITY_TOKEN}"
-```
-
----
-
-### INVALID_FIELD — Wrong Field Name in SOQL
-
-```
-[{"message":"SELECT Id, FullName FROM Account\n                ^\nERROR: No such column 'FullName' on entity 'Account'","errorCode":"INVALID_FIELD"}]
-```
-
-**Cause:** Field API name does not exist on the sObject.
-**Solution:**
-
-```typescript
-// Check available fields via describe
-const meta = await conn.sobject('Account').describe();
-const fieldNames = meta.fields.map(f => f.name);
-console.log('Available fields:', fieldNames.join(', '));
-// Common mistake: "FullName" vs "Name", "Email" on Account (doesn't exist — it's on Contact)
-```
-
----
-
-### MALFORMED_QUERY — SOQL Syntax Error
-
-```
-[{"message":"unexpected token: 'FORM'","errorCode":"MALFORMED_QUERY"}]
-```
-
-**Cause:** Typo in SOQL keywords or missing quotes.
-**Solution:**
-
-```sql
--- Wrong: SELECT Id FORM Account (typo)
--- Right: SELECT Id FROM Account
-
--- Wrong: WHERE Name = Acme (missing quotes)
--- Right: WHERE Name = 'Acme'
-
--- Wrong: WHERE CreatedDate > 2026-01-01 (needs literal format)
--- Right: WHERE CreatedDate > 2026-01-01T00:00:00Z
-```
-
----
-
-### REQUIRED_FIELD_MISSING — Missing Required Fields on Create
-
-```
-[{"message":"Required fields are missing: [LastName]","errorCode":"REQUIRED_FIELD_MISSING","fields":["LastName"]}]
-```
-
-**Cause:** Create/update missing a required field.
-**Solution:**
-
-```typescript
-// Check required fields
-const meta = await conn.sobject('Contact').describe();
-const required = meta.fields
-  .filter(f => !f.nillable && !f.defaultedOnCreate && f.createable)
-  .map(f => f.name);
-console.log('Required for create:', required);
-// Contact requires: LastName
-// Lead requires: LastName, Company
-// Opportunity requires: Name, StageName, CloseDate
-```
-
----
-
-### INSUFFICIENT_ACCESS_OR_READONLY — Permission Issue
-
-```
-[{"message":"Insufficient access rights on cross-reference id","errorCode":"INSUFFICIENT_ACCESS_OR_READONLY"}]
-```
-
-**Cause:** User profile lacks CRUD permission or field-level security blocks access.
-**Solution:** In Setup, check:
-
-1. Profile > Object Permissions > verify CRUD for the sObject
-2. Profile > Field-Level Security > verify field access
-3. Sharing Rules if record-level access is denied
-4. Organization-Wide Defaults (OWD) for the object
-
----
-
-### REQUEST_LIMIT_EXCEEDED — API Limit Hit
-
-```
-[{"message":"TotalRequests Limit exceeded.","errorCode":"REQUEST_LIMIT_EXCEEDED"}]
-```
-
-**Cause:** Org exceeded the 24-hour rolling API call limit.
-**Solution:**
-
-```typescript
-// Check remaining API calls
-const limits = await conn.request('/services/data/v59.0/limits/');
-console.log('Daily API:', limits.DailyApiRequests);
-// { Max: 100000, Remaining: 45230 }
-
-// Enterprise Edition base: 100,000/24hr + 1,000 per user license
-// Check: Setup > Company Information > API Requests, Last 24 Hours
-```
-
----
-
-### UNABLE_TO_LOCK_ROW — Record Locking Conflict
-
-```
-[{"message":"unable to obtain exclusive access to this record","errorCode":"UNABLE_TO_LOCK_ROW"}]
-```
-
-**Cause:** Another process is updating the same record simultaneously.
-**Solution:** Retry with exponential backoff — this is transient.
-
-```typescript
-// This commonly occurs with triggers, workflows, or parallel bulk jobs
-// Retry 3 times with increasing delay
-await withRetry(() => conn.sobject('Account').update({ Id: id, Name: 'New Name' }));
-```
-
----
-
-### DUPLICATES_DETECTED — Duplicate Rule Triggered
-
-```
-[{"message":"Use one of these records?","errorCode":"DUPLICATES_DETECTED"}]
-```
-
-**Cause:** Salesforce Duplicate Rules matched existing records.
-**Solution:**
-
-```typescript
-// Allow duplicates by setting header
-const result = await conn.sobject('Lead').create(
-  { LastName: 'Smith', Company: 'Acme', Email: 'smith@acme.com' },
-  { headers: { 'Sforce-Duplicate-Rule-Header': 'allowSave=true' } }
-);
-```
-
----
-
-### FIELD_CUSTOM_VALIDATION_EXCEPTION — Validation Rule Failed
-
-```
-[{"message":"Phone number must be 10 digits","errorCode":"FIELD_CUSTOM_VALIDATION_EXCEPTION"}]
-```
-
-**Cause:** A validation rule on the sObject rejected the data.
-**Solution:** Check Setup > Object Manager > [Object] > Validation Rules to see active rules and fix your data accordingly.
-
----
-
-### ENTITY_IS_DELETED — Record in Recycle Bin
-
-```
-[{"message":"entity is deleted","errorCode":"ENTITY_IS_DELETED"}]
-```
-
-**Cause:** Record was soft-deleted and is in the Recycle Bin.
-**Solution:**
-
-```sql
--- Query deleted records with ALL ROWS
-SELECT Id, Name, IsDeleted FROM Account WHERE Id = '001xx' ALL ROWS
-
--- Undelete via API
-```
-
-```typescript
-await conn.sobject('Account').undelete('001xxxxxxxxxxxx');
-```
-
-## Quick Diagnostic Commands
-
-```bash
-# Check Salesforce system status
-curl -s https://api.status.salesforce.com/v1/instances | jq '.[0]'
-
-# Check org API limits via sf CLI
-sf org display --target-org my-org
-
-# List recent API errors in debug log
-sf apex log list --target-org my-org
-sf apex log get --log-id 07Lxx --target-org my-org
-```
+Return the incident frame, classified layer, evidence timeline, ruled-out causes, root or leading cause, approved action, verification, and prevention owner.
 
 ## Error Handling
 
-| HTTP Status | Error Code | Retryable? |
-|------------|------------|------------|
-| 400 | MALFORMED_QUERY, INVALID_FIELD | No — fix query |
-| 401 | INVALID_SESSION_ID | Yes — refresh token |
-| 403 | REQUEST_LIMIT_EXCEEDED | Yes — wait and retry |
-| 404 | NOT_FOUND | No — wrong ID or sObject |
-| 409 | UNABLE_TO_LOCK_ROW | Yes — retry with backoff |
-| 500 | UNKNOWN_EXCEPTION | Maybe — check SF status |
+| Condition | Response |
+|---|---|
+| Request ID or first failure is unavailable | State the evidence gap and avoid assigning a definitive cause. |
+| Reproduction would expose or mutate production data | Use synthetic fixtures or stop and request an approved sandbox path. |
+| Outcome of a prior write is uncertain | Reconcile by stable business key before any retry. |
+
+## Example
+
+A redacted completion receipt might look like this:
+
+```text
+incident=SF-204; layer=field-permission; request=redacted; mutation=blocked-before-send; fix=permission-review; verification=pass
+```
 
 ## Resources
 
-- [Salesforce Status API](https://api.status.salesforce.com/)
-- [REST API Error Responses](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/errorcodes.htm)
-- [SOQL Date Literals](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_dateformats.htm)
-- [Salesforce Governor Limits](https://developer.salesforce.com/docs/atlas.en-us.salesforce_app_limits_cheatsheet.meta/salesforce_app_limits_cheatsheet/salesforce_app_limits_platform_api.htm)
+- [REST status codes and errors](https://developer.salesforce.com/docs/platform/api-rest/guide/errorcodes.html)
+- [Salesforce Status](https://status.salesforce.com)
 
 ## Next Steps
 
-For comprehensive debugging, see `salesforce-debug-bundle`.
+Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.

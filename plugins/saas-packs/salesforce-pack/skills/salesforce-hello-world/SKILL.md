@@ -1,170 +1,79 @@
 ---
 name: salesforce-hello-world
-description: 'Create a minimal working Salesforce example with SOQL queries and sObject
-  CRUD.
-
-  Use when starting a new Salesforce integration, testing your setup,
-
-  or learning basic Salesforce API patterns.
-
-  Trigger with phrases like "salesforce hello world", "salesforce example",
-
-  "salesforce quick start", "first salesforce query", "salesforce SOQL".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Verify a Salesforce org connection with version discovery, identity evidence, and a read-only resource probe before previewing any mutation. Use when running first connections and smoke tests. Trigger with "test Salesforce safely".'
+argument-hint: "[org-alias] [object]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- crm
-- salesforce
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, salesforce, smoke-test, rest-api, discovery]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; record creation or update requires object owner approval and a non-production test target
 ---
-# Salesforce Hello World
+# Salesforce Read-Only Capability Proof
 
 ## Overview
 
-Minimal working example: connect to Salesforce, run a SOQL query, and perform basic CRUD on standard sObjects (Account, Contact, Lead).
+Prove the selected principal, org, API version, object entitlement, and field visibility before any record mutation is considered.
 
 ## Prerequisites
 
-- Completed `salesforce-install-auth` setup
-- jsforce installed (`npm install jsforce`)
-- Valid credentials in environment variables
+- An authorized non-production org and secret reference
+- Expected org identity, principal, object, fields, and business owner
+- Current REST API and authorization documentation
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect approved repository and evidence files, `WebFetch` to re-check current first-party Salesforce documentation, and `Write` or `Edit` only for secretless plans, fixtures, configuration, and redacted receipts.
+
+## Current Contract
+
+The REST Versions resource lets a client discover versions instead of hard-coding one. Resources, objects, fields, CRUD, sharing, and limits remain org- and principal-specific.
+
+## Authentication
+
+Use the approved OAuth client and principal from the onboarding decision. Keep access and refresh tokens out of commands, files, prompts, logs, screenshots, and receipts.
 
 ## Instructions
 
-### Step 1: Connect and Query Accounts
+1. Record the expected org, environment, principal, My Domain, object, fields, and success criteria.
+2. Resolve credentials only through the approved secret mechanism and verify the returned org identity.
+3. List supported REST versions and select a supported version allowed by the customer contract.
+4. Discover available resources, then inspect object metadata and field accessibility for the intended read.
+5. Run one bounded read-only query with non-sensitive fields and an explicit row limit.
+6. Preview any proposed create or update with validation, duplicate, automation, ownership, and rollback effects.
+7. Return a redacted receipt and request separate approval before executing a mutation.
 
-```typescript
-import jsforce from 'jsforce';
+## Approval Boundaries
 
-const conn = new jsforce.Connection({
-  loginUrl: process.env.SF_LOGIN_URL || 'https://login.salesforce.com',
-});
-
-await conn.login(
-  process.env.SF_USERNAME!,
-  process.env.SF_PASSWORD! + process.env.SF_SECURITY_TOKEN!
-);
-
-// Your first SOQL query — fetch 5 Accounts
-const result = await conn.query(
-  "SELECT Id, Name, Industry, AnnualRevenue FROM Account LIMIT 5"
-);
-
-console.log(`Total records: ${result.totalSize}`);
-for (const account of result.records) {
-  console.log(`  ${account.Name} — ${account.Industry ?? 'N/A'}`);
-}
-```
-
-### Step 2: Create a Record
-
-```typescript
-// Create a new Account
-const newAccount = await conn.sobject('Account').create({
-  Name: 'Acme Corporation',
-  Industry: 'Technology',
-  Website: 'https://acme.example.com',
-  NumberOfEmployees: 250,
-});
-
-console.log('Created Account ID:', newAccount.id);
-console.log('Success:', newAccount.success);
-```
-
-### Step 3: Read a Record by ID
-
-```typescript
-// Retrieve specific fields by record ID
-const account = await conn.sobject('Account').retrieve(newAccount.id);
-console.log('Account Name:', account.Name);
-
-// Or use SOQL for more control
-const result = await conn.query(
-  `SELECT Id, Name, Industry, CreatedDate
-   FROM Account
-   WHERE Id = '${newAccount.id}'`
-);
-```
-
-### Step 4: Update a Record
-
-```typescript
-const updateResult = await conn.sobject('Account').update({
-  Id: newAccount.id,
-  Industry: 'Software',
-  Description: 'Updated via jsforce API',
-});
-console.log('Updated:', updateResult.success);
-```
-
-### Step 5: Delete a Record
-
-```typescript
-const deleteResult = await conn.sobject('Account').destroy(newAccount.id);
-console.log('Deleted:', deleteResult.success);
-```
-
-### Python Example
-
-```python
-from simple_salesforce import Salesforce
-import os
-
-sf = Salesforce(
-    username=os.environ['SF_USERNAME'],
-    password=os.environ['SF_PASSWORD'],
-    security_token=os.environ['SF_SECURITY_TOKEN']
-)
-
-# SOQL query
-result = sf.query("SELECT Id, Name, Industry FROM Account LIMIT 5")
-for record in result['records']:
-    print(f"  {record['Name']} — {record.get('Industry', 'N/A')}")
-
-# Create
-new_account = sf.Account.create({'Name': 'Acme Corp', 'Industry': 'Technology'})
-print(f"Created: {new_account['id']}")
-
-# Update
-sf.Account.update(new_account['id'], {'Industry': 'Software'})
-
-# Delete
-sf.Account.delete(new_account['id'])
-```
+Do not create, update, delete, undelete, merge, or expose records during the proof. Any mutation requires object-owner approval and a recoverable test case.
 
 ## Output
 
-- Successful SOQL query returning Account records
-- Created, read, updated, and deleted an Account sObject
-- Console output confirming each operation
+Return org and principal verification, selected API version, visible resource and field evidence, query result counts, mutation preview, and next approval.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `INVALID_FIELD` | Field name wrong in SOQL | Check field API names in Setup > Object Manager |
-| `MALFORMED_QUERY` | SOQL syntax error | Verify quotes, field names, WHERE clause |
-| `INVALID_TYPE` | sObject name wrong | Use API name (e.g., `Account`, not `Accounts`) |
-| `REQUIRED_FIELD_MISSING` | Missing required field on create | Add required fields (e.g., `Name` for Account) |
-| `ENTITY_IS_DELETED` | Record already deleted | Query with `isDeleted = true` to find in Recycle Bin |
+| Condition | Response |
+|---|---|
+| Org identity differs from expectation | Stop and revoke or isolate the credential before any further request. |
+| Object or field is unavailable | Treat the metadata response as authoritative for this principal and revise the request. |
+| Read triggers sensitive-data exposure | Discard the data securely and repeat with minimum non-sensitive fields. |
 
-## Examples
+## Example
 
-### Run a disposable CRUD smoke test in a sandbox
+A redacted completion receipt might look like this:
 
-Authenticate with a sandbox-only integration user, create an Account whose name includes a unique test run ID, query it by that ID, and update only a non-sensitive test field. Assert the expected result count, delete the test record, and confirm it is absent from normal SOQL results. Never aim this tutorial at a production org or use real customer names; preserve only the run ID and pass/fail result in the test log.
+```text
+org=developer-sandbox; identity=matched; api=discovered-supported; object=Account; fields=minimum; rows=1; mutation=not-run
+```
 
 ## Resources
 
-- [SOQL Reference](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql.htm)
-- [sObject CRUD (REST API)](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_sobject_retrieve.htm)
-- [Standard Objects Reference](https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_list.htm)
+- [List REST API versions](https://developer.salesforce.com/docs/platform/api-rest/guide/dome-versions.html)
+- [REST API introduction](https://developer.salesforce.com/docs/platform/api-rest/guide/intro-rest.html)
 
 ## Next Steps
 
-Proceed to `salesforce-local-dev-loop` for development workflow setup.
+Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.
