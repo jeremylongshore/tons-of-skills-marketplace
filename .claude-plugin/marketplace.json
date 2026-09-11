@@ -5799,17 +5799,16 @@
     {
       "name": "linear-pack",
       "source": "./plugins/saas-packs/linear-pack",
-      "description": "Complete Linear integration skill pack with 24 skills covering issue tracking, project management, workflows, and team collaboration. Flagship tier vendor pack.",
-      "version": "1.12.0",
+      "description": "Operator-grade Linear pack with 24 source-grounded skills for GraphQL, OAuth, issue and project workflows, webhooks, reliability, data governance, and enterprise access.",
+      "version": "1.13.0",
       "category": "saas-packs",
       "keywords": [
         "linear",
-        "issues",
-        "project-management",
-        "tracking",
-        "workflows",
-        "agile",
-        "team-collaboration"
+        "graphql",
+        "oauth",
+        "issue-operations",
+        "webhooks",
+        "data-governance"
       ],
       "author": {
         "name": "Jeremy Longshore",

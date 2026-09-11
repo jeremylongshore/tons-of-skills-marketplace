@@ -1,266 +1,92 @@
 ---
 name: linear-reference-architecture
-description: 'Production-grade Linear integration architecture patterns.
-
-  Use when designing system architecture, choosing integration patterns,
-
-  or reviewing architectural decisions for Linear integrations.
-
-  Trigger: "linear architecture", "linear system design",
-
-  "linear integration patterns", "linear best practices architecture".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.12.0
-license: MIT
+description: >-
+  Design a Linear integration with separated auth, GraphQL, webhook, queue, policy, and reconciliation boundaries. Use when reviewing or creating a durable service architecture. Trigger with "design Linear integration", "architect Linear webhook service", or "review Linear system design".
+argument-hint: "[repository-path] [read-only|bidirectional|event-driven]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.13.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linear
-- linear-reference
-compatibility: Designed for Claude Code
+- architecture
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Linear workspace credential
 ---
-# Linear Reference Architecture
+# Linear Integration Reference Architecture
 
 ## Overview
 
-Production-grade architectural patterns for Linear integrations. Choose the right pattern based on team size, complexity, and real-time requirements.
+Create a repo-grounded architecture that makes authority, data flow, failure containment, and reconciliation explicit. Preserve the host application's boundaries instead of forcing a generic service topology.
 
-## Architecture Decision Matrix
+## Prerequisites
 
-| Pattern | Best For | Complexity | Rate Budget | Example |
-|---------|----------|------------|-------------|---------|
-| Simple | Single app, small team | Low | < 500 req/hr | Internal dashboard |
-| Service-Oriented | Multiple apps, shared state | Medium | 500-2,000 req/hr | Platform with Linear sync |
-| Event-Driven | Real-time needs, many consumers | High | < 500 req/hr + webhooks | Multi-service notification system |
-| CQRS | Audit trails, complex queries | Very High | Minimal API calls | Compliance-grade tracking |
+- The target repository, Linear workspace, environment, and accountable owner
+- Current security, privacy, compliance, capacity, and change-control requirements
+- An approved Linear credential only when a bounded live verification is necessary
 
-## Architecture 1: Simple Integration
+## Tool Discipline
 
-Direct SDK calls from your application. Best for scripts, internal tools, and prototypes.
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current first-party Linear documentation and package metadata. Use `Write` or `Edit` only for requested implementation with known target files. Never write credentials, customer content, unrestricted environment output, or unredacted GraphQL variables.
 
-```typescript
-// src/linear.ts — single module, shared client
-import { LinearClient } from "@linear/sdk";
+## Current Contract
 
-const client = new LinearClient({ apiKey: process.env.LINEAR_API_KEY! });
+- Use the official SDK for broad typed access and purpose-built GraphQL queries for narrow high-volume projections.
+- Webhook ingress must verify the raw-body HMAC, acknowledge within five seconds, deduplicate by delivery ID, and move durable work to a queue.
+- A reconciliation reader is still required because webhooks and downstream consumers can fail or be disabled.
 
-// Direct SDK calls from any part of your app
-export async function getOpenIssues(teamKey: string) {
-  return client.issues({
-    first: 50,
-    filter: {
-      team: { key: { eq: teamKey } },
-      state: { type: { nin: ["completed", "canceled"] } },
-    },
-    orderBy: "priority",
-  });
-}
+## Authentication
 
-export async function createBugReport(teamId: string, title: string, description: string) {
-  const labels = await client.issueLabels({ filter: { name: { eq: "Bug" } } });
-  return client.createIssue({
-    teamId,
-    title,
-    description,
-    priority: 2,
-    labelIds: labels.nodes.length ? [labels.nodes[0].id] : [],
-  });
-}
-```
+Use a personal API key only for owner-controlled scripts, OAuth with PKCE for user-delegated applications, or an enabled client-credentials grant for approved automation. Personal keys use `Authorization: <API_KEY>`; OAuth tokens use `Authorization: Bearer <ACCESS_TOKEN>`. Store credentials server-side in an approved secret manager.
 
-## Architecture 2: Service-Oriented with Gateway
+Treat app approval, team access, scope changes, credential creation, rotation, revocation, and production access as owner-approved actions.
 
-Centralized Linear access through a gateway service with caching and rate limiting.
+## Instructions
 
-```typescript
-// src/linear-gateway.ts
-import { LinearClient } from "@linear/sdk";
+1. Map callers, workspaces, teams, auth actors, data classes, latency targets, writes, and compliance boundaries from the repository.
+2. Separate credential acquisition, Linear adapter, policy/authorization, webhook ingress, durable queue, worker, and reconciliation components.
+3. Define stable identifiers, idempotency, pagination checkpoints, partial-error handling, and rate-budget ownership.
+4. Keep mutation commands behind policy and approval checks; keep reads and reconciliation independently operable.
+5. Design observability around operation metadata and delivery IDs with strict content redaction.
+6. Review outage, backlog, schema change, credential rotation, replay, rollback, and tenant-isolation scenarios.
 
-class LinearGateway {
-  private client: LinearClient;
-  private cache = new Map<string, { data: any; expiresAt: number }>();
-  private requestQueue: Array<{ fn: () => Promise<any>; resolve: Function; reject: Function }> = [];
-  private processing = false;
+## Approval Boundaries
 
-  constructor(apiKey: string) {
-    this.client = new LinearClient({ apiKey });
-  }
+Do not create, reveal, rotate, or revoke credentials; authorize an OAuth app; change scopes or team access; create, mutate, archive, or delete workspace data; configure or re-enable webhooks; import or export data; change roles, SCIM, or audit streaming; transmit diagnostics; change paid entitlements; or perform another production mutation without explicit approval from the accountable owner. Keep diagnosis read-only unless implementation was requested.
 
-  // Cached reads
-  async getTeams() {
-    return this.cachedQuery("teams", () => this.client.teams().then(r => r.nodes), 600);
-  }
+## Output
 
-  async getStates(teamId: string) {
-    return this.cachedQuery(`states:${teamId}`, async () => {
-      const team = await this.client.team(teamId);
-      return (await team.states()).nodes;
-    }, 1800);
-  }
-
-  // Rate-limited writes
-  async createIssue(input: any) {
-    return this.enqueue(() => this.client.createIssue(input));
-  }
-
-  async updateIssue(id: string, input: any) {
-    return this.enqueue(() => this.client.updateIssue(id, input));
-  }
-
-  // Custom queries through the gateway
-  async rawQuery(query: string, variables?: any) {
-    return this.enqueue(() => this.client.client.rawRequest(query, variables));
-  }
-
-  // Cache invalidation (called from webhook handler)
-  invalidate(pattern: string) {
-    for (const key of this.cache.keys()) {
-      if (key.startsWith(pattern)) this.cache.delete(key);
-    }
-  }
-
-  private async cachedQuery<T>(key: string, fn: () => Promise<T>, ttlSec: number): Promise<T> {
-    const cached = this.cache.get(key);
-    if (cached && Date.now() < cached.expiresAt) return cached.data;
-    const data = await this.enqueue(fn);
-    this.cache.set(key, { data, expiresAt: Date.now() + ttlSec * 1000 });
-    return data;
-  }
-
-  private async enqueue<T>(fn: () => Promise<T>): Promise<T> {
-    return new Promise((resolve, reject) => {
-      this.requestQueue.push({ fn, resolve, reject });
-      if (!this.processing) this.processQueue();
-    });
-  }
-
-  private async processQueue() {
-    this.processing = true;
-    while (this.requestQueue.length > 0) {
-      const { fn, resolve, reject } = this.requestQueue.shift()!;
-      try { resolve(await fn()); } catch (e) { reject(e); }
-      if (this.requestQueue.length > 0) {
-        await new Promise(r => setTimeout(r, 100)); // 10 req/sec max
-      }
-    }
-    this.processing = false;
-  }
-}
-
-export const gateway = new LinearGateway(process.env.LINEAR_API_KEY!);
-```
-
-## Architecture 3: Event-Driven
-
-Webhook-centric architecture. Minimal API calls, real-time processing.
-
-```typescript
-// src/event-processor.ts
-import express from "express";
-import crypto from "crypto";
-import { EventEmitter } from "events";
-
-// Internal event bus
-const bus = new EventEmitter();
-
-// Webhook ingester
-const app = express();
-app.post("/webhooks/linear", express.raw({ type: "*/*" }), (req, res) => {
-  const sig = req.headers["linear-signature"] as string;
-  const body = req.body.toString();
-  const expected = crypto.createHmac("sha256", process.env.LINEAR_WEBHOOK_SECRET!)
-    .update(body).digest("hex");
-
-  if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) {
-    return res.status(401).end();
-  }
-
-  const event = JSON.parse(body);
-  res.json({ ok: true });
-
-  // Emit to internal consumers
-  bus.emit(`${event.type}.${event.action}`, event);
-  bus.emit(event.type, event);
-  bus.emit("*", event);
-});
-
-// Consumer: Slack notifications
-bus.on("Issue.update", async (event) => {
-  if (event.updatedFrom?.stateId && event.data.state?.type === "completed") {
-    await notifySlack(`Done: ${event.data.identifier} ${event.data.title}`);
-  }
-});
-
-// Consumer: Database sync
-bus.on("Issue", async (event) => {
-  if (event.action === "create") await db.issues.insert(event.data);
-  if (event.action === "update") await db.issues.update(event.data.id, event.data);
-  if (event.action === "remove") await db.issues.softDelete(event.data.id);
-});
-
-// Consumer: Cache invalidation
-bus.on("*", (event) => {
-  gateway.invalidate(event.type.toLowerCase());
-});
-```
-
-## Architecture 4: CQRS with Local State
-
-Separate read and write paths. Full local state for complex queries, API for writes.
-
-```typescript
-// Write side: mutations go through Linear API
-async function createIssue(input: any) {
-  const result = await gateway.createIssue(input);
-  // Local state updated via webhook, not here
-  return result;
-}
-
-// Read side: queries against local database (no API calls)
-async function getSprintVelocity(teamKey: string, sprints: number) {
-  return db.query(`
-    SELECT c.name, SUM(i.estimate) as velocity
-    FROM cycles c
-    JOIN issues i ON i.cycle_id = c.id AND i.state_type = 'completed'
-    WHERE c.team_key = ? AND c.completed_at IS NOT NULL
-    ORDER BY c.completed_at DESC
-    LIMIT ?
-  `, [teamKey, sprints]);
-}
-
-// Sync: webhook events keep local state fresh
-// Full sync: daily consistency check (see linear-data-handling)
-```
-
-## Project Structure
-
-```
-src/
-  linear/
-    gateway.ts          # Rate-limited, cached API access
-    webhook-handler.ts  # Signature verification + routing
-    event-bus.ts        # Internal event distribution
-    cache.ts            # TTL cache with invalidation
-  services/
-    issue-service.ts    # Business logic
-    sync-service.ts     # Data synchronization
-  config/
-    linear.ts           # Environment config + validation
-```
+Return the workspace and team scope, auth mode without credential value, files and contracts inspected, exact operation names, evidence collected, validation result, sensitive fields redacted, remaining risk, accountable owner, approval state, and rollback or next action.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Rate limit exceeded | Too many direct API calls | Route all calls through gateway |
-| Stale cache | TTL too long, missed webhook | Webhook invalidation + periodic full sync |
-| Event loss | Webhook delivery failure | Idempotent handlers + consistency checks |
-| Schema drift | SDK version mismatch | Pin version, test upgrades in staging |
+| Condition | Response |
+|---|---|
+| Shared mutable client crosses tenants | Split credential and cache scope by workspace/actor. |
+| Webhook does business work inline | Queue after verification and acknowledge quickly. |
+| No reconciliation path | Add a cursor-based reader before declaring event-driven completeness. |
+| Mutation policy embedded in transport | Separate business authorization from GraphQL mechanics. |
+
+## Examples
+
+Use a compact handoff that makes scope, mutation authority, and verification evidence reviewable.
+
+Input:
+
+```text
+mode=bidirectional; tenants=multi-workspace; freshness=5m; writes=approval-gated
+```
+
+Expected handoff:
+
+```text
+boundaries=defined; ingress=queued; reconciliation=cursor-based; rollback=owned
+```
 
 ## Resources
 
-- [Linear API Best Practices](https://linear.app/developers/graphql)
-- [Event-Driven Architecture](https://martinfowler.com/articles/201701-event-driven.html)
-- [CQRS Pattern](https://martinfowler.com/bliki/CQRS.html)
+- [Skill-specific official documentation](references/official-docs.md)
+- [Linear developer documentation index](https://linear.app/llms.txt)
+- [Linear GraphQL API](https://linear.app/developers/graphql.md)

@@ -1,290 +1,93 @@
 ---
 name: linear-webhooks-events
-description: 'Configure and handle Linear webhooks for real-time event processing.
-
-  Use when setting up webhooks, handling issue/project/cycle events,
-
-  or building real-time integrations with Linear.
-
-  Trigger: "linear webhooks", "linear events", "linear real-time",
-
-  "handle linear webhook", "linear webhook setup", "linear webhook payload".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(ngrok:*), Grep
-version: 1.12.0
-license: MIT
+description: >-
+  Implement Linear webhook verification, fast acknowledgement, deduplication, queued processing, and reconciliation. Use when receiving issue, project, cycle, customer, user, or OAuth-app events. Trigger with "handle Linear webhooks", "verify Linear signature", or "process Linear events".
+argument-hint: "[repository-path] [framework] [event-types]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.13.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linear
 - webhooks
-compatibility: Designed for Claude Code
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Linear workspace credential
 ---
-# Linear Webhooks & Events
+# Linear Verified Webhook Processing
 
 ## Overview
 
-Set up and handle Linear webhooks for real-time event processing. Linear sends HTTP POST requests for data changes on Issues, Comments, Issue Attachments, Documents, Emoji Reactions, Projects, Project Updates, Cycles, Labels, Users, and Issue SLAs.
-
-**Webhook headers:**
-
-- `Linear-Signature` — HMAC-SHA256 hex digest of the raw body
-- `Linear-Delivery` — Unique delivery ID for deduplication
-- `Linear-Event` — Event type (e.g., "Issue")
-- `Content-Type: application/json; charset=utf-8`
-
-**Payload body includes:** `action`, `type`, `data`, `url`, `actor`, `updatedFrom` (previous values on update), `createdAt`, `webhookTimestamp` (UNIX ms).
+Build an ingress path that proves authenticity on raw bytes, acknowledges quickly, and makes downstream processing replay-safe.
 
 ## Prerequisites
 
-- Linear workspace admin access (required for webhook creation)
-- Public HTTPS endpoint for webhook delivery
-- Webhook signing secret (generated in Linear Settings > API > Webhooks)
+- The target repository, Linear workspace, environment, and accountable owner
+- Current security, privacy, compliance, capacity, and change-control requirements
+- An approved Linear credential only when a bounded live verification is necessary
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current first-party Linear documentation and package metadata. Use `Write` or `Edit` only for requested implementation with known target files. Never write credentials, customer content, unrestricted environment output, or unredacted GraphQL variables.
+
+## Current Contract
+
+- The endpoint must be public HTTPS and return HTTP 200 within five seconds; failures retry after one minute, one hour, and six hours, up to three retries.
+- `Linear-Signature` is the hex HMAC-SHA256 of the exact raw body; `Linear-Delivery` is the unique delivery UUID and `Linear-Timestamp` is epoch milliseconds.
+- Only workspace admins or OAuth applications with `admin` scope can create or read webhooks.
+- The official SDK provides `LinearWebhookClient`, including raw-body signature verification and framework handlers.
+
+## Authentication
+
+Use a personal API key only for owner-controlled scripts, OAuth with PKCE for user-delegated applications, or an enabled client-credentials grant for approved automation. Personal keys use `Authorization: <API_KEY>`; OAuth tokens use `Authorization: Bearer <ACCESS_TOKEN>`. Store credentials server-side in an approved secret manager.
+
+Treat app approval, team access, scope changes, credential creation, rotation, revocation, and production access as owner-approved actions.
 
 ## Instructions
 
-### Step 1: Build Webhook Receiver with Signature Verification
+1. Select explicit resource types and team/all-public-team scope, and identify the webhook/admin owner.
+2. Capture the exact raw request bytes before JSON middleware and verify HMAC-SHA256 with the configured signing secret.
+3. Reject invalid or stale/replayed requests, deduplicate by `Linear-Delivery`, enqueue the verified envelope, and return 200 within five seconds.
+4. Process events idempotently using `action`, `type`, entity ID, `updatedFrom`, organization, and webhook ID as appropriate.
+5. Bound retries and dead-letter handling; never assume Linear will retry beyond the documented schedule.
+6. Run periodic cursor-based reconciliation and test create/update/remove, duplicate, delayed, revoked-app, and secret-rotation cases.
 
-```typescript
-import express from "express";
-import crypto from "crypto";
+## Approval Boundaries
 
-const app = express();
+Do not create, reveal, rotate, or revoke credentials; authorize an OAuth app; change scopes or team access; create, mutate, archive, or delete workspace data; configure or re-enable webhooks; import or export data; change roles, SCIM, or audit streaming; transmit diagnostics; change paid entitlements; or perform another production mutation without explicit approval from the accountable owner. Keep diagnosis read-only unless implementation was requested.
 
-// CRITICAL: use raw body parser — JSON parsing destroys the original for signature verification
-app.post("/webhooks/linear", express.raw({ type: "*/*" }), (req, res) => {
-  const signature = req.headers["linear-signature"] as string;
-  const delivery = req.headers["linear-delivery"] as string;
-  const eventType = req.headers["linear-event"] as string;
-  const rawBody = req.body.toString();
+## Output
 
-  // 1. Verify HMAC-SHA256 signature
-  const expected = crypto
-    .createHmac("sha256", process.env.LINEAR_WEBHOOK_SECRET!)
-    .update(rawBody)
-    .digest("hex");
-
-  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
-    console.error(`Invalid signature for delivery ${delivery}`);
-    return res.status(401).json({ error: "Invalid signature" });
-  }
-
-  // 2. Parse and verify timestamp (guard against replay attacks)
-  const event = JSON.parse(rawBody);
-  const age = Date.now() - event.webhookTimestamp;
-  if (age > 60000) {
-    return res.status(400).json({ error: "Webhook expired" });
-  }
-
-  // 3. Respond 200 immediately, process asynchronously
-  res.json({ received: true });
-  processEvent(event, delivery).catch(err =>
-    console.error(`Failed processing ${delivery}:`, err)
-  );
-});
-
-app.listen(3000, () => console.log("Webhook server on :3000"));
-```
-
-### Step 2: Event Type Definition
-
-```typescript
-interface LinearWebhookPayload {
-  action: "create" | "update" | "remove";
-  type: string; // "Issue", "Comment", "Project", "Cycle", "IssueLabel", etc.
-  data: Record<string, any>;
-  url: string;
-  actor?: {
-    id: string;
-    type: string; // "user", "application"
-    name?: string;
-  };
-  updatedFrom?: Record<string, any>; // Only contains fields that changed
-  createdAt: string;
-  webhookTimestamp: number;
-}
-```
-
-### Step 3: Event Router
-
-```typescript
-type Handler = (event: LinearWebhookPayload) => Promise<void>;
-
-const handlers: Record<string, Record<string, Handler>> = {
-  Issue: {
-    create: async (e) => {
-      console.log(`New issue: ${e.data.identifier} — ${e.data.title}`);
-      console.log(`  Priority: ${e.data.priority}, Team: ${e.data.team?.key}`);
-      // e.g., notify Slack, sync to external system
-    },
-    update: async (e) => {
-      // updatedFrom contains ONLY the fields that changed
-      if (e.updatedFrom?.stateId) {
-        console.log(`${e.data.identifier} state -> ${e.data.state?.name}`);
-        if (e.data.state?.type === "completed") {
-          await notifySlack(`Done: ${e.data.identifier} ${e.data.title}`);
-        }
-      }
-      if (e.updatedFrom?.assigneeId) {
-        console.log(`${e.data.identifier} assigned to ${e.data.assignee?.name}`);
-      }
-      if (e.updatedFrom?.priority !== undefined) {
-        console.log(`${e.data.identifier} priority changed to ${e.data.priority}`);
-      }
-    },
-    remove: async (e) => {
-      console.log(`Issue deleted: ${e.data.identifier}`);
-    },
-  },
-  Comment: {
-    create: async (e) => {
-      console.log(`Comment on ${e.data.issue?.identifier}: ${e.data.body?.substring(0, 100)}`);
-    },
-  },
-  Project: {
-    update: async (e) => {
-      if (e.updatedFrom?.state) {
-        console.log(`Project "${e.data.name}" -> ${e.data.state}`);
-      }
-    },
-  },
-  Cycle: {
-    update: async (e) => {
-      if (e.updatedFrom?.completedAt && e.data.completedAt) {
-        console.log(`Cycle "${e.data.name}" completed`);
-      }
-    },
-  },
-  ProjectUpdate: {
-    create: async (e) => {
-      // e.data includes diffMarkdown showing changes since last update
-      console.log(`Project update: ${e.data.body?.substring(0, 100)}`);
-    },
-  },
-};
-
-async function processEvent(event: LinearWebhookPayload, deliveryId: string): Promise<void> {
-  const handler = handlers[event.type]?.[event.action];
-  if (handler) {
-    await handler(event);
-  } else {
-    console.log(`Unhandled: ${event.type}.${event.action} (delivery: ${deliveryId})`);
-  }
-}
-```
-
-### Step 4: Idempotent Processing
-
-Linear may retry failed deliveries. Deduplicate using the `Linear-Delivery` header.
-
-```typescript
-// In-memory for simple apps; use Redis/DB for distributed systems
-const processedDeliveries = new Set<string>();
-const MAX_TRACKED = 10000;
-
-function isDuplicate(deliveryId: string): boolean {
-  if (processedDeliveries.has(deliveryId)) return true;
-  processedDeliveries.add(deliveryId);
-  if (processedDeliveries.size > MAX_TRACKED) {
-    const entries = [...processedDeliveries];
-    entries.slice(0, MAX_TRACKED / 2).forEach(id => processedDeliveries.delete(id));
-  }
-  return false;
-}
-
-// In webhook handler, after signature verification:
-if (isDuplicate(delivery)) {
-  return res.json({ status: "duplicate, skipped" });
-}
-```
-
-### Step 5: Register Webhook
-
-```bash
-# Via Linear UI:
-# Settings > API > Webhooks > New webhook
-# URL: https://your-app.com/webhooks/linear
-# Resource types: Issues, Comments, Projects, Cycles
-# Teams: All public teams (or select specific ones)
-
-# Via GraphQL API:
-curl -X POST https://api.linear.app/graphql \
-  -H "Authorization: $LINEAR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "mutation { webhookCreate(input: { url: \"https://your-app.com/webhooks/linear\", resourceTypes: [\"Issue\", \"Comment\", \"Project\", \"Cycle\"], allPublicTeams: true }) { success webhook { id enabled secret } } }"
-  }'
-```
-
-### Step 6: List and Manage Webhooks via SDK
-
-```typescript
-import { LinearClient } from "@linear/sdk";
-
-const client = new LinearClient({ apiKey: process.env.LINEAR_API_KEY! });
-
-// List all webhooks
-const webhooks = await client.webhooks();
-for (const wh of webhooks.nodes) {
-  console.log(`${wh.url} — enabled: ${wh.enabled}, types: ${wh.resourceTypes?.join(", ")}`);
-}
-
-// Disable a webhook
-await client.updateWebhook("webhook-id", { enabled: false });
-
-// Delete a webhook
-await client.deleteWebhook("webhook-id");
-```
-
-### Step 7: Local Development with ngrok
-
-```bash
-# Terminal 1: Start webhook server
-npm run dev
-
-# Terminal 2: Expose port 3000
-ngrok http 3000
-# Copy the https://xxxx.ngrok-free.app URL
-
-# Register in Linear Settings > API > Webhooks > New webhook
-# URL: https://xxxx.ngrok-free.app/webhooks/linear
-```
+Return the workspace and team scope, auth mode without credential value, files and contracts inspected, exact operation names, evidence collected, validation result, sensitive fields redacted, remaining risk, accountable owner, approval state, and rollback or next action.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| 401 Invalid signature | Wrong secret or body parsed as JSON | Use `express.raw()`, verify secret matches Linear |
-| Webhook not received | URL not publicly accessible | Check HTTPS, firewall rules, ngrok tunnel |
-| Duplicate processing | Linear retried delivery | Deduplicate using `Linear-Delivery` header |
-| Handler timeout | Processing takes too long | Respond 200 immediately, process async |
-| Missing `updatedFrom` | Field didn't change | `updatedFrom` only contains changed field keys |
-| `actor` is null | System-triggered event | Check `actor.type` before accessing `.name` |
+| Condition | Response |
+|---|---|
+| Signature mismatch | Return non-200, do not parse into business logic, and verify raw-body/secret selection. |
+| Processing exceeds five seconds | Queue after verification and acknowledge before doing business work. |
+| Duplicate delivery | Return 200 after recording the dedupe hit; do not repeat side effects. |
+| Webhook disabled | Repair the endpoint, manually re-enable after approval, then reconcile the missed interval. |
 
 ## Examples
 
-### Slack Notification on Issue Completion
+Use a compact handoff that makes scope, mutation authority, and verification evidence reviewable.
 
-```typescript
-async function notifySlack(message: string) {
-  await fetch(process.env.SLACK_WEBHOOK_URL!, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text: message }),
-  });
-}
+Input:
 
-// In Issue.update handler:
-if (e.updatedFrom?.stateId && e.data.state?.type === "completed") {
-  await notifySlack(
-    `*${e.data.identifier}* completed by ${e.actor?.name ?? "system"}\n${e.data.title}`
-  );
-}
+```text
+scope=team; events=Issue,Comment; raw-body=true; queue=durable
+```
+
+Expected handoff:
+
+```text
+signature=verified; ack<5s; dedupe=delivery-id; reconciliation=enabled
 ```
 
 ## Resources
 
-- [Linear Webhooks Documentation](https://linear.app/developers/webhooks)
-- [Webhook Payload Format](https://developers.linear.app/docs/graphql/webhooks)
-- [ngrok Documentation](https://ngrok.com/docs)
+- [Skill-specific official documentation](references/official-docs.md)
+- [Linear developer documentation index](https://linear.app/llms.txt)
+- [Linear GraphQL API](https://linear.app/developers/graphql.md)

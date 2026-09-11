@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/linear-pack",
-  "version": "1.0.2",
-  "description": "Claude Code skill pack for Linear - 24 skills covering issue tracking, project management, and workflows",
+  "version": "1.13.0",
+  "description": "Production Linear operator pack for governed GraphQL and webhook integrations",
   "main": "README.md",
   "type": "module",
   "files": [
