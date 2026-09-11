@@ -9,4 +9,5 @@ Verified 2026-09-11. Re-fetch the relevant page and inspect installed SDK types 
 - [Access scopes](https://developer.lucid.co/reference/access-scopes) — current authorization boundaries.
 
 ## Evidence Rule
+
 Current official pages and installed SDK types outrank memory. Never invent a namespace, method, event, scope, retry, or synchronization guarantee.

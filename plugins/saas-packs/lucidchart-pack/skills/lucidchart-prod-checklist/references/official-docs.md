@@ -11,4 +11,5 @@ Verified 2026-09-11. Re-fetch all pages that govern the release's exact surfaces
 - [Lucid status](https://status.lucid.co/) — official incident source.
 
 ## Evidence Rule
+
 The exact current operation, SDK types, and tested release receipts outrank generic checklists. Missing critical evidence is a failed gate.

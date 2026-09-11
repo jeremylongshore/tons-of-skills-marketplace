@@ -9,4 +9,5 @@ Verified 2026-09-11. Fetch the exact operation page again before relying on a sc
 - [Access scopes](https://developer.lucid.co/reference/access-scopes) — least-privilege operation mapping.
 
 ## Evidence Rule
+
 Current endpoint and SDK pages outrank examples and memory. Stop on missing or conflicting evidence; never invent an endpoint, event, scope, version, quota, or retry contract.

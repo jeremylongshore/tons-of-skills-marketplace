@@ -10,4 +10,5 @@ Verified 2026-09-11. Inspect installed package types and command help for the pr
 - [Access scopes](https://developer.lucid.co/reference/access-scopes) — authorization review.
 
 ## Evidence Rule
+
 Pinned installed types and current official documentation outrank snippets. Never fabricate SDK methods, types, manifest fields, command flags, or scope names.

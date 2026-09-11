@@ -9,4 +9,5 @@ Verified 2026-09-11. Commercial terms are account- and time-sensitive; obtain th
 - [Lucid status](https://status.lucid.co/) — service history for operational analysis.
 
 ## Evidence Rule
+
 Invoices, signed terms, and authenticated account data outrank public marketing pages. Do not invent per-call, per-export, storage, overage, or connector prices.

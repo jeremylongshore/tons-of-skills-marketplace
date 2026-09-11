@@ -9,4 +9,5 @@ Verified 2026-09-11. Installed versions and command help must be inspected for e
 - [Extension API core concepts](https://developer.lucid.co/docs/coreconcepts) — supported mental model.
 
 ## Evidence Rule
+
 Installed types, project scripts, lockfiles, and current official docs outrank remembered commands. Never guess APIs or package-manager invocation syntax.
