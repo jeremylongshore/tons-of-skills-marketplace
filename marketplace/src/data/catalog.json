@@ -8789,8 +8789,8 @@
       "slug": "abridge-pack",
       "name": "abridge-pack",
       "displayName": "abridge pack",
-      "description": "Claude Code skill pack for Abridge (18 skills)",
-      "version": "1.4.0",
+      "description": "Abridge health-system rollout, clinical workflow, Epic handoff, security, and reliability operator skills (18 skills; live actions remain approval-gated)",
+      "version": "1.5.0",
       "category": "saas-packs",
       "keywords": [
         "abridge",

@@ -1,217 +1,86 @@
 ---
 name: abridge-upgrade-migration
-description: 'Plan and execute Abridge integration upgrades and EHR migration procedures.
-
-  Use when upgrading Abridge API versions, migrating between EHR systems,
-
-  or handling breaking changes in clinical documentation workflows.
-
-  Trigger: "abridge upgrade", "abridge migration", "abridge version update",
-
-  "migrate abridge EHR", "abridge breaking changes".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.4.0
-license: MIT
+description: "Plan a reversible Abridge tenant, care-setting, note-template, or EHR workflow change from authoritative release evidence. Use when migrating an Abridge implementation. Trigger with \"plan the Abridge migration\"."
+argument-hint: "[change-type] [source-state] [target-state]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- healthcare
-- ai
 - abridge
 - migration
-compatibility: Designed for Claude Code
+- change-control
+- rollback
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live work requires an authorized Abridge tenant, approved test data, and health-system change authority
 ---
-# Abridge Upgrade & Migration
+# Abridge Tenant and EHR Change Migration
 
 ## Overview
 
-Procedures for upgrading Abridge API integrations and migrating between EHR systems. Healthcare migrations are high-risk — clinical documentation cannot have gaps.
-
-## Common Migration Scenarios
-
-| Scenario | Complexity | Downtime | Risk |
-|----------|-----------|----------|------|
-| API version bump (v1 → v2) | Medium | Zero (dual-version) | Low |
-| EHR migration (Epic → Athena) | High | Planned window | High |
-| New specialty onboarding | Low | Zero | Low |
-| Note template changes | Medium | Zero | Medium |
-| Multi-site rollout | High | Per-site windows | Medium |
+Treat every material workflow change as a clinical and EHR migration, not a generic API-version bump. Pin source and target behavior, identify affected cohorts and templates, test with designated records, and preserve a workable rollback.
 
 ## Prerequisites
 
-- A change record that names clinical, EHR, security, and operations owners,
-  a maintenance window, and the reversible cutover point.
-- Verified source and target sandbox access, approved synthetic fixtures, and
-  a documented manual-documentation fallback for every affected provider.
-- An immutable baseline of templates, adapter behavior, and aggregate quality
-  metrics so the parallel-run comparison has a known reference.
+- The authorized Abridge environment, clinical owner, and health-system policy set
+- Current tenant-specific implementation evidence for every private interface in scope
+- Synthetic data or the organization's formally approved test-record procedure
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect repository configuration, adapters, tests, policies, and existing evidence. Use `WebFetch` only for current official Abridge, HHS, or named EHR documentation. Use `Write` or `Edit` only after confirming scope, environment, owners, patient-data boundary, and approval state. These tools do not confer access to Abridge, an EHR, or a clinical record; return exact operator steps or an approval-gated handoff for live actions.
+
+## Current Contract
+
+- Abridge capabilities differ across outpatient, emergency, inpatient, orders, note types, and integration modes.
+- Note-setting changes can affect future notes without retroactively changing prior notes.
+- Public announcements describe capability direction; the tenant's approved release and implementation documents control availability.
+
+## Authentication
+
+Use only the health system's provisioned Abridge application access, SSO, administrative role, or tenant-specific partner authentication documented for the approved environment. Do not infer public API credentials, reuse production secrets in tests, or expose tokens and session material. Verify identity owner, least privilege, environment binding, storage, rotation, and revocation before any authenticated action.
 
 ## Instructions
 
-### Step 1: API Version Migration
+1. Freeze source and target tenant states, release evidence, care settings, cohorts, note types, EHR templates, owners, and maintenance window.
+2. Use `Read`, `Glob`, and `Grep` to inventory configuration, mappings, training, tests, dashboards, and downstream dependencies.
+3. Classify changes by patient-selection, capture, generation, review, evidence, note-template, EHR handoff, access, and support impact.
+4. Test source and target side by side with approved test records; include rollback, partial migration, and in-flight encounter cases.
+5. Use `WebFetch` only for current official product context; require tenant release notes for actual change semantics.
+6. Use `Write` or `Edit` to publish the migration map, evidence, communications, cutover checks, and rollback authority.
 
-```typescript
-// src/migration/api-version-adapter.ts
-// Dual-version adapter for zero-downtime API upgrades
+## Approval Boundaries
 
-interface ApiVersionConfig {
-  v1BaseUrl: string;  // Current production
-  v2BaseUrl: string;  // New version (canary)
-  canaryPercent: number;  // Percentage of traffic to v2
-}
-
-class AbridgeVersionAdapter {
-  constructor(private config: ApiVersionConfig) {}
-
-  getBaseUrl(): string {
-    // Gradual canary rollout
-    const useV2 = Math.random() * 100 < this.config.canaryPercent;
-    return useV2 ? this.config.v2BaseUrl : this.config.v1BaseUrl;
-  }
-
-  // Map v1 response to v2 format (or vice versa)
-  normalizeNoteResponse(response: any, version: 'v1' | 'v2'): any {
-    if (version === 'v1') {
-      return {
-        ...response,
-        // v2 adds quality_metrics — provide defaults for v1
-        quality_metrics: response.quality_metrics || {
-          confidence_score: response.confidence || 0,
-          completeness_score: 0,
-          coding_accuracy: 0,
-        },
-      };
-    }
-    return response;
-  }
-}
-```
-
-### Step 2: EHR Migration Procedure
-
-```typescript
-// src/migration/ehr-migration.ts
-interface EhrMigrationPlan {
-  sourceEhr: 'epic' | 'athena' | 'cerner' | 'eclinicalworks';
-  targetEhr: 'epic' | 'athena' | 'cerner' | 'eclinicalworks';
-  migrationDate: Date;
-  providerCount: number;
-  steps: MigrationStep[];
-}
-
-interface MigrationStep {
-  order: number;
-  name: string;
-  description: string;
-  rollbackable: boolean;
-  estimatedMinutes: number;
-}
-
-function generateMigrationPlan(source: string, target: string): EhrMigrationPlan {
-  return {
-    sourceEhr: source as any,
-    targetEhr: target as any,
-    migrationDate: new Date(),
-    providerCount: 0, // Set per org
-    steps: [
-      { order: 1, name: 'Freeze new enrollments', description: 'Stop new provider enrollments on source EHR', rollbackable: true, estimatedMinutes: 5 },
-      { order: 2, name: 'Export note templates', description: 'Export all custom note templates and SmartPhrases', rollbackable: true, estimatedMinutes: 30 },
-      { order: 3, name: 'Configure target EHR', description: 'Set up FHIR endpoints and OAuth for target EHR', rollbackable: true, estimatedMinutes: 60 },
-      { order: 4, name: 'Parallel run', description: 'Run both EHRs for 1 week — compare note output', rollbackable: true, estimatedMinutes: 10080 },
-      { order: 5, name: 'Provider re-enrollment', description: 'Re-enroll providers on target EHR', rollbackable: true, estimatedMinutes: 120 },
-      { order: 6, name: 'Cutover', description: 'Switch primary EHR integration to target', rollbackable: true, estimatedMinutes: 15 },
-      { order: 7, name: 'Decommission source', description: 'Disable source EHR integration after 30-day soak', rollbackable: false, estimatedMinutes: 30 },
-    ],
-  };
-}
-```
-
-### Step 3: Note Template Migration
-
-```typescript
-// src/migration/template-migration.ts
-interface NoteTemplate {
-  id: string;
-  name: string;
-  specialty: string;
-  sections: string[];
-  smartPhrases: Record<string, string>;  // Epic-specific
-}
-
-async function migrateTemplates(
-  sourceApi: any,
-  targetApi: any,
-): Promise<{ migrated: number; failed: string[] }> {
-  const { data: templates } = await sourceApi.get('/note-templates');
-  const failed: string[] = [];
-  let migrated = 0;
-
-  for (const template of templates) {
-    try {
-      // Remove EHR-specific fields
-      const { smartPhrases, ...portable } = template;
-
-      await targetApi.post('/note-templates', {
-        ...portable,
-        // Map SmartPhrases to target EHR equivalent if applicable
-      });
-      migrated++;
-    } catch (err) {
-      failed.push(template.id);
-    }
-  }
-
-  return { migrated, failed };
-}
-```
-
-## Rollback Procedures
-
-```bash
-#!/bin/bash
-# scripts/abridge-migration-rollback.sh
-
-echo "=== Migration Rollback ==="
-echo "Step 1: Revert FHIR endpoint to source EHR"
-echo "Step 2: Re-enable source EHR Abridge module"
-echo "Step 3: Notify providers of rollback"
-echo "Step 4: Verify note generation on source EHR"
-echo "=== Rollback Complete ==="
-```
+Do not cut over active clinical cohorts, change shared templates, or assume a newly announced feature is licensed and enabled without owner confirmation.
 
 ## Output
 
-- Dual-version API adapter for zero-downtime upgrades
-- EHR migration plan with parallel run validation
-- Note template migration with rollback
-- Provider re-enrollment procedure
-
-## Examples
-
-For an API-version rehearsal, set the v2 canary percentage to zero in the
-sandbox, replay a synthetic encounter fixture through both response mappers,
-and compare the resulting normalized fields and FHIR validation outcomes.
-Increase the canary only after the recorded comparison has no clinical or
-interoperability regression and the rollback operator confirms the old endpoint
-is still routable. If a template mapping or target authorization fails during
-parallel run, keep production traffic on the source integration, preserve the
-redacted failure receipt, and correct the adapter before rescheduling cutover.
+Return source and target states, affected assets, test evidence, in-flight handling, training, cutover steps, rollback trigger, and decision owners. Separate verified facts, tenant-specific evidence, assumptions, and actions still awaiting approval.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Template incompatible | EHR-specific fields | Strip EHR-specific data before migration |
-| Provider enrollment fails | Credentials not migrated | Re-issue provider credentials on target |
-| Note format mismatch | Different FHIR profiles | Map FHIR profiles between EHR systems |
+| Condition | Response |
+|---|---|
+| Target behavior is not documented for the tenant | Delay migration. |
+| Prior note behavior is assumed to change | Separate prospective settings from historical content. |
+| Rollback changes patient workflow | Rehearse and communicate it before cutover. |
+
+## Example
+
+The example is a redacted operational receipt, not patient data or proof of vendor certification.
+
+```text
+change=inpatient-note-type; cohort=pilot; source=approved-r4; target=approved-r5; test-records=8; rollback=pass; decision=scheduled
+```
 
 ## Resources
 
-- [Abridge Platform](https://www.abridge.com/product)
-- [HL7 FHIR Migration Guide](https://hl7.org/fhir/R4/comparison.html)
+- [Official documentation map](references/official-docs.md) — dated public evidence and the limits of what those sources establish.
+
+Read the source map before changing a workflow. Recheck tenant-specific implementation evidence for every interface or capability that public documentation does not define.
 
 ## Next Steps
 
-For CI/CD pipeline setup, see `abridge-ci-integration`.
+Revalidate the evidence date and tenant-specific authority before repeating this workflow in another environment, cohort, care setting, or integration mode.

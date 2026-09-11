@@ -1,196 +1,86 @@
 ---
 name: abridge-deploy-integration
-description: 'Deploy Abridge clinical AI integration to HIPAA-compliant cloud infrastructure.
-
-  Use when deploying to GCP Cloud Run, AWS ECS, or Azure Container Apps
-
-  with healthcare-grade secrets management and compliance controls.
-
-  Trigger: "deploy abridge", "abridge production deploy", "abridge Cloud Run",
-
-  "abridge AWS deploy", "abridge HIPAA infrastructure".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gcloud:*), Bash(docker:*), Bash(aws:*)
-version: 1.4.0
-license: MIT
+description: "Plan and control a staged Abridge rollout across clinical cohorts and EHR workflows without pretending to deploy vendor infrastructure. Use when preparing an Abridge pilot or expansion. Trigger with \"plan the Abridge rollout\"."
+argument-hint: "[care-setting] [cohort]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- healthcare
-- ai
 - abridge
 - deployment
-compatibility: Designed for Claude Code
+- change-management
+- pilot
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live work requires an authorized Abridge tenant, approved test data, and health-system change authority
 ---
-# Abridge Deploy Integration
+# Abridge Staged Enterprise Rollout
 
 ## Overview
 
-Deploy Abridge clinical AI integration to HIPAA-compliant cloud infrastructure. Healthcare deployments require BAA-covered cloud services, encrypted secrets, audit trails, and VPC-restricted networking.
+Coordinate readiness, training, tenant configuration, EHR change control, support coverage, measurement, and rollback for a bounded cohort. Customer operators configure their environment and workflow; Abridge operates its platform.
 
 ## Prerequisites
 
-- Completed `abridge-prod-checklist`
-- BAA-covered cloud account (GCP, AWS, or Azure)
-- Container registry access
-- Abridge production credentials from partner portal
+- The authorized Abridge environment, clinical owner, and health-system policy set
+- Current tenant-specific implementation evidence for every private interface in scope
+- Synthetic data or the organization's formally approved test-record procedure
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect repository configuration, adapters, tests, policies, and existing evidence. Use `WebFetch` only for current official Abridge, HHS, or named EHR documentation. Use `Write` or `Edit` only after confirming scope, environment, owners, patient-data boundary, and approval state. These tools do not confer access to Abridge, an EHR, or a clinical record; return exact operator steps or an approval-gated handoff for live actions.
+
+## Current Contract
+
+- Abridge documents integrated workflows across outpatient, emergency, and inpatient settings, with features varying by setting and rollout phase.
+- Published rollout examples emphasize pilots, clinician demand, peer support, and phased expansion.
+- Public product material does not authorize customers to self-deploy Abridge backend services or generic containers.
+
+## Authentication
+
+Use only the health system's provisioned Abridge application access, SSO, administrative role, or tenant-specific partner authentication documented for the approved environment. Do not infer public API credentials, reuse production secrets in tests, or expose tokens and session material. Verify identity owner, least privilege, environment binding, storage, rotation, and revocation before any authenticated action.
 
 ## Instructions
 
-### Step 1: HIPAA-Compliant Dockerfile
+1. Name the executive, clinical, privacy, security, EHR, training, support, and vendor owners.
+2. Freeze cohort eligibility, care setting, licensed capabilities, consent policy, training, success measures, and stop criteria.
+3. Use `Read`, `Glob`, and `Grep` to inspect the local rollout plan and configuration artifacts without patient data.
+4. Rehearse patient selection, recording, note review, EHR handoff, downtime, support, and opt-out paths with approved test records.
+5. Use `WebFetch` only for current official Abridge workflow and rollout context; tenant build documents remain authoritative.
+6. Use `Write` or `Edit` to publish the staged checklist, responsibility matrix, decision log, and rollback trigger.
 
-```dockerfile
-# Dockerfile
-FROM node:20-slim AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-RUN npm run build
+## Approval Boundaries
 
-FROM node:20-slim
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  ca-certificates curl && rm -rf /var/lib/apt/lists/*
-
-# Run as non-root (HIPAA best practice)
-RUN groupadd -r abridge && useradd -r -g abridge abridge
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-
-USER abridge
-EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
-  CMD curl -f http://localhost:3000/health || exit 1
-CMD ["node", "dist/server.js"]
-```
-
-### Step 2: GCP Cloud Run Deployment (HIPAA BAA)
-
-```bash
-#!/bin/bash
-# deploy-cloud-run.sh
-
-PROJECT_ID="${GCP_PROJECT_ID}"
-SERVICE_NAME="abridge-integration"
-REGION="us-central1"
-
-# Build container
-gcloud builds submit --tag "gcr.io/${PROJECT_ID}/${SERVICE_NAME}"
-
-# Deploy to Cloud Run with HIPAA controls
-gcloud run deploy "${SERVICE_NAME}" \
-  --image "gcr.io/${PROJECT_ID}/${SERVICE_NAME}" \
-  --region "${REGION}" \
-  --platform managed \
-  --no-allow-unauthenticated \
-  --min-instances 1 \
-  --max-instances 10 \
-  --memory 1Gi \
-  --cpu 2 \
-  --timeout 120 \
-  --set-secrets="ABRIDGE_CLIENT_SECRET=abridge-client-secret:latest,ABRIDGE_ORG_ID=abridge-org-id:latest,EPIC_CLIENT_SECRET=epic-client-secret:latest" \
-  --vpc-connector "projects/${PROJECT_ID}/locations/${REGION}/connectors/abridge-vpc" \
-  --vpc-egress all-traffic \
-  --set-env-vars="NODE_ENV=production,NODE_TLS_MIN_VERSION=TLSv1.3,AUDIT_LOG_ENABLED=true"
-
-# Verify health
-SERVICE_URL=$(gcloud run services describe "${SERVICE_NAME}" --region="${REGION}" --format='value(status.url)')
-curl -s "${SERVICE_URL}/health" -H "Authorization: Bearer $(gcloud auth print-identity-token)"
-```
-
-### Step 3: Health Check Endpoint
-
-```typescript
-// src/server/health.ts
-import express from 'express';
-
-const app = express();
-
-app.get('/health', async (req, res) => {
-  const checks = {
-    server: 'healthy',
-    abridge: await checkAbridgeApi(),
-    fhir: await checkFhirEndpoint(),
-    timestamp: new Date().toISOString(),
-  };
-
-  const allHealthy = Object.values(checks).every(v => v === 'healthy' || typeof v === 'string');
-  res.status(allHealthy ? 200 : 503).json(checks);
-});
-
-async function checkAbridgeApi(): Promise<string> {
-  try {
-    const res = await fetch(`${process.env.ABRIDGE_BASE_URL}/health`, {
-      headers: { 'Authorization': `Bearer ${process.env.ABRIDGE_CLIENT_SECRET}` },
-      signal: AbortSignal.timeout(3000),
-    });
-    return res.ok ? 'healthy' : 'degraded';
-  } catch { return 'unhealthy'; }
-}
-
-async function checkFhirEndpoint(): Promise<string> {
-  try {
-    const res = await fetch(`${process.env.EPIC_FHIR_BASE_URL}/metadata`, {
-      signal: AbortSignal.timeout(3000),
-    });
-    return res.ok ? 'healthy' : 'degraded';
-  } catch { return 'unhealthy'; }
-}
-
-app.listen(3000, () => console.log('Abridge integration server on :3000'));
-```
-
-### Step 4: GCP Secret Manager Setup
-
-```bash
-# Create secrets (one-time setup)
-echo -n "partner_secret_here" | gcloud secrets create abridge-client-secret --data-file=-
-echo -n "org_id_here" | gcloud secrets create abridge-org-id --data-file=-
-echo -n "epic_secret_here" | gcloud secrets create epic-client-secret --data-file=-
-
-# Grant Cloud Run service account access
-SA="abridge-integration@${GCP_PROJECT_ID}.iam.gserviceaccount.com"
-gcloud secrets add-iam-policy-binding abridge-client-secret \
-  --member="serviceAccount:${SA}" --role="roles/secretmanager.secretAccessor"
-```
+Do not expand the cohort, care setting, note type, or EHR workflow without the corresponding clinical and change-control approval.
 
 ## Output
 
-- HIPAA-compliant Docker image with non-root user
-- Cloud Run deployment with VPC connector and TLS 1.3
-- Health check endpoint monitoring Abridge + FHIR
-- Secrets managed via GCP Secret Manager
-
-## Examples
-
-For a production-release rehearsal, deploy the container to an isolated
-BAA-covered Cloud Run project using pre-provisioned Secret Manager versions and
-a service account with only the required secret-access role. Verify the
-authenticated health endpoint through the VPC path, confirm that it returns no
-patient or secret data, and retain the deployment revision, image digest, and
-redacted health result as release evidence. If the VPC connector, identity, or
-secret binding fails, roll back by routing traffic to the prior known-good
-revision; do not place credentials in the deployment command or application
-logs to force the rollout through.
+Return cohort, capabilities, owners, rehearsal evidence, training state, support coverage, metrics, stop criteria, and go/no-go authority. Separate verified facts, tenant-specific evidence, assumptions, and actions still awaiting approval.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Deploy rejected | Missing BAA | Sign Google Cloud BAA first |
-| Secret access denied | IAM misconfigured | Grant secretAccessor role to service account |
-| Health check fails | Cold start latency | Set min-instances to 1 |
-| VPC connector error | Not created | Create VPC connector in same region |
+| Condition | Response |
+|---|---|
+| Licensed capability is uncertain | Hold it out of scope until the vendor owner confirms it. |
+| Rollback owner is absent | Do not launch. |
+| Pilot metrics omit safety | Add clinical-quality and incident measures before approval. |
+
+## Example
+
+The example is a redacted operational receipt, not patient data or proof of vendor certification.
+
+```text
+setting=outpatient; cohort=25-volunteers; training=complete; test-records=pass; support=covered; rollback=owned; decision=go
+```
 
 ## Resources
 
-- [GCP HIPAA Compliance](https://cloud.google.com/security/compliance/hipaa/)
-- [Cloud Run Secrets](https://cloud.google.com/run/docs/configuring/secrets)
-- [Abridge Platform](https://www.abridge.com/product)
+- [Official documentation map](references/official-docs.md) — dated public evidence and the limits of what those sources establish.
+
+Read the source map before changing a workflow. Recheck tenant-specific implementation evidence for every interface or capability that public documentation does not define.
 
 ## Next Steps
 
-For webhook event handling, see `abridge-webhooks-events`.
+Revalidate the evidence date and tenant-specific authority before repeating this workflow in another environment, cohort, care setting, or integration mode.
