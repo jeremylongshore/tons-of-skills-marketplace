@@ -1,244 +1,99 @@
 ---
 name: bamboohr-debug-bundle
-description: 'Collect BambooHR debug evidence for support tickets and troubleshooting.
-
-  Use when encountering persistent issues, preparing support tickets,
-
-  or collecting diagnostic information for BambooHR API problems.
-
-  Trigger with phrases like "bamboohr debug", "bamboohr support bundle",
-
-  "collect bamboohr logs", "bamboohr diagnostic", "bamboohr troubleshoot".
-
-  '
-allowed-tools: Read, Bash(curl:*), Bash(tar:*), Bash(node:*), Grep
-version: 1.4.0
+description: >-
+  Assemble a PII-minimized BambooHR diagnostic receipt using request IDs,
+  statuses, timing, version facts, and redacted configuration. Use when
+  escalating an API incident or preparing a support case. Trigger with
+  "BambooHR debug bundle", "BambooHR support evidence", or "BambooHR request ID".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<incident-id> <time-window>"
+version: 1.5.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- hr
-- bamboohr
-- debugging
+tags: [saas, hr, bamboohr, diagnostics, privacy]
+model: inherit
+effort: high
 compatibility: Designed for Claude Code
 ---
-# BambooHR Debug Bundle
+# BambooHR Privacy-Safe Debug Receipt
 
 ## Overview
 
-Collect all diagnostic information for BambooHR API troubleshooting or support tickets. Captures connectivity tests, API response details, environment info, and redacted configuration.
+Create evidence sufficient to reproduce and route a BambooHR failure without
+packaging employee records, credentials, tokens, raw request/response bodies,
+webhook payloads, or environment dumps.
 
 ## Prerequisites
 
-- BambooHR environment variables set
-- `curl` available for API tests
-- Permission to collect environment info
+- The target repository or integration path and the requested operator outcome.
+- The tenant, identity, and data scope only when approved live work is in scope.
+- The current evidence register plus customer-specific permissions and agreements.
+
+## Current Contract
+
+The official Python SDK surfaces a request ID from `x-request-id`,
+`x-bamboohr-request-id`, or `request-id` and includes a secure log filter for
+sensitive headers and URL parameters. These controls do not make arbitrary
+application logs safe; verify the emitted artifact field by field.
+
+## Authentication
+
+Diagnostics may record only auth mode, credential owner alias, token/key age,
+and last rotation time. Never include Authorization headers, API keys, client
+secrets, refresh/access tokens, cookie values, or webhook private keys.
 
 ## Instructions
 
-### Step 1: Complete Debug Bundle Script
+1. Define incident ID, tenant alias, UTC window, operation, expected result,
+   actual status, impact, and evidence recipient.
+2. Locate only bounded logs for the affected request IDs. Do not grep or export
+   an entire environment, home directory, database, or log bucket.
+3. Produce a manifest containing application version/commit, SDK or adapter
+   version, endpoint template without IDs/query values, auth mode, timeout,
+   configured retry count, status, latency, request IDs, and safe aggregate counts.
+   Do not retain the response body.
+4. Replace tenant, employee, file, benefit, applicant, and webhook identifiers
+   with stable incident-local aliases. Remove bodies and free-text errors that
+   may echo BambooHR's response content.
+5. Scan the proposed receipt for secret formats, email addresses, government
+   IDs, dates of birth, addresses, compensation, health/benefit data, and URLs
+   containing query values. Review manually after automated scanning.
+6. Write a checksum and explicit inclusion/exclusion list. Keep the artifact
+   local until the data owner approves its recipient and retention.
+7. Prefer a directory or JSON/Markdown receipt. Do not create a broad tarball by
+   default; archive only the reviewed manifest if the support channel requires it.
 
-```bash
-#!/bin/bash
-# bamboohr-debug-bundle.sh — Run this, then send the .tar.gz to support
+## Tool Discipline
 
-set -euo pipefail
+Use Read, Glob, and Grep only against the approved paths and time window. Use
+Write/Edit to create the minimal receipt and redaction tests. Do not use shell
+archive or network tools under this skill.
 
-BUNDLE_DIR="bamboohr-debug-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE_DIR"
+## Approval Boundaries
 
-DOMAIN="${BAMBOOHR_COMPANY_DOMAIN:?Set BAMBOOHR_COMPANY_DOMAIN}"
-API_KEY="${BAMBOOHR_API_KEY:?Set BAMBOOHR_API_KEY}"
-BASE="https://api.bamboohr.com/api/gateway.php/${DOMAIN}/v1"
-
-exec > >(tee "$BUNDLE_DIR/summary.txt") 2>&1
-
-echo "=== BambooHR Debug Bundle ==="
-echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-echo "Company Domain: ${DOMAIN}"
-echo "API Key: ${API_KEY:0:4}****${API_KEY: -4}"
-echo ""
-
-# ── Environment ──────────────────────────────────────
-echo "--- Runtime Environment ---"
-echo "Node.js: $(node --version 2>/dev/null || echo 'not installed')"
-echo "npm: $(npm --version 2>/dev/null || echo 'not installed')"
-echo "Python: $(python3 --version 2>/dev/null || echo 'not installed')"
-echo "curl: $(curl --version 2>/dev/null | head -1)"
-echo "OS: $(uname -a)"
-echo ""
-
-# ── API Connectivity Test ────────────────────────────
-echo "--- API Connectivity ---"
-echo -n "Directory endpoint: "
-curl -s -o "$BUNDLE_DIR/directory-response.json" \
-  -w "HTTP %{http_code} | %{time_total}s | %{size_download} bytes\n" \
-  -u "${API_KEY}:x" \
-  -H "Accept: application/json" \
-  "${BASE}/employees/directory"
-
-echo -n "Employee endpoint: "
-curl -s -o "$BUNDLE_DIR/employee-response.json" \
-  -w "HTTP %{http_code} | %{time_total}s | %{size_download} bytes\n" \
-  -u "${API_KEY}:x" \
-  -H "Accept: application/json" \
-  "${BASE}/employees/0/?fields=firstName"
-
-echo -n "Time off types: "
-curl -s -o "$BUNDLE_DIR/timeoff-types-response.json" \
-  -w "HTTP %{http_code} | %{time_total}s\n" \
-  -u "${API_KEY}:x" \
-  -H "Accept: application/json" \
-  "${BASE}/meta/time_off/types"
-
-echo ""
-
-# ── Response Headers (verbose for one endpoint) ─────
-echo "--- Response Headers (directory) ---"
-curl -s -I -u "${API_KEY}:x" \
-  -H "Accept: application/json" \
-  "${BASE}/employees/directory" \
-  | grep -iE "^(x-bamboohr|content-type|retry-after|date|server)" \
-  > "$BUNDLE_DIR/response-headers.txt"
-cat "$BUNDLE_DIR/response-headers.txt"
-echo ""
-
-# ── Project Dependencies ─────────────────────────────
-echo "--- Project Dependencies ---"
-if [ -f package.json ]; then
-  node -e "
-    const pkg = require('./package.json');
-    const deps = {...pkg.dependencies, ...pkg.devDependencies};
-    const bamboo = Object.entries(deps).filter(([k]) => k.includes('bamboo'));
-    const http = Object.entries(deps).filter(([k]) => ['axios','node-fetch','got','ky'].includes(k));
-    console.log('BambooHR packages:', bamboo.length ? bamboo.map(([k,v]) => k+'@'+v).join(', ') : 'none (using fetch)');
-    console.log('HTTP clients:', http.length ? http.map(([k,v]) => k+'@'+v).join(', ') : 'native fetch');
-  " 2>/dev/null || echo "Could not parse package.json"
-fi
-echo ""
-
-# ── Configuration (redacted) ─────────────────────────
-echo "--- Configuration (redacted) ---"
-if [ -f .env ]; then
-  sed 's/=.*/=***REDACTED***/' .env > "$BUNDLE_DIR/config-redacted.txt"
-  echo "Found .env with $(wc -l < .env) lines"
-else
-  echo "No .env file found"
-fi
-
-# ── Redact sensitive data from API responses ─────────
-for f in "$BUNDLE_DIR"/*-response.json; do
-  if [ -f "$f" ]; then
-    # Remove email addresses and phone numbers from responses
-    sed -i 's/[a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]*/***@redacted/g' "$f"
-    sed -i 's/[0-9]\{3\}[-. ][0-9]\{3\}[-. ][0-9]\{4\}/***-***-****/g' "$f"
-  fi
-done
-
-echo ""
-echo "--- Bundle Complete ---"
-
-# ── Package ──────────────────────────────────────────
-tar -czf "$BUNDLE_DIR.tar.gz" "$BUNDLE_DIR"
-echo "Created: $BUNDLE_DIR.tar.gz ($(du -h "$BUNDLE_DIR.tar.gz" | cut -f1))"
-echo ""
-echo "BEFORE SHARING: Review $BUNDLE_DIR/ for any remaining PII"
-```
-
-### Step 2: Programmatic Debug Info (TypeScript)
-
-```typescript
-import { BambooHRClient, BambooHRApiError } from './bamboohr/client';
-
-interface DiagnosticResult {
-  timestamp: string;
-  environment: Record<string, string>;
-  connectivity: {
-    endpoint: string;
-    status: number;
-    latencyMs: number;
-    error?: string;
-  }[];
-}
-
-async function collectDiagnostics(client: BambooHRClient): Promise<DiagnosticResult> {
-  const endpoints = [
-    '/employees/directory',
-    '/meta/time_off/types',
-    '/meta/lists/',
-  ];
-
-  const connectivity = await Promise.all(
-    endpoints.map(async (endpoint) => {
-      const start = Date.now();
-      try {
-        await client.request('GET', endpoint);
-        return { endpoint, status: 200, latencyMs: Date.now() - start };
-      } catch (err) {
-        const status = err instanceof BambooHRApiError ? err.status : 0;
-        return {
-          endpoint, status, latencyMs: Date.now() - start,
-          error: (err as Error).message,
-        };
-      }
-    }),
-  );
-
-  return {
-    timestamp: new Date().toISOString(),
-    environment: {
-      nodeVersion: process.version,
-      platform: process.platform,
-      companyDomain: process.env.BAMBOOHR_COMPANY_DOMAIN || 'NOT SET',
-      apiKeySet: process.env.BAMBOOHR_API_KEY ? 'yes' : 'NO',
-    },
-    connectivity,
-  };
-}
-```
+Require approval before reading production logs, writing a diagnostic artifact,
+including any pseudonymized employee fact, or sending evidence to BambooHR or a
+third party. Creation does not authorize transmission.
 
 ## Output
 
-- `bamboohr-debug-YYYYMMDD-HHMMSS.tar.gz` archive containing:
-  - `summary.txt` — Environment, connectivity, and dependency info
-  - `directory-response.json` — Redacted API response sample
-  - `response-headers.txt` — BambooHR-specific headers
-  - `config-redacted.txt` — Environment config with secrets removed
-
-## Examples
-
-For one approved incident, capture the opaque employee/request identifiers, endpoint category, status, SDK version, and timestamp into an encrypted, access-restricted archive. Redact fields before sharing, obtain HR/security approval for any expansion of scope, and delete the bundle at the incident retention deadline.
-
-## Sensitive Data Handling
-
-**Always redact before sharing:**
-
-- API keys and tokens
-- Employee emails, phone numbers, SSNs
-- Home addresses and personal info
-- Salary and compensation data
-
-**Safe to include:**
-
-- HTTP status codes and error messages
-- Response latencies and sizes
-- `X-BambooHR-Error-Message` header values
-- SDK/runtime versions
+Return receipt path, checksum, incident window, request IDs, included safe fields,
+excluded sensitive classes, scanner/manual-review result, approved recipient,
+retention deadline, and transmission status.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| curl not found | Not installed | Install curl or use Node.js version |
-| Permission denied | Script not executable | `chmod +x bamboohr-debug-bundle.sh` |
-| Empty response files | Auth failure | Check API key before running |
-| Large bundle size | Too many response files | Reduce to key endpoints only |
+- Suspected secret or PII in output: stop, quarantine locally, and rebuild from
+  the allowlist; do not attempt line-by-line salvage for transmission.
+- Missing request ID: correlate on a narrow timestamp/operation window and label
+  the result lower confidence.
+- Recipient asks for raw payload: escalate to the data owner/security process.
+
+## Examples
+
+- "Zip all BambooHR logs" becomes a manifest-first, allowlisted receipt.
+- "Support needs the failing employee JSON" substitutes request ID, status, and schema.
 
 ## Resources
 
-- [BambooHR Support](https://www.bamboohr.com/contact-support/)
-- [BambooHR Status Page](https://status.bamboohr.com)
-
-## Next Steps
-
-For rate limit issues, see `bamboohr-rate-limits`.
+Read [official evidence](references/official-docs.md) before collecting evidence.

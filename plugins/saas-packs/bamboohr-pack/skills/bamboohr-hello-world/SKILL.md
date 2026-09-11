@@ -1,188 +1,105 @@
 ---
 name: bamboohr-hello-world
-description: "Create a minimal working BambooHR example \u2014 fetch employee directory\
-  \ and single employee.\nUse when starting a new BambooHR integration, testing your\
-  \ setup,\nor learning basic BambooHR REST API patterns.\nTrigger with phrases like\
-  \ \"bamboohr hello world\", \"bamboohr example\",\n\"bamboohr quick start\", \"\
-  simple bamboohr code\", \"first bamboohr call\".\n"
-allowed-tools: Read, Write, Edit, Bash(curl:*)
-version: 1.4.0
+description: >-
+  Prove a BambooHR tenant connection with one minimal, low-sensitivity request
+  and a redacted receipt. Use when starting an integration or isolating host,
+  credential, and permission failures. Trigger with "BambooHR hello world",
+  "test BambooHR connection", or "first BambooHR request".
+allowed-tools: Read,Glob,Grep,Write,Edit,Bash(curl:*)
+argument-hint: "<tenant-subdomain> [oauth|api-key]"
+version: 1.5.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- hr
-- bamboohr
-- quickstart
+tags: [saas, hr, bamboohr, quickstart, connectivity]
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# BambooHR Hello World
+# BambooHR Minimal Connection Proof
 
 ## Overview
 
-Minimal working examples for the three most common BambooHR API operations: fetch the employee directory, get a single employee by ID, and run a custom report.
+Verify routing, TLS, authentication, and basic permission with the smallest
+useful call. Do not begin with the employee directory: it contains personal data
+and is unnecessary for a connectivity test.
 
 ## Prerequisites
 
-- Completed `bamboohr-install-auth` setup
-- `BAMBOOHR_API_KEY` and `BAMBOOHR_COMPANY_DOMAIN` env vars set
+- The target repository or integration path and the requested operator outcome.
+- The tenant, identity, and data scope only when approved live work is in scope.
+- The current evidence register plus customer-specific permissions and agreements.
+
+## Current Contract
+
+Use the tenant-local host `https://company-subdomain.bamboohr.com`. The official
+OpenAPI operation `GET /api/v1/company_information` returns basic company
+profile information and supports OAuth or API-key authentication.
+
+## Authentication
+
+Prefer a short-lived OAuth access token for partner integrations. For an
+internal API key, Basic auth uses the API key as username and `x` as password.
+Load secrets from the current process environment or an approved secret manager;
+never place a token directly in the command, URL, source file, or receipt.
 
 ## Instructions
 
-### Step 1: Fetch Employee Directory
+1. Confirm the exact tenant subdomain and auth mode. Reject slashes, schemes,
+   ports, and dots in the subdomain input.
+2. Inspect the project for an existing BambooHR client and reuse its timeout,
+   user-agent, request-ID, and redaction controls.
+3. If an operator approves a direct API-key smoke test, run a body-discarding
+   request:
 
-```typescript
-import 'dotenv/config';
+   ```bash
+   curl --fail-with-body --silent --show-error \
+     --max-time 20 --output /dev/null --write-out '%{http_code}\n' \
+     --user "${BAMBOOHR_API_KEY}:x" \
+     "https://${BAMBOOHR_COMPANY_SUBDOMAIN}.bamboohr.com/api/v1/company_information"
+   ```
 
-const COMPANY = process.env.BAMBOOHR_COMPANY_DOMAIN!;
-const API_KEY = process.env.BAMBOOHR_API_KEY!;
-const BASE = `https://api.bamboohr.com/api/gateway.php/${COMPANY}/v1`;
-const AUTH = `Basic ${Buffer.from(`${API_KEY}:x`).toString('base64')}`;
+4. For OAuth, send `Authorization: Bearer …` from the application's secret-
+   aware HTTP client rather than echoing a token through shell history.
+5. Record timestamp, tenant alias, auth mode, HTTP status, elapsed time, and a
+   server request ID when available. Do not retain the response body.
+6. Only after the connection proof succeeds, request approval for an employee-
+   scoped test with an explicitly minimized field list.
 
-// GET /employees/directory — returns all active employees
-const dirRes = await fetch(`${BASE}/employees/directory`, {
-  headers: { Authorization: AUTH, Accept: 'application/json' },
-});
-const directory = await dirRes.json();
+## Tool Discipline
 
-console.log(`Company has ${directory.employees.length} employees`);
-for (const emp of directory.employees.slice(0, 5)) {
-  console.log(`  ${emp.displayName} — ${emp.jobTitle} (${emp.department})`);
-}
-```
+Use Read, Glob, and Grep to find current client and configuration conventions.
+Use Write/Edit only to add an approved example or test. Bash is restricted to
+`curl`; show the exact host and body-retention behavior before executing it.
 
-**Directory response shape:**
+## Safety Justification
 
-```json
-{
-  "fields": [
-    { "id": "displayName", "type": "text", "name": "Display Name" },
-    { "id": "jobTitle", "type": "text", "name": "Job Title" }
-  ],
-  "employees": [
-    {
-      "id": "123",
-      "displayName": "Jane Smith",
-      "firstName": "Jane",
-      "lastName": "Smith",
-      "jobTitle": "Software Engineer",
-      "department": "Engineering",
-      "location": "Remote",
-      "workEmail": "jane@acme.com",
-      "photoUrl": "https://..."
-    }
-  ]
-}
-```
+The optional live request can reach sensitive HR infrastructure. It is limited
+to HTTPS, one read-only company-information endpoint, a finite timeout, no body
+retention, and operator approval for the tenant and credential.
 
-### Step 2: Get a Single Employee
+## Approval Boundaries
 
-```typescript
-// GET /employees/{id}/?fields=firstName,lastName,jobTitle,department,hireDate,workEmail
-const empRes = await fetch(
-  `${BASE}/employees/123/?fields=firstName,lastName,jobTitle,department,hireDate,workEmail,status`,
-  { headers: { Authorization: AUTH, Accept: 'application/json' } },
-);
-const employee = await empRes.json();
-
-console.log(`${employee.firstName} ${employee.lastName}`);
-console.log(`  Title: ${employee.jobTitle}`);
-console.log(`  Dept:  ${employee.department}`);
-console.log(`  Hired: ${employee.hireDate}`);
-console.log(`  Email: ${employee.workEmail}`);
-```
-
-**Common employee fields you can request:**
-
-| Field | Description |
-|-------|-------------|
-| `firstName`, `lastName`, `displayName` | Name fields |
-| `jobTitle`, `department`, `division` | Position |
-| `workEmail`, `homeEmail`, `mobilePhone` | Contact |
-| `hireDate`, `originalHireDate` | Dates |
-| `status` | `Active` or `Inactive` |
-| `employeeNumber`, `location`, `supervisor` | Org data |
-| `payRate`, `payType`, `exempt` | Compensation (admin only) |
-
-### Step 3: Run a Custom Report
-
-```typescript
-// POST /reports/custom?format=JSON
-const reportRes = await fetch(`${BASE}/reports/custom?format=JSON`, {
-  method: 'POST',
-  headers: {
-    Authorization: AUTH,
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-  },
-  body: JSON.stringify({
-    title: 'Hello World Report',
-    fields: ['firstName', 'lastName', 'department', 'jobTitle', 'hireDate'],
-    filters: {
-      lastChanged: { includeNull: 'no', value: '2024-01-01T00:00:00Z' },
-    },
-  }),
-});
-const report = await reportRes.json();
-
-console.log(`Report: ${report.title} — ${report.employees.length} rows`);
-for (const row of report.employees) {
-  console.log(`  ${row.firstName} ${row.lastName} | ${row.department}`);
-}
-```
-
-### Python Equivalent
-
-```python
-import os, requests
-from dotenv import load_dotenv
-
-load_dotenv()
-COMPANY = os.environ["BAMBOOHR_COMPANY_DOMAIN"]
-API_KEY = os.environ["BAMBOOHR_API_KEY"]
-BASE = f"https://api.bamboohr.com/api/gateway.php/{COMPANY}/v1"
-
-# Employee directory
-r = requests.get(f"{BASE}/employees/directory",
-                 auth=(API_KEY, "x"),
-                 headers={"Accept": "application/json"})
-directory = r.json()
-for emp in directory["employees"][:5]:
-    print(f"  {emp['displayName']} — {emp['jobTitle']}")
-
-# Single employee
-r = requests.get(f"{BASE}/employees/123/",
-                 params={"fields": "firstName,lastName,department,hireDate"},
-                 auth=(API_KEY, "x"),
-                 headers={"Accept": "application/json"})
-print(r.json())
-```
+Do not make a live request, access an employee endpoint, install a package, or
+write credentials without explicit approval. A successful `200` proves only
+this identity can perform this operation; it does not prove broader access.
 
 ## Output
 
-- Employee directory listing with names, titles, and departments
-- Single employee detail response
-- Custom report with filtered results
-- Console output confirming working connection
-
-## Examples
-
-Use a BambooHR sandbox or designated synthetic employee record to make a minimal read-only directory or field request. Return only an opaque identifier and status in the demonstration output; do not print names, email addresses, compensation, time-off, or other HR fields. Keep the key in an approved local secret store.
+Return a PASS/FAIL receipt with tenant alias, endpoint class, auth mode, status,
+latency, request ID, redaction confirmation, and the next narrow test.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| 401 Unauthorized | Bad API key | Check `BAMBOOHR_API_KEY` value |
-| 404 Not Found | Wrong employee ID or company domain | Verify ID exists; check `BAMBOOHR_COMPANY_DOMAIN` |
-| 400 Bad Request | Invalid field name in request | Check field name list in docs |
-| Empty `employees` array | No active employees or permissions | Verify API key has read access |
+- DNS/TLS failure: verify the tenant subdomain and trust path.
+- `401`: validate credential type and freshness without printing it.
+- `403`: the identity lacks the operation; do not escalate permissions silently.
+- `429`, `504`, or `598`: report the transient condition and defer to the retry skill.
+
+## Examples
+
+- "Test our BambooHR setup" produces a proposed body-discarding company-info check.
+- "Dump the directory to prove it works" is narrowed to the connection proof.
 
 ## Resources
 
-- [BambooHR Field Names Reference](https://documentation.bamboohr.com/docs/list-of-field-names)
-- [BambooHR API Technical Overview](https://documentation.bamboohr.com/docs/api-details)
-
-## Next Steps
-
-Proceed to `bamboohr-local-dev-loop` for development workflow setup.
+Read [official evidence](references/official-docs.md) before running the smoke test.

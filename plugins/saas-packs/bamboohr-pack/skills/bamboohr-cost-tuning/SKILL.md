@@ -1,268 +1,98 @@
 ---
 name: bamboohr-cost-tuning
-description: 'Optimize BambooHR integration costs through request reduction, caching,
-
-  and usage monitoring. Use when analyzing API usage patterns, reducing
-
-  unnecessary calls, or implementing request budgets.
-
-  Trigger with phrases like "bamboohr cost", "bamboohr usage",
-
-  "reduce bamboohr calls", "bamboohr optimization", "bamboohr budget".
-
-  '
-allowed-tools: Read, Grep
-version: 1.4.0
+description: >-
+  Reduce the operational cost of a BambooHR connector by removing redundant
+  traffic, oversized data retention, retry waste, and support toil without
+  claiming undocumented API prices. Use when budgeting or right-sizing an HR
+  integration. Trigger with "BambooHR cost", "BambooHR request waste", or
+  "BambooHR integration budget".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<pipeline-path> <measurement-window>"
+version: 1.5.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- hr
-- bamboohr
-- optimization
+tags: [saas, hr, bamboohr, cost, operations]
+model: inherit
+effort: high
 compatibility: Designed for Claude Code
 ---
-# BambooHR Cost Tuning
+# BambooHR Operational Cost Tuning
 
 ## Overview
 
-BambooHR pricing is per-employee-per-month (not per-API-call), but excessive API usage triggers rate limiting (503 errors) which causes sync failures and operational issues. This skill covers reducing API call volume, monitoring usage, and building efficient sync patterns.
+Optimize costs the team can actually measure: compute, egress, storage,
+observability, queue backlog, failure recovery, and engineering/support time.
+Do not quote a per-call BambooHR price or numeric quota unless the customer's
+current contract or a current official price source explicitly provides it.
 
 ## Prerequisites
 
-- BambooHR integration in production
-- Understanding of current API usage patterns
-- Application logging capturing API calls
+- The target repository or integration path and the requested operator outcome.
+- The tenant, identity, and data scope only when approved live work is in scope.
+- The current evidence register plus customer-specific permissions and agreements.
+
+## Current Contract
+
+BambooHR's dataset v2 projection and pagination can reduce request fan-out and
+unnecessary fields. The official SDK exposes bounded retries and redacted
+logging. These capabilities reduce waste only when the integration measures
+requests, bytes, attempts, and retained data.
+
+## Authentication
+
+Separate usage by tenant and credential alias without embedding keys or tokens
+in cost logs. Auth failures are operational waste and potential security events;
+do not solve them by using one broader shared credential.
 
 ## Instructions
 
-### Step 1: Understand BambooHR Pricing
+1. Choose a representative window and measure request count by operation,
+   transferred bytes, retries, failed jobs, queue time, compute duration,
+   storage/backup growth, log volume, and human incident time.
+2. Assign each call to a business output. Mark duplicates, polling with no state
+   change, N+1 employee calls, deprecated report traffic, and repeated failures.
+3. Replace fan-out with minimized dataset v2 projections where semantics match.
+   Use deterministic pagination and retain only approved fields.
+4. Cache stable metadata with an owner and TTL. Prefer checkpoints and change-
+   aware workflows to blind full refreshes, but keep periodic reconciliation.
+5. Cap retries and dead-letter terminal work. A retry storm converts an outage
+   into cost and rate pressure without producing value.
+6. Reduce log payloads to safe operational fields and set retention by purpose.
+   HR response bodies should not be an observability cost center.
+7. Model candidate savings from measured infrastructure unit rates and labor
+   assumptions. Label BambooHR contract costs as customer-supplied, not inferred.
+8. Canary the change and compare cost, freshness, completeness, error rate, and
+   recovery time before rollout.
 
-BambooHR charges by **employee count**, not API calls:
+## Tool Discipline
 
-| Plan | Pricing Model | API Access |
-|------|--------------|------------|
-| Essentials | Per employee/month | Full REST API |
-| Advantage | Per employee/month | Full REST API + advanced reports |
-| Custom/Enterprise | Negotiated | Full API + dedicated support |
+Use Read, Glob, and Grep to inspect code, configuration, and existing metrics.
+Use Write/Edit only for approved measurement, optimization, and tests. Do not
+access invoices, production HR data, or billing systems under this skill.
 
-**Key insight:** API call volume does not directly affect your bill, but hitting rate limits causes operational failures. Optimize for reliability, not cost.
+## Approval Boundaries
 
-### Step 2: Audit Current API Usage
-
-```typescript
-// Instrument your client to log all API calls
-class InstrumentedBambooHRClient {
-  private callLog: { endpoint: string; method: string; timestamp: number; durationMs: number }[] = [];
-
-  async request<T>(method: string, path: string, body?: unknown): Promise<T> {
-    const start = Date.now();
-    const result = await this.innerClient.request<T>(method, path, body);
-    this.callLog.push({
-      endpoint: path.split('?')[0], // Strip query params
-      method,
-      timestamp: start,
-      durationMs: Date.now() - start,
-    });
-    return result;
-  }
-
-  generateReport(): void {
-    // Group by endpoint
-    const byEndpoint = new Map<string, number>();
-    for (const call of this.callLog) {
-      const key = `${call.method} ${call.endpoint}`;
-      byEndpoint.set(key, (byEndpoint.get(key) || 0) + 1);
-    }
-
-    console.log('\n=== BambooHR API Usage Report ===');
-    console.log(`Total calls: ${this.callLog.length}`);
-    console.log(`Time window: ${((Date.now() - this.callLog[0]?.timestamp || 0) / 1000 / 60).toFixed(1)} minutes`);
-    console.log('\nBy endpoint:');
-    for (const [endpoint, count] of [...byEndpoint.entries()].sort((a, b) => b[1] - a[1])) {
-      const pct = ((count / this.callLog.length) * 100).toFixed(1);
-      console.log(`  ${count.toString().padStart(5)} (${pct}%)  ${endpoint}`);
-    }
-  }
-}
-```
-
-### Step 3: Eliminate Wasteful Patterns
-
-**Pattern 1: Replace polling with webhooks**
-
-```typescript
-// BAD: Polling every 5 minutes (288 calls/day minimum)
-setInterval(async () => {
-  const dir = await client.getDirectory();
-  checkForChanges(dir);
-}, 5 * 60 * 1000);
-
-// GOOD: Use webhooks for real-time changes (0 polling calls)
-// See bamboohr-webhooks-events skill
-// Only poll as a fallback safety net (once per hour)
-setInterval(async () => {
-  const changed = await client.request('GET',
-    `/employees/changed/?since=${lastSync}`);
-  // Only process if webhook missed something
-}, 60 * 60 * 1000);
-```
-
-**Pattern 2: Request only needed fields**
-
-```typescript
-// BAD: Requesting all fields when you only need 3
-const emp = await client.getEmployee(id, [
-  'firstName', 'lastName', 'displayName', 'jobTitle', 'department',
-  'division', 'location', 'workEmail', 'homeEmail', 'mobilePhone',
-  'hireDate', 'payRate', 'payType', 'ssn', 'dateOfBirth', // ...etc
-]);
-
-// GOOD: Only request what you use
-const emp = await client.getEmployee(id, ['firstName', 'lastName', 'workEmail']);
-```
-
-**Pattern 3: Cache the directory**
-
-```typescript
-// BAD: Fetching directory on every page load
-app.get('/employees', async (req, res) => {
-  const dir = await client.getDirectory(); // Called 1000x/day
-  res.json(dir.employees);
-});
-
-// GOOD: Cache with webhook-based invalidation
-let cachedDirectory: any = null;
-let cacheTimestamp = 0;
-
-async function getDirectory() {
-  if (cachedDirectory && Date.now() - cacheTimestamp < 5 * 60 * 1000) {
-    return cachedDirectory;
-  }
-  cachedDirectory = await client.getDirectory();
-  cacheTimestamp = Date.now();
-  return cachedDirectory;
-}
-
-// Invalidate on webhook
-function onWebhookReceived() {
-  cachedDirectory = null;
-}
-```
-
-**Pattern 4: Use custom reports for bulk data**
-
-```typescript
-// BAD: 500 individual employee GETs
-for (const id of employeeIds) {
-  await client.getEmployee(id, ['firstName', 'department']);
-}
-
-// GOOD: 1 custom report
-const all = await client.customReport(['firstName', 'lastName', 'department']);
-```
-
-### Step 4: Implement Request Budget
-
-```typescript
-class RequestBudget {
-  private count = 0;
-  private windowStart = Date.now();
-  private readonly maxPerHour: number;
-
-  constructor(maxPerHour = 500) {
-    this.maxPerHour = maxPerHour;
-  }
-
-  async acquire(): Promise<void> {
-    // Reset counter every hour
-    if (Date.now() - this.windowStart > 3600_000) {
-      this.count = 0;
-      this.windowStart = Date.now();
-    }
-
-    if (this.count >= this.maxPerHour) {
-      const waitMs = 3600_000 - (Date.now() - this.windowStart);
-      console.warn(`Request budget exhausted. Waiting ${(waitMs / 1000).toFixed(0)}s`);
-      await new Promise(r => setTimeout(r, waitMs));
-      this.count = 0;
-      this.windowStart = Date.now();
-    }
-
-    this.count++;
-  }
-
-  stats() {
-    return {
-      used: this.count,
-      budget: this.maxPerHour,
-      remaining: this.maxPerHour - this.count,
-      windowResetIn: Math.max(0, 3600_000 - (Date.now() - this.windowStart)),
-    };
-  }
-}
-
-const budget = new RequestBudget(500);
-
-// Wrap all BambooHR calls
-async function budgetedRequest<T>(operation: () => Promise<T>): Promise<T> {
-  await budget.acquire();
-  return operation();
-}
-```
-
-### Step 5: Usage Dashboard Query
-
-```sql
--- If logging API calls to a database
-SELECT
-  DATE_TRUNC('hour', timestamp) AS hour,
-  endpoint,
-  COUNT(*) AS calls,
-  AVG(duration_ms) AS avg_latency,
-  COUNT(*) FILTER (WHERE status >= 400) AS errors,
-  COUNT(*) FILTER (WHERE status = 503) AS rate_limits
-FROM bamboohr_api_log
-WHERE timestamp >= NOW() - INTERVAL '7 days'
-GROUP BY 1, 2
-ORDER BY 1 DESC, calls DESC;
-```
+Require approval before changing refresh frequency, fields, retention, cache,
+concurrency, reconciliation cadence, or a customer-contract assumption. Cost
+reduction may not weaken privacy, completeness, or recovery objectives.
 
 ## Output
 
-- API usage audit identifying wasteful patterns
-- Polling replaced with webhooks where possible
-- Request budget preventing rate limit hits
-- Field-level optimization (request only needed data)
-- Caching with webhook-based invalidation
-
-## Optimization Impact Summary
-
-| Optimization | Calls Before | Calls After | Reduction |
-|-------------|-------------|-------------|-----------|
-| Webhooks vs polling | 288/day | 24/day (safety net) | 92% |
-| Custom reports vs N+1 | 501/sync | 1/sync | 99.8% |
-| Directory caching | 1000/day | 12/day | 98.8% |
-| Incremental sync | Full pull | Delta only | 90-99% |
-
-## Examples
-
-Measure aggregate request counts for the approved integration scope, minimize field selection, and cache only encrypted, access-controlled data with a defined expiry. Verify current plan terms through BambooHR and the account owner before making cost claims; changes that affect HR-data freshness require a reconciliation check and rollback flag.
+Return measured baseline, waste categories, candidate changes, explicit price
+sources/assumptions, projected range, risk to freshness/completeness, canary
+result, rollback thresholds, and realized savings after observation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Budget exhausted | High-traffic feature | Increase budget or add caching |
-| Stale cached data | Cache TTL too long | Reduce TTL or invalidate on webhook |
-| Webhook delivery gaps | BambooHR delivery failure | Keep hourly polling as fallback |
-| Rate limit during sync | Too many parallel requests | Use queue with concurrency limit |
+- No trustworthy baseline: implement measurement before claiming savings.
+- Contract pricing unavailable: report operational costs only.
+- Savings regress data quality or security: reject or redesign the change.
+
+## Examples
+
+- "What does the BambooHR API cost?" separates customer contract facts from connector costs.
+- "Cut sync spend" identifies N+1 calls, retry waste, and excessive retention first.
 
 ## Resources
 
-- [BambooHR Pricing](https://www.bamboohr.com/pricing)
-- [BambooHR API Technical Overview](https://documentation.bamboohr.com/docs/api-details)
-
-## Next Steps
-
-For architecture patterns, see `bamboohr-reference-architecture`.
+Read [official evidence](references/official-docs.md) before choosing optimizations.

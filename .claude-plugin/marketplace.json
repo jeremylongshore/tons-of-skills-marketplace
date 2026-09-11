@@ -6401,14 +6401,16 @@
     {
       "name": "bamboohr-pack",
       "source": "./plugins/saas-packs/bamboohr-pack",
-      "description": "Claude Code skill pack for BambooHR (18 skills)",
-      "version": "1.4.0",
+      "description": "Operator-grade BambooHR pack with 18 source-grounded skills for authentication, HR data pipelines, webhooks, security, reliability, and release governance.",
+      "version": "1.5.0",
       "category": "saas-packs",
       "keywords": [
         "bamboohr",
         "saas",
-        "sdk",
-        "integration"
+        "hr-integrations",
+        "employee-data",
+        "oauth",
+        "webhooks"
       ],
       "author": {
         "name": "Jeremy Longshore",

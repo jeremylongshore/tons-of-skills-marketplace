@@ -784,6 +784,7 @@
       "embedded",
       "embeddings",
       "emotion",
+      "employee-data",
       "encryption",
       "endpoints",
       "engagement-governance",
@@ -945,6 +946,7 @@
       "hootsuite",
       "hosting",
       "hpa",
+      "hr-integrations",
       "html",
       "http",
       "http-status",
@@ -11997,13 +11999,15 @@
       "slug": "bamboohr-pack",
       "name": "bamboohr-pack",
       "displayName": "bamboohr pack",
-      "description": "Claude Code skill pack for BambooHR (18 skills)",
+      "description": "Operator-grade BambooHR pack with 18 source-grounded skills for authentication, HR data pipelines, webhooks, security, reliability, and release governance.",
       "category": "saas-packs",
       "keywords": [
         "bamboohr",
         "saas",
-        "sdk",
-        "integration"
+        "hr-integrations",
+        "employee-data",
+        "oauth",
+        "webhooks"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -12011,7 +12015,7 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -12019,7 +12023,7 @@
       "verificationScore": 81,
       "verificationGrade": "B",
       "verificationBadge": "silver",
-      "searchText": "bamboohr pack claude code skill pack for bamboohr (18 skills) saas-packs bamboohr saas sdk integration"
+      "searchText": "bamboohr pack operator-grade bamboohr pack with 18 source-grounded skills for authentication, hr data pipelines, webhooks, security, reliability, and release governance. saas-packs bamboohr saas hr-integrations employee-data oauth webhooks"
     },
     {
       "type": "plugin",
@@ -22291,380 +22295,397 @@
       "id": "bamboohr-ci-integration",
       "slug": "bamboohr-ci-integration",
       "name": "bamboohr-ci-integration",
-      "description": "Configure CI/CD pipelines for BambooHR integrations with GitHub Actions, automated testing, and secret management. Use when setting up automated testing, configuring CI pipelines, or integrating BambooHR API tests into your build process. Trigger with phrases like \"bamboohr CI\", \"bamboohr GitHub Actions\", \"bamboohr automated tests\", \"CI bamboohr\", \"bamboohr pipeline\".",
+      "description": "Build CI gates for a BambooHR connector using current OpenAPI contracts, synthetic HR fixtures, secret scanning, and an opt-in tenant smoke test. Use when adding regression coverage or blocking unsafe releases. Trigger with \"BambooHR CI\", \"BambooHR contract tests\", or \"test BambooHR integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(gh:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-ci-integration configure ci/cd pipelines for bamboohr integrations with github actions, automated testing, and secret management. use when setting up automated testing, configuring ci pipelines, or integrating bamboohr api tests into your build process. trigger with phrases like \"bamboohr ci\", \"bamboohr github actions\", \"bamboohr automated tests\", \"ci bamboohr\", \"bamboohr pipeline\". saas-packs read write edit bash(gh:*) "
+      "searchText": "bamboohr-ci-integration build ci gates for a bamboohr connector using current openapi contracts, synthetic hr fixtures, secret scanning, and an opt-in tenant smoke test. use when adding regression coverage or blocking unsafe releases. trigger with \"bamboohr ci\", \"bamboohr contract tests\", or \"test bamboohr integration\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "bamboohr-common-errors",
       "slug": "bamboohr-common-errors",
       "name": "bamboohr-common-errors",
-      "description": "Diagnose and fix BambooHR API errors and exceptions. Use when encountering BambooHR errors, debugging failed requests, or troubleshooting HTTP 400/401/403/404/429/500/503 responses. Trigger with phrases like \"bamboohr error\", \"fix bamboohr\", \"bamboohr not working\", \"debug bamboohr\", \"bamboohr 401\", \"bamboohr 429\".",
+      "description": "Triage BambooHR failures by typed status, request ID, operation, permissions, retryability, and data risk. Use when an SDK or HTTP call returns an error or an apparently successful response is incomplete. Trigger with \"BambooHR 401\", \"BambooHR 403\", \"BambooHR 429\", or \"debug BambooHR error\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-common-errors diagnose and fix bamboohr api errors and exceptions. use when encountering bamboohr errors, debugging failed requests, or troubleshooting http 400/401/403/404/429/500/503 responses. trigger with phrases like \"bamboohr error\", \"fix bamboohr\", \"bamboohr not working\", \"debug bamboohr\", \"bamboohr 401\", \"bamboohr 429\". saas-packs read grep bash(curl:*) "
+      "searchText": "bamboohr-common-errors triage bamboohr failures by typed status, request id, operation, permissions, retryability, and data risk. use when an sdk or http call returns an error or an apparently successful response is incomplete. trigger with \"bamboohr 401\", \"bamboohr 403\", \"bamboohr 429\", or \"debug bamboohr error\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "bamboohr-core-workflow-a",
       "slug": "bamboohr-core-workflow-a",
       "name": "bamboohr-core-workflow-a",
-      "description": "Execute BambooHR primary workflows: employee CRUD, directory sync, and custom reports. Use when managing employees, syncing employee data to external systems, or building HR data pipelines with BambooHR. Trigger with phrases like \"bamboohr employees\", \"bamboohr employee management\", \"sync bamboohr directory\", \"bamboohr custom report\", \"add employee bamboohr\".",
+      "description": "Build a permission-aware BambooHR employee and dataset synchronization workflow with pagination, field minimization, and checkpoints. Use when exporting employee changes or replacing deprecated report calls. Trigger with \"sync BambooHR employees\", \"BambooHR dataset\", or \"BambooHR HR pipeline\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-core-workflow-a execute bamboohr primary workflows: employee crud, directory sync, and custom reports. use when managing employees, syncing employee data to external systems, or building hr data pipelines with bamboohr. trigger with phrases like \"bamboohr employees\", \"bamboohr employee management\", \"sync bamboohr directory\", \"bamboohr custom report\", \"add employee bamboohr\". saas-packs read write edit bash(curl:*) grep "
+      "searchText": "bamboohr-core-workflow-a build a permission-aware bamboohr employee and dataset synchronization workflow with pagination, field minimization, and checkpoints. use when exporting employee changes or replacing deprecated report calls. trigger with \"sync bamboohr employees\", \"bamboohr dataset\", or \"bamboohr hr pipeline\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "bamboohr-core-workflow-b",
       "slug": "bamboohr-core-workflow-b",
       "name": "bamboohr-core-workflow-b",
-      "description": "Execute BambooHR secondary workflows: time off requests, PTO balances, benefits administration, and employee files/photos. Use when managing time off, checking PTO balances, handling benefits data, or working with employee documents in BambooHR. Trigger with phrases like \"bamboohr time off\", \"bamboohr PTO\", \"bamboohr benefits\", \"bamboohr vacation\", \"bamboohr files\", \"bamboohr leave request\".",
+      "description": "Govern BambooHR time-off, benefit, and employee-file operations with explicit read/write separation and HR approval. Use when integrating leave balances, benefit membership, or protected employee documents. Trigger with \"BambooHR time off\", \"BambooHR benefits\", \"BambooHR files\", or \"BambooHR PTO\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-core-workflow-b execute bamboohr secondary workflows: time off requests, pto balances, benefits administration, and employee files/photos. use when managing time off, checking pto balances, handling benefits data, or working with employee documents in bamboohr. trigger with phrases like \"bamboohr time off\", \"bamboohr pto\", \"bamboohr benefits\", \"bamboohr vacation\", \"bamboohr files\", \"bamboohr leave request\". saas-packs read write edit bash(curl:*) grep "
+      "searchText": "bamboohr-core-workflow-b govern bamboohr time-off, benefit, and employee-file operations with explicit read/write separation and hr approval. use when integrating leave balances, benefit membership, or protected employee documents. trigger with \"bamboohr time off\", \"bamboohr benefits\", \"bamboohr files\", or \"bamboohr pto\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "bamboohr-cost-tuning",
       "slug": "bamboohr-cost-tuning",
       "name": "bamboohr-cost-tuning",
-      "description": "Optimize BambooHR integration costs through request reduction, caching, and usage monitoring. Use when analyzing API usage patterns, reducing unnecessary calls, or implementing request budgets. Trigger with phrases like \"bamboohr cost\", \"bamboohr usage\", \"reduce bamboohr calls\", \"bamboohr optimization\", \"bamboohr budget\".",
+      "description": "Reduce the operational cost of a BambooHR connector by removing redundant traffic, oversized data retention, retry waste, and support toil without claiming undocumented API prices. Use when budgeting or right-sizing an HR integration. Trigger with \"BambooHR cost\", \"BambooHR request waste\", or \"BambooHR integration budget\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-cost-tuning optimize bamboohr integration costs through request reduction, caching, and usage monitoring. use when analyzing api usage patterns, reducing unnecessary calls, or implementing request budgets. trigger with phrases like \"bamboohr cost\", \"bamboohr usage\", \"reduce bamboohr calls\", \"bamboohr optimization\", \"bamboohr budget\". saas-packs read grep "
+      "searchText": "bamboohr-cost-tuning reduce the operational cost of a bamboohr connector by removing redundant traffic, oversized data retention, retry waste, and support toil without claiming undocumented api prices. use when budgeting or right-sizing an hr integration. trigger with \"bamboohr cost\", \"bamboohr request waste\", or \"bamboohr integration budget\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "bamboohr-debug-bundle",
       "slug": "bamboohr-debug-bundle",
       "name": "bamboohr-debug-bundle",
-      "description": "Collect BambooHR debug evidence for support tickets and troubleshooting. Use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for BambooHR API problems. Trigger with phrases like \"bamboohr debug\", \"bamboohr support bundle\", \"collect bamboohr logs\", \"bamboohr diagnostic\", \"bamboohr troubleshoot\".",
+      "description": "Assemble a PII-minimized BambooHR diagnostic receipt using request IDs, statuses, timing, version facts, and redacted configuration. Use when escalating an API incident or preparing a support case. Trigger with \"BambooHR debug bundle\", \"BambooHR support evidence\", or \"BambooHR request ID\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Bash(tar:*)",
-        "Bash(node:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-debug-bundle collect bamboohr debug evidence for support tickets and troubleshooting. use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for bamboohr api problems. trigger with phrases like \"bamboohr debug\", \"bamboohr support bundle\", \"collect bamboohr logs\", \"bamboohr diagnostic\", \"bamboohr troubleshoot\". saas-packs read bash(curl:*) bash(tar:*) bash(node:*) grep "
+      "searchText": "bamboohr-debug-bundle assemble a pii-minimized bamboohr diagnostic receipt using request ids, statuses, timing, version facts, and redacted configuration. use when escalating an api incident or preparing a support case. trigger with \"bamboohr debug bundle\", \"bamboohr support evidence\", or \"bamboohr request id\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "bamboohr-deploy-integration",
       "slug": "bamboohr-deploy-integration",
       "name": "bamboohr-deploy-integration",
-      "description": "Deploy BambooHR integrations to Vercel, Fly.io, and Cloud Run platforms. Use when deploying BambooHR-powered applications to production, configuring platform-specific secrets, or setting up deployment pipelines. Trigger with phrases like \"deploy bamboohr\", \"bamboohr Vercel\", \"bamboohr production deploy\", \"bamboohr Cloud Run\", \"bamboohr Fly.io\".",
+      "description": "Deploy a BambooHR connector with tenant-isolated secrets, OAuth callback controls, durable token refresh, health probes, and staged rollback. Use when promoting an integration across environments. Trigger with \"deploy BambooHR\", \"BambooHR production deployment\", or \"BambooHR environment promotion\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(fly:*)",
-        "Bash(gcloud:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-deploy-integration deploy bamboohr integrations to vercel, fly.io, and cloud run platforms. use when deploying bamboohr-powered applications to production, configuring platform-specific secrets, or setting up deployment pipelines. trigger with phrases like \"deploy bamboohr\", \"bamboohr vercel\", \"bamboohr production deploy\", \"bamboohr cloud run\", \"bamboohr fly.io\". saas-packs read write edit bash(vercel:*) bash(fly:*) bash(gcloud:*) "
+      "searchText": "bamboohr-deploy-integration deploy a bamboohr connector with tenant-isolated secrets, oauth callback controls, durable token refresh, health probes, and staged rollback. use when promoting an integration across environments. trigger with \"deploy bamboohr\", \"bamboohr production deployment\", or \"bamboohr environment promotion\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "bamboohr-hello-world",
       "slug": "bamboohr-hello-world",
       "name": "bamboohr-hello-world",
-      "description": "Create a minimal working BambooHR example — fetch employee directory and single employee. Use when starting a new BambooHR integration, testing your setup, or learning basic BambooHR REST API patterns. Trigger with phrases like \"bamboohr hello world\", \"bamboohr example\", \"bamboohr quick start\", \"simple bamboohr code\", \"first bamboohr call\".",
+      "description": "Prove a BambooHR tenant connection with one minimal, low-sensitivity request and a redacted receipt. Use when starting an integration or isolating host, credential, and permission failures. Trigger with \"BambooHR hello world\", \"test BambooHR connection\", or \"first BambooHR request\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit",
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-hello-world create a minimal working bamboohr example — fetch employee directory and single employee. use when starting a new bamboohr integration, testing your setup, or learning basic bamboohr rest api patterns. trigger with phrases like \"bamboohr hello world\", \"bamboohr example\", \"bamboohr quick start\", \"simple bamboohr code\", \"first bamboohr call\". saas-packs read write edit bash(curl:*) "
+      "searchText": "bamboohr-hello-world prove a bamboohr tenant connection with one minimal, low-sensitivity request and a redacted receipt. use when starting an integration or isolating host, credential, and permission failures. trigger with \"bamboohr hello world\", \"test bamboohr connection\", or \"first bamboohr request\". saas-packs read glob grep write edit bash(curl:*) "
     },
     {
       "type": "skill",
       "id": "bamboohr-install-auth",
       "slug": "bamboohr-install-auth",
       "name": "bamboohr-install-auth",
-      "description": "Install and configure BambooHR API authentication with HTTP Basic Auth. Use when setting up a new BambooHR integration, configuring API keys, or initializing BambooHR REST API access in your project. Trigger with phrases like \"install bamboohr\", \"setup bamboohr\", \"bamboohr auth\", \"configure bamboohr API key\", \"bamboohr credentials\".",
+      "description": "Choose and configure BambooHR OAuth 2.0 or API-key authentication without leaking HR credentials. Use when registering a partner integration, wiring token refresh, or repairing tenant authentication. Trigger with \"BambooHR auth\", \"BambooHR OAuth\", \"BambooHR API key\", or \"BambooHR token refresh\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-install-auth install and configure bamboohr api authentication with http basic auth. use when setting up a new bamboohr integration, configuring api keys, or initializing bamboohr rest api access in your project. trigger with phrases like \"install bamboohr\", \"setup bamboohr\", \"bamboohr auth\", \"configure bamboohr api key\", \"bamboohr credentials\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "bamboohr-install-auth choose and configure bamboohr oauth 2.0 or api-key authentication without leaking hr credentials. use when registering a partner integration, wiring token refresh, or repairing tenant authentication. trigger with \"bamboohr auth\", \"bamboohr oauth\", \"bamboohr api key\", or \"bamboohr token refresh\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "bamboohr-local-dev-loop",
       "slug": "bamboohr-local-dev-loop",
       "name": "bamboohr-local-dev-loop",
-      "description": "Configure BambooHR local development with hot reload, mocking, and testing. Use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with BambooHR API. Trigger with phrases like \"bamboohr dev setup\", \"bamboohr local development\", \"bamboohr dev environment\", \"develop with bamboohr\", \"bamboohr mock\".",
+      "description": "Create a fast BambooHR development loop with synthetic fixtures, a recording- free fake transport, contract tests, and opt-in test-tenant reads. Use when developing safely without copying employee data onto laptops. Trigger with \"BambooHR local dev\", \"mock BambooHR\", or \"BambooHR test fixtures\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-local-dev-loop configure bamboohr local development with hot reload, mocking, and testing. use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with bamboohr api. trigger with phrases like \"bamboohr dev setup\", \"bamboohr local development\", \"bamboohr dev environment\", \"develop with bamboohr\", \"bamboohr mock\". saas-packs read write edit bash(npm:*) bash(pnpm:*) grep "
+      "searchText": "bamboohr-local-dev-loop create a fast bamboohr development loop with synthetic fixtures, a recording- free fake transport, contract tests, and opt-in test-tenant reads. use when developing safely without copying employee data onto laptops. trigger with \"bamboohr local dev\", \"mock bamboohr\", or \"bamboohr test fixtures\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "bamboohr-performance-tuning",
       "slug": "bamboohr-performance-tuning",
       "name": "bamboohr-performance-tuning",
-      "description": "Optimize BambooHR API performance with caching, batch reports, incremental sync, and connection pooling. Use when experiencing slow API responses, implementing caching, or optimizing sync throughput. Trigger with phrases like \"bamboohr performance\", \"optimize bamboohr\", \"bamboohr latency\", \"bamboohr caching\", \"bamboohr slow\", \"bamboohr batch\".",
+      "description": "Improve BambooHR sync throughput with dataset v2 projection, pagination, deterministic ordering, bounded concurrency, and measured caching. Use when an HR pipeline is slow or creates N+1 traffic. Trigger with \"BambooHR performance\", \"BambooHR slow sync\", or \"optimize BambooHR pipeline\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-performance-tuning optimize bamboohr api performance with caching, batch reports, incremental sync, and connection pooling. use when experiencing slow api responses, implementing caching, or optimizing sync throughput. trigger with phrases like \"bamboohr performance\", \"optimize bamboohr\", \"bamboohr latency\", \"bamboohr caching\", \"bamboohr slow\", \"bamboohr batch\". saas-packs read write edit "
+      "searchText": "bamboohr-performance-tuning improve bamboohr sync throughput with dataset v2 projection, pagination, deterministic ordering, bounded concurrency, and measured caching. use when an hr pipeline is slow or creates n+1 traffic. trigger with \"bamboohr performance\", \"bamboohr slow sync\", or \"optimize bamboohr pipeline\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "bamboohr-prod-checklist",
       "slug": "bamboohr-prod-checklist",
       "name": "bamboohr-prod-checklist",
-      "description": "Execute BambooHR production deployment checklist and rollback procedures. Use when deploying BambooHR integrations to production, preparing for launch, or implementing go-live procedures with BambooHR API. Trigger with phrases like \"bamboohr production\", \"deploy bamboohr\", \"bamboohr go-live\", \"bamboohr launch checklist\", \"bamboohr prod ready\".",
+      "description": "Make a go/no-go decision for a BambooHR connector using exact evidence for auth, tenant isolation, HR-data handling, reliability, reconciliation, monitoring, and rollback. Use when reviewing a production launch or material expansion. Trigger with \"BambooHR go live\", \"BambooHR production checklist\", or \"BambooHR launch review\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(kubectl:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-prod-checklist execute bamboohr production deployment checklist and rollback procedures. use when deploying bamboohr integrations to production, preparing for launch, or implementing go-live procedures with bamboohr api. trigger with phrases like \"bamboohr production\", \"deploy bamboohr\", \"bamboohr go-live\", \"bamboohr launch checklist\", \"bamboohr prod ready\". saas-packs read bash(kubectl:*) bash(curl:*) grep "
+      "searchText": "bamboohr-prod-checklist make a go/no-go decision for a bamboohr connector using exact evidence for auth, tenant isolation, hr-data handling, reliability, reconciliation, monitoring, and rollback. use when reviewing a production launch or material expansion. trigger with \"bamboohr go live\", \"bamboohr production checklist\", or \"bamboohr launch review\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "bamboohr-rate-limits",
       "slug": "bamboohr-rate-limits",
       "name": "bamboohr-rate-limits",
-      "description": "Implement BambooHR rate limiting, backoff, and request optimization. Use when handling 429/503 rate limit errors, implementing retry logic, or optimizing API request throughput for BambooHR. Trigger with phrases like \"bamboohr rate limit\", \"bamboohr throttling\", \"bamboohr 429\", \"bamboohr 503\", \"bamboohr retry\", \"bamboohr backoff\".",
+      "description": "Design bounded BambooHR retry, backpressure, and queue behavior from observed responses without inventing numeric quotas. Use when handling 429 or transient gateway failures, or preventing retry storms. Trigger with \"BambooHR rate limit\", \"BambooHR 429\", \"BambooHR retry\", or \"BambooHR backoff\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-rate-limits implement bamboohr rate limiting, backoff, and request optimization. use when handling 429/503 rate limit errors, implementing retry logic, or optimizing api request throughput for bamboohr. trigger with phrases like \"bamboohr rate limit\", \"bamboohr throttling\", \"bamboohr 429\", \"bamboohr 503\", \"bamboohr retry\", \"bamboohr backoff\". saas-packs read write edit "
+      "searchText": "bamboohr-rate-limits design bounded bamboohr retry, backpressure, and queue behavior from observed responses without inventing numeric quotas. use when handling 429 or transient gateway failures, or preventing retry storms. trigger with \"bamboohr rate limit\", \"bamboohr 429\", \"bamboohr retry\", or \"bamboohr backoff\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "bamboohr-reference-architecture",
       "slug": "bamboohr-reference-architecture",
       "name": "bamboohr-reference-architecture",
-      "description": "Implement BambooHR reference architecture for production HR data pipelines. Use when designing new BambooHR integrations, building employee sync systems, or establishing architecture standards for BambooHR-powered applications. Trigger with phrases like \"bamboohr architecture\", \"bamboohr design\", \"bamboohr project structure\", \"bamboohr system design\", \"bamboohr pipeline\".",
+      "description": "Design a multi-tenant BambooHR connector with explicit auth, ingestion, webhook, queue, storage, destination, reconciliation, and audit boundaries. Use when creating or reviewing production HR integration architecture. Trigger with \"BambooHR architecture\", \"BambooHR system design\", or \"multi-tenant BambooHR connector\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-reference-architecture implement bamboohr reference architecture for production hr data pipelines. use when designing new bamboohr integrations, building employee sync systems, or establishing architecture standards for bamboohr-powered applications. trigger with phrases like \"bamboohr architecture\", \"bamboohr design\", \"bamboohr project structure\", \"bamboohr system design\", \"bamboohr pipeline\". saas-packs read grep "
+      "searchText": "bamboohr-reference-architecture design a multi-tenant bamboohr connector with explicit auth, ingestion, webhook, queue, storage, destination, reconciliation, and audit boundaries. use when creating or reviewing production hr integration architecture. trigger with \"bamboohr architecture\", \"bamboohr system design\", or \"multi-tenant bamboohr connector\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "bamboohr-sdk-patterns",
       "slug": "bamboohr-sdk-patterns",
       "name": "bamboohr-sdk-patterns",
-      "description": "Apply production-ready BambooHR API patterns for TypeScript and Python. Use when implementing BambooHR integrations, building reusable clients, or establishing team coding standards for BambooHR REST API. Trigger with phrases like \"bamboohr SDK patterns\", \"bamboohr best practices\", \"bamboohr code patterns\", \"idiomatic bamboohr\", \"bamboohr client wrapper\".",
+      "description": "Select and wrap BambooHR's official Python or PHP SDK, or a narrow direct HTTP adapter, with tenant isolation and typed errors. Use when implementing a reusable client or replacing an unverified community package. Trigger with \"BambooHR SDK\", \"BambooHR client\", or \"BambooHR integration patterns\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-sdk-patterns apply production-ready bamboohr api patterns for typescript and python. use when implementing bamboohr integrations, building reusable clients, or establishing team coding standards for bamboohr rest api. trigger with phrases like \"bamboohr sdk patterns\", \"bamboohr best practices\", \"bamboohr code patterns\", \"idiomatic bamboohr\", \"bamboohr client wrapper\". saas-packs read write edit "
+      "searchText": "bamboohr-sdk-patterns select and wrap bamboohr's official python or php sdk, or a narrow direct http adapter, with tenant isolation and typed errors. use when implementing a reusable client or replacing an unverified community package. trigger with \"bamboohr sdk\", \"bamboohr client\", or \"bamboohr integration patterns\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "bamboohr-security-basics",
       "slug": "bamboohr-security-basics",
       "name": "bamboohr-security-basics",
-      "description": "Apply BambooHR security best practices for API keys, webhook verification, and PII data handling compliance. Use when securing API keys, implementing webhook signature validation, or handling sensitive employee data from BambooHR. Trigger with phrases like \"bamboohr security\", \"bamboohr secrets\", \"secure bamboohr\", \"bamboohr PII\", \"bamboohr data protection\".",
+      "description": "Threat-model and harden a BambooHR integration that handles employee PII, OAuth tokens, API keys, files, and webhooks. Use when reviewing access, storage, logging, or incident controls. Trigger with \"secure BambooHR\", \"BambooHR PII\", \"BambooHR threat model\", or \"BambooHR secrets\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-security-basics apply bamboohr security best practices for api keys, webhook verification, and pii data handling compliance. use when securing api keys, implementing webhook signature validation, or handling sensitive employee data from bamboohr. trigger with phrases like \"bamboohr security\", \"bamboohr secrets\", \"secure bamboohr\", \"bamboohr pii\", \"bamboohr data protection\". saas-packs read write grep "
+      "searchText": "bamboohr-security-basics threat-model and harden a bamboohr integration that handles employee pii, oauth tokens, api keys, files, and webhooks. use when reviewing access, storage, logging, or incident controls. trigger with \"secure bamboohr\", \"bamboohr pii\", \"bamboohr threat model\", or \"bamboohr secrets\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "bamboohr-upgrade-migration",
       "slug": "bamboohr-upgrade-migration",
       "name": "bamboohr-upgrade-migration",
-      "description": "Plan and execute BambooHR API migration with breaking change detection. Use when BambooHR announces API changes, adapting to deprecated endpoints, or migrating from legacy API patterns to current best practices. Trigger with phrases like \"upgrade bamboohr\", \"bamboohr migration\", \"bamboohr breaking changes\", \"bamboohr API update\", \"bamboohr deprecated\".",
+      "description": "Migrate a BambooHR integration across SDK, OpenAPI, auth, dataset, or endpoint changes with pinned evidence, dual-read comparison, and rollback. Use when replacing legacy report/dataset calls or upgrading an official SDK. Trigger with \"upgrade BambooHR\", \"BambooHR migration\", or \"BambooHR deprecated API\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(git:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-upgrade-migration plan and execute bamboohr api migration with breaking change detection. use when bamboohr announces api changes, adapting to deprecated endpoints, or migrating from legacy api patterns to current best practices. trigger with phrases like \"upgrade bamboohr\", \"bamboohr migration\", \"bamboohr breaking changes\", \"bamboohr api update\", \"bamboohr deprecated\". saas-packs read write edit bash(npm:*) bash(git:*) "
+      "searchText": "bamboohr-upgrade-migration migrate a bamboohr integration across sdk, openapi, auth, dataset, or endpoint changes with pinned evidence, dual-read comparison, and rollback. use when replacing legacy report/dataset calls or upgrading an official sdk. trigger with \"upgrade bamboohr\", \"bamboohr migration\", or \"bamboohr deprecated api\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "bamboohr-webhooks-events",
       "slug": "bamboohr-webhooks-events",
       "name": "bamboohr-webhooks-events",
-      "description": "Implement BambooHR webhook endpoints with HMAC signature validation and employee change event handling. Covers global and permissioned webhooks. Use when setting up real-time employee notifications, implementing sync triggers, or handling BambooHR webhook payloads. Trigger with phrases like \"bamboohr webhook\", \"bamboohr events\", \"bamboohr real-time sync\", \"bamboohr notifications\", \"bamboohr employee changes\".",
+      "description": "Create and operate BambooHR event- or field-based webhooks with one-time key custody, HMAC-SHA256 verification, idempotency, and replay controls. Use when building employee-change delivery or diagnosing webhook failures. Trigger with \"BambooHR webhook\", \"BambooHR events\", or \"BambooHR webhook signature\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "bamboohr-pack",
         "category": "saas-packs"
       },
-      "searchText": "bamboohr-webhooks-events implement bamboohr webhook endpoints with hmac signature validation and employee change event handling. covers global and permissioned webhooks. use when setting up real-time employee notifications, implementing sync triggers, or handling bamboohr webhook payloads. trigger with phrases like \"bamboohr webhook\", \"bamboohr events\", \"bamboohr real-time sync\", \"bamboohr notifications\", \"bamboohr employee changes\". saas-packs read write edit bash(curl:*) "
+      "searchText": "bamboohr-webhooks-events create and operate bamboohr event- or field-based webhooks with one-time key custody, hmac-sha256 verification, idempotency, and replay controls. use when building employee-change delivery or diagnosing webhook failures. trigger with \"bamboohr webhook\", \"bamboohr events\", or \"bamboohr webhook signature\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",

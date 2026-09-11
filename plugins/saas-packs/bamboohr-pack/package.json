@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/bamboohr-pack",
-  "version": "1.0.1",
-  "description": "Claude Code skill pack for BambooHR - 18 skills covering HR management, employee data, and people operations",
+  "version": "1.5.0",
+  "description": "Production BambooHR operator pack for governed HR integrations and data workflows",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -13,9 +13,10 @@
     "claude-code",
     "claude-code-plugin",
     "bamboohr",
-    "hr-management",
+    "hr-integrations",
     "employee-data",
-    "people-operations",
+    "oauth",
+    "webhooks",
     "ai-skills",
     "saas-pack"
   ],

@@ -1,271 +1,98 @@
 ---
 name: bamboohr-deploy-integration
-description: 'Deploy BambooHR integrations to Vercel, Fly.io, and Cloud Run platforms.
-
-  Use when deploying BambooHR-powered applications to production,
-
-  configuring platform-specific secrets, or setting up deployment pipelines.
-
-  Trigger with phrases like "deploy bamboohr", "bamboohr Vercel",
-
-  "bamboohr production deploy", "bamboohr Cloud Run", "bamboohr Fly.io".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(fly:*), Bash(gcloud:*)
-version: 1.4.0
+description: >-
+  Deploy a BambooHR connector with tenant-isolated secrets, OAuth callback
+  controls, durable token refresh, health probes, and staged rollback. Use when
+  promoting an integration across environments. Trigger with "deploy BambooHR",
+  "BambooHR production deployment", or "BambooHR environment promotion".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<environment> <deployment-target>"
+version: 1.5.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- hr
-- bamboohr
-- deployment
+tags: [saas, hr, bamboohr, deployment, operations]
+model: inherit
+effort: high
 compatibility: Designed for Claude Code
 ---
-# BambooHR Deploy Integration
+# BambooHR Controlled Deployment
 
 ## Overview
 
-Deploy BambooHR-powered applications to cloud platforms with proper secrets management, health checks, and webhook endpoint configuration. Covers Vercel (serverless), Fly.io (containers), and Google Cloud Run.
+Promote an already-tested BambooHR connector without baking one cloud vendor's
+CLI into the skill. Separate application deployment, secret mutation, OAuth
+registration, webhook replacement, data migration, and traffic cutover because
+they have different approvals and rollback behavior.
 
 ## Prerequisites
 
-- BambooHR integration tested locally and in staging
-- Production API key and company domain ready
-- Platform CLI installed (`vercel`, `fly`, or `gcloud`)
+- The target repository or integration path and the requested operator outcome.
+- The tenant, identity, and data scope only when approved live work is in scope.
+- The current evidence register plus customer-specific permissions and agreements.
+
+## Current Contract
+
+The application must use the tenant-local BambooHR host. OAuth redirects are
+exact HTTPS locations and refreshed tokens require application persistence.
+Webhook destinations require HTTPS and creation yields a one-time verification
+key. Health checks must not expose employee data or require broad HR permissions.
+
+## Authentication
+
+Create distinct identities/secrets per environment and tenant. Bind token records
+to subject and tenant. Deployment health may verify local configuration and
+dependencies; a live BambooHR readiness check must be separately approved,
+read-only, low sensitivity, body-discarding, and rate bounded.
 
 ## Instructions
 
-### Vercel Deployment (Serverless)
+1. Record immutable artifact digest, source commit, configuration schema, target
+   environment, tenant set, deployment owner, data migration, and rollback owner.
+2. Diff configuration names and secret references without reading secret values.
+   Verify no production credential appears in build args, images, logs, or previews.
+3. Validate exact OAuth redirect URIs, trusted tenant mapping, encrypted token
+   persistence, rotation callback, egress policy, TLS, and log redaction.
+4. Run offline tests, schema checks, migration dry run, and synthetic webhook
+   verification before deploying the immutable artifact.
+5. Deploy dark or to a canary. Run local liveness/readiness first; then, if
+   approved, one body-discarding company-information check with a request ID.
+6. Drain or pause schedulers and queues during cutover so two versions do not
+   race. Preserve idempotency and checkpoints across rollback.
+7. Observe authentication failures, refresh failures, request errors, queue age,
+   reconciliation, webhook verification, and cross-tenant alarms.
+8. Promote or roll back against explicit thresholds. Revoke superseded secrets
+   or webhook keys only after the new path is verified and separately approved.
 
-```bash
-# Set BambooHR secrets in Vercel
-vercel env add BAMBOOHR_API_KEY production
-vercel env add BAMBOOHR_COMPANY_DOMAIN production
-vercel env add BAMBOOHR_WEBHOOK_SECRET production
-```
+## Tool Discipline
 
-**vercel.json:**
+Use Read, Glob, and Grep to inspect deployment files and secret references. Use
+Write/Edit only for approved manifests, configuration, and tests. This skill does
+not run provider CLIs, authenticate, provision, deploy, rotate, or cut traffic.
 
-```json
-{
-  "functions": {
-    "api/**/*.ts": {
-      "maxDuration": 30
-    }
-  },
-  "crons": [{
-    "path": "/api/bamboohr/sync",
-    "schedule": "0 */6 * * *"
-  }]
-}
-```
+## Approval Boundaries
 
-**Webhook endpoint (Vercel serverless):**
-
-```typescript
-// api/webhooks/bamboohr.ts
-import { verifyBambooHRWebhook } from '../../src/bamboohr/security';
-
-export const config = { api: { bodyParser: false } };
-
-export default async function handler(req: any, res: any) {
-  if (req.method !== 'POST') return res.status(405).end();
-
-  const chunks: Buffer[] = [];
-  for await (const chunk of req) chunks.push(chunk);
-  const rawBody = Buffer.concat(chunks);
-
-  const sig = req.headers['x-bamboohr-signature'];
-  const ts = req.headers['x-bamboohr-timestamp'];
-
-  if (!verifyBambooHRWebhook(rawBody, sig, ts, process.env.BAMBOOHR_WEBHOOK_SECRET!)) {
-    return res.status(401).json({ error: 'Invalid signature' });
-  }
-
-  const event = JSON.parse(rawBody.toString());
-  // Process webhook asynchronously
-  await processWebhookEvent(event);
-
-  return res.status(200).json({ received: true });
-}
-```
-
-**Deploy:**
-
-```bash
-vercel --prod
-# Webhook URL: https://your-app.vercel.app/api/webhooks/bamboohr
-```
-
-### Fly.io Deployment (Containers)
-
-**fly.toml:**
-
-```toml
-app = "my-bamboohr-sync"
-primary_region = "iad"
-
-[env]
-  NODE_ENV = "production"
-
-[http_service]
-  internal_port = 3000
-  force_https = true
-  auto_stop_machines = "suspend"
-  auto_start_machines = true
-  min_machines_running = 1
-
-[[services.http_checks]]
-  interval = "30s"
-  timeout = "5s"
-  path = "/api/health"
-  method = "GET"
-```
-
-```bash
-# Set secrets
-fly secrets set BAMBOOHR_API_KEY="your-prod-key"
-fly secrets set BAMBOOHR_COMPANY_DOMAIN="yourcompany"
-fly secrets set BAMBOOHR_WEBHOOK_SECRET="your-secret"
-
-# Deploy
-fly deploy
-
-# Verify
-fly status
-curl -s https://my-bamboohr-sync.fly.dev/api/health | jq .
-```
-
-### Google Cloud Run Deployment
-
-**Dockerfile:**
-
-```dockerfile
-FROM node:20-slim AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-FROM node:20-slim
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-
-ENV NODE_ENV=production
-EXPOSE 8080
-CMD ["node", "dist/index.js"]
-```
-
-```bash
-PROJECT_ID="${GOOGLE_CLOUD_PROJECT}"
-SERVICE="bamboohr-integration"
-REGION="us-central1"
-
-# Store secrets in GCP Secret Manager
-echo -n "your-api-key" | gcloud secrets create bamboohr-api-key --data-file=-
-echo -n "yourcompany" | gcloud secrets create bamboohr-company-domain --data-file=-
-
-# Build and deploy
-gcloud builds submit --tag gcr.io/$PROJECT_ID/$SERVICE
-
-gcloud run deploy $SERVICE \
-  --image gcr.io/$PROJECT_ID/$SERVICE \
-  --region $REGION \
-  --platform managed \
-  --set-secrets="BAMBOOHR_API_KEY=bamboohr-api-key:latest,BAMBOOHR_COMPANY_DOMAIN=bamboohr-company-domain:latest" \
-  --min-instances=1 \
-  --max-instances=10 \
-  --timeout=30s \
-  --allow-unauthenticated
-```
-
-### Health Check Endpoint (All Platforms)
-
-```typescript
-// src/api/health.ts
-import { BambooHRClient } from '../bamboohr/client';
-
-export async function handleHealthCheck(client: BambooHRClient) {
-  const start = Date.now();
-
-  try {
-    // Light-weight check: fetch employee 0 (current user)
-    await client.getEmployee(0, ['firstName']);
-    return {
-      status: 'healthy',
-      bamboohr: { connected: true, latencyMs: Date.now() - start },
-      timestamp: new Date().toISOString(),
-    };
-  } catch (err) {
-    return {
-      status: 'degraded',
-      bamboohr: {
-        connected: false,
-        latencyMs: Date.now() - start,
-        error: (err as Error).message,
-      },
-      timestamp: new Date().toISOString(),
-    };
-  }
-}
-```
-
-### Webhook Registration via API
-
-```typescript
-// Register a webhook programmatically via BambooHR API
-// POST /webhooks/
-const webhook = await client.request('POST', '/webhooks/', {
-  name: 'Employee Sync',
-  monitorFields: ['firstName', 'lastName', 'department', 'jobTitle', 'status'],
-  postFields: {
-    firstName: 'firstName',
-    lastName: 'lastName',
-    department: 'department',
-    jobTitle: 'jobTitle',
-    status: 'status',
-  },
-  url: 'https://your-app.example.com/api/webhooks/bamboohr',
-  format: 'json',
-  frequency: { every: 0 }, // Immediate
-  limit: { enabled: false },
-});
-
-console.log(`Webhook registered: ${webhook.id}`);
-```
+Require separate approval for deployment, database migration, secret write,
+OAuth redirect change, live readiness call, webhook replacement, traffic shift,
+rollback, and revocation.
 
 ## Output
 
-- Application deployed to production cloud platform
-- BambooHR secrets securely configured via platform secrets
-- Health check endpoint responding
-- Webhook endpoint configured and registered
-- Auto-scaling and health monitoring active
-
-## Examples
-
-Deploy a versioned artifact with BambooHR secrets injected only at runtime, begin in a sandbox or read-only production mode, and verify health without retrieving employee records. Enable mutation workers gradually behind explicit approval, concurrency, and rollback controls; route deployment logs and receipts through redaction filters.
+Return artifact digest, target/environment/tenant scope, config and secret diff,
+preflight results, canary plan, health evidence, queue/checkpoint state, observed
+metrics, approval receipts, and promote/rollback decision.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Secret not found at runtime | Missing env var configuration | Re-add via platform CLI |
-| Webhook 401 from BambooHR | Signature verification failing | Check webhook secret matches |
-| Cold start timeout | Serverless function too slow | Pre-initialize client outside handler |
-| Health check failing after deploy | Wrong API key for environment | Verify secrets are production values |
+- Token persistence unavailable: do not cut over an OAuth integration.
+- Health probe leaks data: remove it and deploy a minimal local probe.
+- Ambiguous active version or queue owner: stop schedulers before proceeding.
+- Failed canary: roll back artifact/config together and preserve evidence.
+
+## Examples
+
+- "Deploy to Cloud Run" produces provider-neutral gates plus target-specific manifests.
+- "Reuse staging keys in prod" is rejected in favor of environment isolation.
 
 ## Resources
 
-- [Vercel Serverless Functions](https://vercel.com/docs/functions)
-- [Fly.io Documentation](https://fly.io/docs)
-- [Google Cloud Run](https://cloud.google.com/run/docs)
-- [BambooHR Webhooks](https://documentation.bamboohr.com/docs/webhooks)
-
-## Next Steps
-
-For webhook handling, see `bamboohr-webhooks-events`.
+Read [official evidence](references/official-docs.md) before production promotion.
