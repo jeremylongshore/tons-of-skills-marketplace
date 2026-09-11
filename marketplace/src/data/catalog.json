@@ -10129,7 +10129,7 @@
       "slug": "salesforce-pack",
       "name": "salesforce-pack",
       "displayName": "salesforce pack",
-      "description": "Governed Salesforce operator workflows for API access, data, events, security, delivery, and production operations",
+      "description": "Governed Salesforce operator workflows for API access, data, events, security, delivery, and production operations. Use when authenticating to a Salesforce org, querying or moving data, deploying metadata, handling events, or operating a production change.",
       "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
@@ -11217,7 +11217,7 @@
       "slug": "publishing-skills",
       "name": "publishing-skills",
       "displayName": "publishing skills",
-      "description": "Governed editorial workflows for evidence-backed topic research, content scheduling, accessible SVG figures, source-grounded drafting, and approved CMS handoff.",
+      "description": "Governed editorial workflows for evidence-backed topic research, content scheduling, accessible SVG figures, source-grounded drafting, and approved CMS handoff. Use when planning, researching, illustrating, drafting, or handing off a publication-ready article.",
       "version": "0.2.0",
       "category": "productivity",
       "keywords": [

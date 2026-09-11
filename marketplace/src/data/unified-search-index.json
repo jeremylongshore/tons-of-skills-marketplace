@@ -13214,7 +13214,7 @@
       "slug": "salesforce-pack",
       "name": "salesforce-pack",
       "displayName": "salesforce pack",
-      "description": "Governed Salesforce operator workflows for API access, data, events, security, delivery, and production operations",
+      "description": "Governed Salesforce operator workflows for API access, data, events, security, delivery, and production operations. Use when authenticating to a Salesforce org, querying or moving data, deploying metadata, handling events, or operating a production change.",
       "category": "saas-packs",
       "keywords": [
         "salesforce",
@@ -13237,7 +13237,7 @@
       "verificationScore": 94,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "salesforce pack governed salesforce operator workflows for api access, data, events, security, delivery, and production operations saas-packs salesforce crm api pub-sub integration"
+      "searchText": "salesforce pack governed salesforce operator workflows for api access, data, events, security, delivery, and production operations. use when authenticating to a salesforce org, querying or moving data, deploying metadata, handling events, or operating a production change. saas-packs salesforce crm api pub-sub integration"
     },
     {
       "type": "plugin",
@@ -14450,7 +14450,7 @@
       "slug": "publishing-skills",
       "name": "publishing-skills",
       "displayName": "publishing skills",
-      "description": "Governed editorial workflows for evidence-backed topic research, content scheduling, accessible SVG figures, source-grounded drafting, and approved CMS handoff.",
+      "description": "Governed editorial workflows for evidence-backed topic research, content scheduling, accessible SVG figures, source-grounded drafting, and approved CMS handoff. Use when planning, researching, illustrating, drafting, or handing off a publication-ready article.",
       "category": "productivity",
       "keywords": [
         "seo",
@@ -14474,7 +14474,7 @@
       "verificationScore": 95,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "publishing skills governed editorial workflows for evidence-backed topic research, content scheduling, accessible svg figures, source-grounded drafting, and approved cms handoff. productivity seo editorial-workflow source-verification accessible-svg publishing cms"
+      "searchText": "publishing skills governed editorial workflows for evidence-backed topic research, content scheduling, accessible svg figures, source-grounded drafting, and approved cms handoff. use when planning, researching, illustrating, drafting, or handing off a publication-ready article. productivity seo editorial-workflow source-verification accessible-svg publishing cms"
     },
     {
       "type": "plugin",

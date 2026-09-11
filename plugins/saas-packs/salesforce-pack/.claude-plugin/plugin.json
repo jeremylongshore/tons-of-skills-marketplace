@@ -1,7 +1,7 @@
 {
   "name": "salesforce-pack",
   "version": "1.8.0",
-  "description": "Governed Salesforce operator workflows for API access, data, events, security, delivery, and production operations",
+  "description": "Governed Salesforce operator workflows for API access, data, events, security, delivery, and production operations. Use when authenticating to a Salesforce org, querying or moving data, deploying metadata, handling events, or operating a production change.",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
