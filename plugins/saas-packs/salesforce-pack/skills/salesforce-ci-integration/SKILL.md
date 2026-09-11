@@ -77,4 +77,3 @@ head=immutable; fork-lane=secretless-pass; protected-org=matched; validate=pass;
 ## Next Steps
 
 Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.
-

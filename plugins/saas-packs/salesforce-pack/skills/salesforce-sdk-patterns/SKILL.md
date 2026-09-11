@@ -77,4 +77,3 @@ adapter=SalesforceGateway; api=discovered-supported; schema=dated; fixtures=8; s
 ## Next Steps
 
 Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.
-

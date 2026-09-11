@@ -73,4 +73,3 @@ python3 -m unittest tests.test_salesforce_pack_contract
 ## License
 
 MIT
-
