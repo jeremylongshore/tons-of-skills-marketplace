@@ -236,4 +236,4 @@
 
 - [ ] I have the right to submit this code under the project's license
 - [ ] I understand my contributions will be publicly available
-- [ ] I agree to the project's [Code of Conduct](../000-docs/006-BL-POLI-code-of-conduct.md) (if exists)
+- [ ] I agree to the project's [Code of Conduct](../CODE_OF_CONDUCT.md)
