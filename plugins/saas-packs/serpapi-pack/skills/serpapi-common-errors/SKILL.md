@@ -3,7 +3,7 @@ name: serpapi-common-errors
 description: 'Classify SerpAPI HTTP failures, search-status failures, and valid empty results before choosing a retry or repair. Use when searches fail, stall, or return unexpected shapes. Trigger with "diagnose a SerpAPI error".'
 argument-hint: "[status-code|search-id] [engine]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit, Bash(python3:*)
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, troubleshooting, errors, reliability]

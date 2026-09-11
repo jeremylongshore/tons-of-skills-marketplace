@@ -3,7 +3,7 @@ name: serpapi-reference-architecture
 description: 'Design a governed SerpAPI search service with engine adapters, policy enforcement, caching, capacity management, observability, and privacy boundaries. Use when conducting architecture review. Trigger with "design a SerpAPI architecture".'
 argument-hint: "[use-case] [engines] [data-classification]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, architecture, governance, reliability]

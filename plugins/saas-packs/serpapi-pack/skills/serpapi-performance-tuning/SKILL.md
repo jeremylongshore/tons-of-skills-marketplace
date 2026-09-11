@@ -3,7 +3,7 @@ name: serpapi-performance-tuning
 description: 'Measure and improve SerpAPI latency, payload size, connection reuse, caching, and concurrency without breaking freshness or allowance controls. Use when search performance misses an SLO. Trigger with "tune SerpAPI performance".'
 argument-hint: "[engine] [latency-slo] [freshness-slo]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, performance, caching, observability]

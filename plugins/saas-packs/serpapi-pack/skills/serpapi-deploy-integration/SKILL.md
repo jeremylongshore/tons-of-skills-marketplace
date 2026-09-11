@@ -3,7 +3,7 @@ name: serpapi-deploy-integration
 description: 'Deploy a server-side SerpAPI gateway with secret isolation, input policy, capacity controls, canary evidence, and rollback. Use when promoting a search integration. Trigger with "deploy a SerpAPI gateway".'
 argument-hint: "[platform] [environment] [route]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, deployment, gateway, canary]

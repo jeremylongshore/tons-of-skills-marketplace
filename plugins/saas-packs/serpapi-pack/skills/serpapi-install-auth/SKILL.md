@@ -3,7 +3,7 @@ name: serpapi-install-auth
 description: 'Install an official SerpAPI client, configure the private API key for server-side use, and verify account access without leaking credentials. Use when starting or repairing a SerpAPI integration. Trigger with "configure SerpAPI access".'
 argument-hint: "[python|javascript] [environment]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit, Bash(python3:*), Bash(npm:*), Bash(curl:*)
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, authentication, python, javascript]

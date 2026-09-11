@@ -3,7 +3,7 @@ name: serpapi-ci-integration
 description: 'Gate SerpAPI code with sanitized fixtures and isolate optional live searches behind trusted CI environments and allowance controls. Use when adding integration tests to automation. Trigger with "add SerpAPI CI".'
 argument-hint: "[github-actions|other-ci] [python|javascript]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit, Bash(gh:*)
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, ci, testing, github-actions]

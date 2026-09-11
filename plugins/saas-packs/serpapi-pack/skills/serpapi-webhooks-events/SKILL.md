@@ -3,7 +3,7 @@ name: serpapi-webhooks-events
 description: 'Implement SerpAPI asynchronous searches and scheduled change detection without inventing a webhook callback contract. Use when building long-running searches or SERP monitoring. Trigger with "build SerpAPI async monitoring".'
 argument-hint: "[engine] [poll-interval] [deadline]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, async, monitoring, archive]
