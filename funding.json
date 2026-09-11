@@ -51,7 +51,7 @@
         "guid": "security-sustainability-2026",
         "status": "active",
         "name": "Security and maintainer sustainability",
-        "description": "$15,000 for 300 hours of protected maintainer time at $50 per hour over 6 to 9 months, covering vulnerability remediation, dependency hygiene, secure releases, incident response, and contributor review; $5,000 for a focused independent security review and threat model, with an independent reviewer selected through a documented conflict-aware process; $3,000 for CI, testing, artifact, and observability infrastructure; and $2,000 for contributor bounties, security documentation, and community response.",
+        "description": "$15,000 for 300 protected maintainer hours at $50 per hour over 6 to 9 months, covering vulnerability remediation, dependency hygiene, secure releases, incident response, and contributor review; $5,000 for an independent security review and threat model, with the reviewer selected through a documented conflict-aware process; $3,000 for CI, testing, artifact, and observability infrastructure; and $2,000 for contributor bounties, security documentation, and community response.",
         "amount": 25000,
         "currency": "USD",
         "frequency": "one-time",
