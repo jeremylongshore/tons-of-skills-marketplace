@@ -701,3 +701,27 @@ plugins/saas-packs/mindtickle-pack/skills/mindtickle-sdk-patterns/SKILL.md:allow
 plugins/saas-packs/mindtickle-pack/skills/mindtickle-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
 plugins/saas-packs/mindtickle-pack/skills/mindtickle-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
 plugins/saas-packs/mindtickle-pack/skills/mindtickle-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+
+# ── SerpAPI operator pack remediation (2026-09-11). ──
+# Each skill grants WebFetch only for current official SerpAPI documentation.
+# The install/auth credential is sent only to SerpAPI through official clients or
+# the documented HTTPS Account/Search APIs; examples never print or persist it.
+plugins/saas-packs/serpapi-pack/skills/serpapi-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-install-auth/SKILL.md:secret-exfil-cooccur  SERPAPI_API_KEY is sent only to https://serpapi.com through official clients or the documented Account/Search APIs; examples never print or persist it
+plugins/saas-packs/serpapi-pack/skills/serpapi-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
