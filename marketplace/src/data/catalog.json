@@ -9758,14 +9758,15 @@
       "slug": "mindtickle-pack",
       "name": "mindtickle-pack",
       "displayName": "mindtickle pack",
-      "description": "Claude Code skill pack for Mindtickle (18 skills)",
-      "version": "1.7.0",
+      "description": "Governed Mindtickle workflows for tenant access, learning, readiness, integrations, security, and operations (18 skills)",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "mindtickle",
         "saas",
-        "sdk",
-        "integration"
+        "revenue-enablement",
+        "tenant-integration",
+        "readiness"
       ],
       "hasSkills": true,
       "skillCount": 18,

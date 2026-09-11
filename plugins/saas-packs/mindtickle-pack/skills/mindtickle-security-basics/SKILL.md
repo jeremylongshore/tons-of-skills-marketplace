@@ -1,167 +1,79 @@
 ---
 name: mindtickle-security-basics
-description: 'Security Basics for MindTickle.
-
-  Trigger: "mindtickle security basics".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Threat-model and harden a Mindtickle tenant and its identity, connector, API, content, and reporting integrations. Use when conducting security review or control remediation. Trigger with "secure Mindtickle integration".'
+argument-hint: "[scope] [evidence-period]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mindtickle
-- sales
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, mindtickle, security, privacy, threat-modeling]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; tenant, identity, data, credential, and security-control changes require their respective owners
 ---
-# MindTickle Security Basics
+# Mindtickle Security and Privacy Control Review
 
 ## Overview
 
-MindTickle integrations process employee PII through SCIM provisioning (names, emails, job titles, manager chains) and HR-sensitive data like course completion scores, certification status, and coaching assessments. The API uses bearer token authentication combined with a `Company-Id` header for multi-tenant isolation — omitting or spoofing this header can leak data across tenants. Webhook payloads carrying training completion events must be HMAC-verified to prevent injection of fraudulent compliance records.
+Translate shared responsibility into testable controls for identities, tenant boundaries, employee data, content, integrations, evidence, and incident response.
 
 ## Prerequisites
 
-- Secrets manager (AWS SSM, GCP Secret Manager, or Vault) for API tokens
-- HTTPS enforced on all SCIM and webhook endpoints
-- `Company-Id` validated against an allowlist of known tenant identifiers
-- `.env` files in `.gitignore` — never committed to version control
-- Data retention policy for employee training records (GDPR/SOC2)
+- A scoped architecture, data inventory, identity model, contract registry, and accountable owners
+- Current customer policy, threat model, retention schedule, and incident process
+- Authorized access to Mindtickle trust artifacts and tenant-specific security documentation
 
-## API Key Management
+## Tool Discipline
 
-```typescript
-// MindTickle requires both bearer token and company ID for multi-tenant isolation
-const MT_API_TOKEN = process.env.MINDTICKLE_API_KEY;
-const MT_COMPANY_ID = process.env.MINDTICKLE_COMPANY_ID;
+Use `Read`, `Glob`, and `Grep` to inspect configuration and evidence, `WebFetch` for current official security material, and `Write` or `Edit` for the threat model, control matrix, and sanitized findings.
 
-function validateMindTickleConfig(): void {
-  if (!MT_API_TOKEN) throw new Error('Missing MINDTICKLE_API_KEY');
-  if (!MT_COMPANY_ID) throw new Error('Missing MINDTICKLE_COMPANY_ID');
-}
+## Current Contract
 
-function mindtickleHeaders(): Record<string, string> {
-  return {
-    Authorization: `Bearer ${MT_API_TOKEN}`,
-    'Company-Id': MT_COMPANY_ID!,
-    'Content-Type': 'application/json',
-  };
-}
-// Call validateMindTickleConfig() at startup — both values are required for every request
-```
+Mindtickle describes role-based access, customer responsibility for SSO, roles, provisioning, and data lifecycle, plus independent compliance and security assessments. Certifications inform assurance but do not replace customer control validation.
 
-## Webhook Signature Verification
+## Authentication
 
-```typescript
-import crypto from 'node:crypto';
+Separate users, administrators, provisioning identities, managed connectors, API principals, and support access. Require least privilege, phishing-resistant identity controls where available, rotation, revocation, access review, and no shared credentials.
 
-const MT_WEBHOOK_SECRET = process.env.MINDTICKLE_WEBHOOK_SECRET!;
+## Instructions
 
-function verifyMindTickleWebhook(payload: string, signature: string, timestamp: string): boolean {
-  // Reject stale webhooks (>5 min) to prevent replay attacks
-  const age = Date.now() - parseInt(timestamp, 10) * 1000;
-  if (age > 300_000) return false;
+1. Inventory tenants, environments, principals, roles, integrations, data classes, content audiences, exports, caches, logs, and support paths.
+2. Map threats across account takeover, overprivilege, tenant misrouting, lifecycle drift, data leakage, malicious content, replay, schema injection, and compromised dependencies.
+3. Verify SSO enforcement, identity-provider MFA, provisioning ownership, disabled-user handling, administrator separation, and periodic access review.
+4. Test tenant binding, input and output validation, secret handling, egress restrictions, encryption, logging redaction, and evidence integrity.
+5. Review data minimization, retention, deletion, exports, residency commitments, learner transparency, and restricted assessment or coaching data.
+6. Validate connector and adapter scopes, contract provenance, dependency controls, incident contacts, support disclosure, and credential compromise response.
+7. Rank findings by exploitable path and business impact; assign owner, remediation, verification, and due date.
+8. Re-test changed controls and preserve redacted evidence rather than closing on configuration screenshots alone.
 
-  const signedPayload = `${timestamp}.${payload}`;
-  const expected = crypto
-    .createHmac('sha256', MT_WEBHOOK_SECRET)
-    .update(signedPayload, 'utf8')
-    .digest('hex');
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
-}
+## Approval Boundaries
 
-app.post('/webhooks/mindtickle', (req, res) => {
-  const sig = req.headers['x-mindtickle-signature'] as string;
-  const ts = req.headers['x-mindtickle-timestamp'] as string;
-  if (!sig || !ts || !verifyMindTickleWebhook(JSON.stringify(req.body), sig, ts)) {
-    return res.status(401).json({ error: 'Invalid signature or stale timestamp' });
-  }
-  // Process verified training completion event
-});
-```
+Do not weaken SSO, grant roles, rotate production credentials, access learner records, change retention, or conduct intrusive testing without explicit authorization.
 
-## Input Validation
+## Output
 
-```typescript
-// Validate SCIM user payloads — employee PII requires strict schema enforcement
-interface ScimUser {
-  userName: string;
-  name: { givenName: string; familyName: string };
-  emails: { value: string; primary: boolean }[];
-}
-
-function validateScimUser(user: unknown): user is ScimUser {
-  const u = user as Record<string, unknown>;
-  if (typeof u.userName !== 'string' || u.userName.length > 254) return false;
-  const emails = u.emails as { value: string }[] | undefined;
-  if (!emails?.every(e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.value))) return false;
-  return true;
-}
-```
-
-## Data Protection
-
-```typescript
-function redactEmployeeData(record: Record<string, unknown>): Record<string, unknown> {
-  const piiFields = ['email', 'userName', 'phone', 'manager_email', 'employee_id'];
-  const hrFields = ['score', 'certification_status', 'coaching_notes'];
-  const redacted = { ...record };
-  for (const field of [...piiFields, ...hrFields]) {
-    if (redacted[field]) redacted[field] = '[REDACTED]';
-  }
-  return redacted;
-}
-// Redact before logging — course scores and coaching data are HR-confidential
-```
-
-## Access Control
-
-```typescript
-// Enforce tenant isolation — Company-Id must match the authenticated context
-const ALLOWED_COMPANY_IDS = new Set(process.env.MT_ALLOWED_COMPANIES?.split(',') ?? []);
-
-function assertTenantAccess(companyId: string): void {
-  if (!ALLOWED_COMPANY_IDS.has(companyId)) {
-    throw new Error(`Unauthorized tenant: ${companyId}`);
-  }
-}
-
-function assertScimWriteAccess(operation: string, hasScimScope: boolean): void {
-  const writeOps = ['createUser', 'updateUser', 'deactivateUser'];
-  if (writeOps.includes(operation) && !hasScimScope) {
-    throw new Error(`SCIM write operation "${operation}" requires scim:write scope`);
-  }
-}
-```
-
-## Security Checklist
-
-- [ ] Bearer token and Company-Id stored in secrets manager
-- [ ] Company-Id validated against tenant allowlist on every request
-- [ ] Webhook HMAC-SHA256 verified with timestamp replay protection
-- [ ] SCIM payloads validated against strict schema before processing
-- [ ] Employee PII (email, name, phone) redacted in all logs
-- [ ] Course scores and coaching data classified as HR-confidential
-- [ ] SCIM write operations gated behind explicit scope checks
-- [ ] Data retention policy enforced for training completion records
-- [ ] Token rotation scheduled quarterly with zero-downtime swap
+Return the asset and data inventory, trust boundaries, threat model, control evidence, findings, owners, remediation dates, residual risks, and re-test results.
 
 ## Error Handling
 
-| Vulnerability | Risk | Mitigation |
-|---|---|---|
-| Missing Company-Id header | Cross-tenant data leakage | Reject requests without validated Company-Id |
-| Unverified webhooks | Fraudulent training completion records | HMAC-SHA256 + timestamp validation on every webhook |
-| SCIM PII in logs | Employee data breach (GDPR/SOC2) | Redact all PII fields before logging |
-| Stale webhook replay | Duplicate or backdated compliance events | Reject webhooks older than 5 minutes |
-| Over-permissioned SCIM token | Unauthorized user provisioning | Enforce scim:write scope check for mutations |
+| Condition | Response |
+|---|---|
+| A secret appears in evidence | Restrict access, remove it, rotate as required, and regenerate the artifact. |
+| Tenant-specific assurance is unavailable | Record the gap and request it through the authorized trust or commercial channel. |
+| A critical control fails | Stop affected integration activity and invoke the incident process. |
+
+## Example
+
+```text
+scope=reporting-adapter; principals=3-owned; tenant-binding=pass; pii-logs=none; findings=1-high,2-medium; retest=scheduled
+```
 
 ## Resources
 
-- [MindTickle Developer Platform](https://www.mindtickle.com/platform/integrations/)
-- [OWASP API Security Top 10](https://owasp.org/www-project-api-security/)
+- [Mindtickle Trust](https://www.mindtickle.com/trust/)
+- [Mindtickle compliance](https://www.mindtickle.com/trust/compliance/)
+- [Mindtickle Support Services](https://www.mindtickle.com/legal/support-services/)
 
 ## Next Steps
 
-See `mindtickle-prod-checklist`.
+Track remediation to evidence-backed closure and schedule the next access and contract review.

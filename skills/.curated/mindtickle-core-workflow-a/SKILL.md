@@ -1,108 +1,78 @@
 ---
 name: mindtickle-core-workflow-a
-description: 'Execute MindTickle primary workflow: Training Content Management.
-
-  Trigger: "mindtickle training content management", "primary mindtickle workflow".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.7.0
-license: MIT
+description: 'Plan, approve, launch, and verify a governed Mindtickle learning program for a defined audience. Use when rolling out courses, assessments, certifications, or reinforcement. Trigger with "launch a Mindtickle program".'
+argument-hint: "[program-brief] [audience]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mindtickle
-- sales
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, mindtickle, learning, program-launch, governance]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; publishing content, assigning learners, and sending notifications require program-owner and tenant-admin approval
 ---
-# MindTickle — Course & Module Management
+# Governed Mindtickle Learning Program Launch
 
 ## Overview
 
-Primary workflow for MindTickle sales readiness integration. Covers end-to-end course
-management: creating training modules with mixed content (video, quiz, document),
-assigning courses to individuals or teams with due dates and reminders, tracking
-completion and quiz scores via the analytics API, and updating modules as content
-evolves. Uses the MindTickle REST API with API key authentication. All list endpoints
-support cursor-based pagination for large organizations.
+Convert an approved enablement brief into a controlled program release with audience, content, measurement, communications, and rollback evidence.
+
+## Prerequisites
+
+- A program owner, business outcome, audience source, due dates, and completion definition
+- Confirmed tenant entitlements for the selected module types
+- Approved content, accessibility review, privacy classification, and support owner
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect briefs and rosters, `WebFetch` for current product and tenant contracts, and `Write` or `Edit` for plans, validation fixtures, and redacted receipts.
+
+## Current Contract
+
+Mindtickle publicly describes courses, quick updates, checklists, certifications, instructor-led training, assessments, reinforcement, role-plays, coaching, and analytics. Exact creation, assignment, reminder, and reporting behavior depends on the subscribed package and current tenant configuration.
+
+## Authentication
+
+Use an authorized program administrator or a documented tenant API principal with only the required capabilities. Separate authoring, assignment, and reporting permissions and never embed credentials in content packages.
 
 ## Instructions
 
-### Step 1: Create a Course with Modules
+1. Freeze the brief: outcome, audience, exclusions, modules, passing rules, dates, locales, accessibility, and retention.
+2. Confirm every module type and reporting field against the tenant entitlement and current documentation.
+3. Validate content ownership, links, media, assessment answers, completion criteria, and representative mobile behavior.
+4. Reconcile the audience to its system of record; quantify additions, removals, duplicates, disabled users, and managers.
+5. Run a pilot with synthetic or approved users and verify assignment, navigation, completion, reporting, and support paths.
+6. Present a launch preview with exact counts, schedule, notifications, risks, owner, and rollback.
+7. After approval, publish and assign through the supported tenant path, then reconcile expected versus actual state.
+8. Retain a redacted launch receipt and schedule outcome reviews rather than measuring completion alone.
 
-```typescript
-const course = await client.courses.create({
-  title: 'Q2 Product Launch Readiness',
-  description: 'Everything your team needs to sell the new platform tier',
-  tags: ['product-launch', 'q2-2026'],
-  modules: [
-    { title: 'Overview', type: 'video',
-      url: 'https://videos.example.com/q2-launch.mp4', duration_min: 12 },
-    { title: 'Feature Deep Dive', type: 'document',
-      url: 'https://docs.example.com/q2-features.pdf' },
-    { title: 'Knowledge Check', type: 'quiz', questions: [
-      { text: 'What is the key differentiator?', type: 'multiple_choice',
-        options: ['Speed', 'Price', 'Integration'], correct: 2 },
-      { text: 'Name one target persona.', type: 'free_text' },
-    ]},
-  ],
-});
-console.log(`Course created: ${course.id} with ${course.modules.length} modules`);
-```
+## Approval Boundaries
 
-### Step 2: Assign Learners
-
-```typescript
-const assignment = await client.assignments.create({
-  course_id: course.id,
-  assignees: { type: 'team', team_ids: ['team_sales_west', 'team_sales_east'] },
-  due_date: '2026-06-01',
-  reminder: { enabled: true, days_before: [7, 3, 1] },
-  late_policy: 'allow_completion',
-});
-console.log(`Assigned to ${assignment.assignee_count} learners`);
-```
-
-### Step 3: Track Progress and Scores
-
-```typescript
-const progress = await client.analytics.courseProgress(course.id);
-progress.users.forEach(u =>
-  console.log(`${u.name}: ${u.completion}% | Quiz: ${u.quiz_score ?? 'N/A'}`)
-);
-console.log(`Overall: ${progress.completion_rate}% | Avg score: ${progress.avg_score}`);
-```
-
-### Step 4: Update Module Content
-
-```typescript
-await client.modules.update(course.modules[0].id, {
-  url: 'https://videos.example.com/q2-launch-v2.mp4',
-  duration_min: 15,
-});
-console.log('Module updated — learners will see new content on next access');
-```
-
-## Error Handling
-
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| `401 Unauthorized` | Invalid or missing API key | Verify `X-Api-Key` header value |
-| `404 Not Found` | Course or module ID invalid | Confirm IDs from create responses |
-| `409 Conflict` | Duplicate course title in org | Use unique title or update existing |
-| `422 Validation Error` | Quiz missing correct answer | Ensure every MC question has `correct` index |
-| `429 Rate Limited` | Exceeds 60 req/min | Implement retry with `Retry-After` header |
+Do not publish, assign users, alter passing rules, send communications, or replace live content without the program and data owners.
 
 ## Output
 
-A successful run creates a course with video, document, and quiz modules, assigns it
-to sales teams with reminders, and reports completion rates and average quiz scores.
+Return the frozen brief, entitlement check, content and audience validation, pilot evidence, mutation preview, launch receipt, reconciliation, and review schedule.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Audience reconciliation is incomplete | Block assignment until the system-of-record owner resolves it. |
+| Pilot reporting does not match completion | Preserve both observations and escalate the tenant contract; do not edit scores. |
+| Launch is partially applied | Stop notifications, reconcile actual assignments, and execute the approved rollback. |
+
+## Example
+
+```text
+program=q4-certification; audience=142; excluded=3; pilot=pass; approved=program-owner; assigned=142; reconciliation=exact
+```
 
 ## Resources
 
-- [MindTickle Platform Integrations](https://www.mindtickle.com/platform/integrations/)
-- MindTickle API Reference
+- [Subscription services](https://www.mindtickle.com/legal/description-of-subscription-services/)
+- [Mindtickle sales training](https://www.mindtickle.com/platform/pre-built-sales-training/)
 
 ## Next Steps
 
-Continue with `mindtickle-core-workflow-b` for coaching and role-play scenarios.
+Use outcome evidence in the readiness workflow without redefining scores after launch.

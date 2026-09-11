@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/mindtickle-pack",
-  "version": "1.0.3",
-  "description": "Claude Code skill pack for Mindtickle - 18 skills covering sales readiness, training, and revenue enablement",
+  "version": "1.0.4",
+  "description": "Governed Mindtickle workflows for tenant access, learning, readiness, integrations, security, and operations (18 skills)",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -13,9 +13,9 @@
     "claude-code",
     "claude-code-plugin",
     "mindtickle",
-    "sales-readiness",
-    "training",
     "revenue-enablement",
+    "tenant-integration",
+    "readiness",
     "ai-skills",
     "saas-pack"
   ],

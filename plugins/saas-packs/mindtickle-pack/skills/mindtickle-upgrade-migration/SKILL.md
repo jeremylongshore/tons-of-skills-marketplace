@@ -1,150 +1,78 @@
 ---
 name: mindtickle-upgrade-migration
-description: 'Upgrade Migration for MindTickle.
-
-  Trigger: "mindtickle upgrade migration".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Migrate a Mindtickle tenant contract, adapter, connector, identity mapping, or product configuration through compatibility and rollback gates. Use when a vendor or customer contract changes. Trigger with "migrate Mindtickle integration".'
+argument-hint: "[change-record] [target-version]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mindtickle
-- sales
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, mindtickle, migration, compatibility, rollback]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; tenant, identity, data, connector, and production migrations require named customer and vendor approvals
 ---
-# MindTickle Upgrade & Migration
+# Controlled Mindtickle Contract Migration
 
 ## Overview
 
-MindTickle is a sales enablement and readiness platform with APIs for managing courses, quizzes, user progress, and coaching sessions. The API exposes endpoints for content management, learner analytics, and CRM integration. Tracking API changes is essential because MindTickle evolves its content schema (course structures, quiz question types, scoring rubrics), user progress tracking fields, and SSO/SCIM provisioning models — breaking integrations that sync training completion data to Salesforce or automate onboarding workflows.
+Move from a frozen current contract to a verified target while preserving identity, data meaning, operational continuity, and a tested reversal path.
 
-## Version Detection
+## Prerequisites
 
-```typescript
-const MINDTICKLE_BASE = "https://api.mindtickle.com/v2";
+- Current and target artifacts with provenance, digests, effective dates, and vendor or customer owners
+- Inventory of affected operations, fields, identities, mappings, reports, programs, and downstream consumers
+- Representative sanitized fixtures, a migration window, communications, and rollback authority
 
-async function detectMindTickleVersion(apiKey: string): Promise<void> {
-  const res = await fetch(`${MINDTICKLE_BASE}/users`, {
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-  });
-  const version = res.headers.get("x-mt-api-version") ?? "v2";
-  console.log(`MindTickle API version: ${version}`);
+## Tool Discipline
 
-  // Check for deprecated course fields
-  const coursesRes = await fetch(`${MINDTICKLE_BASE}/courses?limit=1`, {
-    headers: { Authorization: `Bearer ${apiKey}` },
-  });
-  const data = await coursesRes.json();
-  const knownFields = ["id", "title", "modules", "status", "created_at", "assigned_users"];
-  if (data.courses?.[0]) {
-    const actual = Object.keys(data.courses[0]);
-    const newFields = actual.filter((f) => !knownFields.includes(f));
-    if (newFields.length) console.log(`New course fields: ${newFields.join(", ")}`);
-  }
-}
-```
+Use `Read`, `Glob`, and `Grep` to inspect contracts, mappings, and consumers, `WebFetch` for current authorized change material, and `Write` or `Edit` for compatibility tests, migration plans, and redacted receipts.
 
-## Migration Checklist
+## Current Contract
 
-- [ ] Review MindTickle release notes for API schema changes
-- [ ] Audit codebase for hardcoded course status enums (`draft`, `published`, `archived`)
-- [ ] Verify quiz question type support — new types may require parser updates
-- [ ] Check user progress response for new completion metric fields
-- [ ] Update SCIM provisioning payload if user attribute schema changed
-- [ ] Test coaching session API for new rubric scoring fields
-- [ ] Validate CRM sync field mappings (Salesforce/HubSpot) after API update
-- [ ] Check if module ordering mechanism changed (position vs. sort_order)
-- [ ] Update webhook handlers for course completion and quiz score events
-- [ ] Run learner analytics export to verify report format compatibility
+Mindtickle may update subscription services and tenant capabilities, while customer profile fields, integrations, custom reports, and migrations can require separately scoped work. Do not infer API versioning or backward compatibility when the authorized artifacts do not state it.
 
-## Schema Migration
+## Authentication
 
-```typescript
-// MindTickle course progress: flat completion → structured module-level tracking
-interface OldProgress {
-  user_id: string;
-  course_id: string;
-  completed: boolean;
-  score: number;
-  completed_at?: string;
-}
+Validate target credential compatibility and scopes in non-production. Keep current and target credentials separately owned, prevent downgrade to broader access, and preserve revocation plans for both.
 
-interface NewProgress {
-  user_id: string;
-  course_id: string;
-  status: "not_started" | "in_progress" | "completed" | "expired";
-  overall_score: number;
-  modules: Array<{
-    module_id: string;
-    status: string;
-    score: number;
-    attempts: number;
-    time_spent_seconds: number;
-  }>;
-  certifications: Array<{ cert_id: string; issued_at: string; expires_at?: string }>;
-  completed_at?: string;
-}
+## Instructions
 
-function migrateProgress(old: OldProgress): NewProgress {
-  return {
-    user_id: old.user_id,
-    course_id: old.course_id,
-    status: old.completed ? "completed" : "not_started",
-    overall_score: old.score,
-    modules: [],
-    certifications: [],
-    completed_at: old.completed_at,
-  };
-}
-```
+1. Freeze current and target contracts and build a semantic diff of operations, schemas, meanings, defaults, permissions, limits, and support status.
+2. Trace every changed element to code, fixtures, identity mappings, reports, content, data stores, alerts, and business owners.
+3. Classify changes as compatible, transformable, destructive, entitlement-dependent, or clarification required.
+4. Define transformation, validation, duplicate prevention, reconciliation, retention, and rollback for each affected data set.
+5. Run old fixtures against the new adapter and target fixtures against the compatibility boundary; include partial and ambiguous failures.
+6. Rehearse migration and rollback with synthetic or approved non-production data and compare counts, identities, meanings, and permissions.
+7. Present the exact change set, downtime or dual-run window, approvers, abort thresholds, and support coverage.
+8. After approval, migrate incrementally, reconcile at each boundary, then revoke obsolete access only after the rollback window closes.
 
-## Rollback Strategy
+## Approval Boundaries
 
-```typescript
-class MindTickleClient {
-  private apiVersion: "v1" | "v2";
+Do not transform learner records, change identity attributes, enable target writes, accept destructive loss, or revoke rollback credentials without accountable owners.
 
-  constructor(private apiKey: string, version: "v1" | "v2" = "v2") {
-    this.apiVersion = version;
-  }
+## Output
 
-  async getCourses(limit = 50): Promise<any> {
-    try {
-      const res = await fetch(`https://api.mindtickle.com/${this.apiVersion}/courses?limit=${limit}`, {
-        headers: { Authorization: `Bearer ${this.apiKey}` },
-      });
-      if (!res.ok) throw new Error(`MindTickle ${res.status}`);
-      return await res.json();
-    } catch (err) {
-      if (this.apiVersion === "v2") {
-        console.warn("Falling back to MindTickle API v1");
-        this.apiVersion = "v1";
-        return this.getCourses(limit);
-      }
-      throw err;
-    }
-  }
-}
-```
+Return contract digests and diff, impact graph, migration and rollback plan, fixture results, rehearsal reconciliation, approvals, live receipts, and decommission decision.
 
 ## Error Handling
 
-| Migration Issue | Symptom | Fix |
-|----------------|---------|-----|
-| Course status enum expanded | `400` creating course with unrecognized status value | Fetch valid statuses from `/courses/statuses` endpoint |
-| Quiz question type unsupported | Quiz import fails with `unknown_question_type` | Add parser support for new question types (drag-drop, hotspot) |
-| SCIM attribute renamed | User provisioning fails with `invalid attribute` | Update SCIM payload to match current user schema from `/schemas` |
-| Progress field restructured | Code crashes accessing `progress.completed` (now `progress.status`) | Update to check `status === "completed"` instead of boolean |
-| Webhook signature algorithm changed | Webhook verification fails on all events | Update HMAC verification to use new algorithm from MindTickle docs |
+| Condition | Response |
+|---|---|
+| Meaning of a field changed ambiguously | Block that mapping and request authoritative clarification. |
+| Rehearsal loses or duplicates records | Fail the gate and repair transformation or idempotency. |
+| Live reconciliation crosses a threshold | Stop, preserve evidence, and execute the approved rollback. |
+
+## Example
+
+```text
+current-contract=sha256:...; target=sha256:...; changes=4-compatible,1-blocked; rehearsal=exact; live=not-approved
+```
 
 ## Resources
 
-- [MindTickle Integrations](https://www.mindtickle.com/platform/integrations/)
-- MindTickle API Documentation
+- [Mindtickle terms of service](https://www.mindtickle.com/legal/terms-of-service/)
+- [Mindtickle professional services](https://www.mindtickle.com/legal/professional-services-scope-and-services-description/)
 
 ## Next Steps
 
-For CI pipeline integration, see `mindtickle-ci-integration`.
+Resolve blocked mappings, rerun the full rehearsal, and schedule obsolete-access revocation after acceptance.

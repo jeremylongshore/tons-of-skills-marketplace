@@ -1,136 +1,78 @@
 ---
 name: mindtickle-rate-limits
-description: 'Rate Limits for MindTickle.
-
-  Trigger: "mindtickle rate limits".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Discover and enforce a Mindtickle tenant''s documented capacity, retry, pagination, and concurrency contract. Use when planning bulk syncs or responding to throttling. Trigger with "handle Mindtickle limits".'
+argument-hint: "[contract-path] [workload-profile]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mindtickle
-- sales
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, mindtickle, rate-limits, resilience, capacity]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; load tests and production schedule changes require tenant-owner and service-owner approval
 ---
-# MindTickle Rate Limits
+# Mindtickle Capacity and Retry Contract
 
 ## Overview
 
-MindTickle's API enforces per-API-key rate limits across its sales readiness platform, with content upload and user management endpoints throttled more tightly than read operations on courses and quiz results. Organizations onboarding large sales teams (500+ reps) hit limits fast when bulk-creating user accounts, assigning training modules, and syncing completion data to Salesforce. Quiz result exports and coaching session analytics carry separate lower caps, making it critical to stagger data pulls during quarterly enablement rollouts.
+Replace guessed quotas with an evidence-backed workload envelope and a conservative client policy that protects the tenant and downstream systems.
 
-## Rate Limit Reference
+## Prerequisites
 
-| Endpoint | Limit | Window | Scope |
-|----------|-------|--------|-------|
-| User create/update | 30 req | 1 minute | Per API key |
-| Course assignment | 60 req | 1 minute | Per API key |
-| Quiz results export | 20 req | 1 minute | Per API key |
-| Content upload | 10 req | 1 minute | Per API key |
-| Analytics / reports | 40 req | 1 minute | Per API key |
+- Current tenant documentation or written vendor guidance for the operations in scope
+- A workload profile with record counts, freshness target, windows, and priority
+- Metrics for attempts, latency, responses, retries, backlog, and reconciliation
 
-## Rate Limiter Implementation
+## Tool Discipline
 
-```typescript
-class MindTickleRateLimiter {
-  private tokens: number;
-  private lastRefill: number;
-  private readonly max: number;
-  private readonly refillRate: number;
-  private queue: Array<{ resolve: () => void }> = [];
+Use `Read`, `Glob`, and `Grep` for workload and adapter configuration, `WebFetch` for current authorized contracts, and `Write` or `Edit` for a versioned policy and synthetic test fixtures.
 
-  constructor(maxPerMinute: number) {
-    this.max = maxPerMinute;
-    this.tokens = maxPerMinute;
-    this.lastRefill = Date.now();
-    this.refillRate = maxPerMinute / 60_000;
-  }
+## Current Contract
 
-  async acquire(): Promise<void> {
-    this.refill();
-    if (this.tokens >= 1) { this.tokens -= 1; return; }
-    return new Promise(resolve => this.queue.push({ resolve }));
-  }
+Mindtickle publicly states its integrations support high-volume transactions but does not publish universal endpoint quotas. Numeric limits, response headers, pagination, safe concurrency, and retry behavior must come from the customer's current contract or observed authorized responses.
 
-  private refill() {
-    const now = Date.now();
-    this.tokens = Math.min(this.max, this.tokens + (now - this.lastRefill) * this.refillRate);
-    this.lastRefill = now;
-    while (this.tokens >= 1 && this.queue.length) {
-      this.tokens -= 1;
-      this.queue.shift()!.resolve();
-    }
-  }
-}
+## Authentication
 
-const userLimiter = new MindTickleRateLimiter(25);
-const contentLimiter = new MindTickleRateLimiter(8);
-```
+Use a non-production, least-privilege principal for any capacity probe. Never distribute load across extra credentials or tenants to evade a documented limit.
 
-## Retry Strategy
+## Instructions
 
-```typescript
-async function mindtickleRetry<T>(
-  limiter: MindTickleRateLimiter, fn: () => Promise<Response>, maxRetries = 3
-): Promise<T> {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    await limiter.acquire();
-    const res = await fn();
-    if (res.ok) return res.json();
-    if (res.status === 429) {
-      const retryAfter = parseInt(res.headers.get("Retry-After") || "20", 10);
-      const jitter = Math.random() * 3000;
-      await new Promise(r => setTimeout(r, retryAfter * 1000 + jitter));
-      continue;
-    }
-    if (res.status >= 500 && attempt < maxRetries) {
-      await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 2000));
-      continue;
-    }
-    throw new Error(`MindTickle API ${res.status}: ${await res.text()}`);
-  }
-  throw new Error("Max retries exceeded");
-}
-```
+1. Inventory each operation's documented pagination, batch size, concurrency, timeout, retry, and idempotency behavior.
+2. Mark every missing value unknown; do not fill gaps with generic numbers.
+3. Model peak demand, allowable staleness, downstream limits, and replay volume after an outage.
+4. Define a conservative token or concurrency policy, bounded exponential backoff with jitter, and a total retry budget.
+5. Add backpressure, dead-letter or quarantine handling, and write reconciliation where the contract permits.
+6. Validate locally with synthetic throttle, timeout, malformed-response, and recovery fixtures.
+7. Obtain approval before a controlled tenant probe; stop at the first throttling or instability signal.
+8. Version the resulting envelope with evidence, owner, expiry, dashboards, and escalation thresholds.
 
-## Batch Processing
+## Approval Boundaries
 
-```typescript
-async function batchOnboardUsers(users: any[], batchSize = 10) {
-  const results: any[] = [];
-  for (let i = 0; i < users.length; i += batchSize) {
-    const batch = users.slice(i, i + batchSize);
-    const batchResults = await Promise.all(
-      batch.map(user => mindtickleRetry(userLimiter, () =>
-        fetch(`${MT_BASE}/api/v1/users`, {
-          method: "POST", headers,
-          body: JSON.stringify({ email: user.email, name: user.name, role: user.role }),
-        })
-      ))
-    );
-    results.push(...batchResults);
-    if (i + batchSize < users.length) await new Promise(r => setTimeout(r, 15_000));
-  }
-  return results;
-}
-```
+Do not load-test production, evade limits, increase concurrency, or replay writes without tenant and service-owner approval.
+
+## Output
+
+Return the operation inventory, known and unknown limits, workload model, client policy, retry budget, test evidence, monitoring thresholds, and vendor questions.
 
 ## Error Handling
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| 429 on bulk user create | Exceeded 30 writes/min user cap | Batch in groups of 10 with 15s gaps |
-| 429 on content upload | Upload limit (10/min) is very low | Queue uploads serially with 8s spacing |
-| 409 duplicate user | Email already exists in org | Upsert: fetch by email first, then update |
-| Export timeout | Quiz results for 1000+ reps | Filter by team/date range, paginate |
-| 403 on course assign | User lacks required prerequisite | Check prerequisites before assignment |
+| Condition | Response |
+|---|---|
+| Limit signal is undocumented | Reduce concurrency, preserve redacted evidence, and ask Mindtickle for clarification. |
+| Retry budget is exhausted | Quarantine remaining work and alert; do not loop indefinitely. |
+| Backlog threatens freshness | Prioritize by business policy or renegotiate the window; never discard silently. |
+
+## Example
+
+```text
+limits=tenant-documented; unknowns=2; concurrency=conservative; retries=bounded; throttle-fixture=pass; production-probe=not-run
+```
 
 ## Resources
 
-- [MindTickle Platform Integrations](https://www.mindtickle.com/platform/integrations/)
+- [Mindtickle integrations](https://www.mindtickle.com/platform/integrations/)
+- [Mindtickle support services](https://www.mindtickle.com/legal/support-services/)
 
 ## Next Steps
 
-See `mindtickle-performance-tuning`.
+Exercise backlog recovery in a sandbox and review the workload envelope after contract or volume changes.

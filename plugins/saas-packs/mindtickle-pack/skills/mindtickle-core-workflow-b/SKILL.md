@@ -1,116 +1,78 @@
 ---
 name: mindtickle-core-workflow-b
-description: 'Execute MindTickle secondary workflow: Rep Performance & Readiness.
-
-  Trigger: "mindtickle rep performance & readiness", "secondary mindtickle workflow".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.7.0
-license: MIT
+description: 'Design and govern a Mindtickle readiness and coaching measurement cycle tied to business outcomes. Use when defining competencies, assessments, coaching, or Readiness Index reviews. Trigger with "measure Mindtickle readiness".'
+argument-hint: "[role-profile] [review-period]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mindtickle
-- sales
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, mindtickle, readiness, coaching, measurement]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; competency models, employee assessments, coaching actions, and CRM correlation require HR, legal, and business-owner approval
 ---
-# MindTickle — Quiz & Assessment
+# Mindtickle Readiness and Coaching Measurement Cycle
 
 ## Overview
 
-Create quizzes and assessments, grade submissions, and track scores across your sales
-enablement programs in MindTickle. Use this workflow when building certification exams,
-knowledge checks after training modules, or competency assessments that feed into
-rep readiness scores. This is the secondary workflow — for training content and
-course management, see `mindtickle-core-workflow-a`.
+Create an explainable measurement plan that connects competencies, learning, coaching, and field outcomes without turning a readiness score into an unsupported employment decision.
+
+## Prerequisites
+
+- A role owner, approved competency model, review population, and business outcome
+- Defined lawful uses, access controls, retention, and employee communication
+- Confirmed entitlements for Readiness Index, assessments, coaching, analytics, and any CRM integration
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` for profiles and metric definitions, `WebFetch` for current official contracts, and `Write` or `Edit` for a governed measurement specification and redacted review receipt.
+
+## Current Contract
+
+Mindtickle describes Ideal Rep Profiles, competency benchmarks, assessments, coaching, module-level insights, team and regional views, and correlation with CRM outcomes. The customer owns the validity, fairness, interpretation, and permitted decisions built on those measurements.
+
+## Authentication
+
+Restrict learner-level data to approved roles. Use aggregate or de-identified data where possible, and keep CRM, HR, assessment, and coaching access independently authorized.
 
 ## Instructions
 
-### Step 1: Create a Quiz with Question Bank
+1. Define the decision the measurement may inform and decisions it must never make automatically.
+2. Version the role profile, competencies, weights, evidence sources, exclusions, and review cadence.
+3. Establish baselines and minimum sample sizes before setting targets or claiming correlation.
+4. Validate assessment accessibility, scoring reproducibility, manager calibration, and missing-data treatment.
+5. Map learning and coaching interventions to named gaps; retain a human review and appeal route.
+6. Present any tenant configuration change with population impact, effective date, and rollback.
+7. After approval, run the cycle and reconcile source evidence, computed views, and authorized exports.
+8. Report trends with uncertainty and confounders; do not infer causation from a dashboard correlation.
 
-```typescript
-const quiz = await client.assessments.create({
-  title: 'Q2 Product Knowledge Certification',
-  module_id: 'mod_product_q2',
-  passing_score: 80,
-  time_limit_minutes: 30,
-  max_attempts: 2,
-  questions: [
-    { type: 'multiple_choice', text: 'What is the primary use case for Feature X?',
-      options: ['Analytics', 'Automation', 'Security', 'Compliance'],
-      correct: 1, points: 10 },
-    { type: 'true_false', text: 'Feature Y supports SSO out of the box.',
-      correct: true, points: 5 },
-    { type: 'open_ended', text: 'Describe how you would position Feature X to a CFO.',
-      points: 20, rubric: 'Must mention ROI, time savings, and compliance' },
-  ],
-});
-console.log(`Quiz ${quiz.id} created — ${quiz.questions.length} questions, pass=${quiz.passing_score}%`);
-```
+## Approval Boundaries
 
-### Step 2: Assign Quiz to a Team
-
-```typescript
-const assignment = await client.assessments.assign(quiz.id, {
-  team_ids: ['team_sales_west', 'team_sales_east'],
-  due_date: '2026-04-20',
-  reminder_days: [7, 3, 1],
-  notify: true,
-});
-console.log(`Assigned to ${assignment.total_reps} reps, due ${assignment.due_date}`);
-```
-
-### Step 3: Grade Submissions and Review Scores
-
-```typescript
-const submissions = await client.assessments.submissions(quiz.id, {
-  status: 'completed',
-  sort: 'score_desc',
-});
-submissions.items.forEach(s =>
-  console.log(`${s.rep_name}: ${s.score}% (${s.passed ? 'PASS' : 'FAIL'}) — attempt ${s.attempt}/${quiz.max_attempts}`)
-);
-const pending = submissions.items.filter(s => s.pending_review);
-for (const sub of pending) {
-  await client.assessments.grade(quiz.id, sub.id, {
-    question_scores: [{ question_id: 'q3', score: 15, feedback: 'Missed compliance angle' }],
-  });
-}
-```
-
-### Step 4: Export Score Analytics
-
-```typescript
-const analytics = await client.assessments.analytics(quiz.id, {
-  group_by: 'team',
-  metrics: ['avg_score', 'pass_rate', 'avg_completion_time'],
-});
-analytics.teams.forEach(t =>
-  console.log(`${t.team_name}: avg=${t.avg_score}%, pass_rate=${t.pass_rate}%, avg_time=${t.avg_minutes}m`)
-);
-```
-
-## Error Handling
-
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| `401 Unauthorized` | Invalid or expired API token | Regenerate token in MindTickle admin |
-| `404 Assessment not found` | Wrong quiz ID or deleted assessment | Verify with `client.assessments.list()` |
-| `422 Invalid question format` | Missing required fields in question object | Include `type`, `text`, `correct`, and `points` |
-| `409 Already submitted` | Rep exceeded max_attempts | Increase `max_attempts` or reset submission |
-| `403 Assignment restricted` | Team not in the module's audience | Add team to module audience first |
+Do not change competency weights, assign remediation, export learner-level results, or feed scores into compensation or employment actions without explicit policy and owner approval.
 
 ## Output
 
-A successful workflow creates a timed quiz with mixed question types, assigns it to
-sales teams with automated reminders, grades submissions, and produces team-level
-analytics showing pass rates, scores, and question difficulty breakdowns.
+Return the versioned model, purpose and prohibited uses, access matrix, validation evidence, approved interventions, aggregate results, limitations, and next review date.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| A metric cannot be reproduced | Quarantine it from decisions and reconcile its source and transformation. |
+| Group size risks re-identification | Suppress or aggregate the result according to policy. |
+| Outcome correlation is unstable | Report uncertainty and collect more evidence; do not tune weights to force a result. |
+
+## Example
+
+```text
+profile=enterprise-ae-v3; population=approved; calibration=pass; learner-export=none; outcome-link=correlation-only; review=quarterly
+```
 
 ## Resources
 
-- [MindTickle Platform Integrations](https://www.mindtickle.com/platform/integrations/)
+- [Mindtickle Readiness Index](https://www.mindtickle.com/platform/analyze-sales-team-performance-sales-readiness-index/)
+- [Mindtickle sales coaching](https://www.mindtickle.com/platform/sales-coaching-software/)
 
 ## Next Steps
 
-See `mindtickle-sdk-patterns` for authentication and webhook configuration.
+Review the model with affected stakeholders and compare interventions against the frozen baseline.

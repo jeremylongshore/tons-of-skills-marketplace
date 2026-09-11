@@ -1,149 +1,78 @@
 ---
 name: mindtickle-ci-integration
-description: 'Ci Integration for MindTickle.
-
-  Trigger: "mindtickle ci integration".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.7.0
-license: MIT
+description: 'Create a fail-closed CI lane for a Mindtickle adapter using contract fixtures, secret scanning, and an explicitly gated tenant smoke test. Use when hardening integration delivery. Trigger with "test Mindtickle in CI".'
+argument-hint: "[project-path] [ci-provider]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mindtickle
-- sales
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, mindtickle, ci, contract-testing, security]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; CI secrets, protected environments, and tenant smoke tests require repository and tenant-owner approval
 ---
-# MindTickle CI Integration
+# Fail-Closed Mindtickle Integration CI
 
 ## Overview
 
-Configure CI pipelines that validate MindTickle sales enablement API integrations using a two-tier testing strategy. Unit tests mock the MindTickle REST client to verify course enrollment, quiz scoring, and user progress logic without consuming API calls. Integration tests run on main-branch merges with a real Bearer token and company ID to confirm course listing, user search, and completion tracking against the live MindTickle API. The dual-header auth pattern (API key plus company ID) requires special CI secret management to avoid silent authentication failures.
+Gate adapter changes on contract integrity and sanitized behavior while keeping external tenant access isolated, read-only, and manually authorized.
 
-## GitHub Actions Workflow
+## Prerequisites
 
-```yaml
-# .github/workflows/mindtickle-tests.yml
-name: MindTickle API Tests
-on: [push, pull_request]
+- Deterministic local tests and sanitized fixtures from `mindtickle-local-dev-loop`
+- Protected branches, pinned CI permissions, a secret scanner, and artifact retention policy
+- A separately owned non-production tenant principal if a live smoke lane is justified
 
-jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20' }
-      - run: npm ci
-      - run: npm run lint && npm run typecheck
-      - run: npm test -- --testPathPattern=unit  # No API key or company ID needed
+## Tool Discipline
 
-  integration-tests:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    needs: unit-tests
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20' }
-      - run: npm ci
-      - run: npm test -- --testPathPattern=integration
-        env:
-          MINDTICKLE_API_KEY: ${{ secrets.MINDTICKLE_API_KEY }}
-          MINDTICKLE_COMPANY_ID: ${{ secrets.MINDTICKLE_COMPANY_ID }}
-```
+Use `Read`, `Glob`, and `Grep` to inspect workflows and dependency locks, `WebFetch` for current CI and tenant contracts, and `Write` or `Edit` for workflow files, tests, and redacted evidence.
 
-## Mock-Based Unit Tests
+## Current Contract
 
-```typescript
-// tests/unit/course-service.test.ts
-import { describe, it, expect, vi } from 'vitest';
-import { enrollUser } from '../../src/services/course-service';
-import * as mtClient from '../../src/lib/mindtickle-client';
+The always-on lane must not depend on a live Mindtickle tenant. A live lane is optional and must use the customer's documented read-only operation, protected environment approval, bounded execution, and redacted logs.
 
-vi.mock('../../src/lib/mindtickle-client');
+## Authentication
 
-describe('CourseService', () => {
-  it('enrolls a user in a training course', async () => {
-    vi.mocked(mtClient.post).mockResolvedValue({
-      enrollment_id: 'enr-3390',
-      user_id: 'usr-512',
-      course_id: 'crs-77',
-      status: 'enrolled',
-      enrolled_at: '2026-04-01T10:00:00Z',
-    });
+Grant workflow tokens minimal repository permissions. Store any tenant credential in the CI secret provider, restrict it to the protected environment, prevent fork access, and never expose it to pull-request code.
 
-    const result = await enrollUser('usr-512', 'crs-77');
-    expect(result.status).toBe('enrolled');
-    expect(mtClient.post).toHaveBeenCalledWith('/courses/crs-77/enrollments', {
-      user_id: 'usr-512',
-    });
-  });
-});
-```
+## Instructions
 
-## Integration Tests
+1. Inventory CI triggers, permissions, third-party actions, caches, artifacts, and secret exposure paths.
+2. Build an always-on lane for metadata validation, secret scanning, static checks, unit tests, contract fixtures, and generated-content drift.
+3. Pin actions and dependencies according to repository policy and reject unreviewed network downloads.
+4. Assert fixture sanitization, contract digest, tenant isolation, retry bounds, mutation denial, and stable output.
+5. If justified, add a separate manual or protected-main smoke lane using one documented read-only operation and a strict timeout.
+6. Ensure fork pull requests never receive tenant secrets and smoke logs record only status and safe identifiers.
+7. Test success, missing secret, revoked access, contract mismatch, timeout, and artifact-redaction paths.
+8. Record gate names, expected counts, owners, rollback, and credential rotation procedure.
 
-```typescript
-// tests/integration/user-progress.test.ts
-import { describe, it, expect } from 'vitest';
-import { MindTickleClient } from '../../src/lib/mindtickle-client';
+## Approval Boundaries
 
-const canRun = process.env.MINDTICKLE_API_KEY && process.env.MINDTICKLE_COMPANY_ID;
+Do not expose secrets to forks, run live writes, weaken branch protection, or make a tenant-dependent lane mandatory without repository and tenant-owner approval.
 
-describe.skipIf(!canRun)('MindTickle User Progress (live API)', () => {
-  const client = new MindTickleClient({
-    apiKey: process.env.MINDTICKLE_API_KEY!,
-    companyId: process.env.MINDTICKLE_COMPANY_ID!,
-  });
+## Output
 
-  it('retrieves course completion stats for a user', async () => {
-    const users = await client.get('/users', { limit: 1 });
-    expect(users.length).toBeGreaterThan(0);
-
-    const progress = await client.get(`/users/${users[0].id}/progress`);
-    expect(progress).toHaveProperty('courses_completed');
-    expect(typeof progress.courses_completed).toBe('number');
-  });
-});
-```
-
-## CI Cost Management
-
-```typescript
-// tests/helpers/api-budget.ts
-let callCount = 0;
-const MAX_CALLS_PER_RUN = 30; // MindTickle API has per-company rate limits
-
-export function trackApiCall(): void {
-  callCount++;
-  if (callCount > MAX_CALLS_PER_RUN) {
-    throw new Error(
-      `CI API budget exceeded: ${callCount}/${MAX_CALLS_PER_RUN} calls. ` +
-      'MindTickle enforces per-company rate limits — reduce test scope or paginate less.'
-    );
-  }
-}
-
-export function getCallCount(): number { return callCount; }
-```
+Return the CI threat model, gate graph, permissions, fixture and contract assertions, optional smoke boundary, failure tests, artifact policy, and verification receipt.
 
 ## Error Handling
 
-| CI Issue | Cause | Fix |
-|----------|-------|-----|
-| 401 Unauthorized | Missing or invalid Bearer token | Regenerate `MINDTICKLE_API_KEY` in MindTickle admin and update GitHub Secrets |
-| 403 Forbidden | Company ID mismatch or insufficient permissions | Verify `MINDTICKLE_COMPANY_ID` matches the API key's org; check API scope |
-| Empty user list | Company has no users in sandbox instance | Provision test users via `POST /users` in a `beforeAll` setup hook |
-| Quiz scores return null | Course has no quizzes configured | Use a known test course ID with at least one quiz module |
-| Integration tests silently pass | Both env vars undefined so `skipIf` triggers | Add a CI step that asserts secrets are set: `test -n "$MINDTICKLE_API_KEY"` |
+| Condition | Response |
+|---|---|
+| Fork workflow requests a secret | Deny the secret and run only the fixture lane. |
+| Contract digest changes | Fail closed and require the migration workflow. |
+| Smoke response is ambiguous | Stop without retrying and reconcile through approved evidence. |
+
+## Example
+
+```text
+fixture-lane=required; live-smoke=protected-read-only; fork-secrets=none; contract-digest=matched; gates=all-pass
+```
 
 ## Resources
 
-- [MindTickle Platform Integrations](https://www.mindtickle.com/platform/integrations/)
-- [GitHub Actions Encrypted Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
+- [Mindtickle integrations](https://www.mindtickle.com/platform/integrations/)
+- [Mindtickle Trust](https://www.mindtickle.com/trust/)
 
 ## Next Steps
 
-See `mindtickle-deploy-integration`.
+Require the CI gate on protected branches and rehearse credential revocation without changing fixture coverage.
