@@ -6666,7 +6666,7 @@
       "name": "skill-creator",
       "source": "./plugins/skill-enhancers/skill-creator",
       "description": "Create and validate production-grade agent skills with 100-point marketplace grading. Supports creation workflows, eval-driven development, and auto-fix for spec compliance.",
-      "version": "5.22.0",
+      "version": "5.23.0",
       "category": "skill-enhancers",
       "keywords": [
         "skill-creation",
