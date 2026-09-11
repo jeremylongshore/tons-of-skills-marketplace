@@ -1,402 +1,92 @@
 ---
 name: linear-data-handling
-description: 'Data synchronization, backup, and consistency patterns for Linear.
-
-  Use when implementing data sync, creating backups, exporting data,
-
-  or ensuring data consistency between Linear and local state.
-
-  Trigger: "linear data sync", "backup linear", "linear export",
-
-  "linear data consistency", "sync linear issues".
-
-  '
-allowed-tools: Read, Write, Edit, Grep, Bash(node:*)
-version: 1.12.0
-license: MIT
+description: >-
+  Classify, minimize, export, retain, and delete Linear-derived data with workspace visibility intact. Use when handling issue content, comments, attachments, audit records, exports, or analytics copies. Trigger with "handle Linear data safely", "export Linear records", or "set Linear retention".
+argument-hint: "[repository-path] [data-flow-or-export]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.13.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linear
-- backup
-compatibility: Designed for Claude Code
+- data-governance
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Linear workspace credential
 ---
-# Linear Data Handling
+# Linear Data Handling and Export Safety
 
 ## Overview
 
-Implement reliable data synchronization, backup, and consistency for Linear integrations. Covers full sync, incremental webhook sync, JSON/CSV export, consistency checks, and conflict resolution.
+Preserve Linear's team and workspace access boundaries when data leaves the product, and minimize replicated content to the stated purpose.
 
 ## Prerequisites
 
-- `@linear/sdk` with API key configured
-- Database for local storage (any ORM — Drizzle, Prisma, Knex)
-- Understanding of eventual consistency
+- The target repository, Linear workspace, environment, and accountable owner
+- Current security, privacy, compliance, capacity, and change-control requirements
+- An approved Linear credential only when a bounded live verification is necessary
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current first-party Linear documentation and package metadata. Use `Write` or `Edit` only for requested implementation with known target files. Never write credentials, customer content, unrestricted environment output, or unredacted GraphQL variables.
+
+## Current Contract
+
+- Images and other assets may require authentication; external displays should download and self-host approved assets instead of leaking authenticated URLs.
+- Workspace CSV exports are admin-controlled, owner-only on Enterprise, recorded in the audit log, and delivered through a link that expires after 12 hours.
+- Issue-view CSV limits and role permissions differ; attachment files are not included even when links appear in descriptions.
+
+## Authentication
+
+Use a personal API key only for owner-controlled scripts, OAuth with PKCE for user-delegated applications, or an enabled client-credentials grant for approved automation. Personal keys use `Authorization: <API_KEY>`; OAuth tokens use `Authorization: Bearer <ACCESS_TOKEN>`. Store credentials server-side in an approved secret manager.
+
+Treat app approval, team access, scope changes, credential creation, rotation, revocation, and production access as owner-approved actions.
 
 ## Instructions
 
-### Step 1: Data Model Schema
+1. Inventory data classes, sources, destinations, fields, team visibility, recipients, retention, and deletion owners.
+2. Select the least-privileged export path: narrow GraphQL query, approved view export, workspace export, or supported reporting integration.
+3. Remove unneeded descriptions, comments, customer requests, emails, attachment links, and audit metadata before transfer.
+4. Encrypt approved transfers and stores, bind access to the original team/workspace visibility, and log export authorization.
+5. Test deletion, subject-request, legal-hold, and access-revocation behavior on representative synthetic records.
+6. Return a field-level data map and evidence without embedding the exported data itself.
 
-```typescript
-// src/models/linear-entities.ts
-import { z } from "zod";
+## Approval Boundaries
 
-export const LinearIssueSchema = z.object({
-  id: z.string().uuid(),
-  identifier: z.string(), // e.g., "ENG-123"
-  title: z.string(),
-  description: z.string().nullable(),
-  priority: z.number().int().min(0).max(4),
-  estimate: z.number().nullable(),
-  stateId: z.string().uuid(),
-  stateName: z.string(),
-  stateType: z.string(),
-  teamId: z.string().uuid(),
-  teamKey: z.string(),
-  assigneeId: z.string().uuid().nullable(),
-  projectId: z.string().uuid().nullable(),
-  cycleId: z.string().uuid().nullable(),
-  parentId: z.string().uuid().nullable(),
-  dueDate: z.string().nullable(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  completedAt: z.string().nullable(),
-  canceledAt: z.string().nullable(),
-  syncedAt: z.string(),
-});
+Do not create, reveal, rotate, or revoke credentials; authorize an OAuth app; change scopes or team access; create, mutate, archive, or delete workspace data; configure or re-enable webhooks; import or export data; change roles, SCIM, or audit streaming; transmit diagnostics; change paid entitlements; or perform another production mutation without explicit approval from the accountable owner. Keep diagnosis read-only unless implementation was requested.
 
-export type LinearIssue = z.infer<typeof LinearIssueSchema>;
-```
+## Output
 
-### Step 2: Full Sync
-
-Paginate through all issues, resolve relations, and upsert locally.
-
-```typescript
-import { LinearClient } from "@linear/sdk";
-
-interface SyncStats {
-  total: number;
-  created: number;
-  updated: number;
-  deleted: number;
-  errors: number;
-}
-
-async function fullSync(client: LinearClient, teamKey: string): Promise<SyncStats> {
-  const stats: SyncStats = { total: 0, created: 0, updated: 0, deleted: 0, errors: 0 };
-  const remoteIds = new Set<string>();
-
-  // Paginate all issues
-  let cursor: string | undefined;
-  let hasNext = true;
-
-  while (hasNext) {
-    const result = await client.client.rawRequest(`
-      query FullSync($teamKey: String!, $cursor: String) {
-        issues(
-          first: 100,
-          after: $cursor,
-          filter: { team: { key: { eq: $teamKey } } },
-          orderBy: updatedAt
-        ) {
-          nodes {
-            id identifier title description priority estimate
-            dueDate createdAt updatedAt completedAt canceledAt
-            state { id name type }
-            team { id key }
-            assignee { id }
-            project { id }
-            cycle { id }
-            parent { id }
-          }
-          pageInfo { hasNextPage endCursor }
-        }
-      }
-    `, { teamKey, cursor });
-
-    const issues = result.data.issues;
-
-    for (const issue of issues.nodes) {
-      remoteIds.add(issue.id);
-      stats.total++;
-
-      try {
-        const mapped: LinearIssue = {
-          id: issue.id,
-          identifier: issue.identifier,
-          title: issue.title,
-          description: issue.description,
-          priority: issue.priority,
-          estimate: issue.estimate,
-          stateId: issue.state.id,
-          stateName: issue.state.name,
-          stateType: issue.state.type,
-          teamId: issue.team.id,
-          teamKey: issue.team.key,
-          assigneeId: issue.assignee?.id ?? null,
-          projectId: issue.project?.id ?? null,
-          cycleId: issue.cycle?.id ?? null,
-          parentId: issue.parent?.id ?? null,
-          dueDate: issue.dueDate,
-          createdAt: issue.createdAt,
-          updatedAt: issue.updatedAt,
-          completedAt: issue.completedAt,
-          canceledAt: issue.canceledAt,
-          syncedAt: new Date().toISOString(),
-        };
-
-        const existing = await db.issues.findById(issue.id);
-        if (existing) {
-          await db.issues.update(issue.id, mapped);
-          stats.updated++;
-        } else {
-          await db.issues.insert(mapped);
-          stats.created++;
-        }
-      } catch (error) {
-        stats.errors++;
-        console.error(`Error syncing ${issue.identifier}:`, error);
-      }
-    }
-
-    hasNext = issues.pageInfo.hasNextPage;
-    cursor = issues.pageInfo.endCursor;
-
-    // Rate limit protection
-    if (hasNext) await new Promise(r => setTimeout(r, 100));
-  }
-
-  // Soft-delete issues that no longer exist remotely
-  const localIds = await db.issues.listIds({ teamKey });
-  for (const localId of localIds) {
-    if (!remoteIds.has(localId)) {
-      await db.issues.softDelete(localId);
-      stats.deleted++;
-    }
-  }
-
-  console.log(`Full sync complete:`, stats);
-  return stats;
-}
-```
-
-### Step 3: Incremental Sync via Webhooks
-
-```typescript
-async function processWebhookSync(event: {
-  action: "create" | "update" | "remove";
-  type: string;
-  data: any;
-}) {
-  if (event.type !== "Issue") return;
-
-  const syncedAt = new Date().toISOString();
-
-  switch (event.action) {
-    case "create":
-      await db.issues.insert({
-        id: event.data.id,
-        identifier: event.data.identifier,
-        title: event.data.title,
-        description: event.data.description,
-        priority: event.data.priority,
-        estimate: event.data.estimate,
-        stateId: event.data.stateId ?? event.data.state?.id,
-        stateName: event.data.state?.name ?? "Unknown",
-        stateType: event.data.state?.type ?? "unknown",
-        teamId: event.data.teamId ?? event.data.team?.id,
-        teamKey: event.data.team?.key ?? "",
-        assigneeId: event.data.assigneeId ?? null,
-        projectId: event.data.projectId ?? null,
-        cycleId: event.data.cycleId ?? null,
-        parentId: event.data.parentId ?? null,
-        dueDate: event.data.dueDate ?? null,
-        createdAt: event.data.createdAt,
-        updatedAt: event.data.updatedAt,
-        completedAt: event.data.completedAt ?? null,
-        canceledAt: event.data.canceledAt ?? null,
-        syncedAt,
-      });
-      break;
-
-    case "update":
-      await db.issues.update(event.data.id, {
-        ...event.data,
-        syncedAt,
-      });
-      break;
-
-    case "remove":
-      await db.issues.softDelete(event.data.id);
-      break;
-  }
-}
-```
-
-### Step 4: Data Export / Backup
-
-```typescript
-async function exportToJson(client: LinearClient, outputDir: string) {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const teams = await client.teams();
-
-  const backup = {
-    exportedAt: new Date().toISOString(),
-    version: "1.0",
-    teams: teams.nodes.map(t => ({ id: t.id, key: t.key, name: t.name })),
-    projects: [] as any[],
-    issues: [] as any[],
-  };
-
-  // Export projects
-  const projects = await client.projects();
-  backup.projects = projects.nodes.map(p => ({
-    id: p.id, name: p.name, state: p.state,
-    targetDate: p.targetDate, progress: p.progress,
-  }));
-
-  // Export issues with pagination
-  for (const team of teams.nodes) {
-    let cursor: string | undefined;
-    let hasNext = true;
-    while (hasNext) {
-      const result = await client.issues({
-        first: 100,
-        after: cursor,
-        filter: { team: { id: { eq: team.id } } },
-      });
-      for (const issue of result.nodes) {
-        backup.issues.push({
-          id: issue.id,
-          identifier: issue.identifier,
-          title: issue.title,
-          description: issue.description,
-          priority: issue.priority,
-          estimate: issue.estimate,
-          createdAt: issue.createdAt,
-          updatedAt: issue.updatedAt,
-        });
-      }
-      hasNext = result.pageInfo.hasNextPage;
-      cursor = result.pageInfo.endCursor;
-      if (hasNext) await new Promise(r => setTimeout(r, 100));
-    }
-  }
-
-  const path = `${outputDir}/linear-backup-${timestamp}.json`;
-  await fs.writeFile(path, JSON.stringify(backup, null, 2));
-  console.log(`Exported ${backup.issues.length} issues to ${path}`);
-}
-```
-
-### Step 5: Consistency Check
-
-```typescript
-async function checkConsistency(client: LinearClient, teamKey: string): Promise<{
-  missing: string[];
-  stale: string[];
-  orphaned: string[];
-}> {
-  // Sample 50 remote issues
-  const remote = await client.issues({
-    first: 50,
-    filter: { team: { key: { eq: teamKey } } },
-    orderBy: "updatedAt",
-  });
-
-  const missing: string[] = [];
-  const stale: string[] = [];
-
-  for (const issue of remote.nodes) {
-    const local = await db.issues.findById(issue.id);
-    if (!local) {
-      missing.push(issue.identifier);
-    } else if (local.updatedAt < issue.updatedAt) {
-      stale.push(issue.identifier);
-    }
-  }
-
-  // Find orphaned local records
-  const orphaned: string[] = [];
-  const localSample = await db.issues.findRecent(50);
-  for (const local of localSample) {
-    try {
-      await client.issue(local.id);
-    } catch {
-      orphaned.push(local.identifier);
-    }
-  }
-
-  const result = { missing, stale, orphaned };
-  console.log(`Consistency check: ${missing.length} missing, ${stale.length} stale, ${orphaned.length} orphaned`);
-
-  // Auto-trigger full sync if too many issues
-  if (missing.length > 10 || stale.length > 10) {
-    console.warn("High inconsistency — triggering full sync");
-    await fullSync(client, teamKey);
-  }
-
-  return result;
-}
-```
-
-### Step 6: Conflict Resolution
-
-```typescript
-type ConflictStrategy = "remote-wins" | "local-wins" | "merge" | "manual";
-
-interface ConflictResult {
-  resolved: boolean;
-  strategy: ConflictStrategy;
-  winner: "local" | "remote" | "merged";
-}
-
-function resolveConflict(
-  local: LinearIssue,
-  remote: any,
-  strategy: ConflictStrategy,
-  mergeFields?: string[]
-): ConflictResult {
-  switch (strategy) {
-    case "remote-wins":
-      // Remote always wins — standard for most integrations
-      db.issues.update(remote.id, { ...remote, syncedAt: new Date().toISOString() });
-      return { resolved: true, strategy, winner: "remote" };
-
-    case "local-wins":
-      // Keep local, skip remote update
-      return { resolved: true, strategy, winner: "local" };
-
-    case "merge":
-      // Field-level merge — use remote for specified fields, local for rest
-      const merged = { ...local };
-      for (const field of mergeFields ?? ["title", "priority", "stateId"]) {
-        (merged as any)[field] = remote[field];
-      }
-      merged.syncedAt = new Date().toISOString();
-      db.issues.update(remote.id, merged);
-      return { resolved: true, strategy, winner: "merged" };
-
-    case "manual":
-      throw new Error(`Conflict on ${local.identifier} requires manual resolution`);
-  }
-}
-```
+Return the workspace and team scope, auth mode without credential value, files and contracts inspected, exact operation names, evidence collected, validation result, sensitive fields redacted, remaining risk, accountable owner, approval state, and rollback or next action.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Sync timeout | Too many records | Use smaller page sizes, add delays |
-| Conflict detected | Concurrent edits | Apply conflict resolution strategy |
-| Stale data | Missed webhook events | Trigger full sync via consistency check |
-| Export failed | Rate limit during backup | Add 100ms delay between pagination calls |
-| Duplicate entries | Webhook retry without dedup | Deduplicate by `Linear-Delivery` header |
+| Condition | Response |
+|---|---|
+| Visibility cannot be preserved | Stop the export or split it by enforceable access boundary. |
+| Attachment URL needs auth | Use an approved download/self-host flow; never forward the credential. |
+| Export link expired | Request a new owner-approved export instead of weakening controls. |
+| Deletion conflicts with hold | Escalate to the data owner and preserve the hold. |
+
+## Examples
+
+Use a compact handoff that makes scope, mutation authority, and verification evidence reviewable.
+
+Input:
+
+```text
+scope=public-team issues; fields=id,title,status; destination=approved-warehouse
+```
+
+Expected handoff:
+
+```text
+minimum-fields=3; attachments=excluded; access=team-scoped; retention=owner-set
+```
 
 ## Resources
 
-- [Linear GraphQL API](https://linear.app/developers/graphql)
-- [Linear Pagination](https://linear.app/developers/pagination)
-- [Linear Filtering](https://linear.app/developers/filtering)
-- [Linear Webhooks](https://linear.app/developers/webhooks)
+- [Skill-specific official documentation](references/official-docs.md)
+- [Linear developer documentation index](https://linear.app/llms.txt)
+- [Linear GraphQL API](https://linear.app/developers/graphql.md)

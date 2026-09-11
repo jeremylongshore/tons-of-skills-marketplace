@@ -417,7 +417,6 @@
       "agents-cli",
       "aggregation",
       "aggregator",
-      "agile",
       "ai",
       "ai-acceleration",
       "ai-agency",
@@ -702,6 +701,7 @@
       "data-engineering",
       "data-enrichment",
       "data-extraction",
+      "data-governance",
       "data-migration",
       "data-portal",
       "data-processing",
@@ -986,8 +986,8 @@
       "investment-banking",
       "ios",
       "isolation",
+      "issue-operations",
       "issue-tracking",
-      "issues",
       "istio",
       "itinerary",
       "ivr",
@@ -1527,7 +1527,6 @@
       "tax",
       "tdd",
       "team-behavior",
-      "team-collaboration",
       "tech-debt",
       "technical-analysis",
       "technical-debt",
@@ -11044,16 +11043,15 @@
       "slug": "linear-pack",
       "name": "linear-pack",
       "displayName": "linear pack",
-      "description": "Complete Linear integration skill pack with 24 skills covering issue tracking, project management, workflows, and team collaboration. Flagship tier vendor pack.",
+      "description": "Operator-grade Linear pack with 24 source-grounded skills for GraphQL, OAuth, issue and project workflows, webhooks, reliability, data governance, and enterprise access.",
       "category": "saas-packs",
       "keywords": [
         "linear",
-        "issues",
-        "project-management",
-        "tracking",
-        "workflows",
-        "agile",
-        "team-collaboration"
+        "graphql",
+        "oauth",
+        "issue-operations",
+        "webhooks",
+        "data-governance"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -11061,15 +11059,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.12.0",
+      "version": "1.13.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 81,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "linear pack complete linear integration skill pack with 24 skills covering issue tracking, project management, workflows, and team collaboration. flagship tier vendor pack. saas-packs linear issues project-management tracking workflows agile team-collaboration"
+      "verificationScore": 99,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "linear pack operator-grade linear pack with 24 source-grounded skills for graphql, oauth, issue and project workflows, webhooks, reliability, data governance, and enterprise access. saas-packs linear graphql oauth issue-operations webhooks data-governance"
     },
     {
       "type": "plugin",
@@ -51764,524 +51762,552 @@
       "id": "linear-ci-integration",
       "slug": "linear-ci-integration",
       "name": "linear-ci-integration",
-      "description": "Integrate Linear with GitHub Actions CI/CD pipelines. Use when setting up automated testing, PR-to-issue linking, or creating Linear issues from CI failures. Trigger: \"linear CI\", \"linear GitHub Actions\", \"linear CI/CD\", \"linear automated tests\", \"linear PR integration\".",
+      "description": "Design Linear-aware CI checks without turning every build into an uncontrolled production mutation. Use when validating a Linear adapter, obtaining a short-lived automation token, or linking CI evidence to work. Trigger with \"test Linear in CI\", \"add Linear contract tests\", or \"authenticate Linear automation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(gh:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-ci-integration integrate linear with github actions ci/cd pipelines. use when setting up automated testing, pr-to-issue linking, or creating linear issues from ci failures. trigger: \"linear ci\", \"linear github actions\", \"linear ci/cd\", \"linear automated tests\", \"linear pr integration\". saas-packs read write edit bash(gh:*) "
+      "searchText": "linear-ci-integration design linear-aware ci checks without turning every build into an uncontrolled production mutation. use when validating a linear adapter, obtaining a short-lived automation token, or linking ci evidence to work. trigger with \"test linear in ci\", \"add linear contract tests\", or \"authenticate linear automation\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-common-errors",
       "slug": "linear-common-errors",
       "name": "linear-common-errors",
-      "description": "Diagnose and fix common Linear API and SDK errors. Use when encountering Linear API errors, debugging integration issues, or troubleshooting authentication, rate limits, or query problems. Trigger: \"linear error\", \"linear API error\", \"debug linear\", \"linear not working\", \"linear 429\", \"linear authentication error\".",
+      "description": "Diagnose Linear GraphQL and SDK failures from transport, response, and request evidence. Use when an integration returns partial data, authentication failures, rate limits, invalid input, or missing resources. Trigger with \"debug Linear GraphQL\", \"Linear API error\", or \"why did Linear SDK fail\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-common-errors diagnose and fix common linear api and sdk errors. use when encountering linear api errors, debugging integration issues, or troubleshooting authentication, rate limits, or query problems. trigger: \"linear error\", \"linear api error\", \"debug linear\", \"linear not working\", \"linear 429\", \"linear authentication error\". saas-packs read write edit grep bash(curl:*) "
+      "searchText": "linear-common-errors diagnose linear graphql and sdk failures from transport, response, and request evidence. use when an integration returns partial data, authentication failures, rate limits, invalid input, or missing resources. trigger with \"debug linear graphql\", \"linear api error\", or \"why did linear sdk fail\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-core-workflow-a",
       "slug": "linear-core-workflow-a",
       "name": "linear-core-workflow-a",
-      "description": "Issue lifecycle management with Linear: create, update, transition, relate, comment, and organize issues through the SDK and GraphQL API. Trigger: \"linear issue workflow\", \"linear issue lifecycle\", \"create linear issues\", \"update linear issue\", \"linear state transition\", \"linear sub-issues\", \"linear comments\".",
+      "description": "Implement a controlled Linear issue lifecycle from discovery through create, update, relation, comment, and archive actions. Use when automating issue operations with the GraphQL API or TypeScript SDK. Trigger with \"automate Linear issues\", \"build an issue workflow\", or \"update Linear issue states\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-core-workflow-a issue lifecycle management with linear: create, update, transition, relate, comment, and organize issues through the sdk and graphql api. trigger: \"linear issue workflow\", \"linear issue lifecycle\", \"create linear issues\", \"update linear issue\", \"linear state transition\", \"linear sub-issues\", \"linear comments\". saas-packs read write edit grep "
+      "searchText": "linear-core-workflow-a implement a controlled linear issue lifecycle from discovery through create, update, relation, comment, and archive actions. use when automating issue operations with the graphql api or typescript sdk. trigger with \"automate linear issues\", \"build an issue workflow\", or \"update linear issue states\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-core-workflow-b",
       "slug": "linear-core-workflow-b",
       "name": "linear-core-workflow-b",
-      "description": "Project, cycle, and roadmap management workflows with Linear. Use when implementing sprint planning, managing projects and milestones, or organizing work into cycles. Trigger: \"linear project\", \"linear cycle\", \"linear sprint\", \"linear roadmap\", \"linear planning\", \"linear milestone\".",
+      "description": "Coordinate Linear projects, cycles, initiatives, milestones, and issue membership without assuming a workspace taxonomy. Use when implementing portfolio or planning automation. Trigger with \"sync Linear project\", \"manage Linear cycles\", or \"coordinate Linear initiatives\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-core-workflow-b project, cycle, and roadmap management workflows with linear. use when implementing sprint planning, managing projects and milestones, or organizing work into cycles. trigger: \"linear project\", \"linear cycle\", \"linear sprint\", \"linear roadmap\", \"linear planning\", \"linear milestone\". saas-packs read write edit grep "
+      "searchText": "linear-core-workflow-b coordinate linear projects, cycles, initiatives, milestones, and issue membership without assuming a workspace taxonomy. use when implementing portfolio or planning automation. trigger with \"sync linear project\", \"manage linear cycles\", or \"coordinate linear initiatives\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-cost-tuning",
       "slug": "linear-cost-tuning",
       "name": "linear-cost-tuning",
-      "description": "Optimize Linear API usage, reduce unnecessary calls, and maximize efficiency within rate limit budgets. Trigger: \"linear cost\", \"reduce linear API calls\", \"linear efficiency\", \"linear API usage\", \"optimize linear costs\", \"linear budget\".",
+      "description": "Analyze and reduce the infrastructure and quota cost of a Linear integration through workload accounting, query budgets, and push-based updates. Use when a sync is wasteful, throttled, or expensive to operate. Trigger with \"reduce Linear API load\", \"budget Linear queries\", or \"tune Linear integration cost\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-cost-tuning optimize linear api usage, reduce unnecessary calls, and maximize efficiency within rate limit budgets. trigger: \"linear cost\", \"reduce linear api calls\", \"linear efficiency\", \"linear api usage\", \"optimize linear costs\", \"linear budget\". saas-packs read write edit grep "
+      "searchText": "linear-cost-tuning analyze and reduce the infrastructure and quota cost of a linear integration through workload accounting, query budgets, and push-based updates. use when a sync is wasteful, throttled, or expensive to operate. trigger with \"reduce linear api load\", \"budget linear queries\", or \"tune linear integration cost\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-data-handling",
       "slug": "linear-data-handling",
       "name": "linear-data-handling",
-      "description": "Data synchronization, backup, and consistency patterns for Linear. Use when implementing data sync, creating backups, exporting data, or ensuring data consistency between Linear and local state. Trigger: \"linear data sync\", \"backup linear\", \"linear export\", \"linear data consistency\", \"sync linear issues\".",
+      "description": "Classify, minimize, export, retain, and delete Linear-derived data with workspace visibility intact. Use when handling issue content, comments, attachments, audit records, exports, or analytics copies. Trigger with \"handle Linear data safely\", \"export Linear records\", or \"set Linear retention\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
+        "Glob",
         "Grep",
-        "Bash(node:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-data-handling data synchronization, backup, and consistency patterns for linear. use when implementing data sync, creating backups, exporting data, or ensuring data consistency between linear and local state. trigger: \"linear data sync\", \"backup linear\", \"linear export\", \"linear data consistency\", \"sync linear issues\". saas-packs read write edit grep bash(node:*) "
+      "searchText": "linear-data-handling classify, minimize, export, retain, and delete linear-derived data with workspace visibility intact. use when handling issue content, comments, attachments, audit records, exports, or analytics copies. trigger with \"handle linear data safely\", \"export linear records\", or \"set linear retention\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-debug-bundle",
       "slug": "linear-debug-bundle",
       "name": "linear-debug-bundle",
-      "description": "Comprehensive debugging toolkit for Linear integrations. Use when setting up logging, tracing API calls, or building debug utilities for Linear. Trigger: \"debug linear integration\", \"linear logging\", \"trace linear API\", \"linear debugging tools\".",
+      "description": "Assemble a minimal, redacted Linear integration diagnostic bundle for internal or vendor escalation. Use when a failure needs reproducible evidence without exposing tokens or workspace content. Trigger with \"collect Linear diagnostics\", \"build a Linear debug bundle\", or \"escalate Linear API issue\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
+        "Glob",
         "Grep",
-        "Bash(node:*)",
-        "Bash(npx:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-debug-bundle comprehensive debugging toolkit for linear integrations. use when setting up logging, tracing api calls, or building debug utilities for linear. trigger: \"debug linear integration\", \"linear logging\", \"trace linear api\", \"linear debugging tools\". saas-packs read write edit grep bash(node:*) bash(npx:*) "
+      "searchText": "linear-debug-bundle assemble a minimal, redacted linear integration diagnostic bundle for internal or vendor escalation. use when a failure needs reproducible evidence without exposing tokens or workspace content. trigger with \"collect linear diagnostics\", \"build a linear debug bundle\", or \"escalate linear api issue\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-deploy-integration",
       "slug": "linear-deploy-integration",
       "name": "linear-deploy-integration",
-      "description": "Deploy Linear-integrated applications and track deployments. Use when deploying to production, linking deploys to issues, or setting up deployment tracking with Vercel/Railway/Cloud Run. Trigger: \"deploy linear integration\", \"linear deployment\", \"linear vercel\", \"track linear deployments\", \"linear deploy tracking\".",
+      "description": "Connect deployment evidence to Linear work without granting the deploy pipeline broad issue-edit authority. Use when linking releases, commits, pull requests, or rollback receipts to Linear issues. Trigger with \"link deploys to Linear\", \"record Linear release evidence\", or \"update Linear after deployment\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(gcloud:*)",
-        "Bash(aws:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-deploy-integration deploy linear-integrated applications and track deployments. use when deploying to production, linking deploys to issues, or setting up deployment tracking with vercel/railway/cloud run. trigger: \"deploy linear integration\", \"linear deployment\", \"linear vercel\", \"track linear deployments\", \"linear deploy tracking\". saas-packs read write edit bash(vercel:*) bash(gcloud:*) bash(aws:*) "
+      "searchText": "linear-deploy-integration connect deployment evidence to linear work without granting the deploy pipeline broad issue-edit authority. use when linking releases, commits, pull requests, or rollback receipts to linear issues. trigger with \"link deploys to linear\", \"record linear release evidence\", or \"update linear after deployment\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-enterprise-rbac",
       "slug": "linear-enterprise-rbac",
       "name": "linear-enterprise-rbac",
-      "description": "Implement enterprise role-based access control with Linear. Use when setting up team permissions, OAuth scopes, SAML SSO, SCIM provisioning, or audit logging. Trigger: \"linear RBAC\", \"linear permissions\", \"linear SSO\", \"linear enterprise access\", \"linear role management\", \"linear SCIM\".",
+      "description": "Govern Linear workspace roles, team access, OAuth scopes, SCIM provisioning, and audit evidence. Use when designing enterprise access or reviewing identity-provider mappings. Trigger with \"audit Linear access\", \"configure Linear SCIM\", or \"review Linear roles\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-enterprise-rbac implement enterprise role-based access control with linear. use when setting up team permissions, oauth scopes, saml sso, scim provisioning, or audit logging. trigger: \"linear rbac\", \"linear permissions\", \"linear sso\", \"linear enterprise access\", \"linear role management\", \"linear scim\". saas-packs read write edit grep "
+      "searchText": "linear-enterprise-rbac govern linear workspace roles, team access, oauth scopes, scim provisioning, and audit evidence. use when designing enterprise access or reviewing identity-provider mappings. trigger with \"audit linear access\", \"configure linear scim\", or \"review linear roles\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-hello-world",
       "slug": "linear-hello-world",
       "name": "linear-hello-world",
-      "description": "Create your first Linear issue and query using the SDK and GraphQL API. Use when making initial API calls, testing connection, or learning basic Linear CRUD operations. Trigger: \"linear hello world\", \"first linear issue\", \"create linear issue\", \"linear API example\", \"test linear\".",
+      "description": "Prove Linear authentication and workspace visibility with the smallest read-only GraphQL or SDK query. Use when establishing a new integration baseline without creating test issues. Trigger with \"test Linear connection\", \"Linear hello world\", or \"verify Linear API key\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-hello-world create your first linear issue and query using the sdk and graphql api. use when making initial api calls, testing connection, or learning basic linear crud operations. trigger: \"linear hello world\", \"first linear issue\", \"create linear issue\", \"linear api example\", \"test linear\". saas-packs read write edit bash(npx:*) grep "
+      "searchText": "linear-hello-world prove linear authentication and workspace visibility with the smallest read-only graphql or sdk query. use when establishing a new integration baseline without creating test issues. trigger with \"test linear connection\", \"linear hello world\", or \"verify linear api key\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-incident-runbook",
       "slug": "linear-incident-runbook",
       "name": "linear-incident-runbook",
-      "description": "Production incident response procedures for Linear integrations. Use when handling production issues, diagnosing outages, or responding to Linear-related incidents. Trigger: \"linear incident\", \"linear outage\", \"linear production issue\", \"debug linear production\", \"linear down\", \"linear 500\".",
+      "description": "Analyze and contain Linear integration incidents across authentication, GraphQL, rate budgets, webhooks, and data synchronization. Use when responding to an active degradation or reconciling after an incident. Trigger with \"Linear integration incident\", \"Linear webhook outage\", or \"Linear API degradation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-incident-runbook production incident response procedures for linear integrations. use when handling production issues, diagnosing outages, or responding to linear-related incidents. trigger: \"linear incident\", \"linear outage\", \"linear production issue\", \"debug linear production\", \"linear down\", \"linear 500\". saas-packs read write edit bash(curl:*) grep "
+      "searchText": "linear-incident-runbook analyze and contain linear integration incidents across authentication, graphql, rate budgets, webhooks, and data synchronization. use when responding to an active degradation or reconciling after an incident. trigger with \"linear integration incident\", \"linear webhook outage\", or \"linear api degradation\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-install-auth",
       "slug": "linear-install-auth",
       "name": "linear-install-auth",
-      "description": "Install and configure Linear SDK/CLI authentication. Use when setting up a new Linear integration, configuring API keys, OAuth2 flows, or initializing LinearClient in your project. Trigger: \"install linear\", \"setup linear\", \"linear auth\", \"configure linear API key\", \"linear SDK setup\", \"linear OAuth\".",
+      "description": "Install the current Linear TypeScript SDK and configure personal-key, OAuth, or app-actor authentication safely. Use when connecting a repository or correcting an auth setup. Trigger with \"install Linear SDK\", \"configure Linear OAuth\", or \"set up Linear API auth\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)",
-        "Bash(yarn:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-install-auth install and configure linear sdk/cli authentication. use when setting up a new linear integration, configuring api keys, oauth2 flows, or initializing linearclient in your project. trigger: \"install linear\", \"setup linear\", \"linear auth\", \"configure linear api key\", \"linear sdk setup\", \"linear oauth\". saas-packs read write edit bash(npm:*) bash(pnpm:*) bash(yarn:*) grep "
+      "searchText": "linear-install-auth install the current linear typescript sdk and configure personal-key, oauth, or app-actor authentication safely. use when connecting a repository or correcting an auth setup. trigger with \"install linear sdk\", \"configure linear oauth\", or \"set up linear api auth\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-local-dev-loop",
       "slug": "linear-local-dev-loop",
       "name": "linear-local-dev-loop",
-      "description": "Set up local Linear development environment and testing workflow. Use when configuring local dev, testing integrations, or setting up a development workflow with Linear webhooks. Trigger: \"linear local development\", \"linear dev setup\", \"test linear locally\", \"linear development environment\".",
+      "description": "Build a fast Linear integration development loop using fixtures, contract boundaries, and an isolated test workspace. Use when iterating locally without polluting production Linear data. Trigger with \"develop Linear locally\", \"mock Linear GraphQL\", or \"test Linear webhooks locally\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-local-dev-loop set up local linear development environment and testing workflow. use when configuring local dev, testing integrations, or setting up a development workflow with linear webhooks. trigger: \"linear local development\", \"linear dev setup\", \"test linear locally\", \"linear development environment\". saas-packs read write edit bash(npm:*) bash(npx:*) grep "
+      "searchText": "linear-local-dev-loop build a fast linear integration development loop using fixtures, contract boundaries, and an isolated test workspace. use when iterating locally without polluting production linear data. trigger with \"develop linear locally\", \"mock linear graphql\", or \"test linear webhooks locally\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-migration-deep-dive",
       "slug": "linear-migration-deep-dive",
       "name": "linear-migration-deep-dive",
-      "description": "Migrate from Jira, Asana, GitHub Issues, or other tools to Linear. Use when planning a migration, executing data transfer, or mapping workflows between issue tracking tools. Trigger: \"migrate to linear\", \"jira to linear\", \"asana to linear\", \"import to linear\", \"linear migration\", \"github issues to linear\".",
+      "description": "Plan and execute a controlled migration into Linear using supported import assistants or the CLI importer. Use when moving issues from Jira, GitHub, Asana, Shortcut, another Linear workspace, or CSV. Trigger with \"migrate to Linear\", \"import issues into Linear\", or \"plan Linear cutover\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(node:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-migration-deep-dive migrate from jira, asana, github issues, or other tools to linear. use when planning a migration, executing data transfer, or mapping workflows between issue tracking tools. trigger: \"migrate to linear\", \"jira to linear\", \"asana to linear\", \"import to linear\", \"linear migration\", \"github issues to linear\". saas-packs read write edit bash(node:*) bash(npx:*) grep "
+      "searchText": "linear-migration-deep-dive plan and execute a controlled migration into linear using supported import assistants or the cli importer. use when moving issues from jira, github, asana, shortcut, another linear workspace, or csv. trigger with \"migrate to linear\", \"import issues into linear\", or \"plan linear cutover\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-multi-env-setup",
       "slug": "linear-multi-env-setup",
       "name": "linear-multi-env-setup",
-      "description": "Configure Linear across development, staging, and production environments. Use when setting up per-environment API keys, secret management, or environment-specific Linear configurations. Trigger: \"linear environments\", \"linear staging\", \"linear dev prod\", \"linear environment setup\", \"multi-environment linear\".",
+      "description": "Analyze and enforce separate Linear development, staging, and production credentials, apps, webhooks, data, and rollout controls. Use when one integration runs across multiple environments. Trigger with \"separate Linear environments\", \"stage Linear OAuth app\", or \"isolate Linear webhooks\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(vault:*)",
-        "Bash(gcloud:*)",
-        "Bash(aws:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-multi-env-setup configure linear across development, staging, and production environments. use when setting up per-environment api keys, secret management, or environment-specific linear configurations. trigger: \"linear environments\", \"linear staging\", \"linear dev prod\", \"linear environment setup\", \"multi-environment linear\". saas-packs read write edit bash(vault:*) bash(gcloud:*) bash(aws:*) "
+      "searchText": "linear-multi-env-setup analyze and enforce separate linear development, staging, and production credentials, apps, webhooks, data, and rollout controls. use when one integration runs across multiple environments. trigger with \"separate linear environments\", \"stage linear oauth app\", or \"isolate linear webhooks\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-observability",
       "slug": "linear-observability",
       "name": "linear-observability",
-      "description": "Implement monitoring, logging, and alerting for Linear integrations. Use when setting up metrics collection, dashboards, or configuring alerts for Linear API usage. Trigger: \"linear monitoring\", \"linear observability\", \"linear metrics\", \"linear logging\", \"monitor linear\", \"linear Prometheus\", \"linear Grafana\".",
+      "description": "Instrument Linear API, SDK, webhook, queue, and reconciliation behavior with useful redacted signals. Use when defining service objectives, dashboards, alerts, or audit evidence. Trigger with \"monitor Linear integration\", \"add Linear API metrics\", or \"observe Linear webhooks\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-observability implement monitoring, logging, and alerting for linear integrations. use when setting up metrics collection, dashboards, or configuring alerts for linear api usage. trigger: \"linear monitoring\", \"linear observability\", \"linear metrics\", \"linear logging\", \"monitor linear\", \"linear prometheus\", \"linear grafana\". saas-packs read write edit grep "
+      "searchText": "linear-observability instrument linear api, sdk, webhook, queue, and reconciliation behavior with useful redacted signals. use when defining service objectives, dashboards, alerts, or audit evidence. trigger with \"monitor linear integration\", \"add linear api metrics\", or \"observe linear webhooks\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-performance-tuning",
       "slug": "linear-performance-tuning",
       "name": "linear-performance-tuning",
-      "description": "Optimize Linear API queries, caching, and batching for performance. Use when improving response times, reducing API calls, or implementing caching strategies for Linear data. Trigger: \"linear performance\", \"optimize linear\", \"linear caching\", \"linear slow queries\", \"speed up linear\", \"linear N+1\".",
+      "description": "Improve Linear GraphQL latency and throughput by reducing field, connection, pagination, and polling cost. Use when queries are slow, complex, or exhausting shared budgets. Trigger with \"optimize Linear GraphQL\", \"reduce Linear query complexity\", or \"speed up Linear sync\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-performance-tuning optimize linear api queries, caching, and batching for performance. use when improving response times, reducing api calls, or implementing caching strategies for linear data. trigger: \"linear performance\", \"optimize linear\", \"linear caching\", \"linear slow queries\", \"speed up linear\", \"linear n+1\". saas-packs read write edit grep "
+      "searchText": "linear-performance-tuning improve linear graphql latency and throughput by reducing field, connection, pagination, and polling cost. use when queries are slow, complex, or exhausting shared budgets. trigger with \"optimize linear graphql\", \"reduce linear query complexity\", or \"speed up linear sync\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-prod-checklist",
       "slug": "linear-prod-checklist",
       "name": "linear-prod-checklist",
-      "description": "Production readiness checklist for Linear integrations. Use when preparing to deploy, reviewing production requirements, or auditing existing Linear deployments. Trigger: \"linear production checklist\", \"deploy linear\", \"linear production ready\", \"linear go live\", \"linear launch\".",
+      "description": "Analyze a Linear integration for production across auth, data, quotas, webhooks, recovery, and ownership. Use when preparing a launch, material permission change, or production migration. Trigger with \"review Linear readiness\", \"launch Linear integration\", or \"Linear production checklist\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-prod-checklist production readiness checklist for linear integrations. use when preparing to deploy, reviewing production requirements, or auditing existing linear deployments. trigger: \"linear production checklist\", \"deploy linear\", \"linear production ready\", \"linear go live\", \"linear launch\". saas-packs read write edit grep "
+      "searchText": "linear-prod-checklist analyze a linear integration for production across auth, data, quotas, webhooks, recovery, and ownership. use when preparing a launch, material permission change, or production migration. trigger with \"review linear readiness\", \"launch linear integration\", or \"linear production checklist\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-rate-limits",
       "slug": "linear-rate-limits",
       "name": "linear-rate-limits",
-      "description": "Handle Linear API rate limiting, complexity budgets, and quotas. Use when dealing with 429 errors, implementing throttling, or optimizing request patterns to stay within limits. Trigger: \"linear rate limit\", \"linear throttling\", \"linear 429\", \"linear API quota\", \"linear complexity\", \"linear request limits\".",
+      "description": "Implement Linear request, endpoint, and GraphQL complexity budgets with reset-aware throttling. Use when coordinating workers or recovering from RATELIMITED errors. Trigger with \"handle Linear rate limits\", \"budget Linear complexity\", or \"throttle Linear workers\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-rate-limits handle linear api rate limiting, complexity budgets, and quotas. use when dealing with 429 errors, implementing throttling, or optimizing request patterns to stay within limits. trigger: \"linear rate limit\", \"linear throttling\", \"linear 429\", \"linear api quota\", \"linear complexity\", \"linear request limits\". saas-packs read write edit grep "
+      "searchText": "linear-rate-limits implement linear request, endpoint, and graphql complexity budgets with reset-aware throttling. use when coordinating workers or recovering from ratelimited errors. trigger with \"handle linear rate limits\", \"budget linear complexity\", or \"throttle linear workers\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-reference-architecture",
       "slug": "linear-reference-architecture",
       "name": "linear-reference-architecture",
-      "description": "Production-grade Linear integration architecture patterns. Use when designing system architecture, choosing integration patterns, or reviewing architectural decisions for Linear integrations. Trigger: \"linear architecture\", \"linear system design\", \"linear integration patterns\", \"linear best practices architecture\".",
+      "description": "Design a Linear integration with separated auth, GraphQL, webhook, queue, policy, and reconciliation boundaries. Use when reviewing or creating a durable service architecture. Trigger with \"design Linear integration\", \"architect Linear webhook service\", or \"review Linear system design\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-reference-architecture production-grade linear integration architecture patterns. use when designing system architecture, choosing integration patterns, or reviewing architectural decisions for linear integrations. trigger: \"linear architecture\", \"linear system design\", \"linear integration patterns\", \"linear best practices architecture\". saas-packs read write edit grep "
+      "searchText": "linear-reference-architecture design a linear integration with separated auth, graphql, webhook, queue, policy, and reconciliation boundaries. use when reviewing or creating a durable service architecture. trigger with \"design linear integration\", \"architect linear webhook service\", or \"review linear system design\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-sdk-patterns",
       "slug": "linear-sdk-patterns",
       "name": "linear-sdk-patterns",
-      "description": "TypeScript/JavaScript SDK patterns and best practices for Linear. Use when learning SDK idioms, implementing pagination, filtering, relation loading, or custom GraphQL queries. Trigger: \"linear SDK patterns\", \"linear best practices\", \"linear typescript\", \"linear API patterns\", \"linear pagination\".",
+      "description": "Implement current Linear TypeScript SDK query, mutation, pagination, raw GraphQL, and error-handling patterns. Use when building or refactoring a typed Linear adapter. Trigger with \"use Linear SDK\", \"refactor Linear client\", or \"write typed Linear GraphQL\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-sdk-patterns typescript/javascript sdk patterns and best practices for linear. use when learning sdk idioms, implementing pagination, filtering, relation loading, or custom graphql queries. trigger: \"linear sdk patterns\", \"linear best practices\", \"linear typescript\", \"linear api patterns\", \"linear pagination\". saas-packs read write edit grep "
+      "searchText": "linear-sdk-patterns implement current linear typescript sdk query, mutation, pagination, raw graphql, and error-handling patterns. use when building or refactoring a typed linear adapter. trigger with \"use linear sdk\", \"refactor linear client\", or \"write typed linear graphql\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-security-basics",
       "slug": "linear-security-basics",
       "name": "linear-security-basics",
-      "description": "Secure API key management, OAuth best practices, and webhook verification for Linear integrations. Trigger: \"linear security\", \"linear API key security\", \"linear OAuth\", \"secure linear\", \"linear webhook verification\", \"linear secrets management\", \"linear token refresh\".",
+      "description": "Harden Linear credentials, OAuth, team access, webhook verification, logging, and rotation. Use when threat-modeling an integration or correcting a security gap. Trigger with \"secure Linear integration\", \"review Linear OAuth security\", or \"verify Linear webhooks\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-security-basics secure api key management, oauth best practices, and webhook verification for linear integrations. trigger: \"linear security\", \"linear api key security\", \"linear oauth\", \"secure linear\", \"linear webhook verification\", \"linear secrets management\", \"linear token refresh\". saas-packs read write edit grep "
+      "searchText": "linear-security-basics harden linear credentials, oauth, team access, webhook verification, logging, and rotation. use when threat-modeling an integration or correcting a security gap. trigger with \"secure linear integration\", \"review linear oauth security\", or \"verify linear webhooks\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-upgrade-migration",
       "slug": "linear-upgrade-migration",
       "name": "linear-upgrade-migration",
-      "description": "Upgrade Linear SDK versions and handle breaking changes safely. Use when updating to a new SDK version, handling deprecations, or migrating between API versions. Trigger: \"upgrade linear SDK\", \"linear SDK migration\", \"update linear\", \"linear breaking changes\", \"linear deprecation\".",
+      "description": "Upgrade a Linear integration across SDK releases and GraphQL deprecations with typed inventory, staged verification, and rollback. Use when package updates or schema notices require code changes. Trigger with \"upgrade Linear SDK\", \"migrate Linear API code\", or \"fix Linear deprecation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-upgrade-migration upgrade linear sdk versions and handle breaking changes safely. use when updating to a new sdk version, handling deprecations, or migrating between api versions. trigger: \"upgrade linear sdk\", \"linear sdk migration\", \"update linear\", \"linear breaking changes\", \"linear deprecation\". saas-packs read write edit bash(npm:*) bash(npx:*) grep "
+      "searchText": "linear-upgrade-migration upgrade a linear integration across sdk releases and graphql deprecations with typed inventory, staged verification, and rollback. use when package updates or schema notices require code changes. trigger with \"upgrade linear sdk\", \"migrate linear api code\", or \"fix linear deprecation\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "linear-webhooks-events",
       "slug": "linear-webhooks-events",
       "name": "linear-webhooks-events",
-      "description": "Configure and handle Linear webhooks for real-time event processing. Use when setting up webhooks, handling issue/project/cycle events, or building real-time integrations with Linear. Trigger: \"linear webhooks\", \"linear events\", \"linear real-time\", \"handle linear webhook\", \"linear webhook setup\", \"linear webhook payload\".",
+      "description": "Implement Linear webhook verification, fast acknowledgement, deduplication, queued processing, and reconciliation. Use when receiving issue, project, cycle, customer, user, or OAuth-app events. Trigger with \"handle Linear webhooks\", \"verify Linear signature\", or \"process Linear events\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(ngrok:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.12.0",
+      "version": "1.13.0",
       "parentPlugin": {
         "name": "linear-pack",
         "category": "saas-packs"
       },
-      "searchText": "linear-webhooks-events configure and handle linear webhooks for real-time event processing. use when setting up webhooks, handling issue/project/cycle events, or building real-time integrations with linear. trigger: \"linear webhooks\", \"linear events\", \"linear real-time\", \"handle linear webhook\", \"linear webhook setup\", \"linear webhook payload\". saas-packs read write edit bash(ngrok:*) grep "
+      "searchText": "linear-webhooks-events implement linear webhook verification, fast acknowledgement, deduplication, queued processing, and reconciliation. use when receiving issue, project, cycle, customer, user, or oauth-app events. trigger with \"handle linear webhooks\", \"verify linear signature\", or \"process linear events\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",

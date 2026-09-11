@@ -1,216 +1,92 @@
 ---
 name: linear-hello-world
-description: 'Create your first Linear issue and query using the SDK and GraphQL API.
-
-  Use when making initial API calls, testing connection,
-
-  or learning basic Linear CRUD operations.
-
-  Trigger: "linear hello world", "first linear issue",
-
-  "create linear issue", "linear API example", "test linear".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npx:*), Grep
-version: 1.12.0
-license: MIT
+description: >-
+  Prove Linear authentication and workspace visibility with the smallest read-only GraphQL or SDK query. Use when establishing a new integration baseline without creating test issues. Trigger with "test Linear connection", "Linear hello world", or "verify Linear API key".
+argument-hint: "[repository-path] [sdk|graphql]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.13.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linear
-- api
-- graphql
-- testing
-compatibility: Designed for Claude Code
+- connectivity
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Linear workspace credential
 ---
-# Linear Hello World
+# Linear Read-Only Connectivity Proof
 
 ## Overview
 
-Create your first issue, query teams, and explore the Linear data model using the `@linear/sdk`. Linear's API is GraphQL-based -- the SDK wraps it with typed models, lazy-loaded relations, and pagination helpers.
+Verify endpoint, auth mode, viewer identity, and visible team count without spending the first test on a production write.
 
 ## Prerequisites
 
-- `@linear/sdk` installed (`npm install @linear/sdk`)
-- `LINEAR_API_KEY` environment variable set (starts with `lin_api_`)
-- Access to at least one Linear team
+- The target repository, Linear workspace, environment, and accountable owner
+- Current security, privacy, compliance, capacity, and change-control requirements
+- An approved Linear credential only when a bounded live verification is necessary
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current first-party Linear documentation and package metadata. Use `Write` or `Edit` only for requested implementation with known target files. Never write credentials, customer content, unrestricted environment output, or unredacted GraphQL variables.
+
+## Current Contract
+
+- The GraphQL endpoint is `https://api.linear.app/graphql` and supports introspection.
+- Personal API keys use `Authorization: <API_KEY>` without `Bearer`; OAuth access tokens use `Authorization: Bearer <ACCESS_TOKEN>`.
+- The official TypeScript SDK accepts either `apiKey` or `accessToken` in `LinearClient`.
+
+## Authentication
+
+Use a personal API key only for owner-controlled scripts, OAuth with PKCE for user-delegated applications, or an enabled client-credentials grant for approved automation. Personal keys use `Authorization: <API_KEY>`; OAuth tokens use `Authorization: Bearer <ACCESS_TOKEN>`. Store credentials server-side in an approved secret manager.
+
+Treat app approval, team access, scope changes, credential creation, rotation, revocation, and production access as owner-approved actions.
 
 ## Instructions
 
-### Step 1: Connect and Identify
+1. Inspect the repository runtime, package manager, secret-loading convention, and existing Linear client code.
+2. Select personal API key only for owner-controlled scripts or OAuth for applications used by others.
+3. Pin a compatible `@linear/sdk` range or construct a minimal GraphQL request using the correct authorization form.
+4. Query only viewer ID/display name and a small page of visible team IDs/keys; inspect GraphQL errors.
+5. Record SDK version, auth mode, endpoint, status, and counts without logging the token or returned personal content.
+6. Leave all create/update/delete operations for a separately approved workflow.
 
-```typescript
-import { LinearClient } from "@linear/sdk";
+## Approval Boundaries
 
-const client = new LinearClient({ apiKey: process.env.LINEAR_API_KEY! });
+Do not create, reveal, rotate, or revoke credentials; authorize an OAuth app; change scopes or team access; create, mutate, archive, or delete workspace data; configure or re-enable webhooks; import or export data; change roles, SCIM, or audit streaming; transmit diagnostics; change paid entitlements; or perform another production mutation without explicit approval from the accountable owner. Keep diagnosis read-only unless implementation was requested.
 
-// Get current authenticated user
-const me = await client.viewer;
-console.log(`Hello, ${me.name}! (${me.email})`);
+## Output
 
-// Get your organization
-const org = await me.organization;
-console.log(`Workspace: ${org.name}`);
-```
-
-### Step 2: List Teams
-
-Every issue in Linear belongs to a team. Teams have a short key (e.g., "ENG") used in identifiers like `ENG-123`.
-
-```typescript
-const teams = await client.teams();
-console.log("Your teams:");
-for (const team of teams.nodes) {
-  console.log(`  ${team.key} — ${team.name} (${team.id})`);
-}
-```
-
-### Step 3: Create Your First Issue
-
-```typescript
-const team = teams.nodes[0];
-
-const result = await client.createIssue({
-  teamId: team.id,
-  title: "Hello from Linear SDK!",
-  description: "This issue was created using the `@linear/sdk` TypeScript SDK.",
-  priority: 3, // 0=None, 1=Urgent, 2=High, 3=Medium, 4=Low
-});
-
-if (result.success) {
-  const issue = await result.issue;
-  console.log(`Created: ${issue?.identifier} — ${issue?.title}`);
-  console.log(`URL: ${issue?.url}`);
-}
-```
-
-### Step 4: Query Issues
-
-```typescript
-// Get recent issues from a team
-const issues = await client.issues({
-  filter: {
-    team: { key: { eq: team.key } },
-    state: { type: { nin: ["completed", "canceled"] } },
-  },
-  first: 10,
-});
-
-console.log(`\nOpen issues in ${team.key}:`);
-for (const issue of issues.nodes) {
-  const state = await issue.state;
-  console.log(`  ${issue.identifier}: ${issue.title} [${state?.name}]`);
-}
-```
-
-### Step 5: Explore Workflow States
-
-Each team has customizable workflow states organized by type: `triage`, `backlog`, `unstarted`, `started`, `completed`, `canceled`.
-
-```typescript
-const states = await team.states();
-console.log(`\nWorkflow states for ${team.key}:`);
-for (const state of states.nodes) {
-  console.log(`  ${state.name} (type: ${state.type}, position: ${state.position})`);
-}
-```
-
-### Step 6: Fetch a Single Issue by Identifier
-
-```typescript
-// Search for a specific issue by its human-readable identifier
-const searchResults = await client.issueSearch("ENG-1");
-const found = searchResults.nodes[0];
-if (found) {
-  console.log(`\nFound: ${found.identifier}`);
-  console.log(`  Title: ${found.title}`);
-  console.log(`  Priority: ${found.priority}`);
-  console.log(`  Created: ${found.createdAt}`);
-  const assignee = await found.assignee;
-  console.log(`  Assignee: ${assignee?.name ?? "Unassigned"}`);
-}
-```
-
-### Step 7: Raw GraphQL Query
-
-The SDK exposes the underlying GraphQL client for custom queries.
-
-```typescript
-const response = await client.client.rawRequest(`
-  query TeamDashboard($teamKey: String!) {
-    teams(filter: { key: { eq: $teamKey } }) {
-      nodes {
-        name
-        key
-        issues(first: 5, orderBy: updatedAt) {
-          nodes {
-            identifier
-            title
-            priority
-            state { name type }
-            assignee { name }
-          }
-        }
-      }
-    }
-  }
-`, { teamKey: "ENG" });
-
-console.log(JSON.stringify(response.data, null, 2));
-```
+Return the workspace and team scope, auth mode without credential value, files and contracts inspected, exact operation names, evidence collected, validation result, sensitive fields redacted, remaining risk, accountable owner, approval state, and rollback or next action.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Authentication required` | Invalid API key | Regenerate at Settings > Account > API |
-| `Entity not found` | Invalid ID or no access | Use `client.teams()` first to get valid IDs |
-| `Validation error` | Missing required field | `teamId` and `title` are required for `createIssue` |
-| `Cannot read properties of null` | Accessing nullable relation | Use optional chaining: `(await issue.assignee)?.name` |
+| Condition | Response |
+|---|---|
+| 401 | Verify secret injection and the auth-header form without printing the credential. |
+| Viewer succeeds, teams empty | Check workspace membership and team access; do not create into a fallback team. |
+| GraphQL errors with data | Report the error path and treat the proof as incomplete. |
+| SDK incompatible | Compare the installed package and Node version with current package metadata. |
 
 ## Examples
 
-### Complete Hello World Script
+Use a compact handoff that makes scope, mutation authority, and verification evidence reviewable.
 
-```typescript
-import { LinearClient } from "@linear/sdk";
+Input:
 
-async function main() {
-  const client = new LinearClient({ apiKey: process.env.LINEAR_API_KEY! });
+```text
+runtime=node20; client=sdk; auth=personal-key-reference; operation=viewer+teams(first:5)
+```
 
-  const me = await client.viewer;
-  console.log(`Connected as ${me.name}\n`);
+Expected handoff:
 
-  const teams = await client.teams();
-  const team = teams.nodes[0];
-
-  // Create issue
-  const result = await client.createIssue({
-    teamId: team.id,
-    title: "Hello from Linear SDK!",
-    description: "Testing the API integration.",
-    priority: 3,
-  });
-
-  if (result.success) {
-    const issue = await result.issue;
-    console.log(`Created: ${issue?.identifier} — ${issue?.url}`);
-
-    // Read it back
-    const fetched = await client.issue(issue!.id);
-    console.log(`Verified: ${fetched.title}`);
-
-    // Clean up
-    await fetched.delete();
-    console.log("Deleted test issue.");
-  }
-}
-
-main().catch(console.error);
+```text
+endpoint=verified; viewer=present; visible-teams=count-only; mutations=0
 ```
 
 ## Resources
 
-- [Linear SDK Documentation](https://linear.app/developers/sdk)
-- [SDK Data Fetching](https://linear.app/developers/sdk-fetching-and-modifying-data)
-- [GraphQL Schema Explorer](https://studio.apollographql.com/public/Linear-API/variant/current/schema/reference)
+- [Skill-specific official documentation](references/official-docs.md)
+- [Linear developer documentation index](https://linear.app/llms.txt)
+- [Linear GraphQL API](https://linear.app/developers/graphql.md)

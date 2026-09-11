@@ -1,7 +1,7 @@
 {
   "name": "linear-pack",
-  "version": "1.12.0",
-  "description": "Claude Code skill pack for Linear (24 skills)",
+  "version": "1.13.0",
+  "description": "Operator-grade Linear pack with 24 source-grounded skills for GraphQL, OAuth, issue and project workflows, webhooks, reliability, data governance, and enterprise access.",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,10 +9,10 @@
   "license": "MIT",
   "keywords": [
     "linear",
-    "issue-tracking",
-    "project-management",
-    "saas",
-    "sdk",
-    "integration"
+    "graphql",
+    "oauth",
+    "issue-operations",
+    "webhooks",
+    "data-governance"
   ]
 }
