@@ -1,7 +1,7 @@
 {
   "name": "instantly-pack",
-  "version": "1.12.0",
-  "description": "Claude Code skill pack for Instantly (24 skills)",
+  "version": "1.13.0",
+  "description": "Production Instantly API v2 operator pack for campaigns, accounts, leads, access, webhooks, reliability, and governed delivery (24 skills)",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,9 @@
   "license": "MIT",
   "keywords": [
     "instantly",
-    "instantly",
-    "saas",
-    "sdk",
-    "integration"
+    "api-v2",
+    "campaign-operations",
+    "deliverability",
+    "governance"
   ]
 }

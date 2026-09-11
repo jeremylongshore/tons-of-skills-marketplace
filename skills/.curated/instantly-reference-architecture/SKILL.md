@@ -1,303 +1,90 @@
 ---
 name: instantly-reference-architecture
-description: 'Implement Instantly.ai reference architecture with best-practice project
-  layout.
-
-  Use when designing new Instantly integrations, planning multi-campaign systems,
-
-  or building an outreach automation platform.
-
-  Trigger with phrases like "instantly architecture", "instantly project structure",
-
-  "instantly reference design", "instantly system design", "instantly integration
-  layout".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.12.0
-license: MIT
+description: >-
+  Analyze and design an Instantly API v2 integration with tenant isolation, durable jobs, webhooks, and governance boundaries. Use when operating reference architecture workflows. Trigger with "instantly reference architecture", "Instantly API", or "Instantly integration".
+argument-hint: "[system-context-path]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.13.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - instantly
-- architecture
-- design
-compatibility: Designed for Claude Code
+- reference-architecture
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Instantly workspace and API v2 key
 ---
-# Instantly Reference Architecture
+# Instantly Integration Reference Architecture
 
 ## Overview
 
-Reference architecture for production Instantly.ai integrations. Covers project layout, API client design, event-driven webhook processing, campaign management, lead pipeline, and analytics dashboard. Designed for teams building outreach automation on top of Instantly API v2.
-
-## Architecture Diagram
-
-```
-                                     Instantly API v2
-                                    (api.instantly.ai)
-                                          |
-                    ┌─────────────────────┼─────────────────────┐
-                    |                     |                     |
-              Campaign Mgmt         Lead Pipeline         Account Mgmt
-              (create/launch/       (import/move/          (warmup/
-               pause/analytics)      enrich/block)         vitals/pause)
-                    |                     |                     |
-                    └─────────┬───────────┘                    |
-                              |                                |
-                    ┌─────────┴─────────┐                     |
-                    |   Your Backend    |◄────────────────────┘
-                    |  (Node/Python)    |
-                    └────────┬──────────┘
-                             |
-                    ┌────────┴──────────┐
-                    |  Webhook Receiver |◄──── Instantly Webhooks
-                    |  (Cloud Run /     |      (reply_received,
-                    |   Vercel / Fly)   |       email_bounced, etc.)
-                    └────────┬──────────┘
-                             |
-               ┌─────────────┼─────────────┐
-               |             |             |
-           CRM Sync     Slack Alerts   Analytics DB
-```
-
-## Project Layout
-
-```
-instantly-integration/
-├── src/
-│   ├── instantly/
-│   │   ├── client.ts          # API client wrapper with retry + auth
-│   │   ├── types.ts           # TypeScript interfaces for API schemas
-│   │   ├── pagination.ts      # Cursor-based pagination helpers
-│   │   └── cache.ts           # Analytics caching layer
-│   ├── campaigns/
-│   │   ├── create.ts          # Campaign creation with sequences
-│   │   ├── launch.ts          # Campaign activation workflow
-│   │   ├── analytics.ts       # Campaign performance tracking
-│   │   └── templates.ts       # Email sequence templates
-│   ├── leads/
-│   │   ├── import.ts          # Lead import from CSV/CRM
-│   │   ├── lists.ts           # Lead list management
-│   │   ├── enrich.ts          # Lead enrichment pipeline
-│   │   └── blocklist.ts       # Block list management
-│   ├── accounts/
-│   │   ├── warmup.ts          # Warmup enable/disable/monitor
-│   │   ├── health.ts          # Account vitals testing
-│   │   └── rotation.ts       # Account assignment to campaigns
-│   ├── webhooks/
-│   │   ├── server.ts          # Express webhook receiver
-│   │   ├── handlers.ts        # Event type handlers
-│   │   └── validation.ts     # Payload validation
-│   └── config.ts              # Environment config
-├── tests/
-│   ├── unit/                  # Unit tests (mocked API)
-│   ├── integration/           # Integration tests (mock server)
-│   └── e2e/                   # End-to-end (live API, read-only)
-├── scripts/
-│   ├── seed-leads.ts          # Seed campaign with test leads
-│   ├── audit.ts               # Workspace audit script
-│   └── migrate-v1-to-v2.ts   # API migration helper
-├── .env.example
-├── .github/workflows/ci.yml
-├── Dockerfile
-├── package.json
-└── tsconfig.json
-```
-
-## Core Module Implementation
-
-### API Client (src/instantly/client.ts)
-
-```typescript
-import "dotenv/config";
-
-export class InstantlyClient {
-  constructor(
-    private apiKey = process.env.INSTANTLY_API_KEY!,
-    private baseUrl = "https://api.instantly.ai/api/v2"
-  ) {}
-
-  async request<T>(path: string, init: RequestInit = {}): Promise<T> {
-    const res = await fetch(`${this.baseUrl}${path}`, {
-      ...init,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.apiKey}`,
-        ...init.headers,
-      },
-    });
-
-    if (res.status === 429) {
-      await new Promise((r) => setTimeout(r, 2000));
-      return this.request<T>(path, init);
-    }
-
-    if (!res.ok) {
-      throw new InstantlyApiError(res.status, path, await res.text());
-    }
-
-    return res.json() as Promise<T>;
-  }
-
-  // Campaign operations
-  campaigns = {
-    list: (limit = 50) => this.request<Campaign[]>(`/campaigns?limit=${limit}`),
-    get: (id: string) => this.request<Campaign>(`/campaigns/${id}`),
-    create: (data: CreateCampaignInput) =>
-      this.request<Campaign>("/campaigns", { method: "POST", body: JSON.stringify(data) }),
-    activate: (id: string) =>
-      this.request<void>(`/campaigns/${id}/activate`, { method: "POST" }),
-    pause: (id: string) =>
-      this.request<void>(`/campaigns/${id}/pause`, { method: "POST" }),
-    analytics: (id: string) =>
-      this.request<CampaignAnalytics>(`/campaigns/analytics?id=${id}`),
-    analyticsDaily: (id: string, start: string, end: string) =>
-      this.request(`/campaigns/analytics/daily?campaign_id=${id}&start_date=${start}&end_date=${end}`),
-  };
-
-  // Lead operations
-  leads = {
-    create: (data: CreateLeadInput) =>
-      this.request<Lead>("/leads", { method: "POST", body: JSON.stringify(data) }),
-    list: (filter: ListLeadsInput) =>
-      this.request<Lead[]>("/leads/list", { method: "POST", body: JSON.stringify(filter) }),
-    get: (id: string) => this.request<Lead>(`/leads/${id}`),
-    delete: (id: string) => this.request(`/leads/${id}`, { method: "DELETE" }),
-    updateInterest: (email: string, campaignId: string, value: number) =>
-      this.request("/leads/update-interest-status", {
-        method: "POST",
-        body: JSON.stringify({ lead_email: email, campaign_id: campaignId, interest_value: value }),
-      }),
-  };
-
-  // Account operations
-  accounts = {
-    list: (limit = 50) => this.request<Account[]>(`/accounts?limit=${limit}`),
-    get: (email: string) => this.request<Account>(`/accounts/${encodeURIComponent(email)}`),
-    enableWarmup: (emails: string[]) =>
-      this.request("/accounts/warmup/enable", { method: "POST", body: JSON.stringify({ emails }) }),
-    warmupAnalytics: (emails: string[]) =>
-      this.request("/accounts/warmup-analytics", { method: "POST", body: JSON.stringify({ emails }) }),
-    testVitals: (emails: string[]) =>
-      this.request("/accounts/test/vitals", { method: "POST", body: JSON.stringify({ accounts: emails }) }),
-    pause: (email: string) =>
-      this.request(`/accounts/${encodeURIComponent(email)}/pause`, { method: "POST" }),
-    resume: (email: string) =>
-      this.request(`/accounts/${encodeURIComponent(email)}/resume`, { method: "POST" }),
-  };
-
-  // Webhook operations
-  webhooks = {
-    list: () => this.request<Webhook[]>("/webhooks?limit=50"),
-    create: (data: CreateWebhookInput) =>
-      this.request<Webhook>("/webhooks", { method: "POST", body: JSON.stringify(data) }),
-    test: (id: string) => this.request(`/webhooks/${id}/test`, { method: "POST" }),
-    delete: (id: string) => this.request(`/webhooks/${id}`, { method: "DELETE" }),
-  };
-}
-```
-
-### Campaign Template System (src/campaigns/templates.ts)
-
-```typescript
-export const SEQUENCE_TEMPLATES = {
-  "3-step-cold": {
-    name: "3-Step Cold Outreach",
-    sequences: [{
-      steps: [
-        { type: "email" as const, delay: 0, variants: [
-          { subject: "{{firstName}}, quick question about {{companyName}}", body: "..." },
-        ]},
-        { type: "email" as const, delay: 3, delay_unit: "days" as const, variants: [
-          { subject: "Re: {{firstName}}, quick question", body: "..." },
-        ]},
-        { type: "email" as const, delay: 5, delay_unit: "days" as const, variants: [
-          { subject: "Re: {{firstName}}, quick question", body: "..." },
-        ]},
-      ],
-    }],
-    defaults: {
-      daily_limit: 50,
-      stop_on_reply: true,
-      email_gap: 120,
-      link_tracking: false,
-      open_tracking: true,
-    },
-  },
-
-  "meeting-request": {
-    name: "Meeting Request",
-    sequences: [{
-      steps: [
-        { type: "email" as const, delay: 0, variants: [
-          { subject: "15 min chat, {{firstName}}?", body: "..." },
-        ]},
-        { type: "email" as const, delay: 2, delay_unit: "days" as const, variants: [
-          { subject: "Re: 15 min chat", body: "..." },
-        ]},
-      ],
-    }],
-    defaults: {
-      daily_limit: 30,
-      stop_on_reply: true,
-      email_gap: 180,
-    },
-  },
-};
-```
-
-## Data Flow Summary
-
-```
-Lead CSV/CRM → import.ts → POST /leads → Campaign
-                                            ↓
-                              POST /campaigns/{id}/activate
-                                            ↓
-                              Instantly sends emails
-                                            ↓
-                              Webhook events fire
-                                            ↓
-                              handlers.ts routes events
-                                            ↓
-                    ┌─────────┬─────────┬───────────┐
-                    CRM       Slack     Analytics   Block List
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Client constructor fails | Missing `INSTANTLY_API_KEY` | Check `.env` file |
-| Namespace methods fail | API scope mismatch | Verify key has correct scopes |
-| Import fails midway | Network/rate limit | Batch with retry (see `instantly-performance-tuning`) |
-| Webhook events missing | Webhook not registered | Register after deploy (see `instantly-webhooks-events`) |
+Produce a repo-grounded architecture that separates control-plane approvals from outreach mutations. Record assumptions, evidence, approval state, and rollback ownership so another operator can reproduce the result.
 
 ## Prerequisites
 
-- Named sender/campaign owners, consent and suppression authority, approved destinations, and a rollback owner for every campaign path.
+- The target repository, Instantly workspace, environment, and accountable owner
+- Current security, privacy, compliance, capacity, and change-control requirements
+- An approved API v2 key only when a bounded live verification is necessary
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current first-party Instantly documentation and package metadata. Use `Write` or `Edit` only when implementation was requested and exact target files are known; never write credentials, lead data, email content, or unrestricted environment output.
+
+## Current Contract
+
+- Use official API v2, the beta TypeScript SDK when appropriate, or the official CLI/MCP deliberately.
+- Model workspace-wide throttling, cursor pagination, background jobs, and webhook delivery as first-class components.
+- Keep campaign activation, account connection, key changes, and data deletion behind separate approvals.
+
+## Authentication
+
+Use an API v2 key as `Authorization: Bearer <key>` against `https://api.instantly.ai/api/v2`. Grant only the endpoint-specific scopes needed, inject the key from an approved server-side secret manager, and never print, persist, commit, or place it in a URL. Treat key creation, rotation, revocation, member changes, workspace delegation, and production access as owner-approved actions.
 
 ## Instructions
 
-1. Map every trigger-to-campaign edge with sender scope, consent/suppression policy, approval requirement, allowed operation, idempotency, observability, and rollback.
-2. Begin with synthetic recipients and draft-only campaigns; fail closed on unknown sender, recipient source, consent, suppression state, or destination.
-3. Make scheduling idempotent and bounded; quarantine uncertainty rather than sending, re-enrolling contacts, or exporting copy for debugging.
-4. Canary one draft-only campaign with aggregate signals and `sends=0` before human release approval, retaining the previous revision.
-5. Re-evaluate controls on any change to senders, audiences, credentials, schedules, or consent policy.
+1. Map callers, workspaces, data stores, queues, secret managers, webhook receivers, and owners.
+2. Define a typed client boundary with scoped authentication, redaction, timeouts, and rate control.
+3. Separate read models, command handlers, background-job polling, and webhook idempotency.
+4. Define tenant/workspace identity checks and x-as-workspace safeguards.
+5. Trace lead and email data through retention, suppression, audit, and deletion controls.
+6. Deliver topology, failure paths, capacity assumptions, approval boundaries, and rollback.
+
+## Approval Boundaries
+
+Do not create, rotate, reveal, or revoke keys; invite or remove members; delegate across workspaces; connect sending accounts; create or activate campaigns; import or delete leads; change suppression or retention; register, patch, resume, or delete webhooks; alter plans or paid capacity; transmit diagnostics; or perform another production mutation without explicit approval from the accountable owner. Keep diagnosis read-only unless implementation was requested.
 
 ## Output
 
-Produce an architecture record with owners, opaque campaign IDs, consent/suppression revisions, approval gates, idempotency/retry behavior, observability, test evidence, and rollback revision. Exclude recipients, copy, sender identities, and credentials.
+Return the workspace-safe scope, files and contracts inspected, exact API v2 routes and required scopes, evidence collected, validation result, sensitive fields redacted, remaining risk, accountable owner, approval state, and rollback or next action.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| `401` | Stop and verify that the bearer key exists, is current, and was not revoked. |
+| `403` | Stop and compare the operation with its exact required scope; do not broaden to `all:all` by default. |
+| `429` | Coordinate the workspace-wide budget, honor endpoint overrides, and bound retries. |
+| Schema or tenant mismatch | Fail closed, preserve redacted evidence, and do not retry a mutation. |
 
 ## Examples
 
-`source=ci-synthetic; campaign=sandbox-only; consent=r4; suppression=pass; approval=required; action=draft-only; sends=0; rollback=arch-r17` is a reviewable architecture receipt.
+Use a compact handoff that makes scope, mutation authority, and evidence reviewable.
+
+Input:
+
+```text
+system=outreach-orchestrator; workspaces=3; mutations=approval-gated
+```
+
+Expected handoff:
+
+```text
+artifacts=context-map,sequence,failure-table,rollback
+```
 
 ## Resources
 
-- [Instantly API v2 Docs](https://developer.instantly.ai/)
-- [API Schemas](https://developer.instantly.ai/api/v2/schemas)
-- [Instantly Help Center](https://help.instantly.ai)
-
-## Next Steps
-
-For multi-environment setup, see `instantly-multi-env-setup`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Instantly API v2 documentation](https://developer.instantly.ai/)
+- [Instantly API v2 OpenAPI document](https://api.instantly.ai/openapi/api_v2.json)

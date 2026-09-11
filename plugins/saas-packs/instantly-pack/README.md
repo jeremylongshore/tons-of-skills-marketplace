@@ -1,12 +1,20 @@
-# Instantly Skill Pack
+# Instantly Operator Pack
 
-> Cold email outreach automation via Instantly.ai API v2 — campaigns, leads, warmup, analytics, and webhooks (24 skills)
+> Production-grade Instantly API v2 operations for campaigns, sending accounts, leads, access, webhooks, reliability, and governed delivery.
 
-Instantly.ai is a cold email outreach platform that manages sending infrastructure, email warmup, campaign sequencing, and reply detection at scale. This skill pack provides production-ready patterns for the Instantly API v2 (`https://api.instantly.ai/api/v2/`), covering the full campaign lifecycle from account warmup through lead import, sequence creation, launch, analytics, and webhook-driven CRM sync.
+This pack contains 24 source-grounded Claude Code skills. It treats outreach mutations, account connections, cross-workspace delegation, data handling, commercial changes, and external disclosures as explicit approval boundaries.
 
-**API Version:** v2 (v1 deprecated January 2026)
-**Auth:** Bearer token with scoped API keys
-**Plan Required:** Hypergrowth ($97.95/mo) for full API + webhooks
+## Current platform contract
+
+- Base URL: `https://api.instantly.ai/api/v2`
+- Authentication: scoped API v2 bearer keys
+- General rate limits: 100 requests/second and 6,000 requests/minute, shared across API v1/v2 and all keys in a workspace
+- Official SDK: `@instantlyai/sdk` beta, Node.js 22+
+- Official CLI: `@instantlyai/cli`, Node.js 18+
+- API v1: deprecated on January 19, 2026; v2 requires new, incompatible keys
+- Webhooks: documented event schema and management APIs; no unpublished signature or fixed retry contract is assumed
+
+Recheck the linked first-party references before production changes because endpoint schemas, package releases, limits, plans, and commercial terms can change.
 
 ## Installation
 
@@ -14,70 +22,33 @@ Instantly.ai is a cold email outreach platform that manages sending infrastructu
 /plugin install instantly-pack@claude-code-plugins-plus
 ```
 
-## Skills Included
+## Skills
 
-### Standard Skills (S01-S12)
+| Area | Skills |
+|---|---|
+| Setup and proof | `instantly-install-auth`, `instantly-hello-world`, `instantly-local-dev-loop`, `instantly-sdk-patterns` |
+| Campaign and account operations | `instantly-core-workflow-a`, `instantly-core-workflow-b`, `instantly-common-errors`, `instantly-debug-bundle` |
+| Reliability and launch | `instantly-rate-limits`, `instantly-security-basics`, `instantly-prod-checklist`, `instantly-ci-integration`, `instantly-deploy-integration` |
+| Events and scale | `instantly-webhooks-events`, `instantly-performance-tuning`, `instantly-cost-tuning`, `instantly-reference-architecture` |
+| Governance and lifecycle | `instantly-multi-env-setup`, `instantly-observability`, `instantly-incident-runbook`, `instantly-data-handling`, `instantly-enterprise-rbac`, `instantly-migration-deep-dive`, `instantly-upgrade-migration` |
 
-| Skill | Description |
-|-------|-------------|
-| `instantly-install-auth` | API v2 authentication, scoped key generation, client wrapper setup |
-| `instantly-hello-world` | First API call — list campaigns, check accounts, pull analytics |
-| `instantly-local-dev-loop` | Mock server, integration tests, local webhook testing with ngrok |
-| `instantly-sdk-patterns` | Type-safe client, retry logic, cursor pagination, multi-tenant factory |
-| `instantly-core-workflow-a` | Full campaign launch: create sequences, add leads, assign accounts, activate |
-| `instantly-core-workflow-b` | Email warmup lifecycle, warmup analytics, campaign & step-level analytics |
-| `instantly-common-errors` | HTTP error reference, campaign status codes, lead/account diagnostics |
-| `instantly-debug-bundle` | Collect workspace-wide debug evidence (campaigns, accounts, warmup, webhooks) |
-| `instantly-rate-limits` | 429 handling, exponential backoff, request queue, throttled email fetcher |
-| `instantly-security-basics` | Scoped keys, secret management, key rotation, webhook auth, audit logs |
-| `instantly-prod-checklist` | 5-phase pre-launch validation: accounts, config, leads, test, launch |
-| `instantly-upgrade-migration` | API v1 to v2 migration: endpoint map, auth change, pagination, new features |
+`instantly-migration-deep-dive` owns the one-time API v1-to-v2 cutover. `instantly-upgrade-migration` owns ongoing SDK, CLI, OpenAPI-type, and API v2 contract upgrades.
 
-### Pro Skills (P13-P18)
+## Safety model
 
-| Skill | Description |
-|-------|-------------|
-| `instantly-ci-integration` | GitHub Actions CI with mock server, scope validation, deploy pipeline |
-| `instantly-deploy-integration` | Deploy webhook receivers to Vercel, Cloud Run, or Fly.io |
-| `instantly-webhooks-events` | All 16 event types, webhook CRUD, event routing, CRM sync handlers |
-| `instantly-performance-tuning` | Caching, batch lead import, prefetch pagination, connection pooling |
-| `instantly-cost-tuning` | Plan comparison, account utilization audit, campaign efficiency analysis |
-| `instantly-reference-architecture` | Project layout, modular client design, campaign template system |
+Every skill is inspection-first. Live requests use bounded synthetic or approved data, least-privilege scopes, redacted evidence, and explicit workspace identity. Campaign activation, account connection, lead import/deletion, webhook changes, key/member changes, plan changes, and diagnostic sharing require accountable-owner approval.
 
-### Flagship Skills (F19-F24)
+## Primary documentation
 
-| Skill | Description |
-|-------|-------------|
-| `instantly-multi-env-setup` | Dev/staging/prod workspace isolation, environment guards, webhook routing |
-| `instantly-observability` | Campaign health monitor, warmup alerts, webhook delivery tracking |
-| `instantly-incident-runbook` | P1-P4 response procedures: unhealthy accounts, bounce protect, rate storms |
-| `instantly-data-handling` | Lead CRUD, list management, block lists, GDPR deletion, CAN-SPAM compliance |
-| `instantly-enterprise-rbac` | Workspace members, scoped API keys, custom tags, audit logging |
-| `instantly-migration-deep-dive` | Platform migration: account import, CSV leads, parallel run, cutover |
-
-## Key API Endpoints Covered
-
-| Category | Endpoints |
-|----------|----------|
-| Campaigns | `POST/GET/PATCH/DELETE /campaigns`, `activate`, `pause`, `analytics`, `variables` |
-| Accounts | `POST/GET/PATCH /accounts`, `warmup/enable`, `warmup-analytics`, `test/vitals`, `pause`, `resume` |
-| Leads | `POST/GET/PATCH/DELETE /leads`, `leads/list`, `leads/move`, `update-interest-status` |
-| Lead Lists | `POST/GET/PATCH/DELETE /lead-lists` |
-| Webhooks | `POST/GET/PATCH/DELETE /webhooks`, `test`, `resume`, `webhook-events/summary` |
-| Email | `GET /emails`, `POST /emails/reply`, `POST /emails/test`, `unread/count` |
-| Block Lists | `POST/GET/DELETE /block-lists-entries`, `bulk-create`, `bulk-delete` |
-| Analytics | `campaigns/analytics`, `analytics/daily`, `analytics/steps`, `analytics/overview` |
-| Admin | `api-keys`, `audit-logs`, `workspace-members`, `custom-tags`, `background-jobs` |
-
-## Usage
-
-Skills trigger automatically when you discuss Instantly topics:
-
-- "Set up Instantly API" triggers `instantly-install-auth`
-- "Create a cold email campaign" triggers `instantly-core-workflow-a`
-- "Enable warmup on my accounts" triggers `instantly-core-workflow-b`
-- "Handle Instantly webhooks" triggers `instantly-webhooks-events`
-- "Debug Instantly errors" triggers `instantly-common-errors`
+- [Instantly developer documentation](https://developer.instantly.ai/)
+- [API v2 quickstart](https://developer.instantly.ai/quickstart)
+- [Authorization](https://developer.instantly.ai/getting-started/authorization)
+- [Rate limits](https://developer.instantly.ai/getting-started/rate-limit)
+- [API v1-to-v2 migration](https://developer.instantly.ai/guides/api-v1-migration)
+- [Webhook event schema](https://developer.instantly.ai/guides/webhook-events)
+- [Workspace groups](https://developer.instantly.ai/guides/workspace-group)
+- [Official SDK](https://developer.instantly.ai/sdk/introduction)
+- [Official CLI](https://developer.instantly.ai/cli/introduction)
 
 ## License
 

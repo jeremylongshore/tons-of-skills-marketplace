@@ -5521,16 +5521,16 @@
     {
       "name": "instantly-pack",
       "source": "./plugins/saas-packs/instantly-pack",
-      "description": "Complete Instantly integration skill pack with 24 skills covering cold email, outreach automation, and lead generation. Flagship tier vendor pack.",
-      "version": "1.12.0",
+      "description": "Production Instantly API v2 operator pack with 24 source-grounded skills for campaigns, accounts, leads, scoped access, webhooks, reliability, and governed delivery.",
+      "version": "1.13.0",
       "category": "saas-packs",
       "keywords": [
         "instantly",
-        "cold-email",
-        "outreach",
-        "email-automation",
-        "lead-generation",
-        "sales"
+        "api-v2",
+        "campaign-operations",
+        "deliverability",
+        "webhooks",
+        "governance"
       ],
       "author": {
         "name": "Jeremy Longshore",

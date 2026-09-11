@@ -1,270 +1,90 @@
 ---
 name: instantly-cost-tuning
-description: 'Optimize Instantly.ai costs through plan selection, account management,
-  and usage monitoring.
-
-  Use when analyzing Instantly billing, reducing per-campaign costs,
-
-  or choosing between Instantly pricing tiers.
-
-  Trigger with phrases like "instantly cost", "instantly pricing",
-
-  "instantly billing", "reduce instantly cost", "instantly plan comparison".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(npm:*), Grep
-version: 1.12.0
-license: MIT
+description: >-
+  Analyze and measure Instantly plan, account, verification, and enrichment usage without embedding stale prices. Use when operating cost tuning workflows. Trigger with "instantly cost tuning", "Instantly API", or "Instantly integration".
+argument-hint: "[billing-period] [workspace]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.13.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - instantly
-- cost-optimization
-- pricing
-compatibility: Designed for Claude Code
+- cost-tuning
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Instantly workspace and API v2 key
 ---
-# Instantly Cost Tuning
+# Instantly Cost and Capacity Governance
 
 ## Overview
 
-Optimize Instantly.ai costs by choosing the right plan, managing email account utilization, monitoring campaign efficiency, and reducing wasted sends. Instantly's pricing is based on sending accounts and features, not per-email — so the key to cost efficiency is maximizing the value per account.
-
-## Instantly Pricing Tiers (2026)
-
-| Plan | Monthly | Annual (per mo) | Email Accounts | Warmup | API Access | Webhooks |
-|------|---------|----------------|----------------|--------|------------|----------|
-| Growth | $30 | $24 | 5 | Included | v2 (limited) | No |
-| Hypergrowth | $97.95 | $77.60 | 25 | Included | v2 (full) | Yes |
-| Light Speed | $358.30 | $286.30 | 500+ | Included | v2 (full) | Yes |
-
-**Key cost decision:** You need **Hypergrowth** ($97.95/mo) minimum for full API v2 access and webhooks.
-
-## Instructions
-
-### Step 1: Audit Current Account Utilization
-
-```typescript
-import { instantly } from "./src/instantly";
-
-async function auditAccountUtilization() {
-  // Get all accounts
-  const accounts = await instantly<Array<{
-    email: string;
-    status: number;
-    daily_limit: number | null;
-    warmup_status: string;
-  }>>("/accounts?limit=200");
-
-  // Get daily analytics for the last 7 days
-  const endDate = new Date().toISOString().split("T")[0];
-  const startDate = new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0];
-  const dailyAnalytics = await instantly<Array<{
-    email: string;
-    date: string;
-    emails_sent: number;
-  }>>(`/accounts/analytics/daily?start_date=${startDate}&end_date=${endDate}&emails=${accounts.map(a => a.email).join(",")}`);
-
-  // Calculate utilization
-  console.log("=== Account Utilization Audit ===\n");
-
-  let totalCapacity = 0;
-  let totalSent = 0;
-  const underutilized: string[] = [];
-
-  for (const account of accounts) {
-    const sent = dailyAnalytics
-      .filter((d) => d.email === account.email)
-      .reduce((sum, d) => sum + d.emails_sent, 0);
-    const dailyAvg = sent / 7;
-    const capacity = account.daily_limit || 50;
-    const utilization = (dailyAvg / capacity) * 100;
-
-    totalCapacity += capacity * 7;
-    totalSent += sent;
-
-    if (utilization < 20) {
-      underutilized.push(account.email);
-    }
-
-    console.log(`${account.email}: ${dailyAvg.toFixed(0)}/day of ${capacity} limit (${utilization.toFixed(0)}% utilized)`);
-  }
-
-  console.log(`\nOverall: ${totalSent} sent of ${totalCapacity} capacity (${((totalSent / totalCapacity) * 100).toFixed(0)}%)`);
-  console.log(`Underutilized accounts (<20%): ${underutilized.length}`);
-  if (underutilized.length > 0) {
-    console.log(`Consider removing: ${underutilized.join(", ")}`);
-  }
-}
-```
-
-### Step 2: Campaign Efficiency Analysis
-
-```typescript
-async function campaignEfficiency() {
-  const campaigns = await instantly<Array<{ id: string; name: string; status: number }>>(
-    "/campaigns?limit=100"
-  );
-
-  console.log("=== Campaign Efficiency ===\n");
-
-  for (const campaign of campaigns.filter((c) => c.status === 1 || c.status === 3)) {
-    const analytics = await instantly<{
-      campaign_name: string;
-      total_leads: number;
-      emails_sent: number;
-      emails_replied: number;
-      emails_bounced: number;
-      emails_opened: number;
-    }>(`/campaigns/analytics?id=${campaign.id}`);
-
-    if (analytics.emails_sent === 0) continue;
-
-    const replyRate = (analytics.emails_replied / analytics.emails_sent * 100).toFixed(1);
-    const bounceRate = (analytics.emails_bounced / analytics.emails_sent * 100).toFixed(1);
-    const openRate = (analytics.emails_opened / analytics.emails_sent * 100).toFixed(1);
-
-    // Cost per reply (assuming $97.95/mo plan, 25 accounts, ~30 days)
-    const costPerEmail = 97.95 / (25 * 50 * 30); // ~$0.0026 per email
-    const costPerReply = analytics.emails_replied > 0
-      ? ((analytics.emails_sent * costPerEmail) / analytics.emails_replied).toFixed(2)
-      : "N/A";
-
-    console.log(`${analytics.campaign_name}`);
-    console.log(`  Sent: ${analytics.emails_sent} | Open: ${openRate}% | Reply: ${replyRate}% | Bounce: ${bounceRate}%`);
-    console.log(`  Est. cost/reply: $${costPerReply}`);
-
-    // Warnings
-    if (parseFloat(bounceRate) > 5) {
-      console.log(`  WARNING: High bounce rate — clean lead list`);
-    }
-    if (parseFloat(replyRate) < 1) {
-      console.log(`  WARNING: Low reply rate — review email copy and targeting`);
-    }
-    console.log();
-  }
-}
-```
-
-### Step 3: Plan Right-Sizing
-
-```typescript
-async function recommendPlan() {
-  const accounts = await instantly<Array<{ email: string }>>(
-    "/accounts?limit=200"
-  );
-  const webhooks = await instantly<Array<{ id: string }>>(
-    "/webhooks?limit=50"
-  );
-
-  const accountCount = accounts.length;
-  const usesWebhooks = webhooks.length > 0;
-
-  console.log("=== Plan Recommendation ===\n");
-  console.log(`Active accounts: ${accountCount}`);
-  console.log(`Uses webhooks: ${usesWebhooks}`);
-
-  if (accountCount <= 5 && !usesWebhooks) {
-    console.log("\nRecommended: Growth ($30/mo)");
-    console.log("  You're within the 5-account limit and don't need webhooks.");
-  } else if (accountCount <= 25) {
-    console.log("\nRecommended: Hypergrowth ($97.95/mo)");
-    console.log("  Full API v2 access, webhooks, and 25 accounts.");
-  } else {
-    console.log("\nRecommended: Light Speed ($358.30/mo)");
-    console.log(`  You have ${accountCount} accounts — need the 500+ tier.`);
-  }
-
-  // Check billing details via API
-  try {
-    const billing = await instantly("/workspace-billing/plan-details");
-    console.log("\nCurrent plan:", JSON.stringify(billing, null, 2));
-  } catch {
-    console.log("\n(Could not fetch billing details — scope may be missing)");
-  }
-}
-```
-
-### Step 4: Cost Reduction Strategies
-
-```typescript
-async function applyOptimizations() {
-  console.log("=== Cost Optimization Actions ===\n");
-
-  // 1. Pause unused accounts to free up slots
-  const accounts = await instantly<Array<{
-    email: string; status: number; daily_limit: number | null;
-  }>>("/accounts?limit=200");
-
-  for (const account of accounts) {
-    if (account.status === 0) { // inactive
-      console.log(`Consider removing inactive account: ${account.email}`);
-    }
-  }
-
-  // 2. Clean up completed campaigns
-  const campaigns = await instantly<Array<{ id: string; name: string; status: number }>>(
-    "/campaigns?limit=100"
-  );
-  const completed = campaigns.filter((c) => c.status === 3);
-  console.log(`\nCompleted campaigns to archive: ${completed.length}`);
-
-  // 3. Check for duplicate leads across campaigns
-  // (Leads in multiple campaigns waste sends)
-  console.log("\nDuplicate prevention:");
-  console.log("  Use skip_if_in_workspace: true on all lead imports");
-  console.log("  Use skip_if_in_campaign: true for campaign-specific dedup");
-
-  // 4. Verify email quality before import
-  console.log("\nEmail verification:");
-  console.log("  POST /api/v2/email-verification — verify before importing");
-  console.log("  Set verify_leads_on_import: true in lead creation");
-
-  // 5. Block list maintenance
-  const blocklist = await instantly<unknown[]>("/block-lists-entries?limit=1");
-  console.log(`\nBlock list entries: ${blocklist.length}+`);
-  console.log("  Add competitor domains, role-based emails (info@, admin@)");
-  console.log("  Add internal domains to prevent self-emailing");
-}
-```
-
-## Cost Optimization Checklist
-
-- [ ] Right-sized plan for account count and feature needs
-- [ ] Underutilized accounts identified and removed
-- [ ] Duplicate leads prevented with `skip_if_in_workspace`
-- [ ] Lead emails verified before import
-- [ ] Block list populated with competitor/internal domains
-- [ ] Campaigns with >5% bounce rate cleaned up
-- [ ] Daily limits tuned per account (not over-provisioned)
-- [ ] Completed campaigns archived
-- [ ] Warmup-only accounts tracked separately
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Can't access billing API | Missing workspace scope | Use dashboard instead |
-| Analytics return empty | Campaign too new | Wait 24h for data |
-| Account count exceeds plan | Plan limits reached | Upgrade or remove accounts |
+Produce an evidence-backed capacity and spend recommendation using live workspace billing and pricing sources. Record assumptions, evidence, approval state, and rollback ownership so another operator can reproduce the result.
 
 ## Prerequisites
 
-- An approved budget, aggregate send/quota baseline, synthetic recipients, and a rollback revision for concurrency, cadence, and schedule policy.
+- The target repository, Instantly workspace, environment, and accountable owner
+- Current security, privacy, compliance, capacity, and change-control requirements
+- An approved API v2 key only when a bounded live verification is necessary
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current first-party Instantly documentation and package metadata. Use `Write` or `Edit` only when implementation was requested and exact target files are known; never write credentials, lead data, email content, or unrestricted environment output.
+
+## Current Contract
+
+- Pricing and entitlements are dynamic; never hard-code a monthly price or account allowance.
+- Workspace billing endpoints require workspace_billing read scope.
+- Some endpoints publish independent limits or credit costs, so general API throughput is not a spend model.
+
+## Authentication
+
+Use an API v2 key as `Authorization: Bearer <key>` against `https://api.instantly.ai/api/v2`. Grant only the endpoint-specific scopes needed, inject the key from an approved server-side secret manager, and never print, persist, commit, or place it in a URL. Treat key creation, rotation, revocation, member changes, workspace delegation, and production access as owner-approved actions.
+
+## Instructions
+
+1. Define the billing period, business outcome, sending-account inventory, and cost owner.
+2. Read current plan and subscription details with read-only billing scope when available.
+3. Measure active versus idle accounts, campaign outcomes, verification, and enrichment consumption.
+4. Fetch current first-party pricing and contract terms before making a recommendation.
+5. Model keep, consolidate, and expand options with assumptions and sensitivity ranges.
+6. Require owner approval for plan, account, domain, or paid-enrichment changes.
+
+## Approval Boundaries
+
+Do not create, rotate, reveal, or revoke keys; invite or remove members; delegate across workspaces; connect sending accounts; create or activate campaigns; import or delete leads; change suppression or retention; register, patch, resume, or delete webhooks; alter plans or paid capacity; transmit diagnostics; or perform another production mutation without explicit approval from the accountable owner. Keep diagnosis read-only unless implementation was requested.
 
 ## Output
 
-Return a cost-change receipt with baseline/projected counts, control revision, owner approval, draft-canary result, consent/suppression assertions, sent-count result, savings range, and rollback reference. Use aggregates only.
+Return the workspace-safe scope, files and contracts inspected, exact API v2 routes and required scopes, evidence collected, validation result, sensitive fields redacted, remaining risk, accountable owner, approval state, and rollback or next action.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| `401` | Stop and verify that the bearer key exists, is current, and was not revoked. |
+| `403` | Stop and compare the operation with its exact required scope; do not broaden to `all:all` by default. |
+| `429` | Coordinate the workspace-wide budget, honor endpoint overrides, and bound retries. |
+| Schema or tenant mismatch | Fail closed, preserve redacted evidence, and do not retry a mutation. |
 
 ## Examples
 
-`campaign=sandbox-only; baseline=12000; deferred=120; deduped=900; consent=pass; suppression=pass; sends=0; rollback=cost-r18` is a safe cost decision.
+Use a compact handoff that makes scope, mutation authority, and evidence reviewable.
+
+Input:
+
+```text
+period=last-30-days; objective=cost-per-qualified-reply
+```
+
+Expected handoff:
+
+```text
+baseline=measured; options=3; prices=live-sourced; decision=awaiting-owner
+```
 
 ## Resources
 
-- [Instantly Pricing](https://instantly.ai/pricing)
-- [Instantly API v2 Docs](https://developer.instantly.ai/)
-- [Workspace Billing API](https://developer.instantly.ai/api/v2/schemas)
-
-## Next Steps
-
-For reference architecture, see `instantly-reference-architecture`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Instantly API v2 documentation](https://developer.instantly.ai/)
+- [Instantly API v2 OpenAPI document](https://api.instantly.ai/openapi/api_v2.json)

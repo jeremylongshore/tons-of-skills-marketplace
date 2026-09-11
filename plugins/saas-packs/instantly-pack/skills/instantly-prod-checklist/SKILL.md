@@ -1,281 +1,90 @@
 ---
 name: instantly-prod-checklist
-description: 'Execute Instantly.ai production launch checklist and pre-flight validation.
-
-  Use when deploying Instantly integrations to production, launching first campaign,
-
-  or auditing production readiness.
-
-  Trigger with phrases like "instantly production", "instantly launch checklist",
-
-  "instantly go-live", "instantly pre-flight", "instantly prod ready".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(npm:*), Grep
-version: 1.12.0
-license: MIT
+description: >-
+  Analyze and gate an Instantly integration for production across identity, scopes, data, limits, operations, and rollback. Use when operating prod checklist workflows. Trigger with "instantly prod checklist", "Instantly API", or "Instantly integration".
+argument-hint: "[release-sha] [workspace]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.13.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - instantly
-- production
-- deployment
-compatibility: Designed for Claude Code
+- prod-checklist
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Instantly workspace and API v2 key
 ---
-# Instantly Production Checklist
+# Instantly Production Readiness Gate
 
 ## Overview
 
-Pre-flight checklist for launching Instantly cold email campaigns in production. Covers account warmup verification, deliverability testing, lead list hygiene, campaign configuration, webhook setup, and monitoring. Skip any step that doesn't apply to your use case.
+Return a fail-closed readiness decision backed by test and approval evidence. Record assumptions, evidence, approval state, and rollback ownership so another operator can reproduce the result.
 
 ## Prerequisites
 
-- Completed `instantly-install-auth` setup
-- Email accounts connected and warmed up (minimum 14 days recommended)
-- Lead list prepared with verified emails
+- The target repository, Instantly workspace, environment, and accountable owner
+- Current security, privacy, compliance, capacity, and change-control requirements
+- An approved API v2 key only when a bounded live verification is necessary
 
-## Production Launch Checklist
+## Tool Discipline
 
-### Phase 1: Account Health (2-4 weeks before launch)
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current first-party Instantly documentation and package metadata. Use `Write` or `Edit` only when implementation was requested and exact target files are known; never write credentials, lead data, email content, or unrestricted environment output.
 
-```typescript
-import { instantly } from "./src/instantly";
+## Current Contract
 
-async function phase1AccountHealth() {
-  console.log("=== Phase 1: Account Health ===\n");
+- A green deploy is not authorization to activate campaigns or connect accounts.
+- Keys, workspace-group delegation, webhook delivery, background jobs, and endpoint limits need explicit owners.
+- Dynamic plan and entitlement facts must be rechecked at launch.
 
-  // 1. Verify all accounts have healthy SMTP/IMAP
-  const accounts = await instantly<Array<{ email: string }>>(
-    "/accounts?limit=100"
-  );
-  const vitals = await instantly("/accounts/test/vitals", {
-    method: "POST",
-    body: JSON.stringify({ accounts: accounts.map((a) => a.email) }),
-  }) as Array<{ email: string; smtp_status: string; imap_status: string }>;
+## Authentication
 
-  const broken = vitals.filter((v) => v.smtp_status !== "ok" || v.imap_status !== "ok");
-  console.log(`Accounts: ${accounts.length} total, ${broken.length} broken`);
-  if (broken.length > 0) {
-    console.log("FIX THESE FIRST:");
-    broken.forEach((v) => console.log(`  ${v.email}: SMTP=${v.smtp_status} IMAP=${v.imap_status}`));
-    return false;
-  }
-
-  // 2. Verify warmup is active and healthy
-  const warmup = await instantly("/accounts/warmup-analytics", {
-    method: "POST",
-    body: JSON.stringify({ emails: accounts.map((a) => a.email) }),
-  }) as Array<{ email: string; warmup_emails_landed_inbox: number; warmup_emails_sent: number }>;
-
-  for (const w of warmup) {
-    const inboxRate = (w.warmup_emails_landed_inbox / (w.warmup_emails_sent || 1)) * 100;
-    const healthy = inboxRate >= 80;
-    console.log(`  ${w.email}: inbox rate ${inboxRate.toFixed(1)}% ${healthy ? "OK" : "LOW — extend warmup"}`);
-  }
-
-  // 3. Check daily limits are set
-  const acctDetails = await instantly<Array<{ email: string; daily_limit: number | null }>>(
-    "/accounts?limit=100"
-  );
-  const noLimit = acctDetails.filter((a) => !a.daily_limit);
-  if (noLimit.length > 0) {
-    console.log(`\nWARNING: ${noLimit.length} accounts have no daily limit set`);
-  }
-
-  return broken.length === 0;
-}
-```
-
-### Phase 2: Campaign Configuration (1 week before)
-
-```typescript
-async function phase2CampaignConfig(campaignId: string) {
-  console.log("\n=== Phase 2: Campaign Configuration ===\n");
-  const campaign = await instantly<{
-    name: string;
-    sequences: Array<{ steps: Array<{ variants: Array<{ subject: string; body: string }> }> }>;
-    campaign_schedule: { schedules: any[] };
-    daily_limit: number | null;
-    stop_on_reply: boolean;
-    link_tracking: boolean;
-    open_tracking: boolean;
-    stop_on_auto_reply: boolean;
-    email_gap: number;
-  }>(`/campaigns/${campaignId}`);
-
-  const checks = [
-    { label: "Has sequences", pass: campaign.sequences?.length > 0 },
-    { label: "Has email steps", pass: campaign.sequences?.[0]?.steps?.length > 0 },
-    { label: "Has schedule", pass: campaign.campaign_schedule?.schedules?.length > 0 },
-    { label: "Stop on reply enabled", pass: campaign.stop_on_reply === true },
-    { label: "Link tracking disabled", pass: campaign.link_tracking === false },
-    { label: "Open tracking enabled", pass: campaign.open_tracking === true },
-    { label: "Daily limit set", pass: (campaign.daily_limit ?? 0) > 0 },
-    { label: "Email gap >= 60s", pass: (campaign.email_gap ?? 0) >= 60 },
-  ];
-
-  let allPass = true;
-  for (const check of checks) {
-    console.log(`  ${check.pass ? "PASS" : "FAIL"}: ${check.label}`);
-    if (!check.pass) allPass = false;
-  }
-
-  // Check A/B variants
-  const step1 = campaign.sequences?.[0]?.steps?.[0];
-  if (step1) {
-    console.log(`  INFO: Step 1 has ${step1.variants.length} variant(s)`);
-  }
-
-  return allPass;
-}
-```
-
-### Phase 3: Lead List Hygiene
-
-```typescript
-async function phase3LeadHygiene(campaignId: string) {
-  console.log("\n=== Phase 3: Lead List Hygiene ===\n");
-
-  // Check lead count
-  const analytics = await instantly<{ total_leads: number }>(
-    `/campaigns/analytics?id=${campaignId}`
-  );
-  console.log(`Total leads: ${analytics.total_leads}`);
-
-  // Check block list
-  const blocklist = await instantly<Array<{ bl_value: string }>>(
-    "/block-lists-entries?limit=10"
-  );
-  console.log(`Block list entries: ${blocklist.length}+`);
-
-  // Verify no internal domains are in lead list
-  console.log("\nChecklist:");
-  console.log("  [ ] Leads verified with email verification service");
-  console.log("  [ ] Company domains in block list (your own + competitors)");
-  console.log("  [ ] No role-based emails (info@, admin@, support@)");
-  console.log("  [ ] Personalization variables populated (firstName, companyName)");
-  console.log("  [ ] Test lead (your own email) included for QA");
-}
-```
-
-### Phase 4: Test Email & Webhook Verification
-
-```typescript
-async function phase4TestAndWebhooks(campaignId: string) {
-  console.log("\n=== Phase 4: Test & Webhooks ===\n");
-
-  // Send test email
-  const accounts = await instantly<Array<{ email: string }>>(
-    "/accounts?limit=1"
-  );
-  if (accounts.length > 0) {
-    await instantly("/emails/test", {
-      method: "POST",
-      body: JSON.stringify({
-        eaccount: accounts[0].email,
-        to_address_email_list: [process.env.TEST_EMAIL || "test@yourdomain.com"],
-        subject: "Production Test — Instantly Integration",
-        body: "This is a test email from the Instantly integration. If you received this, the setup is working correctly.",
-      }),
-    });
-    console.log("Test email sent from:", accounts[0].email);
-  }
-
-  // Verify webhooks are registered
-  const webhooks = await instantly<Array<{
-    name: string; event_type: string; target_hook_url: string;
-  }>>("/webhooks?limit=50");
-  console.log(`\nWebhooks registered: ${webhooks.length}`);
-  for (const w of webhooks) {
-    console.log(`  ${w.name}: ${w.event_type} -> ${w.target_hook_url}`);
-  }
-
-  // Test webhook delivery
-  if (webhooks.length > 0) {
-    for (const w of webhooks.slice(0, 2) as Array<{ id: string; name: string }>) {
-      try {
-        await instantly(`/webhooks/${w.id}/test`, { method: "POST" });
-        console.log(`  Tested: ${w.name} — check your endpoint`);
-      } catch (e: any) {
-        console.log(`  FAILED: ${w.name} — ${e.message}`);
-      }
-    }
-  }
-}
-```
-
-### Phase 5: Launch & Monitor
-
-```typescript
-async function phase5Launch(campaignId: string) {
-  console.log("\n=== Phase 5: Launch ===\n");
-
-  // Final confirmation
-  const campaign = await instantly<{ name: string; status: number }>(
-    `/campaigns/${campaignId}`
-  );
-  console.log(`Campaign: ${campaign.name} (status: ${campaign.status})`);
-
-  // Activate
-  await instantly(`/campaigns/${campaignId}/activate`, { method: "POST" });
-  console.log("Campaign ACTIVATED");
-
-  // Verify sending status
-  const status = await instantly(`/campaigns/${campaignId}/sending-status`);
-  console.log("Sending status:", JSON.stringify(status));
-
-  // Monitor for first hour
-  console.log("\nPost-launch monitoring:");
-  console.log("  [ ] Check analytics after 1 hour for send activity");
-  console.log("  [ ] Monitor bounce rate (should be <3%)");
-  console.log("  [ ] Verify webhook events are arriving");
-  console.log("  [ ] Check Unibox for replies");
-}
-
-// Run full checklist
-async function main() {
-  const campaignId = process.env.CAMPAIGN_ID!;
-  const accountsOk = await phase1AccountHealth();
-  if (!accountsOk) { console.log("\nFix account issues before proceeding."); return; }
-  const configOk = await phase2CampaignConfig(campaignId);
-  await phase3LeadHygiene(campaignId);
-  await phase4TestAndWebhooks(campaignId);
-  if (configOk) await phase5Launch(campaignId);
-}
-
-main().catch(console.error);
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Campaign won't activate | Missing sequences/accounts/leads | Run Phase 2 checks |
-| Test email not received | Account SMTP broken | Run vitals test |
-| Webhook test fails | Target URL unreachable | Verify endpoint is public HTTPS |
-| High bounce rate post-launch | Unverified leads | Pause campaign, clean list |
+Use an API v2 key as `Authorization: Bearer <key>` against `https://api.instantly.ai/api/v2`. Grant only the endpoint-specific scopes needed, inject the key from an approved server-side secret manager, and never print, persist, commit, or place it in a URL. Treat key creation, rotation, revocation, member changes, workspace delegation, and production access as owner-approved actions.
 
 ## Instructions
 
-1. Confirm environment, sender scope, recipient consent, suppression state, schedule revision, and owner approval before enabling any campaign.
-2. Run synthetic/draft-only canary checks and assert consent, suppression, destination, and `sends=0` before human release approval.
-3. Monitor aggregate metrics through the observation window; halt on sender, audience, consent, suppression, or delivery drift.
-4. Promote only through the approved human-send path, or cancel/revert the schedule and record the verified result.
+1. Verify release SHA, runtime, SDK/CLI pins, schema source, and rollback artifact.
+2. Verify workspace identity, least-privilege keys, rotation, audit, and secret storage.
+3. Verify consent, suppression, minimization, redaction, retention, and deletion controls.
+4. Verify workspace and endpoint limits, pagination, batching, idempotency, and job polling.
+5. Verify dashboards, alerts, incident runbook, webhook recovery, and support evidence.
+6. List every unresolved gate and require accountable approval for launch and each data-plane mutation.
+
+## Approval Boundaries
+
+Do not create, rotate, reveal, or revoke keys; invite or remove members; delegate across workspaces; connect sending accounts; create or activate campaigns; import or delete leads; change suppression or retention; register, patch, resume, or delete webhooks; alter plans or paid capacity; transmit diagnostics; or perform another production mutation without explicit approval from the accountable owner. Keep diagnosis read-only unless implementation was requested.
 
 ## Output
 
-Create a readiness receipt with revision, canary campaign, consent/suppression results, sender scope, sent-count assertion, approvals, outcome, and rollback reference. Exclude addresses, copy, and secrets.
+Return the workspace-safe scope, files and contracts inspected, exact API v2 routes and required scopes, evidence collected, validation result, sensitive fields redacted, remaining risk, accountable owner, approval state, and rollback or next action.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| `401` | Stop and verify that the bearer key exists, is current, and was not revoked. |
+| `403` | Stop and compare the operation with its exact required scope; do not broaden to `all:all` by default. |
+| `429` | Coordinate the workspace-wide budget, honor endpoint overrides, and bound retries. |
+| Schema or tenant mismatch | Fail closed, preserve redacted evidence, and do not retry a mutation. |
 
 ## Examples
 
-`revision=r44; canary=campaign-sandbox; consent=pass; suppression=pass; sends=0; outcome=hold-for-human; rollback=r43` is a complete canary decision.
+Use a compact handoff that makes scope, mutation authority, and evidence reviewable.
+
+Input:
+
+```text
+release=abc123; workspace=prod-opaque; launch=false
+```
+
+Expected handoff:
+
+```text
+decision=NO-GO; open-gates=2; owners=assigned
+```
 
 ## Resources
 
-- [Instantly Campaign Options](https://help.instantly.ai/en/articles/6222396-campaign-options)
-- [Instantly Quick Start](https://help.instantly.ai/en/articles/6451970-quick-start-guide-all-in-one)
-- [Instantly API v2 Docs](https://developer.instantly.ai/)
-
-## Next Steps
-
-For version migration, see `instantly-upgrade-migration`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Instantly API v2 documentation](https://developer.instantly.ai/)
+- [Instantly API v2 OpenAPI document](https://api.instantly.ai/openapi/api_v2.json)

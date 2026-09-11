@@ -1,254 +1,90 @@
 ---
 name: instantly-core-workflow-b
-description: 'Manage Instantly.ai email account warmup, analytics, and deliverability.
-
-  Use when enabling warmup, monitoring sender reputation, pulling analytics,
-
-  or troubleshooting deliverability issues.
-
-  Trigger with phrases like "instantly warmup", "instantly analytics",
-
-  "email warmup instantly", "instantly deliverability", "instantly account health".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.12.0
-license: MIT
+description: >-
+  Analyze and connect and qualify Instantly sending accounts with OAuth, health checks, and controlled campaign assignment. Use when operating core workflow b workflows. Trigger with "instantly core workflow b", "Instantly API", or "Instantly integration".
+argument-hint: "[provider] [account-list-path]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.13.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - instantly
-- workflow
-- warmup
-- analytics
-- deliverability
-compatibility: Designed for Claude Code
+- core-workflow-b
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Instantly workspace and API v2 key
 ---
-# Instantly Core Workflow B: Warmup & Analytics Pipeline
+# Instantly Sending Account Onboarding
 
 ## Overview
 
-Manage the email account warmup lifecycle and campaign analytics. Warmup builds sender reputation through controlled email exchanges across Instantly's 4.2M+ account network before you start cold outreach. This workflow covers enabling warmup, monitoring warmup health, pulling campaign analytics, and daily send tracking.
+Onboard Google or Microsoft sending accounts without exposing credentials or assigning unhealthy accounts to live campaigns. Record assumptions, evidence, approval state, and rollback ownership so another operator can reproduce the result.
 
 ## Prerequisites
 
-- Completed `instantly-install-auth` setup
-- Email accounts connected in Instantly (IMAP/SMTP or Google/Microsoft OAuth)
-- API key with `accounts:update` and `campaigns:read` scopes
+- The target repository, Instantly workspace, environment, and accountable owner
+- Current security, privacy, compliance, capacity, and change-control requirements
+- An approved API v2 key only when a bounded live verification is necessary
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current first-party Instantly documentation and package metadata. Use `Write` or `Edit` only when implementation was requested and exact target files are known; never write credentials, lead data, email content, or unrestricted environment output.
+
+## Current Contract
+
+- Google and Microsoft connections use an OAuth session URL followed by status polling.
+- OAuth sessions expire after 10 minutes.
+- Warmup enablement may return a background job that must be polled.
+
+## Authentication
+
+Use an API v2 key as `Authorization: Bearer <key>` against `https://api.instantly.ai/api/v2`. Grant only the endpoint-specific scopes needed, inject the key from an approved server-side secret manager, and never print, persist, commit, or place it in a URL. Treat key creation, rotation, revocation, member changes, workspace delegation, and production access as owner-approved actions.
 
 ## Instructions
 
-### Step 1: Enable Warmup on Email Accounts
+1. Confirm account ownership, provider, workspace, allowed domains, and change owner.
+2. Create a least-privilege OAuth session and give the authorization URL only to the account owner.
+3. Poll the session within its expiry window without logging tokens.
+4. Test account vitals and capture only non-sensitive status fields.
+5. Enable warmup or campaign assignment only after an explicit change approval.
+6. Poll background jobs and produce per-account success and failure evidence.
 
-```typescript
-import { instantly } from "./src/instantly";
+## Approval Boundaries
 
-// Enable warmup — triggers a background job
-async function enableWarmup(emails: string[]) {
-  const job = await instantly<{ id: string; status: string }>(
-    "/accounts/warmup/enable",
-    {
-      method: "POST",
-      body: JSON.stringify({ emails }),
-    }
-  );
-
-  console.log(`Warmup enable job started: ${job.id} (status: ${job.status})`);
-
-  // Poll background job until complete
-  let result = job;
-  while (result.status !== "completed" && result.status !== "failed") {
-    await new Promise((r) => setTimeout(r, 2000));
-    result = await instantly<{ id: string; status: string }>(
-      `/background-jobs/${job.id}`
-    );
-  }
-
-  console.log(`Warmup job ${result.status}`);
-  return result;
-}
-
-// Enable for specific accounts
-await enableWarmup(["outreach1@yourdomain.com", "outreach2@yourdomain.com"]);
-
-// Or enable for ALL accounts at once
-await instantly("/accounts/warmup/enable", {
-  method: "POST",
-  body: JSON.stringify({ include_all_emails: true }),
-});
-```
-
-### Step 2: Configure Warmup Settings
-
-```typescript
-// PATCH account to tune warmup parameters
-async function configureWarmup(email: string) {
-  await instantly(`/accounts/${encodeURIComponent(email)}`, {
-    method: "PATCH",
-    body: JSON.stringify({
-      warmup: {
-        limit: 40,           // max warmup emails per day
-        increment: "2",      // daily limit increment (0-4 or "disabled")
-        advanced: {
-          open_rate: 0.95,       // target open rate for warmup
-          reply_rate: 0.1,       // target reply rate
-          spam_save_rate: 0.02,  // rate of rescuing from spam
-          read_emulation: true,  // simulate reading behavior
-          weekday_only: true,    // warmup only on weekdays
-          warm_ctd: false,       // custom tracking domain warmup
-        },
-      },
-      daily_limit: 50,      // max campaign emails per day
-      enable_slow_ramp: true,
-    }),
-  });
-
-  console.log(`Warmup configured for ${email}`);
-}
-```
-
-### Step 3: Monitor Warmup Health
-
-```typescript
-interface WarmupAnalytics {
-  email: string;
-  warmup_emails_sent: number;
-  warmup_emails_received: number;
-  warmup_emails_landed_inbox: number;
-  warmup_emails_landed_spam: number;
-  warmup_emails_saved_from_spam: number;
-  warmup_health_score: number;
-}
-
-async function checkWarmupHealth(emails: string[]) {
-  const analytics = await instantly<WarmupAnalytics[]>(
-    "/accounts/warmup-analytics",
-    {
-      method: "POST",
-      body: JSON.stringify({ emails }),
-    }
-  );
-
-  console.log("\nWarmup Health Report:");
-  for (const a of analytics) {
-    const inboxRate = a.warmup_emails_landed_inbox /
-      (a.warmup_emails_sent || 1) * 100;
-    console.log(`${a.email}`);
-    console.log(`  Sent: ${a.warmup_emails_sent} | Inbox: ${a.warmup_emails_landed_inbox} | Spam: ${a.warmup_emails_landed_spam}`);
-    console.log(`  Inbox Rate: ${inboxRate.toFixed(1)}% | Health: ${a.warmup_health_score}`);
-  }
-  return analytics;
-}
-```
-
-### Step 4: Pull Campaign Analytics
-
-```typescript
-// Aggregate analytics for one or more campaigns
-async function getCampaignAnalytics(campaignIds: string[]) {
-  const params = campaignIds.map((id) => `ids=${id}`).join("&");
-  const data = await instantly<Array<{
-    campaign_id: string;
-    campaign_name: string;
-    total_leads: number;
-    leads_contacted: number;
-    emails_sent: number;
-    emails_opened: number;
-    emails_replied: number;
-    emails_bounced: number;
-  }>>(`/campaigns/analytics?${params}`);
-
-  for (const c of data) {
-    const openRate = ((c.emails_opened / c.emails_sent) * 100).toFixed(1);
-    const replyRate = ((c.emails_replied / c.emails_sent) * 100).toFixed(1);
-    const bounceRate = ((c.emails_bounced / c.emails_sent) * 100).toFixed(1);
-
-    console.log(`\n${c.campaign_name}`);
-    console.log(`  Leads: ${c.total_leads} total, ${c.leads_contacted} contacted`);
-    console.log(`  Open: ${openRate}% | Reply: ${replyRate}% | Bounce: ${bounceRate}%`);
-  }
-}
-
-// Daily breakdown
-async function getDailyAnalytics(campaignId: string) {
-  const daily = await instantly<Array<{
-    date: string; emails_sent: number; emails_opened: number; emails_replied: number;
-  }>>(`/campaigns/analytics/daily?campaign_id=${campaignId}&start_date=2026-03-01&end_date=2026-03-31`);
-
-  for (const day of daily) {
-    console.log(`  ${day.date}: sent=${day.emails_sent} opened=${day.emails_opened} replied=${day.emails_replied}`);
-  }
-}
-
-// Step-level analytics — which sequence step performs best
-async function getStepAnalytics(campaignId: string) {
-  const steps = await instantly<Array<{
-    step_number: number; emails_sent: number; emails_opened: number; emails_replied: number;
-  }>>(`/campaigns/analytics/steps?campaign_id=${campaignId}`);
-
-  for (const s of steps) {
-    console.log(`  Step ${s.step_number}: sent=${s.emails_sent} opened=${s.emails_opened} replied=${s.emails_replied}`);
-  }
-}
-```
-
-### Step 5: Test Account Vitals
-
-```typescript
-async function testAccountVitals(emails: string[]) {
-  const vitals = await instantly<Array<{
-    email: string; smtp_status: string; imap_status: string; dns_status: string;
-  }>>("/accounts/test/vitals", {
-    method: "POST",
-    body: JSON.stringify({ accounts: emails }),
-  });
-
-  for (const v of vitals) {
-    const ok = v.smtp_status === "ok" && v.imap_status === "ok";
-    console.log(`${v.email}: SMTP=${v.smtp_status} IMAP=${v.imap_status} DNS=${v.dns_status} ${ok ? "HEALTHY" : "FIX NEEDED"}`);
-  }
-}
-```
-
-## Key API Endpoints Used
-
-| Method | Path | Purpose |
-|--------|------|---------|
-| `POST` | `/accounts/warmup/enable` | Start warmup (background job) |
-| `POST` | `/accounts/warmup/disable` | Stop warmup |
-| `POST` | `/accounts/warmup-analytics` | Warmup metrics per account |
-| `POST` | `/accounts/test/vitals` | Test SMTP/IMAP/DNS health |
-| `PATCH` | `/accounts/{email}` | Configure warmup settings |
-| `GET` | `/accounts/analytics/daily` | Daily send counts per account |
-| `GET` | `/campaigns/analytics` | Aggregate campaign metrics |
-| `GET` | `/campaigns/analytics/daily` | Daily campaign breakdown |
-| `GET` | `/campaigns/analytics/steps` | Per-step performance |
-| `GET` | `/background-jobs/{id}` | Poll async job status |
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Warmup not starting | SMTP/IMAP credentials invalid | Run vitals test, fix credentials |
-| Low inbox rate (<80%) | Sender reputation damaged | Pause campaigns, extend warmup |
-| `422` on warmup enable | Account already warming | Check state with `GET /accounts/{email}` |
-| Missing analytics data | Campaign too new (<24h) | Wait for data to populate |
-| Background job `failed` | Invalid email in batch | Retry failed emails individually |
+Do not create, rotate, reveal, or revoke keys; invite or remove members; delegate across workspaces; connect sending accounts; create or activate campaigns; import or delete leads; change suppression or retention; register, patch, resume, or delete webhooks; alter plans or paid capacity; transmit diagnostics; or perform another production mutation without explicit approval from the accountable owner. Keep diagnosis read-only unless implementation was requested.
 
 ## Output
 
-Return a workflow receipt with campaign scope, consent/suppression revision, recipient-count band, draft/schedule state, idempotency outcome, sent-count assertion, and rollback reference. Never retain addresses, email copy, or credentials.
+Return the workspace-safe scope, files and contracts inspected, exact API v2 routes and required scopes, evidence collected, validation result, sensitive fields redacted, remaining risk, accountable owner, approval state, and rollback or next action.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| `401` | Stop and verify that the bearer key exists, is current, and was not revoked. |
+| `403` | Stop and compare the operation with its exact required scope; do not broaden to `all:all` by default. |
+| `429` | Coordinate the workspace-wide budget, honor endpoint overrides, and bound retries. |
+| Schema or tenant mismatch | Fail closed, preserve redacted evidence, and do not retry a mutation. |
 
 ## Examples
 
-`campaign=campaign-sandbox-31; recipients=synthetic-only; consent=pass; suppression=pass; state=draft; sends=0; rollback=workflow-r6` is a controlled campaign result.
+Use a compact handoff that makes scope, mutation authority, and evidence reviewable.
+
+Input:
+
+```text
+provider=google; accounts=3; assign-campaign=false
+```
+
+Expected handoff:
+
+```text
+oauth=complete; vitals=3/3; mutation=awaiting-owner
+```
 
 ## Resources
 
-- [Instantly Email Warmup](https://instantly.ai/email-warmup)
-- Account Endpoints
-- Analytics Endpoints
-
-## Next Steps
-
-For lead management and list operations, see `instantly-data-handling`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Instantly API v2 documentation](https://developer.instantly.ai/)
+- [Instantly API v2 OpenAPI document](https://api.instantly.ai/openapi/api_v2.json)
