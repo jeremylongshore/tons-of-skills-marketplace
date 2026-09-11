@@ -9731,14 +9731,15 @@
       "slug": "lucidchart-pack",
       "name": "lucidchart-pack",
       "displayName": "lucidchart pack",
-      "description": "Claude Code skill pack for Lucidchart (18 skills)",
-      "version": "1.7.0",
+      "description": "Governed Lucid integration workflows for REST, Standard Import, editor extensions, and data connectors (18 skills)",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "lucidchart",
         "saas",
-        "sdk",
-        "integration"
+        "standard-import",
+        "extension-api",
+        "data-connectors"
       ],
       "hasSkills": true,
       "skillCount": 18,

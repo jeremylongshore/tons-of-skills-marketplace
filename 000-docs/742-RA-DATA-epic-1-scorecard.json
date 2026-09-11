@@ -16,15 +16,15 @@
     "values": {
       "a_error_total": 31,
       "a_failing": 14,
-      "ab_error_total": 476,
-      "ab_failing": 219,
-      "b_failing": 205,
-      "error_files": 540,
-      "error_total": 3333,
+      "ab_error_total": 455,
+      "ab_failing": 212,
+      "b_failing": 198,
+      "error_files": 524,
+      "error_total": 3280,
       "grade_distribution": {
-        "A": 2154,
-        "B": 934,
-        "C": 241,
+        "A": 2172,
+        "B": 925,
+        "C": 232,
         "D": 157,
         "F": 5
       },
@@ -42,7 +42,7 @@
       "values": {
         "plugin_agent_files": 352,
         "raw_tracked_plugin_skill_files": 2991,
-        "tracked_files": 24561
+        "tracked_files": 24608
       }
     },
     "2": {
@@ -90,7 +90,7 @@
           "validator_reported_mixed_denominator_percent": 80.9
         },
         "marketplace_terminal": {
-          "error_total_all_validated_surfaces": 3570,
+          "error_total_all_validated_surfaces": 3517,
           "fully_compliant_surfaces": 1367,
           "terminal_denominator": {
             "agents": 363,
@@ -106,15 +106,15 @@
         "skill_rows": {
           "a_error_total": 31,
           "a_failing": 14,
-          "ab_error_total": 476,
-          "ab_failing": 219,
-          "b_failing": 205,
-          "error_files": 540,
-          "error_total": 3333,
+          "ab_error_total": 455,
+          "ab_failing": 212,
+          "b_failing": 198,
+          "error_files": 524,
+          "error_total": 3280,
           "grade_distribution": {
-            "A": 2154,
-            "B": 934,
-            "C": 241,
+            "A": 2172,
+            "B": 925,
+            "C": 232,
             "D": 157,
             "F": 5
           },
@@ -131,16 +131,16 @@
       "values": {
         "average_score": 89,
         "grade_distribution": {
-          "A": 2154,
-          "B": 934,
-          "C": 241,
+          "A": 2172,
+          "B": 925,
+          "C": 232,
           "D": 157,
           "F": 5
         },
         "grade_percentages": {
-          "A": 61.7,
-          "B": 26.8,
-          "C": 6.9,
+          "A": 62.2,
+          "B": 26.5,
+          "C": 6.6,
           "D": 4.5,
           "F": 0.1
         },
@@ -156,10 +156,10 @@
       "values": {
         "a_error_total": 31,
         "a_failing": 14,
-        "ab_error_total": 476,
-        "ab_failing": 219,
-        "b_error_total": 445,
-        "b_failing": 205,
+        "ab_error_total": 455,
+        "ab_failing": 212,
+        "b_error_total": 424,
+        "b_failing": 198,
         "certified_target": 0,
         "skill_summary_rows": 3491
       }
@@ -286,7 +286,7 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "distinct_values": 106,
+        "distinct_values": 124,
         "invalid_or_empty": 0,
         "target_free_text_values": 0,
         "values": [
@@ -367,7 +367,7 @@
             "value": "Cross-platform — talks WebDriver HTTP directly via Node's built-in node:https; no platform-specific binary dependency. Requires Node.js >= 18, a persistent local filesystem (the observe-decide-act loop passes state through local turn files), and ~/.kobiton/.credentials written by /automate:setup — scripts/appium.js reads that file directly and never calls the MCP getCredential tool, so it is required, not a fallback. An authenticated Kobiton MCP connection is additionally useful for device selection."
           },
           {
-            "count": 3037,
+            "count": 3019,
             "value": "Designed for Claude Code"
           },
           {
@@ -440,7 +440,15 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; architecture decisions involving data movement, OAuth, hosting, or production mutation require accountable owner approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; benchmarks require authorized synthetic or non-sensitive data"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; bundle sharing requires data-owner approval and a secure approved support channel"
           },
           {
             "count": 1,
@@ -448,7 +456,23 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; credential creation, OAuth registration, consent, and account-token grants require administrator or resource-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; credential, scope, data-retention, publication, and production-remediation decisions require security and resource-owner approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; current estimates require Together AI pricing and usage data"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; dependency changes, developer installation, new scopes, and publication require explicit project-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; dependency mutation, API-version changes, data migration, installation, and production rollout require owner approval"
           },
           {
             "count": 1,
@@ -457,6 +481,14 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; deployment requires platform access and environment-specific ClickUp credentials"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; developer-mode installation and any live source connection require approval from the project and data owners"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; document creation requires an authorized Lucid token and approval from the source-data and destination-folder owners"
           },
           {
             "count": 1,
@@ -508,11 +540,19 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; live data access and Lucid publication require owner approval and appropriately scoped credentials"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; live diagnosis may require network access and authorized Together project access"
           },
           {
             "count": 1,
             "value": "Designed for Claude Code; live diagnosis requires authorized ClickUp access and sanitized evidence"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live diagnosis requires authorized Lucid evidence and approval from the document, application, connector, or account owner"
           },
           {
             "count": 1,
@@ -529,6 +569,10 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; live telemetry must follow approved data and secret-handling policy"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live verification requires an authorized Lucid developer project and approval from the document, application, or account owner"
           },
           {
             "count": 1,
@@ -556,6 +600,10 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; optional live document creation requires an approved Lucid credential and destination"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; optional live probes require network access and a Together AI project key"
           },
           {
@@ -568,6 +616,10 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; plan, billing, seat, and pricing decisions require current Lucid commercial evidence and account-owner approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; polling requires authorized Together AI project access"
           },
           {
@@ -576,7 +628,19 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; production concurrency, replay, and load-test changes require service and resource-owner approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; production design requires current ClickUp plan, data, and authorization facts"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; production launch, publication, credentials, and rollback execution require accountable owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; production profiling or live load tests require service, data, and account-owner approval"
           },
           {
             "count": 1,
@@ -624,11 +688,19 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; upload, publication, OAuth registration, connector deployment, and rollback require explicit owner approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; verification may require deployment, telemetry, billing, and Together project access"
           },
           {
             "count": 1,
             "value": "Designed for Claude Code; verification may require secret-store and Together AI project access"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; webhook registration, public endpoints, source credentials, replay, and production enablement require connector and source-owner approval"
           },
           {
             "count": 7,
@@ -1396,7 +1468,7 @@
         "answers": [
           {
             "cohort": "curated-mirror",
-            "value": 2519
+            "value": 2528
           },
           {
             "cohort": "curriculum",
@@ -2136,7 +2208,7 @@
         "invalid_patterns": 0,
         "invisible_files": 5,
         "target_invisible_files": 0,
-        "tracked_files": 24561
+        "tracked_files": 24608
       }
     },
     "47": {
@@ -2221,15 +2293,15 @@
       "dimension": "Inventory header versus rows",
       "reproduce": "pnpm run measure:e1 --row=52 --stdout",
       "source": [
-        "freshie/reports/run-delta-75.json",
+        "freshie/reports/run-delta-76.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],
       "status": "target_met",
       "values": {
-        "dolt_commit": "3bjbuqf53g3b6u50q4ljdui02svkjjue",
+        "dolt_commit": "bvo4alitl9n80p61sr4uu0ubn11v3o81",
         "header_total_skills": 2914,
-        "run_id": 75,
+        "run_id": 76,
         "skill_row_delta": 0,
         "skill_rows": 2914,
         "target_skill_row_delta": 0
@@ -2242,32 +2314,32 @@
       "source": [
         "freshie/grade-histogram.json",
         "freshie/grades.csv",
-        "freshie/reports/run-delta-75.json"
+        "freshie/reports/run-delta-76.json"
       ],
       "status": "target_met",
       "values": {
         "compliance_rows": 3491,
-        "export_dolt_commit": "3bjbuqf53g3b6u50q4ljdui02svkjjue",
-        "export_run_id": 75,
+        "export_dolt_commit": "bvo4alitl9n80p61sr4uu0ubn11v3o81",
+        "export_run_id": 76,
         "grades_csv_rows": 3491,
-        "grades_csv_sha256": "14a01598de5b99329bb4c4ef0716fb35c48dc9b69462152ca340267a57231ccd",
+        "grades_csv_sha256": "c501e03e3f227a7734735b0d497cdd48459e050b70b1fa6a2d24e5a80e1f1f87",
         "histogram_grades": {
-          "A": 2154,
-          "B": 934,
-          "C": 241,
+          "A": 2172,
+          "B": 925,
+          "C": 232,
           "D": 157,
           "F": 5
         },
         "histogram_total": 3491,
         "immutable_grade_counts": {
-          "A": 2154,
-          "B": 934,
-          "C": 241,
+          "A": 2172,
+          "B": 925,
+          "C": 232,
           "D": 157,
           "F": 5
         },
-        "inventory_dolt_commit": "3bjbuqf53g3b6u50q4ljdui02svkjjue",
-        "inventory_run_id": 75,
+        "inventory_dolt_commit": "bvo4alitl9n80p61sr4uu0ubn11v3o81",
+        "inventory_run_id": 76,
         "target_lag_runs": 0
       }
     },
@@ -2278,7 +2350,7 @@
       "source": [
         "freshie/reports/legacy-forge-proofs-demotion.json",
         "freshie/reports/run-delta-19.json",
-        "freshie/reports/run-delta-75.json",
+        "freshie/reports/run-delta-76.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py",
         "scripts/record-jrig-proofs.mjs"
@@ -2291,7 +2363,7 @@
           "E2": 0,
           "E3": 0
         },
-        "current_run_id": 75,
+        "current_run_id": 76,
         "invalid_identities": 0,
         "legacy_e0_records": 3,
         "retained_e2_e3": 0,
@@ -2316,7 +2388,7 @@
         "000-docs/807-DR-STND-evaluation-evidence.md",
         "freshie/reports/legacy-forge-proofs-demotion.json",
         "freshie/reports/run-delta-19.json",
-        "freshie/reports/run-delta-75.json",
+        "freshie/reports/run-delta-76.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],

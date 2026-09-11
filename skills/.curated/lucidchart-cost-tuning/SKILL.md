@@ -1,116 +1,64 @@
 ---
 name: lucidchart-cost-tuning
-description: 'Cost Tuning for Lucidchart.
-
-  Trigger: "lucidchart cost tuning".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.7.0
-license: MIT
+description: 'Review Lucid licensing, seats, plan capabilities, and integration operating effort without fabricating usage prices. Use when controlling Lucidchart total cost or right-sizing access. Trigger with "reduce Lucidchart cost".'
+argument-hint: "[inventory-path] [review-period]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- lucidchart
-- diagramming
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, lucidchart, licensing, governance, cost]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; plan, billing, seat, and pricing decisions require current Lucid commercial evidence and account-owner approval
 ---
-# Lucidchart Cost Tuning
+# Lucid Cost and Value Review
 
 ## Overview
+Produce an evidence-backed right-sizing plan for licenses, seats, plan-dependent capabilities, and integration operations. Lucid's public developer documentation does not establish a universal per-export or per-API-call price.
 
-Lucidchart pricing is per-seat with costs driven by document export volume and real-time collaboration event frequency. Each diagram export (PNG, PDF, SVG), embedded preview refresh, and collaborative editing session generates API activity. Organizations with large teams producing architectural diagrams, flowcharts, and wireframes at scale accumulate significant costs from redundant exports of unchanged diagrams and excessive collaboration event polling. Caching exports, batching operations, and right-sizing seat allocation are the primary optimization levers.
+## Prerequisites
+- Authorized seat, role, plan, renewal, and usage evidence
+- Current contract or official pricing source supplied by the account owner
+- Named business and data owners for affected integrations
 
-## Cost Breakdown
+## Tool Discipline
+Use `Read`, `Glob`, and `Grep` for approved exports and repository evidence, `WebFetch` for current official plan documentation, and `Write` or `Edit` only for local analysis and a proposed action ledger.
 
-| Component | Cost Driver | Optimization |
-|-----------|------------|--------------|
-| Seat licenses | Per-user/month (Individual $7.95, Team $9, Enterprise custom) | Audit active editors; move view-only users to free tier |
-| Document exports | Per-export for PNG/PDF/SVG generation | Cache exported images; re-export only on document change |
-| Collaboration events | Real-time sync events during editing | Debounce polling; aggregate change events |
-| Embedded previews | API calls for diagram embeds in other tools | Cache embedded image URLs with 1-hour TTL |
-| Template operations | Creating/cloning from template library | Clone once locally; avoid repeated API template fetches |
+## Current Contract
+Separate verified commercial terms from technical limits and internal operating costs. Treat public list prices and plan features as time-sensitive; never extrapolate them from API traffic, archive size, or export count.
 
-## API Call Reduction
+## Authentication
+Prefer redacted offline exports. If account access is required, use read-only least privilege and never expose invoices, tokens, personal data, or contract terms beyond the approved audience.
 
-```typescript
-class LucidchartExportCache {
-  private exportCache = new Map<string, { url: string; docVersion: number; expiry: number }>();
+## Instructions
+1. Record evidence date, billing period, currency, contract source, current plan, and exclusions.
+2. Inventory assigned seats, roles, active owners, dormant accounts, shared integrations, extensions, connectors, and critical documents.
+3. Attribute cost only from invoices or current official commercial evidence; mark unknowns explicitly.
+4. Measure operational effort separately: support, failures, connector hosting, observability, and manual reconciliation.
+5. Propose reversible actions with owner, dependency, savings hypothesis, risk, and restoration path.
+6. Present removals, role changes, plan changes, and integration shutdowns for approval.
+7. After approved changes, compare realized invoices and service outcomes over a complete billing period.
 
-  async getExport(docId: string, currentVersion: number, exportFn: () => Promise<string>): Promise<string> {
-    const cached = this.exportCache.get(docId);
-    if (cached && cached.docVersion === currentVersion && Date.now() < cached.expiry) {
-      return cached.url; // Diagram unchanged — serve cached export
-    }
-    const url = await exportFn();
-    this.exportCache.set(docId, {
-      url,
-      docVersion: currentVersion,
-      expiry: Date.now() + 3_600_000 // 1-hour TTL
-    });
-    return url;
-  }
+## Approval Boundaries
+Do not remove seats, downgrade plans, cancel services, or disable integrations based only on inactivity signals or estimated pricing.
 
-  async batchExport(docs: Array<{ id: string; version: number }>, exportFn: (id: string) => Promise<string>): Promise<Map<string, string>> {
-    const results = new Map<string, string>();
-    for (const doc of docs) {
-      const cached = this.exportCache.get(doc.id);
-      if (cached && cached.docVersion === doc.version) {
-        results.set(doc.id, cached.url);
-      } else {
-        results.set(doc.id, await exportFn(doc.id));
-      }
-    }
-    return results;
-  }
-}
-```
-
-## Usage Monitoring
-
-```typescript
-class LucidchartCostMonitor {
-  private daily = { exports: 0, collabEvents: 0, embeds: 0 };
-  private budgets = { exports: 500, collabEvents: 10_000, embeds: 2000 };
-
-  record(type: 'exports' | 'collabEvents' | 'embeds'): void {
-    this.daily[type]++;
-    const pct = (this.daily[type] / this.budgets[type]) * 100;
-    if (pct > 80) {
-      console.warn(`Lucidchart ${type} at ${pct.toFixed(0)}%: ${this.daily[type]}/${this.budgets[type]}`);
-    }
-  }
-
-  resetDaily(): void { this.daily = { exports: 0, collabEvents: 0, embeds: 0 }; }
-}
-```
-
-## Cost Optimization Checklist
-
-- [ ] Cache diagram exports keyed by document version
-- [ ] Re-export only when document version changes
-- [ ] Move view-only users from paid to free tier
-- [ ] Debounce collaboration event polling to 5-second intervals
-- [ ] Cache embedded diagram preview URLs with 1-hour TTL
-- [ ] Batch export operations instead of per-document calls
-- [ ] Set daily export budget alerts at 80% threshold
-- [ ] Clone templates locally to avoid repeated API fetches
+## Output
+Return evidence dates, verified and unknown costs, seat/role inventory, value signals, proposals, risks, approvals, and follow-up measurement dates.
 
 ## Error Handling
+| Condition | Response |
+|---|---|
+| Price or feature differs across sources | Use the signed contract/account view and flag the discrepancy. |
+| Usage evidence is incomplete | Label the conclusion provisional; do not reclaim access. |
+| Integration owner is unknown | Quarantine the proposal pending ownership, not the service. |
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| Export costs spiking | Re-exporting unchanged diagrams on every page load | Version-check before export; serve cached image |
-| Collaboration event floods | Polling collab status every second | Debounce to 5-second intervals; use websocket if available |
-| Stale embedded previews | Cache TTL too long after diagram update | Invalidate embed cache on document save event |
-| Seat costs exceeding budget | Inactive users on paid editor tier | Quarterly seat audit; deprovision after 60 days inactive |
-| Rate limit on batch exports | Exporting entire workspace at once | Throttle to 10 concurrent exports with queue |
+## Example
+```text
+period=2026-Q3; assigned=84; review-candidates=7; verified-price-source=contract; destructive-actions=0
+```
 
 ## Resources
-
-- Lucidchart Pricing
-- [Lucid Developer Portal](https://developer.lucid.co/reference/overview)
+- [Official documentation map](references/official-docs.md)
 
 ## Next Steps
-
-See `lucidchart-performance-tuning`.
+Schedule the approved review against the next complete invoice and restore any capability whose service indicators regress.
