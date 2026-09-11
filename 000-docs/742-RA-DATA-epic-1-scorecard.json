@@ -16,15 +16,15 @@
     "values": {
       "a_error_total": 31,
       "a_failing": 14,
-      "ab_error_total": 415,
-      "ab_failing": 198,
-      "b_failing": 184,
-      "error_files": 490,
-      "error_total": 3171,
+      "ab_error_total": 396,
+      "ab_failing": 191,
+      "b_failing": 177,
+      "error_files": 472,
+      "error_total": 3119,
       "grade_distribution": {
-        "A": 2208,
-        "B": 909,
-        "C": 212,
+        "A": 2226,
+        "B": 902,
+        "C": 201,
         "D": 157,
         "F": 5
       },
@@ -42,7 +42,7 @@
       "values": {
         "plugin_agent_files": 352,
         "raw_tracked_plugin_skill_files": 2991,
-        "tracked_files": 24637
+        "tracked_files": 24650
       }
     },
     "2": {
@@ -90,7 +90,7 @@
           "validator_reported_mixed_denominator_percent": 80.9
         },
         "marketplace_terminal": {
-          "error_total_all_validated_surfaces": 3408,
+          "error_total_all_validated_surfaces": 3356,
           "fully_compliant_surfaces": 1367,
           "terminal_denominator": {
             "agents": 363,
@@ -106,15 +106,15 @@
         "skill_rows": {
           "a_error_total": 31,
           "a_failing": 14,
-          "ab_error_total": 415,
-          "ab_failing": 198,
-          "b_failing": 184,
-          "error_files": 490,
-          "error_total": 3171,
+          "ab_error_total": 396,
+          "ab_failing": 191,
+          "b_failing": 177,
+          "error_files": 472,
+          "error_total": 3119,
           "grade_distribution": {
-            "A": 2208,
-            "B": 909,
-            "C": 212,
+            "A": 2226,
+            "B": 902,
+            "C": 201,
             "D": 157,
             "F": 5
           },
@@ -129,18 +129,18 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "average_score": 89.2,
+        "average_score": 89.3,
         "grade_distribution": {
-          "A": 2208,
-          "B": 909,
-          "C": 212,
+          "A": 2226,
+          "B": 902,
+          "C": 201,
           "D": 157,
           "F": 5
         },
         "grade_percentages": {
-          "A": 63.2,
-          "B": 26,
-          "C": 6.1,
+          "A": 63.8,
+          "B": 25.8,
+          "C": 5.8,
           "D": 4.5,
           "F": 0.1
         },
@@ -156,10 +156,10 @@
       "values": {
         "a_error_total": 31,
         "a_failing": 14,
-        "ab_error_total": 415,
-        "ab_failing": 198,
-        "b_error_total": 384,
-        "b_failing": 184,
+        "ab_error_total": 396,
+        "ab_failing": 191,
+        "b_error_total": 365,
+        "b_failing": 177,
         "certified_target": 0,
         "skill_summary_rows": 3491
       }
@@ -286,7 +286,7 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "distinct_values": 160,
+        "distinct_values": 178,
         "invalid_or_empty": 0,
         "target_free_text_values": 0,
         "values": [
@@ -367,7 +367,7 @@
             "value": "Cross-platform — talks WebDriver HTTP directly via Node's built-in node:https; no platform-specific binary dependency. Requires Node.js >= 18, a persistent local filesystem (the observe-decide-act loop passes state through local turn files), and ~/.kobiton/.credentials written by /automate:setup — scripts/appium.js reads that file directly and never calls the MCP getCredential tool, so it is required, not a fallback. An authenticated Kobiton MCP connection is additionally useful for device selection."
           },
           {
-            "count": 2983,
+            "count": 2965,
             "value": "Designed for Claude Code"
           },
           {
@@ -420,6 +420,10 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; CI must keep customer contracts and credentials out of untrusted or fork-triggered jobs"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; CI secret and workflow changes require repository approval, and fork pull requests must never receive the SerpAPI key"
           },
           {
@@ -464,6 +468,10 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; architecture decisions affecting identity, workforce, awards, financial flows, integrations, and data governance require accountable-owner approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; architecture decisions involving data movement, OAuth, hosting, or production mutation require accountable owner approval"
           },
           {
@@ -476,11 +484,19 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; budget, award, eligibility, license, service, and program changes require finance, HR, procurement, and program-owner approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; bundle sharing requires data-owner approval and a secure approved support channel"
           },
           {
             "count": 1,
             "value": "Designed for Claude Code; capacity checks require account authorization and production concurrency changes require operator approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; collection and disclosure must follow customer privacy, retention, legal, security, and Workhuman support rules"
           },
           {
             "count": 1,
@@ -556,11 +572,19 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; event subscriptions, endpoints, schedules, connectors, and production processing require customer and downstream-owner approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; every approved live engine request may affect account allowance and throughput"
           },
           {
             "count": 1,
             "value": "Designed for Claude Code; evidence collection and disclosure require incident, security, and data-owner authorization"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; generated clients and production calls require customer-authorized contracts and credentials"
           },
           {
             "count": 1,
@@ -660,6 +684,10 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; live tenant tests require explicit customer authorization and synthetic or approved data"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; live verification requires an authorized Lucid developer project and approval from the document, application, or account owner"
           },
           {
@@ -677,6 +705,10 @@
           {
             "count": 24,
             "value": "Designed for Claude Code; live work requires an authorized Miro app and redacted evidence"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; load tests and production concurrency, schedule, cache, or batch changes require accountable-owner approval"
           },
           {
             "count": 1,
@@ -744,6 +776,14 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; production deployment and tenant mutations require release, program, HCM, payroll, security, and vendor-owner approval as applicable"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; production deployment, managed-connector enablement, and tenant mutations require explicit accountable-owner approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; production design requires current ClickUp plan, data, and authorization facts"
           },
           {
@@ -760,7 +800,15 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; production traffic and schedule changes require customer and integration-owner approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; publishing content, assigning learners, and sending notifications require program-owner and tenant-admin approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; recognition submissions, approvals, award values, communications, and spend changes require program-owner approval"
           },
           {
             "count": 1,
@@ -769,6 +817,10 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; registration requires authorized ClickUp access and public HTTPS ingress"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; remediation that changes identity, worker, recognition, award, spend, or connector state requires owner approval"
           },
           {
             "count": 1,
@@ -784,6 +836,10 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; security, privacy, SSO, privilege, retention, and integration changes require accountable owner approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; ships with the bobs-big-brain (governed-brain) plugin, which auto-wires the governed-brain MCP server. Works in both modes: local (in-process, needs qmd on PATH) and team (proxies to your team brain when TEAMKB_API_URL is set). Same brain_search either way."
           },
           {
@@ -796,6 +852,10 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; tenant access, identity changes, managed integrations, and credential issuance require customer and Workhuman authorization"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; tenant access, identity configuration, connector enablement, and credential issuance require customer and Mindtickle authorization"
           },
           {
@@ -804,11 +864,19 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; tenant reads and recognition mutations require customer-authorized documentation and approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; tenant, identity, data, connector, and production migrations require named customer and vendor approvals"
           },
           {
             "count": 1,
             "value": "Designed for Claude Code; tenant, identity, data, credential, and security-control changes require their respective owners"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; tenant, identity, worker, award, financial, and connector changes require accountable owner approval"
           },
           {
             "count": 1,
@@ -845,6 +913,10 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; webhook registration, public endpoints, source credentials, replay, and production enablement require connector and source-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; worker, award, compensation, payroll, and integration changes require HCM, payroll, security, and program-owner approval"
           },
           {
             "count": 7,
@@ -1612,7 +1684,7 @@
         "answers": [
           {
             "cohort": "curated-mirror",
-            "value": 2548
+            "value": 2559
           },
           {
             "cohort": "curriculum",
@@ -2352,7 +2424,7 @@
         "invalid_patterns": 0,
         "invisible_files": 5,
         "target_invisible_files": 0,
-        "tracked_files": 24637
+        "tracked_files": 24650
       }
     },
     "47": {
@@ -2437,15 +2509,15 @@
       "dimension": "Inventory header versus rows",
       "reproduce": "pnpm run measure:e1 --row=52 --stdout",
       "source": [
-        "freshie/reports/run-delta-81.json",
+        "freshie/reports/run-delta-82.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],
       "status": "target_met",
       "values": {
-        "dolt_commit": "apa1qm6qs4nggs0m6vd9fq4u2nph9c9r",
+        "dolt_commit": "d2ukor82vks0hrnno3rbabrmrorm8jms",
         "header_total_skills": 2914,
-        "run_id": 81,
+        "run_id": 82,
         "skill_row_delta": 0,
         "skill_rows": 2914,
         "target_skill_row_delta": 0
@@ -2458,32 +2530,32 @@
       "source": [
         "freshie/grade-histogram.json",
         "freshie/grades.csv",
-        "freshie/reports/run-delta-81.json"
+        "freshie/reports/run-delta-82.json"
       ],
       "status": "target_met",
       "values": {
         "compliance_rows": 3491,
-        "export_dolt_commit": "apa1qm6qs4nggs0m6vd9fq4u2nph9c9r",
-        "export_run_id": 81,
+        "export_dolt_commit": "d2ukor82vks0hrnno3rbabrmrorm8jms",
+        "export_run_id": 82,
         "grades_csv_rows": 3491,
-        "grades_csv_sha256": "36ae46949fbce60d5cad0dfbdd5f1888206d6af0d61119b0cb28b2beec5ef474",
+        "grades_csv_sha256": "997ff2a45933cd93e414711ccee32b31bfc25dfbc8c85ee9773108e764116145",
         "histogram_grades": {
-          "A": 2208,
-          "B": 909,
-          "C": 212,
+          "A": 2226,
+          "B": 902,
+          "C": 201,
           "D": 157,
           "F": 5
         },
         "histogram_total": 3491,
         "immutable_grade_counts": {
-          "A": 2208,
-          "B": 909,
-          "C": 212,
+          "A": 2226,
+          "B": 902,
+          "C": 201,
           "D": 157,
           "F": 5
         },
-        "inventory_dolt_commit": "apa1qm6qs4nggs0m6vd9fq4u2nph9c9r",
-        "inventory_run_id": 81,
+        "inventory_dolt_commit": "d2ukor82vks0hrnno3rbabrmrorm8jms",
+        "inventory_run_id": 82,
         "target_lag_runs": 0
       }
     },
@@ -2494,7 +2566,7 @@
       "source": [
         "freshie/reports/legacy-forge-proofs-demotion.json",
         "freshie/reports/run-delta-19.json",
-        "freshie/reports/run-delta-81.json",
+        "freshie/reports/run-delta-82.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py",
         "scripts/record-jrig-proofs.mjs"
@@ -2507,7 +2579,7 @@
           "E2": 0,
           "E3": 0
         },
-        "current_run_id": 81,
+        "current_run_id": 82,
         "invalid_identities": 0,
         "legacy_e0_records": 3,
         "retained_e2_e3": 0,
@@ -2532,7 +2604,7 @@
         "000-docs/807-DR-STND-evaluation-evidence.md",
         "freshie/reports/legacy-forge-proofs-demotion.json",
         "freshie/reports/run-delta-19.json",
-        "freshie/reports/run-delta-81.json",
+        "freshie/reports/run-delta-82.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],

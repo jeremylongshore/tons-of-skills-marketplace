@@ -10367,13 +10367,13 @@
       "slug": "workhuman-pack",
       "name": "workhuman-pack",
       "displayName": "workhuman pack",
-      "description": "Claude Code skill pack for Workhuman (18 skills)",
-      "version": "1.3.0",
+      "description": "Governed Workhuman operator workflows for recognition, rewards, Workday integration, security, and production operations",
+      "version": "1.4.0",
       "category": "saas-packs",
       "keywords": [
         "workhuman",
         "saas",
-        "sdk",
+        "recognition",
         "integration"
       ],
       "hasSkills": true,

@@ -1,117 +1,79 @@
 ---
 name: workhuman-install-auth
-description: 'Workhuman install auth for employee recognition and rewards API.
-
-  Use when integrating Workhuman Social Recognition,
-
-  or building recognition workflows with HRIS systems.
-
-  Trigger: "workhuman install auth".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.3.0
-license: MIT
+description: 'Select and document the supported Workhuman access path for a customer tenant, including SSO, managed integrations, or customer-issued API credentials. Use when onboarding or repairing an integration. Trigger with "configure Workhuman access".'
+argument-hint: "[tenant] [integration-purpose]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.4.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- hr
-- recognition
-- workhuman
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, workhuman, authentication, sso, integration]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; tenant access, identity changes, managed integrations, and credential issuance require customer and Workhuman authorization
 ---
-# Workhuman Install & Auth
+# Workhuman Tenant Access and Integration Onboarding
 
 ## Overview
 
-Configure Workhuman API access for Social Recognition, rewards, and HRIS integration. Workhuman uses OAuth 2.0 for API authentication. The API enables programmatic recognition nominations, reward redemption, and employee data sync.
+Choose the supported access model, establish ownership, and prove the smallest safe capability without guessing a host, route, grant, or credential format.
 
 ## Prerequisites
 
-- Workhuman enterprise account with API access enabled
-- OAuth client credentials from Workhuman admin portal
-- HTTPS endpoint for redirect URI (if using auth code flow)
+- The customer tenant, subscribed products, program owner, and integration purpose
+- Identity, security, data, and support owners for the affected workforce records
+- Current customer-authorized Workhuman documentation or an assigned Workhuman implementation contact
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect local configuration, `WebFetch` to re-check first-party public and authorized tenant contracts, and `Write` or `Edit` only for secretless configuration and redacted evidence.
+
+## Current Contract
+
+Workhuman publicly documents SSO, controlled privileges, an open API, and managed integrations such as Microsoft Teams and Workday. Its public pages do not define one universal API host, OAuth flow, scope set, or verification route; obtain those details from the customer's current contract.
+
+## Authentication
+
+Separate interactive SSO, managed-connector authorization, and API credentials. Do not reuse browser sessions, infer `client_credentials`, copy administrator cookies, or put secrets in files, commands, prompts, logs, or receipts.
 
 ## Instructions
 
-### Step 1: Configure OAuth Credentials
+1. Record tenant, products, data classes, intended reads and writes, environments, and accountable owners.
+2. Classify the path as interactive SSO, a Workhuman-managed integration, or a customer-issued API contract.
+3. Re-fetch the applicable first-party product page and the customer's current implementation documentation.
+4. Build an access matrix covering principal, roles or scopes, expiry, rotation, revocation, and break-glass ownership.
+5. Search the repository for guessed hosts, undocumented routes, hard-coded secrets, and mixed-tenant configuration.
+6. Present every tenant setting, connector enablement, consent, and credential request for explicit approval.
+7. After authorized provisioning, run the smallest documented read-only check and retain only redacted status and correlation evidence.
 
-```bash
-# .env
-WORKHUMAN_CLIENT_ID=your-client-id
-WORKHUMAN_CLIENT_SECRET=your-client-secret
-WORKHUMAN_BASE_URL=https://api.workhuman.com
-WORKHUMAN_TENANT_ID=your-tenant-id
-```
+## Approval Boundaries
 
-### Step 2: Obtain Access Token (Client Credentials)
+Do not change SSO, assign privileges, enable an integration, issue credentials, or test production writes without the relevant customer and vendor owners.
 
-```typescript
-import axios from 'axios';
+## Output
 
-async function getWorkhmanToken(): Promise<string> {
-  const { data } = await axios.post(
-    `${process.env.WORKHUMAN_BASE_URL}/oauth/token`,
-    new URLSearchParams({
-      grant_type: 'client_credentials',
-      client_id: process.env.WORKHUMAN_CLIENT_ID!,
-      client_secret: process.env.WORKHUMAN_CLIENT_SECRET!,
-    }),
-    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
-  );
-  return data.access_token;
-}
-```
-
-### Step 3: Verify Connection
-
-```typescript
-const token = await getWorkhmanToken();
-const api = axios.create({
-  baseURL: process.env.WORKHUMAN_BASE_URL,
-  headers: { Authorization: `Bearer ${token}` },
-});
-
-const { data } = await api.get('/api/v1/users/me');
-console.log(`Connected as: ${data.displayName}`);
-```
-
-### Step 4: Python Client
-
-```python
-import requests, os
-
-class WorkhumanClient:
-    def __init__(self):
-        self.base = os.environ["WORKHUMAN_BASE_URL"]
-        self.token = self._authenticate()
-
-    def _authenticate(self):
-        resp = requests.post(f"{self.base}/oauth/token", data={
-            "grant_type": "client_credentials",
-            "client_id": os.environ["WORKHUMAN_CLIENT_ID"],
-            "client_secret": os.environ["WORKHUMAN_CLIENT_SECRET"],
-        })
-        return resp.json()["access_token"]
-
-    def get(self, endpoint, **params):
-        return requests.get(f"{self.base}{endpoint}",
-            headers={"Authorization": f"Bearer {self.token}"}, params=params).json()
-```
+Return the selected access path, contract evidence, access matrix, secretless configuration, verification receipt, rotation and revocation owners, and unresolved vendor questions.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Invalid credentials | Check client_id/secret |
-| `403 Forbidden` | Insufficient permissions | Contact Workhuman admin |
-| `invalid_grant` | Wrong grant type | Use client_credentials |
+| Condition | Response |
+|---|---|
+| Customer API documentation is unavailable | Stop at the decision record and request it from the program owner or Workhuman. |
+| SSO succeeds but an integration fails | Diagnose the connector or API principal independently; do not reuse the browser session. |
+| Capability is not subscribed | Record the entitlement gap and route it to the commercial or program owner. |
+
+## Example
+
+A redacted completion receipt might look like this:
+
+```text
+tenant=customer-specific; path=managed-workday; principal=vendor-managed; contract=current; smoke=read-only-pass; secrets=redacted
+```
 
 ## Resources
 
-- [Workhuman Platform](https://www.workhuman.com/)
-- [Workhuman Integrations](https://www.workhuman.com/capabilities/integrations/)
+- [Workhuman integrations](https://www.workhuman.com/capabilities/integrations/)
+- [Workhuman security and privacy](https://www.workhuman.com/why-workhuman/security-and-privacy/)
 
 ## Next Steps
 
-Proceed to `workhuman-hello-world` for your first recognition nomination.
+Test reauthorization or credential rotation in a non-production context and assign a contract review date.

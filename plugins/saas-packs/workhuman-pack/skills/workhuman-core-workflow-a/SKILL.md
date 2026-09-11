@@ -1,67 +1,80 @@
 ---
 name: workhuman-core-workflow-a
-description: 'Workhuman core workflow a for employee recognition and rewards API.
-
-  Use when integrating Workhuman Social Recognition,
-
-  or building recognition workflows with HRIS systems.
-
-  Trigger: "workhuman core workflow a".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.3.0
-license: MIT
+description: 'Plan and execute a governed Workhuman recognition workflow from program rules through approval and reconciliation. Use when launching or changing nominations and awards. Trigger with "run a Workhuman recognition workflow".'
+argument-hint: "[program-brief] [audience]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.4.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- hr
-- recognition
-- workhuman
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, workhuman, recognition, awards, governance]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; recognition submissions, approvals, award values, communications, and spend changes require program-owner approval
 ---
-# Workhuman Core Workflow A
+# Governed Workhuman Recognition Workflow
 
 ## Overview
 
-Guidance for core workflow a with Workhuman Social Recognition and rewards API.
+Turn approved recognition policy into a controlled nomination or program change with eligibility, award, privacy, spend, and reconciliation evidence.
+
+## Prerequisites
+
+- Program rules, eligible population, company values, award policy, approvers, and budget owner
+- Current tenant documentation for the supported user or integration path
+- A synthetic pilot cohort, communication owner, support path, and rollback plan
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect policy and rosters, `WebFetch` to verify current Workhuman and tenant contracts, and `Write` or `Edit` for plans, fixtures, previews, and redacted receipts.
+
+## Current Contract
+
+Workhuman Social Recognition supports recognition connected to company values, while Admin Hub supports award management, delegate assignment, spend control and monitoring, program analysis, alerts, recommendations, and misuse detection. Exact award structures and workflow states are customer-configured.
+
+## Authentication
+
+Use the documented end-user, administrator, managed-integration, or API principal for each step. Do not make a service principal impersonate a nominator unless the authorized contract explicitly permits it.
 
 ## Instructions
 
-### Key Workhuman API Concepts
+1. Freeze purpose, eligible nominators and recipients, exclusions, value taxonomy, award policy, approvals, visibility, locales, and measurement.
+2. Reconcile the eligible audience with its authoritative HCM source and quantify duplicates, inactive workers, and unresolved identities.
+3. Confirm the current customer configuration and exact supported submission path; never infer award levels or payload fields.
+4. Validate message policy, sensitive-data exclusions, accessibility, taxation ownership, spend controls, and misuse rules.
+5. Pilot with synthetic or approved users and verify nomination, approval, notification, ledger, reporting, and cancellation behavior.
+6. Present exact mutations, counts, spend exposure, approvers, schedule, communications, rollback, and support ownership.
+7. After approval, execute through the supported path with idempotency or duplicate controls and bounded concurrency.
+8. Reconcile expected nominations, approvals, awards, spend, and exceptions; retain a redacted receipt.
 
-- **Auth**: OAuth 2.0 client credentials flow
-- **Recognition**: Peer-to-peer and manager nominations with points
-- **Awards**: Configurable levels (bronze, silver, gold, platinum)
-- **Values**: Company values attached to recognitions
-- **HRIS Sync**: Bidirectional sync with Workday, SAP SuccessFactors
-- **Integrations**: Microsoft Teams, Slack, Outlook native plugins
+## Approval Boundaries
 
-### Core API Endpoints
+Do not nominate people, approve awards, change eligibility, alter award values, send communications, or spend program funds without named approval.
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/recognitions` | GET | List recognitions |
-| `/api/v1/recognitions` | POST | Create nomination |
-| `/api/v1/recognitions/:id` | GET | Get recognition status |
-| `/api/v1/users` | GET | List employees |
-| `/api/v1/rewards/catalog` | GET | Browse reward catalog |
-| `/api/v1/rewards/redeem` | POST | Redeem points for reward |
+## Output
+
+Return the frozen policy, audience reconciliation, contract evidence, pilot result, mutation preview, approvals, execution receipt, exceptions, and rollback status.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Token expired | Re-authenticate |
-| `403 Forbidden` | Insufficient permissions | Check role/permissions |
-| `422 Validation` | Missing fields | Check required fields |
-| `404 Not Found` | Invalid ID | Verify resource exists |
+| Condition | Response |
+|---|---|
+| Worker eligibility is ambiguous | Exclude the record and ask the HCM or program owner to resolve it. |
+| Submission outcome is unknown | Do not resubmit until the authoritative record or support channel resolves it. |
+| Spend threshold is crossed | Stop new awards and alert the budget owner; never downgrade awards silently. |
+
+## Example
+
+A redacted completion receipt might look like this:
+
+```text
+program=values-recognition; eligible=420; pilot=8-pass; spend-cap=approved; submitted=37; exceptions=2-held; reconciliation=exact
+```
 
 ## Resources
 
-- [Workhuman Platform](https://www.workhuman.com/)
-- [Workhuman Integrations](https://www.workhuman.com/capabilities/integrations/)
+- [Workhuman Social Recognition](https://www.workhuman.com/platform/social-recognition/)
+- [Workhuman integrations](https://www.workhuman.com/capabilities/integrations/)
 
 ## Next Steps
 
-See related Workhuman skills for more patterns.
+Review outcome, equity, participation, spend, and misuse signals with the program owner on the agreed cadence.
