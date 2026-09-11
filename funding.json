@@ -1,0 +1,62 @@
+{
+  "$schema": "https://fundingjson.org/schema/v1.1.0.json",
+  "version": "v1.0.0",
+  "entity": {
+    "type": "individual",
+    "role": "maintainer",
+    "name": "Jeremy Longshore",
+    "email": "jeremy@intentsolutions.io",
+    "description": "Jeremy Longshore is the founder, project owner, and sole core maintainer of Tons of Skills. The project predates Intent Solutions LLC and is maintained as a free, non-revenue public resource. Jeremy manages releases, security response, contributor review, marketplace governance, and the model-agnostic skill platform. The project has received $5 USD in voluntary community support and no institutional, grant, venture, or company funding.",
+    "webpageUrl": {
+      "url": "https://github.com/jeremylongshore"
+    }
+  },
+  "projects": [
+    {
+      "guid": "tons-of-skills",
+      "name": "Tons of Skills",
+      "description": "Tons of Skills is an MIT-licensed, model-agnostic platform for discovering, validating, packaging, and installing reusable AI-agent skills. Its harness-free canonical layer, verified adapters, package manager, generated catalogs, and public marketplace support Claude, Codex, Gemini, Goose, and other compatible agents. As of September 2026, the project publishes 3,015 marketplace-visible skills, 439 catalog plugins, and 347 agents, with 2,716 GitHub stars, 395 forks, and 59 contributors. Funding will protect maintainer time and strengthen the software-supply-chain trust boundary around agent-consumable artifacts.",
+      "webpageUrl": {
+        "url": "https://tonsofskills.com",
+        "wellKnown": "https://tonsofskills.com/.well-known/funding-manifest-urls"
+      },
+      "repositoryUrl": {
+        "url": "https://github.com/jeremylongshore/tons-of-skills-marketplace"
+      },
+      "licenses": ["spdx:MIT"],
+      "tags": [
+        "artificial-intelligence",
+        "developer-tools",
+        "security",
+        "software-engineering",
+        "devops",
+        "open-source",
+        "llm",
+        "mcp",
+        "package-manager",
+        "software-supply-chain"
+      ]
+    }
+  ],
+  "funding": {
+    "channels": [
+      {
+        "guid": "private-bank-transfer",
+        "type": "bank",
+        "description": "Bank and tax details will be supplied privately after an application is accepted; no financial credentials are published in this manifest."
+      }
+    ],
+    "plans": [
+      {
+        "guid": "security-sustainability-2026",
+        "status": "active",
+        "name": "Security and maintainer sustainability",
+        "description": "$15,000 for 300 hours of protected maintainer time at $50 per hour over 6 to 9 months, covering vulnerability remediation, dependency hygiene, secure releases, incident response, and contributor review; $5,000 for a focused independent security review and threat model; $3,000 for CI, testing, artifact, and observability infrastructure; and $2,000 for contributor bounties, security documentation, and community response.",
+        "amount": 25000,
+        "currency": "USD",
+        "frequency": "one-time",
+        "channels": ["private-bank-transfer"]
+      }
+    ]
+  }
+}
