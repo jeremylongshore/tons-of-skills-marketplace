@@ -1,140 +1,76 @@
 ---
 name: serpapi-performance-tuning
-description: 'Optimize SerpApi performance with caching, async searches, and result
-  filtering.
-
-  Use when reducing latency, minimizing credit consumption,
-
-  or optimizing search throughput.
-
-  Trigger: "serpapi performance", "optimize serpapi", "serpapi caching", "serpapi
-  slow".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.4.0
-license: MIT
+description: 'Measure and improve SerpAPI latency, payload size, connection reuse, caching, and concurrency without breaking freshness or allowance controls. Use when search performance misses an SLO. Trigger with "tune SerpAPI performance".'
+argument-hint: "[engine] [latency-slo] [freshness-slo]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- search
-- seo
-- serpapi
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, serpapi, performance, caching, observability]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; production cache, output, or concurrency changes require owner approval and measured rollback criteria
 ---
-# SerpApi Performance Tuning
+# SerpAPI Evidence-Driven Performance Tuning
 
 ## Overview
 
-SerpApi typical latency: 2-5 seconds per search (real-time scraping). Main optimization: aggressive caching since search results change slowly. Secondary: use Google Light API for faster responses, reduce `num` parameter, and parallelize independent searches.
+Optimize the measured bottleneck while preserving result freshness, schema correctness, privacy, and account capacity.
+
+## Prerequisites
+
+- Engine-level latency histograms, payload sizes, error rates, cache hits, and search consumption
+- User-facing latency and freshness objectives plus an account throughput budget
+- Representative sanitized fixtures and a reversible canary environment
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect call paths and instrumentation, `WebFetch` to verify current cache and output features, and `Write` or `Edit` for measurements, cache layers, field selection, tests, and rollback controls.
+
+## Current Contract
+
+For an exactly matching parameter set, SerpAPI may serve its one-hour server cache; cached searches are free and do not count toward monthly searches. `no_cache=true` forces a fresh fetch and must not be combined with `async`. JSON Restrictor reduces selected JSON fields, and `output=md` provides token-efficient Markdown for agent use.
+
+## Authentication
+
+Keep `SERPAPI_KEY` outside measurement labels, cache keys, traces, and profiles. Treat query values and result bodies according to their data classification.
 
 ## Instructions
 
-### Step 1: Multi-Layer Caching
+1. Break total latency into queue, connection, vendor processing, transfer, parsing, and downstream rendering; record p50, p95, and p99.
+2. Confirm whether the workload needs structured JSON, restricted JSON, Markdown, or approved raw HTML.
+3. Normalize parameters and add an application cache whose key excludes credentials but includes every input that changes semantics.
+4. Align cache TTL with the freshness objective; allow the SerpAPI server cache unless a justified fresh-fetch requirement exists.
+5. Reuse the official Python client's pooled connections or the supported JavaScript client rather than creating ad hoc transports.
+6. Bound concurrency below the live Account API throughput and compare sequential, limited-parallel, and cached paths with fixtures or an approved canary.
+7. Promote only if latency improves without worse correctness, privacy, errors, 429s, or search consumption; retain rollback thresholds.
 
-```typescript
-import { LRUCache } from 'lru-cache';
-import { Redis } from 'ioredis';
-import { getJson } from 'serpapi';
+## Output
 
-// L1: In-memory (fastest, per-instance)
-const l1 = new LRUCache<string, any>({ max: 1000, ttl: 600_000 }); // 10 min
-
-// L2: Redis (shared across instances)
-const redis = new Redis(process.env.REDIS_URL!);
-
-async function cachedSearch(params: Record<string, any>): Promise<any> {
-  const key = `serpapi:${JSON.stringify(params)}`;
-
-  // L1 check
-  const l1Hit = l1.get(key);
-  if (l1Hit) return l1Hit;
-
-  // L2 check
-  const l2Hit = await redis.get(key);
-  if (l2Hit) {
-    const parsed = JSON.parse(l2Hit);
-    l1.set(key, parsed);
-    return parsed;
-  }
-
-  // Cache miss: real API call
-  const result = await getJson({ ...params, api_key: process.env.SERPAPI_API_KEY });
-  l1.set(key, result);
-  await redis.setex(key, 3600, JSON.stringify(result)); // 1 hour in Redis
-  return result;
-}
-```
-
-### Step 2: Google Light API (Faster)
-
-```python
-# Google Light API: ~1s instead of 2-5s, limited result fields
-result = client.search(engine="google_light", q="fast query", num=5)
-# Returns: organic_results with title, link, snippet only
-# No knowledge_graph, answer_box, or rich snippets
-```
-
-### Step 3: Reduce Response Size
-
-```python
-# Only get the fields you need
-result = client.search(
-    engine="google", q="query",
-    num=5,         # Fewer results = faster
-    no_cache=False, # Use SerpApi's server-side cache (default)
-)
-
-# Strip metadata to reduce memory/storage
-clean = {
-    "organic_results": result.get("organic_results", []),
-    "answer_box": result.get("answer_box"),
-    "search_id": result["search_metadata"]["id"],
-}
-```
-
-### Step 4: Parallel Search
-
-```typescript
-import PQueue from 'p-queue';
-
-const queue = new PQueue({ concurrency: 5, interval: 1000, intervalCap: 5 });
-
-async function batchSearch(queries: string[]): Promise<any[]> {
-  return Promise.all(
-    queries.map(q =>
-      queue.add(() => cachedSearch({ engine: 'google', q, num: 5 }))
-    )
-  );
-}
-
-// 10 queries, 5 parallel, rate limited: ~4 seconds total
-const results = await batchSearch(['query1', 'query2', /* ... */]);
-```
-
-## Latency Benchmarks
-
-| Method | Typical Latency | Credits |
-|--------|----------------|---------|
-| Google Search (uncached) | 2-5s | 1 |
-| Google Light | 1-2s | 1 |
-| L1 cache hit | < 1ms | 0 |
-| Redis cache hit | 1-5ms | 0 |
-| Archive retrieval | 500ms | 0 |
+Return the baseline profile, bottleneck, proposed and measured changes, cache-key/TTL contract, output format, capacity impact, canary results, and rollback thresholds.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Cache stampede | TTL expiry under load | Stale-while-revalidate |
-| High latency | Complex queries | Use Google Light API |
-| Memory pressure | Large cache | Limit LRU max entries |
+| Condition | Response |
+|---|---|
+| Cache serves semantically wrong data | Disable the layer and expand the normalized key contract. |
+| `no_cache` raises usage unexpectedly | Remove it unless the freshness requirement explicitly justifies fresh fetches. |
+| Parallelism causes 429s | Reduce admissions and coordinate through the shared limiter. |
+| Field restriction breaks parsing | Restore required fields and lock the projection with fixtures. |
+
+## Example
+
+```text
+engine=google; baseline_p95=measured; bottleneck=payload; change=json-restrictor; freshness=1h; search_delta=0; schema-tests=pass; rollback=feature-flag
+```
 
 ## Resources
 
-- [Google Light API](https://serpapi.com/google-light-api)
-- [SerpApi Caching](https://serpapi.com/search-api#api-parameters-serpapi-parameters-no-cache)
+- [Google Search SerpAPI parameters](https://serpapi.com/search-api#serpapi-parameters)
+- [JSON Restrictor](https://serpapi.com/json-restrictor)
+- [Markdown output](https://serpapi.com/markdown)
+- [Account API](https://serpapi.com/account-api)
 
 ## Next Steps
 
-For cost optimization, see `serpapi-cost-tuning`.
+Observe a full traffic cycle and revisit the tuning decision when freshness, engine mix, or account capacity changes.

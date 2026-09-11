@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/serpapi-pack",
   "version": "1.0.1",
-  "description": "Claude Code skill pack for SerpApi - 18 skills covering search engine scraping, SERP data, and structured results",
+  "description": "Governed SerpAPI workflows for search clients, engines, testing, capacity, privacy, deployment, and operations (18 skills)",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -13,9 +13,9 @@
     "claude-code",
     "claude-code-plugin",
     "serpapi",
-    "search-engine",
-    "serp-data",
-    "web-scraping",
+    "search-api",
+    "production-integration",
+    "governance",
     "ai-skills",
     "saas-pack"
   ],

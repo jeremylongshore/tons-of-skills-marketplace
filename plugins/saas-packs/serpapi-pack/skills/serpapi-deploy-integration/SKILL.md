@@ -1,123 +1,79 @@
 ---
 name: serpapi-deploy-integration
-description: 'Deploy SerpApi-powered search features to production platforms.
-
-  Use when deploying search APIs, configuring backend proxies,
-
-  or setting up SerpApi in serverless environments.
-
-  Trigger: "deploy serpapi", "serpapi Vercel", "serpapi production deploy".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(fly:*), Bash(gcloud:*)
-version: 1.4.0
-license: MIT
+description: 'Deploy a server-side SerpAPI gateway with secret isolation, input policy, capacity controls, canary evidence, and rollback. Use when promoting a search integration. Trigger with "deploy a SerpAPI gateway".'
+argument-hint: "[platform] [environment] [route]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- search
-- seo
-- serpapi
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, serpapi, deployment, gateway, canary]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; deployment, secret, routing, and production search changes require explicit platform and account-owner approval
 ---
-# SerpApi Deploy Integration
+# SerpAPI Gateway Deployment
 
 ## Overview
 
-Deploy SerpApi-powered search as a backend API endpoint. Always proxy through your server -- never expose the API key to browsers.
+Promote a narrow backend gateway through preview, canary, reconciliation, and rollback without exposing the SerpAPI key or an open search proxy.
+
+## Prerequisites
+
+- A fixture-tested gateway, deployment owner, route, caller identity, and rollback target
+- Approved secret manager, data classification, SLO, capacity budget, and observability
+- Platform-specific release and health-check conventions
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect application and infrastructure changes, `WebFetch` to verify current SerpAPI contracts, and `Write` or `Edit` for deployment configuration, policies, probes, tests, and redacted receipts.
+
+## Current Contract
+
+SerpAPI search calls require a private key and engine-specific parameters. Account capacity is discoverable through Account API. Public browser clients should call an authenticated application backend rather than SerpAPI directly.
+
+## Authentication
+
+Inject `SERPAPI_KEY` from the target platform's server-side secret store. Authenticate gateway callers separately, validate their authorization to the requested use case, and never return vendor account or credential data.
 
 ## Instructions
 
-### Vercel Serverless Function
+1. Review the deploy diff, dependency lock, secret references, route exposure, caller authentication, input allowlist, output projection, and data retention.
+2. Define readiness without a billable search; expose only internal health and configuration status, not Account API details.
+3. Set finite client and request timeouts, concurrency/admission limits, cache policy, retry budget, and maximum pagination.
+4. Deploy to an isolated preview with no production key and run fixture, authorization, abuse, redaction, and rollback tests.
+5. Present the production mutation, live-search budget, monitoring, owner, and exact rollback command for approval.
+6. Deploy a small canary, execute one approved harmless search, and reconcile status, search ID, latency, errors, and capacity.
+7. Promote gradually only while SLO, correctness, privacy, and allowance thresholds hold; otherwise roll back immediately.
 
-```typescript
-// api/search.ts
-import { getJson } from 'serpapi';
+## Approval Boundaries
 
-export default async function handler(req: Request) {
-  const url = new URL(req.url);
-  const q = url.searchParams.get('q');
-  if (!q) return new Response('Missing q parameter', { status: 400 });
+Do not create or change a production secret, public route, caller policy, traffic allocation, or live canary without named approval.
 
-  const engine = url.searchParams.get('engine') || 'google';
-  const num = parseInt(url.searchParams.get('num') || '5');
+## Output
 
-  const result = await getJson({
-    engine, q, num,
-    api_key: process.env.SERPAPI_API_KEY,
-  });
-
-  return Response.json({
-    results: result.organic_results?.slice(0, num) || [],
-    answer_box: result.answer_box || null,
-    total_results: result.search_information?.total_results,
-  });
-}
-```
-
-```bash
-vercel env add SERPAPI_API_KEY production
-vercel --prod
-```
-
-### Cloud Run with Python
-
-```python
-# main.py
-from flask import Flask, request, jsonify
-import serpapi, os
-
-app = Flask(__name__)
-client = serpapi.Client(api_key=os.environ["SERPAPI_API_KEY"])
-
-@app.route("/search")
-def search():
-    q = request.args.get("q")
-    if not q:
-        return jsonify({"error": "Missing q parameter"}), 400
-
-    result = client.search(engine="google", q=q, num=5)
-    return jsonify({
-        "results": result.get("organic_results", [])[:5],
-        "answer_box": result.get("answer_box"),
-    })
-```
-
-```bash
-gcloud run deploy search-api \
-  --source . --region us-central1 \
-  --set-secrets=SERPAPI_API_KEY=serpapi-key:latest \
-  --allow-unauthenticated
-```
-
-### Health Check
-
-```typescript
-app.get('/health', async (req, res) => {
-  const account = await fetch(
-    `https://serpapi.com/account.json?api_key=${process.env.SERPAPI_API_KEY}`
-  ).then(r => r.json());
-
-  res.json({
-    status: account.plan_searches_left > 0 ? 'healthy' : 'credits_exhausted',
-    remaining: account.plan_searches_left,
-  });
-});
-```
+Return the deploy diff, access and secret model, preview tests, canary receipt, capacity and SLO evidence, promotion decision, rollback proof, and owners.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Cold start slow | First request initializes | Pre-warm with min instances |
-| Credits run out | No budget monitoring | Add health check with credit count |
-| Key exposed | Frontend calling SerpApi directly | Always proxy through backend |
+| Condition | Response |
+|---|---|
+| Key appears in client assets | Block and rotate under incident procedure. |
+| Gateway accepts arbitrary parameters | Fail the release and enforce a use-case allowlist. |
+| Canary breaches errors, latency, or capacity | Roll back and preserve redacted search IDs. |
+| Health endpoint leaks account facts | Remove the fields before exposure. |
+
+## Example
+
+```text
+environment=production; callers=authenticated; key=server-secret; preview=pass; canary_searches=1; capacity=healthy; promotion=approved; rollback=verified
+```
 
 ## Resources
 
-- [Vercel Functions](https://vercel.com/docs/functions)
-- [Cloud Run](https://cloud.google.com/run/docs)
+- [SerpAPI error guide for web applications](https://serpapi.com/blog/fix-serpapi-errors-guide/)
+- [Account API](https://serpapi.com/account-api)
+- [SerpAPI security](https://serpapi.com/security)
 
 ## Next Steps
 
-For webhook-like patterns, see `serpapi-webhooks-events`.
+Observe a complete workload cycle and rehearse rollback and key rotation with the owning teams.

@@ -1,110 +1,83 @@
 ---
 name: serpapi-common-errors
-description: 'Diagnose and fix SerpApi errors: invalid keys, exhausted credits, blocked
-  searches.
-
-  Use when SerpApi returns errors, empty results, or unexpected status codes.
-
-  Trigger: "serpapi error", "fix serpapi", "serpapi not working", "serpapi empty results".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.4.0
-license: MIT
+description: 'Classify SerpAPI HTTP failures, search-status failures, and valid empty results before choosing a retry or repair. Use when searches fail, stall, or return unexpected shapes. Trigger with "diagnose a SerpAPI error".'
+argument-hint: "[status-code|search-id] [engine]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit, Bash(python3:*)
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- search
-- seo
-- serpapi
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, serpapi, troubleshooting, errors, reliability]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live reproduction and archive access require an authorized key and may affect allowance
 ---
-# SerpApi Common Errors
+# SerpAPI Error Classification and Recovery
 
 ## Overview
 
-Quick reference for SerpApi errors. Check `search_metadata.status` first -- it will be `Success` or `Error`. Error details are in `search_metadata.error` or `error` at the top level.
+Diagnose the transport, account, search, engine, and application layers separately so retries do not hide configuration or quota failures.
 
-## Error Reference
+## Prerequisites
 
-### Invalid API Key
+- HTTP status, safe error text, engine, normalized parameters, client version, and timestamp
+- Search ID and `search_metadata.status` when a response was created
+- Account owner approval before any live reproduction
 
-```json
-{ "error": "Invalid API key. Your API key should be here: https://serpapi.com/manage-api-key" }
-```
+## Tool Discipline
 
-**Fix:** Verify key at serpapi.com/manage-api-key. Check env var is loaded.
+Use `Read`, `Glob`, and `Grep` to trace request construction and parsing, `WebFetch` to verify current error semantics, `Write` or `Edit` for fixes and redacted evidence, and `Bash(python3:*)` only for an approved diagnostic using the official client.
 
-### Account Disabled / Searches Exhausted
+## Current Contract
 
-```json
-{ "error": "Your searches for the month have run out. You can upgrade your plan at https://serpapi.com/pricing" }
-```
+SerpAPI uses conventional statuses: 400 for invalid requests, 401 for invalid authentication, 403 for forbidden accounts, 404 for missing resources, 410 for expired archive searches, 429 for either hourly throughput or exhausted searches, and 500/503 for server failures. Search status can be `Queued`, `Processing`, `Success`, or `Error`; `Success` can contain empty results.
 
-**Fix:** Check usage: `curl "https://serpapi.com/account.json?api_key=$SERPAPI_API_KEY"`. Upgrade plan or wait for monthly reset.
+## Authentication
 
-### Missing Required Parameter
+Keep `SERPAPI_KEY` out of exceptions and captured request URLs. Use the Account API to classify 429 responses, and share only redacted request metadata or search IDs with support.
 
-```json
-{ "error": "Missing parameter: q. Please provide a search query." }
-```
+## Instructions
 
-**Fix:** Each engine has different query params. Google/Bing use `q`, YouTube uses `search_query`.
+1. Capture the HTTP status, response `error`, search status, search ID, engine, safe parameter names, and client timeout.
+2. Determine whether failure occurred before search creation, during queued/processing work, after a terminal error, or in local parsing.
+3. For 400, compare parameters with the selected engine documentation and fix locally without retrying unchanged.
+4. For 401/403, stop and repair account access; for 429, query Account API to separate throughput from allowance.
+5. Retry timeouts and 500/503 only with a small attempt budget, exponential backoff, jitter, and idempotent processing.
+6. Treat terminal `Success` with empty sections as data, then inspect documented engine-specific `_state` fields.
+7. Add a sanitized regression fixture and record the classification, fix, retry count, and final state.
 
-### Google CAPTCHA / Blocked
+## Output
 
-```json
-{ "search_metadata": { "status": "Error" }, "error": "Google hasn't returned any results for this query." }
-```
-
-**Fix:** SerpApi handles CAPTCHAs automatically, but unusual queries or very high volume may trigger blocks. Try different `location` or wait.
-
-### Empty Organic Results (Not an Error)
-
-```python
-result = client.search(engine="google", q="xyzzy123nonexistent")
-if not result.get("organic_results"):
-    # Not an error -- query just has no results
-    # Check for answer_box, knowledge_graph, etc.
-    print("No organic results, checking other components...")
-    print(f"Answer box: {result.get('answer_box')}")
-    print(f"Related searches: {result.get('related_searches')}")
-```
-
-## Quick Diagnostic
-
-```bash
-# 1. Check API key and account status
-curl -s "https://serpapi.com/account.json?api_key=$SERPAPI_API_KEY" | jq '{
-  plan: .plan_name, used: .this_month_usage, remaining: .plan_searches_left
-}'
-
-# 2. Test basic search
-curl -s "https://serpapi.com/search.json?q=test&engine=google&api_key=$SERPAPI_API_KEY" \
-  | jq '.search_metadata.status'
-
-# 3. Check search archive (last 10 searches)
-curl -s "https://serpapi.com/searches.json?api_key=$SERPAPI_API_KEY" \
-  | jq '.[0:3] | .[] | {id: .id, status: .status, query: .search_parameters.q}'
-```
+Return the failure layer, status and search ID, retryability decision, evidence, corrective change, regression fixture, final state, and support escalation data.
 
 ## Error Handling
 
-| Error | Retryable | Action |
-|-------|-----------|--------|
-| Invalid API key | No | Fix key |
-| Searches exhausted | No | Upgrade plan |
-| CAPTCHA/blocked | Sometimes | Change location, wait |
-| Timeout | Yes | Retry with backoff |
-| Missing parameter | No | Fix request params |
-| 500 server error | Yes | Retry 2-3 times |
+| Signal | Action |
+|---|---|
+| 400 | Correct parameters; no unchanged retry. |
+| 401/403 | Stop; repair authorization or account state. |
+| 410 | Re-run only with approval because the archive record expired. |
+| 429 | Inspect account throughput and searches left before waiting or changing plan. |
+| 500/503 or timeout | Retry within budget; escalate persistent failures with search IDs. |
+
+## Example
+
+```python
+try:
+    result = client.search(params)
+except serpapi.HTTPError as exc:
+    if exc.status_code in {400, 401, 403}:
+        raise PermanentSearchError(exc.status_code) from exc
+    if exc.status_code == 429:
+        raise CapacityDecisionRequired() from exc
+    raise TransientSearchError(exc.status_code) from exc
+```
 
 ## Resources
 
-- [SerpApi Status](https://serpapi.com/status)
+- [Status and error codes](https://serpapi.com/api-status-and-error-codes)
 - [Account API](https://serpapi.com/account-api)
-- [Playground](https://serpapi.com/playground) (test queries interactively)
+- [SerpAPI status](https://status.serpapi.com/)
 
 ## Next Steps
 
-For comprehensive debugging, see `serpapi-debug-bundle`.
+Keep the new fixture in the offline suite and review retry metrics after the next production window.

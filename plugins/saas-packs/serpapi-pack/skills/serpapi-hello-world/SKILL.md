@@ -1,141 +1,91 @@
 ---
 name: serpapi-hello-world
-description: 'Run your first SerpApi search -- Google, Bing, or YouTube results as
-  JSON.
-
-  Use when starting with SerpApi, testing search queries,
-
-  or learning the structured result format.
-
-  Trigger: "serpapi hello world", "serpapi example", "serpapi first search".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(python3:*)
-version: 1.4.0
-license: MIT
+description: 'Run a controlled first Google search through an official SerpAPI client and validate metadata before consuming result sections. Use when proving a new integration end to end. Trigger with "run a SerpAPI smoke test".'
+argument-hint: "[query] [python|javascript]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit, Bash(python3:*), Bash(npm:*)
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- search
-- seo
-- serpapi
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, serpapi, google-search, smoke-test, sdk]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; a live smoke test requires a valid server-side key and may consume search allowance
 ---
-# SerpApi Hello World
+# SerpAPI Controlled First Search
 
 ## Overview
 
-Run a Google search via SerpApi and parse the structured JSON response. SerpApi returns organic results, knowledge graph, answer boxes, ads, local results, and more -- all as structured data. Key parameter: `engine` (google, bing, youtube, etc.).
+Prove authentication, transport, search status, and schema handling with one bounded query and a redacted receipt.
 
 ## Prerequisites
 
-- `serpapi` package installed (see `serpapi-install-auth`)
-- `SERPAPI_API_KEY` environment variable set
+- An official SerpAPI client already installed
+- `SERPAPI_KEY` loaded from an approved server-side secret store
+- A harmless query, expected locale, allowance owner, and live-call approval
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect local setup, `WebFetch` to verify current Google Search parameters, `Write` or `Edit` for the smoke-test code and redacted receipt, and `Bash(python3:*)` or `Bash(npm:*)` only to run the approved check.
+
+## Current Contract
+
+Google Search uses `engine=google` and query parameter `q`. JSON responses expose `search_metadata.status`, a search ID, search parameters, and optional result sections. A successful search may legitimately contain no organic results.
+
+## Authentication
+
+Pass the private key from `SERPAPI_KEY` through the official client. Never interpolate it into source, logs, exceptions, fixtures, screenshots, or receipts.
 
 ## Instructions
 
-### Step 1: Basic Google Search (Python)
-
-```python
-import serpapi
-import os
-
-client = serpapi.Client(api_key=os.environ["SERPAPI_API_KEY"])
-
-result = client.search(
-    engine="google",
-    q="best programming languages 2025",
-    location="Austin, Texas",
-    hl="en",
-    gl="us",
-    num=5,  # Number of results
-)
-
-# Organic results
-for r in result["organic_results"]:
-    print(f"{r['position']}. {r['title']}")
-    print(f"   {r['link']}")
-    print(f"   {r.get('snippet', 'No snippet')}\n")
-
-# Answer box (if present)
-if "answer_box" in result:
-    print(f"Answer Box: {result['answer_box'].get('answer', result['answer_box'].get('snippet'))}")
-```
-
-### Step 2: Google Search (Node.js)
-
-```typescript
-import { getJson } from 'serpapi';
-
-const result = await getJson({
-  engine: 'google',
-  q: 'best programming languages 2025',
-  location: 'Austin, Texas',
-  hl: 'en',
-  gl: 'us',
-  num: 5,
-  api_key: process.env.SERPAPI_API_KEY,
-});
-
-result.organic_results.forEach((r: any) => {
-  console.log(`${r.position}. ${r.title}`);
-  console.log(`   ${r.link}`);
-});
-
-// Knowledge graph
-if (result.knowledge_graph) {
-  console.log(`\nKnowledge Graph: ${result.knowledge_graph.title}`);
-}
-```
-
-### Step 3: Try Different Engines
-
-```python
-# Bing search
-bing = client.search(engine="bing", q="Claude AI", count=5)
-for r in bing["organic_results"]:
-    print(f"Bing: {r['title']}")
-
-# YouTube search
-youtube = client.search(engine="youtube", search_query="python tutorial")
-for v in youtube["video_results"]:
-    print(f"YouTube: {v['title']} ({v['length']})")
-
-# Google News
-news = client.search(engine="google_news", q="artificial intelligence")
-for n in news["news_results"]:
-    print(f"News: {n['title']} - {n['source']['name']}")
-```
+1. Confirm the query is non-sensitive and set explicit `location`, `hl`, and `gl` values when geographic reproducibility matters.
+2. Check Account API for available searches and hourly throughput without spending allowance.
+3. Preview one request with `engine=google`, `q`, and the minimum necessary parameters.
+4. After approval, execute exactly one search with a finite client timeout.
+5. Require `search_metadata.status == "Success"`; treat missing result sections as optional schema branches.
+6. Extract only the fields required by the caller and preserve the search ID for support correlation.
+7. Record client version, normalized parameters, status, elapsed time, result counts, and search ID with the key and sensitive query data redacted.
 
 ## Output
 
-```
-1. Python - Best programming language for beginners
-   https://example.com/python
-   Python remains the top choice...
-
-2. JavaScript - Most versatile language
-   https://example.com/js
-   JavaScript dominates web development...
-
-Knowledge Graph: Programming languages
-```
+Return the approved request shape, search status, result-section counts, search ID, redacted receipt location, and any schema assumptions that need fixtures.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Invalid API key` | Wrong key | Check serpapi.com/manage-api-key |
-| `No organic_results key` | Different result structure | Check `search_metadata.status` first |
-| `Your searches for the month have run out` | Plan limit reached | Upgrade at serpapi.com/pricing |
-| Empty results | Unusual query or location | Try without `location` parameter |
+| Condition | Response |
+|---|---|
+| HTTP 400 | Correct the engine-specific parameters; do not retry unchanged. |
+| HTTP 401 or 403 | Stop and repair authorization without printing the key. |
+| HTTP 429 | Inspect Account API before deciding whether to wait or increase allowance. |
+| HTTP 5xx or timeout | Retry a bounded number of times with jitter and preserve the search ID if present. |
+| `Success` with no organic results | Inspect other documented sections and the engine-specific `_state`; do not label it an API failure. |
+
+## Example
+
+```python
+import os
+import serpapi
+
+client = serpapi.Client(api_key=os.environ["SERPAPI_KEY"], timeout=15)
+result = client.search({
+    "engine": "google",
+    "q": "coffee",
+    "location": "Austin, Texas, United States",
+    "hl": "en",
+    "gl": "us",
+})
+assert result["search_metadata"]["status"] == "Success"
+print({
+    "search_id": result["search_metadata"]["id"],
+    "organic_count": len(result.get("organic_results", [])),
+})
+```
 
 ## Resources
 
 - [Google Search API](https://serpapi.com/search-api)
-- [Result Structure](https://serpapi.com/organic-results)
-- [Supported Engines](https://serpapi.com/)
+- [Status and error codes](https://serpapi.com/api-status-and-error-codes)
+- [Official Python client](https://github.com/serpapi/serpapi-python)
 
 ## Next Steps
 
-Proceed to `serpapi-local-dev-loop` for development workflow setup.
+Capture a sanitized response fixture and move subsequent parser work into the local-development workflow.

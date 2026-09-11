@@ -1,148 +1,83 @@
 ---
 name: serpapi-reference-architecture
-description: 'Production architecture for SerpApi search services with caching, monitoring,
-  and multi-engine support.
-
-  Use when designing search features, building SERP tracking systems,
-
-  or architecting search-powered applications.
-
-  Trigger: "serpapi architecture", "serpapi project structure", "serpapi design".
-
-  '
-allowed-tools: Read, Grep
-version: 1.4.0
-license: MIT
+description: 'Design a governed SerpAPI search service with engine adapters, policy enforcement, caching, capacity management, observability, and privacy boundaries. Use when conducting architecture review. Trigger with "design a SerpAPI architecture".'
+argument-hint: "[use-case] [engines] [data-classification]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- search
-- seo
-- serpapi
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, serpapi, architecture, governance, reliability]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; architecture output is a review artifact and does not authorize infrastructure, account, or production changes
 ---
-# SerpApi Reference Architecture
+# SerpAPI Governed Reference Architecture
 
 ## Overview
 
-Production architecture for search-powered applications using SerpApi. Core components: cached search service, multi-engine abstraction, SERP monitoring pipeline, and credit budget management.
+Place SerpAPI behind an application boundary that controls identity, parameters, data, allowance, and failure behavior for every engine.
 
-## Architecture Diagram
+## Prerequisites
 
-```
-┌──────────────────────────────────┐
-│          API Layer               │
-│  /search  /track  /health        │
-├──────────────────────────────────┤
-│        Search Service            │
-│  Multi-engine  Caching  Parsing  │
-├──────────────────────────────────┤
-│       SerpApi Client             │
-│  Rate Limiting  Retry  Archive   │
-├──────────────────────────────────┤
-│       Infrastructure             │
-│  Redis Cache  PostgreSQL  Cron   │
-└──────────────────────────────────┘
-         │
-         ▼
-┌──────────────────────────────────┐
-│        SerpApi REST API          │
-│  google  youtube  bing  news     │
-│  1 credit/search, 100-50K/mo     │
-└──────────────────────────────────┘
-```
+- Business use cases, caller identities, engines, data classes, freshness and latency objectives
+- Volume model, account contract, downstream systems, and regulatory/retention requirements
+- Security, product, finance, reliability, and platform owners
 
-## Project Structure
+## Tool Discipline
 
-```
-search-service/
-├── src/
-│   ├── serpapi/
-│   │   ├── client.ts          # Cached search with rate limiting
-│   │   ├── engines.ts         # Engine-specific param mapping
-│   │   └── types.ts           # Typed result interfaces
-│   ├── services/
-│   │   ├── search.ts          # Multi-engine search facade
-│   │   ├── tracking.ts        # Keyword rank tracking
-│   │   └── credits.ts         # Usage monitoring
-│   ├── api/
-│   │   ├── search.ts          # /search proxy endpoint
-│   │   └── health.ts          # /health with credit check
-│   └── jobs/
-│       └── rank-tracker.ts    # Daily keyword monitoring
-├── tests/
-│   ├── fixtures/              # Recorded SerpApi responses
-│   └── search.test.ts         # Fixture-based tests
-└── config/
-```
+Use `Read`, `Glob`, and `Grep` to ground the design in repository and infrastructure topology, `WebFetch` to verify current vendor contracts, and `Write` or `Edit` for diagrams, decision records, interfaces, threat models, and rollout evidence.
 
-## Key Components
+## Current Contract
 
-### Search Service Facade
+SerpAPI has engine-specific requests and variable response sections, private-key authentication, account-level search and throughput capacity, optional async/archive processing, one-hour exact-query server caching, and Enterprise ZeroTrace. Async depends on archive retrieval, while ZeroTrace intentionally prevents stored search records.
 
-```typescript
-class SearchService {
-  constructor(private client: CachedSerpApiClient, private db: Database) {}
+## Authentication
 
-  async search(query: string, options?: { engine?: string; num?: number }) {
-    const engine = options?.engine || 'google';
-    const result = await this.client.cachedSearch({
-      engine, q: query, num: options?.num || 5,
-    });
+Keep `SERPAPI_KEY` in a server-side secret boundary. Authenticate application callers independently and enforce use-case authorization before the gateway maps input to allowlisted vendor parameters.
 
-    // Normalize across engines
-    return {
-      results: result.organic_results || result.video_results || [],
-      answer_box: result.answer_box || null,
-      knowledge_graph: result.knowledge_graph || null,
-      search_id: result.search_metadata.id,
-      cached: result._cached || false,
-    };
-  }
+## Instructions
 
-  async trackKeyword(keyword: string, domain: string) {
-    const result = await this.client.cachedSearch({
-      engine: 'google', q: keyword, num: 100,
-    });
-    const position = result.organic_results?.findIndex(
-      (r: any) => r.link?.includes(domain)
-    );
-    await this.db.saveRanking(keyword, domain, position >= 0 ? position + 1 : null);
-  }
-}
-```
+1. Map callers, trust zones, engines, queries, results, stores, consumers, data classes, and systems of record.
+2. Define an authenticated gateway with use-case-specific input schemas, engine adapters, output projections, and policy enforcement.
+3. Add an application cache with credential-free semantic keys, freshness TTLs, encryption and retention appropriate to the data class.
+4. Coordinate admission, concurrency, pagination, retries, and background work against live Account API capacity.
+5. Separate synchronous calls from async/archive jobs and prove that any ZeroTrace path does not rely on archive replay.
+6. Emit safe metrics and search-ID correlation without query, result, key-bearing URL, or account leakage.
+7. Design fixture-first tests, canary, reconciliation, degradation, support escalation, key rotation, disaster recovery, and rollback.
+8. Record alternatives, constraints, approvals, unresolved risks, and a staged implementation plan.
 
-### Credit Budget Manager
+## Approval Boundaries
 
-```typescript
-class CreditBudget {
-  async check(): Promise<{ ok: boolean; remaining: number }> {
-    const account = await fetch(
-      `https://serpapi.com/account.json?api_key=${process.env.SERPAPI_API_KEY}`
-    ).then(r => r.json());
+Do not provision infrastructure, expose routes, create secrets, enable account features, or send production searches from an architecture exercise.
 
-    return {
-      ok: account.plan_searches_left > 100,
-      remaining: account.plan_searches_left,
-    };
-  }
-}
-```
+## Output
+
+Return context and container diagrams, trust/data flows, gateway and adapter contracts, cache/capacity design, privacy decision, failure model, test/rollout plan, risks, and decision owners.
 
 ## Error Handling
 
-| Component | Failure | Recovery |
-|-----------|---------|----------|
-| Search API | Credits exhausted | Return cached results, alert ops |
-| Cache | Redis down | Fall through to API (graceful degradation) |
-| Rank tracker | Query fails | Skip and retry next cycle |
-| Health check | API unreachable | Report degraded status |
+| Condition | Response |
+|---|---|
+| Gateway is a generic parameter pass-through | Replace it with use-case schemas and allowlists. |
+| Capacity is managed per instance only | Add shared admission control across credential-sharing workers. |
+| ZeroTrace path requires replay | Redesign the diagnostic and recovery model. |
+| Search results become a system of record | Define provenance, refresh, deletion, and reconciliation explicitly. |
+
+## Example
+
+```text
+caller -> authenticated policy gateway -> engine adapter -> capacity limiter -> SerpAPI
+                                      \-> semantic cache
+search metadata -> redacted telemetry; normalized results -> governed consumer
+```
 
 ## Resources
 
-- [SerpApi Documentation](https://serpapi.com/)
-- [Searches Archive](https://serpapi.com/search-archive-api)
+- [SerpAPI documentation](https://serpapi.com/)
+- [Account API](https://serpapi.com/account-api)
+- [ZeroTrace Mode](https://serpapi.com/zero-trace-mode)
+- [Searches Archive API](https://serpapi.com/searches-archive-api)
 
 ## Next Steps
 
-See individual skill docs for deep-dives on each component.
+Validate the design with security, product, finance, and reliability owners before creating an implementation tranche.

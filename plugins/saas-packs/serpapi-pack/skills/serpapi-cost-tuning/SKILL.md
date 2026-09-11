@@ -1,130 +1,75 @@
 ---
 name: serpapi-cost-tuning
-description: 'Optimize SerpApi costs by reducing credit consumption and choosing the
-  right plan.
-
-  Use when analyzing search usage, reducing monthly costs,
-
-  or implementing credit-saving strategies.
-
-  Trigger: "serpapi cost", "serpapi pricing", "reduce serpapi costs", "serpapi credits".
-
-  '
-allowed-tools: Read, Grep
-version: 1.4.0
-license: MIT
+description: 'Reduce SerpAPI search consumption through measured demand, exact-query caching, admission budgets, and current account pricing evidence. Use when forecasting or controlling search spend. Trigger with "optimize SerpAPI cost".'
+argument-hint: "[environment] [forecast-window]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- search
-- seo
-- serpapi
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, serpapi, cost, finops, caching]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; plan changes and production admission/cache changes require finance, product, and account-owner approval
 ---
-# SerpApi Cost Tuning
+# SerpAPI Usage and Cost Governance
 
 ## Overview
 
-SerpApi charges per search (1 credit each). Plans: Free (100/mo), Developer ($75, 5K/mo), Business ($200, 15K/mo), Enterprise (custom). Key savings: caching, archive retrieval (free), and Google Light API.
+Forecast from observed search demand and the account's current contract, then reduce waste without inventing static plan economics.
 
-## Cost Strategies
+## Prerequisites
 
-### Strategy 1: Aggressive Caching (Biggest Savings)
+- Current pricing page and Account API snapshot
+- Search attempts, server/application cache hits, engine mix, retries, and business outcome volume
+- Product freshness requirements and owners for finance, product, and the SerpAPI account
 
-```python
-# Search results rarely change within an hour
-# Cache for 1 hour = up to 24x credit reduction for hourly queries
-# Cache for 1 day = up to 720x for queries checked every 2 minutes
+## Tool Discipline
 
-import hashlib, json, redis, serpapi, os
+Use `Read`, `Glob`, and `Grep` to inventory callers, cache behavior, and retry amplification, `WebFetch` to verify current public pricing and cache rules, and `Write` or `Edit` for forecasts, budgets, dashboards, and safe optimizations.
 
-r = redis.Redis.from_url(os.environ["REDIS_URL"])
-client = serpapi.Client(api_key=os.environ["SERPAPI_API_KEY"])
+## Current Contract
 
-def cached_search(ttl_seconds=3600, **params):
-    key = f"serpapi:{hashlib.md5(json.dumps(params, sort_keys=True).encode()).hexdigest()}"
-    cached = r.get(key)
-    if cached:
-        return json.loads(cached)  # FREE: no credit consumed
-    result = client.search(**params)   # 1 credit
-    r.setex(key, ttl_seconds, json.dumps(dict(result)))
-    return result
-```
+Plans, prices, included searches, and hourly throughput can change. Account API exposes the subscribed plan, searches left, usage, renewal date, and throughput. Exactly matching cached searches can be served from SerpAPI's one-hour cache for free; `no_cache=true` opts out and can increase consumption.
 
-### Strategy 2: Archive API (Free Retrieval)
+## Authentication
 
-```python
-# Every search result is stored in the archive
-# Retrieve by search_id at no cost
-archived = client.search(engine="google", search_id="previous_id")
-# 0 credits -- use for re-processing or delayed access
-```
+Read account facts with the server-side `SERPAPI_KEY`, but do not expose the key, account identity, or commercial details in public dashboards or receipts.
 
-### Strategy 3: Google Light API (Same Cost, Faster)
+## Instructions
 
-```python
-# Same 1 credit but faster response (~1s vs 3-5s)
-# Good for: organic results only, no knowledge graph needed
-result = client.search(engine="google_light", q="query")
-```
+1. Enumerate every producer and separate user-valued searches from retries, duplicate requests, tests, previews, and abandoned work.
+2. Capture a dated Account API snapshot and current pricing evidence; do not embed public list prices as durable code constants.
+3. Forecast searches through the next renewal using observed volume, seasonality, cache hit rate, pagination, and failure amplification.
+4. Rank optimizations: remove duplicate calls, normalize exact-match parameters, enable application caching, stop unnecessary pagination, gate low-value work, and eliminate uncontrolled retries.
+5. Preserve freshness and correctness requirements; never claim that reducing result count reduces the number of searches without current evidence.
+6. Model base, expected, and peak scenarios with headroom and an explicit assumption register.
+7. Present product-impacting budgets or plan changes for approval, canary safe changes, and reconcile forecast to actual usage.
 
-### Strategy 4: Reduce num Parameter
+## Output
 
-```python
-# Default num=10 (10 results). If you only need top 3:
-result = client.search(engine="google", q="query", num=3)
-# Still 1 credit, but faster response
-```
-
-## Cost Calculator
-
-```python
-def estimate_monthly_cost(
-    daily_searches: int,
-    cache_hit_rate: float = 0.7,  # 70% cache hits typical
-) -> dict:
-    actual_api_calls = daily_searches * 30 * (1 - cache_hit_rate)
-    plans = [
-        ("Free", 100, 0), ("Developer", 5000, 75),
-        ("Business", 15000, 200), ("Enterprise", 50000, 500),
-    ]
-    for name, limit, price in plans:
-        if actual_api_calls <= limit:
-            return {"plan": name, "price": f"${price}/mo",
-                    "api_calls": int(actual_api_calls), "raw_searches": daily_searches * 30}
-    return {"plan": "Enterprise+", "price": "Custom", "api_calls": int(actual_api_calls)}
-
-# Examples:
-# 100 searches/day, 70% cache = 900 API calls/mo = Developer ($75)
-# 500 searches/day, 80% cache = 3000 API calls/mo = Developer ($75)
-# 1000 searches/day, 50% cache = 15000 API calls/mo = Business ($200)
-```
-
-## Usage Monitoring
-
-```bash
-# Daily credit check
-curl -s "https://serpapi.com/account.json?api_key=$SERPAPI_API_KEY" | jq '{
-  plan: .plan_name,
-  used: .this_month_usage,
-  remaining: .plan_searches_left,
-  daily_avg: (.this_month_usage / ([1, (now | strftime("%d") | tonumber)] | max))
-}'
-```
+Return dated account/pricing evidence, producer ledger, demand forecast, waste analysis, prioritized controls, scenario assumptions, approval decisions, and forecast-versus-actual owner.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Unexpected costs | No caching | Implement Redis/LRU cache |
-| Credits exhausted mid-month | Underestimated volume | Upgrade plan or increase cache TTL |
-| Cache miss rate high | Short TTL | Increase cache TTL to 1-4 hours |
+| Condition | Response |
+|---|---|
+| Pricing differs from the model | Refresh evidence and invalidate the stale scenario. |
+| Usage exceeds events recorded | Audit retries, pagination, hidden producers, and `no_cache`. |
+| Cache lowers search quality | Restore the freshness contract and evaluate narrower reuse. |
+| Renewal date is absent | Confirm whether the account uses a non-monthly or cancelled arrangement. |
+
+## Example
+
+```text
+window=to-renewal; demand=observed; waste=duplicate-plus-retry; pricing=evidence-dated; scenarios=base/expected/peak; headroom=approved; action=normalize-cache-keys
+```
 
 ## Resources
 
-- [SerpApi Pricing](https://serpapi.com/pricing)
+- [Plans and pricing](https://serpapi.com/pricing)
 - [Account API](https://serpapi.com/account-api)
+- [Google Search cache behavior](https://serpapi.com/search-api#serpapi-parameters)
 
 ## Next Steps
 
-For architecture patterns, see `serpapi-reference-architecture`.
+Reconcile the forecast weekly and reopen the plan decision before renewal or a material demand change.

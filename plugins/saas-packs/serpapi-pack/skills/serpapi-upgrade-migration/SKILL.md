@@ -1,99 +1,81 @@
 ---
 name: serpapi-upgrade-migration
-description: 'Migrate between SerpApi client versions and handle package changes.
-
-  Use when upgrading from google-search-results to serpapi package,
-
-  or handling API response schema changes.
-
-  Trigger: "upgrade serpapi", "serpapi migration", "serpapi new package".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Bash(git:*)
-version: 1.4.0
-license: MIT
+description: 'Migrate legacy SerpAPI Python or JavaScript packages and response assumptions to current official clients with contract tests and rollback. Use when performing dependency or API upgrades. Trigger with "migrate a SerpAPI client".'
+argument-hint: "[python|javascript] [from-version] [to-version]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit, Bash(python3:*), Bash(npm:*)
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- search
-- seo
-- serpapi
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, serpapi, migration, python, javascript]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; dependency installation, live comparison, and production rollout require repository and account-owner approval
 ---
-# SerpApi Upgrade & Migration
+# SerpAPI Client Upgrade and Migration
 
 ## Overview
 
-The main migration path: `google-search-results` (legacy) to `serpapi` (current official package). The API itself is stable -- changes are in client library interfaces, not the REST API.
+Inventory actual legacy behavior, introduce the current official client behind a seam, and prove response and failure compatibility before removing the old path.
+
+## Prerequisites
+
+- Current dependency locks, imports, call sites, engine parameters, fixtures, and runtime support matrix
+- Target official client release notes and migration documentation
+- Search budget, canary environment, rollback owner, and immutable baseline
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inventory dependencies and behavior, `WebFetch` to verify current official packages, `Write` or `Edit` for the adapter and tests, and `Bash(python3:*)` or `Bash(npm:*)` only for approved installs and test execution.
+
+## Current Contract
+
+The recommended Python distribution is `serpapi`, distinct from the legacy `google-search-results` distribution. Its `Client.search` returns a `SerpResults` mapping with helpers such as `as_dict()` and pagination methods. The current JavaScript `serpapi` package supports promises and callbacks; migration from `google-search-results-nodejs` must preserve engine parameters and error behavior explicitly.
+
+## Authentication
+
+Keep the existing server-side `SERPAPI_KEY` boundary unchanged during migration. Never copy credentials into migration scripts, lockfiles, fixtures, dual-run telemetry, or exception snapshots.
 
 ## Instructions
 
-### Python: google-search-results to serpapi
+1. Pin the baseline and inventory package names, versions, imports, engine-specific classes, callbacks, result conversions, pagination, timeouts, retries, and error handling.
+2. Re-fetch target release notes and build a behavior matrix for requests, result type, archive access, pagination, and exceptions.
+3. Add an application-owned gateway and run both implementations against the same sanitized fixtures.
+4. Update Python code from legacy engine classes to current client calls, or JavaScript callbacks to the chosen promise/callback form, without mixing semantic changes.
+5. Regenerate the dependency lock and run static, unit, fixture, failure-path, and packaging tests.
+6. With approval, compare one harmless live request through each path or use a single captured response when duplicate searches are unnecessary.
+7. Canary the new path behind a flag, reconcile outputs and capacity, then remove the legacy dependency only after rollback criteria hold.
+
+## Output
+
+Return the baseline and target versions, behavior matrix, changed call sites, lockfile diff, fixture/live comparison, canary evidence, legacy removal decision, and rollback plan.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Result treated as an exact plain `dict` | Update types to the documented mapping or call `as_dict()` where an exact dictionary is required. |
+| Error behavior changes | Normalize exceptions in the gateway before rollout. |
+| Engine parameters drift | Restore parity and test each engine independently. |
+| Dual-run doubles usage | Stop duplicate live calls and compare from one sanitized capture. |
+
+## Example
 
 ```python
-# BEFORE: Legacy package
-from serpapi import GoogleSearch
-search = GoogleSearch({"q": "test", "api_key": key})
-result = search.get_dict()
-
-# AFTER: New official package
+# Current official Python client
+import os
 import serpapi
-client = serpapi.Client(api_key=key)
-result = client.search(engine="google", q="test")
-# Result is already a dict -- no get_dict() needed
+
+client = serpapi.Client(api_key=os.environ["SERPAPI_KEY"], timeout=10)
+result = client.search({"engine": "google", "q": "coffee"})
+plain_result = result.as_dict()
 ```
-
-```bash
-# Migration steps
-pip uninstall google-search-results
-pip install serpapi
-
-# Update imports across codebase
-# OLD: from serpapi import GoogleSearch
-# NEW: import serpapi
-```
-
-### Node.js: google-search-results-nodejs to serpapi
-
-```typescript
-// BEFORE: Legacy
-import { GoogleSearch } from 'google-search-results-nodejs';
-const search = new GoogleSearch('api_key');
-search.json({ q: 'test', engine: 'google' }, (result) => { ... });
-
-// AFTER: Current (Promise-based)
-import { getJson } from 'serpapi';
-const result = await getJson({ engine: 'google', q: 'test', api_key: key });
-// No callbacks -- uses Promises natively
-```
-
-### Key Changes
-
-| Aspect | Legacy | Current |
-|--------|--------|---------|
-| Python import | `from serpapi import GoogleSearch` | `import serpapi` |
-| Python init | `GoogleSearch(params_dict)` | `serpapi.Client(api_key=key)` |
-| Python search | `search.get_dict()` | `client.search(engine="google", q=...)` |
-| Node import | `google-search-results-nodejs` | `serpapi` |
-| Node pattern | Callback-based | Promise/async-await |
-| Engine param | Via class name (GoogleSearch, BingSearch) | Via `engine` parameter |
-
-### Migration Checklist
-
-- [ ] Replace package: `pip install serpapi` / `npm install serpapi`
-- [ ] Update all imports
-- [ ] Replace class-per-engine with `engine` parameter
-- [ ] Replace callbacks with async/await (Node.js)
-- [ ] Remove `.get_dict()` calls (Python -- result is already dict)
-- [ ] Test all search queries return expected structure
-- [ ] Update CI dependencies
 
 ## Resources
 
-- [serpapi Python](https://github.com/serpapi/serpapi-python)
-- [serpapi Node.js](https://www.npmjs.com/package/serpapi)
-- [Legacy Python](https://github.com/serpapi/google-search-results-python)
+- [Official Python client](https://github.com/serpapi/serpapi-python)
+- [Official JavaScript client](https://github.com/serpapi/serpapi-javascript)
+- [JavaScript migration guide](https://github.com/serpapi/serpapi-javascript/blob/master/MIGRATION.md)
 
 ## Next Steps
 
-For CI integration, see `serpapi-ci-integration`.
+Remove the feature flag only after a full observation window and archive the rollback receipt.

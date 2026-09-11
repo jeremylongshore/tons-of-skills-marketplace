@@ -1,128 +1,88 @@
 ---
 name: serpapi-local-dev-loop
-description: 'Configure SerpApi local development with cached responses and test fixtures.
-
-  Use when building search integrations, avoiding API calls during development,
-
-  or setting up reproducible test data from SerpApi.
-
-  Trigger: "serpapi dev setup", "serpapi local", "test serpapi locally".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(npx:*), Grep
-version: 1.4.0
-license: MIT
+description: 'Build and test SerpAPI integrations locally with sanitized fixtures, injected clients, and an explicit live-recording boundary. Use when developing parsers without repeatedly spending allowance. Trigger with "set up SerpAPI local development".'
+argument-hint: "[python|typescript] [parser-path]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit, Bash(python3:*), Bash(npm:*)
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- search
-- seo
-- serpapi
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, serpapi, local-development, fixtures, testing]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; recording a fresh fixture is a live search and requires approval
 ---
-# SerpApi Local Dev Loop
+# SerpAPI Fixture-First Local Development
 
 ## Overview
 
-Set up local development for SerpApi with response caching, fixture recording, and offline testing. SerpApi charges per search, so caching results locally is critical for cost-effective development.
+Separate deterministic parsing from live search acquisition so everyday development is fast, private, and allowance-free.
+
+## Prerequisites
+
+- A target engine, parameter contract, parser behavior, and repository test framework
+- One approved sanitized response per important schema variant
+- A policy for fixture review, retention, refresh, and sensitive-field removal
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to locate clients, parsers, fixtures, and tests, `WebFetch` to re-check engine schemas, `Write` or `Edit` for adapters and fixtures, and `Bash(python3:*)` or `Bash(npm:*)` for local tests or an explicitly approved recorder.
+
+## Current Contract
+
+SerpAPI response sections vary by engine, query, geography, device, and upstream search layout. The official Python result is a `SerpResults` mapping; application code should depend on a narrow local adapter rather than a captured response being universal.
+
+## Authentication
+
+Offline tests must not require `SERPAPI_KEY`. Load the key only inside a separately invoked recorder, refuse sentinel or missing values, and never serialize request URLs or metadata fields that reveal it.
 
 ## Instructions
 
-### Step 1: Record Real Responses as Fixtures
+1. Inventory every consumed field and classify it as required, optional, engine-specific, or derived.
+2. Create a client interface whose search method can be replaced by a fixture-backed fake.
+3. Sanitize fixtures by removing key-bearing URLs, raw HTML links, account identifiers, sensitive queries, and unrelated result content.
+4. Add fixtures for normal, empty-success, processing, error, missing optional section, and changed-type cases.
+5. Write parser tests against the fixtures and assert normalized application output rather than the entire vendor payload.
+6. Put live recording behind a separate command, explicit environment flag, allowance check, and operator approval.
+7. When refreshing, review semantic diffs, update the retrieval date and source engine, and rerun all offline tests.
 
-```python
-import serpapi, json, os, hashlib
+## Output
 
-def record_fixture(params: dict, fixtures_dir="tests/fixtures"):
-    """Run a real search and save the response as a fixture file."""
-    os.makedirs(fixtures_dir, exist_ok=True)
-    client = serpapi.Client(api_key=os.environ["SERPAPI_API_KEY"])
-    result = client.search(**params)
-
-    # Deterministic filename from params
-    key = hashlib.md5(json.dumps(params, sort_keys=True).encode()).hexdigest()[:12]
-    path = os.path.join(fixtures_dir, f"{params['engine']}_{key}.json")
-
-    with open(path, "w") as f:
-        json.dump(dict(result), f, indent=2)
-    print(f"Recorded: {path}")
-
-# Record fixtures for common queries
-record_fixture({"engine": "google", "q": "python tutorial", "num": 5})
-record_fixture({"engine": "youtube", "search_query": "react hooks"})
-record_fixture({"engine": "bing", "q": "machine learning"})
-```
-
-### Step 2: Mock Client for Testing
-
-```python
-import json, os
-
-class MockSerpApiClient:
-    def __init__(self, fixtures_dir="tests/fixtures"):
-        self.fixtures_dir = fixtures_dir
-
-    def search(self, **params):
-        key = hashlib.md5(json.dumps(params, sort_keys=True).encode()).hexdigest()[:12]
-        path = os.path.join(self.fixtures_dir, f"{params['engine']}_{key}.json")
-        if os.path.exists(path):
-            with open(path) as f:
-                return json.load(f)
-        raise FileNotFoundError(f"No fixture for {params}. Run record_fixture() first.")
-```
-
-### Step 3: Vitest Mocking (Node.js)
-
-```typescript
-// tests/serpapi.test.ts
-import { describe, it, expect, vi } from 'vitest';
-import { readFileSync } from 'fs';
-
-vi.mock('serpapi', () => ({
-  getJson: vi.fn(async (params) => {
-    const fixture = JSON.parse(
-      readFileSync(`tests/fixtures/google_sample.json`, 'utf-8')
-    );
-    return fixture;
-  }),
-}));
-
-describe('Search Service', () => {
-  it('parses organic results', async () => {
-    const { getJson } = await import('serpapi');
-    const result = await getJson({ engine: 'google', q: 'test' });
-    expect(result.organic_results).toBeDefined();
-    expect(result.organic_results[0]).toHaveProperty('title');
-    expect(result.organic_results[0]).toHaveProperty('link');
-  });
-});
-```
-
-### Step 4: Environment Separation
-
-```bash
-# .env.development (uses real API, low num for cost)
-SERPAPI_API_KEY=real-key-here
-SERPAPI_DEFAULT_NUM=3
-
-# .env.test (uses fixtures, no API calls)
-SERPAPI_API_KEY=not-needed
-SERPAPI_USE_FIXTURES=true
-```
+Return the client seam, fixture inventory and sanitization record, offline test results, live-recording command and guard, consumed-field contract, and refresh owner.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `FileNotFoundError` fixture | Missing fixture | Run `record_fixture()` with real API key |
-| Stale fixtures | Search results changed | Re-record periodically |
-| `Invalid API key` in dev | Env not loaded | Check `.env.development` loading |
+| Condition | Response |
+|---|---|
+| Fixture contains a key-bearing URL | Remove it, rotate the exposed key if necessary, and inspect history. |
+| Parser fails on a missing section | Make the branch explicit or prove the section is contractually required. |
+| Live call occurs in an offline test | Fail the test and replace the client at the network boundary. |
+| Fixture is stale | Refresh once under approval and review the schema delta. |
+
+## Example
+
+```python
+class SearchGateway:
+    def __init__(self, client):
+        self.client = client
+
+    def titles(self, params):
+        response = self.client.search(params)
+        return [item["title"] for item in response.get("organic_results", [])]
+
+class FixtureClient:
+    def __init__(self, response):
+        self.response = response
+
+    def search(self, _params):
+        return self.response
+```
 
 ## Resources
 
-- [SerpApi Playground](https://serpapi.com/playground)
-- [Vitest Mocking](https://vitest.dev/guide/mocking.html)
+- [Official Python client](https://github.com/serpapi/serpapi-python)
+- [Google Search JSON results](https://serpapi.com/search-api#api-examples)
+- [Status and error codes](https://serpapi.com/api-status-and-error-codes)
 
 ## Next Steps
 
-Proceed to `serpapi-sdk-patterns` for production patterns.
+Wire the same fixture suite into CI and reserve live validation for a protected workflow.

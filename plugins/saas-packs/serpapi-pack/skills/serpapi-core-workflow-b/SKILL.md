@@ -1,152 +1,90 @@
 ---
 name: serpapi-core-workflow-b
-description: 'Search Bing, YouTube, Google Shopping, Google News, and Google Maps
-  with SerpApi.
-
-  Use when scraping non-Google engines, building multi-engine search,
-
-  or extracting video/news/shopping/maps data.
-
-  Trigger: "serpapi youtube", "serpapi bing", "serpapi news", "serpapi shopping".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.4.0
-license: MIT
+description: 'Design a multi-engine SerpAPI workflow with explicit parameter maps, result adapters, budgets, and provenance. Use when combining Google, Bing, YouTube, News, Shopping, or Maps. Trigger with "build a SerpAPI multi-engine search".'
+argument-hint: "[engines] [query] [result-limit]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- search
-- seo
-- serpapi
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, serpapi, multi-engine, youtube, maps]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; every approved live engine request may affect account allowance and throughput
 ---
-# SerpApi Core Workflow B: Multi-Engine Search
+# SerpAPI Multi-Engine Search Workflow
 
 ## Overview
 
-SerpApi supports 15+ search engines beyond Google. Each engine has its own parameters and result structure. Key engines: YouTube (`search_query`), Bing (`q`), Google News, Google Shopping, Google Maps, Walmart, eBay, Apple App Store.
+Model each engine as a distinct contract, then normalize only the fields needed for a cross-engine product.
+
+## Prerequisites
+
+- An explicit engine set, query intent, locale, data-use policy, and per-engine result needs
+- Current engine documentation and sanitized fixtures
+- A total search, latency, and concurrency budget
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to map engine consumers, `WebFetch` to verify each engine's current parameters and response sections, and `Write` or `Edit` for parameter maps, adapters, tests, and redacted receipts.
+
+## Current Contract
+
+Engine contracts are not interchangeable. Google, Bing, Google News, and Google Shopping accept `q`; YouTube uses `search_query`; Google Maps search uses `q` with `type=search` and can use `ll`. Common result sections include `organic_results`, `video_results`, `news_results`, `shopping_results`, and `local_results`, but their records have different shapes.
+
+## Authentication
+
+Supply `SERPAPI_KEY` only through the server-side gateway. Preserve engine and search ID for provenance, but strip the key and key-bearing URLs from normalized output.
 
 ## Instructions
 
-### Step 1: YouTube Search
+1. List the approved engines and define the exact user value each contributes; remove redundant calls.
+2. Re-fetch each engine's first-party API page and record its query, locale, pagination, safety, and result-section contract.
+3. Build an allowlisted engine map rather than forwarding arbitrary client parameters.
+4. Set per-engine timeouts, maximum records, concurrency, and total searches before execution.
+5. Execute independently so one engine failure does not erase successful results from another.
+6. Normalize to a tagged union retaining `engine`, `search_id`, source URL, rank, and engine-specific payload where required.
+7. Test normal, empty-success, missing-section, partial-failure, and duplicate-source fixtures; report searches consumed by engine.
 
-```python
-import serpapi, os
-client = serpapi.Client(api_key=os.environ["SERPAPI_API_KEY"])
+## Output
 
-# YouTube uses search_query (not q)
-yt = client.search(engine="youtube", search_query="python asyncio tutorial")
-
-for video in yt.get("video_results", []):
-    print(f"{video['title']}")
-    print(f"  Channel: {video.get('channel', {}).get('name')}")
-    print(f"  Views: {video.get('views')}, Length: {video.get('length')}")
-    print(f"  Link: {video['link']}")
-    print(f"  Published: {video.get('published_date')}")
-```
-
-### Step 2: Bing Search
-
-```python
-bing = client.search(engine="bing", q="machine learning frameworks", count=10)
-
-for r in bing.get("organic_results", []):
-    print(f"{r['position']}. {r['title']}")
-    print(f"   {r['link']}")
-    # Bing has different snippet structure
-    print(f"   {r.get('snippet', 'N/A')}")
-```
-
-### Step 3: Google News
-
-```python
-news = client.search(engine="google_news", q="artificial intelligence", gl="us", hl="en")
-
-for article in news.get("news_results", []):
-    print(f"{article['title']}")
-    print(f"  Source: {article['source']['name']}")
-    print(f"  Date: {article.get('date')}")
-    print(f"  Link: {article['link']}")
-    # News often has thumbnail
-    if "thumbnail" in article:
-        print(f"  Image: {article['thumbnail']}")
-```
-
-### Step 4: Google Shopping
-
-```python
-shopping = client.search(
-    engine="google_shopping",
-    q="mechanical keyboard",
-    gl="us",
-    hl="en",
-)
-
-for product in shopping.get("shopping_results", []):
-    print(f"{product['title']}")
-    print(f"  Price: {product.get('price')}")
-    print(f"  Source: {product.get('source')}")
-    print(f"  Rating: {product.get('rating')} ({product.get('reviews', 0)} reviews)")
-    print(f"  Link: {product['link']}")
-```
-
-### Step 5: Google Maps / Local
-
-```python
-maps = client.search(
-    engine="google_maps",
-    q="pizza restaurants",
-    ll="@30.2672,-97.7431,14z",  # Austin, TX coordinates + zoom
-)
-
-for place in maps.get("local_results", []):
-    print(f"{place['title']} - {place.get('rating', 'N/A')} stars ({place.get('reviews', 0)} reviews)")
-    print(f"  Address: {place.get('address')}")
-    print(f"  Phone: {place.get('phone')}")
-    print(f"  Type: {place.get('type')}")
-    print(f"  Hours: {place.get('operating_hours', {}).get('monday')}")
-```
-
-### Step 6: Cross-Engine Comparison
-
-```python
-def multi_search(query: str) -> dict:
-    """Search across multiple engines for the same query."""
-    engines = [
-        {"engine": "google", "q": query},
-        {"engine": "bing", "q": query},
-        {"engine": "youtube", "search_query": query},
-        {"engine": "google_news", "q": query},
-    ]
-    results = {}
-    for params in engines:
-        result = client.search(**params)
-        engine = params["engine"]
-        key = "organic_results" if engine != "youtube" else "video_results"
-        if engine == "google_news":
-            key = "news_results"
-        results[engine] = result.get(key, [])[:3]
-    return results  # 4 API credits total
-```
+Return the engine contract table, request map, normalized tagged-union schema, partial-failure policy, budget, per-engine counts and search IDs, and fixture results.
 
 ## Error Handling
 
-| Error | Engine | Solution |
-|-------|--------|----------|
-| `search_query` required | YouTube | Use `search_query` not `q` |
-| No `shopping_results` | Google Shopping | Query must be product-related |
-| Empty `local_results` | Google Maps | Add `ll` parameter with coordinates |
-| `count` vs `num` | Bing | Bing uses `count`, Google uses `num` |
+| Condition | Response |
+|---|---|
+| Wrong query parameter | Reject locally using the engine map. |
+| One engine fails | Return an explicit partial result if policy allows; keep failure provenance. |
+| Cross-engine duplicate | Retain source-engine ranks and apply a documented canonical-link policy. |
+| Engine schema drifts | Quarantine only that engine's adapter and replay its fixture suite. |
+
+## Example
+
+```python
+ENGINE_MAP = {
+    "google": ("q", "organic_results"),
+    "bing": ("q", "organic_results"),
+    "youtube": ("search_query", "video_results"),
+    "google_news": ("q", "news_results"),
+    "google_shopping": ("q", "shopping_results"),
+    "google_maps": ("q", "local_results"),
+}
+
+def build_request(engine, query):
+    query_key, _ = ENGINE_MAP[engine]
+    request = {"engine": engine, query_key: query}
+    if engine == "google_maps":
+        request["type"] = "search"
+    return request
+```
 
 ## Resources
 
+- [SerpAPI integrations and engines](https://serpapi.com/integrations)
 - [YouTube Search API](https://serpapi.com/youtube-search-api)
-- [Bing Search API](https://serpapi.com/bing-search-api)
-- [Google News API](https://serpapi.com/google-news-api)
-- [Google Shopping API](https://serpapi.com/google-shopping-api)
 - [Google Maps API](https://serpapi.com/google-maps-api)
+- [Bing Search API](https://serpapi.com/bing-search-api)
 
 ## Next Steps
 
-For common errors, see `serpapi-common-errors`.
+Canary each engine separately, then enable the combined workflow within the aggregate search budget.

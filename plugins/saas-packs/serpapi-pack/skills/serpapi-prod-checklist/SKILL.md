@@ -1,97 +1,79 @@
 ---
 name: serpapi-prod-checklist
-description: 'Production readiness checklist for SerpApi integrations.
-
-  Use when deploying search features, validating credit budgets,
-
-  or preparing SerpApi-powered apps for launch.
-
-  Trigger: "serpapi production", "deploy serpapi", "serpapi go-live".
-
-  '
-allowed-tools: Read, Bash(curl:*), Grep
-version: 1.4.0
-license: MIT
+description: 'Issue an evidence-backed production-readiness decision for a SerpAPI integration across contract, security, reliability, cost, privacy, and operations. Use when preparing a launch or material change. Trigger with "review SerpAPI production readiness".'
+argument-hint: "[service] [environment] [release-ref]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- search
-- seo
-- serpapi
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, serpapi, production, readiness, governance]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; this skill audits and prepares a decision but does not authorize production changes
 ---
-# SerpApi Production Checklist
+# SerpAPI Production Readiness Review
 
-## Checklist
+## Overview
 
-### API Key & Authentication
+Fail closed on missing evidence and distinguish deterministic fixture confidence from the separately approved live canary.
 
-- [ ] API key stored in secret manager (not env files)
-- [ ] Backend proxy for all client-side search requests
-- [ ] Key not exposed in frontend bundles or logs
-- [ ] Usage monitoring configured
+## Prerequisites
 
-### Credit Budget
+- Immutable release reference, service owner, deployment plan, rollback target, and decision deadline
+- Current SerpAPI documentation and Account API capacity evidence
+- Test, security, privacy, reliability, cost, and operational receipts
 
-- [ ] Monthly search volume estimated
-- [ ] Plan tier matches expected volume
-- [ ] Response caching implemented (LRU or Redis)
-- [ ] Archive API used for result retrieval (free)
-- [ ] Budget alerts set (e.g., 80% threshold)
+## Tool Discipline
 
-### Error Handling
+Use `Read`, `Glob`, and `Grep` to verify repository and deployment evidence, `WebFetch` to re-check current vendor contracts, and `Write` or `Edit` only for the readiness record and redacted remediation evidence.
 
-- [ ] Check `search_metadata.status` before using results
-- [ ] Handle `error` field in responses
-- [ ] Retry on 500/timeout (max 2 retries)
-- [ ] Graceful fallback when credits exhausted
-- [ ] Log search IDs for debugging (`search_metadata.id`)
+## Current Contract
 
-### Performance
+Search behavior varies by engine and optional result sections; 429 can mean throughput or allowance exhaustion; standard records have documented retention while ZeroTrace changes storage and debugging behavior. Production readiness therefore depends on the selected engine, account, data class, and gateway—not a generic SDK smoke test.
 
-- [ ] Response caching with appropriate TTL
-- [ ] Rate limiting per plan tier (see `serpapi-rate-limits`)
-- [ ] Async search for non-critical queries
-- [ ] Proxy endpoint rate-limited to prevent abuse
+## Authentication
 
-### Health Check
+Require server-side `SERPAPI_KEY`, an approved secret lifecycle, authenticated gateway callers, and proof that credentials and key-bearing URLs are absent from artifacts, logs, fixtures, and client bundles.
 
-```typescript
-app.get('/health', async (req, res) => {
-  try {
-    const account = await fetch(
-      `https://serpapi.com/account.json?api_key=${process.env.SERPAPI_API_KEY}`
-    ).then(r => r.json());
+## Instructions
 
-    res.json({
-      status: account.plan_searches_left > 0 ? 'healthy' : 'degraded',
-      serpapi: {
-        plan: account.plan_name,
-        remaining: account.plan_searches_left,
-        used: account.this_month_usage,
-      },
-    });
-  } catch {
-    res.status(503).json({ status: 'unhealthy', serpapi: { error: 'unreachable' } });
-  }
-});
-```
+1. Pin the release SHA and verify dependency, schema, formatting, lint, unit, fixture, integration, security, and deployment gates.
+2. Confirm engine-specific parameter allowlists, normalized optional schemas, bounded pagination, timeouts, and retry classifications.
+3. Verify secret isolation, caller authorization, abuse controls, redaction, data purpose, cache/log retention, and ZeroTrace decision.
+4. Compare forecast demand and concurrency with current Account API searches left and hourly throughput; reserve incident headroom.
+5. Prove metrics, alerts, runbooks, support escalation, search-ID correlation, incident response, key rotation, and rollback.
+6. Run preview failure paths and an explicitly approved one-search canary; reconcile result status, latency, and capacity.
+7. Record PASS, CONDITIONAL, or FAIL with evidence per control, named exceptions, expiry dates, approvers, and rollback trigger.
+
+## Approval Boundaries
+
+This review does not grant deployment, secret, plan, retention, or live-search authority. Every mutation follows the owning system's approval process.
+
+## Output
+
+Return the pinned release, control matrix, evidence links, live-canary receipt, capacity snapshot, exceptions and expiries, decision, approvers, and rollback trigger.
 
 ## Error Handling
 
-| Alert | Condition | Severity |
-|-------|-----------|----------|
-| Credits Low | remaining < 10% | P2 |
-| Credits Exhausted | remaining = 0 | P1 |
-| API Unreachable | Account check fails | P1 |
-| High Error Rate | > 5% searches fail | P2 |
+| Condition | Response |
+|---|---|
+| Required evidence is stale or missing | Mark the control failed; do not infer readiness. |
+| Canary cannot run safely | Record the limitation and keep the launch blocked or explicitly conditional. |
+| Capacity has insufficient headroom | Reduce demand or obtain an approved account change before launch. |
+| Rollback is untested | Fail production readiness. |
+
+## Example
+
+```text
+release=sha256:...; deterministic_gates=pass; secret_flow=pass; capacity=headroom-confirmed; canary=pass; rollback=pass; decision=PASS; approvals=recorded
+```
 
 ## Resources
 
-- [SerpApi Status](https://serpapi.com/status)
 - [Account API](https://serpapi.com/account-api)
-- [SerpApi Pricing](https://serpapi.com/pricing)
+- [Status and error codes](https://serpapi.com/api-status-and-error-codes)
+- [SerpAPI security](https://serpapi.com/security)
 
 ## Next Steps
 
-For version upgrades, see `serpapi-upgrade-migration`.
+Attach the signed decision to the release and schedule review of every time-bounded exception.
