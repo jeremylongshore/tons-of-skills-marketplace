@@ -1,132 +1,79 @@
 ---
 name: serpapi-rate-limits
-description: 'Handle SerpApi rate limits and credit-based usage quotas.
-
-  Use when managing API credit consumption, implementing request throttling,
-
-  or optimizing search volume for your plan tier.
-
-  Trigger: "serpapi rate limit", "serpapi credits", "serpapi quota", "serpapi throttle".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.4.0
-license: MIT
+description: 'Discover SerpAPI account throughput and allowance dynamically, then enforce admission, concurrency, and retry budgets. Use when preventing 429s or coordinating search workers. Trigger with "configure SerpAPI rate limits".'
+argument-hint: "[environment] [worker-count]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit, Bash(python3:*)
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- search
-- seo
-- serpapi
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, serpapi, rate-limits, quotas, reliability]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; capacity checks require account authorization and production concurrency changes require operator approval
 ---
-# SerpApi Rate Limits
+# SerpAPI Capacity and Rate-Limit Control
 
 ## Overview
 
-SerpApi uses credit-based pricing (each search = 1 credit) plus per-second rate limits. Retrieving cached/archived searches does not consume credits. Plans range from 100 searches/month (free) to unlimited (enterprise).
+Use the account's live contract as the source of truth instead of embedding plan names or numeric limits in code.
 
-## Plan Limits
+## Prerequisites
 
-| Plan | Searches/Month | Rate Limit | Price |
-|------|---------------|------------|-------|
-| Free | 100 | 1/second | $0 |
-| Developer | 5,000 | 5/second | $75/mo |
-| Business | 15,000 | 10/second | $200/mo |
-| Enterprise | 50,000+ | 15/second | Custom |
+- Workload arrival rate, burst size, latency objective, search budget, and job priority
+- Access to the Account API and ownership of all workers sharing the key
+- Metrics for attempts, successes, cached results, 429s, latency, and searches left
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inventory producers and retry loops, `WebFetch` to verify current Account API and status semantics, `Write` or `Edit` for admission controls and observability, and `Bash(python3:*)` for an approved capacity check or load simulation.
+
+## Current Contract
+
+Account API returns fields including `plan_searches_left`, `total_searches_left`, `this_hour_searches`, and `account_rate_limit_per_hour`. HTTP 429 can mean the hourly throughput limit was exceeded or the account ran out of searches, so the response alone does not identify the remedy.
+
+## Authentication
+
+Use a server-side `SERPAPI_KEY` for Account API and search calls. Centralize capacity across every workload sharing that credential; do not expose account fields or the key through a public health endpoint.
 
 ## Instructions
 
-### Step 1: Monitor Credit Usage
+1. Enumerate every producer, schedule, priority, concurrency setting, retry policy, and credential-sharing boundary.
+2. Read current account capacity and renewal facts from Account API; treat configured limits as refreshable state.
+3. Reserve headroom for interactive and incident traffic and translate the remaining capacity into per-worker admission budgets.
+4. Apply a shared concurrency limiter and queue; reject or defer low-priority work before sending excess requests.
+5. On 429, pause new admissions, refresh Account API, then classify throughput exhaustion versus search exhaustion.
+6. Retry only when the classification and reset policy justify it; cap attempts and add jitter to avoid synchronized bursts.
+7. Load-test with a fake client, canary below the account ceiling, and alert on capacity burn rate and sustained 429s.
 
-```python
-import serpapi, os
+## Output
 
-client = serpapi.Client(api_key=os.environ["SERPAPI_API_KEY"])
-
-# Check remaining credits before batch operations
-account = client.account()
-remaining = account["plan_searches_left"]
-used = account["this_month_usage"]
-total = account["total_searches_left"]
-
-print(f"Used: {used}, Remaining: {remaining}")
-if remaining < 100:
-    print("WARNING: Low credits remaining")
-```
-
-### Step 2: Request Throttling
-
-```python
-import time
-from threading import Semaphore
-
-class ThrottledSerpApi:
-    def __init__(self, api_key: str, max_per_second: int = 5):
-        self.client = serpapi.Client(api_key=api_key)
-        self.semaphore = Semaphore(max_per_second)
-        self.last_request = 0
-
-    def search(self, **params) -> dict:
-        with self.semaphore:
-            # Enforce minimum interval
-            elapsed = time.time() - self.last_request
-            if elapsed < 0.2:  # 5/sec max
-                time.sleep(0.2 - elapsed)
-            self.last_request = time.time()
-            return self.client.search(**params)
-```
-
-### Step 3: Use Archive to Avoid Credit Waste
-
-```python
-# Retrieve a previous search result by ID (FREE, no credit charge)
-archived = client.search(engine="google", search_id="previous_search_id")
-
-# Check if a query was recently searched before spending a credit
-# Store search IDs in your database keyed by query+params hash
-```
-
-### Step 4: Node.js Rate Limiter
-
-```typescript
-import PQueue from 'p-queue';
-import { getJson } from 'serpapi';
-
-const queue = new PQueue({
-  concurrency: 3,       // Max parallel requests
-  interval: 1000,       // Per second
-  intervalCap: 5,       // Max 5 per second
-});
-
-async function throttledSearch(params: Record<string, any>) {
-  return queue.add(() => getJson({
-    ...params,
-    api_key: process.env.SERPAPI_API_KEY,
-  }));
-}
-
-// Batch search with automatic throttling
-const queries = ['query1', 'query2', 'query3'];
-const results = await Promise.all(
-  queries.map(q => throttledSearch({ engine: 'google', q }))
-);
-```
+Return the producer inventory, live capacity snapshot, admission and concurrency budgets, 429 decision tree, retry policy, test evidence, alerts, and rollback owner.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `429 Too Many Requests` | Rate limit exceeded | Slow down, check plan tier |
-| `Searches exhausted` | Monthly credits used up | Cache results, upgrade plan |
-| `Account disabled` | Payment issue or abuse | Contact SerpApi support |
+| Condition | Response |
+|---|---|
+| Account API unavailable | Fail closed to a conservative cached budget with an expiry. |
+| Throughput exhausted | Pause and drain; do not amplify with immediate retries. |
+| Searches exhausted | Stop allowance-consuming work and route to the account owner. |
+| Multiple uncoordinated workers | Introduce a shared limiter before increasing parallelism. |
+
+## Example
+
+```python
+account = client.account()
+hourly_limit = int(account["account_rate_limit_per_hour"])
+used_this_hour = int(account["this_hour_searches"])
+headroom = max(0, hourly_limit - used_this_hour)
+admission_budget = max(0, int(headroom * 0.8))  # reserve 20% for priority traffic
+```
 
 ## Resources
 
-- [SerpApi Pricing](https://serpapi.com/pricing)
 - [Account API](https://serpapi.com/account-api)
-- [Searches Archive](https://serpapi.com/search-archive-api)
+- [Status and error codes](https://serpapi.com/api-status-and-error-codes)
+- [Plans and pricing](https://serpapi.com/pricing)
 
 ## Next Steps
 
-For security configuration, see `serpapi-security-basics`.
+Review the live capacity at renewal and whenever a new worker or search product begins sharing the account.

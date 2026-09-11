@@ -1,143 +1,89 @@
 ---
 name: serpapi-webhooks-events
-description: 'Implement SerpApi async search callbacks and scheduled search monitoring.
-
-  Use when setting up search monitoring, SERP tracking pipelines,
-
-  or async search result retrieval.
-
-  Trigger: "serpapi webhooks", "serpapi monitoring", "serpapi scheduled search", "serpapi
-  async".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*)
-version: 1.4.0
-license: MIT
+description: 'Implement SerpAPI asynchronous searches and scheduled change detection without inventing a webhook callback contract. Use when building long-running searches or SERP monitoring. Trigger with "build SerpAPI async monitoring".'
+argument-hint: "[engine] [poll-interval] [deadline]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- search
-- seo
-- serpapi
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, serpapi, async, monitoring, archive]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live async submission, polling, schedules, and downstream notifications require account and system-owner approval
 ---
-# SerpApi Webhooks & Events
+# SerpAPI Async Search and Scheduled Monitoring
 
 ## Overview
 
-SerpApi does not have traditional webhooks, but supports async searches and the Searches Archive API. Build SERP monitoring by combining scheduled searches with change detection. Common use case: track keyword rankings over time.
+Use documented async submission plus Searches Archive polling, or scheduled synchronous searches, with explicit state, budgets, and reconciliation.
+
+## Prerequisites
+
+- An engine and use case that justify background processing or repeated monitoring
+- Poll deadline, schedule, allowance and throughput budgets, checkpoint store, and downstream owner
+- Data classification, retention decision, and sanitized state-machine fixtures
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect jobs and consumers, `WebFetch` to verify async and archive contracts, and `Write` or `Edit` for state machines, schedules, checkpoints, fixtures, and redacted receipts.
+
+## Current Contract
+
+SerpAPI documents `async=true` to submit without holding the connection and the Searches Archive API to retrieve the search by ID. Status can move through queued or processing to success or error. `async` must not be combined with `no_cache` and is not for accounts with Ludicrous Speed. The public contract does not define a generic callback webhook for completed searches.
+
+## Authentication
+
+Use `SERPAPI_KEY` in the server-side submitter and poller. Persist search IDs and safe state, never key-bearing archive URLs. Authenticate and authorize any downstream notification endpoint using its own documented mechanism.
 
 ## Instructions
 
-### Step 1: Async Search with Polling
+1. Confirm async is supported for the engine/account and that polling improves the use case over a bounded synchronous call.
+2. Define states `SUBMITTED`, `QUEUED`, `PROCESSING`, `SUCCEEDED`, `FAILED`, `EXPIRED`, and `TIMED_OUT` with terminal behavior.
+3. Submit with a parameter mapping containing `"async": true`; persist the search ID, normalized request hash, owner, deadline, and attempt budget.
+4. Poll through the official client's archive method or documented archive endpoint with increasing delay, jitter, and a hard deadline.
+5. On success, validate and normalize once; make downstream processing idempotent by search ID and payload version.
+6. For scheduled monitoring, store snapshots and compare normalized business fields rather than unstable raw payload order.
+7. Reconcile checkpoints, capacity consumption, missing terminal states, duplicates, late results, and notification failures.
+8. Test every state transition with fixtures before enabling an approved live schedule.
 
-```python
-import serpapi, os, time
+## Approval Boundaries
 
-client = serpapi.Client(api_key=os.environ["SERPAPI_API_KEY"])
+Do not create a production schedule, send live searches, expose a notification endpoint, or mutate downstream records without named owners.
 
-# Submit async search (returns immediately)
-result = client.search(engine="google", q="your keyword", async_search=True)
-search_id = result["search_metadata"]["id"]
-print(f"Submitted: {search_id}")
+## Output
 
-# Poll for completion
-while True:
-    archived = client.search(engine="google", search_id=search_id)
-    status = archived["search_metadata"]["status"]
-    if status == "Success":
-        break
-    elif status == "Error":
-        raise Exception(f"Search failed: {archived.get('error')}")
-    time.sleep(2)
-
-print(f"Results: {len(archived.get('organic_results', []))}")
-```
-
-### Step 2: SERP Monitoring Pipeline
-
-```python
-import json, hashlib
-from datetime import datetime
-
-class SerpMonitor:
-    def __init__(self, client, db):
-        self.client = client
-        self.db = db
-
-    def track_keyword(self, keyword: str, domain: str):
-        """Track a domain's ranking position for a keyword."""
-        result = self.client.search(engine="google", q=keyword, num=100)
-        organic = result.get("organic_results", [])
-
-        position = None
-        for r in organic:
-            if domain in r.get("link", ""):
-                position = r["position"]
-                break
-
-        self.db.insert({
-            "keyword": keyword,
-            "domain": domain,
-            "position": position,  # None if not in top 100
-            "total_results": result.get("search_information", {}).get("total_results"),
-            "checked_at": datetime.utcnow().isoformat(),
-            "search_id": result["search_metadata"]["id"],
-        })
-
-        return position
-
-    def detect_changes(self, keyword: str, domain: str):
-        """Compare current vs previous ranking."""
-        current = self.track_keyword(keyword, domain)
-        previous = self.db.get_previous_position(keyword, domain)
-
-        if previous and current:
-            change = previous - current  # Positive = improved
-            if abs(change) >= 3:
-                self.notify(f"Ranking change for '{keyword}': {previous} -> {current} ({'+' if change > 0 else ''}{change})")
-```
-
-### Step 3: Scheduled Monitoring (Cron)
-
-```typescript
-// Run daily keyword tracking
-import cron from 'node-cron';
-import { getJson } from 'serpapi';
-
-const keywords = ['react framework', 'next.js tutorial', 'typescript guide'];
-const targetDomain = 'yoursite.com';
-
-cron.schedule('0 8 * * *', async () => { // Daily at 8 AM
-  for (const keyword of keywords) {
-    const result = await getJson({
-      engine: 'google', q: keyword, num: 100,
-      api_key: process.env.SERPAPI_API_KEY,
-    });
-
-    const position = result.organic_results?.findIndex(
-      (r: any) => r.link?.includes(targetDomain)
-    );
-
-    console.log(`${keyword}: Position ${position >= 0 ? position + 1 : 'Not found'}`);
-    // Save to database, send alerts on changes
-  }
-});
-```
+Return the selected sync/async mode, state machine, polling and search budgets, checkpoint schema, idempotency key, fixture results, schedule/canary receipt, and reconciliation outcome.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Async search never completes | Server issue | Timeout after 60s, retry |
-| Position tracking uses many credits | 100 results per search | Run daily not hourly |
-| Ranking fluctuates | Normal SERP volatility | Track 7-day moving average |
+| Condition | Response |
+|---|---|
+| Search remains queued/processing | Stop at the deadline and retain resumable state. |
+| Archive returns 410 | Mark expired and require approval before submitting a replacement search. |
+| Async is paired with `no_cache` | Reject the request locally. |
+| Callback contract is requested | Use polling or obtain a current written vendor-specific contract; do not invent a webhook. |
+
+## Example
+
+```python
+submitted = client.search({"engine": "google", "q": "coffee", "async": True})
+search_id = submitted["search_metadata"]["id"]
+
+while before_deadline():
+    archived = client.search_archive(search_id=search_id)
+    status = archived["search_metadata"]["status"]
+    if status in {"Success", "Error"}:
+        break
+    wait_with_jitter()
+```
 
 ## Resources
 
-- [Async Search](https://serpapi.com/search-api#api-parameters-serpapi-parameters-async)
-- [Searches Archive](https://serpapi.com/search-archive-api)
+- [Google Search async parameter](https://serpapi.com/search-api#serpapi-parameters)
+- [Searches Archive API](https://serpapi.com/searches-archive-api)
+- [Official Python client](https://github.com/serpapi/serpapi-python)
+- [Official JavaScript client](https://github.com/serpapi/serpapi-javascript)
 
 ## Next Steps
 
-For performance optimization, see `serpapi-performance-tuning`.
+Canary one bounded async job and verify terminal-state, capacity, and checkpoint reconciliation before scheduling recurrence.

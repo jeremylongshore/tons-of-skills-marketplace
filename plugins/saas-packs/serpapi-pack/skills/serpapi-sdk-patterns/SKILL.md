@@ -1,148 +1,87 @@
 ---
 name: serpapi-sdk-patterns
-description: 'Production-ready SerpApi client patterns with caching, typing, and multi-engine
-  support.
-
-  Use when building search services, implementing result caching,
-
-  or wrapping SerpApi with typed responses.
-
-  Trigger: "serpapi patterns", "serpapi best practices", "serpapi client wrapper".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.4.0
-license: MIT
+description: 'Wrap the official SerpAPI Python or JavaScript client behind typed, testable boundaries with safe errors, pagination, and output selection. Use when production code needs a stable search adapter. Trigger with "design a SerpAPI client wrapper".'
+argument-hint: "[python|typescript] [engine]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- search
-- seo
-- serpapi
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, serpapi, sdk, architecture, typescript]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live client verification requires a separately approved key and allowance
 ---
-# SerpApi SDK Patterns
+# SerpAPI Production Client Patterns
 
 ## Overview
 
-Production patterns for SerpApi: typed result interfaces, response caching (critical since each search costs credits), multi-engine abstraction, and async search with the Searches Archive API.
+Create a narrow application-owned gateway instead of spreading vendor parameters, credentials, and variable result schemas through business code.
+
+## Prerequisites
+
+- A selected official client and pinned dependency version
+- Supported engines, required output fields, latency objective, and failure policy
+- Sanitized fixtures for each supported response shape
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to map current call sites and types, `WebFetch` to verify official client interfaces, and `Write` or `Edit` for the gateway, schemas, fixtures, and tests.
+
+## Current Contract
+
+The Python client returns a `SerpResults` mapping and provides `next_page()` and `yield_pages()`. The JavaScript client exposes promise and callback forms including `getJson`, `getJsonBySearchId`, and `getAccount`, but does not provide built-in pagination. Search output can be JSON, HTML, or Markdown; `json_restrictor` can reduce JSON payload fields.
+
+## Authentication
+
+Inject `SERPAPI_KEY` at the outer server-side composition root. Do not include it in domain types, cache keys, error objects, telemetry, or serialized request parameters.
 
 ## Instructions
 
-### Step 1: Typed Result Interfaces
+1. Define a request type that admits only supported engines and application-controlled locale, safety, pagination, and output options.
+2. Define a normalized response type with explicit optional sections and vendor metadata isolated from domain data.
+3. Inject the official client behind a small interface so fixtures can replace it without network interception.
+4. Centralize timeouts, bounded retry for transient failures, 429 classification, redaction, and search-ID logging.
+5. For Python, use `yield_pages()` only with a page/search budget; for JavaScript, implement engine-specific manual pagination from documented tokens or offsets.
+6. Select JSON for structured parsing, Markdown for token-efficient agent consumption, HTML only for approved debugging, and `json_restrictor` when supported fields are known.
+7. Add contract tests for empty-success, optional sections, processing/error states, pagination termination, timeout, and redaction.
 
-```typescript
-interface SerpApiOrganicResult {
-  position: number;
-  title: string;
-  link: string;
-  snippet: string;
-  displayed_link: string;
-  source?: string;
-}
+## Output
 
-interface SerpApiSearchResult {
-  search_metadata: { id: string; status: string; created_at: string };
-  search_parameters: Record<string, string>;
-  organic_results: SerpApiOrganicResult[];
-  answer_box?: { answer?: string; snippet?: string; title?: string };
-  knowledge_graph?: { title: string; description?: string; type?: string };
-  related_questions?: Array<{ question: string; snippet: string }>;
-  pagination?: { next: string };
-}
-```
-
-### Step 2: Cached Search Client
-
-```typescript
-import { getJson } from 'serpapi';
-import { LRUCache } from 'lru-cache';
-
-const cache = new LRUCache<string, SerpApiSearchResult>({
-  max: 500,
-  ttl: 3600_000, // 1 hour -- search results are relatively stable
-});
-
-async function cachedSearch(params: Record<string, any>): Promise<SerpApiSearchResult> {
-  const key = JSON.stringify(params);
-  const cached = cache.get(key);
-  if (cached) return cached;
-
-  const result = await getJson({
-    ...params,
-    api_key: process.env.SERPAPI_API_KEY,
-  }) as SerpApiSearchResult;
-
-  cache.set(key, result);
-  return result;
-}
-```
-
-### Step 3: Multi-Engine Search Abstraction
-
-```python
-import serpapi, os
-
-class SearchService:
-    ENGINES = {
-        "web": {"engine": "google", "query_param": "q"},
-        "news": {"engine": "google_news", "query_param": "q"},
-        "images": {"engine": "google_images", "query_param": "q"},
-        "youtube": {"engine": "youtube", "query_param": "search_query"},
-        "bing": {"engine": "bing", "query_param": "q"},
-        "shopping": {"engine": "google_shopping", "query_param": "q"},
-    }
-
-    def __init__(self):
-        self.client = serpapi.Client(api_key=os.environ["SERPAPI_API_KEY"])
-
-    def search(self, query: str, engine: str = "web", **kwargs) -> dict:
-        config = self.ENGINES[engine]
-        params = {
-            "engine": config["engine"],
-            config["query_param"]: query,
-            **kwargs,
-        }
-        return self.client.search(**params)
-
-# Usage
-svc = SearchService()
-web = svc.search("Claude AI")
-news = svc.search("Claude AI", engine="news")
-videos = svc.search("Claude AI tutorial", engine="youtube")
-```
-
-### Step 4: Async Search (Background Processing)
-
-```python
-# Submit search asynchronously -- retrieve later
-result = client.search(engine="google", q="expensive query", async_search=True)
-search_id = result["search_metadata"]["id"]
-
-# Later: retrieve from archive (no extra credit charge)
-import time
-while True:
-    archived = client.search(engine="google", search_id=search_id)
-    if archived["search_metadata"]["status"] == "Success":
-        break
-    time.sleep(2)
-```
+Return request and response types, gateway code, client-version pin, pagination and retry budgets, output-selection rationale, fixture tests, and redaction evidence.
 
 ## Error Handling
 
-| Pattern | Use Case | Benefit |
-|---------|----------|---------|
-| LRU cache | Repeated queries | Saves API credits |
-| Engine abstraction | Multi-engine | Clean API for consumers |
-| Async search | Heavy queries | Non-blocking, same credit cost |
-| Type interfaces | All usage | Catch response changes early |
+| Condition | Response |
+|---|---|
+| Unknown engine or parameter | Reject locally before making a request. |
+| Python `HTTPError` or `TimeoutError` | Map to a typed application error and preserve safe status/search metadata. |
+| JavaScript rejection | Normalize the status and message without serializing request credentials. |
+| Pagination budget reached | Return an explicit partial result and continuation state. |
+
+## Example
+
+```typescript
+import { getJson } from "serpapi";
+
+export async function searchGoogle(query: string) {
+  const result = await getJson({
+    engine: "google",
+    q: query,
+    api_key: process.env.SERPAPI_KEY,
+    json_restrictor: "organic_results[].{position,title,link}",
+  });
+  return (result.organic_results ?? []).map(({ position, title, link }) => ({
+    position, title, link,
+  }));
+}
+```
 
 ## Resources
 
-- [SerpApi Python Client](https://github.com/serpapi/serpapi-python)
-- [Searches Archive API](https://serpapi.com/search-archive-api)
-- [All Engines](https://serpapi.com/)
+- [Official Python client](https://github.com/serpapi/serpapi-python)
+- [Official JavaScript client](https://github.com/serpapi/serpapi-javascript)
+- [JSON Restrictor](https://serpapi.com/json-restrictor)
 
 ## Next Steps
 
-Apply patterns in `serpapi-core-workflow-a` for real-world usage.
+Exercise the gateway against sanitized fixtures, then canary one approved live request per supported engine.

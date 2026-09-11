@@ -1274,6 +1274,7 @@
       "product-launch",
       "product-management",
       "production",
+      "production-integration",
       "production-readiness",
       "production-ready",
       "production-upgrade",
@@ -1399,6 +1400,7 @@
       "screenshot-testing",
       "sdk",
       "search",
+      "search-api",
       "second-brain",
       "secrets",
       "security",
@@ -13264,13 +13266,14 @@
       "slug": "serpapi-pack",
       "name": "serpapi-pack",
       "displayName": "serpapi pack",
-      "description": "Claude Code skill pack for SerpApi (18 skills)",
+      "description": "Governed SerpAPI workflows for search clients, engines, testing, capacity, privacy, deployment, and operations (18 skills)",
       "category": "saas-packs",
       "keywords": [
         "serpapi",
         "saas",
-        "sdk",
-        "integration"
+        "search-api",
+        "production-integration",
+        "governance"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -13278,15 +13281,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.4.0",
+      "version": "1.6.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 18,
-      "verificationScore": 80,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "serpapi pack claude code skill pack for serpapi (18 skills) saas-packs serpapi saas sdk integration"
+      "verificationScore": 94,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "serpapi pack governed serpapi workflows for search clients, engines, testing, capacity, privacy, deployment, and operations (18 skills) saas-packs serpapi saas search-api production-integration governance"
     },
     {
       "type": "plugin",
@@ -69888,379 +69891,427 @@
       "id": "serpapi-ci-integration",
       "slug": "serpapi-ci-integration",
       "name": "serpapi-ci-integration",
-      "description": "Set up CI/CD for SerpApi integrations with fixture-based testing. Use when automating SerpApi tests without consuming credits, or validating search result parsing in CI. Trigger: \"serpapi CI\", \"serpapi GitHub Actions\", \"serpapi automated tests\".",
+      "description": "Gate SerpAPI code with sanitized fixtures and isolate optional live searches behind trusted CI environments and allowance controls. Use when adding integration tests to automation. Trigger with \"add SerpAPI CI\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit",
         "Bash(gh:*)"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-ci-integration set up ci/cd for serpapi integrations with fixture-based testing. use when automating serpapi tests without consuming credits, or validating search result parsing in ci. trigger: \"serpapi ci\", \"serpapi github actions\", \"serpapi automated tests\". saas-packs read write edit bash(gh:*) "
+      "searchText": "serpapi-ci-integration gate serpapi code with sanitized fixtures and isolate optional live searches behind trusted ci environments and allowance controls. use when adding integration tests to automation. trigger with \"add serpapi ci\". saas-packs read glob grep webfetch write edit bash(gh:*) "
     },
     {
       "type": "skill",
       "id": "serpapi-common-errors",
       "slug": "serpapi-common-errors",
       "name": "serpapi-common-errors",
-      "description": "Diagnose and fix SerpApi errors: invalid keys, exhausted credits, blocked searches. Use when SerpApi returns errors, empty results, or unexpected status codes. Trigger: \"serpapi error\", \"fix serpapi\", \"serpapi not working\", \"serpapi empty results\".",
+      "description": "Classify SerpAPI HTTP failures, search-status failures, and valid empty results before choosing a retry or repair. Use when searches fail, stall, or return unexpected shapes. Trigger with \"diagnose a SerpAPI error\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "WebFetch",
+        "Write",
+        "Edit",
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-common-errors diagnose and fix serpapi errors: invalid keys, exhausted credits, blocked searches. use when serpapi returns errors, empty results, or unexpected status codes. trigger: \"serpapi error\", \"fix serpapi\", \"serpapi not working\", \"serpapi empty results\". saas-packs read grep bash(curl:*) "
+      "searchText": "serpapi-common-errors classify serpapi http failures, search-status failures, and valid empty results before choosing a retry or repair. use when searches fail, stall, or return unexpected shapes. trigger with \"diagnose a serpapi error\". saas-packs read glob grep webfetch write edit bash(python3:*) "
     },
     {
       "type": "skill",
       "id": "serpapi-core-workflow-a",
       "slug": "serpapi-core-workflow-a",
       "name": "serpapi-core-workflow-a",
-      "description": "Google Search scraping with SerpApi -- organic results, knowledge graph, answer boxes. Use when building search-powered features, SEO monitoring, or extracting structured data from Google results. Trigger: \"serpapi google search\", \"scrape google\", \"serpapi organic results\".",
+      "description": "Build a reproducible Google Search workflow that validates parameters, optional result sections, and bounded pagination. Use when implementing search, SEO monitoring, or evidence collection. Trigger with \"build a SerpAPI Google workflow\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-core-workflow-a google search scraping with serpapi -- organic results, knowledge graph, answer boxes. use when building search-powered features, seo monitoring, or extracting structured data from google results. trigger: \"serpapi google search\", \"scrape google\", \"serpapi organic results\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "serpapi-core-workflow-a build a reproducible google search workflow that validates parameters, optional result sections, and bounded pagination. use when implementing search, seo monitoring, or evidence collection. trigger with \"build a serpapi google workflow\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "serpapi-core-workflow-b",
       "slug": "serpapi-core-workflow-b",
       "name": "serpapi-core-workflow-b",
-      "description": "Search Bing, YouTube, Google Shopping, Google News, and Google Maps with SerpApi. Use when scraping non-Google engines, building multi-engine search, or extracting video/news/shopping/maps data. Trigger: \"serpapi youtube\", \"serpapi bing\", \"serpapi news\", \"serpapi shopping\".",
+      "description": "Design a multi-engine SerpAPI workflow with explicit parameter maps, result adapters, budgets, and provenance. Use when combining Google, Bing, YouTube, News, Shopping, or Maps. Trigger with \"build a SerpAPI multi-engine search\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-core-workflow-b search bing, youtube, google shopping, google news, and google maps with serpapi. use when scraping non-google engines, building multi-engine search, or extracting video/news/shopping/maps data. trigger: \"serpapi youtube\", \"serpapi bing\", \"serpapi news\", \"serpapi shopping\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "serpapi-core-workflow-b design a multi-engine serpapi workflow with explicit parameter maps, result adapters, budgets, and provenance. use when combining google, bing, youtube, news, shopping, or maps. trigger with \"build a serpapi multi-engine search\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "serpapi-cost-tuning",
       "slug": "serpapi-cost-tuning",
       "name": "serpapi-cost-tuning",
-      "description": "Optimize SerpApi costs by reducing credit consumption and choosing the right plan. Use when analyzing search usage, reducing monthly costs, or implementing credit-saving strategies. Trigger: \"serpapi cost\", \"serpapi pricing\", \"reduce serpapi costs\", \"serpapi credits\".",
+      "description": "Reduce SerpAPI search consumption through measured demand, exact-query caching, admission budgets, and current account pricing evidence. Use when forecasting or controlling search spend. Trigger with \"optimize SerpAPI cost\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-cost-tuning optimize serpapi costs by reducing credit consumption and choosing the right plan. use when analyzing search usage, reducing monthly costs, or implementing credit-saving strategies. trigger: \"serpapi cost\", \"serpapi pricing\", \"reduce serpapi costs\", \"serpapi credits\". saas-packs read grep "
+      "searchText": "serpapi-cost-tuning reduce serpapi search consumption through measured demand, exact-query caching, admission budgets, and current account pricing evidence. use when forecasting or controlling search spend. trigger with \"optimize serpapi cost\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "serpapi-debug-bundle",
       "slug": "serpapi-debug-bundle",
       "name": "serpapi-debug-bundle",
-      "description": "Collect SerpApi debug diagnostics: account status, recent searches, and error logs. Use when troubleshooting SerpApi issues, checking credit usage, or preparing support tickets. Trigger: \"serpapi debug\", \"serpapi diagnostic\", \"serpapi support\".",
+      "description": "Assemble a privacy-safe SerpAPI support bundle with account capacity, search metadata, client context, and reproduction evidence. Use when local diagnosis is insufficient. Trigger with \"build a SerpAPI debug bundle\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Bash(tar:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit",
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-debug-bundle collect serpapi debug diagnostics: account status, recent searches, and error logs. use when troubleshooting serpapi issues, checking credit usage, or preparing support tickets. trigger: \"serpapi debug\", \"serpapi diagnostic\", \"serpapi support\". saas-packs read bash(curl:*) bash(tar:*) grep "
+      "searchText": "serpapi-debug-bundle assemble a privacy-safe serpapi support bundle with account capacity, search metadata, client context, and reproduction evidence. use when local diagnosis is insufficient. trigger with \"build a serpapi debug bundle\". saas-packs read glob grep webfetch write edit bash(python3:*) "
     },
     {
       "type": "skill",
       "id": "serpapi-deploy-integration",
       "slug": "serpapi-deploy-integration",
       "name": "serpapi-deploy-integration",
-      "description": "Deploy SerpApi-powered search features to production platforms. Use when deploying search APIs, configuring backend proxies, or setting up SerpApi in serverless environments. Trigger: \"deploy serpapi\", \"serpapi Vercel\", \"serpapi production deploy\".",
+      "description": "Deploy a server-side SerpAPI gateway with secret isolation, input policy, capacity controls, canary evidence, and rollback. Use when promoting a search integration. Trigger with \"deploy a SerpAPI gateway\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(fly:*)",
-        "Bash(gcloud:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-deploy-integration deploy serpapi-powered search features to production platforms. use when deploying search apis, configuring backend proxies, or setting up serpapi in serverless environments. trigger: \"deploy serpapi\", \"serpapi vercel\", \"serpapi production deploy\". saas-packs read write edit bash(vercel:*) bash(fly:*) bash(gcloud:*) "
+      "searchText": "serpapi-deploy-integration deploy a server-side serpapi gateway with secret isolation, input policy, capacity controls, canary evidence, and rollback. use when promoting a search integration. trigger with \"deploy a serpapi gateway\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "serpapi-hello-world",
       "slug": "serpapi-hello-world",
       "name": "serpapi-hello-world",
-      "description": "Run your first SerpApi search -- Google, Bing, or YouTube results as JSON. Use when starting with SerpApi, testing search queries, or learning the structured result format. Trigger: \"serpapi hello world\", \"serpapi example\", \"serpapi first search\".",
+      "description": "Run a controlled first Google search through an official SerpAPI client and validate metadata before consuming result sections. Use when proving a new integration end to end. Trigger with \"run a SerpAPI smoke test\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit",
-        "Bash(npm:*)",
-        "Bash(python3:*)"
+        "Bash(python3:*)",
+        "Bash(npm:*)"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-hello-world run your first serpapi search -- google, bing, or youtube results as json. use when starting with serpapi, testing search queries, or learning the structured result format. trigger: \"serpapi hello world\", \"serpapi example\", \"serpapi first search\". saas-packs read write edit bash(npm:*) bash(python3:*) "
+      "searchText": "serpapi-hello-world run a controlled first google search through an official serpapi client and validate metadata before consuming result sections. use when proving a new integration end to end. trigger with \"run a serpapi smoke test\". saas-packs read glob grep webfetch write edit bash(python3:*) bash(npm:*) "
     },
     {
       "type": "skill",
       "id": "serpapi-install-auth",
       "slug": "serpapi-install-auth",
       "name": "serpapi-install-auth",
-      "description": "Install SerpApi client and configure API key authentication. Use when setting up SerpApi for search result scraping, configuring API keys, or initializing the serpapi Python/Node package. Trigger: \"install serpapi\", \"setup serpapi\", \"serpapi auth\", \"serpapi API key\".",
+      "description": "Install an official SerpAPI client, configure the private API key for server-side use, and verify account access without leaking credentials. Use when starting or repairing a SerpAPI integration. Trigger with \"configure SerpAPI access\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit",
+        "Bash(python3:*)",
         "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-install-auth install serpapi client and configure api key authentication. use when setting up serpapi for search result scraping, configuring api keys, or initializing the serpapi python/node package. trigger: \"install serpapi\", \"setup serpapi\", \"serpapi auth\", \"serpapi api key\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "serpapi-install-auth install an official serpapi client, configure the private api key for server-side use, and verify account access without leaking credentials. use when starting or repairing a serpapi integration. trigger with \"configure serpapi access\". saas-packs read glob grep webfetch write edit bash(python3:*) bash(npm:*) bash(curl:*) "
     },
     {
       "type": "skill",
       "id": "serpapi-local-dev-loop",
       "slug": "serpapi-local-dev-loop",
       "name": "serpapi-local-dev-loop",
-      "description": "Configure SerpApi local development with cached responses and test fixtures. Use when building search integrations, avoiding API calls during development, or setting up reproducible test data from SerpApi. Trigger: \"serpapi dev setup\", \"serpapi local\", \"test serpapi locally\".",
+      "description": "Build and test SerpAPI integrations locally with sanitized fixtures, injected clients, and an explicit live-recording boundary. Use when developing parsers without repeatedly spending allowance. Trigger with \"set up SerpAPI local development\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Bash(python3:*)",
+        "Bash(npm:*)"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-local-dev-loop configure serpapi local development with cached responses and test fixtures. use when building search integrations, avoiding api calls during development, or setting up reproducible test data from serpapi. trigger: \"serpapi dev setup\", \"serpapi local\", \"test serpapi locally\". saas-packs read write edit bash(npm:*) bash(npx:*) grep "
+      "searchText": "serpapi-local-dev-loop build and test serpapi integrations locally with sanitized fixtures, injected clients, and an explicit live-recording boundary. use when developing parsers without repeatedly spending allowance. trigger with \"set up serpapi local development\". saas-packs read glob grep webfetch write edit bash(python3:*) bash(npm:*) "
     },
     {
       "type": "skill",
       "id": "serpapi-performance-tuning",
       "slug": "serpapi-performance-tuning",
       "name": "serpapi-performance-tuning",
-      "description": "Optimize SerpApi performance with caching, async searches, and result filtering. Use when reducing latency, minimizing credit consumption, or optimizing search throughput. Trigger: \"serpapi performance\", \"optimize serpapi\", \"serpapi caching\", \"serpapi slow\".",
+      "description": "Measure and improve SerpAPI latency, payload size, connection reuse, caching, and concurrency without breaking freshness or allowance controls. Use when search performance misses an SLO. Trigger with \"tune SerpAPI performance\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-performance-tuning optimize serpapi performance with caching, async searches, and result filtering. use when reducing latency, minimizing credit consumption, or optimizing search throughput. trigger: \"serpapi performance\", \"optimize serpapi\", \"serpapi caching\", \"serpapi slow\". saas-packs read write edit "
+      "searchText": "serpapi-performance-tuning measure and improve serpapi latency, payload size, connection reuse, caching, and concurrency without breaking freshness or allowance controls. use when search performance misses an slo. trigger with \"tune serpapi performance\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "serpapi-prod-checklist",
       "slug": "serpapi-prod-checklist",
       "name": "serpapi-prod-checklist",
-      "description": "Production readiness checklist for SerpApi integrations. Use when deploying search features, validating credit budgets, or preparing SerpApi-powered apps for launch. Trigger: \"serpapi production\", \"deploy serpapi\", \"serpapi go-live\".",
+      "description": "Issue an evidence-backed production-readiness decision for a SerpAPI integration across contract, security, reliability, cost, privacy, and operations. Use when preparing a launch or material change. Trigger with \"review SerpAPI production readiness\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-prod-checklist production readiness checklist for serpapi integrations. use when deploying search features, validating credit budgets, or preparing serpapi-powered apps for launch. trigger: \"serpapi production\", \"deploy serpapi\", \"serpapi go-live\". saas-packs read bash(curl:*) grep "
+      "searchText": "serpapi-prod-checklist issue an evidence-backed production-readiness decision for a serpapi integration across contract, security, reliability, cost, privacy, and operations. use when preparing a launch or material change. trigger with \"review serpapi production readiness\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "serpapi-rate-limits",
       "slug": "serpapi-rate-limits",
       "name": "serpapi-rate-limits",
-      "description": "Handle SerpApi rate limits and credit-based usage quotas. Use when managing API credit consumption, implementing request throttling, or optimizing search volume for your plan tier. Trigger: \"serpapi rate limit\", \"serpapi credits\", \"serpapi quota\", \"serpapi throttle\".",
+      "description": "Discover SerpAPI account throughput and allowance dynamically, then enforce admission, concurrency, and retry budgets. Use when preventing 429s or coordinating search workers. Trigger with \"configure SerpAPI rate limits\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit"
+        "Edit",
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-rate-limits handle serpapi rate limits and credit-based usage quotas. use when managing api credit consumption, implementing request throttling, or optimizing search volume for your plan tier. trigger: \"serpapi rate limit\", \"serpapi credits\", \"serpapi quota\", \"serpapi throttle\". saas-packs read write edit "
+      "searchText": "serpapi-rate-limits discover serpapi account throughput and allowance dynamically, then enforce admission, concurrency, and retry budgets. use when preventing 429s or coordinating search workers. trigger with \"configure serpapi rate limits\". saas-packs read glob grep webfetch write edit bash(python3:*) "
     },
     {
       "type": "skill",
       "id": "serpapi-reference-architecture",
       "slug": "serpapi-reference-architecture",
       "name": "serpapi-reference-architecture",
-      "description": "Production architecture for SerpApi search services with caching, monitoring, and multi-engine support. Use when designing search features, building SERP tracking systems, or architecting search-powered applications. Trigger: \"serpapi architecture\", \"serpapi project structure\", \"serpapi design\".",
+      "description": "Design a governed SerpAPI search service with engine adapters, policy enforcement, caching, capacity management, observability, and privacy boundaries. Use when conducting architecture review. Trigger with \"design a SerpAPI architecture\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-reference-architecture production architecture for serpapi search services with caching, monitoring, and multi-engine support. use when designing search features, building serp tracking systems, or architecting search-powered applications. trigger: \"serpapi architecture\", \"serpapi project structure\", \"serpapi design\". saas-packs read grep "
+      "searchText": "serpapi-reference-architecture design a governed serpapi search service with engine adapters, policy enforcement, caching, capacity management, observability, and privacy boundaries. use when conducting architecture review. trigger with \"design a serpapi architecture\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "serpapi-sdk-patterns",
       "slug": "serpapi-sdk-patterns",
       "name": "serpapi-sdk-patterns",
-      "description": "Production-ready SerpApi client patterns with caching, typing, and multi-engine support. Use when building search services, implementing result caching, or wrapping SerpApi with typed responses. Trigger: \"serpapi patterns\", \"serpapi best practices\", \"serpapi client wrapper\".",
+      "description": "Wrap the official SerpAPI Python or JavaScript client behind typed, testable boundaries with safe errors, pagination, and output selection. Use when production code needs a stable search adapter. Trigger with \"design a SerpAPI client wrapper\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-sdk-patterns production-ready serpapi client patterns with caching, typing, and multi-engine support. use when building search services, implementing result caching, or wrapping serpapi with typed responses. trigger: \"serpapi patterns\", \"serpapi best practices\", \"serpapi client wrapper\". saas-packs read write edit "
+      "searchText": "serpapi-sdk-patterns wrap the official serpapi python or javascript client behind typed, testable boundaries with safe errors, pagination, and output selection. use when production code needs a stable search adapter. trigger with \"design a serpapi client wrapper\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "serpapi-security-basics",
       "slug": "serpapi-security-basics",
       "name": "serpapi-security-basics",
-      "description": "Secure SerpApi API keys and prevent credit abuse. Use when storing API keys, implementing backend proxies, or auditing SerpApi access patterns. Trigger: \"serpapi security\", \"serpapi API key security\", \"secure serpapi\".",
+      "description": "Threat-model SerpAPI credentials, query data, result retention, browser exposure, logs, and ZeroTrace tradeoffs. Use when reviewing or hardening a search integration. Trigger with \"secure a SerpAPI integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-security-basics secure serpapi api keys and prevent credit abuse. use when storing api keys, implementing backend proxies, or auditing serpapi access patterns. trigger: \"serpapi security\", \"serpapi api key security\", \"secure serpapi\". saas-packs read write grep "
+      "searchText": "serpapi-security-basics threat-model serpapi credentials, query data, result retention, browser exposure, logs, and zerotrace tradeoffs. use when reviewing or hardening a search integration. trigger with \"secure a serpapi integration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "serpapi-upgrade-migration",
       "slug": "serpapi-upgrade-migration",
       "name": "serpapi-upgrade-migration",
-      "description": "Migrate between SerpApi client versions and handle package changes. Use when upgrading from google-search-results to serpapi package, or handling API response schema changes. Trigger: \"upgrade serpapi\", \"serpapi migration\", \"serpapi new package\".",
+      "description": "Migrate legacy SerpAPI Python or JavaScript packages and response assumptions to current official clients with contract tests and rollback. Use when performing dependency or API upgrades. Trigger with \"migrate a SerpAPI client\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(git:*)"
+        "Bash(python3:*)",
+        "Bash(npm:*)"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-upgrade-migration migrate between serpapi client versions and handle package changes. use when upgrading from google-search-results to serpapi package, or handling api response schema changes. trigger: \"upgrade serpapi\", \"serpapi migration\", \"serpapi new package\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(git:*) "
+      "searchText": "serpapi-upgrade-migration migrate legacy serpapi python or javascript packages and response assumptions to current official clients with contract tests and rollback. use when performing dependency or api upgrades. trigger with \"migrate a serpapi client\". saas-packs read glob grep webfetch write edit bash(python3:*) bash(npm:*) "
     },
     {
       "type": "skill",
       "id": "serpapi-webhooks-events",
       "slug": "serpapi-webhooks-events",
       "name": "serpapi-webhooks-events",
-      "description": "Implement SerpApi async search callbacks and scheduled search monitoring. Use when setting up search monitoring, SERP tracking pipelines, or async search result retrieval. Trigger: \"serpapi webhooks\", \"serpapi monitoring\", \"serpapi scheduled search\", \"serpapi async\".",
+      "description": "Implement SerpAPI asynchronous searches and scheduled change detection without inventing a webhook callback contract. Use when building long-running searches or SERP monitoring. Trigger with \"build SerpAPI async monitoring\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
       },
-      "searchText": "serpapi-webhooks-events implement serpapi async search callbacks and scheduled search monitoring. use when setting up search monitoring, serp tracking pipelines, or async search result retrieval. trigger: \"serpapi webhooks\", \"serpapi monitoring\", \"serpapi scheduled search\", \"serpapi async\". saas-packs read write edit bash(curl:*) "
+      "searchText": "serpapi-webhooks-events implement serpapi asynchronous searches and scheduled change detection without inventing a webhook callback contract. use when building long-running searches or serp monitoring. trigger with \"build serpapi async monitoring\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",

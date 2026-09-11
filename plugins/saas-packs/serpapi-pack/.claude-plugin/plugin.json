@@ -1,7 +1,7 @@
 {
   "name": "serpapi-pack",
-  "version": "1.4.0",
-  "description": "Claude Code skill pack for SerpApi (18 skills)",
+  "version": "1.6.0",
+  "description": "Governed SerpAPI workflows for search clients, engines, testing, capacity, privacy, deployment, and operations (18 skills)",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,9 @@
   "license": "MIT",
   "keywords": [
     "serpapi",
-    "serpapi",
     "saas",
-    "sdk",
-    "integration"
+    "search-api",
+    "production-integration",
+    "governance"
   ]
 }
