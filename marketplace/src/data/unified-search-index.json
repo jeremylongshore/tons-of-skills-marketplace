@@ -695,6 +695,7 @@
       "data",
       "data-api",
       "data-catalog",
+      "data-connectors",
       "data-engineering",
       "data-enrichment",
       "data-extraction",
@@ -816,6 +817,7 @@
       "explanations",
       "explorer",
       "express",
+      "extension-api",
       "facilities",
       "factory",
       "failover",
@@ -1473,6 +1475,7 @@
       "sso",
       "stackblitz",
       "staking",
+      "standard-import",
       "standards",
       "starter-kits",
       "statement of work",
@@ -12740,13 +12743,14 @@
       "slug": "lucidchart-pack",
       "name": "lucidchart-pack",
       "displayName": "lucidchart pack",
-      "description": "Claude Code skill pack for Lucidchart (18 skills)",
+      "description": "Governed Lucid integration workflows for REST, Standard Import, editor extensions, and data connectors (18 skills)",
       "category": "saas-packs",
       "keywords": [
         "lucidchart",
         "saas",
-        "sdk",
-        "integration"
+        "standard-import",
+        "extension-api",
+        "data-connectors"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -12754,15 +12758,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 18,
-      "verificationScore": 80,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "lucidchart pack claude code skill pack for lucidchart (18 skills) saas-packs lucidchart saas sdk integration"
+      "verificationScore": 95,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "lucidchart pack governed lucid integration workflows for rest, standard import, editor extensions, and data connectors (18 skills) saas-packs lucidchart saas standard-import extension-api data-connectors"
     },
     {
       "type": "plugin",
@@ -53212,375 +53216,414 @@
       "id": "lucidchart-ci-integration",
       "slug": "lucidchart-ci-integration",
       "name": "lucidchart-ci-integration",
-      "description": "Ci Integration for Lucidchart. Trigger: \"lucidchart ci integration\".",
+      "description": "Gate Lucid REST, Standard Import, and Extension API changes with deterministic checks. Use when adding CI to a Lucid integration. Trigger with \"add Lucid CI\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-ci-integration ci integration for lucidchart. trigger: \"lucidchart ci integration\". saas-packs read write edit grep "
+      "searchText": "lucidchart-ci-integration gate lucid rest, standard import, and extension api changes with deterministic checks. use when adding ci to a lucid integration. trigger with \"add lucid ci\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "lucidchart-common-errors",
       "slug": "lucidchart-common-errors",
       "name": "lucidchart-common-errors",
-      "description": "Diagnose and fix Lucidchart common errors. Trigger: \"lucidchart error\", \"fix lucidchart\", \"debug lucidchart\".",
+      "description": "Triage Lucid authentication, scope, version, import, export, extension, and connector failures from bounded evidence. Use when a Lucid integration fails. Trigger with \"troubleshoot Lucid\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-common-errors diagnose and fix lucidchart common errors. trigger: \"lucidchart error\", \"fix lucidchart\", \"debug lucidchart\". saas-packs read grep bash(curl:*) "
+      "searchText": "lucidchart-common-errors triage lucid authentication, scope, version, import, export, extension, and connector failures from bounded evidence. use when a lucid integration fails. trigger with \"troubleshoot lucid\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "lucidchart-core-workflow-a",
       "slug": "lucidchart-core-workflow-a",
       "name": "lucidchart-core-workflow-a",
-      "description": "Execute Lucidchart primary workflow: Document & Shape Creation. Trigger: \"lucidchart document & shape creation\", \"primary lucidchart workflow\".",
+      "description": "Create and verify a Lucidchart document through the documented Standard Import REST workflow. Use when generating a diagram from governed data. Trigger with \"create Lucid document\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-core-workflow-a execute lucidchart primary workflow: document & shape creation. trigger: \"lucidchart document & shape creation\", \"primary lucidchart workflow\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "lucidchart-core-workflow-a create and verify a lucidchart document through the documented standard import rest workflow. use when generating a diagram from governed data. trigger with \"create lucid document\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "lucidchart-core-workflow-b",
       "slug": "lucidchart-core-workflow-b",
       "name": "lucidchart-core-workflow-b",
-      "description": "Execute Lucidchart secondary workflow: Data-Linked Diagrams. Trigger: \"lucidchart data-linked diagrams\", \"secondary lucidchart workflow\".",
+      "description": "Build and verify a Lucid editor extension that imports or synchronizes governed data. Use when connecting an approved data source to Lucidchart. Trigger with \"sync data to Lucidchart\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-core-workflow-b execute lucidchart secondary workflow: data-linked diagrams. trigger: \"lucidchart data-linked diagrams\", \"secondary lucidchart workflow\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "lucidchart-core-workflow-b build and verify a lucid editor extension that imports or synchronizes governed data. use when connecting an approved data source to lucidchart. trigger with \"sync data to lucidchart\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "lucidchart-cost-tuning",
       "slug": "lucidchart-cost-tuning",
       "name": "lucidchart-cost-tuning",
-      "description": "Cost Tuning for Lucidchart. Trigger: \"lucidchart cost tuning\".",
+      "description": "Review Lucid licensing, seats, plan capabilities, and integration operating effort without fabricating usage prices. Use when controlling Lucidchart total cost or right-sizing access. Trigger with \"reduce Lucidchart cost\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-cost-tuning cost tuning for lucidchart. trigger: \"lucidchart cost tuning\". saas-packs read write edit grep "
+      "searchText": "lucidchart-cost-tuning review lucid licensing, seats, plan capabilities, and integration operating effort without fabricating usage prices. use when controlling lucidchart total cost or right-sizing access. trigger with \"reduce lucidchart cost\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "lucidchart-debug-bundle",
       "slug": "lucidchart-debug-bundle",
       "name": "lucidchart-debug-bundle",
-      "description": "Debug Bundle for Lucidchart. Trigger: \"lucidchart debug bundle\".",
+      "description": "Assemble a redacted, reproducible Lucid integration diagnostic bundle. Use when an API, Standard Import, extension, export, or data connector failure needs escalation. Trigger with \"build Lucid debug bundle\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-debug-bundle debug bundle for lucidchart. trigger: \"lucidchart debug bundle\". saas-packs read bash(curl:*) grep "
+      "searchText": "lucidchart-debug-bundle assemble a redacted, reproducible lucid integration diagnostic bundle. use when an api, standard import, extension, export, or data connector failure needs escalation. trigger with \"build lucid debug bundle\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "lucidchart-deploy-integration",
       "slug": "lucidchart-deploy-integration",
       "name": "lucidchart-deploy-integration",
-      "description": "Deploy Integration for Lucidchart. Trigger: \"lucidchart deploy integration\".",
+      "description": "Package, validate, stage, publish, and roll back a Lucid extension or data connector. Use when moving a tested Lucid integration beyond local development. Trigger with \"deploy Lucid integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-deploy-integration deploy integration for lucidchart. trigger: \"lucidchart deploy integration\". saas-packs read write edit grep "
+      "searchText": "lucidchart-deploy-integration package, validate, stage, publish, and roll back a lucid extension or data connector. use when moving a tested lucid integration beyond local development. trigger with \"deploy lucid integration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "lucidchart-hello-world",
       "slug": "lucidchart-hello-world",
       "name": "lucidchart-hello-world",
-      "description": "Create a minimal working Lucidchart example. Trigger: \"lucidchart hello world\", \"lucidchart example\", \"test lucidchart\".",
+      "description": "Build a minimal valid Standard Import archive and optionally create one Lucidchart document as an approved smoke test. Use when verifying Lucid API access for the first time. Trigger with \"Lucidchart hello world\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-hello-world create a minimal working lucidchart example. trigger: \"lucidchart hello world\", \"lucidchart example\", \"test lucidchart\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "lucidchart-hello-world build a minimal valid standard import archive and optionally create one lucidchart document as an approved smoke test. use when verifying lucid api access for the first time. trigger with \"lucidchart hello world\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "lucidchart-install-auth",
       "slug": "lucidchart-install-auth",
       "name": "lucidchart-install-auth",
-      "description": "Install and configure Lucidchart SDK/API authentication. Use when setting up a new Lucidchart integration. Trigger: \"install lucidchart\", \"setup lucidchart\", \"lucidchart auth\".",
+      "description": "Choose and configure the correct Lucid authentication model: API key, OAuth user token, or OAuth account token. Use when bootstrapping or repairing Lucid REST access. Trigger with \"configure Lucid auth\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-install-auth install and configure lucidchart sdk/api authentication. use when setting up a new lucidchart integration. trigger: \"install lucidchart\", \"setup lucidchart\", \"lucidchart auth\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "lucidchart-install-auth choose and configure the correct lucid authentication model: api key, oauth user token, or oauth account token. use when bootstrapping or repairing lucid rest access. trigger with \"configure lucid auth\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "lucidchart-local-dev-loop",
       "slug": "lucidchart-local-dev-loop",
       "name": "lucidchart-local-dev-loop",
-      "description": "Local Dev Loop for Lucidchart. Trigger: \"lucidchart local dev loop\".",
+      "description": "Run a fast, secretless local development loop for Lucid editor extensions and data connectors using official tooling. Use when implementing or debugging Lucid integrations. Trigger with \"run Lucid locally\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-local-dev-loop local dev loop for lucidchart. trigger: \"lucidchart local dev loop\". saas-packs read write edit "
+      "searchText": "lucidchart-local-dev-loop run a fast, secretless local development loop for lucid editor extensions and data connectors using official tooling. use when implementing or debugging lucid integrations. trigger with \"run lucid locally\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "lucidchart-performance-tuning",
       "slug": "lucidchart-performance-tuning",
       "name": "lucidchart-performance-tuning",
-      "description": "Optimize Lucidchart API integration performance with caching, batch shape operations, and pagination strategies. Use when diagram exports are slow, shape updates hit rate limits, or document list queries time out. Trigger with \"lucidchart performance tuning\".",
+      "description": "Measure and improve Lucid Standard Import, export, editor extension, or data connector performance without weakening correctness. Use when Lucid workflows are slow or resource-heavy. Trigger with \"optimize Lucid performance\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-performance-tuning optimize lucidchart api integration performance with caching, batch shape operations, and pagination strategies. use when diagram exports are slow, shape updates hit rate limits, or document list queries time out. trigger with \"lucidchart performance tuning\". saas-packs read write edit grep "
+      "searchText": "lucidchart-performance-tuning measure and improve lucid standard import, export, editor extension, or data connector performance without weakening correctness. use when lucid workflows are slow or resource-heavy. trigger with \"optimize lucid performance\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "lucidchart-prod-checklist",
       "slug": "lucidchart-prod-checklist",
       "name": "lucidchart-prod-checklist",
-      "description": "Prod Checklist for Lucidchart. Trigger: \"lucidchart prod checklist\".",
+      "description": "Run a fail-closed production-readiness review for a Lucid REST, Standard Import, extension, or data connector integration. Use when preparing a production launch or material change. Trigger with \"Lucid production checklist\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-prod-checklist prod checklist for lucidchart. trigger: \"lucidchart prod checklist\". saas-packs read write edit "
+      "searchText": "lucidchart-prod-checklist run a fail-closed production-readiness review for a lucid rest, standard import, extension, or data connector integration. use when preparing a production launch or material change. trigger with \"lucid production checklist\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "lucidchart-rate-limits",
       "slug": "lucidchart-rate-limits",
       "name": "lucidchart-rate-limits",
-      "description": "Rate Limits for Lucidchart. Trigger: \"lucidchart rate limits\".",
+      "description": "Design endpoint-specific Lucid request pacing, 429 handling, backpressure, and safe retry behavior. Use when hardening REST or connector traffic. Trigger with \"handle Lucid rate limits\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-rate-limits rate limits for lucidchart. trigger: \"lucidchart rate limits\". saas-packs read write edit "
+      "searchText": "lucidchart-rate-limits design endpoint-specific lucid request pacing, 429 handling, backpressure, and safe retry behavior. use when hardening rest or connector traffic. trigger with \"handle lucid rate limits\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "lucidchart-reference-architecture",
       "slug": "lucidchart-reference-architecture",
       "name": "lucidchart-reference-architecture",
-      "description": "Reference Architecture for Lucidchart. Trigger: \"lucidchart reference architecture\".",
+      "description": "Design a contract-grounded Lucid integration architecture across REST, Standard Import, editor extensions, and optional data connectors. Use when making system and boundary decisions. Trigger with \"design Lucid architecture\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-reference-architecture reference architecture for lucidchart. trigger: \"lucidchart reference architecture\". saas-packs read write edit grep "
+      "searchText": "lucidchart-reference-architecture design a contract-grounded lucid integration architecture across rest, standard import, editor extensions, and optional data connectors. use when making system and boundary decisions. trigger with \"design lucid architecture\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "lucidchart-sdk-patterns",
       "slug": "lucidchart-sdk-patterns",
       "name": "lucidchart-sdk-patterns",
-      "description": "Sdk Patterns for Lucidchart. Trigger: \"lucidchart sdk patterns\".",
+      "description": "Apply supported patterns with Lucid lucid-package and lucid-extension-sdk while treating installed types as authoritative. Use when implementing or reviewing editor extensions. Trigger with \"Lucid SDK pattern\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-sdk-patterns sdk patterns for lucidchart. trigger: \"lucidchart sdk patterns\". saas-packs read write edit "
+      "searchText": "lucidchart-sdk-patterns apply supported patterns with lucid lucid-package and lucid-extension-sdk while treating installed types as authoritative. use when implementing or reviewing editor extensions. trigger with \"lucid sdk pattern\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "lucidchart-security-basics",
       "slug": "lucidchart-security-basics",
       "name": "lucidchart-security-basics",
-      "description": "Security Basics for Lucidchart. Trigger: \"lucidchart security basics\".",
+      "description": "Threat-model and harden Lucid API, Standard Import, editor extension, and data connector integrations. Use when reviewing secrets, scopes, data flows, or release security. Trigger with \"secure Lucid integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-security-basics security basics for lucidchart. trigger: \"lucidchart security basics\". saas-packs read write edit "
+      "searchText": "lucidchart-security-basics threat-model and harden lucid api, standard import, editor extension, and data connector integrations. use when reviewing secrets, scopes, data flows, or release security. trigger with \"secure lucid integration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "lucidchart-upgrade-migration",
       "slug": "lucidchart-upgrade-migration",
       "name": "lucidchart-upgrade-migration",
-      "description": "Upgrade Migration for Lucidchart. Trigger: \"lucidchart upgrade migration\".",
+      "description": "Plan and execute a reversible Lucid SDK, CLI, manifest, API-version, Standard Import, or connector migration. Use when a Lucid integration has dependency or contract drift. Trigger with \"upgrade Lucid integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-upgrade-migration upgrade migration for lucidchart. trigger: \"lucidchart upgrade migration\". saas-packs read write edit "
+      "searchText": "lucidchart-upgrade-migration plan and execute a reversible lucid sdk, cli, manifest, api-version, standard import, or connector migration. use when a lucid integration has dependency or contract drift. trigger with \"upgrade lucid integration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "lucidchart-webhooks-events",
       "slug": "lucidchart-webhooks-events",
       "name": "lucidchart-webhooks-events",
-      "description": "Webhooks Events for Lucidchart. Trigger: \"lucidchart webhooks events\".",
+      "description": "Implement and operate the documented Lucid data-connector webhook lifecycle. Use when a connector needs webhook-assisted source synchronization. Trigger with \"Lucid connector webhook\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "lucidchart-pack",
         "category": "saas-packs"
       },
-      "searchText": "lucidchart-webhooks-events webhooks events for lucidchart. trigger: \"lucidchart webhooks events\". saas-packs read write edit grep "
+      "searchText": "lucidchart-webhooks-events implement and operate the documented lucid data-connector webhook lifecycle. use when a connector needs webhook-assisted source synchronization. trigger with \"lucid connector webhook\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",

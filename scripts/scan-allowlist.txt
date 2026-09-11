@@ -657,3 +657,25 @@ plugins/saas-packs/linktree-pack/skills/linktree-sdk-patterns/SKILL.md:allowed-t
 plugins/saas-packs/linktree-pack/skills/linktree-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
 plugins/saas-packs/linktree-pack/skills/linktree-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
 plugins/saas-packs/linktree-pack/skills/linktree-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+
+# ── Lucid operator pack remediation (2026-09-11). ──
+# Each skill grants WebFetch only for current official Lucid documentation;
+# no shell or general HTTP client is granted.
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation

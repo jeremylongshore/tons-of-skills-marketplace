@@ -1,112 +1,76 @@
 ---
 name: lucidchart-local-dev-loop
-description: 'Local Dev Loop for Lucidchart.
-
-  Trigger: "lucidchart local dev loop".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Run a fast, secretless local development loop for Lucid editor extensions and data connectors using official tooling. Use when implementing or debugging Lucid integrations. Trigger with "run Lucid locally".'
+argument-hint: "[project-path] [test-focus]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- lucidchart
-- diagramming
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, lucidchart, local-development, extension-sdk, testing]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; developer-mode installation and any live source connection require approval from the project and data owners
 ---
-# Lucidchart Local Dev Loop
+# Lucid Local Development Loop
 
 ## Overview
 
-Local development workflow for Lucidchart diagramming API integration. Provides a fast feedback loop with mock document, page, and shape data so you can build diagram automation tools without needing a live Lucid account. Toggle between mock mode for rapid iteration and sandbox mode for validating diagram CRUD operations against the real Lucid API.
+Establish a repeatable edit-build-test loop for an existing Lucid extension or connector, grounded in the installed project and official `lucid-package` tooling.
 
-## Environment Setup
+## Prerequisites
 
-```bash
-cp .env.example .env
-# Set your credentials:
-# LUCID_API_KEY=lucid_xxxxxxxxxxxx
-# LUCID_BASE_URL=https://api.lucid.co/v1
-# MOCK_MODE=true
-npm install express axios dotenv tsx typescript @types/node
-npm install -D vitest supertest @types/express
-```
+- A local project with lockfile, manifest, and documented runtime versions
+- Synthetic fixtures and no production credentials by default
+- A disposable Lucid developer test target when UI verification is needed
 
-## Dev Server
+## Tool Discipline
 
-```typescript
-// src/dev/server.ts
-import express from "express";
-import { createProxyMiddleware } from "http-proxy-middleware";
-const app = express();
-app.use(express.json());
-const MOCK = process.env.MOCK_MODE === "true";
-if (!MOCK) {
-  app.use("/v1", createProxyMiddleware({
-    target: process.env.LUCID_BASE_URL,
-    changeOrigin: true,
-    headers: { "Lucid-Api-Key": process.env.LUCID_API_KEY! },
-  }));
-} else {
-  const { mountMockRoutes } = require("./mocks");
-  mountMockRoutes(app);
-}
-app.listen(3006, () => console.log(`Lucidchart dev server on :3006 [mock=${MOCK}]`));
-```
+Use `Read`, `Glob`, and `Grep` to inspect the project, `WebFetch` for official CLI/SDK guidance, and `Write` or `Edit` only for scoped source, fixture, test, or local documentation changes.
 
-## Mock Mode
+## Current Contract
 
-```typescript
-// src/dev/mocks.ts — realistic diagramming document and shape responses
-export function mountMockRoutes(app: any) {
-  app.get("/v1/documents", (_req: any, res: any) => res.json([
-    { id: "doc_1", title: "System Architecture", pageCount: 3, createdAt: "2025-06-01T10:00:00Z", owner: "jane@co.com" },
-    { id: "doc_2", title: "Data Flow Diagram", pageCount: 1, createdAt: "2025-07-15T14:30:00Z", owner: "alex@co.com" },
-  ]));
-  app.get("/v1/documents/:id/pages", (req: any, res: any) => res.json([
-    { id: "pg_1", title: "Overview", index: 0, shapes: 12 },
-    { id: "pg_2", title: "Detail View", index: 1, shapes: 24 },
-  ]));
-  app.get("/v1/documents/:id/pages/:pageId/shapes", (_req: any, res: any) => res.json([
-    { id: "sh_1", type: "rectangle", text: "API Gateway", x: 100, y: 50, width: 200, height: 80 },
-    { id: "sh_2", type: "diamond", text: "Auth Check", x: 100, y: 200, width: 120, height: 120 },
-  ]));
-  app.post("/v1/documents", (req: any, res: any) => res.status(201).json({ id: "doc_new", ...req.body, createdAt: new Date().toISOString() }));
-}
-```
+Lucid maintains `lucid-package` and `lucid-extension-sdk`. Project scripts and installed CLI `--help` define the exact runnable commands; official guidance warns against guessing SDK types or pnpm argument syntax.
 
-## Testing Workflow
+## Authentication
 
-```bash
-npm run dev:mock &                    # Start mock server in background
-npm run test                          # Unit tests with vitest
-npm run test -- --watch               # Watch mode for rapid iteration
-MOCK_MODE=false npm run test:integration  # Integration test against real Lucid API
-```
+Keep the default loop offline and fixture-driven. Developer-mode access uses a dedicated least-privilege identity; connector/source secrets remain in an approved local secret provider and never enter bundles or snapshots.
 
-## Debug Tips
+## Instructions
 
-- Lucid uses `Lucid-Api-Key` header (not `Authorization: Bearer`) for API authentication
-- Shape coordinates use absolute pixel positioning — verify x/y values when programmatically placing shapes
-- Document IDs are opaque strings — never hardcode them across environments
-- Use the `/v1/documents/:id/export` endpoint to generate PNG/PDF previews for visual regression tests
-- Check OAuth scopes if document list returns empty despite having documents
+1. Read repository instructions, manifest, package manager, lockfile, scripts, SDK versions, and test configuration.
+2. Query installed command help and compare it with current official CLI and SDK documentation.
+3. Select the narrowest loop: type/build, manifest validation, unit fixture, connector contract, or editor smoke test.
+4. Run the existing deterministic command before editing and preserve its receipt.
+5. Make one bounded change, rerun the narrow check, then run all affected local gates.
+6. For developer-mode testing, preview scopes, bundle identity, test document, and expected mutations before installation.
+7. Record command, duration, changed files, fixture digest, expected/actual result, and cleanup.
+
+## Approval Boundaries
+
+Do not add dependencies, install into a Lucid account, contact a live source, or change registered application settings without approval.
+
+## Output
+
+Return environment/version evidence, selected loop, commands, test receipts, changed files, developer-mode actions, cleanup, and remaining drift.
 
 ## Error Handling
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| `401 Unauthorized` | Invalid API key | Regenerate at developer.lucid.co |
-| `403 Forbidden` | Key lacks document scope | Request additional OAuth scopes |
-| `404 Not Found` | Document or page ID invalid | Fetch document list to verify IDs |
-| `413 Payload Too Large` | Too many shapes in single request | Batch shape creation (max 50 per call) |
-| `ECONNREFUSED :3006` | Dev server not running | Run `npm run dev:mock` first |
+| Condition | Response |
+|---|---|
+| Project command and docs disagree | Trust installed help/project scripts, investigate version drift, and document it. |
+| Test requires production data | Replace it with a representative synthetic fixture. |
+| Developer installation mutates unexpected data | Stop, capture evidence, and remove the test artifact if approved. |
+
+## Example
+
+```text
+focus=extension-build; package-manager=pnpm; fixture-sha256=...; narrow=pass; affected-gates=pass; live-data=no
+```
 
 ## Resources
 
-- [Lucid Developer Docs](https://developer.lucid.co/reference/overview)
+- [Official documentation map](references/official-docs.md)
 
 ## Next Steps
 
-See `lucidchart-debug-bundle`.
+Encode the proven commands in CI with the same pinned runtime, lockfile, and synthetic fixtures.
