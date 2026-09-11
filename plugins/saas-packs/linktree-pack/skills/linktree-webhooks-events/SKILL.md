@@ -1,144 +1,91 @@
 ---
 name: linktree-webhooks-events
-description: 'Webhooks Events for Linktree.
-
-  Trigger: "linktree webhooks events".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.7.0
-license: MIT
+description: 'Review an approved Linktree partner event mechanism or choose a documented export and polling alternative without inventing webhooks. Use when synchronizing Linktree changes or analytics. Trigger with "review Linktree events".'
+argument-hint: "[contract-path] [consumer]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linktree
-- social
-compatibility: Designed for Claude Code
+- events
+- partner-contract
+- data-sync
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live work requires an authorized Linktree account and approval from the profile, Workspace, data, or partner-integration owner
 ---
-# Linktree Webhooks & Events
+# Linktree Partner Event Contract Review
 
 ## Overview
 
-Linktree emits real-time webhook events whenever links, profiles, or analytics milestones change. These events enable automations such as syncing new bio links to a CMS, triggering social media posts when a profile is updated, alerting marketing teams when traffic milestones are hit, and auditing link lifecycle changes for compliance dashboards. All payloads are JSON over HTTPS with HMAC-SHA256 signature verification to guarantee authenticity.
+Establish whether an authorized event contract actually exists, then design validation, replay, ordering, reconciliation, and fallback from evidence rather than generic webhook conventions.
 
 ## Prerequisites
 
-- A registered Linktree developer app with webhook permissions enabled
-- Webhook endpoint URL accessible over HTTPS (TLS 1.2+)
-- Signing secret from the Linktree developer dashboard (`LINKTREE_WEBHOOK_SECRET`)
-- Express.js with `raw` body parsing enabled for signature verification
+- An authorized Linktree account or a clearly bounded design-only task
+- The profile, Workspace, destination, campaign, data, or integration owner appropriate to the requested change
+- Current account evidence for plan-dependent features and user-supplied approved partner documentation for every private interface
 
-## Webhook Registration
+## Tool Discipline
 
-```typescript
-import axios from "axios";
+Use `Read`, `Glob`, and `Grep` to inspect repository specifications, sanitized fixtures, policies, tests, and prior receipts.
 
-const res = await axios.post(
-  "https://api.linktr.ee/v1/webhooks",
-  {
-    url: "https://your-app.com/webhooks/linktree",
-    events: ["link.created", "link.updated", "link.deleted",
-             "profile.updated", "analytics.milestone"],
-  },
-  { headers: { Authorization: `Bearer ${process.env.LINKTREE_API_TOKEN}` } }
-);
-console.log("Subscription ID:", res.data.id);
-```
+Use `WebFetch` only for current official Linktree documentation or explicitly approved partner documentation.
 
-## Signature Verification
+Use `Write` or `Edit` only after confirming scope, target, owners, data classification, and approval state. These tools do not confer Linktree access, account authority, or permission to process visitor data. Return exact operator steps or an approval-gated handoff when a live action is not authorized.
 
-```typescript
-import crypto from "crypto";
-import { Request, Response, NextFunction } from "express";
+## Current Contract
 
-function verifyLinktreeSignature(req: Request, res: Response, next: NextFunction) {
-  const signature = req.headers["x-linktree-signature"] as string;
-  const timestamp = req.headers["x-linktree-timestamp"] as string;
-  if (!signature || !timestamp) return res.status(401).send("Missing signature");
+- The public developer page announces program-gated APIs and SDKs but publishes no general event catalog or verification scheme.
+- Linktree documents on-screen Insights and plan-dependent CSV exports as public data-access paths.
+- Event delivery details are private-contract facts and must not be inferred from another provider.
 
-  const payload = `${timestamp}.${(req as any).rawBody}`;
-  const expected = crypto
-    .createHmac("sha256", process.env.LINKTREE_WEBHOOK_SECRET!)
-    .update(payload)
-    .digest("hex");
+## Authentication
 
-  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
-    return res.status(403).send("Invalid signature");
-  }
-  next();
-}
-```
+For Admin work, use only the operator's individually provisioned Linktree account, documented Workspace role, and enabled MFA. Never request passwords, one-time codes, browser cookies, recovery codes, or session material. For partner automation, use only the authentication method, environment, scope, storage, rotation, and revocation process in the user-supplied approved partner contract. Public help pages do not establish a general API credential.
 
-## Event Handler
+## Instructions
 
-```typescript
-app.post("/webhooks/linktree", verifyLinktreeSignature, (req, res) => {
-  const { type, data, timestamp } = req.body;
+1. Name the synchronization objective, data owner, consumer, freshness requirement, data classification, and reconciliation authority.
+2. Use Read, Glob, and Grep to inspect the supplied partner contract, event fixtures, consumer code, and export workflow without reading secrets.
+3. If an approved event mechanism exists, build an evidence table for event names, schema revision, authentication, replay protection, ordering, retries, retention, and acknowledgment behavior.
+4. If it does not exist, choose the least-privileged documented alternative: operator review, authorized Insights CSV, or a contract-approved polling operation.
+5. Test synthetic duplicates, out-of-order delivery, unknown fields, stale exports, consumer failure, and reconciliation.
+6. Use Write or Edit to record the design and fixtures only after authority and retention are clear.
+7. Use WebFetch only for official public export guidance or approved partner documentation.
 
-  switch (type) {
-    case "link.created":
-      console.log(`New link: ${data.title} → ${data.url}`);
-      break;
-    case "link.updated":
-      console.log(`Link edited: ${data.link_id}, position: ${data.position}`);
-      break;
-    case "link.deleted":
-      console.log(`Link removed: ${data.link_id}`);
-      break;
-    case "profile.updated":
-      console.log(`Profile changed: bio=${data.bio}, avatar=${data.avatar_url}`);
-      break;
-    case "analytics.milestone":
-      console.log(`Milestone: ${data.metric} hit ${data.threshold} on ${data.link_id}`);
-      break;
-    default:
-      console.warn(`Unhandled event: ${type}`);
-  }
-  res.status(200).json({ received: true });
-});
-```
+## Approval Boundaries
 
-## Event Types
+Do not expose a receiver, accept live deliveries, or process subscriber data until authentication, consent, retention, deletion, and incident handling are approved.
 
-| Event | Payload Fields | Use Case |
-|---|---|---|
-| `link.created` | `link_id`, `title`, `url`, `position` | Sync new links to CMS or dashboard |
-| `link.updated` | `link_id`, `title`, `url`, `position`, `thumbnail_url` | Detect reordering or URL changes |
-| `link.deleted` | `link_id`, `deleted_at` | Clean up external references |
-| `profile.updated` | `username`, `bio`, `avatar_url`, `theme` | Mirror profile changes to marketing sites |
-| `analytics.milestone` | `link_id`, `metric`, `value`, `threshold` | Alert when a link hits click milestones |
+## Output
 
-## Retry & Idempotency
-
-```typescript
-const processed = new Set<string>();
-
-function ensureIdempotent(req: Request, res: Response, next: NextFunction) {
-  const deliveryId = req.headers["x-linktree-delivery-id"] as string;
-  if (processed.has(deliveryId)) {
-    return res.status(200).json({ duplicate: true });
-  }
-  processed.add(deliveryId);
-  next();
-}
-// Linktree retries up to 5 times with exponential backoff (10s, 30s, 90s, 270s, 810s).
-// Webhooks are disabled after 72 hours of consecutive failures.
-```
+Return objective, documented mechanism, contract revision, authentication evidence, event or export schema, failure tests, reconciliation path, data controls, and go/no-go.
 
 ## Error Handling
 
-| Issue | Cause | Fix |
-|---|---|---|
-| 401 on every delivery | Signing secret rotated in dashboard | Re-copy secret and redeploy |
-| Duplicate events processed | Retry after timeout | Implement idempotency check on `x-linktree-delivery-id` |
-| Missing `analytics.milestone` events | Milestone thresholds not configured | Set thresholds in Linktree dashboard under Analytics |
-| Payload body is empty | Body parser consuming raw body | Use `express.raw({ type: "application/json" })` before route |
-| Webhook auto-disabled | Endpoint returned 5xx for 72 hours | Fix endpoint, then re-enable subscription via API |
+| Condition | Response |
+|---|---|
+| Event verification is undocumented | Do not deploy a receiver; obtain the partner contract or use a documented alternative. |
+| Export contains unnecessary personal data | Minimize fields and storage before processing. |
+| Consumer cannot reconcile duplicates | Add idempotency and a bounded replay test before launch. |
+
+## Example
+
+The example is a synthetic, redacted operator receipt, not proof of Linktree access or a live account change.
+
+```text
+objective=weekly-performance-sync; mechanism=authorized-CSV; personal-data=none; duplicates=tested; reconciliation=profile+window; receiver=not-deployed; result=go
+```
 
 ## Resources
 
-- [Linktree Developer Platform](https://linktr.ee/marketplace/developer)
+- [Official documentation map](references/official-docs.md) — dated evidence and limits for this workflow.
+
+Read the map before acting. Recheck current account and partner-specific evidence for plan-dependent or private behavior.
 
 ## Next Steps
 
-See `linktree-security-basics`.
+Revalidate source dates, owner approval, target profile, and rollback readiness before repeating the workflow in another account, Workspace, campaign, region, plan, or integration.

@@ -1,144 +1,91 @@
 ---
 name: linktree-upgrade-migration
-description: 'Upgrade Migration for Linktree.
-
-  Trigger: "linktree upgrade migration".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Plan and verify a Linktree plan, profile, Workspace, username, or integration migration with preserved evidence and rollback. Use when account structure changes. Trigger with "migrate Linktree".'
+argument-hint: "[migration-id] [change-type]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linktree
-- social
-compatibility: Designed for Claude Code
+- migration
+- workspaces
+- rollback
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live work requires an authorized Linktree account and approval from the profile, Workspace, data, or partner-integration owner
 ---
-# Linktree Upgrade & Migration
+# Linktree Plan, Profile, and Workspace Migration
 
 ## Overview
 
-Linktree provides a link-in-bio platform with APIs for managing profiles, links, and click analytics. The API exposes endpoints for CRUD operations on link trees, individual links, and analytics data. Tracking API changes is critical because Linktree's link schema evolves with new link types (commerce, scheduling, music), analytics response formats change with new metric dimensions, and profile customization fields expand — breaking integrations that sync link performance data to marketing dashboards or automate link management across multiple profiles.
+Inventory current state, classify plan-dependent and externally referenced assets, rehearse the change, and verify public and operator paths without assuming portability.
 
-## Version Detection
+## Prerequisites
 
-```typescript
-const LINKTREE_BASE = "https://api.linktr.ee/v1";
+- An authorized Linktree account or a clearly bounded design-only task
+- The profile, Workspace, destination, campaign, data, or integration owner appropriate to the requested change
+- Current account evidence for plan-dependent features and user-supplied approved partner documentation for every private interface
 
-async function detectLinktreeApiVersion(apiKey: string): Promise<void> {
-  const res = await fetch(`${LINKTREE_BASE}/profile`, {
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-  });
-  const version = res.headers.get("x-linktree-api-version") ?? "v1";
-  console.log(`Linktree API version: ${version}`);
+## Tool Discipline
 
-  // Check for deprecated link type fields
-  const linksRes = await fetch(`${LINKTREE_BASE}/links`, {
-    headers: { Authorization: `Bearer ${apiKey}` },
-  });
-  const data = await linksRes.json();
-  const knownTypes = ["classic", "header", "music", "video", "commerce", "scheduling"];
-  const activeTypes = [...new Set(data.links?.map((l: any) => l.type) ?? [])];
-  const unknown = activeTypes.filter((t: string) => !knownTypes.includes(t));
-  if (unknown.length) console.log(`New link types detected: ${unknown.join(", ")}`);
-}
-```
+Use `Read`, `Glob`, and `Grep` to inspect repository specifications, sanitized fixtures, policies, tests, and prior receipts.
 
-## Migration Checklist
+Use `WebFetch` only for current official Linktree documentation or explicitly approved partner documentation.
 
-- [ ] Review Linktree developer changelog for API breaking changes
-- [ ] Audit codebase for hardcoded link type enums (new types may be added)
-- [ ] Verify analytics endpoint response structure (metrics, dimensions, date ranges)
-- [ ] Check profile customization fields for new appearance options
-- [ ] Update link creation payload if required fields were added
-- [ ] Test link ordering API — sort mechanism may have changed
-- [ ] Validate thumbnail/image upload endpoints for size or format changes
-- [ ] Check OAuth token scopes if new permissions required for analytics
-- [ ] Update webhook handlers for link click and profile view events
-- [ ] Run analytics data export and compare old vs. new response shapes
+Use `Write` or `Edit` only after confirming scope, target, owners, data classification, and approval state. These tools do not confer Linktree access, account authority, or permission to process visitor data. Return exact operator steps or an approval-gated handoff when a live action is not authorized.
 
-## Schema Migration
+## Current Contract
 
-```typescript
-// Linktree links evolved: simple URL → typed link with metadata
-interface OldLink {
-  id: string;
-  title: string;
-  url: string;
-  position: number;
-  active: boolean;
-}
+- Plan capabilities, analytics history, profiles, and Workspace behavior must be verified against current official guidance and the target account.
+- Public profile URLs, QR codes, social bios, campaign materials, and external destinations can create dependencies outside Linktree.
+- Private partner integrations require contract-specific migration and credential evidence.
 
-interface NewLink {
-  id: string;
-  title: string;
-  url: string;
-  type: "classic" | "header" | "music" | "video" | "commerce" | "scheduling";
-  position: number;
-  active: boolean;
-  metadata: {
-    thumbnail_url?: string;
-    schedule?: { start: string; end: string };
-    price?: { amount: number; currency: string };
-  };
-  analytics: { total_clicks: number; unique_clicks: number };
-}
+## Authentication
 
-function migrateLink(old: OldLink): NewLink {
-  return {
-    ...old,
-    type: "classic",
-    metadata: {},
-    analytics: { total_clicks: 0, unique_clicks: 0 },
-  };
-}
-```
+For Admin work, use only the operator's individually provisioned Linktree account, documented Workspace role, and enabled MFA. Never request passwords, one-time codes, browser cookies, recovery codes, or session material. For partner automation, use only the authentication method, environment, scope, storage, rotation, and revocation process in the user-supplied approved partner contract. Public help pages do not establish a general API credential.
 
-## Rollback Strategy
+## Instructions
 
-```typescript
-class LinktreeClient {
-  private version: "v1" | "v2";
+1. Define migration type, source and target state, profile and Workspace owners, billing owner, window, success criteria, freeze point, and rollback deadline.
+2. Use Read, Glob, and Grep to inventory profiles, live links, schedules, QR assets, social placements, sharing previews, exports, users, integrations, and change history.
+3. Use WebFetch to verify current official plan, Workspace, URL, QR, Insights export, and relevant feature behavior on the evidence date.
+4. Classify every asset as preserved, recreated, redirected, exported, owner-notified, unsupported, or blocked; minimize personal-data movement.
+5. Rehearse with synthetic fixtures and a written sequence, including access loss, stale social bio, broken QR, destination failure, and rollback.
+6. Apply only after approval, then verify signed-out public paths, operator access, Insights continuity expectations, billing state, and downstream references.
+7. Use Write or Edit to record before and after snapshots, decisions, exceptions, communications, and rollback state.
 
-  constructor(private apiKey: string, version: "v1" | "v2" = "v2") {
-    this.version = version;
-  }
+## Approval Boundaries
 
-  async getLinks(): Promise<any> {
-    try {
-      const res = await fetch(`https://api.linktr.ee/${this.version}/links`, {
-        headers: { Authorization: `Bearer ${this.apiKey}` },
-      });
-      if (!res.ok) throw new Error(`Linktree ${res.status}`);
-      return await res.json();
-    } catch (err) {
-      if (this.version === "v2") {
-        console.warn("Falling back to Linktree API v1");
-        this.version = "v1";
-        return this.getLinks();
-      }
-      throw err;
-    }
-  }
-}
-```
+Do not assume usernames, custom domains, history, subscribers, plan features, or private integrations transfer. Do not move audience data without approved purpose and controls.
+
+## Output
+
+Return migration ID, source and target, asset disposition table, plan and billing evidence, access checks, public-path checks, data handling, exceptions, rollback deadline, and outcome.
 
 ## Error Handling
 
-| Migration Issue | Symptom | Fix |
-|----------------|---------|-----|
-| Link type enum expanded | `400` when filtering by type with old enum values | Fetch current types from `/link-types` and update filter logic |
-| Analytics response restructured | `undefined` accessing `link.clicks` (now `link.analytics.total_clicks`) | Update property paths to new nested analytics object |
-| Profile field renamed | `avatar_url` returns `null`, now `profile_image_url` | Update all references to use new field name |
-| Thumbnail upload format changed | `415 Unsupported Media Type` on image upload | Check supported formats via `/upload/formats` endpoint |
-| Rate limit per-endpoint | `429` on analytics but not links | Implement per-endpoint rate limiting instead of global |
+| Condition | Response |
+|---|---|
+| A public dependency owner is unknown | Block the cutover or preserve the old path until ownership is resolved. |
+| History or export availability is uncertain | Capture approved evidence before changing the plan. |
+| Post-migration access is incomplete | Use the rollback or break-glass plan and halt further changes. |
+
+## Example
+
+The example is a synthetic, redacted operator receipt, not proof of Linktree access or a live account change.
+
+```text
+migration=workspace-consolidation; profiles=3; assets=27; preserved=24; recreated=3; audience-data=none; public-checks=pass; rollback-until=24h; outcome=complete
+```
 
 ## Resources
 
-- [Linktree Developer Portal](https://linktr.ee/marketplace/developer)
-- Linktree API Documentation
+- [Official documentation map](references/official-docs.md) — dated evidence and limits for this workflow.
+
+Read the map before acting. Recheck current account and partner-specific evidence for plan-dependent or private behavior.
 
 ## Next Steps
 
-For CI pipeline integration, see `linktree-ci-integration`.
+Revalidate source dates, owner approval, target profile, and rollback readiness before repeating the workflow in another account, Workspace, campaign, region, plan, or integration.

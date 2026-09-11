@@ -1,145 +1,91 @@
 ---
 name: linktree-ci-integration
-description: 'Ci Integration for Linktree.
-
-  Trigger: "linktree ci integration".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.7.0
-license: MIT
+description: 'Gate repository-managed Linktree campaign specifications with deterministic static and synthetic checks. Use when adding CI around profile content or an approved partner adapter. Trigger with "add Linktree CI".'
+argument-hint: "[spec-path] [ci-provider]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linktree
-- social
-compatibility: Designed for Claude Code
+- ci
+- content-validation
+- supply-chain
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live work requires an authorized Linktree account and approval from the profile, Workspace, data, or partner-integration owner
 ---
-# Linktree CI Integration
+# Linktree Content Change CI Gate
 
 ## Overview
 
-Configure CI pipelines that validate Linktree link-in-bio API integrations using a two-tier testing approach. Unit tests mock the Linktree REST API to verify profile retrieval, link CRUD operations, and click analytics aggregation without needing an API key. Integration tests authenticate with a real Bearer token on main-branch merges to confirm link ordering, analytics endpoints, and rate limit handling against the live Linktree API. This ensures every PR gets instant feedback while production-critical flows are verified before deploy.
+Turn profile and campaign policy into a fail-closed repository gate without logging in to Linktree or requiring production secrets in pull-request jobs.
 
-## GitHub Actions Workflow
+## Prerequisites
 
-```yaml
-# .github/workflows/linktree-tests.yml
-name: Linktree API Tests
-on: [push, pull_request]
+- An authorized Linktree account or a clearly bounded design-only task
+- The profile, Workspace, destination, campaign, data, or integration owner appropriate to the requested change
+- Current account evidence for plan-dependent features and user-supplied approved partner documentation for every private interface
 
-jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20' }
-      - run: npm ci
-      - run: npm run lint && npm run typecheck
-      - run: npm test -- --testPathPattern=unit  # No Bearer token needed
+## Tool Discipline
 
-  integration-tests:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    needs: unit-tests
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20' }
-      - run: npm ci
-      - run: npm test -- --testPathPattern=integration
-        env:
-          LINKTREE_API_KEY: ${{ secrets.LINKTREE_API_KEY }}
-```
+Use `Read`, `Glob`, and `Grep` to inspect repository specifications, sanitized fixtures, policies, tests, and prior receipts.
 
-## Mock-Based Unit Tests
+Use `WebFetch` only for current official Linktree documentation or explicitly approved partner documentation.
 
-```typescript
-// tests/unit/link-service.test.ts
-import { describe, it, expect, vi } from 'vitest';
-import { reorderLinks } from '../../src/services/link-service';
-import * as linktreeApi from '../../src/lib/linktree-api';
+Use `Write` or `Edit` only after confirming scope, target, owners, data classification, and approval state. These tools do not confer Linktree access, account authority, or permission to process visitor data. Return exact operator steps or an approval-gated handoff when a live action is not authorized.
 
-vi.mock('../../src/lib/linktree-api');
+## Current Contract
 
-describe('LinkService', () => {
-  it('reorders links and returns updated positions', async () => {
-    vi.mocked(linktreeApi.patch).mockResolvedValue({
-      links: [
-        { id: 'lnk-1', title: 'Portfolio', position: 0 },
-        { id: 'lnk-2', title: 'GitHub', position: 1 },
-      ],
-    });
+- Public Admin documentation can ground link-type, order, schedule, and visible-content expectations.
+- A CI job cannot prove a live profile state unless an approved, documented partner interface explicitly provides that evidence.
+- Fork and pull-request workflows must remain secretless and synthetic.
 
-    const result = await reorderLinks(['lnk-1', 'lnk-2']);
-    expect(result.links[0].position).toBe(0);
-    expect(linktreeApi.patch).toHaveBeenCalledWith('/links/reorder', {
-      link_ids: ['lnk-1', 'lnk-2'],
-    });
-  });
-});
-```
+## Authentication
 
-## Integration Tests
+For Admin work, use only the operator's individually provisioned Linktree account, documented Workspace role, and enabled MFA. Never request passwords, one-time codes, browser cookies, recovery codes, or session material. For partner automation, use only the authentication method, environment, scope, storage, rotation, and revocation process in the user-supplied approved partner contract. Public help pages do not establish a general API credential.
 
-```typescript
-// tests/integration/profile-analytics.test.ts
-import { describe, it, expect } from 'vitest';
-import { LinktreeClient } from '../../src/lib/linktree-api';
+## Instructions
 
-const canRun = !!process.env.LINKTREE_API_KEY;
+1. Define the protected specification format, owners, required reviews, destination policy, schedule format, and evidence retained by CI.
+2. Use Read, Glob, and Grep to inspect workflow files, campaign fixtures, ownership rules, and existing tests.
+3. Add static checks for schema, HTTPS destinations, host policy, duplicate identifiers, title limits defined by local policy, timezone presence, and rollback metadata.
+4. Add synthetic rendering or adapter contract tests that do not contact Linktree and cannot consume production session material.
+5. Make the gate fail closed on validation errors and report concise, redacted diagnostics suitable for untrusted pull requests.
+6. Use Write or Edit to modify the workflow and tests after confirming branch-protection expectations and generated-file ownership.
+7. Use WebFetch only to verify public behavior or approved partner documentation; never fetch and execute remote code in CI.
 
-describe.skipIf(!canRun)('Linktree Analytics (live API)', () => {
-  const client = new LinktreeClient({
-    apiKey: process.env.LINKTREE_API_KEY!,
-  });
+## Approval Boundaries
 
-  it('fetches click analytics for the authenticated profile', async () => {
-    const analytics = await client.get('/analytics', {
-      period: 'last_7_days',
-    });
-    expect(analytics).toHaveProperty('total_clicks');
-    expect(typeof analytics.total_clicks).toBe('number');
-  });
-});
-```
+Do not expose secrets to fork jobs, mutate a live profile from pull-request CI, or label a synthetic check as end-to-end production proof.
 
-## CI Cost Management
+## Output
 
-```typescript
-// tests/helpers/api-budget.ts
-let callCount = 0;
-const MAX_CALLS_PER_RUN = 30; // Linktree API: 60 req/min for standard tier
-
-export function trackApiCall(): void {
-  callCount++;
-  if (callCount > MAX_CALLS_PER_RUN) {
-    throw new Error(
-      `CI API budget exceeded: ${callCount}/${MAX_CALLS_PER_RUN} calls. ` +
-      'Linktree standard tier allows 60 req/min — reduce test scope or add delays.'
-    );
-  }
-}
-
-export function getCallCount(): number { return callCount; }
-```
+Return protected paths, checks, fixtures, secret exposure count, failure behavior, required context, evidence retention, and remaining live verification.
 
 ## Error Handling
 
-| CI Issue | Cause | Fix |
-|----------|-------|-----|
-| 401 Unauthorized | Expired or revoked Bearer token | Regenerate `LINKTREE_API_KEY` in Linktree admin and update GitHub Secrets |
-| 429 Rate Limited | Exceeded 60 req/min on standard tier | Add `--maxWorkers=1` and insert small delays between integration tests |
-| Empty analytics response | Profile has zero traffic in test period | Use a longer `period` param or seed test clicks via the Links API |
-| Link creation returns 409 | Duplicate URL already exists on profile | Add cleanup in `afterEach` to delete test links by ID |
-| Integration job never runs | Branch name mismatch in workflow `if` | Confirm default branch is `main`, not `master` |
+| Condition | Response |
+|---|---|
+| Fork job requests a credential | Remove the live dependency and replace it with a synthetic contract fixture. |
+| Generated output drifts | Regenerate through the canonical producer and fail the gate on subsequent drift. |
+| Check can pass without reading the specification | Fix the test denominator so the intended files are always evaluated. |
+
+## Example
+
+The example is a synthetic, redacted operator receipt, not proof of Linktree access or a live account change.
+
+```text
+spec=campaigns/*.yaml; checks=7; fixtures=synthetic; fork-secrets=0; mutation=none; required-context=linktree-content; result=pass
+```
 
 ## Resources
 
-- [Linktree Developer Documentation](https://linktr.ee/marketplace/developer)
-- [GitHub Actions Encrypted Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
+- [Official documentation map](references/official-docs.md) — dated evidence and limits for this workflow.
+
+Read the map before acting. Recheck current account and partner-specific evidence for plan-dependent or private behavior.
 
 ## Next Steps
 
-See `linktree-deploy-integration`.
+Revalidate source dates, owner approval, target profile, and rollback readiness before repeating the workflow in another account, Workspace, campaign, region, plan, or integration.

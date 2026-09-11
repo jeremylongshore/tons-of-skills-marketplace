@@ -1,136 +1,91 @@
 ---
 name: linktree-rate-limits
-description: 'Rate Limits for Linktree.
-
-  Trigger: "linktree rate limits".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Build backpressure and capacity controls from an approved Linktree partner contract without publishing guessed quotas. Use when authorized automation needs reliability limits. Trigger with "plan Linktree capacity".'
+argument-hint: "[contract-path] [workload]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linktree
-- social
-compatibility: Designed for Claude Code
+- capacity
+- backpressure
+- reliability
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live work requires an authorized Linktree account and approval from the profile, Workspace, data, or partner-integration owner
 ---
-# Linktree Rate Limits
+# Linktree Contract-Grounded Capacity Control
 
 ## Overview
 
-Linktree's API enforces rate limits per OAuth token, with analytics endpoints throttled more aggressively than profile management operations. Agencies managing dozens of creator profiles need to stagger link updates and analytics pulls across accounts to avoid hitting per-token and global IP-based limits. Bulk link reordering and analytics export during campaign launches are the most common rate-limit triggers, especially when synchronizing link performance data with external dashboards on short polling intervals.
+Convert documented limits and observed behavior into conservative client controls, while treating every undocumented quota or reset rule as unknown.
 
-## Rate Limit Reference
+## Prerequisites
 
-| Endpoint | Limit | Window | Scope |
-|----------|-------|--------|-------|
-| Profile read/update | 60 req | 1 minute | Per OAuth token |
-| Link create/update/delete | 30 req | 1 minute | Per OAuth token |
-| Analytics summary | 20 req | 1 minute | Per OAuth token |
-| Analytics detailed (per-link) | 10 req | 1 minute | Per OAuth token |
-| Webhook management | 10 req | 1 minute | Per OAuth token |
+- An authorized Linktree account or a clearly bounded design-only task
+- The profile, Workspace, destination, campaign, data, or integration owner appropriate to the requested change
+- Current account evidence for plan-dependent features and user-supplied approved partner documentation for every private interface
 
-## Rate Limiter Implementation
+## Tool Discipline
 
-```typescript
-class LinktreeRateLimiter {
-  private tokens: number;
-  private lastRefill: number;
-  private readonly max: number;
-  private readonly refillRate: number;
-  private queue: Array<{ resolve: () => void }> = [];
+Use `Read`, `Glob`, and `Grep` to inspect repository specifications, sanitized fixtures, policies, tests, and prior receipts.
 
-  constructor(maxPerMinute: number) {
-    this.max = maxPerMinute;
-    this.tokens = maxPerMinute;
-    this.lastRefill = Date.now();
-    this.refillRate = maxPerMinute / 60_000;
-  }
+Use `WebFetch` only for current official Linktree documentation or explicitly approved partner documentation.
 
-  async acquire(): Promise<void> {
-    this.refill();
-    if (this.tokens >= 1) { this.tokens -= 1; return; }
-    return new Promise(resolve => this.queue.push({ resolve }));
-  }
+Use `Write` or `Edit` only after confirming scope, target, owners, data classification, and approval state. These tools do not confer Linktree access, account authority, or permission to process visitor data. Return exact operator steps or an approval-gated handoff when a live action is not authorized.
 
-  private refill() {
-    const now = Date.now();
-    this.tokens = Math.min(this.max, this.tokens + (now - this.lastRefill) * this.refillRate);
-    this.lastRefill = now;
-    while (this.tokens >= 1 && this.queue.length) {
-      this.tokens -= 1;
-      this.queue.shift()!.resolve();
-    }
-  }
-}
+## Current Contract
 
-const linkLimiter = new LinktreeRateLimiter(25);
-const analyticsLimiter = new LinktreeRateLimiter(8);
-```
+- Linktree's public developer page does not state request quotas, concurrency limits, retry semantics, or headers.
+- Only current partner documentation and vendor-confirmed environment evidence can authorize numeric automation limits.
+- Public Admin workflows remain human-paced and are not a basis for deriving machine throughput.
 
-## Retry Strategy
+## Authentication
 
-```typescript
-async function linktreeRetry<T>(
-  limiter: LinktreeRateLimiter, fn: () => Promise<Response>, maxRetries = 3
-): Promise<T> {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    await limiter.acquire();
-    const res = await fn();
-    if (res.ok) return res.json();
-    if (res.status === 429) {
-      const retryAfter = parseInt(res.headers.get("Retry-After") || "30", 10);
-      const jitter = Math.random() * 2000;
-      await new Promise(r => setTimeout(r, retryAfter * 1000 + jitter));
-      continue;
-    }
-    if (res.status >= 500 && attempt < maxRetries) {
-      await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1500));
-      continue;
-    }
-    throw new Error(`Linktree API ${res.status}: ${await res.text()}`);
-  }
-  throw new Error("Max retries exceeded");
-}
-```
+For Admin work, use only the operator's individually provisioned Linktree account, documented Workspace role, and enabled MFA. Never request passwords, one-time codes, browser cookies, recovery codes, or session material. For partner automation, use only the authentication method, environment, scope, storage, rotation, and revocation process in the user-supplied approved partner contract. Public help pages do not establish a general API credential.
 
-## Batch Processing
+## Instructions
 
-```typescript
-async function batchUpdateLinks(profileId: string, links: any[], batchSize = 5) {
-  const results: any[] = [];
-  for (let i = 0; i < links.length; i += batchSize) {
-    const batch = links.slice(i, i + batchSize);
-    const batchResults = await Promise.all(
-      batch.map(link => linktreeRetry(linkLimiter, () =>
-        fetch(`${BASE}/api/v1/profiles/${profileId}/links/${link.id}`, {
-          method: "PATCH", headers,
-          body: JSON.stringify({ title: link.title, url: link.url }),
-        })
-      ))
-    );
-    results.push(...batchResults);
-    if (i + batchSize < links.length) await new Promise(r => setTimeout(r, 10_000));
-  }
-  return results;
-}
-```
+1. Define the workload, environment, business deadline, maximum staleness, owner, and acceptable partial-progress behavior.
+2. Use Read, Glob, and Grep to inspect the approved contract, workload model, adapter, telemetry fields, and synthetic tests.
+3. Extract only documented limits, concurrency rules, response signals, retry guidance, and support escalation paths into an evidence table.
+4. Design bounded queues, idempotent work units, jittered backoff only where the contract permits it, circuit breaking, and a manual pause control.
+5. Use synthetic responses to test saturation, unknown limit signals, prolonged outage, cancellation, replay, and recovery without contacting Linktree.
+6. Use Write or Edit to record configuration and tests; keep numeric production settings outside this public skill and tied to contract revision.
+7. Use WebFetch only for the public developer boundary, Linktree status, or approved partner documentation.
+
+## Approval Boundaries
+
+Never encode a remembered or third-party quota as Linktree fact, probe production to discover limits, or retry an unauthorized operation.
+
+## Output
+
+Return workload, contract revision, documented limits, unknowns, queue bounds, retry authority, idempotency key source, failure tests, pause control, and approval state.
 
 ## Error Handling
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| 429 on link updates | Exceeded 30 writes/min per token | Reduce batch concurrency to 3 |
-| 429 on analytics | Polling per-link stats too frequently | Cache analytics, refresh every 5 min |
-| 401 token expired | OAuth token TTL exceeded | Refresh token before batch operations |
-| 404 on link delete | Link already removed or archived | Skip gracefully, log warning |
-| IP-level 429 | Multiple tokens from same IP | Spread requests across proxy endpoints |
+| Condition | Response |
+|---|---|
+| No numeric limit is documented | Keep it unknown, use conservative bounded behavior, and obtain vendor confirmation. |
+| Work cannot be made idempotent | Require serialization or an operator checkpoint before retries. |
+| Limit behavior changes | Pause the worker, reconcile partial work, and revalidate the contract. |
+
+## Example
+
+The example is a synthetic, redacted operator receipt, not proof of Linktree access or a live account change.
+
+```text
+workload=profile-sync; limits=contract-private; queue=bounded; retries=documented-only; idempotency=change-id; saturation-test=pass; production-setting=approval-gated
+```
 
 ## Resources
 
-- [Linktree Developer Documentation](https://linktr.ee/marketplace/developer)
+- [Official documentation map](references/official-docs.md) — dated evidence and limits for this workflow.
+
+Read the map before acting. Recheck current account and partner-specific evidence for plan-dependent or private behavior.
 
 ## Next Steps
 
-See `linktree-performance-tuning`.
+Revalidate source dates, owner approval, target profile, and rollback readiness before repeating the workflow in another account, Workspace, campaign, region, plan, or integration.

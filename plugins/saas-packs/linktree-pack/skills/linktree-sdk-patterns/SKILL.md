@@ -1,149 +1,91 @@
 ---
 name: linktree-sdk-patterns
-description: 'Sdk Patterns for Linktree.
-
-  Trigger: "linktree sdk patterns".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Design a testable adapter around an approved Linktree partner contract without claiming a public SDK or endpoint schema. Use when implementing authorized partner automation. Trigger with "design Linktree adapter".'
+argument-hint: "[contract-path] [integration-name]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linktree
-- social
-compatibility: Designed for Claude Code
+- partner-integration
+- adapter
+- contract-testing
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live work requires an authorized Linktree account and approval from the profile, Workspace, data, or partner-integration owner
 ---
-# Linktree SDK Patterns
+# Linktree Partner-Contract Adapter Boundary
 
 ## Overview
 
-Linktree's REST API exposes profile management, link CRUD, click analytics, and appearance theming through bearer-token authentication. A structured SDK client matters here because Linktree enforces strict per-minute rate limits on analytics endpoints and returns nested profile objects that benefit from strong typing. These patterns provide a thread-safe singleton, typed error classification, fluent request building for paginated link lists, and test utilities for mocking profile and analytics responses.
+Translate user-supplied partner documentation into a narrow internal port, redacted fixtures, and contract tests while keeping undocumented behavior outside the implementation.
 
 ## Prerequisites
 
-- Node.js 18+, TypeScript 5+
-- `LINKTREE_API_KEY` environment variable (generated in Linktree admin > Settings > Developer)
-- `axios` or `node-fetch` for HTTP transport
+- An authorized Linktree account or a clearly bounded design-only task
+- The profile, Workspace, destination, campaign, data, or integration owner appropriate to the requested change
+- Current account evidence for plan-dependent features and user-supplied approved partner documentation for every private interface
 
-## Singleton Client
+## Tool Discipline
 
-```typescript
-interface LinktreeConfig {
-  apiKey: string;
-  baseUrl?: string;
-  timeout?: number;
-}
+Use `Read`, `Glob`, and `Grep` to inspect repository specifications, sanitized fixtures, policies, tests, and prior receipts.
 
-let client: LinktreeClient | null = null;
+Use `WebFetch` only for current official Linktree documentation or explicitly approved partner documentation.
 
-export function getLinktreeClient(overrides?: Partial<LinktreeConfig>): LinktreeClient {
-  if (!client) {
-    const config: LinktreeConfig = {
-      apiKey: process.env.LINKTREE_API_KEY ?? '',
-      baseUrl: 'https://api.linktr.ee/v1',
-      timeout: 10_000,
-      ...overrides,
-    };
-    if (!config.apiKey) throw new Error('LINKTREE_API_KEY is required');
-    client = new LinktreeClient(config);
-  }
-  return client;
-}
-```
+Use `Write` or `Edit` only after confirming scope, target, owners, data classification, and approval state. These tools do not confer Linktree access, account authority, or permission to process visitor data. Return exact operator steps or an approval-gated handoff when a live action is not authorized.
 
-## Error Wrapper
+## Current Contract
 
-```typescript
-interface LinktreeError { status: number; code: string; detail: string; }
+- Linktree publicly invites developers to register interest for APIs and SDKs and sends existing partners to its Marketplace.
+- That page does not establish package names, hosts, authentication, schemas, event types, quotas, or service guarantees.
+- The signed partner contract and current partner portal evidence are authoritative for private automation.
 
-async function safeLinktree<T>(fn: () => Promise<T>): Promise<T> {
-  try { return await fn(); }
-  catch (err: any) {
-    const parsed: LinktreeError = {
-      status: err.response?.status ?? 500,
-      code: err.response?.data?.error?.code ?? 'UNKNOWN',
-      detail: err.response?.data?.error?.message ?? err.message,
-    };
-    if (parsed.status === 429) {
-      const retryAfter = parseInt(err.response?.headers?.['retry-after'] ?? '5', 10);
-      await new Promise(r => setTimeout(r, retryAfter * 1000));
-      return fn();
-    }
-    if (parsed.status === 401) throw new Error(`Auth failed: ${parsed.detail}`);
-    throw new Error(`Linktree ${parsed.code} (${parsed.status}): ${parsed.detail}`);
-  }
-}
-```
+## Authentication
 
-## Request Builder
+For Admin work, use only the operator's individually provisioned Linktree account, documented Workspace role, and enabled MFA. Never request passwords, one-time codes, browser cookies, recovery codes, or session material. For partner automation, use only the authentication method, environment, scope, storage, rotation, and revocation process in the user-supplied approved partner contract. Public help pages do not establish a general API credential.
 
-```typescript
-class LinkQueryBuilder {
-  private params: Record<string, string> = {};
-  forProfile(id: string) { this.params.profile_id = id; return this; }
-  active(only = true) { this.params.is_active = String(only); return this; }
-  page(cursor: string) { this.params.cursor = cursor; return this; }
-  limit(n: number) { this.params.limit = String(Math.min(n, 100)); return this; }
-  build(): URLSearchParams { return new URLSearchParams(this.params); }
-}
-```
+## Instructions
 
-## Response Types
+1. Verify the approved partner relationship, contract revision, environment, integration owner, data classification, and permitted use cases.
+2. Use Read, Glob, and Grep to inspect only the supplied contract, existing adapter, redacted fixtures, and tests; do not read credential values.
+3. Create a contract table for each authorized operation: input, output, authentication method, scope, idempotency, pagination, error model, and evidence citation.
+4. Define a vendor-neutral internal port that exposes only required operations and keeps transport objects behind the adapter.
+5. Build synthetic contract fixtures for success, authorization failure, validation failure, throttling behavior if documented, and unknown responses.
+6. Use Write or Edit for the design or implementation only after every field has contract evidence; leave unknowns as blocking questions.
+7. Use WebFetch only for the public developer boundary or an explicitly approved, authenticated partner-documentation URL.
 
-```typescript
-interface LinktreeProfile { id: string; username: string; tier: 'free' | 'pro' | 'premium'; created_at: string; }
-interface LinktreeLink { id: string; title: string; url: string; position: number; is_active: boolean; thumbnail_url?: string; }
-interface LinkAnalytics { link_id: string; clicks: number; unique_visitors: number; period: string; }
-interface PaginatedLinks { data: LinktreeLink[]; cursor?: string; has_more: boolean; }
-```
+## Approval Boundaries
 
-## Middleware Pattern
+Never substitute a community package, guessed host, generic OAuth flow, or remembered payload for the approved private contract. Live calls require separate change authority.
 
-```typescript
-type Middleware = (req: RequestInit, next: () => Promise<Response>) => Promise<Response>;
+## Output
 
-const authMiddleware: Middleware = (req, next) => {
-  req.headers = { ...req.headers as Record<string, string>, Authorization: `Bearer ${process.env.LINKTREE_API_KEY}` };
-  return next();
-};
-const loggingMiddleware: Middleware = async (req, next) => {
-  const start = Date.now();
-  const res = await next();
-  console.log(`[linktree] ${req.method} ${res.status} ${Date.now() - start}ms`);
-  return res;
-};
-```
-
-## Testing Utilities
-
-```typescript
-function mockProfile(overrides?: Partial<LinktreeProfile>): LinktreeProfile {
-  return { id: 'prof_test_123', username: 'testuser', tier: 'pro', created_at: '2025-01-01T00:00:00Z', ...overrides };
-}
-function mockLink(overrides?: Partial<LinktreeLink>): LinktreeLink {
-  return { id: 'link_abc', title: 'My Site', url: 'https://example.com', position: 0, is_active: true, ...overrides };
-}
-function mockAnalytics(linkId: string): LinkAnalytics {
-  return { link_id: linkId, clicks: 142, unique_visitors: 98, period: '7d' };
-}
-```
+Return contract revision, evidence matrix, internal port, adapter responsibilities, authentication owner, synthetic tests, unknowns, live-call boundary, and approval state.
 
 ## Error Handling
 
-| Pattern | When to Use | Example |
-|---------|-------------|---------|
-| Retry with backoff | 429 rate limit on analytics endpoints | Parse `Retry-After` header, wait, retry once |
-| Auth refresh | 401 on any endpoint | Re-fetch API key from vault, rebuild client singleton |
-| Graceful degrade | Analytics endpoint down | Return cached click counts, log warning |
-| Validation guard | Creating links with invalid URLs | Check URL format before API call, throw typed error |
-| Idempotency check | Duplicate link creation | Query existing links by URL before POST |
+| Condition | Response |
+|---|---|
+| No approved contract is supplied | Stop at an interface-neutral design and request partner documentation. |
+| Implementation exposes transport types | Move those types behind the adapter and preserve a stable internal port. |
+| A required behavior is undocumented | Mark it unknown and obtain vendor confirmation before coding. |
+
+## Example
+
+The example is a synthetic, redacted operator receipt, not proof of Linktree access or a live account change.
+
+```text
+contract=partner-rev-redacted; operations=2-approved; port=ProfilePublishing; fixtures=5-synthetic; unknowns=1-blocking; live-calls=not-authorized
+```
 
 ## Resources
 
-- [Linktree API Reference](https://linktr.ee/marketplace/developer)
+- [Official documentation map](references/official-docs.md) — dated evidence and limits for this workflow.
+
+Read the map before acting. Recheck current account and partner-specific evidence for plan-dependent or private behavior.
 
 ## Next Steps
 
-Apply in `linktree-core-workflow-a`.
+Revalidate source dates, owner approval, target profile, and rollback readiness before repeating the workflow in another account, Workspace, campaign, region, plan, or integration.

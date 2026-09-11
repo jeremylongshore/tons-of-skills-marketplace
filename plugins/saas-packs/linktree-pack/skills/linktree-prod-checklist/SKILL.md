@@ -1,125 +1,91 @@
 ---
 name: linktree-prod-checklist
-description: 'Prod Checklist for Linktree.
-
-  Trigger: "linktree prod checklist".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Review and gate a Linktree profile, campaign, audience, commerce, or partner-integration change before production. Use when approving a release. Trigger with "Linktree production checklist".'
+argument-hint: "[change-id] [profile]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linktree
-- social
-compatibility: Designed for Claude Code
+- production
+- release-gate
+- change-control
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live work requires an authorized Linktree account and approval from the profile, Workspace, data, or partner-integration owner
 ---
-# Linktree Production Checklist
+# Linktree Production Change Checklist
 
 ## Overview
 
-Linktree profiles serve as the single gateway between a creator's social audience and their monetized destinations. A misconfigured integration can silently drop link-click analytics, leak API keys through client-side calls, or trip the 100 req/min rate limit during viral traffic spikes. This checklist hardens your Linktree API integration for production-grade reliability, ensuring click tracking stays accurate, webhook delivery remains verified, and your link-in-bio pages load under high concurrency.
+Issue a fail-closed go/no-go decision across ownership, access, content, destinations, data handling, testing, service status, monitoring, and rollback.
 
 ## Prerequisites
 
-- Production Linktree API key (not sandbox/dev key)
-- Secrets manager configured (Vault, AWS Secrets Manager, or GCP Secret Manager)
-- Monitoring stack operational (Datadog, Grafana, or CloudWatch)
-- Staging environment validated with synthetic traffic test
+- An authorized Linktree account or a clearly bounded design-only task
+- The profile, Workspace, destination, campaign, data, or integration owner appropriate to the requested change
+- Current account evidence for plan-dependent features and user-supplied approved partner documentation for every private interface
 
-## Authentication & Secrets
+## Tool Discipline
 
-- [ ] API keys stored in vault/secrets manager (never in code or environment files)
-- [ ] Key rotation schedule configured (every 90 days)
-- [ ] Separate keys for staging vs production environments
-- [ ] Bearer token included in Authorization header, not query params
-- [ ] API key scopes restricted to minimum required permissions (read-only where possible)
+Use `Read`, `Glob`, and `Grep` to inspect repository specifications, sanitized fixtures, policies, tests, and prior receipts.
 
-## API Integration
+Use `WebFetch` only for current official Linktree documentation or explicitly approved partner documentation.
 
-- [ ] Base URL points to `https://api.linktr.ee/v1` (production, not sandbox)
-- [ ] Rate limiting enforced client-side at 90 req/min (buffer below 100 req/min hard limit)
-- [ ] Pagination implemented for profile link listing (cursor-based, not offset)
-- [ ] Request timeout set to 10 seconds for profile reads, 30 seconds for analytics queries
-- [ ] `Content-Type: application/json` and `Accept` headers set on every request
-- [ ] Link click tracking webhook endpoint registered and reachable from Linktree servers
-- [ ] Bulk link updates batched to avoid rate limit bursts during campaign launches
+Use `Write` or `Edit` only after confirming scope, target, owners, data classification, and approval state. These tools do not confer Linktree access, account authority, or permission to process visitor data. Return exact operator steps or an approval-gated handoff when a live action is not authorized.
 
-## Error Handling & Resilience
+## Current Contract
 
-- [ ] Circuit breaker configured for Linktree API calls (open after 5 consecutive failures)
-- [ ] Retry logic with exponential backoff for 429 (rate limit) and 5xx responses
-- [ ] 429 responses parse `Retry-After` header to schedule next attempt
-- [ ] Graceful degradation serves cached profile data when API is unreachable
-- [ ] Link click events queued locally during outages and replayed on recovery
-- [ ] Timeout errors distinguished from authentication errors in alerting
+- Linktree features and availability vary by plan, region, and current product state.
+- Public UI workflows and private partner automation have different evidence and authorization requirements.
+- Audience and commerce changes add privacy, consent, payment, and support responsibilities beyond link publishing.
 
-## Monitoring & Alerting
+## Authentication
 
-- [ ] API latency tracked (p50, p95, p99) with 500ms p95 threshold
-- [ ] Error rate alerts configured (threshold: >1% over 5-minute window)
-- [ ] Rate limit headroom monitored (alert when usage exceeds 80 req/min sustained)
-- [ ] Click tracking event delivery lag measured (alert if >60s behind real-time)
-- [ ] Profile cache hit ratio tracked (target: >90% for high-traffic creators)
-- [ ] Webhook delivery failures logged with payload for manual replay
+For Admin work, use only the operator's individually provisioned Linktree account, documented Workspace role, and enabled MFA. Never request passwords, one-time codes, browser cookies, recovery codes, or session material. For partner automation, use only the authentication method, environment, scope, storage, rotation, and revocation process in the user-supplied approved partner contract. Public help pages do not establish a general API credential.
 
-## Security
+## Instructions
 
-- [ ] Webhook signatures verified using HMAC-SHA256 with shared secret
-- [ ] CORS restricted to known frontend domains (no wildcard origins)
-- [ ] API responses sanitized before rendering user-generated link titles/descriptions
-- [ ] Click analytics data access restricted by creator account scope
-- [ ] No PII logged in plain text (creator emails, visitor IPs masked)
+1. Freeze change ID, reviewed revision, target profile and Workspace, operator, approver, window, scope, and excluded changes.
+2. Use Read, Glob, and Grep to verify acceptance evidence, destination approvals, access review, synthetic tests, data-impact review, monitoring, and rollback receipt.
+3. Confirm required plan and region features on the target account and Linktree service status near the window.
+4. Verify signed-out mobile and desktop behavior, accessibility, content approval, destination ownership, schedule timezone, and sharing preview.
+5. For audience, commerce, or partner automation, verify consent, terms, data minimization, retention, deletion, private-contract revision, and support ownership.
+6. Use Write or Edit to produce a signed checklist with explicit pass, fail, not applicable, and evidence for every item.
+7. Use WebFetch only for current official Linktree guidance and status evidence.
 
-## Validation Script
+## Approval Boundaries
 
-```typescript
-async function validateLinktreeProduction(apiKey: string): Promise<void> {
-  const base = 'https://api.linktr.ee/v1';
-  const headers = { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' };
+Any missing owner, missing rollback, failed critical check, active material incident, or undocumented private interface is a no-go—not an assumed pass.
 
-  // 1. Connectivity check
-  const ping = await fetch(`${base}/health`, { headers, signal: AbortSignal.timeout(5000) });
-  console.assert(ping.ok, `API unreachable: ${ping.status}`);
+## Output
 
-  // 2. Auth validation
-  const profile = await fetch(`${base}/me`, { headers });
-  console.assert(profile.status !== 401, 'Invalid API key');
-  console.assert(profile.status !== 403, 'Insufficient key permissions');
+Return change ID, revision, checks by domain, evidence links, exceptions, approvers, monitoring and rollback readiness, blockers, and final go/no-go.
 
-  // 3. Rate limit headroom
-  const remaining = parseInt(profile.headers.get('X-RateLimit-Remaining') ?? '0');
-  console.assert(remaining > 20, `Rate limit headroom low: ${remaining} remaining`);
+## Error Handling
 
-  // 4. Webhook endpoint reachable
-  const webhookUrl = process.env.LINKTREE_WEBHOOK_URL;
-  if (webhookUrl) {
-    const wh = await fetch(webhookUrl, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
-    console.assert(wh.ok, `Webhook endpoint unreachable: ${wh.status}`);
-  }
+| Condition | Response |
+|---|---|
+| Evidence belongs to another revision | Reject it and rerun the affected gate on the frozen revision. |
+| Required feature is unavailable | Change scope or plan; do not improvise around the product boundary. |
+| Rollback owner is absent | Hold the release until an accountable operator is available. |
 
-  // 5. Click tracking active
-  const links = await fetch(`${base}/links`, { headers });
-  console.assert(links.ok, `Links endpoint failed: ${links.status}`);
-  console.log('All Linktree production checks passed');
-}
+## Example
+
+The example is a synthetic, redacted operator receipt, not proof of Linktree access or a live account change.
+
+```text
+change=lt-88; revision=def456; access=pass; content=pass; destinations=pass; data=na; status=pass; rollback=pass; decision=go
 ```
-
-## Risk Matrix
-
-| Check | Risk if Skipped | Priority |
-|---|---|---|
-| HMAC webhook verification | Spoofed click events corrupt analytics | Critical |
-| Rate limit client-side cap | 429 storm during viral spikes, data loss | Critical |
-| Bearer token in vault | Key leak via repo/logs, full account takeover | Critical |
-| Cached profile fallback | Blank link-in-bio page during outage | High |
-| Click event replay queue | Permanent analytics gaps after transient failures | High |
 
 ## Resources
 
-- [Linktree Developer Docs](https://linktr.ee/marketplace/developer)
+- [Official documentation map](references/official-docs.md) — dated evidence and limits for this workflow.
+
+Read the map before acting. Recheck current account and partner-specific evidence for plan-dependent or private behavior.
 
 ## Next Steps
 
-See `linktree-security-basics`.
+Revalidate source dates, owner approval, target profile, and rollback readiness before repeating the workflow in another account, Workspace, campaign, region, plan, or integration.

@@ -1,146 +1,91 @@
 ---
 name: linktree-debug-bundle
-description: 'Debug Bundle for Linktree.
-
-  Trigger: "linktree debug bundle".
-
-  '
-allowed-tools: Read, Bash(curl:*), Grep
-version: 1.7.0
-license: MIT
+description: 'Assemble a minimal, redacted Linktree troubleshooting bundle for support or incident handoff. Use when a profile, destination, Insights view, or partner integration fails. Trigger with "build Linktree debug bundle".'
+argument-hint: "[incident-id] [symptom]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linktree
-- social
-compatibility: Designed for Claude Code
+- debugging
+- support
+- redaction
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live work requires an authorized Linktree account and approval from the profile, Workspace, data, or partner-integration owner
 ---
-# Linktree Debug Bundle
+# Linktree Redacted Operator Evidence Bundle
 
 ## Overview
 
-This debug bundle collects diagnostic evidence from Linktree link-in-bio API integrations
-for troubleshooting profile rendering, link analytics, and webhook delivery issues. It
-captures OAuth token validity, profile metadata retrieval, individual link status checks,
-click analytics availability, and webhook endpoint health. The resulting tarball gives
-support engineers the data needed to diagnose broken links, missing analytics events,
-profile sync failures, and API permission issues without requiring Linktree admin access.
+Capture reproducible evidence across the public profile, Admin observation, destination, service status, and approved adapter without leaking sessions, subscribers, or private contracts.
 
 ## Prerequisites
 
-- `curl`, `jq`, `tar` installed
-- `LINKTREE_API_KEY` set (OAuth bearer token from Linktree developer portal)
+- An authorized Linktree account or a clearly bounded design-only task
+- The profile, Workspace, destination, campaign, data, or integration owner appropriate to the requested change
+- Current account evidence for plan-dependent features and user-supplied approved partner documentation for every private interface
 
-## Debug Collection Script
+## Tool Discipline
 
-```bash
-#!/bin/bash
-set -euo pipefail
-BUNDLE="debug-linktree-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE"
+Use `Read`, `Glob`, and `Grep` to inspect repository specifications, sanitized fixtures, policies, tests, and prior receipts.
 
-# Environment check
-echo "=== Environment ===" > "$BUNDLE/environment.txt"
-echo "API Key: ${LINKTREE_API_KEY:+SET (redacted)}" >> "$BUNDLE/environment.txt"
-echo "Node: $(node -v 2>/dev/null || echo 'not installed')" >> "$BUNDLE/environment.txt"
-echo "Timestamp: $(date -u)" >> "$BUNDLE/environment.txt"
+Use `WebFetch` only for current official Linktree documentation or explicitly approved partner documentation.
 
-# API connectivity — user profile
-echo "=== API Health ===" > "$BUNDLE/api-health.txt"
-curl -sf -o "$BUNDLE/api-health.txt" -w "HTTP %{http_code} in %{time_total}s\n" \
-  -H "Authorization: Bearer ${LINKTREE_API_KEY}" \
-  "https://api.linktree.com/v1/user" 2>&1 || echo "UNREACHABLE" > "$BUNDLE/api-health.txt"
+Use `Write` or `Edit` only after confirming scope, target, owners, data classification, and approval state. These tools do not confer Linktree access, account authority, or permission to process visitor data. Return exact operator steps or an approval-gated handoff when a live action is not authorized.
 
-# Profile links enumeration
-echo "=== Links ===" > "$BUNDLE/links.json"
-curl -sf -H "Authorization: Bearer ${LINKTREE_API_KEY}" \
-  "https://api.linktree.com/v1/links" \
-  >> "$BUNDLE/links.json" 2>&1 || echo '{"error":"FAILED"}' > "$BUNDLE/links.json"
+## Current Contract
 
-# Link click analytics (last 7 days)
-echo "=== Analytics ===" > "$BUNDLE/analytics.json"
-curl -sf -H "Authorization: Bearer ${LINKTREE_API_KEY}" \
-  "https://api.linktree.com/v1/analytics?period=7d" \
-  >> "$BUNDLE/analytics.json" 2>&1 || echo '{"error":"ANALYTICS_FAILED"}' > "$BUNDLE/analytics.json"
+- Linktree status is the public source for platform incident context.
+- Browser-visible profile and destination behavior can be recorded without claiming access to Linktree internals.
+- Partner logs and contracts remain private and should be summarized or redacted according to their handling rules.
 
-# Recent logs
-echo "=== Recent Logs ===" > "$BUNDLE/app-logs.txt"
-tail -100 /var/log/linktree-sync/*.log >> "$BUNDLE/app-logs.txt" 2>/dev/null || echo "No sync logs found" >> "$BUNDLE/app-logs.txt"
+## Authentication
 
-# Rate limit status
-echo "=== Rate Limits ===" > "$BUNDLE/rate-limits.txt"
-curl -sI -H "Authorization: Bearer ${LINKTREE_API_KEY}" \
-  "https://api.linktree.com/v1/user" 2>/dev/null | grep -i "x-rate\|retry-after\|x-ratelimit" >> "$BUNDLE/rate-limits.txt" || echo "No rate limit headers" >> "$BUNDLE/rate-limits.txt"
+For Admin work, use only the operator's individually provisioned Linktree account, documented Workspace role, and enabled MFA. Never request passwords, one-time codes, browser cookies, recovery codes, or session material. For partner automation, use only the authentication method, environment, scope, storage, rotation, and revocation process in the user-supplied approved partner contract. Public help pages do not establish a general API credential.
 
-# Package versions
-echo "=== Dependencies ===" > "$BUNDLE/deps.txt"
-npm ls 2>/dev/null | grep -i linktree >> "$BUNDLE/deps.txt" || echo "No Linktree npm packages found" >> "$BUNDLE/deps.txt"
+## Instructions
 
-tar -czf "$BUNDLE.tar.gz" "$BUNDLE" && rm -rf "$BUNDLE"
-echo "Bundle: $BUNDLE.tar.gz"
-```
+1. Record incident ID, reporter, symptom, first-seen time and timezone, affected profile, expected behavior, business impact, and current owner.
+2. Use Read, Glob, and Grep to locate relevant change receipts, sanitized logs, fixtures, and destination ownership while excluding credentials and raw audience exports.
+3. Capture Linktree service status, signed-out reproduction steps, device and browser class, link title, expected destination host, and observed redirect or error.
+4. For approved partner automation, include contract revision, request correlation identifier, response class, and redacted timing only when permitted.
+5. Remove tokens, cookies, email addresses, phone numbers, payment data, full query strings, private payloads, and unrelated profile information.
+6. Use Write or Edit to assemble the smallest useful bundle and a manifest listing every included artifact and redaction.
+7. Use WebFetch only for current official Linktree status or troubleshooting guidance.
 
-## Analyzing the Bundle
+## Approval Boundaries
 
-```bash
-tar -xzf debug-linktree-*.tar.gz
-cat debug-linktree-*/environment.txt     # Verify API key is set
-cat debug-linktree-*/api-health.txt      # Check HTTP status and latency
-jq '.links | length' debug-linktree-*/links.json       # Count active links
-jq '.totalClicks' debug-linktree-*/analytics.json      # Verify analytics data
-```
+Do not share browser sessions, raw HAR files, subscriber exports, private partner documents, or screenshots containing unrelated personal information.
 
-## Common Issues
+## Output
 
-| Symptom | Check in Bundle | Fix |
-|---------|----------------|-----|
-| 401 Unauthorized | `environment.txt` shows key NOT SET | Generate new API key in Linktree Developer Settings |
-| Profile returns but links empty | `links.json` has empty array | Ensure links are published (not draft); check link visibility settings |
-| Analytics returns 403 | `analytics.json` shows permission error | Analytics API requires Pro plan or higher; upgrade Linktree subscription |
-| Click counts stuck at zero | `analytics.json` shows `totalClicks: 0` | Analytics lag up to 24h; verify links have `tracking` enabled |
-| 429 rate limited | `rate-limits.txt` shows retry-after | Linktree allows 100 req/min; implement request queuing with backoff |
-| Webhook not firing | App logs show no delivery attempts | Verify webhook URL in Linktree admin; check SSL cert validity on receiving endpoint |
+Return incident ID, timeline, reproduction, affected surface, status evidence, change correlation, redactions, artifact manifest, escalation target, and next diagnostic action.
 
-## Automated Health Check
+## Error Handling
 
-```typescript
-async function checkLinktreeHealth(): Promise<{
-  status: string;
-  latencyMs: number;
-  profileOk: boolean;
-  linkCount: number;
-  analyticsAvailable: boolean;
-}> {
-  const apiKey = process.env.LINKTREE_API_KEY;
-  const headers = { Authorization: `Bearer ${apiKey}` };
-  const start = Date.now();
+| Condition | Response |
+|---|---|
+| Bundle contains a session or token | Stop distribution, remove it, rotate if exposed, and rebuild the bundle. |
+| Symptom cannot be reproduced | Record that fact and preserve timestamps and reporter evidence without inventing a cause. |
+| Service incident is active | Correlate impact and monitor official status before invasive changes. |
 
-  const profileRes = await fetch("https://api.linktree.com/v1/user", { headers });
-  const linksRes = await fetch("https://api.linktree.com/v1/links", { headers });
-  const analyticsRes = await fetch("https://api.linktree.com/v1/analytics?period=7d", { headers });
+## Example
 
-  let linkCount = 0;
-  if (linksRes.ok) {
-    const data = await linksRes.json();
-    linkCount = data.links?.length ?? 0;
-  }
+The example is a synthetic, redacted operator receipt, not proof of Linktree access or a live account change.
 
-  return {
-    status: profileRes.ok ? "healthy" : "degraded",
-    latencyMs: Date.now() - start,
-    profileOk: profileRes.ok,
-    linkCount,
-    analyticsAvailable: analyticsRes.ok,
-  };
-}
+```text
+incident=INC-42; surface=public-link; first-seen=2026-09-11T14:20Z; status=operational; repro=mobile-only; artifacts=3-redacted; escalation=destination-owner
 ```
 
 ## Resources
 
-- [Linktree Developer Docs](https://linktr.ee/marketplace/developer)
-- [Linktree Status Page](https://status.linktr.ee)
-- [Linktree API Changelog](https://developers.linktr.ee/changelog)
+- [Official documentation map](references/official-docs.md) — dated evidence and limits for this workflow.
+
+Read the map before acting. Recheck current account and partner-specific evidence for plan-dependent or private behavior.
 
 ## Next Steps
 
-See `linktree-rate-limits`.
+Revalidate source dates, owner approval, target profile, and rollback readiness before repeating the workflow in another account, Workspace, campaign, region, plan, or integration.

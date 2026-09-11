@@ -1,153 +1,91 @@
 ---
 name: linktree-security-basics
-description: 'Security Basics for Linktree.
-
-  Trigger: "linktree security basics".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Establish a Linktree security baseline for account access, Workspaces, destinations, audience data, and incident response. Use when hardening or reviewing a profile. Trigger with "secure Linktree".'
+argument-hint: "[workspace] [profile]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linktree
-- social
-compatibility: Designed for Claude Code
+- security
+- mfa
+- data-protection
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live work requires an authorized Linktree account and approval from the profile, Workspace, data, or partner-integration owner
 ---
-# Linktree Security Basics
+# Linktree Account and Data Security Baseline
 
 ## Overview
 
-Linktree integrations handle user-generated content (link titles, URLs, bios) and analytics data that is PII-adjacent — click counts, geographic breakdowns, and referrer URLs can fingerprint individual visitors. Bearer token authentication means a leaked key grants full account access including link creation, profile modification, and analytics export. Webhook payloads carry real-time event data signed with HMAC-SHA256, and failing to verify signatures opens your endpoint to spoofed events and data poisoning.
+Reduce account takeover, malicious-link, overprivilege, and audience-data risks with documented controls and named owners. Produce a reproducible baseline that makes exceptions and remediation accountability visible.
 
 ## Prerequisites
 
-- Secrets manager (AWS SSM, GCP Secret Manager, or Vault) for all Linktree credentials
-- HTTPS enforced on all webhook receiver endpoints
-- `.env` files in `.gitignore` — never committed to version control
-- Logging infrastructure that supports field-level redaction
+- An authorized Linktree account or a clearly bounded design-only task
+- The profile, Workspace, destination, campaign, data, or integration owner appropriate to the requested change
+- Current account evidence for plan-dependent features and user-supplied approved partner documentation for every private interface
 
-## API Key Management
+## Tool Discipline
 
-```typescript
-// Load Linktree bearer token from environment — never hardcode
-const LINKTREE_TOKEN = process.env.LINKTREE_API_KEY;
+Use `Read`, `Glob`, and `Grep` to inspect repository specifications, sanitized fixtures, policies, tests, and prior receipts.
 
-function validateLinktreeConfig(): void {
-  if (!LINKTREE_TOKEN || LINKTREE_TOKEN.startsWith('lt_test_')) {
-    throw new Error('Missing or test-only LINKTREE_API_KEY — set a production token');
-  }
-}
+Use `WebFetch` only for current official Linktree documentation or explicitly approved partner documentation.
 
-function linktreeHeaders(): Record<string, string> {
-  return {
-    Authorization: `Bearer ${LINKTREE_TOKEN}`,
-    'Content-Type': 'application/json',
-  };
-}
-// Call validateLinktreeConfig() at startup, before accepting requests
-```
+Use `Write` or `Edit` only after confirming scope, target, owners, data classification, and approval state. These tools do not confer Linktree access, account authority, or permission to process visitor data. Return exact operator steps or an approval-gated handoff when a live action is not authorized.
 
-## Webhook Signature Verification
+## Current Contract
 
-```typescript
-import crypto from 'node:crypto';
+- Linktree documents MFA and new-login notifications as account-security controls.
+- Workspaces and Admin users create access relationships that require lifecycle ownership.
+- Audience, analytics, and destination systems can introduce personal-data and third-party risk beyond the profile itself.
 
-const WEBHOOK_SECRET = process.env.LINKTREE_WEBHOOK_SECRET!;
+## Authentication
 
-function verifyLinktreeWebhook(payload: string, signature: string): boolean {
-  const expected = crypto
-    .createHmac('sha256', WEBHOOK_SECRET)
-    .update(payload, 'utf8')
-    .digest('hex');
-  // Timing-safe comparison prevents timing attacks
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
-}
+For Admin work, use only the operator's individually provisioned Linktree account, documented Workspace role, and enabled MFA. Never request passwords, one-time codes, browser cookies, recovery codes, or session material. For partner automation, use only the authentication method, environment, scope, storage, rotation, and revocation process in the user-supplied approved partner contract. Public help pages do not establish a general API credential.
 
-// Express middleware
-app.post('/webhooks/linktree', (req, res) => {
-  const sig = req.headers['x-linktree-signature'] as string;
-  if (!sig || !verifyLinktreeWebhook(JSON.stringify(req.body), sig)) {
-    return res.status(401).json({ error: 'Invalid signature' });
-  }
-  // Process verified event
-});
-```
+## Instructions
 
-## Input Validation
+1. Identify account and Workspace owners, editors, recovery contacts, connected services, destination owners, data exports, and incident responders.
+2. Use Read, Glob, and Grep to inspect access policy, approved destination list, integration inventory, retention rules, and prior incidents without reading secret values.
+3. Verify individual accounts, least privilege, MFA, recovery ownership, new-login alert routing, and a tested offboarding process.
+4. Review every live destination for approved ownership, HTTPS, expected redirect behavior, and removal procedure; quarantine unexplained links.
+5. Minimize audience exports and third-party integrations; document consent, purpose, storage, retention, deletion, and breach escalation.
+6. Use Write or Edit to record a redacted control matrix, exceptions, evidence dates, and remediation owners.
+7. Use WebFetch only for current official Linktree security, privacy, Workspace, or login guidance.
 
-```typescript
-import { URL } from 'node:url';
+## Approval Boundaries
 
-function sanitizeLinkTitle(title: string): string {
-  // Strip HTML/script tags from user-generated link titles
-  return title.replace(/<[^>]*>/g, '').trim().slice(0, 150);
-}
+Do not share accounts, publish secrets, retain unnecessary subscriber data, or silently accept an unknown destination or administrator.
 
-function validateLinkUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url);
-    // Only allow http/https — block javascript:, data:, file: schemes
-    return ['http:', 'https:'].includes(parsed.protocol);
-  } catch {
-    return false;
-  }
-}
-```
+## Output
 
-## Data Protection
-
-```typescript
-function redactAnalytics(data: Record<string, unknown>): Record<string, unknown> {
-  const sensitive = ['ip_address', 'user_agent', 'referrer_url', 'geo_city'];
-  const redacted = { ...data };
-  for (const field of sensitive) {
-    if (redacted[field]) redacted[field] = '[REDACTED]';
-  }
-  return redacted;
-}
-// Use redactAnalytics() before writing any analytics payload to logs
-```
-
-## Access Control
-
-```typescript
-// Linktree tokens are account-scoped — enforce least privilege
-function assertReadOnlyScope(operation: string): void {
-  const writeOps = ['create_link', 'update_link', 'delete_link', 'update_profile'];
-  if (writeOps.includes(operation) && process.env.LINKTREE_READ_ONLY === 'true') {
-    throw new Error(`Write operation "${operation}" blocked in read-only mode`);
-  }
-}
-```
-
-## Security Checklist
-
-- [ ] Bearer token stored in secrets manager, not `.env` on disk
-- [ ] Webhook `x-linktree-signature` verified with HMAC-SHA256
-- [ ] Link URLs validated against allowlisted protocols
-- [ ] Link titles sanitized for HTML/XSS before storage or display
-- [ ] Analytics data redacted before logging (IP, user-agent, geo)
-- [ ] Read-only mode enforced for non-admin integrations
-- [ ] Token rotation scheduled quarterly
-- [ ] Rate limiting applied to webhook receiver endpoint
+Return asset inventory, access and MFA state, destination findings, integration and data-flow findings, exceptions, remediation owners, evidence dates, and risk decision.
 
 ## Error Handling
 
-| Vulnerability | Risk | Mitigation |
-|---|---|---|
-| Bearer token in logs | Full account takeover | Redact `Authorization` header in all log output |
-| Unverified webhooks | Spoofed link-click events | Reject any request missing valid `x-linktree-signature` |
-| Malicious link URLs | Open redirect / phishing | Validate URL scheme and domain before storing |
-| XSS in link titles | Script injection via UGC | Strip HTML tags and enforce max length |
-| Analytics PII leakage | GDPR/CCPA violation | Redact IP, geo, and referrer before persistence |
+| Condition | Response |
+|---|---|
+| Unknown administrator exists | Remove or suspend access through the owner-approved process and investigate. |
+| Login notification is unexplained | Treat it as a possible incident, rotate access safely, and review sessions. |
+| Audience data has no retention rule | Stop new exports until purpose and deletion are approved. |
+
+## Example
+
+The example is a synthetic, redacted operator receipt, not proof of Linktree access or a live account change.
+
+```text
+workspace=main; users=4; mfa=4/4; unknown-admins=0; destinations=12-approved; exports=1-controlled; exceptions=0; risk=accepted
+```
 
 ## Resources
 
-- [Linktree Developer Docs](https://linktr.ee/marketplace/developer)
-- [OWASP API Security Top 10](https://owasp.org/www-project-api-security/)
+- [Official documentation map](references/official-docs.md) — dated evidence and limits for this workflow.
+
+Read the map before acting. Recheck current account and partner-specific evidence for plan-dependent or private behavior.
 
 ## Next Steps
 
-See `linktree-prod-checklist`.
+Revalidate source dates, owner approval, target profile, and rollback readiness before repeating the workflow in another account, Workspace, campaign, region, plan, or integration.

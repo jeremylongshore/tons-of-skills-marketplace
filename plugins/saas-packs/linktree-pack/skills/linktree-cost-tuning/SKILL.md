@@ -1,120 +1,91 @@
 ---
 name: linktree-cost-tuning
-description: 'Cost Tuning for Linktree.
-
-  Trigger: "linktree cost tuning".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.7.0
-license: MIT
+description: 'Evaluate Linktree plan and feature value from current pricing, actual usage, and documented availability. Use when renewing, upgrading, or reducing spend. Trigger with "review Linktree cost".'
+argument-hint: "[workspace] [review-window]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linktree
-- social
-compatibility: Designed for Claude Code
+- cost
+- plans
+- value-review
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live work requires an authorized Linktree account and approval from the profile, Workspace, data, or partner-integration owner
 ---
-# Linktree Cost Tuning
+# Linktree Plan and Feature Value Review
 
 ## Overview
 
-Linktree uses tiered pricing (Free, Starter, Pro, Premium) with cost scaling driven by analytics API call volume and link event tracking. Every page view, link click, and analytics query generates API activity. For brands managing multiple Linktree profiles or high-traffic pages with thousands of daily clicks, redundant analytics polling and uncached link data lookups create unnecessary API spend. Optimizing retrieval patterns and choosing the right tier based on actual feature usage prevents overpaying for unused premium capabilities.
+Build a decision-ready plan review based on needed outcomes, active profiles, operator time, Insights history, and audience or commerce requirements rather than static copied prices.
 
-## Cost Breakdown
+## Prerequisites
 
-| Component | Cost Driver | Optimization |
-|-----------|------------|--------------|
-| Plan tier | Monthly subscription (Starter $5, Pro $9, Premium $24) | Audit feature usage — downgrade if premium features unused |
-| Analytics API calls | Per-request for click/view data | Cache analytics responses; poll on 15-min intervals max |
-| Link event tracking | Volume of click events across all links | Aggregate events client-side before API submission |
-| Profile API reads | Repeated fetches of link tree structure | Cache profile data with 5-min TTL; structure changes rarely |
-| Webhook deliveries | Events pushed per link interaction | Filter low-value events; batch webhook processing |
+- An authorized Linktree account or a clearly bounded design-only task
+- The profile, Workspace, destination, campaign, data, or integration owner appropriate to the requested change
+- Current account evidence for plan-dependent features and user-supplied approved partner documentation for every private interface
 
-## API Call Reduction
+## Tool Discipline
 
-```typescript
-class LinktreeAnalyticsCache {
-  private cache = new Map<string, { data: any; expiry: number }>();
-  private readonly minPollInterval = 900_000; // 15 minutes
-  private lastPoll = 0;
+Use `Read`, `Glob`, and `Grep` to inspect repository specifications, sanitized fixtures, policies, tests, and prior receipts.
 
-  async getAnalytics(profileId: string, fetchFn: () => Promise<any>): Promise<any> {
-    const cacheKey = `analytics:${profileId}`;
-    const cached = this.cache.get(cacheKey);
-    if (cached && Date.now() < cached.expiry) return cached.data;
-    if (Date.now() - this.lastPoll < this.minPollInterval) {
-      return cached?.data ?? null; // Return stale data rather than over-polling
-    }
-    this.lastPoll = Date.now();
-    const data = await fetchFn();
-    this.cache.set(cacheKey, { data, expiry: Date.now() + this.minPollInterval });
-    return data;
-  }
+Use `WebFetch` only for current official Linktree documentation or explicitly approved partner documentation.
 
-  async getProfile(profileId: string, fetchFn: () => Promise<any>): Promise<any> {
-    const cacheKey = `profile:${profileId}`;
-    const cached = this.cache.get(cacheKey);
-    if (cached && Date.now() < cached.expiry) return cached.data;
-    const data = await fetchFn();
-    this.cache.set(cacheKey, { data, expiry: Date.now() + 300_000 }); // 5-min TTL
-    return data;
-  }
-}
-```
+Use `Write` or `Edit` only after confirming scope, target, owners, data classification, and approval state. These tools do not confer Linktree access, account authority, or permission to process visitor data. Return exact operator steps or an approval-gated handoff when a live action is not authorized.
 
-## Usage Monitoring
+## Current Contract
 
-```typescript
-class LinktreeCostTracker {
-  private dailyCalls = { analytics: 0, profile: 0, events: 0 };
-  private budgets = { analytics: 1000, profile: 500, events: 5000 };
+- Linktree pricing and feature availability can change and must be verified at decision time.
+- Insights history, filters, exports, and audience capabilities vary by plan according to current help guidance.
+- A feature's presence does not prove incremental value; actual usage and business outcomes are required.
 
-  record(type: 'analytics' | 'profile' | 'events'): void {
-    this.dailyCalls[type]++;
-    const pct = (this.dailyCalls[type] / this.budgets[type]) * 100;
-    if (pct > 80) {
-      console.warn(`Linktree ${type} at ${pct.toFixed(0)}%: ${this.dailyCalls[type]}/${this.budgets[type]}`);
-    }
-  }
+## Authentication
 
-  getReport(): Record<string, { used: number; budget: number }> {
-    return Object.fromEntries(
-      Object.keys(this.dailyCalls).map(k => [k, {
-        used: this.dailyCalls[k as keyof typeof this.dailyCalls],
-        budget: this.budgets[k as keyof typeof this.budgets]
-      }])
-    );
-  }
-}
-```
+For Admin work, use only the operator's individually provisioned Linktree account, documented Workspace role, and enabled MFA. Never request passwords, one-time codes, browser cookies, recovery codes, or session material. For partner automation, use only the authentication method, environment, scope, storage, rotation, and revocation process in the user-supplied approved partner contract. Public help pages do not establish a general API credential.
 
-## Cost Optimization Checklist
+## Instructions
 
-- [ ] Cache analytics responses with 15-minute minimum poll interval
-- [ ] Cache profile/link structure with 5-minute TTL
-- [ ] Aggregate click events client-side before submitting
-- [ ] Audit plan tier quarterly — downgrade if premium features unused
-- [ ] Filter low-value webhook events before processing
-- [ ] Batch link update operations instead of per-link API calls
-- [ ] Set daily API call budget alerts at 80% threshold
-- [ ] Consolidate multiple profiles where a single tree suffices
+1. Define the decision date, billing owner, current plan, profiles and Workspaces, renewal terms, required outcomes, and non-negotiable controls.
+2. Use Read, Glob, and Grep to inspect approved invoices, plan inventory, usage receipts, campaign results, and operator-time estimates without exposing payment details.
+3. Use WebFetch to capture current official pricing and help evidence on the review date; record region, billing cadence, tax assumptions, and feature caveats.
+4. Map each used or requested feature to an owner, frequency, measurable outcome, alternative, and documented plan requirement.
+5. Compare keep, upgrade, downgrade, and consolidate scenarios, including migration effort, lost history, access changes, and operational risk.
+6. Use Write or Edit to produce a redacted recommendation with sensitivity ranges instead of false precision.
+7. Set a follow-up date and measurable trigger for revisiting the decision.
+
+## Approval Boundaries
+
+Do not change a subscription, payment method, Workspace, or data export policy without billing and account-owner approval.
+
+## Output
+
+Return evidence date, current plan, required capabilities, used capabilities, scenario costs, assumptions, migration risks, recommendation, approvers, and next review trigger.
 
 ## Error Handling
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| Analytics API rate limited | Polling more frequently than 15-min interval | Enforce minimum poll interval with cache layer |
-| Stale profile data shown | Cache TTL too long after link edits | Invalidate profile cache on write operations |
-| Event tracking costs spike | High-traffic page generating thousands of click events | Aggregate events in 1-minute batches before submission |
-| Over-provisioned plan tier | Paying for Pro features used on Free tier | Audit feature matrix; match tier to actual usage |
-| Webhook delivery failures | Processing too many low-value events | Filter events by type; only subscribe to high-value actions |
+| Condition | Response |
+|---|---|
+| Pricing region is unknown | Present a range and obtain the account's actual renewal quote. |
+| Feature requirement has no owner | Exclude it from the must-have set until accountability is assigned. |
+| Downgrade may remove history or access | Confirm documented impact and export needs before approval. |
+
+## Example
+
+The example is a synthetic, redacted operator receipt, not proof of Linktree access or a live account change.
+
+```text
+workspace=brand; evidence-date=2026-09-11; outcomes=3; used-features=5; scenarios=keep|downgrade; recommendation=keep; sensitivity=renewal-quote-pending
+```
 
 ## Resources
 
-- [Linktree Pricing](https://linktr.ee/s/pricing/)
-- [Linktree Developer Portal](https://linktr.ee/marketplace/developer)
+- [Official documentation map](references/official-docs.md) — dated evidence and limits for this workflow.
+
+Read the map before acting. Recheck current account and partner-specific evidence for plan-dependent or private behavior.
 
 ## Next Steps
 
-See `linktree-performance-tuning`.
+Revalidate source dates, owner approval, target profile, and rollback readiness before repeating the workflow in another account, Workspace, campaign, region, plan, or integration.

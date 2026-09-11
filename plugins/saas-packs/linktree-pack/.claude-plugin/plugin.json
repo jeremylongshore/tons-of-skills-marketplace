@@ -1,7 +1,7 @@
 {
   "name": "linktree-pack",
-  "version": "1.7.0",
-  "description": "Claude Code skill pack for Linktree (18 skills)",
+  "version": "1.8.0",
+  "description": "Production-grade Linktree operator workflows grounded in public Help Center guidance; partner automation remains contract-gated (18 skills)",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,8 @@
   "license": "MIT",
   "keywords": [
     "linktree",
-    "linktree",
     "saas",
-    "sdk",
+    "operator-workflows",
     "integration"
   ]
 }
