@@ -9705,13 +9705,13 @@
       "slug": "linktree-pack",
       "name": "linktree-pack",
       "displayName": "linktree pack",
-      "description": "Claude Code skill pack for Linktree (18 skills)",
-      "version": "1.7.0",
+      "description": "Production-grade Linktree operator workflows grounded in public Help Center guidance; partner automation remains contract-gated (18 skills)",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "linktree",
         "saas",
-        "sdk",
+        "operator-workflows",
         "integration"
       ],
       "hasSkills": true,

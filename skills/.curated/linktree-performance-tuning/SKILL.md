@@ -1,213 +1,91 @@
 ---
 name: linktree-performance-tuning
-description: 'Optimize Linktree API integration performance with caching, batching,
-  and rate limit strategies.
-
-  Use when Linktree API calls are slow, hitting rate limits, or profile pages serve
-  stale link data.
-
-  Trigger with "linktree performance tuning".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.7.0
-license: MIT
+description: 'Improve a Linktree visitor path with destination, mobile, content-order, and Insights evidence. Use when a profile is slow, confusing, or underperforming. Trigger with "optimize Linktree performance".'
+argument-hint: "[profile-url] [goal]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linktree
-- social
-compatibility: Designed for Claude Code
+- performance
+- conversion
+- mobile-qa
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live work requires an authorized Linktree account and approval from the profile, Workspace, data, or partner-integration owner
 ---
-# Linktree Performance Tuning
+# Linktree Visitor-Path Performance Study
 
 ## Overview
 
-Linktree profiles are high-traffic read endpoints — a single creator's link-in-bio page can receive millions of hits during viral moments. This skill covers caching strategies tuned to Linktree's data volatility, batch link operations, and resilient rate limit handling to prevent stale data and API cost overruns.
-
-## Instructions
-
-1. Implement Redis caching (or in-memory Map for development) with product-specific TTLs
-2. Wrap all API calls with the rate limit handler before deploying to production
-3. Enable connection pooling and configure batch sizes based on your traffic volume
-4. Set up monitoring metrics and verify cache hit rates exceed 80%
+Optimize the complete visitor path rather than a fictional API: profile render, content hierarchy, link choice, redirect chain, destination experience, and measured outcome.
 
 ## Prerequisites
 
-- Linktree API key with read/write scopes
-- Redis instance (or Node.js in-memory cache for development)
-- Monitoring stack (Prometheus/Grafana or equivalent)
-- Node.js 18+ with native fetch support
+- An authorized Linktree account or a clearly bounded design-only task
+- The profile, Workspace, destination, campaign, data, or integration owner appropriate to the requested change
+- Current account evidence for plan-dependent features and user-supplied approved partner documentation for every private interface
 
-## Caching Strategy
+## Tool Discipline
 
-```typescript
-import Redis from "ioredis";
+Use `Read`, `Glob`, and `Grep` to inspect repository specifications, sanitized fixtures, policies, tests, and prior receipts.
 
-const redis = new Redis(process.env.REDIS_URL);
+Use `WebFetch` only for current official Linktree documentation or explicitly approved partner documentation.
 
-// Profile data changes infrequently — cache 10 minutes
-// Link lists update more often — cache 2 minutes
-const TTL = { profile: 600, links: 120, analytics: 300 } as const;
+Use `Write` or `Edit` only after confirming scope, target, owners, data classification, and approval state. These tools do not confer Linktree access, account authority, or permission to process visitor data. Return exact operator steps or an approval-gated handoff when a live action is not authorized.
 
-async function getCachedProfile(username: string): Promise<LinktreeProfile> {
-  const key = `lt:profile:${username}`;
-  const cached = await redis.get(key);
-  if (cached) return JSON.parse(cached);
+## Current Contract
 
-  const profile = await linktreeApi.getProfile(username);
-  await redis.setex(key, TTL.profile, JSON.stringify(profile));
-  return profile;
-}
+- Linktree recommends considering visitor journey, content order, and focused link sets in its link guidance.
+- Insights exposes views, clicks, click rate, sources, and plan-dependent detail for measurement.
+- Destination latency and behavior belong to the destination owner and must be measured separately from Linktree.
 
-async function getCachedLinks(profileId: string): Promise<LinktreeLink[]> {
-  const key = `lt:links:${profileId}`;
-  const cached = await redis.get(key);
-  if (cached) return JSON.parse(cached);
+## Authentication
 
-  const links = await linktreeApi.getLinks(profileId);
-  await redis.setex(key, TTL.links, JSON.stringify(links));
-  return links;
-}
-```
+For Admin work, use only the operator's individually provisioned Linktree account, documented Workspace role, and enabled MFA. Never request passwords, one-time codes, browser cookies, recovery codes, or session material. For partner automation, use only the authentication method, environment, scope, storage, rotation, and revocation process in the user-supplied approved partner contract. Public help pages do not establish a general API credential.
 
-## Batch Operations
+## Instructions
 
-```typescript
-// Fetch multiple profiles in parallel with concurrency limit
-import pLimit from "p-limit";
+1. Define the visitor goal, target segment, profile, priority link, baseline window, primary metric, guardrail, owner, and rollback threshold.
+2. Use Read, Glob, and Grep to inspect the current content inventory, destination owners, campaign history, and prior Insights decisions.
+3. Test signed-out mobile and desktop paths, recording visible hierarchy, broken assets, redirect hops, destination readiness, accessibility blockers, and confusing labels.
+4. Use the documented Insights definitions and comparable windows to locate drop-off signals without asserting causation.
+5. Choose one reversible change to title, order, link type, destination, or profile presentation; keep other variables stable.
+6. Use Write or Edit to record the hypothesis, exact change, baseline, review window, result, and rollback decision.
+7. Use WebFetch only for current official Linktree link, design, Insights, or sharing guidance.
 
-const limit = pLimit(5); // Max 5 concurrent Linktree API calls
+## Approval Boundaries
 
-async function batchFetchProfiles(usernames: string[]): Promise<LinktreeProfile[]> {
-  return Promise.all(
-    usernames.map((u) => limit(() => getCachedProfile(u)))
-  );
-}
-
-// Bulk link updates — group mutations into single request windows
-async function batchUpdateLinks(
-  profileId: string,
-  updates: LinkUpdate[]
-): Promise<void> {
-  const chunks = chunkArray(updates, 10); // 10 links per request
-  for (const chunk of chunks) {
-    await Promise.all(chunk.map((u) => limit(() => linktreeApi.updateLink(profileId, u))));
-  }
-}
-```
-
-## Connection Pooling
-
-```typescript
-import { Agent } from "undici";
-
-const linktreeAgent = new Agent({
-  connect: { timeout: 5_000 },
-  keepAliveTimeout: 30_000,
-  keepAliveMaxTimeout: 60_000,
-  pipelining: 1,
-  connections: 10, // Persistent pool for linktr.ee API
-});
-
-async function linktreeFetch(path: string, init?: RequestInit): Promise<Response> {
-  return fetch(`https://api.linktr.ee/v1${path}`, {
-    ...init,
-    // @ts-expect-error undici dispatcher
-    dispatcher: linktreeAgent,
-    headers: { Authorization: `Bearer ${process.env.LINKTREE_API_KEY}`, ...init?.headers },
-  });
-}
-```
-
-## Rate Limit Management
-
-```typescript
-async function withRateLimit<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      return await fn();
-    } catch (err: any) {
-      if (err.status === 429) {
-        const retryAfter = parseInt(err.headers?.["retry-after"] ?? "5", 10);
-        const backoff = retryAfter * 1000 * Math.pow(2, attempt);
-        console.warn(`Linktree rate limited. Retrying in ${backoff}ms (attempt ${attempt + 1})`);
-        await new Promise((r) => setTimeout(r, backoff));
-        continue;
-      }
-      throw err;
-    }
-  }
-  throw new Error("Linktree API: max retries exceeded");
-}
-```
-
-## Monitoring & Metrics
-
-```typescript
-import { Counter, Histogram } from "prom-client";
-
-const ltApiLatency = new Histogram({
-  name: "linktree_api_duration_seconds",
-  help: "Linktree API call latency",
-  labelNames: ["endpoint", "status"],
-  buckets: [0.1, 0.25, 0.5, 1, 2, 5],
-});
-
-const ltCacheHits = new Counter({
-  name: "linktree_cache_hits_total",
-  help: "Cache hits for Linktree profile and link data",
-  labelNames: ["cache_type"], // profile | links | analytics
-});
-
-const ltRateLimits = new Counter({
-  name: "linktree_rate_limits_total",
-  help: "Number of 429 responses from Linktree API",
-});
-```
-
-## Performance Checklist
-
-- [ ] Cache TTLs set: profiles 10min, links 2min, analytics 5min
-- [ ] Batch size optimized (10 links per request, 5 concurrent calls)
-- [ ] Connection pooling via undici Agent enabled
-- [ ] Rate limit retry with exponential backoff in place
-- [ ] Monitoring dashboards tracking latency, cache hits, and 429s
-- [ ] Cache invalidation on link create/update/delete webhooks
-
-## Error Handling
-
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| Stale links shown to visitors | Cache TTL too long for active creators | Lower link cache TTL to 60s for high-traffic profiles |
-| 429 during viral traffic spike | Burst of profile reads exceeds rate limit | Enable request queuing with p-limit concurrency of 3 |
-| Slow profile page renders | Fetching profile + links sequentially | Parallelize with `Promise.all([getProfile, getLinks])` |
-| Connection timeouts to API | No keep-alive, cold TCP for each request | Enable undici connection pooling with 10 persistent sockets |
-| Analytics data gaps | Report endpoints are slow, callers timeout | Cache analytics for 5min, use background refresh pattern |
+Do not use deceptive copy, hide material destination terms, run an uncontrolled multivariable test, or treat personal data as a performance metric.
 
 ## Output
 
-After applying these optimizations, expect:
+Return goal, baseline, path observations, destination findings, hypothesis, one change, primary and guardrail metrics, review window, and rollback threshold.
 
-- Profile page API latency under 200ms (cached) vs 500ms+ (uncached)
-- Cache hit rate above 80% for profile and link data
-- Zero 429 errors during normal traffic with graceful degradation during spikes
+## Error Handling
 
-## Examples
+| Condition | Response |
+|---|---|
+| Destination is the bottleneck | Assign remediation to its owner before rearranging the profile. |
+| Baseline includes a major campaign | Choose a comparable window or explicitly model the confounder. |
+| Change harms accessibility or trust | Roll it back regardless of click lift. |
 
-```typescript
-// Full optimized profile fetch — cache + rate limit + pooling
-const profile = await withRateLimit(() => getCachedProfile("creator-username"));
-const links = await withRateLimit(() => getCachedLinks(profile.id));
+## Example
 
-// Alternative: use in-memory Map instead of Redis for low-traffic integrations
-const localCache = new Map<string, { data: any; expiry: number }>();
+The example is a synthetic, redacted operator receipt, not proof of Linktree access or a live account change.
+
+```text
+goal=newsletter; baseline=28d; mobile-path=pass; redirect-hops=1; issue=ambiguous-title; change=title-only; metric=unique-clicks; guardrail=unsubscribe-rate
 ```
 
 ## Resources
 
-- [Linktree API Documentation](https://linktr.ee/marketplace/developer)
+- [Official documentation map](references/official-docs.md) — dated evidence and limits for this workflow.
+
+Read the map before acting. Recheck current account and partner-specific evidence for plan-dependent or private behavior.
 
 ## Next Steps
 
-See `linktree-reference-architecture`.
+Revalidate source dates, owner approval, target profile, and rollback readiness before repeating the workflow in another account, Workspace, campaign, region, plan, or integration.

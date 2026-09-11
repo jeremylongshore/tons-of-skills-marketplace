@@ -3094,7 +3094,12 @@
       "description": "Evidence-cited grader for Claude Code artifacts — the audit-skill runs the free skillcrossroads CLI for file:line scorecards, letter grades, and ranked fix lists",
       "version": "0.11.4",
       "category": "community",
-      "keywords": ["audit", "quality", "linter", "scorecard"],
+      "keywords": [
+        "audit",
+        "quality",
+        "linter",
+        "scorecard"
+      ],
       "author": {
         "name": "Steve Harlow"
       }
@@ -9352,13 +9357,13 @@
     {
       "name": "linktree-pack",
       "source": "./plugins/saas-packs/linktree-pack",
-      "description": "Claude Code skill pack for Linktree (18 skills)",
-      "version": "1.7.0",
+      "description": "Production-grade Linktree operator workflows grounded in public Help Center guidance; partner automation remains contract-gated (18 skills)",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "linktree",
         "saas",
-        "sdk",
+        "operator-workflows",
         "integration"
       ],
       "author": {
@@ -9370,10 +9375,10 @@
         "skills": 18
       },
       "verification": {
-        "score": 80,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 97,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
