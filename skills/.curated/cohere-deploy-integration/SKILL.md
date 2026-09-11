@@ -1,270 +1,91 @@
 ---
 name: cohere-deploy-integration
-description: 'Deploy Cohere-powered applications to Vercel, Fly.io, and Cloud Run.
-
-  Use when deploying Cohere API v2 apps to production,
-
-  configuring platform-specific secrets, or setting up deployment pipelines.
-
-  Trigger with phrases like "deploy cohere", "cohere Vercel",
-
-  "cohere production deploy", "cohere Cloud Run", "cohere Fly.io".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(fly:*), Bash(gcloud:*)
-version: 1.5.0
-license: MIT
+description: >-
+  Deploy a Cohere-powered service with server-side secrets, streaming-safe infrastructure, health checks, canarying, and rollback. Use when shipping Cohere workloads. Trigger with "deploy Cohere", "Cohere production deploy", or "Cohere streaming service".
+argument-hint: "[repository-path] [platform] [environment]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ai
-- nlp
 - cohere
-compatibility: Designed for Claude Code
+- deployment
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Cohere API key
 ---
-# Cohere Deploy Integration
+# Cohere Deployment Integration
 
 ## Overview
 
-Deploy Cohere API v2 applications to Vercel, Fly.io, and Google Cloud Run with proper secrets management and health checks.
+Release the application around Cohere without embedding the key in clients, turning health checks into billable generation, or hiding provider failure.
 
 ## Prerequisites
 
-- Cohere production API key (not trial)
-- Platform CLI installed (`vercel`, `fly`, or `gcloud`)
-- Application tested locally with real API calls
+- The target repository, runtime, environment, and accountable owner
+- An approved Cohere team and key for any live verification
+- Current quality, security, privacy, capacity, and change-control requirements
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current Cohere primary documentation. Use `Write` or `Edit` only when the user requested implementation and the exact target files are known; never write credentials or customer content.
+
+## Current Contract
+
+- Call Cohere from a trusted server runtime; never expose the provider key to browsers or mobile clients.
+- Use a local process health check and a separate protected provider-readiness probe.
+- Streaming paths require proxy buffering, idle timeout, cancellation, and client-disconnect tests.
+- Model selection and fallback must be explicit deployment configuration reviewed against current availability.
+
+## Authentication
+
+Use an environment-specific key injected from an approved secret manager. Never print, persist, commit, or place `CO_API_KEY` in an example. Confirm access with the least costly bounded operation appropriate to the task, and treat key creation, rotation, revocation, role changes, and production-capacity requests as owner-approved actions.
 
 ## Instructions
 
-### Vercel Deployment
+1. Inspect the target platform's secret, egress, timeout, streaming, autoscaling, and rollback behavior.
+2. Inject `CO_API_KEY` from the platform secret manager and restrict access to the service identity.
+3. Set explicit model IDs, request bounds, client timeouts, concurrency, and circuit-breaker thresholds.
+4. Deploy to a non-production environment and test cancellation, throttling, timeout, and provider outage behavior.
+5. Canary production traffic while watching quality, error, latency, queue, and spend signals.
+6. Promote or roll back using recorded thresholds and preserve the deployment evidence.
 
-```bash
-# Add Cohere API key as Vercel environment variable
-vercel env add CO_API_KEY production
-# Paste your production key when prompted
+## Approval Boundaries
 
-# Deploy
-vercel --prod
-```
-
-**vercel.json:**
-
-```json
-{
-  "env": {
-    "CO_API_KEY": "@co_api_key"
-  },
-  "functions": {
-    "api/**/*.ts": {
-      "maxDuration": 30
-    }
-  }
-}
-```
-
-**Vercel API Route (streaming chat):**
-
-```typescript
-// api/chat/route.ts
-import { CohereClientV2 } from 'cohere-ai';
-
-const cohere = new CohereClientV2();
-
-export async function POST(req: Request) {
-  const { message } = await req.json();
-
-  const stream = await cohere.chatStream({
-    model: 'command-a-03-2025',
-    messages: [{ role: 'user', content: message }],
-  });
-
-  const encoder = new TextEncoder();
-  const readable = new ReadableStream({
-    async start(controller) {
-      for await (const event of stream) {
-        if (event.type === 'content-delta') {
-          const text = event.delta?.message?.content?.text ?? '';
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
-        }
-      }
-      controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-      controller.close();
-    },
-  });
-
-  return new Response(readable, {
-    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },
-  });
-}
-```
-
-### Fly.io Deployment
-
-```bash
-# Set Cohere API key
-fly secrets set CO_API_KEY="your-production-key"
-
-# Deploy
-fly deploy
-```
-
-**fly.toml:**
-
-```toml
-app = "my-cohere-app"
-primary_region = "iad"
-
-[env]
-  NODE_ENV = "production"
-
-[http_service]
-  internal_port = 3000
-  force_https = true
-  auto_stop_machines = true
-  auto_start_machines = true
-  min_machines_running = 1
-
-[[services.http_checks]]
-  interval = 30000
-  timeout = 5000
-  path = "/api/health"
-```
-
-### Google Cloud Run Deployment
-
-```bash
-#!/bin/bash
-PROJECT_ID="${GOOGLE_CLOUD_PROJECT}"
-SERVICE="cohere-app"
-REGION="us-central1"
-
-# Store key in Secret Manager
-echo -n "$CO_API_KEY" | gcloud secrets create cohere-api-key --data-file=-
-
-# Build and deploy
-gcloud builds submit --tag gcr.io/$PROJECT_ID/$SERVICE
-
-gcloud run deploy $SERVICE \
-  --image gcr.io/$PROJECT_ID/$SERVICE \
-  --region $REGION \
-  --platform managed \
-  --set-secrets=CO_API_KEY=cohere-api-key:latest \
-  --max-instances 10 \
-  --min-instances 1 \
-  --timeout 30
-```
-
-**Dockerfile:**
-
-```dockerfile
-FROM node:20-slim AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-FROM node:20-slim
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-EXPOSE 3000
-CMD ["node", "dist/index.js"]
-```
-
-### Health Check (All Platforms)
-
-```typescript
-// api/health.ts — works on Vercel, Fly, Cloud Run
-import { CohereClientV2, CohereError } from 'cohere-ai';
-
-export async function GET() {
-  const start = Date.now();
-  let status: 'healthy' | 'degraded' | 'down';
-
-  try {
-    const cohere = new CohereClientV2();
-    await cohere.chat({
-      model: 'command-r7b-12-2024',
-      messages: [{ role: 'user', content: 'ping' }],
-      maxTokens: 1,
-    });
-    status = 'healthy';
-  } catch (err) {
-    status = err instanceof CohereError && err.statusCode === 429
-      ? 'degraded'
-      : 'down';
-  }
-
-  return Response.json({
-    status,
-    cohere: { latencyMs: Date.now() - start },
-    timestamp: new Date().toISOString(),
-  });
-}
-```
-
-### Environment Configuration
-
-```typescript
-// config/cohere.ts
-interface CohereConfig {
-  model: string;
-  maxTokens: number;
-  timeout: number;
-}
-
-const configs: Record<string, CohereConfig> = {
-  development: {
-    model: 'command-r7b-12-2024', // cheap for dev
-    maxTokens: 500,
-    timeout: 30,
-  },
-  production: {
-    model: 'command-a-03-2025',   // best for prod
-    maxTokens: 4096,
-    timeout: 60,
-  },
-};
-
-export function getCohereConfig(): CohereConfig {
-  const env = process.env.NODE_ENV ?? 'development';
-  return configs[env] ?? configs.development;
-}
-```
+Do not expose or rotate keys, change Cohere Team roles, accept commercial terms, enable sensitive production data, increase spend or capacity, switch production models, send a support bundle, or execute model-proposed side effects without the accountable owner's approval. Keep diagnosis read-only unless implementation was requested.
 
 ## Output
 
-- Application deployed with Cohere API key in platform secret store
-- Health check endpoint verifying Cohere connectivity
-- Streaming chat endpoint for user-facing applications
-- Environment-specific model selection
+Return the resolved API and model contract, files or settings inspected, evidence collected, validation result, remaining risk, owner, and rollback or next action. Redact keys, authorization headers, prompts, retrieved documents, embeddings, customer identifiers, and unrestricted environment output.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| 401 after deploy | Wrong key env var name | Verify `CO_API_KEY` is set |
-| Timeout on Vercel | Default 10s limit | Set `maxDuration: 30` in vercel.json |
-| Cold start latency | Serverless spin-up | Set `min-instances: 1` (Cloud Run/Fly) |
-| Stream breaks | Platform timeout | Use chunked transfer encoding |
+| Condition | Response |
+|---|---|
+| Key in client bundle | Stop release, remove it, and rotate the exposed key. |
+| Buffered stream | Fix proxy/runtime streaming settings before promotion. |
+| Cold-start timeout | Measure and tune platform startup separately from provider latency. |
+| Provider outage | Trip the circuit and use the approved degradation path. |
 
 ## Examples
 
-Deploy a staging chat endpoint with the API key referenced from the platform
-secret store, submit a synthetic request, and verify health, stream completion,
-and redacted telemetry before promotion. If authorization, timeout, or stream
-integrity checks fail, roll back the release and correct configuration rather
-than exposing credentials or raising limits blindly.
+Use this compact handoff shape to keep the selected scope, validation evidence, and operational result reviewable.
+
+Input:
+
+```text
+platform=cloud-run; stream=true; canary=5%; provider-probe=protected
+```
+
+Expected handoff:
+
+```text
+secrets=server-only; stream=pass; canary=healthy; rollback=verified
+```
 
 ## Resources
 
-- [Cohere Going Live](https://docs.cohere.com/docs/going-live)
-- [Vercel Functions](https://vercel.com/docs/functions)
-- [Fly.io App Configuration](https://fly.io/docs/reference/configuration/)
-- [Cloud Run Secrets](https://cloud.google.com/run/docs/configuring/secrets)
-
-## Next Steps
-
-For structured output and connectors, see `cohere-webhooks-events`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Going live](https://docs.cohere.com/docs/going-live)
+- [Cloud compatibility](https://docs.cohere.com/docs/cohere-works-everywhere/)

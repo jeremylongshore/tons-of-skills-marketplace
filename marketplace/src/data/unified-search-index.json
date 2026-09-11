@@ -465,6 +465,7 @@
       "api-integration",
       "api-keys",
       "api-testing",
+      "api-v2",
       "apify",
       "apm",
       "apollo",
@@ -1564,6 +1565,7 @@
       "token-budget",
       "token-launch",
       "tokenization",
+      "tool-use",
       "tracing",
       "tracking",
       "trading",
@@ -12214,13 +12216,14 @@
       "slug": "cohere-pack",
       "name": "cohere-pack",
       "displayName": "cohere pack",
-      "description": "Claude Code skill pack for Cohere (24 skills)",
+      "description": "Source-grounded Cohere v2 operator workflows for Chat, Embed, Rerank, RAG, tools, security, migration, and production operations",
       "category": "saas-packs",
       "keywords": [
         "cohere",
-        "saas",
-        "sdk",
-        "integration"
+        "api-v2",
+        "rag",
+        "tool-use",
+        "model-operations"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -12228,15 +12231,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.5.0",
+      "version": "1.6.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 81,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "cohere pack claude code skill pack for cohere (24 skills) saas-packs cohere saas sdk integration"
+      "verificationScore": 98,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "cohere pack source-grounded cohere v2 operator workflows for chat, embed, rerank, rag, tools, security, migration, and production operations saas-packs cohere api-v2 rag tool-use model-operations"
     },
     {
       "type": "plugin",
@@ -28863,505 +28866,552 @@
       "id": "cohere-ci-integration",
       "slug": "cohere-ci-integration",
       "name": "cohere-ci-integration",
-      "description": "Configure CI/CD for Cohere integrations with GitHub Actions and automated testing. Use when setting up automated testing for Chat/Embed/Rerank, configuring CI pipelines, or testing Cohere-powered applications. Trigger with phrases like \"cohere CI\", \"cohere GitHub Actions\", \"cohere automated tests\", \"CI cohere\", \"cohere pipeline\".",
+      "description": "Configure offline Cohere contract tests plus a protected, bounded live verification lane in CI. Use when testing Cohere integrations in pull requests or releases. Trigger with \"Cohere CI\", \"Cohere GitHub Actions\", or \"Cohere integration tests\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(gh:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-ci-integration configure ci/cd for cohere integrations with github actions and automated testing. use when setting up automated testing for chat/embed/rerank, configuring ci pipelines, or testing cohere-powered applications. trigger with phrases like \"cohere ci\", \"cohere github actions\", \"cohere automated tests\", \"ci cohere\", \"cohere pipeline\". saas-packs read write edit bash(gh:*) "
+      "searchText": "cohere-ci-integration configure offline cohere contract tests plus a protected, bounded live verification lane in ci. use when testing cohere integrations in pull requests or releases. trigger with \"cohere ci\", \"cohere github actions\", or \"cohere integration tests\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-common-errors",
       "slug": "cohere-common-errors",
       "name": "cohere-common-errors",
-      "description": "Diagnose and fix Cohere API v2 errors and exceptions. Use when encountering Cohere errors, debugging failed requests, or troubleshooting CohereError, CohereTimeoutError, rate limits. Trigger with phrases like \"cohere error\", \"fix cohere\", \"cohere not working\", \"debug cohere\", \"cohere 429\", \"cohere 400\".",
+      "description": "Diagnose Cohere v2 authentication, validation, model, quota, transport, and provider failures from redacted evidence. Use when a Cohere request fails. Trigger with \"Cohere error\", \"Cohere 429\", or \"debug Cohere API\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-common-errors diagnose and fix cohere api v2 errors and exceptions. use when encountering cohere errors, debugging failed requests, or troubleshooting cohereerror, coheretimeouterror, rate limits. trigger with phrases like \"cohere error\", \"fix cohere\", \"cohere not working\", \"debug cohere\", \"cohere 429\", \"cohere 400\". saas-packs read grep bash(curl:*) "
+      "searchText": "cohere-common-errors diagnose cohere v2 authentication, validation, model, quota, transport, and provider failures from redacted evidence. use when a cohere request fails. trigger with \"cohere error\", \"cohere 429\", or \"debug cohere api\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-core-workflow-a",
       "slug": "cohere-core-workflow-a",
       "name": "cohere-core-workflow-a",
-      "description": "Build a complete RAG pipeline with Cohere Chat, Embed, and Rerank. Use when implementing retrieval-augmented generation, building grounded Q&A systems, or combining search with LLM generation. Trigger with phrases like \"cohere RAG\", \"cohere retrieval\", \"cohere grounded generation\", \"cohere search and answer\".",
+      "description": "Build a Cohere v2 RAG pipeline with asymmetric embeddings, retrieval, Rerank v4, grounded Chat, and citation validation. Use when implementing grounded question answering. Trigger with \"Cohere RAG\", \"Cohere retrieval\", or \"Cohere citations\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-core-workflow-a build a complete rag pipeline with cohere chat, embed, and rerank. use when implementing retrieval-augmented generation, building grounded q&a systems, or combining search with llm generation. trigger with phrases like \"cohere rag\", \"cohere retrieval\", \"cohere grounded generation\", \"cohere search and answer\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "cohere-core-workflow-a build a cohere v2 rag pipeline with asymmetric embeddings, retrieval, rerank v4, grounded chat, and citation validation. use when implementing grounded question answering. trigger with \"cohere rag\", \"cohere retrieval\", or \"cohere citations\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-core-workflow-b",
       "slug": "cohere-core-workflow-b",
       "name": "cohere-core-workflow-b",
-      "description": "Build tool-use agents and function calling with Cohere API v2. Use when implementing multi-step agents, function calling, or building autonomous tool-using workflows with Cohere. Trigger with phrases like \"cohere tool use\", \"cohere agents\", \"cohere function calling\", \"cohere multi-step\".",
+      "description": "Build a bounded Cohere v2 tool-use loop with JSON Schema, explicit dispatch, result correlation, and approval gates. Use when adding Cohere-powered agents or function calling. Trigger with \"Cohere tool use\", \"Cohere agent\", or \"Cohere function calling\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-core-workflow-b build tool-use agents and function calling with cohere api v2. use when implementing multi-step agents, function calling, or building autonomous tool-using workflows with cohere. trigger with phrases like \"cohere tool use\", \"cohere agents\", \"cohere function calling\", \"cohere multi-step\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "cohere-core-workflow-b build a bounded cohere v2 tool-use loop with json schema, explicit dispatch, result correlation, and approval gates. use when adding cohere-powered agents or function calling. trigger with \"cohere tool use\", \"cohere agent\", or \"cohere function calling\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-cost-tuning",
       "slug": "cohere-cost-tuning",
       "name": "cohere-cost-tuning",
-      "description": "Optimize Cohere costs through model selection, token budgets, and usage monitoring. Use when analyzing Cohere billing, reducing API costs, or implementing usage monitoring and budget alerts. Trigger with phrases like \"cohere cost\", \"cohere billing\", \"reduce cohere costs\", \"cohere pricing\", \"cohere expensive\", \"cohere budget\".",
+      "description": "Model and reduce Cohere usage cost with current pricing, measured token or search units, quality gates, caching, and budget controls. Use when forecasting or optimizing Cohere spend. Trigger with \"Cohere cost\", \"Cohere pricing\", or \"Cohere budget\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-cost-tuning optimize cohere costs through model selection, token budgets, and usage monitoring. use when analyzing cohere billing, reducing api costs, or implementing usage monitoring and budget alerts. trigger with phrases like \"cohere cost\", \"cohere billing\", \"reduce cohere costs\", \"cohere pricing\", \"cohere expensive\", \"cohere budget\". saas-packs read grep "
+      "searchText": "cohere-cost-tuning model and reduce cohere usage cost with current pricing, measured token or search units, quality gates, caching, and budget controls. use when forecasting or optimizing cohere spend. trigger with \"cohere cost\", \"cohere pricing\", or \"cohere budget\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-data-handling",
       "slug": "cohere-data-handling",
       "name": "cohere-data-handling",
-      "description": "Implement data privacy for Cohere API calls with PII redaction and compliance. Use when handling sensitive data, implementing PII redaction before API calls, or ensuring GDPR/CCPA compliance with Cohere integrations. Trigger with phrases like \"cohere data\", \"cohere PII\", \"cohere GDPR\", \"cohere data retention\", \"cohere privacy\", \"cohere redact\".",
+      "description": "Govern data sent to Cohere with classification, minimization, tenant controls, redaction, retention mapping, and contractual evidence. Use when processing sensitive or regulated data. Trigger with \"Cohere privacy\", \"Cohere PII\", or \"Cohere data retention\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-data-handling implement data privacy for cohere api calls with pii redaction and compliance. use when handling sensitive data, implementing pii redaction before api calls, or ensuring gdpr/ccpa compliance with cohere integrations. trigger with phrases like \"cohere data\", \"cohere pii\", \"cohere gdpr\", \"cohere data retention\", \"cohere privacy\", \"cohere redact\". saas-packs read write edit "
+      "searchText": "cohere-data-handling govern data sent to cohere with classification, minimization, tenant controls, redaction, retention mapping, and contractual evidence. use when processing sensitive or regulated data. trigger with \"cohere privacy\", \"cohere pii\", or \"cohere data retention\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-debug-bundle",
       "slug": "cohere-debug-bundle",
       "name": "cohere-debug-bundle",
-      "description": "Collect Cohere debug evidence for support tickets and troubleshooting. Use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for Cohere API problems. Trigger with phrases like \"cohere debug\", \"cohere support bundle\", \"collect cohere logs\", \"cohere diagnostic\".",
+      "description": "Collect a minimal redacted Cohere diagnostic bundle with versions, request shape, timing, status, and reproduction evidence. Use when escalating a persistent Cohere problem. Trigger with \"Cohere debug bundle\", \"Cohere support evidence\", or \"collect Cohere diagnostics\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(grep:*)",
-        "Bash(curl:*)",
-        "Bash(tar:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-debug-bundle collect cohere debug evidence for support tickets and troubleshooting. use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for cohere api problems. trigger with phrases like \"cohere debug\", \"cohere support bundle\", \"collect cohere logs\", \"cohere diagnostic\". saas-packs read bash(grep:*) bash(curl:*) bash(tar:*) grep "
+      "searchText": "cohere-debug-bundle collect a minimal redacted cohere diagnostic bundle with versions, request shape, timing, status, and reproduction evidence. use when escalating a persistent cohere problem. trigger with \"cohere debug bundle\", \"cohere support evidence\", or \"collect cohere diagnostics\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-deploy-integration",
       "slug": "cohere-deploy-integration",
       "name": "cohere-deploy-integration",
-      "description": "Deploy Cohere-powered applications to Vercel, Fly.io, and Cloud Run. Use when deploying Cohere API v2 apps to production, configuring platform-specific secrets, or setting up deployment pipelines. Trigger with phrases like \"deploy cohere\", \"cohere Vercel\", \"cohere production deploy\", \"cohere Cloud Run\", \"cohere Fly.io\".",
+      "description": "Deploy a Cohere-powered service with server-side secrets, streaming-safe infrastructure, health checks, canarying, and rollback. Use when shipping Cohere workloads. Trigger with \"deploy Cohere\", \"Cohere production deploy\", or \"Cohere streaming service\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(fly:*)",
-        "Bash(gcloud:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-deploy-integration deploy cohere-powered applications to vercel, fly.io, and cloud run. use when deploying cohere api v2 apps to production, configuring platform-specific secrets, or setting up deployment pipelines. trigger with phrases like \"deploy cohere\", \"cohere vercel\", \"cohere production deploy\", \"cohere cloud run\", \"cohere fly.io\". saas-packs read write edit bash(vercel:*) bash(fly:*) bash(gcloud:*) "
+      "searchText": "cohere-deploy-integration deploy a cohere-powered service with server-side secrets, streaming-safe infrastructure, health checks, canarying, and rollback. use when shipping cohere workloads. trigger with \"deploy cohere\", \"cohere production deploy\", or \"cohere streaming service\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-enterprise-rbac",
       "slug": "cohere-enterprise-rbac",
       "name": "cohere-enterprise-rbac",
-      "description": "Configure Cohere enterprise API key management, role-based access, and org controls. Use when implementing multi-team API key management, per-team usage limits, or setting up organization-level controls for Cohere. Trigger with phrases like \"cohere enterprise\", \"cohere RBAC\", \"cohere team keys\", \"cohere org management\", \"cohere access control\".",
+      "description": "Map Cohere Team Owner and User roles to application authorization, key ownership, tenant isolation, and audit controls. Use when governing multi-team Cohere access. Trigger with \"Cohere RBAC\", \"Cohere team roles\", or \"Cohere enterprise keys\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-enterprise-rbac configure cohere enterprise api key management, role-based access, and org controls. use when implementing multi-team api key management, per-team usage limits, or setting up organization-level controls for cohere. trigger with phrases like \"cohere enterprise\", \"cohere rbac\", \"cohere team keys\", \"cohere org management\", \"cohere access control\". saas-packs read write edit "
+      "searchText": "cohere-enterprise-rbac map cohere team owner and user roles to application authorization, key ownership, tenant isolation, and audit controls. use when governing multi-team cohere access. trigger with \"cohere rbac\", \"cohere team roles\", or \"cohere enterprise keys\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-hello-world",
       "slug": "cohere-hello-world",
       "name": "cohere-hello-world",
-      "description": "Create a minimal working Cohere example with Chat, Embed, and Rerank. Use when starting a new Cohere integration, testing your setup, or learning basic Cohere API v2 patterns. Trigger with phrases like \"cohere hello world\", \"cohere example\", \"cohere quick start\", \"simple cohere code\".",
+      "description": "Run bounded Cohere v2 Chat, Embed, or Rerank requests with current model discovery and explicit validation. Use when proving a new Cohere setup. Trigger with \"Cohere hello world\", \"Cohere quickstart\", or \"test Cohere API\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-hello-world create a minimal working cohere example with chat, embed, and rerank. use when starting a new cohere integration, testing your setup, or learning basic cohere api v2 patterns. trigger with phrases like \"cohere hello world\", \"cohere example\", \"cohere quick start\", \"simple cohere code\". saas-packs read write edit "
+      "searchText": "cohere-hello-world run bounded cohere v2 chat, embed, or rerank requests with current model discovery and explicit validation. use when proving a new cohere setup. trigger with \"cohere hello world\", \"cohere quickstart\", or \"test cohere api\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-incident-runbook",
       "slug": "cohere-incident-runbook",
       "name": "cohere-incident-runbook",
-      "description": "Execute Cohere incident response procedures with triage, mitigation, and postmortem. Use when responding to Cohere API outages, investigating errors, or running post-incident reviews for Cohere integration failures. Trigger with phrases like \"cohere incident\", \"cohere outage\", \"cohere down\", \"cohere on-call\", \"cohere emergency\", \"cohere broken\".",
+      "description": "Analyze and mitigate Cohere integration incidents with provider, model, capacity, data, and application evidence plus reversible actions. Use when responding to an outage or serious degradation. Trigger with \"Cohere incident\", \"Cohere outage\", or \"Cohere on-call\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(kubectl:*)",
-        "Bash(curl:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-incident-runbook execute cohere incident response procedures with triage, mitigation, and postmortem. use when responding to cohere api outages, investigating errors, or running post-incident reviews for cohere integration failures. trigger with phrases like \"cohere incident\", \"cohere outage\", \"cohere down\", \"cohere on-call\", \"cohere emergency\", \"cohere broken\". saas-packs read grep bash(kubectl:*) bash(curl:*) "
+      "searchText": "cohere-incident-runbook analyze and mitigate cohere integration incidents with provider, model, capacity, data, and application evidence plus reversible actions. use when responding to an outage or serious degradation. trigger with \"cohere incident\", \"cohere outage\", or \"cohere on-call\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-install-auth",
       "slug": "cohere-install-auth",
       "name": "cohere-install-auth",
-      "description": "Install and configure Cohere SDK authentication with API v2. Use when setting up a new Cohere integration, configuring API keys, or initializing the CohereClientV2 in your project. Trigger with phrases like \"install cohere\", \"setup cohere\", \"cohere auth\", \"configure cohere API key\".",
+      "description": "Install current Cohere v2 SDKs, store an API key safely, and verify access without spending inference tokens. Use when connecting a repository or runtime to Cohere. Trigger with \"Cohere auth\", \"install Cohere SDK\", or \"CO_API_KEY setup\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-install-auth install and configure cohere sdk authentication with api v2. use when setting up a new cohere integration, configuring api keys, or initializing the cohereclientv2 in your project. trigger with phrases like \"install cohere\", \"setup cohere\", \"cohere auth\", \"configure cohere api key\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "cohere-install-auth install current cohere v2 sdks, store an api key safely, and verify access without spending inference tokens. use when connecting a repository or runtime to cohere. trigger with \"cohere auth\", \"install cohere sdk\", or \"co_api_key setup\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-local-dev-loop",
       "slug": "cohere-local-dev-loop",
       "name": "cohere-local-dev-loop",
-      "description": "Configure Cohere local development with mocking, testing, and hot reload. Use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with Cohere API v2. Trigger with phrases like \"cohere dev setup\", \"cohere local development\", \"cohere dev environment\", \"develop with cohere\", \"mock cohere\".",
+      "description": "Build a deterministic local Cohere development loop with a provider adapter, fixtures, and an opt-in live smoke test. Use when developing or testing Cohere features locally. Trigger with \"Cohere local dev\", \"mock Cohere\", or \"Cohere test loop\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-local-dev-loop configure cohere local development with mocking, testing, and hot reload. use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with cohere api v2. trigger with phrases like \"cohere dev setup\", \"cohere local development\", \"cohere dev environment\", \"develop with cohere\", \"mock cohere\". saas-packs read write edit bash(npm:*) bash(pnpm:*) grep "
+      "searchText": "cohere-local-dev-loop build a deterministic local cohere development loop with a provider adapter, fixtures, and an opt-in live smoke test. use when developing or testing cohere features locally. trigger with \"cohere local dev\", \"mock cohere\", or \"cohere test loop\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-migration-deep-dive",
       "slug": "cohere-migration-deep-dive",
       "name": "cohere-migration-deep-dive",
-      "description": "Migrate from OpenAI/Anthropic/other LLM providers to Cohere, or vice versa. Use when switching LLM providers, migrating embeddings between models, or re-platforming existing AI integrations to Cohere API v2. Trigger with phrases like \"migrate to cohere\", \"switch from openai to cohere\", \"cohere migration\", \"replace openai with cohere\", \"cohere replatform\".",
+      "description": "Migrate an application to or from Cohere with a provider adapter, parallel embedding index, quality evaluation, canary traffic, and rollback. Use when changing model providers. Trigger with \"migrate to Cohere\", \"replace OpenAI with Cohere\", or \"Cohere replatform\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(node:*)",
-        "Bash(kubectl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-migration-deep-dive migrate from openai/anthropic/other llm providers to cohere, or vice versa. use when switching llm providers, migrating embeddings between models, or re-platforming existing ai integrations to cohere api v2. trigger with phrases like \"migrate to cohere\", \"switch from openai to cohere\", \"cohere migration\", \"replace openai with cohere\", \"cohere replatform\". saas-packs read write edit bash(npm:*) bash(node:*) bash(kubectl:*) "
+      "searchText": "cohere-migration-deep-dive migrate an application to or from cohere with a provider adapter, parallel embedding index, quality evaluation, canary traffic, and rollback. use when changing model providers. trigger with \"migrate to cohere\", \"replace openai with cohere\", or \"cohere replatform\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-multi-env-setup",
       "slug": "cohere-multi-env-setup",
       "name": "cohere-multi-env-setup",
-      "description": "Configure Cohere across development, staging, and production environments. Use when setting up multi-environment deployments, configuring per-environment API keys, model selection, and rate limit strategies. Trigger with phrases like \"cohere environments\", \"cohere staging\", \"cohere dev prod\", \"cohere environment setup\", \"cohere config by env\".",
+      "description": "Configure Cohere development, staging, and production with separate keys, model resolution, budgets, and promotion evidence. Use when operating Cohere across environments. Trigger with \"Cohere environments\", \"Cohere staging\", or \"Cohere dev prod setup\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(aws:*)",
-        "Bash(gcloud:*)",
-        "Bash(vault:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-multi-env-setup configure cohere across development, staging, and production environments. use when setting up multi-environment deployments, configuring per-environment api keys, model selection, and rate limit strategies. trigger with phrases like \"cohere environments\", \"cohere staging\", \"cohere dev prod\", \"cohere environment setup\", \"cohere config by env\". saas-packs read write edit bash(aws:*) bash(gcloud:*) bash(vault:*) "
+      "searchText": "cohere-multi-env-setup configure cohere development, staging, and production with separate keys, model resolution, budgets, and promotion evidence. use when operating cohere across environments. trigger with \"cohere environments\", \"cohere staging\", or \"cohere dev prod setup\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-observability",
       "slug": "cohere-observability",
       "name": "cohere-observability",
-      "description": "Set up comprehensive observability for Cohere API v2 with metrics, traces, and alerts. Use when implementing monitoring for Chat/Embed/Rerank operations, setting up dashboards, or configuring alerts for Cohere integrations. Trigger with phrases like \"cohere monitoring\", \"cohere metrics\", \"cohere observability\", \"monitor cohere\", \"cohere alerts\", \"cohere tracing\".",
+      "description": "Instrument Cohere requests, streams, retrieval, tools, limits, quality, and cost with low-cardinality telemetry and safe traces. Use when monitoring a Cohere service. Trigger with \"Cohere observability\", \"Cohere metrics\", or \"monitor Cohere\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-observability set up comprehensive observability for cohere api v2 with metrics, traces, and alerts. use when implementing monitoring for chat/embed/rerank operations, setting up dashboards, or configuring alerts for cohere integrations. trigger with phrases like \"cohere monitoring\", \"cohere metrics\", \"cohere observability\", \"monitor cohere\", \"cohere alerts\", \"cohere tracing\". saas-packs read write edit "
+      "searchText": "cohere-observability instrument cohere requests, streams, retrieval, tools, limits, quality, and cost with low-cardinality telemetry and safe traces. use when monitoring a cohere service. trigger with \"cohere observability\", \"cohere metrics\", or \"monitor cohere\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-performance-tuning",
       "slug": "cohere-performance-tuning",
       "name": "cohere-performance-tuning",
-      "description": "Optimize Cohere API performance with caching, batching, model selection, and streaming. Use when experiencing slow API responses, implementing caching strategies, or optimizing request throughput for Cohere Chat, Embed, and Rerank. Trigger with phrases like \"cohere performance\", \"optimize cohere\", \"cohere latency\", \"cohere caching\", \"cohere slow\", \"cohere batch\".",
+      "description": "Measure and improve Cohere latency, throughput, retrieval quality, streaming, batching, and vector representation without fabricated benchmarks. Use when optimizing a Cohere workload. Trigger with \"Cohere performance\", \"Cohere latency\", or \"optimize Cohere\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-performance-tuning optimize cohere api performance with caching, batching, model selection, and streaming. use when experiencing slow api responses, implementing caching strategies, or optimizing request throughput for cohere chat, embed, and rerank. trigger with phrases like \"cohere performance\", \"optimize cohere\", \"cohere latency\", \"cohere caching\", \"cohere slow\", \"cohere batch\". saas-packs read write edit "
+      "searchText": "cohere-performance-tuning measure and improve cohere latency, throughput, retrieval quality, streaming, batching, and vector representation without fabricated benchmarks. use when optimizing a cohere workload. trigger with \"cohere performance\", \"cohere latency\", or \"optimize cohere\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-prod-checklist",
       "slug": "cohere-prod-checklist",
       "name": "cohere-prod-checklist",
-      "description": "Execute Cohere production deployment checklist and rollback procedures. Use when deploying Cohere integrations to production, preparing for launch, or implementing go-live procedures for Cohere-powered apps. Trigger with phrases like \"cohere production\", \"deploy cohere\", \"cohere go-live\", \"cohere launch checklist\".",
+      "description": "Issue an evidence-backed Cohere production go or no-go decision covering capacity, quality, security, operations, and rollback. Use when preparing to launch a Cohere workload. Trigger with \"Cohere production checklist\", \"Cohere go live\", or \"Cohere launch review\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(kubectl:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-prod-checklist execute cohere production deployment checklist and rollback procedures. use when deploying cohere integrations to production, preparing for launch, or implementing go-live procedures for cohere-powered apps. trigger with phrases like \"cohere production\", \"deploy cohere\", \"cohere go-live\", \"cohere launch checklist\". saas-packs read bash(kubectl:*) bash(curl:*) grep "
+      "searchText": "cohere-prod-checklist issue an evidence-backed cohere production go or no-go decision covering capacity, quality, security, operations, and rollback. use when preparing to launch a cohere workload. trigger with \"cohere production checklist\", \"cohere go live\", or \"cohere launch review\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-rate-limits",
       "slug": "cohere-rate-limits",
       "name": "cohere-rate-limits",
-      "description": "Implement Cohere rate limiting, backoff, and request queuing patterns. Use when handling 429 errors, implementing retry logic, or optimizing API request throughput for Cohere. Trigger with phrases like \"cohere rate limit\", \"cohere throttling\", \"cohere 429\", \"cohere retry\", \"cohere backoff\".",
+      "description": "Implement Cohere endpoint-aware throttling, bounded retry, and queue backpressure from current limits and observed responses. Use when handling 429s or planning throughput. Trigger with \"Cohere rate limit\", \"Cohere throttling\", or \"Cohere 429\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-rate-limits implement cohere rate limiting, backoff, and request queuing patterns. use when handling 429 errors, implementing retry logic, or optimizing api request throughput for cohere. trigger with phrases like \"cohere rate limit\", \"cohere throttling\", \"cohere 429\", \"cohere retry\", \"cohere backoff\". saas-packs read write edit "
+      "searchText": "cohere-rate-limits implement cohere endpoint-aware throttling, bounded retry, and queue backpressure from current limits and observed responses. use when handling 429s or planning throughput. trigger with \"cohere rate limit\", \"cohere throttling\", or \"cohere 429\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-reference-architecture",
       "slug": "cohere-reference-architecture",
       "name": "cohere-reference-architecture",
-      "description": "Implement Cohere reference architecture with layered project layout for RAG and agents. Use when designing new Cohere integrations, reviewing project structure, or establishing architecture standards for Cohere API v2 applications. Trigger with phrases like \"cohere architecture\", \"cohere project structure\", \"cohere layout\", \"organize cohere app\", \"cohere design pattern\".",
+      "description": "Design a governed Cohere architecture for Chat, RAG, tools, streaming, evaluation, and provider operations. Use when planning or reviewing a Cohere system. Trigger with \"Cohere architecture\", \"Cohere RAG design\", or \"Cohere service layout\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-reference-architecture implement cohere reference architecture with layered project layout for rag and agents. use when designing new cohere integrations, reviewing project structure, or establishing architecture standards for cohere api v2 applications. trigger with phrases like \"cohere architecture\", \"cohere project structure\", \"cohere layout\", \"organize cohere app\", \"cohere design pattern\". saas-packs read grep "
+      "searchText": "cohere-reference-architecture design a governed cohere architecture for chat, rag, tools, streaming, evaluation, and provider operations. use when planning or reviewing a cohere system. trigger with \"cohere architecture\", \"cohere rag design\", or \"cohere service layout\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-sdk-patterns",
       "slug": "cohere-sdk-patterns",
       "name": "cohere-sdk-patterns",
-      "description": "Apply production-ready Cohere SDK patterns for TypeScript and Python. Use when implementing Cohere integrations, refactoring SDK usage, or establishing team coding standards for Cohere API v2. Trigger with phrases like \"cohere SDK patterns\", \"cohere best practices\", \"cohere code patterns\", \"idiomatic cohere\", \"cohere wrapper\".",
+      "description": "Implement a typed Cohere v2 provider boundary with timeouts, bounded retries, streaming, and response validation. Use when standardizing production SDK usage. Trigger with \"Cohere SDK patterns\", \"Cohere client wrapper\", or \"refactor Cohere client\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-sdk-patterns apply production-ready cohere sdk patterns for typescript and python. use when implementing cohere integrations, refactoring sdk usage, or establishing team coding standards for cohere api v2. trigger with phrases like \"cohere sdk patterns\", \"cohere best practices\", \"cohere code patterns\", \"idiomatic cohere\", \"cohere wrapper\". saas-packs read write edit "
+      "searchText": "cohere-sdk-patterns implement a typed cohere v2 provider boundary with timeouts, bounded retries, streaming, and response validation. use when standardizing production sdk usage. trigger with \"cohere sdk patterns\", \"cohere client wrapper\", or \"refactor cohere client\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-security-basics",
       "slug": "cohere-security-basics",
       "name": "cohere-security-basics",
-      "description": "Apply Cohere security best practices for API key management and access control. Use when securing API keys, implementing key rotation, or auditing Cohere security configuration. Trigger with phrases like \"cohere security\", \"cohere secrets\", \"secure cohere\", \"cohere API key security\", \"cohere key rotation\".",
+      "description": "Apply a Cohere security baseline for keys, tenant isolation, input controls, output handling, safety modes, and logs. Use when building or reviewing a Cohere integration. Trigger with \"Cohere security\", \"secure Cohere key\", or \"Cohere safety review\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-security-basics apply cohere security best practices for api key management and access control. use when securing api keys, implementing key rotation, or auditing cohere security configuration. trigger with phrases like \"cohere security\", \"cohere secrets\", \"secure cohere\", \"cohere api key security\", \"cohere key rotation\". saas-packs read write grep "
+      "searchText": "cohere-security-basics apply a cohere security baseline for keys, tenant isolation, input controls, output handling, safety modes, and logs. use when building or reviewing a cohere integration. trigger with \"cohere security\", \"secure cohere key\", or \"cohere safety review\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-upgrade-migration",
       "slug": "cohere-upgrade-migration",
       "name": "cohere-upgrade-migration",
-      "description": "Migrate from Cohere API v1 to v2 and upgrade SDK versions. Use when upgrading cohere-ai SDK, migrating from CohereClient to CohereClientV2, or handling breaking changes between API versions. Trigger with phrases like \"upgrade cohere\", \"cohere migration\", \"cohere v1 to v2\", \"update cohere SDK\", \"cohere breaking changes\".",
+      "description": "Migrate Cohere API v1 or older SDK usage to v2 with contract tests, model lifecycle checks, canarying, and rollback. Use when upgrading Cohere dependencies or endpoints. Trigger with \"Cohere v1 to v2\", \"upgrade Cohere SDK\", or \"Cohere deprecation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(git:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-upgrade-migration migrate from cohere api v1 to v2 and upgrade sdk versions. use when upgrading cohere-ai sdk, migrating from cohereclient to cohereclientv2, or handling breaking changes between api versions. trigger with phrases like \"upgrade cohere\", \"cohere migration\", \"cohere v1 to v2\", \"update cohere sdk\", \"cohere breaking changes\". saas-packs read write edit bash(npm:*) bash(git:*) "
+      "searchText": "cohere-upgrade-migration migrate cohere api v1 or older sdk usage to v2 with contract tests, model lifecycle checks, canarying, and rollback. use when upgrading cohere dependencies or endpoints. trigger with \"cohere v1 to v2\", \"upgrade cohere sdk\", or \"cohere deprecation\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "cohere-webhooks-events",
       "slug": "cohere-webhooks-events",
       "name": "cohere-webhooks-events",
-      "description": "Implement Cohere streaming event handling, SSE patterns, and connector webhooks. Use when building streaming UIs, handling chat/tool events, or registering Cohere connectors for RAG. Trigger with phrases like \"cohere streaming\", \"cohere events\", \"cohere SSE\", \"cohere connectors\", \"cohere webhook\".",
+      "description": "Handle Cohere v2 streaming events and convert application-owned asynchronous work into idempotent internal events without inventing provider webhooks. Use when building streaming UIs or event workflows. Trigger with \"Cohere streaming\", \"Cohere SSE\", or \"Cohere events\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "cohere-pack",
         "category": "saas-packs"
       },
-      "searchText": "cohere-webhooks-events implement cohere streaming event handling, sse patterns, and connector webhooks. use when building streaming uis, handling chat/tool events, or registering cohere connectors for rag. trigger with phrases like \"cohere streaming\", \"cohere events\", \"cohere sse\", \"cohere connectors\", \"cohere webhook\". saas-packs read write edit bash(curl:*) "
+      "searchText": "cohere-webhooks-events handle cohere v2 streaming events and convert application-owned asynchronous work into idempotent internal events without inventing provider webhooks. use when building streaming uis or event workflows. trigger with \"cohere streaming\", \"cohere sse\", or \"cohere events\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",

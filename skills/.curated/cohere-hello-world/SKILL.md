@@ -1,192 +1,91 @@
 ---
 name: cohere-hello-world
-description: 'Create a minimal working Cohere example with Chat, Embed, and Rerank.
-
-  Use when starting a new Cohere integration, testing your setup,
-
-  or learning basic Cohere API v2 patterns.
-
-  Trigger with phrases like "cohere hello world", "cohere example",
-
-  "cohere quick start", "simple cohere code".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.5.0
-license: MIT
+description: >-
+  Run bounded Cohere v2 Chat, Embed, or Rerank requests with current model discovery and explicit validation. Use when proving a new Cohere setup. Trigger with "Cohere hello world", "Cohere quickstart", or "test Cohere API".
+argument-hint: "[chat|embed|rerank] [typescript|python]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ai
-- nlp
 - cohere
-compatibility: Designed for Claude Code
+- quickstart
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Cohere API key
 ---
-# Cohere Hello World
+# Cohere Bounded First Request
 
 ## Overview
 
-Three minimal working examples: Chat completion, text embedding, and search reranking. Each demonstrates a core Cohere API v2 endpoint.
+Prove one selected endpoint end to end while keeping model choice, input type, output bounds, and evidence explicit.
 
 ## Prerequisites
 
-- Completed `cohere-install-auth` setup
-- `cohere-ai` package installed
-- `CO_API_KEY` environment variable set
+- The target repository, runtime, environment, and accountable owner
+- An approved Cohere team and key for any live verification
+- Current quality, security, privacy, capacity, and change-control requirements
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current Cohere primary documentation. Use `Write` or `Edit` only when the user requested implementation and the exact target files are known; never write credentials or customer content.
+
+## Current Contract
+
+- Discover a live model for the intended endpoint before pinning it.
+- Chat v2 accepts a `messages` array and returns content under the response message.
+- Embed v2 requires `input_type` and `embedding_types`; use `search_document` for indexed passages and `search_query` for queries.
+- Rerank v2 orders supplied documents; select `rerank-v4.0-pro` for quality or `rerank-v4.0-fast` for measured latency needs.
+
+## Authentication
+
+Use an environment-specific key injected from an approved secret manager. Never print, persist, commit, or place `CO_API_KEY` in an example. Confirm access with the least costly bounded operation appropriate to the task, and treat key creation, rotation, revocation, role changes, and production-capacity requests as owner-approved actions.
 
 ## Instructions
 
-### Example 1: Chat Completion
+1. Confirm authentication with `cohere-install-auth` and choose exactly one endpoint.
+2. Resolve a live model from the catalog or Models API and record the resolved ID.
+3. Use a non-sensitive, tiny fixture and set explicit output or result bounds.
+4. Issue one v2 request and capture status, latency, model, billed-unit metadata when available, and response shape.
+5. Validate non-empty Chat content, expected embedding dimensions, or monotonic Rerank ordering.
+6. Return the minimal reproducible request with credentials redacted.
 
-```typescript
-import { CohereClientV2 } from 'cohere-ai';
+## Approval Boundaries
 
-const cohere = new CohereClientV2();
-
-async function chat() {
-  const response = await cohere.chat({
-    model: 'command-a-03-2025',
-    messages: [
-      { role: 'system', content: 'You are a helpful coding assistant.' },
-      { role: 'user', content: 'Explain what a closure is in JavaScript in 2 sentences.' },
-    ],
-  });
-
-  console.log(response.message?.content?.[0]?.text);
-}
-
-chat().catch(console.error);
-```
-
-### Example 2: Text Embedding
-
-```typescript
-async function embed() {
-  const response = await cohere.embed({
-    model: 'embed-v4.0',
-    texts: ['Cohere builds enterprise AI', 'LLMs power modern search'],
-    inputType: 'search_document',
-    embeddingTypes: ['float'],
-  });
-
-  const vectors = response.embeddings.float;
-  console.log(`Generated ${vectors.length} embeddings`);
-  console.log(`Dimensions: ${vectors[0].length}`);
-}
-
-embed().catch(console.error);
-```
-
-### Example 3: Search Reranking
-
-```typescript
-async function rerank() {
-  const response = await cohere.rerank({
-    model: 'rerank-v3.5',
-    query: 'What is machine learning?',
-    documents: [
-      'Machine learning is a subset of artificial intelligence.',
-      'The weather today is sunny and warm.',
-      'Deep learning uses neural networks with many layers.',
-      'I enjoy cooking Italian food on weekends.',
-    ],
-    topN: 2,
-  });
-
-  for (const result of response.results) {
-    console.log(`[${result.relevanceScore.toFixed(3)}] ${result.index}`);
-  }
-}
-
-rerank().catch(console.error);
-```
-
-### Example 4: Streaming Chat
-
-```typescript
-async function streamChat() {
-  const stream = await cohere.chatStream({
-    model: 'command-a-03-2025',
-    messages: [
-      { role: 'user', content: 'Write a haiku about APIs.' },
-    ],
-  });
-
-  for await (const event of stream) {
-    if (event.type === 'content-delta') {
-      process.stdout.write(event.delta?.message?.content?.text ?? '');
-    }
-  }
-  console.log(); // newline
-}
-
-streamChat().catch(console.error);
-```
-
-## Python Equivalents
-
-```python
-import cohere
-
-co = cohere.ClientV2()
-
-# Chat
-response = co.chat(
-    model="command-a-03-2025",
-    messages=[{"role": "user", "content": "Hello, Cohere!"}],
-)
-print(response.message.content[0].text)
-
-# Embed
-response = co.embed(
-    model="embed-v4.0",
-    texts=["Hello world", "Goodbye world"],
-    input_type="search_document",
-    embedding_types=["float"],
-)
-print(f"Vectors: {len(response.embeddings.float)}")
-
-# Rerank
-response = co.rerank(
-    model="rerank-v3.5",
-    query="best programming language",
-    documents=["Python is versatile", "Rust is fast", "SQL manages data"],
-    top_n=2,
-)
-for r in response.results:
-    print(f"[{r.relevance_score:.3f}] doc {r.index}")
-```
+Do not expose or rotate keys, change Cohere Team roles, accept commercial terms, enable sensitive production data, increase spend or capacity, switch production models, send a support bundle, or execute model-proposed side effects without the accountable owner's approval. Keep diagnosis read-only unless implementation was requested.
 
 ## Output
 
-- Chat: Text response from Command A model
-- Embed: Float vectors (1024 dimensions for v4)
-- Rerank: Sorted documents with relevance scores (0.0-1.0)
-- Stream: Token-by-token text output via SSE
+Return the resolved API and model contract, files or settings inspected, evidence collected, validation result, remaining risk, owner, and rollback or next action. Redact keys, authorization headers, prompts, retrieved documents, embeddings, customer identifiers, and unrestricted environment output.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `model is required` | Missing model param | Always pass `model` in API v2 |
-| `embedding_types is required` | Missing for embed | Add `embeddingTypes: ['float']` |
-| `invalid api token` | Bad CO_API_KEY | Check key at dashboard.cohere.com |
-| `rate limit exceeded` | Too many trial requests | Wait 60s or upgrade key |
+| Condition | Response |
+|---|---|
+| `400` | Check required v2 fields and endpoint-specific input types. |
+| `401` | Re-run the read-only authentication probe. |
+| `404` model | Resolve an accessible live model instead of guessing an alias. |
+| `429` | Honor the endpoint limit and stop the smoke test. |
 
 ## Examples
 
-Use a staging key and synthetic input to make one bounded chat request, inspect
-only the response status and expected shape, then repeat for embed/rerank using
-approved fixtures. If authentication, model selection, or rate checks fail,
-stop the walkthrough and repair the scoped configuration before sending user or
-production data.
+Use this compact handoff shape to keep the selected scope, validation evidence, and operational result reviewable.
+
+Input:
+
+```text
+endpoint=embed; input=two-public-sentences; model=resolve-live; max-requests=1
+```
+
+Expected handoff:
+
+```text
+endpoint=embed-v2; model=resolved-id; vectors=2; validation=pass
+```
 
 ## Resources
 
-- [Cohere Chat API](https://docs.cohere.com/reference/chat)
-- [Cohere Embed API](https://docs.cohere.com/reference/embed)
-- [Cohere Rerank API](https://docs.cohere.com/reference/rerank)
-
-## Next Steps
-
-Proceed to `cohere-local-dev-loop` for development workflow setup.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Chat API](https://docs.cohere.com/reference/chat)
+- [Embed API](https://docs.cohere.com/reference/embed)

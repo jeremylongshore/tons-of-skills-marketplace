@@ -6532,14 +6532,15 @@
     {
       "name": "cohere-pack",
       "source": "./plugins/saas-packs/cohere-pack",
-      "description": "Claude Code skill pack for Cohere (24 skills)",
-      "version": "1.5.0",
+      "description": "Source-grounded Cohere v2 operator workflows for Chat, Embed, Rerank, RAG, tools, security, migration, and production operations",
+      "version": "1.6.0",
       "category": "saas-packs",
       "keywords": [
         "cohere",
-        "saas",
-        "sdk",
-        "integration"
+        "api-v2",
+        "rag",
+        "tool-use",
+        "model-operations"
       ],
       "author": {
         "name": "Jeremy Longshore",
