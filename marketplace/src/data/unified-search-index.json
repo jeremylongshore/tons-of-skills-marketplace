@@ -9798,7 +9798,7 @@
         "email": "jeremy@intentsolutions.io"
       },
       "authorType": "official",
-      "version": "5.22.1",
+      "version": "5.23.0",
       "isFeatured": true,
       "isNew": false,
       "badges": [],
@@ -16289,7 +16289,7 @@
         "Agent"
       ],
       "compatibleWith": [],
-      "version": "5.22.1",
+      "version": "5.23.0",
       "parentPlugin": {
         "name": "skill-creator",
         "category": "skill-enhancers"
@@ -71402,7 +71402,7 @@
         "AskUserQuestion"
       ],
       "compatibleWith": [],
-      "version": "5.22.0",
+      "version": "5.23.0",
       "parentPlugin": {
         "name": "skill-creator",
         "category": "skill-enhancers"
