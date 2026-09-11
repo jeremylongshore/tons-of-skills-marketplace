@@ -1,194 +1,79 @@
 ---
 name: salesforce-cost-tuning
-description: 'Optimize Salesforce costs through API call reduction, edition selection,
-  and license management.
-
-  Use when analyzing Salesforce costs, reducing API consumption,
-
-  or choosing the right Salesforce edition for your integration needs.
-
-  Trigger with phrases like "salesforce cost", "salesforce pricing",
-
-  "reduce salesforce costs", "salesforce license", "salesforce API usage", "salesforce
-  budget".
-
-  '
-allowed-tools: Read, Grep
-version: 1.7.0
-license: MIT
+description: 'Analyze Salesforce license, add-on, storage, event, API, support, middleware, and operating costs from current customer evidence. Use when making cost and value decisions. Trigger with "optimize Salesforce cost".'
+argument-hint: "[org-or-program] [review-window]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- crm
-- salesforce
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, salesforce, cost, licensing, governance]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; commercial, license, retention, architecture, and workload changes require procurement, finance, platform, and business approval
 ---
-# Salesforce Cost Tuning
+# Salesforce Cost and Value Governance
 
 ## Overview
 
-Optimize Salesforce costs by reducing API call consumption, choosing the right edition, and monitoring API usage budgets. Salesforce charges per-user licenses (not per-API-call), but API limits are tied to edition + license count.
+Build a dated total-cost model that connects commercial terms and technical consumption to business outcomes without inventing public prices or savings.
 
 ## Prerequisites
 
-- Access to Salesforce Setup > Company Information
-- Understanding of current API usage patterns
-- Access to contract/license details
+- Current order forms, invoices, license assignments, add-ons, storage, support, and vendor or partner statements
+- Org usage, API and event allocations, middleware, compute, operations, incident, and migration evidence
+- Finance, procurement, Salesforce platform, security, data, architecture, and business owners
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect approved repository and evidence files, `WebFetch` to re-check current first-party Salesforce documentation, and `Write` or `Edit` only for secretless plans, fixtures, configuration, and redacted receipts.
+
+## Current Contract
+
+Salesforce editions, licenses, add-ons, storage, event delivery, API allocations, support, and partner services are customer-specific and change over time. Public documentation cannot establish one customer's price or entitlement.
+
+## Authentication
+
+Use read-only approved billing, contract, org, and telemetry evidence. Separate commercial and technical access and do not expose user-level license, compensation, customer, or record data.
 
 ## Instructions
 
-### Step 1: Understand Salesforce Pricing Model
+1. Freeze review window, currencies, orgs, products, contracts, populations, workloads, outcomes, and accountable owners.
+2. Reconcile invoices and commitments with assigned and active licenses, storage, API and event usage, add-ons, support, middleware, compute, and labor.
+3. Normalize time periods and currencies while preserving source, effective date, allocation method, and confidence.
+4. Identify unused or mismatched assignments, duplicate capability, retention growth, event or API pressure, support load, and architectural overhead.
+5. Model bounded scenarios with commercial assumptions, technical effects, business impact, security and data risk, reversibility, and confidence.
+6. Present license, contract, retention, integration, scheduling, or architecture changes to the corresponding owners.
+7. Canary reversible operational changes, reconcile savings and outcomes, and never claim savings until invoices and service quality confirm them.
 
-| Edition | Per-User/Month | API Calls/Day (Base) | Per-User API Calls |
-|---------|---------------|---------------------|-------------------|
-| Developer | Free | 15,000 | N/A (1 user) |
-| Essentials | ~$25 | 15,000 | +1,000/user |
-| Professional | ~$80 | 15,000 | +1,000/user |
-| Enterprise | ~$165 | 100,000 | +1,000/user |
-| Unlimited | ~$330 | 100,000 | +5,000/user |
-| API Add-on Pack | Varies | +200K-10M/day | Per org |
+## Approval Boundaries
 
-**Key insight:** API calls are per-org, not per-user. A 50-user Enterprise org gets 100,000 + (50 * 1,000) = 150,000 daily API calls. All integrations share this pool.
-
-### Step 2: Monitor Current Usage
-
-```typescript
-const conn = await getConnection();
-const limits = await conn.request('/services/data/v59.0/limits/');
-
-const apiUsage = {
-  daily: {
-    used: limits.DailyApiRequests.Max - limits.DailyApiRequests.Remaining,
-    remaining: limits.DailyApiRequests.Remaining,
-    max: limits.DailyApiRequests.Max,
-    percentUsed: ((limits.DailyApiRequests.Max - limits.DailyApiRequests.Remaining) / limits.DailyApiRequests.Max * 100).toFixed(1),
-  },
-  bulk: {
-    ingestJobs: limits.DailyBulkV2QueryJobs,
-    queryJobs: limits.DailyBulkV2QueryJobs,
-  },
-  storage: {
-    dataMB: `${limits.DataStorageMB.Max - limits.DataStorageMB.Remaining}/${limits.DataStorageMB.Max} MB`,
-    fileMB: `${limits.FileStorageMB.Max - limits.FileStorageMB.Remaining}/${limits.FileStorageMB.Max} MB`,
-  },
-};
-
-console.log('API Usage:', JSON.stringify(apiUsage, null, 2));
-```
-
-### Step 3: Reduce API Call Count (Biggest Cost Lever)
-
-```typescript
-// BEFORE: 1 API call per record = expensive
-for (const contact of contacts) {
-  await conn.sobject('Contact').create(contact); // 1000 calls for 1000 records
-}
-
-// AFTER: Batch with sObject Collections = 5 calls for 1000 records
-for (let i = 0; i < contacts.length; i += 200) {
-  const batch = contacts.slice(i, i + 200);
-  await conn.sobject('Contact').create(batch); // Max 200 per call
-}
-
-// AFTER: Use Bulk API for 10K+ records = 1 job regardless of count
-await conn.bulk2.loadAndWaitForResults({
-  object: 'Contact',
-  operation: 'insert',
-  input: csvData, // Can be millions of rows
-});
-// Bulk API has its own separate daily limit (15,000 jobs)
-
-// Cache describe calls — saves 50+ calls/day if you describe objects frequently
-const describeCache = new Map();
-async function cachedDescribe(objectName: string) {
-  if (!describeCache.has(objectName)) {
-    describeCache.set(objectName, await conn.sobject(objectName).describe());
-  }
-  return describeCache.get(objectName);
-}
-```
-
-### Step 4: API Call Budget Tracking
-
-```typescript
-class ApiCallBudget {
-  private dailyBudget: number;
-  private callsToday = 0;
-
-  constructor(dailyBudget: number) {
-    this.dailyBudget = dailyBudget;
-  }
-
-  async refreshFromOrg(conn: jsforce.Connection): Promise<void> {
-    const limits = await conn.request('/services/data/v59.0/limits/');
-    this.callsToday = limits.DailyApiRequests.Max - limits.DailyApiRequests.Remaining;
-    // Note: this call itself costs 1 API call — don't check too frequently
-  }
-
-  canSpend(estimatedCalls: number): { allowed: boolean; reason?: string } {
-    const projected = this.callsToday + estimatedCalls;
-
-    if (projected > this.dailyBudget * 0.95) {
-      return { allowed: false, reason: `Would exceed 95% of ${this.dailyBudget} daily budget` };
-    }
-
-    if (projected > this.dailyBudget * 0.80) {
-      console.warn(`API budget warning: ${this.callsToday}/${this.dailyBudget} used`);
-    }
-
-    return { allowed: true };
-  }
-}
-```
-
-### Step 5: Edition Right-Sizing
-
-```
-Decision tree for Salesforce edition:
-
-If API calls/day < 15,000:
-  → Developer Edition (free) or Professional ($80/user/month)
-
-If API calls/day 15,000-150,000:
-  → Enterprise Edition ($165/user/month)
-
-If API calls/day > 150,000:
-  → Unlimited ($330/user/month) or API Add-on Pack
-  → OR reduce calls with batching/caching (usually cheaper)
-
-If you need just data sync:
-  → Consider Heroku Connect ($$$) for automatic bi-directional sync
-  → Eliminates most API calls — data syncs via Change Data Capture
-```
+Do not remove licenses, change contracts, delete data, reduce support, throttle business-critical work, or re-architect integrations without owners.
 
 ## Output
 
-- Current API usage analyzed
-- Cost reduction strategies applied (batching, caching, Bulk API)
-- API call budget tracking implemented
-- Edition recommendation based on usage
+Return the reconciled baseline, dated sources, allocation model, anomalies, scenarios, assumptions, approvals, canary evidence, realized-versus-forecast result, and review date.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Unexpected API call spike | Unoptimized loop/query | Use Collections or Bulk API |
-| Budget exceeded | Missing monitoring | Add budget tracking class |
-| Storage limit | Too many records/files | Archive old data, delete test data |
-| License overspend | Unused integration licenses | Audit active users quarterly |
+| Condition | Response |
+|---|---|
+| Invoice and org inventory disagree | Preserve both and route reconciliation to finance, procurement, and the platform owner. |
+| Scenario relies on undocumented pricing or entitlement | Mark it invalid until current customer terms are obtained. |
+| Nominal savings degrade compliance or business outcomes | Reject or redesign the scenario regardless of headline cost. |
 
-## Examples
+## Example
 
-### Reduce API consumption with a measured batch migration
+A redacted completion receipt might look like this:
 
-Measure current API calls for one integration in a sandbox-equivalent window, replace its record-at-a-time loop with a bounded Bulk API or collection operation, and compare call count, error rate, and processing time. Configure an alert below the organization limit and preserve a feature flag or prior integration schedule for rollback. Do not reduce polling frequency until downstream freshness requirements have been agreed with the system owner.
+```text
+window=FY2026-Q3; sources=contract+invoice+org+ops; reconciliation=exact; scenarios=4; approved=1; savings=unrealized
+```
 
 ## Resources
 
-- Salesforce Editions & Pricing
-- [API Request Limits by Edition](https://developer.salesforce.com/docs/atlas.en-us.salesforce_app_limits_cheatsheet.meta/salesforce_app_limits_cheatsheet/salesforce_app_limits_platform_api.htm)
-- [Limits REST Resource](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_limits.htm)
+- [Salesforce REST limits](https://developer.salesforce.com/docs/platform/api-rest/guide/resources-limits.html)
+- [Salesforce release notes](https://help.salesforce.com/s/articleView?id=release-notes.salesforce_release_notes.htm)
 
 ## Next Steps
 
-For architecture patterns, see `salesforce-reference-architecture`.
+Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.

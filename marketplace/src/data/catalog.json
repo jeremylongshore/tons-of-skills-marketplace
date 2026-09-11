@@ -10129,13 +10129,14 @@
       "slug": "salesforce-pack",
       "name": "salesforce-pack",
       "displayName": "salesforce pack",
-      "description": "Claude Code skill pack for Salesforce (30 skills)",
-      "version": "1.7.0",
+      "description": "Governed Salesforce operator workflows for API access, data, events, security, delivery, and production operations",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "salesforce",
-        "saas",
-        "sdk",
+        "crm",
+        "api",
+        "pub-sub",
         "integration"
       ],
       "hasSkills": true,

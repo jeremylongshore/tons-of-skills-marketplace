@@ -1,182 +1,79 @@
 ---
 name: salesforce-security-basics
-description: 'Apply Salesforce security best practices for Connected Apps, OAuth,
-  and field-level security.
-
-  Use when securing API credentials, implementing least privilege access,
-
-  or auditing Salesforce security configuration.
-
-  Trigger with phrases like "salesforce security", "salesforce secrets",
-
-  "secure salesforce", "salesforce connected app security", "salesforce FLS".
-
-  '
-allowed-tools: Read, Write, Grep
-version: 1.7.0
-license: MIT
+description: 'Secure a Salesforce integration across OAuth, principals, permissions, sharing, fields, secrets, encryption, logging, and revocation. Use when reviewing threats or hardening controls. Trigger with "secure Salesforce integration".'
+argument-hint: "[org-alias] [integration]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- crm
-- salesforce
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, salesforce, security, least-privilege, data-protection]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; security, identity, permission, sharing, and encryption changes require customer security and Salesforce administrator approval
 ---
-# Salesforce Security Basics
+# Salesforce Integration Security Baseline
 
 ## Overview
 
-Security best practices for Salesforce integrations: Connected App configuration, OAuth scope management, field-level security, and credential rotation.
+Build a shared-responsibility control set that connects the external application, Salesforce org, principal, data, event, and operational boundaries.
 
 ## Prerequisites
 
-- Salesforce org with System Administrator access
-- Connected App created in Setup > App Manager
-- Understanding of Salesforce security model (Profile, Permission Set, OWD)
+- System context, data classes, org topology, app type, principal, APIs, events, and support paths
+- Current customer security policy, Salesforce security documentation, and threat model
+- Identity, security, Salesforce administration, privacy, data, application, and incident owners
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect approved repository and evidence files, `WebFetch` to re-check current first-party Salesforce documentation, and `Write` or `Edit` only for secretless plans, fixtures, configuration, and redacted receipts.
+
+## Current Contract
+
+Salesforce access combines OAuth client policy, user or integration-principal permissions, object CRUD, field-level access, record sharing, org settings, and optional security products. Controls and entitlements must be verified in the target org.
+
+## Authentication
+
+Prefer an External Client App for new REST integrations where the org contract requires it, or govern an approved existing Connected App. Use workload-appropriate OAuth, minimum scopes, protected secret custody, rotation, revocation, and no human-password automation.
 
 ## Instructions
 
-### Step 1: Secure Connected App Configuration
+1. Map trust boundaries, principals, orgs, APIs, events, data classes, mutations, logs, vendors, and failure paths.
+2. Verify app type, OAuth flow, scopes, policies, certificate or secret custody, token lifetime, rotation, and revocation.
+3. Review permission sets or groups, profile baseline, CRUD, field access, sharing, elevated access, and separation of duties.
+4. Inspect queries, payloads, caches, queues, logs, exports, support bundles, backups, and retention for minimum-data handling.
+5. Assess SOQL injection, mass assignment, replay, duplicate mutation, confused-deputy, mixed-org, and secret-exposure threats.
+6. Test denied paths, expired and revoked credentials, inaccessible fields, sharing restrictions, redaction, and break-glass audit.
+7. Track every gap with severity, owner, deadline, compensating control, verification evidence, and review cadence.
 
-```
-Setup > App Manager > New Connected App:
+## Approval Boundaries
 
-1. Enable OAuth Settings
-2. Callback URL: https://yourapp.com/oauth/callback (NOT localhost in prod)
-3. Selected OAuth Scopes — USE MINIMUM REQUIRED:
-   - "Manage user data via APIs (api)" — for REST/SOQL access
-   - "Perform requests at any time (refresh_token, offline_access)" — for refresh tokens
-   - DO NOT add "Full access (full)" unless absolutely necessary
+Do not change app policy, scopes, permissions, sharing, encryption, retention, or monitoring without security, admin, privacy, and data-owner approval.
 
-4. Require Proof Key for Code Exchange (PKCE): Enable for public clients
-5. Require Secret for Web Server Flow: Enable
-6. IP Relaxation: "Enforce IP restrictions" (not "Relax IP restrictions")
-```
+## Output
 
-### Step 2: Credential Storage
-
-```text
-# .env (NEVER commit to git)
-SF_LOGIN_URL=https://login.salesforce.com
-SF_USERNAME=integration-user@yourcompany.com
-SF_PASSWORD=<from-vault>
-SF_SECURITY_TOKEN=<from-vault>
-SF_CLIENT_ID=<connected-app-consumer-key>
-SF_CLIENT_SECRET=<connected-app-consumer-secret>
-
-# .gitignore — ALWAYS include
-.env
-.env.local
-.env.*.local
-server.key    # JWT private key
-*.pem
-*.key
-```
-
-### Step 3: Use a Dedicated Integration User
-
-```
-Create a dedicated Salesforce user for API access:
-
-1. Profile: Create "API Integration" profile (clone from Standard User)
-   - Login Hours: restrict to expected operating hours
-   - Login IP Ranges: restrict to your server IPs
-   - Object permissions: ONLY objects your integration needs
-
-2. Permission Set: "Integration API Access"
-   - Object: Account — Read, Create, Edit (no Delete)
-   - Object: Contact — Read, Create, Edit (no Delete)
-   - Field-Level Security: only expose fields the integration reads/writes
-
-3. NEVER use a System Administrator user for integrations
-```
-
-### Step 4: Field-Level Security (FLS) Enforcement
-
-```typescript
-// Always check FLS before operations — especially for managed packages
-const conn = await getConnection();
-const meta = await conn.sobject('Account').describe();
-
-// Check if field is accessible (readable)
-const industryField = meta.fields.find(f => f.name === 'Industry');
-if (!industryField?.accessible) {
-  throw new Error('Industry field is not accessible — check FLS');
-}
-
-// Check if field is updateable (writable)
-if (!industryField?.updateable) {
-  console.warn('Industry field is read-only for this user');
-}
-
-// Check which fields the current user can actually see
-const accessibleFields = meta.fields
-  .filter(f => f.accessible)
-  .map(f => f.name);
-console.log('Accessible fields:', accessibleFields.length);
-```
-
-### Step 5: Security Token Rotation
-
-```bash
-# Salesforce security tokens auto-reset when password changes
-# Rotation procedure:
-# 1. Setup > My Personal Information > Reset My Security Token
-# 2. New token is emailed to the user
-# 3. Update SF_SECURITY_TOKEN in your vault/env
-# 4. Verify connection works with new token
-# 5. For JWT: rotate the certificate in the Connected App
-
-# Automate rotation check
-sf org display --target-org integration-user --json | jq '.result.accessToken'
-```
-
-### Step 6: Audit Logging
-
-```typescript
-// Query Setup Audit Trail for security events
-const auditTrail = await conn.query(`
-  SELECT CreatedDate, CreatedBy.Username, Action, Section, Display
-  FROM SetupAuditTrail
-  WHERE CreatedDate >= LAST_N_DAYS:7
-    AND (Section = 'Connected Apps' OR Section = 'Users' OR Section = 'Profiles')
-  ORDER BY CreatedDate DESC
-  LIMIT 50
-`);
-
-for (const entry of auditTrail.records) {
-  console.log(`${entry.CreatedDate} | ${entry.CreatedBy?.Username} | ${entry.Action} | ${entry.Display}`);
-}
-```
-
-### Security Checklist
-
-- [ ] Connected App uses minimum OAuth scopes (not `full`)
-- [ ] Dedicated integration user (not admin)
-- [ ] IP restrictions on Connected App and user profile
-- [ ] Credentials in vault/env vars, never in code
-- [ ] `.env` and `*.key` files in `.gitignore`
-- [ ] Field-Level Security restricts sensitive fields
-- [ ] Security token rotated regularly
-- [ ] Setup Audit Trail monitored
-- [ ] PKCE enabled for public clients
+Return the threat model, access matrix, control evidence, denied-path tests, gaps, compensating controls, rotation and revocation proof, and owners.
 
 ## Error Handling
 
-| Security Issue | Detection | Mitigation |
-|----------------|-----------|------------|
-| Exposed credentials in git | `git log -p --all -S 'SF_PASSWORD'` | Rotate immediately, use git-secrets |
-| Overprivileged user | Check profile permissions | Create restricted integration profile |
-| Missing FLS | Describe call shows `accessible: false` | Update Permission Set |
-| IP not whitelisted | `LOGIN_MUST_USE_SECURITY_TOKEN` | Add IP to login IP ranges |
+| Condition | Response |
+|---|---|
+| Administrator access masks a denied path | Repeat with the actual integration principal before accepting the control. |
+| Security product or event is not entitled | Record the boundary and choose a documented compensating control. |
+| Credential exposure is suspected | Revoke and rotate through the incident process before further testing. |
+
+## Example
+
+A redacted completion receipt might look like this:
+
+```text
+integration=orders; app=external-client-app; scopes=minimum; crud-fls=verified; sharing=verified; denied-tests=pass; gaps=2-owned
+```
 
 ## Resources
 
-- [Salesforce Security Guide](https://developer.salesforce.com/docs/atlas.en-us.securityImplGuide.meta/securityImplGuide/)
-- [Connected Apps](https://help.salesforce.com/s/articleView?id=sf.connected_app_overview.htm)
-- [Field-Level Security](https://help.salesforce.com/s/articleView?id=sf.admin_fls.htm)
-- [Setup Audit Trail](https://help.salesforce.com/s/articleView?id=sf.admin_monitorsetup.htm)
+- [REST OAuth authorization](https://developer.salesforce.com/docs/platform/api-rest/guide/intro-oauth-and-connected-apps.html)
+- [Salesforce Security Implementation Guide](https://developer.salesforce.com/docs/atlas.en-us.securityImplGuide.meta/securityImplGuide/)
 
 ## Next Steps
 
-For production deployment, see `salesforce-prod-checklist`.
+Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.
