@@ -1,6 +1,6 @@
 {
   "name": "skill-creator",
-  "version": "5.22.0",
+  "version": "5.22.1",
   "description": "Create and validate production-grade agent skills with 100-point marketplace grading",
   "author": {
     "name": "Jeremy Longshore",

@@ -1,7 +1,7 @@
 ---
 name: agent-creator
 description: 'Create production-grade agent .md files aligned with the current Anthropic
-  17-field subagent schema.
+  subagent contract.
 
   Also validates existing agents against the marketplace compliance rules. Use when
   building custom
@@ -18,7 +18,7 @@ description: 'Create production-grade agent .md files aligned with the current A
   '
 allowed-tools: Read,Write,Edit,Glob,Grep,Bash(python:*),AskUserQuestion,Agent
 argument-hint: "<create|validate> [agent path or requirements]"
-version: 5.22.0
+version: 5.22.1
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
@@ -32,14 +32,15 @@ compatibility: Designed for Claude Code
 ---
 # Agent Creator
 
-Creates spec-compliant agent .md files following the current Anthropic 17-field schema. Supports
-both creation of new agents and validation of existing ones.
+Creates spec-compliant agent .md files following Anthropic's current documented subagent
+frontmatter contract. Supports both creation of new agents and validation of existing ones.
 
 ## Overview
 
 Agent Creator fills the gap between ad-hoc agent files and production-grade agents that pass
-marketplace validation. It recognizes all 17 upstream fields, then layers the stricter Intent
-Solutions required set on top. It prevents
+marketplace validation. It distinguishes the 16 fields in Anthropic's public frontmatter table
+from runtime-recognized experimental options, then layers the stricter Intent Solutions required
+set on top. It prevents
 common mistakes (using `allowed-tools` instead of `disallowedTools`, adding invalid fields like
 `capabilities` or `expertise_level`), and produces agents with substantive body content that
 actually guides Claude's behavior.
@@ -48,8 +49,10 @@ Key difference from skill-creator: **agents support both `tools` (allowlist) AND
 (denylist)**. Skills use `allowed-tools` (allowlist) and, since schema 3.7.0, an optional
 kebab-case `disallowed-tools` denylist — a parallel field, not a unification. Agents also support
 `effort`, `maxTurns`, `skills`, `memory`, `isolation`, `permissionMode`, `background`, `color`, and
-`initialPrompt`, and `experimental` — fields that don't exist for skills. The agent body becomes the **system prompt**
-that drives the subagent — it does NOT receive the full Claude Code system prompt.
+`initialPrompt` — fields that don't exist for skills. Claude Code also recognizes a separately
+labeled runtime `experimental` object; do not present it as part of the public 16-field table.
+The agent body becomes the **system prompt** that drives the subagent — it does NOT receive the
+full Claude Code system prompt.
 
 **Field-naming warning:** Agents use camelCase `disallowedTools:` (canonical sub-agents spec);
 skills use kebab-case `disallowed-tools:` (schema 3.7.0+). The validator rejects either mismatch —
@@ -139,7 +142,7 @@ Generate the agent .md using the template from
 Use `Write` for a new definition and `Edit` for a targeted remediation of an
 existing definition; do not replace unrelated project content.
 
-**Frontmatter Rules (Anthropic 17-field schema):**
+**Frontmatter Rules (documented schema plus runtime extension):**
 
 See [Anthropic Agent Spec](references/anthropic-agent-spec.md) for the full official reference.
 
@@ -223,7 +226,7 @@ experimental:              # Claude Code v2.1.248+; optional
 
 ### Step 4: Validate the Agent
 
-Run validation against the Anthropic 17-field schema:
+Run validation against the documented Anthropic schema and the runtime extension allowlist:
 
 **Manual checklist:**
 
@@ -262,7 +265,7 @@ Test the agent by spawning it via the `Agent` tool:
 Provide a summary:
 
 - Agent name and file path
-- Frontmatter field count (of 17 upstream fields, plus the IS enterprise overlay)
+- Documented frontmatter fields used, plus any runtime extension and IS overlay fields used
 - Body line count
 - Sections present
 - Validation result (pass/fail with specific issues)
@@ -274,7 +277,7 @@ When the user wants to validate an existing agent:
 
 1. Locate the agent .md file
 2. Parse YAML frontmatter
-3. Check against the 17-field Anthropic schema:
+3. Check against the documented Anthropic schema and runtime extension allowlist:
    - `name` present and valid (1-64 chars, kebab-case)?
    - `description` present and valid (20-1536 chars; concise and selection-specific)?
    - Any invalid fields? (capabilities, expertise_level, activation_priority, etc.)
@@ -351,7 +354,7 @@ actionable).
 
 ## Resources
 
-- [Anthropic Agent Spec](references/anthropic-agent-spec.md) — Official 17-field schema from code.claude.com/docs/en/sub-agents
+- [Anthropic Agent Spec](references/anthropic-agent-spec.md) — documented 16-field table plus the separately labeled runtime extension
 - Agent template — Skeleton with placeholders
 - Frontmatter spec — Field reference (internal)
 - Source of truth — Canonical spec

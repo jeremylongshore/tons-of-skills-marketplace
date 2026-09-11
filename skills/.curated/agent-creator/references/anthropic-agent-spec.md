@@ -2,7 +2,7 @@
 
 Source: https://code.claude.com/docs/en/sub-agents (fetched 2026-09-09)
 
-## Supported Frontmatter Fields
+## Documented Frontmatter Fields
 
 Only `name` and `description` are required.
 
@@ -24,9 +24,15 @@ Only `name` and `description` are required.
 | `isolation` | No | `worktree` — run in temporary git worktree |
 | `color` | No | Display color: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan` |
 | `initialPrompt` | No | Auto-submitted as first user turn when running as main agent via `--agent` |
-| `experimental` | No | Experimental options; `cacheTtl` accepts `5m` or `1h` in Claude Code v2.1.248+ |
+Total: 16 fields in Anthropic's public supported-frontmatter table.
 
-Total: 17 official fields.
+## Runtime Experimental Extension
+
+Claude Code v2.1.248+ also recognizes an `experimental` object whose current
+`cacheTtl` value accepts `5m` or `1h`. This runtime extension is intentionally
+kept separate from the 16 fields in the public documentation table because
+experimental options can change or disappear without the stability expected of
+documented frontmatter.
 
 ## Key Facts
 

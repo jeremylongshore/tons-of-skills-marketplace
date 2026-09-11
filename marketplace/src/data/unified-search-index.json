@@ -9798,7 +9798,7 @@
         "email": "jeremy@intentsolutions.io"
       },
       "authorType": "official",
-      "version": "5.22.0",
+      "version": "5.22.1",
       "isFeatured": true,
       "isNew": false,
       "badges": [],
@@ -16276,7 +16276,7 @@
       "id": "agent-creator",
       "slug": "agent-creator",
       "name": "agent-creator",
-      "description": "Create production-grade agent .md files aligned with the current Anthropic 17-field subagent schema. Also validates existing agents against the marketplace compliance rules. Use when building custom subagents, reviewing agent quality, or creating parallel agent architectures for orchestrator skills. Trigger with \"/agent-creator\", \"create an agent\", \"build a subagent\", or \"validate my agent\". Make sure to use this skill whenever creating agents/*.md files for plugins or standalone use.",
+      "description": "Create production-grade agent .md files aligned with the current Anthropic subagent contract. Also validates existing agents against the marketplace compliance rules. Use when building custom subagents, reviewing agent quality, or creating parallel agent architectures for orchestrator skills. Trigger with \"/agent-creator\", \"create an agent\", \"build a subagent\", or \"validate my agent\". Make sure to use this skill whenever creating agents/*.md files for plugins or standalone use.",
       "category": "skill-enhancers",
       "allowedTools": [
         "Read",
@@ -16289,12 +16289,12 @@
         "Agent"
       ],
       "compatibleWith": [],
-      "version": "5.22.0",
+      "version": "5.22.1",
       "parentPlugin": {
         "name": "skill-creator",
         "category": "skill-enhancers"
       },
-      "searchText": "agent-creator create production-grade agent .md files aligned with the current anthropic 17-field subagent schema. also validates existing agents against the marketplace compliance rules. use when building custom subagents, reviewing agent quality, or creating parallel agent architectures for orchestrator skills. trigger with \"/agent-creator\", \"create an agent\", \"build a subagent\", or \"validate my agent\". make sure to use this skill whenever creating agents/*.md files for plugins or standalone use. skill-enhancers read write edit glob grep bash(python:*) askuserquestion agent "
+      "searchText": "agent-creator create production-grade agent .md files aligned with the current anthropic subagent contract. also validates existing agents against the marketplace compliance rules. use when building custom subagents, reviewing agent quality, or creating parallel agent architectures for orchestrator skills. trigger with \"/agent-creator\", \"create an agent\", \"build a subagent\", or \"validate my agent\". make sure to use this skill whenever creating agents/*.md files for plugins or standalone use. skill-enhancers read write edit glob grep bash(python:*) askuserquestion agent "
     },
     {
       "type": "skill",

@@ -677,8 +677,8 @@
     {
       "slug": "agent-creator",
       "name": "agent-creator",
-      "description": "Create production-grade agent .md files aligned with the current Anthropic 17-field subagent schema. Also validates existing agents against the marketplace compliance rules. Use when building custom subagents, reviewing agent quality, or creating parallel agent architectures for orchestrator skills. Trigger with \"/agent-creator\", \"create an agent\", \"build a subagent\", or \"validate my agent\". Make sure to use this skill whenever creating agents/*.md files for plugins or standalone use.",
-      "version": "5.22.0",
+      "description": "Create production-grade agent .md files aligned with the current Anthropic subagent contract. Also validates existing agents against the marketplace compliance rules. Use when building custom subagents, reviewing agent quality, or creating parallel agent architectures for orchestrator skills. Trigger with \"/agent-creator\", \"create an agent\", \"build a subagent\", or \"validate my agent\". Make sure to use this skill whenever creating agents/*.md files for plugins or standalone use.",
+      "version": "5.22.1",
       "category": "skill-enhancers",
       "parentPlugin": "skill-creator",
       "requires_env": [],
@@ -34804,7 +34804,7 @@
     }
   ],
   "count": 2900,
-  "generatedAt": "2026-09-11T13:11:56.955Z",
+  "generatedAt": "2026-09-11T14:25:43.031Z",
   "categories": [
     "ai-agency",
     "ai-ml",
