@@ -1331,6 +1331,7 @@
       "real-time",
       "realtime",
       "recall",
+      "recognition",
       "recommendations",
       "recovery",
       "redis",
@@ -1827,7 +1828,7 @@
       "isNew": false,
       "badges": [],
       "skillCount": 1,
-      "verificationScore": 95,
+      "verificationScore": 100,
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "google cloud agent sdk build, evaluate, deploy, publish, and migrate google adk applications with google's maintained agents-cli workflow for agent runtime, cloud run, gke, and gemini enterprise. productivity agent-development-kit adk agent-starter-pack agents-cli multi-agent containerized-agents cloud-run gke agent-runtime rag-agents react-agents google-cloud vertex-ai"
@@ -5448,6 +5449,9 @@
       "isNew": false,
       "badges": [],
       "skillCount": 1,
+      "verificationScore": 100,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
       "searchText": "skillcrossroads evidence-cited grader for claude code artifacts — the audit-skill runs the free skillcrossroads cli for file:line scorecards, letter grades, and ranked fix lists community audit quality linter scorecard"
     },
     {
@@ -9795,7 +9799,7 @@
       "isNew": false,
       "badges": [],
       "skillCount": 2,
-      "verificationScore": 97,
+      "verificationScore": 96,
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "skill creator create and validate production-grade agent skills with 100-point marketplace grading. supports creation workflows, eval-driven development, and auto-fix for spec compliance. skill-enhancers skill-creation validation meta-tooling grading anthropic-spec"
@@ -10461,7 +10465,7 @@
       "isNew": false,
       "badges": [],
       "skillCount": 30,
-      "verificationScore": 96,
+      "verificationScore": 97,
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "windsurf pack current devin desktop (formerly windsurf) operations pack with 30 grade-a skills for cascade, rules, skills, workflows, hooks, mcp, quota governance, security, and enterprise rollout. saas-packs windsurf devin-desktop ai-editor cascade ai-coding rules quota"
@@ -10654,7 +10658,7 @@
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 92,
+      "verificationScore": 93,
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "posthog pack verified posthog operator pack with 24 workflows for regional ingestion, identity, flags, privacy, costs, incidents, migrations, and safe releases. saas-packs posthog product-analytics feature-flags session-replay ab-testing experimentation"
@@ -11771,9 +11775,9 @@
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 79,
-      "verificationGrade": "C",
-      "verificationBadge": "silver",
+      "verificationScore": 99,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
       "searchText": "algolia pack algolia search integration pack with 24 operator skills saas-packs algolia saas sdk integration"
     },
     {
@@ -11982,9 +11986,9 @@
       "isNew": false,
       "badges": [],
       "skillCount": 18,
-      "verificationScore": 79,
-      "verificationGrade": "C",
-      "verificationBadge": "silver",
+      "verificationScore": 98,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
       "searchText": "attio pack attio crm integration pack with 18 operator skills saas-packs attio saas sdk integration"
     },
     {
@@ -12195,9 +12199,9 @@
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 80,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
+      "verificationScore": 99,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
       "searchText": "clickup pack production-grade claude code operator workflows for governed clickup integrations (24 skills) saas-packs clickup saas operations integration project-management"
     },
     {
@@ -13255,9 +13259,9 @@
       "isNew": false,
       "badges": [],
       "skillCount": 18,
-      "verificationScore": 79,
-      "verificationGrade": "C",
-      "verificationBadge": "silver",
+      "verificationScore": 98,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
       "searchText": "salesloft pack production salesloft operator workflows for authentication, cadences, synchronization, rate control, webhooks, security, deployment, and incident evidence saas-packs salesloft saas sdk integration"
     },
     {
@@ -13378,9 +13382,9 @@
       "isNew": false,
       "badges": [],
       "skillCount": 10,
-      "verificationScore": 78,
-      "verificationGrade": "C",
-      "verificationBadge": "silver",
+      "verificationScore": 98,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
       "searchText": "stackblitz pack production stackblitz workflows for webcontainer lifecycle, embeds, testing, diagnostics, capacity, and security (10 skills) saas-packs stackblitz saas sdk integration"
     },
     {
@@ -13408,9 +13412,9 @@
       "isNew": false,
       "badges": [],
       "skillCount": 18,
-      "verificationScore": 79,
-      "verificationGrade": "C",
-      "verificationBadge": "silver",
+      "verificationScore": 97,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
       "searchText": "techsmith pack source-grounded operator workflows for snagit com, camtasia recording and export, managed deployment, licensing, storage, security, and artifact promotion saas-packs techsmith snagit camtasia desktop-automation"
     },
     {
@@ -13439,9 +13443,9 @@
       "isNew": false,
       "badges": [],
       "skillCount": 16,
-      "verificationScore": 79,
-      "verificationGrade": "C",
-      "verificationBadge": "silver",
+      "verificationScore": 97,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
       "searchText": "together pack source-grounded operator workflows for together ai inference, batch, fine-tuning, v2 dedicated model inference, security, cost, and production operations saas-packs together-ai inference batch-inference fine-tuning model-operations"
     },
     {
@@ -13469,9 +13473,9 @@
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 77,
-      "verificationGrade": "C",
-      "verificationBadge": "silver",
+      "verificationScore": 99,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
       "searchText": "webflow pack verified operator workflows for webflow data api v2, webflow cloud, cli, cms, webhooks, security, and production operations (24 skills) saas-packs webflow saas sdk integration"
     },
     {
@@ -13480,12 +13484,12 @@
       "slug": "workhuman-pack",
       "name": "workhuman-pack",
       "displayName": "workhuman pack",
-      "description": "Claude Code skill pack for Workhuman (18 skills)",
+      "description": "Governed Workhuman operator workflows for recognition, rewards, Workday integration, security, and production operations",
       "category": "saas-packs",
       "keywords": [
         "workhuman",
         "saas",
-        "sdk",
+        "recognition",
         "integration"
       ],
       "author": {
@@ -13494,15 +13498,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.3.0",
+      "version": "1.4.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 18,
-      "verificationScore": 80,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "workhuman pack claude code skill pack for workhuman (18 skills) saas-packs workhuman saas sdk integration"
+      "verificationScore": 93,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "workhuman pack governed workhuman operator workflows for recognition, rewards, workday integration, security, and production operations saas-packs workhuman saas recognition integration"
     },
     {
       "type": "plugin",
@@ -13908,9 +13912,9 @@
       "isNew": false,
       "badges": [],
       "skillCount": 1,
-      "verificationScore": 78,
-      "verificationGrade": "C",
-      "verificationBadge": "silver",
+      "verificationScore": 99,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
       "searchText": "web analytics push-based web analytics intelligence team — self-hosted umami via mcp (primary) + ga4 (fallback). 9 specialist agents fetch data, detect anomalies, analyze funnels, verify claims adversarially, and deliver narrative reports across your entire site portfolio. three tiers: 30-second pulse, 2-min brief, 5-min full deep-dive. console / email / slack delivery. analytics analytics umami ga4 traffic mcp self-hosted multi-agent push-based"
     },
     {
@@ -79076,396 +79080,414 @@
       "id": "workhuman-ci-integration",
       "slug": "workhuman-ci-integration",
       "name": "workhuman-ci-integration",
-      "description": "Workhuman ci integration for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman ci integration\".",
+      "description": "Build fork-safe CI gates for a Workhuman adapter using pinned customer contracts, synthetic fixtures, and an optional protected tenant smoke test. Use when automating integration verification. Trigger with \"add Workhuman CI\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-ci-integration workhuman ci integration for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman ci integration\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-ci-integration build fork-safe ci gates for a workhuman adapter using pinned customer contracts, synthetic fixtures, and an optional protected tenant smoke test. use when automating integration verification. trigger with \"add workhuman ci\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "workhuman-common-errors",
       "slug": "workhuman-common-errors",
       "name": "workhuman-common-errors",
-      "description": "Workhuman common errors for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman common errors\".",
+      "description": "Triage Workhuman identity, eligibility, approval, spend, integration, reporting, and redemption failures using tenant evidence. Use when diagnosing operations. Trigger with \"diagnose a Workhuman error\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-common-errors workhuman common errors for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman common errors\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-common-errors triage workhuman identity, eligibility, approval, spend, integration, reporting, and redemption failures using tenant evidence. use when diagnosing operations. trigger with \"diagnose a workhuman error\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "workhuman-core-workflow-a",
       "slug": "workhuman-core-workflow-a",
       "name": "workhuman-core-workflow-a",
-      "description": "Workhuman core workflow a for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman core workflow a\".",
+      "description": "Plan and execute a governed Workhuman recognition workflow from program rules through approval and reconciliation. Use when launching or changing nominations and awards. Trigger with \"run a Workhuman recognition workflow\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-core-workflow-a workhuman core workflow a for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman core workflow a\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-core-workflow-a plan and execute a governed workhuman recognition workflow from program rules through approval and reconciliation. use when launching or changing nominations and awards. trigger with \"run a workhuman recognition workflow\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "workhuman-core-workflow-b",
       "slug": "workhuman-core-workflow-b",
       "name": "workhuman-core-workflow-b",
-      "description": "Workhuman core workflow b for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman core workflow b\".",
+      "description": "Govern and reconcile Workhuman and Workday worker and award-data flows with explicit field authority and payroll controls. Use when operating the certified Workday integration. Trigger with \"reconcile Workhuman and Workday\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-core-workflow-b workhuman core workflow b for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman core workflow b\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-core-workflow-b govern and reconcile workhuman and workday worker and award-data flows with explicit field authority and payroll controls. use when operating the certified workday integration. trigger with \"reconcile workhuman and workday\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "workhuman-cost-tuning",
       "slug": "workhuman-cost-tuning",
       "name": "workhuman-cost-tuning",
-      "description": "Workhuman cost tuning for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman cost tuning\".",
+      "description": "Govern Workhuman recognition budget, award spend, redemption, licensing, services, and integration operations using current customer evidence. Use when reviewing cost and value. Trigger with \"optimize Workhuman cost\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-cost-tuning workhuman cost tuning for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman cost tuning\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-cost-tuning govern workhuman recognition budget, award spend, redemption, licensing, services, and integration operations using current customer evidence. use when reviewing cost and value. trigger with \"optimize workhuman cost\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "workhuman-debug-bundle",
       "slug": "workhuman-debug-bundle",
       "name": "workhuman-debug-bundle",
-      "description": "Workhuman debug bundle for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman debug bundle\".",
+      "description": "Assemble a privacy-safe Workhuman support bundle with contract, configuration, timeline, and correlation evidence. Use when escalating a tenant or managed-integration issue. Trigger with \"build a Workhuman debug bundle\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-debug-bundle workhuman debug bundle for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman debug bundle\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-debug-bundle assemble a privacy-safe workhuman support bundle with contract, configuration, timeline, and correlation evidence. use when escalating a tenant or managed-integration issue. trigger with \"build a workhuman debug bundle\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "workhuman-deploy-integration",
       "slug": "workhuman-deploy-integration",
       "name": "workhuman-deploy-integration",
-      "description": "Workhuman deploy integration for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman deploy integration\".",
+      "description": "Deploy a customer-owned Workhuman adapter or supported managed integration through preview, canary, reconciliation, and rollback. Use when releasing integration changes. Trigger with \"deploy a Workhuman integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-deploy-integration workhuman deploy integration for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman deploy integration\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-deploy-integration deploy a customer-owned workhuman adapter or supported managed integration through preview, canary, reconciliation, and rollback. use when releasing integration changes. trigger with \"deploy a workhuman integration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "workhuman-hello-world",
       "slug": "workhuman-hello-world",
       "name": "workhuman-hello-world",
-      "description": "Workhuman hello world for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman hello world\".",
+      "description": "Verify a Workhuman tenant integration safely with entitlement discovery, a read-only capability check, and a mutation preview. Use when running a first connection or smoke test. Trigger with \"test Workhuman safely\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-hello-world workhuman hello world for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman hello world\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-hello-world verify a workhuman tenant integration safely with entitlement discovery, a read-only capability check, and a mutation preview. use when running a first connection or smoke test. trigger with \"test workhuman safely\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "workhuman-install-auth",
       "slug": "workhuman-install-auth",
       "name": "workhuman-install-auth",
-      "description": "Workhuman install auth for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman install auth\".",
+      "description": "Select and document the supported Workhuman access path for a customer tenant, including SSO, managed integrations, or customer-issued API credentials. Use when onboarding or repairing an integration. Trigger with \"configure Workhuman access\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-install-auth workhuman install auth for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman install auth\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-install-auth select and document the supported workhuman access path for a customer tenant, including sso, managed integrations, or customer-issued api credentials. use when onboarding or repairing an integration. trigger with \"configure workhuman access\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "workhuman-local-dev-loop",
       "slug": "workhuman-local-dev-loop",
       "name": "workhuman-local-dev-loop",
-      "description": "Workhuman local dev loop for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman local dev loop\".",
+      "description": "Build a secret-free local development loop for a Workhuman adapter using customer-contract fixtures and an explicitly authorized live lane. Use when developing or testing an integration. Trigger with \"build a Workhuman dev loop\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-local-dev-loop workhuman local dev loop for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman local dev loop\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-local-dev-loop build a secret-free local development loop for a workhuman adapter using customer-contract fixtures and an explicitly authorized live lane. use when developing or testing an integration. trigger with \"build a workhuman dev loop\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "workhuman-performance-tuning",
       "slug": "workhuman-performance-tuning",
       "name": "workhuman-performance-tuning",
-      "description": "Workhuman performance tuning for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman performance tuning\".",
+      "description": "Measure and tune Workhuman adapter, worker-sync, recognition, reporting, and Store workflows within documented tenant limits. Use when tuning latency or throughput. Trigger with \"tune Workhuman performance\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-performance-tuning workhuman performance tuning for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman performance tuning\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-performance-tuning measure and tune workhuman adapter, worker-sync, recognition, reporting, and store workflows within documented tenant limits. use when tuning latency or throughput. trigger with \"tune workhuman performance\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "workhuman-prod-checklist",
       "slug": "workhuman-prod-checklist",
       "name": "workhuman-prod-checklist",
-      "description": "Workhuman prod checklist for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman prod checklist\".",
+      "description": "Gate a Workhuman integration or program change for production with contract, data, security, financial, support, canary, and rollback evidence. Use when preparing for go-live. Trigger with \"review Workhuman production readiness\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-prod-checklist workhuman prod checklist for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman prod checklist\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-prod-checklist gate a workhuman integration or program change for production with contract, data, security, financial, support, canary, and rollback evidence. use when preparing for go-live. trigger with \"review workhuman production readiness\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "workhuman-rate-limits",
       "slug": "workhuman-rate-limits",
       "name": "workhuman-rate-limits",
-      "description": "Workhuman rate limits for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman rate limits\".",
+      "description": "Discover and enforce the tenant-specific Workhuman capacity and retry contract for integrations and batch workflows. Use when controlling throughput or resolving throttling. Trigger with \"govern Workhuman rate limits\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-rate-limits workhuman rate limits for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman rate limits\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-rate-limits discover and enforce the tenant-specific workhuman capacity and retry contract for integrations and batch workflows. use when controlling throughput or resolving throttling. trigger with \"govern workhuman rate limits\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "workhuman-reference-architecture",
       "slug": "workhuman-reference-architecture",
       "name": "workhuman-reference-architecture",
-      "description": "Workhuman reference architecture for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman reference architecture\".",
+      "description": "Design a governed Workhuman architecture across HCM, recognition, rewards, workplace integrations, customer adapters, analytics, and evidence. Use when designing or reviewing the system. Trigger with \"design a Workhuman architecture\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-reference-architecture workhuman reference architecture for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman reference architecture\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-reference-architecture design a governed workhuman architecture across hcm, recognition, rewards, workplace integrations, customer adapters, analytics, and evidence. use when designing or reviewing the system. trigger with \"design a workhuman architecture\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "workhuman-sdk-patterns",
       "slug": "workhuman-sdk-patterns",
       "name": "workhuman-sdk-patterns",
-      "description": "Workhuman sdk patterns for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman sdk patterns\".",
+      "description": "Design a typed Workhuman integration adapter from customer-authorized API or connector contracts without assuming a public SDK. Use when creating reusable client boundaries. Trigger with \"design a Workhuman adapter\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-sdk-patterns workhuman sdk patterns for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman sdk patterns\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-sdk-patterns design a typed workhuman integration adapter from customer-authorized api or connector contracts without assuming a public sdk. use when creating reusable client boundaries. trigger with \"design a workhuman adapter\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "workhuman-security-basics",
       "slug": "workhuman-security-basics",
       "name": "workhuman-security-basics",
-      "description": "Workhuman security basics for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman security basics\".",
+      "description": "Define shared-responsibility security controls for Workhuman identity, workforce data, recognition, awards, Store, and integrations. Use when reviewing threats or hardening controls. Trigger with \"secure a Workhuman integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-security-basics workhuman security basics for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman security basics\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-security-basics define shared-responsibility security controls for workhuman identity, workforce data, recognition, awards, store, and integrations. use when reviewing threats or hardening controls. trigger with \"secure a workhuman integration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "workhuman-upgrade-migration",
       "slug": "workhuman-upgrade-migration",
       "name": "workhuman-upgrade-migration",
-      "description": "Workhuman upgrade migration for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman upgrade migration\".",
+      "description": "Migrate a Workhuman API, managed connector, schema, identity, or program configuration under contract and reconciliation controls. Use when managing upgrades and breaking changes. Trigger with \"plan a Workhuman migration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-upgrade-migration workhuman upgrade migration for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman upgrade migration\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-upgrade-migration migrate a workhuman api, managed connector, schema, identity, or program configuration under contract and reconciliation controls. use when managing upgrades and breaking changes. trigger with \"plan a workhuman migration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "workhuman-webhooks-events",
       "slug": "workhuman-webhooks-events",
       "name": "workhuman-webhooks-events",
-      "description": "Workhuman webhooks events for employee recognition and rewards API. Use when integrating Workhuman Social Recognition, or building recognition workflows with HRIS systems. Trigger: \"workhuman webhooks events\".",
+      "description": "Select and govern a supported Workhuman change-ingestion mode such as managed integration, documented event delivery, polling, report, or export. Use when building downstream updates. Trigger with \"ingest Workhuman changes\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.3.0",
+      "version": "1.4.0",
       "parentPlugin": {
         "name": "workhuman-pack",
         "category": "saas-packs"
       },
-      "searchText": "workhuman-webhooks-events workhuman webhooks events for employee recognition and rewards api. use when integrating workhuman social recognition, or building recognition workflows with hris systems. trigger: \"workhuman webhooks events\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "workhuman-webhooks-events select and govern a supported workhuman change-ingestion mode such as managed integration, documented event delivery, polling, report, or export. use when building downstream updates. trigger with \"ingest workhuman changes\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",

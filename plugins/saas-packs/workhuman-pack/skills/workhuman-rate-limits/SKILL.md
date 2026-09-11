@@ -1,67 +1,80 @@
 ---
 name: workhuman-rate-limits
-description: 'Workhuman rate limits for employee recognition and rewards API.
-
-  Use when integrating Workhuman Social Recognition,
-
-  or building recognition workflows with HRIS systems.
-
-  Trigger: "workhuman rate limits".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.3.0
-license: MIT
+description: 'Discover and enforce the tenant-specific Workhuman capacity and retry contract for integrations and batch workflows. Use when controlling throughput or resolving throttling. Trigger with "govern Workhuman rate limits".'
+argument-hint: "[workflow] [expected-volume]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.4.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- hr
-- recognition
-- workhuman
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, workhuman, rate-limits, backpressure, reliability]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; production traffic and schedule changes require customer and integration-owner approval
 ---
-# Workhuman Rate Limits
+# Workhuman Capacity and Backpressure Governance
 
 ## Overview
 
-Guidance for rate limits with Workhuman Social Recognition and rewards API.
+Replace guessed quotas with measured, documented capacity controls that protect recognition, worker-sync, reporting, and downstream systems.
+
+## Prerequisites
+
+- Current customer-authorized capacity, retry, batch, and support contract
+- Expected records and requests by direction, operation, tenant, and time window
+- Service-level objectives, recovery objectives, and authoritative reconciliation method
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect traffic and retry configuration, `WebFetch` for current vendor context, and `Write` or `Edit` for models, controls, fixtures, and redacted evidence.
+
+## Current Contract
+
+The cited Workhuman public pages do not publish universal request-per-minute limits, retry headers, batch sizes, or concurrency values. Treat all numbers as tenant- and operation-specific until confirmed in current authorized documentation or support evidence.
+
+## Authentication
+
+Partition capacity by the documented tenant and principal boundaries. Never rotate credentials, create extra principals, or distribute traffic to evade a limit.
 
 ## Instructions
 
-### Key Workhuman API Concepts
+1. Inventory every traffic source, operation, direction, schedule, principal, batch size, concurrency, and downstream dependency.
+2. Obtain the current documented limits and retry semantics or record a vendor question; do not infer them from a short observation.
+3. Establish baselines for latency, throughput, throttling, queue age, error class, batch duration, and reconciliation lag.
+4. Implement shared admission control, bounded concurrency, timeout budgets, queue limits, jittered backoff, and retry caps.
+5. Retry only operations proven safe by read semantics, idempotency, or authoritative reconciliation.
+6. Test burst, sustained load, throttling, timeout, partial batch, downstream slowdown, and recovery with synthetic fixtures.
+7. Present schedule or concurrency changes with evidence, projected capacity, abort threshold, owner, and rollback.
+8. After approval, canary and compare observed behavior with the model; update the dated contract record.
 
-- **Auth**: OAuth 2.0 client credentials flow
-- **Recognition**: Peer-to-peer and manager nominations with points
-- **Awards**: Configurable levels (bronze, silver, gold, platinum)
-- **Values**: Company values attached to recognitions
-- **HRIS Sync**: Bidirectional sync with Workday, SAP SuccessFactors
-- **Integrations**: Microsoft Teams, Slack, Outlook native plugins
+## Approval Boundaries
 
-### Core API Endpoints
+Do not load-test production, increase schedules or concurrency, split principals, or retry ambiguous recognition and award writes without approval.
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/recognitions` | GET | List recognitions |
-| `/api/v1/recognitions` | POST | Create nomination |
-| `/api/v1/recognitions/:id` | GET | Get recognition status |
-| `/api/v1/users` | GET | List employees |
-| `/api/v1/rewards/catalog` | GET | Browse reward catalog |
-| `/api/v1/rewards/redeem` | POST | Redeem points for reward |
+## Output
+
+Return the documented capacity evidence, traffic inventory, baseline, control policy, retry classification, test result, canary measurements, and unresolved vendor limits.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Token expired | Re-authenticate |
-| `403 Forbidden` | Insufficient permissions | Check role/permissions |
-| `422 Validation` | Missing fields | Check required fields |
-| `404 Not Found` | Invalid ID | Verify resource exists |
+| Condition | Response |
+|---|---|
+| No capacity contract is available | Use a conservative customer-approved canary and ask Workhuman for authoritative limits. |
+| Throttling response is ambiguous | Stop retry escalation and preserve headers and correlation evidence safely. |
+| Queue threatens the recovery objective | Shed or pause approved low-priority work and notify the service owner. |
+
+## Example
+
+A redacted completion receipt might look like this:
+
+```text
+workflow=worker-sync; limit=customer-contract; concurrency=bounded; retries=safe-reads-only; burst-test=pass; canary=p95-within-slo
+```
 
 ## Resources
 
-- [Workhuman Platform](https://www.workhuman.com/)
-- [Workhuman Integrations](https://www.workhuman.com/capabilities/integrations/)
+- [Workhuman integrations](https://www.workhuman.com/capabilities/integrations/)
+- [Workhuman security and privacy](https://www.workhuman.com/why-workhuman/security-and-privacy/)
 
 ## Next Steps
 
-See related Workhuman skills for more patterns.
+Revalidate the capacity model after contract, volume, schedule, tenant, or connector changes.

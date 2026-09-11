@@ -1,67 +1,80 @@
 ---
 name: workhuman-core-workflow-b
-description: 'Workhuman core workflow b for employee recognition and rewards API.
-
-  Use when integrating Workhuman Social Recognition,
-
-  or building recognition workflows with HRIS systems.
-
-  Trigger: "workhuman core workflow b".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.3.0
-license: MIT
+description: 'Govern and reconcile Workhuman and Workday worker and award-data flows with explicit field authority and payroll controls. Use when operating the certified Workday integration. Trigger with "reconcile Workhuman and Workday".'
+argument-hint: "[integration-scope] [reconciliation-window]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.4.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- hr
-- recognition
-- workhuman
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, workhuman, workday, hris, reconciliation]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; worker, award, compensation, payroll, and integration changes require HCM, payroll, security, and program-owner approval
 ---
-# Workhuman Core Workflow B
+# Workhuman and Workday Integration Reconciliation
 
 ## Overview
 
-Guidance for core workflow b with Workhuman Social Recognition and rewards API.
+Operate the certified bidirectional integration with a field-level authority map, privacy controls, deterministic reconciliation, and owned exception handling.
+
+## Prerequisites
+
+- Current Workhuman-Workday implementation documentation and configured integration inventory
+- HCM, payroll, security, privacy, and recognition-program owners
+- Field mappings, schedules, populations, tax and gross-up rules, and recovery objectives
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect mappings and reports, `WebFetch` to re-check first-party integration claims, and `Write` or `Edit` for reconciliation logic, fixtures, and redacted receipts.
+
+## Current Contract
+
+Workhuman publicly states that its certified, prebuilt, bidirectional Workday integration treats Workday as the system of record for foundational and organizational worker data and Workhuman as the recognition and rewards system. Public pages also describe award data flowing to Workday compensation, payroll, and talent use cases.
+
+## Authentication
+
+Use the customer-approved managed-integration principals and Workday security groups. Keep each direction least-privileged, separately owned, rotated, and observable.
 
 ## Instructions
 
-### Key Workhuman API Concepts
+1. Freeze each direction, population, field, authority, transformation, cadence, checkpoint, and downstream use.
+2. Classify worker, organization, recognition, award, compensation, payroll, and talent fields by privacy and retention.
+3. Validate effective dating, worker identifiers, rehires, terminations, contingent workers, locales, currency, taxation, and gross-up ownership.
+4. Produce synthetic fixtures for creates, changes, removals, duplicates, late records, partial batches, and rejected values.
+5. Run a dry comparison and report additions, updates, exclusions, conflicts, and unknown mappings without applying them.
+6. Present the mutation window, exact counts, principals, financial exposure, communications, abort thresholds, and rollback.
+7. After all owners approve, canary one bounded cohort and reconcile both systems before broadening.
+8. Preserve checkpoint and redacted exception evidence; route payroll or tax mismatches to their owners rather than auto-correcting.
 
-- **Auth**: OAuth 2.0 client credentials flow
-- **Recognition**: Peer-to-peer and manager nominations with points
-- **Awards**: Configurable levels (bronze, silver, gold, platinum)
-- **Values**: Company values attached to recognitions
-- **HRIS Sync**: Bidirectional sync with Workday, SAP SuccessFactors
-- **Integrations**: Microsoft Teams, Slack, Outlook native plugins
+## Approval Boundaries
 
-### Core API Endpoints
+Do not change worker records, award data, compensation, payroll inputs, tax handling, mappings, schedules, or integration principals without the respective owners.
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/recognitions` | GET | List recognitions |
-| `/api/v1/recognitions` | POST | Create nomination |
-| `/api/v1/recognitions/:id` | GET | Get recognition status |
-| `/api/v1/users` | GET | List employees |
-| `/api/v1/rewards/catalog` | GET | Browse reward catalog |
-| `/api/v1/rewards/redeem` | POST | Redeem points for reward |
+## Output
+
+Return the authority map, classified mappings, dry-run counts, approvals, canary receipt, bidirectional reconciliation, held exceptions, and recovery state.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Token expired | Re-authenticate |
-| `403 Forbidden` | Insufficient permissions | Check role/permissions |
-| `422 Validation` | Missing fields | Check required fields |
-| `404 Not Found` | Invalid ID | Verify resource exists |
+| Condition | Response |
+|---|---|
+| Systems disagree on an authoritative field | Stop that record and route it to the named field owner. |
+| Batch is partially applied | Freeze the checkpoint, reconcile both directions, and execute the approved recovery plan. |
+| Payroll or tax result is uncertain | Hold the award-data transition and escalate; never infer financial treatment. |
+
+## Example
+
+A redacted completion receipt might look like this:
+
+```text
+window=2026-09-10; worker-source=workday; award-source=workhuman; proposed=84; canary=10; conflicts=1-held; reconciliation=exact
+```
 
 ## Resources
 
-- [Workhuman Platform](https://www.workhuman.com/)
-- [Workhuman Integrations](https://www.workhuman.com/capabilities/integrations/)
+- [Workhuman integrations](https://www.workhuman.com/capabilities/integrations/)
+- [Workhuman and Workday integration overview](https://www.workhuman.com/blog/the-best-workday-integration-you-never-knew-about/)
 
 ## Next Steps
 
-See related Workhuman skills for more patterns.
+Review exception trends, field ownership, and recovery evidence with HCM, payroll, and program owners.
