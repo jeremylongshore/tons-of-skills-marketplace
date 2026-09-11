@@ -1,7 +1,7 @@
 {
   "name": "publishing-skills",
-  "version": "0.1.0",
-  "description": "Four composable skills that turn an AI agent into a platform-agnostic long-tail SEO publishing pipeline — topic research, drafting, SVG figures, and an editorial calendar. Ships Ghost, WordPress, and static-site adapters.",
+  "version": "0.2.0",
+  "description": "Governed editorial workflows for evidence-backed topic research, content scheduling, accessible SVG figures, source-grounded drafting, and approved CMS handoff.",
   "author": {
     "name": "AutomateLab",
     "url": "https://github.com/AutomateLab-tech",
