@@ -24,6 +24,7 @@ Only `name` and `description` are required.
 | `isolation` | No | `worktree` — run in temporary git worktree |
 | `color` | No | Display color: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan` |
 | `initialPrompt` | No | Auto-submitted as first user turn when running as main agent via `--agent` |
+
 Total: 16 fields in Anthropic's public supported-frontmatter table.
 
 ## Runtime Experimental Extension
