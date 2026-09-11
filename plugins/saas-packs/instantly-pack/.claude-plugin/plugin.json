@@ -1,7 +1,7 @@
 {
   "name": "instantly-pack",
   "version": "1.13.0",
-  "description": "Production Instantly API v2 operator pack for campaigns, accounts, leads, access, webhooks, reliability, and governed delivery (24 skills)",
+  "description": "Operator-grade Instantly API v2 pack with 24 source-grounded skills for campaigns, accounts, leads, scoped access, webhooks, reliability, and governed delivery.",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -12,6 +12,7 @@
     "api-v2",
     "campaign-operations",
     "deliverability",
+    "webhooks",
     "governance"
   ]
 }

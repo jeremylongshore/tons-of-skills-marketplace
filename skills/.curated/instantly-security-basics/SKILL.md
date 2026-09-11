@@ -1,7 +1,7 @@
 ---
 name: instantly-security-basics
 description: >-
-  Harden Instantly API v2 keys, scopes, tenant boundaries, logs, webhooks, and operational access. Use when operating security basics workflows. Trigger with "instantly security basics", "Instantly API", or "Instantly integration".
+  Harden Instantly API v2 keys, scopes, tenant boundaries, logs, webhooks, and operational access. Use when threat modeling, reviewing access, or assessing security before launch. Trigger with "secure an Instantly integration", "audit Instantly API keys", or "threat-model Instantly webhooks".
 argument-hint: "[repository-path] [workspace]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

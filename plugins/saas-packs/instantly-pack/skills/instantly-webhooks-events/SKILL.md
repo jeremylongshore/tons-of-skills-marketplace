@@ -1,7 +1,7 @@
 ---
 name: instantly-webhooks-events
 description: >-
-  Analyze and register and operate Instantly webhooks with schema validation, idempotency, privacy, and recovery controls. Use when operating webhooks events workflows. Trigger with "instantly webhooks events", "Instantly API", or "Instantly integration".
+  Register and operate Instantly webhooks with schema validation, idempotency, privacy, and recovery controls. Use when adding event-driven lead, email, campaign, or account processing. Trigger with "register an Instantly webhook", "handle Instantly lead events", or "recover missed Instantly events".
 argument-hint: "[receiver-url] [event-set]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

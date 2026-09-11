@@ -1,7 +1,7 @@
 ---
 name: instantly-sdk-patterns
 description: >-
-  Analyze and use the official beta Instantly TypeScript SDK with pinned versions, typed resources, and safe error handling. Use when operating sdk patterns workflows. Trigger with "instantly sdk patterns", "Instantly API", or "Instantly integration".
+  Use the official beta Instantly TypeScript SDK with pinned versions, typed resources, and safe error handling. Use when implementing or reviewing a Node.js client against API v2. Trigger with "use the Instantly TypeScript SDK", "build an Instantly Node client", or "handle Instantly SDK errors".
 argument-hint: "[repository-path] [resource]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

@@ -1,7 +1,7 @@
 ---
 name: instantly-install-auth
 description: >-
-  Analyze and install pinned official Instantly SDK or CLI tooling and verify a least-privilege API v2 key. Use when operating install auth workflows. Trigger with "instantly install auth", "Instantly API", or "Instantly integration".
+  Install pinned official Instantly SDK or CLI tooling and verify a least-privilege API v2 key. Use when bootstrapping an HTTP, SDK, CLI, or MCP integration. Trigger with "install the Instantly SDK", "configure Instantly authentication", or "set up the Instantly CLI".
 argument-hint: "[sdk|cli|http] [workspace]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

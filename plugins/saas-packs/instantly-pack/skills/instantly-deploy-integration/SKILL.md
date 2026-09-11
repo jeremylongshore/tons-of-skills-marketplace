@@ -1,7 +1,7 @@
 ---
 name: instantly-deploy-integration
 description: >-
-  Deploy an Instantly API v2 integration with scoped secrets, staged verification, and rollback controls. Use when operating deploy integration workflows. Trigger with "instantly deploy integration", "Instantly API", or "Instantly integration".
+  Deploy an Instantly API v2 integration with scoped secrets, staged verification, and rollback controls. Use when promoting reviewed integration code into staging or production. Trigger with "deploy an Instantly integration", "release Instantly API changes", or "roll back an Instantly deployment".
 argument-hint: "[environment] [release-sha]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

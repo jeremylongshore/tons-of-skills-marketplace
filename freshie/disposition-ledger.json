@@ -3,7 +3,7 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "ecef112834868762dfae52de063d3700bdba75814751273ea5be632a868e2b2f",
+    "sha256": "4144e5c6376bd3590eb043c9d8a7084bbfdf22e29aafb192b147869a1f3742d9",
     "artifact_count": 3491
   },
   "rule_order": [
@@ -21873,7 +21873,7 @@
     {
       "path": "plugins/saas-packs/instantly-pack/skills/instantly-ci-integration/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21884,7 +21884,7 @@
     {
       "path": "plugins/saas-packs/instantly-pack/skills/instantly-common-errors/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21895,7 +21895,7 @@
     {
       "path": "plugins/saas-packs/instantly-pack/skills/instantly-core-workflow-a/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21917,7 +21917,7 @@
     {
       "path": "plugins/saas-packs/instantly-pack/skills/instantly-cost-tuning/SKILL.md",
       "grade": "A",
-      "score": 97,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21950,7 +21950,7 @@
     {
       "path": "plugins/saas-packs/instantly-pack/skills/instantly-deploy-integration/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21961,7 +21961,7 @@
     {
       "path": "plugins/saas-packs/instantly-pack/skills/instantly-enterprise-rbac/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21972,7 +21972,7 @@
     {
       "path": "plugins/saas-packs/instantly-pack/skills/instantly-hello-world/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 95,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -22016,7 +22016,7 @@
     {
       "path": "plugins/saas-packs/instantly-pack/skills/instantly-migration-deep-dive/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -22038,7 +22038,7 @@
     {
       "path": "plugins/saas-packs/instantly-pack/skills/instantly-observability/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -22049,7 +22049,7 @@
     {
       "path": "plugins/saas-packs/instantly-pack/skills/instantly-performance-tuning/SKILL.md",
       "grade": "A",
-      "score": 99,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -22071,7 +22071,7 @@
     {
       "path": "plugins/saas-packs/instantly-pack/skills/instantly-rate-limits/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -22082,7 +22082,7 @@
     {
       "path": "plugins/saas-packs/instantly-pack/skills/instantly-reference-architecture/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -22093,7 +22093,7 @@
     {
       "path": "plugins/saas-packs/instantly-pack/skills/instantly-sdk-patterns/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -22104,7 +22104,7 @@
     {
       "path": "plugins/saas-packs/instantly-pack/skills/instantly-security-basics/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -22115,7 +22115,7 @@
     {
       "path": "plugins/saas-packs/instantly-pack/skills/instantly-upgrade-migration/SKILL.md",
       "grade": "A",
-      "score": 99,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -22126,7 +22126,7 @@
     {
       "path": "plugins/saas-packs/instantly-pack/skills/instantly-webhooks-events/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",

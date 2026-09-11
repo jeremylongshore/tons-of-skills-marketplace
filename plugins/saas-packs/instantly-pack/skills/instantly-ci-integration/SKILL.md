@@ -1,7 +1,7 @@
 ---
 name: instantly-ci-integration
 description: >-
-  Gate Instantly API v2 integrations with offline schema checks and a bounded read-only smoke test. Use when operating ci integration workflows. Trigger with "instantly ci integration", "Instantly API", or "Instantly integration".
+  Gate Instantly API v2 integrations with offline schema checks and a bounded read-only smoke test. Use when adding Instantly to CI, validating generated clients, or probing a staging workspace. Trigger with "add Instantly CI checks", "validate Instantly OpenAPI", or "smoke-test Instantly staging".
 argument-hint: "[repository-path] [offline|staging]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

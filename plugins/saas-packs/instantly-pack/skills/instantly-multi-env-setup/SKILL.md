@@ -1,7 +1,7 @@
 ---
 name: instantly-multi-env-setup
 description: >-
-  Separate Instantly development, staging, and production workspaces, keys, data, and webhook routes. Use when operating multi env setup workflows. Trigger with "instantly multi env setup", "Instantly API", or "Instantly integration".
+  Separate Instantly development, staging, and production workspaces, keys, data, and webhook routes. Use when designing environment isolation or eliminating shared credentials and callbacks. Trigger with "separate Instantly environments", "create an Instantly staging workspace", or "isolate Instantly webhook routes".
 argument-hint: "[environment-map-path]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

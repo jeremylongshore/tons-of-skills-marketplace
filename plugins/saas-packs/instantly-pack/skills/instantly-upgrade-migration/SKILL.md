@@ -1,7 +1,7 @@
 ---
 name: instantly-upgrade-migration
 description: >-
-  Upgrade Instantly SDK, CLI, OpenAPI-derived types, or API v2 contracts with controlled compatibility testing. Use when operating upgrade migration workflows. Trigger with "instantly upgrade migration", "Instantly API", or "Instantly integration".
+  Upgrade Instantly SDK, CLI, OpenAPI-derived types, or API v2 contracts with controlled compatibility testing. Use when dependencies or current API v2 schemas change after the initial v1 migration. Trigger with "upgrade the Instantly SDK", "refresh Instantly OpenAPI types", or "test an Instantly API change".
 argument-hint: "[component] [target-version]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

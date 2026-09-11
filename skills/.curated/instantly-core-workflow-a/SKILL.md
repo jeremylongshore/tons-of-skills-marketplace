@@ -1,7 +1,7 @@
 ---
 name: instantly-core-workflow-a
 description: >-
-  Build and launch an Instantly API v2 campaign through an approval-gated, reversible workflow. Use when operating core workflow a workflows. Trigger with "instantly core workflow a", "Instantly API", or "Instantly integration".
+  Build and launch an Instantly API v2 campaign through an approval-gated, reversible workflow. Use when creating a campaign from a reviewed audience, schedule, and sequence specification. Trigger with "create an Instantly campaign", "launch an Instantly sequence", or "build campaign from spec".
 argument-hint: "[campaign-spec-path] [workspace]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

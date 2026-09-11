@@ -1,7 +1,7 @@
 ---
 name: instantly-common-errors
 description: >-
-  Analyze and diagnose Instantly API v2 authentication, scope, validation, quota, and resource errors without unsafe retries. Use when operating common errors workflows. Trigger with "instantly common errors", "Instantly API", or "Instantly integration".
+  Diagnose Instantly API v2 authentication, scope, validation, quota, and resource errors without unsafe retries. Use when a request fails or returns an unfamiliar status or payload. Trigger with "debug Instantly 401", "fix Instantly 429", or "diagnose Instantly API error".
 argument-hint: "[status-code] [operation]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

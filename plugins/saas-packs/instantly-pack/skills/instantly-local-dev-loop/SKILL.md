@@ -1,7 +1,7 @@
 ---
 name: instantly-local-dev-loop
 description: >-
-  Build an offline-first Instantly development loop with fixtures, fakes, and optional read-only staging probes. Use when operating local dev loop workflows. Trigger with "instantly local dev loop", "Instantly API", or "Instantly integration".
+  Build an offline-first Instantly development loop with fixtures, fakes, and optional read-only staging probes. Use when developers need fast repeatable tests without mutating a live workspace. Trigger with "mock the Instantly API", "build Instantly fixtures", or "test Instantly locally".
 argument-hint: "[repository-path] [offline|staging]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

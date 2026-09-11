@@ -1,7 +1,7 @@
 ---
 name: instantly-reference-architecture
 description: >-
-  Analyze and design an Instantly API v2 integration with tenant isolation, durable jobs, webhooks, and governance boundaries. Use when operating reference architecture workflows. Trigger with "instantly reference architecture", "Instantly API", or "Instantly integration".
+  Design an Instantly API v2 integration with tenant isolation, durable jobs, webhooks, and governance boundaries. Use when choosing system boundaries before implementation or reviewing an existing design. Trigger with "design an Instantly architecture", "review Instantly tenant isolation", or "plan an Instantly integration platform".
 argument-hint: "[system-context-path]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

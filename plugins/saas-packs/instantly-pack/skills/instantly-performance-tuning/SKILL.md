@@ -1,7 +1,7 @@
 ---
 name: instantly-performance-tuning
 description: >-
-  Analyze and tune Instantly API v2 concurrency, pagination, batching, and retries against documented workspace limits. Use when operating performance tuning workflows. Trigger with "instantly performance tuning", "Instantly API", or "Instantly integration".
+  Analyze and tune Instantly API v2 concurrency, pagination, batching, and retries against documented workspace limits. Use when a safe integration is too slow, bursty, or wasteful. Trigger with "speed up Instantly API sync", "tune Instantly pagination", or "reduce Instantly request bursts".
 argument-hint: "[workload] [target-duration]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

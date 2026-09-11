@@ -1,7 +1,7 @@
 ---
 name: instantly-debug-bundle
 description: >-
-  Collect a minimal redacted Instantly diagnostic bundle for campaigns, accounts, jobs, and webhook delivery. Use when operating debug bundle workflows. Trigger with "instantly debug bundle", "Instantly API", or "Instantly integration".
+  Analyze an Instantly failure and collect a minimal redacted diagnostic bundle for campaigns, accounts, jobs, and webhook delivery. Use when engineering or support needs reproducible incident evidence without credentials or lead content. Trigger with "collect Instantly diagnostics", "prepare an Instantly support bundle", or "redact Instantly incident evidence".
 argument-hint: "[incident-id] [output-path]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

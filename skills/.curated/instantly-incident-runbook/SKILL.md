@@ -1,7 +1,7 @@
 ---
 name: instantly-incident-runbook
 description: >-
-  Analyze and triage Instantly campaign, account, webhook, job, and API failures with explicit containment approvals. Use when operating incident runbook workflows. Trigger with "instantly incident runbook", "Instantly API", or "Instantly integration".
+  Analyze and triage Instantly campaign, account, webhook, job, and API failures with explicit containment approvals. Use when responding to a live degradation, delivery anomaly, or integration outage. Trigger with "triage an Instantly incident", "contain Instantly sending failure", or "investigate an Instantly outage".
 argument-hint: "[incident-id] [severity]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

@@ -10610,7 +10610,7 @@
       "slug": "instantly-pack",
       "name": "instantly-pack",
       "displayName": "instantly pack",
-      "description": "Production Instantly API v2 operator pack with 24 source-grounded skills for campaigns, accounts, leads, scoped access, webhooks, reliability, and governed delivery.",
+      "description": "Operator-grade Instantly API v2 pack with 24 source-grounded skills for campaigns, accounts, leads, scoped access, webhooks, reliability, and governed delivery.",
       "category": "saas-packs",
       "keywords": [
         "instantly",
@@ -10634,7 +10634,7 @@
       "verificationScore": 98,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "instantly pack production instantly api v2 operator pack with 24 source-grounded skills for campaigns, accounts, leads, scoped access, webhooks, reliability, and governed delivery. saas-packs instantly api-v2 campaign-operations deliverability webhooks governance"
+      "searchText": "instantly pack operator-grade instantly api v2 pack with 24 source-grounded skills for campaigns, accounts, leads, scoped access, webhooks, reliability, and governed delivery. saas-packs instantly api-v2 campaign-operations deliverability webhooks governance"
     },
     {
       "type": "plugin",
@@ -46860,7 +46860,7 @@
       "id": "instantly-ci-integration",
       "slug": "instantly-ci-integration",
       "name": "instantly-ci-integration",
-      "description": "Gate Instantly API v2 integrations with offline schema checks and a bounded read-only smoke test. Use when operating ci integration workflows. Trigger with \"instantly ci integration\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Gate Instantly API v2 integrations with offline schema checks and a bounded read-only smoke test. Use when adding Instantly to CI, validating generated clients, or probing a staging workspace. Trigger with \"add Instantly CI checks\", \"validate Instantly OpenAPI\", or \"smoke-test Instantly staging\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -46876,14 +46876,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-ci-integration gate instantly api v2 integrations with offline schema checks and a bounded read-only smoke test. use when operating ci integration workflows. trigger with \"instantly ci integration\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-ci-integration gate instantly api v2 integrations with offline schema checks and a bounded read-only smoke test. use when adding instantly to ci, validating generated clients, or probing a staging workspace. trigger with \"add instantly ci checks\", \"validate instantly openapi\", or \"smoke-test instantly staging\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-common-errors",
       "slug": "instantly-common-errors",
       "name": "instantly-common-errors",
-      "description": "Analyze and diagnose Instantly API v2 authentication, scope, validation, quota, and resource errors without unsafe retries. Use when operating common errors workflows. Trigger with \"instantly common errors\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Diagnose Instantly API v2 authentication, scope, validation, quota, and resource errors without unsafe retries. Use when a request fails or returns an unfamiliar status or payload. Trigger with \"debug Instantly 401\", \"fix Instantly 429\", or \"diagnose Instantly API error\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -46899,14 +46899,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-common-errors analyze and diagnose instantly api v2 authentication, scope, validation, quota, and resource errors without unsafe retries. use when operating common errors workflows. trigger with \"instantly common errors\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-common-errors diagnose instantly api v2 authentication, scope, validation, quota, and resource errors without unsafe retries. use when a request fails or returns an unfamiliar status or payload. trigger with \"debug instantly 401\", \"fix instantly 429\", or \"diagnose instantly api error\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-core-workflow-a",
       "slug": "instantly-core-workflow-a",
       "name": "instantly-core-workflow-a",
-      "description": "Build and launch an Instantly API v2 campaign through an approval-gated, reversible workflow. Use when operating core workflow a workflows. Trigger with \"instantly core workflow a\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Build and launch an Instantly API v2 campaign through an approval-gated, reversible workflow. Use when creating a campaign from a reviewed audience, schedule, and sequence specification. Trigger with \"create an Instantly campaign\", \"launch an Instantly sequence\", or \"build campaign from spec\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -46922,14 +46922,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-core-workflow-a build and launch an instantly api v2 campaign through an approval-gated, reversible workflow. use when operating core workflow a workflows. trigger with \"instantly core workflow a\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-core-workflow-a build and launch an instantly api v2 campaign through an approval-gated, reversible workflow. use when creating a campaign from a reviewed audience, schedule, and sequence specification. trigger with \"create an instantly campaign\", \"launch an instantly sequence\", or \"build campaign from spec\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-core-workflow-b",
       "slug": "instantly-core-workflow-b",
       "name": "instantly-core-workflow-b",
-      "description": "Analyze and connect and qualify Instantly sending accounts with OAuth, health checks, and controlled campaign assignment. Use when operating core workflow b workflows. Trigger with \"instantly core workflow b\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Analyze sending-account readiness, then connect and qualify Instantly accounts with OAuth, health checks, and controlled campaign assignment. Use when onboarding mailboxes or deciding which healthy accounts may join a campaign. Trigger with \"connect Instantly sending accounts\", \"check Instantly mailbox health\", or \"assign accounts to a campaign\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -46945,14 +46945,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-core-workflow-b analyze and connect and qualify instantly sending accounts with oauth, health checks, and controlled campaign assignment. use when operating core workflow b workflows. trigger with \"instantly core workflow b\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-core-workflow-b analyze sending-account readiness, then connect and qualify instantly accounts with oauth, health checks, and controlled campaign assignment. use when onboarding mailboxes or deciding which healthy accounts may join a campaign. trigger with \"connect instantly sending accounts\", \"check instantly mailbox health\", or \"assign accounts to a campaign\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-cost-tuning",
       "slug": "instantly-cost-tuning",
       "name": "instantly-cost-tuning",
-      "description": "Analyze and measure Instantly plan, account, verification, and enrichment usage without embedding stale prices. Use when operating cost tuning workflows. Trigger with \"instantly cost tuning\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Measure Instantly plan, account, verification, and enrichment usage without embedding stale prices. Use when reviewing workspace consumption or preparing a plan-capacity decision. Trigger with \"audit Instantly usage\", \"estimate Instantly capacity\", or \"review Instantly plan consumption\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -46968,14 +46968,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-cost-tuning analyze and measure instantly plan, account, verification, and enrichment usage without embedding stale prices. use when operating cost tuning workflows. trigger with \"instantly cost tuning\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-cost-tuning measure instantly plan, account, verification, and enrichment usage without embedding stale prices. use when reviewing workspace consumption or preparing a plan-capacity decision. trigger with \"audit instantly usage\", \"estimate instantly capacity\", or \"review instantly plan consumption\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-data-handling",
       "slug": "instantly-data-handling",
       "name": "instantly-data-handling",
-      "description": "Analyze and govern Instantly lead, email, suppression, export, and deletion data with explicit privacy controls. Use when operating data handling workflows. Trigger with \"instantly data handling\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Govern Instantly lead, email, suppression, export, and deletion data with explicit privacy controls. Use when mapping personal-data flows or reviewing an export, suppression, retention, or erasure request. Trigger with \"map Instantly data flows\", \"export Instantly leads safely\", or \"handle an Instantly deletion request\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -46991,14 +46991,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-data-handling analyze and govern instantly lead, email, suppression, export, and deletion data with explicit privacy controls. use when operating data handling workflows. trigger with \"instantly data handling\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-data-handling govern instantly lead, email, suppression, export, and deletion data with explicit privacy controls. use when mapping personal-data flows or reviewing an export, suppression, retention, or erasure request. trigger with \"map instantly data flows\", \"export instantly leads safely\", or \"handle an instantly deletion request\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-debug-bundle",
       "slug": "instantly-debug-bundle",
       "name": "instantly-debug-bundle",
-      "description": "Collect a minimal redacted Instantly diagnostic bundle for campaigns, accounts, jobs, and webhook delivery. Use when operating debug bundle workflows. Trigger with \"instantly debug bundle\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Analyze an Instantly failure and collect a minimal redacted diagnostic bundle for campaigns, accounts, jobs, and webhook delivery. Use when engineering or support needs reproducible incident evidence without credentials or lead content. Trigger with \"collect Instantly diagnostics\", \"prepare an Instantly support bundle\", or \"redact Instantly incident evidence\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47014,14 +47014,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-debug-bundle collect a minimal redacted instantly diagnostic bundle for campaigns, accounts, jobs, and webhook delivery. use when operating debug bundle workflows. trigger with \"instantly debug bundle\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-debug-bundle analyze an instantly failure and collect a minimal redacted diagnostic bundle for campaigns, accounts, jobs, and webhook delivery. use when engineering or support needs reproducible incident evidence without credentials or lead content. trigger with \"collect instantly diagnostics\", \"prepare an instantly support bundle\", or \"redact instantly incident evidence\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-deploy-integration",
       "slug": "instantly-deploy-integration",
       "name": "instantly-deploy-integration",
-      "description": "Deploy an Instantly API v2 integration with scoped secrets, staged verification, and rollback controls. Use when operating deploy integration workflows. Trigger with \"instantly deploy integration\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Deploy an Instantly API v2 integration with scoped secrets, staged verification, and rollback controls. Use when promoting reviewed integration code into staging or production. Trigger with \"deploy an Instantly integration\", \"release Instantly API changes\", or \"roll back an Instantly deployment\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47037,14 +47037,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-deploy-integration deploy an instantly api v2 integration with scoped secrets, staged verification, and rollback controls. use when operating deploy integration workflows. trigger with \"instantly deploy integration\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-deploy-integration deploy an instantly api v2 integration with scoped secrets, staged verification, and rollback controls. use when promoting reviewed integration code into staging or production. trigger with \"deploy an instantly integration\", \"release instantly api changes\", or \"roll back an instantly deployment\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-enterprise-rbac",
       "slug": "instantly-enterprise-rbac",
       "name": "instantly-enterprise-rbac",
-      "description": "Govern Instantly workspace members, API-key scopes, audit logs, and workspace-group delegation. Use when operating enterprise rbac workflows. Trigger with \"instantly enterprise rbac\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Govern Instantly workspace members, API-key scopes, audit logs, and workspace-group delegation. Use when reviewing access or preparing an owner-approved membership, role, or delegated-workspace change. Trigger with \"audit Instantly access\", \"review Instantly API scopes\", or \"delegate an Instantly workspace\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47060,14 +47060,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-enterprise-rbac govern instantly workspace members, api-key scopes, audit logs, and workspace-group delegation. use when operating enterprise rbac workflows. trigger with \"instantly enterprise rbac\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-enterprise-rbac govern instantly workspace members, api-key scopes, audit logs, and workspace-group delegation. use when reviewing access or preparing an owner-approved membership, role, or delegated-workspace change. trigger with \"audit instantly access\", \"review instantly api scopes\", or \"delegate an instantly workspace\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-hello-world",
       "slug": "instantly-hello-world",
       "name": "instantly-hello-world",
-      "description": "Analyze and run one bounded read-only Instantly API v2 request with explicit authentication and response validation. Use when operating hello world workflows. Trigger with \"instantly hello world\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Run one bounded read-only Instantly API v2 request with explicit authentication and response validation. Use when verifying a new API key, workspace, or HTTP client before deeper integration work. Trigger with \"test my Instantly API key\", \"make a first Instantly request\", or \"list Instantly campaigns safely\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47083,14 +47083,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-hello-world analyze and run one bounded read-only instantly api v2 request with explicit authentication and response validation. use when operating hello world workflows. trigger with \"instantly hello world\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-hello-world run one bounded read-only instantly api v2 request with explicit authentication and response validation. use when verifying a new api key, workspace, or http client before deeper integration work. trigger with \"test my instantly api key\", \"make a first instantly request\", or \"list instantly campaigns safely\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-incident-runbook",
       "slug": "instantly-incident-runbook",
       "name": "instantly-incident-runbook",
-      "description": "Analyze and triage Instantly campaign, account, webhook, job, and API failures with explicit containment approvals. Use when operating incident runbook workflows. Trigger with \"instantly incident runbook\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Analyze and triage Instantly campaign, account, webhook, job, and API failures with explicit containment approvals. Use when responding to a live degradation, delivery anomaly, or integration outage. Trigger with \"triage an Instantly incident\", \"contain Instantly sending failure\", or \"investigate an Instantly outage\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47106,14 +47106,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-incident-runbook analyze and triage instantly campaign, account, webhook, job, and api failures with explicit containment approvals. use when operating incident runbook workflows. trigger with \"instantly incident runbook\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-incident-runbook analyze and triage instantly campaign, account, webhook, job, and api failures with explicit containment approvals. use when responding to a live degradation, delivery anomaly, or integration outage. trigger with \"triage an instantly incident\", \"contain instantly sending failure\", or \"investigate an instantly outage\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-install-auth",
       "slug": "instantly-install-auth",
       "name": "instantly-install-auth",
-      "description": "Analyze and install pinned official Instantly SDK or CLI tooling and verify a least-privilege API v2 key. Use when operating install auth workflows. Trigger with \"instantly install auth\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Install pinned official Instantly SDK or CLI tooling and verify a least-privilege API v2 key. Use when bootstrapping an HTTP, SDK, CLI, or MCP integration. Trigger with \"install the Instantly SDK\", \"configure Instantly authentication\", or \"set up the Instantly CLI\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47129,14 +47129,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-install-auth analyze and install pinned official instantly sdk or cli tooling and verify a least-privilege api v2 key. use when operating install auth workflows. trigger with \"instantly install auth\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-install-auth install pinned official instantly sdk or cli tooling and verify a least-privilege api v2 key. use when bootstrapping an http, sdk, cli, or mcp integration. trigger with \"install the instantly sdk\", \"configure instantly authentication\", or \"set up the instantly cli\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-local-dev-loop",
       "slug": "instantly-local-dev-loop",
       "name": "instantly-local-dev-loop",
-      "description": "Build an offline-first Instantly development loop with fixtures, fakes, and optional read-only staging probes. Use when operating local dev loop workflows. Trigger with \"instantly local dev loop\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Build an offline-first Instantly development loop with fixtures, fakes, and optional read-only staging probes. Use when developers need fast repeatable tests without mutating a live workspace. Trigger with \"mock the Instantly API\", \"build Instantly fixtures\", or \"test Instantly locally\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47152,14 +47152,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-local-dev-loop build an offline-first instantly development loop with fixtures, fakes, and optional read-only staging probes. use when operating local dev loop workflows. trigger with \"instantly local dev loop\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-local-dev-loop build an offline-first instantly development loop with fixtures, fakes, and optional read-only staging probes. use when developers need fast repeatable tests without mutating a live workspace. trigger with \"mock the instantly api\", \"build instantly fixtures\", or \"test instantly locally\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-migration-deep-dive",
       "slug": "instantly-migration-deep-dive",
       "name": "instantly-migration-deep-dive",
-      "description": "Analyze and plan and execute a governed Instantly API v1-to-v2 migration with endpoint and key inventory. Use when operating migration deep dive workflows. Trigger with \"instantly migration deep dive\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Plan and execute a governed Instantly API v1-to-v2 migration with endpoint and key inventory. Use when replacing deprecated v1 calls and incompatible keys before cutover. Trigger with \"migrate Instantly v1 to v2\", \"inventory deprecated Instantly endpoints\", or \"plan an Instantly API cutover\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47175,14 +47175,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-migration-deep-dive analyze and plan and execute a governed instantly api v1-to-v2 migration with endpoint and key inventory. use when operating migration deep dive workflows. trigger with \"instantly migration deep dive\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-migration-deep-dive plan and execute a governed instantly api v1-to-v2 migration with endpoint and key inventory. use when replacing deprecated v1 calls and incompatible keys before cutover. trigger with \"migrate instantly v1 to v2\", \"inventory deprecated instantly endpoints\", or \"plan an instantly api cutover\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-multi-env-setup",
       "slug": "instantly-multi-env-setup",
       "name": "instantly-multi-env-setup",
-      "description": "Separate Instantly development, staging, and production workspaces, keys, data, and webhook routes. Use when operating multi env setup workflows. Trigger with \"instantly multi env setup\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Separate Instantly development, staging, and production workspaces, keys, data, and webhook routes. Use when designing environment isolation or eliminating shared credentials and callbacks. Trigger with \"separate Instantly environments\", \"create an Instantly staging workspace\", or \"isolate Instantly webhook routes\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47198,14 +47198,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-multi-env-setup separate instantly development, staging, and production workspaces, keys, data, and webhook routes. use when operating multi env setup workflows. trigger with \"instantly multi env setup\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-multi-env-setup separate instantly development, staging, and production workspaces, keys, data, and webhook routes. use when designing environment isolation or eliminating shared credentials and callbacks. trigger with \"separate instantly environments\", \"create an instantly staging workspace\", or \"isolate instantly webhook routes\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-observability",
       "slug": "instantly-observability",
       "name": "instantly-observability",
-      "description": "Monitor Instantly API, campaign sending, account vitals, background jobs, and webhook delivery with safe telemetry. Use when operating observability workflows. Trigger with \"instantly observability\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Monitor Instantly API, campaign sending, account vitals, background jobs, and webhook delivery with safe telemetry. Use when defining dashboards, alerts, or service-level indicators for an Instantly integration. Trigger with \"monitor Instantly API health\", \"alert on Instantly webhook failures\", or \"design Instantly telemetry\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47221,14 +47221,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-observability monitor instantly api, campaign sending, account vitals, background jobs, and webhook delivery with safe telemetry. use when operating observability workflows. trigger with \"instantly observability\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-observability monitor instantly api, campaign sending, account vitals, background jobs, and webhook delivery with safe telemetry. use when defining dashboards, alerts, or service-level indicators for an instantly integration. trigger with \"monitor instantly api health\", \"alert on instantly webhook failures\", or \"design instantly telemetry\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-performance-tuning",
       "slug": "instantly-performance-tuning",
       "name": "instantly-performance-tuning",
-      "description": "Analyze and tune Instantly API v2 concurrency, pagination, batching, and retries against documented workspace limits. Use when operating performance tuning workflows. Trigger with \"instantly performance tuning\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Analyze and tune Instantly API v2 concurrency, pagination, batching, and retries against documented workspace limits. Use when a safe integration is too slow, bursty, or wasteful. Trigger with \"speed up Instantly API sync\", \"tune Instantly pagination\", or \"reduce Instantly request bursts\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47244,14 +47244,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-performance-tuning analyze and tune instantly api v2 concurrency, pagination, batching, and retries against documented workspace limits. use when operating performance tuning workflows. trigger with \"instantly performance tuning\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-performance-tuning analyze and tune instantly api v2 concurrency, pagination, batching, and retries against documented workspace limits. use when a safe integration is too slow, bursty, or wasteful. trigger with \"speed up instantly api sync\", \"tune instantly pagination\", or \"reduce instantly request bursts\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-prod-checklist",
       "slug": "instantly-prod-checklist",
       "name": "instantly-prod-checklist",
-      "description": "Analyze and gate an Instantly integration for production across identity, scopes, data, limits, operations, and rollback. Use when operating prod checklist workflows. Trigger with \"instantly prod checklist\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Gate an Instantly integration release across identity, scopes, data, limits, operations, and rollback. Use when reviewing a production launch or material campaign-system change for approval. Trigger with \"review Instantly launch readiness\", \"run the Instantly release checklist\", or \"approve an Instantly production change\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47267,14 +47267,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-prod-checklist analyze and gate an instantly integration for production across identity, scopes, data, limits, operations, and rollback. use when operating prod checklist workflows. trigger with \"instantly prod checklist\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-prod-checklist gate an instantly integration release across identity, scopes, data, limits, operations, and rollback. use when reviewing a production launch or material campaign-system change for approval. trigger with \"review instantly launch readiness\", \"run the instantly release checklist\", or \"approve an instantly production change\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-rate-limits",
       "slug": "instantly-rate-limits",
       "name": "instantly-rate-limits",
-      "description": "Implement Instantly API v2 workspace-wide throttling, endpoint overrides, and safe 429 recovery. Use when operating rate limits workflows. Trigger with \"instantly rate limits\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Implement Instantly API v2 workspace-wide throttling, endpoint overrides, and safe 429 recovery. Use when coordinating request budgets across workers, keys, or API versions. Trigger with \"handle Instantly 429s\", \"set an Instantly request budget\", or \"throttle Instantly API workers\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47290,14 +47290,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-rate-limits implement instantly api v2 workspace-wide throttling, endpoint overrides, and safe 429 recovery. use when operating rate limits workflows. trigger with \"instantly rate limits\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-rate-limits implement instantly api v2 workspace-wide throttling, endpoint overrides, and safe 429 recovery. use when coordinating request budgets across workers, keys, or api versions. trigger with \"handle instantly 429s\", \"set an instantly request budget\", or \"throttle instantly api workers\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-reference-architecture",
       "slug": "instantly-reference-architecture",
       "name": "instantly-reference-architecture",
-      "description": "Analyze and design an Instantly API v2 integration with tenant isolation, durable jobs, webhooks, and governance boundaries. Use when operating reference architecture workflows. Trigger with \"instantly reference architecture\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Design an Instantly API v2 integration with tenant isolation, durable jobs, webhooks, and governance boundaries. Use when choosing system boundaries before implementation or reviewing an existing design. Trigger with \"design an Instantly architecture\", \"review Instantly tenant isolation\", or \"plan an Instantly integration platform\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47313,14 +47313,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-reference-architecture analyze and design an instantly api v2 integration with tenant isolation, durable jobs, webhooks, and governance boundaries. use when operating reference architecture workflows. trigger with \"instantly reference architecture\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-reference-architecture design an instantly api v2 integration with tenant isolation, durable jobs, webhooks, and governance boundaries. use when choosing system boundaries before implementation or reviewing an existing design. trigger with \"design an instantly architecture\", \"review instantly tenant isolation\", or \"plan an instantly integration platform\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-sdk-patterns",
       "slug": "instantly-sdk-patterns",
       "name": "instantly-sdk-patterns",
-      "description": "Analyze and use the official beta Instantly TypeScript SDK with pinned versions, typed resources, and safe error handling. Use when operating sdk patterns workflows. Trigger with \"instantly sdk patterns\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Use the official beta Instantly TypeScript SDK with pinned versions, typed resources, and safe error handling. Use when implementing or reviewing a Node.js client against API v2. Trigger with \"use the Instantly TypeScript SDK\", \"build an Instantly Node client\", or \"handle Instantly SDK errors\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47336,14 +47336,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-sdk-patterns analyze and use the official beta instantly typescript sdk with pinned versions, typed resources, and safe error handling. use when operating sdk patterns workflows. trigger with \"instantly sdk patterns\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-sdk-patterns use the official beta instantly typescript sdk with pinned versions, typed resources, and safe error handling. use when implementing or reviewing a node.js client against api v2. trigger with \"use the instantly typescript sdk\", \"build an instantly node client\", or \"handle instantly sdk errors\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-security-basics",
       "slug": "instantly-security-basics",
       "name": "instantly-security-basics",
-      "description": "Harden Instantly API v2 keys, scopes, tenant boundaries, logs, webhooks, and operational access. Use when operating security basics workflows. Trigger with \"instantly security basics\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Harden Instantly API v2 keys, scopes, tenant boundaries, logs, webhooks, and operational access. Use when threat modeling, reviewing access, or assessing security before launch. Trigger with \"secure an Instantly integration\", \"audit Instantly API keys\", or \"threat-model Instantly webhooks\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47359,14 +47359,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-security-basics harden instantly api v2 keys, scopes, tenant boundaries, logs, webhooks, and operational access. use when operating security basics workflows. trigger with \"instantly security basics\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-security-basics harden instantly api v2 keys, scopes, tenant boundaries, logs, webhooks, and operational access. use when threat modeling, reviewing access, or assessing security before launch. trigger with \"secure an instantly integration\", \"audit instantly api keys\", or \"threat-model instantly webhooks\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-upgrade-migration",
       "slug": "instantly-upgrade-migration",
       "name": "instantly-upgrade-migration",
-      "description": "Upgrade Instantly SDK, CLI, OpenAPI-derived types, or API v2 contracts with controlled compatibility testing. Use when operating upgrade migration workflows. Trigger with \"instantly upgrade migration\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Upgrade Instantly SDK, CLI, OpenAPI-derived types, or API v2 contracts with controlled compatibility testing. Use when dependencies or current API v2 schemas change after the initial v1 migration. Trigger with \"upgrade the Instantly SDK\", \"refresh Instantly OpenAPI types\", or \"test an Instantly API change\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47382,14 +47382,14 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-upgrade-migration upgrade instantly sdk, cli, openapi-derived types, or api v2 contracts with controlled compatibility testing. use when operating upgrade migration workflows. trigger with \"instantly upgrade migration\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-upgrade-migration upgrade instantly sdk, cli, openapi-derived types, or api v2 contracts with controlled compatibility testing. use when dependencies or current api v2 schemas change after the initial v1 migration. trigger with \"upgrade the instantly sdk\", \"refresh instantly openapi types\", or \"test an instantly api change\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "instantly-webhooks-events",
       "slug": "instantly-webhooks-events",
       "name": "instantly-webhooks-events",
-      "description": "Analyze and register and operate Instantly webhooks with schema validation, idempotency, privacy, and recovery controls. Use when operating webhooks events workflows. Trigger with \"instantly webhooks events\", \"Instantly API\", or \"Instantly integration\".",
+      "description": "Register and operate Instantly webhooks with schema validation, idempotency, privacy, and recovery controls. Use when adding event-driven lead, email, campaign, or account processing. Trigger with \"register an Instantly webhook\", \"handle Instantly lead events\", or \"recover missed Instantly events\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -47405,7 +47405,7 @@
         "name": "instantly-pack",
         "category": "saas-packs"
       },
-      "searchText": "instantly-webhooks-events analyze and register and operate instantly webhooks with schema validation, idempotency, privacy, and recovery controls. use when operating webhooks events workflows. trigger with \"instantly webhooks events\", \"instantly api\", or \"instantly integration\". saas-packs read glob grep webfetch write edit "
+      "searchText": "instantly-webhooks-events register and operate instantly webhooks with schema validation, idempotency, privacy, and recovery controls. use when adding event-driven lead, email, campaign, or account processing. trigger with \"register an instantly webhook\", \"handle instantly lead events\", or \"recover missed instantly events\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",

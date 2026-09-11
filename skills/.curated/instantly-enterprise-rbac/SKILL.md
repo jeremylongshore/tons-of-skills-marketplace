@@ -1,7 +1,7 @@
 ---
 name: instantly-enterprise-rbac
 description: >-
-  Govern Instantly workspace members, API-key scopes, audit logs, and workspace-group delegation. Use when operating enterprise rbac workflows. Trigger with "instantly enterprise rbac", "Instantly API", or "Instantly integration".
+  Govern Instantly workspace members, API-key scopes, audit logs, and workspace-group delegation. Use when reviewing access or preparing an owner-approved membership, role, or delegated-workspace change. Trigger with "audit Instantly access", "review Instantly API scopes", or "delegate an Instantly workspace".
 argument-hint: "[workspace-id] [review|change]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

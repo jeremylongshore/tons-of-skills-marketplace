@@ -1,7 +1,7 @@
 ---
 name: instantly-core-workflow-b
 description: >-
-  Analyze and connect and qualify Instantly sending accounts with OAuth, health checks, and controlled campaign assignment. Use when operating core workflow b workflows. Trigger with "instantly core workflow b", "Instantly API", or "Instantly integration".
+  Analyze sending-account readiness, then connect and qualify Instantly accounts with OAuth, health checks, and controlled campaign assignment. Use when onboarding mailboxes or deciding which healthy accounts may join a campaign. Trigger with "connect Instantly sending accounts", "check Instantly mailbox health", or "assign accounts to a campaign".
 argument-hint: "[provider] [account-list-path]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

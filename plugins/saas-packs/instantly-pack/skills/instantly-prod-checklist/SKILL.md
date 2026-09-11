@@ -1,7 +1,7 @@
 ---
 name: instantly-prod-checklist
 description: >-
-  Analyze and gate an Instantly integration for production across identity, scopes, data, limits, operations, and rollback. Use when operating prod checklist workflows. Trigger with "instantly prod checklist", "Instantly API", or "Instantly integration".
+  Gate an Instantly integration release across identity, scopes, data, limits, operations, and rollback. Use when reviewing a production launch or material campaign-system change for approval. Trigger with "review Instantly launch readiness", "run the Instantly release checklist", or "approve an Instantly production change".
 argument-hint: "[release-sha] [workspace]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

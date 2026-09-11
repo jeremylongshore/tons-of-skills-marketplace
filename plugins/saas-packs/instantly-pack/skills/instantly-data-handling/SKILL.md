@@ -1,7 +1,7 @@
 ---
 name: instantly-data-handling
 description: >-
-  Analyze and govern Instantly lead, email, suppression, export, and deletion data with explicit privacy controls. Use when operating data handling workflows. Trigger with "instantly data handling", "Instantly API", or "Instantly integration".
+  Govern Instantly lead, email, suppression, export, and deletion data with explicit privacy controls. Use when mapping personal-data flows or reviewing an export, suppression, retention, or erasure request. Trigger with "map Instantly data flows", "export Instantly leads safely", or "handle an Instantly deletion request".
 argument-hint: "[data-flow-path] [workspace]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

@@ -1,7 +1,7 @@
 ---
 name: instantly-cost-tuning
 description: >-
-  Analyze and measure Instantly plan, account, verification, and enrichment usage without embedding stale prices. Use when operating cost tuning workflows. Trigger with "instantly cost tuning", "Instantly API", or "Instantly integration".
+  Measure Instantly plan, account, verification, and enrichment usage without embedding stale prices. Use when reviewing workspace consumption or preparing a plan-capacity decision. Trigger with "audit Instantly usage", "estimate Instantly capacity", or "review Instantly plan consumption".
 argument-hint: "[billing-period] [workspace]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

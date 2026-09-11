@@ -7856,7 +7856,7 @@
       "slug": "instantly-pack",
       "name": "instantly-pack",
       "displayName": "instantly pack",
-      "description": "Production Instantly API v2 operator pack with 24 source-grounded skills for campaigns, accounts, leads, scoped access, webhooks, reliability, and governed delivery.",
+      "description": "Operator-grade Instantly API v2 pack with 24 source-grounded skills for campaigns, accounts, leads, scoped access, webhooks, reliability, and governed delivery.",
       "version": "1.13.0",
       "category": "saas-packs",
       "keywords": [

@@ -1,7 +1,7 @@
 ---
 name: instantly-hello-world
 description: >-
-  Analyze and run one bounded read-only Instantly API v2 request with explicit authentication and response validation. Use when operating hello world workflows. Trigger with "instantly hello world", "Instantly API", or "Instantly integration".
+  Run one bounded read-only Instantly API v2 request with explicit authentication and response validation. Use when verifying a new API key, workspace, or HTTP client before deeper integration work. Trigger with "test my Instantly API key", "make a first Instantly request", or "list Instantly campaigns safely".
 argument-hint: "[accounts|campaigns] [limit]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

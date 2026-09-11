@@ -1,7 +1,7 @@
 ---
 name: instantly-observability
 description: >-
-  Monitor Instantly API, campaign sending, account vitals, background jobs, and webhook delivery with safe telemetry. Use when operating observability workflows. Trigger with "instantly observability", "Instantly API", or "Instantly integration".
+  Monitor Instantly API, campaign sending, account vitals, background jobs, and webhook delivery with safe telemetry. Use when defining dashboards, alerts, or service-level indicators for an Instantly integration. Trigger with "monitor Instantly API health", "alert on Instantly webhook failures", or "design Instantly telemetry".
 argument-hint: "[service] [window]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

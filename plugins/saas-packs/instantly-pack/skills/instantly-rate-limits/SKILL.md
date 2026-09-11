@@ -1,7 +1,7 @@
 ---
 name: instantly-rate-limits
 description: >-
-  Implement Instantly API v2 workspace-wide throttling, endpoint overrides, and safe 429 recovery. Use when operating rate limits workflows. Trigger with "instantly rate limits", "Instantly API", or "Instantly integration".
+  Implement Instantly API v2 workspace-wide throttling, endpoint overrides, and safe 429 recovery. Use when coordinating request budgets across workers, keys, or API versions. Trigger with "handle Instantly 429s", "set an Instantly request budget", or "throttle Instantly API workers".
 argument-hint: "[service] [workspace-budget]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0

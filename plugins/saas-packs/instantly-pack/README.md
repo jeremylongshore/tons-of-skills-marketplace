@@ -1,6 +1,6 @@
 # Instantly Operator Pack
 
-> Production-grade Instantly API v2 operations for campaigns, sending accounts, leads, access, webhooks, reliability, and governed delivery.
+> Operator-grade Instantly API v2 workflows for campaigns, sending accounts, leads, scoped access, webhooks, reliability, and governed delivery.
 
 This pack contains 24 source-grounded Claude Code skills. It treats outreach mutations, account connections, cross-workspace delegation, data handling, commercial changes, and external disclosures as explicit approval boundaries.
 

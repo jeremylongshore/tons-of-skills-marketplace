@@ -1,7 +1,7 @@
 ---
 name: instantly-migration-deep-dive
 description: >-
-  Analyze and plan and execute a governed Instantly API v1-to-v2 migration with endpoint and key inventory. Use when operating migration deep dive workflows. Trigger with "instantly migration deep dive", "Instantly API", or "Instantly integration".
+  Plan and execute a governed Instantly API v1-to-v2 migration with endpoint and key inventory. Use when replacing deprecated v1 calls and incompatible keys before cutover. Trigger with "migrate Instantly v1 to v2", "inventory deprecated Instantly endpoints", or "plan an Instantly API cutover".
 argument-hint: "[inventory-path] [phase]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.13.0
