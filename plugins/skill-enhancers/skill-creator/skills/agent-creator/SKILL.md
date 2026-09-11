@@ -18,7 +18,7 @@ description: 'Create production-grade agent .md files aligned with the current A
   '
 allowed-tools: Read,Write,Edit,Glob,Grep,Bash(python:*),AskUserQuestion,Agent
 argument-hint: "<create|validate> [agent path or requirements]"
-version: 5.22.1
+version: 5.23.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
