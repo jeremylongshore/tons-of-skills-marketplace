@@ -58,4 +58,4 @@ which determines where a fix can actually land:
   install, catalog, and submission questions are answered there.
 - Search existing issues and discussions; duplicates get closed with a pointer.
 - Interactions in every support channel are governed by the
-  [Code of Conduct](CODE_OF_CONDUCT.md).
+  [Code of Conduct](../CODE_OF_CONDUCT.md).
