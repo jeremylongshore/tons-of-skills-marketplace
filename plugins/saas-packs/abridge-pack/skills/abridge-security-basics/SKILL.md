@@ -1,243 +1,86 @@
 ---
 name: abridge-security-basics
-description: 'Apply HIPAA-compliant security practices for Abridge clinical AI integrations.
-
-  Use when securing PHI in transit/at rest, configuring access controls,
-
-  implementing audit logging, or preparing for HIPAA security audits.
-
-  Trigger: "abridge security", "abridge HIPAA", "abridge PHI protection",
-
-  "abridge access control", "abridge audit logging".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(openssl:*), Grep
-version: 1.4.0
-license: MIT
+description: "Review Abridge deployment controls across data handling, identity, devices, EHR workflows, support, auditability, and incident response. Use when conducting a security assessment or control renewal. Trigger with \"audit Abridge security\"."
+argument-hint: "[environment] [control-scope]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- healthcare
-- ai
 - abridge
 - security
+- privacy
 - hipaa
-compatibility: Designed for Claude Code
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live work requires an authorized Abridge tenant, approved test data, and health-system change authority
 ---
-# Abridge Security Basics
+# Abridge Privacy and Security Control Review
 
 ## Overview
 
-HIPAA-compliant security configuration for Abridge clinical AI integrations. Abridge handles PHI (Protected Health Information) — security is not optional. This skill covers encryption, access control, audit logging, and BAA requirements.
-
-## HIPAA Security Checklist
-
-| Requirement | Implementation | Status |
-|-------------|---------------|--------|
-| Encryption in transit | TLS 1.3 enforced | Required |
-| Encryption at rest | AES-256 for stored PHI | Required |
-| Access control | Role-based with MFA | Required |
-| Audit logging | All PHI access logged | Required |
-| BAA signed | Business Associate Agreement | Required |
-| Minimum necessary | Only access needed PHI | Required |
-| Breach notification | 60-day notification plan | Required |
+Map public posture claims, Trust Center evidence, signed agreements, tenant configuration, and customer controls without overclaiming HIPAA compliance from a checklist. Focus on responsibility boundaries and evidence freshness.
 
 ## Prerequisites
 
-- A signed BAA, documented data-flow inventory, and organization-approved
-  retention and incident-response policies.
-- A non-production environment with synthetic fixtures for security testing;
-  never use real PHI to exercise logging, authorization, or TLS controls.
-- Named owners for security, privacy, clinical operations, and the EHR
-  integration who can approve or block a release.
+- The authorized Abridge environment, clinical owner, and health-system policy set
+- Current tenant-specific implementation evidence for every private interface in scope
+- Synthetic data or the organization's formally approved test-record procedure
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect repository configuration, adapters, tests, policies, and existing evidence. Use `WebFetch` only for current official Abridge, HHS, or named EHR documentation. Use `Write` or `Edit` only after confirming scope, environment, owners, patient-data boundary, and approval state. These tools do not confer access to Abridge, an EHR, or a clinical record; return exact operator steps or an approval-gated handoff for live actions.
+
+## Current Contract
+
+- Abridge states that data is handled through secure channels and stored and processed in HIPAA-secure US-based data centers.
+- Its Trust Center describes SOC 2 Type 2 coverage and provides controlled access to additional reports.
+- Vendor posture does not replace the health system's risk analysis, access governance, consent, device, EHR, logging, and incident duties.
+
+## Authentication
+
+Use only the health system's provisioned Abridge application access, SSO, administrative role, or tenant-specific partner authentication documented for the approved environment. Do not infer public API credentials, reuse production secrets in tests, or expose tokens and session material. Verify identity owner, least privilege, environment binding, storage, rotation, and revocation before any authenticated action.
 
 ## Instructions
 
-### Step 1: Enforce TLS and Certificate Pinning
+1. Define scope, data classes, environments, care settings, regulatory owners, vendor evidence date, and inherited controls.
+2. Use `Read`, `Glob`, and `Grep` to inspect the data-flow, access model, device policy, audit configuration, support route, and incident plan.
+3. Verify contract and Trust Center evidence for storage, processing, subprocessors, retention, deletion, resilience, and incident obligations.
+4. Test joiner-mover-leaver, wrong-patient prevention, least privilege, session handling, protected support, and audit review with non-PHI evidence.
+5. Use `WebFetch` only for current official Abridge and HHS guidance, recording evidence dates and access limits.
+6. Use `Write` or `Edit` to publish findings with owner, severity, evidence, compensating control, and due date.
 
-```typescript
-// src/security/tls-config.ts
-import https from 'https';
-import axios from 'axios';
+## Approval Boundaries
 
-const abridgeHttpsAgent = new https.Agent({
-  minVersion: 'TLSv1.3',           // Enforce TLS 1.3 minimum
-  rejectUnauthorized: true,         // Never disable cert validation
-  // Optional: certificate pinning for Abridge API
-  // ca: fs.readFileSync('./certs/abridge-ca.pem'),
-});
-
-const secureClient = axios.create({
-  baseURL: process.env.ABRIDGE_BASE_URL,
-  httpsAgent: abridgeHttpsAgent,
-  headers: {
-    'Authorization': `Bearer ${process.env.ABRIDGE_CLIENT_SECRET}`,
-    'X-Org-Id': process.env.ABRIDGE_ORG_ID!,
-    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-  },
-});
-```
-
-### Step 2: PHI-Safe Audit Logger
-
-```typescript
-// src/security/audit-logger.ts
-interface AuditEntry {
-  timestamp: string;
-  action: 'create' | 'read' | 'update' | 'delete' | 'access';
-  resource_type: 'session' | 'note' | 'transcript' | 'patient_summary';
-  resource_id: string;           // Session/note ID (not PHI)
-  actor: string;                 // Provider NPI or system ID
-  ip_address: string;
-  success: boolean;
-  // NEVER include: patient name, DOB, SSN, MRN, diagnosis, note content
-}
-
-class HipaaAuditLogger {
-  private entries: AuditEntry[] = [];
-
-  log(entry: Omit<AuditEntry, 'timestamp'>): void {
-    const fullEntry: AuditEntry = {
-      ...entry,
-      timestamp: new Date().toISOString(),
-    };
-
-    // Validate no PHI leaked into audit log
-    const serialized = JSON.stringify(fullEntry);
-    if (this.containsPhi(serialized)) {
-      console.error('CRITICAL: PHI detected in audit entry — entry blocked');
-      return;
-    }
-
-    this.entries.push(fullEntry);
-    // In production: write to HIPAA-compliant log store (CloudWatch, Splunk, etc.)
-    console.log(`AUDIT: ${JSON.stringify(fullEntry)}`);
-  }
-
-  private containsPhi(text: string): boolean {
-    const phiPatterns = [
-      /\b\d{3}-\d{2}-\d{4}\b/,        // SSN
-      /\b[A-Z]\d{8}\b/,               // MRN pattern
-      /\b\d{1,2}\/\d{1,2}\/\d{4}\b/,  // DOB
-    ];
-    return phiPatterns.some(p => p.test(text));
-  }
-
-  getRetentionPolicy(): { minYears: number; note: string } {
-    return {
-      minYears: 6,
-      note: 'HIPAA requires audit logs retained for minimum 6 years',
-    };
-  }
-}
-
-export { HipaaAuditLogger, AuditEntry };
-```
-
-### Step 3: Role-Based Access Control
-
-```typescript
-// src/security/rbac.ts
-type AbridgeRole = 'clinician' | 'nurse' | 'admin' | 'billing' | 'integration_service';
-
-interface AbridgePermissions {
-  canCreateSession: boolean;
-  canViewNotes: boolean;
-  canViewPatientSummary: boolean;
-  canExportData: boolean;
-  canManageProviders: boolean;
-  canAccessBilling: boolean;
-}
-
-const ROLE_PERMISSIONS: Record<AbridgeRole, AbridgePermissions> = {
-  clinician: {
-    canCreateSession: true, canViewNotes: true, canViewPatientSummary: true,
-    canExportData: false, canManageProviders: false, canAccessBilling: false,
-  },
-  nurse: {
-    canCreateSession: true, canViewNotes: true, canViewPatientSummary: true,
-    canExportData: false, canManageProviders: false, canAccessBilling: false,
-  },
-  admin: {
-    canCreateSession: false, canViewNotes: false, canViewPatientSummary: false,
-    canExportData: true, canManageProviders: true, canAccessBilling: true,
-  },
-  billing: {
-    canCreateSession: false, canViewNotes: false, canViewPatientSummary: false,
-    canExportData: false, canManageProviders: false, canAccessBilling: true,
-  },
-  integration_service: {
-    canCreateSession: true, canViewNotes: true, canViewPatientSummary: false,
-    canExportData: false, canManageProviders: false, canAccessBilling: false,
-  },
-};
-
-function checkPermission(role: AbridgeRole, action: keyof AbridgePermissions): boolean {
-  return ROLE_PERMISSIONS[role]?.[action] ?? false;
-}
-```
-
-### Step 4: Secrets Management
-
-```typescript
-// src/security/secrets.ts
-// Never hardcode credentials — use environment or secret manager
-
-async function loadAbridgeSecrets(): Promise<Record<string, string>> {
-  // Option 1: Environment variables (minimum viable)
-  // Option 2: AWS Secrets Manager / GCP Secret Manager (recommended)
-  // Option 3: HashiCorp Vault (enterprise)
-
-  // Example: GCP Secret Manager
-  const { SecretManagerServiceClient } = await import('@google-cloud/secret-manager');
-  const client = new SecretManagerServiceClient();
-
-  const secrets: Record<string, string> = {};
-  const secretNames = ['abridge-client-secret', 'abridge-org-id', 'epic-client-secret'];
-
-  for (const name of secretNames) {
-    const [version] = await client.accessSecretVersion({
-      name: `projects/${process.env.GCP_PROJECT}/secrets/${name}/versions/latest`,
-    });
-    secrets[name] = version.payload?.data?.toString() || '';
-  }
-
-  return secrets;
-}
-```
+Do not declare a system HIPAA compliant, waive a control, or disclose protected reports based only on this workflow. Authorized privacy, security, and legal owners decide.
 
 ## Output
 
-- TLS 1.3 enforcement with optional cert pinning
-- HIPAA-compliant audit logger with PHI leak detection
-- Role-based access control matrix
-- Secrets loaded from cloud secret manager
-
-## Examples
-
-In a sandbox release check, call a protected endpoint as the
-`integration_service` role using a secret-manager-supplied credential and
-create an audit entry containing a fictional session ID. Verify TLS policy,
-the authorization outcome, and that the log contains no patient name, note
-content, MRN, or token. Then attempt an unauthorized export and confirm the
-RBAC layer refuses it with a redacted audit record. If PHI detection fires or
-an unauthorized request succeeds, halt deployment, revoke the affected access
-path if necessary, and investigate before processing any production data.
+Return responsibility matrix, evidence inventory, control findings, inherited and customer controls, gaps, expiries, owners, and residual-risk decision. Separate verified facts, tenant-specific evidence, assumptions, and actions still awaiting approval.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| TLS handshake failure | Server doesn't support TLS 1.3 | Verify Abridge endpoint; check proxy |
-| PHI in logs | Audit logger bypass | Add PHI detection to all log paths |
-| Permission denied | Wrong role | Check RBAC matrix for required role |
+| Condition | Response |
+|---|---|
+| Evidence is expired or inaccessible | Mark the control unverified. |
+| Public claim conflicts with contract | Escalate to legal and vendor management. |
+| Potential breach is identified | Activate the approved incident and breach-assessment process. |
+
+## Example
+
+The example is a redacted operational receipt, not patient data or proof of vendor certification.
+
+```text
+scope=prod-tenant; evidence-date=2026-09-10; controls=18; verified=15; gaps=3; phi-exported=0; decision=remediate-before-expansion
+```
 
 ## Resources
 
-- [HIPAA Security Rule](https://www.hhs.gov/hipaa/for-professionals/security/)
-- Abridge Security
-- [SMART on FHIR Security](https://hl7.org/fhir/smart-app-launch/scopes-and-launch-context.html)
+- [Official documentation map](references/official-docs.md) — dated public evidence and the limits of what those sources establish.
+
+Read the source map before changing a workflow. Recheck tenant-specific implementation evidence for every interface or capability that public documentation does not define.
 
 ## Next Steps
 
-For production deployment checklist, see `abridge-prod-checklist`.
+Revalidate the evidence date and tenant-specific authority before repeating this workflow in another environment, cohort, care setting, or integration mode.

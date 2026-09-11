@@ -1,8 +1,8 @@
 # Abridge Skill Pack
 
-> Claude Code skills for Abridge clinical AI integration — ambient documentation, EHR integration, HIPAA-compliant workflows (18 skills)
+Eighteen production operator workflows for health systems deploying Abridge clinical documentation. The pack covers consent, clinician review, Linked Evidence, Epic handoff, access, synthetic testing, rollout, privacy, security, capacity, support, and change control.
 
-Abridge is the leading ambient AI platform for clinical documentation, used by major health systems (Northwell, WVU Medicine, Emory, UI Health). Named Best in KLAS for Ambient AI (2025, 2026). These skills cover the full integration lifecycle: EHR connectivity (Epic, Athena, Cerner), FHIR R4 note push, patient-facing summaries, and HIPAA-compliant deployment.
+Each skill is grounded in current public Abridge product or support material and clearly separates those public facts from tenant-specific implementation contracts. The pack does not claim a public Abridge SDK, REST sandbox, universal API hostname, webhook catalog, quota header, generic FHIR write, or customer-deployed Abridge backend.
 
 ## Installation
 
@@ -10,43 +10,29 @@ Abridge is the leading ambient AI platform for clinical documentation, used by m
 /plugin install abridge-pack@claude-code-plugins-plus
 ```
 
-## Skills Included
+## Workflow Map
 
-### Standard Skills (S01-S12)
+| Domain | Skills |
+|---|---|
+| Access and pilot | `abridge-install-auth`, `abridge-hello-world`, `abridge-local-dev-loop` |
+| Clinical and EHR workflow | `abridge-core-workflow-a`, `abridge-core-workflow-b`, `abridge-sdk-patterns` |
+| Reliability and support | `abridge-common-errors`, `abridge-debug-bundle`, `abridge-rate-limits`, `abridge-performance-tuning` |
+| Delivery and operations | `abridge-ci-integration`, `abridge-deploy-integration`, `abridge-prod-checklist` |
+| Governance and change | `abridge-security-basics`, `abridge-cost-tuning`, `abridge-reference-architecture`, `abridge-upgrade-migration`, `abridge-webhooks-events` |
 
-| Skill | What It Does |
-|-------|-------------|
-| `abridge-install-auth` | Configure partner API credentials and SMART on FHIR OAuth |
-| `abridge-hello-world` | Create encounter session, submit transcript, receive clinical note |
-| `abridge-local-dev-loop` | Local HAPI FHIR server + synthetic data + watch mode dev loop |
-| `abridge-sdk-patterns` | Type-safe API client, HIPAA-safe error handling, retry logic |
-| `abridge-core-workflow-a` | Full encounter pipeline: audio capture → transcription → SOAP note → EHR push |
-| `abridge-core-workflow-b` | Patient-facing after-visit summaries, multi-language (28+ languages) |
-| `abridge-common-errors` | Diagnose auth, session, audio, note generation, and FHIR errors |
-| `abridge-debug-bundle` | Collect PHI-redacted diagnostic data for support tickets |
-| `abridge-rate-limits` | Concurrent session management, 429 retry, usage monitoring |
-| `abridge-security-basics` | TLS 1.3 enforcement, HIPAA audit logging, RBAC, secrets management |
-| `abridge-prod-checklist` | Go-live readiness validation, rollback procedures, monitoring thresholds |
-| `abridge-upgrade-migration` | API version upgrades, EHR migrations, note template migration |
+## Current Product Boundaries
 
-### Pro Skills (P13-P18)
+- [Recording basics](https://support.abridge.com/hc/en-us/articles/30207826574739-Recording-Basics) directs clinicians to follow organizational consent guidance, select the patient, record, create the note, and review it in the Web Editor.
+- [Web Editor guidance](https://support.abridge.com/hc/en-us/articles/30279907940371-Abridge-Web-Editor-Basics) documents clinician review and editing before sending a note.
+- [Linked Evidence](https://support.abridge.com/hc/en-us/articles/30235128433811-Verify-a-Note-With-Linked-Evidence) supports verification of generated text against transcript or audio; it does not replace clinician review.
+- [Epic handoff guidance](https://support.abridge.com/hc/en-us/articles/30235172323731-Send-an-Abridge-Note-Into-Epic) documents Send Now and SmartLink behavior, including manual-path limitations.
+- The [Abridge Trust Center](https://trust.abridge.com/) and [data-security guidance](https://support.abridge.com/hc/en-us/articles/30235294201619-Data-Security) provide public posture evidence. Tenant control details still require approved contract and implementation records.
 
-| Skill | What It Does |
-|-------|-------------|
-| `abridge-ci-integration` | GitHub Actions with PHI leak scanning, FHIR validation, sandbox tests |
-| `abridge-deploy-integration` | HIPAA-compliant Cloud Run deployment with Secret Manager |
-| `abridge-webhooks-events` | Handle note completion, quality alerts, provider enrollment events |
-| `abridge-performance-tuning` | Audio streaming optimization, adaptive polling, FHIR batch push |
-| `abridge-cost-tuning` | Provider utilization tracking, session waste detection, ROI calculator |
-| `abridge-reference-architecture` | Multi-site health system architecture with EHR adapter pattern |
+See each skill's `references/official-docs.md` for its dated source set and evidence boundary.
 
-## Key Concepts
+## Safety Boundary
 
-- **No public SDK** — Abridge integrates via partner REST APIs and EHR-embedded workflows
-- **Epic Pal** — Abridge is Epic's first Pal partner; deepest EHR integration is with Epic
-- **HIPAA mandatory** — All skills enforce PHI-safe logging, TLS 1.3, and audit trails
-- **FHIR R4** — Notes pushed to EHR as DocumentReference; summaries as Communication resources
-- **28+ languages** — Patient summaries support multilingual generation natively
+Use synthetic data or the health system's designated test-record process. Do not copy patient audio, transcripts, note text, identifiers, credentials, private vendor specifications, or Trust Center reports into repositories, ordinary tickets, examples, or test fixtures.
 
 ## License
 

@@ -1,227 +1,86 @@
 ---
 name: abridge-common-errors
-description: 'Diagnose and fix common Abridge clinical AI integration errors.
-
-  Use when encountering EHR connectivity failures, note generation errors,
-
-  audio streaming issues, or FHIR validation problems with Abridge.
-
-  Trigger: "abridge error", "abridge not working", "abridge debug",
-
-  "fix abridge issue", "abridge troubleshoot".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Grep
-version: 1.4.0
-license: MIT
+description: "Triage Abridge recording, note-review, Epic handoff, and access failures from observed evidence without inventing vendor error codes. Use when an Abridge clinical workflow is degraded. Trigger with \"diagnose this Abridge issue\"."
+argument-hint: "[environment] [symptom] [time-window]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- healthcare
-- ai
 - abridge
 - troubleshooting
-compatibility: Designed for Claude Code
+- clinical-workflow
+- support
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live work requires an authorized Abridge tenant, approved test data, and health-system change authority
 ---
-# Abridge Common Errors
+# Abridge Workflow Failure Triage
 
 ## Overview
 
-Comprehensive troubleshooting guide for Abridge clinical documentation integration. Covers authentication failures, EHR connectivity, audio streaming, note generation, and FHIR push errors.
+Classify the failure by user-visible stage, preserve a minimum-necessary timeline, and route it to the correct health-system, EHR, device, identity, network, or Abridge owner. Prefer observed messages and approved runbooks over generic HTTP guesses.
 
 ## Prerequisites
 
-Collect a timestamp, sanitized request or session ID, the affected sandbox or
-production environment, and the relevant HTTP status before investigation.
-Use a permitted support environment and redact patient names, MRNs, dates of
-birth, transcripts, and authorization values from every log or ticket.
+- The authorized Abridge environment, clinical owner, and health-system policy set
+- Current tenant-specific implementation evidence for every private interface in scope
+- Synthetic data or the organization's formally approved test-record procedure
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect repository configuration, adapters, tests, policies, and existing evidence. Use `WebFetch` only for current official Abridge, HHS, or named EHR documentation. Use `Write` or `Edit` only after confirming scope, environment, owners, patient-data boundary, and approval state. These tools do not confer access to Abridge, an EHR, or a clinical record; return exact operator steps or an approval-gated handoff for live actions.
+
+## Current Contract
+
+- The documented workflow spans patient selection, recording, note creation, Web Editor review, and optional Epic handoff.
+- Linked Evidence is a review aid that connects note text to source transcript or audio; it is not an automatic clinical approval.
+- Public support pages provide user workflows, not a canonical public list of partner API status codes.
+
+## Authentication
+
+Use only the health system's provisioned Abridge application access, SSO, administrative role, or tenant-specific partner authentication documented for the approved environment. Do not infer public API credentials, reuse production secrets in tests, or expose tokens and session material. Verify identity owner, least privilege, environment binding, storage, rotation, and revocation before any authenticated action.
 
 ## Instructions
 
-Start with the error code or symptom table, then reproduce only with synthetic
-data where possible. Check credentials and the FHIR endpoint before retrying a
-session; validate audio format before changing transcription logic. Run the
-diagnostic script with secrets supplied by the environment, preserve only its
-status codes and request identifiers, and escalate with the smallest redacted
-reproduction when the targeted fix does not resolve the fault.
+1. Record the environment, affected cohort, first observed time, last known good time, and exact visible symptom.
+2. Use `Read`, `Glob`, and `Grep` to locate the approved runbook, interface contract, recent configuration change, and feature-flag history.
+3. Separate capture/device failures, upload or connectivity failures, note-generation delays, editor issues, and EHR handoff failures.
+4. Check whether the problem follows one user, device, location, specialty, note type, or EHR workflow without collecting note content.
+5. Use `WebFetch` only to compare the symptom with current official Abridge support guidance.
+6. Use `Write` or `Edit` to produce a redacted escalation receipt and update a runbook only when evidence supports the change.
 
-## Error Reference
+## Approval Boundaries
 
-### Authentication & Authorization Errors
-
-| Code | Error | Root Cause | Fix |
-|------|-------|-----------|-----|
-| `401` | `INVALID_CREDENTIALS` | Expired or wrong partner secret | Rotate credentials in Abridge Partner Portal |
-| `401` | `TOKEN_EXPIRED` | SMART on FHIR token expired | Refresh token before 60-min expiry |
-| `403` | `ORG_NOT_PROVISIONED` | org_id not activated | Contact Abridge sales engineer |
-| `403` | `SPECIALTY_NOT_LICENSED` | Specialty not in contract | Check licensed specialties in Partner Portal |
-| `403` | `PROVIDER_NOT_ENROLLED` | Provider not onboarded | Complete provider enrollment in Abridge admin |
-
-### Session & Encounter Errors
-
-| Code | Error | Root Cause | Fix |
-|------|-------|-----------|-----|
-| `409` | `SESSION_ALREADY_ACTIVE` | Duplicate session for same encounter | Reuse existing session_id |
-| `422` | `INVALID_SPECIALTY` | Unsupported specialty code | Use codes from `/specialties` endpoint |
-| `422` | `PATIENT_NOT_FOUND` | Patient ID not in EHR context | Verify FHIR Patient resource exists |
-| `408` | `SESSION_TIMEOUT` | Session idle > 30 minutes | Create new session; old ones auto-expire |
-| `500` | `SESSION_CORRUPTED` | Server-side state error | Create new session; report to Abridge support |
-
-### Audio & Transcription Errors
-
-```typescript
-// Common audio streaming diagnostics
-async function diagnoseAudioIssues(wsUrl: string): Promise<string[]> {
-  const issues: string[] = [];
-
-  // Check WebSocket connectivity
-  try {
-    const ws = new WebSocket(wsUrl);
-    await new Promise((resolve, reject) => {
-      ws.onopen = resolve;
-      ws.onerror = reject;
-      setTimeout(() => reject(new Error('Connection timeout')), 5000);
-    });
-    ws.close();
-  } catch {
-    issues.push('WebSocket connection failed — check firewall allows wss:// on port 443');
-  }
-
-  // Check audio format requirements
-  // Abridge requires: 16kHz, mono, 16-bit PCM little-endian
-  const requiredFormat = { sampleRate: 16000, channels: 1, encoding: 'pcm_s16le' };
-  issues.push(`Verify audio format: ${JSON.stringify(requiredFormat)}`);
-
-  return issues;
-}
-```
-
-| Symptom | Root Cause | Fix |
-|---------|-----------|-----|
-| Empty transcript | Microphone not capturing | Check audio input device; verify 16kHz sample rate |
-| Garbled transcript | Wrong encoding | Must be 16-bit PCM LE mono at 16kHz |
-| Speaker mislabeled | Single-channel audio | Use stereo mic or speaker diarization hints |
-| WebSocket drops | Network instability | Implement reconnect with buffered chunks |
-| High latency | Large audio chunks | Send 100ms chunks, not full sentences |
-
-### Note Generation Errors
-
-```typescript
-// Note generation failure handler
-async function handleNoteFailure(sessionId: string, error: any): Promise<void> {
-  const status = error.response?.status;
-  const code = error.response?.data?.error_code;
-
-  switch (code) {
-    case 'INSUFFICIENT_CONTENT':
-      console.error('Transcript too short — need at least 30 seconds of clinical conversation');
-      break;
-    case 'UNSUPPORTED_LANGUAGE':
-      console.error('Language not in Abridge supported set (28+ languages)');
-      break;
-    case 'TEMPLATE_NOT_FOUND':
-      console.error('Note template not available — use: soap, hp, progress, procedure');
-      break;
-    case 'GENERATION_TIMEOUT':
-      console.error('Note generation exceeded 120s — complex encounter, retry once');
-      break;
-    default:
-      console.error(`Unknown note error: ${status} ${code}`);
-  }
-}
-```
-
-### FHIR Integration Errors
-
-| Error | Root Cause | Fix |
-|-------|-----------|-----|
-| FHIR `422 Unprocessable` | Invalid DocumentReference | Validate against FHIR R4 schema |
-| FHIR `401 Unauthorized` | Epic token expired | Re-authenticate via SMART on FHIR |
-| FHIR `404 Not Found` | Wrong FHIR base URL | Verify Epic FHIR endpoint in EHR config |
-| FHIR `409 Conflict` | Duplicate document ID | Generate unique DocumentReference IDs |
-| Epic SmartPhrase error | Template mismatch | Verify SmartPhrase names match Epic config |
-
-### HIPAA Compliance Errors
-
-```typescript
-// PHI leak detection in error logs
-function auditErrorLog(error: any): void {
-  const serialized = JSON.stringify(error);
-
-  // Check for accidental PHI in error output
-  const phiPatterns = [
-    /\b\d{3}-\d{2}-\d{4}\b/,        // SSN
-    /\b\d{10}\b/,                     // MRN (10-digit)
-    /\b[A-Z][a-z]+\s[A-Z][a-z]+\b/,  // Patient names (heuristic)
-    /\b\d{1,2}\/\d{1,2}\/\d{4}\b/,   // DOB
-  ];
-
-  for (const pattern of phiPatterns) {
-    if (pattern.test(serialized)) {
-      console.error('WARNING: Possible PHI detected in error log — redact before logging');
-      return;
-    }
-  }
-}
-```
-
-## Diagnostic Script
-
-```bash
-#!/bin/bash
-# abridge-diagnostic.sh — Run before opening a support ticket
-
-echo "=== Abridge Integration Diagnostics ==="
-
-# 1. Check credentials
-echo "Checking credentials..."
-curl -s -o /dev/null -w "%{http_code}" \
-  -H "Authorization: Bearer $ABRIDGE_CLIENT_SECRET" \
-  -H "X-Org-Id: $ABRIDGE_ORG_ID" \
-  "${ABRIDGE_BASE_URL}/health"
-
-# 2. Check FHIR server
-echo "Checking FHIR connectivity..."
-curl -s -o /dev/null -w "%{http_code}" \
-  "${EPIC_FHIR_BASE_URL}/metadata"
-
-# 3. Check WebSocket
-echo "Checking WebSocket..."
-curl -s -o /dev/null -w "%{http_code}" \
-  --header "Upgrade: websocket" \
-  "${ABRIDGE_BASE_URL/http/ws}/ws/health"
-
-echo "=== Diagnostics Complete ==="
-```
+Do not replay a patient encounter, open a patient note, change an EHR template, or disable a security control solely to diagnose a failure. Escalate clinical-safety concerns immediately.
 
 ## Output
 
-- Identified root cause from error code lookup
-- Applied targeted fix for the specific error
-- HIPAA-safe error logging verified
+Return impact, stage, evidence, likely owning boundary, safe checks completed, stop conditions, and the exact redacted artifact needed for escalation. Separate verified facts, tenant-specific evidence, assumptions, and actions still awaiting approval.
 
 ## Error Handling
 
-Stop and rotate credentials if a secret appears in logs. Do not replay a live
-patient encounter to investigate an audio or note-generation failure; use a
-synthetic session and record the resulting request ID. Treat repeated 5xx
-responses, corrupted sessions, and persistent FHIR authorization failures as
-support escalations with redacted diagnostics rather than blind retries.
+| Condition | Response |
+|---|---|
+| Patient content appears in evidence | Stop collection and move to the approved protected support channel. |
+| No exact timestamp or user-visible symptom | Request bounded evidence before assigning a cause. |
+| Clinical note may be unsafe | Pause downstream use and invoke the clinical-safety escalation path. |
 
-## Examples
+## Example
 
-If a sandbox encounter returns `422 INVALID_SPECIALTY`, compare the submitted
-specialty to the `/specialties` response, correct the code, and retry the
-synthetic session once. If a WebSocket disconnects, confirm 16 kHz mono PCM
-input and network access to port 443; attach the redacted timestamp and
-request ID to the support ticket, never the clinical transcript.
+The example is a redacted operational receipt, not patient data or proof of vendor certification.
+
+```text
+stage=epic-handoff; cohort=one-clinic; capture-and-review=healthy; owner=local-ehr-template; phi-in-receipt=no; status=escalate
+```
 
 ## Resources
 
-- [Abridge Platform](https://www.abridge.com/product)
-- [FHIR R4 Operation Outcomes](https://hl7.org/fhir/R4/operationoutcome.html)
-- [HIPAA Breach Notification Rule](https://www.hhs.gov/hipaa/for-professionals/breach-notification/)
+- [Official documentation map](references/official-docs.md) — dated public evidence and the limits of what those sources establish.
+
+Read the source map before changing a workflow. Recheck tenant-specific implementation evidence for every interface or capability that public documentation does not define.
 
 ## Next Steps
 
-For collecting debug evidence for support tickets, see `abridge-debug-bundle`.
+Revalidate the evidence date and tenant-specific authority before repeating this workflow in another environment, cohort, care setting, or integration mode.

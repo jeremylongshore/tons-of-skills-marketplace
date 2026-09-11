@@ -1,237 +1,86 @@
 ---
 name: abridge-reference-architecture
-description: 'Implement Abridge reference architecture for clinical AI integration.
-
-  Use when designing a new Abridge deployment, reviewing project structure,
-
-  or planning multi-site health system rollouts with EHR integration.
-
-  Trigger: "abridge architecture", "abridge project structure",
-
-  "abridge system design", "abridge multi-site".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.4.0
-license: MIT
+description: "Define an Abridge reference architecture that separates vendor, EHR, identity, device, customer, and clinical authority boundaries. Use when reviewing an enterprise Abridge design. Trigger with \"design the Abridge architecture\"."
+argument-hint: "[care-settings] [ehr-landscape]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- healthcare
-- ai
 - abridge
 - architecture
-compatibility: Designed for Claude Code
+- ehr
+- governance
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live work requires an authorized Abridge tenant, approved test data, and health-system change authority
 ---
-# Abridge Reference Architecture
+# Abridge Health-System Integration Architecture
 
 ## Overview
 
-Reference architecture for Abridge clinical AI integration in a multi-site health system. Covers data flow, component design, EHR integration patterns, and HIPAA-compliant infrastructure.
+Produce a tenant-grounded component and trust-boundary model for clinician capture, Abridge processing, review, Linked Evidence, EHR handoff, identity, support, telemetry, and downtime. Show unknown private interfaces explicitly instead of filling them with generic REST or FHIR assumptions.
 
 ## Prerequisites
 
-- An approved data-flow diagram, BAA-covered deployment environment, and a
-  named security and clinical owner for each planned site.
-- Confirmed EHR sandbox access and SMART-on-FHIR registration for each adapter
-  that will be implemented.
-- Synthetic fixtures and FHIR validation tests so the architecture can be
-  exercised without production PHI.
+- The authorized Abridge environment, clinical owner, and health-system policy set
+- Current tenant-specific implementation evidence for every private interface in scope
+- Synthetic data or the organization's formally approved test-record procedure
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect repository configuration, adapters, tests, policies, and existing evidence. Use `WebFetch` only for current official Abridge, HHS, or named EHR documentation. Use `Write` or `Edit` only after confirming scope, environment, owners, patient-data boundary, and approval state. These tools do not confer access to Abridge, an EHR, or a clinical record; return exact operator steps or an approval-gated handoff for live actions.
+
+## Current Contract
+
+- Abridge publicly documents application and Epic-integrated user workflows across multiple care settings.
+- Linked Evidence supports review by relating generated text to source material.
+- Exact data flows, retention, interfaces, identity protocols, and EHR mappings require tenant and vendor evidence.
+
+## Authentication
+
+Use only the health system's provisioned Abridge application access, SSO, administrative role, or tenant-specific partner authentication documented for the approved environment. Do not infer public API credentials, reuse production secrets in tests, or expose tokens and session material. Verify identity owner, least privilege, environment binding, storage, rotation, and revocation before any authenticated action.
 
 ## Instructions
 
-1. Select the EHR adapter and site configuration for one sandbox site first.
-2. Implement the session, webhook, FHIR, security, and monitoring boundaries
-   shown in the project structure; keep PHI redaction and audit logging shared
-   rather than reimplementing them per site.
-3. Validate the synthetic note-to-`DocumentReference` path, including webhook
-   idempotency and authenticated health checks, before adding another site.
-4. Promote a site only after its clinical, privacy, and operations owners sign
-   the readiness evidence and rollback plan.
+1. Inventory actors, care settings, devices, Abridge tenant capabilities, EHR modules, identity systems, networks, support channels, and owners.
+2. Use `Read`, `Glob`, and `Grep` to locate interface control documents, data-flow diagrams, retention decisions, and threat models.
+3. Draw data and control flows with classification, system of record, trust boundary, authorization, retention, and failure owner on each edge.
+4. Model consent, wrong-patient prevention, clinician review, downtime, rollback, and protected support evidence as first-class paths.
+5. Use `WebFetch` only for current official Abridge product context and label all tenant-specific facts by source revision.
+6. Use `Write` or `Edit` to update the architecture record and unresolved evidence register.
 
-## System Architecture
+## Approval Boundaries
 
-```
-                    Health System Network
-┌──────────────────────────────────────────────────────┐
-│                                                       │
-│  ┌─────────┐    ┌──────────────┐    ┌──────────────┐ │
-│  │ Provider │───▶│ Abridge App  │───▶│ Integration  │ │
-│  │ Device   │    │ (Ambient AI) │    │ Service      │ │
-│  │ (mobile/ │    │              │    │ (your code)  │ │
-│  │ desktop) │    └──────┬───────┘    └──────┬───────┘ │
-│  └─────────┘           │                    │         │
-│                        │                    │         │
-│              ┌─────────▼─────────┐          │         │
-│              │ Abridge Cloud API │          │         │
-│              │ (Partner API)     │          │         │
-│              │ - Session mgmt    │          │         │
-│              │ - Note generation │          │         │
-│              │ - Patient summary │          │         │
-│              └─────────┬─────────┘          │         │
-│                        │                    │         │
-│              ┌─────────▼─────────┐  ┌──────▼───────┐ │
-│              │ Webhook Events    │  │ EHR System   │ │
-│              │ - Note completed  │──│ (Epic/Athena)│ │
-│              │ - Quality alerts  │  │ FHIR R4 API  │ │
-│              └───────────────────┘  └──────────────┘ │
-│                                                       │
-└──────────────────────────────────────────────────────┘
-```
-
-## Project Structure
-
-```
-abridge-integration/
-├── src/
-│   ├── config/
-│   │   ├── abridge.ts           # Abridge API configuration
-│   │   ├── ehr.ts               # EHR/FHIR endpoint config
-│   │   └── index.ts             # Environment-based config loader
-│   ├── abridge/
-│   │   ├── client.ts            # API client singleton
-│   │   ├── errors.ts            # HIPAA-safe error handling
-│   │   ├── retry.ts             # Retry with backoff
-│   │   └── session-manager.ts   # Encounter session lifecycle
-│   ├── ehr/
-│   │   ├── fhir-client.ts       # FHIR R4 API wrapper
-│   │   ├── epic-adapter.ts      # Epic-specific mappings
-│   │   ├── athena-adapter.ts    # Athena-specific mappings
-│   │   └── note-pusher.ts       # DocumentReference creation
-│   ├── webhooks/
-│   │   ├── handler.ts           # Express webhook endpoint
-│   │   ├── signature.ts         # HMAC signature verification
-│   │   ├── event-router.ts      # Event type → handler mapping
-│   │   └── idempotency.ts       # Duplicate event prevention
-│   ├── security/
-│   │   ├── audit-logger.ts      # HIPAA audit trail
-│   │   ├── phi-redactor.ts      # PHI detection and redaction
-│   │   ├── rbac.ts              # Role-based access control
-│   │   └── tls-config.ts        # TLS 1.3 enforcement
-│   ├── monitoring/
-│   │   ├── health.ts            # Health check endpoint
-│   │   ├── metrics.ts           # Performance metrics collector
-│   │   └── alerts.ts            # Quality and latency alerts
-│   └── server.ts                # Express server entry point
-├── tests/
-│   ├── unit/                    # Unit tests (no API calls)
-│   ├── integration/             # Sandbox API tests
-│   └── fhir-validation/         # FHIR resource schema tests
-├── fixtures/
-│   └── transcripts/             # Synthetic encounter transcripts
-├── scripts/
-│   ├── deploy-cloud-run.sh      # GCP Cloud Run deployment
-│   ├── readiness-check.ts       # Production readiness validation
-│   └── diagnostic.sh            # Debug data collection
-├── Dockerfile                   # HIPAA-compliant container
-├── .env.example                 # Environment template (no secrets)
-└── package.json
-```
-
-## Key Design Decisions
-
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Language | TypeScript | Type safety for healthcare data |
-| EHR adapter | Strategy pattern | Swap EHR backends without changing core |
-| Error handling | Custom error class | HIPAA-safe: never log PHI |
-| Authentication | SMART on FHIR | Standard for healthcare OAuth |
-| Deployment | Cloud Run | HIPAA BAA, auto-scaling, managed |
-| Secrets | GCP Secret Manager | HIPAA-compliant, audited access |
-| Monitoring | Custom health endpoint | Abridge + FHIR connectivity checks |
-
-## Data Flow
-
-```
-1. Provider opens encounter on device
-2. Abridge app captures ambient audio
-3. Audio streams to Abridge Cloud via WebSocket
-4. Real-time transcript fragments returned
-5. Provider closes encounter
-6. Abridge generates structured clinical note (10-30s)
-7. Webhook fires: encounter.session.completed
-8. Integration service fetches note via API
-9. Note pushed to EHR via FHIR DocumentReference
-10. Patient summary generated and pushed to portal
-11. Provider reviews, edits, and signs note in EHR
-12. Webhook fires: encounter.note.signed
-```
-
-## Multi-Site Deployment
-
-```typescript
-// src/config/multi-site.ts
-interface SiteConfig {
-  siteId: string;
-  siteName: string;
-  ehrType: 'epic' | 'athena' | 'cerner';
-  fhirBaseUrl: string;
-  abridgeOrgId: string;
-  specialties: string[];
-  providerCount: number;
-  goLiveDate: Date;
-}
-
-const sites: SiteConfig[] = [
-  {
-    siteId: 'main-campus',
-    siteName: 'Main Hospital',
-    ehrType: 'epic',
-    fhirBaseUrl: 'https://fhir.main-hospital.epic.com/interconnect-fhir-oauth',
-    abridgeOrgId: 'org_main_campus',
-    specialties: ['internal_medicine', 'cardiology', 'pulmonology'],
-    providerCount: 200,
-    goLiveDate: new Date('2026-06-01'),
-  },
-  {
-    siteId: 'community-clinic',
-    siteName: 'Community Clinic Network',
-    ehrType: 'athena',
-    fhirBaseUrl: 'https://api.athenahealth.com/fhir/r4',
-    abridgeOrgId: 'org_community',
-    specialties: ['family_medicine', 'pediatrics'],
-    providerCount: 50,
-    goLiveDate: new Date('2026-09-01'),
-  },
-];
-```
+Do not label an inferred interface, FHIR resource, webhook, hosting model, or retention period as implemented without authoritative evidence.
 
 ## Output
 
-- Complete project structure for Abridge integration
-- EHR adapter pattern supporting Epic, Athena, and Cerner
-- Multi-site deployment configuration
-- End-to-end data flow documentation
-
-## Examples
-
-Start with a single synthetic Epic sandbox site using the `main-campus`
-configuration shape, a secret-managed sandbox organization ID, and a mock
-webhook event. Trace the event from session completion through the idempotency
-store to a locally validated `DocumentReference`, recording only resource IDs
-and aggregate timings. A successful architecture test proves that the adapter,
-security, and monitoring boundaries cooperate without exposing patient text.
-If signature verification, FHIR validation, or the health check fails, prevent
-the note push, retain the redacted failure evidence, and correct that boundary
-before enabling another site or real traffic.
+Return component map, flows, trust boundaries, data classes, systems of record, owners, failure paths, evidence revisions, and open assumptions. Separate verified facts, tenant-specific evidence, assumptions, and actions still awaiting approval.
 
 ## Error Handling
 
-| Failure | Architecture response |
-|---------|-----------------------|
-| Webhook signature is invalid | Reject the event before it reaches the event router. |
-| Duplicate completion event arrives | Use the idempotency record and return a safe duplicate response. |
-| FHIR validation fails | Do not write the note; surface a redacted integration failure to the operator. |
-| Site configuration is incomplete | Keep the site disabled until its EHR, secret, and ownership requirements are verified. |
+| Condition | Response |
+|---|---|
+| Edge lacks an owner | Keep the design unapproved. |
+| PHI crosses an undocumented boundary | Stop and escalate to privacy and security review. |
+| Diagram conflicts with tenant evidence | Update the diagram and record the superseded assumption. |
+
+## Example
+
+The example is a redacted operational receipt, not patient data or proof of vendor certification.
+
+```text
+settings=outpatient+ed; ehr=epic; boundaries=7; undocumented-edges=2; phi-flows=owner-reviewed; status=design-review
+```
 
 ## Resources
 
-- [Abridge Platform](https://www.abridge.com/product)
-- [Abridge Clinician App](https://www.abridge.com/platform/clinicians)
-- [FHIR R4 Specification](https://hl7.org/fhir/R4/)
-- [Epic FHIR APIs](https://fhir.epic.com/)
-- [GCP Healthcare API](https://cloud.google.com/healthcare-api)
+- [Official documentation map](references/official-docs.md) — dated public evidence and the limits of what those sources establish.
+
+Read the source map before changing a workflow. Recheck tenant-specific implementation evidence for every interface or capability that public documentation does not define.
 
 ## Next Steps
 
-Start implementation with `abridge-install-auth`, then follow the skill sequence through production deployment.
+Revalidate the evidence date and tenant-specific authority before repeating this workflow in another environment, cohort, care setting, or integration mode.

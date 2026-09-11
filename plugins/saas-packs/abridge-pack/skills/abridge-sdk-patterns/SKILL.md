@@ -1,293 +1,86 @@
 ---
 name: abridge-sdk-patterns
-description: 'Apply production-ready patterns for Abridge clinical AI integration.
-
-  Use when building reusable Abridge client wrappers, implementing HIPAA-compliant
-
-  error handling, or establishing team coding standards for healthcare AI.
-
-  Trigger: "abridge SDK patterns", "abridge best practices", "abridge code patterns".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.4.0
-license: MIT
+description: "Implement a narrow customer-owned adapter around an approved Abridge tenant interface without claiming a public SDK. Use when coding against vendor-issued integration specifications. Trigger with \"build the Abridge adapter\"."
+argument-hint: "[interface-contract] [language]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- healthcare
-- ai
 - abridge
-- patterns
-compatibility: Designed for Claude Code
+- adapter
+- private-contract
+- reliability
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live work requires an authorized Abridge tenant, approved test data, and health-system change authority
 ---
-# Abridge SDK Patterns
+# Abridge Private-Contract Adapter Patterns
 
 ## Overview
 
-Production-ready patterns for Abridge clinical AI integration. Since Abridge operates via partner APIs (not a public SDK), these patterns wrap the REST API with type-safe clients, HIPAA-compliant logging, and healthcare-specific error handling.
+Keep vendor-specific transport behind a typed port whose schema, authentication, errors, timeouts, and retry rules are pinned to the private contract revision. Make unsupported behavior fail closed and keep clinical review outside the adapter.
 
 ## Prerequisites
 
-- Completed `abridge-install-auth` setup
-- TypeScript project with strict mode enabled
-- Understanding of HIPAA audit logging requirements
+- The authorized Abridge environment, clinical owner, and health-system policy set
+- Current tenant-specific implementation evidence for every private interface in scope
+- Synthetic data or the organization's formally approved test-record procedure
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect repository configuration, adapters, tests, policies, and existing evidence. Use `WebFetch` only for current official Abridge, HHS, or named EHR documentation. Use `Write` or `Edit` only after confirming scope, environment, owners, patient-data boundary, and approval state. These tools do not confer access to Abridge, an EHR, or a clinical record; return exact operator steps or an approval-gated handoff for live actions.
+
+## Current Contract
+
+- The cited public Abridge sources describe product workflows, not a general public SDK package or stable REST surface.
+- Partner-issued specifications may be implemented only for the authorized tenant and cannot be generalized without evidence.
+- Clinical content, credentials, and tenant identifiers must not appear in logs or test fixtures.
+
+## Authentication
+
+Use only the health system's provisioned Abridge application access, SSO, administrative role, or tenant-specific partner authentication documented for the approved environment. Do not infer public API credentials, reuse production secrets in tests, or expose tokens and session material. Verify identity owner, least privilege, environment binding, storage, rotation, and revocation before any authenticated action.
 
 ## Instructions
 
-### Step 1: Type-Safe API Client Singleton
+1. Verify the contract owner, revision, environment, authentication protocol, schemas, delivery semantics, and support path.
+2. Use `Read`, `Glob`, and `Grep` to inspect existing ports, adapters, configuration, error types, and tests.
+3. Define typed request and response envelopes with strict parsing, explicit unknown-field behavior, redacted errors, and bounded timeouts.
+4. Implement retries only for contract-authorized idempotent operations; expose manual reconciliation for ambiguous outcomes.
+5. Use `Write` or `Edit` to add the adapter, synthetic contract fixtures, version negotiation, and rollback path.
+6. Use `WebFetch` only to align user-facing workflow language with official Abridge guidance.
 
-```typescript
-// src/abridge/client.ts
-import axios, { AxiosInstance, AxiosError } from 'axios';
+## Approval Boundaries
 
-interface AbridgeConfig {
-  baseUrl: string;
-  clientSecret: string;
-  orgId: string;
-  timeoutMs?: number;
-  maxRetries?: number;
-}
-
-class AbridgeApiClient {
-  private static instance: AbridgeApiClient | null = null;
-  private api: AxiosInstance;
-  private config: AbridgeConfig;
-
-  private constructor(config: AbridgeConfig) {
-    this.config = config;
-    this.api = axios.create({
-      baseURL: config.baseUrl,
-      timeout: config.timeoutMs || 30000,
-      headers: {
-        'Authorization': `Bearer ${config.clientSecret}`,
-        'X-Org-Id': config.orgId,
-        'Content-Type': 'application/json',
-        'X-Request-Source': 'partner-integration',
-      },
-    });
-
-    // Request/response interceptors for audit logging
-    this.api.interceptors.request.use((req) => {
-      req.headers['X-Correlation-Id'] = crypto.randomUUID();
-      this.auditLog('request', req.method!, req.url!, req.headers['X-Correlation-Id']);
-      return req;
-    });
-
-    this.api.interceptors.response.use(
-      (res) => { this.auditLog('response', res.config.method!, res.config.url!, res.status); return res; },
-      (err) => { this.auditLog('error', err.config?.method, err.config?.url, err.response?.status); throw err; }
-    );
-  }
-
-  static getInstance(): AbridgeApiClient {
-    if (!AbridgeApiClient.instance) {
-      AbridgeApiClient.instance = new AbridgeApiClient({
-        baseUrl: process.env.ABRIDGE_BASE_URL!,
-        clientSecret: process.env.ABRIDGE_CLIENT_SECRET!,
-        orgId: process.env.ABRIDGE_ORG_ID!,
-      });
-    }
-    return AbridgeApiClient.instance;
-  }
-
-  // HIPAA-compliant audit log — never log PHI
-  private auditLog(type: string, method: string, url: string, detail: any): void {
-    const entry = {
-      timestamp: new Date().toISOString(),
-      type,
-      method: method?.toUpperCase(),
-      endpoint: url?.replace(/\/sessions\/[^/]+/, '/sessions/{id}'), // Redact IDs
-      detail: typeof detail === 'number' ? `status:${detail}` : `id:${detail}`,
-    };
-    console.log(JSON.stringify(entry));
-  }
-
-  get http(): AxiosInstance { return this.api; }
-}
-
-export { AbridgeApiClient };
-```
-
-### Step 2: HIPAA-Safe Error Handler
-
-```typescript
-// src/abridge/errors.ts
-class AbridgeApiError extends Error {
-  constructor(
-    message: string,
-    public readonly statusCode: number,
-    public readonly errorCode: string,
-    public readonly correlationId: string,
-    public readonly retryable: boolean,
-  ) {
-    super(message);
-    this.name = 'AbridgeApiError';
-  }
-
-  // Sanitized error — safe for logging (no PHI)
-  toSafeLog(): Record<string, unknown> {
-    return {
-      name: this.name,
-      statusCode: this.statusCode,
-      errorCode: this.errorCode,
-      correlationId: this.correlationId,
-      retryable: this.retryable,
-      // Never include message in logs — may contain PHI
-    };
-  }
-}
-
-function parseAbridgeError(err: AxiosError): AbridgeApiError {
-  const data = err.response?.data as any;
-  const status = err.response?.status || 500;
-
-  const retryableCodes = [429, 502, 503, 504];
-
-  return new AbridgeApiError(
-    data?.message || err.message,
-    status,
-    data?.error_code || 'UNKNOWN',
-    err.config?.headers?.['X-Correlation-Id'] as string || 'none',
-    retryableCodes.includes(status),
-  );
-}
-
-export { AbridgeApiError, parseAbridgeError };
-```
-
-### Step 3: Retry with Exponential Backoff
-
-```typescript
-// src/abridge/retry.ts
-import { AbridgeApiError, parseAbridgeError } from './errors';
-
-async function withRetry<T>(
-  operation: () => Promise<T>,
-  options: { maxRetries?: number; baseDelayMs?: number; maxDelayMs?: number } = {}
-): Promise<T> {
-  const { maxRetries = 3, baseDelayMs = 1000, maxDelayMs = 30000 } = options;
-
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      return await operation();
-    } catch (err) {
-      const apiErr = err instanceof AbridgeApiError ? err : parseAbridgeError(err as any);
-
-      if (!apiErr.retryable || attempt === maxRetries) throw apiErr;
-
-      // Respect Retry-After header if present
-      const retryAfter = (err as any).response?.headers?.['retry-after'];
-      const delay = retryAfter
-        ? parseInt(retryAfter) * 1000
-        : Math.min(baseDelayMs * Math.pow(2, attempt - 1), maxDelayMs);
-
-      console.log(`Retry ${attempt}/${maxRetries} after ${delay}ms (${apiErr.errorCode})`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error('Unreachable');
-}
-
-export { withRetry };
-```
-
-### Step 4: Session Manager Pattern
-
-```typescript
-// src/abridge/session-manager.ts
-import { AbridgeApiClient } from './client';
-import { withRetry } from './retry';
-
-interface SessionState {
-  sessionId: string;
-  status: 'initialized' | 'recording' | 'processing' | 'completed' | 'error';
-  createdAt: Date;
-  segmentCount: number;
-}
-
-class EncounterSessionManager {
-  private sessions = new Map<string, SessionState>();
-  private api = AbridgeApiClient.getInstance().http;
-
-  async create(patientId: string, providerId: string, specialty: string): Promise<SessionState> {
-    const { data } = await withRetry(() =>
-      this.api.post('/encounters/sessions', {
-        patient_id: patientId,
-        provider_id: providerId,
-        specialty,
-        encounter_type: 'outpatient',
-      })
-    );
-
-    const state: SessionState = {
-      sessionId: data.session_id,
-      status: 'initialized',
-      createdAt: new Date(),
-      segmentCount: 0,
-    };
-    this.sessions.set(data.session_id, state);
-    return state;
-  }
-
-  async addTranscript(sessionId: string, speaker: string, text: string): Promise<void> {
-    await this.api.post(`/encounters/sessions/${sessionId}/transcript`, { speaker, text });
-    const state = this.sessions.get(sessionId)!;
-    state.segmentCount++;
-    state.status = 'recording';
-  }
-
-  async finalize(sessionId: string): Promise<any> {
-    await this.api.post(`/encounters/sessions/${sessionId}/finalize`);
-    this.sessions.get(sessionId)!.status = 'processing';
-
-    for (let i = 0; i < 60; i++) {
-      const { data } = await this.api.get(`/encounters/sessions/${sessionId}/note`);
-      if (data.status === 'completed') {
-        this.sessions.get(sessionId)!.status = 'completed';
-        return data.note;
-      }
-      await new Promise(r => setTimeout(r, 1000));
-    }
-    throw new Error('Note generation timed out');
-  }
-}
-
-export { EncounterSessionManager };
-```
+Do not guess endpoints, credentials, headers, scopes, event names, or response fields. Do not publish private contract material in the repository.
 
 ## Output
 
-- Type-safe singleton client with audit logging
-- HIPAA-safe error handling (no PHI in logs)
-- Exponential backoff with Retry-After support
-- Session lifecycle manager with state tracking
-
-## Examples
-
-In a sandbox integration test, initialize the singleton from a secret-managed
-environment, create a session with fictional identifiers, add a short
-synthetic transcript, and finalize it through `withRetry`. Assert that the
-audit stream contains a correlation ID, HTTP outcome, and redacted endpoint
-shape—but no transcript or patient value. Then inject a synthetic `429` and
-confirm the retry honors its delay and stops at the configured budget. If a
-safe-log assertion fails, disable the integration test output upload and fix
-the redaction boundary before reviewing the request trace.
+Return contract revision, implemented operations, auth boundary, parser policy, retry classes, test coverage, logging exclusions, and unsupported operations. Separate verified facts, tenant-specific evidence, assumptions, and actions still awaiting approval.
 
 ## Error Handling
 
-| Pattern | Use Case | Benefit |
-|---------|----------|---------|
-| Singleton client | All API calls | Single source of config, consistent headers |
-| Safe error logging | HIPAA compliance | Prevents PHI leakage in error logs |
-| Retry with backoff | Transient failures | Handles 429/5xx gracefully |
-| Session manager | Encounter lifecycle | Tracks state, prevents orphaned sessions |
+| Condition | Response |
+|---|---|
+| Contract revision is missing | Refuse implementation. |
+| Response violates schema | Quarantine the payload metadata and escalate without logging content. |
+| Outcome is ambiguous | Do not retry a possible clinical write automatically. |
+
+## Example
+
+The example is a redacted operational receipt, not patient data or proof of vendor certification.
+
+```text
+contract=vendor-ICD-r9; operations=3; fixtures=synthetic; unknown-fields=reject; retries=idempotent-only; private-docs-committed=no
+```
 
 ## Resources
 
-- [HIPAA Security Rule](https://www.hhs.gov/hipaa/for-professionals/security/index.html)
-- [Abridge Platform](https://www.abridge.com/product)
+- [Official documentation map](references/official-docs.md) — dated public evidence and the limits of what those sources establish.
+
+Read the source map before changing a workflow. Recheck tenant-specific implementation evidence for every interface or capability that public documentation does not define.
 
 ## Next Steps
 
-Apply these patterns in `abridge-core-workflow-a` for real encounter processing.
+Revalidate the evidence date and tenant-specific authority before repeating this workflow in another environment, cohort, care setting, or integration mode.

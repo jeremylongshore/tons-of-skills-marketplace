@@ -1,303 +1,86 @@
 ---
 name: abridge-core-workflow-a
-description: 'Implement Abridge ambient clinical documentation capture-to-note pipeline.
-
-  Use when building the primary encounter workflow: audio capture, real-time
-
-  transcription, AI note generation, and EHR note insertion.
-
-  Trigger: "abridge clinical workflow", "abridge encounter pipeline",
-
-  "ambient documentation workflow", "abridge note generation".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.4.0
-license: MIT
+description: "Design and verify the clinician workflow from consent through recording, draft review, Linked Evidence, and final note disposition. Use when implementing or auditing an Abridge clinical documentation pathway. Trigger with \"map the Abridge note workflow\"."
+argument-hint: "[care-setting] [note-type]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- healthcare
-- ai
 - abridge
-- clinical-documentation
-compatibility: Designed for Claude Code
+- clinical-workflow
+- note-review
+- consent
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live work requires an authorized Abridge tenant, approved test data, and health-system change authority
 ---
-# Abridge Core Workflow A — Encounter-to-Note Pipeline
+# Abridge Encounter-to-Reviewed-Note Workflow
 
 ## Overview
 
-Primary money-path workflow for Abridge: capturing a clinical encounter via ambient listening, processing it through Abridge's generative AI, producing a structured clinical note, and pushing it into the EHR. This is the workflow that runs millions of times daily across health systems using Abridge.
+Define a clinician-in-the-loop path that keeps consent, patient selection, capture quality, draft verification, edits, and finalization explicit. Treat generated content as a draft until the authorized clinician completes the health system's review process.
 
 ## Prerequisites
 
-- Completed `abridge-install-auth` setup
-- EHR integration configured (Epic preferred)
-- Audio capture infrastructure (microphone array or mobile device)
-- HIPAA-compliant transport layer (TLS 1.3+)
+- The authorized Abridge environment, clinical owner, and health-system policy set
+- Current tenant-specific implementation evidence for every private interface in scope
+- Synthetic data or the organization's formally approved test-record procedure
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect repository configuration, adapters, tests, policies, and existing evidence. Use `WebFetch` only for current official Abridge, HHS, or named EHR documentation. Use `Write` or `Edit` only after confirming scope, environment, owners, patient-data boundary, and approval state. These tools do not confer access to Abridge, an EHR, or a clinical record; return exact operator steps or an approval-gated handoff for live actions.
+
+## Current Contract
+
+- Abridge's recording guidance tells clinicians to follow organizational consent policy before recording.
+- The Web Editor supports reviewing and editing generated notes, and Linked Evidence supports source verification.
+- A generated note remains subject to clinician review and the health system's documentation policy.
+
+## Authentication
+
+Use only the health system's provisioned Abridge application access, SSO, administrative role, or tenant-specific partner authentication documented for the approved environment. Do not infer public API credentials, reuse production secrets in tests, or expose tokens and session material. Verify identity owner, least privilege, environment binding, storage, rotation, and revocation before any authenticated action.
 
 ## Instructions
 
-### Step 1: Initialize Encounter Session
+1. Identify care setting, authorized user, patient-selection source, consent rule, note type, and final record destination.
+2. Map the happy path and failure exits from patient selection through recording, note creation, review, editing, and submission.
+3. Use `Read`, `Glob`, and `Grep` to inspect local policies, templates, training, and integration configuration without reading patient data.
+4. Add checks for wrong-patient risk, interrupted capture, missing source support, unsupported statements, and unsigned drafts.
+5. Use `WebFetch` only for current official Abridge workflow documentation and label tenant-specific behavior separately.
+6. Use `Write` or `Edit` to update the workflow artifact, acceptance script, and rollback handoff after owner confirmation.
 
-```typescript
-// src/workflows/encounter-pipeline.ts
-import axios, { AxiosInstance } from 'axios';
+## Approval Boundaries
 
-interface EncounterContext {
-  patient_id: string;           // FHIR Patient resource ID
-  encounter_id: string;         // FHIR Encounter resource ID
-  provider_id: string;          // NPI or FHIR Practitioner ID
-  specialty: string;            // e.g., 'internal_medicine', 'cardiology'
-  encounter_type: 'outpatient' | 'inpatient' | 'emergency';
-  department_id?: string;
-  language: string;             // ISO 639-1 (Abridge supports 28+ languages)
-}
-
-interface SessionResponse {
-  session_id: string;
-  websocket_url: string;        // For real-time audio streaming
-  status: 'initialized' | 'recording' | 'processing' | 'completed';
-  created_at: string;
-}
-
-async function initializeEncounter(
-  api: AxiosInstance,
-  context: EncounterContext
-): Promise<SessionResponse> {
-  const { data } = await api.post('/encounters/sessions', {
-    ...context,
-    capture_mode: 'ambient',       // Background listening, no wake word
-    note_template: 'soap',         // SOAP, H&P, progress note, etc.
-    real_time_preview: true,       // Enable live note preview during encounter
-    smart_phrases_enabled: true,   // Support Epic SmartPhrases in output
-  });
-
-  console.log(`Encounter session initialized: ${data.session_id}`);
-  console.log(`WebSocket URL: ${data.websocket_url}`);
-  return data;
-}
-```
-
-### Step 2: Stream Audio via WebSocket
-
-```typescript
-// src/workflows/audio-stream.ts
-import WebSocket from 'ws';
-
-interface AudioStreamConfig {
-  sampleRate: 16000;      // 16kHz required
-  channels: 1;            // Mono
-  encoding: 'pcm_s16le';  // 16-bit PCM little-endian
-  chunkDurationMs: 100;   // Send 100ms chunks
-}
-
-interface TranscriptFragment {
-  type: 'transcript_fragment';
-  speaker: 'provider' | 'patient' | 'unknown';
-  text: string;
-  confidence: number;
-  timestamp_ms: number;
-  is_final: boolean;
-}
-
-interface NotePreview {
-  type: 'note_preview';
-  sections: Record<string, string>;
-  last_updated: string;
-}
-
-function streamEncounterAudio(
-  wsUrl: string,
-  audioSource: NodeJS.ReadableStream
-): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const ws = new WebSocket(wsUrl, {
-      headers: {
-        'Authorization': `Bearer ${process.env.ABRIDGE_CLIENT_SECRET}`,
-        'X-Org-Id': process.env.ABRIDGE_ORG_ID!,
-      },
-    });
-
-    ws.on('open', () => {
-      console.log('Audio stream connected');
-
-      // Stream audio chunks
-      audioSource.on('data', (chunk: Buffer) => {
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(chunk);
-        }
-      });
-
-      audioSource.on('end', () => {
-        ws.send(JSON.stringify({ type: 'end_of_stream' }));
-      });
-    });
-
-    ws.on('message', (data: Buffer) => {
-      const msg = JSON.parse(data.toString());
-
-      if (msg.type === 'transcript_fragment') {
-        const frag = msg as TranscriptFragment;
-        if (frag.is_final) {
-          console.log(`[${frag.speaker}]: ${frag.text}`);
-        }
-      }
-
-      if (msg.type === 'note_preview') {
-        const preview = msg as NotePreview;
-        console.log('Live note preview updated:', Object.keys(preview.sections).join(', '));
-      }
-    });
-
-    ws.on('close', () => resolve());
-    ws.on('error', reject);
-  });
-}
-
-export { streamEncounterAudio, AudioStreamConfig };
-```
-
-### Step 3: Generate and Retrieve Clinical Note
-
-```typescript
-// src/workflows/note-generation.ts
-interface ClinicalNote {
-  note_id: string;
-  session_id: string;
-  template: 'soap' | 'hp' | 'progress' | 'procedure';
-  sections: {
-    chief_complaint: string;
-    history_present_illness: string;
-    review_of_systems: string;
-    physical_exam: string;
-    assessment: string;
-    plan: string;
-    medications?: string;
-    allergies?: string;
-  };
-  coding: {
-    icd10: Array<{ code: string; description: string; confidence: number }>;
-    cpt: Array<{ code: string; description: string; confidence: number }>;
-    hcc: Array<{ code: string; raf_score: number }>;  // Risk adjustment
-  };
-  source_map: Array<{
-    section: string;
-    note_text: string;
-    source_transcript: string;
-    audio_start_ms: number;
-    audio_end_ms: number;
-  }>;
-  quality_metrics: {
-    confidence_score: number;
-    completeness_score: number;
-    coding_accuracy: number;
-  };
-}
-
-async function generateAndRetrieveNote(
-  api: AxiosInstance,
-  sessionId: string
-): Promise<ClinicalNote> {
-  // Finalize session and trigger note generation
-  await api.post(`/encounters/sessions/${sessionId}/finalize`);
-
-  // Poll for completed note (typically 10-30 seconds)
-  for (let i = 0; i < 60; i++) {
-    const { data } = await api.get(`/encounters/sessions/${sessionId}/note`);
-    if (data.status === 'completed') {
-      return data.note;
-    }
-    await new Promise(r => setTimeout(r, 1000));
-  }
-  throw new Error(`Note generation timed out for session ${sessionId}`);
-}
-```
-
-### Step 4: Push Note to EHR via FHIR
-
-```typescript
-// src/workflows/ehr-push.ts
-import axios from 'axios';
-
-interface FhirDocumentReference {
-  resourceType: 'DocumentReference';
-  status: 'current';
-  type: { coding: Array<{ system: string; code: string; display: string }> };
-  subject: { reference: string };
-  context: { encounter: Array<{ reference: string }> };
-  content: Array<{ attachment: { contentType: string; data: string } }>;
-}
-
-async function pushNoteToEpic(
-  fhirBaseUrl: string,
-  accessToken: string,
-  note: { patient_id: string; encounter_id: string; content: string }
-): Promise<string> {
-  const docRef: FhirDocumentReference = {
-    resourceType: 'DocumentReference',
-    status: 'current',
-    type: {
-      coding: [{
-        system: 'http://loinc.org',
-        code: '11506-3',
-        display: 'Progress note',
-      }],
-    },
-    subject: { reference: `Patient/${note.patient_id}` },
-    context: { encounter: [{ reference: `Encounter/${note.encounter_id}` }] },
-    content: [{
-      attachment: {
-        contentType: 'text/plain',
-        data: Buffer.from(note.content).toString('base64'),
-      },
-    }],
-  };
-
-  const response = await axios.post(
-    `${fhirBaseUrl}/DocumentReference`,
-    docRef,
-    { headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/fhir+json' } }
-  );
-
-  console.log(`Note pushed to Epic: DocumentReference/${response.data.id}`);
-  return response.data.id;
-}
-```
+Do not automate consent, clinical verification, note signing, or chart submission beyond the explicitly approved tenant workflow. A clinician must retain final review authority.
 
 ## Output
 
-- Ambient encounter session with real-time transcription
-- Structured SOAP note with ICD-10, CPT, and HCC codes
-- Source-mapped citations linking AI output to conversation audio
-- FHIR DocumentReference created in Epic EHR
-
-## Examples
-
-In a non-production integration test, initialize an encounter with synthetic
-patient and encounter identifiers, then stream a short pre-recorded synthetic
-conversation. Wait for the finalized SOAP note, inspect its source map and
-quality metrics, and submit a `DocumentReference` to the sandbox FHIR endpoint.
-Treat the returned resource ID as the success signal. If the resource fails
-validation, retain only the redacted `OperationOutcome`, correct the FHIR
-payload, and retry without replaying real clinical audio.
+Return actors, states, handoffs, evidence checks, failure exits, clinical owner, and the boundary between generated draft and finalized record. Separate verified facts, tenant-specific evidence, assumptions, and actions still awaiting approval.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| WebSocket disconnect | Network instability | Implement reconnection with buffered audio |
-| Empty transcript | Microphone not capturing | Verify audio input device and sample rate |
-| Low confidence score | Background noise | Use directional mic or noise cancellation |
-| FHIR push `422` | Invalid resource format | Validate FHIR R4 schema before POST |
-| Note generation timeout | Complex multi-specialty encounter | Increase timeout; split into segments |
+| Condition | Response |
+|---|---|
+| Patient identity is ambiguous | Stop before recording or opening the draft. |
+| Evidence does not support a statement | Correct or remove it before finalization. |
+| Destination workflow differs from the map | Hold submission and reconcile the tenant configuration. |
+
+## Example
+
+The example is a redacted operational receipt, not patient data or proof of vendor certification.
+
+```text
+setting=outpatient; consent=confirmed; draft=reviewed; linked-evidence=sampled; clinician-signoff=required; ehr-handoff=approved
+```
 
 ## Resources
 
-- [Abridge Clinician Platform](https://www.abridge.com/platform/clinicians)
-- [FHIR R4 DocumentReference](https://hl7.org/fhir/R4/documentreference.html)
-- [Epic FHIR API](https://fhir.epic.com/)
+- [Official documentation map](references/official-docs.md) — dated public evidence and the limits of what those sources establish.
+
+Read the source map before changing a workflow. Recheck tenant-specific implementation evidence for every interface or capability that public documentation does not define.
 
 ## Next Steps
 
-For patient-facing summaries and portal integration, see `abridge-core-workflow-b`.
+Revalidate the evidence date and tenant-specific authority before repeating this workflow in another environment, cohort, care setting, or integration mode.

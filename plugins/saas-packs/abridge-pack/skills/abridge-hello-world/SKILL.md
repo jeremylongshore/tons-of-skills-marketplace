@@ -1,234 +1,86 @@
 ---
 name: abridge-hello-world
-description: 'Create a minimal Abridge ambient AI clinical documentation example.
-
-  Use when testing Abridge integration, verifying EHR connectivity,
-
-  or learning how Abridge captures and structures clinical conversations.
-
-  Trigger: "abridge hello world", "abridge example", "abridge quick start", "test
-  abridge".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*)
-version: 1.4.0
-license: MIT
+description: "Run a bounded Abridge smoke test through the documented user workflow using an approved test encounter and no invented API. Use when validating a new tenant or pilot cohort. Trigger with \"smoke test Abridge\"."
+argument-hint: "[environment] [test-encounter-id]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- healthcare
-- ai
 - abridge
-- clinical-documentation
-compatibility: Designed for Claude Code
+- smoke-test
+- consent
+- note-review
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live work requires an authorized Abridge tenant, approved test data, and health-system change authority
 ---
-# Abridge Hello World
+# Abridge Consent-to-Note Pilot Smoke Test
 
 ## Overview
 
-Minimal working example demonstrating Abridge's ambient clinical documentation. This creates a simulated encounter session, sends audio/transcript data, and receives a structured clinical note.
+Prove the smallest useful path: authorized user, designated test patient or synthetic scenario, consent handling, recording, note creation, Web Editor review, Linked Evidence check, and approved final disposition.
 
 ## Prerequisites
 
-- Completed `abridge-install-auth` setup
-- Abridge sandbox credentials configured
-- Node.js 18+ with TypeScript
+- The authorized Abridge environment, clinical owner, and health-system policy set
+- Current tenant-specific implementation evidence for every private interface in scope
+- Synthetic data or the organization's formally approved test-record procedure
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect repository configuration, adapters, tests, policies, and existing evidence. Use `WebFetch` only for current official Abridge, HHS, or named EHR documentation. Use `Write` or `Edit` only after confirming scope, environment, owners, patient-data boundary, and approval state. These tools do not confer access to Abridge, an EHR, or a clinical record; return exact operator steps or an approval-gated handoff for live actions.
+
+## Current Contract
+
+- Abridge's documented entry path uses its clinician application and Web Editor rather than a public create-session REST tutorial.
+- Recording guidance requires following the organization's consent policy.
+- The clinician reviews and edits the generated draft before sending or otherwise finalizing it.
+
+## Authentication
+
+Use only the health system's provisioned Abridge application access, SSO, administrative role, or tenant-specific partner authentication documented for the approved environment. Do not infer public API credentials, reuse production secrets in tests, or expose tokens and session material. Verify identity owner, least privilege, environment binding, storage, rotation, and revocation before any authenticated action.
 
 ## Instructions
 
-### Step 1: Create Project Structure
+1. Confirm the environment, authorized user, approved test-record procedure, consent script, and expected note destination.
+2. Use `Read`, `Glob`, and `Grep` to inspect the local test plan, tenant labels, and expected configuration without opening credentials.
+3. Run the documented application workflow with synthetic dialogue or the health system's designated non-production encounter.
+4. Verify note creation, visible sections, editability, and a sample of Linked Evidence; record outcomes without clinical text.
+5. Exercise one safe failure path such as interrupted capture or withheld send, then confirm no unintended chart update.
+6. Use `Write` or `Edit` to record the receipt; use `WebFetch` only for current official Abridge instructions.
 
-```bash
-mkdir abridge-hello-world && cd abridge-hello-world
-npm init -y
-npm install axios dotenv typescript @types/node
-npx tsc --init --target ES2022 --module NodeNext --moduleResolution NodeNext
-```
+## Approval Boundaries
 
-### Step 2: Build the Encounter Session Client
-
-```typescript
-// src/encounter-session.ts
-import axios, { AxiosInstance } from 'axios';
-
-interface EncounterSession {
-  session_id: string;
-  patient_id: string;
-  provider_id: string;
-  encounter_type: 'outpatient' | 'inpatient' | 'emergency';
-  status: 'active' | 'processing' | 'completed';
-  created_at: string;
-}
-
-interface ClinicalNote {
-  note_id: string;
-  session_id: string;
-  sections: {
-    chief_complaint: string;
-    history_present_illness: string;
-    review_of_systems: string;
-    physical_exam: string;
-    assessment: string;
-    plan: string;
-  };
-  icd10_codes: Array<{ code: string; description: string }>;
-  cpt_codes: Array<{ code: string; description: string }>;
-  confidence_score: number;
-  source_citations: Array<{
-    section: string;
-    text: string;
-    audio_timestamp_start: number;
-    audio_timestamp_end: number;
-  }>;
-}
-
-class AbridgeClient {
-  private api: AxiosInstance;
-
-  constructor() {
-    this.api = axios.create({
-      baseURL: process.env.ABRIDGE_SANDBOX_URL || 'https://sandbox.api.abridge.com/v1',
-      headers: {
-        'Authorization': `Bearer ${process.env.ABRIDGE_CLIENT_SECRET}`,
-        'X-Org-Id': process.env.ABRIDGE_ORG_ID!,
-        'Content-Type': 'application/json',
-      },
-      timeout: 30000,
-    });
-  }
-
-  async createSession(
-    patientId: string,
-    providerId: string,
-    encounterType: EncounterSession['encounter_type'] = 'outpatient'
-  ): Promise<EncounterSession> {
-    const { data } = await this.api.post('/sessions', {
-      patient_id: patientId,
-      provider_id: providerId,
-      encounter_type: encounterType,
-      specialty: 'internal_medicine',
-      language: 'en',
-    });
-    return data;
-  }
-
-  async submitTranscript(sessionId: string, transcript: string): Promise<void> {
-    await this.api.post(`/sessions/${sessionId}/transcript`, {
-      text: transcript,
-      format: 'plain_text',
-    });
-  }
-
-  async generateNote(sessionId: string): Promise<ClinicalNote> {
-    // Trigger note generation
-    await this.api.post(`/sessions/${sessionId}/generate`);
-
-    // Poll for completion (Abridge processes asynchronously)
-    let attempts = 0;
-    while (attempts < 30) {
-      const { data: session } = await this.api.get(`/sessions/${sessionId}`);
-      if (session.status === 'completed') {
-        const { data: note } = await this.api.get(`/sessions/${sessionId}/note`);
-        return note;
-      }
-      await new Promise(r => setTimeout(r, 2000));
-      attempts++;
-    }
-    throw new Error('Note generation timed out after 60s');
-  }
-}
-
-export { AbridgeClient, EncounterSession, ClinicalNote };
-```
-
-### Step 3: Run the Hello World Example
-
-```typescript
-// src/main.ts
-import 'dotenv/config';
-import { AbridgeClient } from './encounter-session';
-
-// Sample clinical conversation transcript (de-identified)
-const SAMPLE_TRANSCRIPT = `
-Doctor: Good morning, what brings you in today?
-Patient: I've been having this persistent cough for about two weeks now.
-Doctor: Is it a dry cough or are you producing any sputum?
-Patient: It's mostly dry, but sometimes I cough up a little clear mucus.
-Doctor: Any fever, chills, or shortness of breath?
-Patient: No fever, but I do feel a little short of breath when I climb stairs.
-Doctor: Are you a smoker?
-Patient: No, I quit about five years ago. I smoked for about ten years before that.
-Doctor: Let me listen to your lungs. Take a deep breath... Okay, I hear some mild
-  wheezing in both lung fields. Your oxygen saturation is 97%.
-Doctor: I think this is likely a post-viral cough, possibly with some mild reactive
-  airway disease given your smoking history. I'd like to start you on an inhaler
-  and have you come back in two weeks. If the cough persists, we'll get a chest X-ray.
-Patient: Sounds good, thank you.
-`;
-
-async function main() {
-  const client = new AbridgeClient();
-
-  // 1. Create encounter session
-  console.log('Creating encounter session...');
-  const session = await client.createSession('patient_demo_001', 'provider_demo_001');
-  console.log(`Session created: ${session.session_id}`);
-
-  // 2. Submit transcript
-  console.log('Submitting transcript...');
-  await client.submitTranscript(session.session_id, SAMPLE_TRANSCRIPT);
-  console.log('Transcript submitted');
-
-  // 3. Generate clinical note
-  console.log('Generating clinical note (this may take 10-30 seconds)...');
-  const note = await client.generateNote(session.session_id);
-
-  console.log('\n=== Generated Clinical Note ===');
-  console.log(`Chief Complaint: ${note.sections.chief_complaint}`);
-  console.log(`Assessment: ${note.sections.assessment}`);
-  console.log(`Plan: ${note.sections.plan}`);
-  console.log(`\nICD-10 Codes: ${note.icd10_codes.map(c => c.code).join(', ')}`);
-  console.log(`Confidence: ${(note.confidence_score * 100).toFixed(1)}%`);
-  console.log(`Source Citations: ${note.source_citations.length} segments linked`);
-}
-
-main().catch(console.error);
-```
+Do not use a real patient or send content to a production chart unless the health system's controlled test protocol explicitly authorizes it.
 
 ## Output
 
-- Encounter session created in Abridge sandbox
-- Transcript processed through Abridge's ambient AI engine
-- Structured SOAP note with ICD-10/CPT codes
-- Source citations mapping AI output to conversation segments
-
-## Examples
-
-Create a new sandbox session with the included fictional identifiers and only a
-synthetic transcript, then run `main.ts` with credentials supplied through the
-local environment rather than the source file. A successful run prints a
-session ID, selected note sections, and a nonzero source-citation count. Check
-the generated note for obviously missing sections before using it as an
-integration fixture. If polling times out, keep the synthetic session ID and
-redacted status response for diagnosis, then retry only after confirming the
-sandbox service is healthy; never send a real patient conversation as a test.
+Return environment, test identity class, consent path, workflow stages, evidence sample result, chart-write count, failure-path result, and go/no-go. Separate verified facts, tenant-specific evidence, assumptions, and actions still awaiting approval.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Invalid sandbox credentials | Re-check `.env.local` credentials |
-| `422 Invalid specialty` | Unsupported specialty code | Use supported values from API docs |
-| Note generation timeout | Large/complex transcript | Increase polling timeout beyond 60s |
-| Empty note sections | Transcript too short | Provide at least 30 seconds of conversation |
-| Missing ICD codes | Ambiguous clinical content | Ensure transcript includes clear diagnoses |
+| Condition | Response |
+|---|---|
+| No designated test encounter exists | Stop and obtain one through the EHR test-data process. |
+| Patient identity does not match | Stop before recording. |
+| Draft cannot be reviewed | Do not send or finalize it. |
+
+## Example
+
+The example is a redacted operational receipt, not patient data or proof of vendor certification.
+
+```text
+environment=nonprod; encounter=designated-test; consent=scripted; draft=reviewable; evidence=sample-pass; chart-writes=0; result=pass
+```
 
 ## Resources
 
-- [Abridge Product Overview](https://www.abridge.com/product)
-- [Abridge AI Technology](https://www.abridge.com/ai)
-- HL7 FHIR Clinical Notes
+- [Official documentation map](references/official-docs.md) — dated public evidence and the limits of what those sources establish.
+
+Read the source map before changing a workflow. Recheck tenant-specific implementation evidence for every interface or capability that public documentation does not define.
 
 ## Next Steps
 
-Proceed to `abridge-local-dev-loop` for development workflow with live audio capture.
+Revalidate the evidence date and tenant-specific authority before repeating this workflow in another environment, cohort, care setting, or integration mode.

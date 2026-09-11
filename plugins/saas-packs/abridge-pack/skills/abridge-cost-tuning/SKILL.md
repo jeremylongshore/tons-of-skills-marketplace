@@ -1,246 +1,86 @@
 ---
 name: abridge-cost-tuning
-description: 'Optimize Abridge clinical AI costs through tier selection, session management,
-
-  and usage monitoring for healthcare organizations.
-
-  Use when analyzing Abridge billing, optimizing encounter volume,
-
-  or right-sizing your Abridge contract for provider count.
-
-  Trigger: "abridge cost", "abridge pricing", "abridge billing",
-
-  "abridge budget", "abridge ROI".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*)
-version: 1.4.0
-license: MIT
+description: "Evaluate Abridge adoption, workflow value, and avoidable operational friction without inventing prices or vendor billing meters. Use when reviewing an Abridge rollout or renewal. Trigger with \"analyze Abridge value\"."
+argument-hint: "[cohort] [measurement-window]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- healthcare
-- ai
 - abridge
-- cost-optimization
-compatibility: Designed for Claude Code
+- adoption
+- value
+- governance
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live work requires an authorized Abridge tenant, approved test data, and health-system change authority
 ---
-# Abridge Cost Tuning
+# Abridge Adoption and Value Review
 
 ## Overview
 
-Abridge pricing is enterprise, sales-led, and per-provider. Cost optimization focuses on maximizing provider adoption (to justify per-provider cost), reducing wasted sessions, and choosing the right tier for your org size.
-
-## Pricing Model (Enterprise)
-
-| Factor | Impact | Optimization Lever |
-|--------|--------|-------------------|
-| Provider count | Primary cost driver | Only enroll active providers |
-| EHR depth | Integration complexity premium | Start with basic, upgrade incrementally |
-| Specialty count | Some specialties cost more | Phase specialty rollout |
-| Session volume | Included in per-provider pricing | No per-session cost concern |
-| Patient summaries | May be add-on | Enable only for portal-integrated sites |
-| Languages | Included (28+ languages) | No incremental cost |
+Join contract-approved commercial facts with health-system telemetry and clinician feedback. Separate licensed access, eligible clinicians, active adoption, workflow completion, note-quality feedback, and downstream outcomes so cost decisions remain auditable.
 
 ## Prerequisites
 
-- Use an approved, de-identified utilization export or synthetic test data; do
-  not include encounter transcripts, patient identifiers, or protected health
-  information in cost reports.
-- Confirm the reporting period, enrolled-provider roster, and contract figures
-  with the finance and clinical-operations owners before making a renewal or
-  license recommendation.
-- Define the organization-specific threshold for a dormant provider and retain
-  the source report needed to reproduce the calculation.
+- The authorized Abridge environment, clinical owner, and health-system policy set
+- Current tenant-specific implementation evidence for every private interface in scope
+- Synthetic data or the organization's formally approved test-record procedure
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect repository configuration, adapters, tests, policies, and existing evidence. Use `WebFetch` only for current official Abridge, HHS, or named EHR documentation. Use `Write` or `Edit` only after confirming scope, environment, owners, patient-data boundary, and approval state. These tools do not confer access to Abridge, an EHR, or a clinical record; return exact operator steps or an approval-gated handoff for live actions.
+
+## Current Contract
+
+- Abridge is sold and deployed as an enterprise clinical platform; public pages do not define a universal self-service price or API usage meter.
+- Abridge case studies describe phased adoption and clinician-led scaling, but another organization's outcomes are not a local ROI guarantee.
+- Clinical quality and safety outcomes must not be reduced to note volume or minutes saved.
+
+## Authentication
+
+Use only the health system's provisioned Abridge application access, SSO, administrative role, or tenant-specific partner authentication documented for the approved environment. Do not infer public API credentials, reuse production secrets in tests, or expose tokens and session material. Verify identity owner, least privilege, environment binding, storage, rotation, and revocation before any authenticated action.
 
 ## Instructions
 
-### Step 1: Provider Utilization Tracking
+1. Freeze the cohort, contract period, eligible-user denominator, cost authority, and outcome definitions.
+2. Use `Read`, `Glob`, and `Grep` to locate contract-approved fields, local utilization exports, training records, and prior decisions.
+3. Calculate adoption and completion with explicit denominators; stratify by care setting without exposing clinician or patient identity.
+4. Pair quantitative trends with note-quality feedback, support burden, after-hours work, and safety signals.
+5. Use `WebFetch` only to contextualize with current official Abridge product and rollout materials; label external results as non-comparable.
+6. Use `Write` or `Edit` to produce a decision table with evidence gaps and owner-approved actions.
 
-```typescript
-// src/cost/provider-utilization.ts
-interface ProviderUsage {
-  providerId: string;
-  enrolledDate: Date;
-  sessionsThisMonth: number;
-  lastSessionDate: Date | null;
-  adoptionStatus: 'active' | 'low_usage' | 'dormant' | 'never_used';
-}
+## Approval Boundaries
 
-function classifyProviderUsage(provider: ProviderUsage): string {
-  if (provider.sessionsThisMonth === 0 && !provider.lastSessionDate) return 'never_used';
-  if (provider.sessionsThisMonth === 0) return 'dormant';
-
-  const daysSinceEnrolled = (Date.now() - provider.enrolledDate.getTime()) / 86400000;
-  const sessionsPerDay = provider.sessionsThisMonth / Math.min(daysSinceEnrolled, 30);
-
-  if (sessionsPerDay < 1) return 'low_usage';
-  return 'active';
-}
-
-function generateUtilizationReport(providers: ProviderUsage[]): {
-  total: number;
-  active: number;
-  lowUsage: number;
-  dormant: number;
-  neverUsed: number;
-  wastedLicenseCost: string;
-} {
-  const classified = providers.map(p => ({ ...p, status: classifyProviderUsage(p) }));
-
-  const active = classified.filter(p => p.status === 'active').length;
-  const lowUsage = classified.filter(p => p.status === 'low_usage').length;
-  const dormant = classified.filter(p => p.status === 'dormant').length;
-  const neverUsed = classified.filter(p => p.status === 'never_used').length;
-  const wastedPercent = ((dormant + neverUsed) / providers.length * 100).toFixed(1);
-
-  return {
-    total: providers.length,
-    active,
-    lowUsage,
-    dormant,
-    neverUsed,
-    wastedLicenseCost: `${wastedPercent}% of licenses are unused`,
-  };
-}
-```
-
-### Step 2: Session Waste Detection
-
-```typescript
-// src/cost/session-waste.ts
-interface SessionMetrics {
-  sessionId: string;
-  durationSeconds: number;
-  segmentCount: number;
-  noteGenerated: boolean;
-  noteAccepted: boolean;
-  noteEdited: boolean;
-}
-
-function detectSessionWaste(sessions: SessionMetrics[]): {
-  totalSessions: number;
-  wastedSessions: number;
-  wasteReasons: Record<string, number>;
-} {
-  const wasteReasons: Record<string, number> = {
-    abandoned: 0,           // Session started but no note generated
-    too_short: 0,           // < 30 seconds of content
-    rejected: 0,            // Note generated but clinician rejected it
-    duplicate: 0,           // Multiple sessions for same encounter
-  };
-
-  for (const session of sessions) {
-    if (!session.noteGenerated && session.segmentCount > 0) wasteReasons.abandoned++;
-    if (session.durationSeconds < 30) wasteReasons.too_short++;
-    if (session.noteGenerated && !session.noteAccepted) wasteReasons.rejected++;
-  }
-
-  const wastedSessions = Object.values(wasteReasons).reduce((a, b) => a + b, 0);
-
-  return { totalSessions: sessions.length, wastedSessions, wasteReasons };
-}
-```
-
-### Step 3: ROI Calculator
-
-```typescript
-// src/cost/roi-calculator.ts
-interface RoiInputs {
-  providerCount: number;
-  avgEncountersPerProviderPerDay: number;
-  avgMinutesSavedPerEncounter: number;  // Abridge claims 2-3 hours/day savings
-  providerHourlyRate: number;           // Loaded cost including benefits
-  abridgeAnnualCost: number;            // Total contract value
-  workingDaysPerYear: number;
-}
-
-function calculateRoi(inputs: RoiInputs): {
-  annualTimeSavedHours: number;
-  annualLaborSavings: number;
-  netSavings: number;
-  roiPercent: number;
-  paybackMonths: number;
-} {
-  const dailyMinutesSaved = inputs.avgEncountersPerProviderPerDay * inputs.avgMinutesSavedPerEncounter;
-  const annualHoursSaved = (dailyMinutesSaved / 60) * inputs.workingDaysPerYear * inputs.providerCount;
-  const annualLaborSavings = annualHoursSaved * inputs.providerHourlyRate;
-  const netSavings = annualLaborSavings - inputs.abridgeAnnualCost;
-  const roiPercent = (netSavings / inputs.abridgeAnnualCost) * 100;
-  const paybackMonths = (inputs.abridgeAnnualCost / annualLaborSavings) * 12;
-
-  return {
-    annualTimeSavedHours: Math.round(annualHoursSaved),
-    annualLaborSavings: Math.round(annualLaborSavings),
-    netSavings: Math.round(netSavings),
-    roiPercent: Math.round(roiPercent),
-    paybackMonths: Math.round(paybackMonths * 10) / 10,
-  };
-}
-
-// Example: 50 providers, 15 encounters/day, 5 min saved each, $150/hr loaded
-// ROI = significant positive return within first year
-```
-
-### Step 4: Cost Optimization Recommendations
-
-```typescript
-// src/cost/recommendations.ts
-function generateCostRecommendations(
-  utilization: ReturnType<typeof generateUtilizationReport>,
-  waste: ReturnType<typeof detectSessionWaste>,
-): string[] {
-  const recs: string[] = [];
-
-  if (utilization.neverUsed > 0) {
-    recs.push(`Remove ${utilization.neverUsed} never-used provider licenses`);
-  }
-  if (utilization.dormant > 0) {
-    recs.push(`Re-engage or remove ${utilization.dormant} dormant providers`);
-  }
-  if (waste.wasteReasons.abandoned > waste.totalSessions * 0.1) {
-    recs.push('Investigate high abandoned session rate — may indicate training gap');
-  }
-  if (waste.wasteReasons.rejected > waste.totalSessions * 0.2) {
-    recs.push('High note rejection rate — review note templates with clinical leads');
-  }
-
-  return recs;
-}
-```
+Do not infer contract prices, penalize individual clinicians, or recommend expansion based solely on volume. Commercial and clinical owners must approve conclusions.
 
 ## Output
 
-- Provider utilization report with waste identification
-- Session waste detection with categorized reasons
-- ROI calculator for contract justification
-- Actionable cost optimization recommendations
-
-## Examples
-
-For a quarterly planning review, load a de-identified export for 50 enrolled
-providers and classify each provider from their monthly session count and last
-activity date. Run session-waste detection against aggregate synthetic session
-metrics, then calculate ROI using finance-approved loaded labor cost and
-contract value. Deliver a report that lists the assumptions, identifies
-dormant licenses for clinical-lead review, and recommends training before any
-removal. If the export is incomplete or the calculated contract value is zero,
-stop the calculation, record the missing input, and request a corrected
-aggregate report rather than guessing.
+Return denominators, adoption funnel, workflow outcomes, support burden, contract-sourced cost fields, limitations, and expand/hold/remediate options. Separate verified facts, tenant-specific evidence, assumptions, and actions still awaiting approval.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Usage data unavailable | API doesn't expose metrics | Request usage reports from Abridge CSM |
-| ROI negative | Low adoption | Focus on provider training before renewal |
-| High waste rate | Poor onboarding | Invest in provider change management |
+| Condition | Response |
+|---|---|
+| Contract metric is undefined | Exclude it and request the signed commercial definition. |
+| Cohorts are not comparable | Stratify or stop the comparison. |
+| Small cells risk re-identification | Suppress or aggregate them under policy. |
+
+## Example
+
+The example is a redacted operational receipt, not patient data or proof of vendor certification.
+
+```text
+window=90d; eligible=420; activated=301; sustained-users=244; contract-fields=verified; patient-data=none; recommendation=targeted-training
+```
 
 ## Resources
 
-- [Abridge Pricing](https://www.abridge.com/)
-- Abridge ROI Studies
+- [Official documentation map](references/official-docs.md) — dated public evidence and the limits of what those sources establish.
+
+Read the source map before changing a workflow. Recheck tenant-specific implementation evidence for every interface or capability that public documentation does not define.
 
 ## Next Steps
 
-For architecture design, see `abridge-reference-architecture`.
+Revalidate the evidence date and tenant-specific authority before repeating this workflow in another environment, cohort, care setting, or integration mode.

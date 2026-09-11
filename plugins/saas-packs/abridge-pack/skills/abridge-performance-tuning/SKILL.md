@@ -1,280 +1,86 @@
 ---
 name: abridge-performance-tuning
-description: 'Optimize Abridge clinical AI integration performance for high-volume
-  deployments.
-
-  Use when reducing note generation latency, optimizing audio streaming throughput,
-
-  improving FHIR push performance, or scaling for multi-site health systems.
-
-  Trigger: "abridge performance", "abridge latency", "abridge optimization",
-
-  "abridge slow", "abridge scale".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*)
-version: 1.4.0
-license: MIT
+description: "Measure and improve Abridge workflow latency and friction using privacy-safe health-system evidence. Use when clinicians report slow capture, note readiness, review, or EHR handoff. Trigger with \"measure Abridge performance\"."
+argument-hint: "[cohort] [time-window] [workflow-stage]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- healthcare
-- ai
 - abridge
 - performance
-compatibility: Designed for Claude Code
+- workflow-metrics
+- clinical-operations
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live work requires an authorized Abridge tenant, approved test data, and health-system change authority
 ---
-# Abridge Performance Tuning
+# Abridge Clinical Workflow Performance Study
 
 ## Overview
 
-Performance optimization for high-volume Abridge deployments. Large health systems process thousands of encounters daily — latency in note generation directly impacts clinical workflow throughput.
-
-## Performance Targets
-
-| Metric | Target | Critical Threshold |
-|--------|--------|--------------------|
-| Audio stream → first transcript | < 2s | > 5s |
-| Encounter → completed note | < 30s | > 60s |
-| Note → EHR push | < 3s | > 10s |
-| Patient summary generation | < 10s | > 30s |
-| Concurrent sessions per org | 100+ | < 50 |
+Measure the stages users experience instead of imposing invented API latency targets. Separate device and network conditions, capture duration, processing wait, review effort, and EHR handoff while protecting patient and clinician identity.
 
 ## Prerequisites
 
-- A staging or sandbox environment with synthetic encounter fixtures and a
-  representative, authorized load profile.
-- Baseline latency, error-rate, and concurrency measurements for the current
-  release, with timestamps and measurement window recorded.
-- Clinical, EHR, and security owners agree on safe concurrency limits and a
-  rollback threshold before changing production traffic behavior.
+- The authorized Abridge environment, clinical owner, and health-system policy set
+- Current tenant-specific implementation evidence for every private interface in scope
+- Synthetic data or the organization's formally approved test-record procedure
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect repository configuration, adapters, tests, policies, and existing evidence. Use `WebFetch` only for current official Abridge, HHS, or named EHR documentation. Use `Write` or `Edit` only after confirming scope, environment, owners, patient-data boundary, and approval state. These tools do not confer access to Abridge, an EHR, or a clinical record; return exact operator steps or an approval-gated handoff for live actions.
+
+## Current Contract
+
+- Official recording guidance identifies connectivity, microphone contention, device placement, and Bluetooth use as factors in capture quality and processing experience.
+- Abridge's Redraft support page documents a user-visible regeneration workflow, but one published timing is not a universal service-level objective.
+- Local baselines and signed service commitments control operational thresholds.
+
+## Authentication
+
+Use only the health system's provisioned Abridge application access, SSO, administrative role, or tenant-specific partner authentication documented for the approved environment. Do not infer public API credentials, reuse production secrets in tests, or expose tokens and session material. Verify identity owner, least privilege, environment binding, storage, rotation, and revocation before any authenticated action.
 
 ## Instructions
 
-### Step 1: Audio Streaming Optimization
+1. Define the cohort, stage boundaries, clock source, sampling policy, privacy threshold, and approved service objectives.
+2. Use `Read`, `Glob`, and `Grep` to inspect instrumentation and dashboards for identifiers or note content that must be removed.
+3. Measure stage distributions and failure rates, not only averages; stratify by device, location, care setting, and workflow version when safe.
+4. Correlate slow paths with network and device conditions, review edits, downstream EHR behavior, and support events.
+5. Use `WebFetch` only for current official workflow guidance; never convert marketing or support examples into an SLA.
+6. Use `Write` or `Edit` to add bounded instrumentation or publish an experiment with rollback and success criteria.
 
-```typescript
-// src/performance/audio-optimizer.ts
-// Optimize audio chunk size and streaming for lowest latency
+## Approval Boundaries
 
-interface AudioStreamMetrics {
-  chunkSize: number;
-  sendInterval: number;
-  bufferUtilization: number;
-  latencyP50: number;
-  latencyP99: number;
-}
-
-class OptimizedAudioStream {
-  private buffer: Buffer[] = [];
-  private metrics: AudioStreamMetrics = {
-    chunkSize: 3200,       // 100ms at 16kHz 16-bit mono = 3200 bytes
-    sendInterval: 100,     // Send every 100ms
-    bufferUtilization: 0,
-    latencyP50: 0,
-    latencyP99: 0,
-  };
-
-  constructor(
-    private ws: WebSocket,
-    private sampleRate: number = 16000,
-  ) {}
-
-  // Optimal chunk size: 100ms for low latency, 500ms for bandwidth efficiency
-  processAudioChunk(chunk: Buffer): void {
-    this.buffer.push(chunk);
-
-    const totalSize = this.buffer.reduce((sum, b) => sum + b.length, 0);
-    if (totalSize >= this.metrics.chunkSize) {
-      const combined = Buffer.concat(this.buffer);
-      this.buffer = [];
-
-      if (this.ws.readyState === WebSocket.OPEN) {
-        const start = performance.now();
-        this.ws.send(combined);
-        this.recordLatency(performance.now() - start);
-      }
-    }
-  }
-
-  private recordLatency(ms: number): void {
-    // Track P50/P99 for monitoring
-    this.metrics.latencyP50 = ms; // Simplified — use histogram in production
-  }
-
-  getMetrics(): AudioStreamMetrics {
-    return { ...this.metrics };
-  }
-}
-```
-
-### Step 2: Note Generation Pipeline Optimization
-
-```typescript
-// src/performance/note-pipeline.ts
-// Pre-warm note generation and parallelize post-processing
-
-interface PipelineStage {
-  name: string;
-  durationMs: number;
-  parallel: boolean;
-}
-
-async function optimizedNotePipeline(
-  api: any,
-  sessionId: string,
-): Promise<{ note: any; metrics: PipelineStage[] }> {
-  const stages: PipelineStage[] = [];
-
-  // Stage 1: Finalize session (triggers AI processing)
-  const t1 = performance.now();
-  await api.post(`/encounters/sessions/${sessionId}/finalize`);
-  stages.push({ name: 'finalize', durationMs: performance.now() - t1, parallel: false });
-
-  // Stage 2: Poll with exponential backoff (adaptive polling)
-  const t2 = performance.now();
-  let pollInterval = 500;  // Start fast
-  let note = null;
-
-  for (let i = 0; i < 30; i++) {
-    const { data } = await api.get(`/encounters/sessions/${sessionId}/note`);
-    if (data.status === 'completed') {
-      note = data.note;
-      break;
-    }
-    await new Promise(r => setTimeout(r, pollInterval));
-    pollInterval = Math.min(pollInterval * 1.5, 3000); // Back off gradually
-  }
-  stages.push({ name: 'note_generation', durationMs: performance.now() - t2, parallel: false });
-
-  if (!note) throw new Error('Note generation timed out');
-
-  // Stage 3: Parallel post-processing
-  const t3 = performance.now();
-  const [patientSummary, ehrResult] = await Promise.allSettled([
-    api.post(`/encounters/sessions/${sessionId}/patient-summary`, { language: 'en' }),
-    pushNoteToEhr(note),
-  ]);
-  stages.push({ name: 'post_processing', durationMs: performance.now() - t3, parallel: true });
-
-  return { note, metrics: stages };
-}
-```
-
-### Step 3: Connection Pooling for FHIR Push
-
-```typescript
-// src/performance/connection-pool.ts
-import axios from 'axios';
-import https from 'https';
-
-// Reuse TCP connections for FHIR endpoint
-const fhirAgent = new https.Agent({
-  keepAlive: true,
-  keepAliveMsecs: 30000,
-  maxSockets: 20,          // Max concurrent FHIR connections
-  maxFreeSockets: 5,
-  minVersion: 'TLSv1.3',
-});
-
-const fhirClient = axios.create({
-  baseURL: process.env.EPIC_FHIR_BASE_URL,
-  httpsAgent: fhirAgent,
-  timeout: 10000,
-});
-
-// Batch FHIR pushes for multi-encounter processing
-async function batchFhirPush(notes: Array<{ docRef: any }>): Promise<void> {
-  // FHIR Bundle for batch operations
-  const bundle = {
-    resourceType: 'Bundle',
-    type: 'batch',
-    entry: notes.map(n => ({
-      resource: n.docRef,
-      request: { method: 'POST', url: 'DocumentReference' },
-    })),
-  };
-
-  await fhirClient.post('/', bundle, {
-    headers: { 'Content-Type': 'application/fhir+json' },
-  });
-}
-```
-
-### Step 4: Performance Monitoring Dashboard
-
-```typescript
-// src/performance/monitor.ts
-interface PerformanceSnapshot {
-  timestamp: string;
-  activeSessions: number;
-  avgNoteLatencyMs: number;
-  p99NoteLatencyMs: number;
-  fhirPushSuccessRate: number;
-  audioStreamDropRate: number;
-}
-
-class PerformanceMonitor {
-  private noteLatencies: number[] = [];
-  private fhirPushResults: boolean[] = [];
-
-  recordNoteLatency(ms: number): void {
-    this.noteLatencies.push(ms);
-    if (this.noteLatencies.length > 1000) this.noteLatencies.shift();
-  }
-
-  recordFhirPush(success: boolean): void {
-    this.fhirPushResults.push(success);
-    if (this.fhirPushResults.length > 1000) this.fhirPushResults.shift();
-  }
-
-  getSnapshot(activeSessions: number): PerformanceSnapshot {
-    const sorted = [...this.noteLatencies].sort((a, b) => a - b);
-    return {
-      timestamp: new Date().toISOString(),
-      activeSessions,
-      avgNoteLatencyMs: sorted.length ? sorted.reduce((a, b) => a + b, 0) / sorted.length : 0,
-      p99NoteLatencyMs: sorted.length ? sorted[Math.floor(sorted.length * 0.99)] : 0,
-      fhirPushSuccessRate: this.fhirPushResults.length
-        ? this.fhirPushResults.filter(Boolean).length / this.fhirPushResults.length
-        : 1,
-      audioStreamDropRate: 0, // Populated by audio stream metrics
-    };
-  }
-}
-```
+Do not capture audio, transcript, note text, patient identifiers, or individual productivity rankings in performance telemetry.
 
 ## Output
 
-- Optimized audio streaming with 100ms chunking
-- Adaptive polling for note generation (500ms → 3s backoff)
-- Connection-pooled FHIR batch pushes
-- Real-time performance monitoring with P50/P99 latency tracking
-
-## Examples
-
-Run a staged load test using synthetic cardiology encounters at the approved
-concurrency level. Capture baseline and tuned P50/P99 note latency, FHIR push
-success rate, and audio-drop rate over the same measurement window. Enable
-connection pooling and adaptive polling only after the baseline is saved, then
-compare the two snapshots without logging transcripts or identifiers. If P99
-latency, error rate, or downstream EHR saturation crosses the agreed threshold,
-disable the change and return traffic to the previous configuration before
-investigating the aggregate metrics.
+Return stage definitions, percentile distributions, failure rates, cohort caveats, suspected boundary, experiment, rollback, and owner. Separate verified facts, tenant-specific evidence, assumptions, and actions still awaiting approval.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| High note latency | Complex encounter | Pre-segment long encounters |
-| FHIR push timeout | EHR server overloaded | Use connection pool; batch pushes |
-| Audio drops | Network jitter | Buffer 500ms; reconnect on drop |
+| Condition | Response |
+|---|---|
+| Stage clocks are incomparable | Repair instrumentation before drawing conclusions. |
+| Small cohort risks identification | Aggregate or extend the window. |
+| Optimization reduces review quality | Roll back immediately and notify the clinical owner. |
+
+## Example
+
+The example is a redacted operational receipt, not patient data or proof of vendor certification.
+
+```text
+stage=note-ready-to-reviewed; cohort=outpatient-aggregate; p50=local-baseline; p95=regressed; phi=none; experiment=network-path-check
+```
 
 ## Resources
 
-- [Abridge Platform](https://www.abridge.com/product)
-- [Node.js HTTPS Agent](https://nodejs.org/api/https.html#class-httpsagent)
+- [Official documentation map](references/official-docs.md) — dated public evidence and the limits of what those sources establish.
+
+Read the source map before changing a workflow. Recheck tenant-specific implementation evidence for every interface or capability that public documentation does not define.
 
 ## Next Steps
 
-For cost optimization, see `abridge-cost-tuning`.
+Revalidate the evidence date and tenant-specific authority before repeating this workflow in another environment, cohort, care setting, or integration mode.
