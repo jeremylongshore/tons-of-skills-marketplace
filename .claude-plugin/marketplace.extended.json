@@ -9412,14 +9412,15 @@
     {
       "name": "mindtickle-pack",
       "source": "./plugins/saas-packs/mindtickle-pack",
-      "description": "Claude Code skill pack for Mindtickle (18 skills)",
-      "version": "1.7.0",
+      "description": "Governed Mindtickle workflows for tenant access, learning, readiness, integrations, security, and operations (18 skills)",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "mindtickle",
         "saas",
-        "sdk",
-        "integration"
+        "revenue-enablement",
+        "tenant-integration",
+        "readiness"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -9430,10 +9431,10 @@
         "skills": 18
       },
       "verification": {
-        "score": 80,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 94,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {

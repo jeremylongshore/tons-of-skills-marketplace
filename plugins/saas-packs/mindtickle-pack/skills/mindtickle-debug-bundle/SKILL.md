@@ -1,161 +1,77 @@
 ---
 name: mindtickle-debug-bundle
-description: 'Debug Bundle for MindTickle.
-
-  Trigger: "mindtickle debug bundle".
-
-  '
-allowed-tools: Read, Bash(curl:*), Grep
-version: 1.7.0
-license: MIT
+description: 'Assemble a privacy-safe Mindtickle support evidence bundle with configuration fingerprints, timelines, representative failures, and ownership context. Use when preparing a vendor escalation. Trigger with "build Mindtickle debug bundle".'
+argument-hint: "[incident-id] [output-path]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mindtickle
-- sales
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, mindtickle, diagnostics, support, privacy]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; evidence collection and disclosure require incident, security, and data-owner authorization
 ---
-# MindTickle Debug Bundle
+# Privacy-Safe Mindtickle Support Bundle
 
 ## Overview
 
-This debug bundle collects diagnostic evidence from MindTickle sales enablement API
-integrations for troubleshooting course delivery, quiz scoring, user progress tracking,
-and CRM sync pipelines. It captures API token validation, course catalog accessibility,
-user enrollment status, content module health, and Salesforce integration state. The
-resulting tarball provides the evidence needed to diagnose training completion gaps,
-broken content assignments, scoring discrepancies, and SSO provisioning failures
-without requiring MindTickle admin panel access.
+Create a deterministic evidence manifest that helps customer and Mindtickle support diagnose a problem without exporting secrets or unnecessary learner data.
 
 ## Prerequisites
 
-- `curl`, `jq`, `tar` installed
-- `MINDTICKLE_API_KEY` set (API token from MindTickle Admin > Integrations > API)
-- `MINDTICKLE_INSTANCE` set to your instance URL (e.g., `yourcompany.mindtickle.com`)
+- A tracked incident, disclosure audience, retention deadline, and support severity
+- An approved redaction policy and secure transfer destination
+- Read-only access to relevant customer-side configuration, logs, and receipts
 
-## Debug Collection Script
+## Tool Discipline
 
-```bash
-#!/bin/bash
-set -euo pipefail
-BUNDLE="debug-mindtickle-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE"
+Use `Read`, `Glob`, and `Grep` to locate evidence, `WebFetch` to confirm current support requirements, and `Write` or `Edit` only inside the approved bundle path and manifest.
 
-# Environment check
-echo "=== Environment ===" > "$BUNDLE/environment.txt"
-echo "API Key: ${MINDTICKLE_API_KEY:+SET (redacted)}" >> "$BUNDLE/environment.txt"
-echo "Instance: ${MINDTICKLE_INSTANCE:-NOT SET}" >> "$BUNDLE/environment.txt"
-echo "Node: $(node -v 2>/dev/null || echo 'not installed')" >> "$BUNDLE/environment.txt"
-echo "Timestamp: $(date -u)" >> "$BUNDLE/environment.txt"
+## Current Contract
 
-# API connectivity — company info
-echo "=== API Health ===" > "$BUNDLE/api-health.txt"
-curl -sf -o "$BUNDLE/api-health.txt" -w "HTTP %{http_code} in %{time_total}s\n" \
-  -H "Authorization: Bearer ${MINDTICKLE_API_KEY}" \
-  "https://${MINDTICKLE_INSTANCE}/api/v2/company" 2>&1 || echo "UNREACHABLE" > "$BUNDLE/api-health.txt"
+Mindtickle Support may request business context, logs, files, and appropriate remote access. Official support guidance defines severity and response paths; the customer remains responsible for minimizing and sanitizing what is disclosed.
 
-# Course catalog
-echo "=== Courses ===" > "$BUNDLE/courses.json"
-curl -sf -H "Authorization: Bearer ${MINDTICKLE_API_KEY}" \
-  "https://${MINDTICKLE_INSTANCE}/api/v2/series?limit=10" \
-  >> "$BUNDLE/courses.json" 2>&1 || echo '{"error":"FAILED"}' > "$BUNDLE/courses.json"
+## Authentication
 
-# User enrollment sample
-echo "=== Users ===" > "$BUNDLE/users.json"
-curl -sf -H "Authorization: Bearer ${MINDTICKLE_API_KEY}" \
-  "https://${MINDTICKLE_INSTANCE}/api/v2/users?limit=5" \
-  >> "$BUNDLE/users.json" 2>&1 || echo '{"error":"FAILED"}' > "$BUNDLE/users.json"
+Do not collect passwords, tokens, cookies, authorization headers, private keys, raw identity-provider assertions, or unrestricted tenant exports. Replace user identifiers with stable incident-local aliases where individual evidence is necessary.
 
-# Quiz/assessment results
-echo "=== Assessments ===" > "$BUNDLE/assessments.json"
-SERIES_ID=$(jq -r '.series[0].id // empty' "$BUNDLE/courses.json" 2>/dev/null)
-if [ -n "${SERIES_ID:-}" ]; then
-  curl -sf -H "Authorization: Bearer ${MINDTICKLE_API_KEY}" \
-    "https://${MINDTICKLE_INSTANCE}/api/v2/series/${SERIES_ID}/progress?limit=5" \
-    >> "$BUNDLE/assessments.json" 2>&1 || echo '{"error":"PROGRESS_FAILED"}' > "$BUNDLE/assessments.json"
-else
-  echo '{"error":"No courses found"}' > "$BUNDLE/assessments.json"
-fi
+## Instructions
 
-# Recent logs
-echo "=== Recent Logs ===" > "$BUNDLE/app-logs.txt"
-tail -100 /var/log/mindtickle-sync/*.log >> "$BUNDLE/app-logs.txt" 2>/dev/null || echo "No sync logs found" >> "$BUNDLE/app-logs.txt"
+1. Define the incident window, symptom, affected workflow, audience, severity, and questions the bundle must answer.
+2. Create an evidence allowlist and explicit denylist before reading files.
+3. Collect configuration names and digests, adapter version, contract digest, deployment receipt, timestamps, safe request IDs, and representative sanitized errors.
+4. Add expected-versus-actual behavior, one known-good comparison, reproduction limits, recent changes, and attempted mitigations.
+5. Scan every artifact for secrets, cookies, personal data, assessment data, content URLs, and internal infrastructure details.
+6. Produce a manifest with artifact digests, provenance, redactions, collector, collection time, and expiry.
+7. Obtain disclosure approval, transfer through the contracted secure channel, and record the support receipt.
 
-# Rate limit status
-echo "=== Rate Limits ===" > "$BUNDLE/rate-limits.txt"
-curl -sI -H "Authorization: Bearer ${MINDTICKLE_API_KEY}" \
-  "https://${MINDTICKLE_INSTANCE}/api/v2/company" 2>/dev/null | grep -i "x-rate\|retry-after\|x-ratelimit" >> "$BUNDLE/rate-limits.txt" || echo "No rate limit headers" >> "$BUNDLE/rate-limits.txt"
+## Approval Boundaries
 
-# Package versions
-echo "=== Dependencies ===" > "$BUNDLE/deps.txt"
-npm ls 2>/dev/null | grep -i mindtickle >> "$BUNDLE/deps.txt" || echo "No MindTickle npm packages found" >> "$BUNDLE/deps.txt"
+Do not run new production probes, grant remote access, include raw tenant exports, or send the bundle before security and data-owner approval.
 
-tar -czf "$BUNDLE.tar.gz" "$BUNDLE" && rm -rf "$BUNDLE"
-echo "Bundle: $BUNDLE.tar.gz"
-```
+## Output
 
-## Analyzing the Bundle
+Return the sanitized bundle path, manifest, digest list, redaction report, reproduction summary, severity rationale, disclosure approval, transfer receipt, and destruction date.
 
-```bash
-tar -xzf debug-mindtickle-*.tar.gz
-cat debug-mindtickle-*/environment.txt           # Verify API key and instance
-cat debug-mindtickle-*/api-health.txt            # Check HTTP status and latency
-jq '.series | length' debug-mindtickle-*/courses.json     # Count courses
-jq '.users | length' debug-mindtickle-*/users.json        # Check user provisioning
-```
+## Error Handling
 
-## Common Issues
+| Condition | Response |
+|---|---|
+| Secret scanning finds a credential | Remove it, rotate if exposure occurred, and regenerate the manifest. |
+| Evidence exceeds the approved scope | Exclude it and state the unanswered question. |
+| Secure transfer is unavailable | Retain the encrypted bundle under policy and do not use consumer sharing links. |
 
-| Symptom | Check in Bundle | Fix |
-|---------|----------------|-----|
-| 401 on all endpoints | `environment.txt` shows key NOT SET | Generate API token in MindTickle Admin > Integrations > API Access |
-| 403 on user endpoints | `users.json` shows permission error | Token missing `users.read` scope; regenerate with admin role permissions |
-| Course list empty | `courses.json` returns empty series array | Verify courses are published (draft courses excluded from API); check team filter |
-| Progress shows 0% for enrolled users | `assessments.json` shows no completion data | Content modules may not have tracking enabled; check series settings in admin |
-| CRM sync stale | App logs show Salesforce auth errors | Re-authorize Salesforce connection in MindTickle Admin > CRM Integration |
-| SSO users not appearing | `users.json` missing expected users | Check SCIM provisioning logs; verify IdP group assignment includes MindTickle app |
+## Example
 
-## Automated Health Check
-
-```typescript
-async function checkMindTickleHealth(): Promise<{
-  status: string;
-  latencyMs: number;
-  companyOk: boolean;
-  courseCount: number;
-  userProvisioningOk: boolean;
-}> {
-  const apiKey = process.env.MINDTICKLE_API_KEY;
-  const instance = process.env.MINDTICKLE_INSTANCE;
-  const headers = { Authorization: `Bearer ${apiKey}` };
-  const start = Date.now();
-
-  const companyRes = await fetch(`https://${instance}/api/v2/company`, { headers });
-  const coursesRes = await fetch(`https://${instance}/api/v2/series?limit=1`, { headers });
-  const usersRes = await fetch(`https://${instance}/api/v2/users?limit=1`, { headers });
-
-  let courseCount = 0;
-  if (coursesRes.ok) {
-    const data = await coursesRes.json();
-    courseCount = data.series?.length ?? 0;
-  }
-
-  return {
-    status: companyRes.ok ? "healthy" : "degraded",
-    latencyMs: Date.now() - start,
-    companyOk: companyRes.ok,
-    courseCount,
-    userProvisioningOk: usersRes.ok,
-  };
-}
+```text
+incident=INC-1042; artifacts=8; pii=aliased; secrets=0; manifest-sha256=...; approval=security-and-data-owner; expiry=30d
 ```
 
 ## Resources
 
-- [MindTickle API Documentation](https://developers.mindtickle.com)
-- [MindTickle Status Page](https://status.mindtickle.com)
-- [MindTickle Integration Guide](https://www.mindtickle.com/platform/integrations/)
+- [Mindtickle Support Services](https://www.mindtickle.com/legal/support-services/)
+- [Mindtickle Trust](https://www.mindtickle.com/trust/)
 
 ## Next Steps
 
-See `mindtickle-rate-limits`.
+Track vendor questions and delete the bundle at expiry after retaining only the permitted incident receipt.

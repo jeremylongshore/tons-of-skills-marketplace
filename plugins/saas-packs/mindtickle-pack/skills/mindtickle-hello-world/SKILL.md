@@ -1,80 +1,77 @@
 ---
 name: mindtickle-hello-world
-description: 'Create a minimal working MindTickle example.
-
-  Trigger: "mindtickle hello world", "mindtickle example", "test mindtickle".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.7.0
-license: MIT
+description: 'Discover a Mindtickle tenant''s licensed capabilities and produce a safe first integration proof without assuming public API details. Use when starting a Mindtickle exercise or tenant handoff. Trigger with "start with Mindtickle".'
+argument-hint: "[tenant] [business-outcome]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mindtickle
-- sales
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, mindtickle, onboarding, discovery, proof-of-concept]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; tenant discovery requires authorized customer access and any external proof requires owner approval
 ---
-# MindTickle Hello World
+# Mindtickle Capability Discovery and First Proof
 
 ## Overview
 
-Minimal working examples demonstrating core MindTickle API functionality.
+Turn a business outcome into an entitlement-aware, read-only proof that establishes the real tenant contract before implementation begins.
+
+## Prerequisites
+
+- A named tenant site owner and one measurable business outcome
+- The purchased package or order summary and an approved non-production audience
+- Access to current tenant documentation without copying confidential content into the repository
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` for existing assumptions and fixtures, `WebFetch` for current official sources, and `Write` or `Edit` for a redacted capability matrix and proof plan.
+
+## Current Contract
+
+Package contents differ. Public descriptions identify learning modules, assessments, certifications, coaching, Readiness Index, Asset Hub, Digital Sales Rooms, analytics, and Call AI in different combinations. Availability in one tenant is evidence, not a universal product contract.
+
+## Authentication
+
+Use the onboarding decision from `mindtickle-install-auth`. Discovery must use a named least-privilege principal; never use shared administrator credentials or scrape authenticated UI pages as an API substitute.
 
 ## Instructions
 
-### Step 1: Create Training Module
+1. Define the outcome, audience, data sensitivity, success metric, and maximum proof scope.
+2. Compare the purchased package, visible tenant modules, managed integration catalogue, and tenant API documentation.
+3. Mark each needed capability confirmed, absent, restricted, or vendor clarification required.
+4. Choose the smallest reversible proof: a local fixture exercise, a tenant read, or a site-owner-led UI walkthrough.
+5. Define acceptance before execution, including expected fields, freshness, authorization, and zero unintended mutations.
+6. Obtain approval for any tenant access, then run the proof once and capture redacted evidence.
+7. Convert confirmed observations into a contract fixture; label every tenant-specific inference and expiry date.
 
-```typescript
-const module = await client.modules.create({
-  title: 'Q1 Product Update Training',
-  type: 'course',
-  description: 'Learn about new product features for Q1',
-  tags: ['product', 'q1-2026'],
-  content: [
-    { type: 'video', url: 'https://videos.example.com/q1-update.mp4', title: 'Overview' },
-    { type: 'quiz', questions: [
-      { text: 'What is the key new feature?', type: 'multiple_choice',
-        options: ['Feature A', 'Feature B', 'Feature C'], correct: 0 }
-    ]}
-  ]
-});
-console.log(`Module created: ${module.id}`);
-```
+## Approval Boundaries
 
-### Step 2: Assign to Sales Reps
+Do not create courses, users, assignments, rooms, exports, or connectors during discovery unless the proof explicitly authorizes that mutation and rollback.
 
-```typescript
-await client.assignments.create({
-  module_id: module.id,
-  assignees: { type: 'team', team_ids: ['team_sales_west', 'team_sales_east'] },
-  due_date: '2026-04-15',
-  reminder: { enabled: true, days_before: [7, 3, 1] }
-});
-```
+## Output
 
-### Step 3: Track Completion
-
-```typescript
-const progress = await client.analytics.moduleProgress(module.id);
-progress.users.forEach(u =>
-  console.log(`${u.name}: ${u.completion}% | Score: ${u.quiz_score || 'N/A'}`)
-);
-console.log(`Overall: ${progress.completion_rate}% complete`);
-```
+Return the outcome statement, capability matrix, authoritative sources, proof method, redacted receipt, gaps, and a go/no-go recommendation.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Auth error | Invalid credentials | Check MINDTICKLE_API_KEY |
-| Not found | Invalid endpoint | Verify API URL |
-| Rate limit | Too many requests | Implement backoff |
+| Condition | Response |
+|---|---|
+| Marketing page and tenant differ | Treat the tenant entitlement and signed order as controlling; record the discrepancy. |
+| Proof would expose learner data | Replace it with synthetic fixtures or aggregate evidence. |
+| No reversible first action exists | Stop with a vendor-question packet instead of forcing a live test. |
+
+## Example
+
+```text
+outcome=confirm reporting fit; capabilities=reporting-confirmed,webhooks-unverified; proof=authorized-aggregate-read; decision=proceed-with-tenant-contract
+```
 
 ## Resources
 
-- [MindTickle API Docs](https://www.mindtickle.com/platform/integrations/)
+- [Subscription services](https://www.mindtickle.com/legal/description-of-subscription-services/)
+- [Mindtickle integrations](https://www.mindtickle.com/platform/integrations/)
 
 ## Next Steps
 
-See `mindtickle-local-dev-loop`.
+Route confirmed API work to `mindtickle-sdk-patterns` and a program rollout to `mindtickle-core-workflow-a`.
