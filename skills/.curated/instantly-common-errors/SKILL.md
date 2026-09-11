@@ -1,249 +1,90 @@
 ---
 name: instantly-common-errors
-description: 'Diagnose and fix Instantly.ai API v2 common errors and exceptions.
-
-  Use when encountering Instantly errors, debugging failed requests,
-
-  or troubleshooting campaign/account/lead issues.
-
-  Trigger with phrases like "instantly error", "instantly 401", "instantly 429",
-
-  "instantly api failed", "instantly debug", "instantly troubleshoot".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Grep
-version: 1.12.0
-license: MIT
+description: >-
+  Diagnose Instantly API v2 authentication, scope, validation, quota, and resource errors without unsafe retries. Use when a request fails or returns an unfamiliar status or payload. Trigger with "debug Instantly 401", "fix Instantly 429", or "diagnose Instantly API error".
+argument-hint: "[status-code] [operation]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.13.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - instantly
-- debugging
-- errors
-compatibility: Designed for Claude Code
+- common-errors
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Instantly workspace and API v2 key
 ---
-# Instantly Common Errors
+# Instantly API Error Triage
 
 ## Overview
 
-Diagnostic reference for Instantly API v2 errors. Covers HTTP status codes, campaign state errors, account health issues, lead operation failures, and webhook delivery problems.
+Turn an observed failure into a bounded diagnosis and a verified corrective action. Record assumptions, evidence, approval state, and rollback ownership so another operator can reproduce the result.
 
 ## Prerequisites
 
-- Completed `instantly-install-auth` setup
-- Access to Instantly dashboard for verification
-- API key with appropriate scopes
+- The target repository, Instantly workspace, environment, and accountable owner
+- Current security, privacy, compliance, capacity, and change-control requirements
+- An approved API v2 key only when a bounded live verification is necessary
 
-## HTTP Status Codes
+## Tool Discipline
 
-| Status | Meaning | Common Cause | Fix |
-|--------|---------|-------------|-----|
-| `400` | Bad Request | Malformed JSON, invalid field values | Validate request body against schema |
-| `401` | Unauthorized | Invalid, expired, or revoked API key | Regenerate key in Settings > Integrations |
-| `403` | Forbidden | API key missing required scope | Create key with correct scope (e.g., `campaigns:all`) |
-| `404` | Not Found | Invalid campaign/lead/account ID | Verify resource exists with a GET call first |
-| `422` | Unprocessable Entity | Business logic violation (duplicate lead, invalid state) | Check error body for details |
-| `429` | Too Many Requests | Rate limit exceeded | Implement exponential backoff (see below) |
-| `500` | Internal Server Error | Instantly server issue | Retry with backoff; check status.instantly.ai |
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current first-party Instantly documentation and package metadata. Use `Write` or `Edit` only when implementation was requested and exact target files are known; never write credentials, lead data, email content, or unrestricted environment output.
 
-## Campaign Errors
+## Current Contract
 
-### Campaign Won't Activate (Stuck in Draft)
+- 401 means missing, invalid, or revoked authorization; 403 means the key lacks a required scope.
+- 429 is workspace-wide unless the endpoint publishes a stricter override.
+- API errors expose statusCode, error, and message; do not infer success from a JSON body alone.
 
-```typescript
-// Diagnosis: check campaign requirements
-async function diagnoseCampaign(campaignId: string) {
-  const campaign = await instantly<Campaign>(`/campaigns/${campaignId}`);
+## Authentication
 
-  const issues: string[] = [];
-
-  // Check sequences
-  if (!campaign.sequences?.length || !campaign.sequences[0]?.steps?.length) {
-    issues.push("No email sequences — add at least one step with subject + body");
-  }
-
-  // Check schedule
-  if (!campaign.campaign_schedule?.schedules?.length) {
-    issues.push("No sending schedule — add schedule with timing and days");
-  }
-
-  // Check sending accounts
-  const mappings = await instantly(`/account-campaign-mappings/${campaignId}`);
-  if (!Array.isArray(mappings) || mappings.length === 0) {
-    issues.push("No sending accounts assigned — add via PATCH /campaigns/{id} with email_list");
-  }
-
-  // Check for leads
-  const leads = await instantly<Lead[]>("/leads/list", {
-    method: "POST",
-    body: JSON.stringify({ campaign: campaignId, limit: 1 }),
-  });
-  if (leads.length === 0) {
-    issues.push("No leads — add leads via POST /leads");
-  }
-
-  if (issues.length === 0) {
-    console.log("Campaign looks ready to activate");
-  } else {
-    console.log("Issues preventing activation:");
-    issues.forEach((i) => console.log(`  - ${i}`));
-  }
-}
-```
-
-### Campaign Status Codes
-
-| Status | Label | Meaning |
-|--------|-------|---------|
-| `0` | Draft | Not yet activated |
-| `1` | Active | Currently sending |
-| `2` | Paused | Manually paused |
-| `3` | Completed | All leads processed |
-| `4` | Running Subsequences | Main sequence done, subsequences active |
-| `-1` | Accounts Unhealthy | Sending accounts have SMTP/IMAP errors |
-| `-2` | Bounce Protect | Auto-paused due to high bounce rate |
-| `-99` | Suspended | Account-level suspension |
-
-### Fix: Accounts Unhealthy (-1)
-
-```typescript
-async function fixUnhealthyAccounts(campaignId: string) {
-  // 1. Get accounts assigned to campaign
-  const accounts = await instantly<Account[]>("/accounts?limit=100");
-
-  // 2. Test vitals for each
-  const vitals = await instantly("/accounts/test/vitals", {
-    method: "POST",
-    body: JSON.stringify({ accounts: accounts.map((a) => a.email) }),
-  });
-
-  // 3. Identify and fix broken accounts
-  for (const v of vitals as any[]) {
-    if (v.smtp_status !== "ok" || v.imap_status !== "ok") {
-      console.log(`BROKEN: ${v.email} — SMTP=${v.smtp_status}, IMAP=${v.imap_status}`);
-      // Pause the broken account
-      await instantly(`/accounts/${encodeURIComponent(v.email)}/pause`, { method: "POST" });
-      console.log(`  Paused ${v.email}. Fix credentials, then resume.`);
-    }
-  }
-}
-```
-
-## Lead Errors
-
-### Duplicate Lead (422)
-
-```typescript
-// Prevent duplicates by setting skip flags
-await instantly("/leads", {
-  method: "POST",
-  body: JSON.stringify({
-    campaign: campaignId,
-    email: "user@example.com",
-    first_name: "Jane",
-    skip_if_in_workspace: true,   // skip if email exists anywhere in workspace
-    skip_if_in_campaign: true,    // skip if already in this campaign
-  }),
-});
-```
-
-### Lead Status Reference
-
-| Status | Label | Description |
-|--------|-------|-------------|
-| `1` | Active | Eligible to receive emails |
-| `2` | Paused | Manually paused |
-| `3` | Completed | All sequence steps sent |
-| `-1` | Bounced | Email bounced |
-| `-2` | Unsubscribed | Lead unsubscribed |
-| `-3` | Skipped | Skipped (blocklist, duplicate, etc.) |
-
-## Rate Limit Handling
-
-```typescript
-async function withBackoff<T>(
-  operation: () => Promise<T>,
-  maxRetries = 5
-): Promise<T> {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      return await operation();
-    } catch (err: any) {
-      if (err.status === 429 && attempt < maxRetries) {
-        const wait = Math.pow(2, attempt) * 1000;
-        console.warn(`429 Rate Limited. Waiting ${wait}ms (attempt ${attempt + 1}/${maxRetries})`);
-        await new Promise((r) => setTimeout(r, wait));
-        continue;
-      }
-      throw err;
-    }
-  }
-  throw new Error("Unreachable");
-}
-```
-
-## Webhook Errors
-
-| Issue | Diagnostic | Fix |
-|-------|-----------|-----|
-| Events not delivered | Check webhook status: `GET /webhooks` | Webhook may be paused — resume with `POST /webhooks/{id}/resume` |
-| Wrong event format | Compare to expected schema | Ensure `event_type` matches: `email_sent`, `reply_received`, etc. |
-| Delivery failures | Check `GET /webhook-events/summary` | Fix target URL, ensure 2xx response within 30s |
-| Retries exhausting | Instantly retries 3x in 30s | Return 200 immediately, process async |
-
-## Quick Diagnostic Script
-
-```bash
-set -euo pipefail
-echo "=== Instantly Health Check ==="
-
-# Test auth
-curl -s -o /dev/null -w "Auth: HTTP %{http_code}\n" \
-  https://api.instantly.ai/api/v2/campaigns?limit=1 \
-  -H "Authorization: Bearer $INSTANTLY_API_KEY"
-
-# Count campaigns by status
-curl -s https://api.instantly.ai/api/v2/campaigns?limit=100 \
-  -H "Authorization: Bearer $INSTANTLY_API_KEY" | \
-  jq 'group_by(.status) | map({status: .[0].status, count: length})'
-
-# Check account health
-curl -s https://api.instantly.ai/api/v2/accounts?limit=100 \
-  -H "Authorization: Bearer $INSTANTLY_API_KEY" | \
-  jq '[.[] | {email, status, warmup_status}] | .[:5]'
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401` after key rotation | Old key cached | Restart app / clear env cache |
-| `403` on campaign activate | Missing `campaigns:update` scope | Regenerate API key with correct scopes |
-| `422` duplicate lead | Lead already in workspace | Use `skip_if_in_workspace: true` |
-| Campaign `-2` bounce protect | Bounce rate >5% | Clean lead list, verify emails before import |
-| Warmup health dropping | Too many campaign emails too soon | Reduce daily_limit, extend warmup period |
+Use an API v2 key as `Authorization: Bearer <key>` against `https://api.instantly.ai/api/v2`. Grant only the endpoint-specific scopes needed, inject the key from an approved server-side secret manager, and never print, persist, commit, or place it in a URL. Treat key creation, rotation, revocation, member changes, workspace delegation, and production access as owner-approved actions.
 
 ## Instructions
 
-1. Classify identity, sender, consent, suppression, recipient validation, quota, schedule, delivery, and webhook errors before changing configuration.
-2. Reproduce once with synthetic recipients and a draft-only campaign, capturing only status, latency, quota, and opaque IDs.
-3. Check sender scope, consent, suppression, campaign state, and quota in that order.
-4. Apply one reversible change at a time and escalate a redacted bundle when the error persists.
+1. Capture the method, route template, status, request ID, and redacted response shape.
+2. Separate authentication, authorization, payment, validation, absence, conflict, and throttling failures.
+3. Check the live endpoint reference and exact required scope.
+4. Reproduce with a synthetic read-only request where possible.
+5. Apply the smallest configuration or code correction.
+6. Record evidence and stop before any destructive retry.
+
+## Approval Boundaries
+
+Do not create, rotate, reveal, or revoke keys; invite or remove members; delegate across workspaces; connect sending accounts; create or activate campaigns; import or delete leads; change suppression or retention; register, patch, resume, or delete webhooks; alter plans or paid capacity; transmit diagnostics; or perform another production mutation without explicit approval from the accountable owner. Keep diagnosis read-only unless implementation was requested.
 
 ## Output
 
-Return error class, correlation ID, campaign scope, consent/suppression state, probe outcome, remediation attempted, and next owner. Do not include addresses, copy, sender details, or credentials.
+Return the workspace-safe scope, files and contracts inspected, exact API v2 routes and required scopes, evidence collected, validation result, sensitive fields redacted, remaining risk, accountable owner, approval state, and rollback or next action.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| `401` | Stop and verify that the bearer key exists, is current, and was not revoked. |
+| `403` | Stop and compare the operation with its exact required scope; do not broaden to `all:all` by default. |
+| `429` | Coordinate the workspace-wide budget, honor endpoint overrides, and bound retries. |
+| Schema or tenant mismatch | Fail closed, preserve redacted evidence, and do not retry a mutation. |
 
 ## Examples
 
-`status=429; campaign=sandbox-only; correlation=send-opaque-11; action=bounded-backoff; consent=pass; suppression=pass; sends=0` supports a safe handoff.
+Use a compact handoff that makes scope, mutation authority, and evidence reviewable.
+
+Input:
+
+```text
+status=403; operation=campaigns.list; key=redacted
+```
+
+Expected handoff:
+
+```text
+cause=missing campaigns:read; action=create least-privilege replacement key after approval
+```
 
 ## Resources
 
-- [Instantly API v2 Docs](https://developer.instantly.ai/)
-- [Instantly Help Center](https://help.instantly.ai)
-- [API Schemas](https://developer.instantly.ai/api/v2/schemas)
-
-## Next Steps
-
-For structured debugging, see `instantly-debug-bundle`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Instantly API v2 documentation](https://developer.instantly.ai/)
+- [Instantly API v2 OpenAPI document](https://api.instantly.ai/openapi/api_v2.json)
