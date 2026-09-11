@@ -1,202 +1,80 @@
 ---
 name: salesforce-install-auth
-description: 'Install and configure Salesforce SDK/CLI authentication with jsforce
-  or Salesforce CLI.
-
-  Use when setting up a new Salesforce integration, configuring OAuth flows,
-
-  or initializing Salesforce connectivity in your project.
-
-  Trigger with phrases like "install salesforce", "setup salesforce",
-
-  "salesforce auth", "configure salesforce", "jsforce setup", "sf cli login".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Bash(sf:*), Grep
-version: 1.7.0
-license: MIT
+description: 'Select and document a supported Salesforce authorization path using an External Client App or an approved existing Connected App. Use when onboarding or repairing API access. Trigger with "configure Salesforce authentication".'
+argument-hint: "[org-alias] [integration-purpose]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- crm
-- salesforce
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, salesforce, authentication, oauth, external-client-app]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; identity and client-app changes require Salesforce org owner and security approval
 ---
-# Salesforce Install & Auth
+# Salesforce API Authorization and Client-App Onboarding
 
 ## Overview
 
-Set up Salesforce connectivity using jsforce (Node.js) or simple-salesforce (Python), and configure one of three OAuth 2.0 authentication flows.
+Choose the app and OAuth model, establish least privilege, and prove read-only access without defaulting to legacy username-password automation.
 
 ## Prerequisites
 
-- Node.js 18+ or Python 3.10+
-- A Salesforce org (Developer Edition free at developer.salesforce.com)
-- Connected App configured in Setup > App Manager > New Connected App
-- OAuth scopes: `api`, `refresh_token`, `offline_access`
+- Target org, edition, domain, environment, integration purpose, and data classes
+- Identity, security, Salesforce administration, application, and support owners
+- Current org policy and first-party OAuth documentation
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect approved repository and evidence files, `WebFetch` to re-check current first-party Salesforce documentation, and `Write` or `Edit` only for secretless plans, fixtures, configuration, and redacted receipts.
+
+## Current Contract
+
+Salesforce REST API supports OAuth through External Client Apps or Connected Apps. Creating Connected Apps is restricted as of Spring '26; existing Connected Apps can continue, while Salesforce recommends External Client Apps for new integrations.
+
+## Authentication
+
+Select an OAuth flow from current Salesforce documentation for the workload and client type. Never copy browser sessions, use a human password in automation, log tokens, or assume that one flow, scope set, or login host fits every org.
 
 ## Instructions
 
-### Step 1: Install SDK
+1. Record the org, My Domain, edition, environment, workload, required resources, and accountable owners.
+2. Determine whether the org requires an External Client App or has an approved existing Connected App.
+3. Map the selected OAuth flow, scopes, policies, principal, certificate or secret custody, expiry, rotation, and revocation.
+4. Inspect the repository for password flows, unpinned login hosts, broad scopes, plaintext keys, and mixed-org aliases.
+5. Present app creation, policy, permission-set assignment, pre-authorization, and credential issuance for explicit approval.
+6. After provisioning, discover supported API versions and run the smallest documented read-only identity or resource check.
+7. Store only secret references and a redacted receipt; test revocation and recovery in a non-production org.
 
-```bash
-# Node.js — jsforce (most popular SF client, 3M+ weekly downloads)
-npm install jsforce
+## Approval Boundaries
 
-# Python — simple-salesforce
-pip install simple-salesforce
-
-# Salesforce CLI (for metadata, deployment, scratch orgs)
-npm install -g @salesforce/cli
-```
-
-### Step 2: Choose Authentication Flow
-
-| Flow | Use Case | Requires Browser? |
-|------|----------|-------------------|
-| Username-Password | Dev/test scripts | No |
-| JWT Bearer | CI/CD, server-to-server | No |
-| Web Server (Authorization Code) | User-facing apps | Yes |
-
-### Step 3: Configure Credentials
-
-```bash
-# .env (NEVER commit — add .env to .gitignore)
-SF_LOGIN_URL=https://login.salesforce.com
-SF_USERNAME=user@example.com
-SF_PASSWORD=yourpassword
-SF_SECURITY_TOKEN=yourtoken
-SF_CLIENT_ID=your_connected_app_consumer_key
-SF_CLIENT_SECRET=your_connected_app_consumer_secret
-
-# For sandbox orgs, use:
-# SF_LOGIN_URL=https://test.salesforce.com
-```
-
-### Step 4: Connect with Username-Password Flow
-
-```typescript
-import jsforce from 'jsforce';
-
-const conn = new jsforce.Connection({
-  loginUrl: process.env.SF_LOGIN_URL || 'https://login.salesforce.com',
-});
-
-await conn.login(
-  process.env.SF_USERNAME!,
-  process.env.SF_PASSWORD! + process.env.SF_SECURITY_TOKEN!
-);
-
-console.log('Connected to:', conn.instanceUrl);
-console.log('User ID:', conn.userInfo?.id);
-console.log('Org ID:', conn.userInfo?.organizationId);
-```
-
-### Step 5: Connect with JWT Bearer Flow (Production)
-
-```typescript
-import jsforce from 'jsforce';
-import fs from 'fs';
-
-const conn = new jsforce.Connection({
-  loginUrl: process.env.SF_LOGIN_URL,
-  // JWT requires a Connected App with a digital certificate
-});
-
-await conn.authorize({
-  grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-  client_id: process.env.SF_CLIENT_ID!,
-  username: process.env.SF_USERNAME!,
-  privateKeyFile: './server.key', // RSA private key from your certificate
-});
-```
-
-### Step 6: Connect with OAuth2 Web Server Flow
-
-```typescript
-import jsforce from 'jsforce';
-
-const oauth2 = new jsforce.OAuth2({
-  loginUrl: process.env.SF_LOGIN_URL,
-  clientId: process.env.SF_CLIENT_ID!,
-  clientSecret: process.env.SF_CLIENT_SECRET!,
-  redirectUri: 'https://yourapp.com/oauth/callback',
-});
-
-// Step A: Redirect user to authorization URL
-const authUrl = oauth2.getAuthorizationUrl({ scope: 'api refresh_token' });
-
-// Step B: Handle callback — exchange code for tokens
-const conn = new jsforce.Connection({ oauth2 });
-await conn.authorize(authorizationCode);
-// conn.accessToken and conn.refreshToken are now set
-```
-
-### Step 7: Verify Connection
-
-```typescript
-// Quick verification — query org info
-const identity = await conn.identity();
-console.log('Username:', identity.username);
-console.log('Display Name:', identity.display_name);
-
-// Check API version
-const versions = await conn.request('/services/data/');
-console.log('Latest API version:', versions[versions.length - 1].version);
-```
-
-### Python Setup (simple-salesforce)
-
-```python
-from simple_salesforce import Salesforce
-import os
-
-# Username-Password flow
-sf = Salesforce(
-    username=os.environ['SF_USERNAME'],
-    password=os.environ['SF_PASSWORD'],
-    security_token=os.environ['SF_SECURITY_TOKEN'],
-    domain='test' if os.environ.get('SF_SANDBOX') else None  # 'test' for sandbox
-)
-
-# Verify connection
-print(f"Connected to: {sf.sf_instance}")
-result = sf.query("SELECT Id, Name FROM Organization")
-print(f"Org: {result['records'][0]['Name']}")
-```
+Do not create or alter a client app, grant scopes, assign permissions, issue credentials, or test production writes without the named org and security owners.
 
 ## Output
 
-- jsforce or simple-salesforce installed
-- Authentication flow configured
-- Environment variables set (never hardcoded)
-- Connection verified with identity/org query
+Return the app-type decision, OAuth contract, access matrix, secret references, read-only verification, rotation and revocation owners, and unresolved policy questions.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `INVALID_LOGIN` | Wrong username/password/token | Verify credentials; reset security token in Setup > My Personal Information |
-| `INVALID_CLIENT_ID` | Wrong Connected App consumer key | Check Setup > App Manager > your app |
-| `INVALID_GRANT` | JWT cert mismatch or user not pre-authorized | Upload cert to Connected App; pre-authorize user profile |
-| `LOGIN_MUST_USE_SECURITY_TOKEN` | Missing security token | Append token to password or whitelist your IP in Setup |
-| `API_DISABLED_FOR_ORG` | API not enabled | Requires Enterprise, Unlimited, Developer, or Performance edition |
-| `REQUEST_LIMIT_EXCEEDED` | Daily API limit hit | Check Setup > Company Information for remaining calls |
+| Condition | Response |
+|---|---|
+| New Connected App creation is unavailable | Use the org-approved External Client App path or obtain Salesforce Support guidance; do not bypass the restriction. |
+| Authorization succeeds but a resource is denied | Compare scopes, permission sets, CRUD, field access, sharing, edition, and API entitlement independently. |
+| Current OAuth contract is unknown | Stop before provisioning and obtain current org-specific documentation. |
 
-## Examples
+## Example
 
-### Configure a short-lived JWT setup for local development
+A redacted completion receipt might look like this:
 
-Register a sandbox Connected App, grant only the OAuth scopes required by the local workflow, and use a dedicated development user pre-authorized through its permission set. Store the private key and consumer key in ignored local configuration or the approved secret manager, then verify identity with a non-mutating query. Do not fall back to a username-password flow in shared scripts; revoke temporary keys and remove the app authorization when the exercise ends.
+```text
+org=sandbox; app=external-client-app; flow=org-approved; scopes=least-privilege; probe=read-only-pass; secrets=referenced
+```
 
 ## Resources
 
-- [jsforce Documentation](https://jsforce.github.io/document/)
-- [simple-salesforce PyPI](https://pypi.org/project/simple-salesforce/)
-- [Salesforce OAuth 2.0 Flows](https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_flows.htm)
-- [Connected App Setup](https://help.salesforce.com/s/articleView?id=sf.connected_app_create.htm)
-- [JWT Bearer Flow](https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_jwt_flow.htm)
+- [Salesforce REST authorization](https://developer.salesforce.com/docs/platform/api-rest/guide/intro-oauth-and-connected-apps.html)
+- [Salesforce REST API introduction](https://developer.salesforce.com/docs/platform/api-rest/guide/intro-rest.html)
 
 ## Next Steps
 
-After successful auth, proceed to `salesforce-hello-world` for your first SOQL query.
+Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.
+

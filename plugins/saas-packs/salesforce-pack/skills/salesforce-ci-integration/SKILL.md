@@ -1,245 +1,80 @@
 ---
 name: salesforce-ci-integration
-description: 'Configure Salesforce CI/CD with GitHub Actions, SFDX deployments, and
-  Apex testing.
-
-  Use when setting up automated testing, configuring CI pipelines for metadata deployment,
-
-  or integrating Salesforce tests into your build process.
-
-  Trigger with phrases like "salesforce CI", "salesforce GitHub Actions",
-
-  "salesforce automated tests", "CI salesforce", "sfdx deploy CI".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*), Bash(sf:*)
-version: 1.7.0
-license: MIT
+description: 'Build fork-safe Salesforce CI with secretless static and fixture gates, protected non-production validation, and separately approved production promotion. Use when automating delivery. Trigger with "add Salesforce CI".'
+argument-hint: "[repository] [project-path]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- crm
-- salesforce
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, salesforce, ci, github-actions, deployment-validation]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live org authentication and deployment require protected runners, environments, and customer authorization
 ---
-# Salesforce CI Integration
+# Fork-Safe Salesforce Continuous Integration
 
 ## Overview
 
-Set up CI/CD pipelines for Salesforce using GitHub Actions with JWT-based authentication, automated Apex testing, and metadata deployment.
+Separate deterministic untrusted-code checks from credentialed org validation so pull requests cannot access Salesforce secrets or mutate a customer org.
 
 ## Prerequisites
 
-- GitHub repository with Actions enabled
-- Salesforce Connected App with JWT Bearer flow configured
-- RSA key pair (private key stored as GitHub Secret)
-- Scratch org or sandbox for test execution
+- Repository, Salesforce DX project, package layout, branch policy, and immutable dependency lock
+- Synthetic metadata and API fixtures plus an authorized validation org
+- CI, Salesforce admin, security, release, and code owners with environment protection rules
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect approved repository and evidence files, `WebFetch` to re-check current first-party Salesforce documentation, and `Write` or `Edit` only for secretless plans, fixtures, configuration, and redacted receipts.
+
+## Current Contract
+
+Salesforce CLI can validate and deploy source against authorized orgs, but exact commands, test levels, authentication, and metadata behavior vary with the pinned CLI and project. Fork pull requests must be treated as untrusted.
+
+## Authentication
+
+Keep org authorization, certificates, secrets, and aliases out of fork-origin jobs, logs, caches, and artifacts. Resolve protected credentials only after trusted code, environment approval, and exact-head verification.
 
 ## Instructions
 
-### Step 1: Create GitHub Actions Workflow
+1. Pin runtime, package manager, Salesforce CLI, plugins, lockfiles, action SHAs, and generated-artifact checks.
+2. Create a secretless lane for formatting, linting, static analysis, unit tests, schema tests, fixture contracts, and source validation.
+3. Model auth expiry, permission denial, API-version drift, metadata conflict, partial deployment, limits, and rollback in fixtures.
+4. Restrict credentialed jobs to protected branches or environments with no fork secrets, minimal permissions, concurrency, and timeouts.
+5. Against an approved non-production org, verify identity, validate the bounded deployment, run required tests, and capture IDs.
+6. Require human approval and immutable artifact promotion before any production validation or deployment job.
+7. Reconcile deployed metadata and application health, publish a redacted receipt, and revoke temporary credentials.
 
-Create `.github/workflows/salesforce-ci.yml`:
+## Approval Boundaries
 
-```yaml
-name: Salesforce CI
-
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
-
-jobs:
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install Salesforce CLI
-        run: npm install -g @salesforce/cli
-
-      - name: Authenticate to Salesforce (JWT)
-        run: |
-          echo "${{ secrets.SF_JWT_KEY }}" > server.key
-          sf org login jwt \
-            --client-id ${{ secrets.SF_CLIENT_ID }} \
-            --jwt-key-file server.key \
-            --username ${{ secrets.SF_USERNAME }} \
-            --set-default \
-            --alias ci-org
-          rm server.key
-
-      - name: Validate Metadata Deployment (dry run)
-        run: |
-          sf project deploy start \
-            --target-org ci-org \
-            --dry-run \
-            --wait 30
-
-      - name: Run Apex Tests
-        run: |
-          sf apex run test \
-            --target-org ci-org \
-            --result-format human \
-            --code-coverage \
-            --wait 20
-
-      - name: Check API Limits
-        run: |
-          sf limits api display --target-org ci-org --json | \
-            jq '.result[] | select(.name == "DailyApiRequests") | "\(.name): \(.remaining)/\(.max)"'
-
-  integration-tests:
-    runs-on: ubuntu-latest
-    needs: validate
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-
-      - name: Run jsforce Integration Tests
-        env:
-          SF_LOGIN_URL: https://test.salesforce.com
-          SF_USERNAME: ${{ secrets.SF_USERNAME }}
-          SF_PASSWORD: ${{ secrets.SF_PASSWORD }}
-          SF_SECURITY_TOKEN: ${{ secrets.SF_SECURITY_TOKEN }}
-        run: npm run test:integration
-```
-
-### Step 2: Configure GitHub Secrets
-
-```bash
-# JWT private key (from your RSA key pair)
-gh secret set SF_JWT_KEY < server.key
-
-# Connected App consumer key
-gh secret set SF_CLIENT_ID --body "3MVG9..."
-
-# Integration user credentials
-gh secret set SF_USERNAME --body "ci-user@yourcompany.com"
-gh secret set SF_PASSWORD --body "password"
-gh secret set SF_SECURITY_TOKEN --body "token"
-```
-
-### Step 3: Generate JWT Key Pair
-
-```bash
-# Generate RSA key pair for JWT Bearer flow
-openssl genrsa -out server.key 2048
-openssl req -new -x509 -key server.key -out server.crt -days 365 \
-  -subj "/CN=Salesforce CI/O=YourCompany"
-
-# Upload server.crt to Connected App in Salesforce Setup:
-# Setup > App Manager > Your App > Edit > Use Digital Signatures > Choose File
-```
-
-### Step 4: Write Integration Tests
-
-```typescript
-import { describe, it, expect } from 'vitest';
-import jsforce from 'jsforce';
-
-describe('Salesforce Integration', () => {
-  const conn = new jsforce.Connection({
-    loginUrl: process.env.SF_LOGIN_URL || 'https://test.salesforce.com',
-  });
-
-  beforeAll(async () => {
-    await conn.login(
-      process.env.SF_USERNAME!,
-      process.env.SF_PASSWORD! + process.env.SF_SECURITY_TOKEN!
-    );
-  });
-
-  it('should query Accounts via SOQL', async () => {
-    const result = await conn.query('SELECT Id, Name FROM Account LIMIT 1');
-    expect(result.totalSize).toBeGreaterThanOrEqual(0);
-    expect(result.done).toBe(true);
-  });
-
-  it('should check API limits are not exhausted', async () => {
-    const limits = await conn.request('/services/data/v59.0/limits/');
-    const remaining = limits.DailyApiRequests.Remaining;
-    const max = limits.DailyApiRequests.Max;
-    expect(remaining / max).toBeGreaterThan(0.1); // At least 10% remaining
-  });
-
-  it('should describe Account sObject', async () => {
-    const meta = await conn.sobject('Account').describe();
-    expect(meta.name).toBe('Account');
-    expect(meta.fields.length).toBeGreaterThan(0);
-    expect(meta.fields.find(f => f.name === 'Name')).toBeDefined();
-  });
-});
-```
-
-### Step 5: Metadata Deployment Pipeline
-
-```yaml
-# Deploy on merge to main
-deploy:
-  runs-on: ubuntu-latest
-  if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-  needs: [validate, integration-tests]
-  steps:
-    - uses: actions/checkout@v4
-    - name: Install Salesforce CLI
-      run: npm install -g @salesforce/cli
-    - name: Authenticate
-      run: |
-        echo "${{ secrets.SF_JWT_KEY_PROD }}" > server.key
-        sf org login jwt \
-          --client-id ${{ secrets.SF_CLIENT_ID_PROD }} \
-          --jwt-key-file server.key \
-          --username ${{ secrets.SF_USERNAME_PROD }} \
-          --set-default
-        rm server.key
-    - name: Deploy to Production
-      run: |
-        sf project deploy start \
-          --target-org ${{ secrets.SF_USERNAME_PROD }} \
-          --test-level RunLocalTests \
-          --wait 30
-```
+Do not expose secrets to pull requests, authenticate unreviewed code, auto-deploy to production, or lower required test levels or branch protection.
 
 ## Output
 
-- JWT-authenticated CI pipeline
-- Automated Apex test execution on PR
-- Integration tests validating jsforce operations
-- Metadata deployment on merge to main
-- API limit monitoring in CI
+Return the trust-boundary diagram, pinned CI configuration, secretless and protected gate results, org identity proof, validation IDs, promotion approval, and rollback evidence.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `INVALID_GRANT` | JWT cert not uploaded or user not pre-authorized | Upload cert to Connected App; add user to pre-authorized profiles |
-| Apex test failures | Test data dependencies | Use `@testSetup` methods for test isolation |
-| Deploy validation errors | Missing dependencies | Check component dependencies with `sf project deploy report` |
-| API limit in CI | Too many test runs/day | Use sandbox instead of production for CI |
+| Condition | Response |
+|---|---|
+| Fork job requests a Salesforce secret | Fail closed and keep the live-org lane skipped. |
+| Validation org differs from the expected org | Stop immediately, revoke the session, and correct environment binding. |
+| Protected validation is flaky | Fix determinism or quarantine the lane explicitly; do not silently make it optional. |
 
-## Examples
+## Example
 
-### Validate metadata with a least-privilege CI identity
+A redacted completion receipt might look like this:
 
-Use a dedicated sandbox user whose permission set grants only the metadata and test access needed by the pipeline, authenticate through a CI-held JWT secret, and run `sf project deploy validate` against a non-production org. Require Apex tests and a check-only deployment before any production promotion. Keep the private key out of logs and artifacts, rotate it on schedule, and fail rather than retrying indefinitely on authorization errors.
+```text
+head=immutable; fork-lane=secretless-pass; protected-org=matched; validate=pass; tests=pass; production=manual
+```
 
 ## Resources
 
-- [Salesforce CLI JWT Auth](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_auth_jwt_flow.htm)
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [Apex Testing Best Practices](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing.htm)
+- [Salesforce DX development model](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_develop.htm)
+- [REST OAuth authorization](https://developer.salesforce.com/docs/platform/api-rest/guide/intro-oauth-and-connected-apps.html)
 
 ## Next Steps
 
-For deployment patterns, see `salesforce-deploy-integration`.
+Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.
+

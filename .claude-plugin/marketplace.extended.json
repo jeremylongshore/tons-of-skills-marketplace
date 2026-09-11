@@ -9803,13 +9803,14 @@
     {
       "name": "salesforce-pack",
       "source": "./plugins/saas-packs/salesforce-pack",
-      "description": "Claude Code skill pack for Salesforce (30 skills)",
-      "version": "1.7.0",
+      "description": "Governed Salesforce operator workflows for API access, data, events, security, delivery, and production operations",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "salesforce",
-        "saas",
-        "sdk",
+        "crm",
+        "api",
+        "pub-sub",
         "integration"
       ],
       "author": {
@@ -9821,9 +9822,9 @@
         "skills": 30
       },
       "verification": {
-        "score": 81,
-        "grade": "B",
-        "badge": "silver",
+        "score": 94,
+        "grade": "A",
+        "badge": "gold",
         "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },

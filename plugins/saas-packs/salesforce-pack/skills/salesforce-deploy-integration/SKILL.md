@@ -1,200 +1,80 @@
 ---
 name: salesforce-deploy-integration
-description: 'Deploy Salesforce-connected applications to Heroku, Vercel, and Cloud
-  Run with proper credential management.
-
-  Use when deploying Salesforce-powered applications to production,
-
-  configuring platform-specific secrets, or setting up Heroku Connect.
-
-  Trigger with phrases like "deploy salesforce app", "salesforce Heroku",
-
-  "salesforce production deploy", "salesforce Cloud Run", "Heroku Connect".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(heroku:*), Bash(vercel:*), Bash(gcloud:*)
-version: 1.7.0
-license: MIT
+description: 'Deploy a Salesforce-connected application through immutable artifacts, environment binding, canary traffic, reconciliation, and rollback. Use when releasing adapter code. Trigger with "deploy a Salesforce integration".'
+argument-hint: "[artifact] [environment]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- crm
-- salesforce
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, salesforce, deployment, adapter, rollback]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; application deployment and production Salesforce traffic require platform, release, and org owner approval
 ---
-# Salesforce Deploy Integration
+# Salesforce-Connected Application Deployment
 
 ## Overview
 
-Deploy Salesforce-connected Node.js applications to Heroku (native SF integration), Vercel, or Cloud Run with JWT authentication and proper secrets management.
+Release customer-owned adapter code independently of Salesforce metadata while proving the target org, secrets, API contract, and business invariants.
 
 ## Prerequisites
 
-- Salesforce Connected App with JWT Bearer flow
-- RSA key pair for server-to-server auth
-- Platform CLI installed (heroku, vercel, or gcloud)
-- Application tested against sandbox
+- Immutable application artifact, source commit, dependency lock, SBOM or equivalent inventory, and deployment target
+- Approved Salesforce app and principal, target-org identity, supported API contract, and secret references
+- Preview environment, canary, health and business checks, capacity budget, rollback, and incident owners
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect approved repository and evidence files, `WebFetch` to re-check current first-party Salesforce documentation, and `Write` or `Edit` only for secretless plans, fixtures, configuration, and redacted receipts.
+
+## Current Contract
+
+A Salesforce-connected application may run on many compute platforms; Salesforce does not define one universal deployment target. The application must bind to the customer-approved org, OAuth app, API version, limits, schema, and event contract.
+
+## Authentication
+
+Inject only secret references through the target platform after environment approval. Never bake Salesforce tokens, keys, usernames, org IDs, or production domains into images, frontend bundles, build logs, or artifacts.
 
 ## Instructions
 
-### Heroku Deployment (Recommended for Salesforce)
+1. Freeze the artifact digest, source SHA, dependencies, configuration schema, Salesforce API contract, and migration set.
+2. Verify target environment, org identity expectation, app type, principal, scopes, permissions, secret references, egress, and observability.
+3. Deploy to preview with synthetic Salesforce fixtures and prove startup, health, timeout, redaction, idempotency, and rollback.
+4. With approval, bind an authorized sandbox and run read-only plus bounded mutation contract checks.
+5. Define production canary percentage or workload, time box, stop signals, shared-limit budget, and reconciliation queries.
+6. Promote the same artifact, verify org identity before traffic, monitor technical and business invariants, and halt on breach.
+7. Reconcile outcomes, complete or rollback, revoke temporary access, and record artifact, deployment, and verification IDs.
 
-Heroku has native Salesforce integration via Heroku Connect (bi-directional data sync).
+## Approval Boundaries
 
-```bash
-# Create Heroku app
-heroku create my-sf-app
-
-# Set Salesforce credentials as config vars
-heroku config:set SF_LOGIN_URL=https://login.salesforce.com
-heroku config:set SF_CLIENT_ID=3MVG9...
-heroku config:set SF_USERNAME=integration@yourcompany.com
-heroku config:set SF_JWT_KEY="$(cat server.key)"
-
-# Deploy
-git push heroku main
-
-# Optional: Add Heroku Connect for bi-directional sync
-heroku addons:create herokuconnect:demo
-heroku connect:authorize
-# Map sObjects: Account, Contact, Opportunity → Postgres tables
-```
-
-### Vercel Deployment (Serverless)
-
-```bash
-# Add Salesforce secrets
-vercel env add SF_LOGIN_URL production
-vercel env add SF_CLIENT_ID production
-vercel env add SF_USERNAME production
-vercel env add SF_JWT_KEY production  # Paste private key content
-
-# Deploy
-vercel --prod
-```
-
-```json
-{
-  "functions": {
-    "api/**/*.ts": {
-      "maxDuration": 30
-    }
-  }
-}
-```
-
-```typescript
-// api/salesforce/accounts.ts — Vercel serverless function
-import jsforce from 'jsforce';
-
-export default async function handler(req, res) {
-  const conn = new jsforce.Connection({
-    loginUrl: process.env.SF_LOGIN_URL,
-  });
-
-  // JWT auth — no password needed
-  await conn.authorize({
-    grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-    client_id: process.env.SF_CLIENT_ID!,
-    username: process.env.SF_USERNAME!,
-    privateKey: process.env.SF_JWT_KEY!,
-  });
-
-  const accounts = await conn.query(
-    'SELECT Id, Name, Industry FROM Account ORDER BY CreatedDate DESC LIMIT 10'
-  );
-
-  res.json({ accounts: accounts.records });
-}
-```
-
-### Google Cloud Run
-
-```dockerfile
-FROM node:20-slim
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-CMD ["npm", "start"]
-```
-
-```bash
-# Store JWT key in Secret Manager
-echo -n "$(cat server.key)" | gcloud secrets create sf-jwt-key --data-file=-
-
-# Build and deploy
-gcloud builds submit --tag gcr.io/$PROJECT_ID/sf-service
-
-gcloud run deploy sf-service \
-  --image gcr.io/$PROJECT_ID/sf-service \
-  --region us-central1 \
-  --platform managed \
-  --set-env-vars SF_LOGIN_URL=https://login.salesforce.com \
-  --set-env-vars SF_CLIENT_ID=3MVG9... \
-  --set-env-vars SF_USERNAME=integration@yourcompany.com \
-  --set-secrets=SF_JWT_KEY=sf-jwt-key:latest
-```
-
-### Health Check Pattern
-
-```typescript
-// health.ts — include in every deployment
-export async function healthCheck() {
-  const conn = new jsforce.Connection({ loginUrl: process.env.SF_LOGIN_URL });
-
-  try {
-    await conn.authorize({ /* JWT params */ });
-    const limits = await conn.request('/services/data/v59.0/limits/');
-    const apiRemaining = limits.DailyApiRequests.Remaining;
-
-    return {
-      status: apiRemaining > 1000 ? 'healthy' : 'degraded',
-      salesforce: {
-        connected: true,
-        instance: conn.instanceUrl,
-        apiRemaining,
-      },
-    };
-  } catch (error: any) {
-    return {
-      status: 'unhealthy',
-      salesforce: { connected: false, error: error.message },
-    };
-  }
-}
-```
+Do not deploy a different artifact, inject production secrets, route production traffic, run migrations, or expand a canary without named approval.
 
 ## Output
 
-- Application deployed to production platform
-- JWT authentication configured (no passwords in config)
-- Salesforce secrets stored in platform-native secrets manager
-- Health check endpoint verifying Salesforce connectivity
-- API limit monitoring active
+Return artifact and environment identity, configuration contract, sandbox proof, canary plan, deployment IDs, signals, reconciliation, rollback status, and owners.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `INVALID_GRANT` on deploy | JWT key format issue | Ensure full private key including headers |
-| Cold start timeout | Connection + auth on every request | Cache connection or use connection pooling |
-| Health check fails | Wrong SF_LOGIN_URL | `login.salesforce.com` for prod, `test.salesforce.com` for sandbox |
-| Secret not found | Wrong secret name | Verify with platform-specific secret list command |
+| Condition | Response |
+|---|---|
+| Artifact or configuration digest changed | Stop promotion and rebuild the review evidence for the new candidate. |
+| Application connects to the wrong org | Cut traffic, revoke credentials, assess data exposure, and invoke incident response. |
+| Salesforce limit margin drops below the approved stop signal | Pause intake and reconcile queued work before resuming. |
 
-## Examples
+## Example
 
-### Deploy an integration with a verified rollback path
+A redacted completion receipt might look like this:
 
-Deploy an immutable application build to a preview or staging environment that connects to a sandbox Salesforce org through a scoped JWT identity. Confirm the health endpoint uses a synthetic query and that secrets are loaded only from the platform secret manager. Promote after the integration tests and API-limit checks pass, recording the previous build identifier. If connectivity or error thresholds regress, restore the recorded build and avoid changing production Salesforce credentials during incident containment.
+```text
+artifact=sha256-recorded; target=production; org=matched; canary=5-percent; signals=healthy; reconciled=yes; rollback=ready
+```
 
 ## Resources
 
-- [Heroku Connect](https://devcenter.heroku.com/articles/heroku-connect)
-- [Vercel Environment Variables](https://vercel.com/docs/environment-variables)
-- [Cloud Run Secrets](https://cloud.google.com/run/docs/configuring/secrets)
-- [JWT Bearer Flow](https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_jwt_flow.htm)
+- [REST API introduction](https://developer.salesforce.com/docs/platform/api-rest/guide/intro-rest.html)
+- [REST API limits](https://developer.salesforce.com/docs/platform/api-rest/guide/resources-limits.html)
 
 ## Next Steps
 
-For event handling, see `salesforce-webhooks-events`.
+Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.
+

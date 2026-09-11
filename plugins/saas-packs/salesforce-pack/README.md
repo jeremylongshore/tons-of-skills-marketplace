@@ -1,6 +1,6 @@
 # Salesforce Skill Pack
 
-> 30 production-grade Claude Code skills for Salesforce CRM integration — jsforce, SOQL, Bulk API 2.0, Change Data Capture, and Apex development patterns.
+> 30 governed operator workflows for Salesforce API access, records, bulk operations, events, security, delivery, data, and production operations.
 
 ## Installation
 
@@ -8,81 +8,69 @@
 /plugin install salesforce-pack@claude-code-plugins-plus
 ```
 
-## What's Inside
+## Scope and Contract Boundary
 
-Real Salesforce API code — not templates. Every skill uses actual jsforce methods, real SOQL queries, genuine Salesforce REST endpoints (`/services/data/v59.0/sobjects/`), and authentic error codes (`INVALID_FIELD`, `REQUEST_LIMIT_EXCEEDED`, `UNABLE_TO_LOCK_ROW`).
+This pack starts from the target org and its current contract. It discovers supported API versions, app type, OAuth flow, edition, entitlements, objects, fields, permissions, sharing, limits, event channels, and customer change policy before execution.
 
-## Skills Included
+Salesforce restricts creation of Connected Apps as of Spring '26 and recommends External Client Apps for new integrations. Existing Connected Apps can continue, but no workflow in this pack defaults to username-password automation, hard-codes a release API version, exposes secrets, assumes a universal allocation, or treats an administrator session as proof of runtime access.
 
-### Standard Skills (S01-S12)
+Mutating workflows require an explicit preview, named approvers, a bounded non-production canary, stable identifiers, result evidence, reconciliation, and rollback or a compensating action.
 
-| Skill | What It Does |
-|-------|-------------|
-| `salesforce-install-auth` | jsforce/simple-salesforce setup with OAuth 2.0 flows (Username-Password, JWT Bearer, Web Server) |
-| `salesforce-hello-world` | First SOQL query and sObject CRUD on Account/Contact/Lead |
-| `salesforce-local-dev-loop` | SFDX scratch orgs, hot reload with tsx, mocked jsforce testing |
-| `salesforce-sdk-patterns` | Singleton connections, typed sObject interfaces, error code mapping |
-| `salesforce-core-workflow-a` | SOQL queries, relationship queries, sObject Collections CRUD |
-| `salesforce-core-workflow-b` | Bulk API 2.0 ingest/query, Composite API, Composite Graph |
-| `salesforce-common-errors` | Top 10 Salesforce errors with real error messages and solutions |
-| `salesforce-debug-bundle` | Debug logs, API limits, EventLogFile, Salesforce Status API |
-| `salesforce-rate-limits` | 24-hour rolling API limits, backoff, quota monitoring |
-| `salesforce-security-basics` | Connected App security, FLS, integration user profiles |
-| `salesforce-prod-checklist` | Sandbox validation, API limit planning, deployment steps |
-| `salesforce-upgrade-migration` | API version upgrades, jsforce v1-to-v3 migration |
+## Skills
 
-### Pro Skills (P13-P18)
+| Skill | Operator outcome |
+|---|---|
+| `salesforce-install-auth` | Select and verify an External Client App or approved existing Connected App authorization contract |
+| `salesforce-hello-world` | Prove identity, version, resource, object, and field access without mutation |
+| `salesforce-local-dev-loop` | Build a source-driven scratch-org or sandbox development loop |
+| `salesforce-sdk-patterns` | Contain API and client-library churn behind a typed adapter |
+| `salesforce-core-workflow-a` | Run metadata-aware SOQL and governed record operations |
+| `salesforce-core-workflow-b` | Select and reconcile Bulk API 2.0 or Composite operations |
+| `salesforce-common-errors` | Diagnose authorization, schema, validation, locking, limits, jobs, and event failures |
+| `salesforce-debug-bundle` | Produce a privacy-safe Salesforce support bundle |
+| `salesforce-rate-limits` | Allocate shared org capacity from current Limits and header evidence |
+| `salesforce-security-basics` | Secure identity, permissions, sharing, fields, data, secrets, and revocation |
+| `salesforce-prod-checklist` | Gate production readiness, canary, reconciliation, and rollback |
+| `salesforce-upgrade-migration` | Migrate API, seasonal release, CLI, library, metadata, and integration contracts |
+| `salesforce-ci-integration` | Separate fork-safe checks from protected org validation and promotion |
+| `salesforce-deploy-integration` | Release an immutable Salesforce-connected application safely |
+| `salesforce-webhooks-events` | Choose among Pub/Sub, CDC, Platform Events, relay, Streaming, Outbound Messages, or polling |
+| `salesforce-performance-tuning` | Tune query, batching, caching, automation, and async behavior from measurements |
+| `salesforce-cost-tuning` | Govern commercial and operating cost using dated customer evidence |
+| `salesforce-reference-architecture` | Define authority, trust, data, event, capacity, and recovery boundaries |
+| `salesforce-multi-env-setup` | Govern scratch-org, sandbox, staging, and production topology |
+| `salesforce-observability` | Connect platform, application, limit, job, event, and business signals |
+| `salesforce-incident-runbook` | Contain, recover, and reconcile Salesforce incidents |
+| `salesforce-data-handling` | Operate classified data, retention, subject requests, holds, and deletion safely |
+| `salesforce-enterprise-rbac` | Govern effective access through layered permission and sharing controls |
+| `salesforce-migration-deep-dive` | Run dependency-ordered, external-ID-based data migrations |
+| `salesforce-advanced-troubleshooting` | Falsify complex hypotheses with minimum diagnostic evidence |
+| `salesforce-load-scale` | Measure bounded capacity with synthetic non-production load |
+| `salesforce-reliability-patterns` | Design idempotency, retries, durable state, reconciliation, and recovery |
+| `salesforce-policy-guardrails` | Gate unsafe queries, secrets, versions, access, mutations, retries, and event handling |
+| `salesforce-architecture-variants` | Compare direct, middleware, event, replicated-data, and hybrid patterns |
+| `salesforce-known-pitfalls` | Audit recurring cross-boundary Salesforce integration failures |
 
-| Skill | What It Does |
-|-------|-------------|
-| `salesforce-ci-integration` | GitHub Actions with JWT auth, Apex testing, metadata deployment |
-| `salesforce-deploy-integration` | Deploy to Heroku (Connect), Vercel, Cloud Run with JWT |
-| `salesforce-webhooks-events` | Change Data Capture, Platform Events, Outbound Messages |
-| `salesforce-performance-tuning` | SOQL optimization, describe caching, Collections batching |
-| `salesforce-cost-tuning` | Edition selection, API call budgets, Bulk API cost savings |
-| `salesforce-reference-architecture` | Polling vs event-driven vs Heroku Connect patterns |
+## First-Party References
 
-### Flagship Skills (F19-F24)
+- [REST API authorization](https://developer.salesforce.com/docs/platform/api-rest/guide/intro-oauth-and-connected-apps.html)
+- [REST API end-of-life policy](https://developer.salesforce.com/docs/platform/api-rest/guide/api-rest-eol.html)
+- [REST Limits resource](https://developer.salesforce.com/docs/platform/api-rest/guide/resources-limits.html)
+- [Bulk API 2.0](https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/bulk_api_2_0.htm)
+- [Pub/Sub API](https://developer.salesforce.com/docs/platform/pub-sub-api/overview)
+- [Change Data Capture](https://developer.salesforce.com/docs/atlas.en-us.change_data_capture.meta/change_data_capture/cdc_intro.htm)
+- [Salesforce integration patterns](https://developer.salesforce.com/docs/atlas.en-us.integration_patterns_and_practices.meta/integration_patterns_and_practices/)
+- [Salesforce Status](https://status.salesforce.com)
 
-| Skill | What It Does |
-|-------|-------------|
-| `salesforce-multi-env-setup` | Sandbox types, org authentication, promotion flows |
-| `salesforce-observability` | API limit Prometheus metrics, EventLogFile forensics, alerts |
-| `salesforce-incident-runbook` | Triage with Salesforce Status API, error decision tree |
-| `salesforce-data-handling` | GDPR Individual object, DSAR export, PII redaction |
-| `salesforce-enterprise-rbac` | Profiles, Permission Sets, OWD, Sharing Rules, SAML SSO |
-| `salesforce-migration-deep-dive` | Bulk API data migration with External ID relationships |
+## Validation
 
-### Flagship+ Skills (X25-X30)
-
-| Skill | What It Does |
-|-------|-------------|
-| `salesforce-advanced-troubleshooting` | Debug log analysis, SOQL query plans, governor limits |
-| `salesforce-load-scale` | k6 load testing, Bulk API throughput, capacity planning |
-| `salesforce-reliability-patterns` | Circuit breakers, idempotent upserts, dead letter queues |
-| `salesforce-policy-guardrails` | SOQL injection prevention, credential leak detection, CI checks |
-| `salesforce-architecture-variants` | Direct API vs Event-Driven vs Middleware decision matrix |
-| `salesforce-known-pitfalls` | Top 10 anti-patterns with real error messages and fixes |
-
-## Key APIs Covered
-
-- **REST API** — sObject CRUD, SOQL, SOSL, describe, limits
-- **Bulk API 2.0** — CSV ingest (insert/update/upsert/delete), bulk query
-- **Composite API** — Multi-step transactions, batch, graph
-- **Streaming API** — Change Data Capture, Platform Events
-- **Tooling API** — Query plans, debug logs, metadata
-- **Metadata API** — Permission Sets, profiles, custom objects
-
-## Usage
-
-Skills trigger automatically when you discuss Salesforce topics:
-
-- "Query Salesforce accounts" triggers `salesforce-core-workflow-a`
-- "Set up Salesforce authentication" triggers `salesforce-install-auth`
-- "Bulk import contacts to Salesforce" triggers `salesforce-core-workflow-b`
-- "Debug Salesforce API limit error" triggers `salesforce-common-errors`
-- "Set up Salesforce Change Data Capture" triggers `salesforce-webhooks-events`
+```bash
+python3 scripts/validate-skills-schema.py --marketplace --min-grade A plugins/saas-packs/salesforce-pack
+python3 scripts/validate-skills-schema.py --marketplace --deep plugins/saas-packs/salesforce-pack
+python3 -m unittest tests.test_salesforce_pack_contract
+```
 
 ## License
 
 MIT
+

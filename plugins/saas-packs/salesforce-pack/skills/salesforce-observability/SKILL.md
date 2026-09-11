@@ -1,273 +1,79 @@
 ---
 name: salesforce-observability
-description: 'Set up observability for Salesforce integrations with API limit monitoring,
-  error tracking, and alerting.
-
-  Use when implementing monitoring for Salesforce operations, tracking API consumption,
-
-  or configuring alerting for Salesforce integration health.
-
-  Trigger with phrases like "salesforce monitoring", "salesforce metrics",
-
-  "salesforce observability", "monitor salesforce", "salesforce alerts", "salesforce
-  API usage dashboard".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Build Salesforce integration observability across application traces, platform status, limits, async jobs, events, logs, and business reconciliation. Use when designing monitoring. Trigger with "monitor Salesforce integration".'
+argument-hint: "[integration] [service-objective]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- crm
-- salesforce
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, salesforce, observability, monitoring, event-monitoring]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; log, Event Monitoring, alert, and data access require entitlement and security approval
 ---
-# Salesforce Observability
+# Salesforce Integration Observability and Reconciliation
 
 ## Overview
 
-Instrument Salesforce integrations with API limit monitoring, SOQL performance tracking, error classification, and alerting. Uses Salesforce's built-in Limits API and EventLogFile for deep visibility.
+Connect technical telemetry to Salesforce platform state and business correctness without exporting sensitive records into monitoring systems.
 
 ## Prerequisites
 
-- jsforce connection configured
-- Prometheus or compatible metrics backend (optional)
-- Grafana or similar dashboarding tool (optional)
-- Salesforce Enterprise+ for EventLogFile access
+- System context, service and business objectives, APIs, jobs, event channels, orgs, and owners
+- Current Salesforce Status, Limits, EventLogFile or entitled Event Monitoring, async-job, and event-usage surfaces
+- Telemetry data classification, redaction, retention, alert routing, incident, and reconciliation policies
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect approved repository and evidence files, `WebFetch` to re-check current first-party Salesforce documentation, and `Write` or `Edit` only for secretless plans, fixtures, configuration, and redacted receipts.
+
+## Current Contract
+
+Salesforce Status, REST limits, response headers, async jobs, platform-event usage, debug logs, and Event Monitoring expose different signals with different entitlements and delays. Limits resource values can lag recent consumption.
+
+## Authentication
+
+Use separate read-only monitoring access with minimum permissions. Never emit access tokens, session IDs, authorization headers, raw SOQL results, record payloads, or unrestricted user and org identifiers as telemetry.
 
 ## Instructions
 
-### Step 1: API Limit Monitoring (Core Metric)
+1. Define availability, latency, throughput, error, freshness, completeness, duplicate, limit, job, event-lag, and business-invariant objectives.
+2. Instrument the adapter with redacted request IDs, operation class, API version, timing, outcome, retry, and reconciliation state.
+3. Collect Salesforce platform status, relevant limit and header values, async job summaries, event metrics, and entitled logs.
+4. Normalize timestamps, org and environment aliases, deployment IDs, and correlation IDs without exposing customer record data.
+5. Build dashboards by environment and workload with freshness labels and separate technical from business-correctness views.
+6. Alert on sustained objective breaches, capacity margin, auth failure, job failure, event gap, wrong-org binding, and reconciliation mismatch.
+7. Test alerts and runbooks in non-production, measure noise and blind spots, and assign review and retention owners.
 
-```typescript
-import { getConnection } from './salesforce/connection';
-import { Registry, Gauge, Counter, Histogram } from 'prom-client';
+## Approval Boundaries
 
-const registry = new Registry();
+Do not enable broad logging, retrieve sensitive event files, expand retention, export record data, or create production alerts without security, admin, and incident-owner approval.
 
-// The single most important Salesforce metric
-const apiLimitGauge = new Gauge({
-  name: 'salesforce_api_limit_remaining',
-  help: 'Remaining daily API calls',
-  registers: [registry],
-});
+## Output
 
-const apiLimitMaxGauge = new Gauge({
-  name: 'salesforce_api_limit_max',
-  help: 'Maximum daily API calls',
-  registers: [registry],
-});
-
-const apiUsagePercent = new Gauge({
-  name: 'salesforce_api_usage_percent',
-  help: 'Percentage of daily API calls used',
-  registers: [registry],
-});
-
-// Poll limits every 5 minutes (each poll = 1 API call)
-setInterval(async () => {
-  try {
-    const conn = await getConnection();
-    const limits = await conn.request('/services/data/v59.0/limits/');
-
-    apiLimitGauge.set(limits.DailyApiRequests.Remaining);
-    apiLimitMaxGauge.set(limits.DailyApiRequests.Max);
-
-    const used = limits.DailyApiRequests.Max - limits.DailyApiRequests.Remaining;
-    apiUsagePercent.set((used / limits.DailyApiRequests.Max) * 100);
-  } catch (error) {
-    console.error('Failed to poll SF limits:', error);
-  }
-}, 5 * 60 * 1000);
-```
-
-### Step 2: Request Instrumentation
-
-```typescript
-const sfRequestDuration = new Histogram({
-  name: 'salesforce_request_duration_seconds',
-  help: 'Salesforce API request duration',
-  labelNames: ['operation', 'sobject'],
-  buckets: [0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10],
-  registers: [registry],
-});
-
-const sfRequestCounter = new Counter({
-  name: 'salesforce_requests_total',
-  help: 'Total Salesforce API requests',
-  labelNames: ['operation', 'sobject', 'status'],
-  registers: [registry],
-});
-
-const sfErrorCounter = new Counter({
-  name: 'salesforce_errors_total',
-  help: 'Salesforce errors by error code',
-  labelNames: ['error_code', 'sobject'],
-  registers: [registry],
-});
-
-// Instrumented wrapper for all SF operations
-async function instrumentedSfCall<T>(
-  operation: string,
-  sobject: string,
-  fn: () => Promise<T>
-): Promise<T> {
-  const timer = sfRequestDuration.startTimer({ operation, sobject });
-
-  try {
-    const result = await fn();
-    sfRequestCounter.inc({ operation, sobject, status: 'success' });
-    return result;
-  } catch (error: any) {
-    const errorCode = error.errorCode || 'UNKNOWN';
-    sfRequestCounter.inc({ operation, sobject, status: 'error' });
-    sfErrorCounter.inc({ error_code: errorCode, sobject });
-    throw error;
-  } finally {
-    timer();
-  }
-}
-
-// Usage
-const accounts = await instrumentedSfCall('query', 'Account', () =>
-  conn.query('SELECT Id, Name FROM Account LIMIT 10')
-);
-```
-
-### Step 3: Salesforce-Native Monitoring (EventLogFile)
-
-```typescript
-// EventLogFile provides detailed API usage data (Enterprise+ only)
-// Available event types: API, Login, Logout, URI, BulkApi, etc.
-
-async function getApiUsageEvents(days: number = 1) {
-  const conn = await getConnection();
-
-  const events = await conn.query(`
-    SELECT Id, EventType, LogDate, LogFileLength
-    FROM EventLogFile
-    WHERE EventType IN ('API', 'RestApi', 'BulkApi')
-      AND LogDate >= LAST_N_DAYS:${days}
-    ORDER BY LogDate DESC
-  `);
-
-  for (const event of events.records) {
-    // Download and parse the CSV log file
-    const logContent = await conn.request(
-      `/services/data/v59.0/sobjects/EventLogFile/${event.Id}/LogFile`
-    );
-    // Parse CSV to extract: USER_ID, URI, METHOD, STATUS_CODE, RUN_TIME, CPU_TIME
-    console.log(`${event.EventType} on ${event.LogDate}: ${event.LogFileLength} bytes`);
-  }
-}
-```
-
-### Step 4: Structured Logging
-
-```typescript
-import pino from 'pino';
-
-const logger = pino({ name: 'salesforce-integration' });
-
-function logSfOperation(
-  operation: string,
-  sobject: string,
-  details: Record<string, any>,
-  durationMs: number
-) {
-  logger.info({
-    service: 'salesforce',
-    operation,
-    sobject,
-    durationMs,
-    ...details,
-    // Parse Sforce-Limit-Info header from response
-    // Format: "api-usage=135/150000"
-  });
-}
-```
-
-### Step 5: Alert Rules
-
-```yaml
-# prometheus-alerts.yaml
-groups:
-  - name: salesforce_alerts
-    rules:
-      - alert: SalesforceApiLimitCritical
-        expr: salesforce_api_usage_percent > 90
-        for: 5m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Salesforce API usage above 90% ({{ $value }}%)"
-          description: "API calls will be blocked at 100%. Reduce usage or contact Salesforce for limit increase."
-
-      - alert: SalesforceApiLimitWarning
-        expr: salesforce_api_usage_percent > 75
-        for: 15m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Salesforce API usage above 75%"
-
-      - alert: SalesforceHighErrorRate
-        expr: |
-          rate(salesforce_errors_total[5m]) /
-          rate(salesforce_requests_total[5m]) > 0.05
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Salesforce error rate > 5%"
-
-      - alert: SalesforceHighLatency
-        expr: |
-          histogram_quantile(0.95,
-            rate(salesforce_request_duration_seconds_bucket[5m])
-          ) > 5
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Salesforce P95 latency > 5s"
-
-      - alert: SalesforceAuthFailure
-        expr: increase(salesforce_errors_total{error_code="INVALID_SESSION_ID"}[5m]) > 0
-        labels:
-          severity: critical
-        annotations:
-          summary: "Salesforce authentication failures detected"
-```
-
-## Key Salesforce Metrics to Monitor
-
-| Metric | Source | Alert Threshold |
-|--------|--------|----------------|
-| Daily API remaining | `/services/data/v59.0/limits/` | < 10% remaining |
-| Request latency P95 | Instrumented client | > 5 seconds |
-| Error rate by code | Instrumented client | > 5% |
-| Bulk API job failures | Bulk job results | Any failures |
-| Session/token expiry | Auth error count | Any INVALID_SESSION_ID |
-| Data storage used | Limits API | > 90% capacity |
+Return the signal catalog, instrumentation contract, dashboards, alerts, redaction and retention rules, runbook links, test receipt, blind spots, and owners.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Limits poll failing | Token expired | Auto-refresh connection |
-| High cardinality | Too many label values | Use error_code, not error message |
-| Missing EventLogFile | Not Enterprise+ | Use instrumented client instead |
-| Alert storms | Threshold too low | Tune thresholds with historical data |
+| Condition | Response |
+|---|---|
+| Signal is unavailable without an add-on | Document the entitlement boundary and implement a lower-risk compensating signal. |
+| Telemetry contains record or credential data | Block export, purge according to policy, rotate exposed credentials, and repair redaction. |
+| Platform is healthy but business reconciliation fails | Escalate as an application or data incident rather than closing on status alone. |
+
+## Example
+
+A redacted completion receipt might look like this:
+
+```text
+service=customer-sync; slo=defined; traces=redacted; limits=dated; jobs=monitored; event-gap=alerted; reconcile=exact
+```
 
 ## Resources
 
-- [Limits REST Resource](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_limits.htm)
-- [EventLogFile](https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_eventlogfile.htm)
-- [Salesforce Status API](https://api.status.salesforce.com/)
-- [Prometheus Best Practices](https://prometheus.io/docs/practices/naming/)
+- [Salesforce Status](https://status.salesforce.com)
+- [EventLogFile object](https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_eventlogfile.htm)
 
 ## Next Steps
 
-For incident response, see `salesforce-incident-runbook`.
+Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.
