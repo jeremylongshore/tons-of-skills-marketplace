@@ -595,7 +595,8 @@
       "clickhouse",
       "clickup",
       "client",
-      "clinical",
+      "clinical-evidence",
+      "clinical-safety",
       "cloud",
       "cloud-functions",
       "cloud-gpu",
@@ -714,7 +715,6 @@
       "dead-code",
       "deadlock",
       "debugging",
-      "decision-support",
       "decision-trees",
       "deduplication",
       "deep-learning",
@@ -808,7 +808,7 @@
       "event-driven",
       "events",
       "evernote",
-      "evidence-based",
+      "evidence-review",
       "evm",
       "exa",
       "example",
@@ -931,7 +931,7 @@
       "haproxy",
       "har",
       "health",
-      "healthcare",
+      "healthcare-governance",
       "helm",
       "hermes-agent",
       "hermes-plugin",
@@ -1082,8 +1082,6 @@
       "mcp-directories",
       "media",
       "media-production",
-      "medical-ai",
-      "medicine",
       "meeting-intelligence",
       "meeting-notes",
       "meeting-transcription",
@@ -11373,16 +11371,15 @@
       "slug": "openevidence-pack",
       "name": "openevidence-pack",
       "displayName": "openevidence pack",
-      "description": "Complete OpenEvidence integration skill pack with 24 skills covering medical AI, clinical decision support, evidence-based queries, and healthcare workflows. Flagship tier vendor pack.",
+      "description": "Operator-grade OpenEvidence pack with 24 source-grounded skills for clinical evidence review, safe adoption, privacy, security, and product workflow governance.",
       "category": "saas-packs",
       "keywords": [
         "openevidence",
-        "medical-ai",
-        "clinical",
-        "healthcare",
-        "evidence-based",
-        "decision-support",
-        "medicine"
+        "clinical-evidence",
+        "evidence-review",
+        "healthcare-governance",
+        "privacy",
+        "clinical-safety"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -11390,15 +11387,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.13.0",
+      "version": "1.14.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 81,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "openevidence pack complete openevidence integration skill pack with 24 skills covering medical ai, clinical decision support, evidence-based queries, and healthcare workflows. flagship tier vendor pack. saas-packs openevidence medical-ai clinical healthcare evidence-based decision-support medicine"
+      "verificationScore": 98,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "openevidence pack operator-grade openevidence pack with 24 source-grounded skills for clinical evidence review, safe adoption, privacy, security, and product workflow governance. saas-packs openevidence clinical-evidence evidence-review healthcare-governance privacy clinical-safety"
     },
     {
       "type": "plugin",
@@ -58935,501 +58932,552 @@
       "id": "openevidence-ci-integration",
       "slug": "openevidence-ci-integration",
       "name": "openevidence-ci-integration",
-      "description": "Ci Integration for OpenEvidence. Trigger: \"openevidence ci integration\".",
+      "description": "Build a repeatable acceptance gate for an OpenEvidence practice rollout without inventing an API or automating clinical judgment. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence ci integration\", \"OpenEvidence rollout\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-ci-integration ci integration for openevidence. trigger: \"openevidence ci integration\". saas-packs read write edit grep "
+      "searchText": "openevidence-ci-integration build a repeatable acceptance gate for an openevidence practice rollout without inventing an api or automating clinical judgment. use when working with openevidence in a healthcare organization. trigger with \"openevidence ci integration\", \"openevidence rollout\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-common-errors",
       "slug": "openevidence-common-errors",
       "name": "openevidence-common-errors",
-      "description": "Diagnose and fix OpenEvidence common errors. Trigger: \"openevidence error\", \"fix openevidence\", \"debug openevidence\".",
+      "description": "Diagnose weak, incomplete, or poorly grounded OpenEvidence results using prompt, model, citation, and workflow checks. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence common errors\", \"OpenEvidence troubleshooting\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-common-errors diagnose and fix openevidence common errors. trigger: \"openevidence error\", \"fix openevidence\", \"debug openevidence\". saas-packs read grep bash(curl:*) "
+      "searchText": "openevidence-common-errors diagnose weak, incomplete, or poorly grounded openevidence results using prompt, model, citation, and workflow checks. use when working with openevidence in a healthcare organization. trigger with \"openevidence common errors\", \"openevidence troubleshooting\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-core-workflow-a",
       "slug": "openevidence-core-workflow-a",
       "name": "openevidence-core-workflow-a",
-      "description": "Execute OpenEvidence primary workflow: Clinical Query & Decision Support. Trigger: \"openevidence clinical query & decision support\", \"primary openevidence workflow\".",
+      "description": "Structure and review an OpenEvidence clinical consult while preserving clinician accountability and evidence traceability. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence core workflow a\", \"OpenEvidence clinical-consult\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-core-workflow-a execute openevidence primary workflow: clinical query & decision support. trigger: \"openevidence clinical query & decision support\", \"primary openevidence workflow\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "openevidence-core-workflow-a structure and review an openevidence clinical consult while preserving clinician accountability and evidence traceability. use when working with openevidence in a healthcare organization. trigger with \"openevidence core workflow a\", \"openevidence clinical-consult\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-core-workflow-b",
       "slug": "openevidence-core-workflow-b",
       "name": "openevidence-core-workflow-b",
-      "description": "Execute OpenEvidence secondary workflow: DeepConsult Research Synthesis. Trigger: \"openevidence deepconsult research synthesis\", \"secondary openevidence workflow\".",
+      "description": "Audit an OpenEvidence answer’s EvidenceGrade, citations, and applicability before it informs clinical work. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence core workflow b\", \"OpenEvidence citations\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-core-workflow-b execute openevidence secondary workflow: deepconsult research synthesis. trigger: \"openevidence deepconsult research synthesis\", \"secondary openevidence workflow\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "openevidence-core-workflow-b audit an openevidence answer’s evidencegrade, citations, and applicability before it informs clinical work. use when working with openevidence in a healthcare organization. trigger with \"openevidence core workflow b\", \"openevidence citations\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-cost-tuning",
       "slug": "openevidence-cost-tuning",
       "name": "openevidence-cost-tuning",
-      "description": "Cost Tuning for OpenEvidence. Trigger: \"openevidence cost tuning\".",
+      "description": "Evaluate OpenEvidence adoption value and access burden without inventing prices, quotas, or usage telemetry. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence cost tuning\", \"OpenEvidence value\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-cost-tuning cost tuning for openevidence. trigger: \"openevidence cost tuning\". saas-packs read write edit grep "
+      "searchText": "openevidence-cost-tuning evaluate openevidence adoption value and access burden without inventing prices, quotas, or usage telemetry. use when working with openevidence in a healthcare organization. trigger with \"openevidence cost tuning\", \"openevidence value\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-data-handling",
       "slug": "openevidence-data-handling",
       "name": "openevidence-data-handling",
-      "description": "Data Handling for OpenEvidence. Trigger: \"openevidence data handling\".",
+      "description": "Design a minimum-necessary OpenEvidence data-handling workflow for questions, Visits recordings, notes, and exports. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence data handling\", \"OpenEvidence privacy\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-data-handling data handling for openevidence. trigger: \"openevidence data handling\". saas-packs read write edit grep "
+      "searchText": "openevidence-data-handling design a minimum-necessary openevidence data-handling workflow for questions, visits recordings, notes, and exports. use when working with openevidence in a healthcare organization. trigger with \"openevidence data handling\", \"openevidence privacy\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-debug-bundle",
       "slug": "openevidence-debug-bundle",
       "name": "openevidence-debug-bundle",
-      "description": "Debug Bundle for OpenEvidence. Trigger: \"openevidence debug bundle\".",
+      "description": "Assemble a reproducible, privacy-safe OpenEvidence support packet for product failures without exposing credentials or patient data. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence debug bundle\", \"OpenEvidence support\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-debug-bundle debug bundle for openevidence. trigger: \"openevidence debug bundle\". saas-packs read bash(curl:*) grep "
+      "searchText": "openevidence-debug-bundle assemble a reproducible, privacy-safe openevidence support packet for product failures without exposing credentials or patient data. use when working with openevidence in a healthcare organization. trigger with \"openevidence debug bundle\", \"openevidence support\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-deploy-integration",
       "slug": "openevidence-deploy-integration",
       "name": "openevidence-deploy-integration",
-      "description": "Deploy Integration for OpenEvidence. Trigger: \"openevidence deploy integration\".",
+      "description": "Plan a controlled OpenEvidence rollout across clinical workflows, training, governance, and rollback boundaries. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence deploy integration\", \"OpenEvidence deployment\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-deploy-integration deploy integration for openevidence. trigger: \"openevidence deploy integration\". saas-packs read write edit grep "
+      "searchText": "openevidence-deploy-integration plan a controlled openevidence rollout across clinical workflows, training, governance, and rollback boundaries. use when working with openevidence in a healthcare organization. trigger with \"openevidence deploy integration\", \"openevidence deployment\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-enterprise-rbac",
       "slug": "openevidence-enterprise-rbac",
       "name": "openevidence-enterprise-rbac",
-      "description": "Enterprise Rbac for OpenEvidence. Trigger: \"openevidence enterprise rbac\".",
+      "description": "Define and verify institutional OpenEvidence access governance without inventing RBAC, SCIM, or administration APIs. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence enterprise rbac\", \"OpenEvidence access\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-enterprise-rbac enterprise rbac for openevidence. trigger: \"openevidence enterprise rbac\". saas-packs read write edit grep "
+      "searchText": "openevidence-enterprise-rbac define and verify institutional openevidence access governance without inventing rbac, scim, or administration apis. use when working with openevidence in a healthcare organization. trigger with \"openevidence enterprise rbac\", \"openevidence access\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-hello-world",
       "slug": "openevidence-hello-world",
       "name": "openevidence-hello-world",
-      "description": "Create a minimal working OpenEvidence example. Trigger: \"openevidence hello world\", \"openevidence example\", \"test openevidence\".",
+      "description": "Complete a smallest-safe OpenEvidence onboarding proof through the supported product, with no patient data or invented API key. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence hello world\", \"OpenEvidence onboarding\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-hello-world create a minimal working openevidence example. trigger: \"openevidence hello world\", \"openevidence example\", \"test openevidence\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "openevidence-hello-world complete a smallest-safe openevidence onboarding proof through the supported product, with no patient data or invented api key. use when working with openevidence in a healthcare organization. trigger with \"openevidence hello world\", \"openevidence onboarding\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-incident-runbook",
       "slug": "openevidence-incident-runbook",
       "name": "openevidence-incident-runbook",
-      "description": "Incident Runbook for OpenEvidence. Trigger: \"openevidence incident runbook\".",
+      "description": "Triage an OpenEvidence safety, privacy, access, recording, or evidence incident with containment and accountable escalation. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence incident runbook\", \"OpenEvidence incident-response\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-incident-runbook incident runbook for openevidence. trigger: \"openevidence incident runbook\". saas-packs read write edit grep "
+      "searchText": "openevidence-incident-runbook triage an openevidence safety, privacy, access, recording, or evidence incident with containment and accountable escalation. use when working with openevidence in a healthcare organization. trigger with \"openevidence incident runbook\", \"openevidence incident-response\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-install-auth",
       "slug": "openevidence-install-auth",
       "name": "openevidence-install-auth",
-      "description": "Install and configure OpenEvidence SDK/API authentication. Use when setting up a new OpenEvidence integration. Trigger: \"install openevidence\", \"setup openevidence\", \"openevidence auth\".",
+      "description": "Establish authorized OpenEvidence account access through official registration and institutional pathways. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence install auth\", \"OpenEvidence authentication\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-install-auth install and configure openevidence sdk/api authentication. use when setting up a new openevidence integration. trigger: \"install openevidence\", \"setup openevidence\", \"openevidence auth\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "openevidence-install-auth establish authorized openevidence account access through official registration and institutional pathways. use when working with openevidence in a healthcare organization. trigger with \"openevidence install auth\", \"openevidence authentication\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-local-dev-loop",
       "slug": "openevidence-local-dev-loop",
       "name": "openevidence-local-dev-loop",
-      "description": "Local Dev Loop for OpenEvidence. Trigger: \"openevidence local dev loop\".",
+      "description": "Evaluate OpenEvidence product workflows safely with synthetic cases before any clinical rollout. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence local dev loop\", \"OpenEvidence evaluation\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-local-dev-loop local dev loop for openevidence. trigger: \"openevidence local dev loop\". saas-packs read write edit "
+      "searchText": "openevidence-local-dev-loop evaluate openevidence product workflows safely with synthetic cases before any clinical rollout. use when working with openevidence in a healthcare organization. trigger with \"openevidence local dev loop\", \"openevidence evaluation\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-migration-deep-dive",
       "slug": "openevidence-migration-deep-dive",
       "name": "openevidence-migration-deep-dive",
-      "description": "Migration Deep Dive for OpenEvidence. Trigger: \"openevidence migration deep dive\".",
+      "description": "Migrate saved Deep Consult practices to the current Snow model workflow while revalidating output and governance. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence migration deep dive\", \"OpenEvidence migration\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-migration-deep-dive migration deep dive for openevidence. trigger: \"openevidence migration deep dive\". saas-packs read write edit grep "
+      "searchText": "openevidence-migration-deep-dive migrate saved deep consult practices to the current snow model workflow while revalidating output and governance. use when working with openevidence in a healthcare organization. trigger with \"openevidence migration deep dive\", \"openevidence migration\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-multi-env-setup",
       "slug": "openevidence-multi-env-setup",
       "name": "openevidence-multi-env-setup",
-      "description": "Multi Env Setup for OpenEvidence. Trigger: \"openevidence multi env setup\".",
+      "description": "Verify a governed OpenEvidence workflow across supported web and mobile surfaces without fictitious dev or staging hosts. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence multi env setup\", \"OpenEvidence web\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-multi-env-setup multi env setup for openevidence. trigger: \"openevidence multi env setup\". saas-packs read write edit grep "
+      "searchText": "openevidence-multi-env-setup verify a governed openevidence workflow across supported web and mobile surfaces without fictitious dev or staging hosts. use when working with openevidence in a healthcare organization. trigger with \"openevidence multi env setup\", \"openevidence web\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-observability",
       "slug": "openevidence-observability",
       "name": "openevidence-observability",
-      "description": "Observability for OpenEvidence. Trigger: \"openevidence observability\".",
+      "description": "Monitor OpenEvidence workflow quality, evidence traceability, adoption, and safety signals using approved local evidence. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence observability\", \"OpenEvidence quality\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-observability observability for openevidence. trigger: \"openevidence observability\". saas-packs read write edit grep "
+      "searchText": "openevidence-observability monitor openevidence workflow quality, evidence traceability, adoption, and safety signals using approved local evidence. use when working with openevidence in a healthcare organization. trigger with \"openevidence observability\", \"openevidence quality\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-performance-tuning",
       "slug": "openevidence-performance-tuning",
       "name": "openevidence-performance-tuning",
-      "description": "Performance Tuning for OpenEvidence. Trigger: \"openevidence performance tuning\".",
+      "description": "Improve OpenEvidence question quality and reviewer efficiency through controlled prompt refinement. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence performance tuning\", \"OpenEvidence prompting\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-performance-tuning performance tuning for openevidence. trigger: \"openevidence performance tuning\". saas-packs read write edit grep "
+      "searchText": "openevidence-performance-tuning improve openevidence question quality and reviewer efficiency through controlled prompt refinement. use when working with openevidence in a healthcare organization. trigger with \"openevidence performance tuning\", \"openevidence prompting\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-prod-checklist",
       "slug": "openevidence-prod-checklist",
       "name": "openevidence-prod-checklist",
-      "description": "Prod Checklist for OpenEvidence. Trigger: \"openevidence prod checklist\".",
+      "description": "Gate an OpenEvidence clinical workflow for go-live across access, privacy, safety, training, support, and rollback. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence prod checklist\", \"OpenEvidence go-live\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-prod-checklist prod checklist for openevidence. trigger: \"openevidence prod checklist\". saas-packs read write edit "
+      "searchText": "openevidence-prod-checklist gate an openevidence clinical workflow for go-live across access, privacy, safety, training, support, and rollback. use when working with openevidence in a healthcare organization. trigger with \"openevidence prod checklist\", \"openevidence go-live\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-rate-limits",
       "slug": "openevidence-rate-limits",
       "name": "openevidence-rate-limits",
-      "description": "Rate Limits for OpenEvidence. Trigger: \"openevidence rate limits\".",
+      "description": "Triage OpenEvidence access, latency, or capacity symptoms without asserting undocumented quotas or retry contracts. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence rate limits\", \"OpenEvidence capacity\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-rate-limits rate limits for openevidence. trigger: \"openevidence rate limits\". saas-packs read write edit "
+      "searchText": "openevidence-rate-limits triage openevidence access, latency, or capacity symptoms without asserting undocumented quotas or retry contracts. use when working with openevidence in a healthcare organization. trigger with \"openevidence rate limits\", \"openevidence capacity\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-reference-architecture",
       "slug": "openevidence-reference-architecture",
       "name": "openevidence-reference-architecture",
-      "description": "Reference Architecture for OpenEvidence. Trigger: \"openevidence reference architecture\".",
+      "description": "Design a governed operating model around OpenEvidence’s supported product workflows and clinician review. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence reference architecture\", \"OpenEvidence architecture\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-reference-architecture reference architecture for openevidence. trigger: \"openevidence reference architecture\". saas-packs read write edit grep "
+      "searchText": "openevidence-reference-architecture design a governed operating model around openevidence’s supported product workflows and clinician review. use when working with openevidence in a healthcare organization. trigger with \"openevidence reference architecture\", \"openevidence architecture\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-sdk-patterns",
       "slug": "openevidence-sdk-patterns",
       "name": "openevidence-sdk-patterns",
-      "description": "Sdk Patterns for OpenEvidence. Trigger: \"openevidence sdk patterns\".",
+      "description": "Select supported OpenEvidence interaction and prompting patterns while preventing use of nonexistent public SDKs. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence sdk patterns\", \"OpenEvidence patterns\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-sdk-patterns sdk patterns for openevidence. trigger: \"openevidence sdk patterns\". saas-packs read write edit "
+      "searchText": "openevidence-sdk-patterns select supported openevidence interaction and prompting patterns while preventing use of nonexistent public sdks. use when working with openevidence in a healthcare organization. trigger with \"openevidence sdk patterns\", \"openevidence patterns\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-security-basics",
       "slug": "openevidence-security-basics",
       "name": "openevidence-security-basics",
-      "description": "Security Basics for OpenEvidence. Trigger: \"openevidence security basics\".",
+      "description": "Assess OpenEvidence security claims and institution-specific controls using current first-party evidence and accountable review. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence security basics\", \"OpenEvidence security\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-security-basics security basics for openevidence. trigger: \"openevidence security basics\". saas-packs read write edit "
+      "searchText": "openevidence-security-basics assess openevidence security claims and institution-specific controls using current first-party evidence and accountable review. use when working with openevidence in a healthcare organization. trigger with \"openevidence security basics\", \"openevidence security\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-upgrade-migration",
       "slug": "openevidence-upgrade-migration",
       "name": "openevidence-upgrade-migration",
-      "description": "Upgrade Migration for OpenEvidence. Trigger: \"openevidence upgrade migration\".",
+      "description": "Adopt a documented OpenEvidence feature or model change through inventory, pilot, review, training, and rollback. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence upgrade migration\", \"OpenEvidence change-management\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-upgrade-migration upgrade migration for openevidence. trigger: \"openevidence upgrade migration\". saas-packs read write edit "
+      "searchText": "openevidence-upgrade-migration adopt a documented openevidence feature or model change through inventory, pilot, review, training, and rollback. use when working with openevidence in a healthcare organization. trigger with \"openevidence upgrade migration\", \"openevidence change-management\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "openevidence-webhooks-events",
       "slug": "openevidence-webhooks-events",
       "name": "openevidence-webhooks-events",
-      "description": "Webhooks Events for OpenEvidence. Trigger: \"openevidence webhooks events\".",
+      "description": "Design safe OpenEvidence workflow handoffs while explicitly rejecting undocumented public webhooks and event schemas. Use when working with OpenEvidence in a healthcare organization. Trigger with \"openevidence webhooks events\", \"OpenEvidence handoffs\", or a matching workflow request.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "openevidence-pack",
         "category": "saas-packs"
       },
-      "searchText": "openevidence-webhooks-events webhooks events for openevidence. trigger: \"openevidence webhooks events\". saas-packs read write edit grep "
+      "searchText": "openevidence-webhooks-events design safe openevidence workflow handoffs while explicitly rejecting undocumented public webhooks and event schemas. use when working with openevidence in a healthcare organization. trigger with \"openevidence webhooks events\", \"openevidence handoffs\", or a matching workflow request. saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",

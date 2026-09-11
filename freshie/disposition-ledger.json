@@ -3,7 +3,7 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "67f209e52cf60f44fe7c9c8523b497954ddb75490339c691809cc204a6e7d39f",
+    "sha256": "e4bb7c727377d75726fc85e611b042af396695664b0b62a6191629c62e998629",
     "artifact_count": 3491
   },
   "rule_order": [
@@ -19,9 +19,9 @@
     "G9"
   ],
   "counts": {
-    "AUTO-MIGRATE": 157,
+    "AUTO-MIGRATE": 133,
     "CERTIFY": 0,
-    "CERTIFY-PENDING-EVIDENCE": 2988,
+    "CERTIFY-PENDING-EVIDENCE": 3012,
     "CERTIFY-UPSTREAM": 0,
     "DEEP-REMEDIATE": 1,
     "QUARANTINE": 345
@@ -27165,456 +27165,266 @@
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-ci-integration/SKILL.md",
-      "grade": "B",
-      "score": 84,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 100,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-common-errors/SKILL.md",
-      "grade": "B",
-      "score": 84,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 100,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-core-workflow-a/SKILL.md",
-      "grade": "B",
-      "score": 82,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 99,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-core-workflow-b/SKILL.md",
-      "grade": "B",
-      "score": 84,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 100,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-cost-tuning/SKILL.md",
-      "grade": "C",
-      "score": 75,
-      "diagnostics": [
-        "[body] Required section missing: '## Error Handling' (or an equivalent heading: ## Errors, ## Troubleshooting, ## Failure modes, ## Edge cases, ## Limitations) (marketplace tier)",
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Overview' (or an equivalent heading: ## Summary, ## About, ## Description, ## What it does, ## Introduction, ## Capabilities, ## Purpose) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 100,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Error Handling' (or an equivalent heading: ## Errors, ## Troubleshooting, ## Failure modes, ## Edge cases, ## Limitations) (marketplace tier)",
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Overview' (or an equivalent heading: ## Summary, ## About, ## Description, ## What it does, ## Introduction, ## Capabilities, ## Purpose) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-data-handling/SKILL.md",
-      "grade": "B",
-      "score": 86,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 99,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-debug-bundle/SKILL.md",
-      "grade": "C",
-      "score": 76,
-      "diagnostics": [
-        "[body] Required section missing: '## Error Handling' (or an equivalent heading: ## Errors, ## Troubleshooting, ## Failure modes, ## Edge cases, ## Limitations) (marketplace tier)",
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 100,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Error Handling' (or an equivalent heading: ## Errors, ## Troubleshooting, ## Failure modes, ## Edge cases, ## Limitations) (marketplace tier)",
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-deploy-integration/SKILL.md",
-      "grade": "B",
-      "score": 84,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 98,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-enterprise-rbac/SKILL.md",
-      "grade": "B",
-      "score": 84,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 98,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-hello-world/SKILL.md",
-      "grade": "C",
-      "score": 78,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 98,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-incident-runbook/SKILL.md",
-      "grade": "C",
-      "score": 77,
-      "diagnostics": [
-        "[body] Required section missing: '## Error Handling' (or an equivalent heading: ## Errors, ## Troubleshooting, ## Failure modes, ## Edge cases, ## Limitations) (marketplace tier)",
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Overview' (or an equivalent heading: ## Summary, ## About, ## Description, ## What it does, ## Introduction, ## Capabilities, ## Purpose) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 98,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Error Handling' (or an equivalent heading: ## Errors, ## Troubleshooting, ## Failure modes, ## Edge cases, ## Limitations) (marketplace tier)",
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Overview' (or an equivalent heading: ## Summary, ## About, ## Description, ## What it does, ## Introduction, ## Capabilities, ## Purpose) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-install-auth/SKILL.md",
-      "grade": "B",
-      "score": 81,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 99,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-local-dev-loop/SKILL.md",
-      "grade": "B",
-      "score": 80,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 99,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-migration-deep-dive/SKILL.md",
-      "grade": "C",
-      "score": 74,
-      "diagnostics": [
-        "[body] Required section missing: '## Error Handling' (or an equivalent heading: ## Errors, ## Troubleshooting, ## Failure modes, ## Edge cases, ## Limitations) (marketplace tier)",
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Overview' (or an equivalent heading: ## Summary, ## About, ## Description, ## What it does, ## Introduction, ## Capabilities, ## Purpose) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 100,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Error Handling' (or an equivalent heading: ## Errors, ## Troubleshooting, ## Failure modes, ## Edge cases, ## Limitations) (marketplace tier)",
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Overview' (or an equivalent heading: ## Summary, ## About, ## Description, ## What it does, ## Introduction, ## Capabilities, ## Purpose) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-multi-env-setup/SKILL.md",
-      "grade": "B",
-      "score": 84,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 99,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-observability/SKILL.md",
-      "grade": "B",
-      "score": 81,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 97,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-performance-tuning/SKILL.md",
-      "grade": "B",
-      "score": 83,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 100,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-prod-checklist/SKILL.md",
-      "grade": "C",
-      "score": 77,
-      "diagnostics": [
-        "[body] Required section missing: '## Error Handling' (or an equivalent heading: ## Errors, ## Troubleshooting, ## Failure modes, ## Edge cases, ## Limitations) (marketplace tier)",
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 99,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Error Handling' (or an equivalent heading: ## Errors, ## Troubleshooting, ## Failure modes, ## Edge cases, ## Limitations) (marketplace tier)",
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-rate-limits/SKILL.md",
-      "grade": "C",
-      "score": 74,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 99,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-reference-architecture/SKILL.md",
-      "grade": "B",
-      "score": 85,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 99,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-sdk-patterns/SKILL.md",
-      "grade": "B",
-      "score": 84,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 98,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-security-basics/SKILL.md",
-      "grade": "B",
-      "score": 85,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 98,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-upgrade-migration/SKILL.md",
-      "grade": "C",
-      "score": 78,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 100,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {
       "path": "plugins/saas-packs/openevidence-pack/skills/openevidence-webhooks-events/SKILL.md",
-      "grade": "B",
-      "score": 83,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 97,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {

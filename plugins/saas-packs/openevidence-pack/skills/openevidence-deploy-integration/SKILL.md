@@ -1,137 +1,90 @@
 ---
 name: openevidence-deploy-integration
-description: 'Deploy Integration for OpenEvidence.
-
-  Trigger: "openevidence deploy integration".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.13.0
-license: MIT
+description: >-
+  Plan a controlled OpenEvidence rollout across clinical workflows, training, governance, and rollback boundaries. Use when working with OpenEvidence in a healthcare organization. Trigger with "openevidence deploy integration", "OpenEvidence deployment", or a matching workflow request.
+argument-hint: "[practice-plan-path] [workflow]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.14.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - openevidence
-- healthcare
-compatibility: Designed for Claude Code
+- deployment
+- change-management
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; requires authorized OpenEvidence access and qualified clinical review for patient-care use
 ---
-# OpenEvidence Deploy Integration
+# OpenEvidence Practice Rollout Plan
 
 ## Overview
 
-Deploy a containerized OpenEvidence clinical evidence integration service with Docker. This skill covers building a HIPAA-conscious production image that connects to the OpenEvidence API for querying clinical evidence, retrieving medical literature summaries, and validating treatment recommendations. Includes environment configuration with audit logging and data-at-rest encryption flags, health checks that verify API connectivity without exposing PHI, and rolling update strategies that maintain service availability during critical clinical query periods.
+Treat rollout as clinical workflow change, not software API deployment. Keep inputs minimal, separate observed facts from assumptions, and leave consequential decisions with the named accountable owner.
 
-## Docker Configuration
+## Prerequisites
 
-```dockerfile
-FROM node:20-slim AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY tsconfig.json ./
-COPY src/ ./src/
-RUN npm run build
+- A clearly bounded workflow, accountable clinical owner, and organizational policy
+- Current first-party OpenEvidence documentation and applicable institution agreements
+- Synthetic or properly authorized minimum-necessary data
 
-FROM node:20-slim
-RUN addgroup --system app && adduser --system --ingroup app app
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY package*.json ./
-RUN mkdir -p /app/audit-logs && chown app:app /app/audit-logs
-USER app
-EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
-  CMD curl -f http://localhost:3000/health || exit 1
-CMD ["node", "dist/index.js"]
-```
+## Tool Discipline
 
-## Environment Variables
+Use `Read`, `Glob`, and `Grep` to inspect supplied policies, plans, and evidence. Use `WebFetch` only for current first-party OpenEvidence documentation. Use `Write` or `Edit` only when the user requests a named deliverable with an approved destination. Never expose credentials, PHI, recordings, or unrestricted environment output.
 
-```bash
-export OPENEVIDENCE_API_KEY="oe_live_xxxxxxxxxxxx"
-export OPENEVIDENCE_BASE_URL="https://api.openevidence.com/v1"
-export OPENEVIDENCE_ORG_ID="org_xxxxxxxxxxxx"
-export HIPAA_AUDIT_LOG="true"
-export HIPAA_ENCRYPT_AT_REST="true"
-export LOG_LEVEL="info"
-export PORT="3000"
-export NODE_ENV="production"
-```
+## Current Contract
 
-## Health Check Endpoint
+- OpenEvidence is delivered through documented end-user product surfaces.
+- Institution-specific availability, integrations, commitments, and data terms require written confirmation.
+- A rollout needs clinical, privacy, security, operational, and training ownership.
 
-```typescript
-import express from 'express';
+## Authentication
 
-const app = express();
+Use only the official OpenEvidence web/mobile sign-in or an institution-approved access path. Do not invent API keys, OAuth clients, SDK credentials, service accounts, or private endpoints. Never ask a user to reveal a password, session token, cookie, or recovery code.
 
-app.get('/health', async (req, res) => {
-  try {
-    const response = await fetch(`${process.env.OPENEVIDENCE_BASE_URL}/status`, {
-      headers: { 'Authorization': `Bearer ${process.env.OPENEVIDENCE_API_KEY}` },
-    });
-    if (!response.ok) throw new Error(`OpenEvidence API returned ${response.status}`);
-    // Health response must not contain PHI or query content
-    res.json({ status: 'healthy', service: 'openevidence-integration', audit: process.env.HIPAA_AUDIT_LOG === 'true', timestamp: new Date().toISOString() });
-  } catch (error) {
-    res.status(503).json({ status: 'unhealthy', error: (error as Error).message });
-  }
-});
-```
+## Instructions
 
-## Deployment Steps
+1. Select one bounded workflow and define users, patients affected, systems touched, success criteria, and explicit exclusions.
+2. Confirm account eligibility, feature availability, agreement terms, data handling, consent, and support path.
+3. Design training for prompting, EvidenceGrade, citation verification, professional judgment, and failure escalation.
+4. Pilot with synthetic scenarios, then a small authorized cohort under heightened review.
+5. Review quality, safety signals, adoption, workflow burden, and unresolved controls before expansion.
+6. Record launch/no-launch, rollback trigger, owners, training evidence, and next review date.
 
-### Step 1: Build
+## Approval Boundaries
 
-```bash
-docker build -t openevidence-integration:latest .
-```
+Do not create or share accounts; change access, roles, agreements, consent, retention, or security settings; enter PHI; record a conversation; copy content into another system; contact a patient; make a diagnosis or treatment decision; submit billing; transmit a support packet; run a production pilot; or represent vendor capabilities without explicit approval from the accountable owner. A qualified professional remains responsible for clinical decisions.
 
-### Step 2: Run
+## Output
 
-```bash
-docker run -d --name openevidence-integration \
-  -p 3000:3000 \
-  -v /var/log/openevidence:/app/audit-logs \
-  -e OPENEVIDENCE_API_KEY -e OPENEVIDENCE_BASE_URL -e OPENEVIDENCE_ORG_ID \
-  -e HIPAA_AUDIT_LOG=true -e HIPAA_ENCRYPT_AT_REST=true \
-  openevidence-integration:latest
-```
-
-### Step 3: Verify
-
-```bash
-curl -s http://localhost:3000/health | jq .
-```
-
-### Step 4: Rolling Update
-
-```bash
-docker build -t openevidence-integration:v2 . && \
-docker stop openevidence-integration && \
-docker rm openevidence-integration && \
-docker run -d --name openevidence-integration -p 3000:3000 \
-  -v /var/log/openevidence:/app/audit-logs \
-  -e OPENEVIDENCE_API_KEY -e OPENEVIDENCE_BASE_URL -e OPENEVIDENCE_ORG_ID \
-  -e HIPAA_AUDIT_LOG=true -e HIPAA_ENCRYPT_AT_REST=true \
-  openevidence-integration:v2
-```
+Return scope, current first-party evidence and date, data classification, workflow or findings, citations reviewed, assumptions rejected, clinical and governance owners, approval state, unresolved risk, and the exact next action. Redact patient and credential data.
 
 ## Error Handling
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| `401 Unauthorized` | Invalid or expired API key | Regenerate key in OpenEvidence admin portal |
-| `403 Forbidden` | Organization access denied | Verify `OPENEVIDENCE_ORG_ID` matches API key scope |
-| `404 Not Found` | Evidence query endpoint unavailable | Check API version and endpoint path |
-| `429 Rate Limited` | Exceeding clinical query rate limits | Implement backoff; cache evidence responses |
-| Audit log not writing | Volume mount missing or permissions | Verify `/var/log/openevidence` exists and is writable |
+| Condition | Response |
+|---|---|
+| Feature not documented | Exclude it until OpenEvidence or the contract owner confirms support. |
+| Governance owner missing | Do not launch the workflow. |
+| Pilot creates unsafe reliance | Pause, retrain, and reassess before resuming. |
+
+## Examples
+
+This compact example shows the minimum reviewable handoff; adapt fields to the approved workflow without adding sensitive data.
+
+Input:
+
+```text
+workflow=Ask for guideline summaries; cohort=5 clinicians; phase=pilot
+```
+
+Expected handoff:
+
+```text
+decision=conditional-go; controls=verified; rollback=defined; review=14d
+```
 
 ## Resources
 
-- [OpenEvidence Platform](https://www.openevidence.com)
-
-## Next Steps
-
-See `openevidence-webhooks-events`.
+- [OpenEvidence official evidence register](references/official-docs.md)
+- [OpenEvidence User Guide](https://www.openevidence.com/user-guide)
+- [OpenEvidence Terms of Use](https://www.openevidence.com/policies/terms)

@@ -1,8 +1,8 @@
-# OpenEvidence Skill Pack
+# OpenEvidence Operator Skill Pack
 
-> Claude Code skill pack for OpenEvidence integration (24 skills)
+> Twenty-four source-grounded skills for safe, reviewable use of the documented OpenEvidence product.
 
-Medical AI API for clinical decision support, evidence-based queries, and DeepConsult research synthesis.
+This pack covers clinical evidence review, prompting, onboarding, rollout, privacy, security, incident response, and institutional governance. It does **not** claim that OpenEvidence publishes an API, SDK, webhook contract, developer environment, or numeric rate-limit policy. Compatibility slugs are retained so existing installations and skills.sh links continue to resolve.
 
 ## Installation
 
@@ -10,50 +10,42 @@ Medical AI API for clinical decision support, evidence-based queries, and DeepCo
 /plugin install openevidence-pack@claude-code-plugins-plus
 ```
 
-## Skills Included
+## Safety boundary
 
-### Standard Skills (S01-S12)
+OpenEvidence describes its services as informational and educational, not a diagnostic substitute. These skills keep clinical decisions with qualified professionals. Patient data, recordings, access changes, contracts, and production rollout require the accountable organization's approval and applicable law, policy, consent, BAA, MSA, or SLA.
 
-| Skill | Description |
-|-------|-------------|
-| `openevidence-common-errors` | Common Errors |
-| `openevidence-core-workflow-a` | Core Workflow A |
-| `openevidence-core-workflow-b` | Core Workflow B |
-| `openevidence-debug-bundle` | Debug Bundle |
-| `openevidence-hello-world` | Hello World |
-| `openevidence-install-auth` | Install Auth |
-| `openevidence-local-dev-loop` | Local Dev Loop |
-| `openevidence-prod-checklist` | Prod Checklist |
-| `openevidence-rate-limits` | Rate Limits |
-| `openevidence-sdk-patterns` | Sdk Patterns |
-| `openevidence-security-basics` | Security Basics |
-| `openevidence-upgrade-migration` | Upgrade Migration |
+## Skills
 
-### Pro Skills (P13-P18)
+| Skill | Operator outcome |
+|---|---|
+| `openevidence-ci-integration` | Build a manual rollout acceptance gate without inventing a test API. |
+| `openevidence-common-errors` | Troubleshoot access, prompting, evidence, citation, and product symptoms. |
+| `openevidence-core-workflow-a` | Run a structured, clinician-owned clinical consult. |
+| `openevidence-core-workflow-b` | Review EvidenceGrade, citations, and applicability. |
+| `openevidence-cost-tuning` | Evaluate adoption value without invented prices or telemetry. |
+| `openevidence-data-handling` | Establish PHI, consent, recording, and export boundaries. |
+| `openevidence-debug-bundle` | Produce a redacted support packet. |
+| `openevidence-deploy-integration` | Plan a controlled practice rollout. |
+| `openevidence-enterprise-rbac` | Govern institutional access without invented RBAC or SCIM APIs. |
+| `openevidence-hello-world` | Prove verified-user access with a synthetic question. |
+| `openevidence-incident-runbook` | Triage clinical-AI safety, privacy, and product incidents. |
+| `openevidence-install-auth` | Establish official account access without packages or tokens. |
+| `openevidence-local-dev-loop` | Evaluate workflows using synthetic cases. |
+| `openevidence-migration-deep-dive` | Migrate Deep Consult procedures to Snow. |
+| `openevidence-multi-env-setup` | Verify web/mobile workflow parity without fake hosts. |
+| `openevidence-observability` | Audit quality, adoption, and safety signals. |
+| `openevidence-performance-tuning` | Refine prompts through controlled comparison. |
+| `openevidence-prod-checklist` | Gate clinical go-live and rollback readiness. |
+| `openevidence-rate-limits` | Triage capacity symptoms without invented quotas. |
+| `openevidence-reference-architecture` | Design a human-in-the-loop operating model. |
+| `openevidence-sdk-patterns` | Choose supported interaction patterns and block fake SDKs. |
+| `openevidence-security-basics` | Perform security and contract due diligence. |
+| `openevidence-upgrade-migration` | Adopt documented product changes safely. |
+| `openevidence-webhooks-events` | Design approved handoffs and block fake webhooks. |
 
-| Skill | Description |
-|-------|-------------|
-| `openevidence-ci-integration` | Ci Integration |
-| `openevidence-cost-tuning` | Cost Tuning |
-| `openevidence-deploy-integration` | Deploy Integration |
-| `openevidence-performance-tuning` | Performance Tuning |
-| `openevidence-reference-architecture` | Reference Architecture |
-| `openevidence-webhooks-events` | Webhooks Events |
+## Evidence
 
-### Flagship Skills (F19-F24)
-
-| Skill | Description |
-|-------|-------------|
-| `openevidence-data-handling` | Data Handling |
-| `openevidence-enterprise-rbac` | Enterprise Rbac |
-| `openevidence-incident-runbook` | Incident Runbook |
-| `openevidence-migration-deep-dive` | Migration Deep Dive |
-| `openevidence-multi-env-setup` | Multi Env Setup |
-| `openevidence-observability` | Observability |
-
-## Usage
-
-Skills trigger automatically when you discuss OpenEvidence topics.
+Each skill includes a dated first-party evidence register linking to the OpenEvidence user guide, Terms, Privacy Policy, Security page, and Trust Center. Re-check those sources and institution-specific agreements before production use.
 
 ## License
 

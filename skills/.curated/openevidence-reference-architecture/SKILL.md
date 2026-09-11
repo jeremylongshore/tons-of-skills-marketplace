@@ -1,123 +1,90 @@
 ---
 name: openevidence-reference-architecture
-description: 'Reference Architecture for OpenEvidence.
-
-  Trigger: "openevidence reference architecture".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.13.0
-license: MIT
+description: >-
+  Design a governed operating model around OpenEvidence’s supported product workflows and clinician review. Use when working with OpenEvidence in a healthcare organization. Trigger with "openevidence reference architecture", "OpenEvidence architecture", or a matching workflow request.
+argument-hint: "[architecture-notes-path] [workflow]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.14.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - openevidence
-- healthcare
-compatibility: Designed for Claude Code
+- architecture
+- governance
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; requires authorized OpenEvidence access and qualified clinical review for patient-care use
 ---
-# OpenEvidence Reference Architecture
+# OpenEvidence Human-in-the-Loop Operating Model
 
 ## Overview
 
-Production architecture for clinical decision support integrations with OpenEvidence. Designed for healthcare platforms needing evidence-based query processing, citation-backed clinical answers, and full audit logging for regulatory compliance. Key design drivers: HIPAA-compliant data handling, deterministic citation pipelines for clinical accuracy, query audit trails for malpractice risk mitigation, and sub-second response times for point-of-care workflows where clinicians need answers during patient encounters.
+Map people, product surfaces, evidence review, governed records, and incident paths without fabricating integrations. Keep inputs minimal, separate observed facts from assumptions, and leave consequential decisions with the named accountable owner.
 
-## Architecture Diagram
+## Prerequisites
 
-```
-Clinician UI ──→ API Gateway (auth + HIPAA) ──→ Query Service ──→ OpenEvidence API
-                        ↓                            ↓             /query
-                   Audit Logger ──→ Audit DB    Cache (Redis)      /citations
-                        ↓                            ↓
-                   Analytics ──→ Usage Dashboard  Citation Store ──→ Evidence DB
-```
+- A clearly bounded workflow, accountable clinical owner, and organizational policy
+- Current first-party OpenEvidence documentation and applicable institution agreements
+- Synthetic or properly authorized minimum-necessary data
 
-## Service Layer
+## Tool Discipline
 
-```typescript
-class ClinicalQueryService {
-  constructor(private oe: OpenEvidenceClient, private cache: CacheLayer, private audit: AuditLogger) {}
+Use `Read`, `Glob`, and `Grep` to inspect supplied policies, plans, and evidence. Use `WebFetch` only for current first-party OpenEvidence documentation. Use `Write` or `Edit` only when the user requests a named deliverable with an approved destination. Never expose credentials, PHI, recordings, or unrestricted environment output.
 
-  async queryEvidence(query: ClinicalQuery): Promise<EvidenceResponse> {
-    await this.audit.log({ type: 'query_submitted', clinicianId: query.clinicianId, queryText: query.text, timestamp: new Date() });
-    const cacheKey = `evidence:${this.hashQuery(query.text)}`;
-    const cached = await this.cache.get(cacheKey);
-    if (cached) { await this.audit.log({ type: 'cache_hit', cacheKey }); return cached; }
-    const response = await this.oe.query(query.text, { specialty: query.specialty });
-    await this.storeCitations(response.citations);
-    await this.cache.set(cacheKey, response, CACHE_CONFIG.evidence.ttl);
-    await this.audit.log({ type: 'query_completed', citationCount: response.citations.length });
-    return response;
-  }
+## Current Contract
 
-  async getCitationChain(citationId: string): Promise<Citation[]> {
-    return this.evidenceDb.getCitationWithReferences(citationId);
-  }
-}
-```
+- The documented surface comprises product workflows such as Ask, Visits, and Dialer, subject to current availability.
+- No public API, webhook, SDK, or infrastructure deployment contract was found.
+- Clinical decisions and official records remain owned by qualified people and approved systems.
 
-## Caching Strategy
+## Authentication
 
-```typescript
-const CACHE_CONFIG = {
-  evidence:   { ttl: 86400, prefix: 'evidence' },  // 24 hr — clinical evidence changes slowly
-  citations:  { ttl: 604800, prefix: 'cite' },     // 7 days — published citations are stable
-  queryHist:  { ttl: 3600, prefix: 'qhist' },      // 1 hr — recent query dedup for same clinician
-  guidelines: { ttl: 43200, prefix: 'guide' },      // 12 hr — clinical guidelines update infrequently
-  audit:      { ttl: 0, prefix: 'audit' },          // never cached — every audit entry must persist
-};
-// New guideline publication events invalidate evidence cache for affected specialties
-```
+Use only the official OpenEvidence web/mobile sign-in or an institution-approved access path. Do not invent API keys, OAuth clients, SDK credentials, service accounts, or private endpoints. Never ask a user to reveal a password, session token, cookie, or recovery code.
 
-## Event Pipeline
+## Instructions
 
-```typescript
-class ClinicalEventPipeline {
-  private queue = new Bull('clinical-events', { redis: process.env.REDIS_URL });
+1. Map users, patient touchpoints, product features, source evidence, record systems, support, and governance owners.
+2. Draw trust boundaries for credentials, PHI, recordings, copied outputs, citations, and third-party communications.
+3. Place clinician review before any care decision and define how evidence is verified and uncertainty recorded.
+4. Use only documented handoffs; label desired integrations as vendor-confirmation questions, not architecture facts.
+5. Add access lifecycle, monitoring, incident response, downtime alternative, retention, and rollback.
+6. Review the model with clinical, privacy, security, legal, operations, and records owners.
 
-  async onQueryCompleted(event: QueryCompletedEvent): Promise<void> {
-    await this.queue.add('process', event, { attempts: 5, backoff: { type: 'exponential', delay: 2000 } });
-  }
+## Approval Boundaries
 
-  async processQueryEvent(event: QueryCompletedEvent): Promise<void> {
-    await this.updateUsageAnalytics(event.clinicianId, event.specialty);
-    if (event.feedbackScore !== undefined) await this.logFeedback(event);
-    await this.checkGuidelineAlignment(event);  // Flag if answer diverges from current guidelines
-  }
-}
-```
+Do not create or share accounts; change access, roles, agreements, consent, retention, or security settings; enter PHI; record a conversation; copy content into another system; contact a patient; make a diagnosis or treatment decision; submit billing; transmit a support packet; run a production pilot; or represent vendor capabilities without explicit approval from the accountable owner. A qualified professional remains responsible for clinical decisions.
 
-## Data Model
+## Output
 
-```typescript
-interface ClinicalQuery    { clinicianId: string; text: string; specialty: string; patientContext?: string; urgency: 'routine' | 'urgent'; }
-interface EvidenceResponse { answer: string; confidence: number; citations: Citation[]; specialty: string; responseTimeMs: number; }
-interface Citation         { id: string; title: string; journal: string; year: number; doi: string; relevanceScore: number; evidenceLevel: 'I' | 'II' | 'III' | 'IV' | 'V'; }
-interface AuditEntry       { id: string; type: string; clinicianId: string; timestamp: Date; queryText?: string; citationCount?: number; ipAddress: string; }
-```
-
-## Scaling Considerations
-
-- Separate audit write path from query path — audit logging must never slow clinical responses
-- Cache evidence responses aggressively — same clinical questions recur across clinicians
-- Partition audit DB by month for compliance retention windows and query performance
-- Use read replicas for analytics dashboard; primary DB reserved for audit writes
-- Rate-limit per clinician to prevent abuse while ensuring genuine clinical queries are never blocked
+Return scope, current first-party evidence and date, data classification, workflow or findings, citations reviewed, assumptions rejected, clinical and governance owners, approval state, unresolved risk, and the exact next action. Redact patient and credential data.
 
 ## Error Handling
 
-| Component | Failure Mode | Recovery |
-|-----------|-------------|----------|
-| Evidence query | OpenEvidence API timeout | Serve cached response if available, degrade to "consult specialist" message |
-| Audit logging | Audit DB write failure | Buffer to local WAL, retry with dead-letter queue — never drop audit entries |
-| Citation retrieval | DOI resolution failure | Return citation metadata without full text link, flag for manual review |
-| Cache layer | Redis connection lost | Bypass cache, query API directly, alert ops for cache restoration |
-| HIPAA compliance | Unauthorized access attempt | Immediate block, audit log, alert security team, preserve evidence |
+| Condition | Response |
+|---|---|
+| Private endpoint appears in design | Remove it until a signed/current contract documents it. |
+| AI output becomes system of record automatically | Insert human review and approved record controls. |
+| No downtime path | Block go-live until one exists. |
+
+## Examples
+
+This compact example shows the minimum reviewable handoff; adapt fields to the approved workflow without adding sensitive data.
+
+Input:
+
+```text
+workflow=Ask-to-clinical-note; systems=OpenEvidence+EHR; integration=manual-copy
+```
+
+Expected handoff:
+
+```text
+boundaries=6; human-gates=2; undocumented-integrations=0; review=pending
+```
 
 ## Resources
 
-- [OpenEvidence Platform](https://www.openevidence.com)
-- [OpenEvidence for Clinicians](https://www.openevidence.com/about)
-
-## Next Steps
-
-See `openevidence-deploy-integration`.
+- [OpenEvidence official evidence register](references/official-docs.md)
+- [OpenEvidence User Guide](https://www.openevidence.com/user-guide)
+- [OpenEvidence Terms of Use](https://www.openevidence.com/policies/terms)
