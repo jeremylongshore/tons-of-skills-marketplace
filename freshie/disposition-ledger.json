@@ -3,7 +3,7 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "e194d390f685c3bd0a3e60e51f96fc8dee559953c19a54a234dbe8d85070a5e3",
+    "sha256": "a72c31cdb426591e14ce0397949178ad06b8a31d559f0bbdfdd37afc381576b2",
     "artifact_count": 3491
   },
   "rule_order": [
@@ -9329,20 +9329,9 @@
     },
     {
       "path": "plugins/productivity/publishing-skills/skills/blog-editorial-calendar/SKILL.md",
-      "grade": "D",
-      "score": 62,
-      "diagnostics": [
-        "[body] Required section missing: '## Error Handling' (or an equivalent heading: ## Errors, ## Troubleshooting, ## Failure modes, ## Edge cases, ## Limitations) (marketplace tier)",
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Overview' (or an equivalent heading: ## Summary, ## About, ## Description, ## What it does, ## Introduction, ## Capabilities, ## Purpose) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)",
-        "[body] Required section missing: '## Resources' (or an equivalent heading: ## References, ## See also, ## Links, ## Further reading, ## Related, ## Additional resources) (marketplace tier)",
-        "[frontmatter] 'description' exceeds 1024 characters",
-        "[frontmatter] allowed-tools: unscoped 'Bash' is not allowed - use scoped Bash(git:*), Bash(npm:*), etc.",
-        "[tier2:tool-safety] Unscoped Bash + Write/WebFetch declared without a Safety Justification section — high-risk combo. Add `## Safety Justification` explaining why."
-      ],
+      "grade": "A",
+      "score": 95,
+      "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
       "reason_codes": [
@@ -9351,17 +9340,9 @@
     },
     {
       "path": "plugins/productivity/publishing-skills/skills/blog-figure-svg/SKILL.md",
-      "grade": "F",
-      "score": 53,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Overview' (or an equivalent heading: ## Summary, ## About, ## Description, ## What it does, ## Introduction, ## Capabilities, ## Purpose) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)",
-        "[body] Required section missing: '## Resources' (or an equivalent heading: ## References, ## See also, ## Links, ## Further reading, ## Related, ## Additional resources) (marketplace tier)",
-        "[body] SKILL.md body has 520 lines — exceeds Anthropic 500-line limit. Extract to references/"
-      ],
+      "grade": "A",
+      "score": 92,
+      "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
       "reason_codes": [
@@ -9370,18 +9351,9 @@
     },
     {
       "path": "plugins/productivity/publishing-skills/skills/blog-topic-research/SKILL.md",
-      "grade": "D",
-      "score": 61,
-      "diagnostics": [
-        "[body] Required section missing: '## Error Handling' (or an equivalent heading: ## Errors, ## Troubleshooting, ## Failure modes, ## Edge cases, ## Limitations) (marketplace tier)",
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Overview' (or an equivalent heading: ## Summary, ## About, ## Description, ## What it does, ## Introduction, ## Capabilities, ## Purpose) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)",
-        "[body] Required section missing: '## Resources' (or an equivalent heading: ## References, ## See also, ## Links, ## Further reading, ## Related, ## Additional resources) (marketplace tier)",
-        "[frontmatter] 'description' exceeds 1024 characters"
-      ],
+      "grade": "A",
+      "score": 94,
+      "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
       "reason_codes": [
@@ -9390,17 +9362,9 @@
     },
     {
       "path": "plugins/productivity/publishing-skills/skills/seo-blog-writer/SKILL.md",
-      "grade": "D",
-      "score": 67,
-      "diagnostics": [
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Overview' (or an equivalent heading: ## Summary, ## About, ## Description, ## What it does, ## Introduction, ## Capabilities, ## Purpose) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)",
-        "[body] Required section missing: '## Resources' (or an equivalent heading: ## References, ## See also, ## Links, ## Further reading, ## Related, ## Additional resources) (marketplace tier)",
-        "[body] SKILL.md body has 765 lines — exceeds Anthropic 500-line limit. Extract to references/"
-      ],
+      "grade": "A",
+      "score": 100,
+      "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
       "reason_codes": [

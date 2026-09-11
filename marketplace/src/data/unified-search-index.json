@@ -160,6 +160,8 @@
       "Bash(httpx*)",
       "Bash(hurl*)",
       "Bash(iac-check:*)",
+      "Bash(identify:*)",
+      "Bash(inkscape:*)",
       "Bash(iostat:*)",
       "Bash(j-rig:*)",
       "Bash(java:*)",
@@ -180,6 +182,7 @@
       "Bash(logs:*)",
       "Bash(lokalise2:*)",
       "Bash(ls:*)",
+      "Bash(magick:*)",
       "Bash(memory:*)",
       "Bash(metrics:*)",
       "Bash(mkdir:*)",
@@ -241,6 +244,7 @@
       "Bash(restic*)",
       "Bash(rg:*)",
       "Bash(rm:*)",
+      "Bash(rsvg-convert:*)",
       "Bash(rsync:*)",
       "Bash(ruff*)",
       "Bash(rum:*)",
@@ -378,6 +382,7 @@
       "ab-testing",
       "abridge",
       "accessibility",
+      "accessible-svg",
       "account-abstraction",
       "accounting",
       "adam",
@@ -441,7 +446,6 @@
       "ai-tutor",
       "ai-video",
       "ai-website",
-      "ai-writing",
       "alb",
       "alchemy",
       "alert",
@@ -527,7 +531,6 @@
       "billingcenter",
       "bitcoin",
       "blockchain",
-      "blogging",
       "bottleneck",
       "box",
       "box-cli",
@@ -601,6 +604,7 @@
       "clustering",
       "clusters",
       "cmms",
+      "cms",
       "code-coverage",
       "code-editor",
       "code-examples",
@@ -768,6 +772,7 @@
       "edge-cases",
       "edge-functions",
       "edge-tts",
+      "editorial-workflow",
       "edtech",
       "education",
       "elevenlabs",
@@ -888,7 +893,6 @@
       "generator",
       "genkit",
       "genkit-examples",
-      "ghost",
       "git",
       "git-churn",
       "git-hooks",
@@ -1464,6 +1468,7 @@
       "socket.io",
       "software-engineer",
       "source-of-truth",
+      "source-verification",
       "sow",
       "spark",
       "speak",
@@ -14445,16 +14450,15 @@
       "slug": "publishing-skills",
       "name": "publishing-skills",
       "displayName": "publishing skills",
-      "description": "Four composable skills that turn an AI agent into a platform-agnostic long-tail SEO publishing pipeline — topic research, drafting, SVG figures, and an editorial calendar. Ships Ghost, WordPress, and static-site adapters.",
+      "description": "Governed editorial workflows for evidence-backed topic research, content scheduling, accessible SVG figures, source-grounded drafting, and approved CMS handoff.",
       "category": "productivity",
       "keywords": [
-        "ghost",
-        "blogging",
         "seo",
-        "content-creation",
+        "editorial-workflow",
+        "source-verification",
+        "accessible-svg",
         "publishing",
-        "claude-code",
-        "ai-writing"
+        "cms"
       ],
       "author": {
         "name": "AutomateLab",
@@ -14462,15 +14466,15 @@
         "email": "hello@automatelab.tech"
       },
       "authorType": "community",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 4,
-      "verificationScore": 61,
-      "verificationGrade": "D",
-      "verificationBadge": "bronze",
-      "searchText": "publishing skills four composable skills that turn an ai agent into a platform-agnostic long-tail seo publishing pipeline — topic research, drafting, svg figures, and an editorial calendar. ships ghost, wordpress, and static-site adapters. productivity ghost blogging seo content-creation publishing claude-code ai-writing"
+      "verificationScore": 95,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "publishing skills governed editorial workflows for evidence-backed topic research, content scheduling, accessible svg figures, source-grounded drafting, and approved cms handoff. productivity seo editorial-workflow source-verification accessible-svg publishing cms"
     },
     {
       "type": "plugin",
@@ -22670,66 +22674,70 @@
       "id": "blog-editorial-calendar",
       "slug": "blog-editorial-calendar",
       "name": "blog-editorial-calendar",
-      "description": "Run your blog like a queue, not a guessing game. This skill is the orchestration layer on top of blog-topic-research and seo-blog-writer: it keeps an evidence-backed backlog, picks the next topic so your corpus drifts toward the cluster + format mix you defined, schedules posts into a rolling daily cadence, and marks them done — autonomously, two posts a day if you want. It scores every pick by how far each topic cluster is from its target weight (so you never end up with 40 troubleshooting posts and no comparisons), reconciles the backlog against what's actually live on your CMS, and auto-refills by calling blog-topic-research when the queue runs dry. Platform-agnostic: it drives whatever publish adapter seo-blog-writer is configured for (Ghost, WordPress, static site). Built for founders, indie hackers, and content teams who want a hands-off long-tail SEO pipeline that publishes on a schedule and stays balanced. Trigger when the user says: 'what should I write next', 'pick the next topic', 'schedule the next N posts', 'editorial calendar status', 'add this to the backlog', 'mark this post done', or any variant of running a recurring publish cadence.",
+      "description": "Operate an evidence-backed editorial queue, balance topic and format coverage, schedule approved drafts, and reconcile backlog state with the publishing system. Use when choosing or scheduling the next blog work. Trigger with \"show the editorial calendar\" or \"pick the next topic\".",
       "category": "productivity",
       "allowedTools": [
+        "Read",
         "WebSearch",
         "WebFetch",
-        "Read",
         "Write",
-        "Bash"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.0.0",
+      "version": "1.1.0",
       "parentPlugin": {
         "name": "publishing-skills",
         "category": "productivity"
       },
-      "searchText": "blog-editorial-calendar run your blog like a queue, not a guessing game. this skill is the orchestration layer on top of blog-topic-research and seo-blog-writer: it keeps an evidence-backed backlog, picks the next topic so your corpus drifts toward the cluster + format mix you defined, schedules posts into a rolling daily cadence, and marks them done — autonomously, two posts a day if you want. it scores every pick by how far each topic cluster is from its target weight (so you never end up with 40 troubleshooting posts and no comparisons), reconciles the backlog against what's actually live on your cms, and auto-refills by calling blog-topic-research when the queue runs dry. platform-agnostic: it drives whatever publish adapter seo-blog-writer is configured for (ghost, wordpress, static site). built for founders, indie hackers, and content teams who want a hands-off long-tail seo pipeline that publishes on a schedule and stays balanced. trigger when the user says: 'what should i write next', 'pick the next topic', 'schedule the next n posts', 'editorial calendar status', 'add this to the backlog', 'mark this post done', or any variant of running a recurring publish cadence. productivity websearch webfetch read write bash "
+      "searchText": "blog-editorial-calendar operate an evidence-backed editorial queue, balance topic and format coverage, schedule approved drafts, and reconcile backlog state with the publishing system. use when choosing or scheduling the next blog work. trigger with \"show the editorial calendar\" or \"pick the next topic\". productivity read websearch webfetch write edit "
     },
     {
       "type": "skill",
       "id": "blog-figure-svg",
       "slug": "blog-figure-svg",
       "name": "blog-figure-svg",
-      "description": "Stop using stock photos. Generate accessible, lightweight SVG figures for any blog or CMS - flow diagrams, comparison bar charts, taxonomy/Venn diagrams, annotated terminal mocks, and 1600x840 OG feature cards. Hand-authored SVG (no embedded fonts, no external assets, no AI-image latency) with a consistent palette, screen-reader metadata (title + desc + aria-labelledby), and a figcaption-required handoff to the writer. Rasterizes to compressed PNG ready for Ghost, WordPress, Webflow, or any static-site generator. Built for content marketers, indie hackers, and dev-tool blogs that want unique illustrations on every post without paying a designer or burning Midjourney credits. Trigger when the user says: 'add a figure to the post', 'illustrate this comparison', 'draw a flow diagram for X', 'make a feature/OG image', or any request to produce a chart/diagram for editorial use.",
+      "description": "Design accessible, source-backed SVG editorial figures and optionally rasterize reviewed assets for a blog or CMS. Use when a post needs a flow, comparison, taxonomy, terminal mock, or feature card. Trigger with \"add a figure to this post\" or \"make an SVG diagram\".",
       "category": "productivity",
       "allowedTools": [
-        "WebSearch",
-        "WebFetch",
-        "Bash(python3:*)",
         "Read",
-        "Write"
+        "Write",
+        "Edit",
+        "Bash(command:*)",
+        "Bash(magick:*)",
+        "Bash(identify:*)",
+        "Bash(rsvg-convert:*)",
+        "Bash(inkscape:*)",
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "parentPlugin": {
         "name": "publishing-skills",
         "category": "productivity"
       },
-      "searchText": "blog-figure-svg stop using stock photos. generate accessible, lightweight svg figures for any blog or cms - flow diagrams, comparison bar charts, taxonomy/venn diagrams, annotated terminal mocks, and 1600x840 og feature cards. hand-authored svg (no embedded fonts, no external assets, no ai-image latency) with a consistent palette, screen-reader metadata (title + desc + aria-labelledby), and a figcaption-required handoff to the writer. rasterizes to compressed png ready for ghost, wordpress, webflow, or any static-site generator. built for content marketers, indie hackers, and dev-tool blogs that want unique illustrations on every post without paying a designer or burning midjourney credits. trigger when the user says: 'add a figure to the post', 'illustrate this comparison', 'draw a flow diagram for x', 'make a feature/og image', or any request to produce a chart/diagram for editorial use. productivity websearch webfetch bash(python3:*) read write "
+      "searchText": "blog-figure-svg design accessible, source-backed svg editorial figures and optionally rasterize reviewed assets for a blog or cms. use when a post needs a flow, comparison, taxonomy, terminal mock, or feature card. trigger with \"add a figure to this post\" or \"make an svg diagram\". productivity read write edit bash(command:*) bash(magick:*) bash(identify:*) bash(rsvg-convert:*) bash(inkscape:*) bash(python3:*) "
     },
     {
       "type": "skill",
       "id": "blog-topic-research",
       "slug": "blog-topic-research",
       "name": "blog-topic-research",
-      "description": "Stop writing blog posts nobody searches for. This skill builds your editorial backlog from real, verifiable user demand - never from AI vibes. It mines candidates from Google Suggest, People Also Ask, Reddit, Stack Overflow, GitHub issues, vendor forums, and changelogs; captures every signal as a citable URL with verbatim evidence; classifies each topic by post format (how-to-fix, x-vs-y, listicle, migration, release-recap, ...); checks against your existing backlog so you don't cannibalize what you already published; and outputs a writer-ready scaffold with primary sources, problem summary, confirmed fixes, version context, and FAQ variants. Built for content marketers, founders, indie hackers, and dev-tool teams who want a long-tail SEO pipeline backed by evidence instead of hallucinated keyword volumes. Trigger when the user says: 'research blog topics', 'find topics with real demand', 'expand the editorial backlog', 'research N long-tail topics', or any variant of growing a content pipeline with verified candidates.",
+      "description": "Build a deduplicated editorial backlog from current, traceable demand and authoritative product evidence. Use when deciding which long-tail topics are worth writing before drafting begins. Trigger with \"research blog topics\" or \"find evidence-backed content ideas\".",
       "category": "productivity",
       "allowedTools": [
+        "Read",
         "WebSearch",
         "WebFetch",
-        "Bash(python3:*)",
-        "Read",
-        "Write"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "parentPlugin": {
         "name": "publishing-skills",
         "category": "productivity"
       },
-      "searchText": "blog-topic-research stop writing blog posts nobody searches for. this skill builds your editorial backlog from real, verifiable user demand - never from ai vibes. it mines candidates from google suggest, people also ask, reddit, stack overflow, github issues, vendor forums, and changelogs; captures every signal as a citable url with verbatim evidence; classifies each topic by post format (how-to-fix, x-vs-y, listicle, migration, release-recap, ...); checks against your existing backlog so you don't cannibalize what you already published; and outputs a writer-ready scaffold with primary sources, problem summary, confirmed fixes, version context, and faq variants. built for content marketers, founders, indie hackers, and dev-tool teams who want a long-tail seo pipeline backed by evidence instead of hallucinated keyword volumes. trigger when the user says: 'research blog topics', 'find topics with real demand', 'expand the editorial backlog', 'research n long-tail topics', or any variant of growing a content pipeline with verified candidates. productivity websearch webfetch bash(python3:*) read write "
+      "searchText": "blog-topic-research build a deduplicated editorial backlog from current, traceable demand and authoritative product evidence. use when deciding which long-tail topics are worth writing before drafting begins. trigger with \"research blog topics\" or \"find evidence-backed content ideas\". productivity read websearch webfetch write edit "
     },
     {
       "type": "skill",
@@ -69929,22 +69937,23 @@
       "id": "seo-blog-writer",
       "slug": "seo-blog-writer",
       "name": "seo-blog-writer",
-      "description": "Turn a single long-tail query into a publish-ready blog post that ranks in search and gets quoted by AI assistants. Runs the full pipeline: classify the topic, research it against real sources, draft clean HTML, scrub LLM-tell vocabulary and typography, audit for AI-SEO (TL;DR block, query-phrased H2s, FAQ section, FAQPage + BreadcrumbList + HowTo JSON-LD), then publish through a platform adapter (Ghost Admin API, WordPress REST, or static-site file output). Platform-agnostic core; swap the publish step without rewriting the writing pipeline. Built for indie hackers, founders, and content marketers who want AI to draft posts that are actually citable - not paraphrased docs, not hallucinated benchmarks. Trigger when the user says: 'write a blog post on X', 'draft an article about X', 'publish a post on X to Ghost / WordPress / the static site', or any request to ship editorial content for a long-tail query.",
+      "description": "Research, draft, validate, and hand off one source-grounded long-tail article through an approved CMS or static-site adapter. Use when turning a confirmed topic into publish-ready editorial content. Trigger with \"write an SEO blog post\" or \"draft an article about this topic\".",
       "category": "productivity",
       "allowedTools": [
+        "Read",
         "WebSearch",
         "WebFetch",
-        "Bash(python3:*)",
-        "Read",
-        "Write"
+        "Write",
+        "Edit",
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "2.2.0",
+      "version": "2.3.0",
       "parentPlugin": {
         "name": "publishing-skills",
         "category": "productivity"
       },
-      "searchText": "seo-blog-writer turn a single long-tail query into a publish-ready blog post that ranks in search and gets quoted by ai assistants. runs the full pipeline: classify the topic, research it against real sources, draft clean html, scrub llm-tell vocabulary and typography, audit for ai-seo (tl;dr block, query-phrased h2s, faq section, faqpage + breadcrumblist + howto json-ld), then publish through a platform adapter (ghost admin api, wordpress rest, or static-site file output). platform-agnostic core; swap the publish step without rewriting the writing pipeline. built for indie hackers, founders, and content marketers who want ai to draft posts that are actually citable - not paraphrased docs, not hallucinated benchmarks. trigger when the user says: 'write a blog post on x', 'draft an article about x', 'publish a post on x to ghost / wordpress / the static site', or any request to ship editorial content for a long-tail query. productivity websearch webfetch bash(python3:*) read write "
+      "searchText": "seo-blog-writer research, draft, validate, and hand off one source-grounded long-tail article through an approved cms or static-site adapter. use when turning a confirmed topic into publish-ready editorial content. trigger with \"write an seo blog post\" or \"draft an article about this topic\". productivity read websearch webfetch write edit bash(python3:*) "
     },
     {
       "type": "skill",
