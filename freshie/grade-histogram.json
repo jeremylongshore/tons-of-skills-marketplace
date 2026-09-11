@@ -1,13 +1,13 @@
 {
-  "run_id": 95,
+  "run_id": 97,
   "total": 3491,
   "grades": {
-    "A": 2332,
-    "B": 830,
-    "C": 171,
+    "A": 2356,
+    "B": 814,
+    "C": 163,
     "D": 154,
     "F": 4
   },
-  "dolt_commit": "8vtde3jcgs7qp6eq8fsvc8jj973mt9e2",
-  "grades_csv_sha256": "67f209e52cf60f44fe7c9c8523b497954ddb75490339c691809cc204a6e7d39f"
+  "dolt_commit": "104mjculsadvko019mlhpi3j2av06mmd",
+  "grades_csv_sha256": "e4bb7c727377d75726fc85e611b042af396695664b0b62a6191629c62e998629"
 }

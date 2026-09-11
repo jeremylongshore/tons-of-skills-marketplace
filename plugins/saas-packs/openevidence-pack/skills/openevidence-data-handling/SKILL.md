@@ -1,123 +1,91 @@
 ---
 name: openevidence-data-handling
-description: 'Data Handling for OpenEvidence.
-
-  Trigger: "openevidence data handling".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.13.0
-license: MIT
+description: >-
+  Design a minimum-necessary OpenEvidence data-handling workflow for questions, Visits recordings, notes, and exports. Use when working with OpenEvidence in a healthcare organization. Trigger with "openevidence data handling", "OpenEvidence privacy", or a matching workflow request.
+argument-hint: "[workflow-name] [policy-path]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.14.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - openevidence
-- healthcare
-compatibility: Designed for Claude Code
+- privacy
+- phi
+- consent
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; requires authorized OpenEvidence access and qualified clinical review for patient-care use
 ---
-# OpenEvidence Data Handling
+# OpenEvidence PHI and Consent Boundary
 
 ## Overview
 
-OpenEvidence provides AI-powered clinical evidence synthesis for healthcare professionals. Data types include clinical queries (potentially containing PHI), evidence citations from medical literature, patient-contextualized responses, research paper references, and usage analytics. All data handling must comply with HIPAA (PHI safeguards, minimum necessary standard, BAA requirements), GDPR for EU clinicians, and FDA guidance on clinical decision support. Query data may contain patient identifiers, diagnoses, or treatment details that require de-identification before storage or analytics.
+Establish whether data may enter OpenEvidence, who authorizes it, and how outputs move into governed systems. Keep inputs minimal, separate observed facts from assumptions, and leave consequential decisions with the named accountable owner.
 
-## Data Classification
+## Prerequisites
 
-| Data Type | Sensitivity | Retention | Encryption |
-|-----------|-------------|-----------|------------|
-| Clinical queries (may contain PHI) | Critical | De-identify within 24h, purge raw in 7 days | AES-256 + TLS, field-level for PHI |
-| Evidence citations | Low | Indefinite (public literature) | TLS in transit |
-| Patient-contextualized responses | High (derived PHI) | 30 days max, then de-identify | AES-256 at rest |
-| Research paper metadata | Low | Indefinite | TLS in transit |
-| Clinician usage analytics | Medium | 1 year (de-identified) | AES-256 at rest |
+- A clearly bounded workflow, accountable clinical owner, and organizational policy
+- Current first-party OpenEvidence documentation and applicable institution agreements
+- Synthetic or properly authorized minimum-necessary data
 
-## Data Import
+## Tool Discipline
 
-```typescript
-interface ClinicalQuery {
-  queryId: string; clinicianId: string; queryText: string;
-  patientContext?: { age?: number; sex?: string; conditions?: string[] };
-  timestamp: string;
-}
+Use `Read`, `Glob`, and `Grep` to inspect supplied policies, plans, and evidence. Use `WebFetch` only for current first-party OpenEvidence documentation. Use `Write` or `Edit` only when the user requests a named deliverable with an approved destination. Never expose credentials, PHI, recordings, or unrestricted environment output.
 
-async function submitClinicalQuery(query: ClinicalQuery): Promise<string> {
-  const sanitized = { ...query, queryText: deidentifyPHI(query.queryText) };
-  const res = await fetch('https://api.openevidence.com/v1/query', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${process.env.OPENEVIDENCE_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(sanitized),
-  });
-  return (await res.json()).evidenceId;
-}
+## Current Contract
 
-function deidentifyPHI(text: string): string {
-  return text
-    .replace(/\b(MRN|mrn)[:\s]?\d{6,}\b/g, '[MRN_REDACTED]')
-    .replace(/\b\d{3}-\d{2}-\d{4}\b/g, '[SSN_REDACTED]')
-    .replace(/\b(DOB|dob)[:\s]?\d{1,2}\/\d{1,2}\/\d{2,4}\b/g, '[DOB_REDACTED]')
-    .replace(/\b[A-Z][a-z]+ [A-Z][a-z]+, (MD|DO|NP|PA)\b/g, '[PROVIDER_REDACTED]');
-}
-```
+- OpenEvidence terms recommend removing identifying information before submission and assign users responsibility for lawful content.
+- Covered entities choosing to transmit PHI are governed by the applicable BAA or customer-specific agreement.
+- Visits records conversations; required notice and consent depend on law and organizational policy.
 
-## Data Export
+## Authentication
 
-```typescript
-async function exportEvidenceSummary(queryIds: string[]) {
-  const summaries = [];
-  for (const id of queryIds) {
-    const res = await fetch(`https://api.openevidence.com/v1/evidence/${id}`, {
-      headers: { Authorization: `Bearer ${process.env.OPENEVIDENCE_API_KEY}` },
-    });
-    const data = await res.json();
-    summaries.push({ queryId: id, citations: data.citations,
-      summary: deidentifyPHI(data.summary), confidence: data.confidenceScore });
-  }
-  return summaries;
-}
-```
+Use only the official OpenEvidence web/mobile sign-in or an institution-approved access path. Do not invent API keys, OAuth clients, SDK credentials, service accounts, or private endpoints. Never ask a user to reveal a password, session token, cookie, or recovery code.
 
-## Data Validation
+## Instructions
 
-```typescript
-function validateClinicalQuery(q: ClinicalQuery): string[] {
-  const errors: string[] = [];
-  if (!q.queryId) errors.push('Missing query ID');
-  if (!q.clinicianId) errors.push('Missing clinician identifier');
-  if (!q.queryText || q.queryText.length < 10) errors.push('Query too short for meaningful evidence retrieval');
-  if (q.queryText.length > 5000) errors.push('Query exceeds 5000 char limit');
-  if (/\b\d{3}-\d{2}-\d{4}\b/.test(q.queryText)) errors.push('CRITICAL: SSN detected in query text');
-  if (/\b(MRN|mrn)[:\s]?\d{6,}\b/.test(q.queryText)) errors.push('CRITICAL: MRN detected in query text');
-  if (q.timestamp && isNaN(Date.parse(q.timestamp))) errors.push('Invalid timestamp');
-  return errors;
-}
-```
+1. Classify the workflow, data elements, users, systems, jurisdiction, retention needs, and whether recording occurs.
+2. Read the current Terms, Privacy Policy, Security page, applicable BAA/MSA, and institutional policy.
+3. Minimize identifiers and free text; prefer synthetic or de-identified content when patient identity is unnecessary.
+4. Document authorization, recording notice and consent, role access, approved export destination, and deletion/retention owner.
+5. Test the workflow with synthetic data before any authorized real-data use.
+6. Produce a data-flow record with unresolved legal, privacy, security, and clinical review items.
 
-## Compliance
+## Approval Boundaries
 
-- [ ] HIPAA: BAA executed with OpenEvidence before any PHI transmission
-- [ ] HIPAA: PHI de-identified using Safe Harbor method before storage/analytics
-- [ ] HIPAA: Minimum necessary standard enforced — only transmit required clinical context
-- [ ] HIPAA: Audit trail for all PHI access with clinician ID, timestamp, and query purpose
-- [ ] HIPAA: Breach notification procedure documented (72-hour window)
-- [ ] GDPR: EU clinician data subject rights (access, erasure, portability)
-- [ ] FDA: Clinical decision support disclaimer included in all evidence responses
-- [ ] Data retention: raw queries purged at 7 days, de-identified analytics retained 1 year
+Do not create or share accounts; change access, roles, agreements, consent, retention, or security settings; enter PHI; record a conversation; copy content into another system; contact a patient; make a diagnosis or treatment decision; submit billing; transmit a support packet; run a production pilot; or represent vendor capabilities without explicit approval from the accountable owner. A qualified professional remains responsible for clinical decisions.
+
+## Output
+
+Return scope, current first-party evidence and date, data classification, workflow or findings, citations reviewed, assumptions rejected, clinical and governance owners, approval state, unresolved risk, and the exact next action. Redact patient and credential data.
 
 ## Error Handling
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| PHI detected in stored query | De-identification regex missed a pattern | Add pattern to `deidentifyPHI`, re-scan stored queries |
-| API 403 on query submission | BAA not on file or expired API credentials | Verify BAA status, rotate API key |
-| Evidence response contains patient name | Upstream model hallucinated PHI | Post-process all responses through de-identification before display |
-| Audit log gap | Logging service outage during query window | Replay from API request logs, flag gap in compliance report |
-| Export exceeds size limit | Too many citations in bulk export | Paginate export, limit to 50 evidence summaries per request |
+| Condition | Response |
+|---|---|
+| BAA or policy unavailable | Block PHI use and continue only with synthetic/de-identified data. |
+| Consent uncertain | Do not record; route to privacy or legal owner. |
+| Output copied to unmanaged tool | Stop propagation, preserve facts, and follow the incident procedure. |
+
+## Examples
+
+This compact example shows the minimum reviewable handoff; adapt fields to the approved workflow without adding sensitive data.
+
+Input:
+
+```text
+workflow=Visits recording; jurisdiction=known; data=PHI; agreements=pending
+```
+
+Expected handoff:
+
+```text
+decision=blocked; synthetic-test=allowed; approvals=privacy+clinical+security
+```
 
 ## Resources
 
-- [OpenEvidence Platform](https://www.openevidence.com)
-- [HIPAA De-Identification Guidance](https://www.hhs.gov/hipaa/for-professionals/privacy/special-topics/de-identification/)
-
-## Next Steps
-
-See `openevidence-security-basics`.
+- [OpenEvidence official evidence register](references/official-docs.md)
+- [OpenEvidence User Guide](https://www.openevidence.com/user-guide)
+- [OpenEvidence Terms of Use](https://www.openevidence.com/policies/terms)

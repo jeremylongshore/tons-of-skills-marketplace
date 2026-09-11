@@ -8130,17 +8130,16 @@
     {
       "name": "openevidence-pack",
       "source": "./plugins/saas-packs/openevidence-pack",
-      "description": "Complete OpenEvidence integration skill pack with 24 skills covering medical AI, clinical decision support, evidence-based queries, and healthcare workflows. Flagship tier vendor pack.",
-      "version": "1.13.0",
+      "description": "Operator-grade OpenEvidence pack with 24 source-grounded skills for clinical evidence review, safe adoption, privacy, security, and product workflow governance.",
+      "version": "1.14.0",
       "category": "saas-packs",
       "keywords": [
         "openevidence",
-        "medical-ai",
-        "clinical",
-        "healthcare",
-        "evidence-based",
-        "decision-support",
-        "medicine"
+        "clinical-evidence",
+        "evidence-review",
+        "healthcare-governance",
+        "privacy",
+        "clinical-safety"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -8151,9 +8150,9 @@
         "skills": 24
       },
       "verification": {
-        "score": 81,
-        "grade": "B",
-        "badge": "silver",
+        "score": 98,
+        "grade": "A",
+        "badge": "gold",
         "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },

@@ -1,116 +1,90 @@
 ---
 name: openevidence-core-workflow-a
-description: 'Execute OpenEvidence primary workflow: Clinical Query & Decision Support.
-
-  Trigger: "openevidence clinical query & decision support", "primary openevidence
-  workflow".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.13.0
-license: MIT
+description: >-
+  Structure and review an OpenEvidence clinical consult while preserving clinician accountability and evidence traceability. Use when working with OpenEvidence in a healthcare organization. Trigger with "openevidence core workflow a", "OpenEvidence clinical-consult", or a matching workflow request.
+argument-hint: "[clinical-question] [context-policy]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.14.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - openevidence
-- healthcare
-compatibility: Designed for Claude Code
+- clinical-consult
+- evidence
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; requires authorized OpenEvidence access and qualified clinical review for patient-care use
 ---
-# OpenEvidence — Evidence Search & Retrieval
+# OpenEvidence Clinical Consult Workflow
 
 ## Overview
 
-Primary workflow for OpenEvidence clinical evidence integration. Covers the core use
-case: searching clinical literature with evidence-level filters, retrieving structured
-citations with journal and year metadata, checking drug interactions against patient
-context, and looking up specialty guidelines from major bodies (ACC/AHA, ESC, NICE).
-Responses include confidence scores and evidence grading to support clinical decision
-making. All queries support specialty filtering to narrow results to relevant domains.
+Convert a clinical uncertainty into a focused Ask workflow, then validate the evidence before using it in care. Keep inputs minimal, separate observed facts from assumptions, and leave consequential decisions with the named accountable owner.
+
+## Prerequisites
+
+- A clearly bounded workflow, accountable clinical owner, and organizational policy
+- Current first-party OpenEvidence documentation and applicable institution agreements
+- Synthetic or properly authorized minimum-necessary data
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect supplied policies, plans, and evidence. Use `WebFetch` only for current first-party OpenEvidence documentation. Use `Write` or `Edit` only when the user requests a named deliverable with an approved destination. Never expose credentials, PHI, recordings, or unrestricted environment output.
+
+## Current Contract
+
+- The platform is informational and educational and does not replace diagnosis or professional clinical judgment.
+- The public guide describes Ask for evidence-based clinical questions with cited sources.
+- Only enter patient context permitted by applicable policy, agreement, authorization, and consent.
+
+## Authentication
+
+Use only the official OpenEvidence web/mobile sign-in or an institution-approved access path. Do not invent API keys, OAuth clients, SDK credentials, service accounts, or private endpoints. Never ask a user to reveal a password, session token, cookie, or recovery code.
 
 ## Instructions
 
-### Step 1: Search Clinical Evidence
+1. Define the decision to support and the minimum context needed; remove direct identifiers unless approved and necessary.
+2. Frame the question with population, intervention or exposure, comparator, outcomes, and relevant constraints.
+3. Choose the documented Ask model or workflow appropriate to complexity; use Snow for a literature investigation when warranted.
+4. Review EvidenceGrade when present, then open citations and inspect recency, study design, population, and guideline provenance.
+5. Reconcile the response with patient-specific facts, contraindications, local policy, and the clinician’s independent judgment.
+6. Record the question, evidence reviewed, uncertainty, decision owner, and any follow-up without copying unnecessary PHI.
 
-```typescript
-const result = await client.query({
-  question: 'What is the recommended treatment for acute migraine in adults?',
-  context: 'emergency_department',
-  evidence_level: 'high',
-  specialty: 'neurology',
-  max_citations: 10,
-});
+## Approval Boundaries
 
-console.log('Answer:', result.answer);
-console.log(`Confidence: ${result.confidence} | Evidence grade: ${result.grade}`);
-result.citations.forEach(c =>
-  console.log(`  [${c.journal}] ${c.title} (${c.year}) — Level ${c.evidence_level}`)
-);
-```
-
-### Step 2: Filter by Specialty and Date
-
-```typescript
-const recent = await client.search({
-  keywords: 'GLP-1 receptor agonist cardiovascular outcomes',
-  specialty: 'cardiology',
-  year_min: 2024,
-  evidence_level: 'meta-analysis',
-  limit: 20,
-});
-console.log(`Found ${recent.total} results`);
-recent.results.forEach(r => console.log(`  ${r.title} (${r.journal}, ${r.year})`));
-```
-
-### Step 3: Check Drug Interactions
-
-```typescript
-const interactions = await client.interactions.check({
-  medications: ['metformin', 'lisinopril', 'atorvastatin'],
-  patient_context: { age: 65, conditions: ['diabetes', 'hypertension'] },
-});
-
-interactions.forEach(i =>
-  console.log(`${i.drug1} + ${i.drug2}: ${i.severity} — ${i.description}`)
-);
-if (interactions.some(i => i.severity === 'major')) {
-  console.warn('WARNING: Major interaction detected — review before prescribing');
-}
-```
-
-### Step 4: Guideline Lookup
-
-```typescript
-const guidelines = await client.guidelines.search({
-  condition: 'hypertension',
-  source: ['ACC/AHA', 'ESC', 'NICE'],
-  year_min: 2023,
-});
-guidelines.forEach(g =>
-  console.log(`${g.source}: ${g.title} (${g.year}) — ${g.recommendation_class}`)
-);
-```
-
-## Error Handling
-
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| `401 Unauthorized` | Invalid API key | Verify key in `Authorization: Bearer` header |
-| `404 Not Found` | Unknown specialty code | Use standard specialty slugs from `/specialties` |
-| `422 Validation` | Conflicting filter params | Remove mutually exclusive filters |
-| `429 Rate Limited` | Exceeds 30 queries/min | Back off per `Retry-After` header |
-| Empty citations array | Question too narrow | Broaden search terms or lower evidence level |
+Do not create or share accounts; change access, roles, agreements, consent, retention, or security settings; enter PHI; record a conversation; copy content into another system; contact a patient; make a diagnosis or treatment decision; submit billing; transmit a support packet; run a production pilot; or represent vendor capabilities without explicit approval from the accountable owner. A qualified professional remains responsible for clinical decisions.
 
 ## Output
 
-A successful run returns evidence-backed answers with citations, drug interaction
-severity assessments, and guideline recommendations. Each response includes a
-confidence score and evidence grade for clinical decision support.
+Return scope, current first-party evidence and date, data classification, workflow or findings, citations reviewed, assumptions rejected, clinical and governance owners, approval state, unresolved risk, and the exact next action. Redact patient and credential data.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Evidence conflicts | Surface both positions and have the clinical owner resolve applicability. |
+| Patient context exceeds policy | De-identify further or stop until authorization is confirmed. |
+| Answer sounds definitive | Restate uncertainty and verify source support before use. |
+
+## Examples
+
+This compact example shows the minimum reviewable handoff; adapt fields to the approved workflow without adding sensitive data.
+
+Input:
+
+```text
+decision=therapy options; population=de-identified adult; constraints=renal impairment
+```
+
+Expected handoff:
+
+```text
+question=structured; sources=opened; uncertainty=recorded; decision=clinician-owned
+```
 
 ## Resources
 
-- [OpenEvidence Platform](https://www.openevidence.com)
-- [OpenEvidence API Documentation](https://docs.openevidence.com)
-
-## Next Steps
-
-Continue with `openevidence-core-workflow-b` for patient case analysis and reporting.
+- [OpenEvidence official evidence register](references/official-docs.md)
+- [OpenEvidence User Guide](https://www.openevidence.com/user-guide)
+- [OpenEvidence Terms of Use](https://www.openevidence.com/policies/terms)

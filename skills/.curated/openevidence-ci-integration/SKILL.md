@@ -1,141 +1,90 @@
 ---
 name: openevidence-ci-integration
-description: 'Ci Integration for OpenEvidence.
-
-  Trigger: "openevidence ci integration".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.13.0
-license: MIT
+description: >-
+  Build a repeatable acceptance gate for an OpenEvidence practice rollout without inventing an API or automating clinical judgment. Use when working with OpenEvidence in a healthcare organization. Trigger with "openevidence ci integration", "OpenEvidence rollout", or a matching workflow request.
+argument-hint: "[rollout-plan-path] [pilot-cohort]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.14.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - openevidence
-- healthcare
-compatibility: Designed for Claude Code
+- rollout
+- acceptance
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; requires authorized OpenEvidence access and qualified clinical review for patient-care use
 ---
-# OpenEvidence CI Integration
+# OpenEvidence Rollout Acceptance Gate
 
 ## Overview
 
-Set up CI/CD for OpenEvidence clinical decision support integrations: run unit tests with mocked evidence query and citation responses on every PR, validate live API connectivity for clinical queries on merge to main. OpenEvidence provides AI-powered medical evidence retrieval and clinical decision support, so CI pipelines verify query formatting, evidence parsing, citation extraction, and response quality scoring.
+Turn practice requirements into a manual, evidence-backed acceptance suite for supported OpenEvidence web or mobile workflows. Keep inputs minimal, separate observed facts from assumptions, and leave consequential decisions with the named accountable owner.
 
-## GitHub Actions Workflow
+## Prerequisites
 
-```yaml
-# .github/workflows/openevidence-ci.yml
-name: OpenEvidence CI
-on:
-  pull_request:
-    paths: ['src/openevidence/**', 'tests/**']
-  push:
-    branches: [main]
+- A clearly bounded workflow, accountable clinical owner, and organizational policy
+- Current first-party OpenEvidence documentation and applicable institution agreements
+- Synthetic or properly authorized minimum-necessary data
 
-jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20' }
-      - run: npm ci
-      - run: npm test -- --reporter=verbose
+## Tool Discipline
 
-  integration-tests:
-    if: github.ref == 'refs/heads/main'
-    needs: unit-tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20' }
-      - run: npm ci
-      - run: npm run test:integration
-        env:
-          OPENEVIDENCE_API_KEY: ${{ secrets.OPENEVIDENCE_API_KEY }}
-```
+Use `Read`, `Glob`, and `Grep` to inspect supplied policies, plans, and evidence. Use `WebFetch` only for current first-party OpenEvidence documentation. Use `Write` or `Edit` only when the user requests a named deliverable with an approved destination. Never expose credentials, PHI, recordings, or unrestricted environment output.
 
-## Mock-Based Unit Tests
+## Current Contract
 
-```typescript
-// tests/openevidence-service.test.ts
-import { describe, it, expect, vi } from 'vitest';
-import { queryEvidence, extractCitations } from '../src/openevidence-service';
+- OpenEvidence publishes end-user web and mobile workflows, not a public CI or test API contract.
+- Acceptance evidence must come from an authorized test account, synthetic scenarios, and current first-party instructions.
+- A passing product check never validates the clinical correctness of a real patient decision.
 
-vi.mock('../src/openevidence-client', () => ({
-  OpenEvidenceClient: vi.fn().mockImplementation(() => ({
-    query: vi.fn().mockResolvedValue({
-      answer: 'Current evidence supports early intervention with GLP-1 agonists...',
-      confidence: 0.92,
-      citations: [
-        { title: 'NEJM 2025 Meta-Analysis', doi: '10.1056/NEJMoa2501234', year: 2025 },
-        { title: 'Lancet Diabetes Review', doi: '10.1016/S2213-8587(25)00123', year: 2025 },
-      ],
-      evidenceLevel: 'high',
-    }),
-    listQueries: vi.fn().mockResolvedValue({
-      queries: [{ id: 'q_abc', question: 'GLP-1 efficacy', status: 'completed' }],
-    }),
-  })),
-}));
+## Authentication
 
-describe('OpenEvidence Service', () => {
-  it('queries clinical evidence with citations', async () => {
-    const result = await queryEvidence('GLP-1 agonist efficacy for type 2 diabetes');
-    expect(result.confidence).toBeGreaterThan(0.9);
-    expect(result.citations).toHaveLength(2);
-  });
+Use only the official OpenEvidence web/mobile sign-in or an institution-approved access path. Do not invent API keys, OAuth clients, SDK credentials, service accounts, or private endpoints. Never ask a user to reveal a password, session token, cookie, or recovery code.
 
-  it('extracts citation DOIs from response', async () => {
-    const citations = await extractCitations('q_abc');
-    expect(citations[0].doi).toMatch(/^10\.\d+/);
-  });
-});
-```
+## Instructions
 
-## Integration Tests
+1. Inventory the rollout requirements, supported devices, accountable clinical owner, and approved synthetic test scenarios.
+2. Read the current OpenEvidence guide for each feature in scope; mark undocumented behavior as unverified.
+3. Build a matrix covering sign-in, Ask response citations, export/copy behavior, and only the explicitly selected Visits features.
+4. Execute with synthetic or properly authorized data; capture timestamps and redacted evidence, never patient identifiers.
+5. Record pass, fail, blocked, and not-tested separately; route clinical-content review to a qualified professional.
+6. Publish the gate result with owners, exceptions, rollback criteria, and a re-test date.
 
-```typescript
-// tests/integration/openevidence.integration.test.ts
-import { describe, it, expect } from 'vitest';
+## Approval Boundaries
 
-const hasKey = !!process.env.OPENEVIDENCE_API_KEY;
+Do not create or share accounts; change access, roles, agreements, consent, retention, or security settings; enter PHI; record a conversation; copy content into another system; contact a patient; make a diagnosis or treatment decision; submit billing; transmit a support packet; run a production pilot; or represent vendor capabilities without explicit approval from the accountable owner. A qualified professional remains responsible for clinical decisions.
 
-describe.skipIf(!hasKey)('OpenEvidence Live API', () => {
-  it('queries clinical evidence', async () => {
-    const res = await fetch('https://api.openevidence.com/v1/query', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENEVIDENCE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ question: 'Aspirin dosing for secondary prevention' }),
-    });
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body).toHaveProperty('answer');
-    expect(body).toHaveProperty('citations');
-  });
-});
-```
+## Output
+
+Return scope, current first-party evidence and date, data classification, workflow or findings, citations reviewed, assumptions rejected, clinical and governance owners, approval state, unresolved risk, and the exact next action. Redact patient and credential data.
 
 ## Error Handling
 
-| CI Issue | Cause | Fix |
-|----------|-------|-----|
-| `401 Unauthorized` | Invalid API key | Regenerate at openevidence.com account settings |
-| Empty citations array | Query too vague for evidence matching | Use specific clinical terms with condition and intervention |
-| Low confidence score | Insufficient published evidence | Check evidence level field and handle `low` confidence gracefully |
-| Rate limit (429) | Too many queries in test suite | Add throttling between clinical queries (1 req/sec) |
-| Response timeout | Complex query requiring deep search | Increase fetch timeout to 30s for clinical evidence lookups |
+| Condition | Response |
+|---|---|
+| No automation interface | Keep the gate manual; do not reverse-engineer private endpoints. |
+| Clinical answer varies | Evaluate evidence traceability and review process, not exact generated wording. |
+| PHI required | Stop until the institution confirms agreement, authorization, consent, and test-data handling. |
+
+## Examples
+
+This compact example shows the minimum reviewable handoff; adapt fields to the approved workflow without adding sensitive data.
+
+Input:
+
+```text
+pilot=cardiology; surfaces=Ask+Visits; data=synthetic; gate=pre-launch
+```
+
+Expected handoff:
+
+```text
+coverage=12 checks; pass=10; blocked=2; clinical-review=pending; launch=no-go
+```
 
 ## Resources
 
-- [OpenEvidence Platform](https://www.openevidence.com/)
-- [OpenEvidence API Documentation](https://docs.openevidence.com/)
-- [GitHub Actions Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
-
-## Next Steps
-
-See `openevidence-deploy-integration`.
+- [OpenEvidence official evidence register](references/official-docs.md)
+- [OpenEvidence User Guide](https://www.openevidence.com/user-guide)
+- [OpenEvidence Terms of Use](https://www.openevidence.com/policies/terms)

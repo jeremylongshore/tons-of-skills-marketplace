@@ -1,134 +1,90 @@
 ---
 name: openevidence-sdk-patterns
-description: 'Sdk Patterns for OpenEvidence.
-
-  Trigger: "openevidence sdk patterns".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.13.0
-license: MIT
+description: >-
+  Select supported OpenEvidence interaction and prompting patterns while preventing use of nonexistent public SDKs. Use when working with OpenEvidence in a healthcare organization. Trigger with "openevidence sdk patterns", "OpenEvidence patterns", or a matching workflow request.
+argument-hint: "[use-case] [surface]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.14.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - openevidence
-- healthcare
-compatibility: Designed for Claude Code
+- patterns
+- no-sdk
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; requires authorized OpenEvidence access and qualified clinical review for patient-care use
 ---
-# OpenEvidence SDK Patterns
+# OpenEvidence Supported Interaction Patterns
 
 ## Overview
 
-Production-ready patterns for the OpenEvidence clinical evidence API. OpenEvidence provides REST endpoints for querying medical literature, retrieving clinical guidelines, and generating evidence-based recommendations. The API authenticates via `OPENEVIDENCE_API_KEY` and returns structured clinical data with citation provenance. A singleton client enforces consistent auth, handles healthcare-specific errors, and preserves citation chains for audit compliance.
+Convert an SDK-shaped request into a documented product workflow or a vendor-confirmation question. Keep inputs minimal, separate observed facts from assumptions, and leave consequential decisions with the named accountable owner.
 
-## Singleton Client
+## Prerequisites
 
-```typescript
-const OE_BASE = 'https://api.openevidence.com/v1';
-let _client: OpenEvidenceClient | null = null;
-export function getClient(): OpenEvidenceClient {
-  if (!_client) {
-    const apiKey = process.env.OPENEVIDENCE_API_KEY;
-    if (!apiKey) throw new Error('OPENEVIDENCE_API_KEY must be set — get it from openevidence.com/developer');
-    _client = new OpenEvidenceClient(apiKey);
-  }
-  return _client;
-}
-class OpenEvidenceClient {
-  private headers: Record<string, string>;
-  constructor(apiKey: string) { this.headers = { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' }; }
-  async query(question: string, opts: { specialty?: string; maxResults?: number } = {}): Promise<EvidenceResponse> {
-    const res = await fetch(`${OE_BASE}/query`, { method: 'POST', headers: this.headers,
-      body: JSON.stringify({ question, specialty: opts.specialty, max_results: opts.maxResults ?? 10 }) });
-    if (!res.ok) throw new OEError(res.status, await res.text()); return res.json();
-  }
-  async getCitation(citationId: string): Promise<Citation> {
-    const res = await fetch(`${OE_BASE}/citations/${citationId}`, { headers: this.headers });
-    if (!res.ok) throw new OEError(res.status, await res.text()); return res.json();
-  }
-}
-```
+- A clearly bounded workflow, accountable clinical owner, and organizational policy
+- Current first-party OpenEvidence documentation and applicable institution agreements
+- Synthetic or properly authorized minimum-necessary data
 
-## Error Wrapper
+## Tool Discipline
 
-```typescript
-export class OEError extends Error {
-  constructor(public status: number, message: string) { super(message); this.name = 'OEError'; }
-}
-export async function safeCall<T>(operation: string, fn: () => Promise<T>): Promise<T> {
-  try { return await fn(); }
-  catch (err: any) {
-    if (err instanceof OEError && err.status === 429) { await new Promise(r => setTimeout(r, 5000)); return fn(); }
-    if (err instanceof OEError && err.status === 401) throw new OEError(401, 'Invalid OPENEVIDENCE_API_KEY');
-    if (err instanceof OEError && err.status === 422) throw new OEError(422, `${operation}: query rejected — check terminology`);
-    throw new OEError(err.status ?? 0, `${operation} failed: ${err.message}`);
-  }
-}
-```
+Use `Read`, `Glob`, and `Grep` to inspect supplied policies, plans, and evidence. Use `WebFetch` only for current first-party OpenEvidence documentation. Use `Write` or `Edit` only when the user requests a named deliverable with an approved destination. Never expose credentials, PHI, recordings, or unrestricted environment output.
 
-## Request Builder
+## Current Contract
 
-```typescript
-class OEQueryBuilder {
-  private body: Record<string, any> = {};
-  question(q: string) { this.body.question = q; return this; }
-  specialty(s: string) { this.body.specialty = s; return this; }
-  maxResults(n: number) { this.body.max_results = Math.min(n, 50); return this; }
-  evidenceLevel(level: 'meta-analysis' | 'rct' | 'cohort' | 'any') { this.body.evidence_level = level; return this; }
-  yearRange(from: number, to: number) { this.body.year_range = { from, to }; return this; }
-  build() { return this.body; }
-}
-// Usage: new OEQueryBuilder().question('statin efficacy in elderly').specialty('cardiology').evidenceLevel('rct').build();
-```
+- The audited first-party materials do not publish an OpenEvidence SDK or developer API.
+- Similarly named npm and PyPI packages are not an authenticated OpenEvidence integration path.
+- Supported patterns include end-user Ask and documented feature workflows, subject to current guide and account availability.
 
-## Response Types
+## Authentication
 
-```typescript
-interface EvidenceResponse {
-  answer: string; confidence: number; citations: Citation[]; specialty: string;
-}
-interface Citation {
-  id: string; title: string; authors: string[]; journal: string; year: number;
-  doi: string; evidence_level: 'meta-analysis' | 'rct' | 'cohort' | 'case-report'; abstract: string;
-}
-interface Guideline {
-  id: string; organization: string; title: string; year: number;
-  recommendation: string; strength: 'strong' | 'moderate' | 'weak';
-}
-interface DrugInteraction {
-  drug_a: string; drug_b: string; severity: 'major' | 'moderate' | 'minor';
-  description: string; citations: Citation[];
-}
-```
+Use only the official OpenEvidence web/mobile sign-in or an institution-approved access path. Do not invent API keys, OAuth clients, SDK credentials, service accounts, or private endpoints. Never ask a user to reveal a password, session token, cookie, or recovery code.
 
-## Testing Utilities
+## Instructions
 
-```typescript
-export function mockCitation(overrides: Partial<Citation> = {}): Citation {
-  return { id: 'cite-001', title: 'Statin Therapy in Older Adults', authors: ['Smith J', 'Doe A'],
-    journal: 'NEJM', year: 2024, doi: '10.1056/NEJMoa2401234',
-    evidence_level: 'rct', abstract: 'Background: ...', ...overrides };
-}
-export function mockEvidenceResponse(citationCount = 3): EvidenceResponse {
-  return { answer: 'Evidence supports moderate-intensity statin therapy...', confidence: 0.87,
-    citations: Array.from({ length: citationCount }, (_, i) => mockCitation({ id: `cite-${i}` })),
-    specialty: 'cardiology' };
-}
-```
+1. Identify the desired outcome and why the requester thinks code integration is required.
+2. Search current first-party documentation for an explicit developer contract, package, authentication method, and terms.
+3. If absent, reject package installation, private-endpoint probing, browser automation, and credential extraction.
+4. Map the outcome to a supported product pattern: focused Ask, Snow literature investigation, Collections, Dotflows, Visits, or approved manual handoff.
+5. If automation remains necessary, write precise vendor questions covering API, auth, scope, PHI, limits, SLA, and support.
+6. Return the supported pattern, rejected assumptions, evidence date, and approval owner.
+
+## Approval Boundaries
+
+Do not create or share accounts; change access, roles, agreements, consent, retention, or security settings; enter PHI; record a conversation; copy content into another system; contact a patient; make a diagnosis or treatment decision; submit billing; transmit a support packet; run a production pilot; or represent vendor capabilities without explicit approval from the accountable owner. A qualified professional remains responsible for clinical decisions.
+
+## Output
+
+Return scope, current first-party evidence and date, data classification, workflow or findings, citations reviewed, assumptions rejected, clinical and governance owners, approval state, unresolved risk, and the exact next action. Redact patient and credential data.
 
 ## Error Handling
 
-| Pattern | When to Use | Example |
-|---------|-------------|---------|
-| `safeCall` wrapper | All API calls | Structured error with clinical operation context |
-| Retry on 429 | Batch evidence queries | 5s backoff before retry |
-| 422 validation | Malformed clinical queries | Clear message on rejected terminology |
-| Citation chain audit | Compliance reporting | Preserve full provenance from response |
+| Condition | Response |
+|---|---|
+| Third-party package found | Do not trust namespace alone; require first-party documentation and provenance. |
+| Requester needs bulk automation | Escalate to vendor/contract owner; do not scrape or reverse-engineer. |
+| Manual workflow unacceptable | Record the product gap and stop. |
+
+## Examples
+
+This compact example shows the minimum reviewable handoff; adapt fields to the approved workflow without adding sensitive data.
+
+Input:
+
+```text
+request=embed evidence search in app; package=@openevidence/sdk
+```
+
+Expected handoff:
+
+```text
+sdk=unsupported; install=blocked; documented-alternative=manual Ask; vendor-questions=7
+```
 
 ## Resources
 
-- [OpenEvidence](https://www.openevidence.com)
-
-## Next Steps
-
-Apply patterns in `openevidence-core-workflow-a`.
+- [OpenEvidence official evidence register](references/official-docs.md)
+- [OpenEvidence User Guide](https://www.openevidence.com/user-guide)
+- [OpenEvidence Terms of Use](https://www.openevidence.com/policies/terms)

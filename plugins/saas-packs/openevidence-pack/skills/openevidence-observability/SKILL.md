@@ -1,112 +1,90 @@
 ---
 name: openevidence-observability
-description: 'Observability for OpenEvidence.
-
-  Trigger: "openevidence observability".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.13.0
-license: MIT
+description: >-
+  Monitor OpenEvidence workflow quality, evidence traceability, adoption, and safety signals using approved local evidence. Use when working with OpenEvidence in a healthcare organization. Trigger with "openevidence observability", "OpenEvidence quality", or a matching workflow request.
+argument-hint: "[audit-period] [workflow]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.14.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - openevidence
-- healthcare
-compatibility: Designed for Claude Code
+- quality
+- monitoring
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; requires authorized OpenEvidence access and qualified clinical review for patient-care use
 ---
-# OpenEvidence Observability
+# OpenEvidence Quality and Adoption Audit
 
 ## Overview
 
-OpenEvidence delivers clinical evidence queries where response accuracy and freshness have direct patient safety implications. Monitor query response times to ensure clinicians get timely answers, track evidence freshness to catch stale citations, and audit every query for compliance. Observability must also verify citation accuracy and maintain complete audit logs for regulatory requirements (HIPAA, clinical decision support standards).
+Create a human-centered review loop without claiming access to private product telemetry. Keep inputs minimal, separate observed facts from assumptions, and leave consequential decisions with the named accountable owner.
 
-## Key Metrics
+## Prerequisites
 
-| Metric | Type | Target | Alert Threshold |
-|--------|------|--------|-----------------|
-| Query response time p95 | Histogram | < 3s | > 8s |
-| Evidence freshness | Gauge | < 7 days median | > 30 days |
-| Citation accuracy rate | Gauge | > 95% | < 90% |
-| API error rate | Gauge | < 0.5% | > 2% |
-| Audit log completeness | Gauge | 100% | < 99.9% |
-| Daily query volume | Counter | Within quota | > 90% quota |
+- A clearly bounded workflow, accountable clinical owner, and organizational policy
+- Current first-party OpenEvidence documentation and applicable institution agreements
+- Synthetic or properly authorized minimum-necessary data
 
-## Instrumentation
+## Tool Discipline
 
-```typescript
-async function trackClinicalQuery(queryType: string, fn: () => Promise<any>) {
-  const start = Date.now();
-  const traceId = crypto.randomUUID();
-  try {
-    const result = await fn();
-    metrics.histogram('openevidence.query.latency', Date.now() - start, { queryType });
-    metrics.increment('openevidence.query.total', { queryType });
-    auditLog.record({ traceId, queryType, status: 'ok', latency: Date.now() - start });
-    return result;
-  } catch (err) {
-    metrics.increment('openevidence.query.errors', { queryType, error: err.code });
-    auditLog.record({ traceId, queryType, status: 'error', error: err.message });
-    throw err;
-  }
-}
-```
+Use `Read`, `Glob`, and `Grep` to inspect supplied policies, plans, and evidence. Use `WebFetch` only for current first-party OpenEvidence documentation. Use `Write` or `Edit` only when the user requests a named deliverable with an approved destination. Never expose credentials, PHI, recordings, or unrestricted environment output.
 
-## Health Check Dashboard
+## Current Contract
 
-```typescript
-async function openEvidenceHealth(): Promise<Record<string, string>> {
-  const latencyP95 = await metrics.query('openevidence.query.latency', 'p95', '5m');
-  const errorRate = await metrics.query('openevidence.query.error_rate', 'avg', '5m');
-  const freshness = await openEvAdmin.getMedianEvidenceAge();
-  return {
-    query_latency: latencyP95 < 3000 ? 'healthy' : 'slow',
-    error_rate: errorRate < 0.005 ? 'healthy' : 'degraded',
-    evidence_freshness: freshness < 7 ? 'healthy' : 'stale',
-  };
-}
-```
+- No public observability API or standard metrics export is documented.
+- Measurements must come from authorized account/institution records and redacted quality samples.
+- Volume and speed are insufficient without citation, applicability, and safety review.
 
-## Alerting Rules
+## Authentication
 
-```typescript
-const alerts = [
-  { metric: 'openevidence.query.latency_p95', condition: '> 8s', window: '10m', severity: 'warning' },
-  { metric: 'openevidence.query.error_rate', condition: '> 0.02', window: '5m', severity: 'critical' },
-  { metric: 'openevidence.evidence.median_age_days', condition: '> 30', window: '1d', severity: 'warning' },
-  { metric: 'openevidence.audit.completeness', condition: '< 0.999', window: '1h', severity: 'critical' },
-];
-```
+Use only the official OpenEvidence web/mobile sign-in or an institution-approved access path. Do not invent API keys, OAuth clients, SDK credentials, service accounts, or private endpoints. Never ask a user to reveal a password, session token, cookie, or recovery code.
 
-## Structured Logging
+## Instructions
 
-```typescript
-function logClinicalEvent(event: string, data: Record<string, any>) {
-  console.log(JSON.stringify({
-    service: 'openevidence', event,
-    query_type: data.queryType, duration_ms: data.latency,
-    citation_count: data.citations, evidence_age_days: data.evidenceAge,
-    // HIPAA: never log patient identifiers or query text
-    trace_id: data.traceId, audit_seq: data.auditSeq,
-    timestamp: new Date().toISOString(),
-  }));
-}
-```
+1. Define the monitored workflow, cohort, period, data authority, clinical owner, and escalation thresholds.
+2. Select measures for completion, citation traceability, unsupported claims, reviewer overrides, time burden, incidents, and training gaps.
+3. Sample the minimum authorized records and de-identify evidence used outside the care record.
+4. Have qualified reviewers score outputs with a stable rubric and record inter-reviewer disagreement.
+5. Trend results without inferring patient outcomes or vendor-wide performance from a local sample.
+6. Publish findings, limitations, actions, owners, thresholds, and the next review date.
+
+## Approval Boundaries
+
+Do not create or share accounts; change access, roles, agreements, consent, retention, or security settings; enter PHI; record a conversation; copy content into another system; contact a patient; make a diagnosis or treatment decision; submit billing; transmit a support packet; run a production pilot; or represent vendor capabilities without explicit approval from the accountable owner. A qualified professional remains responsible for clinical decisions.
+
+## Output
+
+Return scope, current first-party evidence and date, data classification, workflow or findings, citations reviewed, assumptions rejected, clinical and governance owners, approval state, unresolved risk, and the exact next action. Redact patient and credential data.
 
 ## Error Handling
 
-| Signal | Meaning | Action |
-|--------|---------|--------|
-| Query timeout > 8s | Evidence index overloaded | Check index health, scale read replicas |
-| Citation accuracy drop | Stale or retracted sources | Trigger evidence refresh pipeline |
-| Audit log gap | Logging pipeline failure | Critical — investigate immediately for compliance |
-| 429 rate limit | Quota approaching limit | Throttle non-critical queries, request increase |
-| Evidence age > 30 days | Refresh pipeline stalled | Check ingestion jobs, verify source feeds |
+| Condition | Response |
+|---|---|
+| Telemetry unavailable | Use an approved sample or survey and label coverage. |
+| Metric hides harm | Add safety and override measures before reporting success. |
+| Sample contains PHI | Keep it in the governed system or stop the audit export. |
+
+## Examples
+
+This compact example shows the minimum reviewable handoff; adapt fields to the approved workflow without adding sensitive data.
+
+Input:
+
+```text
+period=30d; workflow=Ask; sample=25 de-identified reviews
+```
+
+Expected handoff:
+
+```text
+traceability=measured; overrides=recorded; incidents=1; actions=3
+```
 
 ## Resources
 
-- [OpenEvidence](https://www.openevidence.com)
-
-## Next Steps
-
-See `openevidence-incident-runbook`.
+- [OpenEvidence official evidence register](references/official-docs.md)
+- [OpenEvidence User Guide](https://www.openevidence.com/user-guide)
+- [OpenEvidence Terms of Use](https://www.openevidence.com/policies/terms)
