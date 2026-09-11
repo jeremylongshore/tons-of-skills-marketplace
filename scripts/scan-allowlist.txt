@@ -103,6 +103,10 @@ plugins/productivity/youtube-strategy/skills/yt-packaging/SKILL.md:allowed-tools
 plugins/productivity/youtube-strategy/skills/yt-research/SKILL.md:allowed-tools-network  E1.13 changes only the author contact; the pre-existing WebSearch capability is unchanged — reviewed 2026-08-16
 plugins/security/security-headers-analyzer/skills/analyzing-security-headers/SKILL.md:allowed-tools-network  E1.13 changes only the example target domain; the pre-existing WebFetch/WebSearch capability is unchanged — reviewed 2026-08-16
 
+# ── Publishing skill: public research plus operator-authorized CMS adapters. ──
+plugins/productivity/publishing-skills/skills/seo-blog-writer/SKILL.md:allowed-tools-network  WebSearch/WebFetch gather public editorial sources only; publishing uses separately invoked local adapters and never passes CMS credentials to research hosts — reviewed 2026-09-11
+plugins/productivity/publishing-skills/skills/seo-blog-writer/SKILL.md:secret-exfil-cooccur  Ghost and WordPress credentials are consumed only by their bundled adapter and sent to the operator-configured matching CMS origin; the preflight does not transmit or print credentials — reviewed 2026-09-11
+
 # ── UIZZE free catalogue workflow — vetted 2026-07-22 @ upstream c95111fd1517. ──
 plugins/design/uizze/skills/anti-ui-slop/SKILL.md:allowed-tools-network  WebFetch is limited to gathering structural UI evidence from the documented public https://uizze.com catalogue; the complete free workflow requires no account, token, MCP, script, or executable, and the skill forbids copying proprietary assets
 
