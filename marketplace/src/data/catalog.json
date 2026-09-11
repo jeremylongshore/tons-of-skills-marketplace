@@ -10182,7 +10182,7 @@
       "name": "serpapi-pack",
       "displayName": "serpapi pack",
       "description": "Governed SerpAPI workflows for search clients, engines, testing, capacity, privacy, deployment, and operations (18 skills)",
-      "version": "1.5.0",
+      "version": "1.6.0",
       "category": "saas-packs",
       "keywords": [
         "serpapi",

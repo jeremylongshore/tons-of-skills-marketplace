@@ -3,7 +3,7 @@ name: serpapi-sdk-patterns
 description: 'Wrap the official SerpAPI Python or JavaScript client behind typed, testable boundaries with safe errors, pagination, and output selection. Use when production code needs a stable search adapter. Trigger with "design a SerpAPI client wrapper".'
 argument-hint: "[python|typescript] [engine]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, sdk, architecture, typescript]

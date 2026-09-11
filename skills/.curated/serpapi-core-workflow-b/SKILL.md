@@ -3,7 +3,7 @@ name: serpapi-core-workflow-b
 description: 'Design a multi-engine SerpAPI workflow with explicit parameter maps, result adapters, budgets, and provenance. Use when combining Google, Bing, YouTube, News, Shopping, or Maps. Trigger with "build a SerpAPI multi-engine search".'
 argument-hint: "[engines] [query] [result-limit]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, multi-engine, youtube, maps]

@@ -3,7 +3,7 @@ name: serpapi-hello-world
 description: 'Run a controlled first Google search through an official SerpAPI client and validate metadata before consuming result sections. Use when proving a new integration end to end. Trigger with "run a SerpAPI smoke test".'
 argument-hint: "[query] [python|javascript]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit, Bash(python3:*), Bash(npm:*)
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, google-search, smoke-test, sdk]

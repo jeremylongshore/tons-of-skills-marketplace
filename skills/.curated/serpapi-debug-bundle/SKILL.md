@@ -3,7 +3,7 @@ name: serpapi-debug-bundle
 description: 'Assemble a privacy-safe SerpAPI support bundle with account capacity, search metadata, client context, and reproduction evidence. Use when local diagnosis is insufficient. Trigger with "build a SerpAPI debug bundle".'
 argument-hint: "[search-id] [incident-window]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit, Bash(python3:*)
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, debugging, support, privacy]

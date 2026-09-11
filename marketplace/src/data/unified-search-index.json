@@ -13281,7 +13281,7 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.5.0",
+      "version": "1.6.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -69903,7 +69903,7 @@
         "Bash(gh:*)"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
@@ -69927,7 +69927,7 @@
         "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
@@ -69950,7 +69950,7 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
@@ -69973,7 +69973,7 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
@@ -69996,7 +69996,7 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
@@ -70020,7 +70020,7 @@
         "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
@@ -70043,7 +70043,7 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
@@ -70068,7 +70068,7 @@
         "Bash(npm:*)"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
@@ -70094,7 +70094,7 @@
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
@@ -70119,7 +70119,7 @@
         "Bash(npm:*)"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
@@ -70142,7 +70142,7 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
@@ -70165,7 +70165,7 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
@@ -70189,7 +70189,7 @@
         "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
@@ -70212,7 +70212,7 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
@@ -70235,7 +70235,7 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
@@ -70258,7 +70258,7 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
@@ -70283,7 +70283,7 @@
         "Bash(npm:*)"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"
@@ -70306,7 +70306,7 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.6.0",
       "parentPlugin": {
         "name": "serpapi-pack",
         "category": "saas-packs"

@@ -3,7 +3,7 @@ name: serpapi-rate-limits
 description: 'Discover SerpAPI account throughput and allowance dynamically, then enforce admission, concurrency, and retry budgets. Use when preventing 429s or coordinating search workers. Trigger with "configure SerpAPI rate limits".'
 argument-hint: "[environment] [worker-count]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit, Bash(python3:*)
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, rate-limits, quotas, reliability]

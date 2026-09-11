@@ -3,7 +3,7 @@ name: serpapi-cost-tuning
 description: 'Reduce SerpAPI search consumption through measured demand, exact-query caching, admission budgets, and current account pricing evidence. Use when forecasting or controlling search spend. Trigger with "optimize SerpAPI cost".'
 argument-hint: "[environment] [forecast-window]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, cost, finops, caching]

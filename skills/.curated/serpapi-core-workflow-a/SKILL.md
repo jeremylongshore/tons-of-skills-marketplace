@@ -3,7 +3,7 @@ name: serpapi-core-workflow-a
 description: 'Build a reproducible Google Search workflow that validates parameters, optional result sections, and bounded pagination. Use when implementing search, SEO monitoring, or evidence collection. Trigger with "build a SerpAPI Google workflow".'
 argument-hint: "[query] [location] [page-budget]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, google-search, pagination, seo]

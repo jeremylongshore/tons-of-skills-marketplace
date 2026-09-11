@@ -3,7 +3,7 @@ name: serpapi-local-dev-loop
 description: 'Build and test SerpAPI integrations locally with sanitized fixtures, injected clients, and an explicit live-recording boundary. Use when developing parsers without repeatedly spending allowance. Trigger with "set up SerpAPI local development".'
 argument-hint: "[python|typescript] [parser-path]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit, Bash(python3:*), Bash(npm:*)
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, local-development, fixtures, testing]

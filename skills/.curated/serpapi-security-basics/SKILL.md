@@ -3,7 +3,7 @@ name: serpapi-security-basics
 description: 'Threat-model SerpAPI credentials, query data, result retention, browser exposure, logs, and ZeroTrace tradeoffs. Use when reviewing or hardening a search integration. Trigger with "secure a SerpAPI integration".'
 argument-hint: "[application] [data-classification]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, security, privacy, secrets]

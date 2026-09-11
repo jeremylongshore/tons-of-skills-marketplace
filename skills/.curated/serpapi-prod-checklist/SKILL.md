@@ -3,7 +3,7 @@ name: serpapi-prod-checklist
 description: 'Issue an evidence-backed production-readiness decision for a SerpAPI integration across contract, security, reliability, cost, privacy, and operations. Use when preparing a launch or material change. Trigger with "review SerpAPI production readiness".'
 argument-hint: "[service] [environment] [release-ref]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, production, readiness, governance]

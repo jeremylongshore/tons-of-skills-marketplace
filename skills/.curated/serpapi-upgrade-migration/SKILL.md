@@ -3,7 +3,7 @@ name: serpapi-upgrade-migration
 description: 'Migrate legacy SerpAPI Python or JavaScript packages and response assumptions to current official clients with contract tests and rollback. Use when performing dependency or API upgrades. Trigger with "migrate a SerpAPI client".'
 argument-hint: "[python|javascript] [from-version] [to-version]"
 allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit, Bash(python3:*), Bash(npm:*)
-version: 1.5.0
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags: [saas, serpapi, migration, python, javascript]
