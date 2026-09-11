@@ -9,4 +9,5 @@ Verified 2026-09-11. Re-fetch operation details before a live request.
 - [Rate limits](https://developer.lucid.co/reference/rate-limits) — operation-specific limit guidance.
 
 ## Evidence Rule
+
 Current Standard Import and endpoint pages outrank snippets and memory. Never invent document JSON fields, endpoint paths, scopes, headers, or cleanup semantics.

@@ -9,4 +9,5 @@ Verified 2026-09-11. Inspect installed CLI help and current official pages befor
 - [Access scopes](https://developer.lucid.co/reference/access-scopes) — least-privilege review.
 
 ## Evidence Rule
+
 Installed CLI output, current official docs, and the reviewed repository are authoritative. Never invent upload flags, publication states, connector hosting guarantees, or rollback behavior.

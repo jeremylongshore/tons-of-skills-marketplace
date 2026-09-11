@@ -9,4 +9,5 @@ Verified 2026-09-11. Re-fetch the contract for the exact measured surface.
 - [Building a data connector](https://developer.lucid.co/docs/building-a-data-connector) — connector responsibilities.
 
 ## Evidence Rule
+
 Measured receipts and current surface-specific documentation control. Never generalize one endpoint's quota or one fixture's benchmark to the whole Lucid platform.

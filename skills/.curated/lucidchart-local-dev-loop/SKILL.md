@@ -14,23 +14,29 @@ compatibility: Designed for Claude Code; developer-mode installation and any liv
 # Lucid Local Development Loop
 
 ## Overview
+
 Establish a repeatable edit-build-test loop for an existing Lucid extension or connector, grounded in the installed project and official `lucid-package` tooling.
 
 ## Prerequisites
+
 - A local project with lockfile, manifest, and documented runtime versions
 - Synthetic fixtures and no production credentials by default
 - A disposable Lucid developer test target when UI verification is needed
 
 ## Tool Discipline
+
 Use `Read`, `Glob`, and `Grep` to inspect the project, `WebFetch` for official CLI/SDK guidance, and `Write` or `Edit` only for scoped source, fixture, test, or local documentation changes.
 
 ## Current Contract
+
 Lucid maintains `lucid-package` and `lucid-extension-sdk`. Project scripts and installed CLI `--help` define the exact runnable commands; official guidance warns against guessing SDK types or pnpm argument syntax.
 
 ## Authentication
+
 Keep the default loop offline and fixture-driven. Developer-mode access uses a dedicated least-privilege identity; connector/source secrets remain in an approved local secret provider and never enter bundles or snapshots.
 
 ## Instructions
+
 1. Read repository instructions, manifest, package manager, lockfile, scripts, SDK versions, and test configuration.
 2. Query installed command help and compare it with current official CLI and SDK documentation.
 3. Select the narrowest loop: type/build, manifest validation, unit fixture, connector contract, or editor smoke test.
@@ -40,12 +46,15 @@ Keep the default loop offline and fixture-driven. Developer-mode access uses a d
 7. Record command, duration, changed files, fixture digest, expected/actual result, and cleanup.
 
 ## Approval Boundaries
+
 Do not add dependencies, install into a Lucid account, contact a live source, or change registered application settings without approval.
 
 ## Output
+
 Return environment/version evidence, selected loop, commands, test receipts, changed files, developer-mode actions, cleanup, and remaining drift.
 
 ## Error Handling
+
 | Condition | Response |
 |---|---|
 | Project command and docs disagree | Trust installed help/project scripts, investigate version drift, and document it. |
@@ -53,12 +62,15 @@ Return environment/version evidence, selected loop, commands, test receipts, cha
 | Developer installation mutates unexpected data | Stop, capture evidence, and remove the test artifact if approved. |
 
 ## Example
+
 ```text
 focus=extension-build; package-manager=pnpm; fixture-sha256=...; narrow=pass; affected-gates=pass; live-data=no
 ```
 
 ## Resources
+
 - [Official documentation map](references/official-docs.md)
 
 ## Next Steps
+
 Encode the proven commands in CI with the same pinned runtime, lockfile, and synthetic fixtures.

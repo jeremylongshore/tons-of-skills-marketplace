@@ -11,4 +11,5 @@ Verified 2026-09-11. Re-fetch the exact operation and surface documentation duri
 - [Building a data connector](https://developer.lucid.co/docs/building-a-data-connector) — server-side boundary.
 
 ## Evidence Rule
+
 Current official contracts and inspected artifacts control. Never infer that a credential, extension context, connector, or document is trusted merely because it belongs to the same Lucid account.

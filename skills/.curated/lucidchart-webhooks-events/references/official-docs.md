@@ -9,4 +9,5 @@ Verified 2026-09-11. Re-fetch Lucid and the source system's exact webhook contra
 - [Lucid Extension SDK](https://developer.lucid.co/docs/lucid-extension-sdk) — current SDK entry point.
 
 ## Evidence Rule
+
 The current Lucid connector SDK and the source system's official webhook contract control. Never invent generic Lucid document events, signature headers, event names, ordering, retries, or delivery guarantees.

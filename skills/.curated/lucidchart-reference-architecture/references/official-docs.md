@@ -10,4 +10,5 @@ Verified 2026-09-11. Re-fetch the chosen surface documentation at decision and i
 - [Building a data connector](https://developer.lucid.co/docs/building-a-data-connector) — connector responsibilities.
 
 ## Evidence Rule
+
 Use only capabilities supported by current first-party contracts. Architecture diagrams must not imply generic document webhooks, locking, quotas, or guarantees that Lucid does not document.

@@ -10,4 +10,5 @@ Verified 2026-09-11. Re-fetch the exact operation page before choosing a credent
 - [Headers](https://developer.lucid.co/reference/headers) — authorization and API-version headers.
 
 ## Evidence Rule
+
 The exact operation's current auth requirements control. Never invent headers, scopes, grant types, token lifetimes, or refresh behavior.

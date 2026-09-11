@@ -10,4 +10,5 @@ Verified 2026-09-11. Compare current and target installed packages plus the exac
 - [Data import and sync](https://developer.lucid.co/docs/data-import-and-sync) — data integration architecture.
 
 ## Evidence Rule
+
 Pinned baseline receipts, target installed types, and current official docs control. Never assume format rendering, SDK compatibility, scopes, or API-version behavior is unchanged.

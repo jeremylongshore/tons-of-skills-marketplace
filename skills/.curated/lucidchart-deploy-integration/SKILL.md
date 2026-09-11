@@ -14,23 +14,29 @@ compatibility: Designed for Claude Code; upload, publication, OAuth registration
 # Governed Lucid Integration Deployment
 
 ## Overview
+
 Move a Lucid extension and any companion data connector through reproducible build, canary, publication, and rollback gates using current official tooling.
 
 ## Prerequisites
+
 - A clean reviewed revision with passing local build, type, manifest, fixture, and secret scans
 - Environment owners, approved scopes, release notes, canary users, and rollback artifact
 - Current `lucid-package` and project-specific connector deployment instructions
 
 ## Tool Discipline
+
 Use `Read`, `Glob`, and `Grep` for repository and release evidence, `WebFetch` for current Lucid publication contracts, and `Write` or `Edit` only for local manifests, receipts, and release notes.
 
 ## Current Contract
+
 Lucid editor extensions use the official package CLI and Extension SDK. A data connector is a separately operated server component with its own identity, hosting, secrets, observability, and rollback. Verify installed CLI syntax rather than relying on cached commands.
 
 ## Authentication
+
 Separate developer, publisher, connector-runtime, and source-system identities. Keep credentials in approved secret stores; use least privilege and ensure rollback does not depend on an expired personal token.
 
 ## Instructions
+
 1. Pin source revision, CLI/SDK versions, manifest, scopes, connector image, fixtures, and documentation.
 2. Run the repository's secretless build, type, manifest, fixture, and compatibility gates.
 3. Produce immutable extension and connector artifacts with checksums and provenance.
@@ -41,12 +47,15 @@ Separate developer, publisher, connector-runtime, and source-system identities. 
 8. Require a second approval for production publication or traffic change; retain the prior artifact until the rollback window closes.
 
 ## Approval Boundaries
+
 Never publish, change OAuth settings, expose a connector, rotate production secrets, or promote traffic implicitly.
 
 ## Output
+
 Return source revision, artifact digests, version evidence, scopes, approvals, canary results, publication receipt, monitoring, and rollback status.
 
 ## Error Handling
+
 | Condition | Response |
 |---|---|
 | Installed CLI differs from instructions | Use current `--help` and official docs; stop and update the plan. |
@@ -54,12 +63,15 @@ Return source revision, artifact digests, version evidence, scopes, approvals, c
 | Previous artifact cannot be restored | Do not deploy until a tested rollback exists. |
 
 ## Example
+
 ```text
 revision=abc123; extension-sha256=...; target=developer; canary=3/3; production=not-approved; rollback=verified
 ```
 
 ## Resources
+
 - [Official documentation map](references/official-docs.md)
 
 ## Next Steps
+
 Promote only with production-owner approval and evidence that the canary and rollback gates passed.

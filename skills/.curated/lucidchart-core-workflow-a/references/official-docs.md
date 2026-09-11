@@ -9,4 +9,5 @@ Verified 2026-09-11. Fetch the exact operation page again before relying on a sc
 - [Headers](https://developer.lucid.co/reference/headers) — authentication and version headers.
 
 ## Evidence Rule
+
 Current endpoint and Standard Import pages outrank examples and memory. Stop on missing or conflicting evidence; never invent an endpoint, scope, version, format field, size limit, or retry contract.

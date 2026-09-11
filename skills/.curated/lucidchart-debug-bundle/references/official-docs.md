@@ -9,4 +9,5 @@ Verified 2026-09-11. Re-fetch the affected operation and SDK pages when diagnosi
 - [Lucid status](https://status.lucid.co/) — official service-health evidence.
 
 ## Evidence Rule
+
 Sanitized first-party receipts outrank inference. Never include credentials or protected document content merely because support might find it useful.
