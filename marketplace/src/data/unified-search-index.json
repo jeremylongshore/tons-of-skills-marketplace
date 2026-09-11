@@ -11653,7 +11653,7 @@
       "slug": "abridge-pack",
       "name": "abridge-pack",
       "displayName": "abridge pack",
-      "description": "Claude Code skill pack for Abridge (18 skills)",
+      "description": "Abridge health-system rollout, clinical workflow, Epic handoff, security, and reliability operator skills (18 skills; live actions remain approval-gated)",
       "category": "saas-packs",
       "keywords": [
         "abridge",
@@ -11667,15 +11667,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 18,
-      "verificationScore": 80,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "abridge pack claude code skill pack for abridge (18 skills) saas-packs abridge saas sdk integration"
+      "verificationScore": 98,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "abridge pack abridge health-system rollout, clinical workflow, epic handoff, security, and reliability operator skills (18 skills; live actions remain approval-gated) saas-packs abridge saas sdk integration"
     },
     {
       "type": "plugin",
@@ -15030,392 +15030,414 @@
       "id": "abridge-ci-integration",
       "slug": "abridge-ci-integration",
       "name": "abridge-ci-integration",
-      "description": "Configure CI/CD pipeline for Abridge clinical AI integrations with GitHub Actions. Use when setting up automated testing, FHIR validation, HIPAA compliance checks, or deployment pipelines for healthcare AI applications. Trigger: \"abridge CI\", \"abridge GitHub Actions\", \"abridge pipeline\", \"abridge automated testing\", \"abridge CI/CD\".",
+      "description": "Build a synthetic-data CI gate for customer-controlled Abridge integration code without calling undocumented vendor interfaces. Use when adding regression checks to an Abridge deployment repository. Trigger with \"test the Abridge integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-ci-integration configure ci/cd pipeline for abridge clinical ai integrations with github actions. use when setting up automated testing, fhir validation, hipaa compliance checks, or deployment pipelines for healthcare ai applications. trigger: \"abridge ci\", \"abridge github actions\", \"abridge pipeline\", \"abridge automated testing\", \"abridge ci/cd\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "abridge-ci-integration build a synthetic-data ci gate for customer-controlled abridge integration code without calling undocumented vendor interfaces. use when adding regression checks to an abridge deployment repository. trigger with \"test the abridge integration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "abridge-common-errors",
       "slug": "abridge-common-errors",
       "name": "abridge-common-errors",
-      "description": "Diagnose and fix common Abridge clinical AI integration errors. Use when encountering EHR connectivity failures, note generation errors, audio streaming issues, or FHIR validation problems with Abridge. Trigger: \"abridge error\", \"abridge not working\", \"abridge debug\", \"fix abridge issue\", \"abridge troubleshoot\".",
+      "description": "Triage Abridge recording, note-review, Epic handoff, and access failures from observed evidence without inventing vendor error codes. Use when an Abridge clinical workflow is degraded. Trigger with \"diagnose this Abridge issue\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-common-errors diagnose and fix common abridge clinical ai integration errors. use when encountering ehr connectivity failures, note generation errors, audio streaming issues, or fhir validation problems with abridge. trigger: \"abridge error\", \"abridge not working\", \"abridge debug\", \"fix abridge issue\", \"abridge troubleshoot\". saas-packs read write edit bash(curl:*) grep "
+      "searchText": "abridge-common-errors triage abridge recording, note-review, epic handoff, and access failures from observed evidence without inventing vendor error codes. use when an abridge clinical workflow is degraded. trigger with \"diagnose this abridge issue\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "abridge-core-workflow-a",
       "slug": "abridge-core-workflow-a",
       "name": "abridge-core-workflow-a",
-      "description": "Implement Abridge ambient clinical documentation capture-to-note pipeline. Use when building the primary encounter workflow: audio capture, real-time transcription, AI note generation, and EHR note insertion. Trigger: \"abridge clinical workflow\", \"abridge encounter pipeline\", \"ambient documentation workflow\", \"abridge note generation\".",
+      "description": "Design and verify the clinician workflow from consent through recording, draft review, Linked Evidence, and final note disposition. Use when implementing or auditing an Abridge clinical documentation pathway. Trigger with \"map the Abridge note workflow\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-core-workflow-a implement abridge ambient clinical documentation capture-to-note pipeline. use when building the primary encounter workflow: audio capture, real-time transcription, ai note generation, and ehr note insertion. trigger: \"abridge clinical workflow\", \"abridge encounter pipeline\", \"ambient documentation workflow\", \"abridge note generation\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "abridge-core-workflow-a design and verify the clinician workflow from consent through recording, draft review, linked evidence, and final note disposition. use when implementing or auditing an abridge clinical documentation pathway. trigger with \"map the abridge note workflow\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "abridge-core-workflow-b",
       "slug": "abridge-core-workflow-b",
       "name": "abridge-core-workflow-b",
-      "description": "Implement Abridge patient-facing documentation and after-visit summary generation. Use when building patient portal integration, generating plain-language summaries, multi-language translations, or after-visit instructions from clinical encounters. Trigger: \"abridge patient summary\", \"after-visit summary\", \"patient portal abridge\", \"abridge patient-facing\", \"abridge multilingual\".",
+      "description": "Verify the approved handoff of clinician-reviewed Abridge note sections into Epic templates and downstream workflows. Use when configuring or auditing Abridge-to-Epic documentation flow. Trigger with \"verify the Abridge Epic handoff\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-core-workflow-b implement abridge patient-facing documentation and after-visit summary generation. use when building patient portal integration, generating plain-language summaries, multi-language translations, or after-visit instructions from clinical encounters. trigger: \"abridge patient summary\", \"after-visit summary\", \"patient portal abridge\", \"abridge patient-facing\", \"abridge multilingual\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "abridge-core-workflow-b verify the approved handoff of clinician-reviewed abridge note sections into epic templates and downstream workflows. use when configuring or auditing abridge-to-epic documentation flow. trigger with \"verify the abridge epic handoff\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "abridge-cost-tuning",
       "slug": "abridge-cost-tuning",
       "name": "abridge-cost-tuning",
-      "description": "Optimize Abridge clinical AI costs through tier selection, session management, and usage monitoring for healthcare organizations. Use when analyzing Abridge billing, optimizing encounter volume, or right-sizing your Abridge contract for provider count. Trigger: \"abridge cost\", \"abridge pricing\", \"abridge billing\", \"abridge budget\", \"abridge ROI\".",
+      "description": "Evaluate Abridge adoption, workflow value, and avoidable operational friction without inventing prices or vendor billing meters. Use when reviewing an Abridge rollout or renewal. Trigger with \"analyze Abridge value\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-cost-tuning optimize abridge clinical ai costs through tier selection, session management, and usage monitoring for healthcare organizations. use when analyzing abridge billing, optimizing encounter volume, or right-sizing your abridge contract for provider count. trigger: \"abridge cost\", \"abridge pricing\", \"abridge billing\", \"abridge budget\", \"abridge roi\". saas-packs read write edit bash(npm:*) "
+      "searchText": "abridge-cost-tuning evaluate abridge adoption, workflow value, and avoidable operational friction without inventing prices or vendor billing meters. use when reviewing an abridge rollout or renewal. trigger with \"analyze abridge value\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "abridge-debug-bundle",
       "slug": "abridge-debug-bundle",
       "name": "abridge-debug-bundle",
-      "description": "Collect Abridge debug evidence for support tickets and troubleshooting. Use when filing Abridge support tickets, collecting diagnostic data, or preparing evidence for escalation to Abridge engineering. Trigger: \"abridge debug bundle\", \"abridge support ticket\", \"abridge diagnostics\", \"collect abridge evidence\".",
+      "description": "Produce a PHI-minimized Abridge support bundle with provenance, redaction, and protected escalation boundaries. Use when support needs reproducible evidence for an Abridge issue. Trigger with \"build an Abridge debug bundle\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Bash(node:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-debug-bundle collect abridge debug evidence for support tickets and troubleshooting. use when filing abridge support tickets, collecting diagnostic data, or preparing evidence for escalation to abridge engineering. trigger: \"abridge debug bundle\", \"abridge support ticket\", \"abridge diagnostics\", \"collect abridge evidence\". saas-packs read write edit bash(curl:*) bash(node:*) grep "
+      "searchText": "abridge-debug-bundle produce a phi-minimized abridge support bundle with provenance, redaction, and protected escalation boundaries. use when support needs reproducible evidence for an abridge issue. trigger with \"build an abridge debug bundle\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "abridge-deploy-integration",
       "slug": "abridge-deploy-integration",
       "name": "abridge-deploy-integration",
-      "description": "Deploy Abridge clinical AI integration to HIPAA-compliant cloud infrastructure. Use when deploying to GCP Cloud Run, AWS ECS, or Azure Container Apps with healthcare-grade secrets management and compliance controls. Trigger: \"deploy abridge\", \"abridge production deploy\", \"abridge Cloud Run\", \"abridge AWS deploy\", \"abridge HIPAA infrastructure\".",
+      "description": "Plan and control a staged Abridge rollout across clinical cohorts and EHR workflows without pretending to deploy vendor infrastructure. Use when preparing an Abridge pilot or expansion. Trigger with \"plan the Abridge rollout\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(gcloud:*)",
-        "Bash(docker:*)",
-        "Bash(aws:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-deploy-integration deploy abridge clinical ai integration to hipaa-compliant cloud infrastructure. use when deploying to gcp cloud run, aws ecs, or azure container apps with healthcare-grade secrets management and compliance controls. trigger: \"deploy abridge\", \"abridge production deploy\", \"abridge cloud run\", \"abridge aws deploy\", \"abridge hipaa infrastructure\". saas-packs read write edit bash(gcloud:*) bash(docker:*) bash(aws:*) "
+      "searchText": "abridge-deploy-integration plan and control a staged abridge rollout across clinical cohorts and ehr workflows without pretending to deploy vendor infrastructure. use when preparing an abridge pilot or expansion. trigger with \"plan the abridge rollout\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "abridge-hello-world",
       "slug": "abridge-hello-world",
       "name": "abridge-hello-world",
-      "description": "Create a minimal Abridge ambient AI clinical documentation example. Use when testing Abridge integration, verifying EHR connectivity, or learning how Abridge captures and structures clinical conversations. Trigger: \"abridge hello world\", \"abridge example\", \"abridge quick start\", \"test abridge\".",
+      "description": "Run a bounded Abridge smoke test through the documented user workflow using an approved test encounter and no invented API. Use when validating a new tenant or pilot cohort. Trigger with \"smoke test Abridge\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-hello-world create a minimal abridge ambient ai clinical documentation example. use when testing abridge integration, verifying ehr connectivity, or learning how abridge captures and structures clinical conversations. trigger: \"abridge hello world\", \"abridge example\", \"abridge quick start\", \"test abridge\". saas-packs read write edit bash(npm:*) bash(curl:*) "
+      "searchText": "abridge-hello-world run a bounded abridge smoke test through the documented user workflow using an approved test encounter and no invented api. use when validating a new tenant or pilot cohort. trigger with \"smoke test abridge\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "abridge-install-auth",
       "slug": "abridge-install-auth",
       "name": "abridge-install-auth",
-      "description": "Set up Abridge clinical AI platform authentication and EHR integration credentials. Use when onboarding a healthcare org to Abridge, configuring Epic/Athena integration, or setting up developer sandbox access for ambient AI documentation. Trigger: \"install abridge\", \"setup abridge\", \"abridge auth\", \"configure abridge credentials\".",
+      "description": "Establish Abridge tenant access, identity ownership, and approved EHR integration prerequisites without fabricating public credentials or endpoints. Use when onboarding an Abridge implementation. Trigger with \"configure Abridge access\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-install-auth set up abridge clinical ai platform authentication and ehr integration credentials. use when onboarding a healthcare org to abridge, configuring epic/athena integration, or setting up developer sandbox access for ambient ai documentation. trigger: \"install abridge\", \"setup abridge\", \"abridge auth\", \"configure abridge credentials\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "abridge-install-auth establish abridge tenant access, identity ownership, and approved ehr integration prerequisites without fabricating public credentials or endpoints. use when onboarding an abridge implementation. trigger with \"configure abridge access\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "abridge-local-dev-loop",
       "slug": "abridge-local-dev-loop",
       "name": "abridge-local-dev-loop",
-      "description": "Configure Abridge local development with FHIR server, synthetic data, and hot reload. Use when setting up a development environment for clinical AI integration, testing encounter workflows locally, or iterating on EHR integration code. Trigger: \"abridge local dev\", \"abridge dev setup\", \"abridge test locally\".",
+      "description": "Build a local synthetic rehearsal for customer-owned Abridge workflow adapters and failure states. Use when developing integration code without access to patient data or a documented public Abridge sandbox. Trigger with \"create an Abridge dev loop\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(docker:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-local-dev-loop configure abridge local development with fhir server, synthetic data, and hot reload. use when setting up a development environment for clinical ai integration, testing encounter workflows locally, or iterating on ehr integration code. trigger: \"abridge local dev\", \"abridge dev setup\", \"abridge test locally\". saas-packs read write edit bash(npm:*) bash(docker:*) grep "
+      "searchText": "abridge-local-dev-loop build a local synthetic rehearsal for customer-owned abridge workflow adapters and failure states. use when developing integration code without access to patient data or a documented public abridge sandbox. trigger with \"create an abridge dev loop\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "abridge-performance-tuning",
       "slug": "abridge-performance-tuning",
       "name": "abridge-performance-tuning",
-      "description": "Optimize Abridge clinical AI integration performance for high-volume deployments. Use when reducing note generation latency, optimizing audio streaming throughput, improving FHIR push performance, or scaling for multi-site health systems. Trigger: \"abridge performance\", \"abridge latency\", \"abridge optimization\", \"abridge slow\", \"abridge scale\".",
+      "description": "Measure and improve Abridge workflow latency and friction using privacy-safe health-system evidence. Use when clinicians report slow capture, note readiness, review, or EHR handoff. Trigger with \"measure Abridge performance\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-performance-tuning optimize abridge clinical ai integration performance for high-volume deployments. use when reducing note generation latency, optimizing audio streaming throughput, improving fhir push performance, or scaling for multi-site health systems. trigger: \"abridge performance\", \"abridge latency\", \"abridge optimization\", \"abridge slow\", \"abridge scale\". saas-packs read write edit bash(npm:*) "
+      "searchText": "abridge-performance-tuning measure and improve abridge workflow latency and friction using privacy-safe health-system evidence. use when clinicians report slow capture, note readiness, review, or ehr handoff. trigger with \"measure abridge performance\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "abridge-prod-checklist",
       "slug": "abridge-prod-checklist",
       "name": "abridge-prod-checklist",
-      "description": "Execute Abridge production readiness checklist for clinical AI deployment. Use when launching Abridge in a healthcare org, preparing for go-live, or validating HIPAA compliance before production deployment. Trigger: \"abridge production checklist\", \"abridge go-live\", \"abridge launch readiness\", \"abridge prod deploy\".",
+      "description": "Run an evidence-backed Abridge production readiness decision across clinical, privacy, security, EHR, training, support, and rollback owners. Use when preparing a pilot or cohort expansion. Trigger with \"review Abridge go-live\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-prod-checklist execute abridge production readiness checklist for clinical ai deployment. use when launching abridge in a healthcare org, preparing for go-live, or validating hipaa compliance before production deployment. trigger: \"abridge production checklist\", \"abridge go-live\", \"abridge launch readiness\", \"abridge prod deploy\". saas-packs read write edit bash(curl:*) grep "
+      "searchText": "abridge-prod-checklist run an evidence-backed abridge production readiness decision across clinical, privacy, security, ehr, training, support, and rollback owners. use when preparing a pilot or cohort expansion. trigger with \"review abridge go-live\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "abridge-rate-limits",
       "slug": "abridge-rate-limits",
       "name": "abridge-rate-limits",
-      "description": "Implement Abridge rate limiting, backoff, and session throttling patterns. Use when handling 429 errors, managing concurrent encounter sessions, or optimizing API throughput for high-volume clinical deployments. Trigger: \"abridge rate limit\", \"abridge 429\", \"abridge throttling\", \"abridge concurrent sessions\".",
+      "description": "Analyze and control capacity, queueing, and backpressure for a tenant-specific Abridge integration without inventing public limits or headers. Use when handling concurrency or throttling requirements. Trigger with \"plan Abridge capacity\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-rate-limits implement abridge rate limiting, backoff, and session throttling patterns. use when handling 429 errors, managing concurrent encounter sessions, or optimizing api throughput for high-volume clinical deployments. trigger: \"abridge rate limit\", \"abridge 429\", \"abridge throttling\", \"abridge concurrent sessions\". saas-packs read write edit bash(npm:*) "
+      "searchText": "abridge-rate-limits analyze and control capacity, queueing, and backpressure for a tenant-specific abridge integration without inventing public limits or headers. use when handling concurrency or throttling requirements. trigger with \"plan abridge capacity\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "abridge-reference-architecture",
       "slug": "abridge-reference-architecture",
       "name": "abridge-reference-architecture",
-      "description": "Implement Abridge reference architecture for clinical AI integration. Use when designing a new Abridge deployment, reviewing project structure, or planning multi-site health system rollouts with EHR integration. Trigger: \"abridge architecture\", \"abridge project structure\", \"abridge system design\", \"abridge multi-site\".",
+      "description": "Define an Abridge reference architecture that separates vendor, EHR, identity, device, customer, and clinical authority boundaries. Use when reviewing an enterprise Abridge design. Trigger with \"design the Abridge architecture\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-reference-architecture implement abridge reference architecture for clinical ai integration. use when designing a new abridge deployment, reviewing project structure, or planning multi-site health system rollouts with ehr integration. trigger: \"abridge architecture\", \"abridge project structure\", \"abridge system design\", \"abridge multi-site\". saas-packs read write edit "
+      "searchText": "abridge-reference-architecture define an abridge reference architecture that separates vendor, ehr, identity, device, customer, and clinical authority boundaries. use when reviewing an enterprise abridge design. trigger with \"design the abridge architecture\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "abridge-sdk-patterns",
       "slug": "abridge-sdk-patterns",
       "name": "abridge-sdk-patterns",
-      "description": "Apply production-ready patterns for Abridge clinical AI integration. Use when building reusable Abridge client wrappers, implementing HIPAA-compliant error handling, or establishing team coding standards for healthcare AI. Trigger: \"abridge SDK patterns\", \"abridge best practices\", \"abridge code patterns\".",
+      "description": "Implement a narrow customer-owned adapter around an approved Abridge tenant interface without claiming a public SDK. Use when coding against vendor-issued integration specifications. Trigger with \"build the Abridge adapter\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-sdk-patterns apply production-ready patterns for abridge clinical ai integration. use when building reusable abridge client wrappers, implementing hipaa-compliant error handling, or establishing team coding standards for healthcare ai. trigger: \"abridge sdk patterns\", \"abridge best practices\", \"abridge code patterns\". saas-packs read write edit "
+      "searchText": "abridge-sdk-patterns implement a narrow customer-owned adapter around an approved abridge tenant interface without claiming a public sdk. use when coding against vendor-issued integration specifications. trigger with \"build the abridge adapter\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "abridge-security-basics",
       "slug": "abridge-security-basics",
       "name": "abridge-security-basics",
-      "description": "Apply HIPAA-compliant security practices for Abridge clinical AI integrations. Use when securing PHI in transit/at rest, configuring access controls, implementing audit logging, or preparing for HIPAA security audits. Trigger: \"abridge security\", \"abridge HIPAA\", \"abridge PHI protection\", \"abridge access control\", \"abridge audit logging\".",
+      "description": "Review Abridge deployment controls across data handling, identity, devices, EHR workflows, support, auditability, and incident response. Use when conducting a security assessment or control renewal. Trigger with \"audit Abridge security\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(openssl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-security-basics apply hipaa-compliant security practices for abridge clinical ai integrations. use when securing phi in transit/at rest, configuring access controls, implementing audit logging, or preparing for hipaa security audits. trigger: \"abridge security\", \"abridge hipaa\", \"abridge phi protection\", \"abridge access control\", \"abridge audit logging\". saas-packs read write edit bash(openssl:*) grep "
+      "searchText": "abridge-security-basics review abridge deployment controls across data handling, identity, devices, ehr workflows, support, auditability, and incident response. use when conducting a security assessment or control renewal. trigger with \"audit abridge security\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "abridge-upgrade-migration",
       "slug": "abridge-upgrade-migration",
       "name": "abridge-upgrade-migration",
-      "description": "Plan and execute Abridge integration upgrades and EHR migration procedures. Use when upgrading Abridge API versions, migrating between EHR systems, or handling breaking changes in clinical documentation workflows. Trigger: \"abridge upgrade\", \"abridge migration\", \"abridge version update\", \"migrate abridge EHR\", \"abridge breaking changes\".",
+      "description": "Plan a reversible Abridge tenant, care-setting, note-template, or EHR workflow change from authoritative release evidence. Use when migrating an Abridge implementation. Trigger with \"plan the Abridge migration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-upgrade-migration plan and execute abridge integration upgrades and ehr migration procedures. use when upgrading abridge api versions, migrating between ehr systems, or handling breaking changes in clinical documentation workflows. trigger: \"abridge upgrade\", \"abridge migration\", \"abridge version update\", \"migrate abridge ehr\", \"abridge breaking changes\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "abridge-upgrade-migration plan a reversible abridge tenant, care-setting, note-template, or ehr workflow change from authoritative release evidence. use when migrating an abridge implementation. trigger with \"plan the abridge migration\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",
       "id": "abridge-webhooks-events",
       "slug": "abridge-webhooks-events",
       "name": "abridge-webhooks-events",
-      "description": "Implement Abridge webhook handling for clinical documentation events. Use when receiving note completion notifications, encounter status changes, provider enrollment events, or quality alert callbacks from Abridge. Trigger: \"abridge webhook\", \"abridge events\", \"abridge notifications\", \"abridge note completed event\", \"abridge encounter event\".",
+      "description": "Implement and verify callbacks only from an approved tenant-specific Abridge event contract, with replay and PHI protections. Use when vendor implementation documents authorize event delivery. Trigger with \"build the Abridge event handler\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "1.5.0",
       "parentPlugin": {
         "name": "abridge-pack",
         "category": "saas-packs"
       },
-      "searchText": "abridge-webhooks-events implement abridge webhook handling for clinical documentation events. use when receiving note completion notifications, encounter status changes, provider enrollment events, or quality alert callbacks from abridge. trigger: \"abridge webhook\", \"abridge events\", \"abridge notifications\", \"abridge note completed event\", \"abridge encounter event\". saas-packs read write edit bash(curl:*) "
+      "searchText": "abridge-webhooks-events implement and verify callbacks only from an approved tenant-specific abridge event contract, with replay and phi protections. use when vendor implementation documents authorize event delivery. trigger with \"build the abridge event handler\". saas-packs read glob grep webfetch write edit "
     },
     {
       "type": "skill",

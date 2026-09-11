@@ -1,201 +1,86 @@
 ---
 name: abridge-install-auth
-description: 'Set up Abridge clinical AI platform authentication and EHR integration
-  credentials.
-
-  Use when onboarding a healthcare org to Abridge, configuring Epic/Athena integration,
-
-  or setting up developer sandbox access for ambient AI documentation.
-
-  Trigger: "install abridge", "setup abridge", "abridge auth", "configure abridge
-  credentials".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.4.0
-license: MIT
+description: "Establish Abridge tenant access, identity ownership, and approved EHR integration prerequisites without fabricating public credentials or endpoints. Use when onboarding an Abridge implementation. Trigger with \"configure Abridge access\"."
+argument-hint: "[environment] [identity-owner]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- healthcare
-- ai
 - abridge
-- clinical-documentation
-compatibility: Designed for Claude Code
+- access
+- identity
+- onboarding
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live work requires an authorized Abridge tenant, approved test data, and health-system change authority
 ---
-# Abridge Install & Auth
+# Abridge Access and Integration Readiness
 
 ## Overview
 
-Configure Abridge ambient AI platform credentials and EHR integration tokens. Abridge is an enterprise clinical documentation platform — it does not have a public npm/pip SDK. Integration happens through EHR-embedded workflows (Epic Pal, Athena, eClinicalWorks) and partner API access.
+Build an authority map for contracted capabilities, user provisioning, SSO, administrative roles, EHR integration, support, and secrets. Treat vendor-issued implementation documents as tenant-scoped evidence, not reusable public API facts.
 
 ## Prerequisites
 
-- Healthcare organization with Abridge contract
-- EHR system access (Epic, Athena, eClinicalWorks, Cerner, or AllScripts)
-- Abridge Partner Portal credentials from your sales engineer
-- HIPAA-compliant infrastructure (required for PHI handling)
+- The authorized Abridge environment, clinical owner, and health-system policy set
+- Current tenant-specific implementation evidence for every private interface in scope
+- Synthetic data or the organization's formally approved test-record procedure
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect repository configuration, adapters, tests, policies, and existing evidence. Use `WebFetch` only for current official Abridge, HHS, or named EHR documentation. Use `Write` or `Edit` only after confirming scope, environment, owners, patient-data boundary, and approval state. These tools do not confer access to Abridge, an EHR, or a clinical record; return exact operator steps or an approval-gated handoff for live actions.
+
+## Current Contract
+
+- Abridge publicly describes enterprise SSO, governance, analytics, secure cloud handling, and EHR-integrated workflows.
+- The cited public documentation does not publish a self-service API-key flow, universal partner hostname, or generic SMART-on-FHIR setup for Abridge customers.
+- Identity, integration, and support details must come from the signed agreement and approved implementation workbook.
+
+## Authentication
+
+Use only the health system's provisioned Abridge application access, SSO, administrative role, or tenant-specific partner authentication documented for the approved environment. Do not infer public API credentials, reuse production secrets in tests, or expose tokens and session material. Verify identity owner, least privilege, environment binding, storage, rotation, and revocation before any authenticated action.
 
 ## Instructions
 
-### Step 1: Obtain Abridge Partner Credentials
+1. Identify contract owner, tenant administrator, identity owner, EHR owner, privacy and security contacts, and vendor implementation lead.
+2. Inventory licensed products, environments, cohorts, roles, SSO requirements, support routes, and tenant-specific interfaces.
+3. Use `Read`, `Glob`, and `Grep` to locate configuration templates and secret references without exposing secret values.
+4. Verify least-privilege provisioning, joiner-mover-leaver handling, break-glass ownership, and audit evidence.
+5. Use `WebFetch` only for current official Abridge public context; reconcile private setup steps with their document revision.
+6. Use `Write` or `Edit` to create the readiness matrix and unresolved-dependency log.
 
-```bash
-# Abridge uses partner-issued credentials, not self-service API keys
-# Contact your Abridge sales engineer for:
-# 1. Partner API client_id and client_secret
-# 2. Organization ID (org_id)
-# 3. Sandbox environment URL
+## Approval Boundaries
 
-# Store credentials securely (never in source control)
-cat > .env.local << 'EOF'
-ABRIDGE_CLIENT_ID=partner_xxxxxxxxxxxx
-ABRIDGE_CLIENT_SECRET=secret_xxxxxxxxxxxx
-ABRIDGE_ORG_ID=org_xxxxxxxxxxxx
-ABRIDGE_BASE_URL=https://api.abridge.com/v1
-ABRIDGE_SANDBOX_URL=https://sandbox.api.abridge.com/v1
-EOF
-
-chmod 600 .env.local
-echo ".env.local" >> .gitignore
-```
-
-### Step 2: Configure Epic EHR Integration (Most Common Path)
-
-```typescript
-// src/config/abridge-ehr.ts
-// Abridge is Epic's first "Pal" — integration uses Epic's FHIR R4 APIs
-
-interface AbridgeEpicConfig {
-  epicClientId: string;           // From Epic App Orchard registration
-  epicFhirBaseUrl: string;        // e.g., https://fhir.epic.com/interconnect-fhir-oauth
-  abridgeOrgId: string;           // From Abridge partner portal
-  abridgeApiBaseUrl: string;      // Partner API endpoint
-  smartLaunchUrl: string;         // SMART on FHIR launch URL
-}
-
-const config: AbridgeEpicConfig = {
-  epicClientId: process.env.EPIC_CLIENT_ID!,
-  epicFhirBaseUrl: process.env.EPIC_FHIR_BASE_URL!,
-  abridgeOrgId: process.env.ABRIDGE_ORG_ID!,
-  abridgeApiBaseUrl: process.env.ABRIDGE_BASE_URL!,
-  smartLaunchUrl: `${process.env.EPIC_FHIR_BASE_URL}/oauth2/authorize`,
-};
-
-export default config;
-```
-
-### Step 3: Authenticate via OAuth 2.0 (SMART on FHIR)
-
-```typescript
-// src/auth/smart-fhir-auth.ts
-import axios from 'axios';
-
-interface SmartTokenResponse {
-  access_token: string;
-  token_type: 'Bearer';
-  expires_in: number;
-  scope: string;
-  patient?: string;         // Patient context from EHR launch
-  encounter?: string;       // Encounter context from EHR launch
-}
-
-async function getAbridgeToken(
-  authCode: string,
-  redirectUri: string
-): Promise<SmartTokenResponse> {
-  const tokenUrl = `${process.env.EPIC_FHIR_BASE_URL}/oauth2/token`;
-
-  const response = await axios.post(tokenUrl, new URLSearchParams({
-    grant_type: 'authorization_code',
-    code: authCode,
-    redirect_uri: redirectUri,
-    client_id: process.env.EPIC_CLIENT_ID!,
-    client_secret: process.env.EPIC_CLIENT_SECRET!,
-  }), {
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  });
-
-  return response.data;
-}
-
-export { getAbridgeToken, SmartTokenResponse };
-```
-
-### Step 4: Verify Connection
-
-```typescript
-// src/auth/verify-connection.ts
-import axios from 'axios';
-
-async function verifyAbridgeConnection(): Promise<boolean> {
-  try {
-    // Verify partner API access
-    const response = await axios.get(
-      `${process.env.ABRIDGE_BASE_URL}/health`,
-      {
-        headers: {
-          'Authorization': `Bearer ${process.env.ABRIDGE_CLIENT_SECRET}`,
-          'X-Org-Id': process.env.ABRIDGE_ORG_ID!,
-        },
-        timeout: 5000,
-      }
-    );
-
-    console.log('Abridge connection verified:', response.data.status);
-    return response.status === 200;
-  } catch (error) {
-    console.error('Abridge connection failed:', error);
-    return false;
-  }
-}
-```
+Do not invent or probe Abridge endpoints, place vendor secrets in repository files, or authorize a user outside the health system's identity process.
 
 ## Output
 
-- `.env.local` with partner credentials (chmod 600, gitignored)
-- EHR integration config pointing to correct FHIR endpoints
-- SMART on FHIR OAuth flow for clinician authentication
-- Verified connectivity to Abridge partner API
-
-## Examples
-
-In a sandbox onboarding session, obtain a non-production client from the
-partner portal and place its values in the deployment platform's secret store
-or a local, gitignored environment file with restrictive permissions. Complete
-a SMART-on-FHIR authorization using a sandbox redirect URI, then call the
-health endpoint and record only its HTTP status and organization-safe request
-identifier. A `200` response proves connectivity, not production readiness.
-If verification returns `401` or `403`, stop and confirm the client, scope,
-organization provisioning, and redirect URI with the service owners; never
-paste a credential into a ticket, shell history, or source file.
+Return environment and capability inventory, authority owners, role model, secret locations by reference, support route, evidence revisions, and readiness gaps. Separate verified facts, tenant-specific evidence, assumptions, and actions still awaiting approval.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Invalid partner credentials | Contact Abridge sales engineer for new credentials |
-| `403 Forbidden` | Org not provisioned | Verify org_id matches your Abridge contract |
-| SMART launch failure | Epic App Orchard not configured | Register app in Epic App Orchard first |
-| CORS errors | Wrong redirect URI | Update allowed redirect URIs in Epic portal |
-| Certificate error | Self-signed cert in sandbox | Use Abridge-provided sandbox CA certificate |
+| Condition | Response |
+|---|---|
+| Credential source is informal | Reject it and request vendor-issued or identity-owner evidence. |
+| Role scope is unclear | Provision nothing until least privilege is defined. |
+| Environment cannot be distinguished | Hold all live actions. |
 
-## Security Checklist
+## Example
 
-- [ ] Credentials stored in environment variables, never in code
-- [ ] `.env.local` is gitignored and chmod 600
-- [ ] OAuth tokens stored in encrypted session store
-- [ ] PHI data encrypted at rest and in transit (HIPAA requirement)
-- [ ] Audit logging enabled for all Abridge API calls
-- [ ] BAA (Business Associate Agreement) signed with Abridge
+The example is a redacted operational receipt, not patient data or proof of vendor certification.
+
+```text
+tenant=contracted; environments=2; sso-owner=iam; ehr-owner=clinical-apps; secrets=references-only; unresolved=vendor-interface-revision
+```
 
 ## Resources
 
-- [Abridge Platform Overview](https://www.abridge.com/product)
-- [Epic App Orchard Registration](https://appmarket.epic.com/)
-- [SMART on FHIR Authorization](https://hl7.org/fhir/smart-app-launch/)
-- [Abridge Partner Portal](https://partners.abridge.com)
+- [Official documentation map](references/official-docs.md) — dated public evidence and the limits of what those sources establish.
+
+Read the source map before changing a workflow. Recheck tenant-specific implementation evidence for every interface or capability that public documentation does not define.
 
 ## Next Steps
 
-After authentication is configured, proceed to `abridge-hello-world` for your first ambient session test.
+Revalidate the evidence date and tenant-specific authority before repeating this workflow in another environment, cohort, care setting, or integration mode.

@@ -613,3 +613,25 @@ plugins/saas-packs/miro-pack/skills/miro-sdk-patterns/SKILL.md:allowed-tools-net
 plugins/saas-packs/miro-pack/skills/miro-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
 plugins/saas-packs/miro-pack/skills/miro-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
 plugins/saas-packs/miro-pack/skills/miro-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+
+# ── Abridge operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult current first-party Abridge, HHS,
+# or named EHR documentation; no shell or general HTTP client is granted.
+plugins/saas-packs/abridge-pack/skills/abridge-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
