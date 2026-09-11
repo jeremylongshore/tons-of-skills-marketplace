@@ -272,7 +272,7 @@ t = t.replace('‘', \"'\").replace('’', \"'\")
 # ellipsis -> three dots
 t = t.replace('…', '...')
 # zero-width / non-breaking space -> regular space or empty
-t = t.replace('​', '').replace(' ', ' ')
+t = t.replace('\u200B', '').replace('\u00A0', ' ')
 p.write_text(t, encoding='utf-8')
 print('scrubbed', sys.argv[1])
 " tmp/blog-drafts/<slug>.draft.html
