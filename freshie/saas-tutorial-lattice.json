@@ -4,10 +4,10 @@
   "semantics": "Family-name matches are review candidates, not automatic quality or retirement verdicts.",
   "sources": {
     "catalog": ".claude-plugin/marketplace.extended.json",
-    "catalog_sha256": "4f2f4b0f147e0b0c616a327bf36b4306d1fbf718a3936fe994968ddc6facf6b9",
+    "catalog_sha256": "06fc299797d89751fcec051d124d79be4ff2bbbb506561c577cf42df8f03a58a",
     "curated_manifest": "skills/.curated/MANIFEST.json",
     "curated_manifest_sha256": "92a6163c6b96f3f15522f8bc8105648551a9a2ed102179794abdfd9b049bbe1b",
-    "tracked_inventory_sha256": "f083f861f6ed89beaeb82c786a139fb5fd0610ec94a9459fee1b4f0c80b8aca0"
+    "tracked_inventory_sha256": "d148dc8accc9b2b6e6fab251d844f6dc8b8f8f3b6c10a57cbefd435b778a4bc1"
   },
   "family_definition": [
     "advanced-troubleshooting",
@@ -228,18 +228,6 @@
     },
     {
       "rank": 9,
-      "pack": "abridge-pack",
-      "candidate_skills": 18,
-      "skill_count": 18,
-      "candidate_basis_points": 10000,
-      "verification_grade": "B",
-      "verification_score": 80,
-      "pack_inventory_sha256": "e7131a66b53cff69b6ee7539ba60c1f6531d17193f1e3827f42d72c79fe9d0d4",
-      "candidate_set_sha256": "7df83edb5cdd195b259ae4b2e68888d6d100ec9724cc2e6cc1c331a817235a67",
-      "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
-    },
-    {
-      "rank": 10,
       "pack": "linktree-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -251,7 +239,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 11,
+      "rank": 10,
       "pack": "lucidchart-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -263,7 +251,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 12,
+      "rank": 11,
       "pack": "mindtickle-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -275,7 +263,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 13,
+      "rank": 12,
       "pack": "serpapi-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -287,7 +275,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 14,
+      "rank": 13,
       "pack": "workhuman-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -299,7 +287,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 15,
+      "rank": 14,
       "pack": "salesforce-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -311,7 +299,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 16,
+      "rank": 15,
       "pack": "cohere-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -323,7 +311,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 17,
+      "rank": 16,
       "pack": "instantly-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -335,7 +323,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 18,
+      "rank": 17,
       "pack": "linear-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -347,7 +335,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 19,
+      "rank": 18,
       "pack": "openevidence-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -359,7 +347,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 20,
+      "rank": 19,
       "pack": "bamboohr-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -371,7 +359,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 21,
+      "rank": 20,
       "pack": "adobe-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -383,7 +371,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 22,
+      "rank": 21,
       "pack": "firecrawl-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -395,7 +383,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 23,
+      "rank": 22,
       "pack": "fireflies-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -407,7 +395,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 24,
+      "rank": 23,
       "pack": "assemblyai-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -419,7 +407,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 25,
+      "rank": 24,
       "pack": "exa-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -431,7 +419,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 26,
+      "rank": 25,
       "pack": "ideogram-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -443,7 +431,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 27,
+      "rank": 26,
       "pack": "mistral-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -455,7 +443,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 28,
+      "rank": 27,
       "pack": "alchemy-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -467,7 +455,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 29,
+      "rank": 28,
       "pack": "remofirst-pack",
       "candidate_skills": 12,
       "skill_count": 12,
@@ -479,7 +467,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 30,
+      "rank": 29,
       "pack": "coderabbit-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -491,7 +479,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 31,
+      "rank": 30,
       "pack": "palantir-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -503,7 +491,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 32,
+      "rank": 31,
       "pack": "ramp-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -515,7 +503,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 33,
+      "rank": 32,
       "pack": "anima-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -527,7 +515,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 34,
+      "rank": 33,
       "pack": "brightdata-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -539,7 +527,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 35,
+      "rank": 34,
       "pack": "castai-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -551,7 +539,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 36,
+      "rank": 35,
       "pack": "quicknode-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -563,7 +551,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 37,
+      "rank": 36,
       "pack": "canva-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -575,7 +563,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 38,
+      "rank": 37,
       "pack": "flexport-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -587,7 +575,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 39,
+      "rank": 38,
       "pack": "procore-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -599,7 +587,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 40,
+      "rank": 39,
       "pack": "vastai-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -611,7 +599,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 41,
+      "rank": 40,
       "pack": "clari-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -623,7 +611,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 42,
+      "rank": 41,
       "pack": "flyio-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -635,7 +623,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 43,
+      "rank": 42,
       "pack": "persona-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -647,7 +635,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 44,
+      "rank": 43,
       "pack": "runway-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -659,7 +647,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 45,
+      "rank": 44,
       "pack": "clay-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -671,7 +659,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 46,
+      "rank": 45,
       "pack": "apple-notes-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -683,7 +671,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 47,
+      "rank": 46,
       "pack": "gamma-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -695,7 +683,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 48,
+      "rank": 47,
       "pack": "glean-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -707,7 +695,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 49,
+      "rank": 48,
       "pack": "langfuse-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -719,7 +707,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 50,
+      "rank": 49,
       "pack": "appfolio-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -731,7 +719,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 51,
+      "rank": 50,
       "pack": "anthropic-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -743,7 +731,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 52,
+      "rank": 51,
       "pack": "fondo-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -755,7 +743,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 53,
+      "rank": 52,
       "pack": "framer-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -767,7 +755,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 54,
+      "rank": 53,
       "pack": "deepgram-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -779,7 +767,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 55,
+      "rank": 54,
       "pack": "lokalise-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -791,7 +779,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 56,
+      "rank": 55,
       "pack": "obsidian-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -803,7 +791,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 57,
+      "rank": 56,
       "pack": "fathom-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -815,7 +803,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 58,
+      "rank": 57,
       "pack": "hootsuite-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -827,7 +815,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 59,
+      "rank": 58,
       "pack": "granola-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -839,7 +827,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 60,
+      "rank": 59,
       "pack": "maintainx-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -851,7 +839,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 61,
+      "rank": 60,
       "pack": "twinmind-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -863,7 +851,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 62,
+      "rank": 61,
       "pack": "finta-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -875,7 +863,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 63,
+      "rank": 62,
       "pack": "hex-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -887,7 +875,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 64,
+      "rank": 63,
       "pack": "onenote-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -899,7 +887,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 65,
+      "rank": 64,
       "pack": "figma-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -911,7 +899,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 66,
+      "rank": 65,
       "pack": "retellai-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -923,7 +911,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 67,
+      "rank": 66,
       "pack": "apollo-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -935,7 +923,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 68,
+      "rank": 67,
       "pack": "juicebox-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -947,7 +935,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 69,
+      "rank": 68,
       "pack": "posthog-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -959,7 +947,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 70,
+      "rank": 69,
       "pack": "clerk-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -971,7 +959,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 71,
+      "rank": 70,
       "pack": "documenso-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -983,7 +971,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 72,
+      "rank": 71,
       "pack": "speak-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -995,7 +983,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 73,
+      "rank": 72,
       "pack": "clickhouse-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -1007,7 +995,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 74,
+      "rank": 73,
       "pack": "evernote-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -1019,7 +1007,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 75,
+      "rank": 74,
       "pack": "apify-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -1031,7 +1019,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 76,
+      "rank": 75,
       "pack": "windsurf-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -1043,7 +1031,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 77,
+      "rank": 76,
       "pack": "intercom-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -1055,7 +1043,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 78,
+      "rank": 77,
       "pack": "klaviyo-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -1067,7 +1055,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 79,
+      "rank": 78,
       "pack": "lindy-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -1079,7 +1067,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 80,
+      "rank": 79,
       "pack": "elevenlabs-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -1091,7 +1079,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 81,
+      "rank": 80,
       "pack": "groq-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -1100,6 +1088,18 @@
       "verification_score": 97,
       "pack_inventory_sha256": "bc83becf8d5c2b84fa247965600ba1d9e7c328ccdb399b3998b284c658e9589d",
       "candidate_set_sha256": "3915abe27ff29975db7974ee8ef4183bddcb7bfec8283e746bbae1102033af11",
+      "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
+    },
+    {
+      "rank": 81,
+      "pack": "abridge-pack",
+      "candidate_skills": 18,
+      "skill_count": 18,
+      "candidate_basis_points": 10000,
+      "verification_grade": "A",
+      "verification_score": 98,
+      "pack_inventory_sha256": "24cc33c7952e623ca3281c57840d72f70a3348f62772b184120b8d843e86c8f6",
+      "candidate_set_sha256": "7df83edb5cdd195b259ae4b2e68888d6d100ec9724cc2e6cc1c331a817235a67",
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
@@ -1301,8 +1301,8 @@
       "source": "plugins/saas-packs/abridge-pack",
       "version": "1.5.0",
       "verification": {
-        "grade": "B",
-        "score": 80
+        "grade": "A",
+        "score": 98
       },
       "npm_candidate": {
         "name": "@intentsolutionsio/abridge-pack",
@@ -1315,7 +1315,7 @@
       "ownership": {
         "status": "first-party"
       },
-      "pack_inventory_sha256": "e7131a66b53cff69b6ee7539ba60c1f6531d17193f1e3827f42d72c79fe9d0d4",
+      "pack_inventory_sha256": "24cc33c7952e623ca3281c57840d72f70a3348f62772b184120b8d843e86c8f6",
       "candidate_set_sha256": "7df83edb5cdd195b259ae4b2e68888d6d100ec9724cc2e6cc1c331a817235a67",
       "skill_count": 18,
       "catalog_declared_skill_count": 18,
