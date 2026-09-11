@@ -788,3 +788,31 @@ plugins/saas-packs/salesforce-pack/skills/salesforce-sdk-patterns/SKILL.md:allow
 plugins/saas-packs/salesforce-pack/skills/salesforce-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
 plugins/saas-packs/salesforce-pack/skills/salesforce-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
 plugins/saas-packs/salesforce-pack/skills/salesforce-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+
+# ── Cohere operator pack remediation (2026-09-11). ──
+# Each skill grants WebFetch only to re-check current first-party Cohere
+# documentation; it never authorizes a Cohere API or account mutation.
+plugins/saas-packs/cohere-pack/skills/cohere-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-data-handling/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-enterprise-rbac/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-incident-runbook/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-migration-deep-dive/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-multi-env-setup/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-observability/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation

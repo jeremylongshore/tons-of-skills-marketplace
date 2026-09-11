@@ -1,314 +1,91 @@
 ---
 name: cohere-webhooks-events
-description: 'Implement Cohere streaming event handling, SSE patterns, and connector
-  webhooks.
-
-  Use when building streaming UIs, handling chat/tool events,
-
-  or registering Cohere connectors for RAG.
-
-  Trigger with phrases like "cohere streaming", "cohere events",
-
-  "cohere SSE", "cohere connectors", "cohere webhook".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*)
-version: 1.5.0
-license: MIT
+description: >-
+  Handle Cohere v2 streaming events and convert application-owned asynchronous work into idempotent internal events without inventing provider webhooks. Use when building streaming UIs or event workflows. Trigger with "Cohere streaming", "Cohere SSE", or "Cohere events".
+argument-hint: "[chat-stream|tool-stream|internal-event]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ai
-- nlp
 - cohere
-compatibility: Designed for Claude Code
+- events
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Cohere API key
 ---
-# Cohere Streaming Events & Connectors
+# Cohere Streaming and Application Events
 
 ## Overview
 
-Handle Cohere's streaming chat events (SSE), tool-call events, citation events, and register data connectors for RAG. Cohere does not use traditional webhooks — its event model is streaming-based.
+Separate response-stream events from durable business events and replace deprecated managed connectors with application-owned v2 tools.
 
 ## Prerequisites
 
-- `cohere-ai` SDK v7+
-- Understanding of Server-Sent Events (SSE)
-- For connectors: HTTPS endpoint accessible from internet
+- The target repository, runtime, environment, and accountable owner
+- An approved Cohere team and key for any live verification
+- Current quality, security, privacy, capacity, and change-control requirements
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current Cohere primary documentation. Use `Write` or `Edit` only when the user requested implementation and the exact target files are known; never write credentials or customer content.
+
+## Current Contract
+
+- Chat v2 streaming is a server-sent response stream, not an inbound signed webhook surface.
+- Handle typed content, citation, tool-call, and terminal events and tolerate additive unknown event types.
+- Managed v1 connectors are deprecated; v2 retrieval and web search use user-defined tools.
+- If the application emits durable callbacks, define its own authentication, signing, idempotency key, retries, and dead-letter policy.
+
+## Authentication
+
+Use an environment-specific key injected from an approved secret manager. Never print, persist, commit, or place `CO_API_KEY` in an example. Confirm access with the least costly bounded operation appropriate to the task, and treat key creation, rotation, revocation, role changes, and production-capacity requests as owner-approved actions.
 
 ## Instructions
 
-### Step 1: Chat Streaming Events
+1. Choose response streaming, tool streaming, or an application-owned durable event; do not conflate them.
+2. Implement an async iterator with cancellation, timeout, terminal-state validation, and unknown-event telemetry.
+3. Buffer partial content only within explicit memory and latency bounds.
+4. Correlate tool calls and results before continuing the v2 message loop.
+5. For durable internal events, persist state before delivery and enforce signature and replay-window validation.
+6. Test disconnects, duplicate delivery, out-of-order events, partial streams, unknown types, and terminal errors.
 
-Cohere's `chatStream` returns a stream of typed events:
+## Approval Boundaries
 
-```typescript
-import { CohereClientV2 } from 'cohere-ai';
-
-const cohere = new CohereClientV2();
-
-async function handleStream(userMessage: string) {
-  const stream = await cohere.chatStream({
-    model: 'command-a-03-2025',
-    messages: [{ role: 'user', content: userMessage }],
-  });
-
-  for await (const event of stream) {
-    switch (event.type) {
-      // Text content streaming
-      case 'content-start':
-        console.log('--- Generation started ---');
-        break;
-
-      case 'content-delta':
-        const text = event.delta?.message?.content?.text ?? '';
-        process.stdout.write(text);
-        break;
-
-      case 'content-end':
-        console.log('\n--- Generation complete ---');
-        break;
-
-      // Citation events (when using documents)
-      case 'citation-start':
-        console.log('Citation:', event.delta?.message?.citations);
-        break;
-
-      // Tool call events (when using tools)
-      case 'tool-call-start':
-        console.log('Tool call started:', event.delta?.message?.toolCalls?.function?.name);
-        break;
-
-      case 'tool-call-delta':
-        // Streaming tool arguments
-        break;
-
-      case 'tool-call-end':
-        console.log('Tool call complete');
-        break;
-
-      // Message lifecycle
-      case 'message-start':
-        console.log('Message ID:', event.id);
-        break;
-
-      case 'message-end':
-        console.log('Finish reason:', event.delta?.finishReason);
-        console.log('Usage:', event.delta?.usage);
-        break;
-    }
-  }
-}
-```
-
-### Step 2: RAG Streaming with Citations
-
-```typescript
-async function streamRAG(query: string, docs: string[]) {
-  const stream = await cohere.chatStream({
-    model: 'command-a-03-2025',
-    messages: [{ role: 'user', content: query }],
-    documents: docs.map((text, i) => ({
-      id: `doc-${i}`,
-      data: { text },
-    })),
-  });
-
-  let fullText = '';
-  const citations: Array<{ start: number; end: number; text: string; sources: string[] }> = [];
-
-  for await (const event of stream) {
-    if (event.type === 'content-delta') {
-      const chunk = event.delta?.message?.content?.text ?? '';
-      fullText += chunk;
-      process.stdout.write(chunk);
-    }
-
-    if (event.type === 'citation-start') {
-      const cite = event.delta?.message?.citations;
-      if (cite) {
-        citations.push({
-          start: cite.start,
-          end: cite.end,
-          text: cite.text,
-          sources: cite.sources?.map((s: any) => s.id) ?? [],
-        });
-      }
-    }
-  }
-
-  return { fullText, citations };
-}
-```
-
-### Step 3: Streaming Tool Use
-
-```typescript
-const tools = [{
-  type: 'function' as const,
-  function: {
-    name: 'get_price',
-    description: 'Get stock price',
-    parameters: {
-      type: 'object' as const,
-      properties: { ticker: { type: 'string' } },
-      required: ['ticker'],
-    },
-  },
-}];
-
-async function streamToolUse(query: string) {
-  const stream = await cohere.chatStream({
-    model: 'command-a-03-2025',
-    messages: [{ role: 'user', content: query }],
-    tools,
-  });
-
-  let currentToolName = '';
-  let currentToolArgs = '';
-
-  for await (const event of stream) {
-    switch (event.type) {
-      case 'tool-call-start':
-        currentToolName = event.delta?.message?.toolCalls?.function?.name ?? '';
-        currentToolArgs = '';
-        console.log(`Calling tool: ${currentToolName}`);
-        break;
-
-      case 'tool-call-delta':
-        currentToolArgs += event.delta?.message?.toolCalls?.function?.arguments ?? '';
-        break;
-
-      case 'tool-call-end':
-        console.log(`Tool args: ${currentToolArgs}`);
-        // Execute tool here, then send results back
-        break;
-
-      case 'content-delta':
-        process.stdout.write(event.delta?.message?.content?.text ?? '');
-        break;
-    }
-  }
-}
-```
-
-### Step 4: SSE Endpoint for Frontend
-
-```typescript
-// Express endpoint that proxies Cohere stream as SSE
-import express from 'express';
-
-const app = express();
-app.use(express.json());
-
-app.post('/api/chat/stream', async (req, res) => {
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-
-  const cohere = new CohereClientV2();
-
-  try {
-    const stream = await cohere.chatStream({
-      model: 'command-a-03-2025',
-      messages: req.body.messages,
-    });
-
-    for await (const event of stream) {
-      if (event.type === 'content-delta') {
-        const text = event.delta?.message?.content?.text ?? '';
-        res.write(`data: ${JSON.stringify({ type: 'text', text })}\n\n`);
-      }
-
-      if (event.type === 'citation-start') {
-        res.write(`data: ${JSON.stringify({ type: 'citation', data: event.delta })}\n\n`);
-      }
-
-      if (event.type === 'message-end') {
-        res.write(`data: ${JSON.stringify({ type: 'done', usage: event.delta?.usage })}\n\n`);
-      }
-    }
-
-    res.write('data: [DONE]\n\n');
-    res.end();
-  } catch (err) {
-    res.write(`data: ${JSON.stringify({ type: 'error', message: String(err) })}\n\n`);
-    res.end();
-  }
-});
-```
-
-### Step 5: Cohere Connectors (Data Source Registration)
-
-```typescript
-// Register a custom data source for RAG queries
-// Connectors allow Cohere to fetch documents from your APIs
-
-// Create a connector
-const connector = await cohere.connectors.create({
-  name: 'internal-docs',
-  url: 'https://api.yourapp.com/search',
-  description: 'Internal documentation search',
-});
-
-// Use connector in chat for automatic retrieval
-const response = await cohere.chat({
-  model: 'command-a-03-2025',
-  messages: [{ role: 'user', content: 'How do I reset my password?' }],
-  connectors: [{ id: connector.connector.id }],
-});
-
-// List registered connectors
-const connectors = await cohere.connectors.list();
-console.log('Registered connectors:', connectors.connectors.length);
-```
-
-**Connector endpoint contract:** Your URL receives `POST { query: string }` and must return `{ results: [{ id, text, title?, url? }] }`.
-
-## Event Type Reference
-
-| Event | When | Contains |
-|-------|------|----------|
-| `message-start` | Stream begins | Message ID |
-| `content-start` | Text generation starts | Content index |
-| `content-delta` | Each text token | Text chunk |
-| `content-end` | Text generation ends | - |
-| `citation-start` | Citation found | Source, position |
-| `tool-call-start` | Tool call begins | Tool name |
-| `tool-call-delta` | Tool args streaming | Argument chunk |
-| `tool-call-end` | Tool call complete | - |
-| `message-end` | Stream ends | Finish reason, usage |
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Stream drops mid-response | Network timeout | Set higher timeout, add reconnect |
-| No citation events | No documents passed | Include `documents` param |
-| Tool events but no content | Tool call in progress | Wait for tool results, re-stream |
-| Connector returns empty | Bad search endpoint | Test endpoint with `curl` |
+Do not expose or rotate keys, change Cohere Team roles, accept commercial terms, enable sensitive production data, increase spend or capacity, switch production models, send a support bundle, or execute model-proposed side effects without the accountable owner's approval. Keep diagnosis read-only unless implementation was requested.
 
 ## Output
 
-Emit a streaming/event receipt with request correlation, event sequence,
-citation/tool decision, completion/usage metadata, and classified failure state.
-Do not persist complete prompts, generated content, tool arguments, document
-payloads, or credentials unless the product’s approved data policy requires it.
+Return the resolved API and model contract, files or settings inspected, evidence collected, validation result, remaining risk, owner, and rollback or next action. Redact keys, authorization headers, prompts, retrieved documents, embeddings, customer identifiers, and unrestricted environment output.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Partial stream | Mark output incomplete and do not treat it as a successful durable result. |
+| Unknown event | Record its type safely and continue only when semantics allow. |
+| Duplicate internal event | Return the prior idempotent result without repeating side effects. |
+| Connector dependency | Migrate it to an application-owned v2 tool. |
 
 ## Examples
 
-Stream a staging RAG response with an approved synthetic document, verify the
-content and citation event order, and terminate cleanly after `message-end`.
-If the stream drops or tool arguments are incomplete, return a safe partial
-state and retry only through the bounded request policy rather than replaying
-the user’s complete data.
+Use this compact handoff shape to keep the selected scope, validation evidence, and operational result reviewable.
+
+Input:
+
+```text
+mode=chat-stream; tool-use=true; durable-callback=application-owned
+```
+
+Expected handoff:
+
+```text
+stream=typed; cancellation=tested; connector-v1=absent; events=idempotent
+```
 
 ## Resources
 
-- [Cohere Streaming Guide](https://docs.cohere.com/docs/streaming)
-- [RAG Streaming](https://docs.cohere.com/docs/rag-streaming)
-- [Tool Use Streaming](https://docs.cohere.com/docs/tool-use-streaming)
-- [Connectors API](https://docs.cohere.com/reference/create-connector)
-
-## Next Steps
-
-For performance optimization, see `cohere-performance-tuning`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Streaming](https://docs.cohere.com/docs/streaming)
+- [API migration](https://docs.cohere.com/docs/migrating-v1-to-v2)
