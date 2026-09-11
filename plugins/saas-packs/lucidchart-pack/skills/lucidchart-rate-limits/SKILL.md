@@ -1,136 +1,65 @@
 ---
 name: lucidchart-rate-limits
-description: 'Rate Limits for Lucidchart.
-
-  Trigger: "lucidchart rate limits".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Design endpoint-specific Lucid request pacing, 429 handling, backpressure, and safe retry behavior. Use when hardening REST or connector traffic. Trigger with "handle Lucid rate limits".'
+argument-hint: "[project-path] [operation-family]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- lucidchart
-- diagramming
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, lucidchart, rate-limits, retries, reliability]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; production concurrency, replay, and load-test changes require service and resource-owner approval
 ---
-# Lucidchart Rate Limits
+# Lucid Rate-Limit and Backpressure Design
 
 ## Overview
+Ground request control in the exact Lucid endpoint contract and observed responses. There is no justified pack-wide fixed requests-per-minute value.
 
-Lucidchart's API enforces per-OAuth-token rate limits, with document mutation operations (creating shapes, updating pages, modifying text) throttled more aggressively than read-only document listing. Automations that programmatically generate architecture diagrams or org charts from external data sources can easily exceed write limits when placing dozens of shapes and connectors in a single batch. Image export endpoints carry additional latency due to server-side rendering, making export-heavy workflows the most common throttling bottleneck.
+## Prerequisites
+- Inventory of operations, mutation semantics, concurrency, callers, and service objectives
+- Current endpoint documentation and sanitized response headers/bodies
+- Stable idempotency or reconciliation strategy for mutations
 
-## Rate Limit Reference
+## Tool Discipline
+Use `Read`, `Glob`, and `Grep` to inspect clients and tests, `WebFetch` for current endpoint/limit documentation, and `Write` or `Edit` only for local policy, code, tests, and receipts.
 
-| Endpoint | Limit | Window | Scope |
-|----------|-------|--------|-------|
-| List documents | 120 req | 1 minute | Per OAuth token |
-| Get document / pages | 60 req | 1 minute | Per OAuth token |
-| Create/update shapes | 30 req | 1 minute | Per OAuth token |
-| Export to PNG/PDF | 10 req | 1 minute | Per OAuth token |
-| Create document | 15 req | 1 minute | Per OAuth token |
+## Current Contract
+Treat limits as endpoint/API-specific and time-sensitive. A legacy or Data API limit must not be generalized to document, export, import, Extension API, or connector operations. Server responses and current endpoint pages control.
 
-## Rate Limiter Implementation
+## Authentication
+Rate limiting does not justify credential pooling or scope expansion. Partition traffic by approved principal and tenant while keeping tokens out of metrics and logs.
 
-```typescript
-class LucidRateLimiter {
-  private tokens: number;
-  private lastRefill: number;
-  private readonly max: number;
-  private readonly refillRate: number;
-  private queue: Array<{ resolve: () => void }> = [];
+## Instructions
+1. Enumerate each operation's method, read/write effect, caller, principal, concurrency, and retry safety.
+2. Re-fetch the exact operation and rate-limit documentation; record only explicitly documented values.
+3. Instrument requests, success/error counts, latency, queue age, and safe server rate-limit/retry metadata.
+4. Use bounded queues, per-operation concurrency, jitter, and backpressure before retries.
+5. Retry only documented transient failures. For writes, require idempotency support or reconciliation before replay.
+6. Honor documented `Retry-After` or equivalent server guidance when present; otherwise use conservative capped backoff based on observed behavior.
+7. Test synthetic 429, timeout-before-response, partial batch, queue saturation, cancellation, and recovery.
+8. Present any production concurrency or replay-policy change for approval and deploy as a monitored canary.
 
-  constructor(maxPerMinute: number) {
-    this.max = maxPerMinute;
-    this.tokens = maxPerMinute;
-    this.lastRefill = Date.now();
-    this.refillRate = maxPerMinute / 60_000;
-  }
+## Approval Boundaries
+Do not increase production load, pool credentials, bypass queues, or replay ambiguous mutations without approval and reconciliation.
 
-  async acquire(): Promise<void> {
-    this.refill();
-    if (this.tokens >= 1) { this.tokens -= 1; return; }
-    return new Promise(resolve => this.queue.push({ resolve }));
-  }
-
-  private refill() {
-    const now = Date.now();
-    this.tokens = Math.min(this.max, this.tokens + (now - this.lastRefill) * this.refillRate);
-    this.lastRefill = now;
-    while (this.tokens >= 1 && this.queue.length) {
-      this.tokens -= 1;
-      this.queue.shift()!.resolve();
-    }
-  }
-}
-
-const writeLimiter = new LucidRateLimiter(25);
-const exportLimiter = new LucidRateLimiter(8);
-```
-
-## Retry Strategy
-
-```typescript
-async function lucidRetry<T>(
-  limiter: LucidRateLimiter, fn: () => Promise<Response>, maxRetries = 3
-): Promise<T> {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    await limiter.acquire();
-    const res = await fn();
-    if (res.ok) return res.json();
-    if (res.status === 429) {
-      const retryAfter = parseInt(res.headers.get("Retry-After") || "20", 10);
-      const jitter = Math.random() * 2000;
-      await new Promise(r => setTimeout(r, retryAfter * 1000 + jitter));
-      continue;
-    }
-    if (res.status >= 500 && attempt < maxRetries) {
-      await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 2000));
-      continue;
-    }
-    throw new Error(`Lucidchart API ${res.status}: ${await res.text()}`);
-  }
-  throw new Error("Max retries exceeded");
-}
-```
-
-## Batch Processing
-
-```typescript
-async function batchCreateShapes(docId: string, pageId: string, shapes: any[], batchSize = 5) {
-  const results: any[] = [];
-  for (let i = 0; i < shapes.length; i += batchSize) {
-    const batch = shapes.slice(i, i + batchSize);
-    const batchResults = await Promise.all(
-      batch.map(shape => lucidRetry(writeLimiter, () =>
-        fetch(`${LUCID_BASE}/documents/${docId}/pages/${pageId}/shapes`, {
-          method: "POST", headers,
-          body: JSON.stringify(shape),
-        })
-      ))
-    );
-    results.push(...batchResults);
-    if (i + batchSize < shapes.length) await new Promise(r => setTimeout(r, 8000));
-  }
-  return results;
-}
-```
+## Output
+Return operation matrix, documented/unknown limits, observed response evidence, queue/retry policy, tests, approval, canary result, and remaining risks.
 
 ## Error Handling
+| Condition | Response |
+|---|---|
+| Limit is undocumented | Mark unknown and design adaptive backpressure; do not invent a number. |
+| Mutation timed out ambiguously | Reconcile before retrying. |
+| Sustained 429s continue | Stop adding load, drain safely, and escalate with redacted evidence. |
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| 429 on shape creation | Exceeded 30 writes/min token limit | Batch shapes, space 3s apart |
-| 429 on PNG export | Export limit (10/min) is very low | Queue exports with 8s spacing |
-| 408 on large document | Export rendering timeout | Request single page, not full doc |
-| 401 token expired | OAuth token TTL exceeded | Refresh token before batch operations |
-| 409 concurrent edit | Another user editing same page | Retry after 5s with fresh page version |
+## Example
+```text
+operation=document-create; published-limit=unknown; concurrency=2; 429-test=pass; ambiguous-write=reconcile
+```
 
 ## Resources
-
-- [Lucid Developer Portal](https://developer.lucid.co/reference/overview)
+- [Official documentation map](references/official-docs.md)
 
 ## Next Steps
-
-See `lucidchart-performance-tuning`.
+Review observed traffic after the canary and tune only against verified endpoint evidence.

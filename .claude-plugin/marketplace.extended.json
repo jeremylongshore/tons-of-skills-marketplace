@@ -7754,10 +7754,10 @@
         "skills": 5
       },
       "verification": {
-        "score": 80,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 95,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -9384,14 +9384,15 @@
     {
       "name": "lucidchart-pack",
       "source": "./plugins/saas-packs/lucidchart-pack",
-      "description": "Claude Code skill pack for Lucidchart (18 skills)",
-      "version": "1.7.0",
+      "description": "Governed Lucid integration workflows for REST, Standard Import, editor extensions, and data connectors (18 skills)",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "lucidchart",
         "saas",
-        "sdk",
-        "integration"
+        "standard-import",
+        "extension-api",
+        "data-connectors"
       ],
       "author": {
         "name": "Jeremy Longshore",

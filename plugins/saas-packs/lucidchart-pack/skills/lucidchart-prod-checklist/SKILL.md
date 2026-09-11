@@ -1,126 +1,65 @@
 ---
 name: lucidchart-prod-checklist
-description: 'Prod Checklist for Lucidchart.
-
-  Trigger: "lucidchart prod checklist".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Run a fail-closed production-readiness review for a Lucid REST, Standard Import, extension, or data connector integration. Use when preparing a production launch or material change. Trigger with "Lucid production checklist".'
+argument-hint: "[project-path] [release-id]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- lucidchart
-- diagramming
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, lucidchart, production-readiness, governance, release]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; production launch, publication, credentials, and rollback execution require accountable owner approval
 ---
-# Lucidchart Production Checklist
+# Lucid Production Readiness Gate
 
 ## Overview
-
-Lucidchart integrations interact with collaborative diagrams that may be actively edited by multiple users simultaneously. A production deployment must handle OAuth2 token lifecycle management, respect document-level collaboration locks, and account for export throttling on large diagrams. Failing to version API headers correctly causes silent schema drift, while unbounded export requests can exhaust memory on complex documents. This checklist ensures your Lucidchart integration is resilient to these collaboration and export edge cases.
+Prove a Lucid integration is supportable, secure, reversible, and contract-grounded before authorizing production use.
 
 ## Prerequisites
+- Immutable release revision and artifacts with provenance
+- Named service, data, security, and rollback owners
+- Current architecture, data classification, scope matrix, runbook, and service objectives
 
-- OAuth2 client credentials registered in Lucid developer portal (production app)
-- Secrets manager configured (Vault, AWS Secrets Manager, or GCP Secret Manager)
-- Monitoring stack operational (Datadog, Grafana, or CloudWatch)
-- Test workspace with sample diagrams covering all export formats (PNG, PDF, SVG)
+## Tool Discipline
+Use `Read`, `Glob`, and `Grep` to verify repository evidence, `WebFetch` for current Lucid contracts and status, and `Write` or `Edit` only for the local gate receipt and approved documentation fixes.
 
-## Authentication & Secrets
+## Current Contract
+Readiness must match the actual surface: REST credential and version headers, Standard Import constraints, Extension API scopes and bundle behavior, and connector hosting/OAuth/webhook responsibilities. A generic green checklist is insufficient.
 
-- [ ] OAuth2 client ID and secret stored in vault/secrets manager (never in code)
-- [ ] Token rotation implemented with refresh token flow (access tokens expire in 60 min)
-- [ ] Refresh tokens stored encrypted at rest, separate from client credentials
-- [ ] Token refresh logic handles concurrent requests (mutex/lock to prevent duplicate refreshes)
-- [ ] Scopes restricted to minimum required (`lucidchart.document.read`, `lucidchart.document.export`)
+## Authentication
+Verify principal type, least scopes, secret-store location, owner, rotation, revocation, redirect URIs, and break-glass procedure without exposing values.
 
-## API Integration
+## Instructions
+1. Pin revision, artifacts, dependencies, SDK/CLI versions, manifests, fixtures, and target environment.
+2. Re-fetch exact official pages for authentication, scopes, headers, limits, and the chosen integration surface.
+3. Verify build, type, manifest, schema, secret, dependency, fixture, migration, and rollback gates from clean state.
+4. Exercise happy path, invalid input, insufficient scope, throttling, partial failure, ambiguous response, upstream outage, and rollback.
+5. Reconcile data lineage, retention, deletion, ownership, document destinations, and connector/webhook behavior.
+6. Verify logs are redacted; alerts, dashboards, status dependency, on-call, escalation bundle, and runbook are usable.
+7. Record every control as PASS, FAIL, or NOT APPLICABLE with evidence; unresolved critical controls fail closed.
+8. Present blast radius, canary, monitoring, publication/deployment actions, and rollback for explicit production approval.
 
-- [ ] Base URL points to `https://api.lucid.co/v1` (production endpoint)
-- [ ] `Lucid-Api-Version` header set explicitly on every request (pin to tested version)
-- [ ] Rate limiting enforced client-side with token bucket (respect `X-RateLimit-*` headers)
-- [ ] Pagination implemented for document listing (cursor-based with `pageToken`)
-- [ ] Export requests set `Accept` header matching desired format (image/png, application/pdf)
-- [ ] Large document exports use async polling pattern (POST export, poll status, GET result)
-- [ ] Request timeout set to 15 seconds for reads, 120 seconds for diagram exports
+## Approval Boundaries
+This skill reports readiness; it never treats a checklist completion as authorization to publish, deploy, rotate credentials, or mutate production.
 
-## Error Handling & Resilience
+## Output
+Return release identity, gate matrix, official evidence date, test receipts, risks, owners, approval state, canary plan, and rollback evidence.
 
-- [ ] Circuit breaker configured for Lucidchart API calls (open after 5 consecutive failures)
-- [ ] Retry logic with exponential backoff for 429 (rate limit) and 5xx responses
-- [ ] 409 Conflict responses handled for concurrent document edits (retry with latest version)
-- [ ] OAuth2 401 responses trigger automatic token refresh before retry (once per request)
-- [ ] Export timeout errors fall back to lower-resolution export or cached version
-- [ ] Document collaboration lock detection: skip or queue writes when another user holds the lock
-- [ ] Out-of-memory protection: cap export resolution for diagrams exceeding 500 objects
+## Error Handling
+| Condition | Response |
+|---|---|
+| Critical evidence is missing or stale | Mark FAIL and stop release recommendation. |
+| Rollback is documented but untested | Mark FAIL until restored in a representative environment. |
+| Ownership is ambiguous | Block the affected capability from production. |
 
-## Monitoring & Alerting
-
-- [ ] API latency tracked (p50, p95, p99) with 2s p95 threshold for exports
-- [ ] Error rate alerts configured (threshold: >1% over 5-minute window)
-- [ ] OAuth2 token refresh failure rate monitored (alert on any failure)
-- [ ] Export queue depth tracked (alert if >50 pending exports)
-- [ ] API version deprecation warnings logged from response headers
-- [ ] Collaboration lock contention rate measured per workspace
-
-## Security
-
-- [ ] OAuth2 redirect URI restricted to exact production callback URL (no wildcards)
-- [ ] PKCE enforced for authorization code flow
-- [ ] Exported diagram files scanned for embedded sensitive data before downstream storage
-- [ ] API responses validated against expected schema before processing
-- [ ] Access tokens never logged or included in error reports
-
-## Validation Script
-
-```typescript
-async function validateLucidchartProduction(accessToken: string): Promise<void> {
-  const base = 'https://api.lucid.co/v1';
-  const headers = {
-    Authorization: `Bearer ${accessToken}`,
-    'Lucid-Api-Version': '2024-10-01',
-    'Content-Type': 'application/json',
-  };
-
-  // 1. Connectivity and auth check
-  const me = await fetch(`${base}/users/me`, { headers, signal: AbortSignal.timeout(5000) });
-  console.assert(me.ok, `Auth failed: ${me.status}`);
-
-  // 2. Token expiry headroom
-  const tokenData = await me.json();
-  console.assert(tokenData.id, 'User profile missing — token may be scoped incorrectly');
-
-  // 3. Rate limit headroom
-  const remaining = parseInt(me.headers.get('X-RateLimit-Remaining') ?? '0');
-  console.assert(remaining > 10, `Rate limit headroom low: ${remaining} remaining`);
-
-  // 4. Document listing works
-  const docs = await fetch(`${base}/documents?limit=1`, { headers });
-  console.assert(docs.ok, `Document listing failed: ${docs.status}`);
-
-  // 5. API version accepted
-  const apiVersion = me.headers.get('Lucid-Api-Version');
-  console.assert(apiVersion, 'API version header missing from response — check version pinning');
-  console.log('All Lucidchart production checks passed');
-}
+## Example
+```text
+release=1.8.0; pass=27; fail=1; na=3; blocker=connector-rollback; production-approved=no
 ```
 
-## Risk Matrix
-
-| Check | Risk if Skipped | Priority |
-|---|---|---|
-| OAuth2 token refresh mutex | Duplicate refresh calls invalidate tokens, cascading 401s | Critical |
-| API version header pinning | Silent schema drift breaks document parsing | Critical |
-| Collaboration lock detection | Overwrites concurrent user edits, data corruption | Critical |
-| Export async polling | Timeout on large diagrams, missing deliverables | High |
-| Export memory cap | OOM crash on complex diagrams (500+ objects) | High |
-
 ## Resources
-
-- [Lucid Developer Reference](https://developer.lucid.co/reference/overview)
+- [Official documentation map](references/official-docs.md)
 
 ## Next Steps
-
-See `lucidchart-security-basics`.
+Resolve all release blockers, rerun from the immutable revision, and obtain recorded production approval.

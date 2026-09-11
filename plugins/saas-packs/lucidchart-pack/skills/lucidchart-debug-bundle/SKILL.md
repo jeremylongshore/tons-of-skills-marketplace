@@ -1,178 +1,65 @@
 ---
 name: lucidchart-debug-bundle
-description: 'Debug Bundle for Lucidchart.
-
-  Trigger: "lucidchart debug bundle".
-
-  '
-allowed-tools: Read, Bash(curl:*), Grep
-version: 1.7.0
-license: MIT
+description: 'Assemble a redacted, reproducible Lucid integration diagnostic bundle. Use when an API, Standard Import, extension, export, or data connector failure needs escalation. Trigger with "build Lucid debug bundle".'
+argument-hint: "[project-path] [incident-id]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- lucidchart
-- diagramming
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, lucidchart, debugging, diagnostics, support]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; bundle sharing requires data-owner approval and a secure approved support channel
 ---
-# Lucidchart Debug Bundle
+# Redacted Lucid Debug Bundle
 
 ## Overview
-
-This debug bundle collects diagnostic evidence from Lucidchart diagramming API integrations
-for troubleshooting document access, shape rendering, data linking pipelines, and export
-failures. It captures OAuth token validation, document listing, page metadata, data-linked
-shape status, and export endpoint availability. The resulting tarball provides support
-engineers the evidence to diagnose permission errors, stale data links, broken embeds,
-and export timeouts without requiring direct Lucid account access.
+Create a minimal evidence package that reproduces a Lucid failure while excluding credentials, sensitive document content, and unnecessary personal data.
 
 ## Prerequisites
+- Incident identifier, time window, affected component, and expected behavior
+- Approval to inspect relevant local artifacts and sanitized responses
+- A clean output directory outside application source and secret stores
 
-- `curl`, `jq`, `tar` installed
-- `LUCID_API_KEY` set (OAuth2 bearer token from Lucid developer portal)
-- `LUCID_ACCOUNT_ID` optionally set for account-scoped queries
+## Tool Discipline
+Use `Read`, `Glob`, and `Grep` to collect bounded evidence, `WebFetch` for current contract comparison, and `Write` or `Edit` only inside the declared bundle directory.
 
-## Debug Collection Script
+## Current Contract
+Useful evidence differs by surface: REST requests need method, path family, safe headers, status and request identifiers; Standard Import needs archive structure and sanitized samples; extensions/connectors need versions, manifests, build output, and minimal fixtures.
 
-```bash
-#!/bin/bash
-set -euo pipefail
-BUNDLE="debug-lucidchart-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE"
+## Authentication
+Never copy `Authorization`, cookies, API keys, OAuth codes, refresh tokens, client secrets, signed URLs, or raw environment files. Replace sensitive identifiers consistently so relationships remain diagnosable.
 
-# Environment check
-echo "=== Environment ===" > "$BUNDLE/environment.txt"
-echo "API Key: ${LUCID_API_KEY:+SET (redacted)}" >> "$BUNDLE/environment.txt"
-echo "Account ID: ${LUCID_ACCOUNT_ID:-NOT SET}" >> "$BUNDLE/environment.txt"
-echo "Node: $(node -v 2>/dev/null || echo 'not installed')" >> "$BUNDLE/environment.txt"
-echo "Timestamp: $(date -u)" >> "$BUNDLE/environment.txt"
+## Instructions
+1. Declare incident scope, bundle path, retention, recipients, and exclusion rules.
+2. Inventory candidate files and reject caches, dependencies, binaries, full documents, and unrelated logs by default.
+3. Capture tool and SDK versions, safe manifest fields, operation category, sanitized request/response metadata, and exact timestamps.
+4. For imports, include a structurally equivalent minimal archive or manifest—not protected production content.
+5. For extension/connector failures, add a synthetic fixture and the smallest failing build/test receipt.
+6. Scan recursively for token patterns, credentials, emails, personal data, and document content; manually review hits.
+7. Write a manifest with file digests, provenance, redactions, reproduction steps, expected/actual behavior, and gaps.
+8. Obtain approval before transmitting; record destination and deletion date.
 
-# API connectivity — user info
-echo "=== API Health ===" > "$BUNDLE/api-health.txt"
-curl -sf -o "$BUNDLE/api-health.txt" -w "HTTP %{http_code} in %{time_total}s\n" \
-  -H "Authorization: Bearer ${LUCID_API_KEY}" \
-  -H "Lucid-Api-Version: 1" \
-  "https://api.lucid.co/users/me" 2>&1 || echo "UNREACHABLE" > "$BUNDLE/api-health.txt"
+## Approval Boundaries
+Do not collect from production, contact Lucid support, or transmit the bundle without incident and data-owner authorization.
 
-# Document listing (first 10)
-echo "=== Documents ===" > "$BUNDLE/documents.json"
-curl -sf -H "Authorization: Bearer ${LUCID_API_KEY}" \
-  -H "Lucid-Api-Version: 1" \
-  "https://api.lucid.co/documents?limit=10" \
-  >> "$BUNDLE/documents.json" 2>&1 || echo '{"error":"FAILED"}' > "$BUNDLE/documents.json"
+## Output
+Return bundle path, manifest digest, files included/excluded, redaction results, reproduction status, evidence gaps, and sharing approval.
 
-# Page metadata for first document
-echo "=== Pages ===" > "$BUNDLE/pages.json"
-DOC_ID=$(jq -r '.documents[0].documentId // empty' "$BUNDLE/documents.json" 2>/dev/null)
-if [ -n "${DOC_ID:-}" ]; then
-  curl -sf -H "Authorization: Bearer ${LUCID_API_KEY}" \
-    -H "Lucid-Api-Version: 1" \
-    "https://api.lucid.co/documents/${DOC_ID}/pages" \
-    >> "$BUNDLE/pages.json" 2>&1
-else
-  echo '{"error":"No documents found"}' > "$BUNDLE/pages.json"
-fi
+## Error Handling
+| Condition | Response |
+|---|---|
+| Secret scanner reports a hit | Remove or irreversibly redact it, then rescan the entire bundle. |
+| Failure cannot be reproduced | Preserve timestamps and safe request identifiers; label hypotheses. |
+| Minimal fixture still contains sensitive data | Replace it with synthetic structure before sharing. |
 
-# Data linking status
-echo "=== Data Links ===" > "$BUNDLE/data-links.json"
-if [ -n "${DOC_ID:-}" ]; then
-  curl -sf -H "Authorization: Bearer ${LUCID_API_KEY}" \
-    -H "Lucid-Api-Version: 1" \
-    "https://api.lucid.co/documents/${DOC_ID}/dataSources" \
-    >> "$BUNDLE/data-links.json" 2>&1 || echo '{"error":"DATA_LINKS_FAILED"}' > "$BUNDLE/data-links.json"
-else
-  echo '{"error":"Skipped — no document"}' > "$BUNDLE/data-links.json"
-fi
-
-# Recent logs
-echo "=== Recent Logs ===" > "$BUNDLE/app-logs.txt"
-tail -100 /var/log/lucid-integration/*.log >> "$BUNDLE/app-logs.txt" 2>/dev/null || echo "No integration logs found" >> "$BUNDLE/app-logs.txt"
-
-# Rate limit status
-echo "=== Rate Limits ===" > "$BUNDLE/rate-limits.txt"
-curl -sI -H "Authorization: Bearer ${LUCID_API_KEY}" \
-  -H "Lucid-Api-Version: 1" \
-  "https://api.lucid.co/users/me" 2>/dev/null | grep -i "x-rate\|retry-after\|x-ratelimit" >> "$BUNDLE/rate-limits.txt" || echo "No rate limit headers" >> "$BUNDLE/rate-limits.txt"
-
-# Package versions
-echo "=== Dependencies ===" > "$BUNDLE/deps.txt"
-npm ls 2>/dev/null | grep -i lucid >> "$BUNDLE/deps.txt" || echo "No Lucid npm packages found" >> "$BUNDLE/deps.txt"
-
-tar -czf "$BUNDLE.tar.gz" "$BUNDLE" && rm -rf "$BUNDLE"
-echo "Bundle: $BUNDLE.tar.gz"
-```
-
-## Analyzing the Bundle
-
-```bash
-tar -xzf debug-lucidchart-*.tar.gz
-cat debug-lucidchart-*/environment.txt          # Verify API key is set
-cat debug-lucidchart-*/api-health.txt           # Check HTTP status and latency
-jq '.documents | length' debug-lucidchart-*/documents.json  # Count accessible docs
-jq '.dataSources' debug-lucidchart-*/data-links.json        # Check linked data sources
-```
-
-## Common Issues
-
-| Symptom | Check in Bundle | Fix |
-|---------|----------------|-----|
-| 401 on all endpoints | `environment.txt` shows key NOT SET | Generate OAuth2 token in Lucid Developer Portal > API Tokens |
-| 403 on document access | `documents.json` shows permission error | Token scope missing `lucidchart.document.content`; regenerate with correct scopes |
-| Data links show stale values | `data-links.json` shows old `lastSynced` timestamp | Trigger manual data refresh via Lucidchart UI or PATCH datasource endpoint |
-| Export returns 413 | App logs show payload too large | Document exceeds export size limit; split into multiple pages before exporting |
-| Empty document list | `documents.json` returns empty array | Check `LUCID_ACCOUNT_ID` scope; token may be scoped to a different team folder |
-| Shape IDs not resolving | `pages.json` missing expected shapes | Shapes on locked layers are excluded from API; unlock layers or use admin token |
-
-## Automated Health Check
-
-```typescript
-async function checkLucidchartHealth(): Promise<{
-  status: string;
-  latencyMs: number;
-  userOk: boolean;
-  documentCount: number;
-  dataLinkingAvailable: boolean;
-}> {
-  const apiKey = process.env.LUCID_API_KEY;
-  const headers = {
-    Authorization: `Bearer ${apiKey}`,
-    "Lucid-Api-Version": "1",
-  };
-  const start = Date.now();
-
-  const userRes = await fetch("https://api.lucid.co/users/me", { headers });
-  const docsRes = await fetch("https://api.lucid.co/documents?limit=1", { headers });
-
-  let documentCount = 0;
-  let dataLinkingAvailable = false;
-  if (docsRes.ok) {
-    const data = await docsRes.json();
-    documentCount = data.documents?.length ?? 0;
-    if (documentCount > 0) {
-      const docId = data.documents[0].documentId;
-      const dlRes = await fetch(
-        `https://api.lucid.co/documents/${docId}/dataSources`, { headers }
-      );
-      dataLinkingAvailable = dlRes.ok;
-    }
-  }
-
-  return {
-    status: userRes.ok ? "healthy" : "degraded",
-    latencyMs: Date.now() - start,
-    userOk: userRes.ok,
-    documentCount,
-    dataLinkingAvailable,
-  };
-}
+## Example
+```text
+incident=LUCID-42; files=8; secrets=0; pii=0; reproduction=pass; manifest-sha256=...; shared=no
 ```
 
 ## Resources
-
-- [Lucid Developer Portal](https://developer.lucid.co/reference/overview)
-- [Lucid Status Page](https://status.lucid.co)
-- Lucid API Changelog
+- [Official documentation map](references/official-docs.md)
 
 ## Next Steps
-
-See `lucidchart-rate-limits`.
+Share only through the approved support channel, then enforce the recorded retention deadline.

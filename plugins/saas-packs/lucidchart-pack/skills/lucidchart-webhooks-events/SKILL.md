@@ -1,146 +1,65 @@
 ---
 name: lucidchart-webhooks-events
-description: 'Webhooks Events for Lucidchart.
-
-  Trigger: "lucidchart webhooks events".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.7.0
-license: MIT
+description: 'Implement and operate the documented Lucid data-connector webhook lifecycle. Use when a connector needs webhook-assisted source synchronization. Trigger with "Lucid connector webhook".'
+argument-hint: "[connector-path] [source-system]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- lucidchart
-- diagramming
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, lucidchart, data-connectors, webhooks, synchronization]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; webhook registration, public endpoints, source credentials, replay, and production enablement require connector and source-owner approval
 ---
-# Lucidchart Webhooks & Events
+# Lucid Data-Connector Webhook Lifecycle
 
 ## Overview
-
-Lucidchart delivers real-time webhook notifications when documents, shapes, and collaboration states change across your organization's diagramming workspace. These events power integrations such as auto-archiving diagrams to Confluence when finalized, notifying Slack channels when collaborators join a shared document, triggering CI pipelines when architecture diagrams are updated, and maintaining audit logs of all document access. Payloads are signed JSON delivered over HTTPS using a webhook signing secret.
+Build webhook-assisted data synchronization only within Lucid's documented data-connector model. Do not claim generic Lucid document, shape, or collaboration event webhooks.
 
 ## Prerequisites
+- A justified Lucid data connector and supported source-system webhook contract
+- Stable source record/event identifiers and reconciliation API
+- Endpoint, identity, retention, observability, replay, and rollback owners
 
-- A Lucid developer account with an OAuth2 app registered at `developer.lucid.co`
-- Webhook endpoint URL accessible over HTTPS (TLS 1.2+)
-- Webhook signing secret from the Lucid app settings (`LUCID_WEBHOOK_SECRET`)
-- Express.js with raw body parsing for signature verification
+## Tool Discipline
+Use `Read`, `Glob`, and `Grep` to inspect connector and handler code, `WebFetch` for current Lucid and source contracts, and `Write` or `Edit` only for local implementation, synthetic fixtures, and redacted receipts.
 
-## Webhook Registration
+## Current Contract
+Lucid documents a webhook SDK in the context of data connectors. Exact interfaces come from the current SDK/docs. Delivery authentication, signing, event names, ordering, retry, and retention may be source-system responsibilities and must be verified there—not invented as universal Lucid guarantees.
 
-```typescript
-import axios from "axios";
+## Authentication
+Authenticate each boundary independently: Lucid connector, webhook source, and upstream reconciliation API. Keep secrets server-side; validate the source's documented authenticity mechanism and never invent a `LUCID_WEBHOOK_SECRET` convention.
 
-const res = await axios.post(
-  "https://api.lucid.co/v1/webhooks",
-  {
-    callbackUrl: "https://your-app.com/webhooks/lucidchart",
-    events: ["document.created", "document.updated", "document.shared",
-             "shape.added", "collaborator.joined"],
-    scope: "account",
-  },
-  { headers: { Authorization: `Bearer ${process.env.LUCID_ACCESS_TOKEN}`,
-               "Lucid-Api-Version": "1" } }
-);
-console.log("Webhook ID:", res.data.webhookId);
-```
+## Instructions
+1. Prove the use case belongs to a data connector and identify the authoritative source system.
+2. Re-fetch Lucid webhook/connector docs and the source's official delivery contract; record unknown guarantees.
+3. Define event envelope validation, stable IDs, freshness/replay window, deduplication, ordering tolerance, and reconciliation.
+4. Make the receiver acknowledge quickly and enqueue bounded work; isolate poison events and apply backpressure.
+5. Treat webhook data as a change hint. Fetch/reconcile authoritative state before mutating connector data when the source contract permits.
+6. Test valid, invalid-auth, malformed, duplicate, reordered, delayed, missing-record, partial-sync, and replay scenarios with synthetic fixtures.
+7. Present registration, endpoint exposure, secrets, expected traffic, data mutations, and disable/rollback plan for approval.
+8. After approval, enable a bounded canary and record registration ID, counts, rejects, duplicates, lag, reconciliation, and rollback.
 
-## Signature Verification
+## Approval Boundaries
+Do not expose/register endpoints, create secrets, replay production events, mutate connector data, or enable delivery without approval.
 
-```typescript
-import crypto from "crypto";
-import { Request, Response, NextFunction } from "express";
-
-function verifyLucidSignature(req: Request, res: Response, next: NextFunction) {
-  const signature = req.headers["x-lucid-signature"] as string;
-  const requestId = req.headers["x-lucid-request-id"] as string;
-  if (!signature || !requestId) return res.status(401).send("Missing signature");
-
-  const expected = crypto
-    .createHmac("sha256", process.env.LUCID_WEBHOOK_SECRET!)
-    .update((req as any).rawBody)
-    .digest("base64");
-
-  if (!crypto.timingSafeEqual(Buffer.from(signature, "base64"), Buffer.from(expected, "base64"))) {
-    return res.status(403).send("Invalid signature");
-  }
-  next();
-}
-```
-
-## Event Handler
-
-```typescript
-app.post("/webhooks/lucidchart", verifyLucidSignature, (req, res) => {
-  const { eventType, data, timestamp } = req.body;
-
-  switch (eventType) {
-    case "document.created":
-      console.log(`New doc: "${data.title}" by ${data.creatorId} in ${data.folderId}`);
-      break;
-    case "document.updated":
-      console.log(`Doc updated: ${data.documentId}, pages: ${data.pageCount}`);
-      break;
-    case "document.shared":
-      console.log(`Doc shared: ${data.documentId} → ${data.recipientEmail} (${data.permission})`);
-      break;
-    case "shape.added":
-      console.log(`Shape: ${data.shapeType} on page ${data.pageId} of doc ${data.documentId}`);
-      break;
-    case "collaborator.joined":
-      console.log(`${data.userId} joined doc ${data.documentId} as ${data.role}`);
-      break;
-    default:
-      console.warn(`Unhandled event: ${eventType}`);
-  }
-  res.status(200).json({ ok: true });
-});
-```
-
-## Event Types
-
-| Event | Payload Fields | Use Case |
-|---|---|---|
-| `document.created` | `documentId`, `title`, `creatorId`, `folderId`, `templateId` | Index new diagrams in search or notify team channels |
-| `document.updated` | `documentId`, `pageCount`, `lastEditedBy`, `editSummary` | Trigger CI when architecture diagrams change |
-| `document.shared` | `documentId`, `recipientEmail`, `permission`, `sharedBy` | Audit external sharing for compliance |
-| `shape.added` | `documentId`, `pageId`, `shapeType`, `shapeId`, `position` | Track diagram complexity metrics |
-| `collaborator.joined` | `documentId`, `userId`, `role`, `joinedAt` | Post Slack notifications for live collaboration |
-| `document.deleted` | `documentId`, `deletedBy`, `deletedAt` | Remove stale references from linked systems |
-
-## Retry & Idempotency
-
-```typescript
-const seen = new Set<string>();
-
-function ensureIdempotent(req: Request, res: Response, next: NextFunction) {
-  const requestId = req.headers["x-lucid-request-id"] as string;
-  if (seen.has(requestId)) {
-    return res.status(200).json({ duplicate: true });
-  }
-  seen.add(requestId);
-  next();
-}
-// Lucid retries failed deliveries 3 times with exponential backoff (1 min, 5 min, 30 min).
-// After 3 consecutive failures the webhook is marked inactive and must be re-enabled via API.
-```
+## Output
+Return contract evidence, architecture, auth method, validation/dedup policy, tests, mutation preview, canary receipt, reconciliation, and rollback.
 
 ## Error Handling
+| Condition | Response |
+|---|---|
+| Request is for generic document events | Report that this pack has no verified contract; do not fabricate one. |
+| Delivery authenticity is undocumented | Keep the endpoint disabled until the source contract is verified. |
+| Duplicate or reordered events diverge state | Pause consumption and reconcile from the authoritative source. |
 
-| Issue | Cause | Fix |
-|---|---|---|
-| 403 on signature check | Signing secret regenerated in Lucid dashboard | Update `LUCID_WEBHOOK_SECRET` and redeploy |
-| Events arrive for wrong account | Webhook scope set to `user` instead of `account` | Re-register with `"scope": "account"` |
-| `shape.added` floods endpoint | Busy diagram with many rapid edits | Debounce by `documentId` with a 5-second window |
-| Webhook marked inactive | Endpoint returned errors for 3 retries | Fix endpoint, then PATCH webhook status to `active` |
-| Missing `Lucid-Api-Version` header | API version not pinned | Always include `"Lucid-Api-Version": "1"` in registration |
+## Example
+```text
+surface=data-connector; source=approved-system; fixtures=8/8; duplicates=0; canary=not-approved; generic-document-events=unsupported
+```
 
 ## Resources
-
-- [Lucid Developer Reference](https://developer.lucid.co/reference/overview)
+- [Official documentation map](references/official-docs.md)
 
 ## Next Steps
-
-See `lucidchart-security-basics`.
+Enable only a reversible canary, then compare webhook-assisted state with a full authoritative reconciliation.

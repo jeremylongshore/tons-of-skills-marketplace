@@ -1,153 +1,65 @@
 ---
 name: lucidchart-deploy-integration
-description: 'Deploy Integration for Lucidchart.
-
-  Trigger: "lucidchart deploy integration".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.7.0
-license: MIT
+description: 'Package, validate, stage, publish, and roll back a Lucid extension or data connector. Use when moving a tested Lucid integration beyond local development. Trigger with "deploy Lucid integration".'
+argument-hint: "[project-path] [target-environment]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- lucidchart
-- diagramming
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, lucidchart, deployment, extensions, data-connectors]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; upload, publication, OAuth registration, connector deployment, and rollback require explicit owner approval
 ---
-# Lucidchart Deploy Integration
+# Governed Lucid Integration Deployment
 
 ## Overview
-
-Deploy a containerized Lucidchart integration service that manages diagram documents, manipulates shapes and connectors programmatically, and synchronizes visual collaboration data through the Lucid API. This skill covers Docker multi-stage builds for the Lucid SDK, OAuth2 token configuration, health checks that validate document API access, and rolling deployments with safe diagram state preservation during updates.
+Move a Lucid extension and any companion data connector through reproducible build, canary, publication, and rollback gates using current official tooling.
 
 ## Prerequisites
+- A clean reviewed revision with passing local build, type, manifest, fixture, and secret scans
+- Environment owners, approved scopes, release notes, canary users, and rollback artifact
+- Current `lucid-package` and project-specific connector deployment instructions
 
-- Docker 24+ and Docker Compose v2 installed
-- Valid `LUCID_API_KEY` (OAuth2 client credentials) from the Lucid developer portal
-- Node.js 20 LTS (build stage)
-- Network access to `api.lucid.co` on port 443
-- Target deployment host with at least 512MB available memory (diagram rendering is memory-intensive)
+## Tool Discipline
+Use `Read`, `Glob`, and `Grep` for repository and release evidence, `WebFetch` for current Lucid publication contracts, and `Write` or `Edit` only for local manifests, receipts, and release notes.
 
-## Docker Configuration
+## Current Contract
+Lucid editor extensions use the official package CLI and Extension SDK. A data connector is a separately operated server component with its own identity, hosting, secrets, observability, and rollback. Verify installed CLI syntax rather than relying on cached commands.
 
-```dockerfile
-FROM node:20-slim AS builder
-WORKDIR /build
-COPY package*.json tsconfig.json ./
-RUN npm ci
-COPY src/ ./src/
-RUN npm run build
+## Authentication
+Separate developer, publisher, connector-runtime, and source-system identities. Keep credentials in approved secret stores; use least privilege and ensure rollback does not depend on an expired personal token.
 
-FROM node:20-slim
-RUN groupadd -r lucid && useradd -r -g lucid -m appuser
-WORKDIR /app
-COPY --from=builder /build/dist ./dist/
-COPY --from=builder /build/node_modules ./node_modules/
-COPY package*.json ./
-RUN npm prune --production
-USER appuser
-EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-  CMD curl -f http://localhost:3000/health || exit 1
-CMD ["node", "dist/index.js"]
-```
+## Instructions
+1. Pin source revision, CLI/SDK versions, manifest, scopes, connector image, fixtures, and documentation.
+2. Run the repository's secretless build, type, manifest, fixture, and compatibility gates.
+3. Produce immutable extension and connector artifacts with checksums and provenance.
+4. Compare requested scopes, OAuth redirects, data flows, and webhook behavior with the reviewed release.
+5. Present artifact digests, target, canary cohort, expected mutations, monitoring, and rollback commands for approval.
+6. After approval, upload or deploy only to the documented staging/developer target and run the canary.
+7. Reconcile UI behavior, connector data, permissions, errors, and service health before production publication.
+8. Require a second approval for production publication or traffic change; retain the prior artifact until the rollback window closes.
 
-## Environment Variables
+## Approval Boundaries
+Never publish, change OAuth settings, expose a connector, rotate production secrets, or promote traffic implicitly.
 
-```bash
-LUCID_API_KEY="lucid_xxxxxxxxxxxxxxxx"       # OAuth2 API key from developer portal
-LUCID_CLIENT_SECRET=""                        # OAuth2 client secret
-LUCID_BASE_URL="https://api.lucid.co"        # API base URL
-LUCID_ACCOUNT_ID=""                           # Target Lucid account identifier
-LOG_LEVEL="info"                              # debug | info | warn | error
-NODE_ENV="production"
-PORT="3000"
-```
-
-## Health Check Endpoint
-
-```typescript
-import express from "express";
-
-const app = express();
-
-app.get("/health", async (_req, res) => {
-  try {
-    const response = await fetch(`${process.env.LUCID_BASE_URL}/v1/documents`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${process.env.LUCID_API_KEY}`,
-        "Lucid-Api-Version": "1",
-      },
-    });
-    if (!response.ok) throw new Error(`Lucid API returned ${response.status}`);
-    const data = await response.json();
-    res.json({ status: "healthy", documentCount: data.documents?.length ?? 0 });
-  } catch (err) {
-    res.status(503).json({ status: "unhealthy", error: (err as Error).message });
-  }
-});
-```
-
-## Deployment Steps
-
-### Step 1: Build Image
-
-```bash
-docker build -t lucidchart-integration:$(git rev-parse --short HEAD) .
-```
-
-### Step 2: Run Container
-
-```bash
-docker run -d --name lucidchart-svc \
-  --env-file .env.production \
-  -p 3000:3000 \
-  --memory=512m \
-  --restart unless-stopped \
-  lucidchart-integration:$(git rev-parse --short HEAD)
-```
-
-### Step 3: Verify Health
-
-```bash
-curl -s http://localhost:3000/health | jq .
-# Expect: { "status": "healthy", "documentCount": 47 }
-```
-
-### Step 4: Rolling Update
-
-```bash
-docker pull lucidchart-integration:latest
-docker stop lucidchart-svc && docker rm lucidchart-svc
-docker run -d --name lucidchart-svc --env-file .env.production -p 3000:3000 --memory=512m lucidchart-integration:latest
-```
-
-## Rollback Procedure
-
-```text
-# List recent images
-docker images lucidchart-integration --format "{{.Tag}} {{.CreatedAt}}" | head -5
-# Roll back to previous tag
-docker stop lucidchart-svc && docker rm lucidchart-svc
-docker run -d --name lucidchart-svc --env-file .env.production -p 3000:3000 --memory=512m lucidchart-integration:<previous-tag>
-```
+## Output
+Return source revision, artifact digests, version evidence, scopes, approvals, canary results, publication receipt, monitoring, and rollback status.
 
 ## Error Handling
+| Condition | Response |
+|---|---|
+| Installed CLI differs from instructions | Use current `--help` and official docs; stop and update the plan. |
+| Canary has auth or data drift | Halt promotion and roll back the canary artifact. |
+| Previous artifact cannot be restored | Do not deploy until a tested rollback exists. |
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| 403 on document access | OAuth2 scopes missing `lucidchart.document.content` | Re-authorize with required scopes in Lucid developer portal |
-| Container OOM killed | Large diagram rendering exceeds memory | Increase memory limit to 1GB with `--memory=1g` for complex documents |
-| Token refresh failures | Expired `LUCID_CLIENT_SECRET` or clock skew | Regenerate client credentials and verify server time sync (NTP) |
-| Health check timeout | Rate limiting on `/v1/documents` endpoint | Increase `HEALTHCHECK --timeout` to 15s; cache document count locally |
-| Shape API 422 errors | Invalid page or layer ID in diagram mutations | Validate document structure with `GET /v1/documents/{id}/pages` before writes |
+## Example
+```text
+revision=abc123; extension-sha256=...; target=developer; canary=3/3; production=not-approved; rollback=verified
+```
 
 ## Resources
-
-- [Lucid Developer Docs](https://developer.lucid.co/reference/overview)
+- [Official documentation map](references/official-docs.md)
 
 ## Next Steps
-
-See `lucidchart-webhooks-events`.
+Promote only with production-owner approval and evidence that the canary and rollback gates passed.

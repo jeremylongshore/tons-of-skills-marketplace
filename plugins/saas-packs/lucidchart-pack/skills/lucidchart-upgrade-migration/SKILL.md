@@ -1,168 +1,65 @@
 ---
 name: lucidchart-upgrade-migration
-description: 'Upgrade Migration for Lucidchart.
-
-  Trigger: "lucidchart upgrade migration".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Plan and execute a reversible Lucid SDK, CLI, manifest, API-version, Standard Import, or connector migration. Use when a Lucid integration has dependency or contract drift. Trigger with "upgrade Lucid integration".'
+argument-hint: "[project-path] [target-version]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- lucidchart
-- diagramming
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, lucidchart, migration, upgrades, compatibility]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; dependency mutation, API-version changes, data migration, installation, and production rollout require owner approval
 ---
-# Lucidchart Upgrade & Migration
+# Reversible Lucid Upgrade and Migration
 
 ## Overview
+Move one Lucid contract boundary at a time with an immutable baseline, representative fixtures, canary evidence, and tested rollback.
 
-Lucidchart (Lucid) provides a diagramming and visual collaboration platform with APIs for document management, shape manipulation, and data linking. The API uses version headers and evolves its document schema, shape library definitions, and permission models. Tracking API versions is critical because Lucid's document format changes affect embedded diagram exports, shape coordinate systems shift between API versions, and breaking changes to the data linking API can corrupt live-data diagrams connected to external databases.
+## Prerequisites
+- Clean source revision, dependency lockfile, manifests, deployed artifact identity, and current production version
+- Representative synthetic imports, documents, data, and connector events where applicable
+- Owners for code, data, Lucid application, source system, and rollback
 
-## Version Detection
+## Tool Discipline
+Use `Read`, `Glob`, and `Grep` for version and usage inventory, `WebFetch` for current official migration contracts, and `Write` or `Edit` only for approved local changes, tests, and receipts.
 
-```typescript
-const LUCID_BASE = "https://api.lucid.co/v1";
+## Current Contract
+The Standard Import format evolves and may render differently over time. Extension SDK/CLI and manifest behavior are versioned through project dependencies. REST resources may require `Lucid-Api-Version`. These are separate migration axes and must not be changed blindly together.
 
-async function detectLucidApiVersion(apiKey: string): Promise<void> {
-  const res = await fetch(`${LUCID_BASE}/documents`, {
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Lucid-Api-Version": "2",
-      "Content-Type": "application/json",
-    },
-  });
-  const serverVersion = res.headers.get("x-lucid-api-version") ?? "unknown";
-  const minSupported = res.headers.get("x-lucid-min-version");
-  console.log(`Lucid API version: ${serverVersion}, min supported: ${minSupported}`);
+## Authentication
+Preserve credential classes and least scopes unless a documented target contract requires change. Treat new scopes, redirect URIs, consent, account grants, and secret rotation as separate approved migrations.
 
-  // Check if current version header is being accepted or forced up
-  const requestedVersion = "2";
-  if (serverVersion !== requestedVersion) {
-    console.warn(`Requested v${requestedVersion} but server responded with v${serverVersion}`);
-  }
+## Instructions
+1. Inventory current and target package/CLI versions, API-version headers, manifests/scopes, import fixtures, connector schemas, and deployment artifacts.
+2. Capture a clean baseline: build, types, manifests, tests, fixture imports/exports, data reconciliation, and rollback.
+3. Re-fetch exact official docs and inspect target installed types/changelogs; create a breaking-change matrix.
+4. Split changes into reversible steps: tooling/dependencies, compile fixes, manifest/scopes, format/schema, API version, and deployment.
+5. Present dependency edits and any auth/data contract changes for approval.
+6. Apply one step, regenerate the lockfile with the project package manager, and run narrow then full affected gates.
+7. Test old/new representative fixtures and compare rendering, data, identifiers, errors, and performance.
+8. Deploy a bounded canary after approval; reconcile, monitor, and roll back on threshold breach before broader promotion.
 
-  const deprecation = res.headers.get("x-lucid-deprecation-notice");
-  if (deprecation) console.warn(`Deprecation: ${deprecation}`);
-}
-```
+## Approval Boundaries
+Do not upgrade packages, change API versions/scopes, rewrite stored data, reinstall extensions, or deploy merely because a newer version exists.
 
-## Migration Checklist
-
-- [ ] Review Lucid developer changelog for API version bumps
-- [ ] Update `Lucid-Api-Version` header in all API calls to target version
-- [ ] Audit document export code — SVG/PNG render parameters may change
-- [ ] Verify shape library IDs are still valid (deprecated shapes removed)
-- [ ] Check document permission model for new sharing/access level fields
-- [ ] Update data linking configuration if external data source schema changed
-- [ ] Test page/layer structure — nested page support may affect document queries
-- [ ] Validate webhook event payloads for document change notifications
-- [ ] Check if coordinate system units changed (points vs. pixels)
-- [ ] Run export comparison: render same document with old and new API versions
-
-## Schema Migration
-
-```typescript
-// Lucid document schema: flat shape list → page-grouped shape hierarchy
-interface OldDocument {
-  id: string;
-  title: string;
-  shapes: Array<{ id: string; type: string; x: number; y: number; width: number; height: number; text?: string }>;
-  lastModified: string;
-}
-
-interface NewDocument {
-  id: string;
-  title: string;
-  pages: Array<{
-    id: string;
-    title: string;
-    layers: Array<{
-      id: string;
-      shapes: Array<{
-        id: string;
-        type: string;
-        bounds: { x: number; y: number; width: number; height: number };
-        text?: { content: string; style: Record<string, any> };
-      }>;
-    }>;
-  }>;
-  lastModified: string;
-  version: number;
-}
-
-function migrateDocument(old: OldDocument): NewDocument {
-  return {
-    id: old.id,
-    title: old.title,
-    pages: [{
-      id: "page-1",
-      title: "Page 1",
-      layers: [{
-        id: "layer-1",
-        shapes: old.shapes.map((s) => ({
-          id: s.id,
-          type: s.type,
-          bounds: { x: s.x, y: s.y, width: s.width, height: s.height },
-          text: s.text ? { content: s.text, style: {} } : undefined,
-        })),
-      }],
-    }],
-    lastModified: old.lastModified,
-    version: 2,
-  };
-}
-```
-
-## Rollback Strategy
-
-```typescript
-class LucidClient {
-  private apiVersion: number;
-
-  constructor(private apiKey: string, version: number = 2) {
-    this.apiVersion = version;
-  }
-
-  async getDocument(docId: string): Promise<any> {
-    try {
-      const res = await fetch(`https://api.lucid.co/v1/documents/${docId}`, {
-        headers: {
-          Authorization: `Bearer ${this.apiKey}`,
-          "Lucid-Api-Version": String(this.apiVersion),
-        },
-      });
-      if (!res.ok) throw new Error(`Lucid API ${res.status}`);
-      return await res.json();
-    } catch (err) {
-      if (this.apiVersion > 1) {
-        console.warn(`Falling back Lucid API from v${this.apiVersion} to v${this.apiVersion - 1}`);
-        this.apiVersion -= 1;
-        return this.getDocument(docId);
-      }
-      throw err;
-    }
-  }
-}
-```
+## Output
+Return baseline/target matrix, official evidence, changed files, dependency and scope diffs, tests, canary, rendering/data variance, approval, and rollback status.
 
 ## Error Handling
+| Condition | Response |
+|---|---|
+| Target types remove a used API | Stop and redesign with supported primitives; do not conceal it with casts. |
+| Import renders differently | Preserve both artifacts, quantify variance, and require owner acceptance. |
+| Rollback changes data/schema | Test a forward repair and recovery copy before rollout. |
 
-| Migration Issue | Symptom | Fix |
-|----------------|---------|-----|
-| API version header missing | `400` with `Lucid-Api-Version header required` | Add `Lucid-Api-Version` header to all requests |
-| Shape ID format changed | `404` when referencing shapes by old numeric ID | Migrate to new UUID-based shape identifiers |
-| Document export dimensions wrong | SVG exports render at unexpected scale | Check if coordinate units changed from points to pixels in new version |
-| Data link schema invalid | `422` on data linking update | Re-map external data columns to new document field schema |
-| Permission model expanded | `403` on previously accessible documents | Request updated OAuth scopes for new permission levels |
+## Example
+```text
+axis=sdk; baseline=locked; target=reviewed; fixture-parity=pass; scope-delta=none; canary=not-approved
+```
 
 ## Resources
-
-- [Lucid Developer Portal](https://developer.lucid.co/reference/overview)
-- Lucid API Changelog
+- [Official documentation map](references/official-docs.md)
 
 ## Next Steps
-
-For CI pipeline integration, see `lucidchart-ci-integration`.
+Promote only after canary parity, explicit acceptance of known variance, and tested rollback from the exact artifact.

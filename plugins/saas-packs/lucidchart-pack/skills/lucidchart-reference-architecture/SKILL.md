@@ -1,182 +1,68 @@
 ---
 name: lucidchart-reference-architecture
-description: 'Reference Architecture for Lucidchart.
-
-  Trigger: "lucidchart reference architecture".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.7.0
-license: MIT
+description: 'Design a contract-grounded Lucid integration architecture across REST, Standard Import, editor extensions, and optional data connectors. Use when making system and boundary decisions. Trigger with "design Lucid architecture".'
+argument-hint: "[requirements-path] [architecture-scope]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- lucidchart
-- diagramming
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, lucidchart, architecture, extensions, data-connectors]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; architecture decisions involving data movement, OAuth, hosting, or production mutation require accountable owner approval
 ---
-# Lucidchart Reference Architecture
+# Lucid Integration Reference Architecture
 
 ## Overview
-
-Design a version-controlled integration layer for the Lucidchart diagramming platform. Document versioning is the primary driver, so every shape mutation is tracked for diff, rollback, and branch operations while an async export pipeline renders diagrams without blocking collaboration.
-
-## Instructions
-
-1. Provision the prerequisites below and register a Lucidchart OAuth2 application.
-2. Deploy the document sync service to reconcile local snapshots with Lucidchart state.
-3. Start the collaboration event consumer to capture shape deltas in real time.
-4. Configure the export worker pool with deduplication via Redis SETNX.
-5. Tune the sync interval and version retention policy for your document volume.
+Select the smallest supported Lucid surface for the requirement and document trust, data, failure, and ownership boundaries before implementation.
 
 ## Prerequisites
+- Functional requirements, data classification, users, service objectives, and failure tolerance
+- Known Lucid product, ownership model, and plan/account constraints
+- Current official contracts for candidate surfaces
 
-- Node.js 18+, TypeScript 5, PostgreSQL 15, Redis 7, RabbitMQ or SQS
-- Lucidchart OAuth2 credentials with `document:read`, `document:write`, `export` scopes
+## Tool Discipline
+Use `Read`, `Glob`, and `Grep` to inspect the system and constraints, `WebFetch` for current Lucid contracts, and `Write` or `Edit` only for architecture records and diagrams in the approved project.
 
-## Architecture Diagram
+## Current Contract
+- Use REST operations for documented server-side document/account workflows.
+- Use Standard Import for deterministic file-driven document creation.
+- Use an editor extension for in-editor UI, document content, and document data behavior.
+- Add a data connector only when server-side source authentication, scheduled refresh, or documented connector webhook behavior is required.
 
-```
-Client --> API Gateway --> DocumentSyncService --> Lucidchart API
-                                  |
-                   +--------------+--------------+
-                   v              v              v
-             Version DB    Collab Event     Export Worker
-            (snapshots)     Consumer       (PNG/SVG/PDF)
-```
+## Authentication
+Map each boundary to a principal: human/API key, OAuth user, OAuth account, extension, connector runtime, and upstream source. Define scopes, secret storage, rotation, revocation, consent, and audit evidence.
 
-## Service Layer
+## Instructions
+1. Capture actors, use cases, latency, volume, data classes, residency, ownership, and recovery objectives.
+2. Re-fetch the candidate surface documentation; reject capabilities supported only by memory or third-party examples.
+3. Draw component, trust-boundary, data-flow, and failure/recovery views.
+4. For every edge, specify schema, identity, authorization, validation, retry/idempotency, retention, and observability.
+5. Compare at least two viable options on complexity, supportability, least privilege, failure isolation, and reversibility.
+6. Explicitly exclude unsupported generic document webhooks, document locking, universal quotas, and unverified cost assumptions.
+7. Define canary, reconciliation, disaster recovery, ownership, and decommissioning.
+8. Record the decision, evidence date, alternatives, assumptions, approval boundaries, and review trigger.
 
-```typescript
-class DocumentSyncService {
-  constructor(
-    private api: LucidchartApiClient,
-    private versions: VersionStore,
-    private events: EventPublisher
-  ) {}
-
-  async syncDocument(docId: string): Promise<DocumentSnapshot> {
-    const remote = await this.api.getDocument(docId);
-    const local = await this.versions.getLatest(docId);
-    if (!local || remote.revision > local.revision) {
-      const snapshot = await this.versions.save(docId, remote);
-      await this.events.publish('document.synced', { docId, revision: remote.revision });
-      return snapshot;
-    }
-    return local;
-  }
-
-  async exportDiagram(docId: string, format: ExportFormat): Promise<string> {
-    await this.events.publish('export.requested', { docId, format });
-    return this.api.requestExport(docId, format);
-  }
-}
-```
-
-## Caching Strategy
-
-```typescript
-class DocumentCache {
-  constructor(private redis: RedisClient) {}
-
-  async getMetadata(docId: string): Promise<DocumentMeta | null> {
-    const raw = await this.redis.get(`doc:meta:${docId}`);
-    return raw ? JSON.parse(raw) : null;
-  }
-
-  async setMetadata(docId: string, meta: DocumentMeta): Promise<void> {
-    await this.redis.setEx(`doc:meta:${docId}`, 120, JSON.stringify(meta));
-  }
-
-  async deduplicateExport(docId: string, format: string): Promise<boolean> {
-    const key = `export:lock:${docId}:${format}`;
-    return (await this.redis.setNX(key, '1')) === true;
-  }
-}
-// TTLs: doc metadata 2 min, shape data not cached (version store is truth)
-```
-
-## Event Pipeline
-
-```typescript
-class CollabEventConsumer {
-  constructor(private queue: MessageQueue, private versions: VersionStore) {}
-
-  async start(): Promise<void> {
-    await this.queue.subscribe('collab.shape_changed', async (evt: ShapeEvent) => {
-      await this.versions.recordDelta(evt.docId, evt.revision, evt.delta);
-    });
-    await this.queue.subscribe('collab.user_joined', async (evt: PresenceEvent) => {
-      await this.versions.recordCollaborator(evt.docId, evt.userId);
-    });
-  }
-}
-
-class ExportWorker {
-  async processExport(job: ExportJob): Promise<void> {
-    const url = await this.api.pollExportStatus(job.exportId);
-    const buffer = await this.api.downloadExport(url);
-    await this.storage.upload(`exports/${job.docId}/${job.format}`, buffer);
-  }
-}
-```
-
-## Data Model
-
-```typescript
-interface DocumentSnapshot {
-  docId: string; revision: number; title: string;
-  pages: Page[]; collaborators: string[]; capturedAt: Date;
-}
-interface Page {
-  pageId: string; title: string;
-  shapes: Shape[]; connectors: Connector[];
-}
-interface Shape {
-  id: string; type: string; text: string;
-  position: { x: number; y: number };
-  size: { width: number; height: number };
-}
-interface ExportJob {
-  exportId: string; docId: string;
-  format: 'png' | 'svg' | 'pdf'; requestedAt: Date;
-}
-```
+## Approval Boundaries
+Do not register applications, provision hosting, move data, publish extensions, or commit to commercial terms during architecture design.
 
 ## Output
-
-Running this architecture produces a versioned document store with full revision history, a real-time collaboration delta stream, and on-demand diagram exports to PNG, SVG, or PDF with deduplication.
-
-## Scaling Considerations
-
-- Partition the version store by document ID to isolate write-heavy diagrams
-- Export workers are stateless; scale horizontally based on queue depth
-- Deduplicate concurrent export requests for the same document/format via Redis SETNX
-- Distribute sync jobs across OAuth tokens to respect per-user rate limits
+Return chosen surfaces, diagrams, principal/scope matrix, data contracts, failure model, options, decision, assumptions, owners, and approval gates.
 
 ## Error Handling
+| Condition | Response |
+|---|---|
+| Required capability lacks official support | Mark the gap and redesign; do not invent an API. |
+| Data ownership is unresolved | Stop the affected data flow at the trust boundary. |
+| Connector adds no necessary server responsibility | Prefer the simpler editor-extension or import design. |
 
-| Component | Failure Mode | Recovery |
-|-----------|-------------|----------|
-| Lucidchart API | 429 rate limit | Exponential backoff, pause sync for that token |
-| Version Store | Write conflict | Retry with latest revision, merge divergent deltas |
-| Export Worker | Render timeout | Re-queue lower priority, notify after 3 failures |
-| Collab Consumer | Out-of-order events | Buffer and reorder by revision before applying |
-| Redis | Cache eviction | Rebuild metadata from version store on next read |
-
-## Examples
-
-```bash
-# Sync a document and capture its current revision
-curl http://localhost:3000/api/documents/abc123/sync
-# Request a PNG export of a specific diagram
-curl -X POST http://localhost:3000/api/documents/abc123/export?format=png
+## Example
+```text
+decision=editor-extension+connector; reason=source-oauth-and-scheduled-sync; generic-document-webhooks=excluded; review=2026-Q4
 ```
 
 ## Resources
-
-- [Lucidchart API Reference](https://developer.lucid.co/reference/overview)
+- [Official documentation map](references/official-docs.md)
 
 ## Next Steps
-
-See `lucidchart-deploy-integration`.
+Convert the approved decision into threat model, contract tests, deployment gates, and an operations runbook.

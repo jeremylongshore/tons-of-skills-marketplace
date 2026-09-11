@@ -1,164 +1,65 @@
 ---
 name: lucidchart-security-basics
-description: 'Security Basics for Lucidchart.
-
-  Trigger: "lucidchart security basics".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Threat-model and harden Lucid API, Standard Import, editor extension, and data connector integrations. Use when reviewing secrets, scopes, data flows, or release security. Trigger with "secure Lucid integration".'
+argument-hint: "[project-path] [surface]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- lucidchart
-- diagramming
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, lucidchart, security, oauth, least-privilege]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; credential, scope, data-retention, publication, and production-remediation decisions require security and resource-owner approval
 ---
-# Lucidchart Security Basics
+# Lucid Integration Security Baseline
 
 ## Overview
-
-Lucidchart documents often contain sensitive business diagrams — org charts, network topologies, database schemas, and architecture plans that reveal internal infrastructure. The API uses OAuth2 client credentials, meaning a compromised client secret grants access to every document the integration can reach. Collaboration sharing with granular permission levels (view, edit, owner) must be enforced server-side. API versioning via the `Lucid-Api-Version` header requires pinning to avoid unexpected schema changes that break validation logic.
+Establish least privilege, safe data handling, trustworthy package boundaries, and auditable operations for the exact Lucid integration surface.
 
 ## Prerequisites
+- Architecture and data-flow inventory with classifications and owners
+- Credential/principal and extension-scope inventory
+- Repository, artifact, deployment, logging, retention, and incident evidence
 
-- OAuth2 client ID and secret stored in a secrets manager (not environment files)
-- HTTPS enforced on all redirect URIs and webhook endpoints
-- `Lucid-Api-Version` header pinned to a tested version in all requests
-- `.env` files in `.gitignore` — never committed to version control
+## Tool Discipline
+Use `Read`, `Glob`, and `Grep` for bounded static inspection, `WebFetch` for current Lucid security contracts, and `Write` or `Edit` only for approved local remediation and redacted reports.
 
-## API Key Management
+## Current Contract
+Lucid exposes multiple credential classes, operation-specific scopes/headers, Standard Import archives, editor-extension scopes, and optional connector runtimes. Each creates distinct trust boundaries; an extension bundle is not a safe place for confidential credentials.
 
-```typescript
-// OAuth2 client credentials — load from secrets manager at startup
-const LUCID_CLIENT_ID = process.env.LUCID_CLIENT_ID;
-const LUCID_CLIENT_SECRET = process.env.LUCID_CLIENT_SECRET;
+## Authentication
+Map API keys and OAuth user/account tokens to an owner, exact scopes/resources, storage, expiration, rotation, revocation, and audit trail. Validate OAuth redirect URIs and state. Never log tokens, authorization codes, refresh tokens, cookies, or signed URLs.
 
-function validateLucidConfig(): void {
-  if (!LUCID_CLIENT_ID || !LUCID_CLIENT_SECRET) {
-    throw new Error('Missing LUCID_CLIENT_ID or LUCID_CLIENT_SECRET');
-  }
-}
+## Instructions
+1. Pin the reviewed revision and enumerate actors, components, data stores, network edges, documents, and source systems.
+2. Re-fetch authentication, scope, header, and surface-specific official docs.
+3. Search tracked files and build artifacts for credentials, unsafe environment files, overly broad scopes, sensitive fixtures, and unredacted logs.
+4. Threat-model credential theft, malicious imports, archive traversal/expansion, injected source data, cross-account access, connector compromise, replay, and supply-chain drift.
+5. Validate inputs, archive paths/sizes/types, stable IDs, outputs, redirects, state, authorization, tenant boundaries, and redaction.
+6. Verify pinned dependencies, reproducible builds, artifact provenance, change review, secretless CI, and rollback.
+7. Rank findings by exploitability and impact; propose reversible fixes with owners and evidence.
+8. Present credential, scope, retention, or production changes for explicit approval and verify remediation independently.
 
-async function getLucidAccessToken(): Promise<string> {
-  const resp = await fetch('https://api.lucid.co/oauth2/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'client_credentials',
-      client_id: LUCID_CLIENT_ID!,
-      client_secret: LUCID_CLIENT_SECRET!,
-    }),
-  });
-  if (!resp.ok) throw new Error(`OAuth2 token request failed: ${resp.status}`);
-  const { access_token } = await resp.json();
-  return access_token;
-  // Cache token until expiry — never log it
-}
-```
+## Approval Boundaries
+Do not inspect secret values, rotate/revoke credentials, alter scopes, delete data, change retention, or publish security-sensitive changes without authorization.
 
-## Webhook Signature Verification
-
-```typescript
-import crypto from 'node:crypto';
-
-const LUCID_WEBHOOK_SECRET = process.env.LUCID_WEBHOOK_SECRET!;
-
-function verifyLucidWebhook(payload: string, signature: string): boolean {
-  const expected = crypto
-    .createHmac('sha256', LUCID_WEBHOOK_SECRET)
-    .update(payload, 'utf8')
-    .digest('hex');
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
-}
-
-app.post('/webhooks/lucidchart', (req, res) => {
-  const sig = req.headers['x-lucid-signature'] as string;
-  if (!sig || !verifyLucidWebhook(JSON.stringify(req.body), sig)) {
-    return res.status(401).json({ error: 'Invalid webhook signature' });
-  }
-  // Process verified document change event
-});
-```
-
-## Input Validation
-
-```typescript
-// Validate document IDs and enforce API version pinning
-const LUCID_API_VERSION = '1';
-
-function validateDocumentId(docId: string): boolean {
-  // Lucid document IDs are alphanumeric UUIDs
-  return /^[a-f0-9-]{36}$/.test(docId);
-}
-
-function lucidApiHeaders(token: string): Record<string, string> {
-  return {
-    Authorization: `Bearer ${token}`,
-    'Lucid-Api-Version': LUCID_API_VERSION,
-    'Content-Type': 'application/json',
-  };
-}
-```
-
-## Data Protection
-
-```typescript
-function redactDiagramMetadata(doc: Record<string, unknown>): Record<string, unknown> {
-  const sensitive = ['creator_email', 'collaborator_emails', 'share_link', 'embed_url'];
-  const redacted = { ...doc };
-  for (const field of sensitive) {
-    if (redacted[field]) redacted[field] = '[REDACTED]';
-  }
-  return redacted;
-}
-// Always redact before logging — diagrams may contain org charts and network layouts
-```
-
-## Access Control
-
-```typescript
-type LucidPermission = 'view' | 'edit' | 'owner';
-
-function assertDocumentPermission(
-  userRole: LucidPermission,
-  requiredRole: LucidPermission
-): void {
-  const hierarchy: LucidPermission[] = ['view', 'edit', 'owner'];
-  if (hierarchy.indexOf(userRole) < hierarchy.indexOf(requiredRole)) {
-    throw new Error(`Insufficient permission: need "${requiredRole}", have "${userRole}"`);
-  }
-}
-// Enforce server-side — never rely on Lucidchart UI permissions alone
-```
-
-## Security Checklist
-
-- [ ] OAuth2 client secret in secrets manager, rotated on schedule
-- [ ] Access tokens cached in memory only, never persisted to disk or logs
-- [ ] `Lucid-Api-Version` header pinned to a tested version
-- [ ] Webhook signatures verified with HMAC-SHA256
-- [ ] Document sharing permissions enforced server-side
-- [ ] Collaborator emails redacted before logging
-- [ ] Exported diagrams (PNG/PDF) treated as confidential artifacts
-- [ ] OAuth2 scopes requested at minimum privilege
+## Output
+Return surfaces, trust boundaries, principal/scope matrix, findings with evidence, severity, remediation, approvals, verification, and residual risk.
 
 ## Error Handling
+| Condition | Response |
+|---|---|
+| Active secret appears in tracked data | Stop exposure, avoid repeating it, and escalate rotation through the owner. |
+| Scope requirement is unclear | Deny the capability until the exact documented scope is established. |
+| Archive or source data is untrusted | Quarantine and validate offline before any upload or rendering. |
 
-| Vulnerability | Risk | Mitigation |
-|---|---|---|
-| Client secret in logs | Full API access compromise | Never log OAuth2 credentials; redact in error handlers |
-| Unverified webhooks | Spoofed document change events | Reject requests without valid `x-lucid-signature` |
-| Unpinned API version | Breaking schema changes bypass validation | Always send `Lucid-Api-Version` header |
-| Over-permissioned sharing | Unauthorized diagram access | Enforce view/edit/owner hierarchy server-side |
-| Diagram data in logs | Leaked org charts and network topology | Redact creator, collaborator, and share URLs |
+## Example
+```text
+surface=extension+connector; critical=0; high=1; bundle-secrets=0; least-scope=partial; production-mutations=0
+```
 
 ## Resources
-
-- [Lucidchart Developer Reference](https://developer.lucid.co/reference/overview)
-- [OWASP API Security Top 10](https://owasp.org/www-project-api-security/)
+- [Official documentation map](references/official-docs.md)
 
 ## Next Steps
-
-See `lucidchart-prod-checklist`.
+Remediate highest-risk findings, rotate through accountable owners, and rerun the same evidence-backed checks.

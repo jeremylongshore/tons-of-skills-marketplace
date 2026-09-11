@@ -1,83 +1,64 @@
 ---
 name: lucidchart-hello-world
-description: 'Create a minimal working Lucidchart example.
-
-  Trigger: "lucidchart hello world", "lucidchart example", "test lucidchart".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.7.0
-license: MIT
+description: 'Build a minimal valid Standard Import archive and optionally create one Lucidchart document as an approved smoke test. Use when verifying Lucid API access for the first time. Trigger with "Lucidchart hello world".'
+argument-hint: "[output-directory]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- lucidchart
-- diagramming
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, lucidchart, quickstart, standard-import, smoke-test]
+model: inherit
+effort: low
+compatibility: Designed for Claude Code; optional live document creation requires an approved Lucid credential and destination
 ---
-# Lucidchart Hello World
+# Minimal Lucid Standard Import Smoke Test
 
 ## Overview
+Create the smallest deterministic `.lucid` fixture, validate it offline, and optionally upload exactly one disposable Lucidchart document after approval.
 
-Minimal working examples demonstrating core Lucidchart API functionality.
+## Prerequisites
+- A clean output directory and current Standard Import documentation
+- For live mode, an approved API key or OAuth user token, product, destination, and cleanup owner
+- No production or sensitive data
+
+## Tool Discipline
+Use `Read`, `Glob`, and `Grep` to inspect local examples, `WebFetch` for the current import and operation contract, and `Write` or `Edit` only for the fixture and redacted receipt.
+
+## Current Contract
+A `.lucid` Standard Import file is a ZIP containing `document.json`. It needs at least one page and unique item IDs. Product selection distinguishes Lucidchart from Lucidspark.
+
+## Authentication
+Offline validation needs no credential. Live creation uses approved Bearer authorization and any required current version header. Never persist or echo the token.
 
 ## Instructions
+1. Re-fetch the Standard Import overview and exact create-document operation before coding.
+2. Write a deterministic `document.json` with one Lucidchart page, one simple shape, stable unique IDs, and no external assets.
+3. Package it as a ZIP with `document.json` at the archive root; record its SHA-256 digest.
+4. Validate JSON, members, paths, compression, IDs, product, page count, and uncompressed size offline.
+5. Default to stopping here and report the reusable fixture.
+6. For live mode, present destination, title, one-document mutation, credential class, verification, and deletion plan.
+7. After approval, create once, capture the redacted ID, verify representative content, and delete only if cleanup was approved.
 
-### Step 1: Create a Document
+## Approval Boundaries
+Do not upload automatically, reuse an ambiguous request, write to a guessed folder, or use real customer data in a hello-world fixture.
 
-```typescript
-const doc = await client.documents.create({
-  title: 'API Architecture Diagram',
-  product: 'lucidchart'  // or 'lucidspark'
-});
-console.log(`Document: ${doc.documentId}`);
-console.log(`Edit URL: ${doc.editUrl}`);
-```
-
-### Step 2: Add Shapes via Standard Import
-
-```typescript
-// Lucid Standard Import uses .lucid file format
-const importData = {
-  pages: [{
-    id: 'page1',
-    title: 'Main',
-    shapes: [
-      { id: 's1', type: 'rectangle', boundingBox: { x: 100, y: 100, w: 200, h: 80 },
-        text: 'API Gateway', style: { fill: '#4A90D9' } },
-      { id: 's2', type: 'rectangle', boundingBox: { x: 100, y: 300, w: 200, h: 80 },
-        text: 'Database', style: { fill: '#7B68EE' } }
-    ],
-    lines: [
-      { id: 'l1', endpoint1: { shapeId: 's1' }, endpoint2: { shapeId: 's2' },
-        stroke: { color: '#333', width: 2 } }
-    ]
-  }]
-};
-await client.documents.import(doc.documentId, importData);
-```
-
-### Step 3: Export Document
-
-```typescript
-const png = await client.documents.export(doc.documentId, {
-  format: 'png', pageIndex: 0, scale: 2
-});
-fs.writeFileSync('diagram.png', png);
-```
+## Output
+Return mode, fixture path, digest, structural checks, planned or created document ID, verification, and cleanup status.
 
 ## Error Handling
+| Condition | Response |
+|---|---|
+| Archive is structurally invalid | Stop before authentication and report the exact member or JSON failure. |
+| Upload response is ambiguous | Reconcile the destination before any retry. |
+| Cleanup is not approved | Leave the document, record its owner and ID, and do not delete it. |
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Auth error | Invalid credentials | Check LUCID_API_KEY |
-| Not found | Invalid endpoint | Verify API URL |
-| Rate limit | Too many requests | Implement backoff |
+## Example
+```text
+mode=offline; product=lucidchart; pages=1; shapes=1; archive-sha256=...; live-mutations=0
+```
 
 ## Resources
-
-- [Lucidchart API Docs](https://developer.lucid.co/reference/overview)
+- [Official documentation map](references/official-docs.md)
 
 ## Next Steps
-
-See `lucidchart-local-dev-loop`.
+Promote the offline fixture into CI before attempting broader imports or extension work.

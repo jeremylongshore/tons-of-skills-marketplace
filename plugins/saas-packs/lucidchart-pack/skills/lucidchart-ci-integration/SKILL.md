@@ -1,152 +1,66 @@
 ---
 name: lucidchart-ci-integration
-description: 'Ci Integration for Lucidchart.
-
-  Trigger: "lucidchart ci integration".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.7.0
-license: MIT
+description: 'Gate Lucid REST, Standard Import, and Extension API changes with deterministic checks. Use when adding CI to a Lucid integration. Trigger with "add Lucid CI".'
+argument-hint: "[project-path] [integration-kind]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- lucidchart
-- diagramming
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, lucidchart, ci, extensions, standard-import]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live verification requires an authorized Lucid developer project and approval from the document, application, or account owner
 ---
-# Lucidchart CI Integration
+# Lucid Integration CI Gate
 
 ## Overview
+Build a secretless pull-request gate and a separately approved live verification lane for Lucid integrations.
 
-Configure CI pipelines that validate Lucidchart diagramming API integrations using a two-tier testing strategy. Unit tests mock the Lucidchart REST client to verify document creation, shape manipulation, and export logic without requiring OAuth2 credentials. Integration tests run on main-branch merges with a real OAuth2 token to confirm document CRUD, versioned API header handling, and export rendering against the live Lucidchart API. This separation keeps PR cycles fast while catching OAuth flow regressions and API version changes before they reach production.
+## Prerequisites
+- The integration kind: REST API, Standard Import, editor extension, or data connector
+- Repository ownership rules and sanitized fixtures
+- Current Lucid documentation for every API version, scope, and package command used
 
-## GitHub Actions Workflow
+## Tool Discipline
+Use `Read`, `Glob`, and `Grep` to inspect manifests, import archives, code, tests, and workflows. Use `WebFetch` only for current official Lucid pages. Use `Write` or `Edit` only within the approved repository scope.
 
-```yaml
-# .github/workflows/lucidchart-tests.yml
-name: Lucidchart API Tests
-on: [push, pull_request]
+## Current Contract
+- REST requests use Bearer authorization and a valid resource-specific `Lucid-Api-Version`.
+- Standard Import archives contain `document.json`; their rendered result can change as the format evolves.
+- Official extension builds use `lucid-package`; pull-request jobs do not need production tokens.
 
-jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20' }
-      - run: npm ci
-      - run: npm run lint && npm run typecheck
-      - run: npm test -- --testPathPattern=unit  # No OAuth credentials needed
+## Authentication
+Keep API keys, OAuth client secrets, access tokens, refresh tokens, authorization codes, and account tokens out of fork and pull-request jobs. A protected live lane may use only an approved secret, correct token type, least scopes, and exact redirect URI.
 
-  integration-tests:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    needs: unit-tests
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20' }
-      - run: npm ci
-      - run: npm test -- --testPathPattern=integration
-        env:
-          LUCID_API_KEY: ${{ secrets.LUCID_API_KEY }}
-          LUCID_CLIENT_SECRET: ${{ secrets.LUCID_CLIENT_SECRET }}
-```
+## Instructions
+1. Classify the integration and list its authoritative manifest, schema, API-version, and scope inputs.
+2. Inspect every workflow and fixture with Read, Glob, and Grep.
+3. Add schema and archive checks for Standard Import, including unique IDs, required pages, media limits, and path safety.
+4. For extensions, run the documented build and bundle commands in a pinned runtime and verify the manifest requests only used scopes.
+5. Mock REST responses by endpoint and version; cover 401, 403, 429, 5xx, malformed payload, and timeout behavior.
+6. Keep fork jobs synthetic. Put any live smoke test behind protected-environment approval and cleanup.
+7. Save a redacted receipt naming inputs, versions, checks, and remaining manual verification.
 
-## Mock-Based Unit Tests
+## Approval Boundaries
+Do not expose secrets to untrusted code, mutate real documents from fork CI, or treat mocks as proof of live access.
 
-```typescript
-// tests/unit/document-service.test.ts
-import { describe, it, expect, vi } from 'vitest';
-import { createDiagram } from '../../src/services/document-service';
-import * as lucidClient from '../../src/lib/lucid-client';
-
-vi.mock('../../src/lib/lucid-client');
-
-describe('DocumentService', () => {
-  it('creates a flowchart document with initial shapes', async () => {
-    vi.mocked(lucidClient.post).mockResolvedValue({
-      documentId: 'doc-7742',
-      title: 'CI Pipeline Diagram',
-      pageCount: 1,
-      editUrl: 'https://lucid.app/documents/edit/doc-7742',
-    });
-
-    const result = await createDiagram('CI Pipeline Diagram', 'flowchart');
-    expect(result.documentId).toBe('doc-7742');
-    expect(lucidClient.post).toHaveBeenCalledWith(
-      '/documents',
-      { title: 'CI Pipeline Diagram', template: 'flowchart' },
-      { headers: { 'Lucid-Api-Version': '1' } }
-    );
-  });
-});
-```
-
-## Integration Tests
-
-```typescript
-// tests/integration/document-export.test.ts
-import { describe, it, expect } from 'vitest';
-import { LucidClient } from '../../src/lib/lucid-client';
-
-const canRun = process.env.LUCID_API_KEY && process.env.LUCID_CLIENT_SECRET;
-
-describe.skipIf(!canRun)('Lucidchart Document Export (live API)', () => {
-  const client = new LucidClient({
-    apiKey: process.env.LUCID_API_KEY!,
-    clientSecret: process.env.LUCID_CLIENT_SECRET!,
-  });
-
-  it('exports a document as PNG', async () => {
-    const docs = await client.get('/documents', { limit: 1 });
-    expect(docs.length).toBeGreaterThan(0);
-
-    const exported = await client.get(`/documents/${docs[0].documentId}/export`, {
-      format: 'png', page: 1,
-    });
-    expect(exported.contentType).toBe('image/png');
-    expect(exported.data.length).toBeGreaterThan(0);
-  });
-});
-```
-
-## CI Cost Management
-
-```typescript
-// tests/helpers/api-budget.ts
-let callCount = 0;
-const MAX_CALLS_PER_RUN = 20; // Lucidchart API: OAuth token refresh + tight rate limits
-
-export function trackApiCall(): void {
-  callCount++;
-  if (callCount > MAX_CALLS_PER_RUN) {
-    throw new Error(
-      `CI API budget exceeded: ${callCount}/${MAX_CALLS_PER_RUN} calls. ` +
-      'Lucidchart enforces per-app rate limits — reduce export tests or batch requests.'
-    );
-  }
-}
-
-export function getCallCount(): number { return callCount; }
-```
+## Output
+Return integration kind, protected paths, checks, fixture provenance, secret exposure count, required contexts, live lane, cleanup, and residual risk.
 
 ## Error Handling
+| Condition | Response |
+|---|---|
+| Fork job requests a token | Replace the call with an endpoint-specific fixture. |
+| Manifest scope is unused | Remove it and rebuild the bundle. |
+| API version is guessed | Fetch the endpoint documentation and fail closed. |
 
-| CI Issue | Cause | Fix |
-|----------|-------|-----|
-| 401 Unauthorized | OAuth2 token expired or client secret rotated | Re-run OAuth flow, update `LUCID_API_KEY` and `LUCID_CLIENT_SECRET` in GitHub Secrets |
-| 400 Bad Request on export | Missing `Lucid-Api-Version` header | Ensure all requests include `{ 'Lucid-Api-Version': '1' }` header |
-| Document not found (404) | Test document deleted or workspace changed | Create a dedicated CI workspace with persistent test documents |
-| Rate limit (429) on export | PNG/PDF exports are expensive API calls | Cache export results, limit to 1 export test per CI run |
-| Integration tests skipped | Missing both `LUCID_API_KEY` and `LUCID_CLIENT_SECRET` secrets | Add both secrets in repo Settings > Secrets and variables |
+## Example
+```text
+kind=standard-import; fixtures=3; fork-secrets=0; schema=pass; bundle=pass; live-lane=protected; result=pass
+```
 
 ## Resources
-
-- [Lucidchart Developer API Reference](https://developer.lucid.co/reference/overview)
-- [GitHub Actions Encrypted Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
+- [Official documentation map](references/official-docs.md)
 
 ## Next Steps
-
-See `lucidchart-deploy-integration`.
+Recheck package releases, endpoint versions, scopes, branch protection, and cleanup before each production release.

@@ -1,113 +1,65 @@
 ---
 name: lucidchart-core-workflow-b
-description: 'Execute Lucidchart secondary workflow: Data-Linked Diagrams.
-
-  Trigger: "lucidchart data-linked diagrams", "secondary lucidchart workflow".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.7.0
-license: MIT
+description: 'Build and verify a Lucid editor extension that imports or synchronizes governed data. Use when connecting an approved data source to Lucidchart. Trigger with "sync data to Lucidchart".'
+argument-hint: "[extension-path] [data-source]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- lucidchart
-- diagramming
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, lucidchart, extension-api, data-sync, integration]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live data access and Lucid publication require owner approval and appropriately scoped credentials
 ---
-# Lucidchart — Collaboration & Sharing
+# Governed Lucid Data Import and Sync
 
 ## Overview
+Design an editor extension, and only when required a data connector, that imports or synchronizes approved data without inventing REST endpoints.
 
-Invite collaborators, configure permissions, and manage real-time editing sessions on
-Lucidchart documents. Use this workflow when you need to share diagrams with teammates,
-set granular access controls, track revision history, or manage comments on shared
-documents. This is the secondary workflow — for diagram creation and data linking,
-see `lucidchart-core-workflow-a`.
+## Prerequisites
+- A classified source schema, stable record identifiers, and named data owner
+- A Lucid developer application and explicit extension scopes
+- A reconciliation, deletion, and rollback policy
+
+## Tool Discipline
+Use `Read`, `Glob`, and `Grep` to inspect extension code and schemas, `WebFetch` for current Lucid contracts, and `Write` or `Edit` only for local implementation and evidence.
+
+## Current Contract
+Lucid documents support data through the Extension API. Data connectors are an optional server-side companion for sources that require OAuth, scheduled updates, or webhook-driven refresh. Consult installed SDK types and official docs rather than guessing namespaces or methods.
+
+## Authentication
+Keep source-system credentials server-side. Request the least Lucid extension scopes and OAuth access required. Never place API keys, refresh tokens, or client secrets in extension bundles, logs, fixtures, or document data.
 
 ## Instructions
+1. Classify the job as one-time import, user-triggered refresh, scheduled sync, or webhook-assisted connector sync.
+2. Map source keys, field types, null handling, redaction, row ownership, and conflict policy before writing code.
+3. Inspect the installed `lucid-extension-sdk` types and current data-import documentation.
+4. Implement a deterministic transform with stable IDs and explicit validation errors.
+5. Test against synthetic fixtures, including duplicate, deleted, reordered, and malformed records.
+6. Present the intended scopes, data movement, write count, destination, and rollback before live access.
+7. After approval, run a bounded canary and reconcile source, Lucid data, visual bindings, and deletions.
+8. Record fixture digest, scope set, counts, rejects, drift, and rollback result.
 
-### Step 1: Invite Collaborators with Role-Based Permissions
-
-```typescript
-const invites = await client.documents.share(doc.documentId, {
-  recipients: [
-    { email: 'architect@example.com', role: 'editor' },
-    { email: 'manager@example.com', role: 'commenter' },
-    { email: 'stakeholder@example.com', role: 'viewer' },
-  ],
-  message: 'Please review the updated architecture diagram',
-  notify: true,
-});
-invites.forEach(inv =>
-  console.log(`Invited ${inv.email} as ${inv.role} — status: ${inv.status}`)
-);
-```
-
-### Step 2: Configure Document-Level Access Controls
-
-```typescript
-const permissions = await client.documents.updatePermissions(doc.documentId, {
-  link_sharing: 'organization',  // 'private' | 'organization' | 'anyone_with_link'
-  allow_download: false,
-  allow_copy: false,
-  require_login: true,
-  expiry: '2026-05-01T00:00:00Z',
-});
-console.log(`Sharing: ${permissions.link_sharing}, expires: ${permissions.expiry}`);
-console.log(`Download: ${permissions.allow_download}, Copy: ${permissions.allow_copy}`);
-```
-
-### Step 3: Manage Comments and Review Threads
-
-```typescript
-const comments = await client.documents.comments.list(doc.documentId, {
-  status: 'open',
-  sort: 'created_desc',
-});
-comments.items.forEach(c =>
-  console.log(`[${c.author}] ${c.text} (${c.replies.length} replies)`)
-);
-
-// Resolve a comment thread
-await client.documents.comments.resolve(doc.documentId, comments.items[0].id, {
-  resolution_note: 'Updated per feedback — moved DB to separate VPC',
-});
-```
-
-### Step 4: Track Revision History
-
-```typescript
-const revisions = await client.documents.revisions.list(doc.documentId, {
-  limit: 10,
-  sort: 'date_desc',
-});
-revisions.items.forEach(r =>
-  console.log(`v${r.version} by ${r.author} at ${r.timestamp} — ${r.change_summary}`)
-);
-await client.documents.revisions.restore(doc.documentId, revisions.items[2].id);
-```
-
-## Error Handling
-
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| `401 Unauthorized` | Invalid or expired OAuth token | Re-authenticate via OAuth2 flow |
-| `403 Insufficient permissions` | User lacks edit/share access | Request owner to grant editor role |
-| `404 Document not found` | Wrong documentId or document deleted | Verify ID with `client.documents.list()` |
-| `409 Conflict` | Concurrent edit collision | Retry — Lucidchart auto-merges most conflicts |
-| `422 Invalid email` | Malformed recipient email address | Validate email format before sending invite |
+## Approval Boundaries
+Do not read production data, register OAuth credentials, publish an extension, or enable scheduled/webhook sync without the responsible owners' approval.
 
 ## Output
+Return architecture choice, schema map, scopes, fixture results, mutation preview, canary reconciliation, rejects, and rollback evidence.
 
-A successful workflow sends collaboration invites with role-based permissions,
-locks down document access with organization-level controls and expiry dates,
-and provides a full audit trail of comments, resolutions, and revision history.
+## Error Handling
+| Condition | Response |
+|---|---|
+| SDK type conflicts with an example | Trust the installed type and current official reference; report the drift. |
+| Stable source key is absent | Stop; do not infer identity from mutable display fields. |
+| Partial sync occurs | Freeze retries, reconcile by stable ID, and apply the documented conflict policy. |
+
+## Example
+```text
+mode=user-triggered-refresh; fixture=24; creates=2; updates=5; deletes=0; rejects=1; rollback=verified
+```
 
 ## Resources
-
-- [Lucidchart Developer Docs](https://developer.lucid.co/reference/overview)
+- [Official documentation map](references/official-docs.md)
 
 ## Next Steps
-
-See `lucidchart-sdk-patterns` for OAuth configuration and webhook setup.
+Promote the canary only after owner review of data lineage, scopes, reconciliation, and failure recovery.
