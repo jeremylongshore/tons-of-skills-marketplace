@@ -720,6 +720,7 @@
       "deep-learning",
       "deepgram",
       "defi",
+      "delegated-auth",
       "deliverability",
       "delta-lake",
       "demo-video",
@@ -949,6 +950,7 @@
       "hpa",
       "hr-integrations",
       "html",
+      "html-content",
       "http",
       "http-status",
       "hubspot",
@@ -1101,6 +1103,7 @@
       "metrics",
       "mev",
       "microservices",
+      "microsoft-graph",
       "middleware",
       "migration",
       "migrations",
@@ -1337,6 +1340,7 @@
       "recall",
       "recognition",
       "recommendations",
+      "reconciliation",
       "recovery",
       "redis",
       "refactoring",
@@ -12919,12 +12923,16 @@
       "slug": "onenote-pack",
       "name": "onenote-pack",
       "displayName": "onenote pack",
-      "description": "Claude Code skill pack for OneNote (18 skills)",
+      "description": "Operator-grade OneNote pack for delegated access, hierarchy inventory, controlled HTML content, polling reconciliation, security, reliability, and migration",
       "category": "saas-packs",
       "keywords": [
         "onenote",
-        "saas",
-        "sdk",
+        "microsoft-graph",
+        "delegated-auth",
+        "notebooks",
+        "html-content",
+        "reconciliation",
+        "security",
         "integration"
       ],
       "author": {
@@ -12933,15 +12941,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.6.0",
+      "version": "1.7.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 18,
-      "verificationScore": 91,
+      "verificationScore": 98,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "onenote pack claude code skill pack for onenote (18 skills) saas-packs onenote saas sdk integration"
+      "searchText": "onenote pack operator-grade onenote pack for delegated access, hierarchy inventory, controlled html content, polling reconciliation, security, reliability, and migration saas-packs onenote microsoft-graph delegated-auth notebooks html-content reconciliation security integration"
     },
     {
       "type": "plugin",
@@ -58685,406 +58693,396 @@
       "id": "onenote-ci-integration",
       "slug": "onenote-ci-integration",
       "name": "onenote-ci-integration",
-      "description": "Set up CI/CD pipelines for OneNote integrations with Graph API testing and mock strategies. Use when configuring GitHub Actions, setting up test credentials, or building mock-based CI tests. Trigger with \"onenote ci\", \"onenote github actions\", \"onenote test pipeline\", \"graph api ci\".",
+      "description": "Build deterministic CI gates for a OneNote integration without exposing delegated credentials or mutating real notebooks. Use when testing client, HTML, pagination, or migration changes. Trigger with \"test OneNote in CI\", \"gate OneNote contracts\", or \"add OneNote fixtures\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-ci-integration set up ci/cd pipelines for onenote integrations with graph api testing and mock strategies. use when configuring github actions, setting up test credentials, or building mock-based ci tests. trigger with \"onenote ci\", \"onenote github actions\", \"onenote test pipeline\", \"graph api ci\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "onenote-ci-integration build deterministic ci gates for a onenote integration without exposing delegated credentials or mutating real notebooks. use when testing client, html, pagination, or migration changes. trigger with \"test onenote in ci\", \"gate onenote contracts\", or \"add onenote fixtures\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "onenote-common-errors",
       "slug": "onenote-common-errors",
       "name": "onenote-common-errors",
-      "description": "Decode and fix every common OneNote Graph API error with root cause analysis. Use when debugging 400, 403, 404, 429, 500, 502, or 507 errors from OneNote API. Trigger with \"onenote error\", \"onenote 403\", \"onenote debug\", \"graph api error onenote\".",
+      "description": "Classify Microsoft Graph OneNote failures from redacted response evidence and choose a bounded recovery path. Use when handling authentication, permission, provisioning, validation, throttling, or content errors. Trigger with \"fix OneNote error\", \"classify OneNote 403\", or \"debug OneNote request\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-common-errors decode and fix every common onenote graph api error with root cause analysis. use when debugging 400, 403, 404, 429, 500, 502, or 507 errors from onenote api. trigger with \"onenote error\", \"onenote 403\", \"onenote debug\", \"graph api error onenote\". saas-packs read write edit grep "
+      "searchText": "onenote-common-errors classify microsoft graph onenote failures from redacted response evidence and choose a bounded recovery path. use when handling authentication, permission, provisioning, validation, throttling, or content errors. trigger with \"fix onenote error\", \"classify onenote 403\", or \"debug onenote request\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "onenote-core-workflow-a",
       "slug": "onenote-core-workflow-a",
       "name": "onenote-core-workflow-a",
-      "description": "Full CRUD lifecycle for OneNote notebooks, section groups, sections, and pages via Graph API. Use when building notebook management features, creating page hierarchies, or working with XHTML content. Trigger with \"onenote crud\", \"onenote page management\", \"onenote notebook workflow\".",
+      "description": "Enumerate approved OneNote notebooks, sections, section groups, and page metadata with complete pagination evidence. Use when building an inventory or selecting a stable content target. Trigger with \"inventory OneNote\", \"list OneNote pages\", or \"map OneNote hierarchy\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-core-workflow-a full crud lifecycle for onenote notebooks, section groups, sections, and pages via graph api. use when building notebook management features, creating page hierarchies, or working with xhtml content. trigger with \"onenote crud\", \"onenote page management\", \"onenote notebook workflow\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "onenote-core-workflow-a enumerate approved onenote notebooks, sections, section groups, and page metadata with complete pagination evidence. use when building an inventory or selecting a stable content target. trigger with \"inventory onenote\", \"list onenote pages\", or \"map onenote hierarchy\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "onenote-core-workflow-b",
       "slug": "onenote-core-workflow-b",
       "name": "onenote-core-workflow-b",
-      "description": "Search, query, and paginate OneNote content with OData filters and client-side search patterns. Use when building search features, querying pages across notebooks, or handling large result sets. Trigger with \"onenote search\", \"onenote query pages\", \"onenote pagination\", \"find onenote content\".",
+      "description": "Create or update OneNote page content with an HTML preview, stable targets, read-back verification, and compensation. Use when an approved workflow must write a page. Trigger with \"create OneNote page\", \"update OneNote content\", or \"append OneNote HTML\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-core-workflow-b search, query, and paginate onenote content with odata filters and client-side search patterns. use when building search features, querying pages across notebooks, or handling large result sets. trigger with \"onenote search\", \"onenote query pages\", \"onenote pagination\", \"find onenote content\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "onenote-core-workflow-b create or update onenote page content with an html preview, stable targets, read-back verification, and compensation. use when an approved workflow must write a page. trigger with \"create onenote page\", \"update onenote content\", or \"append onenote html\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "onenote-cost-tuning",
       "slug": "onenote-cost-tuning",
       "name": "onenote-cost-tuning",
-      "description": "Optimize costs and API usage for OneNote Graph API integrations with caching and batching strategies. Use when reducing API call volume, planning capacity, or evaluating OneNote integration costs. Trigger with \"onenote costs\", \"onenote api usage\", \"onenote optimization\", \"graph api billing onenote\".",
+      "description": "Reduce OneNote integration waste across requests, workers, storage, and downstream processing without inventing API pricing. Use when a polling or synchronization workload is expensive or noisy. Trigger with \"reduce OneNote cost\", \"audit OneNote request waste\", or \"tune OneNote polling\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-cost-tuning optimize costs and api usage for onenote graph api integrations with caching and batching strategies. use when reducing api call volume, planning capacity, or evaluating onenote integration costs. trigger with \"onenote costs\", \"onenote api usage\", \"onenote optimization\", \"graph api billing onenote\". saas-packs read write edit grep "
+      "searchText": "onenote-cost-tuning reduce onenote integration waste across requests, workers, storage, and downstream processing without inventing api pricing. use when a polling or synchronization workload is expensive or noisy. trigger with \"reduce onenote cost\", \"audit onenote request waste\", or \"tune onenote polling\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "onenote-debug-bundle",
       "slug": "onenote-debug-bundle",
       "name": "onenote-debug-bundle",
-      "description": "Generate comprehensive diagnostic bundles for OneNote Graph API issues with request tracing and token analysis. Use when debugging OneNote API failures, filing Microsoft support tickets, or analyzing permission issues. Trigger with \"onenote debug\", \"onenote diagnostic\", \"onenote support ticket\", \"graph api troubleshoot onenote\".",
+      "description": "Assemble a reproducible, content-safe OneNote diagnostic bundle for engineering or Microsoft support. Use when an incident needs portable evidence. Trigger with \"collect OneNote debug bundle\", \"redact OneNote diagnostics\", or \"prepare OneNote support case\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-debug-bundle generate comprehensive diagnostic bundles for onenote graph api issues with request tracing and token analysis. use when debugging onenote api failures, filing microsoft support tickets, or analyzing permission issues. trigger with \"onenote debug\", \"onenote diagnostic\", \"onenote support ticket\", \"graph api troubleshoot onenote\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "onenote-debug-bundle assemble a reproducible, content-safe onenote diagnostic bundle for engineering or microsoft support. use when an incident needs portable evidence. trigger with \"collect onenote debug bundle\", \"redact onenote diagnostics\", or \"prepare onenote support case\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "onenote-deploy-integration",
       "slug": "onenote-deploy-integration",
       "name": "onenote-deploy-integration",
-      "description": "Deploy OneNote integrations with MSAL token persistence, health checks, and container best practices. Use when containerizing OneNote services, configuring health endpoints, or managing token cache in production. Trigger with \"onenote deploy\", \"onenote docker\", \"onenote container\", \"onenote health check\".",
+      "description": "Deploy a OneNote integration with delegated-user lifecycle, environment isolation, staged rollout, and rollback evidence. Use when promoting a service or client that calls Microsoft Graph OneNote. Trigger with \"deploy OneNote integration\", \"promote OneNote worker\", or \"review OneNote release\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-deploy-integration deploy onenote integrations with msal token persistence, health checks, and container best practices. use when containerizing onenote services, configuring health endpoints, or managing token cache in production. trigger with \"onenote deploy\", \"onenote docker\", \"onenote container\", \"onenote health check\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "onenote-deploy-integration deploy a onenote integration with delegated-user lifecycle, environment isolation, staged rollout, and rollback evidence. use when promoting a service or client that calls microsoft graph onenote. trigger with \"deploy onenote integration\", \"promote onenote worker\", or \"review onenote release\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "onenote-hello-world",
       "slug": "onenote-hello-world",
       "name": "onenote-hello-world",
-      "description": "Create your first OneNote notebook, section, and page with correct XHTML content. Use when starting a new OneNote integration or testing Graph API connectivity. Trigger with \"onenote hello world\", \"first onenote page\", \"create onenote notebook\".",
+      "description": "Prove delegated OneNote access and the selected content boundary with one minimal read-only request. Use when onboarding or diagnosing initial connectivity. Trigger with \"test OneNote connection\", \"OneNote hello world\", or \"verify OneNote access\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-hello-world create your first onenote notebook, section, and page with correct xhtml content. use when starting a new onenote integration or testing graph api connectivity. trigger with \"onenote hello world\", \"first onenote page\", \"create onenote notebook\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "onenote-hello-world prove delegated onenote access and the selected content boundary with one minimal read-only request. use when onboarding or diagnosing initial connectivity. trigger with \"test onenote connection\", \"onenote hello world\", or \"verify onenote access\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "onenote-install-auth",
       "slug": "onenote-install-auth",
       "name": "onenote-install-auth",
-      "description": "Install and configure OneNote SDK/API authentication with delegated auth (MSAL). Use when setting up a new OneNote integration, configuring Azure AD app registration, or migrating from deprecated app-only auth. Trigger with \"install onenote\", \"setup onenote auth\", \"onenote credentials\", \"azure ad onenote\".",
+      "description": "Establish a least-privilege delegated Microsoft Graph connection for OneNote with tested consent and lifecycle controls. Use when registering or repairing OneNote authentication. Trigger with \"set up OneNote auth\", \"register OneNote app\", or \"review Notes permissions\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-install-auth install and configure onenote sdk/api authentication with delegated auth (msal). use when setting up a new onenote integration, configuring azure ad app registration, or migrating from deprecated app-only auth. trigger with \"install onenote\", \"setup onenote auth\", \"onenote credentials\", \"azure ad onenote\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "onenote-install-auth establish a least-privilege delegated microsoft graph connection for onenote with tested consent and lifecycle controls. use when registering or repairing onenote authentication. trigger with \"set up onenote auth\", \"register onenote app\", or \"review notes permissions\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "onenote-local-dev-loop",
       "slug": "onenote-local-dev-loop",
       "name": "onenote-local-dev-loop",
-      "description": "Set up a local development loop for OneNote integrations with mock Graph API responses. Use when developing OneNote features without Azure credentials or to avoid rate limits during development. Trigger with \"onenote local dev\", \"onenote mock\", \"onenote testing setup\".",
+      "description": "Create a repeatable local OneNote development loop using synthetic fixtures, mocks, and an explicitly approved delegated sandbox. Use when implementing or debugging without touching real notebooks. Trigger with \"develop OneNote locally\", \"mock OneNote API\", or \"set up OneNote sandbox\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-local-dev-loop set up a local development loop for onenote integrations with mock graph api responses. use when developing onenote features without azure credentials or to avoid rate limits during development. trigger with \"onenote local dev\", \"onenote mock\", \"onenote testing setup\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "onenote-local-dev-loop create a repeatable local onenote development loop using synthetic fixtures, mocks, and an explicitly approved delegated sandbox. use when implementing or debugging without touching real notebooks. trigger with \"develop onenote locally\", \"mock onenote api\", or \"set up onenote sandbox\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "onenote-performance-tuning",
       "slug": "onenote-performance-tuning",
       "name": "onenote-performance-tuning",
-      "description": "Optimize OneNote Graph API performance for large notebooks, image handling, and batch operations. Use when dealing with slow API responses, large notebooks, image uploads, or HTTP 507 errors. Trigger with \"onenote performance\", \"onenote slow\", \"onenote large notebook\", \"onenote image upload\".",
+      "description": "Improve OneNote read and write latency from measured evidence while preserving completeness and service limits. Use when an integration misses a latency or throughput objective. Trigger with \"tune OneNote performance\", \"reduce OneNote calls\", or \"optimize OneNote paging\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-performance-tuning optimize onenote graph api performance for large notebooks, image handling, and batch operations. use when dealing with slow api responses, large notebooks, image uploads, or http 507 errors. trigger with \"onenote performance\", \"onenote slow\", \"onenote large notebook\", \"onenote image upload\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "onenote-performance-tuning improve onenote read and write latency from measured evidence while preserving completeness and service limits. use when an integration misses a latency or throughput objective. trigger with \"tune onenote performance\", \"reduce onenote calls\", or \"optimize onenote paging\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "onenote-prod-checklist",
       "slug": "onenote-prod-checklist",
       "name": "onenote-prod-checklist",
-      "description": "Production readiness checklist for OneNote Graph API integrations covering auth, rate limits, and failure modes. Use when preparing a OneNote integration for production deployment or conducting a launch review. Trigger with \"onenote production checklist\", \"onenote launch review\", \"onenote prod ready\".",
+      "description": "Decide whether a OneNote integration is ready for production from evidence across delegated access, content safety, correctness, limits, operations, and rollback. Use when reviewing a launch or material change. Trigger with \"review OneNote production readiness\", \"OneNote go-live checklist\", or \"approve OneNote launch\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-prod-checklist production readiness checklist for onenote graph api integrations covering auth, rate limits, and failure modes. use when preparing a onenote integration for production deployment or conducting a launch review. trigger with \"onenote production checklist\", \"onenote launch review\", \"onenote prod ready\". saas-packs read write edit grep "
+      "searchText": "onenote-prod-checklist decide whether a onenote integration is ready for production from evidence across delegated access, content safety, correctness, limits, operations, and rollback. use when reviewing a launch or material change. trigger with \"review onenote production readiness\", \"onenote go-live checklist\", or \"approve onenote launch\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "onenote-rate-limits",
       "slug": "onenote-rate-limits",
       "name": "onenote-rate-limits",
-      "description": "Implement proper rate limit handling for OneNote Graph API with queue-based throttling. Use when building high-throughput OneNote integrations or debugging 429 errors. Trigger with \"onenote rate limit\", \"onenote 429\", \"onenote throttling\", \"graph api throttle\".",
+      "description": "Implement bounded OneNote throttling, concurrency, retry, and queue backpressure from current service limits and observed responses. Use when handling 429s or scaling a delegated workload. Trigger with \"handle OneNote throttling\", \"fix OneNote 429\", or \"limit OneNote concurrency\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-rate-limits implement proper rate limit handling for onenote graph api with queue-based throttling. use when building high-throughput onenote integrations or debugging 429 errors. trigger with \"onenote rate limit\", \"onenote 429\", \"onenote throttling\", \"graph api throttle\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "onenote-rate-limits implement bounded onenote throttling, concurrency, retry, and queue backpressure from current service limits and observed responses. use when handling 429s or scaling a delegated workload. trigger with \"handle onenote throttling\", \"fix onenote 429\", or \"limit onenote concurrency\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "onenote-reference-architecture",
       "slug": "onenote-reference-architecture",
       "name": "onenote-reference-architecture",
-      "description": "Reference architecture for OneNote integrations covering all notebook locations and API path patterns. Use when designing multi-tenant OneNote integrations or choosing between personal, SharePoint, and group notebook APIs. Trigger with \"onenote architecture\", \"onenote api paths\", \"onenote sharepoint vs personal\".",
+      "description": "Define a production OneNote architecture for delegated access, multiple content locations, bounded workers, reconciliation, and evidence. Use when standardizing several OneNote workloads. Trigger with \"design OneNote architecture\", \"standardize OneNote services\", or \"review OneNote topology\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-reference-architecture reference architecture for onenote integrations covering all notebook locations and api path patterns. use when designing multi-tenant onenote integrations or choosing between personal, sharepoint, and group notebook apis. trigger with \"onenote architecture\", \"onenote api paths\", \"onenote sharepoint vs personal\". saas-packs read write edit grep "
+      "searchText": "onenote-reference-architecture define a production onenote architecture for delegated access, multiple content locations, bounded workers, reconciliation, and evidence. use when standardizing several onenote workloads. trigger with \"design onenote architecture\", \"standardize onenote services\", or \"review onenote topology\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "onenote-sdk-patterns",
       "slug": "onenote-sdk-patterns",
       "name": "onenote-sdk-patterns",
-      "description": "Production SDK patterns for OneNote Graph API: retry logic, batch requests, and safe file uploads. Use when building production OneNote integrations that need rate limit handling and reliable uploads. Trigger with \"onenote sdk patterns\", \"onenote retry logic\", \"onenote batch requests\".",
+      "description": "Build a testable Microsoft Graph OneNote client boundary with delegated auth, opaque pagination, HTML operations, errors, and throttling. Use when writing or reviewing integration code. Trigger with \"design OneNote client\", \"review OneNote SDK\", or \"update OneNote patterns\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-sdk-patterns production sdk patterns for onenote graph api: retry logic, batch requests, and safe file uploads. use when building production onenote integrations that need rate limit handling and reliable uploads. trigger with \"onenote sdk patterns\", \"onenote retry logic\", \"onenote batch requests\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "onenote-sdk-patterns build a testable microsoft graph onenote client boundary with delegated auth, opaque pagination, html operations, errors, and throttling. use when writing or reviewing integration code. trigger with \"design onenote client\", \"review onenote sdk\", or \"update onenote patterns\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "onenote-security-basics",
       "slug": "onenote-security-basics",
       "name": "onenote-security-basics",
-      "description": "Implement secure authentication, token management, and permission scoping for OneNote Graph API. Use when hardening OneNote integrations, implementing least-privilege permissions, or managing token lifecycle. Trigger with \"onenote security\", \"onenote permissions\", \"onenote token management\", \"onenote least privilege\".",
+      "description": "Establish a security baseline for delegated identity, consent, token caches, notebook content, logs, writes, and tenant isolation. Use when designing or hardening a OneNote integration. Trigger with \"secure OneNote integration\", \"audit OneNote permissions\", or \"review OneNote token handling\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-security-basics implement secure authentication, token management, and permission scoping for onenote graph api. use when hardening onenote integrations, implementing least-privilege permissions, or managing token lifecycle. trigger with \"onenote security\", \"onenote permissions\", \"onenote token management\", \"onenote least privilege\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "onenote-security-basics establish a security baseline for delegated identity, consent, token caches, notebook content, logs, writes, and tenant isolation. use when designing or hardening a onenote integration. trigger with \"secure onenote integration\", \"audit onenote permissions\", or \"review onenote token handling\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "onenote-upgrade-migration",
       "slug": "onenote-upgrade-migration",
       "name": "onenote-upgrade-migration",
-      "description": "Migrate OneNote integrations across Graph SDK versions, auth deprecations, and API changes. Use when upgrading Graph SDK, migrating from app-only to delegated auth, or handling deprecated endpoints. Trigger with \"onenote upgrade\", \"onenote migration\", \"graph sdk upgrade\", \"onenote breaking changes\".",
+      "description": "Migrate a OneNote integration across auth, SDK, request, or unsupported-feature assumptions with canaries and rollback. Use when replacing app-only access, upgrading dependencies, or removing undocumented polling shortcuts. Trigger with \"upgrade OneNote integration\", \"migrate OneNote auth\", or \"remove OneNote delta\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-upgrade-migration migrate onenote integrations across graph sdk versions, auth deprecations, and api changes. use when upgrading graph sdk, migrating from app-only to delegated auth, or handling deprecated endpoints. trigger with \"onenote upgrade\", \"onenote migration\", \"graph sdk upgrade\", \"onenote breaking changes\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "onenote-upgrade-migration migrate a onenote integration across auth, sdk, request, or unsupported-feature assumptions with canaries and rollback. use when replacing app-only access, upgrading dependencies, or removing undocumented polling shortcuts. trigger with \"upgrade onenote integration\", \"migrate onenote auth\", or \"remove onenote delta\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "onenote-webhooks-events",
       "slug": "onenote-webhooks-events",
       "name": "onenote-webhooks-events",
-      "description": "Implement change detection for OneNote using polling and delta queries (webhooks decommissioned June 2023). Use when building real-time sync, change monitoring, or event-driven OneNote integrations. Trigger with \"onenote changes\", \"onenote polling\", \"onenote sync\", \"onenote delta query\".",
+      "description": "Design bounded OneNote change detection without claiming unsupported webhooks or delta queries. Use when a workflow must discover page changes on a documented polling schedule. Trigger with \"monitor OneNote changes\", \"poll OneNote safely\", or \"reconcile OneNote pages\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.6.0",
+      "version": "1.7.0",
       "parentPlugin": {
         "name": "onenote-pack",
         "category": "saas-packs"
       },
-      "searchText": "onenote-webhooks-events implement change detection for onenote using polling and delta queries (webhooks decommissioned june 2023). use when building real-time sync, change monitoring, or event-driven onenote integrations. trigger with \"onenote changes\", \"onenote polling\", \"onenote sync\", \"onenote delta query\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "onenote-webhooks-events design bounded onenote change detection without claiming unsupported webhooks or delta queries. use when a workflow must discover page changes on a documented polling schedule. trigger with \"monitor onenote changes\", \"poll onenote safely\", or \"reconcile onenote pages\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
