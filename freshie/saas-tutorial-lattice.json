@@ -4,10 +4,10 @@
   "semantics": "Family-name matches are review candidates, not automatic quality or retirement verdicts.",
   "sources": {
     "catalog": ".claude-plugin/marketplace.extended.json",
-    "catalog_sha256": "59b515926672c1ab96c80f017e0546eac2942ac4dedaee2df59bee104e16ef95",
+    "catalog_sha256": "8215fd0986fa1b1781dad8ea324ee4af84ecc74a92a417ab31bb83267232a3e9",
     "curated_manifest": "skills/.curated/MANIFEST.json",
     "curated_manifest_sha256": "76ddb1afed7922671998fcbe9b74e558eb1c0bd94d5cc45b0c9a600303d74da9",
-    "tracked_inventory_sha256": "760d16e5cebc984de91d4cc46f801fc273de6f5387b7531f9dc76696a4496802"
+    "tracked_inventory_sha256": "1b15889141439a19e80613fb44fe86d3d5697228368d7477be3ba5dcb57ef23c"
   },
   "family_definition": [
     "advanced-troubleshooting",
@@ -786,7 +786,7 @@
       "candidate_basis_points": 10000,
       "verification_grade": "A",
       "verification_score": 95,
-      "pack_inventory_sha256": "90eba24a957130db1218bd6fdb3bb221b0aedaec73dd6e2267687ca084a32516",
+      "pack_inventory_sha256": "e1e32efe5c7342fcf5c64be69cbbb02ee366065c78b69c3031cca30eb35a06f3",
       "candidate_set_sha256": "69bedf7283c59cea68f6173665154f8aa0b8971a8ed17a4ff367c97ad466ee2a",
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
@@ -12847,7 +12847,7 @@
       "ownership": {
         "status": "first-party"
       },
-      "pack_inventory_sha256": "90eba24a957130db1218bd6fdb3bb221b0aedaec73dd6e2267687ca084a32516",
+      "pack_inventory_sha256": "e1e32efe5c7342fcf5c64be69cbbb02ee366065c78b69c3031cca30eb35a06f3",
       "candidate_set_sha256": "69bedf7283c59cea68f6173665154f8aa0b8971a8ed17a4ff367c97ad466ee2a",
       "skill_count": 30,
       "catalog_declared_skill_count": 30,
