@@ -1,175 +1,76 @@
 ---
 name: fireflies-install-auth
-description: 'Configure Fireflies.ai GraphQL API authentication and verify connectivity.
-
-  Use when setting up a new Fireflies.ai integration, configuring API keys,
-
-  or initializing the GraphQL client for transcript access.
-
-  Trigger with phrases like "install fireflies", "setup fireflies",
-
-  "fireflies auth", "configure fireflies API key".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.11.0
+description: >-
+  Establish a least-privilege Fireflies API identity, protect its bearer key, and prove the authenticated GraphQL boundary without exposing meeting data. Use when bootstrapping or repairing an integration. Trigger with "configure Fireflies API", "Fireflies auth failed", or "rotate Fireflies key".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <environment>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- fireflies
-- api
-- authentication
-compatibility: Designed for Claude Code
+tags: [saas, fireflies, authentication, security]
+model: inherit
+effort: medium
+compatibility: "Designed for Claude Code; live Fireflies work requires network access"
 ---
-# Fireflies.ai Install & Auth
+# Fireflies API Identity and Access Setup
 
 ## Overview
 
-Set up Fireflies.ai GraphQL API authentication. Fireflies uses a single GraphQL endpoint at `https://api.fireflies.ai/graphql` with Bearer token auth. No SDK needed -- all interaction is via HTTP POST with GraphQL queries.
-
-## Examples
-
-Store a scoped staging key in the approved secret manager and run a read-only query against a fictitious test workspace. Record only the authentication method, scope, and redacted outcome; then revoke the test credential to confirm access does not persist unexpectedly.
+Create an auditable identity boundary before any transcript query or mutation. A successful request proves only that the key is accepted; it does not grant permission to enumerate or export meeting content.
 
 ## Prerequisites
 
-- Fireflies.ai account (Pro or higher for API access)
-- API key from app.fireflies.ai > Integrations > Fireflies API
-- Node.js 18+ or Python 3.10+
-- A GraphQL client library (optional but recommended)
+- The target repository or integration path and the requested operator outcome.
+- The Fireflies principal, team, environment, and data classification for the work.
+- Current Fireflies documentation, credentials only when needed, and an accountable approver.
+
+## Current Contract
+
+Fireflies uses POST requests to https://api.fireflies.ai/graphql with Content-Type application/json and Authorization: Bearer <API key>. Obtain the key from the Fireflies Integrations page, keep it server-side, and use the smallest identity query needed to confirm the principal and team context.
+
+## Authentication
+
+For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret manager and send it only as `Authorization: Bearer REDACTED_KEY` to `https://api.fireflies.ai/graphql`. Never print, commit, place in a URL, forward to a browser, or include the key in evidence. Webhook signing secrets are separate credentials and must not be reused as API keys.
 
 ## Instructions
 
-### Step 1: Get Your API Key
+1. Identify the owning Fireflies user or team, intended environment, and exact read or mutation capabilities.
+2. Create or retrieve the API key through the Fireflies dashboard; never ask a user to paste it into chat.
+3. Store the key in the approved secret manager and inject it as FIREFLIES_API_KEY only at runtime.
+4. Send a minimal user query from a controlled server-side client and inspect both HTTP status and the GraphQL errors array.
+5. Record the authenticated user ID, team context, key owner, storage location, and rotation owner without recording the key.
+6. Test an invalid-key path and confirm logs redact Authorization and response data.
+7. Document rotation and revocation steps before enabling production access.
 
-1. Log in at [app.fireflies.ai](https://app.fireflies.ai)
-2. Navigate to **Integrations > Fireflies API**
-3. Copy your API key (starts with a long alphanumeric string)
-4. Store it securely -- this key grants access to all your meeting data
 
-### Step 2: Configure Environment
+## Tool Discipline
 
-```bash
-set -euo pipefail
-# Create .env file (NEVER commit to git)
-echo 'FIREFLIES_API_KEY=your-api-key-here' >> .env
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
 
-# Add to .gitignore
-echo '.env' >> .gitignore
-echo '.env.local' >> .gitignore
-```
+## Approval Boundaries
 
-### Step 3: Install GraphQL Client (Optional)
-
-```bash
-set -euo pipefail
-# Node.js -- graphql-request is lightweight and typed
-npm install graphql-request graphql
-
-# Or use plain fetch -- no library needed
-# Python -- use requests
-pip install requests
-```
-
-### Step 4: Verify Connection
-
-```typescript
-// verify-fireflies.ts
-const FIREFLIES_API = "https://api.fireflies.ai/graphql";
-
-async function verifyConnection() {
-  const query = `{ user { name email is_admin } }`;
-
-  const response = await fetch(FIREFLIES_API, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.FIREFLIES_API_KEY}`,
-    },
-    body: JSON.stringify({ query }),
-  });
-
-  const result = await response.json();
-
-  if (result.errors) {
-    throw new Error(`Auth failed: ${result.errors[0].message}`);
-  }
-
-  const user = result.data.user;
-  console.log(`Connected as: ${user.name} (${user.email})`);
-  console.log(`Admin: ${user.is_admin}`);
-  return user;
-}
-
-verifyConnection().catch(console.error);
-```
-
-### Step 5: Verify with cURL
-
-```bash
-set -euo pipefail
-curl -s -X POST https://api.fireflies.ai/graphql \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $FIREFLIES_API_KEY" \
-  -d '{"query": "{ user { name email } }"}' | jq .
-```
-
-### Python Verification
-
-```python
-import os, requests
-
-FIREFLIES_API = "https://api.fireflies.ai/graphql"
-
-def verify_connection():
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {os.environ['FIREFLIES_API_KEY']}",
-    }
-    query = '{ user { name email is_admin } }'
-    resp = requests.post(FIREFLIES_API, json={"query": query}, headers=headers)
-    data = resp.json()
-
-    if "errors" in data:
-        raise Exception(f"Auth failed: {data['errors'][0]['message']}")
-
-    user = data["data"]["user"]
-    print(f"Connected as: {user['name']} ({user['email']})")
-    return user
-
-verify_connection()
-```
-
-## Rate Limits by Plan
-
-| Plan | Limit | Notes |
-|------|-------|-------|
-| Free / Pro | 50 requests/day | Cannot upload audio on Free |
-| Business | 60 requests/min | Full API access |
-| Enterprise | 60 requests/min | Super Admin webhooks |
-
-## Error Handling
-
-| Error | Code | Solution |
-|-------|------|----------|
-| `auth_failed` | 401 | Check API key is valid and not expired |
-| `too_many_requests` | 429 | Rate limit hit -- back off and retry |
-| `account_cancelled` | 403 | Subscription inactive -- renew plan |
-| Network timeout | - | Verify outbound HTTPS to api.fireflies.ai |
+Require approval before creating, rotating, revoking, or broadening a production key, changing its owning account, or querying any real meeting record.
 
 ## Output
 
-- Environment variable configured with API key
-- GraphQL client verified against `https://api.fireflies.ai/graphql`
-- User identity confirmed via `user` query
+Return the exact operation or event surface, environment, authorization class, selected field groups, validation results, content-free metrics, decisions, and a concise pass/fail receipt. Keep secrets and meeting-derived content out of general output.
+
+## Validation
+
+Before reporting success, rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current contract, verify no secret or meeting-derived content entered logs or artifacts, and record unresolved uncertainty explicitly.
+
+## Error Handling
+
+- auth_failed: verify the Bearer scheme, secret injection, and key lifecycle without printing the token.
+- HTTP success with GraphQL errors: treat the operation as failed and record safe error metadata.
+- Unexpected team visibility: stop and review the key owner's role before continuing.
+
+## Examples
+
+- "Prove staging auth" returns only the principal and a redacted request receipt.
+- "Use this key in browser code" is rejected because bearer keys must remain server-side.
+
 
 ## Resources
 
-- [Fireflies API Documentation](https://docs.fireflies.ai/)
-- [Fireflies Quickstart](https://docs.fireflies.ai/getting-started/quickstart)
-- [Fireflies API Key](https://app.fireflies.ai) (Integrations > Fireflies API)
-
-## Next Steps
-
-After successful auth, proceed to `fireflies-hello-world` for your first transcript query.
+Read [official Fireflies.ai evidence](references/official-docs.md) before relying on a field, filter, event, permission, plan limit, mutation, or processing state.

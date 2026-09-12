@@ -1,222 +1,76 @@
 ---
 name: fireflies-rate-limits
-description: 'Implement Fireflies.ai rate limiting, backoff, and request queuing.
-
-  Use when handling rate limit errors, implementing retry logic,
-
-  or optimizing API request throughput for Fireflies.ai.
-
-  Trigger with phrases like "fireflies rate limit", "fireflies throttling",
-
-  "fireflies 429", "fireflies retry", "fireflies backoff".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
+description: >-
+  Monitor and enforce current Fireflies plan and operation-specific request limits with bounded concurrency, retryAfter handling, and cost-aware pagination. Use when preventing throttling or recovering from 429-style failures. Trigger with "Fireflies rate limit", "too_many_requests", or "budget Fireflies calls".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <workflow-scope>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- fireflies
-- api
-compatibility: Designed for Claude Code
+tags: [saas, fireflies, rate-limits, reliability]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Fireflies work requires network access"
 ---
-# Fireflies.ai Rate Limits
+# Fireflies Request Budget and Backoff
 
 ## Overview
 
-Handle Fireflies.ai GraphQL API rate limits with exponential backoff and request queuing. Fireflies enforces per-plan limits and per-operation limits.
+Enforce current Fireflies plan and operation-specific request limits with bounded concurrency, retryAfter handling, and cost-aware pagination.
 
 ## Prerequisites
 
-- Current provider limits confirmed for the account, plus an approved concurrency, retry bound, and queue owner.
-- Aggregate telemetry that omits transcript content, participant information, and authorization data.
-- Synthetic meeting fixtures for testing pauses, retries, and duplicate suppression.
+- The target repository or integration path and the requested operator outcome.
+- The Fireflies principal, team, environment, and data classification for the work.
+- Current Fireflies documentation, credentials only when needed, and an accountable approver.
 
-## Examples
+## Current Contract
 
-Queue two synthetic transcript summaries under one idempotency key and simulate a throttle response. The worker backs off within its bound, processes the item once after recovery, and routes an exhausted retry to review without logging transcript text.
+General documented limits are 50 requests/day for Free and Pro and 60 requests/minute for Business and Enterprise. addToLiveMeeting is 3 requests per 20 minutes, shareMeeting is 10/hour, and deleteTranscript is 10/minute. Treat docs and retryAfter as authoritative over hard-coded assumptions.
 
-## Rate Limit Reference
+## Authentication
 
-### Per-Plan Limits
-
-| Plan | Limit | Scope |
-|------|-------|-------|
-| Free | 50 requests/day | Per API key |
-| Pro | 50 requests/day | Per API key |
-| Business | 60 requests/min | Per API key |
-| Enterprise | 60 requests/min | Per API key |
-
-### Per-Operation Limits
-
-| Operation | Limit | Error Code |
-|-----------|-------|------------|
-| `addToLiveMeeting` | 3 per 20 minutes | `too_many_requests` |
-| `shareMeeting` | 10 per hour (up to 50 emails each) | `too_many_requests` |
-| `deleteTranscript` | 10 per minute | `too_many_requests` |
-| `uploadAudio` | Varies by plan | `too_many_requests` |
+For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret manager and send it only as `Authorization: Bearer REDACTED_KEY` to `https://api.fireflies.ai/graphql`. Never print, commit, place in a URL, forward to a browser, or include the key in evidence. Webhook signing secrets are separate credentials and must not be reused as API keys.
 
 ## Instructions
 
-### Step 1: Detect Rate Limits in Responses
+1. Identify the plan and every operation-specific bucket used by the workload.
+2. Set a conservative request budget and concurrency of one until measured.
+3. Use pagination caps and field minimization to avoid unnecessary calls.
+4. On too_many_requests, honor retryAfter when supplied and add bounded jitter.
+5. Do not retry auth, privilege, invalid-argument, object-not-found, or AI-credit errors.
+6. Export per-operation usage, throttles, wait time, and exhausted-budget metrics.
+7. Load-test only against synthetic or approved data within a separate budget.
 
-```typescript
-interface FirefliesError {
-  message: string;
-  code: string;
-  extensions?: { status: number };
-}
 
-function isRateLimited(response: any): boolean {
-  return response.errors?.some(
-    (e: FirefliesError) =>
-      e.code === "too_many_requests" ||
-      e.extensions?.status === 429
-  );
-}
-```
+## Tool Discipline
 
-### Step 2: Exponential Backoff with Jitter
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
 
-```typescript
-async function firefliesQueryWithRetry<T>(
-  query: string,
-  variables?: Record<string, any>,
-  maxRetries = 5
-): Promise<T> {
-  const FIREFLIES_API = "https://api.fireflies.ai/graphql";
+## Approval Boundaries
 
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    const res = await fetch(FIREFLIES_API, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.FIREFLIES_API_KEY}`,
-      },
-      body: JSON.stringify({ query, variables }),
-    });
-
-    const json = await res.json();
-
-    if (!isRateLimited(json)) {
-      if (json.errors) throw new Error(json.errors[0].message);
-      return json.data;
-    }
-
-    if (attempt === maxRetries) {
-      throw new Error(`Rate limited after ${maxRetries} retries`);
-    }
-
-    // Exponential backoff: 1s, 2s, 4s, 8s, 16s + jitter
-    const baseDelay = 1000 * Math.pow(2, attempt);
-    const jitter = Math.random() * 500;
-    const delay = Math.min(baseDelay + jitter, 32000);
-
-    console.log(`Rate limited. Retry ${attempt + 1}/${maxRetries} in ${delay.toFixed(0)}ms`);
-    await new Promise(r => setTimeout(r, delay));
-  }
-
-  throw new Error("Unreachable");
-}
-```
-
-### Step 3: Request Queue for Batch Operations
-
-```typescript
-import PQueue from "p-queue";
-
-// Business plan: 60 req/min = 1 req/sec safe rate
-const firefliesQueue = new PQueue({
-  concurrency: 1,
-  interval: 1100,
-  intervalCap: 1,
-});
-
-async function queuedQuery<T>(query: string, variables?: Record<string, any>): Promise<T> {
-  return firefliesQueue.add(() => firefliesQueryWithRetry<T>(query, variables));
-}
-
-// Batch fetch transcripts without hitting rate limits
-async function batchFetchTranscripts(ids: string[]) {
-  const results = [];
-  for (const id of ids) {
-    const data = await queuedQuery(`
-      query GetTranscript($id: String!) {
-        transcript(id: $id) {
-          id title date duration
-          summary { overview action_items }
-        }
-      }
-    `, { id });
-    results.push(data);
-  }
-  return results;
-}
-```
-
-### Step 4: Free/Pro Plan Daily Budget Tracker
-
-```typescript
-class DailyBudgetTracker {
-  private count = 0;
-  private resetDate = new Date().toDateString();
-  private readonly dailyLimit: number;
-
-  constructor(plan: "free" | "pro" | "business") {
-    this.dailyLimit = plan === "business" ? Infinity : 50;
-  }
-
-  canRequest(): boolean {
-    this.resetIfNewDay();
-    return this.count < this.dailyLimit;
-  }
-
-  record(): void {
-    this.resetIfNewDay();
-    this.count++;
-  }
-
-  remaining(): number {
-    this.resetIfNewDay();
-    return Math.max(0, this.dailyLimit - this.count);
-  }
-
-  private resetIfNewDay(): void {
-    const today = new Date().toDateString();
-    if (today !== this.resetDate) {
-      this.count = 0;
-      this.resetDate = today;
-    }
-  }
-}
-
-const budget = new DailyBudgetTracker("pro");
-if (!budget.canRequest()) {
-  console.log("Daily API limit reached. Try again tomorrow.");
-}
-```
-
-## Error Handling
-
-| Scenario | Detection | Action |
-|----------|-----------|--------|
-| 429 response | `code: "too_many_requests"` | Exponential backoff |
-| Daily limit hit (Free/Pro) | Track request count | Wait until next day |
-| `addToLiveMeeting` throttle | 3 per 20 min | Queue with 7-min spacing |
-| Burst of webhook events | Many transcripts at once | Queue transcript fetches |
+Require approval before increasing concurrency, consuming a large daily quota, load testing, or changing the subscribed plan.
 
 ## Output
 
-- Rate-limit-aware GraphQL client with automatic retry
-- Request queue preventing burst-induced throttling
-- Daily budget tracker for Free/Pro plans
+Return the exact operation or event surface, environment, authorization class, selected field groups, validation results, content-free metrics, decisions, and a concise pass/fail receipt. Keep secrets and meeting-derived content out of general output.
+
+## Validation
+
+Before reporting success, rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current contract, verify no secret or meeting-derived content entered logs or artifacts, and record unresolved uncertainty explicitly.
+
+## Error Handling
+
+- No retryAfter: use a conservative documented window and bounded attempts.
+- Daily quota exhausted: stop until reset or owner decision.
+- Mutation outcome unknown after timeout: reconcile state before replay.
+
+## Examples
+
+- "Review fireflies request budget and backoff" produces a bounded plan and redacted receipt.
+- A request that widens access or mutates production is paused at the approval boundary.
+
 
 ## Resources
 
-- [Fireflies API Rate Limits](https://docs.fireflies.ai/fundamentals/concepts)
-- [p-queue](https://github.com/sindresorhus/p-queue)
-
-## Next Steps
-
-For security configuration, see `fireflies-security-basics`.
+Read [official Fireflies.ai evidence](references/official-docs.md) before relying on a field, filter, event, permission, plan limit, mutation, or processing state.

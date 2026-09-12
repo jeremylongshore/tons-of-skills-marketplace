@@ -1,228 +1,76 @@
 ---
 name: fireflies-common-errors
-description: 'Diagnose and fix Fireflies.ai GraphQL API errors by error code.
-
-  Use when encountering Fireflies.ai errors, debugging failed requests,
-
-  or troubleshooting authentication and rate limit issues.
-
-  Trigger with phrases like "fireflies error", "fix fireflies",
-
-  "fireflies not working", "debug fireflies", "fireflies 429".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.11.0
+description: >-
+  Diagnose Fireflies transport, GraphQL, permission, plan, processing, and operation-limit failures without unsafe retries or data probing. Use when an integration fails or returns partial data. Trigger with "Fireflies error", "too_many_requests", or "object_not_found Fireflies".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <workflow-scope>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- fireflies
-- debugging
-compatibility: Designed for Claude Code
+tags: [saas, fireflies, errors, troubleshooting]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Fireflies work requires network access"
 ---
-# Fireflies.ai Common Errors
+# Fireflies Error Taxonomy and Recovery
 
 ## Overview
 
-Quick reference for all Fireflies.ai GraphQL API error codes with root causes and fixes.
+Diagnose Fireflies transport, GraphQL, permission, plan, processing, and operation-limit failures without unsafe retries or data probing.
 
 ## Prerequisites
 
-- An authorized support role, opaque correlation ID, and access to redacted application telemetry.
-- A synthetic meeting or read-only query for safe reproduction; never use a real transcript for routine diagnosis.
-- An incident owner for access, consent, retention, or credential concerns.
+- The target repository or integration path and the requested operator outcome.
+- The Fireflies principal, team, environment, and data classification for the work.
+- Current Fireflies documentation, credentials only when needed, and an accountable approver.
+
+## Current Contract
+
+Separate HTTP failures from top-level GraphQL errors and domain state. Normalize auth_failed, object_not_found, invalid_args or invalid_arguments, require_elevated_privilege, require_ai_credits, too_many_requests, unsupported_platform, and processing-state nulls.
+
+## Authentication
+
+For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret manager and send it only as `Authorization: Bearer REDACTED_KEY` to `https://api.fireflies.ai/graphql`. Never print, commit, place in a URL, forward to a browser, or include the key in evidence. Webhook signing secrets are separate credentials and must not be reused as API keys.
 
 ## Instructions
 
-1. Classify the error as authentication, authorization, schema, throttling, quota, or upstream availability.
-2. Reproduce with the smallest read-only synthetic query, then check scopes, query shape, rate controls, and queue state.
-3. Apply a reversible correction and confirm both the expected response and safe failure behavior.
-4. Pause processing and escalate immediately for unexpected transcript access, consent issues, or possible credential exposure.
+1. Capture operation name, HTTP status, safe GraphQL error code, retryAfter, request ID, and timing.
+2. Classify the failure before changing queries, permissions, or retry behavior.
+3. For object_not_found, validate authorization and ID without enumeration.
+4. For privilege or credit errors, stop and route to the accountable owner.
+5. For throttling, honor retryAfter and the operation-specific limit.
+6. Reproduce with synthetic variables or metadata-only selections.
+7. Return a redacted diagnosis and the smallest safe next action.
 
-## Error Handling
 
-- Do not retry authentication or permission failures with broader credentials; route them to the authorized owner.
-- Use bounded backoff and idempotency for throttles; quarantine exhausted jobs for review.
-- Redact transcript content, participant identity, and authorization headers from diagnostic evidence.
+## Tool Discipline
 
-## Examples
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
 
-Use a synthetic query that triggers a controlled validation error, record the error category and opaque request ID, correct the query shape, and verify success. For an authorization failure, stop the worker until the approved owner adjusts scope and validates a read-only request.
+## Approval Boundaries
 
-## Error Response Format
-
-All Fireflies errors follow this GraphQL error structure:
-
-```json
-{
-  "errors": [{
-    "message": "Human-readable description",
-    "code": "error_code",
-    "friendly": true,
-    "extensions": {
-      "status": 400,
-      "helpUrls": ["https://docs.fireflies.ai/..."]
-    }
-  }]
-}
-```
-
-## Error Code Reference
-
-### `auth_failed` (401)
-
-**Message:** Invalid or missing API key.
-
-```bash
-# Verify API key is set and valid
-echo "Key set: ${FIREFLIES_API_KEY:+YES}"
-
-# Test authentication
-set -euo pipefail
-curl -s -X POST https://api.fireflies.ai/graphql \
-  -H "Authorization: Bearer $FIREFLIES_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "{ user { email } }"}' | jq .
-```
-
-**Fix:** Regenerate API key at app.fireflies.ai > Integrations > Fireflies API.
-
----
-
-### `too_many_requests` (429)
-
-**Message:** Rate limit exceeded.
-
-| Plan | Limit |
-|------|-------|
-| Free / Pro | 50 requests per day |
-| Business / Enterprise | 60 requests per minute |
-
-**Fix:** Implement exponential backoff. See `fireflies-rate-limits` skill.
-
----
-
-### `require_ai_credits` (402)
-
-**Message:** AskFred operations require AI credits.
-**Fix:** Visit Fireflies dashboard > Upgrade section to purchase AI credits. Budget for `createAskFredThread` and `continueAskFredThread` calls.
-
----
-
-### `account_cancelled` (403)
-
-**Message:** Subscription inactive.
-**Fix:** Renew your Fireflies subscription or switch to a different API key.
-
----
-
-### `invalid_language_code` (400)
-
-**Message:** Unsupported language code in `uploadAudio` or `addToLiveMeeting`.
-**Fix:** Use ISO 639-1 codes (e.g., `en`, `es`, `de`, `fr`, `ja`). Max 5 characters.
-
----
-
-### `unsupported_platform` (400)
-
-**Message:** Meeting platform not recognized by `addToLiveMeeting`.
-**Fix:** Fireflies supports Google Meet, Zoom, and Microsoft Teams. Verify the `meeting_link` is a valid URL for one of these platforms.
-
----
-
-### `payload_too_small` (400)
-
-**Message:** Uploaded audio file is below 50KB minimum.
-**Fix:** Set `bypass_size_check: true` in `AudioUploadInput` for short clips:
-
-```typescript
-await firefliesQuery(`
-  mutation($input: AudioUploadInput) {
-    uploadAudio(input: $input) { success title message }
-  }
-`, {
-  input: {
-    url: "https://example.com/short-clip.mp3",
-    bypass_size_check: true,
-  },
-});
-```
-
----
-
-### GraphQL Validation Errors (400)
-
-**Message:** Field or argument not found in schema.
-
-```bash
-# Introspect the schema to discover available fields
-set -euo pipefail
-curl -s -X POST https://api.fireflies.ai/graphql \
-  -H "Authorization: Bearer $FIREFLIES_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "{ __schema { queryType { fields { name description } } } }"}' | jq '.data.__schema.queryType.fields[] | {name, description}'
-```
-
----
-
-### Network / Connection Errors
-
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| `ECONNREFUSED` | Firewall blocking | Allow outbound HTTPS to `api.fireflies.ai` |
-| `ETIMEDOUT` | DNS or network issue | Check DNS resolution for `api.fireflies.ai` |
-| `ENOTFOUND` | DNS failure | Verify DNS, try `8.8.8.8` resolver |
-
-## Quick Diagnostic Script
-
-```bash
-set -euo pipefail
-echo "=== Fireflies.ai Diagnostics ==="
-echo "API Key: ${FIREFLIES_API_KEY:+SET (${#FIREFLIES_API_KEY} chars)}"
-echo ""
-
-# Connectivity
-echo "--- Connectivity ---"
-curl -s -o /dev/null -w "HTTP %{http_code} in %{time_total}s\n" \
-  -X POST https://api.fireflies.ai/graphql \
-  -H "Authorization: Bearer $FIREFLIES_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "{ user { email } }"}'
-
-# Full response
-echo ""
-echo "--- Auth Check ---"
-curl -s -X POST https://api.fireflies.ai/graphql \
-  -H "Authorization: Bearer $FIREFLIES_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "{ user { name email is_admin } }"}' | jq .
-```
-
-## Deprecated Fields
-
-These fields still work but will be removed:
-
-| Deprecated | Replacement |
-|-----------|-------------|
-| `transcript.host_email` | `transcript.organizer_email` |
-| `transcripts(date: ...)` | `transcripts(fromDate: ..., toDate: ...)` |
-| `transcripts(title: ...)` | `transcripts(keyword: ..., scope: ...)` |
-| `transcripts(organizer_email: ...)` | `transcripts(organizers: [...])` |
-| `transcripts(participant_email: ...)` | `transcripts(participants: [...])` |
+Require approval before changing roles, plans, keys, privacy, meeting access, or replaying a mutation. Preserve the failing state and present the exact proposed change before acting.
 
 ## Output
 
-- Error code identified with root cause
-- Fix applied and verified
-- Deprecated field warnings resolved
+Return the exact operation or event surface, environment, authorization class, selected field groups, validation results, content-free metrics, decisions, and a concise pass/fail receipt. Keep secrets and meeting-derived content out of general output.
+
+## Validation
+
+Before reporting success, rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current contract, verify no secret or meeting-derived content entered logs or artifacts, and record unresolved uncertainty explicitly.
+
+## Error Handling
+
+- Unknown error text: preserve the code and safe metadata, then consult current error docs.
+- HTTP 200 with errors: fail the operation rather than ignoring the errors array.
+- Repeated retry failure: open an incident instead of widening backoff indefinitely.
+
+## Examples
+
+- "Review fireflies error taxonomy and recovery" produces a bounded plan and redacted receipt.
+- A request that widens access or mutates production is paused at the approval boundary.
+
 
 ## Resources
 
-- [Fireflies API Docs](https://docs.fireflies.ai/)
-- [Fireflies Introspection](https://docs.fireflies.ai/fundamentals/introspection)
-- [Fireflies API Concepts](https://docs.fireflies.ai/fundamentals/concepts)
-
-## Next Steps
-
-For comprehensive debugging, see `fireflies-debug-bundle`.
+Read [official Fireflies.ai evidence](references/official-docs.md) before relying on a field, filter, event, permission, plan limit, mutation, or processing state.

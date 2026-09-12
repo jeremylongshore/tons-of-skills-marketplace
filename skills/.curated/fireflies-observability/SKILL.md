@@ -1,274 +1,76 @@
 ---
 name: fireflies-observability
-description: 'Monitor Fireflies.ai integration health with metrics, alerts, and dashboards.
-
-  Use when implementing monitoring, setting up alerting,
-
-  or tracking transcript processing reliability.
-
-  Trigger with phrases like "fireflies monitoring", "fireflies metrics",
-
-  "fireflies observability", "monitor fireflies", "fireflies alerts".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
+description: >-
+  Instrument Fireflies GraphQL and webhook workflows with operation, latency, quota, queue, signature, and processing metrics that exclude meeting content and identities. Use when building dashboards or alerts. Trigger with "monitor Fireflies", "Fireflies metrics", or "Fireflies webhook alerts".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <workflow-scope>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- fireflies
-- monitoring
-- observability
-compatibility: Designed for Claude Code
+tags: [saas, fireflies, observability, privacy]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Fireflies work requires network access"
 ---
-# Fireflies.ai Observability
+# Fireflies Content-Free Observability
 
 ## Overview
 
-Monitor Fireflies.ai integration health: API connectivity, webhook delivery, transcript processing latency, and seat utilization. Built for Prometheus/Grafana but adaptable to any metrics system.
-
-## Examples
-
-Send a synthetic webhook through the processing path and confirm dashboards show an opaque event ID, delivery latency, and aggregate status only. Trigger a controlled failure to verify the alert fires with no transcript text, participant identity, recording link, or credential in the payload.
+Instrument Fireflies GraphQL and webhook workflows with operation, latency, quota, queue, signature, and processing metrics that exclude meeting content and identities.
 
 ## Prerequisites
 
-- Fireflies Business+ plan (for full API access)
-- Prometheus + Grafana (or equivalent metrics stack)
-- Webhook endpoint deployed and receiving events
+- The target repository or integration path and the requested operator outcome.
+- The Fireflies principal, team, environment, and data classification for the work.
+- Current Fireflies documentation, credentials only when needed, and an accountable approver.
+
+## Current Contract
+
+Observability may include operation name, result class, GraphQL code, duration, response size bucket, retryAfter, event type, signature result, queue depth, and processing latency. It must exclude Authorization, queries with variables, meeting IDs, emails, titles, sentences, summaries, and media URLs.
+
+## Authentication
+
+For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret manager and send it only as `Authorization: Bearer REDACTED_KEY` to `https://api.fireflies.ai/graphql`. Never print, commit, place in a URL, forward to a browser, or include the key in evidence. Webhook signing secrets are separate credentials and must not be reused as API keys.
 
 ## Instructions
 
-### Step 1: Instrument the GraphQL Client
+1. Define service-level indicators for GraphQL success, webhook acknowledgement, queue processing, and freshness.
+2. Instrument safe dimensions with a strict allowlist and cardinality budget.
+3. Track plan and operation-specific throttles separately.
+4. Measure transcribed-to-summarized and event-to-processing latency without meeting IDs in metrics.
+5. Alert on auth failures, signature failures, throttle spikes, backlog, dead letters, and stale processing.
+6. Keep detailed identifiers only in access-controlled audit records when approved.
+7. Test telemetry redaction with synthetic secrets and meeting data.
 
-```typescript
-// lib/fireflies-instrumented.ts
-import { Counter, Histogram, Gauge } from "prom-client";
 
-const apiRequests = new Counter({
-  name: "fireflies_api_requests_total",
-  help: "Total Fireflies API requests",
-  labelNames: ["operation", "status"],
-});
+## Tool Discipline
 
-const apiLatency = new Histogram({
-  name: "fireflies_api_latency_seconds",
-  help: "Fireflies API request latency",
-  labelNames: ["operation"],
-  buckets: [0.1, 0.25, 0.5, 1, 2, 5, 10],
-});
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
 
-const FIREFLIES_API = "https://api.fireflies.ai/graphql";
+## Approval Boundaries
 
-export async function firefliesQueryInstrumented(
-  operation: string,
-  query: string,
-  variables?: any
-) {
-  const timer = apiLatency.startTimer({ operation });
-
-  try {
-    const res = await fetch(FIREFLIES_API, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.FIREFLIES_API_KEY}`,
-      },
-      body: JSON.stringify({ query, variables }),
-    });
-
-    const json = await res.json();
-
-    if (json.errors) {
-      apiRequests.inc({ operation, status: json.errors[0].code || "error" });
-      throw new Error(json.errors[0].message);
-    }
-
-    apiRequests.inc({ operation, status: "success" });
-    return json.data;
-  } catch (err) {
-    apiRequests.inc({ operation, status: "failure" });
-    throw err;
-  } finally {
-    timer();
-  }
-}
-```
-
-### Step 2: Webhook Event Metrics
-
-```typescript
-const webhookEvents = new Counter({
-  name: "fireflies_webhook_events_total",
-  help: "Webhook events received",
-  labelNames: ["event_type", "status"],
-});
-
-const webhookProcessingTime = new Histogram({
-  name: "fireflies_webhook_processing_seconds",
-  help: "Time to process webhook events",
-  buckets: [0.1, 0.5, 1, 5, 10, 30],
-});
-
-const transcriptQueue = new Gauge({
-  name: "fireflies_transcript_queue_depth",
-  help: "Number of transcripts queued for processing",
-});
-
-export async function handleWebhookWithMetrics(event: any) {
-  const timer = webhookProcessingTime.startTimer();
-  transcriptQueue.inc();
-
-  try {
-    await processTranscriptReady(event.meetingId);
-    webhookEvents.inc({ event_type: event.eventType, status: "success" });
-  } catch (err) {
-    webhookEvents.inc({ event_type: event.eventType, status: "error" });
-    throw err;
-  } finally {
-    timer();
-    transcriptQueue.dec();
-  }
-}
-```
-
-### Step 3: Health Check Probe
-
-```typescript
-const healthStatus = new Gauge({
-  name: "fireflies_health_status",
-  help: "Fireflies API health (1=healthy, 0=unhealthy)",
-});
-
-// Run every 5 minutes
-async function healthProbe() {
-  try {
-    const start = Date.now();
-    const data = await firefliesQueryInstrumented("health_check", "{ user { email } }");
-    const latencyMs = Date.now() - start;
-
-    healthStatus.set(1);
-    console.log(`Fireflies health: OK (${latencyMs}ms)`);
-  } catch (err) {
-    healthStatus.set(0);
-    console.error(`Fireflies health: FAILED - ${(err as Error).message}`);
-  }
-}
-
-setInterval(healthProbe, 5 * 60 * 1000);
-```
-
-### Step 4: Seat Utilization Tracking
-
-```typescript
-const seatUtilization = new Gauge({
-  name: "fireflies_seat_utilization",
-  help: "Transcripts per user",
-  labelNames: ["user_email"],
-});
-
-const totalSeats = new Gauge({
-  name: "fireflies_total_seats",
-  help: "Total Fireflies seats",
-});
-
-// Run daily
-async function trackSeatUtilization() {
-  const data = await firefliesQueryInstrumented("seat_audit", `{
-    users { email num_transcripts }
-  }`);
-
-  totalSeats.set(data.users.length);
-  for (const user of data.users) {
-    seatUtilization.set({ user_email: user.email }, user.num_transcripts);
-  }
-
-  const inactive = data.users.filter((u: any) => u.num_transcripts < 2);
-  if (inactive.length > 3) {
-    console.warn(`${inactive.length} seats with <2 transcripts -- review for cost savings`);
-  }
-}
-```
-
-### Step 5: Alerting Rules
-
-```yaml
-# prometheus/rules/fireflies.yml
-groups:
-  - name: fireflies
-    rules:
-      - alert: FirefliesAPIDown
-        expr: fireflies_health_status == 0
-        for: 10m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Fireflies API unreachable for 10+ minutes"
-
-      - alert: FirefliesHighErrorRate
-        expr: rate(fireflies_api_requests_total{status!="success"}[5m]) > 0.1
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Fireflies API error rate >10% over 5 minutes"
-
-      - alert: FirefliesRateLimited
-        expr: rate(fireflies_api_requests_total{status="too_many_requests"}[5m]) > 0
-        labels:
-          severity: warning
-        annotations:
-          summary: "Fireflies API rate limiting detected"
-
-      - alert: FirefliesWebhookBacklog
-        expr: fireflies_transcript_queue_depth > 50
-        for: 15m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Webhook processing backlog exceeds 50 transcripts"
-
-      - alert: FirefliesSlowProcessing
-        expr: histogram_quantile(0.95, rate(fireflies_webhook_processing_seconds_bucket[1h])) > 30
-        labels:
-          severity: warning
-        annotations:
-          summary: "Webhook processing P95 exceeds 30 seconds"
-```
-
-### Step 6: Dashboard Panels (Grafana)
-
-Key panels to create:
-
-- **API Health**: `fireflies_health_status` (stat panel, green/red)
-- **Request Rate**: `rate(fireflies_api_requests_total[5m])` by status
-- **Latency P50/P95/P99**: `histogram_quantile` on `fireflies_api_latency_seconds`
-- **Webhook Events/Hour**: `increase(fireflies_webhook_events_total[1h])`
-- **Queue Depth**: `fireflies_transcript_queue_depth` (gauge)
-- **Seat Utilization**: `fireflies_seat_utilization` (table, sorted ascending)
-
-## Error Handling
-
-| Alert | Cause | Response |
-|-------|-------|----------|
-| API Down | Fireflies outage or key revoked | Check status page, verify API key |
-| High Error Rate | Schema change or auth issue | Inspect error codes in logs |
-| Rate Limited | Burst of requests | Enable request queuing |
-| Webhook Backlog | Processing bottleneck | Scale webhook workers |
+Require approval before logging identifiers or response fragments, increasing telemetry retention, or exporting observability data to a new vendor.
 
 ## Output
 
-- Instrumented GraphQL client with latency and error metrics
-- Webhook event tracking with queue depth monitoring
-- Health probe running on 5-minute interval
-- Prometheus alerting rules for critical conditions
+Return the exact operation or event surface, environment, authorization class, selected field groups, validation results, content-free metrics, decisions, and a concise pass/fail receipt. Keep secrets and meeting-derived content out of general output.
+
+## Validation
+
+Before reporting success, rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current contract, verify no secret or meeting-derived content entered logs or artifacts, and record unresolved uncertainty explicitly.
+
+## Error Handling
+
+- High-cardinality label detected: remove it before deployment.
+- Sensitive value appears in telemetry: stop export and follow incident handling.
+- Metrics disagree with audit receipts: investigate instrumentation before changing workload behavior.
+
+## Examples
+
+- "Review fireflies content-free observability" produces a bounded plan and redacted receipt.
+- A request that widens access or mutates production is paused at the approval boundary.
+
 
 ## Resources
 
-- [Fireflies API Docs](https://docs.fireflies.ai/)
-- [Prometheus Client](https://github.com/siimon/prom-client)
-
-## Next Steps
-
-For incident response, see `fireflies-incident-runbook`.
+Read [official Fireflies.ai evidence](references/official-docs.md) before relying on a field, filter, event, permission, plan limit, mutation, or processing state.

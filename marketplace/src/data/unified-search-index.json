@@ -480,6 +480,7 @@
       "argocd",
       "aria",
       "arima",
+      "askfred",
       "asr",
       "assemblyai",
       "assets",
@@ -660,7 +661,6 @@
       "contributions",
       "conventional-commits",
       "conversation",
-      "conversation-intelligence",
       "conversational-ai",
       "conversion",
       "coordination",
@@ -1084,9 +1084,9 @@
       "mcp-directories",
       "media",
       "media-production",
+      "meeting-data",
       "meeting-intelligence",
       "meeting-notes",
-      "meeting-transcription",
       "meetings",
       "memory",
       "memory-bank",
@@ -1657,6 +1657,7 @@
       "webflow",
       "webhook",
       "webhooks",
+      "webhooks-v2",
       "website",
       "website-generator",
       "websocket",
@@ -10512,14 +10513,15 @@
       "slug": "fireflies-pack",
       "name": "fireflies-pack",
       "displayName": "fireflies pack",
-      "description": "Complete Fireflies integration skill pack with 24 skills covering meeting transcription, AI summaries, and conversation intelligence. Flagship tier vendor pack.",
+      "description": "Operator-grade Fireflies.ai GraphQL and Webhooks V2 pack with 24 governed workflows for meeting data, AskFred, ingestion, security, reliability, and production operations.",
       "category": "saas-packs",
       "keywords": [
         "fireflies",
-        "meeting-transcription",
-        "ai-notes",
-        "conversation-intelligence",
-        "summaries"
+        "graphql",
+        "webhooks-v2",
+        "meeting-data",
+        "askfred",
+        "governance"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -10527,15 +10529,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.11.0",
+      "version": "1.12.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 83,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "fireflies pack complete fireflies integration skill pack with 24 skills covering meeting transcription, ai summaries, and conversation intelligence. flagship tier vendor pack. saas-packs fireflies meeting-transcription ai-notes conversation-intelligence summaries"
+      "verificationScore": 98,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "fireflies pack operator-grade fireflies.ai graphql and webhooks v2 pack with 24 governed workflows for meeting data, askfred, ingestion, security, reliability, and production operations. saas-packs fireflies graphql webhooks-v2 meeting-data askfred governance"
     },
     {
       "type": "plugin",
@@ -38613,504 +38615,528 @@
       "id": "fireflies-ci-integration",
       "slug": "fireflies-ci-integration",
       "name": "fireflies-ci-integration",
-      "description": "Configure CI/CD pipelines for Fireflies.ai integrations with GraphQL testing. Use when setting up automated testing, configuring GitHub Actions, or validating Fireflies.ai queries in your build process. Trigger with phrases like \"fireflies CI\", \"fireflies GitHub Actions\", \"fireflies automated tests\", \"CI fireflies\", \"test fireflies pipeline\".",
+      "description": "Build a Fireflies CI lane with static GraphQL validation, synthetic fixtures, secret scanning, webhook vectors, and narrowly gated live tests. Use when adding automated verification. Trigger with \"Fireflies CI\", \"test Fireflies GraphQL\", or \"Fireflies contract test\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(gh:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-ci-integration configure ci/cd pipelines for fireflies.ai integrations with graphql testing. use when setting up automated testing, configuring github actions, or validating fireflies.ai queries in your build process. trigger with phrases like \"fireflies ci\", \"fireflies github actions\", \"fireflies automated tests\", \"ci fireflies\", \"test fireflies pipeline\". saas-packs read write edit bash(gh:*) "
+      "searchText": "fireflies-ci-integration build a fireflies ci lane with static graphql validation, synthetic fixtures, secret scanning, webhook vectors, and narrowly gated live tests. use when adding automated verification. trigger with \"fireflies ci\", \"test fireflies graphql\", or \"fireflies contract test\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-common-errors",
       "slug": "fireflies-common-errors",
       "name": "fireflies-common-errors",
-      "description": "Diagnose and fix Fireflies.ai GraphQL API errors by error code. Use when encountering Fireflies.ai errors, debugging failed requests, or troubleshooting authentication and rate limit issues. Trigger with phrases like \"fireflies error\", \"fix fireflies\", \"fireflies not working\", \"debug fireflies\", \"fireflies 429\".",
+      "description": "Diagnose Fireflies transport, GraphQL, permission, plan, processing, and operation-limit failures without unsafe retries or data probing. Use when an integration fails or returns partial data. Trigger with \"Fireflies error\", \"too_many_requests\", or \"object_not_found Fireflies\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-common-errors diagnose and fix fireflies.ai graphql api errors by error code. use when encountering fireflies.ai errors, debugging failed requests, or troubleshooting authentication and rate limit issues. trigger with phrases like \"fireflies error\", \"fix fireflies\", \"fireflies not working\", \"debug fireflies\", \"fireflies 429\". saas-packs read grep bash(curl:*) "
+      "searchText": "fireflies-common-errors diagnose fireflies transport, graphql, permission, plan, processing, and operation-limit failures without unsafe retries or data probing. use when an integration fails or returns partial data. trigger with \"fireflies error\", \"too_many_requests\", or \"object_not_found fireflies\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-core-workflow-a",
       "slug": "fireflies-core-workflow-a",
       "name": "fireflies-core-workflow-a",
-      "description": "Retrieve and process Fireflies.ai meeting transcripts with speaker diarization and summaries. Use when fetching transcripts, extracting action items, or building meeting intelligence pipelines. Trigger with phrases like \"fireflies transcript\", \"get meeting notes\", \"fireflies meeting data\", \"fetch fireflies recording\".",
+      "description": "Analyze and retrieve an authorized Fireflies transcript with minimal fields, explicit ownership checks, pagination awareness, and safe handling of sentences and summaries. Use when integrating meeting records. Trigger with \"fetch Fireflies transcript\", \"read meeting summary\", or \"Fireflies transcript fields\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-core-workflow-a retrieve and process fireflies.ai meeting transcripts with speaker diarization and summaries. use when fetching transcripts, extracting action items, or building meeting intelligence pipelines. trigger with phrases like \"fireflies transcript\", \"get meeting notes\", \"fireflies meeting data\", \"fetch fireflies recording\". saas-packs read write edit bash(npm:*) bash(curl:*) grep "
+      "searchText": "fireflies-core-workflow-a analyze and retrieve an authorized fireflies transcript with minimal fields, explicit ownership checks, pagination awareness, and safe handling of sentences and summaries. use when integrating meeting records. trigger with \"fetch fireflies transcript\", \"read meeting summary\", or \"fireflies transcript fields\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-core-workflow-b",
       "slug": "fireflies-core-workflow-b",
       "name": "fireflies-core-workflow-b",
-      "description": "Search across Fireflies.ai transcripts, use AskFred AI, and build meeting analytics. Use when searching meeting history, querying Fred AI assistant, or aggregating meeting data for reports. Trigger with phrases like \"fireflies search\", \"ask fred\", \"fireflies analytics\", \"search meetings\", \"fireflies AskFred\".",
+      "description": "Analyze authorized Fireflies meetings with current transcript filters and use AskFred only under explicit AI-credit, privacy, and citation controls. Use when performing scoped discovery or meeting Q&A. Trigger with \"search Fireflies meetings\", \"AskFred analysis\", or \"query meetings for a topic\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-core-workflow-b search across fireflies.ai transcripts, use askfred ai, and build meeting analytics. use when searching meeting history, querying fred ai assistant, or aggregating meeting data for reports. trigger with phrases like \"fireflies search\", \"ask fred\", \"fireflies analytics\", \"search meetings\", \"fireflies askfred\". saas-packs read write edit bash(curl:*) grep "
+      "searchText": "fireflies-core-workflow-b analyze authorized fireflies meetings with current transcript filters and use askfred only under explicit ai-credit, privacy, and citation controls. use when performing scoped discovery or meeting q&a. trigger with \"search fireflies meetings\", \"askfred analysis\", or \"query meetings for a topic\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-cost-tuning",
       "slug": "fireflies-cost-tuning",
       "name": "fireflies-cost-tuning",
-      "description": "Optimize Fireflies.ai subscription costs through seat auditing, selective recording, and plan sizing. Use when analyzing Fireflies.ai billing, reducing per-seat costs, or implementing usage monitoring and right-sizing. Trigger with phrases like \"fireflies cost\", \"fireflies billing\", \"reduce fireflies costs\", \"fireflies pricing\", \"fireflies expensive\", \"fireflies budget\".",
+      "description": "Control Fireflies request quotas, AskFred AI credits, recording volume, storage, and seat utilization without deleting transcripts or changing plans automatically. Use when performing spend review or budget enforcement. Trigger with \"Fireflies cost\", \"AskFred credits\", or \"right-size Fireflies\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-cost-tuning optimize fireflies.ai subscription costs through seat auditing, selective recording, and plan sizing. use when analyzing fireflies.ai billing, reducing per-seat costs, or implementing usage monitoring and right-sizing. trigger with phrases like \"fireflies cost\", \"fireflies billing\", \"reduce fireflies costs\", \"fireflies pricing\", \"fireflies expensive\", \"fireflies budget\". saas-packs read bash(curl:*) grep "
+      "searchText": "fireflies-cost-tuning control fireflies request quotas, askfred ai credits, recording volume, storage, and seat utilization without deleting transcripts or changing plans automatically. use when performing spend review or budget enforcement. trigger with \"fireflies cost\", \"askfred credits\", or \"right-size fireflies\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-data-handling",
       "slug": "fireflies-data-handling",
       "name": "fireflies-data-handling",
-      "description": "Handle Fireflies.ai transcript data: export formats, PII redaction, retention policies, and compliance. Use when exporting transcripts, implementing data redaction, configuring retention, or ensuring GDPR/CCPA compliance. Trigger with phrases like \"fireflies data\", \"fireflies PII\", \"fireflies GDPR\", \"fireflies data retention\", \"fireflies privacy\", \"fireflies export\".",
+      "description": "Audit and govern Fireflies transcripts, summaries, participant data, media links, AskFred output, exports, retention, redaction, and deletion propagation. Use when performing privacy, compliance, or downstream data design. Trigger with \"Fireflies data handling\", \"export Fireflies transcript\", or \"delete Fireflies data\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-data-handling handle fireflies.ai transcript data: export formats, pii redaction, retention policies, and compliance. use when exporting transcripts, implementing data redaction, configuring retention, or ensuring gdpr/ccpa compliance. trigger with phrases like \"fireflies data\", \"fireflies pii\", \"fireflies gdpr\", \"fireflies data retention\", \"fireflies privacy\", \"fireflies export\". saas-packs read write edit "
+      "searchText": "fireflies-data-handling audit and govern fireflies transcripts, summaries, participant data, media links, askfred output, exports, retention, redaction, and deletion propagation. use when performing privacy, compliance, or downstream data design. trigger with \"fireflies data handling\", \"export fireflies transcript\", or \"delete fireflies data\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-debug-bundle",
       "slug": "fireflies-debug-bundle",
       "name": "fireflies-debug-bundle",
-      "description": "Collect Fireflies.ai debug evidence for support tickets and troubleshooting. Use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for Fireflies.ai problems. Trigger with phrases like \"fireflies debug\", \"fireflies support bundle\", \"collect fireflies logs\", \"fireflies diagnostic\".",
+      "description": "Assemble a content-free Fireflies diagnostic bundle covering identity, operation shape, limits, latency, processing state, and deployment configuration. Use when performing escalation without exposing meetings or secrets. Trigger with \"Fireflies debug bundle\", \"collect Fireflies diagnostics\", or \"Fireflies support evidence\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Bash(tar:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-debug-bundle collect fireflies.ai debug evidence for support tickets and troubleshooting. use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for fireflies.ai problems. trigger with phrases like \"fireflies debug\", \"fireflies support bundle\", \"collect fireflies logs\", \"fireflies diagnostic\". saas-packs read bash(curl:*) bash(tar:*) grep "
+      "searchText": "fireflies-debug-bundle assemble a content-free fireflies diagnostic bundle covering identity, operation shape, limits, latency, processing state, and deployment configuration. use when performing escalation without exposing meetings or secrets. trigger with \"fireflies debug bundle\", \"collect fireflies diagnostics\", or \"fireflies support evidence\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-deploy-integration",
       "slug": "fireflies-deploy-integration",
       "name": "fireflies-deploy-integration",
-      "description": "Deploy Fireflies.ai webhook receivers and GraphQL clients to Vercel, Docker, and Cloud Run. Use when deploying Fireflies.ai-powered applications to production, configuring platform-specific secrets, or hosting webhook endpoints. Trigger with phrases like \"deploy fireflies\", \"fireflies Vercel\", \"fireflies production deploy\", \"fireflies Cloud Run\", \"fireflies Docker\".",
+      "description": "Deploy a Fireflies GraphQL worker or Webhooks V2 receiver with managed secrets, raw-body verification, bounded queues, and reversible rollout. Use when shipping to a hosted runtime. Trigger with \"deploy Fireflies integration\", \"host Fireflies webhook\", or \"Fireflies deployment\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(docker:*)",
-        "Bash(gcloud:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-deploy-integration deploy fireflies.ai webhook receivers and graphql clients to vercel, docker, and cloud run. use when deploying fireflies.ai-powered applications to production, configuring platform-specific secrets, or hosting webhook endpoints. trigger with phrases like \"deploy fireflies\", \"fireflies vercel\", \"fireflies production deploy\", \"fireflies cloud run\", \"fireflies docker\". saas-packs read write edit bash(vercel:*) bash(docker:*) bash(gcloud:*) "
+      "searchText": "fireflies-deploy-integration deploy a fireflies graphql worker or webhooks v2 receiver with managed secrets, raw-body verification, bounded queues, and reversible rollout. use when shipping to a hosted runtime. trigger with \"deploy fireflies integration\", \"host fireflies webhook\", or \"fireflies deployment\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-enterprise-rbac",
       "slug": "fireflies-enterprise-rbac",
       "name": "fireflies-enterprise-rbac",
-      "description": "Configure Fireflies.ai workspace roles, channels, privacy controls, and meeting sharing. Use when managing team access, setting up channels, or configuring transcript visibility and sharing rules. Trigger with phrases like \"fireflies roles\", \"fireflies permissions\", \"fireflies channels\", \"fireflies privacy\", \"fireflies sharing\", \"fireflies RBAC\".",
+      "description": "Govern Fireflies team roles, channels, privacy, sharing, and privileged mutations with current permission and rate-limit checks. Use when performing enterprise administration or access review. Trigger with \"Fireflies RBAC\", \"Fireflies admin\", or \"change meeting access\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-enterprise-rbac configure fireflies.ai workspace roles, channels, privacy controls, and meeting sharing. use when managing team access, setting up channels, or configuring transcript visibility and sharing rules. trigger with phrases like \"fireflies roles\", \"fireflies permissions\", \"fireflies channels\", \"fireflies privacy\", \"fireflies sharing\", \"fireflies rbac\". saas-packs read write edit bash(curl:*) "
+      "searchText": "fireflies-enterprise-rbac govern fireflies team roles, channels, privacy, sharing, and privileged mutations with current permission and rate-limit checks. use when performing enterprise administration or access review. trigger with \"fireflies rbac\", \"fireflies admin\", or \"change meeting access\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-hello-world",
       "slug": "fireflies-hello-world",
       "name": "fireflies-hello-world",
-      "description": "Create a minimal working Fireflies.ai example that queries transcripts. Use when starting a new Fireflies.ai integration, testing your setup, or learning the GraphQL API patterns for meeting data. Trigger with phrases like \"fireflies hello world\", \"fireflies example\", \"fireflies quick start\", \"simple fireflies code\".",
+      "description": "Run the smallest current Fireflies GraphQL query and verify identity, response structure, and data-minimization controls without dumping transcripts. Use when testing a new server-side integration. Trigger with \"Fireflies hello world\", \"first Fireflies query\", or \"verify Fireflies setup\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-hello-world create a minimal working fireflies.ai example that queries transcripts. use when starting a new fireflies.ai integration, testing your setup, or learning the graphql api patterns for meeting data. trigger with phrases like \"fireflies hello world\", \"fireflies example\", \"fireflies quick start\", \"simple fireflies code\". saas-packs read write edit bash(curl:*) "
+      "searchText": "fireflies-hello-world run the smallest current fireflies graphql query and verify identity, response structure, and data-minimization controls without dumping transcripts. use when testing a new server-side integration. trigger with \"fireflies hello world\", \"first fireflies query\", or \"verify fireflies setup\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-incident-runbook",
       "slug": "fireflies-incident-runbook",
       "name": "fireflies-incident-runbook",
-      "description": "Execute Fireflies.ai incident response with triage, remediation, and postmortem. Use when responding to Fireflies.ai API outages, auth failures, or webhook delivery problems. Trigger with phrases like \"fireflies incident\", \"fireflies outage\", \"fireflies down\", \"fireflies on-call\", \"fireflies emergency\", \"fireflies broken\".",
+      "description": "Triage Fireflies auth, privacy, webhook, quota, data exposure, processing, and privileged-mutation incidents with containment and evidence boundaries. Use when responding during a live failure or suspected leak. Trigger with \"Fireflies incident\", \"Fireflies outage\", or \"Fireflies data leak\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-incident-runbook execute fireflies.ai incident response with triage, remediation, and postmortem. use when responding to fireflies.ai api outages, auth failures, or webhook delivery problems. trigger with phrases like \"fireflies incident\", \"fireflies outage\", \"fireflies down\", \"fireflies on-call\", \"fireflies emergency\", \"fireflies broken\". saas-packs read grep bash(curl:*) "
+      "searchText": "fireflies-incident-runbook triage fireflies auth, privacy, webhook, quota, data exposure, processing, and privileged-mutation incidents with containment and evidence boundaries. use when responding during a live failure or suspected leak. trigger with \"fireflies incident\", \"fireflies outage\", or \"fireflies data leak\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-install-auth",
       "slug": "fireflies-install-auth",
       "name": "fireflies-install-auth",
-      "description": "Configure Fireflies.ai GraphQL API authentication and verify connectivity. Use when setting up a new Fireflies.ai integration, configuring API keys, or initializing the GraphQL client for transcript access. Trigger with phrases like \"install fireflies\", \"setup fireflies\", \"fireflies auth\", \"configure fireflies API key\".",
+      "description": "Establish a least-privilege Fireflies API identity, protect its bearer key, and prove the authenticated GraphQL boundary without exposing meeting data. Use when bootstrapping or repairing an integration. Trigger with \"configure Fireflies API\", \"Fireflies auth failed\", or \"rotate Fireflies key\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-install-auth configure fireflies.ai graphql api authentication and verify connectivity. use when setting up a new fireflies.ai integration, configuring api keys, or initializing the graphql client for transcript access. trigger with phrases like \"install fireflies\", \"setup fireflies\", \"fireflies auth\", \"configure fireflies api key\". saas-packs read write edit bash(npm:*) bash(curl:*) grep "
+      "searchText": "fireflies-install-auth establish a least-privilege fireflies api identity, protect its bearer key, and prove the authenticated graphql boundary without exposing meeting data. use when bootstrapping or repairing an integration. trigger with \"configure fireflies api\", \"fireflies auth failed\", or \"rotate fireflies key\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-local-dev-loop",
       "slug": "fireflies-local-dev-loop",
       "name": "fireflies-local-dev-loop",
-      "description": "Configure local development workflow for Fireflies.ai GraphQL integrations. Use when setting up a development environment, mocking transcript data, or establishing a fast iteration cycle with the Fireflies API. Trigger with phrases like \"fireflies dev setup\", \"fireflies local development\", \"fireflies dev environment\", \"develop with fireflies\", \"mock fireflies\".",
+      "description": "Build a deterministic Fireflies development loop with recorded synthetic GraphQL fixtures, schema-contract tests, and no dependency on production meeting data. Use when implementing or debugging locally. Trigger with \"Fireflies local development\", \"mock Fireflies GraphQL\", or \"Fireflies test fixture\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-local-dev-loop configure local development workflow for fireflies.ai graphql integrations. use when setting up a development environment, mocking transcript data, or establishing a fast iteration cycle with the fireflies api. trigger with phrases like \"fireflies dev setup\", \"fireflies local development\", \"fireflies dev environment\", \"develop with fireflies\", \"mock fireflies\". saas-packs read write edit bash(npm:*) bash(pnpm:*) grep "
+      "searchText": "fireflies-local-dev-loop build a deterministic fireflies development loop with recorded synthetic graphql fixtures, schema-contract tests, and no dependency on production meeting data. use when implementing or debugging locally. trigger with \"fireflies local development\", \"mock fireflies graphql\", or \"fireflies test fixture\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-migration-deep-dive",
       "slug": "fireflies-migration-deep-dive",
       "name": "fireflies-migration-deep-dive",
-      "description": "Migrate to Fireflies.ai from other meeting transcription platforms or legacy recording systems. Use when switching from Otter.ai, Rev, or custom transcription to Fireflies, or importing historical meeting data into the Fireflies ecosystem. Trigger with phrases like \"migrate to fireflies\", \"switch from otter\", \"fireflies migration\", \"import meetings to fireflies\", \"fireflies replatform\".",
+      "description": "Migrate authorized recordings into Fireflies through current uploadAudio or addToLiveMeeting contracts with provenance, consent, limits, callbacks, and rollback planning. Use when performing import or live-meeting onboarding. Trigger with \"upload audio to Fireflies\", \"import recordings\", or \"add Fireflies to live meeting\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-migration-deep-dive migrate to fireflies.ai from other meeting transcription platforms or legacy recording systems. use when switching from otter.ai, rev, or custom transcription to fireflies, or importing historical meeting data into the fireflies ecosystem. trigger with phrases like \"migrate to fireflies\", \"switch from otter\", \"fireflies migration\", \"import meetings to fireflies\", \"fireflies replatform\". saas-packs read write edit bash(npm:*) bash(curl:*) "
+      "searchText": "fireflies-migration-deep-dive migrate authorized recordings into fireflies through current uploadaudio or addtolivemeeting contracts with provenance, consent, limits, callbacks, and rollback planning. use when performing import or live-meeting onboarding. trigger with \"upload audio to fireflies\", \"import recordings\", or \"add fireflies to live meeting\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-multi-env-setup",
       "slug": "fireflies-multi-env-setup",
       "name": "fireflies-multi-env-setup",
-      "description": "Configure Fireflies.ai across dev, staging, and production with isolated API keys. Use when setting up multi-environment deployments, managing per-env secrets, or implementing environment-specific Fireflies configurations. Trigger with phrases like \"fireflies environments\", \"fireflies staging\", \"fireflies dev prod\", \"fireflies environment setup\", \"fireflies config by env\".",
+      "description": "Separate Fireflies development, staging, and production identities, webhook endpoints, secrets, quotas, fixtures, and observability. Use when preventing cross-environment leakage. Trigger with \"Fireflies environments\", \"staging Fireflies\", or \"separate Fireflies keys\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(gcloud:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-multi-env-setup configure fireflies.ai across dev, staging, and production with isolated api keys. use when setting up multi-environment deployments, managing per-env secrets, or implementing environment-specific fireflies configurations. trigger with phrases like \"fireflies environments\", \"fireflies staging\", \"fireflies dev prod\", \"fireflies environment setup\", \"fireflies config by env\". saas-packs read write edit bash(gcloud:*) "
+      "searchText": "fireflies-multi-env-setup separate fireflies development, staging, and production identities, webhook endpoints, secrets, quotas, fixtures, and observability. use when preventing cross-environment leakage. trigger with \"fireflies environments\", \"staging fireflies\", or \"separate fireflies keys\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-observability",
       "slug": "fireflies-observability",
       "name": "fireflies-observability",
-      "description": "Monitor Fireflies.ai integration health with metrics, alerts, and dashboards. Use when implementing monitoring, setting up alerting, or tracking transcript processing reliability. Trigger with phrases like \"fireflies monitoring\", \"fireflies metrics\", \"fireflies observability\", \"monitor fireflies\", \"fireflies alerts\".",
+      "description": "Instrument Fireflies GraphQL and webhook workflows with operation, latency, quota, queue, signature, and processing metrics that exclude meeting content and identities. Use when building dashboards or alerts. Trigger with \"monitor Fireflies\", \"Fireflies metrics\", or \"Fireflies webhook alerts\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-observability monitor fireflies.ai integration health with metrics, alerts, and dashboards. use when implementing monitoring, setting up alerting, or tracking transcript processing reliability. trigger with phrases like \"fireflies monitoring\", \"fireflies metrics\", \"fireflies observability\", \"monitor fireflies\", \"fireflies alerts\". saas-packs read write edit "
+      "searchText": "fireflies-observability instrument fireflies graphql and webhook workflows with operation, latency, quota, queue, signature, and processing metrics that exclude meeting content and identities. use when building dashboards or alerts. trigger with \"monitor fireflies\", \"fireflies metrics\", or \"fireflies webhook alerts\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-performance-tuning",
       "slug": "fireflies-performance-tuning",
       "name": "fireflies-performance-tuning",
-      "description": "Optimize Fireflies.ai GraphQL query performance with field selection, caching, and batching. Use when experiencing slow API responses, implementing caching, or optimizing transcript processing throughput. Trigger with phrases like \"fireflies performance\", \"optimize fireflies\", \"fireflies latency\", \"fireflies caching\", \"fireflies slow\", \"fireflies batch\".",
+      "description": "Reduce Fireflies latency and quota use through field minimization, bounded pagination, caching of non-sensitive metadata, and asynchronous webhook-driven retrieval. Use when calls are slow or wasteful. Trigger with \"speed up Fireflies\", \"optimize Fireflies query\", or \"reduce Fireflies calls\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-performance-tuning optimize fireflies.ai graphql query performance with field selection, caching, and batching. use when experiencing slow api responses, implementing caching, or optimizing transcript processing throughput. trigger with phrases like \"fireflies performance\", \"optimize fireflies\", \"fireflies latency\", \"fireflies caching\", \"fireflies slow\", \"fireflies batch\". saas-packs read write edit "
+      "searchText": "fireflies-performance-tuning reduce fireflies latency and quota use through field minimization, bounded pagination, caching of non-sensitive metadata, and asynchronous webhook-driven retrieval. use when calls are slow or wasteful. trigger with \"speed up fireflies\", \"optimize fireflies query\", or \"reduce fireflies calls\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-prod-checklist",
       "slug": "fireflies-prod-checklist",
       "name": "fireflies-prod-checklist",
-      "description": "Execute Fireflies.ai production deployment checklist with health checks and rollback. Use when deploying Fireflies.ai integrations to production, preparing for launch, or implementing go-live procedures. Trigger with phrases like \"fireflies production\", \"deploy fireflies\", \"fireflies go-live\", \"fireflies launch checklist\".",
+      "description": "Run a fail-closed readiness review for a Fireflies integration covering identity, schema contracts, privacy, quotas, webhooks, observability, rollback, and ownership. Use when preparing before enabling production traffic. Trigger with \"Fireflies production checklist\", \"ship Fireflies integration\", or \"Fireflies go-live review\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-prod-checklist execute fireflies.ai production deployment checklist with health checks and rollback. use when deploying fireflies.ai integrations to production, preparing for launch, or implementing go-live procedures. trigger with phrases like \"fireflies production\", \"deploy fireflies\", \"fireflies go-live\", \"fireflies launch checklist\". saas-packs read bash(curl:*) grep "
+      "searchText": "fireflies-prod-checklist run a fail-closed readiness review for a fireflies integration covering identity, schema contracts, privacy, quotas, webhooks, observability, rollback, and ownership. use when preparing before enabling production traffic. trigger with \"fireflies production checklist\", \"ship fireflies integration\", or \"fireflies go-live review\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-rate-limits",
       "slug": "fireflies-rate-limits",
       "name": "fireflies-rate-limits",
-      "description": "Implement Fireflies.ai rate limiting, backoff, and request queuing. Use when handling rate limit errors, implementing retry logic, or optimizing API request throughput for Fireflies.ai. Trigger with phrases like \"fireflies rate limit\", \"fireflies throttling\", \"fireflies 429\", \"fireflies retry\", \"fireflies backoff\".",
+      "description": "Monitor and enforce current Fireflies plan and operation-specific request limits with bounded concurrency, retryAfter handling, and cost-aware pagination. Use when preventing throttling or recovering from 429-style failures. Trigger with \"Fireflies rate limit\", \"too_many_requests\", or \"budget Fireflies calls\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-rate-limits implement fireflies.ai rate limiting, backoff, and request queuing. use when handling rate limit errors, implementing retry logic, or optimizing api request throughput for fireflies.ai. trigger with phrases like \"fireflies rate limit\", \"fireflies throttling\", \"fireflies 429\", \"fireflies retry\", \"fireflies backoff\". saas-packs read write edit "
+      "searchText": "fireflies-rate-limits monitor and enforce current fireflies plan and operation-specific request limits with bounded concurrency, retryafter handling, and cost-aware pagination. use when preventing throttling or recovering from 429-style failures. trigger with \"fireflies rate limit\", \"too_many_requests\", or \"budget fireflies calls\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-reference-architecture",
       "slug": "fireflies-reference-architecture",
       "name": "fireflies-reference-architecture",
-      "description": "Design meeting intelligence architecture with Fireflies.ai GraphQL API, webhooks, and CRM sync. Use when designing new integrations, planning transcript pipelines, or establishing architecture for meeting analytics platforms. Trigger with phrases like \"fireflies architecture\", \"fireflies design\", \"fireflies project structure\", \"meeting intelligence pipeline\".",
+      "description": "Design a Fireflies architecture that separates identity, GraphQL reads, privileged mutations, Webhooks V2 intake, queues, sensitive data, and derived outputs. Use when performing system design or review. Trigger with \"Fireflies architecture\", \"design Fireflies pipeline\", or \"Fireflies integration blueprint\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-reference-architecture design meeting intelligence architecture with fireflies.ai graphql api, webhooks, and crm sync. use when designing new integrations, planning transcript pipelines, or establishing architecture for meeting analytics platforms. trigger with phrases like \"fireflies architecture\", \"fireflies design\", \"fireflies project structure\", \"meeting intelligence pipeline\". saas-packs read grep "
+      "searchText": "fireflies-reference-architecture design a fireflies architecture that separates identity, graphql reads, privileged mutations, webhooks v2 intake, queues, sensitive data, and derived outputs. use when performing system design or review. trigger with \"fireflies architecture\", \"design fireflies pipeline\", or \"fireflies integration blueprint\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-sdk-patterns",
       "slug": "fireflies-sdk-patterns",
       "name": "fireflies-sdk-patterns",
-      "description": "Apply production-ready Fireflies.ai GraphQL client patterns for TypeScript and Python. Use when implementing Fireflies.ai integrations, building typed clients, or establishing team coding standards for the GraphQL API. Trigger with phrases like \"fireflies SDK patterns\", \"fireflies best practices\", \"fireflies client\", \"fireflies GraphQL wrapper\", \"typed fireflies\".",
+      "description": "Build a typed, bounded Fireflies GraphQL client with operation names, variables, error handling, redaction, and dependency injection. Use when replacing ad hoc requests or a fictional SDK wrapper. Trigger with \"Fireflies client pattern\", \"type Fireflies GraphQL\", or \"Fireflies API wrapper\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-sdk-patterns apply production-ready fireflies.ai graphql client patterns for typescript and python. use when implementing fireflies.ai integrations, building typed clients, or establishing team coding standards for the graphql api. trigger with phrases like \"fireflies sdk patterns\", \"fireflies best practices\", \"fireflies client\", \"fireflies graphql wrapper\", \"typed fireflies\". saas-packs read write edit "
+      "searchText": "fireflies-sdk-patterns build a typed, bounded fireflies graphql client with operation names, variables, error handling, redaction, and dependency injection. use when replacing ad hoc requests or a fictional sdk wrapper. trigger with \"fireflies client pattern\", \"type fireflies graphql\", or \"fireflies api wrapper\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-security-basics",
       "slug": "fireflies-security-basics",
       "name": "fireflies-security-basics",
-      "description": "Apply Fireflies.ai security best practices for API keys and webhook verification. Use when securing API keys, verifying webhook signatures, or auditing Fireflies.ai security configuration. Trigger with phrases like \"fireflies security\", \"fireflies secrets\", \"secure fireflies\", \"fireflies webhook signature\", \"fireflies HMAC\".",
+      "description": "Harden Fireflies bearer authentication, GraphQL selections, webhook signatures, logs, and privileged mutations against secret and meeting-data exposure. Use when performing security review or baseline implementation. Trigger with \"secure Fireflies\", \"Fireflies threat model\", or \"Fireflies key safety\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-security-basics apply fireflies.ai security best practices for api keys and webhook verification. use when securing api keys, verifying webhook signatures, or auditing fireflies.ai security configuration. trigger with phrases like \"fireflies security\", \"fireflies secrets\", \"secure fireflies\", \"fireflies webhook signature\", \"fireflies hmac\". saas-packs read write grep "
+      "searchText": "fireflies-security-basics harden fireflies bearer authentication, graphql selections, webhook signatures, logs, and privileged mutations against secret and meeting-data exposure. use when performing security review or baseline implementation. trigger with \"secure fireflies\", \"fireflies threat model\", or \"fireflies key safety\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-upgrade-migration",
       "slug": "fireflies-upgrade-migration",
       "name": "fireflies-upgrade-migration",
-      "description": "Handle Fireflies.ai API deprecations and migrate to current query patterns. Use when updating deprecated fields, migrating query patterns, or responding to Fireflies API changelog updates. Trigger with phrases like \"upgrade fireflies\", \"fireflies deprecated\", \"fireflies migration\", \"fireflies breaking changes\", \"fireflies changelog\".",
+      "description": "Migrate Fireflies GraphQL documents and webhook consumers away from deprecated fields and legacy event shapes with dual-read evidence and rollback. Use when responding after schema drift or documentation changes. Trigger with \"upgrade Fireflies API\", \"Fireflies deprecated field\", or \"migrate Fireflies webhook\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-upgrade-migration handle fireflies.ai api deprecations and migrate to current query patterns. use when updating deprecated fields, migrating query patterns, or responding to fireflies api changelog updates. trigger with phrases like \"upgrade fireflies\", \"fireflies deprecated\", \"fireflies migration\", \"fireflies breaking changes\", \"fireflies changelog\". saas-packs read write edit bash(npm:*) bash(curl:*) grep "
+      "searchText": "fireflies-upgrade-migration migrate fireflies graphql documents and webhook consumers away from deprecated fields and legacy event shapes with dual-read evidence and rollback. use when responding after schema drift or documentation changes. trigger with \"upgrade fireflies api\", \"fireflies deprecated field\", or \"migrate fireflies webhook\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "fireflies-webhooks-events",
       "slug": "fireflies-webhooks-events",
       "name": "fireflies-webhooks-events",
-      "description": "Implement Fireflies.ai webhook receiver with HMAC signature verification and event processing. Use when setting up webhook endpoints, handling transcript-ready notifications, or building real-time meeting intelligence pipelines. Trigger with phrases like \"fireflies webhook\", \"fireflies events\", \"fireflies webhook signature\", \"handle fireflies events\", \"fireflies notifications\".",
+      "description": "Implement a current Fireflies Webhooks V2 consumer with raw-body HMAC verification, event allowlisting, idempotency, ordering tolerance, and fast acknowledgement. Use when performing meeting lifecycle automation. Trigger with \"Fireflies webhook v2\", \"meeting.transcribed event\", or \"verify Fireflies signature\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "fireflies-pack",
         "category": "saas-packs"
       },
-      "searchText": "fireflies-webhooks-events implement fireflies.ai webhook receiver with hmac signature verification and event processing. use when setting up webhook endpoints, handling transcript-ready notifications, or building real-time meeting intelligence pipelines. trigger with phrases like \"fireflies webhook\", \"fireflies events\", \"fireflies webhook signature\", \"handle fireflies events\", \"fireflies notifications\". saas-packs read write edit bash(curl:*) "
+      "searchText": "fireflies-webhooks-events implement a current fireflies webhooks v2 consumer with raw-body hmac verification, event allowlisting, idempotency, ordering tolerance, and fast acknowledgement. use when performing meeting lifecycle automation. trigger with \"fireflies webhook v2\", \"meeting.transcribed event\", or \"verify fireflies signature\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
