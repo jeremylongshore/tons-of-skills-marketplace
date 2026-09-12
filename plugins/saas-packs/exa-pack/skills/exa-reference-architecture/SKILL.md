@@ -1,271 +1,75 @@
 ---
 name: exa-reference-architecture
-description: 'Implement Exa reference architecture for search pipelines, RAG, and
-  content discovery.
-
-  Use when designing new Exa integrations, reviewing project structure,
-
-  or establishing architecture standards for neural search applications.
-
-  Trigger with phrases like "exa architecture", "exa project structure",
-
-  "exa RAG pipeline", "exa reference design", "exa search pipeline".
-
-  '
-allowed-tools: Read, Grep
-version: 1.11.0
+description: >-
+  Design an Exa architecture that separates query policy, retrieval, content handling, asynchronous state, citations, and evidence. Use when operating or reviewing this Exa boundary. Trigger with "Exa reference architecture", "review Exa reference architecture", or "fix Exa reference architecture".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<use-case> <latency-class> <data-class>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- architecture
-- rag
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Reference Architecture
-
-## Prerequisites
-
-- An approved search/research data flow, policy/data classification, environment boundaries, and owner for each integration point.
-- Reviewed interfaces for credentials, retrieval controls, result handling, observability, automation, and incident response.
-
-## Output
-
-- A documented architecture with trust boundaries, ownership, source/citation controls, redacted telemetry, and reversible integration points.
-
-## Examples
-
-Model a development client that receives sanitized queries, applies approved source/date constraints, records only aggregate/correlation metadata, and returns results for human review. Promote the versioned contract through staging before production automation; keep policy guardrails and fallback behavior explicit rather than treating retrieval output as authoritative.
+# Exa Retrieval Architecture Boundary
 
 ## Overview
 
-Production architecture for Exa neural search integration. Covers search service design, content extraction pipeline, RAG integration, domain-scoped search profiles, and caching strategy.
+Design an Exa architecture that separates query policy, retrieval, content handling, asynchronous state, citations, and evidence. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
-## Architecture Diagram
+## Prerequisites
 
-```
-┌──────────────────────────────────────────────────────────┐
-│                  Application Layer                        │
-│   RAG Pipeline  |  Research Agent  |  Content Discovery   │
-└──────────┬──────────────┬───────────────┬────────────────┘
-           │              │               │
-           ▼              ▼               ▼
-┌──────────────────────────────────────────────────────────┐
-│                Exa Search Service Layer                    │
-│  ┌────────────┐  ┌────────────┐  ┌──────────────────┐    │
-│  │ search()   │  │ findSimilar│  │ getContents()    │    │
-│  │ neural/    │  │ (URL seed) │  │ (known URLs)     │    │
-│  │ keyword/   │  └────────────┘  └──────────────────┘    │
-│  │ auto/fast  │                                           │
-│  └────────────┘                  ┌──────────────────┐    │
-│                                  │ answer() /       │    │
-│  Content Options:                │ streamAnswer()   │    │
-│  text | highlights | summary     └──────────────────┘    │
-│                                                           │
-│  ┌────────────────────────────────────────────────────┐  │
-│  │              Result Cache (LRU + Redis)             │  │
-│  └────────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────────┘
-         │
-         ▼
-┌──────────────────────────────────────────────────────────┐
-│  api.exa.ai — Exa Neural Search API                      │
-│  Auth: x-api-key header | Rate: 10 QPS default           │
-└──────────────────────────────────────────────────────────┘
-```
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Use Search for ranked discovery, Contents for known URLs, Answer for a direct cited response, Agent for multi-step research, Monitors for recurring discovery, Websets for verified and enriched sets, and Batch for enabled enterprise offline volume. Each product has distinct lifecycle and trust boundaries.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Search Service Layer
+1. Classify the user outcome, latency class, data sensitivity, freshness, and volume.
+2. Select the narrowest Exa product that satisfies the outcome.
+3. Place policy and credential enforcement before the vendor adapter.
+4. Separate retrieved content from content-free operational metadata and citations.
+5. Persist only necessary asynchronous IDs and define terminal-state reconciliation.
+6. Diagram failure, retention, deletion, webhook, cost, and rollback boundaries.
 
-```typescript
-// src/exa/service.ts
-import Exa from "exa-js";
+## Tool Discipline
 
-const exa = new Exa(process.env.EXA_API_KEY);
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-interface SearchRequest {
-  query: string;
-  type?: "auto" | "neural" | "keyword" | "fast" | "instant";
-  numResults?: number;
-  startDate?: string;
-  endDate?: string;
-  includeDomains?: string[];
-  excludeDomains?: string[];
-  category?: "company" | "research paper" | "news" | "tweet" | "people";
-}
+## Approval Boundaries
 
-interface ContentOptions {
-  text?: boolean | { maxCharacters?: number };
-  highlights?: boolean | { maxCharacters?: number; query?: string };
-  summary?: boolean | { query?: string };
-}
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-export async function searchWithContents(
-  req: SearchRequest,
-  content: ContentOptions = { text: { maxCharacters: 2000 } }
-) {
-  return exa.searchAndContents(req.query, {
-    type: req.type || "auto",
-    numResults: req.numResults || 10,
-    startPublishedDate: req.startDate,
-    endPublishedDate: req.endDate,
-    includeDomains: req.includeDomains,
-    excludeDomains: req.excludeDomains,
-    category: req.category,
-    ...content,
-  });
-}
+## Failure Modes
 
-export async function findRelated(url: string, numResults = 5) {
-  return exa.findSimilarAndContents(url, {
-    numResults,
-    text: { maxCharacters: 1000 },
-    excludeSourceDomain: true,
-  });
-}
-```
+- Do not use Agent when a bounded Search or Contents call is sufficient.
+- Do not feed untrusted retrieved text directly into privileged tool execution.
+- Do not share one queue and retry policy across interactive and offline products.
 
-### Step 2: Research Pipeline
+## Output
 
-```typescript
-// src/exa/research.ts
-export async function researchTopic(topic: string) {
-  // Phase 1: Broad neural search
-  const sources = await exa.searchAndContents(topic, {
-    type: "neural",
-    numResults: 15,
-    text: { maxCharacters: 2000 },
-    highlights: { maxCharacters: 500, query: topic },
-    startPublishedDate: "2024-01-01T00:00:00.000Z",
-  });
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-  // Phase 2: Find similar to best result
-  const topUrl = sources.results[0]?.url;
-  const similar = topUrl
-    ? await exa.findSimilarAndContents(topUrl, {
-        numResults: 5,
-        text: { maxCharacters: 1500 },
-        excludeSourceDomain: true,
-      })
-    : { results: [] };
+## Example
 
-  // Phase 3: Get AI answer with citations
-  const answer = await exa.answer(
-    `Based on recent research, summarize: ${topic}`,
-    { text: true }
-  );
+- A RAG service uses Search highlights first, Contents only for selected URLs, a citation-preserving model boundary, and a separate audit stream.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-  return {
-    primary: sources.results,
-    related: similar.results,
-    aiSummary: answer.answer,
-    sources: answer.results.map(r => ({ title: r.title, url: r.url })),
-  };
-}
-```
+## Validation
 
-### Step 3: RAG Integration Pattern
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-```typescript
-// src/exa/rag.ts
-export async function ragSearch(userQuery: string, contextWindow = 5) {
-  const results = await exa.searchAndContents(userQuery, {
-    type: "neural",
-    numResults: contextWindow,
-    text: { maxCharacters: 2000 },
-    highlights: { maxCharacters: 500, query: userQuery },
-  });
+## References
 
-  // Format for LLM context injection
-  const context = results.results
-    .map((r, i) =>
-      `[Source ${i + 1}] ${r.title}\n` +
-      `URL: ${r.url}\n` +
-      `Content: ${r.text}\n` +
-      `Key points: ${r.highlights?.join(" | ")}`
-    )
-    .join("\n\n---\n\n");
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-  return {
-    context,
-    sources: results.results.map(r => ({
-      title: r.title,
-      url: r.url,
-      score: r.score,
-    })),
-  };
-}
-```
-
-### Step 4: Domain-Specific Search Profiles
-
-```typescript
-const SEARCH_PROFILES = {
-  technical: {
-    includeDomains: [
-      "github.com", "stackoverflow.com", "arxiv.org",
-      "developer.mozilla.org", "docs.python.org",
-    ],
-  },
-  news: {
-    category: "news" as const,
-    includeDomains: ["techcrunch.com", "theverge.com", "arstechnica.com"],
-  },
-  research: {
-    category: "research paper" as const,
-    includeDomains: ["arxiv.org", "nature.com", "science.org"],
-  },
-  companies: {
-    category: "company" as const,
-  },
-};
-
-export async function profiledSearch(
-  query: string,
-  profile: keyof typeof SEARCH_PROFILES
-) {
-  const config = SEARCH_PROFILES[profile];
-  return searchWithContents({ query, ...config, numResults: 10 });
-}
-```
-
-### Step 5: Competitor Discovery
-
-```typescript
-export async function discoverCompetitors(companyUrl: string) {
-  const similar = await exa.findSimilarAndContents(companyUrl, {
-    numResults: 10,
-    excludeSourceDomain: true,
-    text: { maxCharacters: 500 },
-    summary: { query: "What does this company do?" },
-  });
-
-  return similar.results.map(r => ({
-    name: r.title,
-    url: r.url,
-    description: r.summary || r.text?.substring(0, 200),
-    score: r.score,
-  }));
-}
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| No results | Query too specific | Broaden query, switch to neural search |
-| Low relevance | Wrong search type | Use `auto` type for hybrid results |
-| Empty text/highlights | Site blocks scraping | Use `livecrawl: "preferred"` or try `summary` |
-| Rate limit | Too many concurrent requests | Add request queue with 8-10 concurrency |
-
-## Resources
-
-- [Exa API Documentation](https://docs.exa.ai)
-- [Exa Search Types](https://docs.exa.ai/reference/search)
-- [Exa Contents Retrieval](https://docs.exa.ai/reference/contents-retrieval)
-
-## Next Steps
-
-For architecture variants at different scales, see `exa-architecture-variants`.
+- [Current first-party evidence map](references/official-docs.md)

@@ -1,277 +1,75 @@
 ---
 name: exa-reliability-patterns
-description: 'Implement Exa reliability patterns: query fallback chains, circuit breakers,
-  and graceful degradation.
-
-  Use when building fault-tolerant Exa integrations, implementing fallback strategies,
-
-  or adding resilience to production search services.
-
-  Trigger with phrases like "exa reliability", "exa circuit breaker",
-
-  "exa fallback", "exa resilience", "exa graceful degradation".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
+description: >-
+  Design bounded Exa retries, deadlines, partial-result behavior, and tested fallbacks by endpoint and failure class. Use when operating or reviewing this Exa boundary. Trigger with "Exa reliability patterns", "review Exa reliability patterns", or "fix Exa reliability patterns".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<endpoint> <deadline> <fallback-policy>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- reliability
-- resilience
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Reliability Patterns
-
-## Prerequisites
-
-- An SLO, owner, sanitized test inputs, rate/timeout policy, and a safe fallback/rollback path.
-- Idempotent work tracking and redacted observability for request state and outcome.
-
-## Output
-
-- A resilient retrieval integration with bounded retry, timeout, circuit-breaker/fallback, and incident evidence controls.
-
-## Examples
-
-Use a sanitized query fixture to exercise timeout and transient error handling, verify exponential backoff and fallback behavior, then record aggregate completion/latency/error results. Do not retry unboundedly or turn a failed retrieval into an unreviewed automated decision.
+# Exa Reliability and Retry Design
 
 ## Overview
 
-Production reliability patterns for Exa neural search. Exa-specific failure modes include: empty result sets (query too narrow), content retrieval failures (sites block crawling), variable latency by search type, and 429 rate limits at 10 QPS default.
+Design bounded Exa retries, deadlines, partial-result behavior, and tested fallbacks by endpoint and failure class. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
+
+## Prerequisites
+
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Retryability depends on status and operation. Invalid 400, auth, policy, and billing failures require repair; 429 honors Retry-After; documented transient server or overload failures can use capped jitter. Asynchronous creates and destructive calls require identity and state checks before replay.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Query Fallback Chain
+1. Classify each operation as read, create, update, trigger, cancel, stop, or delete.
+2. Assign an end-to-end deadline and bounded attempt budget per operation.
+3. Retry only documented transient classes and preserve request or resource IDs.
+4. Define partial Contents behavior and freshness fallback explicitly.
+5. Choose a tested degrade path that preserves source attribution and policy.
+6. Exercise timeout, duplicate delivery, stale cache, overload, and recovery in tests.
 
-```typescript
-import Exa from "exa-js";
+## Tool Discipline
 
-const exa = new Exa(process.env.EXA_API_KEY);
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-// If neural search returns too few results, fall back through search types
-async function resilientSearch(
-  query: string,
-  minResults = 3,
-  opts: any = {}
-) {
-  // Try 1: Neural search (best quality)
-  let results = await exa.searchAndContents(query, {
-    type: "neural",
-    numResults: 10,
-    ...opts,
-  });
-  if (results.results.length >= minResults) return results;
+## Approval Boundaries
 
-  // Try 2: Auto search (Exa picks best approach)
-  results = await exa.searchAndContents(query, {
-    type: "auto",
-    numResults: 10,
-    ...opts,
-  });
-  if (results.results.length >= minResults) return results;
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-  // Try 3: Keyword search (different index)
-  results = await exa.searchAndContents(query, {
-    type: "keyword",
-    numResults: 10,
-    ...opts,
-  });
-  if (results.results.length >= minResults) return results;
+## Failure Modes
 
-  // Try 4: Remove filters and broaden
-  const broadOpts = { ...opts };
-  delete broadOpts.startPublishedDate;
-  delete broadOpts.endPublishedDate;
-  delete broadOpts.includeDomains;
-  delete broadOpts.includeText;
+- Retrying a create after an ambiguous timeout can duplicate paid work.
+- Serving cache-only content can violate a freshness promise unless disclosed.
+- A fallback search provider changes quality, data handling, and cost boundaries.
 
-  return exa.searchAndContents(query, {
-    type: "auto",
-    numResults: 10,
-    ...broadOpts,
-  });
-}
-```
+## Output
 
-### Step 2: Retry with Exponential Backoff
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-```typescript
-async function searchWithRetry(
-  query: string,
-  opts: any,
-  maxRetries = 3
-) {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      return await exa.searchAndContents(query, opts);
-    } catch (err: any) {
-      const status = err.status || 0;
+## Example
 
-      // Only retry on rate limits (429) and server errors (5xx)
-      if (status !== 429 && (status < 500 || status >= 600)) throw err;
-      if (attempt === maxRetries) throw err;
+- Retry a 503 read with capped jitter, but reconcile an Agent run ID before deciding whether to submit another run.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-      const delay = 1000 * Math.pow(2, attempt) + Math.random() * 500;
-      console.log(`[Exa] ${status} retry ${attempt + 1}/${maxRetries} in ${delay.toFixed(0)}ms`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error("Unreachable");
-}
-```
+## Validation
 
-### Step 3: Circuit Breaker
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-```typescript
-class ExaCircuitBreaker {
-  private failures = 0;
-  private lastFailure = 0;
-  private state: "closed" | "open" | "half-open" = "closed";
-  private readonly threshold = 5;       // failures before opening
-  private readonly resetTimeMs = 30000; // 30s before half-open
+## References
 
-  async execute<T>(fn: () => Promise<T>, fallback?: () => T): Promise<T> {
-    // Check if circuit should reset
-    if (this.state === "open") {
-      if (Date.now() - this.lastFailure > this.resetTimeMs) {
-        this.state = "half-open";
-      } else if (fallback) {
-        return fallback();
-      } else {
-        throw new Error("Exa circuit breaker is open");
-      }
-    }
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-    try {
-      const result = await fn();
-      if (this.state === "half-open") {
-        this.state = "closed";
-        this.failures = 0;
-      }
-      return result;
-    } catch (err: any) {
-      this.failures++;
-      this.lastFailure = Date.now();
-
-      if (this.failures >= this.threshold) {
-        this.state = "open";
-        console.warn(`[Exa] Circuit breaker OPEN after ${this.failures} failures`);
-      }
-
-      if (fallback && this.state === "open") return fallback();
-      throw err;
-    }
-  }
-
-  getState() {
-    return { state: this.state, failures: this.failures };
-  }
-}
-
-const circuitBreaker = new ExaCircuitBreaker();
-
-// Usage with fallback to cached results
-const result = await circuitBreaker.execute(
-  () => exa.searchAndContents("query", { numResults: 5, text: true }),
-  () => getCachedResults("query") // fallback when circuit is open
-);
-```
-
-### Step 4: Graceful Degradation
-
-```typescript
-interface SearchResultWithMeta {
-  results: any[];
-  degraded: boolean;
-  source: "live" | "cache" | "fallback";
-  searchType: string;
-}
-
-async function degradableSearch(
-  query: string,
-  opts: any = {}
-): Promise<SearchResultWithMeta> {
-  // Level 1: Full search with contents
-  try {
-    const results = await searchWithRetry(query, {
-      type: "neural",
-      numResults: 10,
-      text: { maxCharacters: 2000 },
-      highlights: { maxCharacters: 500 },
-      ...opts,
-    }, 2);
-    return { results: results.results, degraded: false, source: "live", searchType: "neural" };
-  } catch {}
-
-  // Level 2: Fast search without content (less expensive)
-  try {
-    const results = await exa.search(query, {
-      type: "fast",
-      numResults: 5,
-    });
-    return { results: results.results, degraded: true, source: "live", searchType: "fast" };
-  } catch {}
-
-  // Level 3: Return cached results
-  const cached = getCachedResults(query);
-  if (cached) {
-    return { results: cached, degraded: true, source: "cache", searchType: "cached" };
-  }
-
-  // Level 4: Return empty with degradation flag
-  return { results: [], degraded: true, source: "fallback", searchType: "none" };
-}
-```
-
-### Step 5: Result Quality Monitoring
-
-```typescript
-class SearchQualityMonitor {
-  private stats = { total: 0, empty: 0, lowScore: 0 };
-
-  record(results: any[]) {
-    this.stats.total++;
-    if (results.length === 0) this.stats.empty++;
-    if (results[0]?.score < 0.5) this.stats.lowScore++;
-  }
-
-  isHealthy(): boolean {
-    if (this.stats.total < 10) return true; // not enough data
-    const emptyRate = this.stats.empty / this.stats.total;
-    const lowScoreRate = this.stats.lowScore / this.stats.total;
-    return emptyRate < 0.2 && lowScoreRate < 0.3;
-  }
-
-  getReport() {
-    return {
-      ...this.stats,
-      emptyRate: `${((this.stats.empty / this.stats.total) * 100).toFixed(1)}%`,
-      lowScoreRate: `${((this.stats.lowScore / this.stats.total) * 100).toFixed(1)}%`,
-      healthy: this.isHealthy(),
-    };
-  }
-}
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Empty results | Query too specific | Use fallback chain with broader query |
-| Slow responses | Neural on complex query | Degrade to `fast` type |
-| 429 rate limit | Burst traffic | Circuit breaker + backoff |
-| Content retrieval fails | Site blocks crawling | Fall back to highlights or summary |
-| Quality degradation | Query drift | Monitor empty/low-score rates |
-
-## Resources
-
-- [Exa API Reference](https://docs.exa.ai/reference/search)
-- [Exa Error Codes](https://docs.exa.ai/reference/error-codes)
-- [Circuit Breaker Pattern](https://martinfowler.com/bliki/CircuitBreaker.html)
-
-## Next Steps
-
-For policy guardrails, see `exa-policy-guardrails`. For architecture variants, see `exa-architecture-variants`.
+- [Current first-party evidence map](references/official-docs.md)

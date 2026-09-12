@@ -1,218 +1,75 @@
 ---
 name: exa-core-workflow-b
-description: 'Execute Exa findSimilar, getContents, answer, and streaming answer workflows.
-
-  Use when finding pages similar to a URL, retrieving content for known URLs,
-
-  or getting AI-generated answers with citations.
-
-  Trigger with phrases like "exa find similar", "exa get contents",
-
-  "exa answer", "exa similarity search", "findSimilarAndContents".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(node:*), Grep
-version: 1.11.0
+description: >-
+  Run asynchronous Exa Agent research with a bounded schema, effort, terminal-state policy, citations, and cleanup decision. Use when operating or reviewing this Exa boundary. Trigger with "Exa core workflow b", "review Exa core workflow b", or "fix Exa core workflow b".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<research-task> <effort> <output-schema>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- workflow
-- similarity-search
-- answer
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Core Workflow B — Similarity, Contents & Answer
+# Exa Agent Run Lifecycle
 
 ## Overview
 
-Secondary Exa workflow covering three endpoints beyond search: `findSimilar` (discover pages semantically related to a URL), `getContents` (retrieve text/highlights for known URLs), and `answer` (get AI-generated answers with web citations). These complement the primary search workflow in `exa-core-workflow-a`.
+Run asynchronous Exa Agent research with a bounded schema, effort, terminal-state policy, citations, and cleanup decision. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- `exa-js` installed and `EXA_API_KEY` configured
-- Familiarity with `exa-core-workflow-a` search patterns
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Agent runs are asynchronous unless streamed. A created run returns an ID that must be polled, streamed, stopped, cancelled, or deleted through the Agent lifecycle. Fixed effort provides a predictable price; auto and beta max are usage-metered. Structured output and grounding require separate validation.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Find Similar Pages
+1. Translate the approved research question into a narrow query and optional system prompt.
+2. Choose fixed effort or an explicit metered cap and define the output schema.
+3. Create one run and persist its content-free run ID.
+4. Poll or consume server-sent events with a deadline and terminal-state handling.
+5. Validate structured fields, grounding, citations, and cost independently.
+6. Stop, cancel, retain, or delete the run according to the approved evidence policy.
 
-```typescript
-import Exa from "exa-js";
+## Tool Discipline
 
-const exa = new Exa(process.env.EXA_API_KEY);
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-// findSimilar takes a URL (not a query string) and returns
-// pages with semantically similar content
-const similar = await exa.findSimilar(
-  "https://openai.com/research/gpt-4",
-  {
-    numResults: 10,
-    excludeSourceDomain: true, // exclude openai.com from results
-    startPublishedDate: "2024-01-01T00:00:00.000Z",
-    excludeDomains: ["reddit.com", "twitter.com"],
-  }
-);
+## Approval Boundaries
 
-for (const r of similar.results) {
-  console.log(`${r.title} — ${r.url}`);
-}
-```
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-### Step 2: Find Similar with Contents
+## Failure Modes
 
-```typescript
-// findSimilarAndContents combines similarity search + content extraction
-const results = await exa.findSimilarAndContents(
-  "https://huggingface.co/blog/llama3",
-  {
-    numResults: 5,
-    text: { maxCharacters: 2000 },
-    highlights: { maxCharacters: 500, query: "open source LLM" },
-    excludeSourceDomain: true,
-  }
-);
-
-for (const r of results.results) {
-  console.log(`## ${r.title}`);
-  console.log(`URL: ${r.url}`);
-  console.log(`Highlights: ${r.highlights?.join(" | ")}`);
-  console.log(`Text preview: ${r.text?.substring(0, 300)}...\n`);
-}
-```
-
-### Step 3: Get Contents for Known URLs
-
-```typescript
-// getContents retrieves page content for a list of URLs you already have
-// Useful when you have URLs from a previous search or external source
-const contents = await exa.getContents(
-  [
-    "https://arxiv.org/abs/2401.00001",
-    "https://arxiv.org/abs/2401.00002",
-    "https://blog.example.com/article",
-  ],
-  {
-    text: { maxCharacters: 3000 },
-    highlights: { maxCharacters: 500 },
-    summary: { query: "key findings and methodology" },
-    livecrawl: "preferred",     // try fresh, fall back to cache
-    livecrawlTimeout: 15000,    // 15s timeout
-    // Subpage crawling: retrieve linked pages from each URL
-    subpages: 3,                // crawl up to 3 subpages per URL
-    subpageTarget: "documentation",  // find subpages matching this term
-  }
-);
-
-for (const r of contents.results) {
-  console.log(`${r.title}: ${r.text?.length || 0} chars`);
-  if (r.summary) console.log(`Summary: ${r.summary}`);
-}
-```
-
-### Step 4: AI-Powered Answer with Citations
-
-```typescript
-// answer() searches the web and returns an AI-generated answer with sources
-const answer = await exa.answer(
-  "What are the key differences between RAG and fine-tuning for LLMs?",
-  {
-    text: true,
-    // The answer response includes citations linking to source results
-  }
-);
-
-console.log("Answer:", answer.answer);
-console.log("\nSources:");
-for (const r of answer.results) {
-  console.log(`  - ${r.title}: ${r.url}`);
-}
-```
-
-### Step 5: Streaming Answer
-
-```typescript
-// streamAnswer returns chunks as they're generated
-for await (const chunk of exa.streamAnswer(
-  "What is the current state of quantum computing in 2025?"
-)) {
-  if (chunk.content) {
-    process.stdout.write(chunk.content);
-  }
-  if (chunk.citations) {
-    console.log("\n\nCitations:", JSON.stringify(chunk.citations, null, 2));
-  }
-}
-```
+- Run creation is not completion.
+- A schema-valid result can still be weakly grounded or out of scope.
+- Cancel, stop, and delete have different operational intent and must not be conflated.
 
 ## Output
 
-- Similar pages discovered from a seed URL
-- Page content (text, highlights, summary) for known URLs
-- AI-generated answers with web source citations
-- Streaming answer chunks for real-time display
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-## Error Handling
+## Example
 
-| Error | HTTP Code | Cause | Solution |
-|-------|-----------|-------|----------|
-| `INVALID_URLS` | 400 | Malformed URLs in getContents | Validate URLs have protocol |
-| `CRAWL_NOT_FOUND` | 404 | Content unavailable at URL | Verify URL is accessible |
-| `CRAWL_TIMEOUT` | 504 | Live crawl exceeded timeout | Increase `livecrawlTimeout` |
-| `SOURCE_NOT_AVAILABLE` | 403 | Paywalled or blocked content | Try without `livecrawl: "always"` |
-| `UNABLE_TO_GENERATE_RESPONSE` | 501 | Insufficient data for answer | Rephrase query or add context |
-| Empty `similar.results` | 200 | Seed URL not indexed | Try a more popular seed URL |
+- Create a low-effort company-verification run with a closed JSON schema, poll to completion, and retain only IDs, verdict, citations, and cost.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-## Examples
+## Validation
 
-### Competitive Intelligence Pipeline
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-```typescript
-async function findCompetitors(companyUrl: string) {
-  // Find companies similar to a given company
-  const similar = await exa.findSimilarAndContents(companyUrl, {
-    numResults: 10,
-    excludeSourceDomain: true,
-    text: { maxCharacters: 500 },
-    category: "company",
-  });
+## References
 
-  return similar.results.map(r => ({
-    name: r.title,
-    url: r.url,
-    description: r.text?.substring(0, 200),
-  }));
-}
-```
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-### Batch URL Content Retrieval
-
-```typescript
-async function enrichUrls(urls: string[]) {
-  // Process URLs in batches to stay within rate limits
-  const batchSize = 10;
-  const allContents = [];
-
-  for (let i = 0; i < urls.length; i += batchSize) {
-    const batch = urls.slice(i, i + batchSize);
-    const contents = await exa.getContents(batch, {
-      text: { maxCharacters: 1500 },
-      summary: { query: "main topic and key points" },
-    });
-    allContents.push(...contents.results);
-  }
-
-  return allContents;
-}
-```
-
-## Resources
-
-- Exa Find Similar
-- [Exa Get Contents](https://docs.exa.ai/reference/get-contents)
-- [Exa Contents Retrieval](https://docs.exa.ai/reference/contents-retrieval)
-
-## Next Steps
-
-For common errors, see `exa-common-errors`. For SDK patterns, see `exa-sdk-patterns`.
+- [Current first-party evidence map](references/official-docs.md)

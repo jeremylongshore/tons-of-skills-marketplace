@@ -10251,7 +10251,7 @@
       "slug": "exa-pack",
       "name": "exa-pack",
       "displayName": "exa pack",
-      "description": "Complete Exa integration skill pack with 30 skills covering neural search, semantic retrieval, web search API, and AI-powered discovery. Flagship+ tier vendor pack.",
+      "description": "Governed Exa operator pack with 30 workflows for Search, Contents, Agent, Monitors, Websets, access, reliability, cost, and security.",
       "category": "saas-packs",
       "keywords": [
         "exa",
@@ -10268,15 +10268,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.11.0",
+      "version": "1.12.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 30,
-      "verificationScore": 84,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "exa pack complete exa integration skill pack with 30 skills covering neural search, semantic retrieval, web search api, and ai-powered discovery. flagship+ tier vendor pack. saas-packs exa neural-search semantic-search web-search ai-search retrieval embeddings"
+      "verificationScore": 95,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "exa pack governed exa operator pack with 30 workflows for search, contents, agent, monitors, websets, access, reliability, cost, and security. saas-packs exa neural-search semantic-search web-search ai-search retrieval embeddings"
     },
     {
       "type": "plugin",
@@ -35253,641 +35253,660 @@
       "id": "exa-advanced-troubleshooting",
       "slug": "exa-advanced-troubleshooting",
       "name": "exa-advanced-troubleshooting",
-      "description": "Apply advanced debugging techniques for hard-to-diagnose Exa issues. Use when standard troubleshooting fails, investigating latency spikes, or preparing evidence bundles for Exa support escalation. Trigger with phrases like \"exa hard bug\", \"exa mystery error\", \"exa deep debug\", \"difficult exa issue\", \"exa latency spike\".",
+      "description": "Localize complex Exa failures across query planning, retrieval, crawling, synthesis, SDK mapping, queues, and downstream consumption. Use when operating or reviewing this Exa boundary. Trigger with \"Exa advanced troubleshooting\", \"review Exa advanced troubleshooting\", or \"fix Exa advanced troubleshooting\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)",
-        "Bash(node:*)",
-        "Bash(tcpdump:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-advanced-troubleshooting apply advanced debugging techniques for hard-to-diagnose exa issues. use when standard troubleshooting fails, investigating latency spikes, or preparing evidence bundles for exa support escalation. trigger with phrases like \"exa hard bug\", \"exa mystery error\", \"exa deep debug\", \"difficult exa issue\", \"exa latency spike\". saas-packs read grep bash(curl:*) bash(node:*) bash(tcpdump:*) "
+      "searchText": "exa-advanced-troubleshooting localize complex exa failures across query planning, retrieval, crawling, synthesis, sdk mapping, queues, and downstream consumption. use when operating or reviewing this exa boundary. trigger with \"exa advanced troubleshooting\", \"review exa advanced troubleshooting\", or \"fix exa advanced troubleshooting\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-architecture-variants",
       "slug": "exa-architecture-variants",
       "name": "exa-architecture-variants",
-      "description": "Choose and implement Exa architecture patterns at different scales: direct search, cached search, and RAG pipeline. Use when designing Exa integrations, choosing between simple search and full RAG, or planning architecture for different traffic volumes. Trigger with phrases like \"exa architecture\", \"exa blueprint\", \"how to structure exa\", \"exa RAG design\", \"exa at scale\".",
+      "description": "Choose among direct Search, staged Contents, Answer, Agent, Monitors, Websets, and Batch using explicit latency, verification, volume, and lifecycle criteria. Use when operating or reviewing this Exa boundary. Trigger with \"Exa architecture variants\", \"review Exa architecture variants\", or \"fix Exa architecture variants\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-architecture-variants choose and implement exa architecture patterns at different scales: direct search, cached search, and rag pipeline. use when designing exa integrations, choosing between simple search and full rag, or planning architecture for different traffic volumes. trigger with phrases like \"exa architecture\", \"exa blueprint\", \"how to structure exa\", \"exa rag design\", \"exa at scale\". saas-packs read grep "
+      "searchText": "exa-architecture-variants choose among direct search, staged contents, answer, agent, monitors, websets, and batch using explicit latency, verification, volume, and lifecycle criteria. use when operating or reviewing this exa boundary. trigger with \"exa architecture variants\", \"review exa architecture variants\", or \"fix exa architecture variants\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-ci-integration",
       "slug": "exa-ci-integration",
       "name": "exa-ci-integration",
-      "description": "Configure Exa CI/CD integration with GitHub Actions and automated testing. Use when setting up automated testing for Exa integrations, configuring CI pipelines, or adding Exa health checks to builds. Trigger with phrases like \"exa CI\", \"exa GitHub Actions\", \"exa automated tests\", \"CI exa\", \"exa pipeline\".",
+      "description": "Add deterministic Exa contract checks to CI while keeping live credentials, spend, and volatile web results out of ordinary pull requests. Use when operating or reviewing this Exa boundary. Trigger with \"Exa ci integration\", \"review Exa ci integration\", or \"fix Exa ci integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(gh:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-ci-integration configure exa ci/cd integration with github actions and automated testing. use when setting up automated testing for exa integrations, configuring ci pipelines, or adding exa health checks to builds. trigger with phrases like \"exa ci\", \"exa github actions\", \"exa automated tests\", \"ci exa\", \"exa pipeline\". saas-packs read write edit bash(gh:*) "
+      "searchText": "exa-ci-integration add deterministic exa contract checks to ci while keeping live credentials, spend, and volatile web results out of ordinary pull requests. use when operating or reviewing this exa boundary. trigger with \"exa ci integration\", \"review exa ci integration\", or \"fix exa ci integration\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-common-errors",
       "slug": "exa-common-errors",
       "name": "exa-common-errors",
-      "description": "Diagnose and fix Exa API errors by HTTP code and error tag. Use when encountering Exa errors, debugging failed requests, or troubleshooting integration issues. Trigger with phrases like \"exa error\", \"fix exa\", \"exa not working\", \"debug exa\", \"exa 429\", \"exa 401\".",
+      "description": "Classify Exa failures by HTTP status, error tag, endpoint, and per-item crawl status before deciding whether to repair, retry, or escalate. Use when operating or reviewing this Exa boundary. Trigger with \"Exa common errors\", \"review Exa common errors\", or \"fix Exa common errors\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)",
-        "Bash(node:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-common-errors diagnose and fix exa api errors by http code and error tag. use when encountering exa errors, debugging failed requests, or troubleshooting integration issues. trigger with phrases like \"exa error\", \"fix exa\", \"exa not working\", \"debug exa\", \"exa 429\", \"exa 401\". saas-packs read grep bash(curl:*) bash(node:*) "
+      "searchText": "exa-common-errors classify exa failures by http status, error tag, endpoint, and per-item crawl status before deciding whether to repair, retry, or escalate. use when operating or reviewing this exa boundary. trigger with \"exa common errors\", \"review exa common errors\", or \"fix exa common errors\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-core-workflow-a",
       "slug": "exa-core-workflow-a",
       "name": "exa-core-workflow-a",
-      "description": "Execute Exa neural search with contents, date filters, and domain scoping. Use when building search features, implementing RAG context retrieval, or querying the web with semantic understanding. Trigger with phrases like \"exa search\", \"exa neural search\", \"search with exa\", \"exa searchAndContents\", \"exa query\".",
+      "description": "Operate Search and Contents as an explicit two-stage retrieval workflow with bounded context, freshness, and cost. Use when operating or reviewing this Exa boundary. Trigger with \"Exa core workflow a\", \"review Exa core workflow a\", or \"fix Exa core workflow a\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(node:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-core-workflow-a execute exa neural search with contents, date filters, and domain scoping. use when building search features, implementing rag context retrieval, or querying the web with semantic understanding. trigger with phrases like \"exa search\", \"exa neural search\", \"search with exa\", \"exa searchandcontents\", \"exa query\". saas-packs read write edit bash(npm:*) bash(node:*) grep "
+      "searchText": "exa-core-workflow-a operate search and contents as an explicit two-stage retrieval workflow with bounded context, freshness, and cost. use when operating or reviewing this exa boundary. trigger with \"exa core workflow a\", \"review exa core workflow a\", or \"fix exa core workflow a\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-core-workflow-b",
       "slug": "exa-core-workflow-b",
       "name": "exa-core-workflow-b",
-      "description": "Execute Exa findSimilar, getContents, answer, and streaming answer workflows. Use when finding pages similar to a URL, retrieving content for known URLs, or getting AI-generated answers with citations. Trigger with phrases like \"exa find similar\", \"exa get contents\", \"exa answer\", \"exa similarity search\", \"findSimilarAndContents\".",
+      "description": "Run asynchronous Exa Agent research with a bounded schema, effort, terminal-state policy, citations, and cleanup decision. Use when operating or reviewing this Exa boundary. Trigger with \"Exa core workflow b\", \"review Exa core workflow b\", or \"fix Exa core workflow b\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(node:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-core-workflow-b execute exa findsimilar, getcontents, answer, and streaming answer workflows. use when finding pages similar to a url, retrieving content for known urls, or getting ai-generated answers with citations. trigger with phrases like \"exa find similar\", \"exa get contents\", \"exa answer\", \"exa similarity search\", \"findsimilarandcontents\". saas-packs read write edit bash(npm:*) bash(node:*) grep "
+      "searchText": "exa-core-workflow-b run asynchronous exa agent research with a bounded schema, effort, terminal-state policy, citations, and cleanup decision. use when operating or reviewing this exa boundary. trigger with \"exa core workflow b\", \"review exa core workflow b\", or \"fix exa core workflow b\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-cost-tuning",
       "slug": "exa-cost-tuning",
       "name": "exa-cost-tuning",
-      "description": "Optimize Exa costs through search type selection, caching, and usage monitoring. Use when analyzing Exa billing, reducing API costs, or implementing budget controls and usage alerts. Trigger with phrases like \"exa cost\", \"exa billing\", \"reduce exa costs\", \"exa pricing\", \"exa expensive\", \"exa budget\".",
+      "description": "Control Exa spend through endpoint selection, bounded result and content work, per-key budgets, and response-derived cost evidence. Use when operating or reviewing this Exa boundary. Trigger with \"Exa cost tuning\", \"review Exa cost tuning\", or \"fix Exa cost tuning\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)",
-        "Bash(node:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-cost-tuning optimize exa costs through search type selection, caching, and usage monitoring. use when analyzing exa billing, reducing api costs, or implementing budget controls and usage alerts. trigger with phrases like \"exa cost\", \"exa billing\", \"reduce exa costs\", \"exa pricing\", \"exa expensive\", \"exa budget\". saas-packs read grep bash(curl:*) bash(node:*) "
+      "searchText": "exa-cost-tuning control exa spend through endpoint selection, bounded result and content work, per-key budgets, and response-derived cost evidence. use when operating or reviewing this exa boundary. trigger with \"exa cost tuning\", \"review exa cost tuning\", or \"fix exa cost tuning\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-data-handling",
       "slug": "exa-data-handling",
       "name": "exa-data-handling",
-      "description": "Implement Exa search result processing, content extraction, caching, and RAG context management. Use when handling search results, implementing caching, building citation pipelines, or managing content payloads for LLM context windows. Trigger with phrases like \"exa data\", \"exa results processing\", \"exa cache\", \"exa RAG context\", \"exa content extraction\".",
+      "description": "Govern queries, public-web retrieval, generated summaries, citations, and downstream copies across their full retention lifecycle. Use when operating or reviewing this Exa boundary. Trigger with \"Exa data handling\", \"review Exa data handling\", or \"fix Exa data handling\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-data-handling implement exa search result processing, content extraction, caching, and rag context management. use when handling search results, implementing caching, building citation pipelines, or managing content payloads for llm context windows. trigger with phrases like \"exa data\", \"exa results processing\", \"exa cache\", \"exa rag context\", \"exa content extraction\". saas-packs read write edit "
+      "searchText": "exa-data-handling govern queries, public-web retrieval, generated summaries, citations, and downstream copies across their full retention lifecycle. use when operating or reviewing this exa boundary. trigger with \"exa data handling\", \"review exa data handling\", or \"fix exa data handling\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-debug-bundle",
       "slug": "exa-debug-bundle",
       "name": "exa-debug-bundle",
-      "description": "Collect Exa debug evidence for support tickets and troubleshooting. Use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for Exa problems. Trigger with phrases like \"exa debug\", \"exa support bundle\", \"collect exa logs\", \"exa diagnostic\".",
+      "description": "Produce a minimal Exa diagnostic bundle that preserves reproducibility without exposing credentials, queries, retrieved content, or customer data. Use when operating or reviewing this Exa boundary. Trigger with \"Exa debug bundle\", \"review Exa debug bundle\", or \"fix Exa debug bundle\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(grep:*)",
-        "Bash(curl:*)",
-        "Bash(tar:*)",
-        "Bash(node:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-debug-bundle collect exa debug evidence for support tickets and troubleshooting. use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for exa problems. trigger with phrases like \"exa debug\", \"exa support bundle\", \"collect exa logs\", \"exa diagnostic\". saas-packs read bash(grep:*) bash(curl:*) bash(tar:*) bash(node:*) grep "
+      "searchText": "exa-debug-bundle produce a minimal exa diagnostic bundle that preserves reproducibility without exposing credentials, queries, retrieved content, or customer data. use when operating or reviewing this exa boundary. trigger with \"exa debug bundle\", \"review exa debug bundle\", or \"fix exa debug bundle\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-deploy-integration",
       "slug": "exa-deploy-integration",
       "name": "exa-deploy-integration",
-      "description": "Deploy Exa integrations to Vercel, Docker, and Cloud Run platforms. Use when deploying Exa-powered applications to production, configuring platform-specific secrets, or building search API endpoints. Trigger with phrases like \"deploy exa\", \"exa Vercel\", \"exa production deploy\", \"exa Cloud Run\", \"exa Docker\".",
+      "description": "Deploy an Exa integration with server-side credentials, bounded concurrency, canary controls, and explicit rollback of scheduled work. Use when operating or reviewing this Exa boundary. Trigger with \"Exa deploy integration\", \"review Exa deploy integration\", or \"fix Exa deploy integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(fly:*)",
-        "Bash(gcloud:*)",
-        "Bash(docker:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-deploy-integration deploy exa integrations to vercel, docker, and cloud run platforms. use when deploying exa-powered applications to production, configuring platform-specific secrets, or building search api endpoints. trigger with phrases like \"deploy exa\", \"exa vercel\", \"exa production deploy\", \"exa cloud run\", \"exa docker\". saas-packs read write edit bash(vercel:*) bash(fly:*) bash(gcloud:*) bash(docker:*) "
+      "searchText": "exa-deploy-integration deploy an exa integration with server-side credentials, bounded concurrency, canary controls, and explicit rollback of scheduled work. use when operating or reviewing this exa boundary. trigger with \"exa deploy integration\", \"review exa deploy integration\", or \"fix exa deploy integration\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-enterprise-rbac",
       "slug": "exa-enterprise-rbac",
       "name": "exa-enterprise-rbac",
-      "description": "Manage Exa API key scoping, team access controls, and domain restrictions. Use when implementing multi-key access control, configuring per-team search limits, or setting up organization-level Exa governance. Trigger with phrases like \"exa access control\", \"exa RBAC\", \"exa enterprise\", \"exa team keys\", \"exa permissions\".",
+      "description": "Govern Exa membership, API and service keys, team budgets, MCP OAuth, and enterprise managed authorization through least privilege and revocation evidence. Use when operating or reviewing this Exa boundary. Trigger with \"Exa enterprise rbac\", \"review Exa enterprise rbac\", or \"fix Exa enterprise rbac\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-enterprise-rbac manage exa api key scoping, team access controls, and domain restrictions. use when implementing multi-key access control, configuring per-team search limits, or setting up organization-level exa governance. trigger with phrases like \"exa access control\", \"exa rbac\", \"exa enterprise\", \"exa team keys\", \"exa permissions\". saas-packs read write edit bash(curl:*) "
+      "searchText": "exa-enterprise-rbac govern exa membership, api and service keys, team budgets, mcp oauth, and enterprise managed authorization through least privilege and revocation evidence. use when operating or reviewing this exa boundary. trigger with \"exa enterprise rbac\", \"review exa enterprise rbac\", or \"fix exa enterprise rbac\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-hello-world",
       "slug": "exa-hello-world",
       "name": "exa-hello-world",
-      "description": "Create a minimal working Exa search example with real results. Use when starting a new Exa integration, testing your setup, or learning basic search, searchAndContents, and findSimilar patterns. Trigger with phrases like \"exa hello world\", \"exa example\", \"exa quick start\", \"simple exa search\", \"first exa query\".",
+      "description": "Prove a new Exa Search integration with a bounded synthetic query and content-free assertions. Use when operating or reviewing this Exa boundary. Trigger with \"Exa hello world\", \"review Exa hello world\", or \"fix Exa hello world\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(node:*)",
-        "Bash(npx:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-hello-world create a minimal working exa search example with real results. use when starting a new exa integration, testing your setup, or learning basic search, searchandcontents, and findsimilar patterns. trigger with phrases like \"exa hello world\", \"exa example\", \"exa quick start\", \"simple exa search\", \"first exa query\". saas-packs read write edit bash(npm:*) bash(node:*) bash(npx:*) "
+      "searchText": "exa-hello-world prove a new exa search integration with a bounded synthetic query and content-free assertions. use when operating or reviewing this exa boundary. trigger with \"exa hello world\", \"review exa hello world\", or \"fix exa hello world\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-incident-runbook",
       "slug": "exa-incident-runbook",
       "name": "exa-incident-runbook",
-      "description": "Execute Exa incident response with triage, mitigation, and postmortem procedures. Use when responding to Exa-related outages, investigating errors, or running post-incident reviews for Exa integration failures. Trigger with phrases like \"exa incident\", \"exa outage\", \"exa down\", \"exa on-call\", \"exa emergency\", \"exa broken\".",
+      "description": "Contain Exa credential, data, cost, capacity, or correctness incidents while preserving safe evidence and vendor request IDs. Use when operating or reviewing this Exa boundary. Trigger with \"Exa incident runbook\", \"review Exa incident runbook\", or \"fix Exa incident runbook\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(kubectl:*)",
-        "Bash(curl:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-incident-runbook execute exa incident response with triage, mitigation, and postmortem procedures. use when responding to exa-related outages, investigating errors, or running post-incident reviews for exa integration failures. trigger with phrases like \"exa incident\", \"exa outage\", \"exa down\", \"exa on-call\", \"exa emergency\", \"exa broken\". saas-packs read grep bash(kubectl:*) bash(curl:*) "
+      "searchText": "exa-incident-runbook contain exa credential, data, cost, capacity, or correctness incidents while preserving safe evidence and vendor request ids. use when operating or reviewing this exa boundary. trigger with \"exa incident runbook\", \"review exa incident runbook\", or \"fix exa incident runbook\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-install-auth",
       "slug": "exa-install-auth",
       "name": "exa-install-auth",
-      "description": "Install the exa-js SDK and configure API key authentication. Use when setting up a new Exa integration, configuring API keys, or initializing Exa in a Node.js/Python project. Trigger with phrases like \"install exa\", \"setup exa\", \"exa auth\", \"configure exa API key\", \"exa-js\".",
+      "description": "Configure an Exa client without leaking credentials or mixing API-key, MCP OAuth, enterprise managed authorization, and payment-protocol trust models. Use when operating or reviewing this Exa boundary. Trigger with \"Exa install auth\", \"review Exa install auth\", or \"fix Exa install auth\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(pnpm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-install-auth install the exa-js sdk and configure api key authentication. use when setting up a new exa integration, configuring api keys, or initializing exa in a node.js/python project. trigger with phrases like \"install exa\", \"setup exa\", \"exa auth\", \"configure exa api key\", \"exa-js\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(pnpm:*) grep "
+      "searchText": "exa-install-auth configure an exa client without leaking credentials or mixing api-key, mcp oauth, enterprise managed authorization, and payment-protocol trust models. use when operating or reviewing this exa boundary. trigger with \"exa install auth\", \"review exa install auth\", or \"fix exa install auth\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-known-pitfalls",
       "slug": "exa-known-pitfalls",
       "name": "exa-known-pitfalls",
-      "description": "Identify and avoid Exa anti-patterns and common integration mistakes. Use when reviewing Exa code, onboarding new developers, or auditing existing Exa integrations for correctness. Trigger with phrases like \"exa mistakes\", \"exa anti-patterns\", \"exa pitfalls\", \"exa what not to do\", \"exa code review\".",
+      "description": "Audit an Exa integration for stale search types, unsafe secrets, ignored partial failures, unbounded content work, weak citations, and orphaned asynchronous resources. Use when operating or reviewing this Exa boundary. Trigger with \"Exa known pitfalls\", \"review Exa known pitfalls\", or \"fix Exa known pitfalls\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-known-pitfalls identify and avoid exa anti-patterns and common integration mistakes. use when reviewing exa code, onboarding new developers, or auditing existing exa integrations for correctness. trigger with phrases like \"exa mistakes\", \"exa anti-patterns\", \"exa pitfalls\", \"exa what not to do\", \"exa code review\". saas-packs read grep "
+      "searchText": "exa-known-pitfalls audit an exa integration for stale search types, unsafe secrets, ignored partial failures, unbounded content work, weak citations, and orphaned asynchronous resources. use when operating or reviewing this exa boundary. trigger with \"exa known pitfalls\", \"review exa known pitfalls\", or \"fix exa known pitfalls\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-load-scale",
       "slug": "exa-load-scale",
       "name": "exa-load-scale",
-      "description": "Implement Exa load testing, capacity planning, and scaling strategies. Use when running performance tests, planning capacity for Exa integrations, or designing high-throughput search architectures. Trigger with phrases like \"exa load test\", \"exa scale\", \"exa capacity\", \"exa k6\", \"exa benchmark\", \"exa throughput\".",
+      "description": "Validate Exa capacity with synthetic workload models, endpoint-specific budgets, bounded queues, and stop conditions. Use when operating or reviewing this Exa boundary. Trigger with \"Exa load scale\", \"review Exa load scale\", or \"fix Exa load scale\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(k6:*)",
-        "Bash(node:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-load-scale implement exa load testing, capacity planning, and scaling strategies. use when running performance tests, planning capacity for exa integrations, or designing high-throughput search architectures. trigger with phrases like \"exa load test\", \"exa scale\", \"exa capacity\", \"exa k6\", \"exa benchmark\", \"exa throughput\". saas-packs read write edit bash(k6:*) bash(node:*) "
+      "searchText": "exa-load-scale validate exa capacity with synthetic workload models, endpoint-specific budgets, bounded queues, and stop conditions. use when operating or reviewing this exa boundary. trigger with \"exa load scale\", \"review exa load scale\", or \"fix exa load scale\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-local-dev-loop",
       "slug": "exa-local-dev-loop",
       "name": "exa-local-dev-loop",
-      "description": "Configure Exa local development with hot reload, testing, and mock responses. Use when setting up a development environment, writing tests against Exa, or establishing a fast iteration cycle. Trigger with phrases like \"exa dev setup\", \"exa local development\", \"exa test setup\", \"develop with exa\", \"mock exa\".",
+      "description": "Build and test an Exa adapter locally using schema fixtures, recorded content-free envelopes, and an explicit opt-in live lane. Use when operating or reviewing this Exa boundary. Trigger with \"Exa local dev loop\", \"review Exa local dev loop\", or \"fix Exa local dev loop\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-local-dev-loop configure exa local development with hot reload, testing, and mock responses. use when setting up a development environment, writing tests against exa, or establishing a fast iteration cycle. trigger with phrases like \"exa dev setup\", \"exa local development\", \"exa test setup\", \"develop with exa\", \"mock exa\". saas-packs read write edit bash(npm:*) bash(pnpm:*) bash(npx:*) grep "
+      "searchText": "exa-local-dev-loop build and test an exa adapter locally using schema fixtures, recorded content-free envelopes, and an explicit opt-in live lane. use when operating or reviewing this exa boundary. trigger with \"exa local dev loop\", \"review exa local dev loop\", or \"fix exa local dev loop\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-migration-deep-dive",
       "slug": "exa-migration-deep-dive",
       "name": "exa-migration-deep-dive",
-      "description": "Migrate from other search APIs (Google, Bing, Tavily, Serper) to Exa neural search. Use when switching to Exa from another search provider, migrating search pipelines, or evaluating Exa as a replacement for traditional search APIs. Trigger with phrases like \"migrate to exa\", \"switch to exa\", \"replace google search with exa\", \"exa vs tavily\", \"exa migration\", \"move to exa\".",
+      "description": "Migrate a legacy web-search integration to Exa through semantic, filter, freshness, relevance, cost, and rollback comparisons. Use when operating or reviewing this Exa boundary. Trigger with \"Exa migration deep dive\", \"review Exa migration deep dive\", or \"fix Exa migration deep dive\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(node:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-migration-deep-dive migrate from other search apis (google, bing, tavily, serper) to exa neural search. use when switching to exa from another search provider, migrating search pipelines, or evaluating exa as a replacement for traditional search apis. trigger with phrases like \"migrate to exa\", \"switch to exa\", \"replace google search with exa\", \"exa vs tavily\", \"exa migration\", \"move to exa\". saas-packs read write edit bash(npm:*) bash(node:*) "
+      "searchText": "exa-migration-deep-dive migrate a legacy web-search integration to exa through semantic, filter, freshness, relevance, cost, and rollback comparisons. use when operating or reviewing this exa boundary. trigger with \"exa migration deep dive\", \"review exa migration deep dive\", or \"fix exa migration deep dive\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-multi-env-setup",
       "slug": "exa-multi-env-setup",
       "name": "exa-multi-env-setup",
-      "description": "Configure Exa across development, staging, and production environments. Use when setting up multi-environment search pipelines, managing API key isolation, or configuring per-environment search limits and caching. Trigger with phrases like \"exa environments\", \"exa staging\", \"exa dev prod\", \"exa environment setup\", \"exa multi-env\".",
+      "description": "Separate Exa development, staging, and production credentials, budgets, schedules, data, and observability. Use when operating or reviewing this Exa boundary. Trigger with \"Exa multi env setup\", \"review Exa multi env setup\", or \"fix Exa multi env setup\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(aws:*)",
-        "Bash(gcloud:*)",
-        "Bash(vault:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-multi-env-setup configure exa across development, staging, and production environments. use when setting up multi-environment search pipelines, managing api key isolation, or configuring per-environment search limits and caching. trigger with phrases like \"exa environments\", \"exa staging\", \"exa dev prod\", \"exa environment setup\", \"exa multi-env\". saas-packs read write edit bash(aws:*) bash(gcloud:*) bash(vault:*) "
+      "searchText": "exa-multi-env-setup separate exa development, staging, and production credentials, budgets, schedules, data, and observability. use when operating or reviewing this exa boundary. trigger with \"exa multi env setup\", \"review exa multi env setup\", or \"fix exa multi env setup\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-observability",
       "slug": "exa-observability",
       "name": "exa-observability",
-      "description": "Set up monitoring, metrics, and alerting for Exa search integrations. Use when implementing monitoring for Exa operations, building dashboards, or configuring alerting for search quality and latency. Trigger with phrases like \"exa monitoring\", \"exa metrics\", \"exa observability\", \"monitor exa\", \"exa alerts\", \"exa dashboard\".",
+      "description": "Instrument Exa calls with content-free metrics, traces, cost, and asynchronous lifecycle signals that support diagnosis without logging retrieved text. Use when operating or reviewing this Exa boundary. Trigger with \"Exa observability\", \"review Exa observability\", or \"fix Exa observability\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-observability set up monitoring, metrics, and alerting for exa search integrations. use when implementing monitoring for exa operations, building dashboards, or configuring alerting for search quality and latency. trigger with phrases like \"exa monitoring\", \"exa metrics\", \"exa observability\", \"monitor exa\", \"exa alerts\", \"exa dashboard\". saas-packs read write edit "
+      "searchText": "exa-observability instrument exa calls with content-free metrics, traces, cost, and asynchronous lifecycle signals that support diagnosis without logging retrieved text. use when operating or reviewing this exa boundary. trigger with \"exa observability\", \"review exa observability\", or \"fix exa observability\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-performance-tuning",
       "slug": "exa-performance-tuning",
       "name": "exa-performance-tuning",
-      "description": "Optimize Exa API performance with search type selection, caching, and parallelization. Use when experiencing slow responses, implementing caching strategies, or optimizing request throughput for Exa integrations. Trigger with phrases like \"exa performance\", \"optimize exa\", \"exa latency\", \"exa caching\", \"exa slow\", \"exa fast\".",
+      "description": "Tune Exa search type, content mode, freshness, result count, and concurrency against measured latency and retrieval quality. Use when operating or reviewing this Exa boundary. Trigger with \"Exa performance tuning\", \"review Exa performance tuning\", or \"fix Exa performance tuning\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-performance-tuning optimize exa api performance with search type selection, caching, and parallelization. use when experiencing slow responses, implementing caching strategies, or optimizing request throughput for exa integrations. trigger with phrases like \"exa performance\", \"optimize exa\", \"exa latency\", \"exa caching\", \"exa slow\", \"exa fast\". saas-packs read write edit "
+      "searchText": "exa-performance-tuning tune exa search type, content mode, freshness, result count, and concurrency against measured latency and retrieval quality. use when operating or reviewing this exa boundary. trigger with \"exa performance tuning\", \"review exa performance tuning\", or \"fix exa performance tuning\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-policy-guardrails",
       "slug": "exa-policy-guardrails",
       "name": "exa-policy-guardrails",
-      "description": "Implement content policy enforcement, domain filtering, and usage guardrails for Exa. Use when setting up content safety rules, restricting search domains, or enforcing query and budget policies for Exa integrations. Trigger with phrases like \"exa policy\", \"exa content filter\", \"exa guardrails\", \"exa domain allowlist\", \"exa content moderation\".",
+      "description": "Enforce query, domain, moderation, freshness, content, and downstream-use policy before and after Exa retrieval. Use when operating or reviewing this Exa boundary. Trigger with \"Exa policy guardrails\", \"review Exa policy guardrails\", or \"fix Exa policy guardrails\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npx:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-policy-guardrails implement content policy enforcement, domain filtering, and usage guardrails for exa. use when setting up content safety rules, restricting search domains, or enforcing query and budget policies for exa integrations. trigger with phrases like \"exa policy\", \"exa content filter\", \"exa guardrails\", \"exa domain allowlist\", \"exa content moderation\". saas-packs read write edit bash(npx:*) "
+      "searchText": "exa-policy-guardrails enforce query, domain, moderation, freshness, content, and downstream-use policy before and after exa retrieval. use when operating or reviewing this exa boundary. trigger with \"exa policy guardrails\", \"review exa policy guardrails\", or \"fix exa policy guardrails\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-prod-checklist",
       "slug": "exa-prod-checklist",
       "name": "exa-prod-checklist",
-      "description": "Execute Exa production deployment checklist with pre-flight, deploy, and rollback. Use when deploying Exa integrations to production, preparing for launch, or verifying production readiness. Trigger with phrases like \"exa production\", \"deploy exa to prod\", \"exa go-live\", \"exa launch checklist\", \"exa production ready\".",
+      "description": "Gate an Exa-backed service on contract, security, cost, reliability, observability, and rollback evidence. Use when operating or reviewing this Exa boundary. Trigger with \"Exa prod checklist\", \"review Exa prod checklist\", or \"fix Exa prod checklist\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Bash(node:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-prod-checklist execute exa production deployment checklist with pre-flight, deploy, and rollback. use when deploying exa integrations to production, preparing for launch, or verifying production readiness. trigger with phrases like \"exa production\", \"deploy exa to prod\", \"exa go-live\", \"exa launch checklist\", \"exa production ready\". saas-packs read bash(curl:*) bash(node:*) grep "
+      "searchText": "exa-prod-checklist gate an exa-backed service on contract, security, cost, reliability, observability, and rollback evidence. use when operating or reviewing this exa boundary. trigger with \"exa prod checklist\", \"review exa prod checklist\", or \"fix exa prod checklist\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-rate-limits",
       "slug": "exa-rate-limits",
       "name": "exa-rate-limits",
-      "description": "Implement Exa rate limiting, exponential backoff, and request queuing. Use when handling 429 errors, implementing retry logic, or optimizing API request throughput for Exa. Trigger with phrases like \"exa rate limit\", \"exa throttling\", \"exa 429\", \"exa retry\", \"exa backoff\", \"exa QPS\".",
+      "description": "Budget Exa throughput per endpoint and distinguish caller rate limiting from vendor overload and billing exhaustion. Use when operating or reviewing this Exa boundary. Trigger with \"Exa rate limits\", \"review Exa rate limits\", or \"fix Exa rate limits\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-rate-limits implement exa rate limiting, exponential backoff, and request queuing. use when handling 429 errors, implementing retry logic, or optimizing api request throughput for exa. trigger with phrases like \"exa rate limit\", \"exa throttling\", \"exa 429\", \"exa retry\", \"exa backoff\", \"exa qps\". saas-packs read write edit "
+      "searchText": "exa-rate-limits budget exa throughput per endpoint and distinguish caller rate limiting from vendor overload and billing exhaustion. use when operating or reviewing this exa boundary. trigger with \"exa rate limits\", \"review exa rate limits\", or \"fix exa rate limits\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-reference-architecture",
       "slug": "exa-reference-architecture",
       "name": "exa-reference-architecture",
-      "description": "Implement Exa reference architecture for search pipelines, RAG, and content discovery. Use when designing new Exa integrations, reviewing project structure, or establishing architecture standards for neural search applications. Trigger with phrases like \"exa architecture\", \"exa project structure\", \"exa RAG pipeline\", \"exa reference design\", \"exa search pipeline\".",
+      "description": "Design an Exa architecture that separates query policy, retrieval, content handling, asynchronous state, citations, and evidence. Use when operating or reviewing this Exa boundary. Trigger with \"Exa reference architecture\", \"review Exa reference architecture\", or \"fix Exa reference architecture\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-reference-architecture implement exa reference architecture for search pipelines, rag, and content discovery. use when designing new exa integrations, reviewing project structure, or establishing architecture standards for neural search applications. trigger with phrases like \"exa architecture\", \"exa project structure\", \"exa rag pipeline\", \"exa reference design\", \"exa search pipeline\". saas-packs read grep "
+      "searchText": "exa-reference-architecture design an exa architecture that separates query policy, retrieval, content handling, asynchronous state, citations, and evidence. use when operating or reviewing this exa boundary. trigger with \"exa reference architecture\", \"review exa reference architecture\", or \"fix exa reference architecture\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-reliability-patterns",
       "slug": "exa-reliability-patterns",
       "name": "exa-reliability-patterns",
-      "description": "Implement Exa reliability patterns: query fallback chains, circuit breakers, and graceful degradation. Use when building fault-tolerant Exa integrations, implementing fallback strategies, or adding resilience to production search services. Trigger with phrases like \"exa reliability\", \"exa circuit breaker\", \"exa fallback\", \"exa resilience\", \"exa graceful degradation\".",
+      "description": "Design bounded Exa retries, deadlines, partial-result behavior, and tested fallbacks by endpoint and failure class. Use when operating or reviewing this Exa boundary. Trigger with \"Exa reliability patterns\", \"review Exa reliability patterns\", or \"fix Exa reliability patterns\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-reliability-patterns implement exa reliability patterns: query fallback chains, circuit breakers, and graceful degradation. use when building fault-tolerant exa integrations, implementing fallback strategies, or adding resilience to production search services. trigger with phrases like \"exa reliability\", \"exa circuit breaker\", \"exa fallback\", \"exa resilience\", \"exa graceful degradation\". saas-packs read write edit "
+      "searchText": "exa-reliability-patterns design bounded exa retries, deadlines, partial-result behavior, and tested fallbacks by endpoint and failure class. use when operating or reviewing this exa boundary. trigger with \"exa reliability patterns\", \"review exa reliability patterns\", or \"fix exa reliability patterns\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-sdk-patterns",
       "slug": "exa-sdk-patterns",
       "name": "exa-sdk-patterns",
-      "description": "Apply production-ready exa-js SDK patterns with type safety, singletons, and wrappers. Use when implementing Exa integrations, refactoring SDK usage, or establishing team coding standards for Exa. Trigger with phrases like \"exa SDK patterns\", \"exa best practices\", \"exa code patterns\", \"idiomatic exa\", \"exa wrapper\".",
+      "description": "Isolate exa-js or exa-py behind an application-owned adapter that preserves current request semantics and safe evidence. Use when operating or reviewing this Exa boundary. Trigger with \"Exa sdk patterns\", \"review Exa sdk patterns\", or \"fix Exa sdk patterns\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-sdk-patterns apply production-ready exa-js sdk patterns with type safety, singletons, and wrappers. use when implementing exa integrations, refactoring sdk usage, or establishing team coding standards for exa. trigger with phrases like \"exa sdk patterns\", \"exa best practices\", \"exa code patterns\", \"idiomatic exa\", \"exa wrapper\". saas-packs read write edit "
+      "searchText": "exa-sdk-patterns isolate exa-js or exa-py behind an application-owned adapter that preserves current request semantics and safe evidence. use when operating or reviewing this exa boundary. trigger with \"exa sdk patterns\", \"review exa sdk patterns\", or \"fix exa sdk patterns\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-security-basics",
       "slug": "exa-security-basics",
       "name": "exa-security-basics",
-      "description": "Secure Exa API keys, implement content moderation, and manage domain restrictions. Use when securing API keys, auditing Exa security configuration, or implementing content safety filtering. Trigger with phrases like \"exa security\", \"exa secrets\", \"secure exa\", \"exa API key security\", \"exa content moderation\".",
+      "description": "Threat-model Exa credentials, query intent, retrieved web content, generated output, and retained operational evidence as separate trust boundaries. Use when operating or reviewing this Exa boundary. Trigger with \"Exa security basics\", \"review Exa security basics\", or \"fix Exa security basics\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-security-basics secure exa api keys, implement content moderation, and manage domain restrictions. use when securing api keys, auditing exa security configuration, or implementing content safety filtering. trigger with phrases like \"exa security\", \"exa secrets\", \"secure exa\", \"exa api key security\", \"exa content moderation\". saas-packs read write grep "
+      "searchText": "exa-security-basics threat-model exa credentials, query intent, retrieved web content, generated output, and retained operational evidence as separate trust boundaries. use when operating or reviewing this exa boundary. trigger with \"exa security basics\", \"review exa security basics\", or \"fix exa security basics\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-upgrade-migration",
       "slug": "exa-upgrade-migration",
       "name": "exa-upgrade-migration",
-      "description": "Upgrade exa-js SDK versions and handle breaking changes safely. Use when upgrading the Exa SDK, detecting deprecations, or migrating between exa-js versions. Trigger with phrases like \"upgrade exa\", \"exa update\", \"exa breaking changes\", \"update exa-js\", \"exa new version\".",
+      "description": "Upgrade Exa SDK or API usage through a contract inventory, fixture diff, canary, and reversible dependency change. Use when operating or reviewing this Exa boundary. Trigger with \"Exa upgrade migration\", \"review Exa upgrade migration\", or \"fix Exa upgrade migration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(git:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-upgrade-migration upgrade exa-js sdk versions and handle breaking changes safely. use when upgrading the exa sdk, detecting deprecations, or migrating between exa-js versions. trigger with phrases like \"upgrade exa\", \"exa update\", \"exa breaking changes\", \"update exa-js\", \"exa new version\". saas-packs read write edit bash(npm:*) bash(git:*) "
+      "searchText": "exa-upgrade-migration upgrade exa sdk or api usage through a contract inventory, fixture diff, canary, and reversible dependency change. use when operating or reviewing this exa boundary. trigger with \"exa upgrade migration\", \"review exa upgrade migration\", or \"fix exa upgrade migration\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "exa-webhooks-events",
       "slug": "exa-webhooks-events",
       "name": "exa-webhooks-events",
-      "description": "Build event-driven integrations with Exa using scheduled monitors and content alerts. Use when building content monitoring, competitive intelligence pipelines, or scheduled search automation with Exa. Trigger with phrases like \"exa monitor\", \"exa content alerts\", \"exa scheduled search\", \"exa event-driven\", \"exa notifications\".",
+      "description": "Receive Exa Monitor events through verified signatures, replay resistance, deduplication, and fast acknowledgment. Use when operating or reviewing this Exa boundary. Trigger with \"Exa webhooks events\", \"review Exa webhooks events\", or \"fix Exa webhooks events\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Bash(node:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "exa-pack",
         "category": "saas-packs"
       },
-      "searchText": "exa-webhooks-events build event-driven integrations with exa using scheduled monitors and content alerts. use when building content monitoring, competitive intelligence pipelines, or scheduled search automation with exa. trigger with phrases like \"exa monitor\", \"exa content alerts\", \"exa scheduled search\", \"exa event-driven\", \"exa notifications\". saas-packs read write edit bash(curl:*) bash(node:*) "
+      "searchText": "exa-webhooks-events receive exa monitor events through verified signatures, replay resistance, deduplication, and fast acknowledgment. use when operating or reviewing this exa boundary. trigger with \"exa webhooks events\", \"review exa webhooks events\", or \"fix exa webhooks events\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",

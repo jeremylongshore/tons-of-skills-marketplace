@@ -1,193 +1,75 @@
 ---
 name: exa-upgrade-migration
-description: 'Upgrade exa-js SDK versions and handle breaking changes safely.
-
-  Use when upgrading the Exa SDK, detecting deprecations,
-
-  or migrating between exa-js versions.
-
-  Trigger with phrases like "upgrade exa", "exa update",
-
-  "exa breaking changes", "update exa-js", "exa new version".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(git:*)
-version: 1.11.0
+description: >-
+  Upgrade Exa SDK or API usage through a contract inventory, fixture diff, canary, and reversible dependency change. Use when operating or reviewing this Exa boundary. Trigger with "Exa upgrade migration", "review Exa upgrade migration", or "fix Exa upgrade migration".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<current-version> <target-version> <adapter-path>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- api
-- migration
-- upgrade
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Upgrade & Migration
-
-## Prerequisites
-
-- Current/target versions, compatibility notes, sanitized evaluation set, acceptance thresholds, and a rollback owner.
-- Separate staging credentials plus a policy/data review for any query/result migration or automation change.
-
-## Output
-
-- A staged upgrade record with compatibility/evaluation evidence, owner, observation window, and rollback revision.
-- A safe pause decision when retrieval quality, latency, policy, or data handling regresses.
-
-## Examples
-
-Upgrade in staging, run unit tests and sanitized evaluation queries through prior and target configurations, compare aggregate relevance/latency/error metrics, then release an approved canary. Roll back on regression and do not bulk-replay customer queries or export private result data to validate the migration.
-
-## Current State
-
-!`npm list exa-js 2>/dev/null | grep exa-js || echo 'exa-js not installed'`
-!`npm view exa-js version 2>/dev/null || echo 'cannot check latest'`
+# Exa SDK and API Upgrade Migration
 
 ## Overview
 
-Guide for upgrading the `exa-js` SDK. The SDK import is `import Exa from "exa-js"` and the client is instantiated with `new Exa(apiKey)`. This skill covers checking for updates, handling breaking changes, and validating after upgrade.
+Upgrade Exa SDK or API usage through a contract inventory, fixture diff, canary, and reversible dependency change. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
+
+## Prerequisites
+
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Current Search uses auto, fast, instant, deep-lite, deep, and deep-reasoning; neural is legacy terminology for new code. SDK method names and request casing differ by language, and newer product surfaces may be beta-gated. The first-party SDK specifications and changelog are the migration authority.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Check Current vs Latest Version
+1. Record current dependency, lockfile, endpoint calls, types, headers, and feature flags.
+2. Read the target SDK specification and Exa changelog for breaking changes.
+3. Diff owned fixtures for requests, responses, errors, statuses, and costs.
+4. Update only the application adapter and regenerate its lockfile deterministically.
+5. Run offline contracts, then an approved synthetic canary on the target version.
+6. Retain a dependency rollback and remove compatibility code only after observation.
 
-```bash
-set -euo pipefail
-echo "Current version:"
-npm list exa-js 2>/dev/null || echo "Not installed"
+## Tool Discipline
 
-echo ""
-echo "Latest available:"
-npm view exa-js version
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-echo ""
-echo "Changelog:"
-npm view exa-js repository.url
-```
+## Approval Boundaries
 
-### Step 2: Create Upgrade Branch
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-```bash
-set -euo pipefail
-git checkout -b upgrade/exa-js-latest
-npm install exa-js@latest
-npm test
-```
+## Failure Modes
 
-### Step 3: Verify API Compatibility
+- Do not automatically fall back to an older SDK or search type.
+- A compile pass does not prove response, error, or billing compatibility.
+- Beta headers and features must remain explicit and independently removable.
 
-```typescript
-import Exa from "exa-js";
+## Output
 
-async function verifyUpgrade() {
-  const exa = new Exa(process.env.EXA_API_KEY);
-  const checks = [];
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-  // Check 1: Basic search
-  try {
-    const r = await exa.search("upgrade test", { numResults: 1 });
-    checks.push({ method: "search", status: "OK", results: r.results.length });
-  } catch (err: any) {
-    checks.push({ method: "search", status: "FAIL", error: err.message });
-  }
+## Example
 
-  // Check 2: searchAndContents
-  try {
-    const r = await exa.searchAndContents("upgrade test", {
-      numResults: 1,
-      text: { maxCharacters: 100 },
-      highlights: { maxCharacters: 100 },
-    });
-    checks.push({
-      method: "searchAndContents",
-      status: "OK",
-      hasText: !!r.results[0]?.text,
-      hasHighlights: !!r.results[0]?.highlights,
-    });
-  } catch (err: any) {
-    checks.push({ method: "searchAndContents", status: "FAIL", error: err.message });
-  }
+- Replace a legacy neural request with auto only after fixture and relevance acceptance tests confirm the intended behavior.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-  // Check 3: findSimilar
-  try {
-    const r = await exa.findSimilar("https://nodejs.org", { numResults: 1 });
-    checks.push({ method: "findSimilar", status: "OK", results: r.results.length });
-  } catch (err: any) {
-    checks.push({ method: "findSimilar", status: "FAIL", error: err.message });
-  }
+## Validation
 
-  // Check 4: getContents
-  try {
-    const r = await exa.getContents(["https://nodejs.org"], { text: true });
-    checks.push({ method: "getContents", status: "OK", hasContent: !!r.results[0]?.text });
-  } catch (err: any) {
-    checks.push({ method: "getContents", status: "FAIL", error: err.message });
-  }
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-  console.table(checks);
-  const allPassed = checks.every(c => c.status === "OK");
-  console.log(`\nUpgrade verification: ${allPassed ? "PASSED" : "FAILED"}`);
-  return allPassed;
-}
-```
+## References
 
-### Step 4: Common Breaking Change Patterns
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-```typescript
-// Import style (has been stable)
-import Exa from "exa-js";  // default export
-
-// Constructor (has been stable)
-const exa = new Exa("api-key");
-
-// If upgrading from a very old version, check:
-// - Method names: searchAndContents (not searchWithContents)
-// - findSimilarAndContents (not findSimilarWithContents)
-// - Parameter names: numResults (not num_results)
-// - Content options: text, highlights, summary as objects
-
-// Check for deprecated parameters
-// - livecrawl may be replaced by maxAgeHours in newer versions
-// - Check changelog for parameter renames
-```
-
-### Step 5: Rollback Procedure
-
-```bash
-set -euo pipefail
-# If tests fail, rollback
-npm install exa-js@<previous-version> --save-exact
-git checkout -- package-lock.json  # restore lockfile
-npm test  # verify rollback works
-```
-
-## Upgrade Checklist
-
-- [ ] Create branch: `upgrade/exa-js-latest`
-- [ ] Run `npm install exa-js@latest`
-- [ ] Run full test suite: `npm test`
-- [ ] Run upgrade verification script (checks all methods)
-- [ ] Check for deprecation warnings in output
-- [ ] Review changelog for breaking changes
-- [ ] Update any changed parameter names
-- [ ] Merge after all checks pass
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Import error after upgrade | API change | Check `import Exa from "exa-js"` still works |
-| Method not found | Renamed method | Check SDK changelog |
-| Type errors | Parameter type changes | Update TypeScript types |
-| Tests fail | Breaking change | Review changelog, update code |
-
-## Resources
-
-- [exa-js on npm](https://www.npmjs.com/package/exa-js)
-- [exa-js GitHub](https://github.com/exa-labs/exa-js)
-- [Exa Changelog](https://docs.exa.ai/changelog)
-
-## Next Steps
-
-For CI integration during upgrades, see `exa-ci-integration`.
+- [Current first-party evidence map](references/official-docs.md)
