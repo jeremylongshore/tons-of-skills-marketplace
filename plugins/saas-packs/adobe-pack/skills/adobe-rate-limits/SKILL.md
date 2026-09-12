@@ -1,222 +1,81 @@
 ---
 name: adobe-rate-limits
-description: 'Implement Adobe API rate limiting, backoff, and quota management across
-
-  Firefly, PDF Services, Photoshop, and I/O Events APIs.
-
-  Use when handling rate limit errors, implementing retry logic,
-
-  or optimizing API request throughput for Adobe.
-
-  Trigger with phrases like "adobe rate limit", "adobe throttling",
-
-  "adobe 429", "adobe retry", "adobe backoff", "adobe quota".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
+description: >-
+  Implement service-specific Adobe admission control, Retry-After handling, bounded retries, and spend-aware queues. Use when scaling workloads or handling 429 responses. Trigger with "Adobe rate limit", "Adobe 429", or "Adobe backoff".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<service> <workload> <recovery-objective>"
+version: 1.8.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- design
-- adobe
-compatibility: Designed for Claude Code
+tags: [saas, adobe, throttling]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Adobe actions require network access, appropriate entitlement and authentication, and explicit approval"
 ---
-# Adobe Rate Limits
+# Adobe Throttling and Backpressure
 
 ## Overview
 
-Handle Adobe API rate limits gracefully with exponential backoff, `Retry-After` header support, and proactive quota management. Each Adobe API has different rate limits.
+Implement service-specific Adobe admission control, Retry-After handling, bounded retries, and spend-aware queues. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 
-- Adobe SDK installed and authenticated
-- Understanding of async/await patterns
-- Awareness of your API tier and entitlements
+- Current first-party Adobe documentation for every selected service, API version, auth flow, limit, and lifecycle.
+- Named product, identity, security, data, budget, release, and operations owners appropriate to the scope.
+- Synthetic or approved non-production fixtures with secret and content canaries.
+
+## Current Contract
+
+Adobe limits differ by service, operation, entitlement, and contract. Recheck first-party limits at execution. A valid Retry-After response is authoritative; absence requires conservative capped exponential backoff with jitter, not a remembered universal rate. Recheck the dated evidence map before relying on mutable product behavior.
+
+## Authentication
+
+Partition control by approved credential, organization, service, operation, and tenant without exposing tokens or multiplying credentials to evade policy.
 
 ## Instructions
 
-### Step 1: Know Your Rate Limits by API
+1. Inventory traffic, operations, concurrency, queues, retry chains, job durations, transactions, and downstream acknowledgements.
+2. Read current service limits and capture observed 429 headers and error bodies from sanitized evidence.
+3. Set conservative token buckets, concurrency, queue size, and spend ceilings below verified constraints.
+4. Retry only classified transient, idempotent work; honor valid server delay and cap attempts plus elapsed time.
+5. Quarantine ambiguous writes/jobs and propagate backpressure rather than recursively retrying.
+6. Load-test with synthetic data, publish the safe envelope, and assign an emergency reduction switch.
 
-| API | Limit | Scope | Response |
-|-----|-------|-------|----------|
-| **Firefly API** | ~20 req/min (trial), higher on paid | Per api-key | `429` + `Retry-After` |
-| **PDF Services** | 500 tx/month (free), unlimited (paid) | Per credential | `429` or `QUOTA_EXCEEDED` |
-| **Photoshop API** | Varies by entitlement | Per api-key | `429` + `Retry-After` |
-| **Lightroom API** | Varies by entitlement | Per api-key | `429` + `Retry-After` |
-| **I/O Events Publishing** | 3,000 req/5sec | Per api-key | `429` + `Retry-After` |
-| **Analytics 2.0 API** | 12 req/6sec per user (~120 req/min) | Per user | `429` + `Retry-After` |
-| **IMS Token Endpoint** | ~100 req/min | Per client_id | `429` |
+## Tool Discipline
 
-### Step 2: Implement Retry-After Aware Backoff
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, Adobe content, consent, uploads, generation, spend, deployment, registration changes, replay, cancellation, or deletion.
 
-```typescript
-// src/adobe/rate-limiter.ts
-import { AdobeApiError } from './client';
+## Approval Boundaries
 
-export async function withAdobeBackoff<T>(
-  operation: () => Promise<T>,
-  config = { maxRetries: 5, baseDelayMs: 1000, maxDelayMs: 60_000 }
-): Promise<T> {
-  for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
-    try {
-      return await operation();
-    } catch (error: any) {
-      if (attempt === config.maxRetries) throw error;
-
-      // Only retry on 429 and 5xx
-      const status = error.status || error.response?.status;
-      if (status && status !== 429 && (status < 500 || status >= 600)) throw error;
-
-      // Honor Adobe's Retry-After header (seconds)
-      let delay: number;
-      if (error.retryAfter) {
-        delay = error.retryAfter * 1000;
-      } else {
-        // Exponential backoff with jitter
-        const exponential = config.baseDelayMs * Math.pow(2, attempt);
-        const jitter = Math.random() * config.baseDelayMs;
-        delay = Math.min(exponential + jitter, config.maxDelayMs);
-      }
-
-      console.warn(
-        `Adobe rate limited (attempt ${attempt + 1}/${config.maxRetries}). ` +
-        `Waiting ${(delay / 1000).toFixed(1)}s...`
-      );
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error('Unreachable');
-}
-```
-
-### Step 3: Proactive Rate Tracking
-
-```typescript
-// Track remaining quota from response headers
-class AdobeRateTracker {
-  private remaining: number = Infinity;
-  private resetAt: number = 0;
-
-  updateFromResponse(response: Response): void {
-    const remaining = response.headers.get('Retry-After');
-    // Adobe primarily uses Retry-After rather than X-RateLimit-* headers
-    // Some APIs (Analytics, Events) include additional rate info
-    if (remaining) {
-      this.remaining = 0;
-      this.resetAt = Date.now() + parseInt(remaining) * 1000;
-    }
-  }
-
-  async waitIfNeeded(): Promise<void> {
-    if (this.remaining <= 0 && Date.now() < this.resetAt) {
-      const waitMs = this.resetAt - Date.now();
-      console.log(`Proactively waiting ${waitMs}ms for Adobe rate limit reset`);
-      await new Promise(r => setTimeout(r, waitMs));
-      this.remaining = Infinity; // Reset after wait
-    }
-  }
-}
-```
-
-### Step 4: Queue-Based Rate Limiting for Batch Operations
-
-```typescript
-import PQueue from 'p-queue';
-
-// Configure queue per API — match to known rate limits
-const fireflyQueue = new PQueue({
-  concurrency: 2,        // Max concurrent requests
-  interval: 3000,        // Time window (ms)
-  intervalCap: 1,        // Max requests per interval
-});
-
-const pdfServicesQueue = new PQueue({
-  concurrency: 5,
-  interval: 1000,
-  intervalCap: 5,
-});
-
-const eventsQueue = new PQueue({
-  concurrency: 10,
-  interval: 5000,
-  intervalCap: 3000,     // Match Adobe's 3000/5sec limit
-});
-
-// Usage
-async function batchFireflyGenerate(prompts: string[]) {
-  const results = await Promise.all(
-    prompts.map(prompt =>
-      fireflyQueue.add(() =>
-        withAdobeBackoff(() => generateImage({ prompt }))
-      )
-    )
-  );
-  return results;
-}
-```
-
-### Step 5: PDF Services Transaction Monitoring
-
-```typescript
-// Track monthly PDF Services usage against free tier limit
-class PdfServicesQuotaTracker {
-  private transactionsUsed = 0;
-  private readonly monthlyLimit: number;
-
-  constructor(tier: 'free' | 'paid' = 'free') {
-    this.monthlyLimit = tier === 'free' ? 500 : Infinity;
-  }
-
-  recordTransaction(): void {
-    this.transactionsUsed++;
-    const remaining = this.monthlyLimit - this.transactionsUsed;
-
-    if (remaining <= 50) {
-      console.warn(`PDF Services: ${remaining} transactions remaining this month`);
-    }
-    if (remaining <= 0) {
-      throw new Error('PDF Services monthly quota exceeded. Upgrade plan or wait for reset.');
-    }
-  }
-
-  getUsage(): { used: number; limit: number; remaining: number } {
-    return {
-      used: this.transactionsUsed,
-      limit: this.monthlyLimit,
-      remaining: Math.max(0, this.monthlyLimit - this.transactionsUsed),
-    };
-  }
-}
-```
-
-## Output
-
-- Retry logic that honors Adobe `Retry-After` headers
-- Per-API queue-based rate limiting for batch operations
-- Monthly transaction tracking for PDF Services free tier
-- Proactive backpressure before hitting limits
+Workload, budget, and sandbox owners approve load tests and capacity changes. Do not add organizations, users, keys, or projects to circumvent limits.
 
 ## Error Handling
 
-| Scenario | Detection | Action |
-|----------|-----------|--------|
-| Single 429 | `Retry-After` header | Wait specified seconds, retry |
-| Sustained 429s | Multiple retries fail | Reduce concurrency; check tier |
-| PDF `QUOTA_EXCEEDED` | Monthly limit hit | Upgrade tier or wait for reset |
-| Events 429 | 3000/5sec exceeded | Reduce batch size or add queue |
+- Fixed pack-wide RPM tables are forbidden.
+- Do not retry 401, 403, content-policy, validation, or terminal job failures blindly.
+- Stop before the retry budget becomes a spend amplifier.
+
+## Output
+
+Return cited current constraints, observed headers, control settings, retry matrix, queue policy, load curve, spend guard, and rollback. Mark assumptions, observed environment behavior, owners, evidence dates, and unresolved gaps explicitly.
 
 ## Examples
 
-Start with the smallest applicable command or code example already provided in this guide, using a non-production Adobe environment and credentials. Confirm the documented response or validation result before applying the pattern to production.
+- Recover from a 429 with Retry-After.
+- Demonstrate queue shedding when the elapsed retry budget expires.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- burst
+- missing delay
+- valid delay
+- ambiguous job
+- queue saturation
+- vendor outage
 
 ## Resources
 
-- [Adobe Events API Rate Limits](https://developer.adobe.com/events/docs/guides/api/eventsingress-api)
-- [Adobe Analytics API FAQ](https://developer.adobe.com/analytics-apis/docs/2.0/guides/faq/)
-- [p-queue Documentation](https://github.com/sindresorhus/p-queue)
-
-## Next Steps
-
-For security configuration, see `adobe-security-basics`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Adobe sources before execution.
+- Treat observed tenant or product behavior as environment-specific evidence, never a universal Adobe guarantee.

@@ -1,201 +1,81 @@
 ---
 name: adobe-install-auth
-description: 'Install and configure Adobe Developer Console OAuth Server-to-Server
-  credentials.
-
-  Use when setting up a new Adobe integration, configuring API credentials,
-
-  or initializing Adobe SDKs (Firefly Services, PDF Services, I/O Runtime).
-
-  Trigger with phrases like "install adobe", "setup adobe",
-
-  "adobe auth", "configure adobe credentials", "adobe developer console".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.7.0
+description: >-
+  Select and prove the correct Adobe authentication model, entitlement, product profile, and secret lifecycle before integration work. Use when creating or repairing Adobe credentials. Trigger with "set up Adobe auth", "Adobe OAuth server-to-server", or "Adobe user authentication".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<product-api> <data-owner> <environment>"
+version: 1.8.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- design
-- adobe
-compatibility: Designed for Claude Code
+tags: [saas, adobe, authentication]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Adobe actions require network access, appropriate entitlement and authentication, and explicit approval"
 ---
-# Adobe Install & Auth
+# Adobe Authentication and Entitlement Intake
 
 ## Overview
 
-Set up Adobe Developer Console OAuth Server-to-Server credentials and install the appropriate SDK for your use case. As of January 2025, JWT (Service Account) credentials are deprecated -- all new integrations must use OAuth Server-to-Server.
+Select and prove the correct Adobe authentication model, entitlement, product profile, and secret lifecycle before integration work. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 
-- Node.js 18+ or Python 3.10+
-- Adobe Developer Console account (https://developer.adobe.com/console)
-- An Adobe organization with API access entitlements
-- Admin or Developer role in Adobe Admin Console
+- Current first-party Adobe documentation for every selected service, API version, auth flow, limit, and lifecycle.
+- Named product, identity, security, data, budget, release, and operations owners appropriate to the scope.
+- Synthetic or approved non-production fixtures with secret and content canaries.
+
+## Current Contract
+
+OAuth Server-to-Server uses client credentials for application- or organization-owned data. User Authentication uses authorization code, explicit user consent, and optional offline access for user-owned data. Service Account JWT is deprecated and is never a valid new-work fallback. Recheck the dated evidence map before relying on mutable product behavior.
+
+## Authentication
+
+Keep client secrets and refresh tokens in an approved server-side secret store. Product profiles constrain organization data; scopes and a valid token do not prove entitlement by themselves.
 
 ## Instructions
 
-### Step 1: Create Project in Adobe Developer Console
+1. Classify the API, data owner, organization, environment, and whether a user must consent.
+2. Confirm the service is visible in the selected Developer Console organization and identify its license and admin owner.
+3. Choose OAuth Server-to-Server or User Authentication from the ownership contract; reject JWT configuration.
+4. Select only required scopes and product profiles and record requested versus granted authority.
+5. Acquire a token through an established OAuth library and run one read-only, product-specific proof.
+6. Document expiry, refresh, revocation, rotation, break-glass, and owner-transfer procedures.
 
-1. Go to https://developer.adobe.com/console
-2. Click **Create new project** > **Add API**
-3. Select the API you need (e.g., Firefly Services, PDF Services, Creative Cloud Libraries)
-4. Choose **OAuth Server-to-Server** credential type
-5. Select the product profiles to scope access
-6. Save your `client_id`, `client_secret`, and `scopes`
+## Tool Discipline
 
-### Step 2: Install the SDK for Your Use Case
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, Adobe content, consent, uploads, generation, spend, deployment, registration changes, replay, cancellation, or deletion.
 
-```bash
-# Firefly Services (Photoshop API, Lightroom API, Firefly API)
-npm install @adobe/firefly-apis @adobe/photoshop-apis @adobe/lightroom-apis
+## Approval Boundaries
 
-# PDF Services (create, extract, convert, generate documents)
-npm install @adobe/pdfservices-node-sdk
-
-# Adobe I/O Events (webhooks, event-driven)
-npm install @adobe/aio-lib-events
-
-# Adobe I/O SDK (App Builder, Runtime actions)
-npm install @adobe/aio-sdk
-
-# Adobe I/O CLI (global install for aio commands)
-npm install -g @adobe/aio-cli
-
-# Python — PDF Services
-pip install pdfservices-sdk
-```
-
-### Step 3: Configure OAuth Server-to-Server Credentials
-
-```bash
-# .env (NEVER commit — add to .gitignore)
-ADOBE_CLIENT_ID=your_client_id_from_console
-ADOBE_CLIENT_SECRET=your_client_secret_from_console
-ADOBE_SCOPES=openid,AdobeID,read_organizations,firefly_api,ff_apis
-ADOBE_IMS_ORG_ID=your_org_id@AdobeOrg
-```
-
-### Step 4: Generate Access Token
-
-```typescript
-// src/adobe/auth.ts
-import 'dotenv/config';
-
-interface AdobeTokenResponse {
-  access_token: string;
-  token_type: string;
-  expires_in: number; // seconds, typically 86400 (24h)
-}
-
-let cachedToken: { token: string; expiresAt: number } | null = null;
-
-export async function getAdobeAccessToken(): Promise<string> {
-  // Return cached token if still valid (with 5min buffer)
-  if (cachedToken && cachedToken.expiresAt > Date.now() + 300_000) {
-    return cachedToken.token;
-  }
-
-  const response = await fetch('https://ims-na1.adobelogin.com/ims/token/v3', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: process.env.ADOBE_CLIENT_ID!,
-      client_secret: process.env.ADOBE_CLIENT_SECRET!,
-      grant_type: 'client_credentials',
-      scope: process.env.ADOBE_SCOPES!,
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Adobe auth failed (${response.status}): ${error}`);
-  }
-
-  const data: AdobeTokenResponse = await response.json();
-  cachedToken = {
-    token: data.access_token,
-    expiresAt: Date.now() + data.expires_in * 1000,
-  };
-
-  return cachedToken.token;
-}
-```
-
-### Step 5: Verify Connection
-
-```bash
-# Quick verification with curl
-curl -X POST 'https://ims-na1.adobelogin.com/ims/token/v3' \
-  -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d "client_id=${ADOBE_CLIENT_ID}&client_secret=${ADOBE_CLIENT_SECRET}&grant_type=client_credentials&scope=${ADOBE_SCOPES}"
-```
-
-## Output
-
-- OAuth Server-to-Server credential configured in Adobe Developer Console
-- SDK packages installed in `node_modules` or Python site-packages
-- `.env` file with credentials (git-ignored)
-- Working `getAdobeAccessToken()` function with token caching
+Require the organization or user owner for consent and product-profile assignment. Security approves production secret storage and rotation. Deleting a credential or old secret requires explicit approval after replacement evidence.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `invalid_client` | Wrong client_id or client_secret | Verify credentials in Developer Console |
-| `invalid_scope` | Scopes not entitled to your org | Check product profile assignments in Admin Console |
-| `401 Unauthorized` | Expired or revoked credentials | Regenerate client_secret in Developer Console |
-| `ENOTFOUND ims-na1.adobelogin.com` | Network/DNS issue | Check firewall allows outbound HTTPS to `*.adobelogin.com` |
-| `JWT credentials deprecated` | Using old Service Account (JWT) | Migrate to OAuth Server-to-Server (JWT EOL was June 2025) |
+- A token without product entitlement is not ready.
+- Do not broaden scopes to cure a product-profile denial.
+- Never print, decode, commit, or transmit a live token or secret.
+
+## Output
+
+Return the ownership decision, auth flow, scope/profile matrix, entitlement proof, redacted token test, lifecycle runbook, and unresolved gaps. Mark assumptions, observed environment behavior, owners, evidence dates, and unresolved gaps explicitly.
 
 ## Examples
 
-### PDF Services SDK Initialization
+- Prove an organization-owned read with a non-production S2S credential.
+- Prove a user-owned request cannot proceed before explicit consent.
 
-```typescript
-import { ServicePrincipalCredentials, PDFServices } from '@adobe/pdfservices-node-sdk';
+## Validation
 
-const credentials = new ServicePrincipalCredentials({
-  clientId: process.env.ADOBE_CLIENT_ID!,
-  clientSecret: process.env.ADOBE_CLIENT_SECRET!,
-});
+Exercise and record expected and observed results for:
 
-const pdfServices = new PDFServices({ credentials });
-```
-
-### Firefly Services SDK Initialization
-
-```typescript
-import { FireflyClient } from '@adobe/firefly-apis';
-
-const firefly = new FireflyClient({
-  clientId: process.env.ADOBE_CLIENT_ID!,
-  accessToken: await getAdobeAccessToken(),
-});
-```
-
-### Python PDF Services Setup
-
-```python
-from adobe.pdfservices.operation.auth.service_principal_credentials import ServicePrincipalCredentials
-from adobe.pdfservices.operation.pdf_services import PDFServices
-
-credentials = ServicePrincipalCredentials(
-    client_id=os.environ["ADOBE_CLIENT_ID"],
-    client_secret=os.environ["ADOBE_CLIENT_SECRET"]
-)
-pdf_services = PDFServices(credentials=credentials)
-```
+- wrong organization
+- missing product
+- insufficient profile
+- expired token
+- revoked consent
+- rotation rollback
 
 ## Resources
 
-- [Adobe Developer Console](https://developer.adobe.com/console)
-- [OAuth Server-to-Server Implementation Guide](https://developer.adobe.com/developer-console/docs/guides/authentication/ServerToServerAuthentication/implementation)
-- [JWT to OAuth Migration Guide](https://developer.adobe.com/developer-console/docs/guides/authentication/ServerToServerAuthentication/migration)
-- [Adobe Status Page](https://status.adobe.com)
-
-## Next Steps
-
-After successful auth, proceed to `adobe-hello-world` for your first API call.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Adobe sources before execution.
+- Treat observed tenant or product behavior as environment-specific evidence, never a universal Adobe guarantee.

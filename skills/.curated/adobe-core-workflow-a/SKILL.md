@@ -1,236 +1,81 @@
 ---
 name: adobe-core-workflow-a
-description: 'Execute Adobe Firefly Services workflow: AI image generation, generative
-  fill,
-
-  and expand image using the Firefly v3 API.
-
-  Use when generating images from prompts, filling or expanding images with AI,
-
-  or building creative automation pipelines.
-
-  Trigger with phrases like "adobe firefly", "generate image adobe",
-
-  "firefly text to image", "adobe AI image", "generative fill".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.7.0
+description: >-
+  Run a current Adobe Firefly image generation job with prompt approval, response-led polling, artifact custody, and cancellation. Use for approved creative automation. Use when the task requires firefly controlled async generation. Trigger with "generate with Firefly", "Firefly async job", or "Adobe image generation".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<approved-prompt> <model-operation> <output-destination>"
+version: 1.8.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- design
-- adobe
-compatibility: Designed for Claude Code
+tags: [saas, adobe, firefly]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Adobe actions require network access, appropriate entitlement and authentication, and explicit approval"
 ---
-# Adobe Core Workflow A — Firefly Services
+# Firefly Controlled Async Generation
 
 ## Overview
 
-Primary creative workflow using Adobe Firefly v3 APIs: text-to-image generation, generative fill (inpainting), and image expansion (outpainting). These are the most common Firefly Services operations for marketing asset automation.
+Run a current Adobe Firefly image generation job with prompt approval, response-led polling, artifact custody, and cancellation. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 
-- Completed `adobe-install-auth` with Firefly API scopes (`firefly_api,ff_apis`)
-- `@adobe/firefly-apis` installed, or direct REST access
-- Pre-signed cloud storage URLs for input/output images (S3, Azure Blob, or Dropbox)
+- Current first-party Adobe documentation for every selected service, API version, auth flow, limit, and lifecycle.
+- Named product, identity, security, data, budget, release, and operations owners appropriate to the scope.
+- Synthetic or approved non-production fixtures with secret and content canaries.
+
+## Current Contract
+
+Current Firefly asynchronous operations return jobId, statusUrl, and cancelUrl. Follow those returned URLs rather than inventing a jobs route. Model/API versions and supported input-storage domains are mutable; recheck usage notes for the selected operation. Recheck the dated evidence map before relying on mutable product behavior.
+
+## Authentication
+
+Acquire OAuth Server-to-Server credentials only after enterprise entitlement and product assignment are proven. Send x-api-key and bearer headers server-side; never expose them to a browser or job record.
 
 ## Instructions
 
-### Step 1: Text-to-Image Generation (Synchronous)
+1. Record the approved business purpose, prompt, model/operation, dimensions, quantity, budget, and content owner.
+2. Read the current API and usage notes; validate endpoint version, request schema, supported signed-URL hosts, and content rules.
+3. Create a redacted idempotency record and submit one bounded asynchronous job.
+4. Persist jobId plus returned statusUrl and cancelUrl, then poll with jitter and strict elapsed-time limits.
+5. On success, validate media type and size, transfer the artifact to approved storage, and preserve provenance/content-credential metadata.
+6. On failure or timeout, classify the vendor response, cancel when approved, reconcile spend, and expire temporary access.
 
-```typescript
-// src/workflows/firefly-generate.ts
-import { getAccessToken } from '../adobe/client';
+## Tool Discipline
 
-interface FireflyGenerateOptions {
-  prompt: string;
-  negativePrompt?: string;
-  width?: number;    // 1024, 1472, 1792, 2048
-  height?: number;
-  n?: number;        // 1-4 images
-  contentClass?: 'art' | 'photo';
-  style?: {
-    presets?: string[];  // e.g., ['digital_art', 'cinematic']
-    strength?: number;   // 0-100
-  };
-}
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, Adobe content, consent, uploads, generation, spend, deployment, registration changes, replay, cancellation, or deletion.
 
-interface FireflyOutput {
-  outputs: Array<{
-    image: { url: string };
-    seed: number;
-  }>;
-}
+## Approval Boundaries
 
-export async function generateImage(opts: FireflyGenerateOptions): Promise<FireflyOutput> {
-  const token = await getAccessToken();
-
-  const body: Record<string, any> = {
-    prompt: opts.prompt,
-    n: opts.n || 1,
-    size: { width: opts.width || 1024, height: opts.height || 1024 },
-    contentClass: opts.contentClass || 'photo',
-  };
-
-  if (opts.negativePrompt) body.negativePrompt = opts.negativePrompt;
-  if (opts.style?.presets) {
-    body.styles = { presets: opts.style.presets };
-  }
-
-  const response = await fetch('https://firefly-api.adobe.io/v3/images/generate', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'x-api-key': process.env.ADOBE_CLIENT_ID!,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Firefly generate failed (${response.status}): ${err}`);
-  }
-
-  return response.json();
-}
-```
-
-### Step 2: Async Generation (for High Volume)
-
-```typescript
-// For production pipelines, use async endpoint to avoid HTTP timeouts
-export async function generateImageAsync(opts: FireflyGenerateOptions) {
-  const token = await getAccessToken();
-
-  const response = await fetch('https://firefly-api.adobe.io/v3/images/generate-async', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'x-api-key': process.env.ADOBE_CLIENT_ID!,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      prompt: opts.prompt,
-      n: opts.n || 1,
-      size: { width: opts.width || 1024, height: opts.height || 1024 },
-    }),
-  });
-
-  const { jobId, statusUrl, cancelUrl } = await response.json();
-  console.log(`Firefly async job: ${jobId}`);
-
-  // Poll for completion
-  let result: any;
-  while (true) {
-    await new Promise(r => setTimeout(r, 2000));
-    const poll = await fetch(statusUrl, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'x-api-key': process.env.ADOBE_CLIENT_ID!,
-      },
-    });
-    result = await poll.json();
-    if (result.status === 'succeeded' || result.status === 'failed') break;
-  }
-
-  if (result.status === 'failed') throw new Error(`Async generation failed: ${result.error}`);
-  return result;
-}
-```
-
-### Step 3: Generative Fill (Inpainting)
-
-```typescript
-// Fill a masked region of an image with AI-generated content
-export async function generativeFill(
-  imageUrl: string,
-  maskUrl: string,
-  prompt: string
-): Promise<FireflyOutput> {
-  const token = await getAccessToken();
-
-  const response = await fetch('https://firefly-api.adobe.io/v3/images/fill', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'x-api-key': process.env.ADOBE_CLIENT_ID!,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      image: { source: { url: imageUrl } },
-      mask: { source: { url: maskUrl } },
-      prompt,
-      n: 1,
-    }),
-  });
-
-  if (!response.ok) throw new Error(`Fill failed: ${response.status}`);
-  return response.json();
-}
-```
-
-### Step 4: Image Expansion (Outpainting)
-
-```typescript
-// Expand an image to a larger canvas size with AI-generated surroundings
-export async function expandImage(
-  imageUrl: string,
-  targetWidth: number,
-  targetHeight: number,
-  prompt?: string
-): Promise<FireflyOutput> {
-  const token = await getAccessToken();
-
-  const response = await fetch('https://firefly-api.adobe.io/v3/images/expand', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'x-api-key': process.env.ADOBE_CLIENT_ID!,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      image: { source: { url: imageUrl } },
-      size: { width: targetWidth, height: targetHeight },
-      ...(prompt && { prompt }),
-      n: 1,
-    }),
-  });
-
-  if (!response.ok) throw new Error(`Expand failed: ${response.status}`);
-  return response.json();
-}
-```
-
-## Output
-
-- AI-generated images from text prompts (sync or async)
-- Inpainted regions via generative fill with mask
-- Expanded/outpainted images to larger canvas sizes
-- Temporary URLs for generated images (download within 24h)
+Require creative and budget approval before submission. External storage, personal/regulated content, bulk generation, cancellation, publication, and deletion each require the named owner.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `400` prompt rejected | Content policy violation | Remove trademarks, real people, or explicit content from prompt |
-| `403 Forbidden` | Missing `firefly_api` scope | Add Firefly API to Developer Console project |
-| `413 Payload Too Large` | Image too large for fill/expand | Resize input to max 4096x4096 |
-| `429 Too Many Requests` | Rate limited | Use async endpoint; honor `Retry-After` header |
-| `500 Internal Server Error` | Transient Firefly error | Retry with backoff; check status.adobe.com |
+- Never retry a policy or validation rejection by silently rewriting the prompt.
+- After ambiguous submission, reconcile by idempotency evidence before resubmitting.
+- Stop if a returned URL leaves the documented allowlist or includes a secret in logs.
+
+## Output
+
+Return prompt and policy receipt, version/operation evidence, job ledger, polling history, artifact hash/location, provenance, spend class, and cleanup. Mark assumptions, observed environment behavior, owners, evidence dates, and unresolved gaps explicitly.
 
 ## Examples
 
-Start with the smallest applicable command or code example already provided in this guide, using a non-production Adobe environment and credentials. Confirm the documented response or validation result before applying the pattern to production.
+- Complete a synthetic async job by following returned URLs.
+- Cancel a sandbox job after the polling budget expires.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- success
+- policy rejection
+- 429
+- unknown status
+- timeout/cancel
+- artifact validation
 
 ## Resources
 
-- [Firefly API Reference](https://developer.adobe.com/firefly-services/docs/firefly-api/api/)
-- [Firefly Generate Image Tutorial](https://developer.adobe.com/firefly-services/docs/firefly-api/guides/how-tos/firefly-generate-image-api-tutorial)
-- [Using Async APIs](https://developer.adobe.com/firefly-services/docs/firefly-api/guides/how-tos/using-async-apis)
-
-## Next Steps
-
-For PDF document workflows, see `adobe-core-workflow-b`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Adobe sources before execution.
+- Treat observed tenant or product behavior as environment-specific evidence, never a universal Adobe guarantee.

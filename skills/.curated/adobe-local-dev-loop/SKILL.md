@@ -1,220 +1,81 @@
 ---
 name: adobe-local-dev-loop
-description: 'Configure Adobe local development with App Builder CLI, Runtime actions,
-
-  hot reload, and mock testing for Firefly/PDF/Photoshop APIs.
-
-  Use when setting up a development environment, configuring test workflows,
-
-  or establishing a fast iteration cycle with Adobe APIs.
-
-  Trigger with phrases like "adobe dev setup", "adobe local development",
-
-  "adobe dev environment", "develop with adobe", "aio app".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pnpm:*), Grep
-version: 1.7.0
+description: >-
+  Build a repeatable local loop for Adobe adapters using synthetic contracts before any remote Runtime or product call. Use when implementing or debugging locally. Trigger with "develop Adobe integration locally", "mock Adobe API", or "aio app dev".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository> <service> <feature>"
+version: 1.8.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- design
-- adobe
-compatibility: Designed for Claude Code
+tags: [saas, adobe, development]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Adobe actions require network access, appropriate entitlement and authentication, and explicit approval"
 ---
-# Adobe Local Dev Loop
+# Adobe Isolated Development Loop
 
 ## Overview
 
-Set up a fast local development workflow for Adobe integrations using the `aio` CLI for App Builder projects, or a standalone Node.js setup for direct API usage (Firefly Services, PDF Services).
+Build a repeatable local loop for Adobe adapters using synthetic contracts before any remote Runtime or product call. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 
-- Completed `adobe-install-auth` setup
-- Node.js 18+ with npm/pnpm
-- Adobe Developer Console project configured
-- `@adobe/aio-cli` installed globally (for App Builder projects)
+- Current first-party Adobe documentation for every selected service, API version, auth flow, limit, and lifecycle.
+- Named product, identity, security, data, budget, release, and operations owners appropriate to the scope.
+- Synthetic or approved non-production fixtures with secret and content canaries.
+
+## Current Contract
+
+App Builder local modes differ: aio app dev runs actions locally and lacks activation records and some Runtime-only storage capabilities; aio app run uses remote Runtime actions with local UI. Offline fixtures must cover both product responses and those environment differences. Recheck the dated evidence map before relying on mutable product behavior.
+
+## Authentication
+
+Use synthetic data and non-production aliases. Keep .env and .aio out of version control; pass configured values to actions rather than assuming local environment variables exist in deployed Runtime.
 
 ## Instructions
 
-### Step 1: Choose Your Project Type
+1. Inventory the adapter, SDK locks, App Builder configuration, fixtures, and current local-mode assumptions.
+2. Define typed request, response, async-status, error, throttling, and redaction contracts from current docs.
+3. Create synthetic fixtures for success, additive fields, malformed data, 401/403, 429, 5xx, and ambiguous completion.
+4. Run unit and contract tests with network access disabled and secret canaries enabled.
+5. If App Builder is used, exercise aio app dev and a separately approved aio app run path where Runtime fidelity matters.
+6. Record mode differences, cleanup remote test artifacts, and keep only sanitized deterministic fixtures.
 
-**Option A — App Builder (serverless Runtime actions):**
+## Tool Discipline
 
-```bash
-# Install Adobe I/O CLI
-npm install -g @adobe/aio-cli
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, Adobe content, consent, uploads, generation, spend, deployment, registration changes, replay, cancellation, or deletion.
 
-# Login (opens browser for IMS auth)
-aio login
+## Approval Boundaries
 
-# Create new App Builder project
-aio app init my-adobe-app
-# Select: Firefly Services, Adobe I/O Events, etc.
-
-# Run locally with hot reload
-aio app run
-# Serves at https://localhost:9080 with live Runtime action emulation
-```
-
-**Option B — Standalone SDK project:**
-
-```bash
-mkdir my-adobe-project && cd my-adobe-project
-npm init -y
-npm install @adobe/pdfservices-node-sdk @adobe/firefly-apis dotenv
-npm install -D typescript tsx vitest @types/node
-```
-
-### Step 2: Project Structure
-
-```
-my-adobe-project/
-├── src/
-│   ├── adobe/
-│   │   ├── auth.ts           # OAuth token management (from install-auth)
-│   │   ├── firefly.ts        # Firefly API client wrapper
-│   │   ├── pdf-services.ts   # PDF Services client wrapper
-│   │   └── photoshop.ts      # Photoshop API client wrapper
-│   └── index.ts
-├── tests/
-│   ├── fixtures/
-│   │   └── sample.pdf        # Test PDF for extraction tests
-│   ├── adobe-auth.test.ts
-│   └── firefly.test.ts
-├── .env.local                # Local secrets (git-ignored)
-├── .env.example              # Template for team
-├── tsconfig.json
-└── package.json
-```
-
-### Step 3: Configure Hot Reload and Scripts
-
-```json
-{
-  "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "test": "vitest",
-    "test:watch": "vitest --watch",
-    "test:integration": "vitest --config vitest.integration.config.ts",
-    "typecheck": "tsc --noEmit"
-  }
-}
-```
-
-### Step 4: Mock Adobe APIs for Unit Tests
-
-```typescript
-// tests/adobe-auth.test.ts
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-
-// Mock the global fetch for token endpoint
-const mockFetch = vi.fn();
-global.fetch = mockFetch;
-
-import { getAdobeAccessToken } from '../src/adobe/auth';
-
-describe('Adobe OAuth Auth', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    process.env.ADOBE_CLIENT_ID = 'test-client-id';
-    process.env.ADOBE_CLIENT_SECRET = 'test-secret';
-    process.env.ADOBE_SCOPES = 'openid,AdobeID';
-  });
-
-  it('should fetch and cache access token', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        access_token: 'test-token-123',
-        token_type: 'bearer',
-        expires_in: 86400,
-      }),
-    });
-
-    const token = await getAdobeAccessToken();
-    expect(token).toBe('test-token-123');
-    expect(mockFetch).toHaveBeenCalledWith(
-      'https://ims-na1.adobelogin.com/ims/token/v3',
-      expect.objectContaining({ method: 'POST' })
-    );
-  });
-
-  it('should throw on auth failure', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      status: 401,
-      text: async () => 'invalid_client',
-    });
-
-    await expect(getAdobeAccessToken()).rejects.toThrow('Adobe auth failed');
-  });
-});
-```
-
-### Step 5: Integration Test with Real API
-
-```typescript
-// tests/firefly-integration.test.ts
-import { describe, it, expect } from 'vitest';
-import { getAdobeAccessToken } from '../src/adobe/auth';
-
-describe.skipIf(!process.env.ADOBE_CLIENT_ID)('Firefly Integration', () => {
-  it('should generate an image from prompt', async () => {
-    const token = await getAdobeAccessToken();
-
-    const response = await fetch(
-      'https://firefly-api.adobe.io/v3/images/generate',
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'x-api-key': process.env.ADOBE_CLIENT_ID!,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt: 'A simple red circle on white background',
-          n: 1,
-          size: { width: 512, height: 512 },
-        }),
-      }
-    );
-
-    expect(response.ok).toBe(true);
-    const result = await response.json();
-    expect(result.outputs).toHaveLength(1);
-    expect(result.outputs[0].image.url).toMatch(/^https:\/\//);
-  }, 30_000); // 30s timeout for API call
-});
-```
-
-## Output
-
-- Working development environment with hot reload via `tsx watch`
-- Unit test suite with mocked Adobe auth and API responses
-- Integration test that validates real API connectivity
-- `.env.example` template for team onboarding
+Require sandbox-owner approval for remote Runtime or Adobe API calls and separate approval for uploads, generation, writes, or deletion.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `aio login` hangs | Browser popup blocked | Use `aio login --no-open` and copy URL manually |
-| `Module not found: @adobe/pdfservices-node-sdk` | Missing install | Run `npm install @adobe/pdfservices-node-sdk` |
-| Test timeout on integration | Slow API or rate limit | Increase vitest timeout; check `Retry-After` header |
-| `ADOBE_CLIENT_ID undefined` | Missing `.env.local` | Copy `.env.example` to `.env.local` and fill in values |
+- Fail if a production hostname, organization, credential, or asset enters a fixture.
+- Do not snapshot signed URLs or document/image bytes into source control.
+- Treat locally unsupported State or Files behavior as unknown until remote testing.
+
+## Output
+
+Return the client seam, fixture manifest, commands, secret scan, local/remote matrix, cleanup, and remaining unknowns. Mark assumptions, observed environment behavior, owners, evidence dates, and unresolved gaps explicitly.
 
 ## Examples
 
-Start with the smallest applicable command or code example already provided in this guide, using a non-production Adobe environment and credentials. Confirm the documented response or validation result before applying the pattern to production.
+- Replay a 429 with and without Retry-After.
+- Prove aio app dev limitations are not represented as production behavior.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- offline success
+- additive field
+- auth denial
+- 429
+- Runtime-only feature
+- secret canary
 
 ## Resources
 
-- [Adobe App Builder First App](https://developer.adobe.com/app-builder/docs/get_started/app_builder_get_started/first-app)
-- [Adobe I/O CLI Reference](https://developer.adobe.com/app-builder/docs/guides/runtime_guides/reference_docs/cli-use)
-- [Vitest Documentation](https://vitest.dev/)
-
-## Next Steps
-
-See `adobe-sdk-patterns` for production-ready code patterns.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Adobe sources before execution.
+- Treat observed tenant or product behavior as environment-specific evidence, never a universal Adobe guarantee.

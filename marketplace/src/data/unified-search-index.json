@@ -36,7 +36,6 @@
       "Bash",
       "Bash(act*)",
       "Bash(age:*)",
-      "Bash(aio:*)",
       "Bash(analysis:*)",
       "Bash(ansible:*)",
       "Bash(aomi:*)",
@@ -391,6 +390,7 @@
       "adk",
       "adk-samples",
       "adobe",
+      "adobe-io-events",
       "advisor",
       "aec",
       "agencies",
@@ -794,6 +794,7 @@
       "engineering-team",
       "enrichment",
       "enterprise",
+      "enterprise-integration",
       "environment",
       "equity-research",
       "erd",
@@ -858,6 +859,7 @@
       "firebase-alternative",
       "firecrawl",
       "fireflies",
+      "firefly",
       "firestore",
       "firewall",
       "fitness",
@@ -1212,6 +1214,7 @@
       "partition",
       "passwords",
       "pathfinder",
+      "pdf-services",
       "pending-transactions",
       "penetration-testing",
       "pentesting",
@@ -1227,6 +1230,7 @@
       "persona",
       "pgbackrest",
       "phone-agents",
+      "photoshop-api",
       "pi",
       "pip",
       "pipeline",
@@ -11705,13 +11709,17 @@
       "slug": "adobe-pack",
       "name": "adobe-pack",
       "displayName": "adobe pack",
-      "description": "Claude Code skill pack for Adobe (30 skills)",
+      "description": "Operate Adobe Firefly, Photoshop v2, PDF Services, I/O Events, App Builder, and enterprise access through 30 evidence-backed skills with safe auth, data, spend, deployment, and recovery boundaries.",
       "category": "saas-packs",
       "keywords": [
         "adobe",
-        "saas",
-        "sdk",
-        "integration"
+        "firefly",
+        "photoshop-api",
+        "pdf-services",
+        "adobe-io-events",
+        "app-builder",
+        "oauth",
+        "enterprise-integration"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -11719,15 +11727,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 30,
-      "verificationScore": 82,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "adobe pack claude code skill pack for adobe (30 skills) saas-packs adobe saas sdk integration"
+      "verificationScore": 98,
+      "verificationGrade": "A",
+      "verificationBadge": "verified",
+      "searchText": "adobe pack operate adobe firefly, photoshop v2, pdf services, i/o events, app builder, and enterprise access through 30 evidence-backed skills with safe auth, data, spend, deployment, and recovery boundaries. saas-packs adobe firefly photoshop-api pdf-services adobe-io-events app-builder oauth enterprise-integration"
     },
     {
       "type": "plugin",
@@ -15619,628 +15627,660 @@
       "id": "adobe-advanced-troubleshooting",
       "slug": "adobe-advanced-troubleshooting",
       "name": "adobe-advanced-troubleshooting",
-      "description": "Apply advanced debugging techniques for Adobe API issues: IMS token introspection, Firefly job failure analysis, PDF Services error codes, and network-layer diagnostics for Adobe endpoints. Trigger with phrases like \"adobe hard bug\", \"adobe mystery error\", \"adobe impossible to debug\", \"difficult adobe issue\", \"adobe deep debug\".",
+      "description": "Isolate complex Adobe failures across DNS/TLS, auth, entitlement, schema, async state, storage, Runtime, and downstream layers without leaking credentials or content. Use when the task requires adobe layered failure isolation. Trigger with \"deep debug Adobe\", \"Adobe job stuck\", or \"Adobe intermittent failure\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(kubectl:*)",
-        "Bash(curl:*)",
-        "Bash(tcpdump:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-advanced-troubleshooting apply advanced debugging techniques for adobe api issues: ims token introspection, firefly job failure analysis, pdf services error codes, and network-layer diagnostics for adobe endpoints. trigger with phrases like \"adobe hard bug\", \"adobe mystery error\", \"adobe impossible to debug\", \"difficult adobe issue\", \"adobe deep debug\". saas-packs read grep bash(kubectl:*) bash(curl:*) bash(tcpdump:*) "
+      "searchText": "adobe-advanced-troubleshooting isolate complex adobe failures across dns/tls, auth, entitlement, schema, async state, storage, runtime, and downstream layers without leaking credentials or content. use when the task requires adobe layered failure isolation. trigger with \"deep debug adobe\", \"adobe job stuck\", or \"adobe intermittent failure\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-architecture-variants",
       "slug": "adobe-architecture-variants",
       "name": "adobe-architecture-variants",
-      "description": "Choose and implement Adobe architecture blueprints: standalone SDK integration, Adobe App Builder serverless, and dedicated microservice with event-driven Firefly/PDF pipelines. Decision matrix based on team size and throughput. Trigger with phrases like \"adobe architecture\", \"adobe blueprint\", \"adobe app builder vs standalone\", \"adobe microservice\".",
+      "description": "Choose among direct service integration, Adobe App Builder, and a dedicated queued worker using evidence about ownership, latency, scale, storage, events, and operations. Use when the task requires adobe architecture variant decision. Trigger with \"choose Adobe architecture\", \"App Builder or microservice\", or \"Adobe design options\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-architecture-variants choose and implement adobe architecture blueprints: standalone sdk integration, adobe app builder serverless, and dedicated microservice with event-driven firefly/pdf pipelines. decision matrix based on team size and throughput. trigger with phrases like \"adobe architecture\", \"adobe blueprint\", \"adobe app builder vs standalone\", \"adobe microservice\". saas-packs read grep "
+      "searchText": "adobe-architecture-variants choose among direct service integration, adobe app builder, and a dedicated queued worker using evidence about ownership, latency, scale, storage, events, and operations. use when the task requires adobe architecture variant decision. trigger with \"choose adobe architecture\", \"app builder or microservice\", or \"adobe design options\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-ci-integration",
       "slug": "adobe-ci-integration",
       "name": "adobe-ci-integration",
-      "description": "Configure CI/CD pipelines for Adobe integrations with GitHub Actions, including OAuth credential injection, PDF Services testing, Firefly API smoke tests, and secret scanning for Adobe credential patterns. Trigger with phrases like \"adobe CI\", \"adobe GitHub Actions\", \"adobe automated tests\", \"CI adobe\", \"adobe pipeline\".",
+      "description": "Build deterministic CI gates for Adobe adapters without giving fork jobs credentials or spending against live creative/document APIs. Use when testing integration changes. Trigger with \"test Adobe in CI\", \"Adobe contract tests\", or \"gate Adobe deploy\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(gh:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-ci-integration configure ci/cd pipelines for adobe integrations with github actions, including oauth credential injection, pdf services testing, firefly api smoke tests, and secret scanning for adobe credential patterns. trigger with phrases like \"adobe ci\", \"adobe github actions\", \"adobe automated tests\", \"ci adobe\", \"adobe pipeline\". saas-packs read write edit bash(gh:*) "
+      "searchText": "adobe-ci-integration build deterministic ci gates for adobe adapters without giving fork jobs credentials or spending against live creative/document apis. use when testing integration changes. trigger with \"test adobe in ci\", \"adobe contract tests\", or \"gate adobe deploy\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-common-errors",
       "slug": "adobe-common-errors",
       "name": "adobe-common-errors",
-      "description": "Diagnose and fix common Adobe API errors across Firefly Services, PDF Services, Photoshop API, and Adobe I/O Events. Use when encountering Adobe errors, debugging failed requests, or troubleshooting integration issues. Trigger with phrases like \"adobe error\", \"fix adobe\", \"adobe not working\", \"debug adobe\", \"adobe 403\", \"adobe 429\".",
+      "description": "Classify Adobe failures from redacted response evidence and select the smallest bounded recovery. Use across auth, Firefly, Photoshop, PDF Services, Events, and App Builder. Use when the task requires adobe response-led error triage. Trigger with \"fix Adobe error\", \"Adobe 403\", or \"Adobe API failed\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-common-errors diagnose and fix common adobe api errors across firefly services, pdf services, photoshop api, and adobe i/o events. use when encountering adobe errors, debugging failed requests, or troubleshooting integration issues. trigger with phrases like \"adobe error\", \"fix adobe\", \"adobe not working\", \"debug adobe\", \"adobe 403\", \"adobe 429\". saas-packs read grep bash(curl:*) "
+      "searchText": "adobe-common-errors classify adobe failures from redacted response evidence and select the smallest bounded recovery. use across auth, firefly, photoshop, pdf services, events, and app builder. use when the task requires adobe response-led error triage. trigger with \"fix adobe error\", \"adobe 403\", or \"adobe api failed\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-core-workflow-a",
       "slug": "adobe-core-workflow-a",
       "name": "adobe-core-workflow-a",
-      "description": "Execute Adobe Firefly Services workflow: AI image generation, generative fill, and expand image using the Firefly v3 API. Use when generating images from prompts, filling or expanding images with AI, or building creative automation pipelines. Trigger with phrases like \"adobe firefly\", \"generate image adobe\", \"firefly text to image\", \"adobe AI image\", \"generative fill\".",
+      "description": "Run a current Adobe Firefly image generation job with prompt approval, response-led polling, artifact custody, and cancellation. Use for approved creative automation. Use when the task requires firefly controlled async generation. Trigger with \"generate with Firefly\", \"Firefly async job\", or \"Adobe image generation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-core-workflow-a execute adobe firefly services workflow: ai image generation, generative fill, and expand image using the firefly v3 api. use when generating images from prompts, filling or expanding images with ai, or building creative automation pipelines. trigger with phrases like \"adobe firefly\", \"generate image adobe\", \"firefly text to image\", \"adobe ai image\", \"generative fill\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "adobe-core-workflow-a run a current adobe firefly image generation job with prompt approval, response-led polling, artifact custody, and cancellation. use for approved creative automation. use when the task requires firefly controlled async generation. trigger with \"generate with firefly\", \"firefly async job\", or \"adobe image generation\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-core-workflow-b",
       "slug": "adobe-core-workflow-b",
       "name": "adobe-core-workflow-b",
-      "description": "Execute Adobe PDF Services workflow: create PDFs from HTML/DOCX, extract text/tables, document generation from templates, and PDF-to-Markdown conversion. Use when building document automation, extracting content from PDFs, or generating dynamic reports. Trigger with phrases like \"adobe pdf\", \"pdf services\", \"extract pdf\", \"create pdf\", \"document generation\", \"pdf to markdown\".",
+      "description": "Execute an Adobe PDF Services operation through explicit asset custody, asynchronous status, output verification, and cleanup. Use for approved document conversion, extraction, or generation. Use when the task requires pdf services controlled document job. Trigger with \"process PDF with Adobe\", \"PDF Services job\", or \"Adobe document automation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-core-workflow-b execute adobe pdf services workflow: create pdfs from html/docx, extract text/tables, document generation from templates, and pdf-to-markdown conversion. use when building document automation, extracting content from pdfs, or generating dynamic reports. trigger with phrases like \"adobe pdf\", \"pdf services\", \"extract pdf\", \"create pdf\", \"document generation\", \"pdf to markdown\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "adobe-core-workflow-b execute an adobe pdf services operation through explicit asset custody, asynchronous status, output verification, and cleanup. use for approved document conversion, extraction, or generation. use when the task requires pdf services controlled document job. trigger with \"process pdf with adobe\", \"pdf services job\", or \"adobe document automation\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-cost-tuning",
       "slug": "adobe-cost-tuning",
       "name": "adobe-cost-tuning",
-      "description": "Optimize Adobe API costs across Firefly Services (generative credits), PDF Services (document transactions), and Photoshop/Lightroom APIs. Use when analyzing Adobe billing, reducing API costs, or implementing usage monitoring and budget alerts. Trigger with phrases like \"adobe cost\", \"adobe billing\", \"adobe credits\", \"reduce adobe costs\", \"adobe pricing\", \"adobe budget\".",
+      "description": "Reduce Adobe integration spend using contract, invoice, usage, queue, storage, and retry evidence instead of invented per-call prices. Use when the task requires adobe workload cost and waste review. Trigger with \"reduce Adobe cost\", \"Adobe spend review\", or \"PDF transaction budget\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-cost-tuning optimize adobe api costs across firefly services (generative credits), pdf services (document transactions), and photoshop/lightroom apis. use when analyzing adobe billing, reducing api costs, or implementing usage monitoring and budget alerts. trigger with phrases like \"adobe cost\", \"adobe billing\", \"adobe credits\", \"reduce adobe costs\", \"adobe pricing\", \"adobe budget\". saas-packs read grep "
+      "searchText": "adobe-cost-tuning reduce adobe integration spend using contract, invoice, usage, queue, storage, and retry evidence instead of invented per-call prices. use when the task requires adobe workload cost and waste review. trigger with \"reduce adobe cost\", \"adobe spend review\", or \"pdf transaction budget\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-data-handling",
       "slug": "adobe-data-handling",
       "name": "adobe-data-handling",
-      "description": "Implement data handling for Adobe APIs including PII redaction in logs, Firefly content policy compliance, PDF document data classification, and GDPR/CCPA data subject access requests via Adobe Privacy Service. Trigger with phrases like \"adobe data\", \"adobe PII\", \"adobe GDPR\", \"adobe data retention\", \"adobe privacy\", \"adobe content policy\".",
+      "description": "Analyze and enforce classification, minimization, signed-URL custody, retention, deletion, content provenance, and privacy-request boundaries for Adobe workflows. Use when the task requires adobe data custody and privacy review. Trigger with \"Adobe data handling\", \"PDF privacy\", or \"Firefly content policy\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-data-handling implement data handling for adobe apis including pii redaction in logs, firefly content policy compliance, pdf document data classification, and gdpr/ccpa data subject access requests via adobe privacy service. trigger with phrases like \"adobe data\", \"adobe pii\", \"adobe gdpr\", \"adobe data retention\", \"adobe privacy\", \"adobe content policy\". saas-packs read write edit "
+      "searchText": "adobe-data-handling analyze and enforce classification, minimization, signed-url custody, retention, deletion, content provenance, and privacy-request boundaries for adobe workflows. use when the task requires adobe data custody and privacy review. trigger with \"adobe data handling\", \"pdf privacy\", or \"firefly content policy\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-debug-bundle",
       "slug": "adobe-debug-bundle",
       "name": "adobe-debug-bundle",
-      "description": "Collect Adobe debug evidence for support tickets and troubleshooting. Use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for Adobe API problems. Trigger with phrases like \"adobe debug\", \"adobe support bundle\", \"collect adobe logs\", \"adobe diagnostic\".",
+      "description": "Assemble a minimal, reproducible Adobe diagnostic bundle with default-deny collection and verifiable redaction. Use for engineering or Adobe support escalation. Use when the task requires adobe redacted diagnostic bundle. Trigger with \"Adobe debug bundle\", \"collect Adobe diagnostics\", or \"prepare Adobe support case\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(grep:*)",
-        "Bash(curl:*)",
-        "Bash(tar:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-debug-bundle collect adobe debug evidence for support tickets and troubleshooting. use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for adobe api problems. trigger with phrases like \"adobe debug\", \"adobe support bundle\", \"collect adobe logs\", \"adobe diagnostic\". saas-packs read bash(grep:*) bash(curl:*) bash(tar:*) grep "
+      "searchText": "adobe-debug-bundle assemble a minimal, reproducible adobe diagnostic bundle with default-deny collection and verifiable redaction. use for engineering or adobe support escalation. use when the task requires adobe redacted diagnostic bundle. trigger with \"adobe debug bundle\", \"collect adobe diagnostics\", or \"prepare adobe support case\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-deploy-integration",
       "slug": "adobe-deploy-integration",
       "name": "adobe-deploy-integration",
-      "description": "Deploy Adobe-powered applications to Vercel, Cloud Run, and Adobe App Builder with proper credential injection and health monitoring. Use when deploying Adobe API integrations to production platforms. Trigger with phrases like \"deploy adobe\", \"adobe Vercel\", \"adobe Cloud Run\", \"adobe App Builder deploy\", \"adobe production deploy\".",
+      "description": "Deploy an Adobe-backed service or App Builder application with isolated environments, immutable artifacts, canaries, observability, and rollback. Use when the task requires adobe integration deployment. Trigger with \"deploy Adobe integration\", \"aio app deploy\", or \"promote Adobe app\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(gcloud:*)",
-        "Bash(aio:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-deploy-integration deploy adobe-powered applications to vercel, cloud run, and adobe app builder with proper credential injection and health monitoring. use when deploying adobe api integrations to production platforms. trigger with phrases like \"deploy adobe\", \"adobe vercel\", \"adobe cloud run\", \"adobe app builder deploy\", \"adobe production deploy\". saas-packs read write edit bash(vercel:*) bash(gcloud:*) bash(aio:*) "
+      "searchText": "adobe-deploy-integration deploy an adobe-backed service or app builder application with isolated environments, immutable artifacts, canaries, observability, and rollback. use when the task requires adobe integration deployment. trigger with \"deploy adobe integration\", \"aio app deploy\", or \"promote adobe app\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-enterprise-rbac",
       "slug": "adobe-enterprise-rbac",
       "name": "adobe-enterprise-rbac",
-      "description": "Configure Adobe enterprise identity with Admin Console SCIM provisioning, User Management API, product profile-based RBAC, and Federated ID with Azure AD or Google Workspace. Trigger with phrases like \"adobe SSO\", \"adobe RBAC\", \"adobe enterprise\", \"adobe roles\", \"adobe SCIM\", \"adobe user management\".",
+      "description": "Govern Adobe Developer Console roles, product profiles, technical accounts, User Management API automation, and periodic access review. Use when the task requires adobe enterprise access governance. Trigger with \"Adobe RBAC\", \"Adobe product profiles\", or \"Adobe user provisioning\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-enterprise-rbac configure adobe enterprise identity with admin console scim provisioning, user management api, product profile-based rbac, and federated id with azure ad or google workspace. trigger with phrases like \"adobe sso\", \"adobe rbac\", \"adobe enterprise\", \"adobe roles\", \"adobe scim\", \"adobe user management\". saas-packs read write edit "
+      "searchText": "adobe-enterprise-rbac govern adobe developer console roles, product profiles, technical accounts, user management api automation, and periodic access review. use when the task requires adobe enterprise access governance. trigger with \"adobe rbac\", \"adobe product profiles\", or \"adobe user provisioning\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-hello-world",
       "slug": "adobe-hello-world",
       "name": "adobe-hello-world",
-      "description": "Create minimal working examples for Adobe APIs: Firefly image generation, PDF extraction, and Photoshop background removal. Use when starting a new Adobe integration, testing your setup, or learning basic Adobe API patterns. Trigger with phrases like \"adobe hello world\", \"adobe example\", \"adobe quick start\", \"simple adobe code\", \"first adobe API call\".",
+      "description": "Prove one Adobe API connection with a current, read-only or synthetic operation and a content-safe receipt. Use during onboarding before any production workflow. Use when the task requires adobe minimal access proof. Trigger with \"Adobe hello world\", \"test Adobe connection\", or \"verify Adobe entitlement\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-hello-world create minimal working examples for adobe apis: firefly image generation, pdf extraction, and photoshop background removal. use when starting a new adobe integration, testing your setup, or learning basic adobe api patterns. trigger with phrases like \"adobe hello world\", \"adobe example\", \"adobe quick start\", \"simple adobe code\", \"first adobe api call\". saas-packs read write edit "
+      "searchText": "adobe-hello-world prove one adobe api connection with a current, read-only or synthetic operation and a content-safe receipt. use during onboarding before any production workflow. use when the task requires adobe minimal access proof. trigger with \"adobe hello world\", \"test adobe connection\", or \"verify adobe entitlement\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-incident-runbook",
       "slug": "adobe-incident-runbook",
       "name": "adobe-incident-runbook",
-      "description": "Execute Adobe incident response procedures with triage, mitigation, and postmortem for Firefly Services, PDF Services, and I/O Events outages. Use when responding to Adobe-related incidents, investigating API failures, or running post-incident reviews. Trigger with phrases like \"adobe incident\", \"adobe outage\", \"adobe down\", \"adobe on-call\", \"adobe emergency\".",
+      "description": "Triage, contain, recover, and review Adobe auth, product, async-job, event, storage, spend, or App Builder incidents with evidence. Use when the task requires adobe integration incident command. Trigger with \"Adobe incident\", \"Firefly outage\", or \"Adobe credential leak\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(kubectl:*)",
-        "Bash(curl:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-incident-runbook execute adobe incident response procedures with triage, mitigation, and postmortem for firefly services, pdf services, and i/o events outages. use when responding to adobe-related incidents, investigating api failures, or running post-incident reviews. trigger with phrases like \"adobe incident\", \"adobe outage\", \"adobe down\", \"adobe on-call\", \"adobe emergency\". saas-packs read grep bash(kubectl:*) bash(curl:*) "
+      "searchText": "adobe-incident-runbook triage, contain, recover, and review adobe auth, product, async-job, event, storage, spend, or app builder incidents with evidence. use when the task requires adobe integration incident command. trigger with \"adobe incident\", \"firefly outage\", or \"adobe credential leak\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-install-auth",
       "slug": "adobe-install-auth",
       "name": "adobe-install-auth",
-      "description": "Install and configure Adobe Developer Console OAuth Server-to-Server credentials. Use when setting up a new Adobe integration, configuring API credentials, or initializing Adobe SDKs (Firefly Services, PDF Services, I/O Runtime). Trigger with phrases like \"install adobe\", \"setup adobe\", \"adobe auth\", \"configure adobe credentials\", \"adobe developer console\".",
+      "description": "Select and prove the correct Adobe authentication model, entitlement, product profile, and secret lifecycle before integration work. Use when creating or repairing Adobe credentials. Trigger with \"set up Adobe auth\", \"Adobe OAuth server-to-server\", or \"Adobe user authentication\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-install-auth install and configure adobe developer console oauth server-to-server credentials. use when setting up a new adobe integration, configuring api credentials, or initializing adobe sdks (firefly services, pdf services, i/o runtime). trigger with phrases like \"install adobe\", \"setup adobe\", \"adobe auth\", \"configure adobe credentials\", \"adobe developer console\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "adobe-install-auth select and prove the correct adobe authentication model, entitlement, product profile, and secret lifecycle before integration work. use when creating or repairing adobe credentials. trigger with \"set up adobe auth\", \"adobe oauth server-to-server\", or \"adobe user authentication\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-known-pitfalls",
       "slug": "adobe-known-pitfalls",
       "name": "adobe-known-pitfalls",
-      "description": "Identify and avoid Adobe-specific anti-patterns: using deprecated JWT auth, not caching IMS tokens, ignoring Firefly content policy, missing async job polling, and leaking p8_ secrets. Real code examples with fixes. Trigger with phrases like \"adobe mistakes\", \"adobe anti-patterns\", \"adobe pitfalls\", \"adobe what not to do\", \"adobe code review\".",
+      "description": "Detect current high-risk Adobe integration traps before they become production incidents. Use when the task requires adobe integration pitfall review. Trigger with \"Adobe pitfalls\", \"review Adobe integration\", or \"find obsolete Adobe code\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-known-pitfalls identify and avoid adobe-specific anti-patterns: using deprecated jwt auth, not caching ims tokens, ignoring firefly content policy, missing async job polling, and leaking p8_ secrets. real code examples with fixes. trigger with phrases like \"adobe mistakes\", \"adobe anti-patterns\", \"adobe pitfalls\", \"adobe what not to do\", \"adobe code review\". saas-packs read grep "
+      "searchText": "adobe-known-pitfalls detect current high-risk adobe integration traps before they become production incidents. use when the task requires adobe integration pitfall review. trigger with \"adobe pitfalls\", \"review adobe integration\", or \"find obsolete adobe code\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-load-scale",
       "slug": "adobe-load-scale",
       "name": "adobe-load-scale",
-      "description": "Implement load testing, auto-scaling, and capacity planning for Adobe API integrations with k6 scripts targeting Firefly, PDF Services, and Photoshop APIs, plus Kubernetes HPA configuration. Trigger with phrases like \"adobe load test\", \"adobe scale\", \"adobe performance test\", \"adobe capacity\", \"adobe benchmark\".",
+      "description": "Derive a safe Adobe workload envelope from synthetic load, queue/backpressure behavior, current service constraints, spend, and output correctness. Use when the task requires adobe capacity and load envelope. Trigger with \"load test Adobe\", \"scale Firefly jobs\", or \"Adobe capacity plan\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(k6:*)",
-        "Bash(kubectl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-load-scale implement load testing, auto-scaling, and capacity planning for adobe api integrations with k6 scripts targeting firefly, pdf services, and photoshop apis, plus kubernetes hpa configuration. trigger with phrases like \"adobe load test\", \"adobe scale\", \"adobe performance test\", \"adobe capacity\", \"adobe benchmark\". saas-packs read write edit bash(k6:*) bash(kubectl:*) "
+      "searchText": "adobe-load-scale derive a safe adobe workload envelope from synthetic load, queue/backpressure behavior, current service constraints, spend, and output correctness. use when the task requires adobe capacity and load envelope. trigger with \"load test adobe\", \"scale firefly jobs\", or \"adobe capacity plan\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-local-dev-loop",
       "slug": "adobe-local-dev-loop",
       "name": "adobe-local-dev-loop",
-      "description": "Configure Adobe local development with App Builder CLI, Runtime actions, hot reload, and mock testing for Firefly/PDF/Photoshop APIs. Use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with Adobe APIs. Trigger with phrases like \"adobe dev setup\", \"adobe local development\", \"adobe dev environment\", \"develop with adobe\", \"aio app\".",
+      "description": "Build a repeatable local loop for Adobe adapters using synthetic contracts before any remote Runtime or product call. Use when implementing or debugging locally. Trigger with \"develop Adobe integration locally\", \"mock Adobe API\", or \"aio app dev\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-local-dev-loop configure adobe local development with app builder cli, runtime actions, hot reload, and mock testing for firefly/pdf/photoshop apis. use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with adobe apis. trigger with phrases like \"adobe dev setup\", \"adobe local development\", \"adobe dev environment\", \"develop with adobe\", \"aio app\". saas-packs read write edit bash(npm:*) bash(pnpm:*) grep "
+      "searchText": "adobe-local-dev-loop build a repeatable local loop for adobe adapters using synthetic contracts before any remote runtime or product call. use when implementing or debugging locally. trigger with \"develop adobe integration locally\", \"mock adobe api\", or \"aio app dev\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-migration-deep-dive",
       "slug": "adobe-migration-deep-dive",
       "name": "adobe-migration-deep-dive",
-      "description": "Execute major Adobe re-architecture: migrating from legacy Adobe APIs to Firefly Services, consolidating Creative Cloud integrations, and strangler-fig migration from competitor document/image APIs to Adobe. Trigger with phrases like \"migrate adobe\", \"adobe migration\", \"switch to adobe\", \"adobe replatform\", \"replace with adobe\".",
+      "description": "Analyze and execute a multi-workload migration into or across Adobe services with contract evidence, dependency waves, dual-run reconciliation, cost controls, and rollback. Use when the task requires adobe platform migration program. Trigger with \"Adobe migration plan\", \"move workflow to Adobe\", or \"Adobe platform consolidation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(node:*)",
-        "Bash(kubectl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-migration-deep-dive execute major adobe re-architecture: migrating from legacy adobe apis to firefly services, consolidating creative cloud integrations, and strangler-fig migration from competitor document/image apis to adobe. trigger with phrases like \"migrate adobe\", \"adobe migration\", \"switch to adobe\", \"adobe replatform\", \"replace with adobe\". saas-packs read write edit bash(npm:*) bash(node:*) bash(kubectl:*) "
+      "searchText": "adobe-migration-deep-dive analyze and execute a multi-workload migration into or across adobe services with contract evidence, dependency waves, dual-run reconciliation, cost controls, and rollback. use when the task requires adobe platform migration program. trigger with \"adobe migration plan\", \"move workflow to adobe\", or \"adobe platform consolidation\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-multi-env-setup",
       "slug": "adobe-multi-env-setup",
       "name": "adobe-multi-env-setup",
-      "description": "Configure Adobe OAuth credentials and API access across development, staging, and production environments with separate Developer Console projects, secret managers, and environment-specific scoping. Trigger with phrases like \"adobe environments\", \"adobe staging\", \"adobe dev prod\", \"adobe environment setup\", \"adobe config by env\".",
+      "description": "Separate Adobe development, stage, and production organizations/projects/workspaces, credentials, profiles, storage, events, budgets, and evidence. Use when the task requires adobe multi-environment isolation. Trigger with \"Adobe environments\", \"separate Adobe staging\", or \"Adobe workspace setup\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(aws:*)",
-        "Bash(gcloud:*)",
-        "Bash(vault:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-multi-env-setup configure adobe oauth credentials and api access across development, staging, and production environments with separate developer console projects, secret managers, and environment-specific scoping. trigger with phrases like \"adobe environments\", \"adobe staging\", \"adobe dev prod\", \"adobe environment setup\", \"adobe config by env\". saas-packs read write edit bash(aws:*) bash(gcloud:*) bash(vault:*) "
+      "searchText": "adobe-multi-env-setup separate adobe development, stage, and production organizations/projects/workspaces, credentials, profiles, storage, events, budgets, and evidence. use when the task requires adobe multi-environment isolation. trigger with \"adobe environments\", \"separate adobe staging\", or \"adobe workspace setup\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-observability",
       "slug": "adobe-observability",
       "name": "adobe-observability",
-      "description": "Set up comprehensive observability for Adobe API integrations with Prometheus metrics, OpenTelemetry traces, structured logging, and alert rules covering Firefly, PDF Services, and Photoshop APIs. Trigger with phrases like \"adobe monitoring\", \"adobe metrics\", \"adobe observability\", \"monitor adobe\", \"adobe alerts\", \"adobe tracing\".",
+      "description": "Instrument Adobe integrations with redacted structured logs, request/job/activation correlation, service-level indicators, alerts, and evidence retention. Use when the task requires adobe content-safe observability. Trigger with \"monitor Adobe API\", \"Adobe observability\", or \"App Builder logs\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-observability set up comprehensive observability for adobe api integrations with prometheus metrics, opentelemetry traces, structured logging, and alert rules covering firefly, pdf services, and photoshop apis. trigger with phrases like \"adobe monitoring\", \"adobe metrics\", \"adobe observability\", \"monitor adobe\", \"adobe alerts\", \"adobe tracing\". saas-packs read write edit "
+      "searchText": "adobe-observability instrument adobe integrations with redacted structured logs, request/job/activation correlation, service-level indicators, alerts, and evidence retention. use when the task requires adobe content-safe observability. trigger with \"monitor adobe api\", \"adobe observability\", or \"app builder logs\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-performance-tuning",
       "slug": "adobe-performance-tuning",
       "name": "adobe-performance-tuning",
-      "description": "Optimize Adobe API performance with token caching, async job batching, connection pooling, and response caching for Firefly, PDF Services, and Photoshop API workflows. Trigger with phrases like \"adobe performance\", \"optimize adobe\", \"adobe latency\", \"adobe caching\", \"adobe slow\", \"adobe batch\".",
+      "description": "Improve Adobe integration latency and throughput from measurements while preserving correctness, policy, and spend boundaries. Use when the task requires adobe measured performance tuning. Trigger with \"tune Adobe performance\", \"reduce Firefly latency\", or \"optimize PDF jobs\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-performance-tuning optimize adobe api performance with token caching, async job batching, connection pooling, and response caching for firefly, pdf services, and photoshop api workflows. trigger with phrases like \"adobe performance\", \"optimize adobe\", \"adobe latency\", \"adobe caching\", \"adobe slow\", \"adobe batch\". saas-packs read write edit "
+      "searchText": "adobe-performance-tuning improve adobe integration latency and throughput from measurements while preserving correctness, policy, and spend boundaries. use when the task requires adobe measured performance tuning. trigger with \"tune adobe performance\", \"reduce firefly latency\", or \"optimize pdf jobs\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-policy-guardrails",
       "slug": "adobe-policy-guardrails",
       "name": "adobe-policy-guardrails",
-      "description": "Implement Adobe-specific lint rules, CI policy checks, and runtime guardrails covering credential scanning (p8_ patterns), Firefly content policy pre-screening, PDF Services quota enforcement, and OAuth scope validation. Trigger with phrases like \"adobe policy\", \"adobe lint\", \"adobe guardrails\", \"adobe eslint\", \"adobe content policy\".",
+      "description": "Analyze and enforce repository, runtime, data, spend, endpoint, and approval guardrails without guessing secret formats or content-policy rules. Use when the task requires adobe policy and execution guardrails. Trigger with \"Adobe guardrails\", \"block unsafe Adobe calls\", or \"Adobe policy checks\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npx:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-policy-guardrails implement adobe-specific lint rules, ci policy checks, and runtime guardrails covering credential scanning (p8_ patterns), firefly content policy pre-screening, pdf services quota enforcement, and oauth scope validation. trigger with phrases like \"adobe policy\", \"adobe lint\", \"adobe guardrails\", \"adobe eslint\", \"adobe content policy\". saas-packs read write edit bash(npx:*) "
+      "searchText": "adobe-policy-guardrails analyze and enforce repository, runtime, data, spend, endpoint, and approval guardrails without guessing secret formats or content-policy rules. use when the task requires adobe policy and execution guardrails. trigger with \"adobe guardrails\", \"block unsafe adobe calls\", or \"adobe policy checks\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-prod-checklist",
       "slug": "adobe-prod-checklist",
       "name": "adobe-prod-checklist",
-      "description": "Execute Adobe production deployment checklist covering credential management, API health checks, rate limit configuration, and rollback procedures for Firefly Services, PDF Services, and I/O Events integrations. Trigger with phrases like \"adobe production\", \"deploy adobe\", \"adobe go-live\", \"adobe launch checklist\".",
+      "description": "Issue an evidence-backed production decision across Adobe auth, entitlements, API versions, data custody, async reliability, spend, observability, and rollback. Use before launch or a material integration change. Use when the task requires adobe production readiness decision. Trigger with \"Adobe production checklist\", \"approve Adobe launch\", or \"Adobe go-live review\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(kubectl:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-prod-checklist execute adobe production deployment checklist covering credential management, api health checks, rate limit configuration, and rollback procedures for firefly services, pdf services, and i/o events integrations. trigger with phrases like \"adobe production\", \"deploy adobe\", \"adobe go-live\", \"adobe launch checklist\". saas-packs read bash(kubectl:*) bash(curl:*) grep "
+      "searchText": "adobe-prod-checklist issue an evidence-backed production decision across adobe auth, entitlements, api versions, data custody, async reliability, spend, observability, and rollback. use before launch or a material integration change. use when the task requires adobe production readiness decision. trigger with \"adobe production checklist\", \"approve adobe launch\", or \"adobe go-live review\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-rate-limits",
       "slug": "adobe-rate-limits",
       "name": "adobe-rate-limits",
-      "description": "Implement Adobe API rate limiting, backoff, and quota management across Firefly, PDF Services, Photoshop, and I/O Events APIs. Use when handling rate limit errors, implementing retry logic, or optimizing API request throughput for Adobe. Trigger with phrases like \"adobe rate limit\", \"adobe throttling\", \"adobe 429\", \"adobe retry\", \"adobe backoff\", \"adobe quota\".",
+      "description": "Implement service-specific Adobe admission control, Retry-After handling, bounded retries, and spend-aware queues. Use when scaling workloads or handling 429 responses. Trigger with \"Adobe rate limit\", \"Adobe 429\", or \"Adobe backoff\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-rate-limits implement adobe api rate limiting, backoff, and quota management across firefly, pdf services, photoshop, and i/o events apis. use when handling rate limit errors, implementing retry logic, or optimizing api request throughput for adobe. trigger with phrases like \"adobe rate limit\", \"adobe throttling\", \"adobe 429\", \"adobe retry\", \"adobe backoff\", \"adobe quota\". saas-packs read write edit "
+      "searchText": "adobe-rate-limits implement service-specific adobe admission control, retry-after handling, bounded retries, and spend-aware queues. use when scaling workloads or handling 429 responses. trigger with \"adobe rate limit\", \"adobe 429\", or \"adobe backoff\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-reference-architecture",
       "slug": "adobe-reference-architecture",
       "name": "adobe-reference-architecture",
-      "description": "Implement Adobe reference architecture for production integrations covering Firefly Services, PDF Services, I/O Events, and App Builder with layered project layout, error boundaries, and health monitoring. Trigger with phrases like \"adobe architecture\", \"adobe project structure\", \"how to organize adobe\", \"adobe layout\", \"adobe best practices\".",
+      "description": "Define a production Adobe architecture spanning identity, service adapters, async workers, asset custody, I/O Events, App Builder, evidence, and recovery. Use when the task requires adobe integration reference architecture. Trigger with \"design Adobe architecture\", \"Adobe reference architecture\", or \"standardize Adobe services\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-reference-architecture implement adobe reference architecture for production integrations covering firefly services, pdf services, i/o events, and app builder with layered project layout, error boundaries, and health monitoring. trigger with phrases like \"adobe architecture\", \"adobe project structure\", \"how to organize adobe\", \"adobe layout\", \"adobe best practices\". saas-packs read grep "
+      "searchText": "adobe-reference-architecture define a production adobe architecture spanning identity, service adapters, async workers, asset custody, i/o events, app builder, evidence, and recovery. use when the task requires adobe integration reference architecture. trigger with \"design adobe architecture\", \"adobe reference architecture\", or \"standardize adobe services\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-reliability-patterns",
       "slug": "adobe-reliability-patterns",
       "name": "adobe-reliability-patterns",
-      "description": "Implement reliability patterns for Adobe APIs: circuit breakers for IMS/Firefly, idempotency for PDF Services operations, graceful degradation when Adobe is down, and dead letter queues for failed async jobs. Trigger with phrases like \"adobe reliability\", \"adobe circuit breaker\", \"adobe fallback\", \"adobe resilience\", \"adobe graceful degradation\".",
+      "description": "Analyze and design idempotency, bounded polling, per-service circuits, durable queues, DLQ/replay, degradation, and reconciliation for Adobe workloads. Use when the task requires adobe async reliability controls. Trigger with \"Adobe reliability\", \"Firefly retry design\", or \"PDF job recovery\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-reliability-patterns implement reliability patterns for adobe apis: circuit breakers for ims/firefly, idempotency for pdf services operations, graceful degradation when adobe is down, and dead letter queues for failed async jobs. trigger with phrases like \"adobe reliability\", \"adobe circuit breaker\", \"adobe fallback\", \"adobe resilience\", \"adobe graceful degradation\". saas-packs read write edit "
+      "searchText": "adobe-reliability-patterns analyze and design idempotency, bounded polling, per-service circuits, durable queues, dlq/replay, degradation, and reconciliation for adobe workloads. use when the task requires adobe async reliability controls. trigger with \"adobe reliability\", \"firefly retry design\", or \"pdf job recovery\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-sdk-patterns",
       "slug": "adobe-sdk-patterns",
       "name": "adobe-sdk-patterns",
-      "description": "Apply production-ready patterns for Adobe Firefly Services SDK, PDF Services SDK, and raw REST API usage in TypeScript and Python. Use when implementing Adobe integrations, refactoring SDK usage, or establishing team coding standards for Adobe APIs. Trigger with phrases like \"adobe SDK patterns\", \"adobe best practices\", \"adobe code patterns\", \"idiomatic adobe\", \"adobe typescript\".",
+      "description": "Create narrow, version-pinned Adobe SDK and REST adapters with typed contracts, redaction, bounded polling, and compatibility evidence. Use when writing or upgrading integration code. Trigger with \"Adobe SDK patterns\", \"wrap Adobe API\", or \"review Adobe client\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-sdk-patterns apply production-ready patterns for adobe firefly services sdk, pdf services sdk, and raw rest api usage in typescript and python. use when implementing adobe integrations, refactoring sdk usage, or establishing team coding standards for adobe apis. trigger with phrases like \"adobe sdk patterns\", \"adobe best practices\", \"adobe code patterns\", \"idiomatic adobe\", \"adobe typescript\". saas-packs read write edit "
+      "searchText": "adobe-sdk-patterns create narrow, version-pinned adobe sdk and rest adapters with typed contracts, redaction, bounded polling, and compatibility evidence. use when writing or upgrading integration code. trigger with \"adobe sdk patterns\", \"wrap adobe api\", or \"review adobe client\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-security-basics",
       "slug": "adobe-security-basics",
       "name": "adobe-security-basics",
-      "description": "Apply Adobe security best practices for OAuth credentials, secret rotation, I/O Events webhook signature verification, and least-privilege scoping. Use when securing API credentials, implementing webhook validation, or auditing Adobe security configuration. Trigger with phrases like \"adobe security\", \"adobe secrets\", \"secure adobe\", \"adobe credential rotation\", \"adobe webhook signature\".",
+      "description": "Establish least privilege, credential rotation, webhook authenticity, signed-URL custody, log minimization, and destructive-action controls. Use when designing or hardening Adobe integrations. Trigger with \"secure Adobe integration\", \"rotate Adobe secret\", or \"verify Adobe webhook\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-security-basics apply adobe security best practices for oauth credentials, secret rotation, i/o events webhook signature verification, and least-privilege scoping. use when securing api credentials, implementing webhook validation, or auditing adobe security configuration. trigger with phrases like \"adobe security\", \"adobe secrets\", \"secure adobe\", \"adobe credential rotation\", \"adobe webhook signature\". saas-packs read write grep "
+      "searchText": "adobe-security-basics establish least privilege, credential rotation, webhook authenticity, signed-url custody, log minimization, and destructive-action controls. use when designing or hardening adobe integrations. trigger with \"secure adobe integration\", \"rotate adobe secret\", or \"verify adobe webhook\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-upgrade-migration",
       "slug": "adobe-upgrade-migration",
       "name": "adobe-upgrade-migration",
-      "description": "Analyze, plan, and execute Adobe SDK upgrades — including the critical JWT-to-OAuth migration, PDF Services SDK v3-to-v4, and Photoshop API endpoint changes (cutout v1 to remove-background v2). Trigger with phrases like \"upgrade adobe\", \"adobe migration\", \"adobe breaking changes\", \"update adobe SDK\", \"jwt to oauth\".",
+      "description": "Migrate Adobe integrations away from Service Account JWT, Photoshop v1, retired Lightroom Firefly Services, or drifting SDK/API contracts with canaries and rollback. Use when the task requires adobe end-of-life and contract migration. Trigger with \"upgrade Adobe integration\", \"migrate Adobe JWT\", or \"Photoshop v2 migration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(git:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-upgrade-migration analyze, plan, and execute adobe sdk upgrades — including the critical jwt-to-oauth migration, pdf services sdk v3-to-v4, and photoshop api endpoint changes (cutout v1 to remove-background v2). trigger with phrases like \"upgrade adobe\", \"adobe migration\", \"adobe breaking changes\", \"update adobe sdk\", \"jwt to oauth\". saas-packs read write edit bash(npm:*) bash(git:*) "
+      "searchText": "adobe-upgrade-migration migrate adobe integrations away from service account jwt, photoshop v1, retired lightroom firefly services, or drifting sdk/api contracts with canaries and rollback. use when the task requires adobe end-of-life and contract migration. trigger with \"upgrade adobe integration\", \"migrate adobe jwt\", or \"photoshop v2 migration\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-webhooks-events",
       "slug": "adobe-webhooks-events",
       "name": "adobe-webhooks-events",
-      "description": "Implement Adobe I/O Events webhook registration, RSA-SHA256 signature verification, challenge handshake, and event-driven architectures with Creative Cloud, Experience Platform, and Firefly Services events. Trigger with phrases like \"adobe webhook\", \"adobe events\", \"adobe I/O events\", \"adobe event registration\", \"adobe notifications\".",
+      "description": "Implement Adobe I/O Events registration, challenge validation, authentic delivery, idempotent enqueue, replay operations, and disablement recovery. Use when the task requires adobe i/o events authentic delivery. Trigger with \"Adobe webhook\", \"Adobe I/O Events\", or \"verify Adobe event\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-webhooks-events implement adobe i/o events webhook registration, rsa-sha256 signature verification, challenge handshake, and event-driven architectures with creative cloud, experience platform, and firefly services events. trigger with phrases like \"adobe webhook\", \"adobe events\", \"adobe i/o events\", \"adobe event registration\", \"adobe notifications\". saas-packs read write edit bash(curl:*) "
+      "searchText": "adobe-webhooks-events implement adobe i/o events registration, challenge validation, authentic delivery, idempotent enqueue, replay operations, and disablement recovery. use when the task requires adobe i/o events authentic delivery. trigger with \"adobe webhook\", \"adobe i/o events\", or \"verify adobe event\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",

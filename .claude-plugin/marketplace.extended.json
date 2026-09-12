@@ -8438,14 +8438,18 @@
     {
       "name": "adobe-pack",
       "source": "./plugins/saas-packs/adobe-pack",
-      "description": "Claude Code skill pack for Adobe (30 skills)",
-      "version": "1.7.0",
+      "description": "Operate Adobe Firefly, Photoshop v2, PDF Services, I/O Events, App Builder, and enterprise access through 30 evidence-backed skills with safe auth, data, spend, deployment, and recovery boundaries.",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "adobe",
-        "saas",
-        "sdk",
-        "integration"
+        "firefly",
+        "photoshop-api",
+        "pdf-services",
+        "adobe-io-events",
+        "app-builder",
+        "oauth",
+        "enterprise-integration"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -8456,10 +8460,10 @@
         "skills": 30
       },
       "verification": {
-        "score": 82,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "verified",
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {

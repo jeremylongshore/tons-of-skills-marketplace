@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/adobe-pack",
-  "version": "1.0.4",
-  "description": "Claude Code skill pack for Adobe - 30 skills covering creative cloud, document APIs, and enterprise content workflows",
+  "version": "1.8.0",
+  "description": "Thirty evidence-backed Adobe operator skills for Firefly, Photoshop v2, PDF Services, I/O Events, App Builder, identity, governance, and production operations.",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -13,9 +13,12 @@
     "claude-code",
     "claude-code-plugin",
     "adobe",
-    "creative-cloud",
-    "document-api",
-    "pdf",
+    "firefly",
+    "photoshop-api",
+    "pdf-services",
+    "adobe-io-events",
+    "app-builder",
+    "oauth",
     "ai-skills",
     "saas-pack"
   ],
