@@ -1,183 +1,75 @@
 ---
 name: exa-common-errors
-description: 'Diagnose and fix Exa API errors by HTTP code and error tag.
-
-  Use when encountering Exa errors, debugging failed requests,
-
-  or troubleshooting integration issues.
-
-  Trigger with phrases like "exa error", "fix exa",
-
-  "exa not working", "debug exa", "exa 429", "exa 401".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*), Bash(node:*)
-version: 1.11.0
+description: >-
+  Classify Exa failures by HTTP status, error tag, endpoint, and per-item crawl status before deciding whether to repair, retry, or escalate. Use when operating or reviewing this Exa boundary. Trigger with "Exa common errors", "review Exa common errors", or "fix Exa common errors".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<status-code> <error-tag> <request-id>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- debugging
-- errors
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Common Errors
-
-## Prerequisites
-
-- A bounded non-sensitive reproduction, environment/version, expected behavior, and redaction rule for diagnostics.
-
-## Output
-
-- A classified Exa failure with redacted evidence and a verified bounded remediation or escalation.
-
-## Error Handling
-
-| Condition | Safe response |
-|---|---|
-| Authentication fails | Verify the scoped secret reference/environment; revoke/rotate if exposure is suspected. |
-| Result is unexpected | Inspect supported sources, date, options, and citations with a sanitized query before changing policy. |
-| Throttling occurs | Apply documented backoff and reduce concurrency; do not bulk retry. |
-| Request includes sensitive data | Stop, sanitize/use an approved path, and follow exposure policy. |
-
-## Examples
-
-For a failing request, record correlation ID, environment, status class, latency, and sanitized request category, then validate credentials and options against a non-sensitive fixture. Escalate with redacted evidence rather than full query/result content.
+# Exa Error and Status Decision Tree
 
 ## Overview
 
-Quick reference for Exa API errors by HTTP status code and error tag. All error responses include a `requestId` field — include it when contacting Exa support at hello@exa.ai.
+Classify Exa failures by HTTP status, error tag, endpoint, and per-item crawl status before deciding whether to repair, retry, or escalate. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
-## Error Reference
+## Prerequisites
 
-### 400 — Bad Request
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
 
-| Error Tag | Cause | Solution |
-|-----------|-------|----------|
-| `INVALID_REQUEST_BODY` | Malformed JSON or missing required fields | Validate JSON structure and required `query` field |
-| `INVALID_REQUEST` | Conflicting parameters | Remove contradictory options (e.g., date filters with `company` category) |
-| `INVALID_URLS` | Malformed URLs in `getContents` | Ensure URLs have `https://` protocol |
-| `INVALID_NUM_RESULTS` | numResults > 100 with highlights | Reduce to <= 100 or remove highlights |
-| `INVALID_JSON_SCHEMA` | Bad schema in `summary.schema` | Validate JSON schema syntax |
-| `NUM_RESULTS_EXCEEDED` | Exceeds plan limit | Check your plan's max results |
-| `NO_CONTENT_FOUND` | No content at provided URLs | Verify URLs are accessible |
+## Current Contract
 
-### 401 — Unauthorized
+Documented errors distinguish invalid requests, authentication, exhausted credits or budgets, access policy, per-URL crawl failure, rate limiting, service overload, and Answer generation failure. Most errors include requestId, error, and tag; 429 can use a simpler body. Contents also reports granular statuses inside a successful response.
 
-```bash
-# Verify your API key is set and valid
-echo "Key set: ${EXA_API_KEY:+yes}"
+## Authentication
 
-# Test with curl
-curl -s -o /dev/null -w "%{http_code}" \
-  -X POST https://api.exa.ai/search \
-  -H "x-api-key: $EXA_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"query":"test","numResults":1}'
-```
-
-**Fix:** Regenerate API key at [dashboard.exa.ai](https://dashboard.exa.ai).
-
-### 402 — Payment Required
-
-| Error Tag | Cause | Solution |
-|-----------|-------|----------|
-| `NO_MORE_CREDITS` | Account balance exhausted | Top up at dashboard.exa.ai |
-| `API_KEY_BUDGET_EXCEEDED` | Spending limit reached | Increase budget in API key settings |
-
-### 403 — Forbidden
-
-| Error Tag | Cause | Solution |
-|-----------|-------|----------|
-| `ACCESS_DENIED` | Feature not available on plan | Upgrade plan or contact Exa |
-| `FEATURE_DISABLED` | Endpoint not enabled | Check plan capabilities |
-| `ROBOTS_FILTER_FAILED` | URL blocked by robots.txt | Use a different URL |
-| `PROHIBITED_CONTENT` | Content blocked by moderation | Review query for policy violations |
-
-### 429 — Rate Limited
-
-```typescript
-// Default rate limit: 10 QPS (queries per second)
-// Error response format: { "error": "rate limit exceeded" }
-
-// Fix: implement exponential backoff
-async function searchWithBackoff(exa: Exa, query: string, opts: any) {
-  for (let attempt = 0; attempt < 5; attempt++) {
-    try {
-      return await exa.search(query, opts);
-    } catch (err: any) {
-      if (err.status !== 429) throw err;
-      const delay = 1000 * Math.pow(2, attempt) + Math.random() * 500;
-      console.log(`Rate limited. Waiting ${delay.toFixed(0)}ms...`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error("Rate limit retries exhausted");
-}
-```
-
-### 422 — Unprocessable Entity
-
-| Error Tag | Cause | Solution |
-|-----------|-------|----------|
-| `FETCH_DOCUMENT_ERROR` | URL could not be crawled | Verify URL is accessible and not paywalled |
-
-### 5xx — Server Errors
-
-| Code | Tag | Action |
-|------|-----|--------|
-| 500 | `DEFAULT_ERROR` / `INTERNAL_ERROR` | Retry after 1-2 seconds |
-| 501 | `UNABLE_TO_GENERATE_RESPONSE` | Rephrase query (answer endpoint) |
-| 502 | Bad Gateway | Retry with delay |
-| 503 | Service Unavailable | Check status page, retry later |
-
-### Content Fetch Errors (per-URL status in getContents)
-
-| Tag | Cause | Resolution |
-|-----|-------|-----------|
-| `CRAWL_NOT_FOUND` | Content unavailable at URL | Verify URL correctness |
-| `CRAWL_TIMEOUT` | Fetch timed out | Retry or increase `livecrawlTimeout` |
-| `CRAWL_LIVECRAWL_TIMEOUT` | Live crawl exceeded timeout | Set `livecrawlTimeout: 15000` or use `livecrawl: "fallback"` |
-| `SOURCE_NOT_AVAILABLE` | Paywalled or blocked | Try cached content with `livecrawl: "never"` |
-| `UNSUPPORTED_URL` | Non-HTTP URL scheme | Use standard HTTPS URLs |
-
-## Quick Diagnostic Script
-
-```bash
-set -euo pipefail
-
-echo "=== Exa Diagnostics ==="
-echo "API Key: ${EXA_API_KEY:+SET (${#EXA_API_KEY} chars)}"
-
-# Test basic connectivity
-echo -n "API connectivity: "
-HTTP_CODE=$(curl -s -o /tmp/exa-test.json -w "%{http_code}" \
-  -X POST https://api.exa.ai/search \
-  -H "x-api-key: $EXA_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"query":"connectivity test","numResults":1}')
-echo "$HTTP_CODE"
-
-if [ "$HTTP_CODE" != "200" ]; then
-  echo "Error response:"
-  cat /tmp/exa-test.json | python3 -m json.tool 2>/dev/null || cat /tmp/exa-test.json
-fi
-```
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-1. Check the HTTP status code from the error response
-2. Match the error tag to the tables above
-3. Apply the documented solution
-4. Include `requestId` from error responses when contacting support
+1. Capture endpoint, status, tag, request ID, attempt, and content-free input shape.
+2. Separate request defects from auth, billing, policy, crawl, and capacity classes.
+3. Repair 400-class contract errors instead of retrying them unchanged.
+4. Honor Retry-After for 429 and use bounded jitter for documented transient failures.
+5. Inspect Contents statuses even when the outer request succeeded.
+6. Escalate persistent vendor failures with request IDs and redacted timing evidence.
 
-## Resources
+## Tool Discipline
 
-- [Exa Error Codes](https://docs.exa.ai/reference/error-codes)
-- [Exa Rate Limits](https://docs.exa.ai/reference/rate-limits)
-- [Exa Status Page](https://status.exa.ai)
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-## Next Steps
+## Approval Boundaries
 
-For comprehensive debugging, see `exa-debug-bundle`. For rate limit patterns, see `exa-rate-limits`.
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
+
+## Failure Modes
+
+- A 402 is a credit or budget boundary, not a transient server error.
+- A 503 SERVICE_OVERLOADED is not fixed by merely lowering the caller's QPS.
+- Never include API keys, full queries, or returned page text in support evidence.
+
+## Output
+
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
+
+## Example
+
+- Classify 429 RATE_LIMIT_EXCEEDED separately from 503 SERVICE_OVERLOADED and apply different operator actions.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
+
+## Validation
+
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
+
+## References
+
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
+
+- [Current first-party evidence map](references/official-docs.md)

@@ -1,293 +1,75 @@
 ---
 name: exa-advanced-troubleshooting
-description: 'Apply advanced debugging techniques for hard-to-diagnose Exa issues.
-
-  Use when standard troubleshooting fails, investigating latency spikes,
-
-  or preparing evidence bundles for Exa support escalation.
-
-  Trigger with phrases like "exa hard bug", "exa mystery error",
-
-  "exa deep debug", "difficult exa issue", "exa latency spike".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*), Bash(node:*), Bash(tcpdump:*)
-version: 1.11.0
+description: >-
+  Localize complex Exa failures across query planning, retrieval, crawling, synthesis, SDK mapping, queues, and downstream consumption. Use when operating or reviewing this Exa boundary. Trigger with "Exa advanced troubleshooting", "review Exa advanced troubleshooting", or "fix Exa advanced troubleshooting".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<symptom> <request-ids> <time-window>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- debugging
-- advanced
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Advanced Troubleshooting
-
-## Prerequisites
-
-- A bounded non-sensitive reproduction, affected environment/version, expected behavior, and redaction policy.
-- Authority to inspect aggregate diagnostics and a named owner for escalation.
-
-## Output
-
-- A minimal redacted root-cause record with evidence, remediation, owner, and verification result.
-- A safe vendor/internal escalation packet without raw sensitive queries, result content, or API keys.
-
-## Examples
-
-Reproduce a retrieval-quality issue with a sanitized query and approved domain filter, compare response metadata and aggregate timing to the expected contract, then test one scoped configuration fix. If unresolved, submit only the redacted request category/options/correlation evidence through the approved support channel.
+# Exa Cross-layer Troubleshooting
 
 ## Overview
 
-Deep debugging for complex Exa issues: latency spikes, intermittent failures, result quality degradation, and content retrieval failures. All Exa error responses include a `requestId` — always capture it.
+Localize complex Exa failures across query planning, retrieval, crawling, synthesis, SDK mapping, queues, and downstream consumption. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
+
+## Prerequisites
+
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Search relevance, Contents crawl status, deep output grounding, Agent terminal state, webhook delivery, and application rendering are independent layers. A single request can succeed at one layer and fail at another, so evidence must preserve layer-specific IDs and decisions.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Layer-by-Layer Diagnostics
+1. Reproduce with a sanitized input and freeze endpoint, SDK, flags, and time window.
+2. Trace the application request through adapter, Exa request ID, results, statuses, and downstream IDs.
+3. Separate relevance, freshness, crawl, synthesis, schema, queue, and rendering symptoms.
+4. Compare one controlled parameter at a time against a known-good fixture or request.
+5. Escalate vendor defects with request IDs, tags, timestamps, and redacted shape evidence.
+6. Verify the fix at the failed layer and then end to end before closing.
 
-```typescript
-import Exa from "exa-js";
+## Tool Discipline
 
-interface DiagnosticResult {
-  layer: string;
-  success: boolean;
-  latencyMs: number;
-  details: string;
-}
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-async function diagnoseExa(): Promise<DiagnosticResult[]> {
-  const results: DiagnosticResult[] = [];
-  const exa = new Exa(process.env.EXA_API_KEY);
+## Approval Boundaries
 
-  // Layer 1: DNS + Network
-  let start = performance.now();
-  try {
-    const resp = await fetch("https://api.exa.ai", { method: "HEAD" });
-    results.push({
-      layer: "network",
-      success: true,
-      latencyMs: performance.now() - start,
-      details: `HTTP ${resp.status}`,
-    });
-  } catch (err: any) {
-    results.push({
-      layer: "network",
-      success: false,
-      latencyMs: performance.now() - start,
-      details: err.message,
-    });
-    return results; // No point continuing if network fails
-  }
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-  // Layer 2: Authentication
-  start = performance.now();
-  try {
-    await exa.search("auth test", { numResults: 1 });
-    results.push({
-      layer: "auth",
-      success: true,
-      latencyMs: performance.now() - start,
-      details: "API key valid",
-    });
-  } catch (err: any) {
-    results.push({
-      layer: "auth",
-      success: false,
-      latencyMs: performance.now() - start,
-      details: `${err.status}: ${err.message}`,
-    });
-    if (err.status === 401 || err.status === 402) return results;
-  }
+## Failure Modes
 
-  // Layer 3: Neural search
-  start = performance.now();
-  try {
-    const r = await exa.search("test neural search quality", {
-      type: "neural",
-      numResults: 3,
-    });
-    results.push({
-      layer: "neural-search",
-      success: true,
-      latencyMs: performance.now() - start,
-      details: `${r.results.length} results, top score: ${r.results[0]?.score.toFixed(3)}`,
-    });
-  } catch (err: any) {
-    results.push({
-      layer: "neural-search",
-      success: false,
-      latencyMs: performance.now() - start,
-      details: `${err.status}: ${err.message}`,
-    });
-  }
+- Changing query, search type, freshness, and content mode together destroys causal evidence.
+- Missing Contents statuses can make crawl failure look like a model failure.
+- A repaired vendor response can still be mishandled by the local adapter or downstream schema.
 
-  // Layer 4: Content retrieval
-  start = performance.now();
-  try {
-    const r = await exa.searchAndContents("content retrieval test", {
-      numResults: 1,
-      text: { maxCharacters: 500 },
-      highlights: { maxCharacters: 200 },
-    });
-    const hasText = !!r.results[0]?.text;
-    const hasHighlights = !!r.results[0]?.highlights?.length;
-    results.push({
-      layer: "content-retrieval",
-      success: hasText,
-      latencyMs: performance.now() - start,
-      details: `text: ${hasText}, highlights: ${hasHighlights}`,
-    });
-  } catch (err: any) {
-    results.push({
-      layer: "content-retrieval",
-      success: false,
-      latencyMs: performance.now() - start,
-      details: `${err.status}: ${err.message}`,
-    });
-  }
+## Output
 
-  // Layer 5: findSimilar
-  start = performance.now();
-  try {
-    const r = await exa.findSimilar("https://nodejs.org", { numResults: 2 });
-    results.push({
-      layer: "find-similar",
-      success: r.results.length > 0,
-      latencyMs: performance.now() - start,
-      details: `${r.results.length} similar pages found`,
-    });
-  } catch (err: any) {
-    results.push({
-      layer: "find-similar",
-      success: false,
-      latencyMs: performance.now() - start,
-      details: `${err.status}: ${err.message}`,
-    });
-  }
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-  return results;
-}
+## Example
 
-// Print diagnostic report
-const results = await diagnoseExa();
-console.log("=== Exa Diagnostic Report ===");
-for (const r of results) {
-  const icon = r.success ? "PASS" : "FAIL";
-  console.log(`[${icon}] ${r.layer}: ${r.latencyMs.toFixed(0)}ms — ${r.details}`);
-}
-```
+- Trace an empty RAG answer to successful Search, failed per-URL Contents statuses, and an adapter that discarded those statuses.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-### Step 2: Latency Profiling
+## Validation
 
-```typescript
-async function profileLatency(query: string, iterations = 5) {
-  const exa = new Exa(process.env.EXA_API_KEY);
-  const timings: { type: string; ms: number }[] = [];
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-  for (const type of ["instant", "fast", "auto", "neural"] as const) {
-    for (let i = 0; i < iterations; i++) {
-      const start = performance.now();
-      try {
-        await exa.search(query, { type, numResults: 3 });
-        timings.push({ type, ms: performance.now() - start });
-      } catch {
-        timings.push({ type, ms: -1 }); // -1 indicates failure
-      }
-    }
-  }
+## References
 
-  // Summarize
-  const grouped = new Map<string, number[]>();
-  for (const t of timings) {
-    if (!grouped.has(t.type)) grouped.set(t.type, []);
-    if (t.ms > 0) grouped.get(t.type)!.push(t.ms);
-  }
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-  console.log(`\nLatency profile for: "${query}"`);
-  for (const [type, times] of grouped) {
-    const sorted = times.sort((a, b) => a - b);
-    const p50 = sorted[Math.floor(sorted.length * 0.5)];
-    const p95 = sorted[Math.floor(sorted.length * 0.95)];
-    console.log(`  ${type}: p50=${p50?.toFixed(0)}ms, p95=${p95?.toFixed(0)}ms`);
-  }
-}
-```
-
-### Step 3: Content Retrieval Debugging
-
-```typescript
-// When getContents or searchAndContents returns empty text
-async function debugContentRetrieval(url: string) {
-  const exa = new Exa(process.env.EXA_API_KEY);
-  const configs = [
-    { name: "default", opts: { text: true } },
-    { name: "livecrawl-preferred", opts: { text: true, livecrawl: "preferred" as const, livecrawlTimeout: 15000 } },
-    { name: "livecrawl-always", opts: { text: true, livecrawl: "always" as const, livecrawlTimeout: 15000 } },
-    { name: "highlights-only", opts: { highlights: { maxCharacters: 500 } } },
-    { name: "summary-only", opts: { summary: true } },
-  ];
-
-  console.log(`\nContent retrieval debug for: ${url}`);
-  for (const { name, opts } of configs) {
-    try {
-      const result = await exa.getContents([url], opts as any);
-      const r = result.results[0];
-      console.log(`  ${name}: text=${r?.text?.length || 0} chars, highlights=${r?.highlights?.length || 0}`);
-    } catch (err: any) {
-      console.log(`  ${name}: ERROR ${err.status} — ${err.message}`);
-    }
-  }
-}
-```
-
-### Step 4: Support Escalation Template
-
-```markdown
-## Exa Support Escalation
-
-**Severity:** P[1-4]
-**RequestId:** [from error response]
-**Timestamp:** [ISO 8601 from error]
-**SDK:** exa-js [version from npm list]
-
-### Issue Summary
-[One paragraph description]
-
-### Steps to Reproduce
-1. Initialize Exa client
-2. Call [method] with [parameters]
-3. Observe [error/unexpected behavior]
-
-### Expected vs Actual
-- Expected: [behavior]
-- Actual: [behavior]
-
-### Diagnostic Results
-[Output from diagnoseExa() function]
-
-### Evidence
-- Latency profile attached
-- Content retrieval debug output
-- Error response with requestId
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Intermittent 5xx | Exa transient failure | Retry with backoff, capture requestId |
-| Neural search slow | Complex/long query | Switch to `fast`, shorten query |
-| Empty text for valid URL | Site blocks crawling | Try `livecrawl: "always"`, use highlights |
-| Score drops across queries | Query drift | Compare with baseline queries |
-| findSimilar returns nothing | Seed URL not indexed | Try a more popular seed URL |
-
-## Resources
-
-- [Exa Error Codes](https://docs.exa.ai/reference/error-codes)
-- [Exa Support](mailto:hello@exa.ai)
-- [Exa Rate Limits](https://docs.exa.ai/reference/rate-limits)
-
-## Next Steps
-
-For load testing, see `exa-load-scale`.
+- [Current first-party evidence map](references/official-docs.md)

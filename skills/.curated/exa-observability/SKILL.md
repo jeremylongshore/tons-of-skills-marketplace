@@ -1,240 +1,75 @@
 ---
 name: exa-observability
-description: 'Set up monitoring, metrics, and alerting for Exa search integrations.
-
-  Use when implementing monitoring for Exa operations, building dashboards,
-
-  or configuring alerting for search quality and latency.
-
-  Trigger with phrases like "exa monitoring", "exa metrics",
-
-  "exa observability", "monitor exa", "exa alerts", "exa dashboard".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
+description: >-
+  Instrument Exa calls with content-free metrics, traces, cost, and asynchronous lifecycle signals that support diagnosis without logging retrieved text. Use when operating or reviewing this Exa boundary. Trigger with "Exa observability", "review Exa observability", or "fix Exa observability".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<service> <slo> <dashboard>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- monitoring
-- observability
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Observability
-
-## Output
-
-- Bounded redacted metrics/traces for request outcome, latency, rate headroom, policy decision, source/citation coverage, and fallback behavior.
-- An owned alert/runbook path that excludes raw queries, result content, identifiers, and credentials.
-
-## Examples
-
-Emit aggregate metrics by environment, endpoint, status class, and policy outcome, then trigger a sanitized staging failure to verify alert routing. Record correlation ID and remediation time only; do not put customer queries, result text, or API keys into logs, dashboards, or tickets.
+# Exa Operational Telemetry
 
 ## Overview
 
-Monitor Exa search API performance, result quality, and cost efficiency. Key metrics: search latency by type (neural ~500-2000ms, keyword ~200-500ms), result count per query, cache hit rates, error rates by status code, and daily search volume for budget tracking.
+Instrument Exa calls with content-free metrics, traces, cost, and asynchronous lifecycle signals that support diagnosis without logging retrieved text. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- Exa API integration in production
-- Metrics backend (Prometheus, Datadog, or OpenTelemetry)
-- Alerting system (PagerDuty, Slack, or equivalent)
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Exa responses expose request IDs and often costDollars; errors expose status and tags; Contents exposes per-URL statuses. Agent, Monitor, Webset, and Batch operations add IDs, states, queues, events, and terminal outcomes that must be reconciled separately.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Instrument the Exa Client
+1. Define service-level objectives for each endpoint and asynchronous product.
+2. Emit endpoint, status, tag, latency, attempt, result count, and request ID safely.
+3. Measure Contents status mix and freshness mode rather than logging page content.
+4. Track run age, terminal state, webhook lag, queue depth, and reconciliation drift.
+5. Attribute cost by environment, workload, key, product, and owner.
+6. Alert on error-class shifts, stalled state, throttling, overload, credit risk, and missing events.
 
-```typescript
-import Exa from "exa-js";
+## Tool Discipline
 
-const exa = new Exa(process.env.EXA_API_KEY);
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-// Generic metrics emitter (replace with your metrics library)
-function emitMetric(name: string, value: number, tags: Record<string, string>) {
-  // Prometheus: histogram/counter.observe(value, tags)
-  // Datadog: dogstatsd.histogram(name, value, tags)
-  // OpenTelemetry: meter.createHistogram(name).record(value, tags)
-  console.log(`[metric] ${name}=${value}`, tags);
-}
+## Approval Boundaries
 
-async function trackedSearch(query: string, options: any = {}) {
-  const start = performance.now();
-  const type = options.type || "auto";
-  const hasContents = options.text || options.highlights || options.summary;
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-  try {
-    const method = hasContents ? "searchAndContents" : "search";
-    const results = hasContents
-      ? await exa.searchAndContents(query, options)
-      : await exa.search(query, options);
+## Failure Modes
 
-    const duration = performance.now() - start;
+- Raw queries, URLs, highlights, summaries, and outputs are not safe default labels.
+- HTTP success can hide partial Contents failures.
+- Webhook delivery metrics without run reconciliation can report false completion.
 
-    emitMetric("exa.search.duration_ms", duration, { type, method });
-    emitMetric("exa.search.result_count", results.results.length, { type });
-    emitMetric("exa.search.success", 1, { type });
+## Output
 
-    return results;
-  } catch (err: any) {
-    const duration = performance.now() - start;
-    const status = String(err.status || "unknown");
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-    emitMetric("exa.search.duration_ms", duration, { type, status });
-    emitMetric("exa.search.error", 1, { type, status });
+## Example
 
-    throw err;
-  }
-}
-```
+- A trace records request ID, Search type, content mode, result count, latency, cost, and redacted policy outcome, never the query or text.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-### Step 2: Track Result Quality
+## Validation
 
-```typescript
-// Measure whether search results are actually used downstream
-function trackResultUsage(
-  searchId: string,
-  resultIndex: number,
-  action: "clicked" | "used_in_context" | "discarded"
-) {
-  emitMetric("exa.result.usage", 1, {
-    action,
-    position: String(resultIndex),
-  });
-  // Results at position 0-2 should have high usage
-  // If top results are discarded, query needs tuning
-}
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-// Track content extraction value
-function trackContentValue(result: any) {
-  if (result.text) {
-    emitMetric("exa.content.text_length", result.text.length, {});
-  }
-  if (result.highlights) {
-    emitMetric("exa.content.highlight_count", result.highlights.length, {});
-  }
-}
-```
+## References
 
-### Step 3: Cache Monitoring
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-```typescript
-class MonitoredCache {
-  private hits = 0;
-  private misses = 0;
-  private cache: Map<string, { data: any; expiry: number }> = new Map();
-
-  async search(exa: Exa, query: string, opts: any) {
-    const key = `${query}:${opts.type}:${opts.numResults}`;
-    const cached = this.cache.get(key);
-
-    if (cached && cached.expiry > Date.now()) {
-      this.hits++;
-      emitMetric("exa.cache.hit", 1, {});
-      return cached.data;
-    }
-
-    this.misses++;
-    emitMetric("exa.cache.miss", 1, {});
-
-    const results = await exa.searchAndContents(query, opts);
-    this.cache.set(key, { data: results, expiry: Date.now() + 3600 * 1000 });
-    return results;
-  }
-
-  getStats() {
-    const total = this.hits + this.misses;
-    return {
-      hits: this.hits,
-      misses: this.misses,
-      hitRate: total > 0 ? `${((this.hits / total) * 100).toFixed(1)}%` : "N/A",
-    };
-  }
-}
-```
-
-### Step 4: Prometheus Alert Rules
-
-```yaml
-groups:
-  - name: exa_alerts
-    rules:
-      - alert: ExaHighLatency
-        expr: histogram_quantile(0.95, rate(exa_search_duration_ms_bucket[5m])) > 3000
-        for: 5m
-        annotations:
-          summary: "Exa search P95 latency exceeds 3 seconds"
-
-      - alert: ExaHighErrorRate
-        expr: rate(exa_search_error[5m]) / rate(exa_search_success[5m]) > 0.05
-        for: 5m
-        annotations:
-          summary: "Exa API error rate exceeds 5%"
-
-      - alert: ExaEmptyResults
-        expr: rate(exa_search_result_count{result_count="0"}[15m]) > 0.2
-        for: 10m
-        annotations:
-          summary: "Over 20% of Exa searches returning empty results"
-
-      - alert: ExaCacheHitRateLow
-        expr: rate(exa_cache_hit[5m]) / (rate(exa_cache_hit[5m]) + rate(exa_cache_miss[5m])) < 0.3
-        for: 15m
-        annotations:
-          summary: "Exa cache hit rate below 30% — check query patterns"
-```
-
-### Step 5: Health Check Endpoint
-
-```typescript
-app.get("/health/exa", async (_req, res) => {
-  const start = performance.now();
-  try {
-    const result = await exa.search("health check", { numResults: 1 });
-    const latencyMs = Math.round(performance.now() - start);
-    res.json({
-      status: "healthy",
-      latencyMs,
-      resultCount: result.results.length,
-    });
-  } catch (err: any) {
-    res.status(503).json({
-      status: "unhealthy",
-      error: err.message,
-      latencyMs: Math.round(performance.now() - start),
-    });
-  }
-});
-```
-
-## Dashboard Panels
-
-| Panel | Metric | Purpose |
-|-------|--------|---------|
-| Search Volume | `rate(exa.search.success)` | Traffic trends |
-| Latency P50/P95 | `histogram_quantile(exa.search.duration_ms)` | Performance SLO |
-| Error Rate | `exa.search.error / exa.search.success` | Reliability |
-| Result Quality | `exa.result.usage{action="discarded"}` | Query tuning signal |
-| Cache Hit Rate | `exa.cache.hit / (hit + miss)` | Cost efficiency |
-| Daily Cost | `sum(exa.search.success)` | Budget tracking |
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `429 Too Many Requests` | Rate limit exceeded | Implement backoff + request queue |
-| Zero results returned | Query too narrow | Broaden query, remove domain filter |
-| Latency spike to 5s+ | Deep/neural on complex query | Switch to `fast` or `auto` type |
-| Budget exhausted | Uncapped search volume | Add application-level budget tracking |
-
-## Resources
-
-- [Exa API Documentation](https://docs.exa.ai)
-- [Exa Rate Limits](https://docs.exa.ai/reference/rate-limits)
-- [Prometheus Alerting Rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/)
-
-## Next Steps
-
-For incident response, see `exa-incident-runbook`. For cost optimization, see `exa-cost-tuning`.
+- [Current first-party evidence map](references/official-docs.md)

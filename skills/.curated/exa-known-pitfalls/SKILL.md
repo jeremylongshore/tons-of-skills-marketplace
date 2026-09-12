@@ -1,254 +1,75 @@
 ---
 name: exa-known-pitfalls
-description: 'Identify and avoid Exa anti-patterns and common integration mistakes.
-
-  Use when reviewing Exa code, onboarding new developers,
-
-  or auditing existing Exa integrations for correctness.
-
-  Trigger with phrases like "exa mistakes", "exa anti-patterns",
-
-  "exa pitfalls", "exa what not to do", "exa code review".
-
-  '
-allowed-tools: Read, Grep
-version: 1.11.0
+description: >-
+  Audit an Exa integration for stale search types, unsafe secrets, ignored partial failures, unbounded content work, weak citations, and orphaned asynchronous resources. Use when operating or reviewing this Exa boundary. Trigger with "Exa known pitfalls", "review Exa known pitfalls", or "fix Exa known pitfalls".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository> <product-surface>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- audit
-- best-practices
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Known Pitfalls
-
-## Prerequisites
-
-- A defined research/search task, approved data classification, current policy/rules, and a non-sensitive evaluation query.
-
-## Instructions
-
-1. Identify the relevant pitfall before accepting a search result, changing retrieval settings, or automating an action.
-2. Constrain source domain, recency, data, and output expectations, then validate citations and policy requirements.
-3. Record recurring failures in reviewed guidance and keep sensitive queries/outputs out of diagnostics.
-
-## Output
-
-- A documented prevention or remediation for a specific retrieval, data, policy, or automation risk.
-
-## Error Handling
-
-| Condition | Safe response |
-|---|---|
-| Result is unsupported or stale | Verify primary sources and date; do not treat retrieval as authoritative proof. |
-| Query contains sensitive data | Stop, sanitize or use an approved path, and follow exposure policy. |
-| Automation scope expands | Require explicit review and reduce it to a bounded task. |
-
-## Examples
-
-For a compliance research task, constrain Exa to approved primary domains and date range, inspect each result/citation, and retain only the summarized, non-sensitive evidence. Reject results that lack support rather than widening the query into private data.
+# Exa Integration Pitfall Review
 
 ## Overview
 
-Real gotchas when integrating Exa's neural search API. Exa uses embeddings-based search rather than keyword matching, which creates a different class of failure modes than traditional search APIs. This skill covers the top pitfalls with wrong/right examples.
+Audit an Exa integration for stale search types, unsafe secrets, ignored partial failures, unbounded content work, weak citations, and orphaned asynchronous resources. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
-## Pitfall 1: Keyword-Style Queries
+## Prerequisites
 
-Exa's neural search interprets natural language semantically. Boolean operators and keyword syntax degrade results.
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
 
-```typescript
-import Exa from "exa-js";
-const exa = new Exa(process.env.EXA_API_KEY);
+## Current Contract
 
-// BAD: keyword/boolean style — Exa ignores AND/OR
-const bad = await exa.search(
-  "python AND machine learning OR deep learning 2024"
-);
+Common current hazards include legacy neural type usage, stale x-api-key examples instead of Bearer auth, unchecked Contents statuses, forced livecrawl everywhere, unbounded summaries or subpages, unsigned Monitor webhooks, and assumptions that code rollback cancels vendor-side work.
 
-// GOOD: natural language statement
-const good = await exa.search(
-  "recent tutorials on building ML models with Python",
-  { type: "neural", numResults: 10 }
-);
-```
+## Authentication
 
-## Pitfall 2: Wrong Search Type
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
-Using neural search for exact lookups (URLs, names) or keyword search for conceptual queries silently degrades quality.
+## Instructions
 
-```typescript
-// BAD: neural search for a specific URL/identifier
-const bad = await exa.search("arxiv.org/abs/2301.00001", { type: "neural" });
+1. Search code and configuration for every Exa endpoint, SDK call, header, and key.
+2. Flag legacy types, stale auth, hidden defaults, beta features, and unbounded parameters.
+3. Trace partial statuses, error tags, request IDs, citations, costs, and redaction.
+4. Inventory Agent runs, Monitors, Websets, Batches, webhooks, and teardown ownership.
+5. Prioritize findings by credential, data, cost, correctness, and availability impact.
+6. Repair one bounded contract at a time and add a regression assertion.
 
-// GOOD: keyword for exact terms, neural for concepts
-const exactMatch = await exa.search("arxiv.org/abs/2301.00001", {
-  type: "keyword",
-});
-const conceptual = await exa.search(
-  "transformer architecture improvements for long context",
-  { type: "neural" }
-);
-```
+## Tool Discipline
 
-## Pitfall 3: Expecting Content from search()
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-`search()` returns metadata only (URL, title, score). Content requires `searchAndContents()` or `getContents()`.
+## Approval Boundaries
 
-```typescript
-// BAD: accessing .text from search() — it's undefined
-const results = await exa.search("AI safety research");
-const text = results.results[0].text;  // undefined!
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-// GOOD: use searchAndContents for text/highlights
-const withContent = await exa.searchAndContents("AI safety research", {
-  numResults: 5,
-  text: { maxCharacters: 2000 },
-  highlights: { maxCharacters: 500 },
-});
-console.log(withContent.results[0].text);       // actual content
-console.log(withContent.results[0].highlights);  // key excerpts
-```
+## Failure Modes
 
-## Pitfall 4: Narrow Date Filters Return Empty
+- Do not replace a stale literal without validating surrounding behavior.
+- Do not assume public-web content is safe to log or execute.
+- Do not call a workflow reliable when it ignores resource state after timeout.
 
-Date filters silently exclude results. A single-day window often returns nothing without error.
+## Output
 
-```typescript
-// BAD: too narrow, likely returns empty array
-const bad = await exa.search("AI news", {
-  startPublishedDate: "2025-03-15T00:00:00.000Z",
-  endPublishedDate: "2025-03-15T23:59:59.000Z",
-});
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-// GOOD: reasonable window with fallback
-let results = await exa.search("AI news", {
-  startPublishedDate: "2025-03-01T00:00:00.000Z",
-  endPublishedDate: "2025-03-31T23:59:59.000Z",
-  numResults: 10,
-});
-// Fallback if no results
-if (results.results.length === 0) {
-  results = await exa.search("AI news", { numResults: 10 });
-}
-```
+## Example
 
-## Pitfall 5: findSimilar Takes a URL, Not a Query
+- Replace legacy neural and x-api-key assumptions, add Contents status checks, and verify Monitor signatures with regression tests.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-`findSimilar` expects a URL as its first argument. Passing a query string gives meaningless results.
+## Validation
 
-```typescript
-// BAD: passing a query string to findSimilar
-const bad = await exa.findSimilar("machine learning research papers");
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-// GOOD: pass a URL — findSimilar finds pages semantically similar to it
-const good = await exa.findSimilar("https://arxiv.org/abs/2301.00001", {
-  numResults: 10,
-  excludeSourceDomain: true,
-});
-```
+## References
 
-## Pitfall 6: Date Filters with company/people Categories
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-The `company` and `people` categories do NOT support date filters. Using them returns a 400 error.
-
-```typescript
-// BAD: date filter with company category → 400 error
-const bad = await exa.search("AI startups", {
-  category: "company",
-  startPublishedDate: "2024-01-01T00:00:00.000Z",  // not supported!
-});
-
-// GOOD: company search without date filters
-const good = await exa.search("AI startups", {
-  category: "company",
-  numResults: 10,
-});
-```
-
-## Pitfall 7: Not Limiting Content Size
-
-Requesting full text without `maxCharacters` can return massive payloads, increasing latency and cost.
-
-```typescript
-// BAD: unlimited text retrieval
-const bad = await exa.searchAndContents("topic", {
-  numResults: 20,
-  text: true,  // could return megabytes of content
-});
-
-// GOOD: limit content size
-const good = await exa.searchAndContents("topic", {
-  numResults: 10,
-  text: { maxCharacters: 2000 },  // cap at 2000 chars per result
-  highlights: { maxCharacters: 500 },
-});
-```
-
-## Pitfall 8: Creating New Client Per Request
-
-Each `new Exa()` call creates a new HTTP client. Reuse a singleton for connection pooling.
-
-```typescript
-// BAD: new client every request (in a route handler)
-app.get("/search", async (req, res) => {
-  const exa = new Exa(process.env.EXA_API_KEY);  // wasteful!
-  const results = await exa.search(req.query.q);
-  res.json(results);
-});
-
-// GOOD: singleton client
-const exa = new Exa(process.env.EXA_API_KEY);
-app.get("/search", async (req, res) => {
-  const results = await exa.search(req.query.q);
-  res.json(results);
-});
-```
-
-## Pitfall 9: Ignoring the requestId in Errors
-
-Exa error responses include `requestId` for support debugging. Always log it.
-
-```typescript
-// BAD: generic error handling
-try {
-  await exa.search("query");
-} catch (err) {
-  console.error("Search failed");  // loses diagnostic info
-}
-
-// GOOD: capture requestId
-try {
-  await exa.search("query");
-} catch (err: any) {
-  console.error("Search failed:", {
-    status: err.status,
-    message: err.message,
-    requestId: err.requestId,  // include when contacting support
-    tag: err.error_tag,
-  });
-}
-```
-
-## Quick Review Checklist
-
-- [ ] Queries are natural language, not keyword/boolean syntax
-- [ ] Search type matches the query intent (neural vs keyword)
-- [ ] Using `searchAndContents` when page content is needed
-- [ ] Date filter windows are wide enough (7+ days)
-- [ ] `findSimilar` receives URLs, not query strings
-- [ ] No date filters on `company` or `people` categories
-- [ ] `maxCharacters` set on text and highlights
-- [ ] Exa client is a singleton, not created per request
-- [ ] Error handling captures `requestId`
-
-## Resources
-
-- [Exa Search Reference](https://docs.exa.ai/reference/search)
-- [Exa Error Codes](https://docs.exa.ai/reference/error-codes)
-- [Exa Contents Retrieval](https://docs.exa.ai/reference/contents-retrieval)
-
-## Next Steps
-
-For SDK patterns, see `exa-sdk-patterns`. For common errors, see `exa-common-errors`.
+- [Current first-party evidence map](references/official-docs.md)
