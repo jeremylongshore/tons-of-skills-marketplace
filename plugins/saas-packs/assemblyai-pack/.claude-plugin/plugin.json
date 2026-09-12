@@ -1,6 +1,6 @@
 {
   "name": "assemblyai-pack",
-  "version": "1.5.0",
+  "version": "1.12.0",
   "description": "Claude Code skill pack for AssemblyAI (18 skills)",
   "author": {
     "name": "Jeremy Longshore",
@@ -8,7 +8,6 @@
   },
   "license": "MIT",
   "keywords": [
-    "assemblyai",
     "assemblyai",
     "saas",
     "sdk",
