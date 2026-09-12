@@ -11941,7 +11941,7 @@
       "slug": "assemblyai-pack",
       "name": "assemblyai-pack",
       "displayName": "assemblyai pack",
-      "description": "Claude Code skill pack for AssemblyAI (18 skills)",
+      "description": "Governed AssemblyAI operator pack for pre-recorded STT, Streaming v3, Speech Understanding, and LLM Gateway",
       "category": "saas-packs",
       "keywords": [
         "assemblyai",
@@ -11955,15 +11955,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.5.0",
+      "version": "1.12.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 18,
-      "verificationScore": 83,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "assemblyai pack claude code skill pack for assemblyai (18 skills) saas-packs assemblyai saas sdk integration"
+      "verificationScore": 94,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "assemblyai pack governed assemblyai operator pack for pre-recorded stt, streaming v3, speech understanding, and llm gateway saas-packs assemblyai saas sdk integration"
     },
     {
       "type": "plugin",
@@ -20979,378 +20979,396 @@
       "id": "assemblyai-ci-integration",
       "slug": "assemblyai-ci-integration",
       "name": "assemblyai-ci-integration",
-      "description": "Configure AssemblyAI CI/CD integration with GitHub Actions and testing. Use when setting up automated testing, configuring CI pipelines, or integrating AssemblyAI transcription tests into your build process. Trigger with phrases like \"assemblyai CI\", \"assemblyai GitHub Actions\", \"assemblyai automated tests\", \"CI assemblyai\".",
+      "description": "Build AssemblyAI CI with offline REST, Streaming v3, webhook, gateway, secret, and lifecycle tests plus a tightly gated live lane. Use when adding automated verification. Trigger with \"AssemblyAI CI\" or \"contract test\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(gh:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-ci-integration configure assemblyai ci/cd integration with github actions and testing. use when setting up automated testing, configuring ci pipelines, or integrating assemblyai transcription tests into your build process. trigger with phrases like \"assemblyai ci\", \"assemblyai github actions\", \"assemblyai automated tests\", \"ci assemblyai\". saas-packs read write edit bash(gh:*) "
+      "searchText": "assemblyai-ci-integration build assemblyai ci with offline rest, streaming v3, webhook, gateway, secret, and lifecycle tests plus a tightly gated live lane. use when adding automated verification. trigger with \"assemblyai ci\" or \"contract test\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "assemblyai-common-errors",
       "slug": "assemblyai-common-errors",
       "name": "assemblyai-common-errors",
-      "description": "Diagnose and fix AssemblyAI common errors and exceptions. Use when encountering AssemblyAI errors, debugging failed transcriptions, or troubleshooting streaming and LeMUR issues. Trigger with phrases like \"assemblyai error\", \"fix assemblyai\", \"assemblyai not working\", \"debug assemblyai\", \"transcription failed\".",
+      "description": "Analyze and triage AssemblyAI REST, transcript, Streaming v3, webhook, and LLM Gateway failures without leaking customer content. Use when an integration errors or stalls. Trigger with \"AssemblyAI error\" or \"failed transcript\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-common-errors diagnose and fix assemblyai common errors and exceptions. use when encountering assemblyai errors, debugging failed transcriptions, or troubleshooting streaming and lemur issues. trigger with phrases like \"assemblyai error\", \"fix assemblyai\", \"assemblyai not working\", \"debug assemblyai\", \"transcription failed\". saas-packs read grep bash(curl:*) "
+      "searchText": "assemblyai-common-errors analyze and triage assemblyai rest, transcript, streaming v3, webhook, and llm gateway failures without leaking customer content. use when an integration errors or stalls. trigger with \"assemblyai error\" or \"failed transcript\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "assemblyai-core-workflow-a",
       "slug": "assemblyai-core-workflow-a",
       "name": "assemblyai-core-workflow-a",
-      "description": "Execute AssemblyAI primary workflow: async transcription with audio intelligence. Use when transcribing audio/video files, enabling speaker diarization, sentiment analysis, entity detection, PII redaction, or content moderation. Trigger with phrases like \"assemblyai transcribe\", \"assemblyai transcription\", \"transcribe audio\", \"speaker diarization assemblyai\".",
+      "description": "Analyze and operate a production AssemblyAI pre-recorded pipeline with explicit models, Speech Understanding, callbacks, and retention controls. Use when running asynchronous transcription. Trigger with \"AssemblyAI async transcription\" or \"pre-recorded pipeline\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-core-workflow-a execute assemblyai primary workflow: async transcription with audio intelligence. use when transcribing audio/video files, enabling speaker diarization, sentiment analysis, entity detection, pii redaction, or content moderation. trigger with phrases like \"assemblyai transcribe\", \"assemblyai transcription\", \"transcribe audio\", \"speaker diarization assemblyai\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "assemblyai-core-workflow-a analyze and operate a production assemblyai pre-recorded pipeline with explicit models, speech understanding, callbacks, and retention controls. use when running asynchronous transcription. trigger with \"assemblyai async transcription\" or \"pre-recorded pipeline\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "assemblyai-core-workflow-b",
       "slug": "assemblyai-core-workflow-b",
       "name": "assemblyai-core-workflow-b",
-      "description": "Execute AssemblyAI streaming transcription and LeMUR workflows. Use when implementing real-time speech-to-text, live captions, voice agents, or LLM-powered audio analysis with LeMUR. Trigger with phrases like \"assemblyai streaming\", \"assemblyai real-time\", \"assemblyai live transcription\", \"assemblyai LeMUR\", \"assemblyai summarize audio\".",
+      "description": "Analyze and operate an AssemblyAI Streaming v3 session with safe tokens, audio framing, turn handling, and explicit termination. Use when building live captions or voice agents. Trigger with \"AssemblyAI streaming\", \"AssemblyAI v3 WebSocket\", or \"live transcript\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-core-workflow-b execute assemblyai streaming transcription and lemur workflows. use when implementing real-time speech-to-text, live captions, voice agents, or llm-powered audio analysis with lemur. trigger with phrases like \"assemblyai streaming\", \"assemblyai real-time\", \"assemblyai live transcription\", \"assemblyai lemur\", \"assemblyai summarize audio\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "assemblyai-core-workflow-b analyze and operate an assemblyai streaming v3 session with safe tokens, audio framing, turn handling, and explicit termination. use when building live captions or voice agents. trigger with \"assemblyai streaming\", \"assemblyai v3 websocket\", or \"live transcript\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "assemblyai-cost-tuning",
       "slug": "assemblyai-cost-tuning",
       "name": "assemblyai-cost-tuning",
-      "description": "Optimize AssemblyAI costs through model selection, feature budgeting, and usage monitoring. Use when analyzing AssemblyAI billing, reducing transcription costs, or implementing usage monitoring and budget alerts. Trigger with phrases like \"assemblyai cost\", \"assemblyai billing\", \"reduce assemblyai costs\", \"assemblyai pricing\", \"assemblyai budget\".",
+      "description": "Analyze and control AssemblyAI model, feature, duration, retry, concurrency, and LLM Gateway spend using measured usage. Use when setting budgets or investigating anomalies. Trigger with \"AssemblyAI cost\", \"AssemblyAI billing\", or \"reduce AssemblyAI spend\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-cost-tuning optimize assemblyai costs through model selection, feature budgeting, and usage monitoring. use when analyzing assemblyai billing, reducing transcription costs, or implementing usage monitoring and budget alerts. trigger with phrases like \"assemblyai cost\", \"assemblyai billing\", \"reduce assemblyai costs\", \"assemblyai pricing\", \"assemblyai budget\". saas-packs read grep "
+      "searchText": "assemblyai-cost-tuning analyze and control assemblyai model, feature, duration, retry, concurrency, and llm gateway spend using measured usage. use when setting budgets or investigating anomalies. trigger with \"assemblyai cost\", \"assemblyai billing\", or \"reduce assemblyai spend\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "assemblyai-debug-bundle",
       "slug": "assemblyai-debug-bundle",
       "name": "assemblyai-debug-bundle",
-      "description": "Collect AssemblyAI debug evidence for support tickets and troubleshooting. Use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for AssemblyAI problems. Trigger with phrases like \"assemblyai debug\", \"assemblyai support bundle\", \"collect assemblyai logs\", \"assemblyai diagnostic\".",
+      "description": "Produce a redacted AssemblyAI diagnostic bundle for support and incident triage. Use when evidence is needed without exposing keys, URLs, audio, transcripts, or prompts. Trigger with \"AssemblyAI debug bundle\" or \"support evidence\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(grep:*)",
-        "Bash(curl:*)",
-        "Bash(tar:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-debug-bundle collect assemblyai debug evidence for support tickets and troubleshooting. use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for assemblyai problems. trigger with phrases like \"assemblyai debug\", \"assemblyai support bundle\", \"collect assemblyai logs\", \"assemblyai diagnostic\". saas-packs read bash(grep:*) bash(curl:*) bash(tar:*) grep "
+      "searchText": "assemblyai-debug-bundle produce a redacted assemblyai diagnostic bundle for support and incident triage. use when evidence is needed without exposing keys, urls, audio, transcripts, or prompts. trigger with \"assemblyai debug bundle\" or \"support evidence\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "assemblyai-deploy-integration",
       "slug": "assemblyai-deploy-integration",
       "name": "assemblyai-deploy-integration",
-      "description": "Deploy AssemblyAI integrations to Vercel, Cloud Run, and Fly.io platforms. Use when deploying AssemblyAI-powered transcription services to production, configuring platform-specific secrets, or setting up webhook endpoints. Trigger with phrases like \"deploy assemblyai\", \"assemblyai Vercel\", \"assemblyai production deploy\", \"assemblyai Cloud Run\", \"assemblyai Fly.io\".",
+      "description": "Deploy AssemblyAI workers, Streaming v3 token services, and authenticated callback receivers with reversible controls. Use when shipping cloud infrastructure. Trigger with \"deploy AssemblyAI\" or \"AssemblyAI webhook deployment\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(fly:*)",
-        "Bash(gcloud:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-deploy-integration deploy assemblyai integrations to vercel, cloud run, and fly.io platforms. use when deploying assemblyai-powered transcription services to production, configuring platform-specific secrets, or setting up webhook endpoints. trigger with phrases like \"deploy assemblyai\", \"assemblyai vercel\", \"assemblyai production deploy\", \"assemblyai cloud run\", \"assemblyai fly.io\". saas-packs read write edit bash(vercel:*) bash(fly:*) bash(gcloud:*) "
+      "searchText": "assemblyai-deploy-integration deploy assemblyai workers, streaming v3 token services, and authenticated callback receivers with reversible controls. use when shipping cloud infrastructure. trigger with \"deploy assemblyai\" or \"assemblyai webhook deployment\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "assemblyai-hello-world",
       "slug": "assemblyai-hello-world",
       "name": "assemblyai-hello-world",
-      "description": "Create a minimal working AssemblyAI transcription example. Use when starting a new AssemblyAI integration, testing your setup, or learning basic transcription patterns. Trigger with phrases like \"assemblyai hello world\", \"assemblyai example\", \"assemblyai quick start\", \"simple assemblyai transcription\".",
+      "description": "Run a bounded AssemblyAI pre-recorded smoke test with explicit model fallback and safe output. Use when proving a new integration. Trigger with \"AssemblyAI hello world\", \"first AssemblyAI transcript\", or \"AssemblyAI smoke test\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-hello-world create a minimal working assemblyai transcription example. use when starting a new assemblyai integration, testing your setup, or learning basic transcription patterns. trigger with phrases like \"assemblyai hello world\", \"assemblyai example\", \"assemblyai quick start\", \"simple assemblyai transcription\". saas-packs read write edit "
+      "searchText": "assemblyai-hello-world run a bounded assemblyai pre-recorded smoke test with explicit model fallback and safe output. use when proving a new integration. trigger with \"assemblyai hello world\", \"first assemblyai transcript\", or \"assemblyai smoke test\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "assemblyai-install-auth",
       "slug": "assemblyai-install-auth",
       "name": "assemblyai-install-auth",
-      "description": "Install and configure AssemblyAI SDK authentication. Use when setting up a new AssemblyAI integration, configuring API keys, or initializing the assemblyai npm package in your project. Trigger with phrases like \"install assemblyai\", \"setup assemblyai\", \"assemblyai auth\", \"configure assemblyai API key\".",
+      "description": "Configure AssemblyAI keys, regional endpoints, and server-versus-browser authentication safely. Use when installing or authenticating an integration. Trigger with \"AssemblyAI auth\", \"AssemblyAI API key\", or \"AssemblyAI endpoint setup\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-install-auth install and configure assemblyai sdk authentication. use when setting up a new assemblyai integration, configuring api keys, or initializing the assemblyai npm package in your project. trigger with phrases like \"install assemblyai\", \"setup assemblyai\", \"assemblyai auth\", \"configure assemblyai api key\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "assemblyai-install-auth configure assemblyai keys, regional endpoints, and server-versus-browser authentication safely. use when installing or authenticating an integration. trigger with \"assemblyai auth\", \"assemblyai api key\", or \"assemblyai endpoint setup\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "assemblyai-local-dev-loop",
       "slug": "assemblyai-local-dev-loop",
       "name": "assemblyai-local-dev-loop",
-      "description": "Configure AssemblyAI local development with hot reload and testing. Use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with AssemblyAI. Trigger with phrases like \"assemblyai dev setup\", \"assemblyai local development\", \"assemblyai dev environment\", \"develop with assemblyai\".",
+      "description": "Build an AssemblyAI local loop with synthetic fixtures, recorded contracts, and an optional bounded live lane. Use when developing without exposing audio or uncontrolled credits. Trigger with \"AssemblyAI local dev\" or \"mock AssemblyAI\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-local-dev-loop configure assemblyai local development with hot reload and testing. use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with assemblyai. trigger with phrases like \"assemblyai dev setup\", \"assemblyai local development\", \"assemblyai dev environment\", \"develop with assemblyai\". saas-packs read write edit bash(npm:*) bash(pnpm:*) grep "
+      "searchText": "assemblyai-local-dev-loop build an assemblyai local loop with synthetic fixtures, recorded contracts, and an optional bounded live lane. use when developing without exposing audio or uncontrolled credits. trigger with \"assemblyai local dev\" or \"mock assemblyai\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "assemblyai-performance-tuning",
       "slug": "assemblyai-performance-tuning",
       "name": "assemblyai-performance-tuning",
-      "description": "Optimize AssemblyAI API performance with caching, parallel processing, and model selection. Use when experiencing slow transcriptions, implementing caching strategies, or optimizing throughput for batch transcription workloads. Trigger with phrases like \"assemblyai performance\", \"optimize assemblyai\", \"assemblyai latency\", \"assemblyai caching\", \"assemblyai slow\", \"assemblyai batch\".",
+      "description": "Analyze and tune AssemblyAI model choice, audio delivery, polling, Streaming v3 turns, concurrency, and downstream work. Use when pursuing measured latency or throughput goals. Trigger with \"tune AssemblyAI\" or \"AssemblyAI latency\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-performance-tuning optimize assemblyai api performance with caching, parallel processing, and model selection. use when experiencing slow transcriptions, implementing caching strategies, or optimizing throughput for batch transcription workloads. trigger with phrases like \"assemblyai performance\", \"optimize assemblyai\", \"assemblyai latency\", \"assemblyai caching\", \"assemblyai slow\", \"assemblyai batch\". saas-packs read write edit "
+      "searchText": "assemblyai-performance-tuning analyze and tune assemblyai model choice, audio delivery, polling, streaming v3 turns, concurrency, and downstream work. use when pursuing measured latency or throughput goals. trigger with \"tune assemblyai\" or \"assemblyai latency\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "assemblyai-prod-checklist",
       "slug": "assemblyai-prod-checklist",
       "name": "assemblyai-prod-checklist",
-      "description": "Execute AssemblyAI production deployment checklist and rollback procedures. Use when deploying AssemblyAI integrations to production, preparing for launch, or implementing go-live procedures for transcription services. Trigger with phrases like \"assemblyai production\", \"deploy assemblyai\", \"assemblyai go-live\", \"assemblyai launch checklist\".",
+      "description": "Analyze and gate an AssemblyAI integration across contracts, security, reliability, cost, observability, retention, and rollback. Use when preparing a launch or material change. Trigger with \"AssemblyAI production checklist\" or \"go live\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(kubectl:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-prod-checklist execute assemblyai production deployment checklist and rollback procedures. use when deploying assemblyai integrations to production, preparing for launch, or implementing go-live procedures for transcription services. trigger with phrases like \"assemblyai production\", \"deploy assemblyai\", \"assemblyai go-live\", \"assemblyai launch checklist\". saas-packs read bash(kubectl:*) bash(curl:*) grep "
+      "searchText": "assemblyai-prod-checklist analyze and gate an assemblyai integration across contracts, security, reliability, cost, observability, retention, and rollback. use when preparing a launch or material change. trigger with \"assemblyai production checklist\" or \"go live\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "assemblyai-rate-limits",
       "slug": "assemblyai-rate-limits",
       "name": "assemblyai-rate-limits",
-      "description": "Implement AssemblyAI rate limiting, backoff, and queue-based throttling. Use when handling rate limit errors, implementing retry logic, or managing concurrent transcription throughput. Trigger with phrases like \"assemblyai rate limit\", \"assemblyai throttling\", \"assemblyai 429\", \"assemblyai retry\", \"assemblyai backoff\".",
+      "description": "Analyze and control AssemblyAI account request limits, concurrency, backoff, and admission queues. Use when handling 429s or planning throughput. Trigger with \"AssemblyAI rate limit\", \"AssemblyAI concurrency\", or \"AssemblyAI backoff\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-rate-limits implement assemblyai rate limiting, backoff, and queue-based throttling. use when handling rate limit errors, implementing retry logic, or managing concurrent transcription throughput. trigger with phrases like \"assemblyai rate limit\", \"assemblyai throttling\", \"assemblyai 429\", \"assemblyai retry\", \"assemblyai backoff\". saas-packs read write edit "
+      "searchText": "assemblyai-rate-limits analyze and control assemblyai account request limits, concurrency, backoff, and admission queues. use when handling 429s or planning throughput. trigger with \"assemblyai rate limit\", \"assemblyai concurrency\", or \"assemblyai backoff\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "assemblyai-reference-architecture",
       "slug": "assemblyai-reference-architecture",
       "name": "assemblyai-reference-architecture",
-      "description": "Implement AssemblyAI reference architecture with best-practice project layout. Use when designing new AssemblyAI transcription services, reviewing project structure, or building production-grade speech-to-text applications. Trigger with phrases like \"assemblyai architecture\", \"assemblyai best practices\", \"assemblyai project structure\", \"how to organize assemblyai\", \"assemblyai design\".",
+      "description": "Analyze and design an AssemblyAI architecture spanning pre-recorded jobs, Streaming v3, LLM Gateway, callbacks, queues, retention, and audit evidence. Use when performing system design or review. Trigger with \"AssemblyAI architecture\" or \"design AssemblyAI pipeline\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-reference-architecture implement assemblyai reference architecture with best-practice project layout. use when designing new assemblyai transcription services, reviewing project structure, or building production-grade speech-to-text applications. trigger with phrases like \"assemblyai architecture\", \"assemblyai best practices\", \"assemblyai project structure\", \"how to organize assemblyai\", \"assemblyai design\". saas-packs read grep "
+      "searchText": "assemblyai-reference-architecture analyze and design an assemblyai architecture spanning pre-recorded jobs, streaming v3, llm gateway, callbacks, queues, retention, and audit evidence. use when performing system design or review. trigger with \"assemblyai architecture\" or \"design assemblyai pipeline\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "assemblyai-sdk-patterns",
       "slug": "assemblyai-sdk-patterns",
       "name": "assemblyai-sdk-patterns",
-      "description": "Apply production-ready AssemblyAI SDK patterns for TypeScript and Python. Use when implementing AssemblyAI integrations, refactoring SDK usage, or establishing team coding standards for transcription workflows. Trigger with phrases like \"assemblyai SDK patterns\", \"assemblyai best practices\", \"assemblyai code patterns\", \"idiomatic assemblyai\".",
+      "description": "Analyze and design a typed AssemblyAI adapter that isolates SDK drift, regional routing, polling, and streaming lifecycles. Use when integrating an official SDK. Trigger with \"AssemblyAI SDK pattern\", \"AssemblyAI adapter\", or \"wrap AssemblyAI\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-sdk-patterns apply production-ready assemblyai sdk patterns for typescript and python. use when implementing assemblyai integrations, refactoring sdk usage, or establishing team coding standards for transcription workflows. trigger with phrases like \"assemblyai sdk patterns\", \"assemblyai best practices\", \"assemblyai code patterns\", \"idiomatic assemblyai\". saas-packs read write edit "
+      "searchText": "assemblyai-sdk-patterns analyze and design a typed assemblyai adapter that isolates sdk drift, regional routing, polling, and streaming lifecycles. use when integrating an official sdk. trigger with \"assemblyai sdk pattern\", \"assemblyai adapter\", or \"wrap assemblyai\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "assemblyai-security-basics",
       "slug": "assemblyai-security-basics",
       "name": "assemblyai-security-basics",
-      "description": "Apply AssemblyAI security best practices for API keys, PII, and access control. Use when securing API keys, implementing PII redaction, or configuring temporary tokens for browser-side streaming. Trigger with phrases like \"assemblyai security\", \"assemblyai secrets\", \"secure assemblyai\", \"assemblyai API key security\", \"assemblyai PII\".",
+      "description": "Analyze and apply AssemblyAI secret, region, consent, retention, deletion, and model-training controls. Use when reviewing security or regulated speech workflows. Trigger with \"AssemblyAI security\", \"AssemblyAI privacy\", or \"data retention\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-security-basics apply assemblyai security best practices for api keys, pii, and access control. use when securing api keys, implementing pii redaction, or configuring temporary tokens for browser-side streaming. trigger with phrases like \"assemblyai security\", \"assemblyai secrets\", \"secure assemblyai\", \"assemblyai api key security\", \"assemblyai pii\". saas-packs read write grep "
+      "searchText": "assemblyai-security-basics analyze and apply assemblyai secret, region, consent, retention, deletion, and model-training controls. use when reviewing security or regulated speech workflows. trigger with \"assemblyai security\", \"assemblyai privacy\", or \"data retention\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "assemblyai-upgrade-migration",
       "slug": "assemblyai-upgrade-migration",
       "name": "assemblyai-upgrade-migration",
-      "description": "Analyze, plan, and execute AssemblyAI SDK upgrades with breaking change detection. Use when upgrading the assemblyai npm package, migrating from the old SDK, or switching between speech models (Best, Nano, Universal). Trigger with phrases like \"upgrade assemblyai\", \"assemblyai migration\", \"assemblyai breaking changes\", \"update assemblyai SDK\".",
+      "description": "Migrate legacy AssemblyAI Streaming v2 and LeMUR integrations to Streaming v3 and LLM Gateway with parity evidence. Use when removing deprecated contracts. Trigger with \"migrate AssemblyAI\", \"LeMUR migration\", or \"Streaming v3 upgrade\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(git:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-upgrade-migration analyze, plan, and execute assemblyai sdk upgrades with breaking change detection. use when upgrading the assemblyai npm package, migrating from the old sdk, or switching between speech models (best, nano, universal). trigger with phrases like \"upgrade assemblyai\", \"assemblyai migration\", \"assemblyai breaking changes\", \"update assemblyai sdk\". saas-packs read write edit bash(npm:*) bash(git:*) "
+      "searchText": "assemblyai-upgrade-migration migrate legacy assemblyai streaming v2 and lemur integrations to streaming v3 and llm gateway with parity evidence. use when removing deprecated contracts. trigger with \"migrate assemblyai\", \"lemur migration\", or \"streaming v3 upgrade\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "assemblyai-webhooks-events",
       "slug": "assemblyai-webhooks-events",
       "name": "assemblyai-webhooks-events",
-      "description": "Implement AssemblyAI webhook handling for transcription completion events. Use when setting up webhook endpoints, handling transcription callbacks, or processing async transcription results via webhooks. Trigger with phrases like \"assemblyai webhook\", \"assemblyai events\", \"assemblyai transcription callback\", \"handle assemblyai webhook\".",
+      "description": "Analyze and process AssemblyAI pre-recorded and streaming webhooks with authentication, fast acknowledgment, deduplication, and safe retrieval. Use when implementing event-driven completion. Trigger with \"AssemblyAI webhook\" or \"AssemblyAI callback\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "assemblyai-pack",
         "category": "saas-packs"
       },
-      "searchText": "assemblyai-webhooks-events implement assemblyai webhook handling for transcription completion events. use when setting up webhook endpoints, handling transcription callbacks, or processing async transcription results via webhooks. trigger with phrases like \"assemblyai webhook\", \"assemblyai events\", \"assemblyai transcription callback\", \"handle assemblyai webhook\". saas-packs read write edit bash(curl:*) "
+      "searchText": "assemblyai-webhooks-events analyze and process assemblyai pre-recorded and streaming webhooks with authentication, fast acknowledgment, deduplication, and safe retrieval. use when implementing event-driven completion. trigger with \"assemblyai webhook\" or \"assemblyai callback\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",

@@ -1,223 +1,75 @@
 ---
 name: assemblyai-upgrade-migration
-description: 'Analyze, plan, and execute AssemblyAI SDK upgrades with breaking change
-  detection.
-
-  Use when upgrading the assemblyai npm package, migrating from the old SDK,
-
-  or switching between speech models (Best, Nano, Universal).
-
-  Trigger with phrases like "upgrade assemblyai", "assemblyai migration",
-
-  "assemblyai breaking changes", "update assemblyai SDK".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(git:*)
-version: 1.5.0
+description: >-
+  Migrate legacy AssemblyAI Streaming v2 and LeMUR integrations to Streaming v3 and LLM Gateway with parity evidence. Use when removing deprecated contracts. Trigger with "migrate AssemblyAI", "LeMUR migration", or "Streaming v3 upgrade".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <legacy-surface>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ai
-- speech-to-text
-- assemblyai
-- transcription
-compatibility: Designed for Claude Code
+tags: [saas, assemblyai]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live AssemblyAI work requires network access"
 ---
-# AssemblyAI Upgrade & Migration
+# AssemblyAI v3 and LLM Gateway Migration
 
 ## Overview
 
-Guide for upgrading the `assemblyai` npm package and migrating between SDK versions, including the major v3 to v4 migration and speech model transitions.
+Migrate legacy AssemblyAI Streaming v2 and LeMUR integrations to Streaming v3 and LLM Gateway with parity evidence. Treat live audio, transcript content, credentials, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- Current `assemblyai` package installed
-- Git for version control
-- Test suite available
+- The target repository or integration path and the requested operator outcome.
+- The AssemblyAI project, environment, region, data classification, and accountable owner.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Streaming v2 used `/v2/realtime/ws`; v3 uses `/v3/ws` with different messages, turns, configuration, and termination. LeMUR sunset on March 31, 2026; LLM Gateway is the current analysis path. Deprecated transcript summary parameters must not anchor new designs.
+
+## Authentication
+
+For live work, inject `ASSEMBLYAI_API_KEY` from an approved secret manager and send the raw value only in the AssemblyAI `Authorization` header to the configured first-party host. Never print, commit, place in a URL, or expose it to an untrusted client. Callback secrets and temporary streaming tokens are separate credentials.
 
 ## Instructions
 
-### Step 1: Check Current Version
+1. Inventory endpoints, SDK methods, handlers, fixtures, dashboards, and legacy credentials.
+2. Capture approved legacy behavior with synthetic golden cases.
+3. Map v2 messages and shutdown to v3 begin, turns, configuration, and termination.
+4. Map LeMUR prompts and outputs to schema-constrained LLM Gateway requests.
+5. Compare quality, latency, structured results, privacy, and cost.
+6. Canary the new route, test rollback, then remove legacy code and secrets.
 
-```bash
-# Check installed version
-npm list assemblyai
+## Tool Discipline
 
-# Check latest available version
-npm view assemblyai version
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call AssemblyAI, upload audio, open a streaming session, mint a token, replay a callback, deploy, rotate a key, or delete a transcript merely because this skill was invoked.
 
-# See what changed
-npm view assemblyai --json | jq '.versions[-5:]'
-```
+## Approval Boundaries
 
-### Step 2: Review Changelog
+Require an accountable owner before live audio processing, production credential or endpoint changes, paid model or capacity changes, content retention, callback replay, deployment, or deletion. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-```bash
-# View release notes
-open https://github.com/AssemblyAI/assemblyai-node-sdk/releases
+## Failure Modes
 
-# Or check from CLI
-gh release list --repo AssemblyAI/assemblyai-node-sdk --limit 10
-```
-
-### Step 3: Create Upgrade Branch
-
-```bash
-git checkout -b upgrade/assemblyai-sdk-v$(npm view assemblyai version)
-npm install assemblyai@latest
-npm test
-```
-
-### Step 4: Major Migration — Old SDK to Current (v4.x)
-
-If migrating from `@assemblyai/sdk` (old package) to `assemblyai` (current):
-
-```typescript
-// BEFORE (old package — @assemblyai/sdk)
-import { AssemblyAI as OldClient } from '@assemblyai/sdk';
-const client = new OldClient({ apiKey: '...' });
-
-// AFTER (current package — assemblyai)
-import { AssemblyAI } from 'assemblyai';
-const client = new AssemblyAI({ apiKey: '...' });
-```
-
-```bash
-# Remove old package, install new
-npm uninstall @assemblyai/sdk
-npm install assemblyai
-```
-
-**Key changes in the migration:**
-
-| Old (`@assemblyai/sdk`) | New (`assemblyai`) |
-|--------------------------|---------------------|
-| `import { AssemblyAI } from '@assemblyai/sdk'` | `import { AssemblyAI } from 'assemblyai'` |
-| `client.transcripts.create()` | `client.transcripts.transcribe()` (blocks until done) |
-| Manual polling with `client.transcripts.get()` | `transcribe()` auto-polls, `submit()` for manual control |
-| `RealtimeTranscriber` class | `client.streaming.createService()` |
-| `client.realtime.createTemporaryToken()` | `client.streaming.createTemporaryToken()` |
-
-### Step 5: Transcription Method Changes
-
-```typescript
-// v3 pattern: create + poll loop
-const job = await client.transcripts.create({ audio_url: url });
-let transcript;
-while (true) {
-  transcript = await client.transcripts.get(job.id);
-  if (transcript.status === 'completed' || transcript.status === 'error') break;
-  await new Promise(r => setTimeout(r, 3000));
-}
-
-// v4 pattern: transcribe() handles everything
-const transcript = await client.transcripts.transcribe({
-  audio: url,  // Note: 'audio' not 'audio_url'
-});
-
-// v4 pattern: submit() for webhook-based (no polling)
-const submitted = await client.transcripts.submit({
-  audio: url,
-  webhook_url: 'https://your-app.com/webhook',
-});
-```
-
-### Step 6: Streaming Migration
-
-```typescript
-// v3 pattern: RealtimeTranscriber class
-import { RealtimeTranscriber } from 'assemblyai';
-const rt = new RealtimeTranscriber({ apiKey: '...' });
-rt.on('transcript', (msg) => { /* ... */ });
-await rt.connect();
-
-// v4 pattern: client.streaming.createService()
-const transcriber = client.streaming.createService({
-  speech_model: 'nova-3',
-  sample_rate: 16000,
-});
-transcriber.on('transcript', (msg) => { /* ... */ });
-await transcriber.connect();
-```
-
-### Step 7: Speech Model Migration
-
-```typescript
-// Switch from legacy models to Universal-3
-const transcript = await client.transcripts.transcribe({
-  audio: audioUrl,
-  speech_model: 'best',    // Uses Universal-3 (highest accuracy)
-  // Other options: 'nano' (fastest, lowest cost)
-  // Note: 'best' supports word_boost (up to 1000 terms)
-});
-
-// For streaming: nova-3 or nova-3-pro
-const transcriber = client.streaming.createService({
-  speech_model: 'nova-3-pro',  // Most accurate streaming model
-  sample_rate: 16000,
-});
-```
-
-### Step 8: Verify After Upgrade
-
-```typescript
-import { AssemblyAI } from 'assemblyai';
-
-async function verifyUpgrade() {
-  const client = new AssemblyAI({ apiKey: process.env.ASSEMBLYAI_API_KEY! });
-
-  // Test async transcription
-  const transcript = await client.transcripts.transcribe({
-    audio: 'https://storage.googleapis.com/aai-web-samples/5_common_sports_702.wav',
-  });
-  console.assert(transcript.status === 'completed', 'Transcription should complete');
-  console.assert(transcript.text && transcript.text.length > 0, 'Should have text');
-
-  // Test LeMUR
-  const { response } = await client.lemur.task({
-    transcript_ids: [transcript.id],
-    prompt: 'What is this about? Reply in one sentence.',
-  });
-  console.assert(response.length > 0, 'LeMUR should respond');
-
-  // Test transcript listing
-  const page = await client.transcripts.list({ limit: 1 });
-  console.assert(page.transcripts.length > 0, 'Should list transcripts');
-
-  console.log('All checks passed.');
-}
-
-verifyUpgrade().catch(console.error);
-```
+- Changing only the WebSocket URL leaves v2 handlers broken.
+- LeMUR calls after sunset are a hard migration defect.
+- LLM parity needs semantic and schema assertions, not byte equality.
 
 ## Output
 
-- Updated `assemblyai` package to latest version
-- Migrated import paths and method calls
-- Updated streaming setup to current patterns
-- Verified all API endpoints work post-upgrade
+Return the operation scope, environment, region, contract surface, authorization class, model and feature decisions, deterministic validation results, content-free identifiers, risks, cleanup or rollback state, and a concise pass/fail receipt. Exclude credentials, signed URLs, audio, transcript text, prompts, and customer-derived content.
 
-## Examples
+## Example
 
-Create an upgrade branch, lock the intended SDK version, run mocked compatibility tests, then execute one approved low-cost integration check using a dedicated test key and sample audio. Record the package lockfile diff, test result, and rollback version; do not upgrade production or rotate credentials as part of discovery.
+- Start with the named environment, approved regional host, synthetic fixture identity, and bounded operation budget.
+- Finish with safe IDs, contract and assertion counts, terminal state, cleanup status, and the decision owner; never reproduce speech content.
 
-## Error Handling
+## Validation
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `Cannot find module 'assemblyai'` | Old package name | `npm uninstall @assemblyai/sdk && npm install assemblyai` |
-| `transcripts.create is not a function` | API changed in v4 | Use `transcripts.transcribe()` or `transcripts.submit()` |
-| `audio_url` not recognized | Parameter renamed | Use `audio` instead of `audio_url` |
-| Streaming not connecting | API changed | Use `client.streaming.createService()` |
-| TypeScript errors | Type definitions changed | Update imports to match new types |
+Rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm rollback, termination, or deletion state before reporting success.
 
-## Resources
+## References
 
-- [AssemblyAI Node SDK Releases](https://github.com/AssemblyAI/assemblyai-node-sdk/releases)
-- AssemblyAI SDK Migration Guide
-- [AssemblyAI npm Package](https://www.npmjs.com/package/assemblyai)
+Review the dated first-party evidence map before relying on any model, parameter, limit, price, region, or lifecycle claim.
 
-## Next Steps
-
-For CI integration during upgrades, see `assemblyai-ci-integration`.
+- [Current first-party evidence map](references/official-docs.md)

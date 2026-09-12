@@ -8655,8 +8655,8 @@
     {
       "name": "assemblyai-pack",
       "source": "./plugins/saas-packs/assemblyai-pack",
-      "description": "Claude Code skill pack for AssemblyAI (18 skills)",
-      "version": "1.5.0",
+      "description": "Governed AssemblyAI operator pack for pre-recorded STT, Streaming v3, Speech Understanding, and LLM Gateway",
+      "version": "1.12.0",
       "category": "saas-packs",
       "keywords": [
         "assemblyai",
@@ -8673,10 +8673,10 @@
         "skills": 18
       },
       "verification": {
-        "score": 83,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "score": 94,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {

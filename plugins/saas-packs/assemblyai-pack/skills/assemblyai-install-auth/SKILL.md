@@ -1,156 +1,75 @@
 ---
 name: assemblyai-install-auth
-description: 'Install and configure AssemblyAI SDK authentication.
-
-  Use when setting up a new AssemblyAI integration, configuring API keys,
-
-  or initializing the assemblyai npm package in your project.
-
-  Trigger with phrases like "install assemblyai", "setup assemblyai",
-
-  "assemblyai auth", "configure assemblyai API key".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.5.0
+description: >-
+  Configure AssemblyAI keys, regional endpoints, and server-versus-browser authentication safely. Use when installing or authenticating an integration. Trigger with "AssemblyAI auth", "AssemblyAI API key", or "AssemblyAI endpoint setup".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <region> <runtime>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ai
-- speech-to-text
-- assemblyai
-- transcription
-compatibility: Designed for Claude Code
+tags: [saas, assemblyai]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live AssemblyAI work requires network access"
 ---
-# AssemblyAI Install & Auth
+# AssemblyAI Identity and Endpoint Setup
 
 ## Overview
 
-Install the `assemblyai` npm package and configure API key authentication for transcription, LeMUR, and streaming APIs.
+Configure AssemblyAI keys, regional endpoints, and server-versus-browser authentication safely. Treat live audio, transcript content, credentials, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- Node.js 18+ or Python 3.10+
-- Package manager (npm, pnpm, yarn, or pip)
-- AssemblyAI account — sign up at https://www.assemblyai.com/dashboard/signup
-- API key from https://www.assemblyai.com/app/account
+- The target repository or integration path and the requested operator outcome.
+- The AssemblyAI project, environment, region, data classification, and accountable owner.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Pre-recorded REST uses the approved US or EU `api.assemblyai.com` host and the raw project key in the `Authorization` header. Streaming uses the v3 WebSocket host. Browser and mobile clients receive short-lived, single-use streaming tokens from a trusted backend; they never receive the project key.
+
+## Authentication
+
+For live work, inject `ASSEMBLYAI_API_KEY` from an approved secret manager and send the raw value only in the AssemblyAI `Authorization` header to the configured first-party host. Never print, commit, place in a URL, or expose it to an untrusted client. Callback secrets and temporary streaming tokens are separate credentials.
 
 ## Instructions
 
-### Step 1: Install the SDK
+1. Inventory runtime trust, data class, region, and environment.
+2. Pin the official SDK and centralize reviewed endpoint configuration.
+3. Separate keys by environment and inject them from the secret manager.
+4. Design an authorized, origin-limited token endpoint for untrusted clients.
+5. Verify one synthetic pre-recorded request with explicit `speech_models`.
+6. Record host, key-owner, rotation, token TTL, and redacted results.
 
-```bash
-# Node.js (official SDK)
-npm install assemblyai
+## Tool Discipline
 
-# Python
-pip install assemblyai
-```
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call AssemblyAI, upload audio, open a streaming session, mint a token, replay a callback, deploy, rotate a key, or delete a transcript merely because this skill was invoked.
 
-### Step 2: Configure API Key
+## Approval Boundaries
 
-```bash
-# Set environment variable (recommended)
-export ASSEMBLYAI_API_KEY="your-api-key-here"
+Require an accountable owner before live audio processing, production credential or endpoint changes, paid model or capacity changes, content retention, callback replay, deployment, or deletion. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-# Or add to .env file
-echo 'ASSEMBLYAI_API_KEY=your-api-key-here' >> .env
-```
+## Failure Modes
 
-Add to `.gitignore`:
-
-```
-.env
-.env.local
-.env.*.local
-```
-
-### Step 3: Initialize the Client
-
-```typescript
-// src/assemblyai/client.ts
-import { AssemblyAI } from 'assemblyai';
-
-const client = new AssemblyAI({
-  apiKey: process.env.ASSEMBLYAI_API_KEY!,
-});
-
-export default client;
-```
-
-### Step 4: Verify Connection
-
-```typescript
-// verify-connection.ts
-import { AssemblyAI } from 'assemblyai';
-
-const client = new AssemblyAI({
-  apiKey: process.env.ASSEMBLYAI_API_KEY!,
-});
-
-async function verify() {
-  // Transcribe a short public audio to confirm everything works
-  const transcript = await client.transcripts.transcribe({
-    audio: 'https://storage.googleapis.com/aai-web-samples/5_common_sports_702.wav',
-  });
-
-  if (transcript.status === 'error') {
-    console.error('Transcription failed:', transcript.error);
-    process.exit(1);
-  }
-
-  console.log('Connection verified. Transcript ID:', transcript.id);
-  console.log('Status:', transcript.status);
-  console.log('Text preview:', transcript.text?.slice(0, 100));
-}
-
-verify().catch(console.error);
-```
-
-### Python Setup
-
-```python
-import assemblyai as aai
-import os
-
-# Configure globally
-aai.settings.api_key = os.environ["ASSEMBLYAI_API_KEY"]
-
-# Or pass per-client
-transcriber = aai.Transcriber()
-transcript = transcriber.transcribe(
-    "https://storage.googleapis.com/aai-web-samples/5_common_sports_702.wav"
-)
-print(transcript.text)
-```
+- Wrong-region traffic is a residency incident, not a retry.
+- A project key in browser code is compromised and must be rotated.
+- Do not add an undocumented Bearer scheme to the REST authorization value.
 
 ## Output
 
-- Installed `assemblyai` package in node_modules or site-packages
-- API key stored in environment variable or `.env` file
-- Client initialized and connection verified with a test transcription
+Return the operation scope, environment, region, contract surface, authorization class, model and feature decisions, deterministic validation results, content-free identifiers, risks, cleanup or rollback state, and a concise pass/fail receipt. Exclude credentials, signed URLs, audio, transcript text, prompts, and customer-derived content.
 
-## Examples
+## Example
 
-For local setup, create a dedicated development credential in the provider dashboard, store it only in the approved secret manager or ignored local environment file, and run a minimal authenticated status check that does not submit audio. For deployment, inject a separately scoped credential at runtime and confirm logs redact all authorization material.
+- Start with the named environment, approved regional host, synthetic fixture identity, and bounded operation budget.
+- Finish with safe IDs, contract and assertion counts, terminal state, cleanup status, and the decision owner; never reproduce speech content.
 
-## Error Handling
+## Validation
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Authentication error` | Invalid or missing API key | Verify key at https://www.assemblyai.com/app/account |
-| `Cannot find module 'assemblyai'` | SDK not installed | Run `npm install assemblyai` |
-| `transcript.status === 'error'` | Invalid audio URL or format | Check audio URL is publicly accessible |
-| `ENOTFOUND api.assemblyai.com` | Network/firewall issue | Ensure outbound HTTPS to api.assemblyai.com is allowed |
+Rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm rollback, termination, or deletion state before reporting success.
 
-## Resources
+## References
 
-- [AssemblyAI Getting Started](https://www.assemblyai.com/docs/getting-started/transcribe-an-audio-file)
-- [AssemblyAI Node SDK](https://github.com/AssemblyAI/assemblyai-node-sdk)
-- [AssemblyAI Python SDK](https://github.com/AssemblyAI/assemblyai-python-sdk)
-- [API Key Dashboard](https://www.assemblyai.com/app/account)
+Review the dated first-party evidence map before relying on any model, parameter, limit, price, region, or lifecycle claim.
 
-## Next Steps
-
-After successful auth, proceed to `assemblyai-hello-world` for your first transcription.
+- [Current first-party evidence map](references/official-docs.md)
