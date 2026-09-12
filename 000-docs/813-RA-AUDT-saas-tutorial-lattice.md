@@ -24,8 +24,8 @@ A matching skill name proves structural repetition only. It does **not** prove t
 | Candidates admitted by explicit prefix aliases | 78 |
 | Suffix-only names excluded by prefix policy | 1 |
 
-- Catalog SHA-256: `d87b6b542c0af0bbd85ae63e0cac7fab92f283ab20e8bab4b2f9d2b3ffdbe8d7`
-- Tracked inventory SHA-256: `ede26646ab17c242be15e0c1eed9b38b577221bcedcfff5c53cc3d9bdd748c57`
+- Catalog SHA-256: `c557c10002e3e98ab10f876cb1af39632e0d4e8a05a237808e8af1a0fc3578df`
+- Tracked inventory SHA-256: `9a5c3861e5b3b4f549390ad774dda4399c4b94771551470fc505cce14ad2d990`
 
 The earlier 2,011-candidate census used 24 base families and literal pack-name stems. This version expands the family set with `advanced-troubleshooting`, `architecture-variants`, `known-pitfalls`, `load-scale`, `policy-guardrails`, and `reliability-patterns`, then applies versioned exact aliases for `anthropic-pack`, `claude-pack`, and `langchain-py-pack`. The current generated counts above are authoritative. Suffix-only near-matches such as `langchain-otel-observability` and the explicitly recorded content-specific Customer.io workflows remain excluded.
 
@@ -160,7 +160,7 @@ Beads is the completion authority. Search direct children before creation, selec
 | 81 | `miro-pack` | 24 | 24 | 100.00% | A | 99 |
 | 82 | `webflow-pack` | 24 | 24 | 100.00% | A | 99 |
 | 83 | `claude-pack` | 30 | 32 | 93.75% | A | 94 |
-| 84 | `notion-pack` | 30 | 32 | 93.75% | A | 95 |
+| 84 | `notion-pack` | 30 | 32 | 93.75% | A | 98 |
 | 85 | `vercel-pack` | 28 | 30 | 93.33% | A | 92 |
 | 86 | `supabase-pack` | 28 | 30 | 93.33% | A | 94 |
 | 87 | `oraclecloud-pack` | 24 | 26 | 92.31% | A | 91 |

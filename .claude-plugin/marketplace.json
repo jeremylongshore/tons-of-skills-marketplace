@@ -6937,14 +6937,18 @@
     {
       "name": "notion-pack",
       "source": "./plugins/saas-packs/notion-pack",
-      "description": "Claude Code skill pack for Notion (32 skills)",
-      "version": "1.39.0",
+      "description": "Operator-grade Notion pack with 32 current access, data-source, content, webhook, security, reliability, and migration workflows",
+      "version": "1.40.0",
       "category": "saas-packs",
       "keywords": [
         "notion",
         "saas",
-        "sdk",
-        "integration"
+        "data-source",
+        "content",
+        "webhooks",
+        "security",
+        "integration",
+        "governance"
       ],
       "author": {
         "name": "Jeremy Longshore",

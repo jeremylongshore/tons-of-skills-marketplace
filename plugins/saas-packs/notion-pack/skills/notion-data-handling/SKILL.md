@@ -1,147 +1,81 @@
 ---
 name: notion-data-handling
-description: |
-  Implement data handling, PII protection, and GDPR/CCPA compliance for Notion
-  integrations. Use when handling sensitive data from Notion pages, implementing
-  data redaction, exporting or deleting a user's data on request, or ensuring
-  compliance with privacy regulations. Trigger with phrases like "notion data",
-  "notion PII", "notion GDPR", "notion data retention", "notion privacy",
-  "notion CCPA".
-allowed-tools: Read, Write, Edit
-version: 1.39.0
+description: >-
+  Define data classification, minimization, retention, and deletion controls for a Notion integration. Use when workspace content or user data crosses a system boundary. Trigger with "govern Notion data", "review Notion PII", or "design Notion retention".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<data-flow> <jurisdiction> <retention-objective>"
+version: 1.40.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- productivity
-- notion
-compatibility: Designed for Claude Code
+tags: [saas, notion, privacy]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Notion actions require network access and explicit approval"
 ---
-# Notion Data Handling
+# Notion Data Handling and Privacy Control
 
 ## Overview
 
-Handle sensitive data correctly when integrating with Notion: detect PII in page
-properties and text content, redact sensitive fields before logging or exporting,
-minimize data exposure with `filter_properties`, and implement GDPR/CCPA compliance
-patterns — right-of-access exports, right-of-deletion (archive or field clearing), and
-retention-based archival, all with audit logging.
-
-The full, copy-ready TypeScript and Python implementations live in `references/` so this
-file stays a navigable map. Read top-to-bottom for the workflow; drill into a reference
-file when you need the complete code for a step.
+Define data classification, minimization, retention, and deletion controls for a Notion integration.. This workflow produces an auditable decision or artifact before any live action.
 
 ## Prerequisites
 
-- `@notionhq/client` v2+ installed (`npm install @notionhq/client`)
-- Python alternative: `notion-client` (`pip install notion-client`)
-- Understanding of which Notion databases contain personal data
-- Audit logging infrastructure (structured logs, SIEM, or Notion audit database)
-- Legal guidance on applicable regulations (GDPR, CCPA, HIPAA, etc.)
+- Current first-party Notion documentation and the selected integration's tested API-version contract.
+- A named workspace owner, content or data owner, and operation owner.
+- Synthetic or approved non-production fixtures with secrets and workspace content removed.
+
+## Current Contract
+
+Notion page content, properties, comments, user objects, files, logs, and webhook metadata have different sensitivity and lifecycle characteristics. Connection capabilities and content sharing bound access but do not replace application governance. Recheck the dated evidence map before relying on mutable fields, endpoints, versions, limits, or delivery behavior.
 
 ## Authentication
 
-All examples authenticate with an internal integration token read from the environment —
-never hardcode it:
-
-```typescript
-const notion = new Client({ auth: process.env.NOTION_TOKEN });
-```
-
-Create the token at [notion.so/my-integrations](https://www.notion.so/my-integrations) and
-share each target database with the integration. Deletion and retention flows additionally
-require the integration to hold **Update** capability, or `pages.update` returns 403.
+Minimize content and user capabilities, separate tenants, and prohibit credentials or raw sensitive content in logs and fixtures.
 
 ## Instructions
 
-Work through three stages. Each links to a reference file with the complete implementation.
+1. Map collection, purpose, lawful basis, classification, owner, processor, destination, and retention for every field class.
+2. Minimize requested capabilities, selected properties, page bodies, user fields, and webhook subscriptions.
+3. Define encryption, tenant isolation, logging, backup, export, correction, deletion, and legal-hold behavior.
+4. Represent Notion trash, application deletion, destination deletion, and retained audit evidence as separate states.
+5. Exercise subject and owner workflows on synthetic records before production.
+6. Record residual risk, exceptions, expiry dates, and review owners.
 
-### Step 1 — Detect PII
+## Tool Discipline
 
-Notion pages carry PII in dedicated `email`/`phone_number`/`people` properties **and**
-embedded in free-text `rich_text`/`title` values. Scan both: check known-sensitive
-property types directly, and run regex matchers (email, phone, SSN, credit card, IP) over
-text. Loop the whole database through pagination until `has_more` is false. Skeleton:
+Use Read, Glob, and Grep to inspect documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Invocation alone does not authorize network access, credentials, workspace content, user data, file transfer, deployment, capability or sharing changes, writes, spend, or deletion.
 
-```typescript
-function scanPageForPII(page: PageObjectResponse): PIIFinding[] {
-  // check email / phone_number / people property types,
-  // then run PII_PATTERNS regexes over rich_text + title text
-}
-```
+## Approval Boundaries
 
-Full TS + Python scanners: [pii-detection.md](references/pii-detection.md).
-
-### Step 2 — Redact and minimize
-
-Never log or export raw page objects. Pass every page through an allowlist-shaped redactor
-that masks sensitive property types and named fields while letting vetted scalar types pass
-through. Then cut exposure at the source with `filter_properties`, which returns only the
-properties you name:
-
-```typescript
-notion.databases.query({ database_id: dbId, filter_properties: ['Status', 'Name'] });
-```
-
-Full `redactPageProperties` implementation and minimization guidance:
-[redaction-minimization.md](references/redaction-minimization.md).
-
-### Step 3 — Serve GDPR/CCPA requests
-
-Three data-subject workflows, each emitting a structured audit event you retain as proof:
-
-- **Right of access (Article 15)** — query every database for the user and export their
-  pages, then audit-log the export.
-- **Right of deletion (Article 17)** — choose `archive` (soft-delete the whole page,
-  recoverable ~30 days) or `clear_pii` (null the PII fields, keep the record). Throttle
-  bulk updates to ~3 req/s.
-- **Retention** — archive pages whose `last_edited_time` is older than the retention window.
-
-Full export, deletion, and retention functions: [compliance-patterns.md](references/compliance-patterns.md).
-
-## Output
-
-- PII detection scanning all property types and text content (TS + Python)
-- Redaction layer preventing PII leakage in logs and exports
-- Data minimization via `filter_properties` in API queries
-- GDPR Article 15 data export with audit logging
-- GDPR Article 17 deletion (archive or field clearing) with rate limiting
-- Retention-based archival with structured compliance logging
-- Audit trail for all data access, export, and deletion events
+Require privacy, security, and data-owner approval before sensitive reads, external processing, historical export, retention change, or irreversible deletion.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-| ------- | ------- | ---------- |
-| PII in application logs | Missing redaction layer | Use `redactPageProperties` for all logging |
-| Deletion fails on pages (403) | Integration lacks Update capability | Edit integration at notion.so/my-integrations |
-| Export missing pages | Pagination not handled | Use `start_cursor` loop until `has_more` is false |
-| Rate limit during bulk deletion | Too many update calls | Throttle to 3 requests/second with delays |
-| Regex false positives | Overly broad patterns | Tune patterns for your data; consider allowlists |
-| Regex misses on second page | Stateful `g`-flag `lastIndex` | Reset `pattern.lastIndex = 0` before each `.test()` |
-| Audit log gaps | Async logging dropped events | Use synchronous logging for compliance events |
+- Do not infer deletion from a missing search result.
+- Do not log page bodies to prove a privacy control.
+- Freeze deletion when legal hold or object identity is unresolved.
+
+## Output
+
+Return the data-flow map, field-class register, control matrix, retention schedule, deletion state machine, test evidence, and exceptions. Identify assumptions, owners, expirations, and evidence gaps explicitly.
 
 ## Examples
 
-A quick database PII audit and a compact Python export, composing the building blocks
-above:
+- Export only approved properties for a subject request.
+- Prove destination deletion while retaining a content-free audit receipt.
 
-```typescript
-const findings = await auditDatabaseForPII(process.env.NOTION_DB_ID!);
-console.log(`PII audit: ${findings.length} pages with PII detected`);
-```
+## Validation
 
-Both full examples (TS audit summary + Python Article 15 export):
-[examples.md](references/examples.md).
+Exercise and record these paths with expected and observed results:
+
+- least privilege
+- tenant isolation
+- redacted logs
+- retention expiry
+- legal hold
+- deletion reconciliation
 
 ## Resources
 
-- [pii-detection.md](references/pii-detection.md) — full TS + Python PII scanners
-- [redaction-minimization.md](references/redaction-minimization.md) — redactor + `filter_properties`
-- [compliance-patterns.md](references/compliance-patterns.md) — export, deletion, retention
-- [examples.md](references/examples.md) — end-to-end snippets
-- [Notion Page Properties Reference](https://developers.notion.com/reference/page-property-values) — all property types
-- [Database Query with filter_properties](https://developers.notion.com/reference/post-database-query) — data minimization
-- [Notion API Update Page](https://developers.notion.com/reference/patch-page) — archive and property updates
-- [CCPA Overview](https://oag.ca.gov/privacy/ccpa) — California Consumer Privacy Act requirements
-- For enterprise access control and multi-workspace permissions, see `notion-enterprise-rbac`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable behavior.
+- Treat observed tenant behavior as environment-specific evidence, never a universal Notion guarantee.

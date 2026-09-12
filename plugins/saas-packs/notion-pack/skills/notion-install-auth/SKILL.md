@@ -1,140 +1,81 @@
 ---
 name: notion-install-auth
-description: 'Install and configure the Notion API SDK with authentication.
-
-  Use when setting up a new Notion integration, configuring API tokens,
-
-  or initializing @notionhq/client in your project.
-
-  Trigger with phrases like "install notion", "setup notion",
-
-  "notion auth", "configure notion API", "notion integration setup".
-
-  '
-allowed-tools: Read, Edit, Bash(npm:*), Bash(pip:*)
-version: 1.39.0
+description: >-
+  Establish a least-privilege Notion connection and tested API contract without leaking credentials. Use when onboarding an internal connection, public OAuth connection, or personal access token. Trigger with "set up Notion auth", "create Notion connection", or "review Notion credentials".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<connection-type> <workspace> <environment>"
+version: 1.40.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- productivity
-- notion
-- authentication
-- sdk
-- setup
-compatibility: Designed for Claude Code
+tags: [saas, notion, access]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Notion actions require network access and explicit approval"
 ---
-# Notion Install & Auth
+# Notion Connection and Authentication Intake
 
 ## Overview
 
-Set up the official Notion SDK and configure authentication for internal integrations. The Node.js SDK is `@notionhq/client` (npm) and the Python SDK is `notion-client` (pip) — both wrap the Notion API at `https://api.notion.com/v1` using API version `2022-06-28`.
+Establish a least-privilege Notion connection and tested API contract without leaking credentials.. This workflow produces an auditable decision or artifact before any live action.
 
 ## Prerequisites
 
-- Node.js 18+ or Python 3.8+
-- Package manager (npm, pnpm, yarn, or pip)
-- A Notion account (free or paid)
-- Access to [My Integrations](https://www.notion.so/my-integrations) dashboard
+- Current first-party Notion documentation and the selected integration's tested API-version contract.
+- A named workspace owner, content or data owner, and operation owner.
+- Synthetic or approved non-production fixtures with secrets and workspace content removed.
+
+## Current Contract
+
+Notion supports internal connections, public OAuth connections, and personal access tokens with different ownership and access behavior. REST calls require bearer authentication and an explicit tested Notion-Version contract. Recheck the dated evidence map before relying on mutable fields, endpoints, versions, limits, or delivery behavior.
+
+## Authentication
+
+Record credential issuer, connection or user owner, workspace binding, capabilities, shared roots, expiry or refresh behavior, storage, rotation, and revocation without storing the secret value.
 
 ## Instructions
 
-### Step 1: Create Integration and Install SDK
+1. Choose the connection type from distribution, tenant, and user-context requirements.
+2. Define the minimum content, comment, and user capabilities plus exact shared fixture roots.
+3. Select and test an SDK and API-version combination against current upgrade guidance.
+4. Provision the credential through the approved secret manager and record a fingerprint.
+5. Run bot identity plus one explicitly shared read-only fixture check.
+6. Document rotation, OAuth refresh if applicable, revocation, reauthorization, and production promotion.
 
-Create an internal integration at <https://www.notion.so/my-integrations>:
+## Tool Discipline
 
-1. Click **New integration**
-2. Name it, select the workspace, and choose capabilities (Read content, Update content, Insert content)
-3. Copy the **Internal Integration Secret** (starts with `ntn_` or `secret_`)
+Use Read, Glob, and Grep to inspect documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Invocation alone does not authorize network access, credentials, workspace content, user data, file transfer, deployment, capability or sharing changes, writes, spend, or deletion.
 
-Install the SDK:
+## Approval Boundaries
 
-```bash
-# Node.js / TypeScript (official SDK)
-npm install @notionhq/client
-
-# Python (official SDK)
-pip install notion-client
-```
-
-### Step 2: Configure Authentication
-
-Store the token in environment variables -- never hardcode it:
-
-```bash
-# Set environment variable
-export NOTION_TOKEN="ntn_your_integration_secret_here"
-
-# Or add to .env file (add .env to .gitignore)
-echo 'NOTION_TOKEN=ntn_your_integration_secret_here' >> .env
-```
-
-**Share pages with your integration:** In Notion, open the page or database you want to access. Click the `...` menu, select **Connections**, and add your integration. Without this step, all API calls return `object_not_found`.
-
-### Step 3: Verify Connection
-
-```typescript
-import { Client } from '@notionhq/client';
-
-const notion = new Client({ auth: process.env.NOTION_TOKEN });
-
-const me = await notion.users.me({});
-console.log(`Authenticated as: ${me.name} (${me.type})`);
-console.log(`Bot ID: ${me.id}`);
-```
-
-If the bot user is returned, authentication is working.
-
-## Output
-
-- SDK package installed (`@notionhq/client` for Node.js, `notion-client` for Python)
-- Environment variable `NOTION_TOKEN` configured
-- Integration connected to target pages/databases via Connections menu
-- Verified API connectivity with `users.me()` call
+Require the workspace owner for connection creation and sharing; require security review for public OAuth, user information, external distribution, or production secrets.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-| ------- | ------- | ---------- |
-| `unauthorized` | Invalid or expired token | Regenerate at notion.so/my-integrations |
-| `object_not_found` | Page not shared with integration | Open page > `...` > Connections > add integration |
-| `restricted_resource` | Missing capabilities | Edit integration capabilities in dashboard |
-| `validation_error` | Malformed request body | Check SDK version and parameter types |
-| `rate_limited` | Too many requests (3 req/s avg) | Add exponential backoff; SDK retries automatically |
-| `MODULE_NOT_FOUND` | SDK not installed | Run `npm install @notionhq/client` |
+- Never infer OAuth scopes or redirect behavior from an internal token example.
+- A connection capability does not grant access until content is shared where required.
+- Do not commit env files or access tokens.
+
+## Output
+
+Return the connection model, workspace binding, capability matrix, shared roots, secret reference, validation evidence, lifecycle owners, and gaps. Identify assumptions, owners, expirations, and evidence gaps explicitly.
 
 ## Examples
 
-Minimal Node.js client — pin the API version and verify before doing real work:
+- Onboard a read-only internal connection to a synthetic data source.
+- Document a public OAuth installation without persisting tokens in browser state.
 
-```typescript
-import { Client } from '@notionhq/client';
+## Validation
 
-const notion = new Client({
-  auth: process.env.NOTION_TOKEN,
-  notionVersion: '2022-06-28',
-});
+Exercise and record these paths with expected and observed results:
 
-const me = await notion.users.me({});
-console.log(`Connected as ${me.name}`);
-```
-
-For the complete TypeScript and Python setups — client timeouts, `users.list()`
-access checks, per-line notes, and a "what success looks like" checklist — see
-[full setup examples](references/examples.md).
+- least privilege
+- workspace binding
+- shared content
+- secret storage
+- revocation
+- negative access
 
 ## Resources
 
-- [Notion API Authorization](https://developers.notion.com/docs/authorization)
-- [Create an Integration](https://developers.notion.com/docs/create-a-notion-integration)
-- [@notionhq/client on npm](https://www.npmjs.com/package/@notionhq/client)
-- [notion-client on PyPI](https://pypi.org/project/notion-client/)
-- [API Reference](https://developers.notion.com/reference/intro)
-
-## Next Steps
-
-After successful auth, proceed to the `notion-hello-world` skill for your first
-page query. From there, share additional databases with the integration through
-the **Connections** menu and grant only the capabilities each workflow needs —
-Notion enforces both the token scope and the per-page share, so widen access
-deliberately rather than up front.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable behavior.
+- Treat observed tenant behavior as environment-specific evidence, never a universal Notion guarantee.

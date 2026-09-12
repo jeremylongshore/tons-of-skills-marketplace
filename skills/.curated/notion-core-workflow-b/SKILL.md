@@ -1,103 +1,81 @@
 ---
 name: notion-core-workflow-b
-description: |
-  Work with Notion blocks, rich text, comments, and page content.
-
-  Use when you need to read a page's block tree, append formatted content
-  (headings, lists, callouts, code), edit or delete blocks, build rich text
-  with annotations, or manage page and block comments through the Notion API.
-
-  Trigger with phrases like "notion blocks", "notion page content",
-  "notion rich text", "notion comments", "notion append blocks".
-allowed-tools: Read, Write, Bash(npm:*)
-version: 1.39.0
+description: >-
+  Create or update Notion pages and blocks with an idempotency key, semantic diff, and read-back verification. Use when an integration must write approved content. Trigger with "create Notion record", "update Notion page", or "append Notion blocks".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<parent-or-page-id> <write-intent> <idempotency-key>"
+version: 1.40.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- productivity
-- notion
-compatibility: Designed for Claude Code
+tags: [saas, notion, writes]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Notion actions require network access and explicit approval"
 ---
-# Notion Core Workflow B — Blocks, Content & Comments
+# Notion Idempotent Page Write Workflow
 
 ## Overview
 
-Secondary workflow for content operations: reading block trees, appending content, building rich text with annotations, and managing comments. SKILL.md keeps the flow at a high level; every full implementation lives in [references/implementation.md](references/implementation.md).
+Create or update Notion pages and blocks with an idempotency key, semantic diff, and read-back verification.. This workflow produces an auditable decision or artifact before any live action.
 
 ## Prerequisites
 
-- Completed `notion-install-auth` setup
-- A Notion page shared with your integration
-- Familiarity with `notion-core-workflow-a` (databases/pages)
+- Current first-party Notion documentation and the selected integration's tested API-version contract.
+- A named workspace owner, content or data owner, and operation owner.
+- Synthetic or approved non-production fixtures with secrets and workspace content removed.
+
+## Current Contract
+
+Page properties follow the parent data source schema; page body content is a block tree or enhanced markdown. Current placement and trash semantics depend on the pinned API contract. Recheck the dated evidence map before relying on mutable fields, endpoints, versions, limits, or delivery behavior.
 
 ## Authentication
 
-All calls use the `@notionhq/client` SDK authenticated with an integration token read from `process.env.NOTION_TOKEN`. The token is provisioned by the `notion-install-auth` skill (internal integration secret) — do not hard-code it. The page or block being edited must be explicitly shared with that integration, or calls return `object_not_found`.
+Use only insert or update content capability required by the operation. Confirm parent access and keep lookup identities separate from write identities when risk warrants.
 
 ## Instructions
 
-The workflow has six steps. The client is created once and reused:
+1. Resolve the exact parent, page, data source, and current revision.
+2. Derive an idempotency key from the business object and operation version.
+3. Render a semantic diff for properties, blocks, parent, and trash state.
+4. Validate property types, relation targets, size limits, and block nesting offline.
+5. Apply one approved mutation and persist the returned object ID before downstream work.
+6. Read back the object, compare intended state, and retain compensation instructions.
 
-```typescript
-import { Client } from '@notionhq/client';
+## Tool Discipline
 
-const notion = new Client({ auth: process.env.NOTION_TOKEN });
-```
+Use Read, Glob, and Grep to inspect documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Invocation alone does not authorize network access, credentials, workspace content, user data, file transfer, deployment, capability or sharing changes, writes, spend, or deletion.
 
-1. **Retrieve block children** — page through `notion.blocks.children.list` with a `start_cursor` loop (100 blocks/page) until `has_more` is false.
-2. **Read blocks recursively** — walk each block, and when `has_children` is true recurse to build a nested tree; `blockToText` flattens a block's `rich_text` to a plain string.
-3. **Append content blocks** — one `notion.blocks.children.append` call adds headings, formatted paragraphs, bulleted/numbered lists, to-dos, code, callouts, quotes, dividers, and toggles.
-4. **Rich text annotations** — each rich-text span carries `annotations` (`bold`, `italic`, `strikethrough`, `underline`, `code`, `color`); spans can be plain text, links, user/page/date mentions, or LaTeX equations.
-5. **Update and delete blocks** — `notion.blocks.update` replaces a block's content; `notion.blocks.delete` archives it.
-6. **Work with comments** — `notion.comments.create` adds page or discussion-thread comments; `notion.comments.list` reads them back.
+## Approval Boundaries
 
-Each step's complete, copy-paste code is in [references/implementation.md](references/implementation.md).
-
-## Output
-
-- Page content blocks retrieved (flat or recursive tree)
-- Rich content appended with formatting, lists, code, callouts
-- Blocks updated and deleted
-- Comments created and listed
+Require the content owner before insert, update, move, append, replacement, comment creation, or trash operations.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-| ------- | ------- | ---------- |
-| `validation_error` on append | Invalid block type structure | Check block type object shape |
-| `object_not_found` | Block deleted or page not shared | Verify block ID and permissions |
-| `rate_limited` (429) | Rapid block operations | Add delays between batch operations |
-| Empty `rich_text` array | Block has no text content | Check block type before accessing |
+- Do not retry a timed-out create until searching the idempotency record.
+- Do not coerce a property into a new type to make a payload pass.
+- Stop if the parent or revision changed after approval.
+
+## Output
+
+Return the target identity, idempotency key, pre-state, approved diff, response identity, read-back delta, and compensation plan. Identify assumptions, owners, expirations, and evidence gaps explicitly.
 
 ## Examples
 
-The building blocks above compose into full tasks. For instance, `buildReport`
-assembles a heading, timestamp, divider, and a bulleted list, then appends them
-in a single call:
+- Upsert one business record without duplicating it after a timeout.
+- Append approved blocks and verify their order under the target page.
 
-```typescript
-async function buildReport(pageId: string, data: { title: string; items: string[] }) {
-  const blocks: any[] = [
-    { heading_1: { rich_text: [{ text: { content: data.title } }] } },
-    { paragraph: { rich_text: [{ text: { content: `Generated ${new Date().toISOString()}` } }] } },
-    { divider: {} },
-  ];
-  for (const item of data.items) {
-    blocks.push({ bulleted_list_item: { rich_text: [{ text: { content: item } }] } });
-  }
-  await notion.blocks.children.append({ block_id: pageId, children: blocks });
-}
-```
+## Validation
 
-See [references/examples.md](references/examples.md) for the annotated version and additional worked examples.
+Exercise and record these paths with expected and observed results:
+
+- duplicate retry
+- schema mismatch
+- relation access
+- position order
+- concurrent change
+- compensation
 
 ## Resources
 
-- [Block Object Reference](https://developers.notion.com/reference/block)
-- [Rich Text Reference](https://developers.notion.com/reference/rich-text)
-- [Append Block Children](https://developers.notion.com/reference/patch-block-children)
-- [Working with Page Content](https://developers.notion.com/docs/working-with-page-content)
-- [Working with Comments](https://developers.notion.com/docs/working-with-comments)
-- Full implementation: [references/implementation.md](references/implementation.md); worked examples: [references/examples.md](references/examples.md)
-- For common errors, see the `notion-common-errors` skill.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable behavior.
+- Treat observed tenant behavior as environment-specific evidence, never a universal Notion guarantee.
