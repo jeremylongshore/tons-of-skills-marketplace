@@ -1,194 +1,74 @@
 ---
 name: navan-ci-integration
-description: 'Use when setting up CI/CD pipelines that validate Navan API integrations,
-  run booking data health checks, or generate automated compliance reports.
-
-  Trigger with "navan ci integration" or "navan pipeline" or "navan github actions".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(git:*), Bash(gh:*), Grep, Glob
-version: 1.8.0
+description: >-
+  Gate Navan integration changes with deterministic fixtures and an isolated optional live smoke. Use when adding CI checks for adapters or data pipelines. Trigger with "test Navan in CI", "Navan contract tests", or "secure Navan CI".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<ci-provider> <required-suite> <live-policy>"
+version: 1.9.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- navan
-- travel
-compatibility: Designed for Claude Code
+tags: [saas, navan, ci]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live or external Navan actions require network access and explicit approval"
 ---
-# Navan CI Integration
+# Navan Offline-First CI Contract
 
 ## Overview
 
-Navan has no SDK — all CI integration uses raw REST calls against `https://api.navan.com` with OAuth 2.0 client_credentials authentication. This skill generates GitHub Actions workflows that validate your Navan integration on every push: token health checks, booking data schema validation, and travel policy compliance reports. Secrets (client_id, client_secret) are stored in GitHub Actions secrets, never in code.
+Gate Navan integration changes with deterministic fixtures and an isolated optional live smoke. This workflow produces an auditable decision or artifact before any live action.
 
 ## Prerequisites
 
-- **Navan Admin access** to create OAuth 2.0 application credentials (Admin > API Settings)
-- **GitHub repo** with Actions enabled
-- **GitHub Secrets** configured: `NAVAN_CLIENT_ID`, `NAVAN_CLIENT_SECRET`
-- Navan API base URL: `https://api.navan.com`
+- Access to the selected tenant's current Navan Help Center and contracted integration documentation.
+- A named business owner and data owner for the travel or expense workflow.
+- A non-production evidence set with secrets and traveler data removed.
+
+## Current Contract
+
+Required pull-request checks must not depend on a Navan tenant, credentials, paid services, or private traveler data. A live smoke belongs only in a trusted event with protected secrets and a fixed read-only budget.
+
+## Authentication
+
+Run required jobs without Navan secrets and deny network access. Resolve a non-production credential only inside the separately approved live environment; never expose it to fork code.
 
 ## Instructions
 
-### Step 1 — Store OAuth Credentials in GitHub Secrets
+1. Enumerate contract, mapping, privacy, and side-effect regressions.
+2. Add sanitized fixtures for each enabled surface and failure class.
+3. Require schema, mapping, redaction, reconciliation, and rollback tests.
+4. Deny sockets and assert no secret is available in ordinary jobs.
+5. Define an optional trusted live smoke with one bounded read and no retry.
+6. Publish content-free receipts and preserve artifacts without sensitive payloads.
 
-Navigate to your GitHub repo > Settings > Secrets and variables > Actions. Add:
+## Tool Discipline
 
-- `NAVAN_CLIENT_ID` — from Navan Admin > API Settings
-- `NAVAN_CLIENT_SECRET` — from Navan Admin > API Settings
+Use Read, Glob, and Grep to inspect documentation, schemas, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Invocation alone does not authorize network access, credentials, traveler or expense data, bookings, payments, policy or identity changes, file transfers, deployments, or deletion.
 
-### Step 2 — Create the CI Workflow
+## Approval Boundaries
 
-```yaml
-# .github/workflows/navan-integration-check.yml
-name: Navan Integration Health Check
-on:
-  push:
-    branches: [main]
-  pull_request:
-  schedule:
-    - cron: '0 6 * * 1'  # Weekly Monday 6am UTC
-
-jobs:
-  navan-health:
-    runs-on: ubuntu-latest
-    env:
-      NAVAN_BASE_URL: https://api.navan.com
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Authenticate with Navan OAuth 2.0
-        id: auth
-        run: |
-          TOKEN_RESPONSE=$(curl -s -X POST \
-            https://api.navan.com/ta-auth/oauth/token \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            -d "grant_type=client_credentials" \
-            -d "client_id=${{ secrets.NAVAN_CLIENT_ID }}" \
-            -d "client_secret=${{ secrets.NAVAN_CLIENT_SECRET }}")
-
-          ACCESS_TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r '.access_token')
-          if [ "$ACCESS_TOKEN" = "null" ] || [ -z "$ACCESS_TOKEN" ]; then
-            echo "::error::OAuth authentication failed"
-            echo "$TOKEN_RESPONSE" | jq .
-            exit 1
-          fi
-          echo "::add-mask::$ACCESS_TOKEN"
-          echo "token=$ACCESS_TOKEN" >> "$GITHUB_OUTPUT"
-
-      - name: API Health Check — Fetch Bookings
-        run: |
-          HTTP_CODE=$(curl -s -o /tmp/bookings.json -w "%{http_code}" \
-            "$NAVAN_BASE_URL/v1/bookings?page=0&size=5" \
-            -H "Authorization: Bearer ${{ steps.auth.outputs.token }}")
-          echo "Health check status: $HTTP_CODE"
-          if [ "$HTTP_CODE" != "200" ]; then
-            echo "::error::API health check failed with HTTP $HTTP_CODE"
-            cat /tmp/bookings.json
-            exit 1
-          fi
-
-      - name: Validate Booking Data Schema
-        run: |
-          # Response structure: records in .data array, primary key uuid
-          REQUIRED_FIELDS='["uuid","traveler","status","created_at"]'
-          echo "$REQUIRED_FIELDS" | jq -r '.[]' | while read field; do
-            if ! jq -e ".data[0].$field" /tmp/bookings.json > /dev/null 2>&1; then
-              echo "::warning::Missing expected field: $field"
-            fi
-          done
-
-      - name: Generate Compliance Report
-        run: |
-          curl -s "$NAVAN_BASE_URL/v1/bookings?page=0&size=50" \
-            -H "Authorization: Bearer ${{ steps.auth.outputs.token }}" \
-            -o /tmp/compliance.json
-          echo "## Navan Compliance Report" >> "$GITHUB_STEP_SUMMARY"
-          jq -r '"| Metric | Value |\n|--------|-------|\n| Total Bookings | \(.total_bookings) |\n| In Policy | \(.in_policy) |\n| Out of Policy | \(.out_of_policy) |"' \
-            /tmp/compliance.json >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "Report data unavailable" >> "$GITHUB_STEP_SUMMARY"
-```
-
-### Step 3 — Add Integration Test Script
-
-```bash
-#!/usr/bin/env bash
-# scripts/navan-smoke-test.sh — Run locally or in CI
-set -euo pipefail
-
-BASE_URL="${NAVAN_BASE_URL:-https://api.navan.com}"
-
-# Obtain token
-TOKEN=$(curl -sf -X POST https://api.navan.com/ta-auth/oauth/token \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "grant_type=client_credentials&client_id=${NAVAN_CLIENT_ID}&client_secret=${NAVAN_CLIENT_SECRET}" \
-  | jq -r '.access_token')
-
-# Test endpoints (records returned in .data array)
-ENDPOINTS=("v1/bookings?page=0&size=1")
-FAILED=0
-for ep in "${ENDPOINTS[@]}"; do
-  CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-    "$BASE_URL/$ep" -H "Authorization: Bearer $TOKEN")
-  if [ "$CODE" = "200" ]; then
-    echo "PASS: $ep ($CODE)"
-  else
-    echo "FAIL: $ep ($CODE)"
-    FAILED=$((FAILED + 1))
-  fi
-done
-
-exit $FAILED
-```
-
-## Output
-
-The CI workflow produces:
-
-- **Pass/fail status** on each PR for Navan API connectivity
-- **GitHub Step Summary** with a compliance report table
-- **Annotations** warning about missing booking data fields
-- **Weekly scheduled runs** catching credential expiration before it causes outages
+Protected secrets, network, live tenant reads, fixture refreshes, and required-check changes need explicit repository and data-owner approval.
 
 ## Error Handling
 
-| HTTP Code | Meaning | CI Action |
-|-----------|---------|-----------|
-| `200` | Success | Continue |
-| `401` | Invalid or expired OAuth token | Fail build, alert on credential rotation |
-| `403` | Insufficient API scopes | Fail build, check OAuth app permissions |
-| `404` | Endpoint not found (API version change) | Fail build, review API changelog |
-| `429` | Rate limit exceeded | Retry with exponential backoff (max 3 attempts) |
-| `500-503` | Navan server error | Warn but do not fail (transient) |
+- A skipped required test is not a pass.
+- Never combine untrusted checkout with privileged pull-request secrets.
+- Do not snapshot a live traveler response into CI.
+
+## Output
+
+Return job names, trust matrix, fixture coverage, network policy, live budget, artifact policy, and rollback. Identify assumptions, owners, expirations, and evidence gaps explicitly.
 
 ## Examples
 
-**Parallel endpoint validation with matrix strategy:**
+- Run booking schema fixtures on every pull request.
+- Schedule one synthetic non-production metadata read after merge.
 
-```yaml
-jobs:
-  validate-endpoints:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        endpoint: [bookings, expenses, users, invoices]
-    steps:
-      - name: Check ${{ matrix.endpoint }}
-        run: |
-          CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-            "https://api.navan.com/v1/${{ matrix.endpoint }}?page=0&size=1" \
-            -H "Authorization: Bearer $TOKEN")
-          [ "$CODE" = "200" ] || exit 1
-```
+## Validation
+
+Test fork PRs, missing secrets, attempted network, malformed fixtures, vendor outage, and artifact scanning. Record expected and observed results, including fail-closed behavior.
 
 ## Resources
 
-- [Navan Help Center](https://app.navan.com/app/helpcenter) — API documentation and guides
-- [Navan Integrations](https://navan.com/integrations) — Supported third-party connectors
-- [GitHub Actions Encrypted Secrets](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions)
-
-## Next Steps
-
-- Add `navan-deploy-integration` for production deployment patterns
-- Add `navan-observability` for runtime monitoring of the endpoints validated here
-- See `navan-rate-limits` to configure retry policies in CI
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources and the selected tenant's in-account contract before relying on mutable endpoints, fields, entitlements, limits, or delivery behavior.
+- Record tenant observations as environment-specific evidence, never universal Navan guarantees.

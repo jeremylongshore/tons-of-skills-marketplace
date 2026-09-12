@@ -9475,14 +9475,17 @@
     {
       "name": "navan-pack",
       "source": "./plugins/saas-packs/navan-pack",
-      "description": "Claude Code skill pack for Navan (26 skills)",
-      "version": "1.8.0",
+      "description": "Operator-grade Navan pack with 26 current travel, expense, identity, security, reliability, and migration workflows",
+      "version": "1.9.0",
       "category": "saas-packs",
       "keywords": [
         "navan",
         "saas",
-        "sdk",
-        "integration"
+        "travel",
+        "expense",
+        "identity",
+        "integration",
+        "governance"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -9493,10 +9496,10 @@
         "skills": 26
       },
       "verification": {
-        "score": 94,
+        "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {

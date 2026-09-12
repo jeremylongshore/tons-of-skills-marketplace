@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/navan-pack",
-  "version": "1.0.2",
-  "description": "Claude Code skill pack for Navan - 26 skills covering travel management, expense reporting, and corporate spend",
+  "version": "1.9.0",
+  "description": "Operator-grade Navan pack with 26 current travel, expense, identity, security, reliability, and migration workflows",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -13,9 +13,11 @@
     "claude-code",
     "claude-code-plugin",
     "navan",
-    "travel-management",
-    "expense-reporting",
-    "corporate-spend",
+    "travel",
+    "expense",
+    "identity",
+    "integration",
+    "governance",
     "ai-skills",
     "saas-pack"
   ],
