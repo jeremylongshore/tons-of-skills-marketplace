@@ -1,210 +1,74 @@
 ---
 name: ideogram-rate-limits
-description: 'Implement Ideogram rate limiting, backoff, and request queuing patterns.
-
-  Use when handling rate limit errors, implementing retry logic,
-
-  or optimizing API request throughput for Ideogram.
-
-  Trigger with phrases like "ideogram rate limit", "ideogram throttling",
-
-  "ideogram 429", "ideogram retry", "ideogram backoff", "ideogram queue".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.10.0
+description: >-
+  Control Ideogram concurrency with a bounded queue, deadlines, backoff, and fair tenant admission. Use when preventing 429 responses or sizing generation workers. Trigger with "tune Ideogram concurrency", "fix Ideogram throttling", or "design an Ideogram request queue".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<traffic-shape> <latency-slo> <tenant-policy>"
+version: 1.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ideogram
-- api
-- rate-limiting
-compatibility: Designed for Claude Code
+tags: [saas, ideogram, reliability]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live capacity tests require explicit spend and load approval"
 ---
-# Ideogram Rate Limits
+# Ideogram Concurrency and Queue Control
 
 ## Overview
 
-Handle Ideogram's rate limits with exponential backoff, request queuing, and concurrency control. Ideogram enforces a default limit of **10 in-flight requests** (concurrent, not per-minute). Image generation takes 5-15 seconds per call, so this limit can be hit quickly during batch operations.
+Keep paid image work inside a measurable concurrency envelope. Combine admission control, tenant fairness, operation deadlines, and endpoint-aware retry so a traffic burst does not become duplicate spend, an unbounded queue, or persistent `429` pressure.
 
 ## Prerequisites
 
-- `IDEOGRAM_API_KEY` configured
-- Understanding of async patterns
-- `p-queue` npm package (optional, for queue-based approach)
+- Request arrival rate, latency objective, output count, endpoint mix, and cost ceiling.
+- Queue ownership, per-tenant policy, cancellation behavior, and overload response.
+- Current account capacity and an approved contact path for increased scale.
 
-## Ideogram Rate Limit Model
+## Current Contract
 
-| Aspect | Detail |
-|--------|--------|
-| Type | Concurrent in-flight requests |
-| Default limit | 10 simultaneous requests |
-| Error code | HTTP 429 |
-| Retry header | Not guaranteed -- use exponential backoff |
-| Higher limits | Contact `partnership@ideogram.ai` |
-| Generation time | 5-15s per image (varies by model/resolution) |
+Ideogram's API overview documents a default limit of 10 in-flight requests and directs larger-capacity needs to `partnership@ideogram.ai`. This is a concurrency boundary, not permission to launch ten workers per process. Account-wide observed behavior remains authoritative.
+
+## Authentication
+
+Workers inject `IDEOGRAM_API_KEY` server-side and send `Api-Key` only to `https://api.ideogram.ai`. Queue records and metrics must exclude keys, prompts, images, and response URLs.
 
 ## Instructions
 
-### Step 1: Exponential Backoff with Jitter
+1. Measure arrival rate, service time by endpoint, current in-flight count, queue age, timeout rate, and `429` responses.
+2. Place a shared account-level semaphore below the verified limit; start conservatively and reserve capacity for recovery probes.
+3. Add bounded per-tenant admission, queue length, age, output count, and total operation deadlines.
+4. Prefer asynchronous endpoints for work that cannot fit an interactive deadline and persist each `generation_id`.
+5. Retry only classified transient responses using server guidance when present, exponential backoff with jitter, and a strict attempt ceiling.
+6. Prevent ambiguous duplicate generation by reconciling known async identifiers before resubmission.
+7. Raise capacity only through the vendor path and a reviewed load plan; canary the new limit.
 
-```typescript
-async function withBackoff<T>(
-  operation: () => Promise<T>,
-  config = { maxRetries: 5, baseMs: 1000, maxMs: 30000, jitterMs: 500 }
-): Promise<T> {
-  for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
-    try {
-      return await operation();
-    } catch (err: any) {
-      if (attempt === config.maxRetries) throw err;
+## Tool Discipline
 
-      const status = err.status ?? err.response?.status;
-      // Only retry on 429 (rate limited) or 5xx (server error)
-      if (status && status !== 429 && status < 500) throw err;
+Use Read, Glob, and Grep for queue, worker, metric, and fixture inspection. Use Write and Edit for approved limit, test, or documentation changes. Invocation does not authorize load generation, quota negotiation, or increased production concurrency.
 
-      const exponential = config.baseMs * Math.pow(2, attempt);
-      const jitter = Math.random() * config.jitterMs;
-      const delay = Math.min(exponential + jitter, config.maxMs);
+## Approval Boundaries
 
-      console.warn(`Rate limited (attempt ${attempt + 1}/${config.maxRetries}). Waiting ${delay.toFixed(0)}ms`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error("Unreachable");
-}
-```
-
-### Step 2: Concurrency-Limited Queue
-
-```typescript
-import PQueue from "p-queue";
-
-// Ideogram allows 10 in-flight -- use 8 to leave headroom
-const ideogramQueue = new PQueue({ concurrency: 8 });
-
-async function queuedGenerate(prompt: string, options: any = {}) {
-  return ideogramQueue.add(async () => {
-    const response = await fetch("https://api.ideogram.ai/generate", {
-      method: "POST",
-      headers: {
-        "Api-Key": process.env.IDEOGRAM_API_KEY!,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        image_request: { prompt, model: "V_2", ...options },
-      }),
-    });
-
-    if (response.status === 429) {
-      throw Object.assign(new Error("Rate limited"), { status: 429 });
-    }
-    if (!response.ok) throw new Error(`Generate failed: ${response.status}`);
-    return response.json();
-  });
-}
-
-// Process 50 prompts safely -- queue manages concurrency
-const prompts = Array.from({ length: 50 }, (_, i) => `Design variant ${i + 1}`);
-const results = await Promise.all(prompts.map(p => queuedGenerate(p)));
-```
-
-### Step 3: Token Bucket Rate Limiter
-
-```typescript
-class TokenBucket {
-  private tokens: number;
-  private lastRefill: number;
-
-  constructor(
-    private maxTokens: number = 10,
-    private refillRate: number = 1, // tokens per second
-  ) {
-    this.tokens = maxTokens;
-    this.lastRefill = Date.now();
-  }
-
-  async acquire(): Promise<void> {
-    this.refill();
-    if (this.tokens > 0) {
-      this.tokens--;
-      return;
-    }
-    // Wait for next token
-    const waitMs = (1 / this.refillRate) * 1000;
-    await new Promise(r => setTimeout(r, waitMs));
-    this.refill();
-    this.tokens--;
-  }
-
-  private refill() {
-    const now = Date.now();
-    const elapsed = (now - this.lastRefill) / 1000;
-    this.tokens = Math.min(this.maxTokens, this.tokens + elapsed * this.refillRate);
-    this.lastRefill = now;
-  }
-}
-
-const bucket = new TokenBucket(10, 1);
-
-async function throttledGenerate(prompt: string) {
-  await bucket.acquire();
-  return queuedGenerate(prompt);
-}
-```
-
-### Step 4: Batch with Progress Tracking
-
-```typescript
-async function batchGenerate(
-  prompts: string[],
-  onProgress?: (done: number, total: number) => void
-) {
-  const results: any[] = [];
-  const errors: { prompt: string; error: Error }[] = [];
-
-  for (let i = 0; i < prompts.length; i++) {
-    try {
-      const result = await withBackoff(() => queuedGenerate(prompts[i]));
-      results.push(result);
-    } catch (err) {
-      errors.push({ prompt: prompts[i], error: err as Error });
-    }
-    onProgress?.(i + 1, prompts.length);
-  }
-
-  console.log(`Batch complete: ${results.length} success, ${errors.length} failed`);
-  return { results, errors };
-}
-```
+Require owners for live load tests, spend, tenant-priority changes, queue dropping, capacity increases, and deployment. Document how queued work is cancelled or drained before changing the envelope.
 
 ## Error Handling
 
-| Scenario | Detection | Action |
-|----------|-----------|--------|
-| 429 received | HTTP status | Exponential backoff + retry |
-| All retries exhausted | Max attempts reached | Log and skip, continue batch |
-| Burst spike | Queue depth > 20 | Pause new submissions |
-| Credits exhausted | 402 status | Alert, stop batch immediately |
+- A `429` is an admission-control signal; immediate retries amplify pressure.
+- Expired queue work should terminate before calling Ideogram, not after spending credit.
+- Do not retry `400`, `401`, `422`, unsafe output, or an already accepted async submission as if transient.
 
 ## Output
 
-- Reliable API calls with automatic retry on 429
-- Concurrency-controlled request queue
-- Token bucket for sustained throughput
-- Batch processing with progress and error tracking
+Return verified limit source, chosen semaphore, queue and tenant bounds, deadline and retry policy, measured status counts, cost impact, test result, canary state, and rollback setting. Exclude content and credentials.
 
 ## Examples
 
-`scope=sandbox-generation; requested=100; limited=3; deferred=3; retry=v2; idempotent=pass; output_retention=none; rollback=limits-r7` proves bounded handling without retaining prompts or images.
+- Set eight shared worker permits, retain two for recovery probes, and cap each tenant below the account total.
+- Report `peak_inflight=8; queue_p95=3s; 429=0; expired_before_submit=12; duplicates=0`.
+
+## Validation
+
+Use a deterministic queue simulator first, verify fairness and deadline expiration, inject `429` and timeout outcomes, and prove duplicate suppression. Run a paid load check only within the approved request and cost ceiling.
 
 ## Resources
 
-- [Ideogram API Overview](https://developer.ideogram.ai/ideogram-api/api-overview)
-- [p-queue](https://github.com/sindresorhus/p-queue)
-- Enterprise limits: `partnership@ideogram.ai`
-
-## Next Steps
-
-For security configuration, see `ideogram-security-basics`.
+- [Current first-party evidence map](references/official-docs.md)

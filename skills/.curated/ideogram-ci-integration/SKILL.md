@@ -1,274 +1,74 @@
 ---
 name: ideogram-ci-integration
-description: 'Configure CI/CD pipelines for Ideogram integrations with GitHub Actions.
-
-  Use when setting up automated testing, visual regression tests,
-
-  or integrating Ideogram validation into your build process.
-
-  Trigger with phrases like "ideogram CI", "ideogram GitHub Actions",
-
-  "ideogram automated tests", "CI ideogram", "ideogram pipeline".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*)
-version: 1.10.0
+description: >-
+  Build deterministic CI for Ideogram adapters with sanitized schemas, fixtures, secret isolation, and a trusted optional live lane. Use when adding or auditing automated integration tests. Trigger with "test Ideogram in CI", "build Ideogram contract tests", or "secure an Ideogram GitHub workflow".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<ci-provider> <test-command> <trusted-live-policy>"
+version: 1.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ideogram
-- testing
-- ci-cd
-compatibility: Designed for Claude Code
+tags: [saas, ideogram, ci]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; normal CI runs entirely offline"
 ---
-# Ideogram CI Integration
+# Ideogram Continuous Integration
 
 ## Overview
 
-Set up CI/CD pipelines for Ideogram integrations. Since Ideogram has no free tier for API testing, CI strategies focus on: mocked unit tests (free), optional integration tests gated behind secrets, and prompt validation without API calls.
+Make Ideogram integration quality reproducible without granting untrusted changes a paid credential. Use fixtures and schema checks for every pull request, then isolate any live smoke test behind trusted-branch, synthetic-content, spend, and concurrency controls.
 
 ## Prerequisites
 
-- GitHub repository with Actions enabled
-- Ideogram API key for integration tests (optional)
-- npm/pnpm project with vitest
+- CI trust model, branch policy, test runner, adapter seam, and secret provider.
+- Sanitized fixtures covering sync, async, safety, errors, webhook, polling, and storage.
+- Named owners for schema refresh, live-smoke spend, and failed-run cleanup.
+
+## Current Contract
+
+The first-party OpenAPI is machine-readable, while endpoint pages carry important behavioral details such as multipart requirements, unsafe empty URLs, and current V4 rendering constraints. CI must preserve both schema and documented semantic assertions.
+
+## Authentication
+
+Pull-request jobs must run without `IDEOGRAM_API_KEY`. A separately approved live job may receive a short-lived or environment-scoped secret server-side and send it only as `Api-Key` to `https://api.ideogram.ai`.
 
 ## Instructions
 
-### Step 1: GitHub Actions Workflow
+1. Inventory workflows, fork behavior, secret exposure, cache artifacts, and existing paid calls.
+2. Add offline tests for multipart field names, mutually exclusive prompts, typed errors, safety outcomes, async terminal states, signature verification, download limits, and storage cleanup.
+3. Pin a reviewed OpenAPI snapshot or hash and report drift without blindly replacing owned contracts.
+4. Scan fixtures and artifacts for keys, prompts, URLs, image bytes, and customer identifiers.
+5. Gate any live smoke to a trusted protected context with manual or environment approval, one synthetic request, strict timeout, output count, and cost ceiling.
+6. Persist no vendor URL, delete generated test assets, and publish only content-free status evidence.
+7. Require offline tests for merge; keep vendor availability from making normal pull requests flaky.
 
-```yaml
-# .github/workflows/ideogram-ci.yml
-name: Ideogram Integration CI
+## Tool Discipline
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+Use Read, Glob, and Grep to inspect workflows and tests. Use Write and Edit for approved CI, fixture, and documentation changes. Do not add secrets, enable paid fork jobs, or change required checks without repository authority.
 
-jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-      - run: npm ci
-      - run: npm test -- --reporter=verbose
-      - run: npm run lint
+## Approval Boundaries
 
-  # Optional: runs only when secret is configured
-  integration-tests:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    env:
-      IDEOGRAM_API_KEY: ${{ secrets.IDEOGRAM_API_KEY }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-      - run: npm ci
-      - name: Run integration tests
-        if: env.IDEOGRAM_API_KEY != ''
-        run: npm run test:integration
-        timeout-minutes: 5
-```
-
-### Step 2: Configure Secrets
-
-```bash
-set -euo pipefail
-# Store Ideogram API key in GitHub repository secrets
-gh secret set IDEOGRAM_API_KEY
-
-# Verify it was set
-gh secret list
-```
-
-### Step 3: Unit Tests with Mocked API
-
-```typescript
-// tests/ideogram-generate.test.ts
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-
-const mockGenerateResponse = {
-  created: "2025-01-15T10:00:00Z",
-  data: [{
-    url: "https://ideogram.ai/assets/image/mock-123.png",
-    prompt: "test prompt",
-    resolution: "1024x1024",
-    is_image_safe: true,
-    seed: 42,
-    style_type: "DESIGN",
-  }],
-};
-
-describe("Ideogram Generate", () => {
-  let fetchSpy: any;
-
-  beforeEach(() => {
-    fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(JSON.stringify(mockGenerateResponse), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      })
-    );
-  });
-
-  afterEach(() => fetchSpy.mockRestore());
-
-  it("sends correct headers", async () => {
-    await fetch("https://api.ideogram.ai/generate", {
-      method: "POST",
-      headers: { "Api-Key": "test-key", "Content-Type": "application/json" },
-      body: JSON.stringify({ image_request: { prompt: "test" } }),
-    });
-
-    expect(fetchSpy).toHaveBeenCalledWith(
-      "https://api.ideogram.ai/generate",
-      expect.objectContaining({
-        headers: expect.objectContaining({ "Api-Key": "test-key" }),
-      })
-    );
-  });
-
-  it("parses response correctly", async () => {
-    const response = await fetch("https://api.ideogram.ai/generate", {
-      method: "POST",
-      headers: { "Api-Key": "test-key", "Content-Type": "application/json" },
-      body: JSON.stringify({ image_request: { prompt: "test" } }),
-    });
-    const result = await response.json();
-    expect(result.data[0].seed).toBe(42);
-    expect(result.data[0].is_image_safe).toBe(true);
-  });
-
-  it("handles 429 rate limit", async () => {
-    fetchSpy.mockResolvedValueOnce(new Response("Rate limited", { status: 429 }));
-    const response = await fetch("https://api.ideogram.ai/generate", {
-      method: "POST",
-      headers: { "Api-Key": "test-key", "Content-Type": "application/json" },
-      body: JSON.stringify({ image_request: { prompt: "test" } }),
-    });
-    expect(response.status).toBe(429);
-  });
-});
-```
-
-### Step 4: Prompt Validation in CI (No API Key Required)
-
-```typescript
-// tests/prompt-validation.test.ts
-import { describe, it, expect } from "vitest";
-
-const VALID_STYLES = ["AUTO", "GENERAL", "REALISTIC", "DESIGN", "RENDER_3D", "ANIME"];
-const VALID_ASPECTS = [
-  "ASPECT_1_1", "ASPECT_16_9", "ASPECT_9_16", "ASPECT_3_2", "ASPECT_2_3",
-  "ASPECT_4_3", "ASPECT_3_4", "ASPECT_10_16", "ASPECT_16_10", "ASPECT_1_3", "ASPECT_3_1",
-];
-
-function validateIdeogramRequest(req: any): string[] {
-  const errors: string[] = [];
-  if (!req.prompt || req.prompt.length === 0) errors.push("Prompt is required");
-  if (req.prompt?.length > 10000) errors.push("Prompt exceeds 10,000 char limit");
-  if (req.style_type && !VALID_STYLES.includes(req.style_type)) {
-    errors.push(`Invalid style_type: ${req.style_type}`);
-  }
-  if (req.aspect_ratio && !VALID_ASPECTS.includes(req.aspect_ratio)) {
-    errors.push(`Invalid aspect_ratio: ${req.aspect_ratio}`);
-  }
-  if (req.num_images && (req.num_images < 1 || req.num_images > 4)) {
-    errors.push("num_images must be 1-4");
-  }
-  return errors;
-}
-
-describe("Prompt Validation", () => {
-  it("accepts valid request", () => {
-    const errors = validateIdeogramRequest({
-      prompt: "A sunset over mountains",
-      style_type: "REALISTIC",
-      aspect_ratio: "ASPECT_16_9",
-    });
-    expect(errors).toHaveLength(0);
-  });
-
-  it("rejects empty prompt", () => {
-    const errors = validateIdeogramRequest({ prompt: "" });
-    expect(errors).toContain("Prompt is required");
-  });
-
-  it("rejects invalid style", () => {
-    const errors = validateIdeogramRequest({ prompt: "test", style_type: "INVALID" });
-    expect(errors[0]).toContain("Invalid style_type");
-  });
-});
-```
-
-### Step 5: Integration Test (API Key Required)
-
-```typescript
-// tests/integration/ideogram-live.test.ts
-import { describe, it, expect } from "vitest";
-
-describe.skipIf(!process.env.IDEOGRAM_API_KEY)("Ideogram Live API", () => {
-  it("generates an image successfully", async () => {
-    const response = await fetch("https://api.ideogram.ai/generate", {
-      method: "POST",
-      headers: {
-        "Api-Key": process.env.IDEOGRAM_API_KEY!,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        image_request: {
-          prompt: "CI test: simple geometric shape",
-          model: "V_2_TURBO",
-          magic_prompt_option: "OFF",
-        },
-      }),
-    });
-
-    expect(response.status).toBe(200);
-    const result = await response.json();
-    expect(result.data).toHaveLength(1);
-    expect(result.data[0].url).toContain("http");
-    expect(result.data[0].is_image_safe).toBe(true);
-  }, 30000); // 30s timeout for generation
-});
-```
+Require approval for workflow permissions, new secret access, live spend, external artifact upload, required-check changes, and branch-protection changes. Fork-originated code must never receive the Ideogram key.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Secret not found | Missing in GitHub settings | `gh secret set IDEOGRAM_API_KEY` |
-| Integration timeout | Generation takes 5-15s | Set `timeout-minutes: 5` |
-| Flaky rate limits | Concurrent CI runs | Run integration tests on main only |
-| Credits burned in CI | Too many integration tests | Mock in PRs, live tests on main only |
+- Fail on fixture secrets, undocumented schema changes, unsafe-output bypass, or retained image artifacts.
+- Quarantine vendor outage in the optional live lane; do not weaken deterministic merge gates.
+- Cancel timed-out jobs and reconcile any accepted async generation before retrying.
 
 ## Output
 
-- GitHub Actions workflow with unit + integration jobs
-- Mocked unit tests that run without API key
-- Prompt validation tests (zero API calls)
-- Gated integration tests for main branch only
+Return workflow and test paths, trust boundaries, assertion counts, OpenAPI hash, secret-scan result, offline gate status, live-lane status and spend, cleanup receipt, and rollback plan.
 
 ## Examples
 
-`sha=abc123; fixtures=v5; target=ci-synthetic; tests=18/18; rights=pass; destination=approved; output_retention=none; canary=not-promoted` is a valid pre-production receipt.
+- Run multipart and webhook fixtures on every pull request; run one V4 smoke only after protected-environment approval.
+- Report `offline=pass; secrets=0; live=skipped-untrusted-fork; required_gate=pass`.
+
+## Validation
+
+Test trusted and untrusted event paths, inspect effective permissions, rerun the offline suite, and verify artifacts contain no content. Exercise cancellation and confirm any live-created object is deleted.
 
 ## Resources
 
-- [GitHub Actions Docs](https://docs.github.com/en/actions)
-- [Vitest Docs](https://vitest.dev/)
-- [Ideogram API Reference](https://developer.ideogram.ai/api-reference)
-
-## Next Steps
-
-For deployment patterns, see `ideogram-deploy-integration`.
+- [Current first-party evidence map](references/official-docs.md)

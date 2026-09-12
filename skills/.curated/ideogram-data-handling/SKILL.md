@@ -1,285 +1,74 @@
 ---
 name: ideogram-data-handling
-description: 'Manage Ideogram generated image assets, metadata tracking, and lifecycle
-  management.
-
-  Use when implementing image persistence, tracking generation history,
-
-  or building asset management for Ideogram outputs.
-
-  Trigger with phrases like "ideogram data", "ideogram images",
-
-  "ideogram asset management", "ideogram metadata", "ideogram image storage".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.10.0
+description: >-
+  Govern Ideogram prompts, uploads, structured descriptions, generated assets, temporary URLs, metadata, and training datasets through deletion. Use when designing privacy or retention controls. Trigger with "map Ideogram data", "set Ideogram retention", or "audit Ideogram image storage".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<data-class> <use-case> <retention-policy>"
+version: 1.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ideogram
-- data
-- asset-management
-compatibility: Designed for Claude Code
+tags: [saas, ideogram, data-governance]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; customer-derived media requires explicit authority"
 ---
-# Ideogram Data Handling
+# Ideogram Data Lifecycle
 
 ## Overview
 
-Manage generated image assets from Ideogram's API. Critical concern: **Ideogram image URLs expire** (approximately 1 hour). Every generation must be downloaded and persisted immediately. This skill covers metadata tracking, download pipelines, local and cloud storage, lifecycle management, and generation history for reproducibility.
+Map and enforce the lifecycle of every datum that crosses an Ideogram workflow. Distinguish prompts, JSON descriptions, source media, masks, generated outputs, temporary links, safety decisions, metadata, logs, and custom-training assets because each has different ownership and retention needs.
 
 ## Prerequisites
 
-- `IDEOGRAM_API_KEY` configured
-- Storage solution (local filesystem, S3, or GCS)
-- Database for generation metadata (SQLite, Postgres, or JSON files)
+- Use case, data owner, tenant, classification, rights basis, region, retention, and deletion SLO.
+- Architecture for upload, API, async state, webhook, polling, download, storage, review, publication, backup, and telemetry.
+- Vendor terms and privacy review appropriate to the workload.
+
+## Current Contract
+
+V4 describe can transform an uploaded image into a structured `json_prompt`; its bounding boxes use normalized `[0,1000]` coordinates in `[y_min,x_min,y_max,x_max]` order. Output URLs expire. Custom training supports datasets of 10–100 images, optional captions or ZIP upload, model training, and model-status retrieval.
+
+## Authentication
+
+Keep `IDEOGRAM_API_KEY` outside data stores and send it only as `Api-Key` from a trusted server. Application authorization must bind every input, generated object, dataset, and trained-model reference to its tenant and purpose.
 
 ## Instructions
 
-### Step 1: Generation Record Schema
+1. Inventory each data class, source, purpose, rights basis, vendor transmission, destination, readers, retention, and deletion path.
+2. Minimize prompts and metadata, validate image type and size, strip unnecessary metadata, and isolate temporary files.
+3. Store async identifiers and safety decisions without copying content into queues, logs, traces, or incident evidence.
+4. Download approved output promptly, validate it, store under an opaque tenant-scoped key, and discard the vendor URL.
+5. Apply separate governance to describe output, captions, datasets, ZIPs, custom model references, backups, and derived assets.
+6. Enforce access, encryption, publication review, lifecycle deletion, legal holds, and tenant export.
+7. Test deletion across primary storage, metadata, queue, cache, backup policy, and custom-training records.
 
-```typescript
-interface GenerationRecord {
-  id: string;                // Unique identifier
-  prompt: string;            // Original prompt
-  expandedPrompt?: string;   // Magic Prompt expansion (from response)
-  negativePrompt?: string;   // Negative prompt used
-  model: string;             // V_2, V_2_TURBO, etc.
-  styleType: string;         // DESIGN, REALISTIC, etc.
-  aspectRatio: string;       // ASPECT_16_9, etc.
-  seed: number;              // For reproducibility
-  resolution: string;        // e.g., "1024x1024"
-  isSafe: boolean;           // is_image_safe from response
-  originalUrl: string;       // Temporary Ideogram URL
-  storedPath: string;        // Local or S3 path
-  createdAt: string;         // ISO timestamp
-  sizeBytes?: number;        // Downloaded file size
-  tags?: string[];           // User-defined tags
-}
-```
+## Tool Discipline
 
-### Step 2: Generate, Download, and Track
+Use Read, Glob, and Grep to inspect schemas, stores, policies, and fixtures. Use Write and Edit for approved lifecycle controls or documentation. Do not open, copy, upload, publish, or delete customer media without authority.
 
-```typescript
-import { writeFileSync, mkdirSync, statSync } from "fs";
-import { join } from "path";
-import { randomUUID } from "crypto";
+## Approval Boundaries
 
-const STORAGE_DIR = "./generated-images";
-const records: GenerationRecord[] = [];
-
-async function generateAndPersist(
-  prompt: string,
-  options: {
-    model?: string;
-    style_type?: string;
-    aspect_ratio?: string;
-    negative_prompt?: string;
-    seed?: number;
-    tags?: string[];
-  } = {}
-): Promise<GenerationRecord> {
-  // Generate
-  const response = await fetch("https://api.ideogram.ai/generate", {
-    method: "POST",
-    headers: {
-      "Api-Key": process.env.IDEOGRAM_API_KEY!,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      image_request: {
-        prompt,
-        model: options.model ?? "V_2",
-        style_type: options.style_type ?? "AUTO",
-        aspect_ratio: options.aspect_ratio ?? "ASPECT_1_1",
-        magic_prompt_option: "AUTO",
-        negative_prompt: options.negative_prompt,
-        seed: options.seed,
-      },
-    }),
-  });
-
-  if (!response.ok) throw new Error(`Generation failed: ${response.status}`);
-  const result = await response.json();
-  const image = result.data[0];
-
-  // Download IMMEDIATELY (URLs expire ~1 hour)
-  const imgResp = await fetch(image.url);
-  if (!imgResp.ok) throw new Error(`Download failed: ${imgResp.status}`);
-  const buffer = Buffer.from(await imgResp.arrayBuffer());
-
-  mkdirSync(STORAGE_DIR, { recursive: true });
-  const filename = `${image.seed}-${Date.now()}.png`;
-  const storedPath = join(STORAGE_DIR, filename);
-  writeFileSync(storedPath, buffer);
-
-  // Track metadata
-  const record: GenerationRecord = {
-    id: randomUUID(),
-    prompt,
-    expandedPrompt: image.prompt !== prompt ? image.prompt : undefined,
-    negativePrompt: options.negative_prompt,
-    model: options.model ?? "V_2",
-    styleType: image.style_type ?? options.style_type ?? "AUTO",
-    aspectRatio: options.aspect_ratio ?? "ASPECT_1_1",
-    seed: image.seed,
-    resolution: image.resolution,
-    isSafe: image.is_image_safe,
-    originalUrl: image.url,
-    storedPath,
-    createdAt: new Date().toISOString(),
-    sizeBytes: buffer.length,
-    tags: options.tags,
-  };
-
-  records.push(record);
-  saveRecords();
-  return record;
-}
-
-function saveRecords() {
-  writeFileSync(
-    join(STORAGE_DIR, "generations.json"),
-    JSON.stringify(records, null, 2)
-  );
-}
-```
-
-### Step 3: Cloud Storage (S3)
-
-```typescript
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-
-const s3 = new S3Client({ region: process.env.AWS_REGION });
-
-async function persistToS3(imageUrl: string, seed: number): Promise<string> {
-  const response = await fetch(imageUrl);
-  const buffer = Buffer.from(await response.arrayBuffer());
-  const key = `ideogram/${seed}-${Date.now()}.png`;
-
-  await s3.send(new PutObjectCommand({
-    Bucket: process.env.S3_BUCKET!,
-    Key: key,
-    Body: buffer,
-    ContentType: "image/png",
-    CacheControl: "public, max-age=31536000, immutable",
-    Metadata: { seed: String(seed), source: "ideogram" },
-  }));
-
-  return `https://${process.env.CDN_DOMAIN}/${key}`;
-}
-```
-
-### Step 4: Reproduction from Seed
-
-```typescript
-// Reproduce an image using the stored seed and prompt
-async function reproduceImage(record: GenerationRecord) {
-  return generateAndPersist(record.prompt, {
-    model: record.model,
-    style_type: record.styleType,
-    aspect_ratio: record.aspectRatio,
-    negative_prompt: record.negativePrompt,
-    seed: record.seed, // Same seed = same image
-    tags: [...(record.tags ?? []), "reproduced"],
-  });
-}
-```
-
-### Step 5: Lifecycle Management
-
-```typescript
-import { unlinkSync, existsSync, readdirSync, statSync } from "fs";
-
-function cleanupOldAssets(retentionDays: number = 30) {
-  const cutoffMs = Date.now() - retentionDays * 86400000;
-  let deleted = 0;
-  let kept = 0;
-
-  for (const record of records) {
-    const createdMs = new Date(record.createdAt).getTime();
-    if (createdMs < cutoffMs) {
-      if (existsSync(record.storedPath)) {
-        unlinkSync(record.storedPath);
-        deleted++;
-      }
-    } else {
-      kept++;
-    }
-  }
-
-  // Remove expired records
-  const activeRecords = records.filter(
-    r => new Date(r.createdAt).getTime() >= cutoffMs
-  );
-  records.length = 0;
-  records.push(...activeRecords);
-  saveRecords();
-
-  console.log(`Cleanup: deleted ${deleted}, kept ${kept}`);
-}
-
-function storageReport() {
-  const totalBytes = records.reduce((sum, r) => sum + (r.sizeBytes ?? 0), 0);
-  const byModel = Object.groupBy(records, r => r.model);
-
-  console.log("=== Image Storage Report ===");
-  console.log(`Total images: ${records.length}`);
-  console.log(`Total size: ${(totalBytes / 1024 / 1024).toFixed(1)} MB`);
-  for (const [model, recs] of Object.entries(byModel)) {
-    console.log(`  ${model}: ${recs?.length ?? 0} images`);
-  }
-}
-```
-
-### Step 6: Search and Query
-
-```typescript
-function findByPrompt(searchTerm: string): GenerationRecord[] {
-  return records.filter(r =>
-    r.prompt.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-}
-
-function findBySeed(seed: number): GenerationRecord | undefined {
-  return records.find(r => r.seed === seed);
-}
-
-function findByTags(tags: string[]): GenerationRecord[] {
-  return records.filter(r =>
-    tags.every(t => r.tags?.includes(t))
-  );
-}
-```
+Require data-owner approval for sensitive inputs, training, new purposes, longer retention, external publication, cross-region movement, backup exceptions, and destructive deletion. Rights uncertainty is a stop condition.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Expired URL | Downloaded too late | Always download in same function |
-| Disk full | Too many stored images | Run `cleanupOldAssets()` regularly |
-| Missing metadata | Not tracked at generation | Use `generateAndPersist` wrapper |
-| Duplicate prompts | Same prompt run twice | Check by prompt hash before generating |
-| Lost seed | Not recorded | Always store seed from response |
+- Never treat an expiring URL as durable storage or an authorization token.
+- Quarantine tenant-mismatched, malformed, oversized, or unexpectedly content-bearing records.
+- Preserve legal holds while reporting why normal deletion could not complete.
 
 ## Output
 
-- Generation records with full metadata tracking
-- Immediate download preventing URL expiration
-- S3 cloud storage with CDN delivery
-- Seed-based reproduction for exact image regeneration
-- Lifecycle management with configurable retention
+Return the data map, classifications, rights and purpose decisions, stores, access paths, retention and deletion controls, tests, gaps, owners, and rollback. Exclude actual prompts, images, URLs, or credentials.
 
 ## Examples
 
-`input=fictional-prompt-fixture; rights=test-owned; destination=sandbox-gallery; generated=2; rejected=1; retention=24h; deletion=verified` is a handling receipt that excludes prompts, reference assets, and image output.
+- Retain an opaque generation ID and safety result for audit while deleting the source upload and vendor URL metadata.
+- Govern a training dataset, captions, trained-model reference, and derived outputs as linked but separately deletable records.
+
+## Validation
+
+Trace one synthetic record through every system, verify least privilege and content-free telemetry, execute deletion, and confirm all governed locations. Reconcile any retained backup or legal-hold exception.
 
 ## Resources
 
-- [Ideogram API Reference](https://developer.ideogram.ai/api-reference)
-- [Ideogram Image Expiration](https://developer.ideogram.ai/ideogram-api/api-overview)
-
-## Next Steps
-
-For access control, see `ideogram-enterprise-rbac`.
+- [Current first-party evidence map](references/official-docs.md)

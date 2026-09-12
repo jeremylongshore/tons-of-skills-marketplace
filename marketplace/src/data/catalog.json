@@ -7828,8 +7828,8 @@
       "slug": "ideogram-pack",
       "name": "ideogram-pack",
       "displayName": "ideogram pack",
-      "description": "Complete Ideogram integration skill pack with 24 skills covering AI image generation, text rendering, and creative design workflows. Flagship tier vendor pack.",
-      "version": "1.10.0",
+      "description": "Operator-grade Ideogram skill pack with 24 current V4, async, security, storage, governance, and migration workflows",
+      "version": "1.11.0",
       "category": "saas-packs",
       "keywords": [
         "ideogram",

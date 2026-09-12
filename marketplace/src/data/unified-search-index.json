@@ -1952,7 +1952,7 @@
       "isNew": false,
       "badges": [],
       "skillCount": 1,
-      "verificationScore": 95,
+      "verificationScore": 97,
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "agency os run your work like an ai agency, from a single notion board. agents discuss, plan, and execute tasks in parallel with dependency ordering and model routing. ai-agency notion task-management ai-agency autonomous-agent workflow project-management claude-code"
@@ -10578,7 +10578,7 @@
       "slug": "ideogram-pack",
       "name": "ideogram-pack",
       "displayName": "ideogram pack",
-      "description": "Complete Ideogram integration skill pack with 24 skills covering AI image generation, text rendering, and creative design workflows. Flagship tier vendor pack.",
+      "description": "Operator-grade Ideogram skill pack with 24 current V4, async, security, storage, governance, and migration workflows",
       "category": "saas-packs",
       "keywords": [
         "ideogram",
@@ -10595,15 +10595,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.10.0",
+      "version": "1.11.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 84,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "ideogram pack complete ideogram integration skill pack with 24 skills covering ai image generation, text rendering, and creative design workflows. flagship tier vendor pack. saas-packs ideogram image-generation text-to-image ai-art typography creative design"
+      "verificationScore": 95,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "ideogram pack operator-grade ideogram skill pack with 24 current v4, async, security, storage, governance, and migration workflows saas-packs ideogram image-generation text-to-image ai-art typography creative design"
     },
     {
       "type": "plugin",
@@ -46167,518 +46167,528 @@
       "id": "ideogram-ci-integration",
       "slug": "ideogram-ci-integration",
       "name": "ideogram-ci-integration",
-      "description": "Configure CI/CD pipelines for Ideogram integrations with GitHub Actions. Use when setting up automated testing, visual regression tests, or integrating Ideogram validation into your build process. Trigger with phrases like \"ideogram CI\", \"ideogram GitHub Actions\", \"ideogram automated tests\", \"CI ideogram\", \"ideogram pipeline\".",
+      "description": "Build deterministic CI for Ideogram adapters with sanitized schemas, fixtures, secret isolation, and a trusted optional live lane. Use when adding or auditing automated integration tests. Trigger with \"test Ideogram in CI\", \"build Ideogram contract tests\", or \"secure an Ideogram GitHub workflow\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(gh:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-ci-integration configure ci/cd pipelines for ideogram integrations with github actions. use when setting up automated testing, visual regression tests, or integrating ideogram validation into your build process. trigger with phrases like \"ideogram ci\", \"ideogram github actions\", \"ideogram automated tests\", \"ci ideogram\", \"ideogram pipeline\". saas-packs read write edit bash(gh:*) "
+      "searchText": "ideogram-ci-integration build deterministic ci for ideogram adapters with sanitized schemas, fixtures, secret isolation, and a trusted optional live lane. use when adding or auditing automated integration tests. trigger with \"test ideogram in ci\", \"build ideogram contract tests\", or \"secure an ideogram github workflow\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-common-errors",
       "slug": "ideogram-common-errors",
       "name": "ideogram-common-errors",
-      "description": "Diagnose and fix Ideogram API errors and exceptions. Use when encountering Ideogram errors, debugging failed requests, or troubleshooting integration issues. Trigger with phrases like \"ideogram error\", \"fix ideogram\", \"ideogram not working\", \"debug ideogram\", \"ideogram 422\", \"ideogram 429\".",
+      "description": "Diagnose Ideogram authentication, validation, throttling, capacity, safety, and asset-expiry failures by evidence class. Use when a request fails or returns no usable image. Trigger with \"debug Ideogram 422\", \"fix Ideogram 429\", or \"diagnose an empty Ideogram URL\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-common-errors diagnose and fix ideogram api errors and exceptions. use when encountering ideogram errors, debugging failed requests, or troubleshooting integration issues. trigger with phrases like \"ideogram error\", \"fix ideogram\", \"ideogram not working\", \"debug ideogram\", \"ideogram 422\", \"ideogram 429\". saas-packs read grep bash(curl:*) "
+      "searchText": "ideogram-common-errors diagnose ideogram authentication, validation, throttling, capacity, safety, and asset-expiry failures by evidence class. use when a request fails or returns no usable image. trigger with \"debug ideogram 422\", \"fix ideogram 429\", or \"diagnose an empty ideogram url\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-core-workflow-a",
       "slug": "ideogram-core-workflow-a",
       "name": "ideogram-core-workflow-a",
-      "description": "Execute Ideogram primary workflow: text-to-image generation with text rendering. Use when generating images from text prompts, creating designs with embedded text, or building the main image generation pipeline. Trigger with phrases like \"ideogram generate image\", \"ideogram text to image\", \"create image with ideogram\", \"ideogram primary workflow\".",
+      "description": "Select and operate the current Ideogram generation route across V4 sync, V4 async, transparency, and P-Image. Use when designing a text-to-image workflow with explicit latency and output contracts. Trigger with \"generate with Ideogram V4\", \"choose an Ideogram model route\", or \"build transparent Ideogram images\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-core-workflow-a execute ideogram primary workflow: text-to-image generation with text rendering. use when generating images from text prompts, creating designs with embedded text, or building the main image generation pipeline. trigger with phrases like \"ideogram generate image\", \"ideogram text to image\", \"create image with ideogram\", \"ideogram primary workflow\". saas-packs read write edit bash(npm:*) bash(curl:*) grep "
+      "searchText": "ideogram-core-workflow-a select and operate the current ideogram generation route across v4 sync, v4 async, transparency, and p-image. use when designing a text-to-image workflow with explicit latency and output contracts. trigger with \"generate with ideogram v4\", \"choose an ideogram model route\", or \"build transparent ideogram images\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-core-workflow-b",
       "slug": "ideogram-core-workflow-b",
       "name": "ideogram-core-workflow-b",
-      "description": "Execute Ideogram secondary workflows: edit (Magic Fill), remix, upscale, describe, and reframe. Use when modifying existing images, applying style transfer, upscaling, or building image-to-image pipelines. Trigger with phrases like \"ideogram edit image\", \"ideogram remix\", \"ideogram upscale\", \"ideogram inpaint\", \"ideogram magic fill\", \"ideogram reframe\".",
+      "description": "Choose among Ideogram edit, remix, describe, magic-prompt, upscale, background, reframe, and transformation tools. Use when modifying or analyzing an image under explicit rights and safety controls. Trigger with \"edit with Ideogram\", \"describe an image for Ideogram\", or \"choose an Ideogram image tool\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-core-workflow-b execute ideogram secondary workflows: edit (magic fill), remix, upscale, describe, and reframe. use when modifying existing images, applying style transfer, upscaling, or building image-to-image pipelines. trigger with phrases like \"ideogram edit image\", \"ideogram remix\", \"ideogram upscale\", \"ideogram inpaint\", \"ideogram magic fill\", \"ideogram reframe\". saas-packs read write edit bash(npm:*) bash(curl:*) grep "
+      "searchText": "ideogram-core-workflow-b choose among ideogram edit, remix, describe, magic-prompt, upscale, background, reframe, and transformation tools. use when modifying or analyzing an image under explicit rights and safety controls. trigger with \"edit with ideogram\", \"describe an image for ideogram\", or \"choose an ideogram image tool\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-cost-tuning",
       "slug": "ideogram-cost-tuning",
       "name": "ideogram-cost-tuning",
-      "description": "Optimize Ideogram costs through model selection, caching, and usage monitoring. Use when analyzing Ideogram billing, reducing API costs, or implementing budget alerts and usage tracking. Trigger with phrases like \"ideogram cost\", \"ideogram billing\", \"reduce ideogram costs\", \"ideogram pricing\", \"ideogram budget\", \"ideogram credits\".",
+      "description": "Govern Ideogram prepaid spend through admission budgets, route choice, output bounds, useful-result accounting, and cleanup. Use when reducing cost or designing billing controls. Trigger with \"cut Ideogram spend\", \"budget Ideogram generations\", or \"audit Ideogram API cost\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-cost-tuning optimize ideogram costs through model selection, caching, and usage monitoring. use when analyzing ideogram billing, reducing api costs, or implementing budget alerts and usage tracking. trigger with phrases like \"ideogram cost\", \"ideogram billing\", \"reduce ideogram costs\", \"ideogram pricing\", \"ideogram budget\", \"ideogram credits\". saas-packs read write edit bash(curl:*) grep "
+      "searchText": "ideogram-cost-tuning govern ideogram prepaid spend through admission budgets, route choice, output bounds, useful-result accounting, and cleanup. use when reducing cost or designing billing controls. trigger with \"cut ideogram spend\", \"budget ideogram generations\", or \"audit ideogram api cost\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-data-handling",
       "slug": "ideogram-data-handling",
       "name": "ideogram-data-handling",
-      "description": "Manage Ideogram generated image assets, metadata tracking, and lifecycle management. Use when implementing image persistence, tracking generation history, or building asset management for Ideogram outputs. Trigger with phrases like \"ideogram data\", \"ideogram images\", \"ideogram asset management\", \"ideogram metadata\", \"ideogram image storage\".",
+      "description": "Govern Ideogram prompts, uploads, structured descriptions, generated assets, temporary URLs, metadata, and training datasets through deletion. Use when designing privacy or retention controls. Trigger with \"map Ideogram data\", \"set Ideogram retention\", or \"audit Ideogram image storage\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-data-handling manage ideogram generated image assets, metadata tracking, and lifecycle management. use when implementing image persistence, tracking generation history, or building asset management for ideogram outputs. trigger with phrases like \"ideogram data\", \"ideogram images\", \"ideogram asset management\", \"ideogram metadata\", \"ideogram image storage\". saas-packs read write edit "
+      "searchText": "ideogram-data-handling govern ideogram prompts, uploads, structured descriptions, generated assets, temporary urls, metadata, and training datasets through deletion. use when designing privacy or retention controls. trigger with \"map ideogram data\", \"set ideogram retention\", or \"audit ideogram image storage\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-debug-bundle",
       "slug": "ideogram-debug-bundle",
       "name": "ideogram-debug-bundle",
-      "description": "Collect Ideogram debug evidence for support tickets and troubleshooting. Use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for Ideogram problems. Trigger with phrases like \"ideogram debug\", \"ideogram support bundle\", \"collect ideogram logs\", \"ideogram diagnostic\".",
+      "description": "Assemble a sanitized Ideogram support bundle with contract, status, queue, storage, and deployment evidence. Use when escalating an incident without exposing keys, prompts, images, or temporary URLs. Trigger with \"build an Ideogram debug bundle\", \"sanitize Ideogram evidence\", or \"prepare an Ideogram support case\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Bash(tar:*)",
-        "Bash(node:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-debug-bundle collect ideogram debug evidence for support tickets and troubleshooting. use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for ideogram problems. trigger with phrases like \"ideogram debug\", \"ideogram support bundle\", \"collect ideogram logs\", \"ideogram diagnostic\". saas-packs read bash(curl:*) bash(tar:*) bash(node:*) grep "
+      "searchText": "ideogram-debug-bundle assemble a sanitized ideogram support bundle with contract, status, queue, storage, and deployment evidence. use when escalating an incident without exposing keys, prompts, images, or temporary urls. trigger with \"build an ideogram debug bundle\", \"sanitize ideogram evidence\", or \"prepare an ideogram support case\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-deploy-integration",
       "slug": "ideogram-deploy-integration",
       "name": "ideogram-deploy-integration",
-      "description": "Deploy Ideogram integrations to Vercel, Cloud Run, and Docker platforms. Use when deploying Ideogram-powered applications to production, configuring platform-specific secrets, or setting up deployment pipelines. Trigger with phrases like \"deploy ideogram\", \"ideogram Vercel\", \"ideogram production deploy\", \"ideogram Cloud Run\", \"ideogram Docker\".",
+      "description": "Deploy an Ideogram server boundary with queues, storage, safety enforcement, observability, canaries, and rollback. Use when shipping a new runtime or changing production topology. Trigger with \"deploy Ideogram\", \"ship an Ideogram worker\", or \"review Ideogram production architecture\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(gcloud:*)",
-        "Bash(docker:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-deploy-integration deploy ideogram integrations to vercel, cloud run, and docker platforms. use when deploying ideogram-powered applications to production, configuring platform-specific secrets, or setting up deployment pipelines. trigger with phrases like \"deploy ideogram\", \"ideogram vercel\", \"ideogram production deploy\", \"ideogram cloud run\", \"ideogram docker\". saas-packs read write edit bash(vercel:*) bash(gcloud:*) bash(docker:*) "
+      "searchText": "ideogram-deploy-integration deploy an ideogram server boundary with queues, storage, safety enforcement, observability, canaries, and rollback. use when shipping a new runtime or changing production topology. trigger with \"deploy ideogram\", \"ship an ideogram worker\", or \"review ideogram production architecture\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-enterprise-rbac",
       "slug": "ideogram-enterprise-rbac",
       "name": "ideogram-enterprise-rbac",
-      "description": "Implement team-based access control and credit management for Ideogram. Use when managing multiple teams with separate budgets, enforcing content policies, or implementing API key isolation for enterprise Ideogram usage. Trigger with phrases like \"ideogram RBAC\", \"ideogram enterprise\", \"ideogram teams\", \"ideogram permissions\", \"ideogram multi-tenant\".",
+      "description": "Map Ideogram Owner, Admin, and Member roles to application-owned tenant, budget, key, media, publishing, and audit permissions. Use when designing or reviewing enterprise access control. Trigger with \"design Ideogram RBAC\", \"audit Ideogram team roles\", or \"separate Ideogram duties\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-enterprise-rbac implement team-based access control and credit management for ideogram. use when managing multiple teams with separate budgets, enforcing content policies, or implementing api key isolation for enterprise ideogram usage. trigger with phrases like \"ideogram rbac\", \"ideogram enterprise\", \"ideogram teams\", \"ideogram permissions\", \"ideogram multi-tenant\". saas-packs read write edit "
+      "searchText": "ideogram-enterprise-rbac map ideogram owner, admin, and member roles to application-owned tenant, budget, key, media, publishing, and audit permissions. use when designing or reviewing enterprise access control. trigger with \"design ideogram rbac\", \"audit ideogram team roles\", or \"separate ideogram duties\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-hello-world",
       "slug": "ideogram-hello-world",
       "name": "ideogram-hello-world",
-      "description": "Create a minimal working Ideogram image generation example. Use when starting a new Ideogram integration, testing your setup, or learning basic Ideogram API patterns. Trigger with phrases like \"ideogram hello world\", \"ideogram example\", \"ideogram quick start\", \"simple ideogram code\", \"first ideogram image\".",
+      "description": "Generate and persist one bounded Ideogram V4 image through the current multipart endpoint. Use when testing a first server-side request or reviewing a minimal integration. Trigger with \"first Ideogram image\", \"test Ideogram V4\", or \"build an Ideogram smoke test\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Bash(node:*)",
-        "Bash(npx:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-hello-world create a minimal working ideogram image generation example. use when starting a new ideogram integration, testing your setup, or learning basic ideogram api patterns. trigger with phrases like \"ideogram hello world\", \"ideogram example\", \"ideogram quick start\", \"simple ideogram code\", \"first ideogram image\". saas-packs read write edit bash(curl:*) bash(node:*) bash(npx:*) "
+      "searchText": "ideogram-hello-world generate and persist one bounded ideogram v4 image through the current multipart endpoint. use when testing a first server-side request or reviewing a minimal integration. trigger with \"first ideogram image\", \"test ideogram v4\", or \"build an ideogram smoke test\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-incident-runbook",
       "slug": "ideogram-incident-runbook",
       "name": "ideogram-incident-runbook",
-      "description": "Execute Ideogram incident response with triage, mitigation, and postmortem. Use when responding to Ideogram-related outages, investigating errors, or running post-incident reviews for Ideogram integration failures. Trigger with phrases like \"ideogram incident\", \"ideogram outage\", \"ideogram down\", \"ideogram on-call\", \"ideogram emergency\", \"ideogram broken\".",
+      "description": "Contain Ideogram incidents involving credentials, billing, throttling, unsafe output, webhook loss, asset expiry, or storage failure. Use when coordinating production response and recovery. Trigger with \"Ideogram incident\", \"contain an Ideogram outage\", or \"recover missing Ideogram images\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(kubectl:*)",
-        "Bash(curl:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-incident-runbook execute ideogram incident response with triage, mitigation, and postmortem. use when responding to ideogram-related outages, investigating errors, or running post-incident reviews for ideogram integration failures. trigger with phrases like \"ideogram incident\", \"ideogram outage\", \"ideogram down\", \"ideogram on-call\", \"ideogram emergency\", \"ideogram broken\". saas-packs read grep bash(kubectl:*) bash(curl:*) "
+      "searchText": "ideogram-incident-runbook contain ideogram incidents involving credentials, billing, throttling, unsafe output, webhook loss, asset expiry, or storage failure. use when coordinating production response and recovery. trigger with \"ideogram incident\", \"contain an ideogram outage\", or \"recover missing ideogram images\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-install-auth",
       "slug": "ideogram-install-auth",
       "name": "ideogram-install-auth",
-      "description": "Install and configure Ideogram API authentication. Use when setting up a new Ideogram integration, configuring API keys, or initializing Ideogram in your project. Trigger with phrases like \"install ideogram\", \"setup ideogram\", \"ideogram auth\", \"configure ideogram API key\".",
+      "description": "Configure Ideogram API access with prepaid billing, server-side credentials, and explicit team ownership. Use when installing or auditing a new Ideogram environment. Trigger with \"set up Ideogram API\", \"configure an Ideogram key\", or \"audit Ideogram authentication\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-install-auth install and configure ideogram api authentication. use when setting up a new ideogram integration, configuring api keys, or initializing ideogram in your project. trigger with phrases like \"install ideogram\", \"setup ideogram\", \"ideogram auth\", \"configure ideogram api key\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "ideogram-install-auth configure ideogram api access with prepaid billing, server-side credentials, and explicit team ownership. use when installing or auditing a new ideogram environment. trigger with \"set up ideogram api\", \"configure an ideogram key\", or \"audit ideogram authentication\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-local-dev-loop",
       "slug": "ideogram-local-dev-loop",
       "name": "ideogram-local-dev-loop",
-      "description": "Configure Ideogram local development with mock responses and testing. Use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with Ideogram. Trigger with phrases like \"ideogram dev setup\", \"ideogram local development\", \"ideogram dev environment\", \"develop with ideogram\", \"ideogram testing\".",
+      "description": "Build a fixture-first local loop for Ideogram multipart requests, async states, safety outcomes, and expiring assets. Use when developing or testing without uncontrolled API spend. Trigger with \"mock Ideogram locally\", \"test Ideogram fixtures\", or \"debug an Ideogram adapter\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-local-dev-loop configure ideogram local development with mock responses and testing. use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with ideogram. trigger with phrases like \"ideogram dev setup\", \"ideogram local development\", \"ideogram dev environment\", \"develop with ideogram\", \"ideogram testing\". saas-packs read write edit bash(npm:*) bash(pnpm:*) bash(npx:*) grep "
+      "searchText": "ideogram-local-dev-loop build a fixture-first local loop for ideogram multipart requests, async states, safety outcomes, and expiring assets. use when developing or testing without uncontrolled api spend. trigger with \"mock ideogram locally\", \"test ideogram fixtures\", or \"debug an ideogram adapter\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-migration-deep-dive",
       "slug": "ideogram-migration-deep-dive",
       "name": "ideogram-migration-deep-dive",
-      "description": "Migrate from other image generation APIs to Ideogram, or re-architect existing Ideogram integrations. Use when switching from DALL-E/Midjourney/Stable Diffusion to Ideogram, or performing major integration overhauls. Trigger with phrases like \"migrate to ideogram\", \"switch to ideogram\", \"replace dall-e with ideogram\", \"ideogram replatform\", \"ideogram migration\".",
+      "description": "Plan and execute a staged migration across Ideogram legacy, V3, V4, P-Image, and tool endpoints with semantic comparison and rollback. Use when modernizing a production image workflow. Trigger with \"migrate Ideogram legacy API\", \"move Ideogram V3 to V4\", or \"redesign an Ideogram image pipeline\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(node:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-migration-deep-dive migrate from other image generation apis to ideogram, or re-architect existing ideogram integrations. use when switching from dall-e/midjourney/stable diffusion to ideogram, or performing major integration overhauls. trigger with phrases like \"migrate to ideogram\", \"switch to ideogram\", \"replace dall-e with ideogram\", \"ideogram replatform\", \"ideogram migration\". saas-packs read write edit bash(npm:*) bash(node:*) grep "
+      "searchText": "ideogram-migration-deep-dive plan and execute a staged migration across ideogram legacy, v3, v4, p-image, and tool endpoints with semantic comparison and rollback. use when modernizing a production image workflow. trigger with \"migrate ideogram legacy api\", \"move ideogram v3 to v4\", or \"redesign an ideogram image pipeline\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-multi-env-setup",
       "slug": "ideogram-multi-env-setup",
       "name": "ideogram-multi-env-setup",
-      "description": "Configure Ideogram across development, staging, and production environments. Use when setting up multi-environment deployments, configuring per-environment keys, or implementing environment-specific Ideogram configurations. Trigger with phrases like \"ideogram environments\", \"ideogram staging\", \"ideogram dev prod\", \"ideogram environment setup\", \"ideogram multi-env\".",
+      "description": "Isolate Ideogram development, staging, and production across keys, budgets, webhook routes, storage, data, and promotion evidence. Use when designing or auditing environment separation. Trigger with \"separate Ideogram environments\", \"configure Ideogram staging\", or \"audit Ideogram promotion\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(aws:*)",
-        "Bash(gcloud:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-multi-env-setup configure ideogram across development, staging, and production environments. use when setting up multi-environment deployments, configuring per-environment keys, or implementing environment-specific ideogram configurations. trigger with phrases like \"ideogram environments\", \"ideogram staging\", \"ideogram dev prod\", \"ideogram environment setup\", \"ideogram multi-env\". saas-packs read write edit bash(aws:*) bash(gcloud:*) grep "
+      "searchText": "ideogram-multi-env-setup isolate ideogram development, staging, and production across keys, budgets, webhook routes, storage, data, and promotion evidence. use when designing or auditing environment separation. trigger with \"separate ideogram environments\", \"configure ideogram staging\", or \"audit ideogram promotion\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-observability",
       "slug": "ideogram-observability",
       "name": "ideogram-observability",
-      "description": "Set up monitoring, metrics, and alerts for Ideogram integrations. Use when implementing observability for Ideogram operations, tracking costs, or configuring alerting for generation health. Trigger with phrases like \"ideogram monitoring\", \"ideogram metrics\", \"ideogram observability\", \"monitor ideogram\", \"ideogram alerts\", \"ideogram dashboard\".",
+      "description": "Instrument Ideogram request, queue, async, safety, storage, latency, and spend signals without logging image content. Use when building dashboards, alerts, or SLO evidence. Trigger with \"monitor Ideogram\", \"add Ideogram metrics\", or \"audit Ideogram telemetry\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-observability set up monitoring, metrics, and alerts for ideogram integrations. use when implementing observability for ideogram operations, tracking costs, or configuring alerting for generation health. trigger with phrases like \"ideogram monitoring\", \"ideogram metrics\", \"ideogram observability\", \"monitor ideogram\", \"ideogram alerts\", \"ideogram dashboard\". saas-packs read write edit "
+      "searchText": "ideogram-observability instrument ideogram request, queue, async, safety, storage, latency, and spend signals without logging image content. use when building dashboards, alerts, or slo evidence. trigger with \"monitor ideogram\", \"add ideogram metrics\", or \"audit ideogram telemetry\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-performance-tuning",
       "slug": "ideogram-performance-tuning",
       "name": "ideogram-performance-tuning",
-      "description": "Optimize Ideogram API performance with caching, model selection, and parallel generation. Use when experiencing slow generation, implementing caching strategies, or optimizing throughput for Ideogram integrations. Trigger with phrases like \"ideogram performance\", \"optimize ideogram\", \"ideogram latency\", \"ideogram caching\", \"ideogram slow\", \"ideogram speed\".",
+      "description": "Optimize Ideogram latency and throughput through route choice, bounded media, concurrency, async handling, and immediate storage. Use when improving an established workload without weakening quality or safety. Trigger with \"speed up Ideogram\", \"profile Ideogram latency\", or \"optimize Ideogram throughput\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-performance-tuning optimize ideogram api performance with caching, model selection, and parallel generation. use when experiencing slow generation, implementing caching strategies, or optimizing throughput for ideogram integrations. trigger with phrases like \"ideogram performance\", \"optimize ideogram\", \"ideogram latency\", \"ideogram caching\", \"ideogram slow\", \"ideogram speed\". saas-packs read write edit "
+      "searchText": "ideogram-performance-tuning optimize ideogram latency and throughput through route choice, bounded media, concurrency, async handling, and immediate storage. use when improving an established workload without weakening quality or safety. trigger with \"speed up ideogram\", \"profile ideogram latency\", or \"optimize ideogram throughput\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-prod-checklist",
       "slug": "ideogram-prod-checklist",
       "name": "ideogram-prod-checklist",
-      "description": "Execute Ideogram production deployment checklist and rollback procedures. Use when deploying Ideogram integrations to production, preparing for launch, or implementing go-live procedures. Trigger with phrases like \"ideogram production\", \"deploy ideogram\", \"ideogram go-live\", \"ideogram launch checklist\", \"ideogram production ready\".",
+      "description": "Gate an Ideogram production release across billing, auth, safety, async completion, asset persistence, observability, and rollback. Use when approving a launch or reviewing release readiness. Trigger with \"ship Ideogram to production\", \"run Ideogram preflight\", or \"audit an Ideogram release\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Bash(kubectl:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-prod-checklist execute ideogram production deployment checklist and rollback procedures. use when deploying ideogram integrations to production, preparing for launch, or implementing go-live procedures. trigger with phrases like \"ideogram production\", \"deploy ideogram\", \"ideogram go-live\", \"ideogram launch checklist\", \"ideogram production ready\". saas-packs read bash(curl:*) bash(kubectl:*) grep "
+      "searchText": "ideogram-prod-checklist gate an ideogram production release across billing, auth, safety, async completion, asset persistence, observability, and rollback. use when approving a launch or reviewing release readiness. trigger with \"ship ideogram to production\", \"run ideogram preflight\", or \"audit an ideogram release\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-rate-limits",
       "slug": "ideogram-rate-limits",
       "name": "ideogram-rate-limits",
-      "description": "Implement Ideogram rate limiting, backoff, and request queuing patterns. Use when handling rate limit errors, implementing retry logic, or optimizing API request throughput for Ideogram. Trigger with phrases like \"ideogram rate limit\", \"ideogram throttling\", \"ideogram 429\", \"ideogram retry\", \"ideogram backoff\", \"ideogram queue\".",
+      "description": "Control Ideogram concurrency with a bounded queue, deadlines, backoff, and fair tenant admission. Use when preventing 429 responses or sizing generation workers. Trigger with \"tune Ideogram concurrency\", \"fix Ideogram throttling\", or \"design an Ideogram request queue\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-rate-limits implement ideogram rate limiting, backoff, and request queuing patterns. use when handling rate limit errors, implementing retry logic, or optimizing api request throughput for ideogram. trigger with phrases like \"ideogram rate limit\", \"ideogram throttling\", \"ideogram 429\", \"ideogram retry\", \"ideogram backoff\", \"ideogram queue\". saas-packs read write edit "
+      "searchText": "ideogram-rate-limits control ideogram concurrency with a bounded queue, deadlines, backoff, and fair tenant admission. use when preventing 429 responses or sizing generation workers. trigger with \"tune ideogram concurrency\", \"fix ideogram throttling\", or \"design an ideogram request queue\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-reference-architecture",
       "slug": "ideogram-reference-architecture",
       "name": "ideogram-reference-architecture",
-      "description": "Implement Ideogram reference architecture with prompt templates, asset pipelines, and CDN delivery. Use when designing new Ideogram integrations, building brand asset systems, or establishing architecture for image generation at scale. Trigger with phrases like \"ideogram architecture\", \"ideogram project structure\", \"ideogram brand assets\", \"ideogram pipeline design\", \"ideogram at scale\".",
+      "description": "Design an Ideogram service boundary with policy gateway, queue, async state, verified webhooks, polling, moderation, storage, and audit. Use when creating or reviewing a production architecture. Trigger with \"architect Ideogram\", \"design an Ideogram service\", or \"review an Ideogram system diagram\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-reference-architecture implement ideogram reference architecture with prompt templates, asset pipelines, and cdn delivery. use when designing new ideogram integrations, building brand asset systems, or establishing architecture for image generation at scale. trigger with phrases like \"ideogram architecture\", \"ideogram project structure\", \"ideogram brand assets\", \"ideogram pipeline design\", \"ideogram at scale\". saas-packs read write edit grep "
+      "searchText": "ideogram-reference-architecture design an ideogram service boundary with policy gateway, queue, async state, verified webhooks, polling, moderation, storage, and audit. use when creating or reviewing a production architecture. trigger with \"architect ideogram\", \"design an ideogram service\", or \"review an ideogram system diagram\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-sdk-patterns",
       "slug": "ideogram-sdk-patterns",
       "name": "ideogram-sdk-patterns",
-      "description": "Apply production-ready Ideogram API patterns for TypeScript and Python. Use when implementing Ideogram integrations, refactoring API usage, or establishing team coding standards for Ideogram. Trigger with phrases like \"ideogram SDK patterns\", \"ideogram best practices\", \"ideogram code patterns\", \"idiomatic ideogram\", \"ideogram wrapper\".",
+      "description": "Design an owned Ideogram REST adapter for multipart uploads, typed responses, deadlines, and vendor isolation. Use when building or reviewing application client code without inventing an official SDK. Trigger with \"wrap Ideogram API\", \"build an Ideogram client\", or \"review Ideogram adapter code\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-sdk-patterns apply production-ready ideogram api patterns for typescript and python. use when implementing ideogram integrations, refactoring api usage, or establishing team coding standards for ideogram. trigger with phrases like \"ideogram sdk patterns\", \"ideogram best practices\", \"ideogram code patterns\", \"idiomatic ideogram\", \"ideogram wrapper\". saas-packs read write edit "
+      "searchText": "ideogram-sdk-patterns design an owned ideogram rest adapter for multipart uploads, typed responses, deadlines, and vendor isolation. use when building or reviewing application client code without inventing an official sdk. trigger with \"wrap ideogram api\", \"build an ideogram client\", or \"review ideogram adapter code\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-security-basics",
       "slug": "ideogram-security-basics",
       "name": "ideogram-security-basics",
-      "description": "Apply Ideogram security best practices for API key management and access control. Use when securing API keys, implementing key rotation, or auditing Ideogram security configuration. Trigger with phrases like \"ideogram security\", \"ideogram secrets\", \"secure ideogram\", \"ideogram API key security\", \"ideogram key rotation\".",
+      "description": "Harden an Ideogram integration across credentials, untrusted media, content safety, copyright controls, storage, and tenant authorization. Use when reviewing a threat model or implementing security controls. Trigger with \"secure Ideogram\", \"audit Ideogram image uploads\", or \"review Ideogram content safety\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-security-basics apply ideogram security best practices for api key management and access control. use when securing api keys, implementing key rotation, or auditing ideogram security configuration. trigger with phrases like \"ideogram security\", \"ideogram secrets\", \"secure ideogram\", \"ideogram api key security\", \"ideogram key rotation\". saas-packs read write edit grep "
+      "searchText": "ideogram-security-basics harden an ideogram integration across credentials, untrusted media, content safety, copyright controls, storage, and tenant authorization. use when reviewing a threat model or implementing security controls. trigger with \"secure ideogram\", \"audit ideogram image uploads\", or \"review ideogram content safety\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-upgrade-migration",
       "slug": "ideogram-upgrade-migration",
       "name": "ideogram-upgrade-migration",
-      "description": "Migrate between Ideogram API versions (V_1 to V_2 to V3) with breaking change detection. Use when upgrading from legacy to V3 endpoints, updating model versions, or handling deprecated API parameters. Trigger with phrases like \"upgrade ideogram\", \"ideogram migration\", \"ideogram v2 to v3\", \"ideogram breaking changes\", \"migrate ideogram API\".",
+      "description": "Upgrade an Ideogram adapter against current OpenAPI and endpoint contracts while preserving rollback. Use when moving versions, fields, or transport behavior without redesigning the product workflow. Trigger with \"upgrade Ideogram API\", \"check Ideogram schema drift\", or \"migrate an Ideogram endpoint\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-upgrade-migration migrate between ideogram api versions (v_1 to v_2 to v3) with breaking change detection. use when upgrading from legacy to v3 endpoints, updating model versions, or handling deprecated api parameters. trigger with phrases like \"upgrade ideogram\", \"ideogram migration\", \"ideogram v2 to v3\", \"ideogram breaking changes\", \"migrate ideogram api\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "ideogram-upgrade-migration upgrade an ideogram adapter against current openapi and endpoint contracts while preserving rollback. use when moving versions, fields, or transport behavior without redesigning the product workflow. trigger with \"upgrade ideogram api\", \"check ideogram schema drift\", or \"migrate an ideogram endpoint\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "ideogram-webhooks-events",
       "slug": "ideogram-webhooks-events",
       "name": "ideogram-webhooks-events",
-      "description": "Build event-driven workflows around Ideogram's synchronous API. Use when implementing async generation queues, batch processing, callback patterns, or image processing pipelines. Trigger with phrases like \"ideogram webhook\", \"ideogram events\", \"ideogram async\", \"ideogram queue\", \"ideogram batch pipeline\".",
+      "description": "Verify and reconcile Ideogram async webhooks with Ed25519 signatures, replay controls, deduplication, and polling fallback. Use when implementing or auditing an event receiver. Trigger with \"verify an Ideogram webhook\", \"build Ideogram async callbacks\", or \"debug duplicate Ideogram events\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-webhooks-events build event-driven workflows around ideogram's synchronous api. use when implementing async generation queues, batch processing, callback patterns, or image processing pipelines. trigger with phrases like \"ideogram webhook\", \"ideogram events\", \"ideogram async\", \"ideogram queue\", \"ideogram batch pipeline\". saas-packs read write edit bash(curl:*) "
+      "searchText": "ideogram-webhooks-events verify and reconcile ideogram async webhooks with ed25519 signatures, replay controls, deduplication, and polling fallback. use when implementing or auditing an event receiver. trigger with \"verify an ideogram webhook\", \"build ideogram async callbacks\", or \"debug duplicate ideogram events\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
