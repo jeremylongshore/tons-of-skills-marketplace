@@ -1,7 +1,7 @@
 ---
 name: adobe-data-handling
 description: >-
-  Analyze and enforce classification, minimization, signed-URL custody, retention, deletion, content provenance, and privacy-request boundaries for Adobe workflows. Use when this Adobe operator workflow is needed. Trigger with "Adobe data handling", "PDF privacy", or "Firefly content policy".
+  Analyze and enforce classification, minimization, signed-URL custody, retention, deletion, content provenance, and privacy-request boundaries for Adobe workflows. Use when the task requires adobe data custody and privacy review. Trigger with "Adobe data handling", "PDF privacy", or "Firefly content policy".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<workflow> <data-classes> <jurisdictions>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Analyze and enforce classification, minimization, signed-URL custody, retention, deletion, content provenance, and privacy-request boundaries for Adobe workflows.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Analyze and enforce classification, minimization, signed-URL custody, retention, deletion, content provenance, and privacy-request boundaries for Adobe workflows. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

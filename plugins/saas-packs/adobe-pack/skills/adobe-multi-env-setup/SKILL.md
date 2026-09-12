@@ -1,7 +1,7 @@
 ---
 name: adobe-multi-env-setup
 description: >-
-  Separate Adobe development, stage, and production organizations/projects/workspaces, credentials, profiles, storage, events, budgets, and evidence. Use when this Adobe operator workflow is needed. Trigger with "Adobe environments", "separate Adobe staging", or "Adobe workspace setup".
+  Separate Adobe development, stage, and production organizations/projects/workspaces, credentials, profiles, storage, events, budgets, and evidence. Use when the task requires adobe multi-environment isolation. Trigger with "Adobe environments", "separate Adobe staging", or "Adobe workspace setup".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<environments> <services> <promotion-model>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Separate Adobe development, stage, and production organizations/projects/workspaces, credentials, profiles, storage, events, budgets, and evidence.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Separate Adobe development, stage, and production organizations/projects/workspaces, credentials, profiles, storage, events, budgets, and evidence. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

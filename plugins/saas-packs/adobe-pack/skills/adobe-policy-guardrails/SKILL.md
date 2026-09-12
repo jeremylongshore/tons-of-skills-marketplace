@@ -1,7 +1,7 @@
 ---
 name: adobe-policy-guardrails
 description: >-
-  Analyze and enforce repository, runtime, data, spend, endpoint, and approval guardrails without guessing secret formats or content-policy rules. Use when this Adobe operator workflow is needed. Trigger with "Adobe guardrails", "block unsafe Adobe calls", or "Adobe policy checks".
+  Analyze and enforce repository, runtime, data, spend, endpoint, and approval guardrails without guessing secret formats or content-policy rules. Use when the task requires adobe policy and execution guardrails. Trigger with "Adobe guardrails", "block unsafe Adobe calls", or "Adobe policy checks".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<repository-or-service> <operations> <policy-owners>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Analyze and enforce repository, runtime, data, spend, endpoint, and approval guardrails without guessing secret formats or content-policy rules.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Analyze and enforce repository, runtime, data, spend, endpoint, and approval guardrails without guessing secret formats or content-policy rules. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

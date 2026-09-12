@@ -1,7 +1,7 @@
 ---
 name: adobe-prod-checklist
 description: >-
-  Issue an evidence-backed production decision across Adobe auth, entitlements, API versions, data custody, async reliability, spend, observability, and rollback. Use before launch or a material integration change. Use when this Adobe operator workflow is needed. Trigger with "Adobe production checklist", "approve Adobe launch", or "Adobe go-live review".
+  Issue an evidence-backed production decision across Adobe auth, entitlements, API versions, data custody, async reliability, spend, observability, and rollback. Use before launch or a material integration change. Use when the task requires adobe production readiness decision. Trigger with "Adobe production checklist", "approve Adobe launch", or "Adobe go-live review".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<release> <environment> <change-scope>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Issue an evidence-backed production decision across Adobe auth, entitlements, API versions, data custody, async reliability, spend, observability, and rollback.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Issue an evidence-backed production decision across Adobe auth, entitlements, API versions, data custody, async reliability, spend, observability, and rollback. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

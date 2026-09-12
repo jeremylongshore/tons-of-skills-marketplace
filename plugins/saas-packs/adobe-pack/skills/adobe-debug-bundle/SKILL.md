@@ -1,7 +1,7 @@
 ---
 name: adobe-debug-bundle
 description: >-
-  Assemble a minimal, reproducible Adobe diagnostic bundle with default-deny collection and verifiable redaction. Use for engineering or Adobe support escalation. Use when this Adobe operator workflow is needed. Trigger with "Adobe debug bundle", "collect Adobe diagnostics", or "prepare Adobe support case".
+  Assemble a minimal, reproducible Adobe diagnostic bundle with default-deny collection and verifiable redaction. Use for engineering or Adobe support escalation. Use when the task requires adobe redacted diagnostic bundle. Trigger with "Adobe debug bundle", "collect Adobe diagnostics", or "prepare Adobe support case".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<service> <incident-window> <audience>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Assemble a minimal, reproducible Adobe diagnostic bundle with default-deny collection and verifiable redaction.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Assemble a minimal, reproducible Adobe diagnostic bundle with default-deny collection and verifiable redaction. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

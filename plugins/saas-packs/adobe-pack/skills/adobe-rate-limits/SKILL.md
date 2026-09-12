@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Implement service-specific Adobe admission control, Retry-After handling, bounded retries, and spend-aware queues.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Implement service-specific Adobe admission control, Retry-After handling, bounded retries, and spend-aware queues. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

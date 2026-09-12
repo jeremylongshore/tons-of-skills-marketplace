@@ -1,7 +1,7 @@
 ---
 name: adobe-webhooks-events
 description: >-
-  Implement Adobe I/O Events registration, challenge validation, authentic delivery, idempotent enqueue, replay operations, and disablement recovery. Use when this Adobe operator workflow is needed. Trigger with "Adobe webhook", "Adobe I/O Events", or "verify Adobe event".
+  Implement Adobe I/O Events registration, challenge validation, authentic delivery, idempotent enqueue, replay operations, and disablement recovery. Use when the task requires adobe i/o events authentic delivery. Trigger with "Adobe webhook", "Adobe I/O Events", or "verify Adobe event".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<event-provider> <registration> <consumer>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Implement Adobe I/O Events registration, challenge validation, authentic delivery, idempotent enqueue, replay operations, and disablement recovery.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Implement Adobe I/O Events registration, challenge validation, authentic delivery, idempotent enqueue, replay operations, and disablement recovery. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

@@ -1,7 +1,7 @@
 ---
 name: adobe-reliability-patterns
 description: >-
-  Analyze and design idempotency, bounded polling, per-service circuits, durable queues, DLQ/replay, degradation, and reconciliation for Adobe workloads. Use when this Adobe operator workflow is needed. Trigger with "Adobe reliability", "Firefly retry design", or "PDF job recovery".
+  Analyze and design idempotency, bounded polling, per-service circuits, durable queues, DLQ/replay, degradation, and reconciliation for Adobe workloads. Use when the task requires adobe async reliability controls. Trigger with "Adobe reliability", "Firefly retry design", or "PDF job recovery".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<services> <failure-model> <recovery-objectives>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Analyze and design idempotency, bounded polling, per-service circuits, durable queues, DLQ/replay, degradation, and reconciliation for Adobe workloads.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Analyze and design idempotency, bounded polling, per-service circuits, durable queues, DLQ/replay, degradation, and reconciliation for Adobe workloads. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

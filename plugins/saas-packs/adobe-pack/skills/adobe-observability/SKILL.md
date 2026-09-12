@@ -1,7 +1,7 @@
 ---
 name: adobe-observability
 description: >-
-  Instrument Adobe integrations with redacted structured logs, request/job/activation correlation, service-level indicators, alerts, and evidence retention. Use when this Adobe operator workflow is needed. Trigger with "monitor Adobe API", "Adobe observability", or "App Builder logs".
+  Instrument Adobe integrations with redacted structured logs, request/job/activation correlation, service-level indicators, alerts, and evidence retention. Use when the task requires adobe content-safe observability. Trigger with "monitor Adobe API", "Adobe observability", or "App Builder logs".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<services> <objectives> <telemetry-destination>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Instrument Adobe integrations with redacted structured logs, request/job/activation correlation, service-level indicators, alerts, and evidence retention.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Instrument Adobe integrations with redacted structured logs, request/job/activation correlation, service-level indicators, alerts, and evidence retention. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

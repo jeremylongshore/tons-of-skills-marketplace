@@ -1,7 +1,7 @@
 ---
 name: adobe-common-errors
 description: >-
-  Classify Adobe failures from redacted response evidence and select the smallest bounded recovery. Use across auth, Firefly, Photoshop, PDF Services, Events, and App Builder. Use when this Adobe operator workflow is needed. Trigger with "fix Adobe error", "Adobe 403", or "Adobe API failed".
+  Classify Adobe failures from redacted response evidence and select the smallest bounded recovery. Use across auth, Firefly, Photoshop, PDF Services, Events, and App Builder. Use when the task requires adobe response-led error triage. Trigger with "fix Adobe error", "Adobe 403", or "Adobe API failed".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<service> <operation> <status-or-error>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Classify Adobe failures from redacted response evidence and select the smallest bounded recovery.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Classify Adobe failures from redacted response evidence and select the smallest bounded recovery. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

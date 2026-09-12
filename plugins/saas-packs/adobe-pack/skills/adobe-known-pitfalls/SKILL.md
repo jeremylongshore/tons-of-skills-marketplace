@@ -1,7 +1,7 @@
 ---
 name: adobe-known-pitfalls
 description: >-
-  Detect current high-risk Adobe integration traps before they become production incidents. Use when this Adobe operator workflow is needed. Trigger with "Adobe pitfalls", "review Adobe integration", or "find obsolete Adobe code".
+  Detect current high-risk Adobe integration traps before they become production incidents. Use when the task requires adobe integration pitfall review. Trigger with "Adobe pitfalls", "review Adobe integration", or "find obsolete Adobe code".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<repository> <services> <environment>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Detect current high-risk Adobe integration traps before they become production incidents.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Detect current high-risk Adobe integration traps before they become production incidents. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

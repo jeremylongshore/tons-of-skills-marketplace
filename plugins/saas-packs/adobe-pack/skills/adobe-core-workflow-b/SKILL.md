@@ -1,7 +1,7 @@
 ---
 name: adobe-core-workflow-b
 description: >-
-  Execute an Adobe PDF Services operation through explicit asset custody, asynchronous status, output verification, and cleanup. Use for approved document conversion, extraction, or generation. Use when this Adobe operator workflow is needed. Trigger with "process PDF with Adobe", "PDF Services job", or "Adobe document automation".
+  Execute an Adobe PDF Services operation through explicit asset custody, asynchronous status, output verification, and cleanup. Use for approved document conversion, extraction, or generation. Use when the task requires pdf services controlled document job. Trigger with "process PDF with Adobe", "PDF Services job", or "Adobe document automation".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<operation> <input-classification> <output-destination>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Execute an Adobe PDF Services operation through explicit asset custody, asynchronous status, output verification, and cleanup.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Execute an Adobe PDF Services operation through explicit asset custody, asynchronous status, output verification, and cleanup. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

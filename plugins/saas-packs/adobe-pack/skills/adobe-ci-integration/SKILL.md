@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Build deterministic CI gates for Adobe adapters without giving fork jobs credentials or spending against live creative/document APIs.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Build deterministic CI gates for Adobe adapters without giving fork jobs credentials or spending against live creative/document APIs. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

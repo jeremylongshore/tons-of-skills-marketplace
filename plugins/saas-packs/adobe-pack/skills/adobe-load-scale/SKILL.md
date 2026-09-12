@@ -1,7 +1,7 @@
 ---
 name: adobe-load-scale
 description: >-
-  Derive a safe Adobe workload envelope from synthetic load, queue/backpressure behavior, current service constraints, spend, and output correctness. Use when this Adobe operator workflow is needed. Trigger with "load test Adobe", "scale Firefly jobs", or "Adobe capacity plan".
+  Derive a safe Adobe workload envelope from synthetic load, queue/backpressure behavior, current service constraints, spend, and output correctness. Use when the task requires adobe capacity and load envelope. Trigger with "load test Adobe", "scale Firefly jobs", or "Adobe capacity plan".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<workload> <target-volume> <sandbox>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Derive a safe Adobe workload envelope from synthetic load, queue/backpressure behavior, current service constraints, spend, and output correctness.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Derive a safe Adobe workload envelope from synthetic load, queue/backpressure behavior, current service constraints, spend, and output correctness. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

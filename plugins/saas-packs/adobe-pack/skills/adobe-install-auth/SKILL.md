@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Select and prove the correct Adobe authentication model, entitlement, product profile, and secret lifecycle before integration work.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Select and prove the correct Adobe authentication model, entitlement, product profile, and secret lifecycle before integration work. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

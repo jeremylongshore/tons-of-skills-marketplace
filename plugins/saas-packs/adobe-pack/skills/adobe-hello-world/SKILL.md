@@ -1,7 +1,7 @@
 ---
 name: adobe-hello-world
 description: >-
-  Prove one Adobe API connection with a current, read-only or synthetic operation and a content-safe receipt. Use during onboarding before any production workflow. Use when this Adobe operator workflow is needed. Trigger with "Adobe hello world", "test Adobe connection", or "verify Adobe entitlement".
+  Prove one Adobe API connection with a current, read-only or synthetic operation and a content-safe receipt. Use during onboarding before any production workflow. Use when the task requires adobe minimal access proof. Trigger with "Adobe hello world", "test Adobe connection", or "verify Adobe entitlement".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<product-api> <sandbox> <proof-operation>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Prove one Adobe API connection with a current, read-only or synthetic operation and a content-safe receipt.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Prove one Adobe API connection with a current, read-only or synthetic operation and a content-safe receipt. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 
