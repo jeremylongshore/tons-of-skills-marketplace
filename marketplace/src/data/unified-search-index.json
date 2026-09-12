@@ -815,6 +815,7 @@
       "example",
       "excel",
       "exceptions",
+      "expense",
       "experimentation",
       "experiments",
       "explain",
@@ -12851,13 +12852,16 @@
       "slug": "navan-pack",
       "name": "navan-pack",
       "displayName": "navan pack",
-      "description": "Claude Code skill pack for Navan (26 skills)",
+      "description": "Operator-grade Navan pack with 26 current travel, expense, identity, security, reliability, and migration workflows",
       "category": "saas-packs",
       "keywords": [
         "navan",
         "saas",
-        "sdk",
-        "integration"
+        "travel",
+        "expense",
+        "identity",
+        "integration",
+        "governance"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -12865,7 +12869,7 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.8.0",
+      "version": "1.9.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -12873,7 +12877,7 @@
       "verificationScore": 97,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "navan pack claude code skill pack for navan (26 skills) saas-packs navan saas sdk integration"
+      "searchText": "navan pack operator-grade navan pack with 26 current travel, expense, identity, security, reliability, and migration workflows saas-packs navan saas travel expense identity integration governance"
     },
     {
       "type": "plugin",
