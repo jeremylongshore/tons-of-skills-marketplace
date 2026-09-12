@@ -42,7 +42,6 @@ For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret
 6. Keep live tests opt-in, read-only, narrowly selected, and disabled without an explicit test key.
 7. Document how fixtures are refreshed after a reviewed schema change.
 
-
 ## Tool Discipline
 
 Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
@@ -69,7 +68,6 @@ Before reporting success, rerun the smallest relevant deterministic check, compa
 
 - "Mock a completed transcript" uses invented participant and sentence data.
 - "Download one customer meeting for fixtures" is rejected.
-
 
 ## Resources
 

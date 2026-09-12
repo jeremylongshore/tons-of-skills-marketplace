@@ -42,7 +42,6 @@ For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret
 6. Inject the client into callers and provide a fixture transport for tests.
 7. Pin dependencies and add schema-drift checks without enabling unrestricted introspection in production.
 
-
 ## Tool Discipline
 
 Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
@@ -69,7 +68,6 @@ Before reporting success, rerun the smallest relevant deterministic check, compa
 
 - "Create a transcript client" defines named read operations and redacted error types.
 - "Use an undocumented convenience SDK method" is corrected because no such required public SDK contract is assumed.
-
 
 ## Resources
 

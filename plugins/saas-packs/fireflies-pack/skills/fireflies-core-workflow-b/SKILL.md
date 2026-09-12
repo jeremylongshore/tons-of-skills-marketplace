@@ -42,7 +42,6 @@ For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret
 6. Label answers as derived, validate material claims against accessible transcript evidence, and handle follow-ups in the same thread only when appropriate.
 7. Record request counts, AI-credit outcome, provenance, and retention disposition.
 
-
 ## Tool Discipline
 
 Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
@@ -69,7 +68,6 @@ Before reporting success, rerun the smallest relevant deterministic check, compa
 
 - "Find approved project reviews this month" uses keyword, TITLE scope, dates, and a cap.
 - "Ask Fred across the whole company" is blocked pending cohort and credit approval.
-
 
 ## Resources
 
