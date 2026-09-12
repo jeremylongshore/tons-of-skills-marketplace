@@ -1,272 +1,74 @@
 ---
 name: mistral-data-handling
-description: 'Implement Mistral AI PII handling, data retention, and GDPR/CCPA compliance
-  patterns.
-
-  Use when handling sensitive data, implementing data redaction, configuring retention
-  policies,
-
-  or ensuring compliance with privacy regulations for Mistral AI integrations.
-
-  Trigger with phrases like "mistral data", "mistral PII",
-
-  "mistral GDPR", "mistral data retention", "mistral privacy".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.13.0
+description: >-
+  Govern Mistral prompts, outputs, embeddings, files, OCR, audio, batch, stateful resources, and deletion evidence. Use when sensitive or retained data is involved. Trigger with "Mistral data retention", "upload a file to Mistral", or "review Mistral privacy".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<workload> <data-class> <retention-policy>"
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mistral
-- compliance
-compatibility: Designed for Claude Code
+tags: [saas, mistral, data-governance]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live or external Mistral actions require network access and explicit approval"
 ---
-# Mistral Data Handling
+# Mistral Data Lifecycle Governance
 
 ## Overview
 
-Manage data flows through Mistral AI APIs with PII redaction, audit logging, fine-tuning dataset sanitization, and conversation retention policies. Mistral's data policy: API requests on La Plateforme are **not** used for training by default. Self-deployed models give full data sovereignty.
+Map every data class through provider transit, app storage, derived artifacts, state, retention, and deletion. Never infer privacy from one endpoint or account feature.
 
 ## Prerequisites
 
-- Mistral API key configured
-- Understanding of data classification (PII, PHI, PCI)
-- Logging infrastructure for audit trails
+- A data inventory, lawful purpose, tenant boundary, retention requirements, and privacy owner.
+- Current endpoint/account evidence including ZDR applicability.
+- Deletion, subject-request, incident, and derived-data policies.
+
+## Current Contract
+
+ZDR covers supported stateless paid-plan calls but excludes stateful products/APIs including Agents, Batch processing files, Conversations, Libraries, and `/v1/files`. Each workload needs review.
+
+## Authentication
+
+Authorize data independently of the provider key. Never put credentials or customer content in logs, receipts, or diagnostics.
 
 ## Instructions
 
-### Step 1: PII Redaction Before API Calls
+1. Classify prompts, outputs, embeddings, files, transcripts, OCR, batch artifacts, state IDs, and derived records.
+2. Map endpoint, account controls, transit, provider state, app stores, logs, backups, and subprocessors.
+3. Verify ZDR for the exact stateless operation; mark excluded/unknown stateful surfaces.
+4. Minimize/redact, isolate tenants, bound purpose/retention, and authorize before transmission.
+5. Track resource IDs and derived artifacts for cross-system deletion reconciliation.
+6. Test access, expiry, deletion, restore/backups, subject requests, and incident evidence.
 
-```typescript
-interface RedactionRule {
-  pattern: RegExp;
-  replacement: string;
-  type: string;
-}
+## Tool Discipline
 
-const PII_RULES: RedactionRule[] = [
-  { pattern: /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, replacement: '[EMAIL]', type: 'email' },
-  { pattern: /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/g, replacement: '[PHONE]', type: 'phone' },
-  { pattern: /\b\d{3}-\d{2}-\d{4}\b/g, replacement: '[SSN]', type: 'ssn' },
-  { pattern: /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/g, replacement: '[CARD]', type: 'credit_card' },
-  { pattern: /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g, replacement: '[IP]', type: 'ip_address' },
-];
+Use Read, Glob, and Grep to inspect code, locks, configuration, tests, and evidence. Use Write and Edit only for approved repository changes. Invocation alone does not authorize network calls, paid usage, uploads, stateful resources, admin mutations, deployments, or deletion.
 
-function redactPII(text: string): { cleaned: string; redactions: string[] } {
-  const redactions: string[] = [];
-  let cleaned = text;
+## Approval Boundaries
 
-  for (const rule of PII_RULES) {
-    const matches = cleaned.match(rule.pattern);
-    if (matches) {
-      redactions.push(...matches.map(m => `${rule.type}: ${m.slice(0, 4)}***`));
-      cleaned = cleaned.replace(rule.pattern, rule.replacement);
-    }
-  }
-  return { cleaned, redactions };
-}
-```
-
-### Step 2: Safe Mistral API Wrapper
-
-```typescript
-import { Mistral } from '@mistralai/mistralai';
-
-const client = new Mistral({ apiKey: process.env.MISTRAL_API_KEY });
-
-async function safeChatCompletion(
-  messages: Array<{ role: string; content: string }>,
-  options: { redactPII?: boolean; model?: string; auditLog?: boolean } = {},
-) {
-  const processed = messages.map(msg => {
-    if (options.redactPII !== false) {
-      const { cleaned, redactions } = redactPII(msg.content);
-      if (redactions.length > 0 && options.auditLog) {
-        console.warn(`Redacted ${redactions.length} PII items from ${msg.role} message`);
-      }
-      return { ...msg, content: cleaned };
-    }
-    return msg;
-  });
-
-  const response = await client.chat.complete({
-    model: options.model ?? 'mistral-small-latest',
-    messages: processed,
-  });
-
-  // Optionally redact PII in output too
-  const output = response.choices?.[0]?.message?.content ?? '';
-  if (options.redactPII !== false) {
-    const { cleaned } = redactPII(output);
-    if (response.choices?.[0]?.message) {
-      response.choices[0].message.content = cleaned;
-    }
-  }
-
-  return response;
-}
-```
-
-### Step 3: Fine-Tuning Dataset Sanitization
-
-Mistral fine-tuning requires JSONL files. Sanitize before uploading:
-
-```typescript
-import { createReadStream, createWriteStream } from 'fs';
-import { createInterface } from 'readline';
-
-async function sanitizeTrainingData(inputPath: string, outputPath: string) {
-  const rl = createInterface({ input: createReadStream(inputPath) });
-  const out = createWriteStream(outputPath);
-  let lines = 0, redacted = 0;
-
-  for await (const line of rl) {
-    const record = JSON.parse(line);
-    const sanitized = record.messages.map((msg: any) => {
-      const { cleaned, redactions } = redactPII(msg.content);
-      if (redactions.length > 0) redacted++;
-      return { ...msg, content: cleaned };
-    });
-
-    out.write(JSON.stringify({ messages: sanitized }) + '\n');
-    lines++;
-  }
-
-  out.end();
-  console.log(`Processed ${lines} training examples, redacted PII in ${redacted}`);
-  return { lines, redacted };
-}
-```
-
-### Step 4: Conversation History with TTL
-
-```typescript
-class ConversationStore {
-  private store = new Map<string, { messages: any[]; createdAt: number }>();
-  private maxAgeMins: number;
-  private maxMessages: number;
-
-  constructor(maxAgeMins = 60, maxMessages = 100) {
-    this.maxAgeMins = maxAgeMins;
-    this.maxMessages = maxMessages;
-  }
-
-  get(sessionId: string): any[] {
-    const entry = this.store.get(sessionId);
-    if (!entry) return [];
-
-    // Auto-expire
-    if (Date.now() - entry.createdAt > this.maxAgeMins * 60_000) {
-      this.store.delete(sessionId);
-      return [];
-    }
-
-    return entry.messages;
-  }
-
-  append(sessionId: string, message: any): void {
-    const entry = this.store.get(sessionId) ?? { messages: [], createdAt: Date.now() };
-    entry.messages.push(message);
-
-    // Cap message count
-    if (entry.messages.length > this.maxMessages) {
-      const system = entry.messages[0]?.role === 'system' ? [entry.messages[0]] : [];
-      entry.messages = [...system, ...entry.messages.slice(-this.maxMessages)];
-    }
-
-    this.store.set(sessionId, entry);
-  }
-
-  destroy(sessionId: string): void {
-    this.store.delete(sessionId);
-  }
-
-  // GDPR right-to-erasure
-  eraseUser(userId: string): number {
-    let count = 0;
-    for (const [key] of this.store) {
-      if (key.startsWith(userId)) {
-        this.store.delete(key);
-        count++;
-      }
-    }
-    return count;
-  }
-}
-```
-
-### Step 5: Audit Logging
-
-```typescript
-interface AuditEntry {
-  timestamp: string;
-  sessionId: string;
-  model: string;
-  inputChars: number;
-  outputChars: number;
-  piiRedacted: number;
-  tokensUsed: { prompt: number; completion: number };
-}
-
-function logAudit(entry: AuditEntry): void {
-  // Log metadata only — never log actual message content
-  console.log(JSON.stringify({
-    ...entry,
-    // Intentionally exclude message content for compliance
-  }));
-}
-```
+Sensitive data, uploads, batch/stateful use, retention, region changes, training/fine-tuning, and deletion require privacy/security approval. Deprecated fine-tuning docs do not establish a current supported workflow.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| PII leak to API | Regex missed pattern | Add domain-specific rules (e.g., patient IDs) |
-| Fine-tune rejected | Unsanitized data in JSONL | Run sanitization before `client.files.upload()` |
-| Conversation too long | No retention policy | Set max age and message count limits |
-| GDPR request | Right to erasure | Implement `eraseUser()` across all stores |
-
-## Examples
-
-### Safe Embedding Generation
-
-```typescript
-async function safeEmbed(texts: string[]) {
-  const cleaned = texts.map(t => redactPII(t).cleaned);
-  return client.embeddings.create({
-    model: 'mistral-embed',
-    inputs: cleaned,
-  });
-}
-```
-
-### Batch API with PII Redaction
-
-```python
-import json
-
-def sanitize_batch_file(input_path: str, output_path: str):
-    """Sanitize a Mistral batch JSONL file before submission."""
-    with open(input_path) as f_in, open(output_path, "w") as f_out:
-        for line in f_in:
-            record = json.loads(line)
-            for msg in record["body"]["messages"]:
-                msg["content"] = redact_pii(msg["content"])
-            f_out.write(json.dumps(record) + "\n")
-```
-
-## Resources
-
-- [Mistral Data Policy](https://docs.mistral.ai/deployment/ai-studio/)
-- [Fine-Tuning Guide](https://docs.mistral.ai/capabilities/finetuning/)
-- [Batch Inference](https://docs.mistral.ai/capabilities/batch/)
-- GDPR Compliance
+- App deletion does not prove provider or index deletion.
+- Embeddings, OCR, and transcripts remain sensitive derived data.
+- Assuming ZDR for stateful APIs contradicts current exclusions.
 
 ## Output
 
-- PII redaction layer for all API calls
-- Safe chat wrapper with audit logging
-- Fine-tuning dataset sanitization pipeline
-- Conversation store with TTL and GDPR erasure
+Return the data and endpoint map, purpose, ZDR evidence, stores and retention, deletion ledger, owners, risks, and receipts. Label exclusions and unknown provider state.
+
+## Examples
+
+- Track document upload through OCR, index, backup, and deletion.
+- Reject fine-tuning upload until a current supported contract and approval exist.
+
+## Validation
+
+Trace records end to end, test tenant denial, retention, deletion, and restore behavior, and verify every ZDR assertion. Fail the review when any derived artifact lacks an owner.
+
+## Resources
+
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable endpoints, models, limits, prices, preview status, or retention.
+- Record live account observations as environment-specific evidence, not universal Mistral guarantees.
