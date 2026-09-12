@@ -3,7 +3,7 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "3c075ef908758d88b290e1a3d5425131a44dda5be64d72778d853a937e20e077",
+    "sha256": "ea761f7c7579840ed1f1841796e87e0a856bcfcf93fdb70ab49c40d8440509e4",
     "artifact_count": 3491
   },
   "rule_order": [
@@ -26064,7 +26064,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-ci-integration/SKILL.md",
       "grade": "A",
-      "score": 92,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26075,7 +26075,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-common-errors/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26086,7 +26086,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-core-workflow-a/SKILL.md",
       "grade": "A",
-      "score": 92,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26097,7 +26097,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-core-workflow-b/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26108,7 +26108,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-cost-tuning/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26119,7 +26119,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-data-handling/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26129,28 +26129,6 @@
     },
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-data-sync/SKILL.md",
-      "grade": "B",
-      "score": 89,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/navan-pack/skills/navan-debug-bundle/SKILL.md",
-      "grade": "A",
-      "score": 96,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/navan-pack/skills/navan-deploy-integration/SKILL.md",
       "grade": "A",
       "score": 95,
       "diagnostics": [],
@@ -26161,9 +26139,31 @@
       ]
     },
     {
+      "path": "plugins/saas-packs/navan-pack/skills/navan-debug-bundle/SKILL.md",
+      "grade": "A",
+      "score": 98,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
+      "reason_codes": [
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/navan-pack/skills/navan-deploy-integration/SKILL.md",
+      "grade": "A",
+      "score": 98,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
+      "reason_codes": [
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
       "path": "plugins/saas-packs/navan-pack/skills/navan-enterprise-rbac/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 95,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26174,7 +26174,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-entity-management/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 95,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26185,7 +26185,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-hello-world/SKILL.md",
       "grade": "A",
-      "score": 91,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26196,7 +26196,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-incident-runbook/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26207,7 +26207,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-install-auth/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26218,7 +26218,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-local-dev-loop/SKILL.md",
       "grade": "A",
-      "score": 92,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26229,7 +26229,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-migration-deep-dive/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 95,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26240,7 +26240,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-multi-env-setup/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26251,7 +26251,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-observability/SKILL.md",
       "grade": "A",
-      "score": 92,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26262,7 +26262,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-performance-tuning/SKILL.md",
       "grade": "A",
-      "score": 92,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26273,7 +26273,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-prod-checklist/SKILL.md",
       "grade": "A",
-      "score": 97,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26284,7 +26284,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-rate-limits/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26295,7 +26295,7 @@
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-reference-architecture/SKILL.md",
       "grade": "A",
-      "score": 94,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26305,28 +26305,6 @@
     },
     {
       "path": "plugins/saas-packs/navan-pack/skills/navan-sdk-patterns/SKILL.md",
-      "grade": "B",
-      "score": 87,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/navan-pack/skills/navan-security-basics/SKILL.md",
-      "grade": "A",
-      "score": 90,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/navan-pack/skills/navan-upgrade-migration/SKILL.md",
       "grade": "A",
       "score": 98,
       "diagnostics": [],
@@ -26337,9 +26315,31 @@
       ]
     },
     {
+      "path": "plugins/saas-packs/navan-pack/skills/navan-security-basics/SKILL.md",
+      "grade": "A",
+      "score": 98,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
+      "reason_codes": [
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/navan-pack/skills/navan-upgrade-migration/SKILL.md",
+      "grade": "A",
+      "score": 96,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
+      "reason_codes": [
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
       "path": "plugins/saas-packs/navan-pack/skills/navan-webhooks-events/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",

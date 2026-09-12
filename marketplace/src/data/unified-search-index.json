@@ -815,6 +815,7 @@
       "example",
       "excel",
       "exceptions",
+      "expense",
       "experimentation",
       "experiments",
       "explain",
@@ -12851,13 +12852,16 @@
       "slug": "navan-pack",
       "name": "navan-pack",
       "displayName": "navan pack",
-      "description": "Claude Code skill pack for Navan (26 skills)",
+      "description": "Operator-grade Navan pack with 26 current travel, expense, identity, security, reliability, and migration workflows",
       "category": "saas-packs",
       "keywords": [
         "navan",
         "saas",
-        "sdk",
-        "integration"
+        "travel",
+        "expense",
+        "identity",
+        "integration",
+        "governance"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -12865,15 +12869,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.8.0",
+      "version": "1.9.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 26,
-      "verificationScore": 94,
+      "verificationScore": 97,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "navan pack claude code skill pack for navan (26 skills) saas-packs navan saas sdk integration"
+      "searchText": "navan pack operator-grade navan pack with 26 current travel, expense, identity, security, reliability, and migration workflows saas-packs navan saas travel expense identity integration governance"
     },
     {
       "type": "plugin",
@@ -56752,591 +56756,572 @@
       "id": "navan-ci-integration",
       "slug": "navan-ci-integration",
       "name": "navan-ci-integration",
-      "description": "Use when setting up CI/CD pipelines that validate Navan API integrations, run booking data health checks, or generate automated compliance reports. Trigger with \"navan ci integration\" or \"navan pipeline\" or \"navan github actions\".",
+      "description": "Gate Navan integration changes with deterministic fixtures and an isolated optional live smoke. Use when adding CI checks for adapters or data pipelines. Trigger with \"test Navan in CI\", \"Navan contract tests\", or \"secure Navan CI\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
-        "Bash(git:*)",
-        "Bash(gh:*)",
+        "Glob",
         "Grep",
-        "Glob"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-ci-integration use when setting up ci/cd pipelines that validate navan api integrations, run booking data health checks, or generate automated compliance reports. trigger with \"navan ci integration\" or \"navan pipeline\" or \"navan github actions\". saas-packs read write edit bash(git:*) bash(gh:*) grep glob "
+      "searchText": "navan-ci-integration gate navan integration changes with deterministic fixtures and an isolated optional live smoke. use when adding ci checks for adapters or data pipelines. trigger with \"test navan in ci\", \"navan contract tests\", or \"secure navan ci\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-common-errors",
       "slug": "navan-common-errors",
       "name": "navan-common-errors",
-      "description": "Diagnose and fix common Navan API errors with targeted fix procedures. Use when an API call returns an unexpected HTTP error or when debugging production failures. Trigger with \"navan error\", \"fix navan\", \"debug navan\", \"navan 401\", \"navan 403\", \"navan 429\".",
+      "description": "Triage Navan integration failures without exposing travel or payment data or applying blind retries. Use when a contracted API, SFTP, SCIM, or direct integration fails. Trigger with \"Navan error\", \"Navan sync failed\", or \"debug Navan integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-common-errors diagnose and fix common navan api errors with targeted fix procedures. use when an api call returns an unexpected http error or when debugging production failures. trigger with \"navan error\", \"fix navan\", \"debug navan\", \"navan 401\", \"navan 403\", \"navan 429\". saas-packs read grep bash(curl:*) "
+      "searchText": "navan-common-errors triage navan integration failures without exposing travel or payment data or applying blind retries. use when a contracted api, sftp, scim, or direct integration fails. trigger with \"navan error\", \"navan sync failed\", or \"debug navan integration\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-core-workflow-a",
       "slug": "navan-core-workflow-a",
       "name": "navan-core-workflow-a",
-      "description": "Manage the complete Navan travel booking lifecycle via REST API. Use when building travel dashboards, automating trip reporting, or syncing booking data to internal systems. Trigger with \"navan travel workflow\", \"navan booking management\", \"navan trip retrieval\".",
+      "description": "Implement a governed downstream booking-data workflow from Navan into an approved system. Use when consuming the Booking API or booking-data integration. Trigger with \"sync Navan bookings\", \"ingest travel data\", or \"reconcile booking export\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-core-workflow-a manage the complete navan travel booking lifecycle via rest api. use when building travel dashboards, automating trip reporting, or syncing booking data to internal systems. trigger with \"navan travel workflow\", \"navan booking management\", \"navan trip retrieval\". saas-packs read write edit bash(npm:*) bash(curl:*) grep "
+      "searchText": "navan-core-workflow-a implement a governed downstream booking-data workflow from navan into an approved system. use when consuming the booking api or booking-data integration. trigger with \"sync navan bookings\", \"ingest travel data\", or \"reconcile booking export\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-core-workflow-b",
       "slug": "navan-core-workflow-b",
       "name": "navan-core-workflow-b",
-      "description": "Manage Navan expense reporting, transaction data, and ERP synchronization. Use when building expense pipelines, automating approval workflows, or syncing transactions to accounting systems. Trigger with \"navan expense management\", \"navan expense workflow\", \"navan transaction sync\".",
+      "description": "Implement reconciliation of contracted Navan expense data with an ERP or finance control plane. Use when operating the Expense API or a direct accounting integration. Trigger with \"sync Navan expenses\", \"reconcile Navan spend\", or \"export Navan transactions\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-core-workflow-b manage navan expense reporting, transaction data, and erp synchronization. use when building expense pipelines, automating approval workflows, or syncing transactions to accounting systems. trigger with \"navan expense management\", \"navan expense workflow\", \"navan transaction sync\". saas-packs read write edit bash(npm:*) bash(curl:*) grep "
+      "searchText": "navan-core-workflow-b implement reconciliation of contracted navan expense data with an erp or finance control plane. use when operating the expense api or a direct accounting integration. trigger with \"sync navan expenses\", \"reconcile navan spend\", or \"export navan transactions\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-cost-tuning",
       "slug": "navan-cost-tuning",
       "name": "navan-cost-tuning",
-      "description": "Use when optimizing travel spend with Navan's policy engine, analyzing booking patterns for savings, and configuring the Navan Rewards program. Trigger with \"navan cost tuning\" or \"navan travel savings\" or \"navan spend optimization\".",
+      "description": "Analyze Navan travel, expense, integration, and operating costs without freezing mutable prices. Use when setting budgets or evaluating workflow tradeoffs. Trigger with \"reduce Navan cost\", \"Navan budget\", or \"control travel spend\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
-        "Bash(curl:*)",
+        "Glob",
         "Grep",
-        "Glob"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-cost-tuning use when optimizing travel spend with navan's policy engine, analyzing booking patterns for savings, and configuring the navan rewards program. trigger with \"navan cost tuning\" or \"navan travel savings\" or \"navan spend optimization\". saas-packs read write edit bash(curl:*) grep glob "
+      "searchText": "navan-cost-tuning analyze navan travel, expense, integration, and operating costs without freezing mutable prices. use when setting budgets or evaluating workflow tradeoffs. trigger with \"reduce navan cost\", \"navan budget\", or \"control travel spend\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-data-handling",
       "slug": "navan-data-handling",
       "name": "navan-data-handling",
-      "description": "Extract and transform Navan booking and transaction data using pagination, filtering, and data pipeline connectors. Use when building data warehouses, analytics dashboards, or debugging data quality issues with Navan data. Trigger with \"navan data handling\", \"navan data extraction\", \"navan pagination\".",
+      "description": "Manage Navan personal, corporate, travel, payment, receipt, profile, and location data across integrations. Use when defining collection, sharing, retention, or AI access. Trigger with \"Navan data handling\", \"Navan privacy\", or \"classify Navan data\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-data-handling extract and transform navan booking and transaction data using pagination, filtering, and data pipeline connectors. use when building data warehouses, analytics dashboards, or debugging data quality issues with navan data. trigger with \"navan data handling\", \"navan data extraction\", \"navan pagination\". saas-packs read write edit bash(npm:*) bash(curl:*) bash(pip:*) grep "
+      "searchText": "navan-data-handling manage navan personal, corporate, travel, payment, receipt, profile, and location data across integrations. use when defining collection, sharing, retention, or ai access. trigger with \"navan data handling\", \"navan privacy\", or \"classify navan data\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-data-sync",
       "slug": "navan-data-sync",
       "name": "navan-data-sync",
-      "description": "Implement incremental sync strategies for Navan BOOKING and TRANSACTION data with ETL pipeline patterns. Use when setting up production data pipelines, debugging sync drift, or adding real-time event processing. Trigger with \"navan data sync\", \"navan incremental sync\", \"navan ETL pipeline\".",
+      "description": "Synchronize Navan booking, expense, identity, and file-delivered data according to each documented source contract. Use when building durable ETL or correcting sync drift. Trigger with \"Navan data sync\", \"Navan ETL\", or \"reconcile Navan feeds\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-data-sync implement incremental sync strategies for navan booking and transaction data with etl pipeline patterns. use when setting up production data pipelines, debugging sync drift, or adding real-time event processing. trigger with \"navan data sync\", \"navan incremental sync\", \"navan etl pipeline\". saas-packs read write edit bash(npm:*) bash(curl:*) bash(pip:*) grep "
+      "searchText": "navan-data-sync synchronize navan booking, expense, identity, and file-delivered data according to each documented source contract. use when building durable etl or correcting sync drift. trigger with \"navan data sync\", \"navan etl\", or \"reconcile navan feeds\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-debug-bundle",
       "slug": "navan-debug-bundle",
       "name": "navan-debug-bundle",
-      "description": "Use when collecting diagnostic data from a Navan API integration — OAuth token inspection, API response capture, connectivity testing, and request/response logging. Trigger with \"navan debug bundle\" or \"debug navan api\".",
+      "description": "Assemble a content-free Navan integration support bundle for operators or vendor escalation. Use when triage needs reproducible evidence. Trigger with \"collect Navan diagnostics\", \"Navan support bundle\", or \"sanitize Navan logs\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(curl:*)",
-        "Bash(jq:*)",
-        "Bash(tar:*)",
-        "Bash(mkdir:*)",
-        "Bash(date:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-debug-bundle use when collecting diagnostic data from a navan api integration — oauth token inspection, api response capture, connectivity testing, and request/response logging. trigger with \"navan debug bundle\" or \"debug navan api\". saas-packs read bash(curl:*) bash(jq:*) bash(tar:*) bash(mkdir:*) bash(date:*) grep "
+      "searchText": "navan-debug-bundle assemble a content-free navan integration support bundle for operators or vendor escalation. use when triage needs reproducible evidence. trigger with \"collect navan diagnostics\", \"navan support bundle\", or \"sanitize navan logs\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-deploy-integration",
       "slug": "navan-deploy-integration",
       "name": "navan-deploy-integration",
-      "description": "Use when deploying Navan integrations with ERP systems (NetSuite, Sage Intacct, Xero), HRIS platforms (Workday, BambooHR), or identity providers (Okta, Azure AD). Trigger with \"navan deploy integration\" or \"navan erp setup\" or \"navan sso deployment\".",
+      "description": "Deploy a Navan integration with tenant isolation, canary controls, and reversible data flow. Use when releasing an API, file, identity, or finance connector. Trigger with \"deploy Navan integration\", \"release Navan connector\", or \"canary Navan sync\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
-        "Bash(curl:*)",
+        "Glob",
         "Grep",
-        "Glob"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-deploy-integration use when deploying navan integrations with erp systems (netsuite, sage intacct, xero), hris platforms (workday, bamboohr), or identity providers (okta, azure ad). trigger with \"navan deploy integration\" or \"navan erp setup\" or \"navan sso deployment\". saas-packs read write edit bash(curl:*) grep glob "
+      "searchText": "navan-deploy-integration deploy a navan integration with tenant isolation, canary controls, and reversible data flow. use when releasing an api, file, identity, or finance connector. trigger with \"deploy navan integration\", \"release navan connector\", or \"canary navan sync\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-enterprise-rbac",
       "slug": "navan-enterprise-rbac",
       "name": "navan-enterprise-rbac",
-      "description": "Configure Navan admin roles, travel policies, approval workflows, and department-level access controls. Use when setting up enterprise RBAC, policy enforcement, or approval chains in Navan. Trigger with \"navan rbac\", \"navan roles\", \"navan travel policy\", \"navan approval workflow\".",
+      "description": "Map Navan account roles and integration privileges to application-owned enterprise controls. Use when designing admin, API, SFTP, SCIM, SSO, finance, or support access. Trigger with \"Navan RBAC\", \"Navan permissions\", or \"review Navan access\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-enterprise-rbac configure navan admin roles, travel policies, approval workflows, and department-level access controls. use when setting up enterprise rbac, policy enforcement, or approval chains in navan. trigger with \"navan rbac\", \"navan roles\", \"navan travel policy\", \"navan approval workflow\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "navan-enterprise-rbac map navan account roles and integration privileges to application-owned enterprise controls. use when designing admin, api, sftp, scim, sso, finance, or support access. trigger with \"navan rbac\", \"navan permissions\", or \"review navan access\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-entity-management",
       "slug": "navan-entity-management",
       "name": "navan-entity-management",
-      "description": "Manage Navan users, departments, cost centers, and approval chains via API and SCIM provisioning. Use when onboarding departments, integrating identity providers, or auditing user access. Trigger with \"navan entity management\", \"navan user management\", \"navan SCIM setup\".",
+      "description": "Govern workforce, organization, and access lifecycle changes across Navan and enterprise identity sources. Use when operating HRIS, SCIM, SSO, or manual provisioning. Trigger with \"manage Navan users\", \"Navan SCIM\", or \"offboard Navan traveler\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-entity-management manage navan users, departments, cost centers, and approval chains via api and scim provisioning. use when onboarding departments, integrating identity providers, or auditing user access. trigger with \"navan entity management\", \"navan user management\", \"navan scim setup\". saas-packs read write edit bash(npm:*) bash(curl:*) grep "
+      "searchText": "navan-entity-management govern workforce, organization, and access lifecycle changes across navan and enterprise identity sources. use when operating hris, scim, sso, or manual provisioning. trigger with \"manage navan users\", \"navan scim\", or \"offboard navan traveler\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-hello-world",
       "slug": "navan-hello-world",
       "name": "navan-hello-world",
-      "description": "Make your first Navan API call to retrieve trip and user data. Use when verifying a new Navan integration works end-to-end after auth setup. Trigger with \"navan hello world\", \"navan example\", \"test navan api\", \"first navan call\".",
+      "description": "Prove one contracted Navan integration can authenticate and return a bounded read-only response without inventing a universal API. Use when completing access intake. Trigger with \"test Navan access\", \"first Navan read\", or \"Navan connectivity proof\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-hello-world make your first navan api call to retrieve trip and user data. use when verifying a new navan integration works end-to-end after auth setup. trigger with \"navan hello world\", \"navan example\", \"test navan api\", \"first navan call\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "navan-hello-world prove one contracted navan integration can authenticate and return a bounded read-only response without inventing a universal api. use when completing access intake. trigger with \"test navan access\", \"first navan read\", or \"navan connectivity proof\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-incident-runbook",
       "slug": "navan-incident-runbook",
       "name": "navan-incident-runbook",
-      "description": "Use when responding to Navan platform incidents — flight cancellations, booking API failures, expense sync outages, or OAuth authentication errors. Trigger with \"navan incident runbook\" or \"navan outage response\".",
+      "description": "Manage containment, reconciliation, and recovery for a Navan integration incident. Use when handling credential, privacy, booking, expense, identity, or delivery failures. Trigger with \"Navan incident\", \"Navan outage\", or \"Navan data exposure\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Bash(jq:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-incident-runbook use when responding to navan platform incidents — flight cancellations, booking api failures, expense sync outages, or oauth authentication errors. trigger with \"navan incident runbook\" or \"navan outage response\". saas-packs read write edit bash(curl:*) bash(jq:*) grep "
+      "searchText": "navan-incident-runbook manage containment, reconciliation, and recovery for a navan integration incident. use when handling credential, privacy, booking, expense, identity, or delivery failures. trigger with \"navan incident\", \"navan outage\", or \"navan data exposure\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-install-auth",
       "slug": "navan-install-auth",
       "name": "navan-install-auth",
-      "description": "Set up OAuth 2.0 authentication for the Navan REST API. Use when configuring a new Navan integration or rotating API credentials. Trigger with \"install navan\", \"setup navan auth\", \"navan credentials\", \"navan oauth\".",
+      "description": "Establish a Navan integration access contract without guessing endpoints, grants, or scopes. Use when onboarding a Booking API, Expense API, SFTP, SCIM, SSO, or direct integration. Trigger with \"set up Navan access\", \"authenticate Navan\", or \"review Navan credentials\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-install-auth set up oauth 2.0 authentication for the navan rest api. use when configuring a new navan integration or rotating api credentials. trigger with \"install navan\", \"setup navan auth\", \"navan credentials\", \"navan oauth\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "navan-install-auth establish a navan integration access contract without guessing endpoints, grants, or scopes. use when onboarding a booking api, expense api, sftp, scim, sso, or direct integration. trigger with \"set up navan access\", \"authenticate navan\", or \"review navan credentials\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-local-dev-loop",
       "slug": "navan-local-dev-loop",
       "name": "navan-local-dev-loop",
-      "description": "Set up a local development environment for Navan API integrations with token caching and request logging. Use when starting a new Navan project or debugging API issues locally. Trigger with \"navan local dev\", \"navan dev setup\", \"navan local dev loop\", \"navan dev environment\".",
+      "description": "Develop Navan integrations against sanitized contract fixtures with networking denied by default. Use when changing adapters, mappings, or reconciliation logic. Trigger with \"develop Navan locally\", \"mock Navan data\", or \"add Navan fixtures\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-local-dev-loop set up a local development environment for navan api integrations with token caching and request logging. use when starting a new navan project or debugging api issues locally. trigger with \"navan local dev\", \"navan dev setup\", \"navan local dev loop\", \"navan dev environment\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "navan-local-dev-loop develop navan integrations against sanitized contract fixtures with networking denied by default. use when changing adapters, mappings, or reconciliation logic. trigger with \"develop navan locally\", \"mock navan data\", or \"add navan fixtures\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-migration-deep-dive",
       "slug": "navan-migration-deep-dive",
       "name": "navan-migration-deep-dive",
-      "description": "Use when planning or executing a migration from SAP Concur or legacy TMC to Navan — data migration, user provisioning, policy recreation, and cutover planning. Trigger with \"navan migration deep dive\" or \"migrate to navan from concur\".",
+      "description": "Migrate travel or expense data flows to Navan with staged cutover and financial and traveler reconciliation. Use when replacing a TMC, expense platform, card feed, or custom integration. Trigger with \"migrate to Navan\", \"Navan cutover\", or \"replace travel platform\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Bash(jq:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-migration-deep-dive use when planning or executing a migration from sap concur or legacy tmc to navan — data migration, user provisioning, policy recreation, and cutover planning. trigger with \"navan migration deep dive\" or \"migrate to navan from concur\". saas-packs read write edit bash(curl:*) bash(jq:*) grep "
+      "searchText": "navan-migration-deep-dive migrate travel or expense data flows to navan with staged cutover and financial and traveler reconciliation. use when replacing a tmc, expense platform, card feed, or custom integration. trigger with \"migrate to navan\", \"navan cutover\", or \"replace travel platform\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-multi-env-setup",
       "slug": "navan-multi-env-setup",
       "name": "navan-multi-env-setup",
-      "description": "Set up dev/staging/prod environment separation for Navan integrations without a sandbox API. Use when configuring multiple environments, building CI test pipelines, or setting up local development. Trigger with \"navan environments\", \"navan multi env\", \"navan dev setup\", \"navan mock server\".",
+      "description": "Separate Navan development, test, staging, and production identities, data, and destinations. Use when configuring multiple environments or tenants. Trigger with \"Navan environments\", \"separate Navan tenants\", or \"Navan staging setup\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-multi-env-setup set up dev/staging/prod environment separation for navan integrations without a sandbox api. use when configuring multiple environments, building ci test pipelines, or setting up local development. trigger with \"navan environments\", \"navan multi env\", \"navan dev setup\", \"navan mock server\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "navan-multi-env-setup separate navan development, test, staging, and production identities, data, and destinations. use when configuring multiple environments or tenants. trigger with \"navan environments\", \"separate navan tenants\", or \"navan staging setup\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-observability",
       "slug": "navan-observability",
       "name": "navan-observability",
-      "description": "Use when setting up monitoring, logging, and alerting for Navan API integrations in production environments. Trigger with \"navan observability\" or \"navan monitoring\" or \"navan api dashboards\".",
+      "description": "Observe Navan integrations with content-free signals that support reconciliation and incidents. Use when defining logs, metrics, traces, and alerts. Trigger with \"monitor Navan\", \"Navan observability\", or \"alert on Navan sync\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
-        "Bash(curl:*)",
+        "Glob",
         "Grep",
-        "Glob"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-observability use when setting up monitoring, logging, and alerting for navan api integrations in production environments. trigger with \"navan observability\" or \"navan monitoring\" or \"navan api dashboards\". saas-packs read write edit bash(curl:*) grep glob "
+      "searchText": "navan-observability observe navan integrations with content-free signals that support reconciliation and incidents. use when defining logs, metrics, traces, and alerts. trigger with \"monitor navan\", \"navan observability\", or \"alert on navan sync\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-performance-tuning",
       "slug": "navan-performance-tuning",
       "name": "navan-performance-tuning",
-      "description": "Use when optimizing Navan API call patterns for high-volume integrations — caching, batching, connection pooling, and pagination strategies. Trigger with \"navan performance tuning\" or \"navan api optimization\" or \"navan caching\".",
+      "description": "Tune a Navan data pipeline against measured vendor, destination, privacy, and deadline constraints. Use when extraction or reconciliation misses its service objective. Trigger with \"speed up Navan sync\", \"Navan latency\", or \"Navan pipeline performance\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
-        "Bash(curl:*)",
+        "Glob",
         "Grep",
-        "Glob"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-performance-tuning use when optimizing navan api call patterns for high-volume integrations — caching, batching, connection pooling, and pagination strategies. trigger with \"navan performance tuning\" or \"navan api optimization\" or \"navan caching\". saas-packs read write edit bash(curl:*) grep glob "
+      "searchText": "navan-performance-tuning tune a navan data pipeline against measured vendor, destination, privacy, and deadline constraints. use when extraction or reconciliation misses its service objective. trigger with \"speed up navan sync\", \"navan latency\", or \"navan pipeline performance\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-prod-checklist",
       "slug": "navan-prod-checklist",
       "name": "navan-prod-checklist",
-      "description": "Use when validating production readiness for a Navan API integration — credential rotation, alerting, rate limits, SSO, SCIM, and compliance audit trails. Trigger with \"navan prod checklist\" or \"navan production readiness\".",
+      "description": "Audit whether a Navan integration is ready for production using evidence and rollback criteria. Use when preparing to enable a live API, transfer, identity, or finance workflow. Trigger with \"ship Navan integration\", \"Navan go-live\", or \"Navan production checklist\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Bash(jq:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-prod-checklist use when validating production readiness for a navan api integration — credential rotation, alerting, rate limits, sso, scim, and compliance audit trails. trigger with \"navan prod checklist\" or \"navan production readiness\". saas-packs read write edit bash(curl:*) bash(jq:*) grep "
+      "searchText": "navan-prod-checklist audit whether a navan integration is ready for production using evidence and rollback criteria. use when preparing to enable a live api, transfer, identity, or finance workflow. trigger with \"ship navan integration\", \"navan go-live\", or \"navan production checklist\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-rate-limits",
       "slug": "navan-rate-limits",
       "name": "navan-rate-limits",
-      "description": "Implement adaptive rate-limiting for the Navan REST API with exponential backoff and request queuing. Use when building bulk data operations or encountering 429 errors from Navan. Trigger with \"navan rate limits\", \"navan throttling\", \"navan 429\".",
+      "description": "Configure Navan integration concurrency and retry controls from the tenant contract and observed responses. Use when controlling throughput or throttling. Trigger with \"Navan rate limit\", \"throttle Navan sync\", or \"Navan backpressure\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-rate-limits implement adaptive rate-limiting for the navan rest api with exponential backoff and request queuing. use when building bulk data operations or encountering 429 errors from navan. trigger with \"navan rate limits\", \"navan throttling\", \"navan 429\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "navan-rate-limits configure navan integration concurrency and retry controls from the tenant contract and observed responses. use when controlling throughput or throttling. trigger with \"navan rate limit\", \"throttle navan sync\", or \"navan backpressure\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-reference-architecture",
       "slug": "navan-reference-architecture",
       "name": "navan-reference-architecture",
-      "description": "Use when designing a production Navan API integration architecture — API gateway, token management, data sync pipelines, ERP connectors, and monitoring stack. Trigger with \"navan reference architecture\" or \"navan integration architecture\".",
+      "description": "Design a Navan integration architecture with explicit trust, data, identity, and accounting boundaries. Use when building a multi-system travel or expense flow. Trigger with \"design Navan architecture\", \"Navan integration diagram\", or \"Navan data platform\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Bash(jq:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-reference-architecture use when designing a production navan api integration architecture — api gateway, token management, data sync pipelines, erp connectors, and monitoring stack. trigger with \"navan reference architecture\" or \"navan integration architecture\". saas-packs read write edit bash(curl:*) bash(jq:*) grep "
+      "searchText": "navan-reference-architecture design a navan integration architecture with explicit trust, data, identity, and accounting boundaries. use when building a multi-system travel or expense flow. trigger with \"design navan architecture\", \"navan integration diagram\", or \"navan data platform\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-sdk-patterns",
       "slug": "navan-sdk-patterns",
       "name": "navan-sdk-patterns",
-      "description": "Build a typed API wrapper around Navan REST endpoints since no official SDK exists. Use when you need production-grade API access with auto token refresh, retry logic, and typed responses. Trigger with \"navan sdk patterns\", \"navan api wrapper\", \"navan client class\", \"navan typed client\".",
+      "description": "Design an application-owned Navan adapter pinned to the tenant's actual integration contract. Use when wrapping Booking API, Expense API, SFTP, or direct integration behavior. Trigger with \"build a Navan client\", \"wrap Navan API\", or \"type Navan responses\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-sdk-patterns build a typed api wrapper around navan rest endpoints since no official sdk exists. use when you need production-grade api access with auto token refresh, retry logic, and typed responses. trigger with \"navan sdk patterns\", \"navan api wrapper\", \"navan client class\", \"navan typed client\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "navan-sdk-patterns design an application-owned navan adapter pinned to the tenant's actual integration contract. use when wrapping booking api, expense api, sftp, or direct integration behavior. trigger with \"build a navan client\", \"wrap navan api\", or \"type navan responses\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-security-basics",
       "slug": "navan-security-basics",
       "name": "navan-security-basics",
-      "description": "Secure Navan API credentials with OAuth 2.0 best practices, SSO/SAML, and SCIM provisioning. Use when hardening a Navan integration, rotating credentials, or configuring identity provider SSO. Trigger with \"navan security\", \"navan sso\", \"navan credentials\", \"navan scim\".",
+      "description": "Threat-model a Navan integration across identity, travel, expense, payment, file, and downstream systems. Use when performing design or security review. Trigger with \"secure Navan integration\", \"Navan threat model\", or \"review Navan data flow\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-security-basics secure navan api credentials with oauth 2.0 best practices, sso/saml, and scim provisioning. use when hardening a navan integration, rotating credentials, or configuring identity provider sso. trigger with \"navan security\", \"navan sso\", \"navan credentials\", \"navan scim\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "navan-security-basics threat-model a navan integration across identity, travel, expense, payment, file, and downstream systems. use when performing design or security review. trigger with \"secure navan integration\", \"navan threat model\", or \"review navan data flow\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-upgrade-migration",
       "slug": "navan-upgrade-migration",
       "name": "navan-upgrade-migration",
-      "description": "Use when handling Navan API changes in production — defensive coding patterns, schema validation, deprecation monitoring, and gradual rollout strategies for unversioned APIs. Trigger with \"navan upgrade migration\" or \"navan api change handling\".",
+      "description": "Upgrade a Navan API, file, identity, or direct-integration contract without silent data loss. Use when documentation, schemas, or tenant features change. Trigger with \"upgrade Navan integration\", \"Navan schema changed\", or \"migrate Navan API\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Bash(jq:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-upgrade-migration use when handling navan api changes in production — defensive coding patterns, schema validation, deprecation monitoring, and gradual rollout strategies for unversioned apis. trigger with \"navan upgrade migration\" or \"navan api change handling\". saas-packs read write edit bash(curl:*) bash(jq:*) grep "
+      "searchText": "navan-upgrade-migration upgrade a navan api, file, identity, or direct-integration contract without silent data loss. use when documentation, schemas, or tenant features change. trigger with \"upgrade navan integration\", \"navan schema changed\", or \"migrate navan api\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "navan-webhooks-events",
       "slug": "navan-webhooks-events",
       "name": "navan-webhooks-events",
-      "description": "Set up webhook listeners for real-time Navan event notifications. Use when you need to receive booking, expense, or travel disruption events from Navan. Trigger with \"navan webhooks\", \"navan events\", \"navan webhook setup\".",
+      "description": "Validate and operate the event or change-delivery mechanism actually enabled for a Navan tenant. Use when evaluating callbacks, API polling, files, or direct integrations. Trigger with \"Navan events\", \"Navan webhook\", or \"real-time Navan sync\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.8.0",
+      "version": "1.9.0",
       "parentPlugin": {
         "name": "navan-pack",
         "category": "saas-packs"
       },
-      "searchText": "navan-webhooks-events set up webhook listeners for real-time navan event notifications. use when you need to receive booking, expense, or travel disruption events from navan. trigger with \"navan webhooks\", \"navan events\", \"navan webhook setup\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "navan-webhooks-events validate and operate the event or change-delivery mechanism actually enabled for a navan tenant. use when evaluating callbacks, api polling, files, or direct integrations. trigger with \"navan events\", \"navan webhook\", or \"real-time navan sync\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",

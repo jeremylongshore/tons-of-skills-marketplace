@@ -1,7 +1,7 @@
 {
   "name": "navan-pack",
-  "version": "1.8.0",
-  "description": "Claude Code skill pack for Navan (26 skills)",
+  "version": "1.9.0",
+  "description": "Operator-grade Navan pack with 26 current travel, expense, identity, security, reliability, and migration workflows",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,11 @@
   "license": "MIT",
   "keywords": [
     "navan",
-    "navan",
     "saas",
-    "sdk",
-    "integration"
+    "travel",
+    "expense",
+    "identity",
+    "integration",
+    "governance"
   ]
 }
