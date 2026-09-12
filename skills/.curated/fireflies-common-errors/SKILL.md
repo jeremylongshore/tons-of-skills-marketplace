@@ -42,7 +42,6 @@ For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret
 6. Reproduce with synthetic variables or metadata-only selections.
 7. Return a redacted diagnosis and the smallest safe next action.
 
-
 ## Tool Discipline
 
 Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
@@ -69,7 +68,6 @@ Before reporting success, rerun the smallest relevant deterministic check, compa
 
 - "Review fireflies error taxonomy and recovery" produces a bounded plan and redacted receipt.
 - A request that widens access or mutates production is paused at the approval boundary.
-
 
 ## Resources
 

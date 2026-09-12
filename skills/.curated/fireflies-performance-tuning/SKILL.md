@@ -42,7 +42,6 @@ For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret
 6. Limit concurrency below the applicable plan and operation budgets.
 7. Compare before/after metrics on synthetic or approved records and keep rollback settings.
 
-
 ## Tool Discipline
 
 Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
@@ -69,7 +68,6 @@ Before reporting success, rerun the smallest relevant deterministic check, compa
 
 - "Review fireflies graphql performance tuning" produces a bounded plan and redacted receipt.
 - A request that widens access or mutates production is paused at the approval boundary.
-
 
 ## Resources
 

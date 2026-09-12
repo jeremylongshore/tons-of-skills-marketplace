@@ -42,7 +42,6 @@ For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret
 6. Test an invalid-key path and confirm logs redact Authorization and response data.
 7. Document rotation and revocation steps before enabling production access.
 
-
 ## Tool Discipline
 
 Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
@@ -69,7 +68,6 @@ Before reporting success, rerun the smallest relevant deterministic check, compa
 
 - "Prove staging auth" returns only the principal and a redacted request receipt.
 - "Use this key in browser code" is rejected because bearer keys must remain server-side.
-
 
 ## Resources
 

@@ -42,7 +42,6 @@ For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret
 6. Exercise a synthetic failure without exposing the bearer key.
 7. Keep the smoke test only if its data access and request budget are acceptable.
 
-
 ## Tool Discipline
 
 Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
@@ -69,7 +68,6 @@ Before reporting success, rerun the smallest relevant deterministic check, compa
 
 - "Verify the endpoint" selects only user_id and returns a content-free receipt.
 - "Print my five latest meetings" is routed to an approved transcript workflow instead.
-
 
 ## Resources
 
