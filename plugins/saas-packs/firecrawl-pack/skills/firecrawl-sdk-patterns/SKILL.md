@@ -1,268 +1,78 @@
 ---
 name: firecrawl-sdk-patterns
-description: 'Apply production-ready Firecrawl SDK patterns for TypeScript and Python.
-
-  Use when implementing Firecrawl integrations, building reusable scraping services,
-
-  or establishing team coding standards for Firecrawl.
-
-  Trigger with phrases like "firecrawl SDK patterns", "firecrawl best practices",
-
-  "firecrawl code patterns", "idiomatic firecrawl", "firecrawl wrapper".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
+description: >-
+  Build a typed, testable Firecrawl v2 adapter for Node or Python with current methods, explicit options, errors, pagination, and dependency control. Use when implementing reusable client code. Trigger with "Firecrawl SDK patterns", "wrap Firecrawl", or "typed Firecrawl client".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> [node|python]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- python
-- typescript
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, sdk, architecture]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl SDK Patterns
+# Firecrawl v2 SDK Boundary
 
 ## Overview
 
-Production-ready patterns for Firecrawl SDK (`@mendable/firecrawl-js` / `firecrawl-py`). Covers singleton client, typed wrappers, retry with backoff, response validation, and reusable scraping service patterns.
+Keep Firecrawl behind a narrow application-owned interface so provider changes, policy, retries, and tests do not leak across the codebase.
 
 ## Prerequisites
 
-- `@mendable/firecrawl-js` installed
-- Understanding of async/await patterns
-- TypeScript strict mode recommended
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
+
+## Current Contract
+
+Node uses the named Firecrawl client from the firecrawl install surface; Python uses Firecrawl from firecrawl-py. Current top-level v2 methods include scrape, crawl, startCrawl, getCrawlStatus, map, batchScrape, startBatchScrape, getBatchScrapeStatus, search, parse, and agent surfaces. Feature-frozen v1 lives behind a separate compatibility boundary.
+
+## Authentication
+
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Singleton Client with Configuration
+1. Inspect the runtime, official package and resolved version, compiler settings, existing HTTP/client layer, and exact operations required.
+2. Define application request/result types containing only approved fields, explicit scope/limits, provenance, origin status, terminal state, and pagination metadata.
+3. Construct one client per process boundary from validated configuration; inject it into services and tests rather than creating clients inside business logic.
+4. Map provider documents and errors into a discriminated result model. Keep API failures, captured origin errors, validation rejection, partial results, and cancellation distinct.
+5. Expose waiter methods only where blocking fits the deadline; otherwise expose submit/status/cancel and durable pagination through an owned job service.
+6. Centralize bounded retry, policy, redaction, metrics, and version reporting. Do not erase SDK types with any or dictionary-shaped pass-throughs.
+7. Add synthetic contract tests, pin the dependency through the lockfile, and document the reviewed upgrade and rollback process.
 
-```typescript
-// src/firecrawl/client.ts
-import FirecrawlApp from "@mendable/firecrawl-js";
+## Tool Discipline
 
-let instance: FirecrawlApp | null = null;
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-export function getFirecrawl(): FirecrawlApp {
-  if (!instance) {
-    if (!process.env.FIRECRAWL_API_KEY) {
-      throw new Error("FIRECRAWL_API_KEY environment variable is required");
-    }
-    instance = new FirecrawlApp({
-      apiKey: process.env.FIRECRAWL_API_KEY,
-      ...(process.env.FIRECRAWL_API_URL
-        ? { apiUrl: process.env.FIRECRAWL_API_URL }
-        : {}),
-    });
-  }
-  return instance;
-}
-```
+## Approval Boundaries
 
-### Step 2: Typed Scrape Wrapper
-
-```typescript
-// src/firecrawl/scrape.ts
-import { getFirecrawl } from "./client";
-
-interface ScrapeResult {
-  url: string;
-  title: string;
-  markdown: string;
-  links: string[];
-  scrapedAt: string;
-}
-
-export async function scrapePage(
-  url: string,
-  options?: { waitFor?: number; includeLinks?: boolean }
-): Promise<ScrapeResult> {
-  const firecrawl = getFirecrawl();
-  const formats: string[] = ["markdown"];
-  if (options?.includeLinks) formats.push("links");
-
-  const result = await firecrawl.scrapeUrl(url, {
-    formats,
-    onlyMainContent: true,
-    ...(options?.waitFor ? { waitFor: options.waitFor } : {}),
-  });
-
-  if (!result.success) {
-    throw new Error(`Scrape failed for ${url}: ${result.error}`);
-  }
-
-  return {
-    url: result.metadata?.sourceURL || url,
-    title: result.metadata?.title || "",
-    markdown: result.markdown || "",
-    links: result.links || [],
-    scrapedAt: new Date().toISOString(),
-  };
-}
-```
-
-### Step 3: Retry with Exponential Backoff
-
-```typescript
-// src/firecrawl/retry.ts
-export async function withRetry<T>(
-  operation: () => Promise<T>,
-  config = { maxRetries: 3, baseDelayMs: 1000, maxDelayMs: 30000 }
-): Promise<T> {
-  for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
-    try {
-      return await operation();
-    } catch (error: any) {
-      if (attempt === config.maxRetries) throw error;
-
-      const status = error.statusCode || error.status;
-      // Only retry on rate limits (429) and server errors (5xx)
-      if (status && status !== 429 && status < 500) throw error;
-
-      const delay = Math.min(
-        config.baseDelayMs * Math.pow(2, attempt) + Math.random() * 500,
-        config.maxDelayMs
-      );
-      console.warn(`Firecrawl retry ${attempt + 1}/${config.maxRetries} in ${delay.toFixed(0)}ms`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error("Unreachable");
-}
-
-// Usage: await withRetry(() => scrapePage("https://example.com"))
-```
-
-### Step 4: Scraping Service with Queue
-
-```typescript
-// src/firecrawl/service.ts
-import PQueue from "p-queue";
-import { scrapePage, type ScrapeResult } from "./scrape";
-import { withRetry } from "./retry";
-
-export class FirecrawlService {
-  private queue: PQueue;
-
-  constructor(concurrency = 3) {
-    this.queue = new PQueue({
-      concurrency,
-      interval: 1000,
-      intervalCap: 5,  // max 5 requests per second
-    });
-  }
-
-  async scrape(url: string): Promise<ScrapeResult> {
-    return this.queue.add(() => withRetry(() => scrapePage(url)));
-  }
-
-  async scrapeMany(urls: string[]): Promise<ScrapeResult[]> {
-    return Promise.all(urls.map(url => this.scrape(url)));
-  }
-
-  get pending(): number {
-    return this.queue.pending;
-  }
-}
-```
-
-### Step 5: Response Validation with Zod
-
-```typescript
-import { z } from "zod";
-
-const FirecrawlScrapeResponse = z.object({
-  success: z.literal(true),
-  markdown: z.string().min(1),
-  metadata: z.object({
-    title: z.string().optional(),
-    sourceURL: z.string().url(),
-    statusCode: z.number().optional(),
-  }),
-});
-
-export function validateScrapeResponse(result: unknown) {
-  const parsed = FirecrawlScrapeResponse.safeParse(result);
-  if (!parsed.success) {
-    console.error("Invalid Firecrawl response:", parsed.error.issues);
-    return null;
-  }
-  return parsed.data;
-}
-```
-
-### Step 6: Python Patterns
-
-```python
-# firecrawl_service.py
-import os
-from firecrawl import FirecrawlApp
-from functools import lru_cache
-import time
-
-@lru_cache(maxsize=1)
-def get_firecrawl() -> FirecrawlApp:
-    """Singleton Firecrawl client."""
-    return FirecrawlApp(api_key=os.environ["FIRECRAWL_API_KEY"])
-
-def scrape_with_retry(url: str, max_retries: int = 3) -> dict:
-    """Scrape with exponential backoff."""
-    for attempt in range(max_retries):
-        try:
-            return get_firecrawl().scrape_url(url, params={
-                "formats": ["markdown"],
-                "onlyMainContent": True,
-            })
-        except Exception as e:
-            if attempt == max_retries - 1:
-                raise
-            delay = (2 ** attempt) + (time.time() % 1)
-            print(f"Retry {attempt + 1}/{max_retries} in {delay:.1f}s: {e}")
-            time.sleep(delay)
-```
+Require approval before adding/upgrading the SDK, exposing a new Firecrawl operation, relaxing types, changing retry policy, or accepting a provider response directly in domain code.
 
 ## Output
 
-- Singleton client with env-based configuration
-- Typed wrappers returning clean domain objects
-- Automatic retry with exponential backoff + jitter
-- Queue-based concurrency control
-- Zod validation for response safety
+Return the adapter interface, current package/source/version, method mapping, configuration contract, error and pagination model, policy hooks, tests, and upgrade rollback.
 
 ## Error Handling
 
-| Pattern | Use Case | Benefit |
-|---------|----------|---------|
-| Singleton client | All SDK usage | One instance, consistent config |
-| Typed wrapper | Business logic | Compile-time safety |
-| Retry + backoff | 429 / 5xx errors | Automatic recovery |
-| Queue | Multiple URLs | Respect rate limits |
-| Zod validation | Any API response | Catch API changes early |
+- Docs and installed types disagree: pin evidence and resolve before coding.
+- Required result field is absent: return a typed partial/failure state rather than a fabricated default.
+- Legacy and v2 methods are mixed: isolate legacy compatibility and create a migration plan.
 
 ## Examples
 
-### Factory Pattern (Multi-Tenant)
-
-```typescript
-const clients = new Map<string, FirecrawlApp>();
-
-export function getClientForTenant(tenantId: string): FirecrawlApp {
-  if (!clients.has(tenantId)) {
-    const apiKey = getTenantApiKey(tenantId);
-    clients.set(tenantId, new FirecrawlApp({ apiKey }));
-  }
-  return clients.get(tenantId)!;
-}
-```
+- "Create a Firecrawl service" yields a narrow typed adapter with injected client and synthetic tests.
+- "Return the SDK object everywhere" is rejected because it couples domain code to provider drift.
 
 ## Resources
 
-- [Node SDK](https://docs.firecrawl.dev/sdks/node)
-- [Python SDK](https://docs.firecrawl.dev/sdks/python)
-- [p-queue](https://github.com/sindresorhus/p-queue)
-- [Zod](https://zod.dev/)
-
-## Next Steps
-
-Apply patterns in `firecrawl-core-workflow-a` for real-world usage.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

@@ -1,215 +1,78 @@
 ---
 name: firecrawl-rate-limits
-description: 'Implement Firecrawl rate limiting, backoff, and request queuing patterns.
-
-  Use when handling 429 errors, implementing retry logic,
-
-  or optimizing API request throughput for Firecrawl.
-
-  Trigger with phrases like "firecrawl rate limit", "firecrawl throttling",
-
-  "firecrawl 429", "firecrawl retry", "firecrawl backoff".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
+description: >-
+  Implement bounded Firecrawl throttling and retry behavior using current team RPM, browser concurrency, queue status, timeouts, and Retry-After. Use when handling 429s or producer backpressure. Trigger with "Firecrawl rate limits", "Firecrawl throttling", or "Firecrawl queue".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <operation>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- api
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, rate-limits, reliability]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Rate Limits
+# Firecrawl Rate, Concurrency, and Queue Control
 
 ## Overview
 
-Firecrawl enforces rate limits per API key measured in requests per minute and concurrent connections. When exceeded, the API returns `429 Too Many Requests` with a `Retry-After` header. This skill covers backoff strategies, request queuing, and proactive throttling.
+Control request production and page-processing concurrency as different resources. Derive limits from the current team plan and live queue evidence, not copied constants.
 
 ## Prerequisites
 
-- Provider limits confirmed for the current account, plus an approved concurrency, budget, and exception-queue owner.
-- Aggregate queue and throttle telemetry; never place scraped content or keys in retry logs.
-- Synthetic jobs for testing pause, replay, and duplicate suppression behavior.
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
 
-## Output
+## Current Contract
 
-Produce a rate-control receipt with policy version, concurrency, retry bound, throttle count, queue age, idempotency result, escalation owner, and any manual disposition. Stop or reduce load before a budget or safety threshold is exceeded.
+Firecrawl documents per-team request-per-minute limits and concurrent browser limits. All keys on one team share rate counters. Work beyond browser capacity can queue, queue wait counts toward timeout, and excessive queued jobs can return 429. The error catalog says to honor Retry-After when present; batch shares crawl limits.
 
-## Rate Limit Tiers
+## Authentication
 
-| Plan | Scrape RPM | Crawl Concurrency | Credits/Month |
-|------|-----------|-------------------|---------------|
-| Free | 10 | 2 | 500 |
-| Hobby | 20 | 3 | 3,000 |
-| Standard | 50 | 5 | 50,000 |
-| Growth | 100 | 10 | 500,000 |
-| Scale | 500+ | 50+ | Custom |
-
-Concurrent crawl jobs count against concurrency limits. If the queue is full, new jobs are rejected with 429.
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Exponential Backoff with Jitter
+1. Read the current rate-limit documentation and team configuration for the exact operation; record the evidence timestamp without embedding plan numbers in code.
+2. Model submission RPM, in-flight browser work, Firecrawl queue, application backlog, target-origin limits, and credit ceiling separately.
+3. Use a bounded token bucket or equivalent for submissions and a bounded worker pool for jobs. Keep crawl/batch maxConcurrency within the approved envelope.
+4. On 429, inspect error classification and Retry-After. Pause the relevant producer, add jitter, cap attempts and total wait, and preserve idempotency.
+5. Poll Queue Status at a modest cadence, apply backpressure before timeout risk rises, and shed or defer low-priority work using an owned policy.
+6. Test rate 429, concurrency 429, long queue, missing/invalid Retry-After, cancellation, and recovery with synthetic responses.
+7. Tune from observed throughput with safety headroom; emit queue, throttle, retry, drop/defer, latency, and cost receipts.
 
-```typescript
-import FirecrawlApp from "@mendable/firecrawl-js";
+## Tool Discipline
 
-const firecrawl = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY!,
-});
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-async function withBackoff<T>(
-  operation: () => Promise<T>,
-  config = { maxRetries: 5, baseDelayMs: 1000, maxDelayMs: 32000 }
-): Promise<T> {
-  for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
-    try {
-      return await operation();
-    } catch (error: any) {
-      if (attempt === config.maxRetries) throw error;
+## Approval Boundaries
 
-      const status = error.statusCode || error.status;
-      // Only retry on 429 (rate limit) and 5xx (server error)
-      if (status && status !== 429 && status < 500) throw error;
+Require approval before raising producer or page concurrency, extending total retry time, increasing plan capacity, bypassing backpressure, or prioritizing one workload over another.
 
-      // Exponential delay with random jitter to prevent thundering herd
-      const exponentialDelay = config.baseDelayMs * Math.pow(2, attempt);
-      const jitter = Math.random() * 500;
-      const delay = Math.min(exponentialDelay + jitter, config.maxDelayMs);
+## Output
 
-      console.warn(`Rate limited (${status}). Retry ${attempt + 1}/${config.maxRetries} in ${delay.toFixed(0)}ms`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error("Unreachable");
-}
-
-// Usage
-const result = await withBackoff(() =>
-  firecrawl.scrapeUrl("https://example.com", { formats: ["markdown"] })
-);
-```
-
-### Step 2: Queue-Based Rate Limiting with p-queue
-
-```typescript
-import PQueue from "p-queue";
-
-// Limit to 5 concurrent requests, max 10 per second
-const scrapeQueue = new PQueue({
-  concurrency: 5,
-  interval: 1000,
-  intervalCap: 10,
-});
-
-async function queuedScrape(url: string) {
-  return scrapeQueue.add(() =>
-    withBackoff(() =>
-      firecrawl.scrapeUrl(url, { formats: ["markdown"] })
-    )
-  );
-}
-
-// Scrape many URLs respecting rate limits
-const urls = ["https://a.com", "https://b.com", "https://c.com"];
-const results = await Promise.all(urls.map(url => queuedScrape(url)));
-console.log(`Queue: ${scrapeQueue.pending} pending, ${scrapeQueue.size} queued`);
-```
-
-### Step 3: Proactive Throttling (Pre-emptive)
-
-```typescript
-class RateLimitTracker {
-  private requestTimes: number[] = [];
-  private windowMs: number;
-  private maxRequests: number;
-
-  constructor(maxRequests = 50, windowMs = 60000) {
-    this.maxRequests = maxRequests;
-    this.windowMs = windowMs;
-  }
-
-  async waitIfNeeded(): Promise<void> {
-    const now = Date.now();
-    this.requestTimes = this.requestTimes.filter(t => now - t < this.windowMs);
-
-    if (this.requestTimes.length >= this.maxRequests) {
-      const oldestInWindow = this.requestTimes[0];
-      const waitMs = this.windowMs - (now - oldestInWindow) + 100;
-      console.log(`Proactive throttle: waiting ${waitMs}ms to stay under ${this.maxRequests} RPM`);
-      await new Promise(r => setTimeout(r, waitMs));
-    }
-
-    this.requestTimes.push(Date.now());
-  }
-}
-
-const throttle = new RateLimitTracker(50, 60000); // 50 requests per minute
-
-async function throttledScrape(url: string) {
-  await throttle.waitIfNeeded();
-  return firecrawl.scrapeUrl(url, { formats: ["markdown"] });
-}
-```
-
-### Step 4: Batch Scrape for Efficiency
-
-```typescript
-// batchScrapeUrls is more efficient than individual scrapes
-// It handles internal rate limiting and is cheaper on credits
-const urls = [
-  "https://example.com/page1",
-  "https://example.com/page2",
-  "https://example.com/page3",
-];
-
-// Single API call instead of 3 separate scrapes
-const batchResult = await firecrawl.batchScrapeUrls(urls, {
-  formats: ["markdown"],
-});
-
-console.log(`Batch scraped ${batchResult.data?.length} pages`);
-```
+Return current limit sources, control design, operation budgets, Retry-After behavior, queue/backpressure policy, synthetic test results, safe envelope, alerts, and escalation path.
 
 ## Error Handling
 
-| Header | Description | Action |
-|--------|-------------|--------|
-| `Retry-After` | Seconds to wait | Honor this exact value |
-| `X-RateLimit-Limit` | Max requests per window | Use for proactive throttling |
-| `X-RateLimit-Remaining` | Remaining in window | Slow down when < 5 |
-| `X-RateLimit-Reset` | Reset timestamp | Wait until this time |
+- Limit source is stale or unknown: begin conservatively and require verification.
+- Retry-After exceeds the job deadline: defer or fail rather than sleeping past the SLO.
+- Team queue remains saturated: stop producers and escalate capacity or scheduling; do not rotate keys to evade shared limits.
 
 ## Examples
 
-### Monitor Rate Limit Usage
-
-```typescript
-class RateLimitMonitor {
-  private remaining = Infinity;
-  private resetAt = new Date();
-
-  update(status: number, headers: Record<string, string>) {
-    if (headers["x-ratelimit-remaining"]) {
-      this.remaining = parseInt(headers["x-ratelimit-remaining"]);
-    }
-    if (headers["x-ratelimit-reset"]) {
-      this.resetAt = new Date(parseInt(headers["x-ratelimit-reset"]) * 1000);
-    }
-    if (this.remaining < 5) {
-      console.warn(`Low rate limit: ${this.remaining} remaining, resets at ${this.resetAt.toISOString()}`);
-    }
-  }
-}
-```
+- "Fix Firecrawl 429s" distinguishes RPM, concurrency, and queue exhaustion first.
+- "Use another key for more RPM" is rejected because team keys share counters.
 
 ## Resources
 
-- [Firecrawl Rate Limits](https://docs.firecrawl.dev/rate-limits)
-- [p-queue](https://github.com/sindresorhus/p-queue)
-
-## Next Steps
-
-For security configuration, see `firecrawl-security-basics`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

@@ -1,214 +1,78 @@
 ---
 name: firecrawl-upgrade-migration
-description: 'Upgrade Firecrawl SDK versions and migrate between API versions (v0
-  to v1/v2).
-
-  Use when upgrading the SDK, handling breaking changes between versions,
-
-  or migrating from the old API to the current v2 API.
-
-  Trigger with phrases like "upgrade firecrawl", "firecrawl migration",
-
-  "firecrawl v2", "update firecrawl SDK", "firecrawl breaking changes".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(git:*)
-version: 1.11.0
+description: >-
+  Upgrade a Firecrawl client from legacy v0/v1 routes and methods to the current v2 SDK and API with contract, parity, and rollback evidence. Use when modernizing an existing Firecrawl integration. Trigger with "upgrade Firecrawl", "migrate Firecrawl v1 to v2", or "replace scrapeUrl".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <current-version>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- api
-- migration
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, upgrade, migration]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Upgrade & Migration
-
-## Current State
-
-!`npm list @mendable/firecrawl-js 2>/dev/null | grep firecrawl || echo 'Not installed'`
+# Firecrawl v1-to-v2 Upgrade
 
 ## Overview
 
-Guide for upgrading `@mendable/firecrawl-js` SDK versions and migrating from Firecrawl API v0/v1 to v2. Covers breaking changes in import paths, method signatures, response formats, and the new extract v2 schema format.
+Treat the version change as a behavior migration, not a search-and-replace. Inventory method, option, response, cache, extraction, pagination, and billing differences before switching traffic.
 
 ## Prerequisites
 
-- Current provider release notes and a versioned inventory of SDK/API use, target policies, schemas, and downstream consumers.
-- Staging credentials, synthetic fixtures, and a named rollback owner; keep the prior dependency and configuration available during reconciliation.
-- Acceptance criteria for response shape, target enforcement, budget, retention, and error behavior.
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
 
-## Output
+## Current Contract
 
-Maintain an upgrade receipt with versions reviewed, affected consumers, compatibility results, canary outcome, reconciliation evidence, approval, and rollback state. Redact credentials and captured content.
+The current top-level SDK defaults to v2. Key mappings include scrapeUrl to scrape, crawlUrl to crawl, asyncCrawlUrl to startCrawl, checkCrawlStatus to getCrawlStatus, mapUrl to map, batchScrapeUrls to batchScrape, asyncBatchScrapeUrls to startBatchScrape, and checkBatchScrapeStatus to getBatchScrapeStatus. The legacy extract format became a json format object; v2 cache defaults and option shapes also changed.
 
-## Examples
+## Authentication
 
-Upgrade in staging against an approved synthetic target, compare only schema-valid fields and aggregate job outcomes, and deliberately exercise an invalid target and throttle response. If either policy or response compatibility differs, revert the dependency and open a mapping review before retrying.
-
-## Version History
-
-| SDK Version | API Version | Key Changes |
-|-------------|-------------|-------------|
-| 1.x | v1 | `asyncCrawlUrl`, `checkCrawlStatus`, `mapUrl` added |
-| 0.x | v0 | Legacy `crawlUrl` with `waitUntilDone` param |
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Check Current Version
+1. Pin the current dependency, routes, methods, options, response assumptions, fixtures, usage, and rollback release. Identify intentional feature-frozen v1 callers.
+2. Read current migration, SDK, endpoint, billing, and error references; build a per-call mapping including renamed, removed, defaulted, and behavior-changing fields.
+3. Add golden synthetic tests for requests, direct SDK versus REST responses, metadata fields, origin status, JSON extraction, crawl/batch jobs, pagination, errors, and cost-sensitive options.
+4. Introduce a typed v2 adapter behind a feature flag. Keep v1 compatibility isolated and do not silently fall back from v2 on failure.
+5. Run offline contract tests, then shadow approved canaries with content hashes, schema coverage, latency, cache state, and credits rather than raw body diffs.
+6. Shift traffic gradually, monitor errors, partial results, quality, freshness, queue, and spend, and exercise rollback before removing the flag.
+7. After the observation window, remove legacy packages/routes/secrets, update docs/fixtures, and verify no v0/v1 strings remain except migration evidence.
 
-```bash
-set -euo pipefail
-# Check installed version
-npm list @mendable/firecrawl-js
+## Tool Discipline
 
-# Check latest available
-npm view @mendable/firecrawl-js version
-```
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-### Step 2: Create Upgrade Branch
+## Approval Boundaries
 
-```bash
-set -euo pipefail
-git checkout -b upgrade/firecrawl-sdk
-npm install @mendable/firecrawl-js@latest
-npm test
-```
+Require approval before changing the SDK major, accepting changed cache/retention behavior, increasing credits, switching production traffic, or removing the legacy rollback path.
 
-### Step 3: Migration — v0 to v1/v2
+## Output
 
-#### Import Changes
-
-```typescript
-// No change needed — import has been stable
-import FirecrawlApp from "@mendable/firecrawl-js";
-```
-
-#### Crawl Method Changes (v0 -> v1)
-
-```typescript
-// BEFORE (v0): crawlUrl with waitUntilDone
-const result = await firecrawl.crawlUrl("https://example.com", {
-  crawlerOptions: { limit: 50 },
-  pageOptions: { onlyMainContent: true },
-  waitUntilDone: true,
-});
-
-// AFTER (v1+): crawlUrl returns synchronously, or use asyncCrawlUrl
-const result = await firecrawl.crawlUrl("https://example.com", {
-  limit: 50,
-  scrapeOptions: {
-    formats: ["markdown"],
-    onlyMainContent: true,
-  },
-});
-
-// For large crawls, use async with polling
-const job = await firecrawl.asyncCrawlUrl("https://example.com", {
-  limit: 500,
-  scrapeOptions: { formats: ["markdown"] },
-});
-const status = await firecrawl.checkCrawlStatus(job.id);
-```
-
-#### Scrape Options Changes (v0 -> v1)
-
-```typescript
-// BEFORE (v0)
-await firecrawl.scrapeUrl("https://example.com", {
-  pageOptions: { onlyMainContent: true },
-  extractorOptions: { mode: "llm-extraction", schema: mySchema },
-});
-
-// AFTER (v1+)
-await firecrawl.scrapeUrl("https://example.com", {
-  formats: ["markdown", "extract"],
-  onlyMainContent: true,
-  extract: { schema: mySchema },
-});
-```
-
-#### Extract v2 Format (v1 -> v2)
-
-```typescript
-// BEFORE (v1): extract as top-level option
-await firecrawl.scrapeUrl(url, {
-  formats: ["extract"],
-  extract: { schema: { type: "object", ... } },
-});
-
-// AFTER (v2): schema embedded in formats array
-// Note: SDK handles this internally, but REST API changed
-// POST /v2/extract with { urls: [...], schema: {...} }
-```
-
-#### New Methods in v1+
-
-```typescript
-// mapUrl — fast URL discovery (not available in v0)
-const map = await firecrawl.mapUrl("https://example.com");
-console.log(map.links);
-
-// batchScrapeUrls — scrape multiple URLs at once
-const batch = await firecrawl.batchScrapeUrls(
-  ["https://a.com", "https://b.com"],
-  { formats: ["markdown"] }
-);
-
-// asyncBatchScrapeUrls + checkBatchScrapeStatus
-const job = await firecrawl.asyncBatchScrapeUrls(urls, { formats: ["markdown"] });
-const status = await firecrawl.checkBatchScrapeStatus(job.id);
-```
-
-### Step 4: Run Tests and Verify
-
-```bash
-set -euo pipefail
-npm test
-
-# Quick integration check
-npx tsx -e "
-import FirecrawlApp from '@mendable/firecrawl-js';
-const fc = new FirecrawlApp({ apiKey: process.env.FIRECRAWL_API_KEY! });
-const r = await fc.scrapeUrl('https://example.com', { formats: ['markdown'] });
-console.log('Success:', r.success, 'Chars:', r.markdown?.length);
-"
-```
-
-### Step 5: Rollback if Needed
-
-```bash
-set -euo pipefail
-# Pin to previous version
-npm install @mendable/firecrawl-js@1.x.x --save-exact
-npm test
-```
-
-## Breaking Changes Checklist
-
-- [ ] `crawlerOptions` / `pageOptions` → flat options + `scrapeOptions`
-- [ ] `waitUntilDone: true` → use `crawlUrl` (sync) or `asyncCrawlUrl` + polling
-- [ ] `extractorOptions` → `extract` with `schema` or `prompt`
-- [ ] Response shape: `data` array for crawl results, `markdown`/`html` for scrape
-- [ ] New methods: `mapUrl`, `batchScrapeUrls`, `asyncBatchScrapeUrls`
+Return the exact before/after package and API surface, mapping table, changed defaults/options, parity tests, canary metrics, rollout state, rollback evidence, and cleanup results.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `crawlerOptions is not valid` | Using v0 params on v1+ | Flatten to top-level options |
-| `waitUntilDone is not valid` | Removed in v1 | Use `asyncCrawlUrl` + `checkCrawlStatus` |
-| `pageOptions not recognized` | Renamed in v1 | Use `scrapeOptions` inside crawl |
-| Missing `mapUrl` method | SDK too old | Upgrade to latest version |
+- No documented mapping exists: keep the old path and resolve against source/types.
+- v2 output or cost is materially different: stop rollout and decide whether to adapt requirements.
+- Fallback masks v2 failures: remove automatic fallback and make the version decision observable.
+
+## Examples
+
+- "Replace scrapeUrl" also verifies options and returned document shape.
+- "Upgrade the package and hope" is replaced with mapping, shadow parity, staged traffic, and rollback.
 
 ## Resources
 
-- [Migrating from v0](https://docs.firecrawl.dev/v1-welcome)
-- [Migrating from v1 to v2](https://docs.firecrawl.dev/migrate-to-v2)
-- [Firecrawl Changelog](https://firecrawl.dev/changelog)
-- [GitHub Releases](https://github.com/mendableai/firecrawl/releases)
-
-## Next Steps
-
-For CI integration during upgrades, see `firecrawl-ci-integration`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

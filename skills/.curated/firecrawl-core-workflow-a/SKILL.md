@@ -1,197 +1,78 @@
 ---
 name: firecrawl-core-workflow-a
-description: 'Execute Firecrawl primary workflow: scrape and crawl websites into LLM-ready
-  markdown.
-
-  Use when scraping single pages, crawling entire sites, or building content
-
-  ingestion pipelines with Firecrawl''s scrapeUrl and crawlUrl methods.
-
-  Trigger with phrases like "firecrawl scrape", "firecrawl crawl site",
-
-  "scrape page to markdown", "crawl documentation".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.11.0
+description: >-
+  Implement current Firecrawl v2 scrape and crawl flows with bounded discovery, pagination, content validation, and durable receipts. Use when collecting one page or a governed site corpus. Trigger with "Firecrawl scrape", "crawl this site", or "build a Firecrawl corpus".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<url> [scrape|crawl]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- workflow
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, scrape, crawl]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Core Workflow A — Scrape & Crawl
+# Firecrawl Scrape and Crawl Workflow
 
 ## Overview
 
-Primary workflow for Firecrawl: convert websites into clean LLM-ready markdown. Covers single-page scraping with `scrapeUrl`, multi-page crawling with `crawlUrl`, async crawl jobs with polling, and content processing pipelines.
+Use scrape for one URL and crawl for recursive discovery. Keep the authorization basis, scope, cost ceiling, result completeness, and storage decision explicit.
 
 ## Prerequisites
 
-- `@mendable/firecrawl-js` installed
-- `FIRECRAWL_API_KEY` environment variable set
-- Target URL(s) identified
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
+
+## Current Contract
+
+The current Node client is Firecrawl from the firecrawl package; Python uses Firecrawl from firecrawl-py. Use scrape for a single URL, crawl as the waiter, startCrawl for asynchronous submission, getCrawlStatus for status and pagination, and cancelCrawl for cancellation. REST uses the /v2 routes and Bearer authentication.
+
+## Authentication
+
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Single-Page Scrape
+1. Confirm the target is authorized, normalize its origin, and document allowed paths, excluded paths, subdomain/external-link policy, desired formats, and freshness.
+2. Create the client from FIRECRAWL_API_KEY for authenticated work. Keep the key in a secret manager and never place it in source, arguments, logs, or generated examples.
+3. For one page, call scrape with only the required formats and options. Validate the returned document, metadata.sourceURL, metadata.statusCode, and required content fields.
+4. For a site, set an explicit crawl limit and path/depth policy. Use crawl when blocking is acceptable or startCrawl when another worker owns status and cancellation.
+5. Retrieve every required result page. Preserve the next cursor or URL until pagination is complete, and record partial completion separately from terminal success.
+6. Deduplicate by canonical source URL and content hash, validate output quality, and write only approved fields to the downstream store.
+7. Emit counts, creditsUsed when returned, cache state, failures, policy version, and rollback/cancellation outcome without logging page bodies.
 
-```typescript
-import FirecrawlApp from "@mendable/firecrawl-js";
+## Tool Discipline
 
-const firecrawl = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY!,
-});
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-// Scrape a single page to clean markdown
-const result = await firecrawl.scrapeUrl("https://docs.example.com/api", {
-  formats: ["markdown"],
-  onlyMainContent: true,  // strips nav, footer, sidebars
-  waitFor: 2000,           // wait 2s for JS to render
-});
+## Approval Boundaries
 
-if (result.success) {
-  console.log("Title:", result.metadata?.title);
-  console.log("Source:", result.metadata?.sourceURL);
-  console.log("Markdown:", result.markdown?.substring(0, 200));
-}
-```
-
-### Step 2: Multi-Page Synchronous Crawl
-
-```typescript
-// Crawl a site — Firecrawl follows links, renders JS, returns all pages
-const crawlResult = await firecrawl.crawlUrl("https://docs.example.com", {
-  limit: 50,                   // max pages to crawl
-  maxDepth: 3,                 // link depth from start URL
-  includePaths: ["/docs/*", "/api/*"],   // only these paths
-  excludePaths: ["/blog/*", "/changelog/*"],
-  allowBackwardLinks: false,   // only crawl child paths
-  scrapeOptions: {
-    formats: ["markdown"],
-    onlyMainContent: true,
-  },
-});
-
-console.log(`Crawled ${crawlResult.data?.length} pages`);
-for (const page of crawlResult.data || []) {
-  console.log(`  ${page.metadata?.sourceURL}: ${page.markdown?.length} chars`);
-}
-```
-
-### Step 3: Async Crawl for Large Sites
-
-```typescript
-// Start an async crawl job — returns immediately with job ID
-const job = await firecrawl.asyncCrawlUrl("https://docs.example.com", {
-  limit: 500,
-  scrapeOptions: { formats: ["markdown"] },
-});
-
-console.log(`Crawl started: ${job.id}`);
-
-// Poll for completion with backoff
-let pollInterval = 2000;
-let status = await firecrawl.checkCrawlStatus(job.id);
-
-while (status.status === "scraping") {
-  console.log(`Progress: ${status.completed}/${status.total} pages`);
-  await new Promise(r => setTimeout(r, pollInterval));
-  pollInterval = Math.min(pollInterval * 1.5, 30000);
-  status = await firecrawl.checkCrawlStatus(job.id);
-}
-
-if (status.status === "completed") {
-  console.log(`Done: ${status.data?.length} pages scraped`);
-} else {
-  console.error("Crawl failed:", status.error);
-}
-```
-
-### Step 4: Process and Store Results
-
-```typescript
-import { writeFileSync, mkdirSync } from "fs";
-
-function processResults(pages: any[], outputDir: string) {
-  mkdirSync(outputDir, { recursive: true });
-
-  const manifest = pages.map((page, i) => {
-    const url = page.metadata?.sourceURL || `page-${i}`;
-    const slug = new URL(url).pathname
-      .replace(/\//g, "_")
-      .replace(/^_|_$/g, "") || "index";
-    const filename = `${slug}.md`;
-
-    // Clean markdown: collapse whitespace, remove JS links
-    const content = (page.markdown || "")
-      .replace(/\n{3,}/g, "\n\n")
-      .replace(/\[.*?\]\(javascript:.*?\)/g, "")
-      .trim();
-
-    writeFileSync(`${outputDir}/${filename}`, content);
-
-    return { url, filename, chars: content.length };
-  });
-
-  writeFileSync(`${outputDir}/manifest.json`, JSON.stringify(manifest, null, 2));
-  return manifest;
-}
-```
+Require approval before authenticated-page scraping, external-link traversal, increasing scope or limit, enabling sensitive headers/actions, or retaining raw HTML, screenshots, or personal data.
 
 ## Output
 
-- Clean markdown files per crawled page
-- `manifest.json` with URL-to-file mapping
-- Crawl summary with page count and failures
+Return normalized scope, endpoint and SDK method, job ID where applicable, pagination completion, accepted/rejected counts, content-quality checks, retention decision, and a redacted run receipt.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Empty `markdown` | JS content not rendered | Increase `waitFor` to 5000ms |
-| `429 Too Many Requests` | Rate limit hit | Back off, reduce concurrency |
-| Crawl returns few pages | URL filters too strict | Widen `includePaths` patterns |
-| `402 Payment Required` | Credits exhausted | Check balance, reduce `limit` |
-| Partial crawl results | Site blocks bot on some pages | Use `scrapeUrl` for failed URLs individually |
+- Captured origin error page: quarantine by metadata.statusCode and do not index it as successful content.
+- Async job exceeds its deadline: cancel when safe, persist the cursor and receipt, and require an explicit resume decision.
+- Output fails schema or quality checks: retain only permitted evidence and route the page to review.
 
 ## Examples
 
-### Scrape with Multiple Formats
-
-```typescript
-const result = await firecrawl.scrapeUrl("https://example.com", {
-  formats: ["markdown", "html", "links"],
-  onlyMainContent: true,
-});
-
-console.log("Markdown:", result.markdown?.length);
-console.log("HTML:", result.html?.length);
-console.log("Links:", result.links?.length);
-```
-
-### Crawl with Webhook (No Polling)
-
-```typescript
-const job = await firecrawl.asyncCrawlUrl("https://docs.example.com", {
-  limit: 100,
-  scrapeOptions: { formats: ["markdown"] },
-  webhook: {
-    url: "https://api.yourapp.com/webhooks/firecrawl",
-    events: ["completed", "page"],
-  },
-});
-console.log(`Crawl ${job.id} started — webhook will fire on completion`);
-```
+- "Scrape this release note" selects one v2 scrape and validates the returned document.
+- "Crawl our docs" requires path rules, an explicit limit, pagination ownership, and a cancellation plan.
 
 ## Resources
 
-- [Scrape Endpoint](https://docs.firecrawl.dev/features/scrape)
-- [Crawl Endpoint](https://docs.firecrawl.dev/features/crawl)
-- [Advanced Scraping Guide](https://docs.firecrawl.dev/advanced-scraping-guide)
-
-## Next Steps
-
-For structured data extraction, see `firecrawl-core-workflow-b`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

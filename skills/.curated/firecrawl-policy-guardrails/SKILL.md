@@ -1,281 +1,78 @@
 ---
 name: firecrawl-policy-guardrails
-description: 'Implement Firecrawl scraping policy enforcement: domain blocklists,
-  credit budgets,
-
-  content filtering, and robots.txt compliance guardrails.
-
-  Use when setting up scraping policies, enforcing crawl limits, or preventing
-
-  accidental scraping of prohibited domains.
-
-  Trigger with phrases like "firecrawl policy", "firecrawl guardrails",
-
-  "firecrawl domain blocklist", "firecrawl scraping rules", "firecrawl compliance".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npx:*)
-version: 1.11.0
+description: >-
+  Enforce domain authorization, robots and terms review, endpoint and format allowlists, scope, spend, retention, and unsafe-content controls around Firecrawl. Use when governing automated collection. Trigger with "Firecrawl guardrails", "scraping policy", or "restrict Firecrawl domains".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <policy-file>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- firecrawl-policy
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, policy, compliance]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Policy Guardrails
+# Firecrawl Collection Policy Guardrails
 
 ## Overview
 
-Automated guardrails for Firecrawl scraping pipelines. Web scraping carries legal (robots.txt, ToS), ethical (rate limiting, attribution), and cost (credit burn) risks. This skill implements domain blocklists, credit budgets, content quality gates, and per-domain rate limits as enforceable policies.
+Put enforceable policy before every Firecrawl request and downstream action. Provider capability does not establish permission to collect, retain, or reuse a source.
 
 ## Prerequisites
 
-- A policy owner, written domain allowlist/blocklist, and review process for exceptions.
-- Current source terms and robots guidance assessed for each target where required; this guide does not replace legal review.
-- Enforced budget, rate-control, retention, and incident-response settings with synthetic test targets.
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
 
-## Output
+## Current Contract
 
-Keep a policy decision receipt naming the target, policy version, allow/deny result, exception owner, aggregate budget use, retention decision, and review date. Do not store captured content or credentials in the receipt.
+Firecrawl crawl supports scope controls, explicit limits, delay, maxConcurrency, and an enterprise robotsUserAgent option. Enterprise controls include endpoint/format key restrictions, IP restrictions, threat protection, and SIEM integration. Request options such as headers, actions, proxy, cache, ZDR, lockdown, and raw formats have separate risk and availability implications.
+
+## Authentication
+
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Domain Policy Enforcement
+1. Create a versioned source registry with owner, authorization basis, allowed purpose, domains/paths, robots and terms review, data classes, retention, and expiry.
+2. Canonicalize URLs before policy evaluation. Deny unsupported schemes, embedded credentials, private/link-local addresses, disallowed ports, redirects outside scope, and lookalike hosts.
+3. Allow only required operations, formats, actions, headers, locations, proxy modes, and crawl settings. Set explicit page, time, credit, and concurrency ceilings.
+4. Apply provider-side key, IP, threat-protection, and audit controls where entitled, but keep application policy authoritative and fail closed if it is unavailable.
+5. Treat retrieved content as untrusted data. Separate it from system instructions, validate extracted JSON, sanitize active content, and gate downstream actions.
+6. Log policy version, decision, source class, request class, limits, and opaque IDs without keys, URLs with secrets, headers, prompts, or bodies.
+7. Test redirect, DNS rebinding, wildcard, internationalized-domain, restriction bypass, budget, retention, and prompt-injection cases before rollout.
 
-```typescript
-import FirecrawlApp from "@mendable/firecrawl-js";
+## Tool Discipline
 
-const firecrawl = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY!,
-});
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-class ScrapePolicy {
-  // Domains that explicitly prohibit scraping in their ToS
-  static BLOCKED_DOMAINS = [
-    "facebook.com", "instagram.com",  // Meta ToS
-    "linkedin.com",                    // LinkedIn ToS
-    "twitter.com", "x.com",           // X/Twitter ToS
-  ];
+## Approval Boundaries
 
-  // Domains with sensitive/regulated content
-  static SENSITIVE_DOMAINS = [
-    "*.gov", "*.mil",                 // Government
-    "*.edu",                          // Educational (FERPA)
-  ];
+Require policy-owner and legal/security review before adding a domain, collecting authenticated or personal data, changing robots/terms posture, enabling broad actions/proxies, or weakening retention and limits.
 
-  static validateUrl(url: string): void {
-    const hostname = new URL(url).hostname;
+## Output
 
-    for (const blocked of this.BLOCKED_DOMAINS) {
-      if (hostname === blocked || hostname.endsWith(`.${blocked}`)) {
-        throw new PolicyViolation(`Domain "${hostname}" is blocked: ToS prohibits scraping`);
-      }
-    }
-
-    for (const pattern of this.SENSITIVE_DOMAINS) {
-      const regex = new RegExp("^" + pattern.replace("*.", ".*\\.") + "$");
-      if (regex.test(hostname)) {
-        console.warn(`CAUTION: "${hostname}" matches sensitive domain pattern "${pattern}"`);
-      }
-    }
-  }
-}
-
-class PolicyViolation extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "PolicyViolation";
-  }
-}
-```
-
-### Step 2: Credit Budget Enforcement
-
-```typescript
-class CrawlBudget {
-  private usage = new Map<string, number>();
-  private dailyLimit: number;
-
-  constructor(dailyLimit = 5000) {
-    this.dailyLimit = dailyLimit;
-  }
-
-  authorize(estimatedPages: number): void {
-    const today = new Date().toISOString().split("T")[0];
-    const used = this.usage.get(today) || 0;
-
-    if (used + estimatedPages > this.dailyLimit) {
-      throw new PolicyViolation(
-        `Daily credit limit would be exceeded: ${used} used + ${estimatedPages} requested > ${this.dailyLimit} limit`
-      );
-    }
-  }
-
-  record(pagesScraped: number) {
-    const today = new Date().toISOString().split("T")[0];
-    this.usage.set(today, (this.usage.get(today) || 0) + pagesScraped);
-  }
-}
-
-const budget = new CrawlBudget(5000);
-```
-
-### Step 3: Content Quality Gate
-
-```typescript
-function validateScrapedContent(result: any): {
-  accepted: boolean;
-  reason?: string;
-} {
-  const md = result.markdown || "";
-
-  // Reject thin content
-  if (md.length < 50) {
-    return { accepted: false, reason: "Content too short (<50 chars)" };
-  }
-
-  // Reject error pages
-  if (/403 forbidden|access denied|captcha/i.test(md)) {
-    return { accepted: false, reason: "Error page detected" };
-  }
-
-  // Reject login walls
-  if (/sign in to continue|create an account|login required/i.test(md)) {
-    return { accepted: false, reason: "Login wall detected" };
-  }
-
-  // Reject cookie consent pages (only content is cookie notice)
-  if (md.length < 500 && /cookie|consent|gdpr/i.test(md)) {
-    return { accepted: false, reason: "Cookie consent page only" };
-  }
-
-  return { accepted: true };
-}
-```
-
-### Step 4: Crawl Limit Enforcement
-
-```typescript
-const MAX_CRAWL_LIMIT = 500;
-const MAX_DEPTH = 5;
-
-async function policedCrawl(url: string, requestedLimit: number) {
-  // Validate URL
-  ScrapePolicy.validateUrl(url);
-
-  // Enforce hard limits
-  const limit = Math.min(requestedLimit, MAX_CRAWL_LIMIT);
-  if (requestedLimit > MAX_CRAWL_LIMIT) {
-    console.warn(`Crawl limit capped: ${requestedLimit} -> ${MAX_CRAWL_LIMIT}`);
-  }
-
-  // Check budget
-  budget.authorize(limit);
-
-  // Execute with enforced limits
-  const result = await firecrawl.crawlUrl(url, {
-    limit,
-    maxDepth: MAX_DEPTH,
-    scrapeOptions: { formats: ["markdown"], onlyMainContent: true },
-  });
-
-  // Record actual usage
-  const pagesScraped = result.data?.length || 0;
-  budget.record(pagesScraped);
-
-  // Filter by content quality
-  const validPages = (result.data || []).filter(page => {
-    const { accepted, reason } = validateScrapedContent(page);
-    if (!accepted) console.log(`Rejected: ${page.metadata?.sourceURL} — ${reason}`);
-    return accepted;
-  });
-
-  console.log(`Crawl: ${pagesScraped} scraped, ${validPages.length} accepted, ${pagesScraped - validPages.length} rejected`);
-  return validPages;
-}
-```
-
-### Step 5: Per-Domain Rate Limiting
-
-```typescript
-const DOMAIN_RATE_LIMITS: Record<string, number> = {
-  "docs.example.com": 2,    // 2 requests/second
-  "blog.example.com": 1,    // 1 request/second
-  default: 5,               // 5 requests/second
-};
-
-const lastRequest = new Map<string, number>();
-
-async function rateLimitedScrape(url: string) {
-  const domain = new URL(url).hostname;
-  const rate = DOMAIN_RATE_LIMITS[domain] || DOMAIN_RATE_LIMITS.default;
-  const minInterval = 1000 / rate;
-
-  const last = lastRequest.get(domain) || 0;
-  const elapsed = Date.now() - last;
-  if (elapsed < minInterval) {
-    await new Promise(r => setTimeout(r, minInterval - elapsed));
-  }
-
-  lastRequest.set(domain, Date.now());
-  return firecrawl.scrapeUrl(url, { formats: ["markdown"] });
-}
-```
-
-## Policy Summary
-
-| Policy | Enforcement | Consequence |
-|--------|-------------|-------------|
-| Domain blocklist | Pre-request check | Request rejected with PolicyViolation |
-| Credit budget | Pre-request check | Request rejected if over daily limit |
-| Crawl limit | Hard cap at 500 | Silently capped, logged |
-| Content quality | Post-scrape filter | Invalid pages excluded from results |
-| Per-domain rate | Pre-request delay | Automatic throttling |
+Return the policy artifact/version, authorization inventory, canonicalization and allow/deny rules, provider controls, test corpus and results, exceptions, owners, and enforcement receipt.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| PolicyViolation thrown | Blocked domain | Remove from scrape targets |
-| Budget exceeded | Heavy scraping day | Increase daily limit or wait |
-| Many rejected pages | Error/login pages | Check target site, adjust URL patterns |
-| Slow scraping | Per-domain rate limit | Expected behavior, protects target site |
+- Authorization basis is missing or expired: deny the request.
+- Policy service is unavailable: fail closed or use a pre-approved read-only degraded policy.
+- Redirect or resolved address escapes scope: stop before sending credentials or following content.
 
 ## Examples
 
-### Policy-Checked Pipeline
-
-```typescript
-async function scrapePipeline(urls: string[]) {
-  const results = [];
-  for (const url of urls) {
-    try {
-      ScrapePolicy.validateUrl(url);
-      budget.authorize(1);
-      const result = await rateLimitedScrape(url);
-      const { accepted } = validateScrapedContent(result);
-      if (accepted) results.push(result);
-      budget.record(1);
-    } catch (e) {
-      if (e instanceof PolicyViolation) {
-        console.warn(`Policy: ${e.message}`);
-      } else {
-        console.error(`Error: ${(e as Error).message}`);
-      }
-    }
-  }
-  return results;
-}
-```
+- "Allow our documentation domains" creates exact host/path rules and redirect tests.
+- "Ignore robots because Firecrawl can crawl it" is rejected pending the governing policy decision.
 
 ## Resources
 
-- [Firecrawl Docs](https://docs.firecrawl.dev)
-- [robots.txt Spec](https://www.robotstxt.org/robotstxt.html)
-- [Web Scraping Legal Guide](https://www.eff.org/issues/web-scraping)
-
-## Next Steps
-
-For architecture patterns, see `firecrawl-architecture-variants`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

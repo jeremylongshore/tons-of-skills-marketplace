@@ -1,255 +1,78 @@
 ---
 name: firecrawl-migration-deep-dive
-description: 'Migrate to Firecrawl from Puppeteer, Playwright, Cheerio, or other scraping
-  tools.
-
-  Use when replacing custom scraping code with Firecrawl, migrating between
-
-  scraping APIs, or re-platforming content ingestion pipelines.
-
-  Trigger with phrases like "migrate to firecrawl", "replace puppeteer with firecrawl",
-
-  "switch to firecrawl", "firecrawl vs puppeteer", "firecrawl migration".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(node:*), Grep
-version: 1.11.0
+description: >-
+  Migrate a custom Puppeteer, Playwright, Cheerio, or third-party scraping workload to Firecrawl v2 with parity, policy, cost, and rollback evidence. Use when replacing an existing acquisition system. Trigger with "migrate to Firecrawl", "replace Playwright scraping", or "Firecrawl adoption".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <legacy-adapter>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- migration
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, migration, architecture]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Migration Deep Dive
-
-## Current State
-
-!`npm list puppeteer playwright cheerio 2>/dev/null | grep -E "puppeteer|playwright|cheerio" || echo 'No scraping libs found'`
+# Firecrawl Workload Migration
 
 ## Overview
 
-Migrate from custom scraping (Puppeteer, Playwright, Cheerio) or competing APIs to Firecrawl. Firecrawl eliminates browser management, anti-bot handling, and JS rendering infrastructure. This skill shows equivalent code for common scraping patterns.
+Replace a scraper only after defining observable equivalence. Preserve the old adapter until the new path meets content, policy, performance, and recovery gates.
 
 ## Prerequisites
 
-- An inventory of existing targets, permissions, extraction schemas, rate controls, and data-retention requirements.
-- A staging environment with approved target pages or synthetic fixtures; do not use production credentials in migration tests.
-- A rollback owner and a period in which the old path remains available for reconciliation.
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
 
-## Migration Comparison
+## Current Contract
 
-| Feature | Puppeteer/Playwright | Cheerio | Firecrawl |
-|---------|---------------------|---------|-----------|
-| JS rendering | Manual browser | No | Automatic |
-| Anti-bot bypass | DIY (stealth plugin) | No | Built-in |
-| Output format | Raw HTML | Parsed HTML | Markdown/JSON/HTML |
-| Infrastructure | Browser instances | None | API call |
-| Concurrent scraping | Manage browser pool | Simple | Managed by Firecrawl |
-| Cost model | Compute (CPU/RAM) | Free | Credits per page |
+Firecrawl can replace rendering, crawl discovery, mapping, search, parsing, and typed extraction, but one endpoint is not equivalent to every legacy workflow. Scrape, crawl, map, batch, parse, JSON extraction, actions, Browser, and Cloud/self-hosted capabilities have different contracts and costs.
+
+## Authentication
+
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Replace Puppeteer Single-Page Scrape
+1. Inventory legacy sources, login/session behavior, selectors/actions, discovery rules, formats, parsers, retries, proxies, schedules, storage, compliance controls, metrics, and operating cost.
+2. Create a source-to-Firecrawl capability map. Mark unsupported, Cloud-only, self-host-dependent, behavior-changing, and policy-sensitive requirements.
+3. Define an adapter contract and golden synthetic corpus with provenance, normalized content hashes, required-field coverage, latency, cost, and accepted variance.
+4. Implement the smallest v2 path behind a feature flag. Keep target authorization, explicit scope/limits, cache/retention, cancellation, and error typing visible.
+5. Shadow both paths on approved canaries, compare content and metadata without duplicating downstream writes, and investigate meaningful differences.
+6. Shift traffic in stages only after parity, security, spend, load, and rollback gates pass. Keep the old path available through the observation window.
+7. Remove legacy code and secrets only after rollback expiry, archive the decision and evidence, and verify dependency and data cleanup.
 
-```typescript
-// BEFORE: Puppeteer (20+ lines, browser management)
-import puppeteer from "puppeteer";
+## Tool Discipline
 
-async function scrapePuppeteer(url: string) {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.goto(url, { waitUntil: "networkidle2" });
-  const html = await page.content();
-  const title = await page.title();
-  await browser.close();
-  return { html, title };
-}
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-// AFTER: Firecrawl (5 lines, no browser needed)
-import FirecrawlApp from "@mendable/firecrawl-js";
+## Approval Boundaries
 
-const firecrawl = new FirecrawlApp({ apiKey: process.env.FIRECRAWL_API_KEY! });
-
-async function scrapeFirecrawl(url: string) {
-  const result = await firecrawl.scrapeUrl(url, {
-    formats: ["markdown"],
-    onlyMainContent: true,
-    waitFor: 2000,
-  });
-  return { markdown: result.markdown, title: result.metadata?.title };
-}
-```
+Require approval before replaying authenticated sessions, changing target behavior or proxies, enabling Cloud-only processing, increasing spend, shifting traffic, or deleting the legacy path.
 
 ## Output
 
-Keep a migration receipt listing each target, old and proposed behavior, validation result, permitted data destination, canary outcome, and rollback decision. Redact page content, credentials, and any personal data collected during comparison.
-
-## Examples
-
-Choose one approved staging page and compare only metadata, content hash, and schema-valid field counts from the old and new paths. If the new path exceeds the credit budget, changes the extraction contract, or captures an unapproved field, disable the canary and retain the old path while the mapping is reviewed.
-
-### Step 2: Replace Cheerio HTML Parsing
-
-```typescript
-// BEFORE: fetch + cheerio (manual parsing)
-import * as cheerio from "cheerio";
-
-async function scrapeCheerio(url: string) {
-  const html = await fetch(url).then(r => r.text());
-  const $ = cheerio.load(html);
-  return {
-    title: $("h1").first().text(),
-    content: $("main").text(),
-    links: $("a").map((_, el) => $(el).attr("href")).get(),
-  };
-}
-
-// AFTER: Firecrawl with extract (LLM-powered, no CSS selectors)
-async function extractFirecrawl(url: string) {
-  const result = await firecrawl.scrapeUrl(url, {
-    formats: ["extract", "links"],
-    extract: {
-      schema: {
-        type: "object",
-        properties: {
-          title: { type: "string" },
-          content: { type: "string" },
-        },
-      },
-    },
-  });
-  return {
-    title: result.extract?.title,
-    content: result.extract?.content,
-    links: result.links,
-  };
-}
-```
-
-### Step 3: Replace Crawl Pipeline
-
-```typescript
-// BEFORE: Playwright crawler (100+ lines, queue, browser pool)
-// - launch browser pool
-// - manage visited URLs set
-// - extract links, enqueue
-// - handle errors per page
-// - close browsers on exit
-
-// AFTER: Firecrawl crawl (10 lines)
-async function crawlSite(baseUrl: string) {
-  const result = await firecrawl.crawlUrl(baseUrl, {
-    limit: 100,
-    maxDepth: 3,
-    includePaths: ["/docs/*", "/api/*"],
-    excludePaths: ["/blog/*"],
-    scrapeOptions: {
-      formats: ["markdown"],
-      onlyMainContent: true,
-    },
-  });
-
-  return result.data?.map(page => ({
-    url: page.metadata?.sourceURL,
-    title: page.metadata?.title,
-    content: page.markdown,
-  }));
-}
-```
-
-### Step 4: Gradual Migration with Adapter Pattern
-
-```typescript
-// Adapter interface for gradual migration
-interface ScrapeAdapter {
-  scrape(url: string): Promise<{ title: string; content: string }>;
-  crawl(url: string, maxPages: number): Promise<Array<{ url: string; content: string }>>;
-}
-
-class FirecrawlAdapter implements ScrapeAdapter {
-  private client: FirecrawlApp;
-
-  constructor() {
-    this.client = new FirecrawlApp({ apiKey: process.env.FIRECRAWL_API_KEY! });
-  }
-
-  async scrape(url: string) {
-    const result = await this.client.scrapeUrl(url, {
-      formats: ["markdown"],
-      onlyMainContent: true,
-    });
-    return {
-      title: result.metadata?.title || "",
-      content: result.markdown || "",
-    };
-  }
-
-  async crawl(url: string, maxPages: number) {
-    const result = await this.client.crawlUrl(url, {
-      limit: maxPages,
-      scrapeOptions: { formats: ["markdown"], onlyMainContent: true },
-    });
-    return (result.data || []).map(page => ({
-      url: page.metadata?.sourceURL || url,
-      content: page.markdown || "",
-    }));
-  }
-}
-
-// Feature flag controlled migration
-function getScrapeAdapter(): ScrapeAdapter {
-  if (process.env.USE_FIRECRAWL === "true") {
-    return new FirecrawlAdapter();
-  }
-  return new LegacyPuppeteerAdapter();
-}
-```
-
-### Step 5: Remove Old Dependencies
-
-```bash
-set -euo pipefail
-# After migration is complete and verified
-npm uninstall puppeteer puppeteer-core
-npm uninstall playwright @playwright/test
-npm uninstall cheerio
-
-# Remove browser downloads
-npx playwright uninstall --all 2>/dev/null || true
-
-# Verify no lingering references
-grep -r "puppeteer\|playwright\|cheerio" src/ --include="*.ts" || echo "Clean!"
-```
-
-## Migration Checklist
-
-- [ ] Install `@mendable/firecrawl-js`
-- [ ] Create adapter layer wrapping Firecrawl
-- [ ] Replace single-page scrapes with `scrapeUrl`
-- [ ] Replace crawl loops with `crawlUrl`
-- [ ] Replace HTML parsing with `extract` or markdown
-- [ ] Feature flag to switch between old and new
-- [ ] Run both in parallel, compare outputs
-- [ ] Remove old scraping dependencies
-- [ ] Delete browser management code
+Return the capability matrix, parity definition, adapter design, golden corpus, shadow results, cost and risk comparison, staged rollout, rollback evidence, and deferred gaps.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Different output format | Puppeteer returns HTML, Firecrawl markdown | Adjust downstream consumers |
-| Missing CSS selector data | Firecrawl doesn't use selectors | Use `extract` with JSON schema |
-| Higher latency for single pages | API call vs local browser | Acceptable trade-off for zero infra |
-| Content differences | Different JS wait timing | Tune `waitFor` parameter |
+- Required behavior has no Firecrawl equivalent: retain that legacy component or redesign explicitly.
+- Shadow outputs contain sensitive differences: quarantine the comparison and use content-free metrics.
+- Parity cannot be measured: block migration rather than accepting visual inspection alone.
+
+## Examples
+
+- "Replace our docs crawler" maps discovery, rendering, filters, retries, and indexing before shadowing.
+- "Delete Playwright first" is rejected until Firecrawl parity and rollback are proven.
 
 ## Resources
 
-- [Firecrawl vs Puppeteer](https://docs.firecrawl.dev/introduction)
-- [Firecrawl Scrape Options](https://docs.firecrawl.dev/features/scrape)
-- [Advanced Scraping Guide](https://docs.firecrawl.dev/advanced-scraping-guide)
-
-## Next Steps
-
-For advanced troubleshooting, see `firecrawl-advanced-troubleshooting`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

@@ -1,239 +1,78 @@
 ---
 name: firecrawl-multi-env-setup
-description: 'Configure Firecrawl across development, staging, and production environments.
-
-  Use when setting up multi-environment scraping pipelines, managing credit budgets
-  per env,
-
-  or configuring self-hosted Firecrawl for development.
-
-  Trigger with phrases like "firecrawl environments", "firecrawl staging",
-
-  "firecrawl dev prod", "firecrawl environment setup", "firecrawl config by env".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(docker:*), Bash(gcloud:*)
-version: 1.11.0
+description: >-
+  Separate Firecrawl development, staging, and production identities, targets, budgets, policies, telemetry, and data stores. Use when creating or auditing multiple environments. Trigger with "Firecrawl environments", "Firecrawl staging", or "separate Firecrawl keys".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <environment-set>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- deployment
-- api
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, environments, security]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Multi-Environment Setup
+# Firecrawl Environment Separation
 
 ## Overview
 
-Firecrawl's credit-based pricing makes environment separation critical. Development should use self-hosted Firecrawl or strict limits to avoid burning production credits during testing. This skill covers per-environment config, self-hosted Docker for dev, and credit budget enforcement.
+Prevent a test from consuming production credits, crawling production targets, or writing captured content into the wrong store. Environment identity must be explicit and fail closed.
 
 ## Prerequisites
 
-- Separate development, staging, and production identities with independently scoped secrets and budgets.
-- An environment owner, approved target policies, and a secret-manager integration.
-- Synthetic staging targets plus evidence that production destinations cannot be reached from untrusted jobs.
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
 
-## Output
+## Current Contract
 
-Record an environment-control receipt with identity references, target and budget policies, validation result, change owner, and rollback path. Never copy credentials or scraped content into configuration records.
+Cloud keys are team-scoped credentials and team limits are shared across keys, so separate keys alone do not guarantee capacity isolation. Key restrictions, spend limits, IP restrictions, distinct teams/accounts where appropriate, and an application policy gateway provide different isolation layers. Self-hosted evaluation has a separate capability and security contract.
 
-## Environment Strategy
+## Authentication
 
-| Environment | API Source | Crawl Limit | Concurrency | Credits |
-|-------------|-----------|-------------|-------------|---------|
-| Development | Self-hosted Docker | 10 pages | 1 | Zero (local) |
-| Staging | Cloud API (test key) | 50 pages | 2 | Limited |
-| Production | Cloud API (prod key) | Per-task | Full plan | Monitored |
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Environment-Aware Configuration
+1. Inventory each environment's owner, team/account, key, secret path, egress, allowed domains, endpoints/formats, spend ceiling, queue capacity, retention, store, and alert destination.
+2. Create distinct secret-manager entries and workload identities. Validate that configuration names the environment and refuses missing or cross-environment values.
+3. Apply environment-specific domain policy, explicit crawl/batch limits, endpoint/format restrictions where available, and non-production credit ceilings.
+4. Keep production targets and captured fixtures out of developer machines and pull-request CI. Use synthetic fakes by default and a protected staging tenant for live tests.
+5. Route telemetry and audit receipts with an environment label while redacting keys, URLs, custom headers, prompts, and bodies.
+6. Test cross-environment secret, target, store, webhook, and queue mistakes; assert they fail before a Firecrawl request or downstream write.
+7. Document promotion as configuration and evidence review, not copying a .env file; test independent rotation and rollback.
 
-```typescript
-// config/firecrawl.ts
-import FirecrawlApp from "@mendable/firecrawl-js";
+## Tool Discipline
 
-type Env = "development" | "staging" | "production";
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-interface FirecrawlConfig {
-  apiKey: string;
-  apiUrl?: string;
-  maxPagesPerCrawl: number;
-  maxDepth: number;
-  concurrency: number;
-  waitFor: number;
-}
+## Approval Boundaries
 
-const configs: Record<Env, FirecrawlConfig> = {
-  development: {
-    apiKey: process.env.FIRECRAWL_API_KEY_DEV || "fc-localdev",
-    apiUrl: process.env.FIRECRAWL_API_URL_DEV || "http://localhost:3002",
-    maxPagesPerCrawl: 10,
-    maxDepth: 2,
-    concurrency: 1,
-    waitFor: 2000,
-  },
-  staging: {
-    apiKey: process.env.FIRECRAWL_API_KEY_STAGING!,
-    maxPagesPerCrawl: 50,
-    maxDepth: 3,
-    concurrency: 2,
-    waitFor: 3000,
-  },
-  production: {
-    apiKey: process.env.FIRECRAWL_API_KEY_PROD!,
-    maxPagesPerCrawl: 500,
-    maxDepth: 5,
-    concurrency: 5,
-    waitFor: 3000,
-  },
-};
+Require approval before creating a team/key, adding a production target to staging, sharing capacity, changing spend controls, or copying data or configuration across environments.
 
-export function getConfig(): FirecrawlConfig {
-  const env = (process.env.NODE_ENV || "development") as Env;
-  return configs[env] || configs.development;
-}
+## Output
 
-export function getFirecrawl(): FirecrawlApp {
-  const cfg = getConfig();
-  return new FirecrawlApp({
-    apiKey: cfg.apiKey,
-    ...(cfg.apiUrl ? { apiUrl: cfg.apiUrl } : {}),
-  });
-}
-```
-
-### Step 2: Self-Hosted Firecrawl for Development
-
-```yaml
-# docker-compose.dev.yml
-services:
-  firecrawl:
-    image: mendableai/firecrawl:latest
-    ports:
-      - "3002:3002"
-    environment:
-      - PORT=3002
-      - USE_DB_AUTHENTICATION=false
-      - REDIS_URL=redis://redis:6379
-      - NUM_WORKERS_PER_QUEUE=1
-      - BULL_AUTH_KEY=devonly
-    depends_on:
-      redis:
-        condition: service_healthy
-
-  redis:
-    image: redis:7-alpine
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-```
-
-```bash
-set -euo pipefail
-docker compose -f docker-compose.dev.yml up -d
-# Verify: curl http://localhost:3002/health
-```
-
-### Step 3: Credit-Safe Scraping Wrapper
-
-```typescript
-// lib/firecrawl-service.ts
-import { getFirecrawl, getConfig } from "../config/firecrawl";
-
-export async function safeScrape(url: string, options?: any) {
-  const firecrawl = getFirecrawl();
-  return firecrawl.scrapeUrl(url, {
-    formats: ["markdown"],
-    onlyMainContent: true,
-    waitFor: getConfig().waitFor,
-    ...options,
-  });
-}
-
-export async function safeCrawl(url: string, customLimit?: number) {
-  const firecrawl = getFirecrawl();
-  const cfg = getConfig();
-  const limit = Math.min(customLimit ?? cfg.maxPagesPerCrawl, cfg.maxPagesPerCrawl);
-
-  return firecrawl.crawlUrl(url, {
-    limit,
-    maxDepth: cfg.maxDepth,
-    scrapeOptions: { formats: ["markdown"], onlyMainContent: true },
-  });
-}
-```
-
-### Step 4: Environment Variables
-
-```bash
-# .env.local (development — uses self-hosted, zero credits)
-FIRECRAWL_API_KEY_DEV=fc-localdev
-FIRECRAWL_API_URL_DEV=http://localhost:3002
-NODE_ENV=development
-
-# CI / Staging
-FIRECRAWL_API_KEY_STAGING=fc-staging-xxx
-
-# Production
-FIRECRAWL_API_KEY_PROD=fc-prod-xxx
-```
-
-### Step 5: CI/CD Pipeline
-
-```yaml
-# .github/workflows/deploy.yml
-jobs:
-  test:
-    environment: staging
-    env:
-      FIRECRAWL_API_KEY_STAGING: ${{ secrets.FIRECRAWL_API_KEY_STAGING }}
-      NODE_ENV: staging
-    steps:
-      - run: npm ci && npm test
-      - run: npm run test:integration
-        # Uses staging config: 50-page limit, staging API key
-
-  deploy:
-    needs: test
-    environment: production
-    env:
-      FIRECRAWL_API_KEY_PROD: ${{ secrets.FIRECRAWL_API_KEY_PROD }}
-      NODE_ENV: production
-```
+Return an environment matrix, identities and secret references, target and endpoint policies, budget/capacity isolation, stores, tests, promotion path, and unresolved shared dependencies.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Dev credits drained | Using cloud API in dev | Point to self-hosted at localhost:3002 |
-| Self-hosted not responding | Docker container down | `docker compose up -d firecrawl` |
-| `402 Payment Required` | Prod credits exhausted | Monitor balance, set budget alerts |
-| Different results per env | `waitFor` mismatch | Standardize wait time across envs |
+- A shared team makes capacity isolation impossible: document it and add throttling or choose stronger isolation.
+- Environment cannot be identified at startup: fail closed.
+- A cross-environment write is detected: halt processing, preserve redacted evidence, and invoke data-incident handling.
 
 ## Examples
 
-### Check Active Configuration
-
-```typescript
-import { getConfig } from "./config/firecrawl";
-
-const cfg = getConfig();
-console.log(`Env: ${process.env.NODE_ENV}`);
-console.log(`Max pages: ${cfg.maxPagesPerCrawl}`);
-console.log(`API: ${cfg.apiUrl || "https://api.firecrawl.dev"}`);
-```
+- "Set up Firecrawl staging" creates its own identity, policy, budget, telemetry, and store.
+- "Reuse the production key locally" is rejected even if the key is convenient.
 
 ## Resources
 
-- [Firecrawl Self-Hosting](https://docs.firecrawl.dev/contributing/self-host)
-- [Firecrawl Pricing](https://firecrawl.dev/pricing)
-- [Docker Compose](https://github.com/mendableai/firecrawl/blob/main/docker-compose.yaml)
-
-## Next Steps
-
-For deployment configuration, see `firecrawl-deploy-integration`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

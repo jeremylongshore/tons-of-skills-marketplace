@@ -1,257 +1,78 @@
 ---
 name: firecrawl-load-scale
-description: 'Load test and scale Firecrawl scraping pipelines with concurrency control
-  and batching.
-
-  Use when testing scraping throughput, planning capacity for large crawl jobs,
-
-  or optimizing concurrent scrape performance.
-
-  Trigger with phrases like "firecrawl load test", "firecrawl scale",
-
-  "firecrawl throughput", "firecrawl capacity", "firecrawl concurrent".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(node:*), Bash(npm:*)
-version: 1.11.0
+description: >-
+  Measure Firecrawl throughput under plan, team rate, browser concurrency, queue, timeout, target-policy, and credit constraints. Use when planning or validating scale. Trigger with "load test Firecrawl", "Firecrawl concurrency", or "scale Firecrawl".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <load-profile>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- testing
-- performance
-- scaling
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, performance, capacity]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Load & Scale
+# Firecrawl Capacity and Load Validation
 
 ## Overview
 
-Load test and scale Firecrawl scraping pipelines. Firecrawl's rate limits are per-plan (RPM and concurrent connections), so scaling means maximizing throughput within those limits using batch scraping, async crawls, and queue-based request management.
+Find the safe operating envelope with synthetic or explicitly authorized targets. A load test must not become an uncontrolled scrape campaign or consume unapproved credits.
 
 ## Prerequisites
 
-- Current provider limits confirmed from the applicable plan and a named budget owner.
-- An approved test target set, synthetic load fixtures, maximum spend, and safety cutoff.
-- Queue instrumentation for aggregate throughput, errors, throttles, duplicate suppression, and backlog age.
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
 
-## Output
+## Current Contract
 
-Publish a load-test receipt with fixture version, concurrency schedule, target-policy reference, aggregate throughput/latency/error metrics, credit usage, stop condition, owner approval, and rollback state. Do not retain captured page content in the report.
+Firecrawl separates per-team requests-per-minute limits from concurrent browser capacity. Work beyond browser capacity can queue, queue time counts against request timeout, and queue status exposes availability. Crawl and batch calls also accept maxConcurrency, while a crawl delay forces concurrency to one.
 
-## Rate Limits by Plan
+## Authentication
 
-| Plan | Scrape RPM | Concurrent Crawls | Max Batch Size |
-|------|-----------|-------------------|----------------|
-| Free | 10 | 2 | 10 |
-| Hobby | 20 | 3 | 50 |
-| Standard | 50 | 5 | 100 |
-| Growth | 100 | 10 | 100 |
-| Scale | 500+ | 50+ | 100 |
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Measure Baseline Throughput
+1. Define the approved target set, environment, maximum requests/pages/credits, concurrency steps, duration, stop thresholds, and owner. Prefer a controlled synthetic origin.
+2. Measure a single-worker baseline for submission latency, completion latency, throughput, queue time, error classes, origin status, output size, quality, and credit usage.
+3. Increase producer concurrency in small steps below the current plan/team limits. Observe Firecrawl queue status and the application's own backlog separately.
+4. For crawl or batch, test maxConcurrency and explicit limits; do not assume client request concurrency equals page-processing concurrency.
+5. Exercise 429 rate pressure, concurrency queuing, Retry-After handling, timeout, cancellation, partial pagination, and backpressure using synthetic responses before live load.
+6. Stop on error, spend, target-load, latency, queue-age, or quality thresholds. Drain or cancel work according to the test plan.
+7. Report the sustainable envelope with headroom, bottleneck evidence, configuration, cost, and rollback; never publish captured bodies.
 
-```typescript
-import FirecrawlApp from "@mendable/firecrawl-js";
+## Tool Discipline
 
-const firecrawl = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY!,
-});
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-async function measureThroughput(urls: string[], concurrency: number) {
-  const start = Date.now();
-  const results: Array<{ url: string; durationMs: number; success: boolean; chars: number }> = [];
+## Approval Boundaries
 
-  // Process in batches of `concurrency`
-  for (let i = 0; i < urls.length; i += concurrency) {
-    const batch = urls.slice(i, i + concurrency);
-    const batchResults = await Promise.all(
-      batch.map(async url => {
-        const t0 = Date.now();
-        try {
-          const result = await firecrawl.scrapeUrl(url, { formats: ["markdown"] });
-          return { url, durationMs: Date.now() - t0, success: true, chars: result.markdown?.length || 0 };
-        } catch {
-          return { url, durationMs: Date.now() - t0, success: false, chars: 0 };
-        }
-      })
-    );
-    results.push(...batchResults);
-  }
+Require approval before live load, increasing credits or plan capacity, using third-party targets, changing target delay/concurrency, or extending the test window.
 
-  const totalMs = Date.now() - start;
-  const succeeded = results.filter(r => r.success).length;
+## Output
 
-  console.log(`=== Throughput Report ===`);
-  console.log(`URLs: ${urls.length}, Concurrency: ${concurrency}`);
-  console.log(`Total time: ${totalMs}ms`);
-  console.log(`Success: ${succeeded}/${urls.length}`);
-  console.log(`Throughput: ${(urls.length / (totalMs / 1000)).toFixed(1)} pages/sec`);
-  console.log(`Avg latency: ${(results.reduce((s, r) => s + r.durationMs, 0) / results.length).toFixed(0)}ms`);
-
-  return results;
-}
-```
-
-### Step 2: Use Batch Scrape for Maximum Efficiency
-
-```typescript
-// batchScrapeUrls is the most efficient way to scrape multiple known URLs
-async function scaledBatchScrape(urls: string[], batchSize = 50) {
-  const allResults: any[] = [];
-
-  for (let i = 0; i < urls.length; i += batchSize) {
-    const batch = urls.slice(i, i + batchSize);
-    console.log(`Batch ${i / batchSize + 1}: scraping ${batch.length} URLs...`);
-
-    const result = await firecrawl.batchScrapeUrls(batch, {
-      formats: ["markdown"],
-      onlyMainContent: true,
-    });
-
-    allResults.push(...(result.data || []));
-    console.log(`  Done: ${result.data?.length} pages scraped`);
-  }
-
-  return allResults;
-}
-```
-
-### Step 3: Queue-Based Scraping with p-queue
-
-```typescript
-import PQueue from "p-queue";
-
-function createScrapeQueue(config: {
-  concurrency: number;
-  requestsPerSecond: number;
-}) {
-  const queue = new PQueue({
-    concurrency: config.concurrency,
-    interval: 1000,
-    intervalCap: config.requestsPerSecond,
-  });
-
-  async function scrape(url: string) {
-    return queue.add(async () => {
-      const result = await firecrawl.scrapeUrl(url, {
-        formats: ["markdown"],
-        onlyMainContent: true,
-      });
-      return { url, markdown: result.markdown, title: result.metadata?.title };
-    });
-  }
-
-  return { scrape, queue };
-}
-
-// Usage: respect rate limits automatically
-const { scrape, queue } = createScrapeQueue({
-  concurrency: 5,
-  requestsPerSecond: 10,
-});
-
-const urls = ["https://a.com", "https://b.com", /* ... */];
-const results = await Promise.all(urls.map(scrape));
-console.log(`Queue: ${queue.pending} pending, ${queue.size} queued`);
-```
-
-### Step 4: Scale Async Crawls
-
-```typescript
-// For large-scale content ingestion, run multiple async crawls
-async function parallelCrawls(targets: Array<{ url: string; limit: number }>) {
-  // Start all crawls
-  const jobs = await Promise.all(
-    targets.map(async t => {
-      const job = await firecrawl.asyncCrawlUrl(t.url, {
-        limit: t.limit,
-        scrapeOptions: { formats: ["markdown"] },
-      });
-      return { ...t, jobId: job.id };
-    })
-  );
-
-  console.log(`Started ${jobs.length} crawl jobs`);
-
-  // Poll all jobs until complete
-  const results: any[] = [];
-  const pending = new Set(jobs.map(j => j.jobId));
-
-  while (pending.size > 0) {
-    for (const jobId of [...pending]) {
-      const status = await firecrawl.checkCrawlStatus(jobId);
-      if (status.status === "completed") {
-        results.push({ jobId, pages: status.data?.length });
-        pending.delete(jobId);
-        console.log(`Job ${jobId} complete: ${status.data?.length} pages (${pending.size} remaining)`);
-      } else if (status.status === "failed") {
-        pending.delete(jobId);
-        console.error(`Job ${jobId} failed: ${status.error}`);
-      }
-    }
-    if (pending.size > 0) {
-      await new Promise(r => setTimeout(r, 5000));
-    }
-  }
-
-  return results;
-}
-```
-
-### Step 5: Capacity Planning
-
-```typescript
-function estimateCapacity(plan: {
-  rpm: number;
-  concurrentCrawls: number;
-  credits: number;
-}) {
-  const pagesPerMinute = plan.rpm;
-  const pagesPerHour = pagesPerMinute * 60;
-  const pagesPerDay = pagesPerHour * 24;
-  const daysOfCredits = plan.credits / (pagesPerDay * 0.5); // assume 50% utilization
-
-  console.log(`=== Capacity Estimate ===`);
-  console.log(`Max throughput: ${pagesPerMinute} pages/min`);
-  console.log(`Daily capacity: ${pagesPerDay.toLocaleString()} pages/day`);
-  console.log(`Credit runway: ${daysOfCredits.toFixed(0)} days at 50% utilization`);
-  console.log(`Concurrent crawl jobs: ${plan.concurrentCrawls}`);
-}
-
-// Standard plan
-estimateCapacity({ rpm: 50, concurrentCrawls: 5, credits: 50000 });
-```
+Return the load profile, target authorization, baseline and stepped metrics, queue behavior, throttle/error counts, credits, sustainable envelope, stop event, cleanup, and capacity recommendation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| 429 errors under load | Exceeding RPM limit | Reduce concurrency, use p-queue |
-| Batch scrape timeout | Too many URLs | Split into chunks of 50 |
-| Crawl jobs queued | Hit concurrent crawl limit | Stagger start times |
-| Diminishing returns | Network bottleneck | Increase plan tier, not concurrency |
+- Queue grows without stable throughput: stop producers and drain before testing another step.
+- Target-origin failures rise: treat target protection as a stop condition, not a reason to add proxies.
+- Credit telemetry is delayed: hold the next step until async usage settles.
 
 ## Examples
 
-### Quick Load Test
-
-```typescript
-const testUrls = Array.from({ length: 20 }, (_, i) =>
-  `https://docs.firecrawl.dev/features/${["scrape", "crawl", "map", "extract"][i % 4]}`
-);
-await measureThroughput(testUrls, 5);
-```
+- "Can we run 100 workers?" derives the answer from current team limits and a stepped test.
+- "Stress a competitor's site" is refused because target authorization is absent.
 
 ## Resources
 
-- [Firecrawl Rate Limits](https://docs.firecrawl.dev/rate-limits)
-- [Batch Scrape](https://docs.firecrawl.dev/features/batch-scrape)
-- [p-queue](https://github.com/sindresorhus/p-queue)
-
-## Next Steps
-
-For reliability patterns, see `firecrawl-reliability-patterns`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.
