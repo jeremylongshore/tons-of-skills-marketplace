@@ -1,295 +1,76 @@
 ---
 name: ideogram-common-errors
-description: 'Diagnose and fix Ideogram API errors and exceptions.
-
-  Use when encountering Ideogram errors, debugging failed requests,
-
-  or troubleshooting integration issues.
-
-  Trigger with phrases like "ideogram error", "fix ideogram",
-
-  "ideogram not working", "debug ideogram", "ideogram 422", "ideogram 429".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.10.0
+description: >-
+  Diagnose Ideogram authentication, validation, throttling, capacity, safety, and asset-expiry failures by evidence class. Use when a request fails or returns no usable image. Trigger with "debug Ideogram 422", "fix Ideogram 429", or "diagnose an empty Ideogram URL".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<status-or-symptom> <endpoint> <environment>"
+version: 1.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ideogram
-- debugging
-- errors
-compatibility: Designed for Claude Code
+tags: [saas, ideogram, troubleshooting]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; diagnosis defaults to sanitized offline evidence"
 ---
-# Ideogram Common Errors
+# Ideogram Error Diagnosis
 
 ## Overview
 
-Quick reference for the most common Ideogram API errors, their root causes, and proven fixes. All Ideogram endpoints return standard HTTP status codes with JSON error bodies.
+Classify an Ideogram failure before changing code or retrying spend. Separate authentication, billing readiness, request validation, throttling, service capacity, safety policy, asynchronous lifecycle, download expiry, and application storage failures.
 
 ## Prerequisites
 
-- Ideogram API key configured
-- Access to request/response logs
-- `curl` available for manual testing
+- Endpoint, method, environment, timestamp, sanitized status, and opaque request or generation identifier.
+- The exact adapter version and current endpoint documentation.
+- Access to content-free logs, fixtures, queue state, and storage receipts.
 
-## Error Reference
+## Current Contract
 
-### 401 -- Authentication Failed
+Endpoint docs surface `400`, `401`, `422`, and `429`; operational paths can also encounter transient service failures such as `503`. V4 `FLASH` currently produces `400`. Unsafe generation may complete with `is_image_safe=false` and an empty URL. Async work must reach a recognized terminal state.
 
-```
-HTTP 401 Unauthorized
-```
+## Authentication
 
-**Cause:** Missing, invalid, or revoked API key.
-
-**Fix:**
-
-```bash
-set -euo pipefail
-# Verify the key is set and not empty
-echo "Key length: ${#IDEOGRAM_API_KEY}"
-
-# Test auth directly
-curl -s -o /dev/null -w "%{http_code}" \
-  -X POST https://api.ideogram.ai/generate \
-  -H "Api-Key: $IDEOGRAM_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"image_request":{"prompt":"test","model":"V_2_TURBO"}}'
-```
-
-**Common mistakes:**
-
-- Using `Authorization: Bearer` instead of `Api-Key` header
-- Whitespace or newlines in the key string
-- Key was regenerated in dashboard but not updated in `.env`
-
----
-
-### 422 -- Safety Check Failed
-
-```json
-{"error": "Prompt or provided image failed the safety checks"}
-```
-
-**Cause:** Prompt text or uploaded image triggered Ideogram's content filter.
-
-**Fix:**
-
-- Remove brand names, celebrity names, or trademarked terms
-- Avoid violent, sexual, or politically sensitive content
-- Remove explicit references to real people
-- Rephrase with neutral descriptors
-
-```typescript
-// Pre-screen prompts before sending to API
-const FLAGGED_PATTERNS = [
-  /\b(coca.?cola|nike|apple|disney)\b/i,
-  /\b(celebrity|politician|president)\b/i,
-];
-
-function isPromptSafe(prompt: string): boolean {
-  return !FLAGGED_PATTERNS.some(p => p.test(prompt));
-}
-```
-
----
-
-### 429 -- Rate Limited
-
-```
-HTTP 429 Too Many Requests
-```
-
-**Cause:** More than 10 in-flight requests (default limit).
-
-**Fix:**
-
-```typescript
-async function rateLimitedGenerate(prompt: string) {
-  const maxRetries = 5;
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      return await generateImage(prompt);
-    } catch (err: any) {
-      if (err.status !== 429) throw err;
-      const delay = 1000 * Math.pow(2, attempt) + Math.random() * 500;
-      console.warn(`Rate limited. Retry in ${delay.toFixed(0)}ms`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error("Rate limit retries exhausted");
-}
-```
-
----
-
-### 400 -- Bad Request
-
-```json
-{"error": "Invalid input"}
-```
-
-**Cause:** Invalid parameter values in request body.
-
-**Common issues:**
-
-| Parameter | Wrong | Correct |
-|-----------|-------|---------|
-| aspect_ratio | `"16:9"` | `"ASPECT_16_9"` (legacy) or `"16x9"` (V3) |
-| style_type | `"realistic"` | `"REALISTIC"` (uppercase enum) |
-| model | `"v2"` | `"V_2"` (underscore + uppercase) |
-| num_images | `10` | `1`-`4` (max 4 per request) |
-| resolution | Used with `aspect_ratio` | Use one or the other, not both |
-
----
-
-### 402 -- Insufficient Credits
-
-```
-HTTP 402 Payment Required
-```
-
-**Cause:** API credit balance is depleted.
-
-**Fix:**
-
-1. Log into [ideogram.ai](https://ideogram.ai) > Settings > API Beta
-2. Check current balance and top-up settings
-3. Increase auto top-up amount or manually add credits
-4. Default: auto top-up $20 when balance drops below $10
-
----
-
-### Expired Image URL
-
-```
-HTTP 403 or 404 when downloading generated image
-```
-
-**Cause:** Ideogram image URLs are temporary (expire after ~1 hour).
-
-**Fix:**
-
-```typescript
-// ALWAYS download immediately after generation
-async function generateAndSave(prompt: string): Promise<string> {
-  const result = await generateImage(prompt);
-  const imageUrl = result.data[0].url;
-
-  // Download within seconds, not later
-  const response = await fetch(imageUrl);
-  if (!response.ok) throw new Error(`Image download failed: ${response.status}`);
-
-  const buffer = Buffer.from(await response.arrayBuffer());
-  const path = `./images/gen-${result.data[0].seed}.png`;
-  writeFileSync(path, buffer);
-  return path;
-}
-```
-
----
-
-### Mask Size Mismatch (Edit Endpoint)
-
-```json
-{"error": "Invalid input"}
-```
-
-**Cause:** Mask image dimensions do not match source image dimensions.
-
-**Fix:**
-
-```bash
-set -euo pipefail
-# Check dimensions match
-identify source.png  # e.g., 1024x1024
-identify mask.png    # Must also be 1024x1024
-
-# Resize mask to match source
-convert mask.png -resize 1024x1024! mask-resized.png
-```
-
----
-
-### Multipart Form Errors (V3 Endpoints)
-
-**Cause:** V3 endpoints (`/v1/ideogram-v3/*`) require multipart form data, not JSON.
-
-**Fix:**
-
-```typescript
-// WRONG for V3 endpoints:
-fetch(url, { body: JSON.stringify({...}), headers: { "Content-Type": "application/json" } });
-
-// CORRECT for V3 endpoints:
-const form = new FormData();
-form.append("prompt", "...");
-form.append("aspect_ratio", "1x1");
-fetch(url, { body: form, headers: { "Api-Key": key } });
-// Do NOT set Content-Type -- FormData handles the boundary
-```
-
-## Quick Diagnostic Script
-
-```bash
-set -euo pipefail
-echo "=== Ideogram Diagnostics ==="
-echo "API Key set: ${IDEOGRAM_API_KEY:+YES}"
-echo "Key length: ${#IDEOGRAM_API_KEY}"
-
-# Test connectivity
-STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-  -X POST https://api.ideogram.ai/generate \
-  -H "Api-Key: $IDEOGRAM_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"image_request":{"prompt":"test circle","model":"V_2_TURBO","magic_prompt_option":"OFF"}}')
-
-echo "API Response: $STATUS"
-case $STATUS in
-  200) echo "OK: Auth and generation working" ;;
-  401) echo "ERROR: Invalid API key" ;;
-  402) echo "ERROR: Insufficient credits" ;;
-  422) echo "ERROR: Safety filter (try different prompt)" ;;
-  429) echo "ERROR: Rate limited (wait and retry)" ;;
-  *)   echo "ERROR: Unexpected status $STATUS" ;;
-esac
-```
-
-## Error Handling
-
-| Error | HTTP | Root Cause | Fix |
-|-------|------|-----------|-----|
-| Auth failed | 401 | Bad `Api-Key` header | Verify key, check header name |
-| Safety filter | 422 | Flagged prompt/image | Rephrase prompt |
-| Rate limited | 429 | >10 in-flight requests | Exponential backoff |
-| Bad params | 400 | Wrong enum values | Use exact enum strings |
-| No credits | 402 | Balance depleted | Top up in dashboard |
-| URL expired | 403/404 | Late download | Download immediately |
-
-## Output
-
-- Identified error root cause
-- Applied fix with verification
-- Diagnostic output confirming resolution
+Verify only that a server-side `Api-Key` header is configured for `https://api.ideogram.ai`; never paste or print its value. A key, team balance, and application user authorization are separate checks.
 
 ## Instructions
 
-1. Classify authentication, parameter, content-policy, quota, generation, storage, and destination errors before changing configuration.
-2. Reproduce once with a fictional prompt fixture and capture only status, latency band, correlation ID, and aggregate result state.
-3. Check scope, right-to-use/consent record, parameter shape, quota, and destination allowlist in that order.
-4. Apply one reversible change at a time and escalate a redacted bundle if the same failure persists.
+1. Capture the endpoint, status, latency, attempt count, content type, sanitized error code, and opaque identifiers.
+2. Reproduce against a fixture before considering another paid live call.
+3. Map `401` to key presence, header name, environment, and revocation; map `400` or `422` to endpoint-specific fields and media validation.
+4. Map `429` to local in-flight concurrency, queue deadline, and server retry guidance; map `503` or transport failure to bounded transient handling.
+5. Inspect `is_image_safe`, URL presence, async terminal state, download timing, and durable-storage result separately.
+6. Apply one minimal correction, rerun the deterministic test, and use one approved synthetic live probe only if needed.
+7. Record cause, evidence, spend, affected scope, correction, and rollback.
+
+## Tool Discipline
+
+Use Read, Glob, and Grep for adapters, schemas, logs, and fixtures. Use Write and Edit only for an approved minimal fix or test. Do not rotate keys, add credit, replay production requests, alter prompts, or relax safety automatically.
+
+## Approval Boundaries
+
+Require ownership before a paid reproduction, credential rotation, balance change, concurrency increase, policy change, customer-content access, or production deploy. Preserve the failed state until enough sanitized evidence exists.
+
+## Error Handling
+
+- Never retry `400`, `401`, or `422` without a verified correction.
+- Retry transient capacity failures only within attempt, jitter, and total-deadline bounds.
+- An expired URL is a persistence failure; regenerating is a new paid and policy-governed operation.
+
+## Output
+
+Return symptom class, endpoint, sanitized status, evidence IDs, affected scope, leading cause, ruled-out causes, correction, tests, spend impact, and rollback status. Exclude credentials, prompts, images, raw vendor bodies, and URLs.
 
 ## Examples
 
-`status=429; env=sandbox; correlation=img-opaque-11; action=bounded-backoff; fixture=fictional; output_retention=none; probe=recovered` supports a safe handoff.
+- Diagnose `400` by finding V4 `rendering_speed=FLASH`, then reject the option locally.
+- Diagnose a `200` with no URL by checking `is_image_safe` before blaming storage or networking.
+
+## Validation
+
+Reproduce the original class deterministically, prove the corrected branch, test neighboring failure classes, and verify logs remain content-free. Confirm no queued retry or temporary asset remains after diagnosis.
 
 ## Resources
 
-- [Ideogram API Reference](https://developer.ideogram.ai/api-reference)
-- [API Overview](https://developer.ideogram.ai/ideogram-api/api-overview)
-
-## Next Steps
-
-For comprehensive debugging, see `ideogram-debug-bundle`.
+- [Current first-party evidence map](references/official-docs.md) — use the dated endpoint, webhook, billing, team, and training links as the contract index for this workflow.
+- Recheck the endpoint-specific page and current OpenAPI description before relying on an enum, limit, beta feature, or lifecycle claim.
+- Record live observations as environment-specific evidence, not as universal vendor guarantees.

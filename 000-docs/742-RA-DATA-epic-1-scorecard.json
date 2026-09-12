@@ -22,8 +22,8 @@
       "error_files": 410,
       "error_total": 2931,
       "grade_distribution": {
-        "A": 2474,
-        "B": 711,
+        "A": 2497,
+        "B": 688,
         "C": 148,
         "D": 154,
         "F": 4
@@ -42,7 +42,7 @@
       "values": {
         "plugin_agent_files": 352,
         "raw_tracked_plugin_skill_files": 2991,
-        "tracked_files": 25102
+        "tracked_files": 25155
       }
     },
     "2": {
@@ -91,7 +91,7 @@
         },
         "marketplace_terminal": {
           "error_total_all_validated_surfaces": 3168,
-          "fully_compliant_surfaces": 1562,
+          "fully_compliant_surfaces": 1586,
           "terminal_denominator": {
             "agents": 363,
             "commands": 370,
@@ -101,7 +101,7 @@
             "skills": 3491
           },
           "validated_plugin_manifests": 595,
-          "validator_reported_mixed_denominator_percent": 32.5
+          "validator_reported_mixed_denominator_percent": 33
         },
         "skill_rows": {
           "a_error_total": 31,
@@ -112,8 +112,8 @@
           "error_files": 410,
           "error_total": 2931,
           "grade_distribution": {
-            "A": 2474,
-            "B": 711,
+            "A": 2497,
+            "B": 688,
             "C": 148,
             "D": 154,
             "F": 4
@@ -129,17 +129,17 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "average_score": 90.4,
+        "average_score": 90.5,
         "grade_distribution": {
-          "A": 2474,
-          "B": 711,
+          "A": 2497,
+          "B": 688,
           "C": 148,
           "D": 154,
           "F": 4
         },
         "grade_percentages": {
-          "A": 70.9,
-          "B": 20.4,
+          "A": 71.5,
+          "B": 19.7,
           "C": 4.2,
           "D": 4.4,
           "F": 0.1
@@ -286,7 +286,7 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "distinct_values": 220,
+        "distinct_values": 244,
         "invalid_or_empty": 0,
         "target_free_text_values": 0,
         "values": [
@@ -367,7 +367,7 @@
             "value": "Cross-platform — talks WebDriver HTTP directly via Node's built-in node:https; no platform-specific binary dependency. Requires Node.js >= 18, a persistent local filesystem (the observe-decide-act loop passes state through local turn files), and ~/.kobiton/.credentials written by /automate:setup — scripts/appium.js reads that file directly and never calls the MCP getCredential tool, so it is required, not a fallback. An authenticated Kobiton MCP connection is additionally useful for device selection."
           },
           {
-            "count": 2733,
+            "count": 2709,
             "value": "Designed for Claude Code"
           },
           {
@@ -500,6 +500,10 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; architecture work is evidence-led and deployment-neutral"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; benchmarks require authorized synthetic or non-sensitive data"
           },
           {
@@ -509,6 +513,10 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; budget, award, eligibility, license, service, and program changes require finance, HR, procurement, and program-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; bundle creation operates on explicitly scoped local evidence"
           },
           {
             "count": 1,
@@ -564,6 +572,14 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; current prices must be checked at decision time"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; customer-derived media requires explicit authority"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; data extraction, transformation, loading, deletion, and cutover require source, target, privacy, and business-owner approval"
           },
           {
@@ -592,6 +608,10 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; deployment and live generation require explicit approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; deployment requires platform access and Together AI project authorization"
           },
           {
@@ -608,7 +628,15 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; deterministic local tests require no vendor credentials"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; developer-mode installation and any live source connection require approval from the project and data owners"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; diagnosis defaults to sanitized offline evidence"
           },
           {
             "count": 1,
@@ -620,11 +648,19 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; dual-run generation requires an approved cost and data plan"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; each live environment requires separately governed ClickUp authorization"
           },
           {
             "count": 1,
             "value": "Designed for Claude Code; enterprise endpoints require the relevant plan, owner authority, and approved identities"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; environment changes require the corresponding owners"
           },
           {
             "count": 1,
@@ -645,6 +681,10 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; evidence collection and disclosure require incident, security, and data-owner authorization"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; examples are transport patterns, not claims of an official SDK"
           },
           {
             "count": 1,
@@ -700,6 +740,10 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; live Ideogram work requires network access and prepaid API credit"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; live analysis requires sanitized ClickUp response headers"
           },
           {
@@ -716,6 +760,10 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; live capacity tests require explicit spend and load approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; live client verification requires a scoped ClickUp credential"
           },
           {
@@ -725,6 +773,10 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; live collection requires authorized ClickUp access and local retention controls"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live cutover requires change approval and paid canaries"
           },
           {
             "count": 1,
@@ -741,6 +793,18 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; live diagnosis requires authorized Lucid evidence and approval from the document, application, connector, or account owner"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live generation requires network access, a key, and prepaid credit"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live image generation consumes prepaid credit"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live image operations require approved rights, network access, and credit"
           },
           {
             "count": 1,
@@ -840,6 +904,14 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; normal CI runs entirely offline"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; operational mutations require the incident commander's approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; optional live document creation requires an approved Lucid credential and destination"
           },
           {
@@ -861,6 +933,10 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; package installation, secret creation, account access, and live searches require operator approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; paid benchmarks require a bounded test plan"
           },
           {
             "count": 1,
@@ -928,6 +1004,10 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; production mutation requires explicit release approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; production profiling or live load tests require service, data, and account-owner approval"
           },
           {
@@ -941,6 +1021,10 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; query, index, automation, concurrency, and production workload changes require platform and object owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; receiver tests should use local signed fixtures"
           },
           {
             "count": 1,
@@ -1000,6 +1084,10 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; security review defaults to repository and fixture evidence"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; security, identity, permission, sharing, and encryption changes require customer security and Salesforce administrator approval"
           },
           {
@@ -1017,6 +1105,14 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; submission requires network access, a project key, training data, and funded Together AI usage"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; team and key mutations require authorized administrators"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; telemetry must remain content-free"
           },
           {
             "count": 1,
@@ -2592,7 +2688,7 @@
         "invalid_patterns": 0,
         "invisible_files": 5,
         "target_invisible_files": 0,
-        "tracked_files": 25102
+        "tracked_files": 25155
       }
     },
     "47": {
@@ -2677,15 +2773,15 @@
       "dimension": "Inventory header versus rows",
       "reproduce": "pnpm run measure:e1 --row=52 --stdout",
       "source": [
-        "freshie/reports/run-delta-105.json",
+        "freshie/reports/run-delta-109.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],
       "status": "target_met",
       "values": {
-        "dolt_commit": "agmgds2011t82f5ihrhcfpbtc6v65v7c",
+        "dolt_commit": "f7ba1glnnpcrllvk1u8cpdodv15am6pi",
         "header_total_skills": 2914,
-        "run_id": 105,
+        "run_id": 109,
         "skill_row_delta": 0,
         "skill_rows": 2914,
         "target_skill_row_delta": 0
@@ -2698,32 +2794,32 @@
       "source": [
         "freshie/grade-histogram.json",
         "freshie/grades.csv",
-        "freshie/reports/run-delta-105.json"
+        "freshie/reports/run-delta-109.json"
       ],
       "status": "target_met",
       "values": {
         "compliance_rows": 3491,
-        "export_dolt_commit": "agmgds2011t82f5ihrhcfpbtc6v65v7c",
-        "export_run_id": 105,
+        "export_dolt_commit": "f7ba1glnnpcrllvk1u8cpdodv15am6pi",
+        "export_run_id": 109,
         "grades_csv_rows": 3491,
-        "grades_csv_sha256": "cf3062dfb0bf9ffd753c69bbc87a7a816513ee9df52777df763cbceeba449c9e",
+        "grades_csv_sha256": "f25fd4b1e4b01ca0a1d0af4a53703dd3122acdc9881981757e65a89091b3fb79",
         "histogram_grades": {
-          "A": 2474,
-          "B": 711,
+          "A": 2497,
+          "B": 688,
           "C": 148,
           "D": 154,
           "F": 4
         },
         "histogram_total": 3491,
         "immutable_grade_counts": {
-          "A": 2474,
-          "B": 711,
+          "A": 2497,
+          "B": 688,
           "C": 148,
           "D": 154,
           "F": 4
         },
-        "inventory_dolt_commit": "agmgds2011t82f5ihrhcfpbtc6v65v7c",
-        "inventory_run_id": 105,
+        "inventory_dolt_commit": "f7ba1glnnpcrllvk1u8cpdodv15am6pi",
+        "inventory_run_id": 109,
         "target_lag_runs": 0
       }
     },
@@ -2733,7 +2829,7 @@
       "reproduce": "pnpm run measure:e1 --row=54 --stdout",
       "source": [
         "freshie/reports/legacy-forge-proofs-demotion.json",
-        "freshie/reports/run-delta-105.json",
+        "freshie/reports/run-delta-109.json",
         "freshie/reports/run-delta-19.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py",
@@ -2747,7 +2843,7 @@
           "E2": 0,
           "E3": 0
         },
-        "current_run_id": 105,
+        "current_run_id": 109,
         "invalid_identities": 0,
         "legacy_e0_records": 3,
         "retained_e2_e3": 0,
@@ -2771,7 +2867,7 @@
       "source": [
         "000-docs/807-DR-STND-evaluation-evidence.md",
         "freshie/reports/legacy-forge-proofs-demotion.json",
-        "freshie/reports/run-delta-105.json",
+        "freshie/reports/run-delta-109.json",
         "freshie/reports/run-delta-19.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"

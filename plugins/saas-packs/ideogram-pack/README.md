@@ -1,12 +1,10 @@
-# Ideogram Skill Pack
+# Ideogram Operator Skill Pack
 
-> 24 Claude Code skills for Ideogram AI image generation -- text-to-image, editing, remixing, upscaling, and asset pipelines with real `api.ideogram.ai` endpoints.
+> 24 production-grade Claude Code skills for the current Ideogram API: V4, P-Image, V3 compatibility, image tools, verified async webhooks, durable assets, and governed operations.
 
-Ideogram is an AI image generation API that excels at rendering legible text inside images -- a capability where most image models fail. This skill pack provides production-ready patterns for all six API endpoints: Generate, Edit (Magic Fill), Remix, Upscale, Describe, and Reframe.
+This pack turns Ideogram's first-party contracts into bounded operator workflows. It treats API spend, uploaded and generated media, content safety, copyright controls, temporary URLs, async state, team access, and destructive actions as separate approval boundaries.
 
-**Links:** [Ideogram Developer Docs](https://developer.ideogram.ai) | [API Reference](https://developer.ideogram.ai/api-reference) | [Pricing](https://ideogram.ai/features/api-pricing) | [Tons of Skills](https://tonsofskills.com/learn/ideogram/)
-
----
+**Links:** [Ideogram developer docs](https://developer.ideogram.ai) · [API index](https://developer.ideogram.ai/api-reference.md) · [OpenAPI](https://developer.ideogram.ai/openapi.json) · [Current pricing](https://ideogram.ai/api-pricing) · [Tons of Skills](https://tonsofskills.com/learn/ideogram/)
 
 ## Installation
 
@@ -14,92 +12,58 @@ Ideogram is an AI image generation API that excels at rendering legible text ins
 /plugin install ideogram-pack@claude-code-plugins-plus
 ```
 
-## What This Pack Covers
+## Current API Coverage
 
-| Capability | Endpoint | Skill |
-|-----------|----------|-------|
-| Text-to-image generation | `POST /generate` | `ideogram-core-workflow-a` |
-| Image editing (Magic Fill) | `POST /v1/ideogram-v3/edit` | `ideogram-core-workflow-b` |
-| Style transfer / remixing | `POST /v1/ideogram-v3/remix` | `ideogram-core-workflow-b` |
-| Resolution upscaling | `POST /upscale` | `ideogram-core-workflow-b` |
-| Image description | `POST /describe` | `ideogram-core-workflow-b` |
-| Canvas reframing | `POST /v1/ideogram-v3/reframe` | `ideogram-core-workflow-b` |
+| Surface | Current contract |
+|---|---|
+| V4 generation | Synchronous, asynchronous, transparent, text or structured JSON prompting |
+| P-Image | Synchronous and asynchronous generation |
+| V3 | Generation, transparency, edit, remix, reframe, and compatibility workflows |
+| Prompt workflows | V4 structured describe and magic prompt |
+| Image tools | Background, object, logo, reframe, ad-resize, color, material, upscale, and text-layer operations |
+| Async lifecycle | `generation_id`, Ed25519-signed webhook, idempotent reconciliation, polling fallback |
+| Custom training | Dataset creation and upload, V3 training, model listing and status |
+| Asset lifecycle | Item safety check, immediate download, application-owned storage, deletion |
 
-## Skills Included
+The REST base is `https://api.ideogram.ai`; authentication uses the `Api-Key` header. The developer overview currently documents 10 in-flight requests by default. Returned image URLs expire, so successful completion requires durable application storage. Endpoint pages remain authoritative for multipart fields and rendering options; notably, V4 `FLASH` is currently rejected.
 
-### Standard Skills (S01-S12)
+## Skills
 
-| Skill | What It Does |
-|-------|-------------|
-| `ideogram-install-auth` | API key setup, authentication, billing configuration |
-| `ideogram-hello-world` | First generation with curl, TypeScript, and Python |
-| `ideogram-local-dev-loop` | Typed client, mock server, vitest tests |
-| `ideogram-sdk-patterns` | Singleton, retry, Zod validation, multi-tenant factory |
-| `ideogram-core-workflow-a` | Text-to-image: styles, aspect ratios, V3 presets, text rendering |
-| `ideogram-core-workflow-b` | Edit, Remix, Upscale, Describe, Reframe with real endpoints |
-| `ideogram-common-errors` | 401/422/429/400/402 diagnosis with fix scripts |
-| `ideogram-debug-bundle` | Diagnostic tarball for support tickets |
-| `ideogram-rate-limits` | Backoff, p-queue concurrency, token bucket |
-| `ideogram-security-basics` | Key rotation, proxy pattern, pre-commit hooks |
-| `ideogram-prod-checklist` | Pre-flight checks, health endpoints, rollback |
-| `ideogram-upgrade-migration` | Legacy to V3 migration with enum mapping |
+| Skill | Operator outcome |
+|---|---|
+| `ideogram-install-auth` | Team, billing, key, secret, and revocation boundary |
+| `ideogram-hello-world` | One bounded V4 sync generation and durable download |
+| `ideogram-local-dev-loop` | Deterministic fixtures with opt-in paid live smoke |
+| `ideogram-sdk-patterns` | Application-owned REST and multipart adapter |
+| `ideogram-core-workflow-a` | V4, transparency, P-Image, sync, and async route selection |
+| `ideogram-core-workflow-b` | Edit, remix, describe, magic prompt, and tool routing |
+| `ideogram-common-errors` | Auth, validation, throttling, safety, and expiry diagnosis |
+| `ideogram-debug-bundle` | Content-free support evidence |
+| `ideogram-rate-limits` | Account-level concurrency, queue, and deadline control |
+| `ideogram-security-basics` | Credentials, media, safety, copyright, and tenant controls |
+| `ideogram-prod-checklist` | Fail-closed production release decision |
+| `ideogram-upgrade-migration` | Bounded endpoint and schema upgrade |
+| `ideogram-ci-integration` | Offline required tests and trusted optional live lane |
+| `ideogram-deploy-integration` | Server, queue, storage, canary, and rollback topology |
+| `ideogram-webhooks-events` | Ed25519 verification, deduplication, and polling fallback |
+| `ideogram-performance-tuning` | Measured route, latency, and throughput optimization |
+| `ideogram-cost-tuning` | Prepaid budget and useful-output governance |
+| `ideogram-reference-architecture` | Policy gateway through audited durable asset |
+| `ideogram-multi-env-setup` | Key, budget, route, webhook, and storage isolation |
+| `ideogram-observability` | Content-free SLO, safety, queue, storage, and spend signals |
+| `ideogram-incident-runbook` | Bounded containment, reconciliation, and recovery |
+| `ideogram-data-handling` | Prompt, media, dataset, model, retention, and deletion lifecycle |
+| `ideogram-enterprise-rbac` | Vendor team roles plus application-owned RBAC |
+| `ideogram-migration-deep-dive` | Legacy and V3 to current-route staged migration |
 
-### Pro Skills (P13-P18)
+Every skill includes a dated, local first-party evidence map. Recheck those sources before relying on mutable commercial, limit, enum, or lifecycle facts.
 
-| Skill | What It Does |
-|-------|-------------|
-| `ideogram-ci-integration` | GitHub Actions, mocked tests, prompt validation |
-| `ideogram-deploy-integration` | Vercel, Cloud Run, Docker with S3 persistence |
-| `ideogram-webhooks-events` | BullMQ queues, callbacks, batch pipelines |
-| `ideogram-performance-tuning` | Speed tiers, prompt caching, parallel generation |
-| `ideogram-cost-tuning` | Two-phase drafting, budget tracking, billing alerts |
-| `ideogram-reference-architecture` | Prompt templates, asset pipelines, describe-then-remix |
+## Safety Defaults
 
-### Flagship Skills (F19-F24)
-
-| Skill | What It Does |
-|-------|-------------|
-| `ideogram-multi-env-setup` | Dev/staging/prod isolation with secret managers |
-| `ideogram-observability` | Prometheus metrics, Grafana queries, alerting rules |
-| `ideogram-incident-runbook` | Triage scripts, decision tree, fallback activation |
-| `ideogram-data-handling` | Image persistence, metadata tracking, lifecycle cleanup |
-| `ideogram-enterprise-rbac` | Team-scoped keys, content policies, budget enforcement |
-| `ideogram-migration-deep-dive` | DALL-E/Midjourney to Ideogram with strangler fig pattern |
-
-## API Quick Reference
-
-**Base URL:** `https://api.ideogram.ai`
-**Auth:** `Api-Key` header (not `Authorization: Bearer`)
-**Rate Limit:** 10 in-flight requests (default)
-**Image URLs:** Expire after ~1 hour -- download immediately
-
-### Models (Legacy)
-
-`V_1`, `V_1_TURBO`, `V_2`, `V_2_TURBO`, `V_2A`, `V_2A_TURBO`
-
-### Style Types
-
-Legacy: `AUTO`, `GENERAL`, `REALISTIC`, `DESIGN`, `RENDER_3D`, `ANIME`
-V3: `AUTO`, `GENERAL`, `REALISTIC`, `DESIGN`, `FICTION`
-
-### Aspect Ratios
-
-Legacy: `ASPECT_1_1`, `ASPECT_16_9`, `ASPECT_9_16`, `ASPECT_3_2`, `ASPECT_2_3`, `ASPECT_4_3`, `ASPECT_3_4`, `ASPECT_10_16`, `ASPECT_16_10`, `ASPECT_1_3`, `ASPECT_3_1`
-V3: `1x1`, `16x9`, `9x16`, `3x2`, `2x3`, `4x3`, `3x4`, `10x16`, `16x10`, `1x3`, `3x1`, `1x2`, `2x1`, `4x5`, `5x4`
-
-### V3 Rendering Speeds
-
-`FLASH` (fastest) | `TURBO` | `DEFAULT` | `QUALITY` (highest)
-
-## Usage
-
-Skills trigger automatically when you discuss Ideogram topics:
-
-- "Help me set up Ideogram" -> `ideogram-install-auth`
-- "Generate an image with text" -> `ideogram-core-workflow-a`
-- "Edit this image with a mask" -> `ideogram-core-workflow-b`
-- "Debug this Ideogram 422 error" -> `ideogram-common-errors`
-- "Deploy my Ideogram integration" -> `ideogram-deploy-integration`
+- No live generation, upload, deployment, balance change, role change, key mutation, or destructive cleanup is authorized merely by invoking a skill.
+- Credentials remain server-side; receipts exclude prompts, images, temporary URLs, and customer-derived content.
+- Unsafe output, missing durable storage, or unreconciled async state is not a successful completion.
+- Untrusted pull requests use sanitized fixtures and never receive an Ideogram key.
 
 ## License
 
