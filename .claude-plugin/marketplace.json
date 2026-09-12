@@ -5315,8 +5315,8 @@
     {
       "name": "firecrawl-pack",
       "source": "./plugins/saas-packs/firecrawl-pack",
-      "description": "Complete Firecrawl integration skill pack with 30 skills covering web scraping, crawling, markdown conversion, and LLM-ready data extraction. Flagship+ tier vendor pack.",
-      "version": "1.11.0",
+      "description": "Operator-grade Firecrawl v2 skill pack with 30 governed acquisition, security, reliability, and production workflows",
+      "version": "1.12.0",
       "category": "saas-packs",
       "keywords": [
         "firecrawl",

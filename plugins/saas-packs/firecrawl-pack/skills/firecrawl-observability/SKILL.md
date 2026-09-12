@@ -1,220 +1,78 @@
 ---
 name: firecrawl-observability
-description: 'Monitor Firecrawl scraping pipelines with metrics, credit tracking,
-  and quality alerts.
-
-  Use when implementing monitoring for Firecrawl operations, setting up dashboards,
-
-  or configuring alerting for scrape failures and credit consumption.
-
-  Trigger with phrases like "firecrawl monitoring", "firecrawl metrics",
-
-  "firecrawl observability", "monitor firecrawl", "firecrawl alerts".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
+description: >-
+  Instrument Firecrawl v2 requests, async jobs, queue pressure, credits, origin status, webhooks, output quality, and downstream delivery without logging content. Use when building monitoring or SLOs. Trigger with "monitor Firecrawl", "Firecrawl metrics", or "Firecrawl dashboard".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <service-or-slo>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- monitoring
-- observability
-- dashboard
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, observability, sre]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Observability
+# Firecrawl Operational Observability
 
 ## Overview
 
-Monitor Firecrawl web scraping pipelines for success rates, credit consumption, content quality, and latency. Key signals: scrape success rate, crawl job completion, credit burn velocity, extraction quality (did markdown actually contain useful content vs error pages), and webhook delivery health.
+Measure the service as a pipeline: submission, Firecrawl processing, origin result, pagination, validation, storage, and freshness. Transport success alone does not prove usable content.
 
 ## Prerequisites
 
-- An approved telemetry schema that uses aggregate measurements and opaque job identifiers.
-- Named alert owners, escalation thresholds, data-retention rules, and dashboards with restricted access.
-- Synthetic fixtures for alert testing and a documented way to suppress noisy signals without hiding incidents.
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
 
-## Output
+## Current Contract
 
-Produce an observability receipt with metric definitions, dashboard reference, alert thresholds, test result, owner, and review date. Do not send page content, API keys, or personal data to metrics, traces, or alert payloads.
+Use Credit Usage endpoints and dashboard activity for spend, Queue Status for capacity, job/status APIs for async progress, webhookId for delivery identity, metadata.statusCode for origin response, and creditsUsed where returned. Metric labels must not contain raw URLs, page content, prompts, keys, or unbounded IDs.
 
-## Examples
+## Authentication
 
-Use a synthetic target to create one successful crawl and one policy rejection. Confirm dashboards count both outcomes by category, an alert fires only on the configured threshold, and the alert contains an opaque job ID rather than captured content.
-
-## Key Metrics
-
-| Metric | Type | Why It Matters |
-|--------|------|---------------|
-| `firecrawl_scrapes_total` | Counter | Track scrape volume and success rate |
-| `firecrawl_credits_used` | Counter | Monitor credit consumption |
-| `firecrawl_scrape_duration_ms` | Histogram | Detect latency issues |
-| `firecrawl_content_quality` | Counter | Catch empty/error pages |
-| `firecrawl_crawl_jobs_total` | Counter | Track crawl job outcomes |
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Instrumented Firecrawl Wrapper
+1. Define SLIs and SLOs for accepted-result success, end-to-end latency, freshness, queue age, pagination completeness, origin-status distribution, output quality, webhook recovery, and spend.
+2. Instrument each stage with low-cardinality operation, environment, source-class, terminal-state, retry-class, and policy-version labels.
+3. Record opaque request/job/webhook IDs only in access-controlled traces. Hash or classify URLs and exclude custom headers, bodies, extracted values, screenshots, and secrets.
+4. Poll or stream async state within bounds, count every result page, and reconcile submitted, processed, accepted, rejected, stored, and deleted totals.
+5. Collect queue and credit evidence at a cadence that respects API limits. Account for delayed asynchronous billing before alerting on unexplained deltas.
+6. Alert on user-impacting SLO burn, sustained queue pressure, 402/403/429 shifts, origin errors, webhook retry exhaustion, schema rejection, and freshness lag.
+7. Run synthetic failure and recovery tests, verify dashboards against raw aggregate counts, and document alert ownership and runbook links.
 
-```typescript
-import FirecrawlApp from "@mendable/firecrawl-js";
+## Tool Discipline
 
-const firecrawl = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY!,
-});
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-// Counters (use your metrics library: prom-client, statsd, datadog, etc.)
-function emit(metric: string, value: number, tags?: Record<string, string>) {
-  console.log(JSON.stringify({ metric, value, tags, timestamp: Date.now() }));
-}
+## Approval Boundaries
 
-export async function instrumentedScrape(url: string) {
-  const start = Date.now();
-  try {
-    const result = await firecrawl.scrapeUrl(url, {
-      formats: ["markdown"],
-      onlyMainContent: true,
-    });
+Require approval before adding high-cardinality labels, retaining target identifiers, exporting telemetry to a new provider, or enabling synthetic network calls.
 
-    const duration = Date.now() - start;
-    const quality = evaluateQuality(result);
+## Output
 
-    emit("firecrawl_scrapes_total", 1, { status: "success" });
-    emit("firecrawl_scrape_duration_ms", duration);
-    emit("firecrawl_credits_used", 1);
-    emit("firecrawl_content_quality", 1, { quality });
-
-    return result;
-  } catch (error: any) {
-    emit("firecrawl_scrapes_total", 1, {
-      status: "error",
-      error_code: String(error.statusCode || "unknown"),
-    });
-    emit("firecrawl_scrape_duration_ms", Date.now() - start);
-    throw error;
-  }
-}
-
-function evaluateQuality(result: any): string {
-  const md = result.markdown || "";
-  if (md.length < 100) return "empty";
-  if (/404|not found|access denied|captcha/i.test(md)) return "error_page";
-  if (!/^#{1,3}\s/m.test(md)) return "no_structure";
-  return "good";
-}
-```
-
-### Step 2: Credit Consumption Monitor
-
-```typescript
-async function checkCreditHealth() {
-  const response = await fetch("https://api.firecrawl.dev/v1/team/credits", {
-    headers: { Authorization: `Bearer ${process.env.FIRECRAWL_API_KEY}` },
-  });
-  const data = await response.json();
-
-  emit("firecrawl_credits_remaining", data.credits_remaining || 0);
-
-  if (data.credits_remaining < 1000) {
-    console.warn(`LOW CREDITS: ${data.credits_remaining} remaining`);
-    emit("firecrawl_credit_alert", 1, { level: "warning" });
-  }
-  if (data.credits_remaining < 100) {
-    emit("firecrawl_credit_alert", 1, { level: "critical" });
-  }
-
-  return data;
-}
-
-// Run every hour
-setInterval(checkCreditHealth, 3600000);
-```
-
-### Step 3: Crawl Job Tracking
-
-```typescript
-export async function monitoredCrawl(url: string, limit: number) {
-  const start = Date.now();
-
-  const job = await firecrawl.asyncCrawlUrl(url, {
-    limit,
-    scrapeOptions: { formats: ["markdown"] },
-  });
-
-  emit("firecrawl_crawl_jobs_total", 1, { status: "started" });
-
-  // Poll with metrics
-  let status = await firecrawl.checkCrawlStatus(job.id);
-  while (status.status === "scraping") {
-    emit("firecrawl_crawl_progress", status.completed || 0, { jobId: job.id });
-    await new Promise(r => setTimeout(r, 5000));
-    status = await firecrawl.checkCrawlStatus(job.id);
-  }
-
-  const duration = Date.now() - start;
-  emit("firecrawl_crawl_jobs_total", 1, { status: status.status });
-  emit("firecrawl_crawl_duration_ms", duration);
-  emit("firecrawl_crawl_pages", status.data?.length || 0);
-  emit("firecrawl_credits_used", status.data?.length || 0);
-
-  return status;
-}
-```
-
-### Step 4: Prometheus Alert Rules
-
-```yaml
-groups:
-  - name: firecrawl
-    rules:
-      - alert: FirecrawlHighFailureRate
-        expr: rate(firecrawl_scrapes_total{status="error"}[1h]) / rate(firecrawl_scrapes_total[1h]) > 0.1
-        annotations:
-          summary: "Firecrawl error rate exceeds 10%"
-
-      - alert: FirecrawlCreditLow
-        expr: firecrawl_credits_remaining < 500
-        annotations:
-          summary: "Firecrawl credits below 500 — refill soon"
-
-      - alert: FirecrawlHighLatency
-        expr: histogram_quantile(0.95, firecrawl_scrape_duration_ms) > 15000
-        annotations:
-          summary: "Firecrawl p95 latency exceeds 15 seconds"
-
-      - alert: FirecrawlPoorQuality
-        expr: rate(firecrawl_content_quality{quality="empty"}[1h]) / rate(firecrawl_content_quality[1h]) > 0.2
-        annotations:
-          summary: "Over 20% of scrapes returning empty content"
-```
-
-### Step 5: Dashboard Panels
-
-Track these in Grafana/Datadog:
-
-- **Scrape volume**: `sum(rate(firecrawl_scrapes_total[5m]))` by status
-- **Credit burn rate**: `sum(rate(firecrawl_credits_used[1h]))` — credits/hour
-- **Latency p50/p95**: `histogram_quantile(0.5, firecrawl_scrape_duration_ms)`
-- **Content quality**: Pie chart of `firecrawl_content_quality` by quality label
-- **Credits remaining**: Single stat with thresholds (green > 1000, yellow > 100, red < 100)
+Return the SLI/SLO definitions, event and metric schema, redaction/cardinality rules, dashboard and alert design, reconciliation checks, test results, and runbook ownership.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| High failure rate | Target sites blocking | Enable `waitFor`, rotate target URLs |
-| Poor content quality | JS not rendering | Increase `waitFor` or use `actions` |
-| Credit burn spike | Unbounded crawl | Enforce `limit` on all crawl calls |
-| Missing metrics | Wrapper not used | Ensure all scrape calls go through instrumented wrapper |
+- Metrics disagree with job totals: stop reporting completeness until pagination and terminal states reconcile.
+- An alert includes content or a credential: remove it and treat the exposure according to policy.
+- Credit data is delayed: use a settlement window and corroborate with completed-page counts.
+
+## Examples
+
+- "Alert on bad Firecrawl output" combines origin status and content-quality gates, not HTTP success alone.
+- "Label metrics with full URL" is replaced with an approved source class or controlled hash.
 
 ## Resources
 
-- [Firecrawl API Reference](https://docs.firecrawl.dev/api-reference/introduction)
-- [prom-client (Prometheus for Node.js)](https://github.com/siimon/prom-client)
-- [Grafana Dashboards](https://grafana.com/docs/grafana/latest/dashboards/)
-
-## Next Steps
-
-For incident response, see `firecrawl-incident-runbook`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

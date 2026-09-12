@@ -10283,7 +10283,7 @@
       "slug": "firecrawl-pack",
       "name": "firecrawl-pack",
       "displayName": "firecrawl pack",
-      "description": "Complete Firecrawl integration skill pack with 30 skills covering web scraping, crawling, markdown conversion, and LLM-ready data extraction. Flagship+ tier vendor pack.",
+      "description": "Operator-grade Firecrawl v2 skill pack with 30 governed acquisition, security, reliability, and production workflows",
       "category": "saas-packs",
       "keywords": [
         "firecrawl",
@@ -10300,15 +10300,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.11.0",
+      "version": "1.12.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 30,
-      "verificationScore": 83,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "firecrawl pack complete firecrawl integration skill pack with 30 skills covering web scraping, crawling, markdown conversion, and llm-ready data extraction. flagship+ tier vendor pack. saas-packs firecrawl web-scraping crawling markdown llm-ready data-extraction scraper"
+      "verificationScore": 98,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "firecrawl pack operator-grade firecrawl v2 skill pack with 30 governed acquisition, security, reliability, and production workflows saas-packs firecrawl web-scraping crawling markdown llm-ready data-extraction scraper"
     },
     {
       "type": "plugin",
@@ -37953,627 +37953,660 @@
       "id": "firecrawl-advanced-troubleshooting",
       "slug": "firecrawl-advanced-troubleshooting",
       "name": "firecrawl-advanced-troubleshooting",
-      "description": "Debug hard-to-diagnose Firecrawl issues with systematic isolation and evidence collection. Use when standard troubleshooting fails, investigating why scrapes return empty content, crawl jobs hang, or webhooks don't fire. Trigger with phrases like \"firecrawl hard bug\", \"firecrawl mystery error\", \"firecrawl impossible to debug\", \"firecrawl deep debug\", \"firecrawl not scraping\".",
+      "description": "Isolate difficult Firecrawl v2 failures by separating caller, authentication, request, queue, rendering, origin, and result-processing evidence. Use when routine fixes fail or results are empty, partial, slow, or inconsistent. Trigger with \"debug Firecrawl deeply\", \"empty Firecrawl result\", or \"stuck Firecrawl job\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)",
-        "Bash(node:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-advanced-troubleshooting debug hard-to-diagnose firecrawl issues with systematic isolation and evidence collection. use when standard troubleshooting fails, investigating why scrapes return empty content, crawl jobs hang, or webhooks don't fire. trigger with phrases like \"firecrawl hard bug\", \"firecrawl mystery error\", \"firecrawl impossible to debug\", \"firecrawl deep debug\", \"firecrawl not scraping\". saas-packs read grep bash(curl:*) bash(node:*) "
+      "searchText": "firecrawl-advanced-troubleshooting isolate difficult firecrawl v2 failures by separating caller, authentication, request, queue, rendering, origin, and result-processing evidence. use when routine fixes fail or results are empty, partial, slow, or inconsistent. trigger with \"debug firecrawl deeply\", \"empty firecrawl result\", or \"stuck firecrawl job\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-architecture-variants",
       "slug": "firecrawl-architecture-variants",
       "name": "firecrawl-architecture-variants",
-      "description": "Choose and implement Firecrawl architecture patterns for different scales and use cases. Use when designing new Firecrawl integrations, choosing between on-demand/scheduled/pipeline architectures, or planning scraping infrastructure. Trigger with phrases like \"firecrawl architecture\", \"firecrawl blueprint\", \"how to structure firecrawl\", \"firecrawl at scale\", \"firecrawl pipeline design\".",
+      "description": "Select a Firecrawl v2 architecture for interactive scrape, governed batch, scheduled crawl, search enrichment, or self-hosted processing. Use when designing or reviewing a Firecrawl system. Trigger with \"Firecrawl architecture\", \"design a crawl pipeline\", or \"cloud versus self-hosted Firecrawl\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-architecture-variants choose and implement firecrawl architecture patterns for different scales and use cases. use when designing new firecrawl integrations, choosing between on-demand/scheduled/pipeline architectures, or planning scraping infrastructure. trigger with phrases like \"firecrawl architecture\", \"firecrawl blueprint\", \"how to structure firecrawl\", \"firecrawl at scale\", \"firecrawl pipeline design\". saas-packs read grep "
+      "searchText": "firecrawl-architecture-variants select a firecrawl v2 architecture for interactive scrape, governed batch, scheduled crawl, search enrichment, or self-hosted processing. use when designing or reviewing a firecrawl system. trigger with \"firecrawl architecture\", \"design a crawl pipeline\", or \"cloud versus self-hosted firecrawl\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-ci-integration",
       "slug": "firecrawl-ci-integration",
       "name": "firecrawl-ci-integration",
-      "description": "Configure Firecrawl CI/CD integration with GitHub Actions and automated scraping tests. Use when setting up automated testing of Firecrawl integrations, configuring CI pipelines, or validating scraping behavior in pull requests. Trigger with phrases like \"firecrawl CI\", \"firecrawl GitHub Actions\", \"firecrawl automated tests\", \"CI firecrawl\", \"test firecrawl in CI\".",
+      "description": "Build deterministic CI gates for a Firecrawl v2 integration using synthetic fixtures, pinned schemas, secret scanning, and an optional protected smoke test. Use when adding regression coverage or release controls. Trigger with \"Firecrawl CI\", \"Firecrawl contract tests\", or \"test our Firecrawl integration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(gh:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-ci-integration configure firecrawl ci/cd integration with github actions and automated scraping tests. use when setting up automated testing of firecrawl integrations, configuring ci pipelines, or validating scraping behavior in pull requests. trigger with phrases like \"firecrawl ci\", \"firecrawl github actions\", \"firecrawl automated tests\", \"ci firecrawl\", \"test firecrawl in ci\". saas-packs read write edit bash(gh:*) "
+      "searchText": "firecrawl-ci-integration build deterministic ci gates for a firecrawl v2 integration using synthetic fixtures, pinned schemas, secret scanning, and an optional protected smoke test. use when adding regression coverage or release controls. trigger with \"firecrawl ci\", \"firecrawl contract tests\", or \"test our firecrawl integration\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-common-errors",
       "slug": "firecrawl-common-errors",
       "name": "firecrawl-common-errors",
-      "description": "Diagnose and fix Firecrawl common errors and API response codes. Use when encountering Firecrawl errors, debugging failed scrapes, or troubleshooting crawl job issues. Trigger with phrases like \"firecrawl error\", \"fix firecrawl\", \"firecrawl not working\", \"debug firecrawl\", \"firecrawl 429\", \"firecrawl 402\".",
+      "description": "Analyze and resolve current Firecrawl v2 validation, authentication, credit, policy, rate, concurrency, timeout, and server errors. Use when an API or SDK call fails. Trigger with \"Firecrawl error\", \"Firecrawl 429\", \"Firecrawl 402\", or \"Firecrawl forbidden\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-common-errors diagnose and fix firecrawl common errors and api response codes. use when encountering firecrawl errors, debugging failed scrapes, or troubleshooting crawl job issues. trigger with phrases like \"firecrawl error\", \"fix firecrawl\", \"firecrawl not working\", \"debug firecrawl\", \"firecrawl 429\", \"firecrawl 402\". saas-packs read grep bash(curl:*) "
+      "searchText": "firecrawl-common-errors analyze and resolve current firecrawl v2 validation, authentication, credit, policy, rate, concurrency, timeout, and server errors. use when an api or sdk call fails. trigger with \"firecrawl error\", \"firecrawl 429\", \"firecrawl 402\", or \"firecrawl forbidden\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-core-workflow-a",
       "slug": "firecrawl-core-workflow-a",
       "name": "firecrawl-core-workflow-a",
-      "description": "Execute Firecrawl primary workflow: scrape and crawl websites into LLM-ready markdown. Use when scraping single pages, crawling entire sites, or building content ingestion pipelines with Firecrawl's scrapeUrl and crawlUrl methods. Trigger with phrases like \"firecrawl scrape\", \"firecrawl crawl site\", \"scrape page to markdown\", \"crawl documentation\".",
+      "description": "Implement current Firecrawl v2 scrape and crawl flows with bounded discovery, pagination, content validation, and durable receipts. Use when collecting one page or a governed site corpus. Trigger with \"Firecrawl scrape\", \"crawl this site\", or \"build a Firecrawl corpus\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-core-workflow-a execute firecrawl primary workflow: scrape and crawl websites into llm-ready markdown. use when scraping single pages, crawling entire sites, or building content ingestion pipelines with firecrawl's scrapeurl and crawlurl methods. trigger with phrases like \"firecrawl scrape\", \"firecrawl crawl site\", \"scrape page to markdown\", \"crawl documentation\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "firecrawl-core-workflow-a implement current firecrawl v2 scrape and crawl flows with bounded discovery, pagination, content validation, and durable receipts. use when collecting one page or a governed site corpus. trigger with \"firecrawl scrape\", \"crawl this site\", or \"build a firecrawl corpus\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-core-workflow-b",
       "slug": "firecrawl-core-workflow-b",
       "name": "firecrawl-core-workflow-b",
-      "description": "Execute Firecrawl secondary workflow: LLM extraction, batch scraping, and site mapping. Use when extracting structured data from pages, batch scraping known URLs, or discovering site structure with the map endpoint. Trigger with phrases like \"firecrawl extract\", \"firecrawl batch scrape\", \"firecrawl map site\", \"firecrawl structured data\", \"firecrawl JSON extract\".",
+      "description": "Combine Firecrawl v2 map, search, batch scrape, parse, and structured JSON extraction into a governed acquisition workflow. Use when the URL set is unknown or typed data is required. Trigger with \"Firecrawl map\", \"Firecrawl batch\", \"structured Firecrawl extraction\", or \"parse a file\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-core-workflow-b execute firecrawl secondary workflow: llm extraction, batch scraping, and site mapping. use when extracting structured data from pages, batch scraping known urls, or discovering site structure with the map endpoint. trigger with phrases like \"firecrawl extract\", \"firecrawl batch scrape\", \"firecrawl map site\", \"firecrawl structured data\", \"firecrawl json extract\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "firecrawl-core-workflow-b combine firecrawl v2 map, search, batch scrape, parse, and structured json extraction into a governed acquisition workflow. use when the url set is unknown or typed data is required. trigger with \"firecrawl map\", \"firecrawl batch\", \"structured firecrawl extraction\", or \"parse a file\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-cost-tuning",
       "slug": "firecrawl-cost-tuning",
       "name": "firecrawl-cost-tuning",
-      "description": "Optimize Firecrawl costs through crawl limits, format selection, caching, and credit monitoring. Use when analyzing Firecrawl billing, reducing API costs, or implementing credit budget alerts. Trigger with phrases like \"firecrawl cost\", \"firecrawl billing\", \"reduce firecrawl costs\", \"firecrawl pricing\", \"firecrawl credits\", \"firecrawl budget\".",
+      "description": "Measure and reduce Firecrawl credit consumption using explicit limits, endpoint selection, cache policy, format discipline, and spend controls. Use when forecasting or correcting Firecrawl spend. Trigger with \"Firecrawl costs\", \"reduce Firecrawl credits\", or \"Firecrawl budget\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-cost-tuning optimize firecrawl costs through crawl limits, format selection, caching, and credit monitoring. use when analyzing firecrawl billing, reducing api costs, or implementing credit budget alerts. trigger with phrases like \"firecrawl cost\", \"firecrawl billing\", \"reduce firecrawl costs\", \"firecrawl pricing\", \"firecrawl credits\", \"firecrawl budget\". saas-packs read grep "
+      "searchText": "firecrawl-cost-tuning measure and reduce firecrawl credit consumption using explicit limits, endpoint selection, cache policy, format discipline, and spend controls. use when forecasting or correcting firecrawl spend. trigger with \"firecrawl costs\", \"reduce firecrawl credits\", or \"firecrawl budget\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-data-handling",
       "slug": "firecrawl-data-handling",
       "name": "firecrawl-data-handling",
-      "description": "Process, validate, and store Firecrawl scraped content with deduplication and chunking. Use when handling scraped markdown, implementing content pipelines, building RAG knowledge bases, or processing crawl results for downstream consumption. Trigger with phrases like \"firecrawl data\", \"firecrawl content processing\", \"firecrawl markdown cleaning\", \"firecrawl storage\", \"firecrawl RAG pipeline\".",
+      "description": "Validate, minimize, classify, deduplicate, retain, and dispose of Firecrawl documents and extracted JSON safely. Use when building downstream storage, RAG, or analytics pipelines. Trigger with \"store Firecrawl data\", \"Firecrawl RAG ingestion\", or \"clean scraped content\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-data-handling process, validate, and store firecrawl scraped content with deduplication and chunking. use when handling scraped markdown, implementing content pipelines, building rag knowledge bases, or processing crawl results for downstream consumption. trigger with phrases like \"firecrawl data\", \"firecrawl content processing\", \"firecrawl markdown cleaning\", \"firecrawl storage\", \"firecrawl rag pipeline\". saas-packs read write edit "
+      "searchText": "firecrawl-data-handling validate, minimize, classify, deduplicate, retain, and dispose of firecrawl documents and extracted json safely. use when building downstream storage, rag, or analytics pipelines. trigger with \"store firecrawl data\", \"firecrawl rag ingestion\", or \"clean scraped content\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-debug-bundle",
       "slug": "firecrawl-debug-bundle",
       "name": "firecrawl-debug-bundle",
-      "description": "Collect Firecrawl debug evidence for support tickets and troubleshooting. Use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for Firecrawl problems. Trigger with phrases like \"firecrawl debug\", \"firecrawl support bundle\", \"collect firecrawl logs\", \"firecrawl diagnostic\".",
+      "description": "Assemble a minimal, redacted Firecrawl diagnostic package for internal triage or vendor support. Use when a failure needs escalation without exposing keys or captured content. Trigger with \"Firecrawl debug bundle\", \"Firecrawl support evidence\", or \"collect Firecrawl diagnostics\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(grep:*)",
-        "Bash(curl:*)",
-        "Bash(tar:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-debug-bundle collect firecrawl debug evidence for support tickets and troubleshooting. use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for firecrawl problems. trigger with phrases like \"firecrawl debug\", \"firecrawl support bundle\", \"collect firecrawl logs\", \"firecrawl diagnostic\". saas-packs read bash(grep:*) bash(curl:*) bash(tar:*) grep "
+      "searchText": "firecrawl-debug-bundle assemble a minimal, redacted firecrawl diagnostic package for internal triage or vendor support. use when a failure needs escalation without exposing keys or captured content. trigger with \"firecrawl debug bundle\", \"firecrawl support evidence\", or \"collect firecrawl diagnostics\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-deploy-integration",
       "slug": "firecrawl-deploy-integration",
       "name": "firecrawl-deploy-integration",
-      "description": "Deploy Firecrawl integrations to Vercel, Cloud Run, and Docker platforms. Use when deploying Firecrawl-powered applications to production, configuring platform-specific secrets, or setting up self-hosted Firecrawl. Trigger with phrases like \"deploy firecrawl\", \"firecrawl Vercel\", \"firecrawl production deploy\", \"firecrawl Cloud Run\", \"firecrawl Docker\".",
+      "description": "Deploy a Firecrawl v2 client integration or a reviewed self-hosted stack with secrets, canaries, health evidence, and rollback controls. Use when releasing Firecrawl-backed services. Trigger with \"deploy Firecrawl\", \"Firecrawl production rollout\", or \"self-host Firecrawl\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(docker:*)",
-        "Bash(gcloud:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-deploy-integration deploy firecrawl integrations to vercel, cloud run, and docker platforms. use when deploying firecrawl-powered applications to production, configuring platform-specific secrets, or setting up self-hosted firecrawl. trigger with phrases like \"deploy firecrawl\", \"firecrawl vercel\", \"firecrawl production deploy\", \"firecrawl cloud run\", \"firecrawl docker\". saas-packs read write edit bash(vercel:*) bash(docker:*) bash(gcloud:*) "
+      "searchText": "firecrawl-deploy-integration deploy a firecrawl v2 client integration or a reviewed self-hosted stack with secrets, canaries, health evidence, and rollback controls. use when releasing firecrawl-backed services. trigger with \"deploy firecrawl\", \"firecrawl production rollout\", or \"self-host firecrawl\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-enterprise-rbac",
       "slug": "firecrawl-enterprise-rbac",
       "name": "firecrawl-enterprise-rbac",
-      "description": "Configure Firecrawl team access control with per-key credit limits and domain restrictions. Use when managing multiple API keys per team, implementing credit budgets per consumer, or controlling which domains each team can scrape. Trigger with phrases like \"firecrawl RBAC\", \"firecrawl teams\", \"firecrawl enterprise\", \"firecrawl access control\", \"firecrawl permissions\".",
+      "description": "Design and audit Firecrawl team roles, API-key ownership, endpoint and format restrictions, IP restrictions, SSO, and separation of duties. Use when governing enterprise access. Trigger with \"Firecrawl RBAC\", \"restrict a Firecrawl key\", or \"Firecrawl enterprise controls\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-enterprise-rbac configure firecrawl team access control with per-key credit limits and domain restrictions. use when managing multiple api keys per team, implementing credit budgets per consumer, or controlling which domains each team can scrape. trigger with phrases like \"firecrawl rbac\", \"firecrawl teams\", \"firecrawl enterprise\", \"firecrawl access control\", \"firecrawl permissions\". saas-packs read write edit "
+      "searchText": "firecrawl-enterprise-rbac design and audit firecrawl team roles, api-key ownership, endpoint and format restrictions, ip restrictions, sso, and separation of duties. use when governing enterprise access. trigger with \"firecrawl rbac\", \"restrict a firecrawl key\", or \"firecrawl enterprise controls\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-hello-world",
       "slug": "firecrawl-hello-world",
       "name": "firecrawl-hello-world",
-      "description": "Create a minimal working Firecrawl example that scrapes a page to markdown. Use when starting a new Firecrawl integration, testing your setup, or learning the scrape/crawl/map/extract API surface. Trigger with phrases like \"firecrawl hello world\", \"firecrawl example\", \"firecrawl quick start\", \"simple firecrawl code\".",
+      "description": "Create the smallest current Firecrawl v2 scrape and verify its provenance, origin status, and output without leaking credentials. Use when testing a new installation. Trigger with \"Firecrawl hello world\", \"first Firecrawl scrape\", or \"verify Firecrawl setup\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-hello-world create a minimal working firecrawl example that scrapes a page to markdown. use when starting a new firecrawl integration, testing your setup, or learning the scrape/crawl/map/extract api surface. trigger with phrases like \"firecrawl hello world\", \"firecrawl example\", \"firecrawl quick start\", \"simple firecrawl code\". saas-packs read write edit "
+      "searchText": "firecrawl-hello-world create the smallest current firecrawl v2 scrape and verify its provenance, origin status, and output without leaking credentials. use when testing a new installation. trigger with \"firecrawl hello world\", \"first firecrawl scrape\", or \"verify firecrawl setup\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-incident-runbook",
       "slug": "firecrawl-incident-runbook",
       "name": "firecrawl-incident-runbook",
-      "description": "Execute Firecrawl incident response procedures with triage, mitigation, and postmortem. Use when responding to Firecrawl-related outages, investigating scrape/crawl failures, or running post-incident reviews for Firecrawl integration issues. Trigger with phrases like \"firecrawl incident\", \"firecrawl outage\", \"firecrawl down\", \"firecrawl on-call\", \"firecrawl emergency\", \"firecrawl broken\".",
+      "description": "Analyze and mitigate Firecrawl integration incidents involving outage, credits, throttling, policy denial, job failure, webhook loss, or unsafe content. Use when responding to active production impact. Trigger with \"Firecrawl incident\", \"Firecrawl outage\", or \"Firecrawl crawl failure\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)",
-        "Bash(kubectl:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-incident-runbook execute firecrawl incident response procedures with triage, mitigation, and postmortem. use when responding to firecrawl-related outages, investigating scrape/crawl failures, or running post-incident reviews for firecrawl integration issues. trigger with phrases like \"firecrawl incident\", \"firecrawl outage\", \"firecrawl down\", \"firecrawl on-call\", \"firecrawl emergency\", \"firecrawl broken\". saas-packs read grep bash(curl:*) bash(kubectl:*) "
+      "searchText": "firecrawl-incident-runbook analyze and mitigate firecrawl integration incidents involving outage, credits, throttling, policy denial, job failure, webhook loss, or unsafe content. use when responding to active production impact. trigger with \"firecrawl incident\", \"firecrawl outage\", or \"firecrawl crawl failure\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-install-auth",
       "slug": "firecrawl-install-auth",
       "name": "firecrawl-install-auth",
-      "description": "Install and configure Firecrawl SDK authentication for web scraping. Use when setting up a new Firecrawl integration, configuring API keys, or initializing Firecrawl in your project. Trigger with phrases like \"install firecrawl\", \"setup firecrawl\", \"firecrawl auth\", \"configure firecrawl API key\".",
+      "description": "Install the current Firecrawl Node or Python SDK, configure Cloud authentication, and verify package provenance and secret injection. Use when bootstrapping or repairing client setup. Trigger with \"install Firecrawl\", \"configure FIRECRAWL_API_KEY\", or \"Firecrawl authentication\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-install-auth install and configure firecrawl sdk authentication for web scraping. use when setting up a new firecrawl integration, configuring api keys, or initializing firecrawl in your project. trigger with phrases like \"install firecrawl\", \"setup firecrawl\", \"firecrawl auth\", \"configure firecrawl api key\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "firecrawl-install-auth install the current firecrawl node or python sdk, configure cloud authentication, and verify package provenance and secret injection. use when bootstrapping or repairing client setup. trigger with \"install firecrawl\", \"configure firecrawl_api_key\", or \"firecrawl authentication\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-known-pitfalls",
       "slug": "firecrawl-known-pitfalls",
       "name": "firecrawl-known-pitfalls",
-      "description": "Identify and avoid Firecrawl anti-patterns and common integration mistakes. Use when reviewing Firecrawl code, onboarding new developers, or auditing existing integrations for best practices violations. Trigger with phrases like \"firecrawl mistakes\", \"firecrawl anti-patterns\", \"firecrawl pitfalls\", \"firecrawl what not to do\", \"firecrawl code review\".",
+      "description": "Audit a Firecrawl integration for legacy v1 calls, unbounded crawls, incomplete pagination, unsafe retries, retention mistakes, and untrusted-content handling. Use when reviewing code or onboarding maintainers. Trigger with \"Firecrawl pitfalls\", \"review Firecrawl code\", or \"Firecrawl anti-patterns\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-known-pitfalls identify and avoid firecrawl anti-patterns and common integration mistakes. use when reviewing firecrawl code, onboarding new developers, or auditing existing integrations for best practices violations. trigger with phrases like \"firecrawl mistakes\", \"firecrawl anti-patterns\", \"firecrawl pitfalls\", \"firecrawl what not to do\", \"firecrawl code review\". saas-packs read grep "
+      "searchText": "firecrawl-known-pitfalls audit a firecrawl integration for legacy v1 calls, unbounded crawls, incomplete pagination, unsafe retries, retention mistakes, and untrusted-content handling. use when reviewing code or onboarding maintainers. trigger with \"firecrawl pitfalls\", \"review firecrawl code\", or \"firecrawl anti-patterns\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-load-scale",
       "slug": "firecrawl-load-scale",
       "name": "firecrawl-load-scale",
-      "description": "Load test and scale Firecrawl scraping pipelines with concurrency control and batching. Use when testing scraping throughput, planning capacity for large crawl jobs, or optimizing concurrent scrape performance. Trigger with phrases like \"firecrawl load test\", \"firecrawl scale\", \"firecrawl throughput\", \"firecrawl capacity\", \"firecrawl concurrent\".",
+      "description": "Measure Firecrawl throughput under plan, team rate, browser concurrency, queue, timeout, target-policy, and credit constraints. Use when planning or validating scale. Trigger with \"load test Firecrawl\", \"Firecrawl concurrency\", or \"scale Firecrawl\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(node:*)",
-        "Bash(npm:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-load-scale load test and scale firecrawl scraping pipelines with concurrency control and batching. use when testing scraping throughput, planning capacity for large crawl jobs, or optimizing concurrent scrape performance. trigger with phrases like \"firecrawl load test\", \"firecrawl scale\", \"firecrawl throughput\", \"firecrawl capacity\", \"firecrawl concurrent\". saas-packs read write edit bash(node:*) bash(npm:*) "
+      "searchText": "firecrawl-load-scale measure firecrawl throughput under plan, team rate, browser concurrency, queue, timeout, target-policy, and credit constraints. use when planning or validating scale. trigger with \"load test firecrawl\", \"firecrawl concurrency\", or \"scale firecrawl\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-local-dev-loop",
       "slug": "firecrawl-local-dev-loop",
       "name": "firecrawl-local-dev-loop",
-      "description": "Configure Firecrawl local development with self-hosted Docker, mocking, and testing. Use when setting up a development environment, running Firecrawl locally to save credits, or configuring test workflows with vitest. Trigger with phrases like \"firecrawl dev setup\", \"firecrawl local development\", \"firecrawl docker\", \"firecrawl self-hosted dev\", \"firecrawl test setup\".",
+      "description": "Build a deterministic Firecrawl development loop with SDK fakes, recorded synthetic contracts, and an optional trusted-network self-hosted stack. Use when developing without production data or routine Cloud spend. Trigger with \"Firecrawl local dev\", \"mock Firecrawl\", or \"self-host Firecrawl locally\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)",
-        "Bash(docker:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-local-dev-loop configure firecrawl local development with self-hosted docker, mocking, and testing. use when setting up a development environment, running firecrawl locally to save credits, or configuring test workflows with vitest. trigger with phrases like \"firecrawl dev setup\", \"firecrawl local development\", \"firecrawl docker\", \"firecrawl self-hosted dev\", \"firecrawl test setup\". saas-packs read write edit bash(npm:*) bash(pnpm:*) bash(docker:*) grep "
+      "searchText": "firecrawl-local-dev-loop build a deterministic firecrawl development loop with sdk fakes, recorded synthetic contracts, and an optional trusted-network self-hosted stack. use when developing without production data or routine cloud spend. trigger with \"firecrawl local dev\", \"mock firecrawl\", or \"self-host firecrawl locally\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-migration-deep-dive",
       "slug": "firecrawl-migration-deep-dive",
       "name": "firecrawl-migration-deep-dive",
-      "description": "Migrate to Firecrawl from Puppeteer, Playwright, Cheerio, or other scraping tools. Use when replacing custom scraping code with Firecrawl, migrating between scraping APIs, or re-platforming content ingestion pipelines. Trigger with phrases like \"migrate to firecrawl\", \"replace puppeteer with firecrawl\", \"switch to firecrawl\", \"firecrawl vs puppeteer\", \"firecrawl migration\".",
+      "description": "Migrate a custom Puppeteer, Playwright, Cheerio, or third-party scraping workload to Firecrawl v2 with parity, policy, cost, and rollback evidence. Use when replacing an existing acquisition system. Trigger with \"migrate to Firecrawl\", \"replace Playwright scraping\", or \"Firecrawl adoption\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(node:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-migration-deep-dive migrate to firecrawl from puppeteer, playwright, cheerio, or other scraping tools. use when replacing custom scraping code with firecrawl, migrating between scraping apis, or re-platforming content ingestion pipelines. trigger with phrases like \"migrate to firecrawl\", \"replace puppeteer with firecrawl\", \"switch to firecrawl\", \"firecrawl vs puppeteer\", \"firecrawl migration\". saas-packs read write edit bash(npm:*) bash(node:*) grep "
+      "searchText": "firecrawl-migration-deep-dive migrate a custom puppeteer, playwright, cheerio, or third-party scraping workload to firecrawl v2 with parity, policy, cost, and rollback evidence. use when replacing an existing acquisition system. trigger with \"migrate to firecrawl\", \"replace playwright scraping\", or \"firecrawl adoption\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-multi-env-setup",
       "slug": "firecrawl-multi-env-setup",
       "name": "firecrawl-multi-env-setup",
-      "description": "Configure Firecrawl across development, staging, and production environments. Use when setting up multi-environment scraping pipelines, managing credit budgets per env, or configuring self-hosted Firecrawl for development. Trigger with phrases like \"firecrawl environments\", \"firecrawl staging\", \"firecrawl dev prod\", \"firecrawl environment setup\", \"firecrawl config by env\".",
+      "description": "Separate Firecrawl development, staging, and production identities, targets, budgets, policies, telemetry, and data stores. Use when creating or auditing multiple environments. Trigger with \"Firecrawl environments\", \"Firecrawl staging\", or \"separate Firecrawl keys\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(docker:*)",
-        "Bash(gcloud:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-multi-env-setup configure firecrawl across development, staging, and production environments. use when setting up multi-environment scraping pipelines, managing credit budgets per env, or configuring self-hosted firecrawl for development. trigger with phrases like \"firecrawl environments\", \"firecrawl staging\", \"firecrawl dev prod\", \"firecrawl environment setup\", \"firecrawl config by env\". saas-packs read write edit bash(docker:*) bash(gcloud:*) "
+      "searchText": "firecrawl-multi-env-setup separate firecrawl development, staging, and production identities, targets, budgets, policies, telemetry, and data stores. use when creating or auditing multiple environments. trigger with \"firecrawl environments\", \"firecrawl staging\", or \"separate firecrawl keys\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-observability",
       "slug": "firecrawl-observability",
       "name": "firecrawl-observability",
-      "description": "Monitor Firecrawl scraping pipelines with metrics, credit tracking, and quality alerts. Use when implementing monitoring for Firecrawl operations, setting up dashboards, or configuring alerting for scrape failures and credit consumption. Trigger with phrases like \"firecrawl monitoring\", \"firecrawl metrics\", \"firecrawl observability\", \"monitor firecrawl\", \"firecrawl alerts\".",
+      "description": "Instrument Firecrawl v2 requests, async jobs, queue pressure, credits, origin status, webhooks, output quality, and downstream delivery without logging content. Use when building monitoring or SLOs. Trigger with \"monitor Firecrawl\", \"Firecrawl metrics\", or \"Firecrawl dashboard\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-observability monitor firecrawl scraping pipelines with metrics, credit tracking, and quality alerts. use when implementing monitoring for firecrawl operations, setting up dashboards, or configuring alerting for scrape failures and credit consumption. trigger with phrases like \"firecrawl monitoring\", \"firecrawl metrics\", \"firecrawl observability\", \"monitor firecrawl\", \"firecrawl alerts\". saas-packs read write edit "
+      "searchText": "firecrawl-observability instrument firecrawl v2 requests, async jobs, queue pressure, credits, origin status, webhooks, output quality, and downstream delivery without logging content. use when building monitoring or slos. trigger with \"monitor firecrawl\", \"firecrawl metrics\", or \"firecrawl dashboard\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-performance-tuning",
       "slug": "firecrawl-performance-tuning",
       "name": "firecrawl-performance-tuning",
-      "description": "Optimize Firecrawl scraping performance with caching, batch scraping, and format selection. Use when experiencing slow scrapes, optimizing credit usage per page, or building high-throughput scraping pipelines. Trigger with phrases like \"firecrawl performance\", \"optimize firecrawl\", \"firecrawl latency\", \"firecrawl caching\", \"firecrawl slow\", \"firecrawl batch\".",
+      "description": "Improve Firecrawl latency and throughput through measured scope, formats, cache freshness, async selection, pagination, and concurrency controls. Use when a valid integration is too slow. Trigger with \"speed up Firecrawl\", \"Firecrawl latency\", or \"optimize crawl performance\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-performance-tuning optimize firecrawl scraping performance with caching, batch scraping, and format selection. use when experiencing slow scrapes, optimizing credit usage per page, or building high-throughput scraping pipelines. trigger with phrases like \"firecrawl performance\", \"optimize firecrawl\", \"firecrawl latency\", \"firecrawl caching\", \"firecrawl slow\", \"firecrawl batch\". saas-packs read write edit "
+      "searchText": "firecrawl-performance-tuning improve firecrawl latency and throughput through measured scope, formats, cache freshness, async selection, pagination, and concurrency controls. use when a valid integration is too slow. trigger with \"speed up firecrawl\", \"firecrawl latency\", or \"optimize crawl performance\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-policy-guardrails",
       "slug": "firecrawl-policy-guardrails",
       "name": "firecrawl-policy-guardrails",
-      "description": "Implement Firecrawl scraping policy enforcement: domain blocklists, credit budgets, content filtering, and robots.txt compliance guardrails. Use when setting up scraping policies, enforcing crawl limits, or preventing accidental scraping of prohibited domains. Trigger with phrases like \"firecrawl policy\", \"firecrawl guardrails\", \"firecrawl domain blocklist\", \"firecrawl scraping rules\", \"firecrawl compliance\".",
+      "description": "Enforce domain authorization, robots and terms review, endpoint and format allowlists, scope, spend, retention, and unsafe-content controls around Firecrawl. Use when governing automated collection. Trigger with \"Firecrawl guardrails\", \"scraping policy\", or \"restrict Firecrawl domains\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npx:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-policy-guardrails implement firecrawl scraping policy enforcement: domain blocklists, credit budgets, content filtering, and robots.txt compliance guardrails. use when setting up scraping policies, enforcing crawl limits, or preventing accidental scraping of prohibited domains. trigger with phrases like \"firecrawl policy\", \"firecrawl guardrails\", \"firecrawl domain blocklist\", \"firecrawl scraping rules\", \"firecrawl compliance\". saas-packs read write edit bash(npx:*) "
+      "searchText": "firecrawl-policy-guardrails enforce domain authorization, robots and terms review, endpoint and format allowlists, scope, spend, retention, and unsafe-content controls around firecrawl. use when governing automated collection. trigger with \"firecrawl guardrails\", \"scraping policy\", or \"restrict firecrawl domains\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-prod-checklist",
       "slug": "firecrawl-prod-checklist",
       "name": "firecrawl-prod-checklist",
-      "description": "Execute Firecrawl production deployment checklist and rollback procedures. Use when deploying Firecrawl integrations to production, preparing for launch, or implementing go-live procedures. Trigger with phrases like \"firecrawl production\", \"deploy firecrawl\", \"firecrawl go-live\", \"firecrawl launch checklist\".",
+      "description": "Run a release gate for a Firecrawl v2 integration covering contracts, scope, identity, spend, retention, reliability, observability, and rollback. Use when preparing a production launch or major change. Trigger with \"Firecrawl production checklist\", \"launch Firecrawl\", or \"Firecrawl go-live review\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(kubectl:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-prod-checklist execute firecrawl production deployment checklist and rollback procedures. use when deploying firecrawl integrations to production, preparing for launch, or implementing go-live procedures. trigger with phrases like \"firecrawl production\", \"deploy firecrawl\", \"firecrawl go-live\", \"firecrawl launch checklist\". saas-packs read bash(kubectl:*) bash(curl:*) grep "
+      "searchText": "firecrawl-prod-checklist run a release gate for a firecrawl v2 integration covering contracts, scope, identity, spend, retention, reliability, observability, and rollback. use when preparing a production launch or major change. trigger with \"firecrawl production checklist\", \"launch firecrawl\", or \"firecrawl go-live review\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-rate-limits",
       "slug": "firecrawl-rate-limits",
       "name": "firecrawl-rate-limits",
-      "description": "Implement Firecrawl rate limiting, backoff, and request queuing patterns. Use when handling 429 errors, implementing retry logic, or optimizing API request throughput for Firecrawl. Trigger with phrases like \"firecrawl rate limit\", \"firecrawl throttling\", \"firecrawl 429\", \"firecrawl retry\", \"firecrawl backoff\".",
+      "description": "Implement bounded Firecrawl throttling and retry behavior using current team RPM, browser concurrency, queue status, timeouts, and Retry-After. Use when handling 429s or producer backpressure. Trigger with \"Firecrawl rate limits\", \"Firecrawl throttling\", or \"Firecrawl queue\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-rate-limits implement firecrawl rate limiting, backoff, and request queuing patterns. use when handling 429 errors, implementing retry logic, or optimizing api request throughput for firecrawl. trigger with phrases like \"firecrawl rate limit\", \"firecrawl throttling\", \"firecrawl 429\", \"firecrawl retry\", \"firecrawl backoff\". saas-packs read write edit "
+      "searchText": "firecrawl-rate-limits implement bounded firecrawl throttling and retry behavior using current team rpm, browser concurrency, queue status, timeouts, and retry-after. use when handling 429s or producer backpressure. trigger with \"firecrawl rate limits\", \"firecrawl throttling\", or \"firecrawl queue\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-reference-architecture",
       "slug": "firecrawl-reference-architecture",
       "name": "firecrawl-reference-architecture",
-      "description": "Implement Firecrawl reference architecture with scrape/crawl/map/extract pipelines. Use when designing new Firecrawl integrations, reviewing project structure, or building content ingestion pipelines for AI/RAG applications. Trigger with phrases like \"firecrawl architecture\", \"firecrawl project structure\", \"firecrawl pipeline\", \"firecrawl RAG\", \"firecrawl knowledge base\".",
+      "description": "Design a production Firecrawl v2 ingestion system with policy gateway, bounded acquisition, validation, provenance, storage, indexing, observability, and deletion. Use when building a reusable platform. Trigger with \"Firecrawl reference architecture\", \"Firecrawl ingestion system\", or \"Firecrawl RAG pipeline\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-reference-architecture implement firecrawl reference architecture with scrape/crawl/map/extract pipelines. use when designing new firecrawl integrations, reviewing project structure, or building content ingestion pipelines for ai/rag applications. trigger with phrases like \"firecrawl architecture\", \"firecrawl project structure\", \"firecrawl pipeline\", \"firecrawl rag\", \"firecrawl knowledge base\". saas-packs read grep "
+      "searchText": "firecrawl-reference-architecture design a production firecrawl v2 ingestion system with policy gateway, bounded acquisition, validation, provenance, storage, indexing, observability, and deletion. use when building a reusable platform. trigger with \"firecrawl reference architecture\", \"firecrawl ingestion system\", or \"firecrawl rag pipeline\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-reliability-patterns",
       "slug": "firecrawl-reliability-patterns",
       "name": "firecrawl-reliability-patterns",
-      "description": "Implement Firecrawl reliability patterns: circuit breakers, crawl fallbacks, and content validation. Use when building fault-tolerant scraping pipelines, implementing crawl-to-scrape fallback, or adding content quality gates to Firecrawl integrations. Trigger with phrases like \"firecrawl reliability\", \"firecrawl circuit breaker\", \"firecrawl fallback\", \"firecrawl resilience\", \"firecrawl fault tolerant\".",
+      "description": "Implement bounded retries, durable async state, pagination, idempotency, reconciliation, circuit breaking, cancellation, and degraded modes for Firecrawl v2. Use when hardening a production integration. Trigger with \"Firecrawl reliability\", \"Firecrawl retries\", or \"resilient Firecrawl\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-reliability-patterns implement firecrawl reliability patterns: circuit breakers, crawl fallbacks, and content validation. use when building fault-tolerant scraping pipelines, implementing crawl-to-scrape fallback, or adding content quality gates to firecrawl integrations. trigger with phrases like \"firecrawl reliability\", \"firecrawl circuit breaker\", \"firecrawl fallback\", \"firecrawl resilience\", \"firecrawl fault tolerant\". saas-packs read write edit "
+      "searchText": "firecrawl-reliability-patterns implement bounded retries, durable async state, pagination, idempotency, reconciliation, circuit breaking, cancellation, and degraded modes for firecrawl v2. use when hardening a production integration. trigger with \"firecrawl reliability\", \"firecrawl retries\", or \"resilient firecrawl\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-sdk-patterns",
       "slug": "firecrawl-sdk-patterns",
       "name": "firecrawl-sdk-patterns",
-      "description": "Apply production-ready Firecrawl SDK patterns for TypeScript and Python. Use when implementing Firecrawl integrations, building reusable scraping services, or establishing team coding standards for Firecrawl. Trigger with phrases like \"firecrawl SDK patterns\", \"firecrawl best practices\", \"firecrawl code patterns\", \"idiomatic firecrawl\", \"firecrawl wrapper\".",
+      "description": "Build a typed, testable Firecrawl v2 adapter for Node or Python with current methods, explicit options, errors, pagination, and dependency control. Use when implementing reusable client code. Trigger with \"Firecrawl SDK patterns\", \"wrap Firecrawl\", or \"typed Firecrawl client\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-sdk-patterns apply production-ready firecrawl sdk patterns for typescript and python. use when implementing firecrawl integrations, building reusable scraping services, or establishing team coding standards for firecrawl. trigger with phrases like \"firecrawl sdk patterns\", \"firecrawl best practices\", \"firecrawl code patterns\", \"idiomatic firecrawl\", \"firecrawl wrapper\". saas-packs read write edit "
+      "searchText": "firecrawl-sdk-patterns build a typed, testable firecrawl v2 adapter for node or python with current methods, explicit options, errors, pagination, and dependency control. use when implementing reusable client code. trigger with \"firecrawl sdk patterns\", \"wrap firecrawl\", or \"typed firecrawl client\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-security-basics",
       "slug": "firecrawl-security-basics",
       "name": "firecrawl-security-basics",
-      "description": "Apply Firecrawl security best practices for API key management and webhook verification. Use when securing API keys, implementing webhook signature validation, or auditing Firecrawl security configuration. Trigger with phrases like \"firecrawl security\", \"firecrawl secrets\", \"secure firecrawl\", \"firecrawl API key security\", \"firecrawl webhook signature\".",
+      "description": "Secure Firecrawl identities, targets, request options, webhooks, untrusted content, retention, logs, and self-hosted exposure. Use when threat-modeling or hardening an integration. Trigger with \"secure Firecrawl\", \"Firecrawl security review\", or \"Firecrawl secrets\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-security-basics apply firecrawl security best practices for api key management and webhook verification. use when securing api keys, implementing webhook signature validation, or auditing firecrawl security configuration. trigger with phrases like \"firecrawl security\", \"firecrawl secrets\", \"secure firecrawl\", \"firecrawl api key security\", \"firecrawl webhook signature\". saas-packs read write grep "
+      "searchText": "firecrawl-security-basics secure firecrawl identities, targets, request options, webhooks, untrusted content, retention, logs, and self-hosted exposure. use when threat-modeling or hardening an integration. trigger with \"secure firecrawl\", \"firecrawl security review\", or \"firecrawl secrets\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-upgrade-migration",
       "slug": "firecrawl-upgrade-migration",
       "name": "firecrawl-upgrade-migration",
-      "description": "Upgrade Firecrawl SDK versions and migrate between API versions (v0 to v1/v2). Use when upgrading the SDK, handling breaking changes between versions, or migrating from the old API to the current v2 API. Trigger with phrases like \"upgrade firecrawl\", \"firecrawl migration\", \"firecrawl v2\", \"update firecrawl SDK\", \"firecrawl breaking changes\".",
+      "description": "Upgrade a Firecrawl client from legacy v0/v1 routes and methods to the current v2 SDK and API with contract, parity, and rollback evidence. Use when modernizing an existing Firecrawl integration. Trigger with \"upgrade Firecrawl\", \"migrate Firecrawl v1 to v2\", or \"replace scrapeUrl\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(git:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-upgrade-migration upgrade firecrawl sdk versions and migrate between api versions (v0 to v1/v2). use when upgrading the sdk, handling breaking changes between versions, or migrating from the old api to the current v2 api. trigger with phrases like \"upgrade firecrawl\", \"firecrawl migration\", \"firecrawl v2\", \"update firecrawl sdk\", \"firecrawl breaking changes\". saas-packs read write edit bash(npm:*) bash(git:*) "
+      "searchText": "firecrawl-upgrade-migration upgrade a firecrawl client from legacy v0/v1 routes and methods to the current v2 sdk and api with contract, parity, and rollback evidence. use when modernizing an existing firecrawl integration. trigger with \"upgrade firecrawl\", \"migrate firecrawl v1 to v2\", or \"replace scrapeurl\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "firecrawl-webhooks-events",
       "slug": "firecrawl-webhooks-events",
       "name": "firecrawl-webhooks-events",
-      "description": "Implement Firecrawl webhook event handling for async crawl and batch scrape jobs. Use when setting up webhook endpoints, handling crawl.page/crawl.completed events, or processing async job results in real-time. Trigger with phrases like \"firecrawl webhook\", \"firecrawl events\", \"firecrawl webhook signature\", \"handle firecrawl events\", \"firecrawl notifications\".",
+      "description": "Receive, verify, deduplicate, process, and reconcile current Firecrawl crawl, batch, extract, agent, and monitor webhooks. Use when building asynchronous event delivery. Trigger with \"Firecrawl webhook\", \"X-Firecrawl-Signature\", or \"Firecrawl events\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "firecrawl-pack",
         "category": "saas-packs"
       },
-      "searchText": "firecrawl-webhooks-events implement firecrawl webhook event handling for async crawl and batch scrape jobs. use when setting up webhook endpoints, handling crawl.page/crawl.completed events, or processing async job results in real-time. trigger with phrases like \"firecrawl webhook\", \"firecrawl events\", \"firecrawl webhook signature\", \"handle firecrawl events\", \"firecrawl notifications\". saas-packs read write edit bash(curl:*) "
+      "searchText": "firecrawl-webhooks-events receive, verify, deduplicate, process, and reconcile current firecrawl crawl, batch, extract, agent, and monitor webhooks. use when building asynchronous event delivery. trigger with \"firecrawl webhook\", \"x-firecrawl-signature\", or \"firecrawl events\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",

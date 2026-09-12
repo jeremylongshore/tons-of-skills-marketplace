@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/firecrawl-pack",
-  "version": "1.0.2",
-  "description": "Claude Code skill pack for FireCrawl - 30 skills covering web scraping and LLM-ready markdown",
+  "version": "1.12.0",
+  "description": "Operator-grade Firecrawl v2 skill pack with 30 governed acquisition, security, reliability, and production workflows",
   "main": "README.md",
   "type": "module",
   "files": [

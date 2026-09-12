@@ -1,7 +1,7 @@
 {
   "name": "firecrawl-pack",
-  "version": "1.11.0",
-  "description": "Claude Code skill pack for FireCrawl (30 skills)",
+  "version": "1.12.0",
+  "description": "Operator-grade Firecrawl v2 skill pack with 30 governed acquisition, security, reliability, and production workflows",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"

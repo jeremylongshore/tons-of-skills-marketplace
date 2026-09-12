@@ -1,233 +1,78 @@
 ---
 name: firecrawl-cost-tuning
-description: 'Optimize Firecrawl costs through crawl limits, format selection, caching,
-  and credit monitoring.
-
-  Use when analyzing Firecrawl billing, reducing API costs,
-
-  or implementing credit budget alerts.
-
-  Trigger with phrases like "firecrawl cost", "firecrawl billing",
-
-  "reduce firecrawl costs", "firecrawl pricing", "firecrawl credits", "firecrawl budget".
-
-  '
-allowed-tools: Read, Grep
-version: 1.11.0
+description: >-
+  Measure and reduce Firecrawl credit consumption using explicit limits, endpoint selection, cache policy, format discipline, and spend controls. Use when forecasting or correcting Firecrawl spend. Trigger with "Firecrawl costs", "reduce Firecrawl credits", or "Firecrawl budget".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <budget-window>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- api
-- monitoring
-- cost-optimization
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, cost, governance]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Cost Tuning
+# Firecrawl Credit and Spend Control
 
 ## Overview
 
-Firecrawl charges credits per operation: 1 credit per scrape, 1 per crawled page, 1 per map call, and variable credits for extract (LLM usage). An unbounded crawl on a large site can consume thousands of credits in minutes. This skill covers concrete techniques to reduce credit consumption by 50-80%.
+Optimize against measured business value rather than assumed one-credit requests. Endpoint and option costs differ, modifiers can stack, and crawl or batch charges arrive as pages complete.
 
 ## Prerequisites
 
-- Current provider pricing and contract terms, reviewed by the billing owner rather than assumed from examples.
-- An approved domain allowlist, crawl budget, usage owner, and aggregate metering source.
-- Synthetic or staging targets for validating limits before changing a production job.
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
 
-## Output
+## Current Contract
 
-Record a cost-control receipt with the measurement window, approved target set, configured limits, aggregate credits consumed, owner decision, and follow-up date. Do not include credentials, page contents, or customer data.
+Use the current billing page and Credit Usage APIs as the pricing authority. Base scrape/crawl page costs, search/result charges, JSON or other format modifiers, ZDR, parse behavior, Interact minutes, and lockdown outcomes can differ. Polling status does not itself consume credits, while asynchronous page processing can make usage appear later.
 
-## Examples
+## Authentication
 
-Run a canary crawl against an approved staging target with a low page limit. Compare only aggregate credit use and valid-page count, then stop promotion if the observed cost or target expansion exceeds the approved budget.
-
-## Credit Cost Table
-
-| Operation | Credits | Notes |
-|-----------|---------|-------|
-| `scrapeUrl` | 1 | Per page, any format |
-| `crawlUrl` | 1 per page | Each discovered page costs 1 credit |
-| `mapUrl` | 1 | Regardless of URLs returned |
-| `batchScrapeUrls` | 1 per URL | Same as individual scrape |
-| `extract` | 5+ | LLM processing adds cost |
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Always Set Crawl Limits
+1. Capture the current billing policy, plan, pay-as-you-go state, per-key spend limits, monthly cap, and a baseline by operation and workload class.
+2. Attribute usage to an owner, environment, source policy, endpoint, requested formats, page counts, cache behavior, and success category. Never estimate solely from request count.
+3. Set explicit crawl and batch bounds. Use map plus selective retrieval when discovery is cheaper than collecting every page.
+4. Request only required formats and expensive options. Validate whether JSON extraction, prompt-injection checks, PDF parsing, ZDR, audio/video, or browser interaction earns its added cost.
+5. Use maxAge and cache policy only when the freshness SLA permits it; use storeInCache false or ZDR when retention requirements outweigh savings.
+6. Add preflight budget checks, alert thresholds, per-key controls where available, and a fail-closed response when the approved ceiling is reached.
+7. Run a bounded canary, compare quality-adjusted cost with the baseline, and roll back if savings reduce completeness or violate policy.
 
-```typescript
-import FirecrawlApp from "@mendable/firecrawl-js";
+## Tool Discipline
 
-const firecrawl = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY!,
-});
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-// BAD: no limit — could crawl 100K pages
-await firecrawl.crawlUrl("https://docs.large-project.org");
-// Cost: potentially 100,000+ credits
+## Approval Boundaries
 
-// GOOD: bounded crawl
-await firecrawl.crawlUrl("https://docs.large-project.org", {
-  limit: 50,               // max 50 pages
-  maxDepth: 2,             // only 2 levels deep
-  includePaths: ["/api/*"], // only API docs
-  excludePaths: ["/blog/*", "/changelog/*"],
-  scrapeOptions: { formats: ["markdown"] },
-});
-// Cost: max 50 credits
-```
+Require approval before enabling or raising pay-as-you-go, changing plan, increasing a per-key spend limit, trading retention for cache savings, or reducing required quality.
 
-### Step 2: Use Scrape for Known URLs Instead of Crawl
+## Output
 
-```typescript
-// If you know which pages you need, don't crawl — scrape them directly
-const targetUrls = [
-  "https://docs.example.com/api/auth",
-  "https://docs.example.com/api/users",
-  "https://docs.example.com/api/billing",
-];
-
-// Cost: 3 credits (one per page)
-const results = await firecrawl.batchScrapeUrls(targetUrls, {
-  formats: ["markdown"],
-});
-
-// vs crawling the whole docs site: potentially 500+ credits
-```
-
-### Step 3: Map First, Then Selective Scrape
-
-```typescript
-// Map costs 1 credit and returns up to 30K URLs
-const map = await firecrawl.mapUrl("https://docs.example.com");
-// Cost: 1 credit
-
-// Filter to only what you need
-const apiDocs = (map.links || []).filter(url => url.includes("/api/"));
-console.log(`${map.links?.length} total URLs, only ${apiDocs.length} are API docs`);
-
-// Scrape only relevant pages
-const results = await firecrawl.batchScrapeUrls(apiDocs.slice(0, 20), {
-  formats: ["markdown"],
-});
-// Cost: 1 (map) + 20 (scrape) = 21 credits
-// vs blind crawl: could be 500+ credits
-```
-
-### Step 4: Cache to Prevent Re-Scraping
-
-```typescript
-import { createHash } from "crypto";
-
-const cache = new Map<string, { content: string; timestamp: number }>();
-const CACHE_TTL = 24 * 3600 * 1000; // 24 hours
-
-async function cachedScrape(url: string): Promise<string> {
-  const key = createHash("md5").update(url).digest("hex");
-  const cached = cache.get(key);
-
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return cached.content; // Free — no API call
-  }
-
-  const result = await firecrawl.scrapeUrl(url, { formats: ["markdown"] });
-  if (result.markdown) {
-    cache.set(key, { content: result.markdown, timestamp: Date.now() });
-  }
-  return result.markdown || "";
-}
-// Typical savings: 50-80% credit reduction for recurring scrapes
-```
-
-### Step 5: Monitor Credit Consumption
-
-```bash
-set -euo pipefail
-# Check current credit balance
-curl -s https://api.firecrawl.dev/v1/team/credits \
-  -H "Authorization: Bearer $FIRECRAWL_API_KEY" | jq .
-```
-
-```typescript
-// Daily credit tracker
-class CreditBudget {
-  private dailyLimit: number;
-  private usage = new Map<string, number>();
-
-  constructor(dailyLimit = 1000) {
-    this.dailyLimit = dailyLimit;
-  }
-
-  canAfford(estimatedCredits: number): boolean {
-    const today = new Date().toISOString().split("T")[0];
-    const used = this.usage.get(today) || 0;
-    return used + estimatedCredits <= this.dailyLimit;
-  }
-
-  record(credits: number) {
-    const today = new Date().toISOString().split("T")[0];
-    this.usage.set(today, (this.usage.get(today) || 0) + credits);
-  }
-
-  remaining(): number {
-    const today = new Date().toISOString().split("T")[0];
-    return this.dailyLimit - (this.usage.get(today) || 0);
-  }
-}
-
-const budget = new CreditBudget(1000);
-
-// Before each crawl
-if (!budget.canAfford(50)) {
-  throw new Error(`Daily credit budget exceeded. ${budget.remaining()} credits left`);
-}
-await firecrawl.crawlUrl(url, { limit: 50 });
-budget.record(50);
-```
-
-### Step 6: Choose Minimal Formats
-
-```bash
-set -euo pipefail
-# Cheapest: markdown only (1 credit, fastest)
-curl -X POST https://api.firecrawl.dev/v1/scrape \
-  -H "Authorization: Bearer $FIRECRAWL_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"url":"https://example.com","formats":["markdown"]}'
-
-# Avoid requesting screenshots, rawHtml, or extract unless needed
-# Extract uses LLM calls — significantly more credits
-```
+Return the billing-policy snapshot, workload attribution, baseline and candidate cost, quality delta, chosen controls, alerts, canary evidence, projected range, and rollback threshold.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `402 Payment Required` | Credits exhausted | Check balance, upgrade plan, or wait for reset |
-| Credits drained by one crawl | No `limit` set | Always set `limit` and `maxDepth` |
-| Duplicate scraping costs | Same URLs scraped daily | Implement URL-keyed caching |
-| High per-page cost | Requesting all formats + extract | Use `formats: ["markdown"]` only |
-| Budget overrun | No daily cap | Implement credit budget tracker |
+- Usage lags async work: wait for job completion and billing settlement before declaring savings.
+- Current prices or limits cannot be verified: report a range and block irreversible plan decisions.
+- Budget is exhausted: stop new work; do not hide 402 responses with uncontrolled retries.
 
-## Cost Optimization Summary
+## Examples
 
-| Technique | Credit Savings |
-|-----------|---------------|
-| Set crawl `limit` | Prevents 100x overages |
-| Map + selective scrape | 50-90% vs blind crawl |
-| Cache repeated scrapes | 50-80% reduction |
-| Markdown-only format | Fastest, no extras |
-| Batch scrape vs individual | Same cost, less overhead |
+- "Why did credits spike?" attributes usage by option and completed page rather than request count.
+- "Make this crawl cheaper" tests scope, cache, format, and map-first changes against quality.
 
 ## Resources
 
-- [Firecrawl Pricing](https://firecrawl.dev/pricing)
-- [Firecrawl Dashboard](https://firecrawl.dev/app)
-- [Rate Limits](https://docs.firecrawl.dev/rate-limits)
-
-## Next Steps
-
-For reference architecture, see `firecrawl-reference-architecture`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.
