@@ -1,207 +1,75 @@
 ---
 name: exa-ci-integration
-description: 'Configure Exa CI/CD integration with GitHub Actions and automated testing.
-
-  Use when setting up automated testing for Exa integrations,
-
-  configuring CI pipelines, or adding Exa health checks to builds.
-
-  Trigger with phrases like "exa CI", "exa GitHub Actions",
-
-  "exa automated tests", "CI exa", "exa pipeline".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*)
-version: 1.11.0
+description: >-
+  Add deterministic Exa contract checks to CI while keeping live credentials, spend, and volatile web results out of ordinary pull requests. Use when operating or reviewing this Exa boundary. Trigger with "Exa ci integration", "review Exa ci integration", or "fix Exa ci integration".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository> <protected-live-lane>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- testing
-- ci-cd
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa CI Integration
-
-## Output
-
-- A credential-free pull-request lane for unit/schema/policy checks and a trusted scoped integration lane.
-- A redacted CI receipt with validation result, failure classification, and safe retry path.
-
-## Examples
-
-Run mocked request/policy tests on every pull request using sanitized fixtures, then execute one protected-branch development integration check with a scoped secret. If it fails, retain correlation/status metadata and back off; never give forked code an Exa key or private query set.
+# Exa CI Contract Verification
 
 ## Overview
 
-Set up CI/CD pipelines for Exa integrations with unit tests (mocked), integration tests (real API), and health checks. Uses GitHub Actions with secrets for API key management.
+Add deterministic Exa contract checks to CI while keeping live credentials, spend, and volatile web results out of ordinary pull requests. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- GitHub repository with Actions enabled
-- Exa API key for testing
-- npm/pnpm project with vitest or jest
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Offline CI can verify owned request and response schemas, error tags, webhook signatures, and redaction. A live lane should be protected, synthetic, manually or schedule authorized, tightly budgeted, and non-blocking until its reliability is understood.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: GitHub Actions Workflow
+1. Map the Exa adapter and enumerate contracts changed by the pull request.
+2. Add sanitized fixtures for success, partial Contents status, 429, 402, and 503.
+3. Verify no load-time shell commands or secret-dependent preprocessing occurs.
+4. Test webhook signature verification with fixed local payloads and clocks.
+5. Place a one-request live smoke lane behind protected credentials and concurrency.
+6. Publish content-free gate evidence and distinguish skipped from passed live checks.
 
-```yaml
-# .github/workflows/exa-tests.yml
-name: Exa Integration Tests
+## Tool Discipline
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-      - run: npm ci
-      - run: npm run test:unit
-        # Unit tests use mocked Exa — no API key needed
+## Approval Boundaries
 
-  integration-tests:
-    runs-on: ubuntu-latest
-    # Only run if API key is available (not on forks)
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
-    env:
-      EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-      - run: npm ci
-      - run: npm run test:integration
-        timeout-minutes: 5
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-  exa-health-check:
-    runs-on: ubuntu-latest
-    env:
-      EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
-    steps:
-      - name: Verify Exa API connectivity
-        run: |
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-            -X POST https://api.exa.ai/search \
-            -H "x-api-key: $EXA_API_KEY" \
-            -H "Content-Type: application/json" \
-            -d '{"query":"CI health check","numResults":1}')
-          echo "Exa API status: $HTTP_CODE"
-          [ "$HTTP_CODE" = "200" ] || exit 1
-```
+## Failure Modes
 
-### Step 2: Configure Secrets
+- A skipped live job must not be reported as vendor validation.
+- Snapshotting web ranks or text makes pull requests nondeterministic.
+- Fork pull requests must never receive production Exa secrets.
 
-```bash
-# Add API key as repository secret
-gh secret set EXA_API_KEY --body "your-exa-api-key"
+## Output
 
-# For staging/production deployments
-gh secret set EXA_API_KEY_STAGING --body "staging-key" --env staging
-gh secret set EXA_API_KEY_PROD --body "prod-key" --env production
-```
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-### Step 3: Integration Test Suite
+## Example
 
-```typescript
-// tests/exa.integration.test.ts
-import { describe, it, expect } from "vitest";
-import Exa from "exa-js";
+- Every PR runs fixture contracts; a protected nightly job performs one URL-only Search and retains request ID, shape, latency, and cost.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-const describeWithKey = process.env.EXA_API_KEY ? describe : describe.skip;
+## Validation
 
-describeWithKey("Exa API Integration", () => {
-  const exa = new Exa(process.env.EXA_API_KEY!);
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-  it("should search and return results", async () => {
-    const result = await exa.search("JavaScript frameworks", {
-      type: "auto",
-      numResults: 3,
-    });
-    expect(result.results.length).toBeGreaterThanOrEqual(1);
-    expect(result.results[0]).toHaveProperty("url");
-    expect(result.results[0]).toHaveProperty("title");
-    expect(result.results[0]).toHaveProperty("score");
-  }, 10000);
+## References
 
-  it("should return content with searchAndContents", async () => {
-    const result = await exa.searchAndContents("Node.js best practices", {
-      numResults: 2,
-      text: { maxCharacters: 500 },
-      highlights: { maxCharacters: 200 },
-    });
-    expect(result.results[0].text).toBeDefined();
-    expect(result.results[0].text!.length).toBeGreaterThan(0);
-  }, 15000);
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-  it("should find similar pages", async () => {
-    const result = await exa.findSimilar("https://nodejs.org", {
-      numResults: 3,
-    });
-    expect(result.results.length).toBeGreaterThanOrEqual(1);
-  }, 10000);
-
-  it("should handle invalid queries gracefully", async () => {
-    // Empty query should return 400
-    await expect(
-      exa.search("", { numResults: 1 })
-    ).rejects.toThrow();
-  }, 10000);
-});
-```
-
-### Step 4: Release Gate with Exa Verification
-
-```yaml
-# .github/workflows/release.yml
-on:
-  push:
-    tags: ["v*"]
-
-jobs:
-  verify-and-release:
-    runs-on: ubuntu-latest
-    env:
-      EXA_API_KEY: ${{ secrets.EXA_API_KEY_PROD }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - run: npm ci
-      - run: npm test
-      - name: Verify Exa production connectivity
-        run: npm run test:integration
-      - run: npm run build
-      - run: npm publish
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Secret not found | Missing configuration | `gh secret set EXA_API_KEY` |
-| Integration tests timeout | Slow API response | Increase timeout to 15000ms |
-| Tests fail on forks | No access to secrets | Skip integration tests on fork PRs |
-| Rate limited in CI | Too many concurrent runs | Use unique test queries per run |
-
-## Resources
-
-- [GitHub Actions Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
-- Vitest CI Configuration
-
-## Next Steps
-
-For deployment patterns, see `exa-deploy-integration`.
+- [Current first-party evidence map](references/official-docs.md)

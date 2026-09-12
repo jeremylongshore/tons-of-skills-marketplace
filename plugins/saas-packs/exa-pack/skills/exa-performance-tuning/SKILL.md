@@ -1,204 +1,75 @@
 ---
 name: exa-performance-tuning
-description: 'Optimize Exa API performance with search type selection, caching, and
-  parallelization.
-
-  Use when experiencing slow responses, implementing caching strategies,
-
-  or optimizing request throughput for Exa integrations.
-
-  Trigger with phrases like "exa performance", "optimize exa",
-
-  "exa latency", "exa caching", "exa slow", "exa fast".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
+description: >-
+  Tune Exa search type, content mode, freshness, result count, and concurrency against measured latency and retrieval quality. Use when operating or reviewing this Exa boundary. Trigger with "Exa performance tuning", "review Exa performance tuning", or "fix Exa performance tuning".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<workload> <latency-slo> <quality-metric>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- api
-- performance
-- optimization
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Performance Tuning
-
-## Prerequisites
-
-- A measured latency/throughput/quality/error baseline, sanitized evaluation set, SLO owner, and rollback threshold.
-- Approved data/policy controls that remain in effect during tests.
-
-## Output
-
-- A measured performance recommendation with policy/quality guardrails, owner, and reversible change record.
-
-## Examples
-
-Measure sanitized staging queries, change one request option, cache behavior, or concurrency limit, and compare aggregate latency, quality, and errors against baseline. Revert on regression; do not disable citation, source, privacy, or human-review controls to improve a metric.
+# Exa Latency and Retrieval Performance Tuning
 
 ## Overview
 
-Optimize Exa search API response times for production workloads. Key levers: search type selection (instant < fast < auto < neural < deep), result count reduction, content scope control, result caching, and parallel query execution.
+Tune Exa search type, content mode, freshness, result count, and concurrency against measured latency and retrieval quality. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
-## Latency by Search Type
+## Prerequisites
 
-| Type | Typical Latency | Use Case |
-|------|----------------|----------|
-| `instant` | < 150ms | Real-time autocomplete, typeahead |
-| `fast` | p50 < 425ms | Speed-critical user-facing search |
-| `auto` | 300-1500ms | General purpose (default) |
-| `neural` | 500-2000ms | Best semantic quality |
-| `deep` | 2-5s | Maximum coverage, light deep search |
-| `deep-reasoning` | 5-15s | Complex research questions |
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Search types trade latency and synthesis depth; content extraction, outputSchema, forced livecrawl, summaries, and subpages add work. Highlights are usually more token-efficient than full text. Published latency values are guidance, not a service-specific SLO.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Match Search Type to Latency Budget
+1. Build a consented benchmark set with explicit relevance and freshness judgments.
+2. Measure the current adapter end to end, including queue and downstream processing.
+3. Vary one dimension at a time: type, result count, content mode, freshness, or subpages.
+4. Track p50, p95, errors, content size, relevance, freshness, and cost together.
+5. Choose separate profiles for interactive, background, and deep-research paths.
+6. Canary the winning profile and retain rollback thresholds.
 
-```typescript
-import Exa from "exa-js";
+## Tool Discipline
 
-const exa = new Exa(process.env.EXA_API_KEY);
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-function selectSearchType(latencyBudgetMs: number) {
-  if (latencyBudgetMs < 200) return "instant";
-  if (latencyBudgetMs < 500) return "fast";
-  if (latencyBudgetMs < 1500) return "auto";
-  if (latencyBudgetMs < 3000) return "neural";
-  return "deep";
-}
+## Approval Boundaries
 
-async function optimizedSearch(query: string, latencyBudgetMs: number) {
-  const type = selectSearchType(latencyBudgetMs);
-  const numResults = latencyBudgetMs < 500 ? 3 : latencyBudgetMs < 2000 ? 5 : 10;
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-  return exa.search(query, { type, numResults });
-}
-```
+## Failure Modes
 
-### Step 2: Minimize Content Retrieval
+- Faster results can be less relevant or stale.
+- Forced livecrawl and deep synthesis stack latency rather than replacing it.
+- Vendor request latency alone omits queues, parsing, reranking, and model consumption.
 
-```typescript
-// Each content option adds latency. Only request what you need.
+## Output
 
-// Fastest: metadata only (no content retrieval)
-const metadataOnly = await exa.search("query", { numResults: 5 });
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-// Medium: highlights only (much smaller than full text)
-const highlightsOnly = await exa.searchAndContents("query", {
-  numResults: 5,
-  highlights: { maxCharacters: 300 },
-  // No text or summary — saves content retrieval time
-});
+## Example
 
-// Slower: full text (use maxCharacters to limit)
-const withText = await exa.searchAndContents("query", {
-  numResults: 3,  // fewer results = faster
-  text: { maxCharacters: 1000 },  // limit content size
-});
-```
+- Compare fast plus highlights against auto plus capped text on the same query set and promote only if the quality floor holds.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-### Step 3: Cache Search Results
+## Validation
 
-```typescript
-import { LRUCache } from "lru-cache";
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-const searchCache = new LRUCache<string, any>({
-  max: 5000,
-  ttl: 2 * 3600 * 1000, // 2-hour TTL
-});
+## References
 
-async function cachedSearch(query: string, opts: any) {
-  const key = `${query}:${opts.type || "auto"}:${opts.numResults || 10}`;
-  const cached = searchCache.get(key);
-  if (cached) return cached; // Cache hit: 0ms vs 500-2000ms
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-  const results = await exa.search(query, opts);
-  searchCache.set(key, results);
-  return results;
-}
-```
-
-### Step 4: Parallelize Independent Searches
-
-```typescript
-// Run independent queries concurrently instead of sequentially
-async function parallelSearch(queries: string[]) {
-  const searches = queries.map(q =>
-    cachedSearch(q, { type: "auto", numResults: 3 })
-  );
-  return Promise.all(searches);
-  // 3 parallel searches: ~600ms total (limited by slowest)
-  // 3 sequential searches: ~1800ms total
-}
-```
-
-### Step 5: Two-Phase Search Pattern
-
-```typescript
-// Phase 1: Fast search for URLs only
-// Phase 2: Selective content retrieval for top results only
-async function twoPhaseSearch(query: string) {
-  // Phase 1: metadata only (fast)
-  const results = await exa.search(query, { type: "auto", numResults: 10 });
-
-  // Phase 2: get content only for top 3 results
-  const topUrls = results.results.slice(0, 3).map(r => r.url);
-  const contents = await exa.getContents(topUrls, {
-    text: { maxCharacters: 2000 },
-    highlights: { maxCharacters: 500, query },
-  });
-
-  return contents;
-  // Saves content retrieval time for 7 results you won't use
-}
-```
-
-### Step 6: Query Normalization for Cache Hits
-
-```typescript
-function normalizeQuery(query: string): string {
-  return query
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, " ")       // collapse whitespace
-    .replace(/[?.!,;:]+$/, ""); // strip trailing punctuation
-}
-
-async function normalizedSearch(query: string, opts: any) {
-  return cachedSearch(normalizeQuery(query), opts);
-}
-// Increases cache hit rate by 20-40% for user-generated queries
-```
-
-## Performance Comparison
-
-| Strategy | Latency Savings | Implementation |
-|----------|----------------|----------------|
-| `instant` type | 5-10x faster than neural | One-line change |
-| Reduce numResults (10 -> 3) | ~200-500ms saved | One-line change |
-| Highlights instead of text | ~100-300ms saved | Replace `text` with `highlights` |
-| LRU cache | 100% for cache hits | ~20 lines |
-| Parallel queries | 2-3x throughput | `Promise.all` wrapper |
-| Two-phase search | ~30-50% for large result sets | ~15 lines |
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Search taking 3s+ | Neural search on complex query | Switch to `fast` or `auto` type |
-| Timeout on content | Large pages, slow sources | Set `maxCharacters` limit |
-| Cache miss rate high | Unique queries each time | Normalize queries before caching |
-| Rate limit (429) | Too many concurrent searches | Add request queue with concurrency limit |
-
-## Resources
-
-- [Exa Search Types](https://docs.exa.ai/reference/search)
-- [Exa Contents Retrieval](https://docs.exa.ai/reference/contents-retrieval)
-
-## Next Steps
-
-For cost optimization, see `exa-cost-tuning`. For reliability, see `exa-reliability-patterns`.
+- [Current first-party evidence map](references/official-docs.md)

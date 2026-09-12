@@ -1,10 +1,8 @@
-# Exa Skill Pack
+# Exa Operator Skill Pack
 
-> 30 Claude Code skills for Exa neural search API integration — from first query to production RAG pipelines
+> 30 governed workflows for current Exa Search, Contents, Agent, Monitors, Websets, and enterprise operations.
 
-**Exa** is a neural search API at `api.exa.ai` that retrieves web content using semantic similarity. Unlike traditional search engines, Exa understands query meaning and returns contextually relevant results with full text, highlights, and AI-generated summaries.
-
-**SDK:** `exa-js` (npm) / `exa-py` (PyPI) | **Auth:** `x-api-key` header | **Rate limit:** 10 QPS default
+This pack helps operators build Exa integrations without leaking credentials or retrieved content, preserving legacy search types, ignoring partial crawl failures, or orphaning asynchronous work. It is grounded in current first-party Exa documentation reviewed on 2026-09-12.
 
 ## Installation
 
@@ -14,113 +12,100 @@
 
 ## What You Get
 
-| Tier | Skills | Focus |
-|------|--------|-------|
-| **Standard** (S01-S12) | Install, hello world, search, similarity, SDK patterns, errors, debug, rate limits, security, dev loop, checklist, upgrades | Core integration |
-| **Pro** (P13-P18) | CI/CD, deployment, event monitoring, performance, cost, reference architecture | Production readiness |
-| **Flagship** (F19-F24) | Multi-env, observability, incident runbook, data handling, RBAC, migration | Enterprise operations |
-| **Flagship+** (X25-X30) | Advanced debugging, load testing, reliability, policy guardrails, architecture variants, pitfalls | Scale and resilience |
+Each skill distinguishes repository inspection, implementation, live retrieval, paid research, privileged team changes, and destructive cleanup. The workflows require Bearer authentication for normal REST calls, explicit product selection, endpoint-specific budgets, per-URL Contents status handling, signed Monitor webhooks, content-free evidence, and lifecycle reconciliation.
 
-## Core Exa Methods Covered
+New code uses current Search types rather than legacy `neural` terminology. HIPAA mode is treated as an enabled, request-scoped, cache-only Search or Contents contract, not a generic compliance claim.
 
-| Method | Skill | Purpose |
-|--------|-------|---------|
-| `exa.search()` | core-workflow-a | Metadata-only search (URL, title, score) |
-| `exa.searchAndContents()` | core-workflow-a | Search + text/highlights/summary extraction |
-| `exa.findSimilar()` | core-workflow-b | Find pages similar to a seed URL |
-| `exa.findSimilarAndContents()` | core-workflow-b | Similarity search + content extraction |
-| `exa.getContents()` | core-workflow-b | Retrieve content for known URLs |
-| `exa.answer()` | core-workflow-b | AI-generated answer with web citations |
-| `exa.streamAnswer()` | core-workflow-b | Streaming answer with citations |
+## Skills Included
 
-## Search Types
+### Core retrieval and development
 
-| Type | Latency | Best For |
-|------|---------|----------|
-| `instant` | < 150ms | Real-time autocomplete |
-| `fast` | < 425ms | Speed-critical UI |
-| `auto` | 300-1500ms | General purpose (default) |
-| `neural` | 500-2000ms | Semantic/conceptual queries |
-| `deep` | 2-5s | Maximum coverage |
-| `deep-reasoning` | 5-15s | Complex research |
+| Skill | What It Does |
+|-------|-------------|
 
-## Quick Start
+| `exa-install-auth` | Configure an Exa client without leaking credentials or mixing API-key, MCP OAuth, enterprise managed authorization, and payment-protocol trust models. |
 
-```typescript
-import Exa from "exa-js";
-const exa = new Exa(process.env.EXA_API_KEY);
+| `exa-hello-world` | Prove a new Exa Search integration with a bounded synthetic query and content-free assertions. |
 
-// Search with content extraction
-const results = await exa.searchAndContents(
-  "best practices for building RAG pipelines",
-  {
-    type: "neural",
-    numResults: 5,
-    text: { maxCharacters: 2000 },
-    highlights: { maxCharacters: 500 },
-    summary: { query: "key takeaways" },
-  }
-);
-```
+| `exa-local-dev-loop` | Build and test an Exa adapter locally using schema fixtures, recorded content-free envelopes, and an explicit opt-in live lane. |
 
-## Skills Reference
+| `exa-sdk-patterns` | Isolate exa-js or exa-py behind an application-owned adapter that preserves current request semantics and safe evidence. |
 
-### Standard (S01-S12)
+| `exa-core-workflow-a` | Operate Search and Contents as an explicit two-stage retrieval workflow with bounded context, freshness, and cost. |
 
-| Skill | Trigger |
-|-------|---------|
-| `exa-install-auth` | "install exa", "setup exa", "exa API key" |
-| `exa-hello-world` | "exa example", "first exa query" |
-| `exa-local-dev-loop` | "exa dev setup", "exa test setup" |
-| `exa-sdk-patterns` | "exa patterns", "exa best practices" |
-| `exa-core-workflow-a` | "exa search", "exa neural search", "searchAndContents" |
-| `exa-core-workflow-b` | "exa find similar", "exa answer", "getContents" |
-| `exa-common-errors` | "exa error", "exa 429", "debug exa" |
-| `exa-debug-bundle` | "exa debug", "exa support bundle" |
-| `exa-rate-limits` | "exa rate limit", "exa throttling" |
-| `exa-security-basics` | "exa security", "secure exa key" |
-| `exa-prod-checklist` | "exa production", "exa go-live" |
-| `exa-upgrade-migration` | "upgrade exa", "update exa-js" |
+| `exa-core-workflow-b` | Run asynchronous Exa Agent research with a bounded schema, effort, terminal-state policy, citations, and cleanup decision. |
 
-### Pro (P13-P18)
+| `exa-common-errors` | Classify Exa failures by HTTP status, error tag, endpoint, and per-item crawl status before deciding whether to repair, retry, or escalate. |
 
-| Skill | Trigger |
-|-------|---------|
-| `exa-ci-integration` | "exa CI", "exa GitHub Actions" |
-| `exa-deploy-integration` | "deploy exa", "exa Vercel", "exa Docker" |
-| `exa-webhooks-events` | "exa monitor", "exa content alerts" |
-| `exa-performance-tuning` | "exa performance", "exa latency" |
-| `exa-cost-tuning` | "exa cost", "reduce exa costs" |
-| `exa-reference-architecture` | "exa architecture", "exa RAG pipeline" |
+| `exa-debug-bundle` | Produce a minimal Exa diagnostic bundle that preserves reproducibility without exposing credentials, queries, retrieved content, or customer data. |
 
-### Flagship (F19-F24)
+| `exa-rate-limits` | Budget Exa throughput per endpoint and distinguish caller rate limiting from vendor overload and billing exhaustion. |
 
-| Skill | Trigger |
-|-------|---------|
-| `exa-multi-env-setup` | "exa environments", "exa dev prod" |
-| `exa-observability` | "exa monitoring", "exa metrics" |
-| `exa-incident-runbook` | "exa incident", "exa outage" |
-| `exa-data-handling` | "exa data", "exa cache", "exa RAG context" |
-| `exa-enterprise-rbac` | "exa access control", "exa team keys" |
-| `exa-migration-deep-dive` | "migrate to exa", "switch to exa" |
+| `exa-security-basics` | Threat-model Exa credentials, query intent, retrieved web content, generated output, and retained operational evidence as separate trust boundaries. |
 
-### Flagship+ (X25-X30)
+| `exa-prod-checklist` | Gate an Exa-backed service on contract, security, cost, reliability, observability, and rollback evidence. |
 
-| Skill | Trigger |
-|-------|---------|
-| `exa-advanced-troubleshooting` | "exa deep debug", "exa latency spike" |
-| `exa-load-scale` | "exa load test", "exa capacity" |
-| `exa-reliability-patterns` | "exa reliability", "exa fallback" |
-| `exa-policy-guardrails` | "exa policy", "exa content filter" |
-| `exa-architecture-variants` | "exa blueprint", "exa at scale" |
-| `exa-known-pitfalls` | "exa mistakes", "exa anti-patterns" |
+| `exa-upgrade-migration` | Upgrade Exa SDK or API usage through a contract inventory, fixture diff, canary, and reversible dependency change. |
 
-## Key Resources
+### Delivery and operations
 
-- [Exa API Documentation](https://docs.exa.ai)
-- [exa-js SDK](https://github.com/exa-labs/exa-js)
-- [Exa Dashboard](https://dashboard.exa.ai)
-- [Exa Pricing](https://exa.ai/pricing)
+| Skill | What It Does |
+|-------|-------------|
+
+| `exa-ci-integration` | Add deterministic Exa contract checks to CI while keeping live credentials, spend, and volatile web results out of ordinary pull requests. |
+
+| `exa-deploy-integration` | Deploy an Exa integration with server-side credentials, bounded concurrency, canary controls, and explicit rollback of scheduled work. |
+
+| `exa-webhooks-events` | Receive Exa Monitor events through verified signatures, replay resistance, deduplication, and fast acknowledgment. |
+
+| `exa-performance-tuning` | Tune Exa search type, content mode, freshness, result count, and concurrency against measured latency and retrieval quality. |
+
+| `exa-cost-tuning` | Control Exa spend through endpoint selection, bounded result and content work, per-key budgets, and response-derived cost evidence. |
+
+| `exa-reference-architecture` | Design an Exa architecture that separates query policy, retrieval, content handling, asynchronous state, citations, and evidence. |
+
+### Enterprise governance
+
+| Skill | What It Does |
+|-------|-------------|
+
+| `exa-multi-env-setup` | Separate Exa development, staging, and production credentials, budgets, schedules, data, and observability. |
+
+| `exa-observability` | Instrument Exa calls with content-free metrics, traces, cost, and asynchronous lifecycle signals that support diagnosis without logging retrieved text. |
+
+| `exa-incident-runbook` | Contain Exa credential, data, cost, capacity, or correctness incidents while preserving safe evidence and vendor request IDs. |
+
+| `exa-data-handling` | Govern queries, public-web retrieval, generated summaries, citations, and downstream copies across their full retention lifecycle. |
+
+| `exa-enterprise-rbac` | Govern Exa membership, API and service keys, team budgets, MCP OAuth, and enterprise managed authorization through least privilege and revocation evidence. |
+
+| `exa-migration-deep-dive` | Migrate a legacy web-search integration to Exa through semantic, filter, freshness, relevance, cost, and rollback comparisons. |
+
+### Scale and architecture
+
+| Skill | What It Does |
+|-------|-------------|
+
+| `exa-advanced-troubleshooting` | Localize complex Exa failures across query planning, retrieval, crawling, synthesis, SDK mapping, queues, and downstream consumption. |
+
+| `exa-load-scale` | Validate Exa capacity with synthetic workload models, endpoint-specific budgets, bounded queues, and stop conditions. |
+
+| `exa-reliability-patterns` | Design bounded Exa retries, deadlines, partial-result behavior, and tested fallbacks by endpoint and failure class. |
+
+| `exa-policy-guardrails` | Enforce query, domain, moderation, freshness, content, and downstream-use policy before and after Exa retrieval. |
+
+| `exa-architecture-variants` | Choose among direct Search, staged Contents, Answer, Agent, Monitors, Websets, and Batch using explicit latency, verification, volume, and lifecycle criteria. |
+
+| `exa-known-pitfalls` | Audit an Exa integration for stale search types, unsafe secrets, ignored partial failures, unbounded content work, weak citations, and orphaned asynchronous resources. |
+
+## Current Contract Highlights
+
+- Normal REST calls use `Authorization: Bearer`; administrative service keys and MCP authorization are separate boundaries.
+- Search types are `auto`, `fast`, `instant`, `deep-lite`, `deep`, and `deep-reasoning`; `neural` is legacy terminology.
+- Contents callers inspect per-URL statuses even when the outer request succeeds.
+- Agent runs, Monitors, Websets, and Batches have explicit asynchronous lifecycles.
+- Monitor webhook secrets are returned once and deliveries require raw-body HMAC verification.
+- Current price, limit, beta, compliance, and retention facts are verified before live work.
 
 ## License
 

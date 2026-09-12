@@ -1,252 +1,75 @@
 ---
 name: exa-data-handling
-description: 'Implement Exa search result processing, content extraction, caching,
-  and RAG context management.
-
-  Use when handling search results, implementing caching, building citation pipelines,
-
-  or managing content payloads for LLM context windows.
-
-  Trigger with phrases like "exa data", "exa results processing",
-
-  "exa cache", "exa RAG context", "exa content extraction".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
+description: >-
+  Govern queries, public-web retrieval, generated summaries, citations, and downstream copies across their full retention lifecycle. Use when operating or reviewing this Exa boundary. Trigger with "Exa data handling", "review Exa data handling", or "fix Exa data handling".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<data-class> <content-mode> <retention-window>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- data
-- rag
-- caching
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Data Handling
-
-## Output
-
-- A policy-bound search/research data flow with classification, retention, access, redaction, and owner decisions.
-- A verified boundary that keeps private queries, results, identifiers, and credentials out of unsafe logs, fixtures, and exports.
+# Exa Retrieved-content Governance
 
 ## Overview
 
-Manage search result data from Exa's neural search API. Covers content extraction scope control (text vs highlights vs summary), result caching with TTL, citation deduplication, token budget management for LLM context windows, and structured summary extraction.
+Govern queries, public-web retrieval, generated summaries, citations, and downstream copies across their full retention lifecycle. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- `exa-js` SDK installed and configured
-- Optional: `lru-cache` for in-memory caching, `ioredis` for Redis
-- Understanding of Exa content options (text, highlights, summary)
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Search and Contents can return page text, highlights, summaries, links, images, and subpages; Agent and Answer can generate cited output. Public availability does not remove privacy, copyright, contractual, prompt-injection, or retention obligations. Enterprise Zero Data Retention and request-scoped HIPAA behavior require explicit enablement.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Control Content Extraction Scope
+1. Classify query intent, target domains, returned content, generated output, and citations.
+2. Request the smallest content mode and character budget that supports the task.
+3. Apply domain, moderation, malware, prompt-injection, and personal-data controls.
+4. Keep source attribution and generated claims distinguishable downstream.
+5. Define cache, vector-store, log, backup, and deletion propagation before persistence.
+6. Verify downstream deletion and preserve only content-free operational receipts.
 
-```typescript
-import Exa from "exa-js";
+## Tool Discipline
 
-const exa = new Exa(process.env.EXA_API_KEY);
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-// Tier 1: Metadata only (cheapest, fastest)
-async function searchMetadataOnly(query: string) {
-  return exa.search(query, {
-    type: "auto",
-    numResults: 10,
-    // No content options — returns URLs, titles, scores only
-  });
-}
+## Approval Boundaries
 
-// Tier 2: Highlights only (balanced cost/value)
-async function searchWithHighlights(query: string) {
-  return exa.searchAndContents(query, {
-    numResults: 10,
-    highlights: {
-      maxCharacters: 500,
-      query: query,  // focus highlights on the original query
-    },
-  });
-}
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-// Tier 3: Full text with character limit
-async function searchWithText(query: string, maxChars = 2000) {
-  return exa.searchAndContents(query, {
-    numResults: 5,
-    text: { maxCharacters: maxChars },
-    highlights: { maxCharacters: 300 },
-  });
-}
+## Failure Modes
 
-// Tier 4: Structured summary (LLM-generated per result)
-async function searchWithSummary(query: string) {
-  return exa.searchAndContents(query, {
-    numResults: 5,
-    summary: { query: query },
-    // summary returns a concise LLM-generated summary per result
-  });
-}
-```
+- Highlights are source excerpts; summaries are generated and need different labeling.
+- Vector databases and model traces can outlive the application cache.
+- Zero Data Retention at the vendor does not delete customer-controlled downstream copies.
 
-### Step 2: Result Caching with TTL
+## Output
 
-```typescript
-import { LRUCache } from "lru-cache";
-import { createHash } from "crypto";
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-const searchCache = new LRUCache<string, any>({
-  max: 500,
-  ttl: 1000 * 60 * 60, // 1 hour default
-});
+## Example
 
-function cacheKey(query: string, options: any): string {
-  return createHash("sha256")
-    .update(JSON.stringify({ query, ...options }))
-    .digest("hex");
-}
+- Store approved highlights with source URL and expiry, exclude raw full text from logs, and propagate deletion to embeddings and backups.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-async function cachedSearch(query: string, options: any = {}, ttlMs?: number) {
-  const key = cacheKey(query, options);
-  const cached = searchCache.get(key);
-  if (cached) return cached;
+## Validation
 
-  const results = await exa.searchAndContents(query, options);
-  searchCache.set(key, results, { ttl: ttlMs });
-  return results;
-}
-```
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-### Step 3: Token Budget Management for RAG
+## References
 
-```typescript
-interface ProcessedResult {
-  url: string;
-  title: string;
-  score: number;
-  snippet: string;
-  tokenEstimate: number;
-}
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-function processForRAG(results: any[], maxSnippetLength = 500): ProcessedResult[] {
-  return results.map(r => {
-    const snippet = (r.text || r.highlights?.join(" ") || r.summary || "")
-      .slice(0, maxSnippetLength);
-    return {
-      url: r.url,
-      title: r.title || "Untitled",
-      score: r.score,
-      snippet,
-      tokenEstimate: Math.ceil(snippet.length / 4),
-    };
-  });
-}
-
-function fitToTokenBudget(results: ProcessedResult[], maxTokens: number) {
-  const sorted = [...results].sort((a, b) => b.score - a.score);
-  const selected: ProcessedResult[] = [];
-  let tokenCount = 0;
-
-  for (const result of sorted) {
-    if (tokenCount + result.tokenEstimate > maxTokens) break;
-    selected.push(result);
-    tokenCount += result.tokenEstimate;
-  }
-
-  return { selected, tokenCount, dropped: sorted.length - selected.length };
-}
-
-// Usage: fit search results into a 4K token context window
-const results = await exa.searchAndContents("query", {
-  numResults: 15,
-  text: { maxCharacters: 1500 },
-});
-const processed = processForRAG(results.results);
-const { selected, tokenCount } = fitToTokenBudget(processed, 4000);
-```
-
-### Step 4: Citation Deduplication
-
-```typescript
-function deduplicateResults(results: any[]): any[] {
-  const seen = new Map<string, any>();
-
-  for (const result of results) {
-    const domain = new URL(result.url).hostname;
-    const key = `${domain}:${result.title}`;
-    if (!seen.has(key) || result.score > seen.get(key).score) {
-      seen.set(key, result);
-    }
-  }
-
-  return Array.from(seen.values());
-}
-```
-
-### Step 5: Structured Summary Extraction
-
-```typescript
-// Use summary.schema for structured data extraction
-const results = await exa.searchAndContents(
-  "YC-backed AI startups Series A 2025",
-  {
-    numResults: 10,
-    category: "company",
-    summary: {
-      query: "company name, funding amount, what they do",
-      // schema can define JSON structure for the summary output
-    },
-  }
-);
-
-// Each result.summary contains a structured summary
-for (const r of results.results) {
-  console.log(`${r.title}: ${r.summary}`);
-}
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Large response payload | Full text for many URLs | Use highlights or limit `maxCharacters` |
-| Cache stale for news | Default TTL too long | Use 5-minute TTL for time-sensitive queries |
-| Duplicate sources | Same article syndicated | Deduplicate by domain + title |
-| Token budget exceeded | Too much context for LLM | Use `fitToTokenBudget` to trim by score |
-| Missing `.text` field | Content not requested | Use `searchAndContents` not `search` |
-
-## Examples
-
-### RAG-Optimized Search Pipeline
-
-```typescript
-async function ragSearch(query: string, tokenBudget = 4000) {
-  const results = await cachedSearch(query, {
-    numResults: 15,
-    type: "neural",
-    text: { maxCharacters: 1500 },
-    highlights: { maxCharacters: 300, query },
-  });
-
-  const deduped = deduplicateResults(results.results);
-  const processed = processForRAG(deduped);
-  const { selected, tokenCount } = fitToTokenBudget(processed, tokenBudget);
-
-  return {
-    context: selected.map((r, i) =>
-      `[${i + 1}] ${r.title} (${r.url})\n${r.snippet}`
-    ).join("\n\n---\n\n"),
-    sources: selected.map(r => ({ title: r.title, url: r.url })),
-    tokenCount,
-  };
-}
-```
-
-## Resources
-
-- [Exa Contents Retrieval](https://docs.exa.ai/reference/contents-retrieval)
-- [Exa Search Reference](https://docs.exa.ai/reference/search)
-
-## Next Steps
-
-For rate limit handling, see `exa-rate-limits`. For cost optimization, see `exa-cost-tuning`.
+- [Current first-party evidence map](references/official-docs.md)

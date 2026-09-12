@@ -22,9 +22,9 @@
       "error_files": 410,
       "error_total": 2931,
       "grade_distribution": {
-        "A": 2445,
-        "B": 738,
-        "C": 150,
+        "A": 2474,
+        "B": 711,
+        "C": 148,
         "D": 154,
         "F": 4
       },
@@ -42,7 +42,7 @@
       "values": {
         "plugin_agent_files": 352,
         "raw_tracked_plugin_skill_files": 2991,
-        "tracked_files": 25038
+        "tracked_files": 25102
       }
     },
     "2": {
@@ -91,7 +91,7 @@
         },
         "marketplace_terminal": {
           "error_total_all_validated_surfaces": 3168,
-          "fully_compliant_surfaces": 1532,
+          "fully_compliant_surfaces": 1562,
           "terminal_denominator": {
             "agents": 363,
             "commands": 370,
@@ -101,7 +101,7 @@
             "skills": 3491
           },
           "validated_plugin_manifests": 595,
-          "validator_reported_mixed_denominator_percent": 31.8
+          "validator_reported_mixed_denominator_percent": 32.5
         },
         "skill_rows": {
           "a_error_total": 31,
@@ -112,9 +112,9 @@
           "error_files": 410,
           "error_total": 2931,
           "grade_distribution": {
-            "A": 2445,
-            "B": 738,
-            "C": 150,
+            "A": 2474,
+            "B": 711,
+            "C": 148,
             "D": 154,
             "F": 4
           },
@@ -129,18 +129,18 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "average_score": 90.3,
+        "average_score": 90.4,
         "grade_distribution": {
-          "A": 2445,
-          "B": 738,
-          "C": 150,
+          "A": 2474,
+          "B": 711,
+          "C": 148,
           "D": 154,
           "F": 4
         },
         "grade_percentages": {
-          "A": 70,
-          "B": 21.1,
-          "C": 4.3,
+          "A": 70.9,
+          "B": 20.4,
+          "C": 4.2,
           "D": 4.4,
           "F": 0.1
         },
@@ -286,7 +286,7 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "distinct_values": 219,
+        "distinct_values": 220,
         "invalid_or_empty": 0,
         "target_free_text_values": 0,
         "values": [
@@ -367,7 +367,7 @@
             "value": "Cross-platform — talks WebDriver HTTP directly via Node's built-in node:https; no platform-specific binary dependency. Requires Node.js >= 18, a persistent local filesystem (the observe-decide-act loop passes state through local turn files), and ~/.kobiton/.credentials written by /automate:setup — scripts/appium.js reads that file directly and never calls the MCP getCredential tool, so it is required, not a fallback. An authenticated Kobiton MCP connection is additionally useful for device selection."
           },
           {
-            "count": 2763,
+            "count": 2733,
             "value": "Designed for Claude Code"
           },
           {
@@ -689,6 +689,10 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; live CI requires a protected Together AI development project key"
+          },
+          {
+            "count": 30,
+            "value": "Designed for Claude Code; live Exa work requires network access"
           },
           {
             "count": 24,
@@ -1848,7 +1852,7 @@
         "answers": [
           {
             "cohort": "curated-mirror",
-            "value": 2610
+            "value": 2612
           },
           {
             "cohort": "curriculum",
@@ -2588,7 +2592,7 @@
         "invalid_patterns": 0,
         "invisible_files": 5,
         "target_invisible_files": 0,
-        "tracked_files": 25038
+        "tracked_files": 25102
       }
     },
     "47": {
@@ -2673,15 +2677,15 @@
       "dimension": "Inventory header versus rows",
       "reproduce": "pnpm run measure:e1 --row=52 --stdout",
       "source": [
-        "freshie/reports/run-delta-104.json",
+        "freshie/reports/run-delta-105.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],
       "status": "target_met",
       "values": {
-        "dolt_commit": "i4iar88hf78ut0p7pfmupk2l4p5g5qkq",
+        "dolt_commit": "agmgds2011t82f5ihrhcfpbtc6v65v7c",
         "header_total_skills": 2914,
-        "run_id": 104,
+        "run_id": 105,
         "skill_row_delta": 0,
         "skill_rows": 2914,
         "target_skill_row_delta": 0
@@ -2694,32 +2698,32 @@
       "source": [
         "freshie/grade-histogram.json",
         "freshie/grades.csv",
-        "freshie/reports/run-delta-104.json"
+        "freshie/reports/run-delta-105.json"
       ],
       "status": "target_met",
       "values": {
         "compliance_rows": 3491,
-        "export_dolt_commit": "i4iar88hf78ut0p7pfmupk2l4p5g5qkq",
-        "export_run_id": 104,
+        "export_dolt_commit": "agmgds2011t82f5ihrhcfpbtc6v65v7c",
+        "export_run_id": 105,
         "grades_csv_rows": 3491,
-        "grades_csv_sha256": "f244e1145c3b09ca7aad56dc092fd8a59677815609159999013b27f716078f3f",
+        "grades_csv_sha256": "cf3062dfb0bf9ffd753c69bbc87a7a816513ee9df52777df763cbceeba449c9e",
         "histogram_grades": {
-          "A": 2445,
-          "B": 738,
-          "C": 150,
+          "A": 2474,
+          "B": 711,
+          "C": 148,
           "D": 154,
           "F": 4
         },
         "histogram_total": 3491,
         "immutable_grade_counts": {
-          "A": 2445,
-          "B": 738,
-          "C": 150,
+          "A": 2474,
+          "B": 711,
+          "C": 148,
           "D": 154,
           "F": 4
         },
-        "inventory_dolt_commit": "i4iar88hf78ut0p7pfmupk2l4p5g5qkq",
-        "inventory_run_id": 104,
+        "inventory_dolt_commit": "agmgds2011t82f5ihrhcfpbtc6v65v7c",
+        "inventory_run_id": 105,
         "target_lag_runs": 0
       }
     },
@@ -2729,7 +2733,7 @@
       "reproduce": "pnpm run measure:e1 --row=54 --stdout",
       "source": [
         "freshie/reports/legacy-forge-proofs-demotion.json",
-        "freshie/reports/run-delta-104.json",
+        "freshie/reports/run-delta-105.json",
         "freshie/reports/run-delta-19.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py",
@@ -2743,7 +2747,7 @@
           "E2": 0,
           "E3": 0
         },
-        "current_run_id": 104,
+        "current_run_id": 105,
         "invalid_identities": 0,
         "legacy_e0_records": 3,
         "retained_e2_e3": 0,
@@ -2767,7 +2771,7 @@
       "source": [
         "000-docs/807-DR-STND-evaluation-evidence.md",
         "freshie/reports/legacy-forge-proofs-demotion.json",
-        "freshie/reports/run-delta-104.json",
+        "freshie/reports/run-delta-105.json",
         "freshie/reports/run-delta-19.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"

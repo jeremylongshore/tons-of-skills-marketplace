@@ -7541,8 +7541,8 @@
       "slug": "exa-pack",
       "name": "exa-pack",
       "displayName": "exa pack",
-      "description": "Complete Exa integration skill pack with 30 skills covering neural search, semantic retrieval, web search API, and AI-powered discovery. Flagship+ tier vendor pack.",
-      "version": "1.11.0",
+      "description": "Governed Exa operator pack with 30 workflows for Search, Contents, Agent, Monitors, Websets, access, reliability, cost, and security.",
+      "version": "1.12.0",
       "category": "saas-packs",
       "keywords": [
         "exa",

@@ -1,172 +1,75 @@
 ---
 name: exa-install-auth
-description: 'Install the exa-js SDK and configure API key authentication.
-
-  Use when setting up a new Exa integration, configuring API keys,
-
-  or initializing Exa in a Node.js/Python project.
-
-  Trigger with phrases like "install exa", "setup exa",
-
-  "exa auth", "configure exa API key", "exa-js".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Bash(pnpm:*), Grep
-version: 1.11.0
+description: >-
+  Configure an Exa client without leaking credentials or mixing API-key, MCP OAuth, enterprise managed authorization, and payment-protocol trust models. Use when operating or reviewing this Exa boundary. Trigger with "Exa install auth", "review Exa install auth", or "fix Exa install auth".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<runtime> <team> <environment>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- api
-- authentication
-- setup
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Install & Auth
+# Exa Authentication and Installation Boundary
 
 ## Overview
 
-Install the official Exa SDK and configure API key authentication. Exa is a neural search API at `api.exa.ai` that retrieves web content using semantic similarity. Authentication uses the `x-api-key` header. The SDK is `exa-js` on npm or `exa-py` on PyPI.
+Configure an Exa client without leaking credentials or mixing API-key, MCP OAuth, enterprise managed authorization, and payment-protocol trust models. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- Node.js 18+ or Python 3.10+
-- Package manager (npm, pnpm, yarn, or pip)
-- Exa account at [dashboard.exa.ai](https://dashboard.exa.ai)
-- API key from the Exa dashboard
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+The public REST API uses the Exa API host and an Authorization Bearer header. SDKs can read EXA_API_KEY. Team Management uses a separately enabled service key against the admin API; hosted MCP normally uses OAuth, while enterprise managed authorization currently requires an eligible Exa organization, Claude organization, and Okta setup.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Install the SDK
+1. Inventory the runtime, endpoint family, team, environment, and data class.
+2. Choose exactly one supported authentication model for that boundary.
+3. Place the credential in the approved secret manager and inject it only at runtime.
+4. Pin the current SDK or raw-HTTP contract and validate configuration offline.
+5. Run a synthetic read-only smoke check only when live access and spend are approved.
+6. Record credential owner, scope, rotation path, test result, and rollback state.
 
-**Node.js (exa-js)**
+## Tool Discipline
 
-```bash
-set -euo pipefail
-npm install exa-js
-# or
-pnpm add exa-js
-```
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-**Python (exa-py)**
+## Approval Boundaries
 
-```bash
-pip install exa-py
-```
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-### Step 2: Configure the API Key
+## Failure Modes
 
-```bash
-# Set environment variable
-export EXA_API_KEY="your-api-key-here"
-
-# Or create .env file (add .env to .gitignore first)
-echo 'EXA_API_KEY=your-api-key-here' >> .env
-```
-
-Add to `.gitignore`:
-
-```
-.env
-.env.local
-.env.*.local
-```
-
-### Step 3: Initialize the Client
-
-**TypeScript**
-
-```typescript
-import Exa from "exa-js";
-
-const exa = new Exa(process.env.EXA_API_KEY);
-```
-
-**Python**
-
-```python
-from exa_py import Exa
-import os
-
-exa = Exa(api_key=os.environ["EXA_API_KEY"])
-```
-
-### Step 4: Verify Connection
-
-```typescript
-import Exa from "exa-js";
-
-const exa = new Exa(process.env.EXA_API_KEY);
-
-async function verifyConnection() {
-  try {
-    const result = await exa.search("test connectivity", { numResults: 1 });
-    console.log("Connected. Results:", result.results.length);
-    console.log("First result:", result.results[0]?.title);
-  } catch (err: any) {
-    if (err.status === 401) {
-      console.error("Invalid API key. Check EXA_API_KEY.");
-    } else if (err.status === 402) {
-      console.error("No credits remaining. Top up at dashboard.exa.ai.");
-    } else {
-      console.error("Connection failed:", err.message);
-    }
-  }
-}
-
-verifyConnection();
-```
+- Do not send REST keys in URLs, browser bundles, logs, or client telemetry.
+- A normal API key must not be treated as a Team Management service key.
+- An MCP OAuth session does not authorize unrelated REST or administrative calls.
 
 ## Output
 
-- `exa-js` or `exa-py` installed in project dependencies
-- `EXA_API_KEY` environment variable configured
-- `.env` added to `.gitignore`
-- Successful search result confirming connectivity
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-## Error Handling
+## Example
 
-| Error | HTTP Code | Cause | Solution |
-|-------|-----------|-------|----------|
-| `INVALID_API_KEY` | 401 | Missing or invalid API key | Verify key at dashboard.exa.ai |
-| `NO_MORE_CREDITS` | 402 | Account balance exhausted | Top up credits in dashboard |
-| `MODULE_NOT_FOUND` | N/A | SDK not installed | Run `npm install exa-js` |
-| `ENOTFOUND` | N/A | Network unreachable | Check internet connectivity |
-| `API_KEY_BUDGET_EXCEEDED` | 402 | Spending limit reached | Increase budget in dashboard |
+- A server worker receives EXA_API_KEY from its production secret store, calls only the approved API host, and reports the request ID without revealing the key.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-## Examples
+## Validation
 
-### With dotenv (Node.js)
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-```typescript
-import "dotenv/config";
-import Exa from "exa-js";
+## References
 
-const exa = new Exa(process.env.EXA_API_KEY);
-```
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-### With Validation
-
-```typescript
-function createExaClient(): Exa {
-  const apiKey = process.env.EXA_API_KEY;
-  if (!apiKey) {
-    throw new Error(
-      "EXA_API_KEY not set. Get one at https://dashboard.exa.ai"
-    );
-  }
-  return new Exa(apiKey);
-}
-```
-
-## Resources
-
-- [Exa Dashboard](https://dashboard.exa.ai)
-- [Exa Getting Started](https://docs.exa.ai/reference/getting-started)
-- [exa-js on npm](https://www.npmjs.com/package/exa-js)
-- [exa-py on PyPI](https://pypi.org/project/exa-py/)
-
-## Next Steps
-
-After successful auth, proceed to `exa-hello-world` for your first search.
+- [Current first-party evidence map](references/official-docs.md)

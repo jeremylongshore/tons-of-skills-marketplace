@@ -1,281 +1,75 @@
 ---
 name: exa-sdk-patterns
-description: 'Apply production-ready exa-js SDK patterns with type safety, singletons,
-  and wrappers.
-
-  Use when implementing Exa integrations, refactoring SDK usage,
-
-  or establishing team coding standards for Exa.
-
-  Trigger with phrases like "exa SDK patterns", "exa best practices",
-
-  "exa code patterns", "idiomatic exa", "exa wrapper".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
+description: >-
+  Isolate exa-js or exa-py behind an application-owned adapter that preserves current request semantics and safe evidence. Use when operating or reviewing this Exa boundary. Trigger with "Exa sdk patterns", "review Exa sdk patterns", or "fix Exa sdk patterns".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<typescript-or-python> <adapter-path>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- typescript
-- patterns
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa SDK Patterns
-
-## Output
-
-- A reusable Exa client boundary with scoped configuration, sanitized inputs, policy controls, redacted telemetry, and safe error classification.
-- Unit/integration evidence that avoids real sensitive queries, result content, and credentials.
+# Exa SDK Adapter Patterns
 
 ## Overview
 
-Production-ready patterns for the `exa-js` SDK. Covers client singletons, typed wrappers, error handling, retry logic, and response validation for real Exa API methods.
+Isolate exa-js or exa-py behind an application-owned adapter that preserves current request semantics and safe evidence. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- `exa-js` installed and `EXA_API_KEY` configured
-- TypeScript project with strict mode
-- Familiarity with async/await and error handling
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+The JavaScript and Python SDKs expose Search, Contents, Answer, Agent, and Monitor surfaces with language-specific naming. The adapter should normalize application inputs and errors without inventing defaults, and it should preserve requestId, statuses, grounding, and costDollars needed for operations.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Client Singleton
+1. Pin the selected SDK and inspect its current first-party specification.
+2. Define the smallest application-owned interface for the required product surface.
+3. Map names and optional fields explicitly at the adapter boundary.
+4. Return content-free operational metadata separately from retrieved content.
+5. Normalize documented errors without erasing status, tag, or request ID.
+6. Add fixture-backed contract tests before changing the pinned SDK.
 
-```typescript
-// src/exa/client.ts
-import Exa from "exa-js";
+## Tool Discipline
 
-let instance: Exa | null = null;
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-export function getExa(): Exa {
-  if (!instance) {
-    const apiKey = process.env.EXA_API_KEY;
-    if (!apiKey) {
-      throw new Error("EXA_API_KEY not set. Get one at https://dashboard.exa.ai");
-    }
-    instance = new Exa(apiKey);
-  }
-  return instance;
-}
-```
+## Approval Boundaries
 
-### Step 2: Typed Search Wrapper
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-```typescript
-// src/exa/search.ts
-import Exa from "exa-js";
-import { getExa } from "./client";
+## Failure Modes
 
-interface ExaSearchOptions {
-  type?: "auto" | "neural" | "keyword" | "fast" | "instant" | "deep" | "deep-reasoning";
-  numResults?: number;
-  includeDomains?: string[];
-  excludeDomains?: string[];
-  startPublishedDate?: string;
-  endPublishedDate?: string;
-  category?: "company" | "research paper" | "news" | "tweet" | "personal site" | "financial report" | "people";
-  includeText?: string[];
-  excludeText?: string[];
-}
+- Do not expose the vendor client throughout business logic.
+- Do not assume Python snake_case and TypeScript camelCase are interchangeable.
+- Do not silently fall back between Search, Answer, Agent, or Contents products.
 
-interface ExaContentsOptions {
-  text?: boolean | { maxCharacters?: number; includeHtmlTags?: boolean };
-  highlights?: boolean | { maxCharacters?: number; query?: string };
-  summary?: boolean | { query?: string };
-  livecrawl?: "always" | "preferred" | "fallback" | "never";
-  livecrawlTimeout?: number;
-  subpages?: number;
-  subpageTarget?: string | string[];
-}
+## Output
 
-export async function exaSearch(query: string, opts: ExaSearchOptions = {}) {
-  const exa = getExa();
-  return exa.search(query, {
-    type: opts.type ?? "auto",
-    numResults: opts.numResults ?? 10,
-    ...opts,
-  });
-}
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-export async function exaSearchWithContents(
-  query: string,
-  searchOpts: ExaSearchOptions = {},
-  contentOpts: ExaContentsOptions = {}
-) {
-  const exa = getExa();
-  return exa.searchAndContents(query, {
-    type: searchOpts.type ?? "auto",
-    numResults: searchOpts.numResults ?? 10,
-    ...searchOpts,
-    ...contentOpts,
-  });
-}
-```
+## Example
 
-### Step 3: Error Handling Wrapper
+- A search adapter accepts an owned SearchRequest and returns owned results plus request ID and cost, keeping SDK types at one module boundary.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-```typescript
-// src/exa/safe.ts
-interface ExaResult<T> {
-  data: T | null;
-  error: ExaError | null;
-}
+## Validation
 
-interface ExaError {
-  status: number;
-  message: string;
-  tag?: string;
-  requestId?: string;
-  retryable: boolean;
-}
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-function classifyError(err: any): ExaError {
-  const status = err.status || err.response?.status || 500;
-  const retryable = status === 429 || status >= 500;
-  return {
-    status,
-    message: err.message || "Unknown error",
-    tag: err.error_tag || err.tag,
-    requestId: err.requestId || err.request_id,
-    retryable,
-  };
-}
+## References
 
-export async function safeExaCall<T>(
-  operation: () => Promise<T>
-): Promise<ExaResult<T>> {
-  try {
-    const data = await operation();
-    return { data, error: null };
-  } catch (err: any) {
-    const error = classifyError(err);
-    console.error(`[Exa Error] ${error.status}: ${error.message}`, {
-      tag: error.tag,
-      requestId: error.requestId,
-      retryable: error.retryable,
-    });
-    return { data: null, error };
-  }
-}
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-// Usage:
-// const { data, error } = await safeExaCall(() =>
-//   exa.searchAndContents("query", { numResults: 5, text: true })
-// );
-```
-
-### Step 4: Retry with Exponential Backoff
-
-```typescript
-// src/exa/retry.ts
-export async function withRetry<T>(
-  operation: () => Promise<T>,
-  config = { maxRetries: 3, baseDelayMs: 1000, maxDelayMs: 30000 }
-): Promise<T> {
-  for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
-    try {
-      return await operation();
-    } catch (err: any) {
-      const status = err.status || err.response?.status || 0;
-
-      // Only retry on rate limits (429) and server errors (5xx)
-      if (status !== 429 && (status < 500 || status >= 600)) throw err;
-      if (attempt === config.maxRetries) throw err;
-
-      const delay = Math.min(
-        config.baseDelayMs * Math.pow(2, attempt) + Math.random() * 500,
-        config.maxDelayMs
-      );
-      console.log(`[Exa] Retry ${attempt + 1}/${config.maxRetries} in ${delay.toFixed(0)}ms`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error("Unreachable");
-}
-
-// Usage:
-// const results = await withRetry(() =>
-//   exa.searchAndContents("query", { numResults: 5, text: true })
-// );
-```
-
-### Step 5: Response Validation with Zod
-
-```typescript
-// src/exa/validate.ts
-import { z } from "zod";
-
-const ExaResultSchema = z.object({
-  url: z.string().url(),
-  title: z.string().nullable(),
-  score: z.number(),
-  publishedDate: z.string().nullable().optional(),
-  text: z.string().optional(),
-  highlights: z.array(z.string()).optional(),
-  summary: z.string().optional(),
-});
-
-const ExaSearchResponseSchema = z.object({
-  results: z.array(ExaResultSchema),
-  autopromptString: z.string().optional(),
-});
-
-export function validateSearchResponse(response: unknown) {
-  return ExaSearchResponseSchema.parse(response);
-}
-```
-
-## Error Handling
-
-| Pattern | Use Case | Benefit |
-|---------|----------|---------|
-| Singleton | All API calls | Single client instance, consistent config |
-| Safe wrapper | Non-critical searches | Prevents uncaught exceptions |
-| Retry logic | Rate limits and 5xx | Automatic recovery from transient failures |
-| Zod validation | Response processing | Catches unexpected API response changes |
-| Typed options | IDE support | Autocomplete and compile-time checks |
-
-## Examples
-
-### Factory Pattern (Multi-tenant)
-
-```typescript
-const clients = new Map<string, Exa>();
-
-export function getExaForTenant(tenantId: string): Exa {
-  if (!clients.has(tenantId)) {
-    const apiKey = getTenantApiKey(tenantId); // from your config/vault
-    clients.set(tenantId, new Exa(apiKey));
-  }
-  return clients.get(tenantId)!;
-}
-```
-
-### Combined: Safe + Retry + Typed
-
-```typescript
-async function resilientSearch(query: string) {
-  return safeExaCall(() =>
-    withRetry(() =>
-      exaSearchWithContents(
-        query,
-        { type: "neural", numResults: 5 },
-        { text: { maxCharacters: 2000 }, highlights: true }
-      )
-    )
-  );
-}
-```
-
-## Resources
-
-- [exa-js TypeScript SDK](https://docs.exa.ai/sdks/typescript-sdk-specification)
-- [Exa Error Codes](https://docs.exa.ai/reference/error-codes)
-- [Zod Documentation](https://zod.dev/)
-
-## Next Steps
-
-Apply patterns in `exa-core-workflow-a` for real-world search usage.
+- [Current first-party evidence map](references/official-docs.md)
