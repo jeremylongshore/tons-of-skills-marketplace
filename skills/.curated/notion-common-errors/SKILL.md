@@ -1,122 +1,81 @@
 ---
 name: notion-common-errors
-description: 'Diagnose and fix Notion API errors by HTTP status code and error code.
-
-  Use when encountering Notion errors, debugging failed requests,
-
-  or troubleshooting integration access, rate limiting, or validation issues.
-
-  Trigger with phrases like "notion error", "fix notion",
-
-  "notion not working", "debug notion", "notion 400", "notion 429".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.39.0
+description: >-
+  Classify Notion API failures and choose a bounded recovery path from the observed status and error code. Use when handling authentication, permission, validation, conflict, limit, or service errors. Trigger with "fix Notion error", "classify Notion 403", or "handle Notion 429".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<status-or-code> <operation> <environment>"
+version: 1.40.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- productivity
-- notion
-compatibility: Designed for Claude Code
+tags: [saas, notion, errors]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Notion actions require network access and explicit approval"
 ---
-# Notion Common Errors
+# Notion Error Classification and Recovery
 
 ## Overview
 
-Quick reference for all Notion API error codes with exact HTTP statuses, error bodies, and fixes. The API returns errors as JSON with three fields:
-
-```json
-{
-  "object": "error",
-  "status": 400,
-  "code": "validation_error",
-  "message": "Title is not a property that exists."
-}
-```
-
-All requests require `Authorization: Bearer $NOTION_TOKEN` and `Notion-Version: 2022-06-28` headers (`2022-06-28` is the current stable API version — the header is required on every call).
-
-This SKILL.md gives you the triage table and workflow. Two references carry the depth:
-
-- **[references/error-codes.md](references/error-codes.md)** — the full per-status playbook (401, 403, 404, 400, 429, 409, 500, 502/503) with error bodies, causes, and code fixes.
-- **[references/examples.md](references/examples.md)** — the full SDK error handler, the curl diagnostic script, and the non-HTTP client-side gotchas (rich text arrays, pagination, timeouts).
+Classify Notion API failures and choose a bounded recovery path from the observed status and error code.. This workflow produces an auditable decision or artifact before any live action.
 
 ## Prerequisites
 
-- `@notionhq/client` installed (`npm install @notionhq/client`)
-- `NOTION_TOKEN` environment variable set (internal integration token starting with `ntn_` or `secret_`)
-- Target pages/databases shared with the integration via the Connections menu
+- Current first-party Notion documentation and the selected integration's tested API-version contract.
+- A named workspace owner, content or data owner, and operation owner.
+- Synthetic or approved non-production fixtures with secrets and workspace content removed.
+
+## Current Contract
+
+The response status, structured code, message, request identifier, and Retry-After header are evidence. Recovery differs for invalid credentials, restricted resources, wrong IDs, invalid payloads, conflicts, rate limits, and service faults. Recheck the dated evidence map before relying on mutable fields, endpoints, versions, limits, or delivery behavior.
+
+## Authentication
+
+Verify token presence through a fingerprint or secret-manager reference. Check connection capabilities and content sharing separately from identity.
 
 ## Instructions
 
-### Step 1: Identify the Error
+1. Capture one redacted response envelope and the originating operation.
+2. Map the status and structured code to authentication, authorization, validation, identity, concurrency, limit, or service class.
+3. Check selected API version and page/database/data-source identity before changing code.
+4. Apply the class-specific action: correct input, restore access, wait as instructed, reconcile conflict, or pause for service recovery.
+5. Retry only retryable classes with a strict attempt and time budget.
+6. Verify recovery with the least-privilege read or fixture that proves the original fault is gone.
 
-1. Read the JSON error body returned by the failed request.
-2. Note its HTTP `status` and machine-readable `code` fields — those two values route you to the exact fix.
-3. If you only have logs, `Grep` your application logs for the `code` field to recover the values.
+## Tool Discipline
 
-### Step 2: Match Error Code and Apply Fix
+Use Read, Glob, and Grep to inspect documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Invocation alone does not authorize network access, credentials, workspace content, user data, file transfer, deployment, capability or sharing changes, writes, spend, or deletion.
 
-Use the Error Handling table below to see whether the error is retryable and the recommended action. For the exact error body, root cause, and copy-paste fix, open the matching section in **[references/error-codes.md](references/error-codes.md)**. The four you will hit most:
+## Approval Boundaries
 
-- **404 `object_not_found`** — the most common error. The page/database exists but is not shared with your integration. Fix via the `...` → **Connections** menu; parent pages must be shared too.
-- **401 `unauthorized`** — token missing, malformed, expired, or revoked. Verify with `curl .../v1/users/me`; regenerate at [notion.so/my-integrations](https://www.notion.so/my-integrations).
-- **400 `validation_error`** — the broadest category, usually a wrong property name/type or a filter-type mismatch (e.g. `status:` filter used as `text:`). Retrieve the database schema first.
-- **429 `rate_limited`** — over 3 requests/sec/integration. Back off exponentially; the SDK retries automatically.
-
-### Step 3: Verify the Fix
-
-Re-run the failing call, or use the three-probe curl diagnostic in **[references/examples.md](references/examples.md)** to confirm status, token, and resource access independently.
-
-## Output
-
-- Identified error cause from HTTP status and `code` field
-- Applied targeted fix from the matching section
-- Verified resolution with test API call
+Require approval before capability changes, content sharing, token rotation, write replay, bulk retry, or support disclosure.
 
 ## Error Handling
 
-| Code | HTTP | Error Name | Retryable | Recommended Action |
-| ------ | ------ | ------------ | ----------- | ------------------- |
-| `unauthorized` | 401 | Authentication failure | No | Regenerate token at notion.so/my-integrations |
-| `restricted_resource` | 403 | Missing capability | No | Enable capability in integration settings |
-| `object_not_found` | 404 | Not shared / not found | No | Share page with integration via Connections menu |
-| `validation_error` | 400 | Malformed request | No | Fix request body — retrieve schema first |
-| `rate_limited` | 429 | Rate limit exceeded | Yes | Respect `Retry-After` header, use exponential backoff |
-| `conflict_error` | 409 | Concurrent modification | Yes | Retry after 1-2s, serialize writes to same object |
-| `internal_server_error` | 500 | Notion server error | Yes | Retry with backoff, check status.notion.so |
-| `service_unavailable` | 502/503 | Notion down | Yes | Wait and retry, check status.notion.so |
-| `gateway_timeout` | 504 | Request timeout | Yes | Retry, reduce query complexity or page size |
+- Do not treat every 404 as absence; inaccessible content can be indistinguishable from a bad identifier.
+- Respect Retry-After instead of a fixed sleep.
+- Quarantine unknown codes rather than guessing.
 
-Each row maps to a full walkthrough in [references/error-codes.md](references/error-codes.md).
+## Output
+
+Return the observed evidence, class, likely causes, ruled-out causes, recovery action, retry budget, and verification result. Identify assumptions, owners, expirations, and evidence gaps explicitly.
 
 ## Examples
 
-Start with the fastest diagnostic — a single curl to confirm your token is valid and the integration is reachable:
+- Differentiate a wrong data-source ID from missing page sharing.
+- Pause a write queue on repeated conflicts instead of duplicating pages.
 
-```bash
-curl -s https://api.notion.com/v1/users/me \
-  -H "Authorization: Bearer ${NOTION_TOKEN}" \
-  -H "Notion-Version: 2022-06-28" | jq '{id, type, name}'
-```
+## Validation
 
-A valid token returns your integration bot user. From there:
+Exercise and record these paths with expected and observed results:
 
-- Full three-probe diagnostic (status → token → database access): [references/examples.md](references/examples.md)
-- A single SDK `catch` block branching on every error code: [references/examples.md](references/examples.md)
-- Client-side shape gotchas that masquerade as `validation_error` (rich text arrays, block children, pagination, timeouts): [references/examples.md](references/examples.md)
+- all documented classes
+- unknown code
+- Retry-After
+- wrong object type
+- revoked token
+- service recovery
 
 ## Resources
 
-- [Notion API Error Codes](https://developers.notion.com/reference/errors)
-- [Request Limits & Rate Limiting](https://developers.notion.com/reference/request-limits)
-- [Notion Status Page](https://status.notion.so)
-- [API Introduction](https://developers.notion.com/reference/intro)
-- [Working with Databases](https://developers.notion.com/docs/working-with-databases)
-- [@notionhq/client npm](https://www.npmjs.com/package/@notionhq/client)
-
-## Next Steps
-
-For comprehensive debugging workflows, see `notion-debug-bundle`. For rate limit strategies at scale, see `notion-rate-limits`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable behavior.
+- Treat observed tenant behavior as environment-specific evidence, never a universal Notion guarantee.

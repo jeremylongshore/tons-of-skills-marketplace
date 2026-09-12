@@ -238,7 +238,6 @@
       "Bash(python:*mempool*)",
       "Bash(python:*whale*)",
       "Bash(radon:*)",
-      "Bash(railway:*)",
       "Bash(redis-cli:*)",
       "Bash(report-gen:*)",
       "Bash(restic*)",
@@ -706,6 +705,7 @@
       "data-migration",
       "data-portal",
       "data-processing",
+      "data-source",
       "database",
       "databricks",
       "datadog",
@@ -12885,13 +12885,17 @@
       "slug": "notion-pack",
       "name": "notion-pack",
       "displayName": "notion pack",
-      "description": "Claude Code skill pack for Notion (32 skills)",
+      "description": "Operator-grade Notion pack with 32 current access, data-source, content, webhook, security, reliability, and migration workflows",
       "category": "saas-packs",
       "keywords": [
         "notion",
         "saas",
-        "sdk",
-        "integration"
+        "data-source",
+        "content",
+        "webhooks",
+        "security",
+        "integration",
+        "governance"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -12899,15 +12903,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.39.0",
+      "version": "1.40.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 32,
-      "verificationScore": 95,
+      "verificationScore": 98,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "notion pack claude code skill pack for notion (32 skills) saas-packs notion saas sdk integration"
+      "searchText": "notion pack operator-grade notion pack with 32 current access, data-source, content, webhook, security, reliability, and migration workflows saas-packs notion saas data-source content webhooks security integration governance"
     },
     {
       "type": "plugin",
@@ -57419,685 +57423,704 @@
       "id": "notion-advanced-troubleshooting",
       "slug": "notion-advanced-troubleshooting",
       "name": "notion-advanced-troubleshooting",
-      "description": "Use when standard Notion troubleshooting fails or you are chasing intermittent API errors — deep debugging for response inspection, permission chain tracing, property type mismatches, pagination edge cases, and block nesting limits. Trigger with phrases like \"notion deep debug\", \"notion permission trace\", \"notion property mismatch\", \"notion pagination bug\", \"notion nesting limit\".",
+      "description": "Diagnose difficult Notion integration failures from redacted evidence without trial-and-error writes. Use when ordinary error handling has not isolated the fault. Trigger with \"trace Notion failure\", \"analyze Notion request ID\", or \"debug Notion permissions\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)",
-        "Bash(node:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-advanced-troubleshooting use when standard notion troubleshooting fails or you are chasing intermittent api errors — deep debugging for response inspection, permission chain tracing, property type mismatches, pagination edge cases, and block nesting limits. trigger with phrases like \"notion deep debug\", \"notion permission trace\", \"notion property mismatch\", \"notion pagination bug\", \"notion nesting limit\". saas-packs read grep bash(curl:*) bash(node:*) "
+      "searchText": "notion-advanced-troubleshooting diagnose difficult notion integration failures from redacted evidence without trial-and-error writes. use when ordinary error handling has not isolated the fault. trigger with \"trace notion failure\", \"analyze notion request id\", or \"debug notion permissions\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-architecture-variants",
       "slug": "notion-architecture-variants",
       "name": "notion-architecture-variants",
-      "description": "Use when you are choosing or scaffolding how an app talks to Notion via the API — deciding between a headless CMS (blog/content site), a task tracker (project management), a knowledge base (wiki), a form-submission handler, or a data-pipeline source, and wiring the database schema plus integration code. Trigger with phrases like \"notion cms\", \"notion headless blog\", \"notion task tracker\", \"notion wiki\", \"notion form handler\", \"notion data pipeline\".",
+      "description": "Choose a Notion integration architecture from explicit consistency, latency, security, and recovery requirements. Use when comparing synchronous, queued, scheduled, or webhook-driven designs. Trigger with \"design Notion architecture\", \"choose Notion sync pattern\", or \"review Notion topology\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(node:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-architecture-variants use when you are choosing or scaffolding how an app talks to notion via the api — deciding between a headless cms (blog/content site), a task tracker (project management), a knowledge base (wiki), a form-submission handler, or a data-pipeline source, and wiring the database schema plus integration code. trigger with phrases like \"notion cms\", \"notion headless blog\", \"notion task tracker\", \"notion wiki\", \"notion form handler\", \"notion data pipeline\". saas-packs read write edit bash(node:*) "
+      "searchText": "notion-architecture-variants choose a notion integration architecture from explicit consistency, latency, security, and recovery requirements. use when comparing synchronous, queued, scheduled, or webhook-driven designs. trigger with \"design notion architecture\", \"choose notion sync pattern\", or \"review notion topology\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-ci-integration",
       "slug": "notion-ci-integration",
       "name": "notion-ci-integration",
-      "description": "Integrate the Notion API into CI/CD pipelines for automated documentation sync, deploy tracking, and configuration reads. Use when setting up GitHub Actions workflows that push release notes to Notion, update database entries on deploy, create incident pages from CI, or read feature flags from Notion databases. Trigger with phrases like \"notion CI\", \"notion GitHub Actions\", \"notion deploy sync\", \"notion release notes automation\", \"notion CI pipeline\".",
+      "description": "Build CI checks for Notion integration contracts without exposing tokens or mutating production content. Use when gating SDK, schema, fixture, or migration changes. Trigger with \"test Notion in CI\", \"gate Notion schema drift\", or \"add Notion contract checks\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(gh:*)",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Bash(python3:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-ci-integration integrate the notion api into ci/cd pipelines for automated documentation sync, deploy tracking, and configuration reads. use when setting up github actions workflows that push release notes to notion, update database entries on deploy, create incident pages from ci, or read feature flags from notion databases. trigger with phrases like \"notion ci\", \"notion github actions\", \"notion deploy sync\", \"notion release notes automation\", \"notion ci pipeline\". saas-packs read write edit bash(gh:*) bash(npm:*) bash(npx:*) bash(python3:*) "
+      "searchText": "notion-ci-integration build ci checks for notion integration contracts without exposing tokens or mutating production content. use when gating sdk, schema, fixture, or migration changes. trigger with \"test notion in ci\", \"gate notion schema drift\", or \"add notion contract checks\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-common-errors",
       "slug": "notion-common-errors",
       "name": "notion-common-errors",
-      "description": "Diagnose and fix Notion API errors by HTTP status code and error code. Use when encountering Notion errors, debugging failed requests, or troubleshooting integration access, rate limiting, or validation issues. Trigger with phrases like \"notion error\", \"fix notion\", \"notion not working\", \"debug notion\", \"notion 400\", \"notion 429\".",
+      "description": "Classify Notion API failures and choose a bounded recovery path from the observed status and error code. Use when handling authentication, permission, validation, conflict, limit, or service errors. Trigger with \"fix Notion error\", \"classify Notion 403\", or \"handle Notion 429\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-common-errors diagnose and fix notion api errors by http status code and error code. use when encountering notion errors, debugging failed requests, or troubleshooting integration access, rate limiting, or validation issues. trigger with phrases like \"notion error\", \"fix notion\", \"notion not working\", \"debug notion\", \"notion 400\", \"notion 429\". saas-packs read grep bash(curl:*) "
+      "searchText": "notion-common-errors classify notion api failures and choose a bounded recovery path from the observed status and error code. use when handling authentication, permission, validation, conflict, limit, or service errors. trigger with \"fix notion error\", \"classify notion 403\", or \"handle notion 429\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-content-management",
       "slug": "notion-content-management",
       "name": "notion-content-management",
-      "description": "Create, update, archive, and compose Notion pages and block content. Use when building pages programmatically, appending rich content blocks, updating page properties, or managing page lifecycle (archive/restore). Trigger with phrases like \"notion create page\", \"notion add blocks\", \"notion update page\", \"notion archive page\", \"notion content\", \"notion block types\", \"notion rich text\".",
+      "description": "Plan and verify safe Notion page, block, markdown, and file-content changes with previews and rollback evidence. Use when creating, updating, moving, or trashing workspace content. Trigger with \"edit Notion content\", \"publish Notion page\", or \"manage Notion blocks\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-content-management create, update, archive, and compose notion pages and block content. use when building pages programmatically, appending rich content blocks, updating page properties, or managing page lifecycle (archive/restore). trigger with phrases like \"notion create page\", \"notion add blocks\", \"notion update page\", \"notion archive page\", \"notion content\", \"notion block types\", \"notion rich text\". saas-packs read write edit "
+      "searchText": "notion-content-management plan and verify safe notion page, block, markdown, and file-content changes with previews and rollback evidence. use when creating, updating, moving, or trashing workspace content. trigger with \"edit notion content\", \"publish notion page\", or \"manage notion blocks\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-core-workflow-a",
       "slug": "notion-core-workflow-a",
       "name": "notion-core-workflow-a",
-      "description": "Query, filter, and manage Notion databases and pages. Use when building database queries with filters and sorts, creating/updating pages with typed properties, or reading page content. Trigger with phrases like \"notion database query\", \"notion filter\", \"notion create page\", \"notion update properties\", \"notion CRUD\".",
+      "description": "Analyze and query a Notion data source with version-correct filters, pagination, and completeness evidence. Use when retrieving structured workspace records. Trigger with \"query Notion data source\", \"filter Notion records\", or \"paginate Notion data\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-core-workflow-a query, filter, and manage notion databases and pages. use when building database queries with filters and sorts, creating/updating pages with typed properties, or reading page content. trigger with phrases like \"notion database query\", \"notion filter\", \"notion create page\", \"notion update properties\", \"notion crud\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "notion-core-workflow-a analyze and query a notion data source with version-correct filters, pagination, and completeness evidence. use when retrieving structured workspace records. trigger with \"query notion data source\", \"filter notion records\", or \"paginate notion data\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-core-workflow-b",
       "slug": "notion-core-workflow-b",
       "name": "notion-core-workflow-b",
-      "description": "Work with Notion blocks, rich text, comments, and page content. Use when you need to read a page's block tree, append formatted content (headings, lists, callouts, code), edit or delete blocks, build rich text with annotations, or manage page and block comments through the Notion API. Trigger with phrases like \"notion blocks\", \"notion page content\", \"notion rich text\", \"notion comments\", \"notion append blocks\".",
+      "description": "Create or update Notion pages and blocks with an idempotency key, semantic diff, and read-back verification. Use when an integration must write approved content. Trigger with \"create Notion record\", \"update Notion page\", or \"append Notion blocks\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Bash(npm:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-core-workflow-b work with notion blocks, rich text, comments, and page content. use when you need to read a page's block tree, append formatted content (headings, lists, callouts, code), edit or delete blocks, build rich text with annotations, or manage page and block comments through the notion api. trigger with phrases like \"notion blocks\", \"notion page content\", \"notion rich text\", \"notion comments\", \"notion append blocks\". saas-packs read write bash(npm:*) "
+      "searchText": "notion-core-workflow-b create or update notion pages and blocks with an idempotency key, semantic diff, and read-back verification. use when an integration must write approved content. trigger with \"create notion record\", \"update notion page\", or \"append notion blocks\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-cost-tuning",
       "slug": "notion-cost-tuning",
       "name": "notion-cost-tuning",
-      "description": "Optimize Notion API usage to minimize rate-limit pressure, reduce engineering overhead, and maximize throughput. Use when auditing request volume, eliminating redundant API calls, implementing caching, or restructuring queries for efficiency. Trigger with \"notion cost\", \"notion optimize\", \"notion API usage\", \"reduce notion requests\", \"notion rate limit budget\", \"notion efficient\", \"notion caching\".",
+      "description": "Reduce Notion integration waste across requests, workers, storage, and downstream processing without inventing API pricing. Use when a workload is noisy, slow, or infrastructure-heavy. Trigger with \"reduce Notion cost\", \"audit Notion request waste\", or \"tune Notion polling\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
-        "Bash(npm:*)",
         "Glob",
-        "Grep"
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-cost-tuning optimize notion api usage to minimize rate-limit pressure, reduce engineering overhead, and maximize throughput. use when auditing request volume, eliminating redundant api calls, implementing caching, or restructuring queries for efficiency. trigger with \"notion cost\", \"notion optimize\", \"notion api usage\", \"reduce notion requests\", \"notion rate limit budget\", \"notion efficient\", \"notion caching\". saas-packs read write edit bash(npm:*) glob grep "
+      "searchText": "notion-cost-tuning reduce notion integration waste across requests, workers, storage, and downstream processing without inventing api pricing. use when a workload is noisy, slow, or infrastructure-heavy. trigger with \"reduce notion cost\", \"audit notion request waste\", or \"tune notion polling\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-data-handling",
       "slug": "notion-data-handling",
       "name": "notion-data-handling",
-      "description": "Implement data handling, PII protection, and GDPR/CCPA compliance for Notion integrations. Use when handling sensitive data from Notion pages, implementing data redaction, exporting or deleting a user's data on request, or ensuring compliance with privacy regulations. Trigger with phrases like \"notion data\", \"notion PII\", \"notion GDPR\", \"notion data retention\", \"notion privacy\", \"notion CCPA\".",
+      "description": "Define data classification, minimization, retention, and deletion controls for a Notion integration. Use when workspace content or user data crosses a system boundary. Trigger with \"govern Notion data\", \"review Notion PII\", or \"design Notion retention\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-data-handling implement data handling, pii protection, and gdpr/ccpa compliance for notion integrations. use when handling sensitive data from notion pages, implementing data redaction, exporting or deleting a user's data on request, or ensuring compliance with privacy regulations. trigger with phrases like \"notion data\", \"notion pii\", \"notion gdpr\", \"notion data retention\", \"notion privacy\", \"notion ccpa\". saas-packs read write edit "
+      "searchText": "notion-data-handling define data classification, minimization, retention, and deletion controls for a notion integration. use when workspace content or user data crosses a system boundary. trigger with \"govern notion data\", \"review notion pii\", or \"design notion retention\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-debug-bundle",
       "slug": "notion-debug-bundle",
       "name": "notion-debug-bundle",
-      "description": "Collect Notion API diagnostic info for troubleshooting and support tickets. Use when encountering persistent API issues, token/auth failures, page access problems, or preparing diagnostic bundles for Notion support. Trigger with phrases like \"notion debug\", \"notion diagnostic\", \"notion support bundle\", \"collect notion logs\", \"notion troubleshoot\".",
+      "description": "Assemble a reproducible, secret-free Notion integration diagnostic bundle for engineering or support. Use when an incident needs portable evidence. Trigger with \"collect Notion debug bundle\", \"redact Notion diagnostics\", or \"prepare Notion support case\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(grep:*)",
-        "Bash(curl:*)",
-        "Bash(tar:*)",
-        "Bash(npm:*)",
-        "Bash(node:*)"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-debug-bundle collect notion api diagnostic info for troubleshooting and support tickets. use when encountering persistent api issues, token/auth failures, page access problems, or preparing diagnostic bundles for notion support. trigger with phrases like \"notion debug\", \"notion diagnostic\", \"notion support bundle\", \"collect notion logs\", \"notion troubleshoot\". saas-packs read bash(grep:*) bash(curl:*) bash(tar:*) bash(npm:*) bash(node:*) "
+      "searchText": "notion-debug-bundle assemble a reproducible, secret-free notion integration diagnostic bundle for engineering or support. use when an incident needs portable evidence. trigger with \"collect notion debug bundle\", \"redact notion diagnostics\", or \"prepare notion support case\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-deploy-integration",
       "slug": "notion-deploy-integration",
       "name": "notion-deploy-integration",
-      "description": "Deploy Node.js applications that use the Notion API to production on Vercel, Railway, or Fly.io. Use when deploying Notion-powered backends, setting up NOTION_TOKEN in production secrets, configuring serverless singleton patterns, or adding health checks that verify Notion connectivity. Trigger with \"deploy notion app\", \"notion production\", \"notion vercel deploy\", \"notion railway\", \"notion fly.io\".",
+      "description": "Prepare and verify a Notion integration deployment with environment isolation, secret provenance, staged rollout, and rollback. Use when promoting an integration runtime. Trigger with \"deploy Notion integration\", \"promote Notion worker\", or \"review Notion release\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npx:*)",
-        "Bash(vercel:*)",
-        "Bash(railway:*)",
-        "Bash(fly:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-deploy-integration deploy node.js applications that use the notion api to production on vercel, railway, or fly.io. use when deploying notion-powered backends, setting up notion_token in production secrets, configuring serverless singleton patterns, or adding health checks that verify notion connectivity. trigger with \"deploy notion app\", \"notion production\", \"notion vercel deploy\", \"notion railway\", \"notion fly.io\". saas-packs read write edit bash(npx:*) bash(vercel:*) bash(railway:*) bash(fly:*) "
+      "searchText": "notion-deploy-integration prepare and verify a notion integration deployment with environment isolation, secret provenance, staged rollout, and rollback. use when promoting an integration runtime. trigger with \"deploy notion integration\", \"promote notion worker\", or \"review notion release\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-enterprise-rbac",
       "slug": "notion-enterprise-rbac",
       "name": "notion-enterprise-rbac",
-      "description": "Configure Notion enterprise access control with OAuth, workspace permissions, and audit logging. Use when implementing OAuth public integrations, managing multi-workspace access, or building permission-aware Notion applications. Trigger with phrases like \"notion SSO\", \"notion RBAC\", \"notion enterprise\", \"notion OAuth\", \"notion permissions\", \"notion multi-workspace\".",
+      "description": "Map Notion connection capabilities, content access, user context, and application roles into an auditable authorization model. Use when designing multi-workspace or enterprise controls. Trigger with \"review Notion RBAC\", \"map Notion permissions\", or \"audit Notion tenant access\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-enterprise-rbac configure notion enterprise access control with oauth, workspace permissions, and audit logging. use when implementing oauth public integrations, managing multi-workspace access, or building permission-aware notion applications. trigger with phrases like \"notion sso\", \"notion rbac\", \"notion enterprise\", \"notion oauth\", \"notion permissions\", \"notion multi-workspace\". saas-packs read write edit "
+      "searchText": "notion-enterprise-rbac map notion connection capabilities, content access, user context, and application roles into an auditable authorization model. use when designing multi-workspace or enterprise controls. trigger with \"review notion rbac\", \"map notion permissions\", or \"audit notion tenant access\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-hello-world",
       "slug": "notion-hello-world",
       "name": "notion-hello-world",
-      "description": "Create a minimal working Notion API example. Use when starting a new Notion integration, testing your setup, or learning basic Notion API patterns (search, pages, users). Trigger with phrases like \"notion hello world\", \"notion example\", \"notion quick start\", \"simple notion code\", \"first notion API call\".",
+      "description": "Prove a Notion connection, API version, and shared-content boundary with a minimal read-only check. Use when onboarding or diagnosing initial access. Trigger with \"test Notion connection\", \"Notion hello world\", or \"verify Notion token\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-hello-world create a minimal working notion api example. use when starting a new notion integration, testing your setup, or learning basic notion api patterns (search, pages, users). trigger with phrases like \"notion hello world\", \"notion example\", \"notion quick start\", \"simple notion code\", \"first notion api call\". saas-packs read write edit "
+      "searchText": "notion-hello-world prove a notion connection, api version, and shared-content boundary with a minimal read-only check. use when onboarding or diagnosing initial access. trigger with \"test notion connection\", \"notion hello world\", or \"verify notion token\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-incident-runbook",
       "slug": "notion-incident-runbook",
       "name": "notion-incident-runbook",
-      "description": "Execute Notion incident response procedures with triage, mitigation, and postmortem. Use when responding to Notion API outages, investigating errors, or running post-incident reviews for Notion integration failures. Trigger with phrases like \"notion incident\", \"notion outage\", \"notion down\", \"notion on-call\", \"notion emergency\", \"notion broken\".",
+      "description": "Analyze and coordinate a Notion integration incident with bounded mitigation, evidence custody, communications, and recovery verification. Use when availability, correctness, privacy, or credential safety is at risk. Trigger with \"run Notion incident\", \"triage Notion outage\", or \"contain Notion sync failure\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(kubectl:*)",
-        "Bash(curl:*)"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-incident-runbook execute notion incident response procedures with triage, mitigation, and postmortem. use when responding to notion api outages, investigating errors, or running post-incident reviews for notion integration failures. trigger with phrases like \"notion incident\", \"notion outage\", \"notion down\", \"notion on-call\", \"notion emergency\", \"notion broken\". saas-packs read bash(kubectl:*) bash(curl:*) "
+      "searchText": "notion-incident-runbook analyze and coordinate a notion integration incident with bounded mitigation, evidence custody, communications, and recovery verification. use when availability, correctness, privacy, or credential safety is at risk. trigger with \"run notion incident\", \"triage notion outage\", or \"contain notion sync failure\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-install-auth",
       "slug": "notion-install-auth",
       "name": "notion-install-auth",
-      "description": "Install and configure the Notion API SDK with authentication. Use when setting up a new Notion integration, configuring API tokens, or initializing @notionhq/client in your project. Trigger with phrases like \"install notion\", \"setup notion\", \"notion auth\", \"configure notion API\", \"notion integration setup\".",
+      "description": "Establish a least-privilege Notion connection and tested API contract without leaking credentials. Use when onboarding an internal connection, public OAuth connection, or personal access token. Trigger with \"set up Notion auth\", \"create Notion connection\", or \"review Notion credentials\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-install-auth install and configure the notion api sdk with authentication. use when setting up a new notion integration, configuring api tokens, or initializing @notionhq/client in your project. trigger with phrases like \"install notion\", \"setup notion\", \"notion auth\", \"configure notion api\", \"notion integration setup\". saas-packs read edit bash(npm:*) bash(pip:*) "
+      "searchText": "notion-install-auth establish a least-privilege notion connection and tested api contract without leaking credentials. use when onboarding an internal connection, public oauth connection, or personal access token. trigger with \"set up notion auth\", \"create notion connection\", or \"review notion credentials\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-known-pitfalls",
       "slug": "notion-known-pitfalls",
       "name": "notion-known-pitfalls",
-      "description": "Use when debugging or reviewing Notion API code that fails with object_not_found, validation_error, rate_limited, or returns incomplete data. Covers the twelve most common mistakes: wrong page ID format (dashes), rich text array structure, block children not returned with page, pagination required for all lists, 3 req/sec shared across endpoints, and not sharing pages with the integration. Trigger with phrases like \"notion mistakes\", \"notion pitfalls\", \"notion common errors\", \"notion gotchas\", \"notion debugging\".",
+      "description": "Audit a Notion integration for recurring identity, access, version, pagination, webhook, and mutation mistakes. Use when reviewing a release or investigating confusing failures. Trigger with \"review Notion pitfalls\", \"find Notion integration mistakes\", or \"check Notion assumptions\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-known-pitfalls use when debugging or reviewing notion api code that fails with object_not_found, validation_error, rate_limited, or returns incomplete data. covers the twelve most common mistakes: wrong page id format (dashes), rich text array structure, block children not returned with page, pagination required for all lists, 3 req/sec shared across endpoints, and not sharing pages with the integration. trigger with phrases like \"notion mistakes\", \"notion pitfalls\", \"notion common errors\", \"notion gotchas\", \"notion debugging\". saas-packs read grep "
+      "searchText": "notion-known-pitfalls audit a notion integration for recurring identity, access, version, pagination, webhook, and mutation mistakes. use when reviewing a release or investigating confusing failures. trigger with \"review notion pitfalls\", \"find notion integration mistakes\", or \"check notion assumptions\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-load-scale",
       "slug": "notion-load-scale",
       "name": "notion-load-scale",
-      "description": "Use when you must move high volumes through the Notion API without tripping its 3 req/sec limit — bulk-creating pages, syncing 100K+ record databases, or running background jobs. Covers parallel requests within 3 req/sec, worker queues, database pagination at scale, incremental sync for large workspaces, and memory management for bulk operations. Trigger with phrases like \"notion scale\", \"notion bulk operations\", \"notion high volume\", \"notion worker queue\", \"notion incremental sync\".",
+      "description": "Plan and test Notion workload capacity within observed limits without evading per-connection controls. Use when scaling exports, syncs, workers, or high-volume reads. Trigger with \"scale Notion integration\", \"capacity plan Notion\", or \"load test Notion safely\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Bash(node:*)",
-        "Bash(npx:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-load-scale use when you must move high volumes through the notion api without tripping its 3 req/sec limit — bulk-creating pages, syncing 100k+ record databases, or running background jobs. covers parallel requests within 3 req/sec, worker queues, database pagination at scale, incremental sync for large workspaces, and memory management for bulk operations. trigger with phrases like \"notion scale\", \"notion bulk operations\", \"notion high volume\", \"notion worker queue\", \"notion incremental sync\". saas-packs read write bash(node:*) bash(npx:*) "
+      "searchText": "notion-load-scale plan and test notion workload capacity within observed limits without evading per-connection controls. use when scaling exports, syncs, workers, or high-volume reads. trigger with \"scale notion integration\", \"capacity plan notion\", or \"load test notion safely\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-local-dev-loop",
       "slug": "notion-local-dev-loop",
       "name": "notion-local-dev-loop",
-      "description": "Configure Notion local development with a dedicated dev integration, test mocking, and hot reload. Use when setting up a Notion development environment, writing tests for Notion code, or establishing a fast iteration cycle against the Notion API without risking production data. Trigger with \"notion dev setup\", \"notion local development\", \"mock notion\", \"notion test environment\".",
+      "description": "Create a repeatable local Notion development loop using fixtures, mocks, and an explicitly shared sandbox. Use when implementing or debugging without touching production content. Trigger with \"develop Notion locally\", \"mock Notion API\", or \"set up Notion sandbox\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-local-dev-loop configure notion local development with a dedicated dev integration, test mocking, and hot reload. use when setting up a notion development environment, writing tests for notion code, or establishing a fast iteration cycle against the notion api without risking production data. trigger with \"notion dev setup\", \"notion local development\", \"mock notion\", \"notion test environment\". saas-packs read write bash(npm:*) bash(pnpm:*) "
+      "searchText": "notion-local-dev-loop create a repeatable local notion development loop using fixtures, mocks, and an explicitly shared sandbox. use when implementing or debugging without touching production content. trigger with \"develop notion locally\", \"mock notion api\", or \"set up notion sandbox\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-migration-deep-dive",
       "slug": "notion-migration-deep-dive",
       "name": "notion-migration-deep-dive",
-      "description": "Migrate data to/from Notion or between Notion workspaces with data mapping and validation. Use when migrating data into Notion databases, exporting from Notion, syncing between workspaces, or building ETL pipelines with Notion as source or destination. Trigger with phrases like \"migrate notion\", \"notion migration\", \"import to notion\", \"export from notion\", \"notion data migration\", \"notion ETL\".",
+      "description": "Design and execute a reversible Notion content or schema migration with identity maps, checkpoints, and reconciliation. Use when moving data between schemas, workspaces, versions, or external systems. Trigger with \"migrate Notion data\", \"upgrade Notion schema\", or \"backfill Notion pages\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(npm:*)",
-        "Bash(node:*)"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-migration-deep-dive migrate data to/from notion or between notion workspaces with data mapping and validation. use when migrating data into notion databases, exporting from notion, syncing between workspaces, or building etl pipelines with notion as source or destination. trigger with phrases like \"migrate notion\", \"notion migration\", \"import to notion\", \"export from notion\", \"notion data migration\", \"notion etl\". saas-packs read bash(npm:*) bash(node:*) "
+      "searchText": "notion-migration-deep-dive design and execute a reversible notion content or schema migration with identity maps, checkpoints, and reconciliation. use when moving data between schemas, workspaces, versions, or external systems. trigger with \"migrate notion data\", \"upgrade notion schema\", or \"backfill notion pages\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-multi-env-setup",
       "slug": "notion-multi-env-setup",
       "name": "notion-multi-env-setup",
-      "description": "Configure Notion integrations across development, staging, and production environments. Use when setting up multi-environment deployments, managing per-environment tokens, or implementing environment-specific Notion configurations. Trigger with phrases like \"notion environments\", \"notion staging\", \"notion dev prod\", \"notion environment setup\", \"notion config by env\".",
+      "description": "Define isolated development, staging, and production Notion connections, secrets, content roots, and promotion rules. Use when an integration spans multiple environments. Trigger with \"separate Notion environments\", \"configure Notion staging\", or \"audit Notion env isolation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(aws:*)",
-        "Bash(gcloud:*)",
-        "Bash(vault:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-multi-env-setup configure notion integrations across development, staging, and production environments. use when setting up multi-environment deployments, managing per-environment tokens, or implementing environment-specific notion configurations. trigger with phrases like \"notion environments\", \"notion staging\", \"notion dev prod\", \"notion environment setup\", \"notion config by env\". saas-packs read write edit bash(aws:*) bash(gcloud:*) bash(vault:*) "
+      "searchText": "notion-multi-env-setup define isolated development, staging, and production notion connections, secrets, content roots, and promotion rules. use when an integration spans multiple environments. trigger with \"separate notion environments\", \"configure notion staging\", or \"audit notion env isolation\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-observability",
       "slug": "notion-observability",
       "name": "notion-observability",
-      "description": "Set up observability for Notion integrations with metrics, traces, and alerts. Use when implementing monitoring for Notion API calls, setting up dashboards, or configuring alerting for Notion integration health. Trigger with phrases like \"notion monitoring\", \"notion metrics\", \"notion observability\", \"monitor notion\", \"notion alerts\", \"notion tracing\".",
+      "description": "Design content-safe metrics, logs, traces, alerts, and reconciliation signals for a Notion integration. Use when making operations diagnosable without leaking workspace data. Trigger with \"instrument Notion integration\", \"monitor Notion sync\", or \"design Notion alerts\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-observability set up observability for notion integrations with metrics, traces, and alerts. use when implementing monitoring for notion api calls, setting up dashboards, or configuring alerting for notion integration health. trigger with phrases like \"notion monitoring\", \"notion metrics\", \"notion observability\", \"monitor notion\", \"notion alerts\", \"notion tracing\". saas-packs read write edit "
+      "searchText": "notion-observability design content-safe metrics, logs, traces, alerts, and reconciliation signals for a notion integration. use when making operations diagnosable without leaking workspace data. trigger with \"instrument notion integration\", \"monitor notion sync\", or \"design notion alerts\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-performance-tuning",
       "slug": "notion-performance-tuning",
       "name": "notion-performance-tuning",
-      "description": "Optimize Notion API performance with caching, batching, parallel requests, and incremental sync. Use when experiencing slow API responses, implementing caching strategies, reducing API call volume, or tuning request patterns for Notion integrations. Trigger with phrases like \"notion performance\", \"optimize notion api\", \"notion latency\", \"notion caching\", \"notion slow\", \"notion batch requests\", \"notion incremental sync\", \"notion reduce api calls\".",
+      "description": "Improve Notion integration latency and throughput while preserving completeness, fairness, and limit compliance. Use when measured operations miss performance objectives. Trigger with \"tune Notion performance\", \"reduce Notion latency\", or \"optimize Notion pagination\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-performance-tuning optimize notion api performance with caching, batching, parallel requests, and incremental sync. use when experiencing slow api responses, implementing caching strategies, reducing api call volume, or tuning request patterns for notion integrations. trigger with phrases like \"notion performance\", \"optimize notion api\", \"notion latency\", \"notion caching\", \"notion slow\", \"notion batch requests\", \"notion incremental sync\", \"notion reduce api calls\". saas-packs read write edit "
+      "searchText": "notion-performance-tuning improve notion integration latency and throughput while preserving completeness, fairness, and limit compliance. use when measured operations miss performance objectives. trigger with \"tune notion performance\", \"reduce notion latency\", or \"optimize notion pagination\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-policy-guardrails",
       "slug": "notion-policy-guardrails",
       "name": "notion-policy-guardrails",
-      "description": "Use when you need to govern Notion integrations at scale — set integration naming standards, enforce page sharing policies, standardize property naming and database schemas, and run access audits that scan which bots can reach which pages. Trigger with phrases like \"notion governance\", \"notion policy\", \"notion naming convention\", \"notion access audit\", \"notion schema standard\".",
+      "description": "Turn Notion security, privacy, access, version, and mutation rules into enforceable repository and runtime gates. Use when defining policy-as-code for integrations. Trigger with \"add Notion guardrails\", \"enforce Notion policy\", or \"review Notion controls\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npx:*)",
-        "Bash(node:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-policy-guardrails use when you need to govern notion integrations at scale — set integration naming standards, enforce page sharing policies, standardize property naming and database schemas, and run access audits that scan which bots can reach which pages. trigger with phrases like \"notion governance\", \"notion policy\", \"notion naming convention\", \"notion access audit\", \"notion schema standard\". saas-packs read write edit bash(npx:*) bash(node:*) "
+      "searchText": "notion-policy-guardrails turn notion security, privacy, access, version, and mutation rules into enforceable repository and runtime gates. use when defining policy-as-code for integrations. trigger with \"add notion guardrails\", \"enforce notion policy\", or \"review notion controls\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-prod-checklist",
       "slug": "notion-prod-checklist",
       "name": "notion-prod-checklist",
-      "description": "Execute a Notion API production deployment checklist and readiness verification. Use when deploying Notion integrations to production, preparing for launch, verifying go-live readiness, or auditing an existing Notion integration. Trigger with \"notion production checklist\", \"deploy notion integration\", \"notion go-live\", \"notion launch readiness\", \"notion prod audit\".",
+      "description": "Decide whether a Notion integration is ready for production from evidence across access, contracts, correctness, safety, and operations. Use when reviewing a launch or material change. Trigger with \"review Notion production readiness\", \"Notion go-live checklist\", or \"approve Notion launch\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Bash(grep:*)",
-        "Bash(curl:*)",
-        "Bash(jq:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-prod-checklist execute a notion api production deployment checklist and readiness verification. use when deploying notion integrations to production, preparing for launch, verifying go-live readiness, or auditing an existing notion integration. trigger with \"notion production checklist\", \"deploy notion integration\", \"notion go-live\", \"notion launch readiness\", \"notion prod audit\". saas-packs read write bash(grep:*) bash(curl:*) bash(jq:*) "
+      "searchText": "notion-prod-checklist decide whether a notion integration is ready for production from evidence across access, contracts, correctness, safety, and operations. use when reviewing a launch or material change. trigger with \"review notion production readiness\", \"notion go-live checklist\", or \"approve notion launch\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-rate-limits",
       "slug": "notion-rate-limits",
       "name": "notion-rate-limits",
-      "description": "Manage Notion API rate limits with exponential backoff, queue-based throttling, and batch optimization. Use when hitting 429 errors, implementing retry logic, or optimizing API request throughput for Notion integrations. Trigger with \"notion rate limit\", \"notion 429\", \"notion retry\", \"notion backoff\", \"notion throttling\", \"notion too many requests\", \"notion queue\".",
+      "description": "Implement adaptive Notion request throttling and bounded retry behavior from observed responses. Use when handling 429s, queue pressure, or bursty workloads. Trigger with \"handle Notion rate limits\", \"throttle Notion requests\", or \"fix Notion 429\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
-        "Bash(npm:*)",
         "Glob",
-        "Grep"
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-rate-limits manage notion api rate limits with exponential backoff, queue-based throttling, and batch optimization. use when hitting 429 errors, implementing retry logic, or optimizing api request throughput for notion integrations. trigger with \"notion rate limit\", \"notion 429\", \"notion retry\", \"notion backoff\", \"notion throttling\", \"notion too many requests\", \"notion queue\". saas-packs read write edit bash(npm:*) glob grep "
+      "searchText": "notion-rate-limits implement adaptive notion request throttling and bounded retry behavior from observed responses. use when handling 429s, queue pressure, or bursty workloads. trigger with \"handle notion rate limits\", \"throttle notion requests\", or \"fix notion 429\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-reference-architecture",
       "slug": "notion-reference-architecture",
       "name": "notion-reference-architecture",
-      "description": "Design and implement a production-ready Notion integration architecture with proper layering, caching, error handling, and testing strategies. Use when designing a new Notion integration, reviewing existing project structure, establishing architecture standards for a Notion application, or migrating from ad-hoc API calls to a layered architecture. Trigger with \"notion architecture\", \"notion project structure\", \"notion reference architecture\", \"notion integration design\", \"notion layered architecture\", or \"notion service pattern\".",
+      "description": "Define a production reference architecture for Notion access, operations, queues, reconciliation, and evidence. Use when standardizing multiple integration workloads. Trigger with \"build Notion reference architecture\", \"standardize Notion services\", or \"review Notion platform design\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-reference-architecture design and implement a production-ready notion integration architecture with proper layering, caching, error handling, and testing strategies. use when designing a new notion integration, reviewing existing project structure, establishing architecture standards for a notion application, or migrating from ad-hoc api calls to a layered architecture. trigger with \"notion architecture\", \"notion project structure\", \"notion reference architecture\", \"notion integration design\", \"notion layered architecture\", or \"notion service pattern\". saas-packs read write edit bash(npm:*) bash(npx:*) "
+      "searchText": "notion-reference-architecture define a production reference architecture for notion access, operations, queues, reconciliation, and evidence. use when standardizing multiple integration workloads. trigger with \"build notion reference architecture\", \"standardize notion services\", or \"review notion platform design\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-reliability-patterns",
       "slug": "notion-reliability-patterns",
       "name": "notion-reliability-patterns",
-      "description": "Graceful degradation when Notion is down: offline cache, retry with exponential backoff, circuit breaker, health checks, and fallback content. Use when building fault-tolerant Notion integrations for production, or when a Notion outage is breaking your app. Trigger with phrases like \"notion reliability\", \"notion circuit breaker\", \"notion offline fallback\", \"notion health check\", \"notion graceful degradation\".",
+      "description": "Analyze and apply retry, idempotency, checkpoint, circuit, dead-letter, and reconciliation patterns to a specific Notion operation. Use when hardening failure recovery. Trigger with \"harden Notion reliability\", \"make Notion writes idempotent\", or \"design Notion recovery\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-reliability-patterns graceful degradation when notion is down: offline cache, retry with exponential backoff, circuit breaker, health checks, and fallback content. use when building fault-tolerant notion integrations for production, or when a notion outage is breaking your app. trigger with phrases like \"notion reliability\", \"notion circuit breaker\", \"notion offline fallback\", \"notion health check\", \"notion graceful degradation\". saas-packs read write edit "
+      "searchText": "notion-reliability-patterns analyze and apply retry, idempotency, checkpoint, circuit, dead-letter, and reconciliation patterns to a specific notion operation. use when hardening failure recovery. trigger with \"harden notion reliability\", \"make notion writes idempotent\", or \"design notion recovery\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-sdk-patterns",
       "slug": "notion-sdk-patterns",
       "name": "notion-sdk-patterns",
-      "description": "Apply production-ready @notionhq/client SDK patterns for TypeScript and Python. Use when implementing Notion integrations, building database queries with filters and sorts, handling pagination, constructing rich text blocks, or establishing team coding standards for Notion API usage. Trigger with \"notion SDK patterns\", \"notion best practices\", \"notion code patterns\", \"idiomatic notion\", \"notion typescript\", \"notion python SDK\".",
+      "description": "Build a version-aware Notion SDK boundary with typed operations, pagination, error classification, and test seams. Use when writing or reviewing client code. Trigger with \"design Notion SDK wrapper\", \"review Notion client code\", or \"update Notion SDK patterns\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-sdk-patterns apply production-ready @notionhq/client sdk patterns for typescript and python. use when implementing notion integrations, building database queries with filters and sorts, handling pagination, constructing rich text blocks, or establishing team coding standards for notion api usage. trigger with \"notion sdk patterns\", \"notion best practices\", \"notion code patterns\", \"idiomatic notion\", \"notion typescript\", \"notion python sdk\". saas-packs read write edit grep "
+      "searchText": "notion-sdk-patterns build a version-aware notion sdk boundary with typed operations, pagination, error classification, and test seams. use when writing or reviewing client code. trigger with \"design notion sdk wrapper\", \"review notion client code\", or \"update notion sdk patterns\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-search-retrieve",
       "slug": "notion-search-retrieve",
       "name": "notion-search-retrieve",
-      "description": "Search Notion workspaces and retrieve pages, databases, and block content using the Notion API. Use when querying databases with filters, searching across a workspace, paginating large result sets, or extracting page content. Trigger with phrases like \"notion search\", \"query notion database\", \"notion retrieve page\", \"notion pagination\", \"notion filter\", \"notion blocks\", \"notion get content\".",
+      "description": "Analyze search intent and retrieve explicitly shared Notion pages or data sources while respecting search limitations and object identity. Use when locating content before a scoped read. Trigger with \"search Notion\", \"find Notion page\", or \"retrieve Notion content\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-search-retrieve search notion workspaces and retrieve pages, databases, and block content using the notion api. use when querying databases with filters, searching across a workspace, paginating large result sets, or extracting page content. trigger with phrases like \"notion search\", \"query notion database\", \"notion retrieve page\", \"notion pagination\", \"notion filter\", \"notion blocks\", \"notion get content\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "notion-search-retrieve analyze search intent and retrieve explicitly shared notion pages or data sources while respecting search limitations and object identity. use when locating content before a scoped read. trigger with \"search notion\", \"find notion page\", or \"retrieve notion content\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-security-basics",
       "slug": "notion-security-basics",
       "name": "notion-security-basics",
-      "description": "Apply Notion API security best practices for integration tokens, OAuth2 flows, least-privilege capabilities, and page-level access control. Use when securing integration tokens, configuring OAuth2 for public integrations, rotating credentials, or auditing which pages an integration can access. Trigger with phrases like \"notion security\", \"notion secrets\", \"secure notion\", \"notion API key security\", \"notion token rotation\", \"notion OAuth2\", \"notion permissions audit\".",
+      "description": "Establish a security baseline for Notion credentials, capabilities, content access, webhooks, writes, logs, and tenant isolation. Use when designing, reviewing, or hardening an integration. Trigger with \"secure Notion integration\", \"audit Notion security\", or \"review Notion token handling\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Bash(npm:*)",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-security-basics apply notion api security best practices for integration tokens, oauth2 flows, least-privilege capabilities, and page-level access control. use when securing integration tokens, configuring oauth2 for public integrations, rotating credentials, or auditing which pages an integration can access. trigger with phrases like \"notion security\", \"notion secrets\", \"secure notion\", \"notion api key security\", \"notion token rotation\", \"notion oauth2\", \"notion permissions audit\". saas-packs read write bash(npm:*) bash(curl:*) "
+      "searchText": "notion-security-basics establish a security baseline for notion credentials, capabilities, content access, webhooks, writes, logs, and tenant isolation. use when designing, reviewing, or hardening an integration. trigger with \"secure notion integration\", \"audit notion security\", or \"review notion token handling\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-upgrade-migration",
       "slug": "notion-upgrade-migration",
       "name": "notion-upgrade-migration",
-      "description": "Upgrade @notionhq/client SDK versions and migrate between Notion API versions. Use when updating SDK packages, handling breaking changes between API versions, adopting new SDK features like comments API or status properties, or migrating Python notion-client. Trigger with phrases like \"upgrade notion SDK\", \"notion migration\", \"notion breaking changes\", \"update notionhq client\", \"notion API version upgrade\", \"notion deprecation\".",
+      "description": "Upgrade a Notion integration across SDK or API contracts with inventory, compatibility tests, staged rollout, and rollback. Use when adopting current data-source, block, trash, or SDK behavior. Trigger with \"upgrade Notion API\", \"migrate Notion SDK\", or \"update Notion version\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(git:*)",
         "Glob",
-        "Grep"
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-upgrade-migration upgrade @notionhq/client sdk versions and migrate between notion api versions. use when updating sdk packages, handling breaking changes between api versions, adopting new sdk features like comments api or status properties, or migrating python notion-client. trigger with phrases like \"upgrade notion sdk\", \"notion migration\", \"notion breaking changes\", \"update notionhq client\", \"notion api version upgrade\", \"notion deprecation\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(git:*) glob grep "
+      "searchText": "notion-upgrade-migration upgrade a notion integration across sdk or api contracts with inventory, compatibility tests, staged rollout, and rollback. use when adopting current data-source, block, trash, or sdk behavior. trigger with \"upgrade notion api\", \"migrate notion sdk\", or \"update notion version\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "notion-webhooks-events",
       "slug": "notion-webhooks-events",
       "name": "notion-webhooks-events",
-      "description": "Build change detection and event handling for Notion workspaces using polling, native webhooks, and third-party connectors. Use when implementing real-time sync, change feeds, incremental backup, or event-driven workflows with Notion data. Trigger with phrases like \"notion webhook\", \"notion events\", \"notion change detection\", \"notion polling\", \"notion sync changes\", \"notion real-time\", \"notion watch for changes\".",
+      "description": "Implement verified Notion connection-webhook intake with deduplication, bounded processing, and fetch-current reconciliation. Use when reacting to workspace change signals. Trigger with \"handle Notion webhooks\", \"verify Notion signature\", or \"reconcile Notion events\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(node:*)",
-        "Bash(npx:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.39.0",
+      "version": "1.40.0",
       "parentPlugin": {
         "name": "notion-pack",
         "category": "saas-packs"
       },
-      "searchText": "notion-webhooks-events build change detection and event handling for notion workspaces using polling, native webhooks, and third-party connectors. use when implementing real-time sync, change feeds, incremental backup, or event-driven workflows with notion data. trigger with phrases like \"notion webhook\", \"notion events\", \"notion change detection\", \"notion polling\", \"notion sync changes\", \"notion real-time\", \"notion watch for changes\". saas-packs read write edit bash(node:*) bash(npx:*) bash(npm:*) bash(curl:*) "
+      "searchText": "notion-webhooks-events implement verified notion connection-webhook intake with deduplication, bounded processing, and fetch-current reconciliation. use when reacting to workspace change signals. trigger with \"handle notion webhooks\", \"verify notion signature\", or \"reconcile notion events\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",

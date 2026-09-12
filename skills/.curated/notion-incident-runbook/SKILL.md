@@ -1,146 +1,81 @@
 ---
 name: notion-incident-runbook
-description: |
-  Execute Notion incident response procedures with triage, mitigation, and postmortem.
-  Use when responding to Notion API outages, investigating errors, or running
-  post-incident reviews for Notion integration failures. Trigger with phrases like
-  "notion incident", "notion outage", "notion down", "notion on-call",
-  "notion emergency", "notion broken".
-allowed-tools: Read, Bash(kubectl:*), Bash(curl:*)
-version: 1.39.0
+description: >-
+  Analyze and coordinate a Notion integration incident with bounded mitigation, evidence custody, communications, and recovery verification. Use when availability, correctness, privacy, or credential safety is at risk. Trigger with "run Notion incident", "triage Notion outage", or "contain Notion sync failure".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<severity> <environment> <incident-window>"
+version: 1.40.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- productivity
-- notion
-compatibility: Designed for Claude Code
+tags: [saas, notion, incident]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Notion actions require network access and explicit approval"
 ---
-# Notion Incident Runbook
+# Notion Integration Incident Command
 
 ## Overview
 
-Rapid incident response for Notion API failures. This runbook drives a sub-5-minute
-triage that classifies the failure as Notion-side vs. integration-side, then routes to
-per-error-type mitigation, cached fallback, and a structured postmortem.
-
-Deep material — full triage scripts, remediation code, and templates — lives in
-`references/`; this file is the high-level flow you follow live.
+Analyze and coordinate a Notion integration incident with bounded mitigation, evidence custody, communications, and recovery verification.. This workflow produces an auditable decision or artifact before any live action.
 
 ## Prerequisites
 
-- Access to application monitoring dashboards and log aggregator
-- `NOTION_TOKEN` environment variable set for diagnostic API calls
-- `curl` and `jq` installed for quick CLI triage
-- Python alternative: `notion-client` (`pip install notion-client`)
-- Communication channels configured (Slack webhook, PagerDuty, etc.)
+- Current first-party Notion documentation and the selected integration's tested API-version contract.
+- A named workspace owner, content or data owner, and operation owner.
+- Synthetic or approved non-production fixtures with secrets and workspace content removed.
+
+## Current Contract
+
+Separate Notion service health, authentication, access, version shape, application defects, queues, downstream systems, and data correctness. Availability recovery does not prove data reconciliation. Recheck the dated evidence map before relying on mutable fields, endpoints, versions, limits, or delivery behavior.
+
+## Authentication
+
+If compromise is suspected, freeze token use and follow the approved secret-rotation lane; never expose credentials in the incident channel.
 
 ## Instructions
 
-### Step 1: Quick Triage (Under 5 Minutes)
+1. Name the incident commander, severity, affected tenants, operations, data classes, and start time.
+2. Freeze unsafe writes and retries while preserving queue, cursor, request-ID, and deployment evidence.
+3. Classify the fault domain and compare official status with application telemetry.
+4. Choose the smallest reversible mitigation with an owner and rollback trigger.
+5. Restore service in stages, then reconcile pages, cursors, webhook signals, duplicates, and missed work.
+6. Close only after security, data correctness, communications, and follow-up ownership are evidenced.
 
-At first alert, decide whether the fault is Notion's or yours. Check the platform
-status page, then test your own auth. This one call is enough to start:
+## Tool Discipline
 
-```bash
-curl -sf -o /dev/null -w "%{http_code}" \
-  https://api.notion.com/v1/users/me \
-  -H "Authorization: Bearer ${NOTION_TOKEN}" \
-  -H "Notion-Version: 2022-06-28"   # 2022-06-28 = pinned Notion API version
-```
+Use Read, Glob, and Grep to inspect documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Invocation alone does not authorize network access, credentials, workspace content, user data, file transfer, deployment, capability or sharing changes, writes, spend, or deletion.
 
-Map the result: `200` → integration-side, `401` → token expired/revoked, `429` →
-rate limited, `000` → network/DNS. If `status.notion.so` shows an active incident, it
-is Notion-side regardless of your auth code.
+## Approval Boundaries
 
-Read [references/triage.md](references/triage.md) for the full `notion-triage.sh`
-diagnostic (status page + auth + DB-query latency + auto-classification) and a
-TypeScript `triageNotionHealth()` equivalent for in-app health checks.
-
-### Step 2: Decision Tree and Mitigation
-
-Route the classification to a remediation path:
-
-- **Notion-side outage** — enable cached/fallback mode, notify users, monitor the
-  status page. Do NOT restart or rotate tokens.
-- **401 token expired/revoked** — regenerate at `notion.so/my-integrations`, update the
-  secret manager, restart the app.
-- **429 rate limited** — you are exceeding the 3 req/s average; find runaway loops or
-  webhook storms, drop concurrency to 1, add exponential backoff.
-- **404 on known resources** — pages unshared or trashed; re-share via the Connections menu.
-- **400 validation errors** — the database schema changed in the UI; re-fetch with
-  `databases.retrieve` and update property mappings.
-
-Read [references/mitigation.md](references/mitigation.md) for the full decision tree,
-token-rotation commands (AWS/GCP Secret Manager + `kubectl` restart), the
-`queryWithFallback()` cached-fallback pattern, and `detectSchemaChanges()`.
-
-### Step 3: Communication and Postmortem
-
-Post an internal Slack update on every state change (INVESTIGATING → MITIGATING →
-RESOLVED), an external status-page notice if users are impacted, and file a structured
-postmortem once resolved. Copy-paste templates for all three are in
-[references/communication-and-postmortem.md](references/communication-and-postmortem.md).
-
-## Output
-
-- Automated triage script classifying incidents in under 5 minutes
-- Decision tree mapping HTTP status codes to root causes
-- Per-error-type mitigation procedures with real code
-- Cached fallback mode for Notion outages
-- Schema change detection for 400 validation errors
-- Communication templates for internal and external stakeholders
-- Postmortem template with timeline and action items
+The incident commander approves mitigation; security approves token actions; content and data owners approve replay, backfill, or destructive correction.
 
 ## Error Handling
 
-| Scenario | Triage Signal | Immediate Action |
-| ---------- | -------------- | ------------------ |
-| Notion platform outage | status.notion.so incident | Enable fallback mode, notify users |
-| Token expired/revoked | All requests return 401 | Rotate token in secret manager, restart |
-| Rate limited | 429 errors spiking | Reduce concurrency to 1, check for loops |
-| Schema changed | 400 on specific operations | Run `databases.retrieve`, update mappings |
-| Network/DNS issue | Timeouts, no HTTP response | Check firewall, DNS resolution, proxy config |
-| Pages unshared | 404 on previously working pages | Re-share via Connections menu in Notion |
+- Do not replay a write queue before idempotency is proven.
+- Do not blame the vendor solely from correlated timing.
+- Escalate immediately on suspected cross-tenant or credential exposure.
+
+## Output
+
+Return the timeline, scope, evidence, hypotheses, decisions, mitigation, reconciliation ledger, communications, and follow-ups. Identify assumptions, owners, expirations, and evidence gaps explicitly.
 
 ## Examples
 
-### One-Line Health Check
+- Contain a retry storm while preserving unacknowledged jobs.
+- Recover after service restoration and prove no pages were duplicated.
 
-```bash
-curl -sf https://api.notion.com/v1/users/me \
-  -H "Authorization: Bearer ${NOTION_TOKEN}" \
-  -H "Notion-Version: 2022-06-28" \
-  | jq '{name: .name, type: .type}' \
-  || echo "UNHEALTHY: Notion API unreachable or auth failed"
-```
+## Validation
 
-### Python Quick Triage
+Exercise and record these paths with expected and observed results:
 
-```python
-from notion_client import Client, APIResponseError
-import os
-
-def quick_triage():
-    try:
-        client = Client(auth=os.environ["NOTION_TOKEN"], timeout_ms=10_000)
-        me = client.users.me()
-        print(f"OK: Connected as {me['name']}")
-    except APIResponseError as e:
-        print(f"ERROR: {e.code} (HTTP {e.status}): {e.message}")
-    except Exception as e:
-        print(f"NETWORK ERROR: {e}")
-
-quick_triage()
-```
-
-For the full `notion-triage.sh` diagnostic and the TypeScript in-app variant, see
-[references/triage.md](references/triage.md).
+- write freeze
+- credential compromise
+- service recovery
+- queue replay
+- data reconciliation
+- communications
 
 ## Resources
 
-- [Notion Status Page](https://status.notion.so) — real-time platform status
-- [Notion API Error Codes](https://developers.notion.com/reference/errors) — full error reference
-- [Notion Request Limits](https://developers.notion.com/reference/request-limits) — 3 req/s average
-- [Statuspage API](https://www.atlassianstatuspage.io/api) — programmatic status checks
-- For data handling and privacy compliance, see the `notion-data-handling` skill.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable behavior.
+- Treat observed tenant behavior as environment-specific evidence, never a universal Notion guarantee.

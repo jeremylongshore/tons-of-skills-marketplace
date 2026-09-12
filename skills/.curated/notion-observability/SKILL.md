@@ -1,117 +1,81 @@
 ---
 name: notion-observability
-description: 'Set up observability for Notion integrations with metrics, traces, and
-  alerts.
-
-  Use when implementing monitoring for Notion API calls, setting up dashboards,
-
-  or configuring alerting for Notion integration health.
-
-  Trigger with phrases like "notion monitoring", "notion metrics",
-
-  "notion observability", "monitor notion", "notion alerts", "notion tracing".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.39.0
+description: >-
+  Design content-safe metrics, logs, traces, alerts, and reconciliation signals for a Notion integration. Use when making operations diagnosable without leaking workspace data. Trigger with "instrument Notion integration", "monitor Notion sync", or "design Notion alerts".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<workload> <service-objectives> <data-classification>"
+version: 1.40.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- productivity
-- notion
-compatibility: Designed for Claude Code
+tags: [saas, notion, observability]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Notion actions require network access and explicit approval"
 ---
-# Notion Observability
+# Notion Integration Observability Contract
 
 ## Overview
 
-Instrument Notion API calls with metrics, structured logging, and alerting. Track request rates, latencies, error rates, and rate limit headroom across a full observability stack: an instrumented client wrapper, Prometheus metrics, structured logging via pino, health check endpoints, and alerting rules.
+Design content-safe metrics, logs, traces, alerts, and reconciliation signals for a Notion integration.. This workflow produces an auditable decision or artifact before any live action.
 
 ## Prerequisites
 
-- `@notionhq/client` v2+ installed (`npm install @notionhq/client`)
-- Python alternative: `notion-client` (`pip install notion-client`)
-- Prometheus-compatible metrics backend (optional: Grafana, Datadog, or CloudWatch)
-- Structured logging library: `pino` (Node.js) or `structlog` (Python)
+- Current first-party Notion documentation and the selected integration's tested API-version contract.
+- A named workspace owner, content or data owner, and operation owner.
+- Synthetic or approved non-production fixtures with secrets and workspace content removed.
+
+## Current Contract
+
+Operational signals should distinguish operation class, status, structured code, request ID, latency, retry, queue age, cursor age, and reconciliation delta. Page IDs, titles, content, user data, tokens, and signed URLs are unsafe default labels. Recheck the dated evidence map before relying on mutable fields, endpoints, versions, limits, or delivery behavior.
 
 ## Authentication
 
-All snippets read the integration token from the `NOTION_TOKEN` environment variable (never hard-code it) and pass it as `auth` to the Notion client constructor. Store it in your secret manager and inject it at runtime. The health check and metrics endpoints below expose no secrets — only aggregate counters and status.
+Telemetry pipelines receive no bearer or verification tokens. Use tenant aliases and bounded fingerprints approved for the monitoring boundary.
 
 ## Instructions
 
-The workflow layers three pieces. Build them in order; each is self-contained. Full code for every step lives in [references/implementation.md](references/implementation.md).
+1. Define service, freshness, correctness, and security objectives with owners.
+2. Create a low-cardinality operation taxonomy covering reads, writes, webhooks, queues, files, and reconciliation.
+3. Specify redaction before serialization and sampling after security events are preserved.
+4. Correlate attempts with internal operation IDs and vendor request IDs without content.
+5. Alert on sustained error class, Retry-After pressure, queue age, cursor staleness, and reconciliation drift.
+6. Exercise dashboards and alerts with synthetic failures and document response ownership.
 
-### Step 1: Instrumented client wrapper
+## Tool Discipline
 
-Wrap every Notion call so timing, error classification, rate-limit detection, and structured logging happen automatically. The wrapper accumulates per-operation latency buckets and exposes `getMetrics()` for avg/p95. Skeleton:
+Use Read, Glob, and Grep to inspect documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Invocation alone does not authorize network access, credentials, workspace content, user data, file transfer, deployment, capability or sharing changes, writes, spend, or deletion.
 
-```typescript
-class InstrumentedNotionClient {
-  async call<T>(operation: string, fn: (c: Client) => Promise<T>): Promise<T> {
-    const start = performance.now();
-    try {
-      const result = await fn(this.client);
-      this.recordLatency(operation, Math.round(performance.now() - start));
-      return result;
-    } catch (error) {
-      if (isNotionClientError(error) && error.code === APIErrorCode.RateLimited) {
-        this.metrics.rateLimitCount++;
-      }
-      throw error;
-    }
-  }
-}
-```
+## Approval Boundaries
 
-A Python (`notion-client`) equivalent is in the reference. Full TypeScript + Python wrappers: [references/implementation.md](references/implementation.md) (Step 1).
-
-### Step 2: Prometheus metrics export
-
-Register a request counter, a latency histogram (buckets tuned for Notion's typical 200-800ms responses), an error counter keyed by error code, and a rate-limit gauge. Wrap calls with `startTimer()` and expose a `/metrics` endpoint for scraping. Full export code: [references/implementation.md](references/implementation.md) (Step 2).
-
-### Step 3: Health check, structured logging, and alerting
-
-Add a `/health/notion` endpoint that probes `users.me` and returns 200/503 with aggregate metrics, wire pino for JSON logs with slow-query warnings (>2s), and ship Prometheus alerting rules for error-rate spikes, rate-limit exhaustion, high P95 latency, and outages. Full endpoint, logger, and alert rules: [references/implementation.md](references/implementation.md) (Step 3).
-
-## Output
-
-- Instrumented Notion client tracking all API calls with per-operation latency buckets
-- Prometheus metrics for request rate, latency histograms, and error counters
-- Structured JSON logging via pino with slow-query warnings (>2s)
-- Health check endpoint with Notion connectivity status and aggregate metrics
-- Alerting rules for error rate spikes, rate limiting, high latency, and outages
+Require data and security approval before adding identifiers, payload excerpts, user fields, or third-party telemetry processors.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-| ------- | ------- | ---------- |
-| High cardinality metrics | Too many unique label values | Use fixed operation names (`databases.query`, `pages.create`) |
-| Alert storms on Notion outage | All alerts fire simultaneously | Add `group_wait: 30s` in alertmanager config |
-| Missing metrics for some calls | Not all API calls use wrapper | Enforce wrapper at architecture level |
-| Log volume too high in prod | DEBUG level enabled | Set `LOG_LEVEL=info` or `warn` in production |
-| P95 latency unreliable | Too few samples | Ensure minimum 100 requests in window |
-| Rate limit counter never fires | Wrong error code check | Use `APIErrorCode.RateLimited` constant |
+- Do not use page or workspace IDs as unbounded metric labels.
+- A green request-rate dashboard does not prove sync completeness.
+- Fail closed if redaction is unavailable.
+
+## Output
+
+Return the signal catalog, redaction contract, objective definitions, dashboards, alerts, runbook links, and test receipts. Identify assumptions, owners, expirations, and evidence gaps explicitly.
 
 ## Examples
 
-Ready-to-run PromQL dashboard queries and a no-Prometheus inline console metrics snippet live in [references/examples.md](references/examples.md). Quickest smoke test — error percentage in PromQL:
+- Alert on cursor age even when requests return 200.
+- Trace a retry chain with request IDs but no page content.
 
-```promql
-100 * rate(notion_errors_total[5m]) / rate(notion_requests_total[5m])
-```
+## Validation
+
+Exercise and record these paths with expected and observed results:
+
+- secret canary
+- content canary
+- cardinality
+- alert firing
+- reconciliation drift
+- telemetry outage
 
 ## Resources
 
-- [Notion Request Limits](https://developers.notion.com/reference/request-limits) — 3 requests/second average
-- [Notion Error Codes](https://developers.notion.com/reference/errors) — full error code reference
-- [Prometheus Naming Best Practices](https://prometheus.io/docs/practices/naming/)
-- [pino Logger](https://getpino.io/) — fast structured logging for Node.js
-- [Grafana Dashboard Templates](https://grafana.com/grafana/dashboards/) — pre-built API monitoring dashboards
-- [references/implementation.md](references/implementation.md) — full instrumentation stack (client wrapper, metrics, health check, alerts)
-- [references/examples.md](references/examples.md) — PromQL queries and inline metrics snippet
-
-## Next Steps
-
-For incident response procedures when monitoring detects failures, see the `notion-incident-runbook` skill. Once metrics flow, build a Grafana dashboard from the PromQL queries in [references/examples.md](references/examples.md) and tune alert thresholds to your traffic baseline.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable behavior.
+- Treat observed tenant behavior as environment-specific evidence, never a universal Notion guarantee.

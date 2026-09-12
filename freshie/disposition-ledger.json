@@ -3,7 +3,7 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "ea761f7c7579840ed1f1841796e87e0a856bcfcf93fdb70ab49c40d8440509e4",
+    "sha256": "e3fb37f009939b6d3f22a00b9e32d57c912aa27a922a09fd551c84ff58833f8d",
     "artifact_count": 3491
   },
   "rule_order": [
@@ -26350,7 +26350,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-advanced-troubleshooting/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26361,7 +26361,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-architecture-variants/SKILL.md",
       "grade": "A",
-      "score": 95,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26372,7 +26372,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-ci-integration/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26383,7 +26383,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-common-errors/SKILL.md",
       "grade": "A",
-      "score": 97,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26394,7 +26394,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-content-management/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26405,7 +26405,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-core-workflow-a/SKILL.md",
       "grade": "A",
-      "score": 94,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26427,7 +26427,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-cost-tuning/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26438,7 +26438,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-data-handling/SKILL.md",
       "grade": "A",
-      "score": 94,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26449,7 +26449,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-debug-bundle/SKILL.md",
       "grade": "A",
-      "score": 95,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26460,7 +26460,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-deploy-integration/SKILL.md",
       "grade": "A",
-      "score": 94,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26471,7 +26471,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-enterprise-rbac/SKILL.md",
       "grade": "A",
-      "score": 94,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26482,7 +26482,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-hello-world/SKILL.md",
       "grade": "A",
-      "score": 95,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26493,7 +26493,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-incident-runbook/SKILL.md",
       "grade": "A",
-      "score": 94,
+      "score": 95,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26504,7 +26504,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-install-auth/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26515,7 +26515,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-known-pitfalls/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26526,7 +26526,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-load-scale/SKILL.md",
       "grade": "A",
-      "score": 92,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26537,7 +26537,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-local-dev-loop/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26548,7 +26548,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-migration-deep-dive/SKILL.md",
       "grade": "A",
-      "score": 95,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26559,7 +26559,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-multi-env-setup/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26570,7 +26570,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-observability/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26581,7 +26581,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-performance-tuning/SKILL.md",
       "grade": "A",
-      "score": 95,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26592,7 +26592,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-policy-guardrails/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26603,7 +26603,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-prod-checklist/SKILL.md",
       "grade": "A",
-      "score": 97,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26614,7 +26614,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-rate-limits/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26625,7 +26625,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-reference-architecture/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26636,7 +26636,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-reliability-patterns/SKILL.md",
       "grade": "A",
-      "score": 95,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26647,7 +26647,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-sdk-patterns/SKILL.md",
       "grade": "A",
-      "score": 95,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26658,7 +26658,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-search-retrieve/SKILL.md",
       "grade": "A",
-      "score": 92,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26669,7 +26669,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-security-basics/SKILL.md",
       "grade": "A",
-      "score": 95,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26680,7 +26680,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-upgrade-migration/SKILL.md",
       "grade": "A",
-      "score": 94,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26691,7 +26691,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-webhooks-events/SKILL.md",
       "grade": "A",
-      "score": 91,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
