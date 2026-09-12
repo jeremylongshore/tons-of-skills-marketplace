@@ -1,8 +1,8 @@
-# Fireflies.ai Skill Pack
+# Fireflies.ai Operator Skill Pack
 
-> 24 production-ready skills for the Fireflies.ai GraphQL API -- transcript retrieval, AskFred AI, webhook processing, meeting analytics, and enterprise access control.
+> 24 governed workflows for the current Fireflies.ai GraphQL API and Webhooks V2.
 
-Fireflies.ai is an AI meeting notetaker that auto-joins video calls (Zoom, Google Meet, Teams), generates speaker-diarized transcripts, extracts action items, and provides AI-powered Q&A via AskFred. This skill pack covers the entire Fireflies GraphQL API surface at `https://api.fireflies.ai/graphql`.
+This pack helps operators integrate meeting metadata, transcripts, AskFred, audio ingestion, access controls, and event-driven automation without treating API access as permission to expose meeting data. It is grounded in the current first-party Fireflies documentation reviewed on 2026-09-12.
 
 ## Installation
 
@@ -12,50 +12,50 @@ Fireflies.ai is an AI meeting notetaker that auto-joins video calls (Zoom, Googl
 
 ## What You Get
 
-Every skill uses **real Fireflies.ai GraphQL queries and mutations** -- no fake SDKs, no placeholder code. Copy-paste ready.
+Each skill distinguishes read-only inspection, implementation, live data access, and privileged mutation. The pack assumes standards-based GraphQL clients rather than inventing a Fireflies SDK. Every workflow includes authentication, data-minimization, approval, error, evidence, and rollback boundaries.
 
-**API coverage:** `transcript`, `transcripts`, `user`, `users`, `channels`, `bites`, `apps`, `askfred_threads` queries. `uploadAudio`, `addToLiveMeeting`, `createBite`, `shareMeeting`, `updateMeetingPrivacy`, `updateMeetingChannel`, `deleteTranscript`, `createAskFredThread`, `continueAskFredThread`, `setUserRole` mutations. Webhook signature verification with HMAC-SHA256.
+Current contracts covered include `transcript` and `transcripts`, non-deprecated search filters, AskFred threads and AI-credit handling, `uploadAudio`, `addToLiveMeeting`, team access mutations, operation-specific limits, and Webhooks V2 HMAC verification.
 
 ## Skills Included
 
-### Standard Skills (S01-S12)
+### Core workflows
 
 | Skill | What It Does |
 |-------|-------------|
 | `fireflies-install-auth` | Configure GraphQL API auth, verify connectivity with `user` query |
-| `fireflies-hello-world` | First queries: list users, fetch transcripts, read summaries |
-| `fireflies-local-dev-loop` | Project structure, fixture recording, mock client, vitest setup |
-| `fireflies-sdk-patterns` | Typed GraphQL client class, singleton, multi-tenant factory, Zod validation |
-| `fireflies-core-workflow-a` | Transcript retrieval: sentences, speakers, analytics, AI filters |
-| `fireflies-core-workflow-b` | Search transcripts, AskFred AI Q&A, cross-meeting analytics |
-| `fireflies-common-errors` | All error codes: `auth_failed`, `too_many_requests`, `require_ai_credits`, deprecated fields |
-| `fireflies-debug-bundle` | Diagnostic script: API connectivity, account info, calendar sync, redacted bundle |
-| `fireflies-rate-limits` | Per-plan limits (50/day vs 60/min), exponential backoff, PQueue, daily budget tracker |
-| `fireflies-security-basics` | API key rotation, webhook HMAC-SHA256 verification, privacy levels, pre-commit hook |
-| `fireflies-prod-checklist` | Health check endpoint, alerting thresholds, deployment verification |
-| `fireflies-upgrade-migration` | Deprecated field scanner, schema introspection, query pattern updates |
+| `fireflies-hello-world` | First metadata-only GraphQL query |
+| `fireflies-local-dev-loop` | Synthetic fixtures and deterministic local tests |
+| `fireflies-sdk-patterns` | Typed standards-based GraphQL client boundary |
+| `fireflies-core-workflow-a` | Field-minimized transcript retrieval |
+| `fireflies-core-workflow-b` | Current search filters and governed AskFred analysis |
+| `fireflies-common-errors` | Transport, GraphQL, plan, permission, and processing failures |
+| `fireflies-debug-bundle` | Privacy-safe support evidence |
+| `fireflies-rate-limits` | Plan and operation-specific request budgets |
+| `fireflies-security-basics` | Bearer keys, HMAC, selection, and log hardening |
+| `fireflies-prod-checklist` | Fail-closed production readiness |
+| `fireflies-upgrade-migration` | Deprecated-filter and Webhooks V2 migration |
 
-### Pro Skills (P13-P18)
-
-| Skill | What It Does |
-|-------|-------------|
-| `fireflies-ci-integration` | GitHub Actions workflow, mock-based unit tests, live API integration tests |
-| `fireflies-deploy-integration` | Deploy webhook receivers to Vercel, Docker, Cloud Run with secret management |
-| `fireflies-webhooks-events` | HMAC signature verification, `Transcription completed` event processing, per-upload webhooks |
-| `fireflies-performance-tuning` | Field selection optimization, LRU/Redis caching, batch processing, webhook cache warming |
-| `fireflies-cost-tuning` | Seat utilization audit via API, selective recording, plan right-sizing, storage cleanup |
-| `fireflies-reference-architecture` | Event-driven pipeline: webhook -> transcript store -> action items -> CRM -> analytics |
-
-### Flagship Skills (F19-F24)
+### Delivery and architecture
 
 | Skill | What It Does |
 |-------|-------------|
-| `fireflies-multi-env-setup` | Per-environment config (dev/staging/prod), GCP Secret Manager, Zod startup validation |
-| `fireflies-observability` | Prometheus metrics, health probes, webhook queue depth, seat utilization tracking |
-| `fireflies-incident-runbook` | Triage script, decision tree by error code, remediation procedures, postmortem template |
-| `fireflies-data-handling` | Export (JSON/text/SRT/CSV), PII redaction, retention policies, GDPR data subject requests |
-| `fireflies-enterprise-rbac` | Workspace roles, channels, privacy levels, `shareMeeting`/`revokeSharedMeetingAccess`, audit |
-| `fireflies-migration-deep-dive` | `uploadAudio` batch import, authenticated URLs, direct upload, adapter pattern, validation |
+| `fireflies-ci-integration` | Offline GraphQL and webhook contract gates |
+| `fireflies-deploy-integration` | Reversible workers and signed webhook receivers |
+| `fireflies-webhooks-events` | Webhooks V2 event, signature, dedupe, and ordering controls |
+| `fireflies-performance-tuning` | Field, pagination, polling, cache, and concurrency tuning |
+| `fireflies-cost-tuning` | Quota, AskFred credit, seat, and retention decisions |
+| `fireflies-reference-architecture` | Governed event-driven trust boundaries |
+
+### Enterprise operations
+
+| Skill | What It Does |
+|-------|-------------|
+| `fireflies-multi-env-setup` | Identity, secret, webhook, queue, and data isolation |
+| `fireflies-observability` | Content-free metrics, traces, alerts, and audit receipts |
+| `fireflies-incident-runbook` | Containment, evidence, recovery, and post-incident controls |
+| `fireflies-data-handling` | Purpose, redaction, retention, export, and deletion propagation |
+| `fireflies-enterprise-rbac` | Roles, channels, privacy, shares, and mutation approvals |
+| `fireflies-migration-deep-dive` | Governed audio upload and live-meeting onboarding |
 
 ## Key API Details
 
@@ -65,18 +65,19 @@ Every skill uses **real Fireflies.ai GraphQL queries and mutations** -- no fake 
 | Auth | `Authorization: Bearer <API_KEY>` |
 | Protocol | GraphQL (POST only) |
 | Rate limits | Free/Pro: 50/day, Business/Enterprise: 60/min |
-| Webhook event | `Transcription completed` |
-| Webhook auth | HMAC-SHA256 via `x-hub-signature` header |
-| Supported platforms | Zoom, Google Meet, Microsoft Teams |
+| Transcript list page size | Maximum 50 |
+| Webhooks V2 events | `meeting.transcribed`, `meeting.summarized` |
+| Webhook auth | `X-Hub-Signature: sha256=<hex>` over the raw body |
+| Webhook acknowledgement | `2xx` within 10 seconds |
 
 ## Usage
 
 Skills trigger automatically when you discuss Fireflies.ai topics:
 
 - "Help me set up the Fireflies API" -- triggers `fireflies-install-auth`
-- "Fetch my recent meeting transcripts" -- triggers `fireflies-core-workflow-a`
+- "Fetch an authorized meeting transcript" -- triggers `fireflies-core-workflow-a`
 - "Search meetings for quarterly review" -- triggers `fireflies-core-workflow-b`
-- "Set up a webhook for transcript notifications" -- triggers `fireflies-webhooks-events`
+- "Set up a Webhooks V2 receiver" -- triggers `fireflies-webhooks-events`
 - "Upload a recording to Fireflies" -- triggers `fireflies-migration-deep-dive`
 - "Ask Fred about my last meeting" -- triggers `fireflies-core-workflow-b`
 

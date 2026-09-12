@@ -1,231 +1,76 @@
 ---
 name: fireflies-local-dev-loop
-description: 'Configure local development workflow for Fireflies.ai GraphQL integrations.
-
-  Use when setting up a development environment, mocking transcript data,
-
-  or establishing a fast iteration cycle with the Fireflies API.
-
-  Trigger with phrases like "fireflies dev setup", "fireflies local development",
-
-  "fireflies dev environment", "develop with fireflies", "mock fireflies".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pnpm:*), Grep
-version: 1.11.0
+description: >-
+  Build a deterministic Fireflies development loop with recorded synthetic GraphQL fixtures, schema-contract tests, and no dependency on production meeting data. Use when implementing or debugging locally. Trigger with "Fireflies local development", "mock Fireflies GraphQL", or "Fireflies test fixture".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <test-command>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- fireflies
-- testing
-- workflow
-compatibility: Designed for Claude Code
+tags: [saas, fireflies, development, testing]
+model: inherit
+effort: medium
+compatibility: "Designed for Claude Code; live Fireflies work requires network access"
 ---
-# Fireflies.ai Local Dev Loop
+# Fireflies Privacy-Safe Local Development
 
 ## Overview
 
-Set up a fast local development workflow for Fireflies.ai integrations: project structure, mock data for offline development, test helpers, and API response recording for replay.
-
-## Examples
-
-Create a fixture containing fictional speakers, an opaque meeting ID, and a short invented action item. Verify tests pass with network access disabled and that the fixture contains no real participant names, transcript text, recordings, or credentials. Store raw recordings nowhere in the repository.
+Make local work reproducible without copying real transcripts, participant lists, summaries, or bearer keys onto developer machines.
 
 ## Prerequisites
 
-- Completed `fireflies-install-auth` setup
-- Node.js 18+ with npm/pnpm
-- Vitest for testing
+- The target repository or integration path and the requested operator outcome.
+- The Fireflies principal, team, environment, and data classification for the work.
+- Current Fireflies documentation, credentials only when needed, and an accountable approver.
+
+## Current Contract
+
+Model GraphQL responses as data plus optional errors, preserve nullability, and keep separate fixtures for success, partial data, validation failure, authorization failure, rate limiting, and delayed processing.
+
+## Authentication
+
+For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret manager and send it only as `Authorization: Bearer REDACTED_KEY` to `https://api.fireflies.ai/graphql`. Never print, commit, place in a URL, forward to a browser, or include the key in evidence. Webhook signing secrets are separate credentials and must not be reused as API keys.
 
 ## Instructions
 
-### Step 1: Project Structure
+1. Map the integration's operations and selected fields before creating fixtures.
+2. Create synthetic meetings with invented IDs, speakers, sentences, summaries, and timestamps.
+3. Record the exact GraphQL envelope shape, including errors and extensions where used.
+4. Place the transport behind an injectable interface and route local tests to a deterministic mock server.
+5. Add contract tests for null fields, pagination, partial data, and redaction.
+6. Keep live tests opt-in, read-only, narrowly selected, and disabled without an explicit test key.
+7. Document how fixtures are refreshed after a reviewed schema change.
 
-```
-my-fireflies-app/
-  src/
-    lib/
-      fireflies-client.ts    # GraphQL client (see fireflies-sdk-patterns)
-      transcript-service.ts  # Business logic layer
-    types/
-      fireflies.ts           # TypeScript interfaces
-  tests/
-    fixtures/
-      transcript.json        # Recorded API responses
-    fireflies-client.test.ts
-    transcript-service.test.ts
-  .env.local                 # FIREFLIES_API_KEY (git-ignored)
-  .env.example               # Template without secrets
-```
 
-### Step 2: Record Real API Responses as Fixtures
+## Tool Discipline
 
-```typescript
-// scripts/record-fixtures.ts
-import { FirefliesClient } from "../src/lib/fireflies-client";
-import { writeFileSync, mkdirSync } from "fs";
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
 
-async function recordFixtures() {
-  const client = new FirefliesClient();
-  mkdirSync("tests/fixtures", { recursive: true });
+## Approval Boundaries
 
-  // Record user
-  const user = await client.query(`{ user { name email user_id is_admin } }`);
-  writeFileSync("tests/fixtures/user.json", JSON.stringify(user, null, 2));
-
-  // Record transcript list
-  const list = await client.query(`{
-    transcripts(limit: 3) {
-      id title date duration organizer_email
-      summary { overview action_items keywords }
-    }
-  }`);
-  writeFileSync("tests/fixtures/transcripts.json", JSON.stringify(list, null, 2));
-
-  // Record single transcript with sentences
-  const id = list.transcripts[0]?.id;
-  if (id) {
-    const full = await client.query(`
-      query($id: String!) {
-        transcript(id: $id) {
-          id title date duration
-          speakers { id name }
-          sentences { speaker_name text start_time end_time }
-          summary { overview action_items keywords }
-          analytics {
-            sentiments { positive_pct negative_pct neutral_pct }
-            speakers { name duration word_count }
-          }
-        }
-      }
-    `, { id });
-    writeFileSync("tests/fixtures/transcript-full.json", JSON.stringify(full, null, 2));
-  }
-
-  console.log("Fixtures recorded in tests/fixtures/");
-}
-
-recordFixtures().catch(console.error);
-```
-
-### Step 3: Mock Client for Tests
-
-```typescript
-// tests/helpers/mock-fireflies.ts
-import { readFileSync } from "fs";
-
-export function createMockClient() {
-  const fixtures: Record<string, any> = {};
-
-  return {
-    loadFixture(name: string) {
-      fixtures[name] = JSON.parse(
-        readFileSync(`tests/fixtures/${name}.json`, "utf-8")
-      );
-    },
-
-    async query(gql: string, variables?: Record<string, any>) {
-      // Match query to fixture by operation
-      if (gql.includes("transcripts(")) return fixtures["transcripts"];
-      if (gql.includes("transcript(id:")) return fixtures["transcript-full"];
-      if (gql.includes("user {")) return fixtures["user"];
-      throw new Error(`No fixture for query: ${gql.slice(0, 50)}`);
-    },
-  };
-}
-```
-
-### Step 4: Write Tests
-
-```typescript
-// tests/transcript-service.test.ts
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { createMockClient } from "./helpers/mock-fireflies";
-
-describe("Transcript Service", () => {
-  let mockClient: ReturnType<typeof createMockClient>;
-
-  beforeEach(() => {
-    mockClient = createMockClient();
-    mockClient.loadFixture("transcripts");
-    mockClient.loadFixture("transcript-full");
-  });
-
-  it("should list recent transcripts", async () => {
-    const data = await mockClient.query("{ transcripts(limit: 3) { id title } }");
-    expect(data.transcripts).toBeDefined();
-    expect(data.transcripts.length).toBeGreaterThan(0);
-  });
-
-  it("should fetch full transcript with sentences", async () => {
-    const data = await mockClient.query(
-      `query($id: String!) { transcript(id: $id) { sentences { text } } }`,
-      { id: "test-id" }
-    );
-    expect(data.transcript.sentences).toBeDefined();
-  });
-
-  it("should handle API errors gracefully", async () => {
-    const errorClient = {
-      query: vi.fn().mockRejectedValue(new Error("Fireflies: auth_failed")),
-    };
-    await expect(errorClient.query("{ user { email } }"))
-      .rejects.toThrow("auth_failed");
-  });
-});
-```
-
-### Step 5: Development Scripts
-
-```json
-{
-  "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "test": "vitest",
-    "test:watch": "vitest --watch",
-    "record-fixtures": "tsx scripts/record-fixtures.ts",
-    "typecheck": "tsc --noEmit"
-  }
-}
-```
-
-### Step 6: Environment Setup
-
-```bash
-set -euo pipefail
-# Create .env from template
-cp .env.example .env.local
-
-# .env.example
-echo 'FIREFLIES_API_KEY=your-key-here' > .env.example
-
-# .gitignore additions
-echo '.env.local' >> .gitignore
-echo 'tests/fixtures/*.json' >> .gitignore
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Fixture not found | Fixtures not recorded | Run `npm run record-fixtures` |
-| Auth error in tests | Using real API key in CI | Use mock client, not real API |
-| Type mismatch | API schema changed | Re-record fixtures, update types |
-| Rate limit during recording | Too many fixture requests | Record once, commit fixtures |
+Require approval before recording a live response, connecting a local process to production, or storing any real meeting-derived content.
 
 ## Output
 
-- Project structure with typed client and service layers
-- Recorded API fixtures for offline testing
-- Mock client for unit tests
-- Dev scripts with hot reload and watch mode
+Return the exact operation or event surface, environment, authorization class, selected field groups, validation results, content-free metrics, decisions, and a concise pass/fail receipt. Keep secrets and meeting-derived content out of general output.
+
+## Validation
+
+Before reporting success, rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current contract, verify no secret or meeting-derived content entered logs or artifacts, and record unresolved uncertainty explicitly.
+
+## Error Handling
+
+- Fixture drift: update only from current schema evidence and review the diff.
+- Secret appears in snapshot: stop, revoke if exposed, and remove it from history through the approved incident path.
+- Mock-only success: run the authorized read-only contract lane before release.
+
+## Examples
+
+- "Mock a completed transcript" uses invented participant and sentence data.
+- "Download one customer meeting for fixtures" is rejected.
+
 
 ## Resources
 
-- [Vitest Documentation](https://vitest.dev/)
-- [Fireflies API Docs](https://docs.fireflies.ai/)
-
-## Next Steps
-
-See `fireflies-sdk-patterns` for production-ready client patterns.
+Read [official Fireflies.ai evidence](references/official-docs.md) before relying on a field, filter, event, permission, plan limit, mutation, or processing state.

@@ -1,238 +1,76 @@
 ---
 name: fireflies-deploy-integration
-description: 'Deploy Fireflies.ai webhook receivers and GraphQL clients to Vercel,
-  Docker, and Cloud Run.
-
-  Use when deploying Fireflies.ai-powered applications to production,
-
-  configuring platform-specific secrets, or hosting webhook endpoints.
-
-  Trigger with phrases like "deploy fireflies", "fireflies Vercel",
-
-  "fireflies production deploy", "fireflies Cloud Run", "fireflies Docker".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(docker:*), Bash(gcloud:*)
-version: 1.11.0
+description: >-
+  Deploy a Fireflies GraphQL worker or Webhooks V2 receiver with managed secrets, raw-body verification, bounded queues, and reversible rollout. Use when shipping to a hosted runtime. Trigger with "deploy Fireflies integration", "host Fireflies webhook", or "Fireflies deployment".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <workflow-scope>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- fireflies
-- deployment
-compatibility: Designed for Claude Code
+tags: [saas, fireflies, deployment, webhooks]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Fireflies work requires network access"
 ---
-# Fireflies.ai Deploy Integration
+# Fireflies Deployment and Webhook Boundary
 
 ## Overview
 
-Deploy Fireflies.ai integrations across platforms. Covers GraphQL client setup, webhook receiver deployment, and secret management for Vercel, Docker, and Google Cloud Run.
-
-## Examples
-
-Deploy a staging receiver using platform-injected scoped secrets and a synthetic signed event. Verify that health responses contain no transcript data, a bad signature is rejected, and a failed canary can be rolled back before any production transcript destination is enabled.
+Deploy a Fireflies GraphQL worker or Webhooks V2 receiver with managed secrets, raw-body verification, bounded queues, and reversible rollout.
 
 ## Prerequisites
 
-- Fireflies.ai Business+ plan for API access
-- `FIREFLIES_API_KEY` and `FIREFLIES_WEBHOOK_SECRET` ready
-- Platform CLI installed (vercel, docker, or gcloud)
+- The target repository or integration path and the requested operator outcome.
+- The Fireflies principal, team, environment, and data classification for the work.
+- Current Fireflies documentation, credentials only when needed, and an accountable approver.
+
+## Current Contract
+
+Outbound GraphQL needs a server-side bearer key. Inbound Webhooks V2 needs HTTPS, optional but strongly recommended signing-secret verification over the raw body, a 2xx response within 10 seconds, and durable asynchronous work after acknowledgement.
+
+## Authentication
+
+For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret manager and send it only as `Authorization: Bearer REDACTED_KEY` to `https://api.fireflies.ai/graphql`. Never print, commit, place in a URL, forward to a browser, or include the key in evidence. Webhook signing secrets are separate credentials and must not be reused as API keys.
 
 ## Instructions
 
-### Step 1: Shared GraphQL Client
+1. Define the exact runtime, regions, data boundary, operations, events, and owners.
+2. Provision separate API and webhook secrets through the platform secret manager.
+3. Preserve raw request bytes until HMAC verification and parse only after success.
+4. Acknowledge valid events within 10 seconds and enqueue idempotent downstream work.
+5. Set timeouts, concurrency, quotas, dead-letter handling, and content-free logs.
+6. Roll out to staging with synthetic events, then canary production traffic.
+7. Verify disablement, secret rotation, queue drain, and rollback receipts.
 
-```typescript
-// lib/fireflies.ts
-const FIREFLIES_API = "https://api.fireflies.ai/graphql";
 
-export async function firefliesQuery(query: string, variables?: any) {
-  const res = await fetch(FIREFLIES_API, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.FIREFLIES_API_KEY}`,
-    },
-    body: JSON.stringify({ query, variables }),
-  });
+## Tool Discipline
 
-  const json = await res.json();
-  if (json.errors) throw new Error(json.errors[0].message);
-  return json.data;
-}
-```
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
 
-### Step 2: Webhook Receiver (Next.js / Vercel)
+## Approval Boundaries
 
-```typescript
-// app/api/webhooks/fireflies/route.ts
-import crypto from "crypto";
-
-export async function POST(req: Request) {
-  const rawBody = await req.text();
-  const signature = req.headers.get("x-hub-signature") || "";
-
-  // Verify HMAC-SHA256 signature
-  const expected = crypto
-    .createHmac("sha256", process.env.FIREFLIES_WEBHOOK_SECRET!)
-    .update(rawBody)
-    .digest("hex");
-
-  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
-    return Response.json({ error: "Invalid signature" }, { status: 401 });
-  }
-
-  const event = JSON.parse(rawBody);
-
-  if (event.eventType === "Transcription completed") {
-    // Fetch transcript data
-    const data = await firefliesQuery(`
-      query($id: String!) {
-        transcript(id: $id) {
-          id title duration
-          speakers { name }
-          summary { overview action_items }
-        }
-      }
-    `, { id: event.meetingId });
-
-    // Process transcript (store, notify, create tasks)
-    console.log(`Processed: ${data.transcript.title}`);
-  }
-
-  return Response.json({ received: true });
-}
-```
-
-### Step 3: Deploy to Vercel
-
-```bash
-set -euo pipefail
-# Add secrets
-vercel env add FIREFLIES_API_KEY production
-vercel env add FIREFLIES_WEBHOOK_SECRET production
-
-# Deploy
-vercel --prod
-
-# Register webhook URL in Fireflies dashboard:
-# https://your-app.vercel.app/api/webhooks/fireflies
-```
-
-### Step 4: Deploy with Docker
-
-```dockerfile
-FROM node:20-slim
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-RUN npm run build
-EXPOSE 3000
-CMD ["node", "dist/index.js"]
-```
-
-```yaml
-# docker-compose.yml
-services:
-  fireflies-app:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - FIREFLIES_API_KEY=${FIREFLIES_API_KEY}
-      - FIREFLIES_WEBHOOK_SECRET=${FIREFLIES_WEBHOOK_SECRET}
-    restart: unless-stopped
-```
-
-```bash
-set -euo pipefail
-docker compose up -d
-# Verify
-curl -f http://localhost:3000/api/health | jq .
-```
-
-### Step 5: Deploy to Google Cloud Run
-
-```bash
-set -euo pipefail
-# Build and push
-gcloud builds submit --tag gcr.io/$PROJECT_ID/fireflies-app
-
-# Deploy
-gcloud run deploy fireflies-app \
-  --image gcr.io/$PROJECT_ID/fireflies-app \
-  --platform managed \
-  --allow-unauthenticated \
-  --set-env-vars "FIREFLIES_WEBHOOK_SECRET=${FIREFLIES_WEBHOOK_SECRET}" \
-  --set-secrets "FIREFLIES_API_KEY=fireflies-api-key:latest"
-
-# Get URL for webhook registration
-gcloud run services describe fireflies-app --format='value(status.url)'
-```
-
-### Step 6: Health Check Endpoint
-
-```typescript
-// app/api/health/route.ts (or /health endpoint)
-export async function GET() {
-  try {
-    const start = Date.now();
-    const data = await firefliesQuery("{ user { email } }");
-    return Response.json({
-      status: "healthy",
-      fireflies: {
-        connected: true,
-        user: data.user.email,
-        latencyMs: Date.now() - start,
-      },
-    });
-  } catch (err) {
-    return Response.json({
-      status: "degraded",
-      fireflies: { connected: false, error: (err as Error).message },
-    }, { status: 503 });
-  }
-}
-```
-
-## Post-Deploy: Register Webhook
-
-After deploying, register your webhook URL:
-
-1. Go to [app.fireflies.ai/settings](https://app.fireflies.ai/settings) > Developer settings
-2. Enter your webhook URL (e.g., `https://your-app.vercel.app/api/webhooks/fireflies`)
-3. Save the webhook secret
-
-Or test via API:
-
-```bash
-set -euo pipefail
-# Test API connectivity from deployed app
-curl -f https://your-app.vercel.app/api/health | jq .
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| GraphQL auth error | API key not set in platform | Add secret via platform CLI |
-| Webhook 401 | Secret mismatch | Verify secret matches dashboard |
-| Cold start timeout | Serverless cold start + API latency | Increase function timeout to 30s |
-| No webhook events | URL not registered | Register at app.fireflies.ai/settings |
+Require approval before production deployment, DNS or webhook endpoint changes, secret rotation, event subscription changes, or replaying dead-lettered content.
 
 ## Output
 
-- Deployed webhook receiver with HMAC signature verification
-- GraphQL client configured with platform-specific secrets
-- Health check endpoint monitoring Fireflies connectivity
-- Platform-specific deployment verified
+Return the exact operation or event surface, environment, authorization class, selected field groups, validation results, content-free metrics, decisions, and a concise pass/fail receipt. Keep secrets and meeting-derived content out of general output.
+
+## Validation
+
+Before reporting success, rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current contract, verify no secret or meeting-derived content entered logs or artifacts, and record unresolved uncertainty explicitly.
+
+## Error Handling
+
+- Signature unavailable or invalid: reject rather than processing optimistically.
+- Acknowledgement exceeds 10 seconds: move work behind the queue.
+- Rollback leaves queued jobs active: pause consumers and reconcile safely.
+
+## Examples
+
+- "Review fireflies deployment and webhook boundary" produces a bounded plan and redacted receipt.
+- A request that widens access or mutates production is paused at the approval boundary.
+
 
 ## Resources
 
-- [Fireflies API Docs](https://docs.fireflies.ai/)
-- [Fireflies Webhooks](https://docs.fireflies.ai/graphql-api/webhooks)
-
-## Next Steps
-
-For webhook event handling, see `fireflies-webhooks-events`.
+Read [official Fireflies.ai evidence](references/official-docs.md) before relying on a field, filter, event, permission, plan limit, mutation, or processing state.

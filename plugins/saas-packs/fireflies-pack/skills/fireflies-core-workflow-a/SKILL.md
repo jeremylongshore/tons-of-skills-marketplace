@@ -1,256 +1,76 @@
 ---
 name: fireflies-core-workflow-a
-description: 'Retrieve and process Fireflies.ai meeting transcripts with speaker diarization
-  and summaries.
-
-  Use when fetching transcripts, extracting action items,
-
-  or building meeting intelligence pipelines.
-
-  Trigger with phrases like "fireflies transcript", "get meeting notes",
-
-  "fireflies meeting data", "fetch fireflies recording".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.11.0
+description: >-
+  Analyze and retrieve an authorized Fireflies transcript with minimal fields, explicit ownership checks, pagination awareness, and safe handling of sentences and summaries. Use when integrating meeting records. Trigger with "fetch Fireflies transcript", "read meeting summary", or "Fireflies transcript fields".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <transcript-id>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- fireflies
-- workflow
-- transcripts
-compatibility: Designed for Claude Code
+tags: [saas, fireflies, transcripts, privacy]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Fireflies work requires network access"
 ---
-# Fireflies.ai Core Workflow A -- Transcript Retrieval & Processing
+# Fireflies Transcript Retrieval Boundary
 
 ## Overview
 
-Primary workflow for Fireflies.ai: fetch meeting transcripts via GraphQL, process speaker-diarized sentences, extract action items and summaries, and route meeting intelligence downstream.
-
-## Examples
-
-In staging, process a synthetic transcript with fictional speakers and route only approved action-item fields to a test destination. Confirm that raw transcript text stays in the authorized system, downstream delivery is idempotent, and deleting the test record removes access according to the retention policy.
+Treat a transcript as sensitive meeting data. Separate metadata, summary, sentences, analytics, media links, attendance, and sharing fields so callers receive only what their use case permits.
 
 ## Prerequisites
 
-- Completed `fireflies-install-auth` setup
-- `FIREFLIES_API_KEY` set with Business+ plan for full access
-- At least one completed meeting in Fireflies
+- The target repository or integration path and the requested operator outcome.
+- The Fireflies principal, team, environment, and data classification for the work.
+- Current Fireflies documentation, credentials only when needed, and an accountable approver.
+
+## Current Contract
+
+Use transcript(id: String!) for one record. Meeting ID and transcript ID refer to the same platform identity. Selected fields have different sensitivity and entitlement requirements; analytics requires an eligible plan, and is_live changes whether sentences are live captions or processed transcript data.
+
+## Authentication
+
+For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret manager and send it only as `Authorization: Bearer REDACTED_KEY` to `https://api.fireflies.ai/graphql`. Never print, commit, place in a URL, forward to a browser, or include the key in evidence. Webhook signing secrets are separate credentials and must not be reused as API keys.
 
 ## Instructions
 
-### Step 1: Build the GraphQL Client
+1. Confirm the requesting principal may access the target transcript and state the business purpose.
+2. Classify each requested field and remove participants, sentences, media URLs, or analytics unless necessary.
+3. Send a named transcript query with the ID as a variable.
+4. Reject object_not_found as either absence or inaccessible data without probing other IDs.
+5. Validate the returned ID, processing status, nullability, and expected organizer or ownership metadata.
+6. Route content through the approved redaction and retention boundary before downstream use.
+7. Return a receipt with selected field groups and record count, never the meeting body.
 
-```typescript
-// lib/fireflies.ts
-const FIREFLIES_API = "https://api.fireflies.ai/graphql";
 
-export async function firefliesQuery<T = any>(
-  query: string,
-  variables?: Record<string, any>
-): Promise<T> {
-  const res = await fetch(FIREFLIES_API, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.FIREFLIES_API_KEY}`,
-    },
-    body: JSON.stringify({ query, variables }),
-  });
+## Tool Discipline
 
-  const json = await res.json();
-  if (json.errors) {
-    const err = json.errors[0];
-    throw new Error(`Fireflies API error: ${err.message} (${err.code || "unknown"})`);
-  }
-  return json.data;
-}
-```
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
 
-### Step 2: List Transcripts with Filters
+## Approval Boundaries
 
-```typescript
-const LIST_TRANSCRIPTS = `
-  query ListTranscripts(
-    $limit: Int,
-    $mine: Boolean,
-    $fromDate: DateTime,
-    $toDate: DateTime,
-    $organizers: [String],
-    $participants: [String]
-  ) {
-    transcripts(
-      limit: $limit
-      mine: $mine
-      fromDate: $fromDate
-      toDate: $toDate
-      organizers: $organizers
-      participants: $participants
-    ) {
-      id title date duration
-      organizer_email participants
-      summary { overview action_items keywords }
-    }
-  }
-`;
-
-// Fetch this week's meetings for a specific organizer
-const data = await firefliesQuery(LIST_TRANSCRIPTS, {
-  limit: 20,
-  fromDate: "2026-03-15T00:00:00Z",
-  organizers: ["alice@company.com"],
-});
-```
-
-### Step 3: Fetch Full Transcript with Sentences
-
-```typescript
-const GET_TRANSCRIPT = `
-  query GetTranscript($id: String!) {
-    transcript(id: $id) {
-      id title date duration
-      organizer_email
-      speakers { id name }
-      sentences {
-        index
-        speaker_name
-        speaker_id
-        text
-        raw_text
-        start_time
-        end_time
-        ai_filters {
-          task
-          question
-          sentiment
-          pricing
-          metric
-          date_and_time
-        }
-      }
-      summary {
-        overview
-        short_summary
-        bullet_gist
-        action_items
-        keywords
-        outline
-        topics_discussed
-      }
-      meeting_attendees { displayName email }
-      meeting_attendance { name join_time leave_time }
-      analytics {
-        sentiments { positive_pct negative_pct neutral_pct }
-        speakers {
-          name duration word_count
-          words_per_minute questions
-          longest_monologue filler_words
-        }
-      }
-    }
-  }
-`;
-
-const { transcript } = await firefliesQuery(GET_TRANSCRIPT, { id: "abc123" });
-```
-
-### Step 4: Process Meeting Intelligence
-
-```typescript
-interface MeetingIntelligence {
-  id: string;
-  title: string;
-  attendees: string[];
-  actionItems: string[];
-  keyTopics: string[];
-  speakerBreakdown: { name: string; minutes: number; wordCount: number }[];
-  sentiment: { positive: number; negative: number; neutral: number };
-  questions: string[];
-}
-
-function processMeeting(transcript: any): MeetingIntelligence {
-  // Extract questions from AI filters
-  const questions = transcript.sentences
-    .filter((s: any) => s.ai_filters?.question)
-    .map((s: any) => `${s.speaker_name}: ${s.text}`);
-
-  return {
-    id: transcript.id,
-    title: transcript.title,
-    attendees: transcript.meeting_attendees?.map((a: any) => a.email) || [],
-    actionItems: transcript.summary?.action_items || [],
-    keyTopics: transcript.summary?.keywords || [],
-    speakerBreakdown: (transcript.analytics?.speakers || []).map((s: any) => ({
-      name: s.name,
-      minutes: Math.round(s.duration / 60),
-      wordCount: s.word_count,
-    })),
-    sentiment: {
-      positive: transcript.analytics?.sentiments?.positive_pct || 0,
-      negative: transcript.analytics?.sentiments?.negative_pct || 0,
-      neutral: transcript.analytics?.sentiments?.neutral_pct || 0,
-    },
-    questions,
-  };
-}
-```
-
-### Step 5: Export Transcript as Text
-
-```typescript
-function transcriptToText(transcript: any): string {
-  const lines: string[] = [
-    `# ${transcript.title}`,
-    `Date: ${transcript.date} | Duration: ${transcript.duration}min`,
-    `Speakers: ${transcript.speakers.map((s: any) => s.name).join(", ")}`,
-    "",
-    "## Summary",
-    transcript.summary?.overview || "(no summary)",
-    "",
-    "## Action Items",
-    ...(transcript.summary?.action_items || []).map((a: string) => `- ${a}`),
-    "",
-    "## Transcript",
-  ];
-
-  for (const s of transcript.sentences) {
-    const timestamp = formatTimestamp(s.start_time);
-    lines.push(`[${timestamp}] ${s.speaker_name}: ${s.text}`);
-  }
-  return lines.join("\n");
-}
-
-function formatTimestamp(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60);
-  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-}
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `auth_failed` | Invalid API key | Regenerate in Fireflies dashboard |
-| Empty `sentences` array | Transcript still processing | Check `meeting_info.summary_status` |
-| `null` summary | Short meeting (<1 min) | Summary requires minimum content |
-| Rate limit 429 | Over 60 req/min (Business) | Implement backoff per `fireflies-rate-limits` |
-| Missing `analytics` | Free/Pro plan | Analytics requires Business+ plan |
+Require approval before retrieving sentences, raw_text, audio_url, video_url, participant identifiers, attendance, analytics, or externally shared access.
 
 ## Output
 
-- Full transcript with speaker-diarized sentences and timestamps
-- AI-generated summary, action items, and keywords
-- Speaker analytics with talk time, word count, and sentiment
-- Meeting intelligence object ready for downstream processing
+Return the exact operation or event surface, environment, authorization class, selected field groups, validation results, content-free metrics, decisions, and a concise pass/fail receipt. Keep secrets and meeting-derived content out of general output.
+
+## Validation
+
+Before reporting success, rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current contract, verify no secret or meeting-derived content entered logs or artifacts, and record unresolved uncertainty explicitly.
+
+## Error Handling
+
+- object_not_found: do not enumerate adjacent IDs; verify authorization and the supplied ID.
+- Summary is null: inspect processing state and wait rather than fabricating a result.
+- is_live is true: do not treat captions as a finalized transcript.
+
+## Examples
+
+- "Read the title and summary status" requests only those fields.
+- "Export every sentence to logs" is rejected.
+
 
 ## Resources
 
-- [Transcript Query](https://docs.fireflies.ai/graphql-api/query/transcript)
-- [Fireflies API Concepts](https://docs.fireflies.ai/fundamentals/concepts)
-
-## Next Steps
-
-For search, analytics, and AskFred, see `fireflies-core-workflow-b`.
+Read [official Fireflies.ai evidence](references/official-docs.md) before relying on a field, filter, event, permission, plan limit, mutation, or processing state.

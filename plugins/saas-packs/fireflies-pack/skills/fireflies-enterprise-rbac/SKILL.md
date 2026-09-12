@@ -1,246 +1,76 @@
 ---
 name: fireflies-enterprise-rbac
-description: 'Configure Fireflies.ai workspace roles, channels, privacy controls,
-  and meeting sharing.
-
-  Use when managing team access, setting up channels,
-
-  or configuring transcript visibility and sharing rules.
-
-  Trigger with phrases like "fireflies roles", "fireflies permissions",
-
-  "fireflies channels", "fireflies privacy", "fireflies sharing", "fireflies RBAC".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*)
-version: 1.11.0
+description: >-
+  Govern Fireflies team roles, channels, privacy, sharing, and privileged mutations with current permission and rate-limit checks. Use when performing enterprise administration or access review. Trigger with "Fireflies RBAC", "Fireflies admin", or "change meeting access".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <workflow-scope>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- fireflies
-- rbac
-compatibility: Designed for Claude Code
+tags: [saas, fireflies, rbac, enterprise]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Fireflies work requires network access"
 ---
-# Fireflies.ai Enterprise RBAC
+# Fireflies Team Access and Privileged Mutations
 
 ## Overview
 
-Manage workspace access control in Fireflies.ai using roles, channels, privacy levels, and the sharing API. Fireflies uses per-seat licensing with workspace roles and channel-based transcript organization.
-
-## Examples
-
-Create a test channel containing a fictional meeting, grant a temporary least-privilege role, and verify it can access only that channel. Remove the role and confirm access is revoked; record the review outcome without storing participant or transcript data.
+Govern Fireflies team roles, channels, privacy, sharing, and privileged mutations with current permission and rate-limit checks.
 
 ## Prerequisites
 
-- Fireflies Business or Enterprise plan
-- Workspace admin privileges (or API key from admin account)
-- Understanding of your team structure
+- The target repository or integration path and the requested operator outcome.
+- The Fireflies principal, team, environment, and data classification for the work.
+- Current Fireflies documentation, credentials only when needed, and an accountable approver.
 
-## Workspace Roles
+## Current Contract
 
-| Role | Capabilities |
-|------|-------------|
-| Admin | Full workspace control, manage members, access all transcripts |
-| Member | Record meetings, view own + shared transcripts |
-| Guest | View shared transcripts only (may not consume a seat) |
+setUserRole accepts admin or user and requires admin authority while preserving at least one admin. Private channels are visible only to members. Privacy values include link, owner, participants, teammatesandparticipants, and teammates. Meeting owners or same-team admins control supported privacy, sharing, and channel mutations.
+
+## Authentication
+
+For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret manager and send it only as `Authorization: Bearer REDACTED_KEY` to `https://api.fireflies.ai/graphql`. Never print, commit, place in a URL, forward to a browser, or include the key in evidence. Webhook signing secrets are separate credentials and must not be reused as API keys.
 
 ## Instructions
 
-### Step 1: List Workspace Members
+1. Inventory the acting principal, target users or meetings, current roles, channels, privacy, and shares.
+2. Separate read-only access review from mutation planning.
+3. Validate least privilege, ownership, same-team constraints, and the remaining-admin invariant.
+4. Preview exact role, privacy, share, revoke, or channel changes with affected identities through a restricted channel.
+5. Obtain accountable approval and execute one bounded mutation batch.
+6. For updateMeetingChannel, enforce 1–5 transcript IDs and its all-or-nothing behavior.
+7. Re-query safe state, record a redacted receipt, and define rollback where the API supports it.
 
-```bash
-set -euo pipefail
-curl -s -X POST https://api.fireflies.ai/graphql \
-  -H "Authorization: Bearer $FIREFLIES_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "{ users { name email user_id is_admin num_transcripts } }"}' \
-  | jq '.data.users[] | {name, email, admin: .is_admin, transcripts: .num_transcripts}'
-```
 
-### Step 2: Set User Roles via API
+## Tool Discipline
 
-```typescript
-// Promote or change a user's role
-async function setUserRole(userId: string, role: string) {
-  return firefliesQuery(`
-    mutation($userId: String!, $role: String!) {
-      setUserRole(user_id: $userId, role: $role)
-    }
-  `, { userId, role });
-}
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
 
-// Usage: setUserRole("user-id-123", "admin")
-```
+## Approval Boundaries
 
-### Step 3: Organize Transcripts with Channels
-
-```typescript
-// List all channels
-const channels = await firefliesQuery(`{
-  channels {
-    id
-    title
-    is_private
-    created_by
-    members { user_id email name }
-  }
-}`);
-
-// Move transcripts to a channel
-async function assignToChannel(transcriptIds: string[], channelId: string) {
-  return firefliesQuery(`
-    mutation($ids: [String!]!, $channelId: String!) {
-      updateMeetingChannel(transcript_ids: $ids, channel_id: $channelId)
-    }
-  `, { ids: transcriptIds, channelId });
-}
-```
-
-Organize by department:
-
-- **Sales** channel: All client/prospect calls
-- **Engineering** channel: Sprint reviews, architecture discussions
-- **Leadership** channel (private): Board meetings, strategy sessions
-
-### Step 4: Control Transcript Privacy
-
-```typescript
-// Privacy levels (most restrictive to least)
-type PrivacyLevel =
-  | "owner"                    // Only meeting organizer
-  | "participants"             // Only meeting participants
-  | "teammatesandparticipants" // Workspace members + participants
-  | "teammates"               // All workspace members
-  | "link";                    // Anyone with the link
-
-async function setTranscriptPrivacy(transcriptId: string, privacy: PrivacyLevel) {
-  return firefliesQuery(`
-    mutation($id: String!, $privacy: String!) {
-      updateMeetingPrivacy(transcript_id: $id, privacy_level: $privacy)
-    }
-  `, { id: transcriptId, privacy });
-}
-
-// Default new transcripts to participants-only
-await setTranscriptPrivacy("transcript-id", "participants");
-```
-
-### Step 5: Share Meetings with External Users
-
-```typescript
-// Share a transcript with up to 100 email recipients
-async function shareMeeting(transcriptId: string, emails: string[], expiryDays = 30) {
-  return firefliesQuery(`
-    mutation($id: String!, $emails: [String!]!, $expiry: Int) {
-      shareMeeting(transcript_id: $id, emails: $emails, expiry_days: $expiry)
-    }
-  `, { id: transcriptId, emails, expiry: expiryDays });
-}
-
-// Revoke access
-async function revokeAccess(transcriptId: string, email: string) {
-  return firefliesQuery(`
-    mutation($id: String!, $email: String!) {
-      revokeSharedMeetingAccess(transcript_id: $id, email: $email)
-    }
-  `, { id: transcriptId, email });
-}
-
-// Rate limit: 10 share operations per hour, up to 50 emails each
-```
-
-### Step 6: User Groups for Bulk Access
-
-```typescript
-// List user groups
-const groups = await firefliesQuery(`
-  query($mine: Boolean) {
-    user_groups(mine: $mine) {
-      id name
-      members { user_id email name }
-      created_at
-    }
-  }
-`, { mine: false });
-
-// Use groups to manage channel membership in bulk
-```
-
-### Step 7: Audit Transcript Access
-
-```typescript
-async function auditTranscriptAccess(transcriptId: string) {
-  const { transcript } = await firefliesQuery(`
-    query($id: String!) {
-      transcript(id: $id) {
-        id title
-        privacy
-        organizer_email
-        shared_with
-        channels { id }
-        workspace_users
-      }
-    }
-  `, { id: transcriptId });
-
-  console.log(`Transcript: ${transcript.title}`);
-  console.log(`Privacy: ${transcript.privacy}`);
-  console.log(`Owner: ${transcript.organizer_email}`);
-  console.log(`Shared with: ${transcript.shared_with?.join(", ") || "none"}`);
-  console.log(`Channels: ${transcript.channels?.map((c: any) => c.id).join(", ") || "none"}`);
-  console.log(`Workspace users: ${transcript.workspace_users?.join(", ") || "none"}`);
-
-  return transcript;
-}
-```
-
-## Recommended Enterprise Configuration
-
-```yaml
-privacy_defaults:
-  internal_meetings: "teammatesandparticipants"
-  external_meetings: "participants"
-  leadership_meetings: "owner"
-
-channel_structure:
-  - name: "Sales"
-    private: false
-    auto_assign: "meetings with external participants"
-  - name: "Engineering"
-    private: false
-    auto_assign: "meetings with 'sprint' or 'standup' in title"
-  - name: "Leadership"
-    private: true
-    members: "C-suite + VPs only"
-
-sharing_policy:
-  max_expiry_days: 30
-  require_approval: true  # For external sharing
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Cannot set role | Not workspace admin | Use admin API key |
-| Channel not found | Invalid channel ID | List channels first |
-| Share rate limited | 10/hour limit | Queue share operations |
-| Privacy update fails | Transcript not owned | Only organizer can change privacy |
+Require approval before every role, channel, privacy, sharing, or revocation mutation; public-link privacy requires explicit data-owner approval.
 
 ## Output
 
-- Workspace members audited with roles and utilization
-- Channels created for department-based transcript organization
-- Privacy levels configured per meeting type
-- Sharing controls with expiry and revocation
+Return the exact operation or event surface, environment, authorization class, selected field groups, validation results, content-free metrics, decisions, and a concise pass/fail receipt. Keep secrets and meeting-derived content out of general output.
+
+## Validation
+
+Before reporting success, rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current contract, verify no secret or meeting-derived content entered logs or artifacts, and record unresolved uncertainty explicitly.
+
+## Error Handling
+
+- require_elevated_privilege: stop instead of switching to a broader key.
+- admin_must_exist: preserve at least one administrator.
+- Batch channel update fails: treat the whole 1–5 item batch as unchanged and reconcile.
+
+## Examples
+
+- "Review fireflies team access and privileged mutations" produces a bounded plan and redacted receipt.
+- A request that widens access or mutates production is paused at the approval boundary.
+
 
 ## Resources
 
-- [Fireflies API Docs](https://docs.fireflies.ai/)
-- [User Query](https://docs.fireflies.ai/graphql-api/query/user)
-
-## Next Steps
-
-For migration strategies, see `fireflies-migration-deep-dive`.
+Read [official Fireflies.ai evidence](references/official-docs.md) before relying on a field, filter, event, permission, plan limit, mutation, or processing state.

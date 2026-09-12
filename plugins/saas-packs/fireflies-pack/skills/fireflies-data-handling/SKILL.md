@@ -1,305 +1,76 @@
 ---
 name: fireflies-data-handling
-description: 'Handle Fireflies.ai transcript data: export formats, PII redaction,
-  retention policies, and compliance.
-
-  Use when exporting transcripts, implementing data redaction,
-
-  configuring retention, or ensuring GDPR/CCPA compliance.
-
-  Trigger with phrases like "fireflies data", "fireflies PII",
-
-  "fireflies GDPR", "fireflies data retention", "fireflies privacy", "fireflies export".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
+description: >-
+  Audit and govern Fireflies transcripts, summaries, participant data, media links, AskFred output, exports, retention, redaction, and deletion propagation. Use when performing privacy, compliance, or downstream data design. Trigger with "Fireflies data handling", "export Fireflies transcript", or "delete Fireflies data".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <workflow-scope>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- fireflies
-- compliance
-compatibility: Designed for Claude Code
+tags: [saas, fireflies, data-governance, privacy]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Fireflies work requires network access"
 ---
-# Fireflies.ai Data Handling
+# Fireflies Meeting Data Governance
 
 ## Overview
 
-Manage meeting transcript data: export in multiple formats (JSON, text, SRT), redact PII from transcripts and summaries, implement retention policies with automated cleanup, and handle GDPR/CCPA data subject requests.
-
-## Examples
-
-Use a fictional transcript to test redaction and retention logic. Confirm that the export is restricted to an approved test destination, logs contain only aggregate counts, and deleting the record removes both the raw and derived test artifacts according to the configured policy.
+Govern Fireflies transcripts, summaries, participant data, media links, AskFred output, exports, retention, redaction, and deletion propagation.
 
 ## Prerequisites
 
-- `FIREFLIES_API_KEY` configured
-- Understanding of transcript data structure (sentences, summary, analytics)
-- Storage for processed transcripts
+- The target repository or integration path and the requested operator outcome.
+- The Fireflies principal, team, environment, and data classification for the work.
+- Current Fireflies documentation, credentials only when needed, and an accountable approver.
+
+## Current Contract
+
+Classify metadata, participants, attendance, sentences, raw_text, summaries, analytics, audio/video URLs, sharing records, webhook payloads, and AskFred answers separately. API access does not override consent, purpose limitation, retention, legal hold, or downstream deletion obligations.
+
+## Authentication
+
+For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret manager and send it only as `Authorization: Bearer REDACTED_KEY` to `https://api.fireflies.ai/graphql`. Never print, commit, place in a URL, forward to a browser, or include the key in evidence. Webhook signing secrets are separate credentials and must not be reused as API keys.
 
 ## Instructions
 
-### Step 1: Fetch Transcript Data
+1. Define the authorized purpose, cohort, fields, recipients, region, retention, and deletion owner.
+2. Minimize GraphQL selections and avoid media URLs unless the workflow requires them.
+3. Apply deterministic redaction before storage or model use and retain provenance.
+4. Encrypt approved stores, separate tenants, and restrict search and export paths.
+5. Track copies and derived outputs, including AskFred answers and downstream CRM records.
+6. Process access or deletion requests through verified identities and legal-hold checks.
+7. Verify deletion propagation and retain only a content-free compliance receipt.
 
-```typescript
-const FIREFLIES_API = "https://api.fireflies.ai/graphql";
 
-async function getFullTranscript(id: string) {
-  const res = await fetch(FIREFLIES_API, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.FIREFLIES_API_KEY}`,
-    },
-    body: JSON.stringify({
-      query: `
-        query($id: String!) {
-          transcript(id: $id) {
-            id title date duration
-            organizer_email
-            speakers { id name }
-            sentences { speaker_name text start_time end_time }
-            summary { overview action_items keywords short_summary }
-            meeting_attendees { displayName email }
-          }
-        }
-      `,
-      variables: { id },
-    }),
-  });
-  const json = await res.json();
-  if (json.errors) throw new Error(json.errors[0].message);
-  return json.data.transcript;
-}
-```
+## Tool Discipline
 
-### Step 2: Export in Multiple Formats
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
 
-```typescript
-type ExportFormat = "json" | "text" | "srt" | "csv";
+## Approval Boundaries
 
-function exportTranscript(transcript: any, format: ExportFormat): string {
-  switch (format) {
-    case "json":
-      return JSON.stringify(transcript, null, 2);
-
-    case "text":
-      const lines = [
-        `# ${transcript.title}`,
-        `Date: ${transcript.date} | Duration: ${transcript.duration}min`,
-        `Speakers: ${transcript.speakers.map((s: any) => s.name).join(", ")}`,
-        "",
-        "## Summary",
-        transcript.summary?.overview || "(none)",
-        "",
-        "## Action Items",
-        ...(transcript.summary?.action_items || []).map((a: string) => `- ${a}`),
-        "",
-        "## Transcript",
-        ...transcript.sentences.map((s: any) =>
-          `[${fmtTime(s.start_time)}] ${s.speaker_name}: ${s.text}`
-        ),
-      ];
-      return lines.join("\n");
-
-    case "srt":
-      return transcript.sentences.map((s: any, i: number) =>
-        [
-          i + 1,
-          `${fmtSrt(s.start_time)} --> ${fmtSrt(s.end_time)}`,
-          `${s.speaker_name}: ${s.text}`,
-          "",
-        ].join("\n")
-      ).join("\n");
-
-    case "csv":
-      const header = "start_time,end_time,speaker,text";
-      const rows = transcript.sentences.map((s: any) =>
-        `${s.start_time},${s.end_time},"${s.speaker_name}","${s.text.replace(/"/g, '""')}"`
-      );
-      return [header, ...rows].join("\n");
-  }
-}
-
-function fmtTime(sec: number): string {
-  const m = Math.floor(sec / 60);
-  const s = Math.floor(sec % 60);
-  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-}
-
-function fmtSrt(sec: number): string {
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
-  const s = Math.floor(sec % 60);
-  const ms = Math.floor((sec % 1) * 1000);
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")},${String(ms).padStart(3, "0")}`;
-}
-```
-
-### Step 3: PII Redaction
-
-```typescript
-const PII_PATTERNS = [
-  { regex: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, tag: "[EMAIL]" },
-  { regex: /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/g, tag: "[PHONE]" },
-  { regex: /\b\d{3}-\d{2}-\d{4}\b/g, tag: "[SSN]" },
-  { regex: /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/g, tag: "[CARD]" },
-  { regex: /\b\d{1,5}\s+\w+\s+(Street|St|Avenue|Ave|Road|Rd|Drive|Dr|Lane|Ln)\b/gi, tag: "[ADDRESS]" },
-];
-
-function redactText(text: string): string {
-  let result = text;
-  for (const { regex, tag } of PII_PATTERNS) {
-    result = result.replace(regex, tag);
-  }
-  return result;
-}
-
-function redactTranscript(transcript: any): any {
-  return {
-    ...transcript,
-    // Redact organizer email
-    organizer_email: redactText(transcript.organizer_email || ""),
-    // Redact sentences
-    sentences: transcript.sentences?.map((s: any) => ({
-      ...s,
-      text: redactText(s.text),
-      speaker_name: s.speaker_name, // Keep speaker names for context
-    })),
-    // Redact summary fields too
-    summary: transcript.summary ? {
-      ...transcript.summary,
-      overview: redactText(transcript.summary.overview || ""),
-      action_items: transcript.summary.action_items?.map(redactText),
-      short_summary: redactText(transcript.summary.short_summary || ""),
-    } : null,
-    // Redact attendee info
-    meeting_attendees: transcript.meeting_attendees?.map((a: any) => ({
-      displayName: a.displayName,
-      email: redactText(a.email || ""),
-    })),
-  };
-}
-```
-
-### Step 4: Retention Policy with Automated Cleanup
-
-```typescript
-interface RetentionPolicy {
-  fullTranscriptDays: number;   // Keep full sentences
-  summaryDays: number;          // Keep summary after transcript deleted
-  deleteAfterDays: number;      // Delete everything
-}
-
-const DEFAULT_POLICY: RetentionPolicy = {
-  fullTranscriptDays: 90,
-  summaryDays: 365,
-  deleteAfterDays: 730,
-};
-
-async function applyRetentionPolicy(policy = DEFAULT_POLICY) {
-  const data = await getTranscriptList(200);
-  const now = Date.now();
-  const results = { kept: 0, archived: 0, deleted: 0 };
-
-  for (const t of data.transcripts) {
-    const ageDays = (now - new Date(t.date).getTime()) / 86400000;
-
-    if (ageDays > policy.deleteAfterDays) {
-      // Delete from Fireflies
-      await deleteTranscript(t.id);
-      results.deleted++;
-    } else if (ageDays > policy.fullTranscriptDays) {
-      // Archive: keep summary only in your DB
-      await archiveToSummaryOnly(t.id);
-      results.archived++;
-    } else {
-      results.kept++;
-    }
-  }
-
-  console.log(`Retention applied: ${results.kept} kept, ${results.archived} archived, ${results.deleted} deleted`);
-  return results;
-}
-
-async function deleteTranscript(id: string) {
-  // Rate limit: 10 deletes per minute
-  await fetch(FIREFLIES_API, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.FIREFLIES_API_KEY}`,
-    },
-    body: JSON.stringify({
-      query: `mutation($id: String!) { deleteTranscript(transcript_id: $id) }`,
-      variables: { id },
-    }),
-  });
-  // Respect rate limit
-  await new Promise(r => setTimeout(r, 6500));
-}
-```
-
-### Step 5: GDPR Data Subject Request
-
-```typescript
-// Handle "right to be forgotten" requests
-async function handleDataSubjectDeletion(email: string) {
-  // Find all transcripts where this person participated
-  const data = await fetch(FIREFLIES_API, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.FIREFLIES_API_KEY}`,
-    },
-    body: JSON.stringify({
-      query: `query($participants: [String]) {
-        transcripts(participants: $participants, limit: 100) {
-          id title date participants
-        }
-      }`,
-      variables: { participants: [email] },
-    }),
-  }).then(r => r.json());
-
-  const affected = data.data.transcripts;
-  console.log(`Found ${affected.length} transcripts with ${email}`);
-
-  // Option 1: Delete transcripts entirely
-  // Option 2: Redact the person's contributions
-  // Choose based on your legal requirements
-
-  return {
-    email,
-    affectedTranscripts: affected.length,
-    transcriptIds: affected.map((t: any) => t.id),
-  };
-}
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Missing sentences | Transcript still processing | Check before export |
-| PII in action items | Redaction only on sentences | Redact summary fields too (Step 3 does this) |
-| Delete rate limit | 10 deletes/min | Add 6.5s delay between deletes |
-| Large transcript OOM | 2+ hour meeting | Stream or paginate sentences |
+Require approval before export, long-term storage, model processing, external sharing, retention changes, media retrieval, or deleteTranscript.
 
 ## Output
 
-- Multi-format transcript export (JSON, text, SRT, CSV)
-- PII redaction covering sentences, summaries, and attendee info
-- Automated retention policy with configurable thresholds
-- GDPR/CCPA data subject request handler
+Return the exact operation or event surface, environment, authorization class, selected field groups, validation results, content-free metrics, decisions, and a concise pass/fail receipt. Keep secrets and meeting-derived content out of general output.
+
+## Validation
+
+Before reporting success, rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current contract, verify no secret or meeting-derived content entered logs or artifacts, and record unresolved uncertainty explicitly.
+
+## Error Handling
+
+- Consent or purpose is unclear: do not retrieve content.
+- Legal hold conflicts with deletion: pause and route to counsel or the data owner.
+- Downstream copy cannot be located: stop further propagation and open an incident.
+
+## Examples
+
+- "Review fireflies meeting data governance" produces a bounded plan and redacted receipt.
+- A request that widens access or mutates production is paused at the approval boundary.
+
 
 ## Resources
 
-- [Fireflies Privacy Policy](https://fireflies.ai/privacy)
-- [Fireflies API Docs](https://docs.fireflies.ai/)
-- [Transcript Query](https://docs.fireflies.ai/graphql-api/query/transcript)
-
-## Next Steps
-
-For enterprise access control, see `fireflies-enterprise-rbac`.
+Read [official Fireflies.ai evidence](references/official-docs.md) before relying on a field, filter, event, permission, plan limit, mutation, or processing state.

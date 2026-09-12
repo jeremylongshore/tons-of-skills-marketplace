@@ -1,212 +1,76 @@
 ---
 name: fireflies-prod-checklist
-description: 'Execute Fireflies.ai production deployment checklist with health checks
-  and rollback.
-
-  Use when deploying Fireflies.ai integrations to production, preparing for launch,
-
-  or implementing go-live procedures.
-
-  Trigger with phrases like "fireflies production", "deploy fireflies",
-
-  "fireflies go-live", "fireflies launch checklist".
-
-  '
-allowed-tools: Read, Bash(curl:*), Grep
-version: 1.11.0
+description: >-
+  Run a fail-closed readiness review for a Fireflies integration covering identity, schema contracts, privacy, quotas, webhooks, observability, rollback, and ownership. Use when preparing before enabling production traffic. Trigger with "Fireflies production checklist", "ship Fireflies integration", or "Fireflies go-live review".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <workflow-scope>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- fireflies
-- deployment
-compatibility: Designed for Claude Code
+tags: [saas, fireflies, production, governance]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Fireflies work requires network access"
 ---
-# Fireflies.ai Production Checklist
+# Fireflies Production Readiness Gate
 
 ## Overview
 
-Complete checklist for deploying Fireflies.ai integrations to production. Covers API key management, webhook setup, health checks, and monitoring.
-
-## Instructions
-
-1. Attach evidence or an owner decision to every applicable checklist control, including consent/access boundaries and retention behavior.
-2. Verify scoped secrets, signature validation, idempotent processing, redacted telemetry, and a tested rollback before production promotion.
-3. Run a canary with a fictional meeting event, observe aggregate health and delivery state, then stop promotion on any permission, destination, or safety failure.
-4. Record the launch, rollback owner, exceptions, and final approver in the production receipt.
-
-## Examples
-
-Process a synthetic transcript-ready event through staging, revoke a test recipient’s access, and verify no replay occurs after a simulated worker failure. Promote only when the approver records canary evidence and all required controls have a verified owner.
+Run a fail-closed readiness review for a Fireflies integration covering identity, schema contracts, privacy, quotas, webhooks, observability, rollback, and ownership.
 
 ## Prerequisites
 
-- Staging environment tested
-- Production API key from Fireflies dashboard
-- Webhook endpoint with HTTPS and signature verification
-- Monitoring infrastructure ready
+- The target repository or integration path and the requested operator outcome.
+- The Fireflies principal, team, environment, and data classification for the work.
+- Current Fireflies documentation, credentials only when needed, and an accountable approver.
 
-## Pre-Deployment Checklist
+## Current Contract
 
-### API & Auth
+Readiness is evidence, not a successful demo. The release must prove its exact operations, selected fields, permission model, quotas, webhook behavior, failure modes, rollback, and retention controls against the current public contract.
 
-- [ ] Production `FIREFLIES_API_KEY` in secret manager (not env file)
-- [ ] API key has minimum required access
-- [ ] `FIREFLIES_WEBHOOK_SECRET` configured (16-32 chars)
-- [ ] Separate keys for dev/staging/prod environments
-- [ ] Key rotation procedure documented
+## Authentication
 
-### Code Quality
+For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret manager and send it only as `Authorization: Bearer REDACTED_KEY` to `https://api.fireflies.ai/graphql`. Never print, commit, place in a URL, forward to a browser, or include the key in evidence. Webhook signing secrets are separate credentials and must not be reused as API keys.
 
-- [ ] All GraphQL queries tested against real API in staging
-- [ ] Error handling for all Fireflies error codes (`auth_failed`, `too_many_requests`, `require_ai_credits`)
-- [ ] Rate limiting with exponential backoff implemented
-- [ ] No hardcoded API keys or transcript IDs
-- [ ] Webhook signature verification (HMAC-SHA256) enabled
+## Instructions
 
-### Webhook Configuration
+1. Pin the release revision and enumerate GraphQL operations and Webhooks V2 events.
+2. Verify secret ownership, rotation, redaction, and environment isolation.
+3. Review every selected field and derived output against classification and retention.
+4. Exercise success, GraphQL error, timeout, throttling, null/processing, invalid signature, and duplicate webhook paths.
+5. Confirm operation-specific budgets, queue limits, alerts, dashboards, and runbooks.
+6. Test rollback or feature disablement without deleting source records.
+7. Obtain accountable approvals and archive a content-free launch receipt.
 
-- [ ] Webhook URL registered in Fireflies dashboard (Settings > Developer settings)
-- [ ] HTTPS endpoint with valid TLS certificate
-- [ ] `x-hub-signature` header verified on every request
-- [ ] Webhook handler responds with 200 immediately (process async)
-- [ ] Dead-letter queue for failed webhook processing
 
-### Health Check Endpoint
+## Tool Discipline
 
-```typescript
-// /api/health
-export async function GET() {
-  const checks: Record<string, any> = {};
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
 
-  // Fireflies API connectivity
-  try {
-    const start = Date.now();
-    const res = await fetch("https://api.fireflies.ai/graphql", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.FIREFLIES_API_KEY}`,
-      },
-      body: JSON.stringify({ query: "{ user { email } }" }),
-      signal: AbortSignal.timeout(5000),
-    });
-    const json = await res.json();
-    checks.fireflies = {
-      status: json.errors ? "error" : "healthy",
-      latencyMs: Date.now() - start,
-      error: json.errors?.[0]?.code,
-    };
-  } catch (err) {
-    checks.fireflies = { status: "unreachable", error: (err as Error).message };
-  }
+## Approval Boundaries
 
-  const allHealthy = Object.values(checks).every((c: any) => c.status === "healthy");
-  return Response.json(
-    { status: allHealthy ? "healthy" : "degraded", checks },
-    { status: allHealthy ? 200 : 503 }
-  );
-}
-```
-
-### Monitoring & Alerting
-
-- [ ] Alert on Fireflies API errors (5xx, 401, 429)
-- [ ] Track webhook delivery latency
-- [ ] Monitor transcript processing queue depth
-- [ ] Dashboard showing: meetings/day, avg processing time, error rate
-- [ ] PagerDuty/Slack alert for auth failures (P1)
-
-### Alerting Thresholds
-
-| Alert | Condition | Severity |
-|-------|-----------|----------|
-| Auth failure | Any `auth_failed` error | P1 -- API key may be revoked |
-| Rate limited | 429 errors > 5/min | P2 -- backoff or upgrade plan |
-| API unreachable | Health check fails 3x | P1 -- check Fireflies status |
-| Webhook backlog | Queue > 100 events | P3 -- scale webhook processor |
-
-## Deployment Steps
-
-### Step 1: Pre-flight
-
-```bash
-set -euo pipefail
-# Verify staging passes
-curl -f https://staging.example.com/api/health | jq '.checks.fireflies'
-
-# Verify production API key works
-curl -s -X POST https://api.fireflies.ai/graphql \
-  -H "Authorization: Bearer $FIREFLIES_API_KEY_PROD" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "{ user { email is_admin } }"}' | jq .
-```
-
-### Step 2: Deploy
-
-```bash
-set -euo pipefail
-# Deploy with your platform
-# Vercel: vercel --prod
-# Docker: docker push && kubectl apply
-# Fly.io: fly deploy --app production
-
-# Verify health immediately
-curl -f https://production.example.com/api/health | jq .
-```
-
-### Step 3: Post-Deploy Verification
-
-```bash
-set -euo pipefail
-# Verify webhook is registered
-curl -s -X POST https://api.fireflies.ai/graphql \
-  -H "Authorization: Bearer $FIREFLIES_API_KEY_PROD" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "{ user { email } }"}' | jq .
-
-# Test webhook delivery (upload a short audio file)
-curl -s -X POST https://api.fireflies.ai/graphql \
-  -H "Authorization: Bearer $FIREFLIES_API_KEY_PROD" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "mutation($input: AudioUploadInput) { uploadAudio(input: $input) { success message } }",
-    "variables": { "input": { "url": "https://example.com/test.mp3", "title": "Deploy Test" } }
-  }' | jq .
-```
-
-## Rollback
-
-```bash
-set -euo pipefail
-# Immediate rollback
-# Platform-specific: revert deployment to previous version
-
-# Verify rollback
-curl -f https://production.example.com/api/health | jq '.checks.fireflies'
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Auth fails post-deploy | Wrong API key in production secrets | Update secret, redeploy |
-| Webhook not firing | URL not saved in Fireflies dashboard | Re-register at app.fireflies.ai/settings |
-| Rate limiting in prod | Burst traffic on deploy | Enable request queuing |
-| Missing transcripts | Bot not joining meetings | Verify calendar integration is connected |
+Require approval before production enablement, elevated roles, broad meeting access, destructive mutations, or accepting an untested rollback.
 
 ## Output
 
-- Production deployment with verified health checks
-- Webhook endpoint receiving and verifying events
-- Monitoring and alerting configured
-- Rollback procedure tested
+Return the exact operation or event surface, environment, authorization class, selected field groups, validation results, content-free metrics, decisions, and a concise pass/fail receipt. Keep secrets and meeting-derived content out of general output.
+
+## Validation
+
+Before reporting success, rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current contract, verify no secret or meeting-derived content entered logs or artifacts, and record unresolved uncertainty explicitly.
+
+## Error Handling
+
+- Any required evidence absent: fail the gate.
+- Schema or docs changed after review: rerun affected checks.
+- Rollback cannot stop writes or webhook processing: do not launch.
+
+## Examples
+
+- "Review fireflies production readiness gate" produces a bounded plan and redacted receipt.
+- A request that widens access or mutates production is paused at the approval boundary.
+
 
 ## Resources
 
-- [Fireflies API Docs](https://docs.fireflies.ai/)
-- [Fireflies Webhooks](https://docs.fireflies.ai/graphql-api/webhooks)
-
-## Next Steps
-
-For version upgrades, see `fireflies-upgrade-migration`.
+Read [official Fireflies.ai evidence](references/official-docs.md) before relying on a field, filter, event, permission, plan limit, mutation, or processing state.

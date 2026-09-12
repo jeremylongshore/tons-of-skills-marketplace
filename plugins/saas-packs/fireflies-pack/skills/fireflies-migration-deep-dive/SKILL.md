@@ -1,328 +1,76 @@
 ---
 name: fireflies-migration-deep-dive
-description: 'Migrate to Fireflies.ai from other meeting transcription platforms or
-  legacy recording systems.
-
-  Use when switching from Otter.ai, Rev, or custom transcription to Fireflies,
-
-  or importing historical meeting data into the Fireflies ecosystem.
-
-  Trigger with phrases like "migrate to fireflies", "switch from otter",
-
-  "fireflies migration", "import meetings to fireflies", "fireflies replatform".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*)
-version: 1.11.0
+description: >-
+  Migrate authorized recordings into Fireflies through current uploadAudio or addToLiveMeeting contracts with provenance, consent, limits, callbacks, and rollback planning. Use when performing import or live-meeting onboarding. Trigger with "upload audio to Fireflies", "import recordings", or "add Fireflies to live meeting".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <workflow-scope>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- fireflies
-- migration
-compatibility: Designed for Claude Code
+tags: [saas, fireflies, ingestion, migration]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Fireflies work requires network access"
 ---
-# Fireflies.ai Migration Deep Dive
-
-## Current State
-
-!`npm list graphql graphql-request 2>/dev/null || echo 'No graphql packages'`
+# Fireflies Governed Audio Ingestion
 
 ## Overview
 
-Migrate to Fireflies.ai from other transcription platforms or custom recording systems. Covers historical recording import via `uploadAudio`, adapter pattern for gradual cutover, and data validation post-migration.
+Migrate authorized recordings into Fireflies through current uploadAudio or addToLiveMeeting contracts with provenance, consent, limits, callbacks, and rollback planning.
 
 ## Prerequisites
 
-- A lawful/authorized migration scope, documented consent and retention requirements, and named data owners.
-- An inventory of recordings, transcripts, access rules, and deletion obligations; use synthetic fixtures for migration tests.
-- A staged cutover plan with rollback, reconciliation, and a restricted evidence location.
+- The target repository or integration path and the requested operator outcome.
+- The Fireflies principal, team, environment, and data classification for the work.
+- Current Fireflies documentation, credentials only when needed, and an accountable approver.
 
-## Examples
+## Current Contract
 
-Import a fictitious recording into staging, validate only approved metadata and derived action-item fields, and compare aggregate record counts with the source inventory. Disable the canary and retain the old path if consent, access, retention, or mapping checks fail.
+uploadAudio accepts a publicly downloadable HTTPS media URL and documented mp3, mp4, wav, m4a, or ogg formats; current size limits differ for audio, free-tier video, and paid-tier video. addToLiveMeeting accepts supported meeting links and is limited to 3 requests per 20 minutes.
 
-## Migration Types
+## Authentication
 
-| Scenario | Approach | Timeline |
-|----------|----------|----------|
-| Fresh start (no history) | Configure Fireflies bot, done | 1 day |
-| Import recordings | Batch `uploadAudio` | 1-2 weeks |
-| Switch from competitor | Parallel run + gradual cutover | 2-4 weeks |
-| Enterprise rollout | Phased department-by-department | 1-2 months |
+For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret manager and send it only as `Authorization: Bearer REDACTED_KEY` to `https://api.fireflies.ai/graphql`. Never print, commit, place in a URL, forward to a browser, or include the key in evidence. Webhook signing secrets are separate credentials and must not be reused as API keys.
 
 ## Instructions
 
-### Step 1: Pre-Migration Assessment
+1. Inventory source recordings, ownership, consent, format, size, retention, and destination team.
+2. Reject preview links, expiring links that cannot survive ingestion, and unauthorized public exposure.
+3. Choose uploadAudio for recordings or addToLiveMeeting for an approved supported live meeting.
+4. Attach a non-sensitive client reference and approved callback only when needed.
+5. Submit a small canary, record the returned status without logging the source URL, and wait for current webhook events.
+6. Validate transcript identity, expected duration, processing status, and authorized metadata before scaling.
+7. Batch within quotas, track provenance, remove temporary public access, and reconcile failures.
 
-```typescript
-// Inventory your current meeting data
-interface MigrationInventory {
-  totalRecordings: number;
-  totalHours: number;
-  formats: string[];        // mp3, mp4, wav, m4a, ogg
-  averageDuration: number;  // minutes
-  dateRange: { oldest: string; newest: string };
-  platforms: string[];      // Zoom, Teams, etc.
-}
 
-// Fireflies supports: mp3, mp4, wav, m4a, ogg
-// Size limits: 200MB audio, 100MB video (free), 1.5GB video (paid)
-// Minimum: 50KB (can bypass with bypass_size_check: true)
-```
+## Tool Discipline
 
-### Step 2: Batch Upload Historical Recordings
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
 
-```typescript
-const FIREFLIES_API = "https://api.fireflies.ai/graphql";
+## Approval Boundaries
 
-interface UploadJob {
-  url: string;        // Must be publicly accessible HTTPS URL
-  title: string;
-  attendees?: { displayName: string; email: string }[];
-  referenceId: string; // Your internal ID for tracking
-}
-
-async function batchUpload(jobs: UploadJob[]) {
-  const results: { id: string; status: string; error?: string }[] = [];
-
-  for (const job of jobs) {
-    try {
-      const res = await fetch(FIREFLIES_API, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.FIREFLIES_API_KEY}`,
-        },
-        body: JSON.stringify({
-          query: `
-            mutation($input: AudioUploadInput) {
-              uploadAudio(input: $input) {
-                success title message
-              }
-            }
-          `,
-          variables: {
-            input: {
-              url: job.url,
-              title: job.title,
-              attendees: job.attendees,
-              client_reference_id: job.referenceId,
-              webhook: process.env.WEBHOOK_URL,
-            },
-          },
-        }),
-      });
-
-      const json = await res.json();
-      if (json.errors) {
-        results.push({ id: job.referenceId, status: "error", error: json.errors[0].message });
-      } else {
-        results.push({ id: job.referenceId, status: "uploaded" });
-      }
-    } catch (err) {
-      results.push({ id: job.referenceId, status: "error", error: (err as Error).message });
-    }
-
-    // Rate limit: wait between uploads
-    await new Promise(r => setTimeout(r, 2000));
-  }
-
-  return results;
-}
-```
-
-### Step 3: Upload with Authenticated URLs
-
-If your recordings are behind auth (S3, GCS):
-
-```typescript
-// Bearer token auth (e.g., pre-signed URLs with auth headers)
-const upload = {
-  url: "https://storage.example.com/recordings/meeting-123.mp3",
-  title: "Q1 Planning",
-  download_auth: {
-    type: "bearer_token",
-    bearer: { token: "your-storage-access-token" },
-  },
-  client_reference_id: "meeting-123",
-};
-
-// Basic auth
-const uploadBasicAuth = {
-  url: "https://recordings.example.com/files/meeting-456.mp3",
-  title: "Sprint Review",
-  download_auth: {
-    type: "basic_auth",
-    basic: { username: "api-user", password: "api-pass" },
-  },
-  client_reference_id: "meeting-456",
-};
-```
-
-### Step 4: Direct File Upload (No Public URL)
-
-For files that can't be made publicly accessible:
-
-```typescript
-// Step 1: Get a pre-signed upload URL from Fireflies
-const { createUploadUrl } = await firefliesQuery(`
-  mutation($input: CreateUploadUrlInput!) {
-    createUploadUrl(input: $input) {
-      url
-      meeting_id
-    }
-  }
-`, { input: { /* file metadata */ } });
-
-// Step 2: Upload file directly to the pre-signed URL
-await fetch(createUploadUrl.url, {
-  method: "PUT",
-  body: fileBuffer,
-});
-
-// Step 3: Confirm the upload
-await firefliesQuery(`
-  mutation($input: ConfirmUploadInput!) {
-    confirmUpload(input: $input) {
-      success
-    }
-  }
-`, { input: { meeting_id: createUploadUrl.meeting_id } });
-```
-
-### Step 5: Track Migration Progress via Webhooks
-
-```typescript
-// Webhook handler tracks which uploads have completed
-const migrationTracker = new Map<string, { status: string; meetingId?: string }>();
-
-async function handleMigrationWebhook(event: any) {
-  if (event.eventType === "Transcription completed" && event.clientReferenceId) {
-    migrationTracker.set(event.clientReferenceId, {
-      status: "completed",
-      meetingId: event.meetingId,
-    });
-
-    // Check progress
-    const completed = [...migrationTracker.values()].filter(v => v.status === "completed").length;
-    const total = migrationTracker.size;
-    console.log(`Migration progress: ${completed}/${total} (${Math.round(completed/total*100)}%)`);
-  }
-}
-```
-
-### Step 6: Validate Migration
-
-```typescript
-async function validateMigration(expectedIds: string[]) {
-  const results = {
-    found: 0,
-    missing: [] as string[],
-    hasSummary: 0,
-    hasSentences: 0,
-  };
-
-  for (const refId of expectedIds) {
-    const tracker = migrationTracker.get(refId);
-    if (!tracker?.meetingId) {
-      results.missing.push(refId);
-      continue;
-    }
-
-    results.found++;
-
-    // Verify transcript quality
-    const { transcript } = await firefliesQuery(`
-      query($id: String!) {
-        transcript(id: $id) {
-          id title
-          sentences { text }
-          summary { overview action_items }
-        }
-      }
-    `, { id: tracker.meetingId });
-
-    if (transcript.summary?.overview) results.hasSummary++;
-    if (transcript.sentences?.length > 0) results.hasSentences++;
-
-    await new Promise(r => setTimeout(r, 1100)); // Rate limit
-  }
-
-  console.log(`Validation: ${results.found}/${expectedIds.length} found`);
-  console.log(`With summary: ${results.hasSummary}`);
-  console.log(`With sentences: ${results.hasSentences}`);
-  console.log(`Missing: ${results.missing.length}`);
-
-  return results;
-}
-```
-
-### Step 7: Adapter Pattern for Gradual Cutover
-
-```typescript
-interface TranscriptionService {
-  getTranscript(id: string): Promise<any>;
-  searchTranscripts(query: string): Promise<any[]>;
-}
-
-class FirefliesService implements TranscriptionService {
-  async getTranscript(id: string) {
-    return firefliesQuery(`
-      query($id: String!) {
-        transcript(id: $id) {
-          id title date duration
-          sentences { speaker_name text start_time end_time }
-          summary { overview action_items }
-        }
-      }
-    `, { id });
-  }
-
-  async searchTranscripts(query: string) {
-    const data = await firefliesQuery(`
-      query($keyword: String) {
-        transcripts(keyword: $keyword, limit: 20) {
-          id title date duration
-        }
-      }
-    `, { keyword: query });
-    return data.transcripts;
-  }
-}
-
-// Gradual cutover with feature flag
-function getTranscriptionService(): TranscriptionService {
-  if (process.env.USE_FIREFLIES === "true") {
-    return new FirefliesService();
-  }
-  return new LegacyTranscriptionService();
-}
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `payload_too_small` | File < 50KB | Set `bypass_size_check: true` |
-| Upload rejected | Free plan | Uploads require Pro+ plan |
-| Auth download fails | Token expired | Refresh storage credentials |
-| Missing transcription | Audio quality poor | Check file format and audio clarity |
-| Duplicate uploads | Re-running batch | Use `client_reference_id` for dedup |
+Require approval before exposing a media URL, uploading real recordings, adding a bot to a live meeting, configuring callbacks, or scaling a batch.
 
 ## Output
 
-- Pre-migration inventory assessed
-- Historical recordings uploaded via `uploadAudio` mutation
-- Migration progress tracked via webhooks and `clientReferenceId`
-- Post-migration validation confirming transcript quality
-- Adapter layer enabling gradual platform cutover
+Return the exact operation or event surface, environment, authorization class, selected field groups, validation results, content-free metrics, decisions, and a concise pass/fail receipt. Keep secrets and meeting-derived content out of general output.
+
+## Validation
+
+Before reporting success, rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current contract, verify no secret or meeting-derived content entered logs or artifacts, and record unresolved uncertainty explicitly.
+
+## Error Handling
+
+- Media URL is not public HTTPS or downloadable: do not weaken storage controls blindly.
+- unsupported_platform or invalid language: correct reviewed input instead of retrying.
+- Timeout after submission: reconcile by client reference or webhook before resubmitting.
+
+## Examples
+
+- "Review fireflies governed audio ingestion" produces a bounded plan and redacted receipt.
+- A request that widens access or mutates production is paused at the approval boundary.
+
 
 ## Resources
 
-- [Upload Audio Mutation](https://docs.fireflies.ai/graphql-api/mutation/upload-audio)
-- [Fireflies API Docs](https://docs.fireflies.ai/)
-
-## Next Steps
-
-For monitoring the migrated system, see `fireflies-observability`.
+Read [official Fireflies.ai evidence](references/official-docs.md) before relying on a field, filter, event, permission, plan limit, mutation, or processing state.
