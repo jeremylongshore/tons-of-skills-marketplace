@@ -1,256 +1,81 @@
 ---
 name: adobe-observability
-description: 'Set up comprehensive observability for Adobe API integrations with
-
-  Prometheus metrics, OpenTelemetry traces, structured logging, and
-
-  alert rules covering Firefly, PDF Services, and Photoshop APIs.
-
-  Trigger with phrases like "adobe monitoring", "adobe metrics",
-
-  "adobe observability", "monitor adobe", "adobe alerts", "adobe tracing".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
+description: >-
+  Instrument Adobe integrations with redacted structured logs, request/job/activation correlation, service-level indicators, alerts, and evidence retention. Use when this Adobe operator workflow is needed. Trigger with "monitor Adobe API", "Adobe observability", or "App Builder logs".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<services> <objectives> <telemetry-destination>"
+version: 1.8.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- design
-- adobe
-compatibility: Designed for Claude Code
+tags: [saas, adobe, observability]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Adobe actions require network access, appropriate entitlement and authentication, and explicit approval"
 ---
-# Adobe Observability
+# Adobe Content-Safe Observability
 
 ## Overview
 
-Set up comprehensive observability for Adobe API integrations covering four pillars: metrics (Prometheus), traces (OpenTelemetry), logs (structured JSON), and alerts. Each Adobe API has different latency profiles requiring specific monitoring.
+Instrument Adobe integrations with redacted structured logs, request/job/activation correlation, service-level indicators, alerts, and evidence retention.. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 
-- Prometheus or compatible metrics backend
-- OpenTelemetry SDK (`@opentelemetry/api`)
-- Grafana or similar dashboarding tool
-- AlertManager or PagerDuty for alerts
+- Current first-party Adobe documentation for every selected service, API version, auth flow, limit, and lifecycle.
+- Named product, identity, security, data, budget, release, and operations owners appropriate to the scope.
+- Synthetic or approved non-production fixtures with secret and content canaries.
+
+## Current Contract
+
+App Builder local, Runtime activation, CLI, and Console log surfaces differ. Successful activation persistence is mode-dependent; current Console application logs can provide broader visibility. Runtime log size and retention are bounded and mutable. Recheck the dated evidence map before relying on mutable product behavior.
+
+## Authentication
+
+Log service, operation, environment aliases, request/job/activation IDs, state, status class, duration, retry, bytes, and usage class. Never log secrets, Authorization, signed URLs, prompts, document/image/event content, or direct identifiers.
 
 ## Instructions
 
-### Step 1: Define Key Metrics by API
+1. Define SLOs, telemetry consumers, data classification, retention, and incident evidence needs.
+2. Inventory logs, metrics, traces, dashboards, activations, queue evidence, and current blind spots by execution mode.
+3. Create a redacted correlation model from ingress through queue, Adobe request/job, storage, and downstream acknowledgement.
+4. Measure availability, terminal success, queue age, vendor time, 429s, retries, unknown jobs, duplicates, and cleanup lag.
+5. Add alerts tied to actionable runbooks, budget limits, credential/EOL dates, event disablement, and stale assets.
+6. Run content/secret/URL canaries, failure drills, retention verification, and dashboard reconciliation.
 
-| Metric | Type | Labels | Description |
-|--------|------|--------|-------------|
-| `adobe_ims_token_requests_total` | Counter | `status` | Token generation attempts |
-| `adobe_api_requests_total` | Counter | `api,operation,status` | API calls by type |
-| `adobe_api_duration_seconds` | Histogram | `api,operation` | Latency per operation |
-| `adobe_api_errors_total` | Counter | `api,error_code` | Errors by code (401,403,429,500) |
-| `adobe_job_poll_count` | Histogram | `api` | Polls before async job completes |
-| `adobe_rate_limit_retries_total` | Counter | `api` | 429 retries |
-| `adobe_pdf_transactions_used` | Gauge | — | Monthly PDF Services usage |
+## Tool Discipline
 
-### Step 2: Instrumented Adobe Client
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, Adobe content, consent, uploads, generation, spend, deployment, registration changes, replay, cancellation, or deletion.
 
-```typescript
-import { Counter, Histogram, Gauge, Registry } from 'prom-client';
+## Approval Boundaries
 
-const registry = new Registry();
-
-const apiRequests = new Counter({
-  name: 'adobe_api_requests_total',
-  help: 'Total Adobe API requests',
-  labelNames: ['api', 'operation', 'status'] as const,
-  registers: [registry],
-});
-
-const apiDuration = new Histogram({
-  name: 'adobe_api_duration_seconds',
-  help: 'Adobe API request duration in seconds',
-  labelNames: ['api', 'operation'] as const,
-  buckets: [0.5, 1, 2, 5, 10, 20, 30, 60], // Adobe APIs are slow
-  registers: [registry],
-});
-
-const apiErrors = new Counter({
-  name: 'adobe_api_errors_total',
-  help: 'Adobe API errors by code',
-  labelNames: ['api', 'error_code'] as const,
-  registers: [registry],
-});
-
-export async function instrumentedAdobeCall<T>(
-  api: string,
-  operation: string,
-  fn: () => Promise<T>
-): Promise<T> {
-  const timer = apiDuration.startTimer({ api, operation });
-  try {
-    const result = await fn();
-    apiRequests.inc({ api, operation, status: 'success' });
-    return result;
-  } catch (error: any) {
-    const errorCode = error.status || error.httpStatus || 'unknown';
-    apiRequests.inc({ api, operation, status: 'error' });
-    apiErrors.inc({ api, error_code: String(errorCode) });
-    throw error;
-  } finally {
-    timer();
-  }
-}
-
-// Usage
-const image = await instrumentedAdobeCall('firefly', 'generate', () =>
-  generateImage({ prompt: 'sunset landscape' })
-);
-```
-
-### Step 3: OpenTelemetry Distributed Tracing
-
-```typescript
-import { trace, SpanStatusCode } from '@opentelemetry/api';
-
-const tracer = trace.getTracer('adobe-integration');
-
-export async function tracedAdobeCall<T>(
-  api: string,
-  operation: string,
-  fn: () => Promise<T>
-): Promise<T> {
-  return tracer.startActiveSpan(`adobe.${api}.${operation}`, async (span) => {
-    span.setAttribute('adobe.api', api);
-    span.setAttribute('adobe.operation', operation);
-    span.setAttribute('adobe.client_id', process.env.ADOBE_CLIENT_ID!);
-
-    try {
-      const result = await fn();
-      span.setStatus({ code: SpanStatusCode.OK });
-      return result;
-    } catch (error: any) {
-      span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
-      span.setAttribute('adobe.error_code', error.status || 'unknown');
-      span.recordException(error);
-      throw error;
-    } finally {
-      span.end();
-    }
-  });
-}
-```
-
-### Step 4: Structured Logging
-
-```typescript
-import pino from 'pino';
-
-const logger = pino({
-  name: 'adobe',
-  level: process.env.LOG_LEVEL || 'info',
-  redact: ['clientSecret', 'accessToken', 'req.headers.authorization'],
-});
-
-export function logAdobeOperation(entry: {
-  api: string;
-  operation: string;
-  durationMs: number;
-  status: 'success' | 'error';
-  httpStatus?: number;
-  jobId?: string;
-  error?: string;
-}) {
-  if (entry.status === 'error') {
-    logger.error(entry, `Adobe ${entry.api}.${entry.operation} failed`);
-  } else {
-    logger.info(entry, `Adobe ${entry.api}.${entry.operation} completed`);
-  }
-}
-```
-
-### Step 5: Alert Rules
-
-```yaml
-# prometheus/adobe-alerts.yml
-groups:
-  - name: adobe_alerts
-    rules:
-      - alert: AdobeAuthFailure
-        expr: increase(adobe_api_errors_total{error_code="401"}[5m]) > 0
-        for: 2m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Adobe authentication failure — credentials may be expired or revoked"
-
-      - alert: AdobeRateLimited
-        expr: rate(adobe_api_errors_total{error_code="429"}[5m]) > 0.1
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Adobe API rate limited — reduce throughput or upgrade tier"
-
-      - alert: AdobeHighLatency
-        expr: |
-          histogram_quantile(0.95,
-            rate(adobe_api_duration_seconds_bucket{api="firefly"}[5m])
-          ) > 30
-        for: 10m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Adobe Firefly P95 latency > 30s"
-
-      - alert: AdobeApiDown
-        expr: |
-          rate(adobe_api_errors_total{error_code=~"5.."}[5m]) /
-          rate(adobe_api_requests_total[5m]) > 0.1
-        for: 5m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Adobe API server error rate > 10%"
-
-      - alert: AdobePdfQuotaLow
-        expr: adobe_pdf_transactions_used > 450
-        labels:
-          severity: warning
-        annotations:
-          summary: "PDF Services: < 50 free tier transactions remaining"
-```
-
-### Metrics Endpoint
-
-```typescript
-app.get('/metrics', async (req, res) => {
-  res.set('Content-Type', registry.contentType);
-  res.send(await registry.metrics());
-});
-```
-
-## Output
-
-- Prometheus metrics for all Adobe API calls (latency, errors, rate limits)
-- OpenTelemetry traces with Adobe-specific span attributes
-- Structured JSON logging with credential redaction
-- Alert rules for auth failures, rate limiting, latency, and quota
+Security and data owners approve telemetry fields and destinations; operations owns alerts and retention. Extra logging or external forwarding requires explicit approval.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| High cardinality metrics | Too many label values | Use fixed set of operation names |
-| Alert storms | Thresholds too sensitive | Increase `for` duration |
-| Missing traces | No OTel propagation | Verify context propagation setup |
-| Redacted data in logs | Over-aggressive redaction | Whitelist safe fields |
+- Do not enable production extra logging as a default workaround.
+- Do not treat missing successful activations as zero traffic.
+- Stop telemetry export if content or signed-URL canaries appear.
+
+## Output
+
+Return telemetry schema, redaction rules, SLO/SLI definitions, dashboards, alert/runbook mapping, canary evidence, gaps, and owners. Mark assumptions, observed environment behavior, owners, evidence dates, and unresolved gaps explicitly.
 
 ## Examples
 
-Start with the smallest applicable command or code example already provided in this guide, using a non-production Adobe environment and credentials. Confirm the documented response or validation result before applying the pattern to production.
+- Correlate one async job without logging its prompt or output URL.
+- Trigger and resolve a synthetic disabled-event or 429 alert.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- success
+- 429
+- unknown job
+- vendor outage
+- content canary
+- retention expiry
 
 ## Resources
 
-- [Prometheus Best Practices](https://prometheus.io/docs/practices/naming/)
-- [OpenTelemetry Node.js](https://opentelemetry.io/docs/languages/js/)
-- [Adobe Status Page](https://status.adobe.com)
-
-## Next Steps
-
-For incident response, see `adobe-incident-runbook`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Adobe sources before execution.
+- Treat observed tenant or product behavior as environment-specific evidence, never a universal Adobe guarantee.

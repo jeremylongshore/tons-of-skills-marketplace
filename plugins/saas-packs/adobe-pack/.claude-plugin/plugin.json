@@ -1,7 +1,7 @@
 {
   "name": "adobe-pack",
-  "version": "1.7.0",
-  "description": "Claude Code skill pack for Adobe (30 skills)",
+  "version": "1.8.0",
+  "description": "Operate Adobe Firefly, Photoshop v2, PDF Services, I/O Events, App Builder, and enterprise access through 30 evidence-backed skills with safe auth, data, spend, deployment, and recovery boundaries.",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,12 @@
   "license": "MIT",
   "keywords": [
     "adobe",
-    "adobe",
-    "saas",
-    "sdk",
-    "integration"
+    "firefly",
+    "photoshop-api",
+    "pdf-services",
+    "adobe-io-events",
+    "app-builder",
+    "oauth",
+    "enterprise-integration"
   ]
 }

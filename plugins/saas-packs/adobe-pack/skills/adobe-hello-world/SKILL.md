@@ -1,222 +1,81 @@
 ---
 name: adobe-hello-world
-description: 'Create minimal working examples for Adobe APIs: Firefly image generation,
-
-  PDF extraction, and Photoshop background removal.
-
-  Use when starting a new Adobe integration, testing your setup,
-
-  or learning basic Adobe API patterns.
-
-  Trigger with phrases like "adobe hello world", "adobe example",
-
-  "adobe quick start", "simple adobe code", "first adobe API call".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
+description: >-
+  Prove one Adobe API connection with a current, read-only or synthetic operation and a content-safe receipt. Use during onboarding before any production workflow. Use when this Adobe operator workflow is needed. Trigger with "Adobe hello world", "test Adobe connection", or "verify Adobe entitlement".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<product-api> <sandbox> <proof-operation>"
+version: 1.8.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- design
-- adobe
-compatibility: Designed for Claude Code
+tags: [saas, adobe, onboarding]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Adobe actions require network access, appropriate entitlement and authentication, and explicit approval"
 ---
-# Adobe Hello World
+# Adobe Minimal Access Proof
 
 ## Overview
 
-Three minimal working examples covering Adobe's core API surfaces: Firefly AI image generation, PDF content extraction, and Photoshop background removal.
+Prove one Adobe API connection with a current, read-only or synthetic operation and a content-safe receipt.. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 
-- Completed `adobe-install-auth` setup
-- Valid OAuth Server-to-Server credentials
-- Node.js 18+ with `@adobe/firefly-apis` or `@adobe/pdfservices-node-sdk` installed
+- Current first-party Adobe documentation for every selected service, API version, auth flow, limit, and lifecycle.
+- Named product, identity, security, data, budget, release, and operations owners appropriate to the scope.
+- Synthetic or approved non-production fixtures with secret and content canaries.
+
+## Current Contract
+
+The smallest useful proof is product-specific: token acquisition alone does not demonstrate API entitlement. Prefer a documented read or a synthetic asynchronous job whose artifact can be safely deleted; do not use retired Photoshop v1, /sensei/cutout, or Lightroom Firefly Services endpoints. Recheck the dated evidence map before relying on mutable product behavior.
+
+## Authentication
+
+Use a dedicated non-production credential or consenting test user and record only aliases, scope names, product profiles, response status, and request identifiers.
 
 ## Instructions
 
-### Example 1: Firefly Text-to-Image Generation
+1. Resolve the exact Adobe organization, project, workspace, credential type, and service.
+2. Read the current product quickstart and identify the least consequential documented proof.
+3. Validate endpoint host, method, request schema, scopes, entitlement, and storage requirements offline.
+4. Run exactly one bounded proof and capture redacted response and correlation evidence.
+5. Verify the expected allow case and one safe denied or invalid fixture without broadening access.
+6. Delete approved temporary assets and issue a pass, fail, or entitlement-blocked result.
 
-```typescript
-// hello-firefly.ts
-import 'dotenv/config';
-import { getAdobeAccessToken } from './adobe/auth';
+## Tool Discipline
 
-async function generateImage() {
-  const token = await getAdobeAccessToken();
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, Adobe content, consent, uploads, generation, spend, deployment, registration changes, replay, cancellation, or deletion.
 
-  const response = await fetch(
-    'https://firefly-api.adobe.io/v3/images/generate',
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'x-api-key': process.env.ADOBE_CLIENT_ID!,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        prompt: 'A futuristic cityscape at sunset with flying cars',
-        n: 1,              // number of images
-        size: {
-          width: 1024,
-          height: 1024,
-        },
-        contentClass: 'art', // "art" or "photo"
-      }),
-    }
-  );
+## Approval Boundaries
 
-  if (!response.ok) {
-    throw new Error(`Firefly API error: ${response.status} ${await response.text()}`);
-  }
-
-  const result = await response.json();
-  console.log('Generated image URL:', result.outputs[0].image.url);
-  return result;
-}
-
-generateImage().catch(console.error);
-```
-
-### Example 2: PDF Text Extraction
-
-```typescript
-// hello-pdf.ts
-import {
-  ServicePrincipalCredentials,
-  PDFServices,
-  MimeType,
-  ExtractPDFParams,
-  ExtractElementType,
-  ExtractPDFJob,
-  ExtractPDFResult,
-} from '@adobe/pdfservices-node-sdk';
-import * as fs from 'fs';
-
-async function extractPDF() {
-  const credentials = new ServicePrincipalCredentials({
-    clientId: process.env.ADOBE_CLIENT_ID!,
-    clientSecret: process.env.ADOBE_CLIENT_SECRET!,
-  });
-
-  const pdfServices = new PDFServices({ credentials });
-
-  // Upload the PDF
-  const inputStream = fs.createReadStream('./sample.pdf');
-  const inputAsset = await pdfServices.upload({
-    readStream: inputStream,
-    mimeType: MimeType.PDF,
-  });
-
-  // Configure extraction (text + tables)
-  const params = new ExtractPDFParams({
-    elementsToExtract: [ExtractElementType.TEXT, ExtractElementType.TABLES],
-  });
-
-  // Run extraction job
-  const job = new ExtractPDFJob({ inputAsset, params });
-  const pollingURL = await pdfServices.submit({ job });
-  const result = await pdfServices.getJobResult({
-    pollingURL,
-    resultType: ExtractPDFResult,
-  });
-
-  // Download result ZIP containing structuredData.json
-  const resultAsset = result.result!.resource;
-  const streamAsset = await pdfServices.getContent({ asset: resultAsset });
-  const outputStream = fs.createWriteStream('./extracted-output.zip');
-  streamAsset.readStream.pipe(outputStream);
-
-  console.log('Extraction complete: ./extracted-output.zip');
-}
-
-extractPDF().catch(console.error);
-```
-
-### Example 3: Photoshop Remove Background
-
-```typescript
-// hello-photoshop.ts
-import 'dotenv/config';
-import { getAdobeAccessToken } from './adobe/auth';
-
-async function removeBackground() {
-  const token = await getAdobeAccessToken();
-
-  // Input/output must be pre-signed URLs (S3, Azure Blob, Dropbox)
-  const response = await fetch(
-    'https://image.adobe.io/sensei/cutout',
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'x-api-key': process.env.ADOBE_CLIENT_ID!,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        input: {
-          href: 'https://your-bucket.s3.amazonaws.com/input-photo.jpg',
-          storage: 'external',
-        },
-        output: {
-          href: 'https://your-bucket.s3.amazonaws.com/output-cutout.png',
-          storage: 'external',
-          type: 'image/png',
-        },
-      }),
-    }
-  );
-
-  const result = await response.json();
-  console.log('Job status URL:', result._links.self.href);
-
-  // Poll for completion
-  let status = result;
-  while (status.status !== 'succeeded' && status.status !== 'failed') {
-    await new Promise(r => setTimeout(r, 2000));
-    const poll = await fetch(status._links.self.href, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'x-api-key': process.env.ADOBE_CLIENT_ID!,
-      },
-    });
-    status = await poll.json();
-  }
-
-  console.log('Background removal:', status.status);
-}
-
-removeBackground().catch(console.error);
-```
-
-## Output
-
-- Generated AI image URL from Firefly API
-- Extracted PDF text/tables in structured JSON format
-- Background-removed PNG from Photoshop API
+Require the sandbox and data owners before a live call. Image/document generation, upload, spend, or asset deletion needs explicit approval even in a test environment.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `403 Forbidden` | Missing API entitlement | Enable the API in Developer Console project |
-| `400 Bad Request` on Firefly | Invalid prompt or parameters | Check content policy; prompts cannot request trademarks or people |
-| `invalid_content_type` on PDF | Wrong MimeType | Ensure input is actually a PDF, not a renamed file |
-| `InputValidationError` on Photoshop | Invalid storage URL | Use pre-signed URLs with read/write permissions |
-| `429 Too Many Requests` | Rate limit exceeded | Implement backoff; see `adobe-rate-limits` |
+- Stop if the service is absent from Developer Console.
+- Do not treat a 401, 403, or policy rejection as a reason to guess new scopes.
+- Never use production customer files as a hello-world fixture.
+
+## Output
+
+Return the selected proof, current documentation, auth/entitlement aliases, request receipt, negative result, cleanup evidence, and decision. Mark assumptions, observed environment behavior, owners, evidence dates, and unresolved gaps explicitly.
 
 ## Examples
 
-Start with the smallest applicable command or code example already provided in this guide, using a non-production Adobe environment and credentials. Confirm the documented response or validation result before applying the pattern to production.
+- Verify one authorized synthetic request without exposing the bearer token.
+- Demonstrate that a retired endpoint is rejected by the preflight.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- valid proof
+- missing entitlement
+- wrong host
+- invalid fixture
+- timeout
+- cleanup
 
 ## Resources
 
-- [Firefly API Quickstart](https://developer.adobe.com/firefly-services/docs/firefly-api/guides/)
-- [PDF Services Node.js Quickstart](https://developer.adobe.com/document-services/docs/overview/pdf-services-api/quickstarts/nodejs/)
-- Photoshop API Getting Started
-
-## Next Steps
-
-Proceed to `adobe-local-dev-loop` for development workflow setup.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Adobe sources before execution.
+- Treat observed tenant or product behavior as environment-specific evidence, never a universal Adobe guarantee.

@@ -1,262 +1,81 @@
 ---
 name: adobe-sdk-patterns
-description: 'Apply production-ready patterns for Adobe Firefly Services SDK, PDF
-  Services SDK,
-
-  and raw REST API usage in TypeScript and Python.
-
-  Use when implementing Adobe integrations, refactoring SDK usage,
-
-  or establishing team coding standards for Adobe APIs.
-
-  Trigger with phrases like "adobe SDK patterns", "adobe best practices",
-
-  "adobe code patterns", "idiomatic adobe", "adobe typescript".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
+description: >-
+  Create narrow, version-pinned Adobe SDK and REST adapters with typed contracts, redaction, bounded polling, and compatibility evidence. Use when writing or upgrading integration code. Trigger with "Adobe SDK patterns", "wrap Adobe API", or "review Adobe client".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<language> <services> <operations>"
+version: 1.8.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- design
-- adobe
-compatibility: Designed for Claude Code
+tags: [saas, adobe, sdk]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Adobe actions require network access, appropriate entitlement and authentication, and explicit approval"
 ---
-# Adobe SDK Patterns
+# Adobe Versioned Adapter Patterns
 
 ## Overview
 
-Production-ready patterns for Adobe SDK usage across Firefly Services (`@adobe/firefly-apis`, `@adobe/photoshop-apis`, `@adobe/lightroom-apis`), PDF Services (`@adobe/pdfservices-node-sdk`), and direct REST API calls.
+Create narrow, version-pinned Adobe SDK and REST adapters with typed contracts, redaction, bounded polling, and compatibility evidence.. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 
-- Completed `adobe-install-auth` setup
-- Familiarity with async/await patterns
-- Understanding of the Adobe API you are integrating
+- Current first-party Adobe documentation for every selected service, API version, auth flow, limit, and lifecycle.
+- Named product, identity, security, data, budget, release, and operations owners appropriate to the scope.
+- Synthetic or approved non-production fixtures with secret and content canaries.
+
+## Current Contract
+
+SDK package versions and REST product versions change independently. Keep auth, transport, schema validation, returned status URLs, request identifiers, storage custody, and retry classification behind service-specific interfaces. The retired Lightroom Firefly Services SDK is excluded. Recheck the dated evidence map before relying on mutable product behavior.
+
+## Authentication
+
+Inject a credential provider; never let callers pass raw secrets. Bind every client to environment, organization/project, service, scopes, product profiles, and redaction policy.
 
 ## Instructions
 
-### Pattern 1: Singleton Auth Client with Token Caching
+1. Inventory languages, package locks, direct REST calls, generated snippets, and target operations.
+2. Pin supported SDK versions and trace every operation to its current REST documentation.
+3. Define typed service adapters that preserve unknown fields and structured vendor error evidence.
+4. Centralize token reuse, header construction, request IDs, timeouts, retry budgets, and signed-URL redaction.
+5. Implement async polling by following returned status URLs with terminal-state and cancellation guards.
+6. Run offline contracts plus one approved sandbox compatibility canary and publish the matrix.
 
-```typescript
-// src/adobe/client.ts
-import { ServicePrincipalCredentials, PDFServices } from '@adobe/pdfservices-node-sdk';
+## Tool Discipline
 
-let pdfServicesInstance: PDFServices | null = null;
-let tokenCache: { token: string; expiresAt: number } | null = null;
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, Adobe content, consent, uploads, generation, spend, deployment, registration changes, replay, cancellation, or deletion.
 
-export function getPDFServices(): PDFServices {
-  if (!pdfServicesInstance) {
-    const credentials = new ServicePrincipalCredentials({
-      clientId: process.env.ADOBE_CLIENT_ID!,
-      clientSecret: process.env.ADOBE_CLIENT_SECRET!,
-    });
-    pdfServicesInstance = new PDFServices({ credentials });
-  }
-  return pdfServicesInstance;
-}
+## Approval Boundaries
 
-export async function getAccessToken(): Promise<string> {
-  if (tokenCache && tokenCache.expiresAt > Date.now() + 300_000) {
-    return tokenCache.token;
-  }
-
-  const res = await fetch('https://ims-na1.adobelogin.com/ims/token/v3', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: process.env.ADOBE_CLIENT_ID!,
-      client_secret: process.env.ADOBE_CLIENT_SECRET!,
-      grant_type: 'client_credentials',
-      scope: process.env.ADOBE_SCOPES!,
-    }),
-  });
-
-  if (!res.ok) throw new Error(`Adobe IMS token error: ${res.status}`);
-  const data = await res.json();
-  tokenCache = { token: data.access_token, expiresAt: Date.now() + data.expires_in * 1000 };
-  return tokenCache.token;
-}
-```
-
-### Pattern 2: Typed API Wrapper with Error Classification
-
-```typescript
-// src/adobe/firefly-client.ts
-export class AdobeApiError extends Error {
-  constructor(
-    message: string,
-    public readonly status: number,
-    public readonly code: string,
-    public readonly retryable: boolean,
-    public readonly retryAfter?: number
-  ) {
-    super(message);
-    this.name = 'AdobeApiError';
-  }
-}
-
-export async function adobeApiFetch<T>(
-  url: string,
-  options: RequestInit & { apiKey?: string }
-): Promise<T> {
-  const token = await getAccessToken();
-  const { apiKey, ...fetchOptions } = options;
-
-  const response = await fetch(url, {
-    ...fetchOptions,
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'x-api-key': apiKey || process.env.ADOBE_CLIENT_ID!,
-      'Content-Type': 'application/json',
-      ...fetchOptions.headers,
-    },
-  });
-
-  if (!response.ok) {
-    const body = await response.text();
-    const retryAfter = response.headers.get('Retry-After');
-    throw new AdobeApiError(
-      `Adobe API ${response.status}: ${body}`,
-      response.status,
-      response.status === 429 ? 'RATE_LIMITED' :
-      response.status === 401 ? 'AUTH_EXPIRED' :
-      response.status >= 500 ? 'SERVER_ERROR' : 'CLIENT_ERROR',
-      response.status === 429 || response.status >= 500,
-      retryAfter ? parseInt(retryAfter) : undefined
-    );
-  }
-
-  return response.json();
-}
-```
-
-### Pattern 3: Retry with Exponential Backoff
-
-```typescript
-// src/adobe/retry.ts
-export async function withRetry<T>(
-  operation: () => Promise<T>,
-  config = { maxRetries: 3, baseDelayMs: 1000 }
-): Promise<T> {
-  for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
-    try {
-      return await operation();
-    } catch (err: any) {
-      if (attempt === config.maxRetries) throw err;
-
-      // Only retry on transient errors
-      if (err instanceof AdobeApiError && !err.retryable) throw err;
-
-      // Honor Retry-After header from Adobe
-      const delay = err.retryAfter
-        ? err.retryAfter * 1000
-        : config.baseDelayMs * Math.pow(2, attempt) + Math.random() * 500;
-
-      console.warn(`Adobe retry ${attempt + 1}/${config.maxRetries} in ${delay}ms`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error('Unreachable');
-}
-```
-
-### Pattern 4: Job Polling for Async APIs (Photoshop, Lightroom)
-
-```typescript
-// src/adobe/polling.ts — Photoshop/Lightroom APIs are async (submit job, poll status)
-interface AdobeJobStatus {
-  status: 'pending' | 'running' | 'succeeded' | 'failed';
-  _links?: { self: { href: string } };
-  output?: any;
-  error?: { code: string; message: string };
-}
-
-export async function pollAdobeJob(
-  statusUrl: string,
-  options = { intervalMs: 2000, timeoutMs: 120_000 }
-): Promise<AdobeJobStatus> {
-  const token = await getAccessToken();
-  const deadline = Date.now() + options.timeoutMs;
-
-  while (Date.now() < deadline) {
-    const res = await fetch(statusUrl, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'x-api-key': process.env.ADOBE_CLIENT_ID!,
-      },
-    });
-
-    const status: AdobeJobStatus = await res.json();
-
-    if (status.status === 'succeeded') return status;
-    if (status.status === 'failed') {
-      throw new Error(`Adobe job failed: ${status.error?.message || 'Unknown error'}`);
-    }
-
-    await new Promise(r => setTimeout(r, options.intervalMs));
-  }
-
-  throw new Error('Adobe job polling timeout');
-}
-```
-
-### Pattern 5: Zod Validation for API Responses
-
-```typescript
-import { z } from 'zod';
-
-const FireflyImageOutputSchema = z.object({
-  outputs: z.array(z.object({
-    image: z.object({
-      url: z.string().url(),
-    }),
-    seed: z.number(),
-  })),
-});
-
-const PhotoshopJobSchema = z.object({
-  status: z.enum(['pending', 'running', 'succeeded', 'failed']),
-  _links: z.object({
-    self: z.object({ href: z.string().url() }),
-  }).optional(),
-});
-
-// Usage
-const raw = await adobeApiFetch<unknown>(fireflyUrl, { method: 'POST', body });
-const validated = FireflyImageOutputSchema.parse(raw);
-```
-
-## Output
-
-- Type-safe client singleton with token caching
-- Error classification (retryable vs permanent)
-- Automatic retry with Adobe `Retry-After` header support
-- Async job polling for Photoshop/Lightroom operations
-- Zod runtime validation for API responses
+Code owners approve adapter changes; security approves auth and URL handling. Any live write, generation, upload, cancellation, or deletion requires product-owner approval.
 
 ## Error Handling
 
-| Pattern | Use Case | Benefit |
-|---------|----------|---------|
-| Token caching | All API calls | Avoids redundant IMS token requests |
-| Error classification | Retry decisions | Only retries transient failures |
-| Job polling | Photoshop/Lightroom | Handles async operation lifecycle |
-| Zod validation | All responses | Catches API contract changes at runtime |
+- Do not hardcode a remembered latest SDK or endpoint version.
+- Do not reconstruct status URLs when the response returns one.
+- Quarantine unknown terminal states and additive response shapes.
+
+## Output
+
+Return dependency evidence, adapter interfaces, auth binding, schemas, fixtures, compatibility results, migration notes, and owner. Mark assumptions, observed environment behavior, owners, evidence dates, and unresolved gaps explicitly.
 
 ## Examples
 
-Start with the smallest applicable command or code example already provided in this guide, using a non-production Adobe environment and credentials. Confirm the documented response or validation result before applying the pattern to production.
+- Accept an additive response field without dropping required evidence.
+- Reject a retired Lightroom client at build time.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- SDK drift
+- REST version drift
+- unknown status
+- 429
+- signed URL redaction
+- retired client
 
 ## Resources
 
-- [Firefly Services SDK GitHub](https://github.com/Firefly-Services/firefly-services-sdk-js)
-- [PDF Services Node SDK](https://www.npmjs.com/package/@adobe/pdfservices-node-sdk)
-- [Firefly API Reference](https://developer.adobe.com/firefly-services/docs/firefly-api/api/)
-- [Photoshop API Reference](https://developer.adobe.com/firefly-services/docs/photoshop/api/)
-
-## Next Steps
-
-Apply patterns in `adobe-core-workflow-a` for real-world usage.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Adobe sources before execution.
+- Treat observed tenant or product behavior as environment-specific evidence, never a universal Adobe guarantee.

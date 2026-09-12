@@ -1,259 +1,81 @@
 ---
 name: adobe-core-workflow-b
-description: 'Execute Adobe PDF Services workflow: create PDFs from HTML/DOCX, extract
-  text/tables,
-
-  document generation from templates, and PDF-to-Markdown conversion.
-
-  Use when building document automation, extracting content from PDFs,
-
-  or generating dynamic reports.
-
-  Trigger with phrases like "adobe pdf", "pdf services", "extract pdf",
-
-  "create pdf", "document generation", "pdf to markdown".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.7.0
+description: >-
+  Execute an Adobe PDF Services operation through explicit asset custody, asynchronous status, output verification, and cleanup. Use for approved document conversion, extraction, or generation. Use when this Adobe operator workflow is needed. Trigger with "process PDF with Adobe", "PDF Services job", or "Adobe document automation".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<operation> <input-classification> <output-destination>"
+version: 1.8.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- design
-- adobe
-compatibility: Designed for Claude Code
+tags: [saas, adobe, pdf]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Adobe actions require network access, appropriate entitlement and authentication, and explicit approval"
 ---
-# Adobe Core Workflow B — PDF Services
+# PDF Services Controlled Document Job
 
 ## Overview
 
-Document automation using Adobe PDF Services API: create PDFs from HTML/DOCX, extract structured text and tables with Sensei AI, generate documents from Word templates with JSON data, and convert PDFs to LLM-friendly Markdown.
+Execute an Adobe PDF Services operation through explicit asset custody, asynchronous status, output verification, and cleanup.. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 
-- Completed `adobe-install-auth` with PDF Services credentials
-- `npm install @adobe/pdfservices-node-sdk` (v4.x+)
-- 500 free document transactions/month on the free tier
+- Current first-party Adobe documentation for every selected service, API version, auth flow, limit, and lifecycle.
+- Named product, identity, security, data, budget, release, and operations owners appropriate to the scope.
+- Synthetic or approved non-production fixtures with secret and content canaries.
+
+## Current Contract
+
+The REST lifecycle is authenticate, supply a supported signed URL or create an asset and upload to its pre-signed URI, create an async job, follow the Location/status contract, retrieve output, and delete Adobe-hosted assets when no longer needed. Limits vary by operation. Recheck the dated evidence map before relying on mutable product behavior.
+
+## Authentication
+
+Use server-side service credentials and bind assets to the same credential or approved signed URL. Signed URLs are bearer capabilities and must be redacted, narrowly scoped, and short-lived.
 
 ## Instructions
 
-### Step 1: Create PDF from HTML
+1. Classify the input, operation, page/file constraints, output, retention, transaction budget, and owners.
+2. Choose customer-managed signed URLs or Adobe-hosted assets and document the custody boundary.
+3. Validate media type, size, protection state, operation contract, and current limits before upload.
+4. Create the job once, retain the returned status location, and poll within an attempt and elapsed-time budget.
+5. Download or receive output into approved storage, verify type/hash/expected structure, and acknowledge downstream custody.
+6. Delete approved Adobe-hosted assets promptly and reconcile transaction, failure, retention, and deletion evidence.
 
-```typescript
-// src/workflows/pdf-create.ts
-import {
-  ServicePrincipalCredentials,
-  PDFServices,
-  MimeType,
-  CreatePDFJob,
-  CreatePDFResult,
-} from '@adobe/pdfservices-node-sdk';
-import * as fs from 'fs';
+## Tool Discipline
 
-const credentials = new ServicePrincipalCredentials({
-  clientId: process.env.ADOBE_CLIENT_ID!,
-  clientSecret: process.env.ADOBE_CLIENT_SECRET!,
-});
-const pdfServices = new PDFServices({ credentials });
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, Adobe content, consent, uploads, generation, spend, deployment, registration changes, replay, cancellation, or deletion.
 
-export async function htmlToPdf(htmlPath: string, outputPath: string): Promise<void> {
-  const inputStream = fs.createReadStream(htmlPath);
-  const inputAsset = await pdfServices.upload({
-    readStream: inputStream,
-    mimeType: MimeType.HTML,
-  });
+## Approval Boundaries
 
-  const job = new CreatePDFJob({ inputAsset });
-  const pollingURL = await pdfServices.submit({ job });
-  const result = await pdfServices.getJobResult({
-    pollingURL,
-    resultType: CreatePDFResult,
-  });
-
-  const resultAsset = result.result!.asset;
-  const streamAsset = await pdfServices.getContent({ asset: resultAsset });
-  const output = fs.createWriteStream(outputPath);
-  streamAsset.readStream.pipe(output);
-
-  await new Promise((resolve, reject) => {
-    output.on('finish', resolve);
-    output.on('error', reject);
-  });
-
-  console.log(`PDF created: ${outputPath}`);
-}
-```
-
-### Step 2: Extract Text and Tables from PDF (Sensei AI)
-
-```typescript
-// src/workflows/pdf-extract.ts
-import {
-  PDFServices,
-  MimeType,
-  ExtractPDFParams,
-  ExtractElementType,
-  ExtractPDFJob,
-  ExtractPDFResult,
-  ExtractRenditionsElementType,
-} from '@adobe/pdfservices-node-sdk';
-import * as fs from 'fs';
-import AdmZip from 'adm-zip';
-
-export async function extractPdfContent(
-  pdfPath: string,
-  options?: { tables?: boolean; figures?: boolean }
-): Promise<{ text: string; tables: any[]; }> {
-  const inputStream = fs.createReadStream(pdfPath);
-  const inputAsset = await pdfServices.upload({
-    readStream: inputStream,
-    mimeType: MimeType.PDF,
-  });
-
-  const elements = [ExtractElementType.TEXT];
-  if (options?.tables !== false) elements.push(ExtractElementType.TABLES);
-
-  const params = new ExtractPDFParams({
-    elementsToExtract: elements,
-    ...(options?.figures && {
-      elementsToExtractRenditions: [ExtractRenditionsElementType.FIGURES],
-    }),
-  });
-
-  const job = new ExtractPDFJob({ inputAsset, params });
-  const pollingURL = await pdfServices.submit({ job });
-  const result = await pdfServices.getJobResult({
-    pollingURL,
-    resultType: ExtractPDFResult,
-  });
-
-  // Download and parse the result ZIP
-  const resultAsset = result.result!.resource;
-  const streamAsset = await pdfServices.getContent({ asset: resultAsset });
-  const chunks: Buffer[] = [];
-  for await (const chunk of streamAsset.readStream) {
-    chunks.push(Buffer.from(chunk));
-  }
-
-  const zip = new AdmZip(Buffer.concat(chunks));
-  const structuredData = JSON.parse(
-    zip.readAsText('structuredData.json')
-  );
-
-  // Parse text elements
-  const textElements = structuredData.elements
-    .filter((el: any) => el.Text)
-    .map((el: any) => el.Text);
-
-  // Parse table elements
-  const tableElements = structuredData.elements
-    .filter((el: any) => el.Path?.includes('/Table'));
-
-  return { text: textElements.join('\n'), tables: tableElements };
-}
-```
-
-### Step 3: Document Generation from Word Template
-
-```typescript
-// src/workflows/pdf-docgen.ts
-import {
-  PDFServices,
-  MimeType,
-  DocumentMergeJob,
-  DocumentMergeParams,
-  DocumentMergeResult,
-  OutputFormat,
-} from '@adobe/pdfservices-node-sdk';
-import * as fs from 'fs';
-
-export async function generateDocument(
-  templatePath: string,   // .docx Word template with {{tags}}
-  data: Record<string, any>,
-  outputPath: string,
-  format: 'pdf' | 'docx' = 'pdf'
-): Promise<void> {
-  const inputStream = fs.createReadStream(templatePath);
-  const inputAsset = await pdfServices.upload({
-    readStream: inputStream,
-    mimeType: MimeType.DOCX,
-  });
-
-  const params = new DocumentMergeParams({
-    jsonDataForMerge: data,
-    outputFormat: format === 'pdf' ? OutputFormat.PDF : OutputFormat.DOCX,
-  });
-
-  const job = new DocumentMergeJob({ inputAsset, params });
-  const pollingURL = await pdfServices.submit({ job });
-  const result = await pdfServices.getJobResult({
-    pollingURL,
-    resultType: DocumentMergeResult,
-  });
-
-  const resultAsset = result.result!.asset;
-  const streamAsset = await pdfServices.getContent({ asset: resultAsset });
-  const output = fs.createWriteStream(outputPath);
-  streamAsset.readStream.pipe(output);
-
-  console.log(`Document generated: ${outputPath}`);
-}
-
-// Usage: Invoice generation
-// await generateDocument('./templates/invoice.docx', {
-//   company: 'Acme Corp',
-//   invoiceNumber: 'INV-2026-001',
-//   items: [
-//     { description: 'API Integration', quantity: 1, price: 5000 },
-//     { description: 'Support Plan', quantity: 12, price: 200 },
-//   ],
-//   total: '$7,400.00',
-// }, './output/invoice.pdf');
-```
-
-### Step 4: PDF to Markdown (LLM-Friendly)
-
-```typescript
-// PDF Extract API supports structured output for LLM ingestion
-export async function pdfToMarkdown(pdfPath: string): Promise<string> {
-  const { text } = await extractPdfContent(pdfPath, { tables: false });
-
-  // The structuredData.json includes element paths indicating heading levels
-  // For full Markdown fidelity, parse element Paths:
-  //   /H1 -> # heading, /H2 -> ## heading, /L/LI -> bullet
-  return text;
-}
-```
-
-## Output
-
-- PDF files created from HTML, DOCX, or other formats
-- Structured JSON with text, tables, and figures extracted from PDFs
-- Dynamic documents generated from Word templates with JSON data
-- Markdown text extracted from PDFs for LLM consumption
+Require data-owner and budget approval before upload or job creation. Decryption, external transfer, output retention, and asset deletion require explicit authorized owners.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `DISQUALIFIED` | Encrypted or DRM-protected PDF | Remove encryption before processing |
-| `BAD_PDF` | Corrupted PDF file | Validate PDF with `pdfinfo` before upload |
-| `TIMEOUT` | Large PDF (100+ pages) | Split into smaller PDFs first |
-| `QUOTA_EXCEEDED` | Free tier limit (500 tx/month) | Upgrade plan or wait for monthly reset |
-| `UNSUPPORTED_MEDIA_TYPE` | Wrong MimeType for input | Match MimeType to actual file format |
+- Do not retry a disqualified or malformed document unchanged.
+- Do not log input/output content, credentials, or signed URLs.
+- Treat an ambiguous job result as reconciliation work, not permission to duplicate a transaction.
+
+## Output
+
+Return classification, storage decision, asset/job ledger, status evidence, verified output, transaction class, deletion receipt, and residual retention. Mark assumptions, observed environment behavior, owners, evidence dates, and unresolved gaps explicitly.
 
 ## Examples
 
-Start with the smallest applicable command or code example already provided in this guide, using a non-production Adobe environment and credentials. Confirm the documented response or validation result before applying the pattern to production.
+- Process a synthetic PDF and delete its Adobe-hosted assets.
+- Reject an unsupported or protected fixture before upload.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- valid output
+- unsupported input
+- expired URL
+- 429
+- ambiguous job
+- deletion verification
 
 ## Resources
 
-- [PDF Services API How-Tos](https://developer.adobe.com/document-services/docs/overview/pdf-services-api/howtos/)
-- [Document Generation API](https://developer.adobe.com/document-services/docs/overview/document-generation-api/)
-- [PDF Extract API](https://developer.adobe.com/document-services/docs/overview/pdf-extract-api/)
-- [PDF Services Node SDK Samples](https://github.com/adobe/pdfservices-node-sdk-samples)
-
-## Next Steps
-
-For common errors, see `adobe-common-errors`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Adobe sources before execution.
+- Treat observed tenant or product behavior as environment-specific evidence, never a universal Adobe guarantee.

@@ -1,240 +1,81 @@
 ---
 name: adobe-common-errors
-description: 'Diagnose and fix common Adobe API errors across Firefly Services, PDF
-  Services,
-
-  Photoshop API, and Adobe I/O Events.
-
-  Use when encountering Adobe errors, debugging failed requests,
-
-  or troubleshooting integration issues.
-
-  Trigger with phrases like "adobe error", "fix adobe",
-
-  "adobe not working", "debug adobe", "adobe 403", "adobe 429".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.7.0
+description: >-
+  Classify Adobe failures from redacted response evidence and select the smallest bounded recovery. Use across auth, Firefly, Photoshop, PDF Services, Events, and App Builder. Use when this Adobe operator workflow is needed. Trigger with "fix Adobe error", "Adobe 403", or "Adobe API failed".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<service> <operation> <status-or-error>"
+version: 1.8.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- design
-- adobe
-compatibility: Designed for Claude Code
+tags: [saas, adobe, errors]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Adobe actions require network access, appropriate entitlement and authentication, and explicit approval"
 ---
-# Adobe Common Errors
+# Adobe Response-Led Error Triage
 
 ## Overview
 
-Quick reference for the most common errors across Adobe APIs with real error messages, root causes, and verified fixes.
+Classify Adobe failures from redacted response evidence and select the smallest bounded recovery.. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 
-- Adobe SDK or API credentials configured
-- Access to Adobe Developer Console (https://developer.adobe.com/console)
-- Access to error logs or API responses
+- Current first-party Adobe documentation for every selected service, API version, auth flow, limit, and lifecycle.
+- Named product, identity, security, data, budget, release, and operations owners appropriate to the scope.
+- Synthetic or approved non-production fixtures with secret and content canaries.
+
+## Current Contract
+
+HTTP status, product error code, request/job/activation identity, credential type, organization, entitlement, request validity, retry headers, and service state are separate evidence. There is no safe universal mapping from one status to one fix. Recheck the dated evidence map before relying on mutable product behavior.
+
+## Authentication
+
+Record only credential aliases, scopes, profiles, and expiry class. A 403 may be organization, entitlement, product-profile, policy, or resource authority; do not solve it by blind privilege expansion.
 
 ## Instructions
 
-### Step 1: Identify the HTTP Status Code and Error Body
+1. Capture one sanitized request/response envelope, operation, environment, timestamp, and correlation identifiers.
+2. Classify transport, authentication, authorization/entitlement, validation/policy, throttling, conflict, async-state, or vendor-service failure.
+3. Compare host, method, version, schema, organization/project/workspace, scopes, profiles, and data ownership with current docs.
+4. Apply the smallest class-specific correction and preserve the original evidence.
+5. Retry only transient and idempotent work within Retry-After and strict attempt/time budgets.
+6. Verify with the least consequential reproduction and package unresolved cases for Adobe support.
 
-Adobe APIs return structured error responses:
+## Tool Discipline
 
-```json
-{
-  "error_code": "403003",
-  "message": "Api Key is invalid"
-}
-```
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, Adobe content, consent, uploads, generation, spend, deployment, registration changes, replay, cancellation, or deletion.
 
-### Step 2: Match Error Below and Apply Fix
+## Approval Boundaries
 
----
-
-### Error 1: `401 Unauthorized` — Token Expired or Invalid
-
-```
-{"error":"invalid_token","error_description":"Could not match jwt signature to any of the bindings"}
-```
-
-**Cause:** Access token expired (24h TTL) or you are still using deprecated JWT credentials.
-
-**Fix:**
-
-```bash
-# Regenerate OAuth Server-to-Server token
-curl -X POST 'https://ims-na1.adobelogin.com/ims/token/v3' \
-  -d "client_id=${ADOBE_CLIENT_ID}&client_secret=${ADOBE_CLIENT_SECRET}&grant_type=client_credentials&scope=${ADOBE_SCOPES}"
-
-# If using JWT: migrate immediately — JWT reached EOL June 2025
-# See: https://developer.adobe.com/developer-console/docs/guides/authentication/ServerToServerAuthentication/migration
-```
-
----
-
-### Error 2: `403 Forbidden` — API Not Entitled
-
-```
-{"error_code":"403003","message":"Api Key is invalid"}
-```
-
-**Cause:** Your Developer Console project does not have the API added, or the product profile is missing.
-
-**Fix:** Go to Developer Console > Project > Add API > Select the API > Assign product profile.
-
----
-
-### Error 3: `429 Too Many Requests` — Rate Limited
-
-```
-HTTP/1.1 429 Too Many Requests
-Retry-After: 30
-```
-
-**Cause:** Exceeded API rate limits. Adobe rate limits vary by API:
-
-- Firefly: ~20 req/min on trial
-- PDF Services: 500 transactions/month (free tier)
-- Events Publishing: 3,000 req/5sec per api-key
-
-**Fix:**
-
-```typescript
-// Honor the Retry-After header
-const retryAfter = parseInt(response.headers.get('Retry-After') || '30');
-await new Promise(r => setTimeout(r, retryAfter * 1000));
-```
-
----
-
-### Error 4: `400 Bad Request` — Firefly Content Policy
-
-```
-{"type":"INPUT_VALIDATION_ERROR","title":"prompt is not allowed by the content policy"}
-```
-
-**Cause:** Firefly prompt contains prohibited content (real people, trademarks, explicit content).
-
-**Fix:** Remove prohibited terms. Firefly has guardrails against generating images of real people, brand logos, and copyrighted characters.
-
----
-
-### Error 5: `400 InputValidationError` — Photoshop Storage URL
-
-```
-{"type":"InputValidationError","title":"input href is not a valid pre-signed URL"}
-```
-
-**Cause:** Photoshop/Lightroom APIs require pre-signed cloud storage URLs (S3, Azure Blob, Dropbox), not direct file uploads.
-
-**Fix:**
-
-```typescript
-// Generate a pre-signed S3 URL for input
-const inputUrl = await s3.getSignedUrl('getObject', {
-  Bucket: 'my-bucket', Key: 'input.jpg', Expires: 3600
-});
-// Generate a pre-signed S3 URL for output
-const outputUrl = await s3.getSignedUrl('putObject', {
-  Bucket: 'my-bucket', Key: 'output.png', Expires: 3600
-});
-```
-
----
-
-### Error 6: `DISQUALIFIED` — PDF Services Encrypted File
-
-```
-{"status":"failed","error":{"code":"DISQUALIFIED","message":"File is encrypted"}}
-```
-
-**Cause:** PDF is password-protected or has DRM restrictions.
-
-**Fix:** Remove encryption before processing:
-
-```bash
-# Remove PDF password with qpdf
-qpdf --decrypt --password=yourpassword input.pdf decrypted.pdf
-```
-
----
-
-### Error 7: `invalid_scope` — OAuth Scope Not Entitled
-
-```
-{"error":"invalid_scope","error_description":"scope openid,firefly_api not allowed"}
-```
-
-**Cause:** Your organization is not entitled to the requested API scope.
-
-**Fix:** In Adobe Admin Console, ensure the product profile associated with your project includes the required API entitlements.
-
----
-
-### Error 8: `ENOTFOUND` — DNS Resolution Failure
-
-```
-Error: getaddrinfo ENOTFOUND ims-na1.adobelogin.com
-```
-
-**Cause:** DNS resolution failure or network firewall blocking Adobe endpoints.
-
-**Fix:**
-
-```bash
-# Test DNS resolution
-nslookup ims-na1.adobelogin.com
-nslookup firefly-api.adobe.io
-nslookup image.adobe.io
-
-# Ensure firewall allows outbound HTTPS to:
-# - ims-na1.adobelogin.com (auth)
-# - firefly-api.adobe.io (Firefly)
-# - image.adobe.io (Photoshop/Lightroom)
-# - pdf-services.adobe.io (PDF Services)
-```
-
-## Quick Diagnostic Commands
-
-```bash
-# Test OAuth token generation
-curl -s -o /dev/null -w "%{http_code}" -X POST \
-  'https://ims-na1.adobelogin.com/ims/token/v3' \
-  -d "client_id=${ADOBE_CLIENT_ID}&client_secret=${ADOBE_CLIENT_SECRET}&grant_type=client_credentials&scope=${ADOBE_SCOPES}"
-
-# Check Adobe service status
-curl -s https://status.adobe.com/api/v1/incidents | python3 -m json.tool | head -20
-
-# Verify which APIs your project has
-# → Go to https://developer.adobe.com/console > Your Project > APIs
-```
-
-## Escalation Path
-
-1. Collect evidence with `adobe-debug-bundle`
-2. Check https://status.adobe.com for active incidents
-3. Contact Adobe Support with request ID (from response headers: `x-request-id`)
-
-## Output
-
-Following this guide produces the Adobe integration outcome for its topic—configuration, validation evidence, operational recovery, or a documented migration result. Record command output and relevant identifiers so a failed step is traceable.
+Scope/profile/credential changes require security and organization-owner approval. Prompt, document, asset, event registration, deploy, or retry changes require their respective owners.
 
 ## Error Handling
 
-If a step fails, stop before applying follow-on changes, retain sanitized diagnostic evidence, and use the troubleshooting or escalation guidance already in this skill. Treat authentication and vendor-service failures separately from local configuration errors.
+- Never infer a 24-hour token lifetime unless the actual token response proves it.
+- Never accept 429 as a successful CI test.
+- Do not dump raw HTTP traces containing Authorization or signed URLs.
+
+## Output
+
+Return the evidence envelope, fault class, ruled-out causes, minimal action, retry decision, verification, and escalation packet. Mark assumptions, observed environment behavior, owners, evidence dates, and unresolved gaps explicitly.
 
 ## Examples
 
-Start with the smallest applicable command or code example already provided in this guide, using a non-production Adobe environment and credentials. Confirm the documented response or validation result before applying the pattern to production.
+- Distinguish missing entitlement from expired auth on a 403 path.
+- Honor Retry-After on a synthetic 429 and stop at budget.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- 401
+- 403
+- validation/policy
+- 429
+- 5xx
+- unknown async state
 
 ## Resources
 
-- [Adobe Status Page](https://status.adobe.com)
-- [Adobe Developer Support](https://developer.adobe.com/support)
-- [OAuth Implementation Guide](https://developer.adobe.com/developer-console/docs/guides/authentication/ServerToServerAuthentication/implementation)
-
-## Next Steps
-
-For comprehensive debugging, see `adobe-debug-bundle`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Adobe sources before execution.
+- Treat observed tenant or product behavior as environment-specific evidence, never a universal Adobe guarantee.
