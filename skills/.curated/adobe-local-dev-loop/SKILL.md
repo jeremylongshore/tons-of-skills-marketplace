@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Build a repeatable local loop for Adobe adapters using synthetic contracts before any remote Runtime or product call.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Build a repeatable local loop for Adobe adapters using synthetic contracts before any remote Runtime or product call. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

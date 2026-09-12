@@ -1,7 +1,7 @@
 ---
 name: adobe-incident-runbook
 description: >-
-  Triage, contain, recover, and review Adobe auth, product, async-job, event, storage, spend, or App Builder incidents with evidence. Use when this Adobe operator workflow is needed. Trigger with "Adobe incident", "Firefly outage", or "Adobe credential leak".
+  Triage, contain, recover, and review Adobe auth, product, async-job, event, storage, spend, or App Builder incidents with evidence. Use when the task requires adobe integration incident command. Trigger with "Adobe incident", "Firefly outage", or "Adobe credential leak".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<service> <impact> <incident-window>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Triage, contain, recover, and review Adobe auth, product, async-job, event, storage, spend, or App Builder incidents with evidence.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Triage, contain, recover, and review Adobe auth, product, async-job, event, storage, spend, or App Builder incidents with evidence. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

@@ -1,7 +1,7 @@
 ---
 name: adobe-migration-deep-dive
 description: >-
-  Analyze and execute a multi-workload migration into or across Adobe services with contract evidence, dependency waves, dual-run reconciliation, cost controls, and rollback. Use when this Adobe operator workflow is needed. Trigger with "Adobe migration plan", "move workflow to Adobe", or "Adobe platform consolidation".
+  Analyze and execute a multi-workload migration into or across Adobe services with contract evidence, dependency waves, dual-run reconciliation, cost controls, and rollback. Use when the task requires adobe platform migration program. Trigger with "Adobe migration plan", "move workflow to Adobe", or "Adobe platform consolidation".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<source-platform> <target-services> <migration-scope>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Analyze and execute a multi-workload migration into or across Adobe services with contract evidence, dependency waves, dual-run reconciliation, cost controls, and rollback.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Analyze and execute a multi-workload migration into or across Adobe services with contract evidence, dependency waves, dual-run reconciliation, cost controls, and rollback. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

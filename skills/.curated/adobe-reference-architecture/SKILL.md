@@ -1,7 +1,7 @@
 ---
 name: adobe-reference-architecture
 description: >-
-  Define a production Adobe architecture spanning identity, service adapters, async workers, asset custody, I/O Events, App Builder, evidence, and recovery. Use when this Adobe operator workflow is needed. Trigger with "design Adobe architecture", "Adobe reference architecture", or "standardize Adobe services".
+  Define a production Adobe architecture spanning identity, service adapters, async workers, asset custody, I/O Events, App Builder, evidence, and recovery. Use when the task requires adobe integration reference architecture. Trigger with "design Adobe architecture", "Adobe reference architecture", or "standardize Adobe services".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<workloads> <services> <recovery-objectives>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Define a production Adobe architecture spanning identity, service adapters, async workers, asset custody, I/O Events, App Builder, evidence, and recovery.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Define a production Adobe architecture spanning identity, service adapters, async workers, asset custody, I/O Events, App Builder, evidence, and recovery. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

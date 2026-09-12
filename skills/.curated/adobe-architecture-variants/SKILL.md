@@ -1,7 +1,7 @@
 ---
 name: adobe-architecture-variants
 description: >-
-  Choose among direct service integration, Adobe App Builder, and a dedicated queued worker using evidence about ownership, latency, scale, storage, events, and operations. Use when this Adobe operator workflow is needed. Trigger with "choose Adobe architecture", "App Builder or microservice", or "Adobe design options".
+  Choose among direct service integration, Adobe App Builder, and a dedicated queued worker using evidence about ownership, latency, scale, storage, events, and operations. Use when the task requires adobe architecture variant decision. Trigger with "choose Adobe architecture", "App Builder or microservice", or "Adobe design options".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<workloads> <constraints> <decision-date>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Choose among direct service integration, Adobe App Builder, and a dedicated queued worker using evidence about ownership, latency, scale, storage, events, and operations.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Choose among direct service integration, Adobe App Builder, and a dedicated queued worker using evidence about ownership, latency, scale, storage, events, and operations. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

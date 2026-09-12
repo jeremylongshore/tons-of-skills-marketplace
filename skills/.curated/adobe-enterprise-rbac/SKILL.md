@@ -1,7 +1,7 @@
 ---
 name: adobe-enterprise-rbac
 description: >-
-  Govern Adobe Developer Console roles, product profiles, technical accounts, User Management API automation, and periodic access review. Use when this Adobe operator workflow is needed. Trigger with "Adobe RBAC", "Adobe product profiles", or "Adobe user provisioning".
+  Govern Adobe Developer Console roles, product profiles, technical accounts, User Management API automation, and periodic access review. Use when the task requires adobe enterprise access governance. Trigger with "Adobe RBAC", "Adobe product profiles", or "Adobe user provisioning".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<organization> <products> <access-change>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Govern Adobe Developer Console roles, product profiles, technical accounts, User Management API automation, and periodic access review.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Govern Adobe Developer Console roles, product profiles, technical accounts, User Management API automation, and periodic access review. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

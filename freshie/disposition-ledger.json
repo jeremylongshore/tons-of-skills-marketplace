@@ -3,7 +3,7 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "88cbf0dfe73d09c1f0c68c81dd0a7479756e8867c55e72609b7d33417bbb0cbf",
+    "sha256": "ecae8ddc233aa4d37ae3ae500485840bfa585d477b298cd8a5e998102da56551",
     "artifact_count": 3491
   },
   "rule_order": [
@@ -9663,7 +9663,7 @@
     {
       "path": "plugins/saas-packs/adobe-pack/skills/adobe-advanced-troubleshooting/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9696,7 +9696,7 @@
     {
       "path": "plugins/saas-packs/adobe-pack/skills/adobe-common-errors/SKILL.md",
       "grade": "A",
-      "score": 99,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9784,7 +9784,7 @@
     {
       "path": "plugins/saas-packs/adobe-pack/skills/adobe-hello-world/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",

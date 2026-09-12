@@ -599,10 +599,10 @@ plugins/saas-packs/abridge-pack/skills/abridge-sdk-patterns,A,98
 plugins/saas-packs/abridge-pack/skills/abridge-security-basics,A,98
 plugins/saas-packs/abridge-pack/skills/abridge-upgrade-migration,A,97
 plugins/saas-packs/abridge-pack/skills/abridge-webhooks-events,A,98
-plugins/saas-packs/adobe-pack/skills/adobe-advanced-troubleshooting,A,98
+plugins/saas-packs/adobe-pack/skills/adobe-advanced-troubleshooting,A,97
 plugins/saas-packs/adobe-pack/skills/adobe-architecture-variants,A,96
 plugins/saas-packs/adobe-pack/skills/adobe-ci-integration,A,99
-plugins/saas-packs/adobe-pack/skills/adobe-common-errors,A,99
+plugins/saas-packs/adobe-pack/skills/adobe-common-errors,A,98
 plugins/saas-packs/adobe-pack/skills/adobe-core-workflow-a,A,97
 plugins/saas-packs/adobe-pack/skills/adobe-core-workflow-b,A,96
 plugins/saas-packs/adobe-pack/skills/adobe-cost-tuning,A,96
@@ -610,7 +610,7 @@ plugins/saas-packs/adobe-pack/skills/adobe-data-handling,A,98
 plugins/saas-packs/adobe-pack/skills/adobe-debug-bundle,A,97
 plugins/saas-packs/adobe-pack/skills/adobe-deploy-integration,A,99
 plugins/saas-packs/adobe-pack/skills/adobe-enterprise-rbac,A,96
-plugins/saas-packs/adobe-pack/skills/adobe-hello-world,A,98
+plugins/saas-packs/adobe-pack/skills/adobe-hello-world,A,97
 plugins/saas-packs/adobe-pack/skills/adobe-incident-runbook,A,99
 plugins/saas-packs/adobe-pack/skills/adobe-install-auth,A,97
 plugins/saas-packs/adobe-pack/skills/adobe-known-pitfalls,A,98

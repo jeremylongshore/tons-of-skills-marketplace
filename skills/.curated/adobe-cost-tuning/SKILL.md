@@ -1,7 +1,7 @@
 ---
 name: adobe-cost-tuning
 description: >-
-  Reduce Adobe integration spend using contract, invoice, usage, queue, storage, and retry evidence instead of invented per-call prices. Use when this Adobe operator workflow is needed. Trigger with "reduce Adobe cost", "Adobe spend review", or "PDF transaction budget".
+  Reduce Adobe integration spend using contract, invoice, usage, queue, storage, and retry evidence instead of invented per-call prices. Use when the task requires adobe workload cost and waste review. Trigger with "reduce Adobe cost", "Adobe spend review", or "PDF transaction budget".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<workload> <billing-window> <budget-objective>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Reduce Adobe integration spend using contract, invoice, usage, queue, storage, and retry evidence instead of invented per-call prices.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Reduce Adobe integration spend using contract, invoice, usage, queue, storage, and retry evidence instead of invented per-call prices. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

@@ -15627,7 +15627,7 @@
       "id": "adobe-advanced-troubleshooting",
       "slug": "adobe-advanced-troubleshooting",
       "name": "adobe-advanced-troubleshooting",
-      "description": "Isolate complex Adobe failures across DNS/TLS, auth, entitlement, schema, async state, storage, Runtime, and downstream layers without leaking credentials or content. Use when this Adobe operator workflow is needed. Trigger with \"deep debug Adobe\", \"Adobe job stuck\", or \"Adobe intermittent failure\".",
+      "description": "Isolate complex Adobe failures across DNS/TLS, auth, entitlement, schema, async state, storage, Runtime, and downstream layers without leaking credentials or content. Use when the task requires adobe layered failure isolation. Trigger with \"deep debug Adobe\", \"Adobe job stuck\", or \"Adobe intermittent failure\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -15642,14 +15642,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-advanced-troubleshooting isolate complex adobe failures across dns/tls, auth, entitlement, schema, async state, storage, runtime, and downstream layers without leaking credentials or content. use when this adobe operator workflow is needed. trigger with \"deep debug adobe\", \"adobe job stuck\", or \"adobe intermittent failure\". saas-packs read glob grep write edit "
+      "searchText": "adobe-advanced-troubleshooting isolate complex adobe failures across dns/tls, auth, entitlement, schema, async state, storage, runtime, and downstream layers without leaking credentials or content. use when the task requires adobe layered failure isolation. trigger with \"deep debug adobe\", \"adobe job stuck\", or \"adobe intermittent failure\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-architecture-variants",
       "slug": "adobe-architecture-variants",
       "name": "adobe-architecture-variants",
-      "description": "Choose among direct service integration, Adobe App Builder, and a dedicated queued worker using evidence about ownership, latency, scale, storage, events, and operations. Use when this Adobe operator workflow is needed. Trigger with \"choose Adobe architecture\", \"App Builder or microservice\", or \"Adobe design options\".",
+      "description": "Choose among direct service integration, Adobe App Builder, and a dedicated queued worker using evidence about ownership, latency, scale, storage, events, and operations. Use when the task requires adobe architecture variant decision. Trigger with \"choose Adobe architecture\", \"App Builder or microservice\", or \"Adobe design options\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -15664,7 +15664,7 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-architecture-variants choose among direct service integration, adobe app builder, and a dedicated queued worker using evidence about ownership, latency, scale, storage, events, and operations. use when this adobe operator workflow is needed. trigger with \"choose adobe architecture\", \"app builder or microservice\", or \"adobe design options\". saas-packs read glob grep write edit "
+      "searchText": "adobe-architecture-variants choose among direct service integration, adobe app builder, and a dedicated queued worker using evidence about ownership, latency, scale, storage, events, and operations. use when the task requires adobe architecture variant decision. trigger with \"choose adobe architecture\", \"app builder or microservice\", or \"adobe design options\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
@@ -15693,7 +15693,7 @@
       "id": "adobe-common-errors",
       "slug": "adobe-common-errors",
       "name": "adobe-common-errors",
-      "description": "Classify Adobe failures from redacted response evidence and select the smallest bounded recovery. Use across auth, Firefly, Photoshop, PDF Services, Events, and App Builder. Use when this Adobe operator workflow is needed. Trigger with \"fix Adobe error\", \"Adobe 403\", or \"Adobe API failed\".",
+      "description": "Classify Adobe failures from redacted response evidence and select the smallest bounded recovery. Use across auth, Firefly, Photoshop, PDF Services, Events, and App Builder. Use when the task requires adobe response-led error triage. Trigger with \"fix Adobe error\", \"Adobe 403\", or \"Adobe API failed\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -15708,14 +15708,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-common-errors classify adobe failures from redacted response evidence and select the smallest bounded recovery. use across auth, firefly, photoshop, pdf services, events, and app builder. use when this adobe operator workflow is needed. trigger with \"fix adobe error\", \"adobe 403\", or \"adobe api failed\". saas-packs read glob grep write edit "
+      "searchText": "adobe-common-errors classify adobe failures from redacted response evidence and select the smallest bounded recovery. use across auth, firefly, photoshop, pdf services, events, and app builder. use when the task requires adobe response-led error triage. trigger with \"fix adobe error\", \"adobe 403\", or \"adobe api failed\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-core-workflow-a",
       "slug": "adobe-core-workflow-a",
       "name": "adobe-core-workflow-a",
-      "description": "Run a current Adobe Firefly image generation job with prompt approval, response-led polling, artifact custody, and cancellation. Use for approved creative automation. Use when this Adobe operator workflow is needed. Trigger with \"generate with Firefly\", \"Firefly async job\", or \"Adobe image generation\".",
+      "description": "Run a current Adobe Firefly image generation job with prompt approval, response-led polling, artifact custody, and cancellation. Use for approved creative automation. Use when the task requires firefly controlled async generation. Trigger with \"generate with Firefly\", \"Firefly async job\", or \"Adobe image generation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -15730,14 +15730,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-core-workflow-a run a current adobe firefly image generation job with prompt approval, response-led polling, artifact custody, and cancellation. use for approved creative automation. use when this adobe operator workflow is needed. trigger with \"generate with firefly\", \"firefly async job\", or \"adobe image generation\". saas-packs read glob grep write edit "
+      "searchText": "adobe-core-workflow-a run a current adobe firefly image generation job with prompt approval, response-led polling, artifact custody, and cancellation. use for approved creative automation. use when the task requires firefly controlled async generation. trigger with \"generate with firefly\", \"firefly async job\", or \"adobe image generation\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-core-workflow-b",
       "slug": "adobe-core-workflow-b",
       "name": "adobe-core-workflow-b",
-      "description": "Execute an Adobe PDF Services operation through explicit asset custody, asynchronous status, output verification, and cleanup. Use for approved document conversion, extraction, or generation. Use when this Adobe operator workflow is needed. Trigger with \"process PDF with Adobe\", \"PDF Services job\", or \"Adobe document automation\".",
+      "description": "Execute an Adobe PDF Services operation through explicit asset custody, asynchronous status, output verification, and cleanup. Use for approved document conversion, extraction, or generation. Use when the task requires pdf services controlled document job. Trigger with \"process PDF with Adobe\", \"PDF Services job\", or \"Adobe document automation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -15752,14 +15752,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-core-workflow-b execute an adobe pdf services operation through explicit asset custody, asynchronous status, output verification, and cleanup. use for approved document conversion, extraction, or generation. use when this adobe operator workflow is needed. trigger with \"process pdf with adobe\", \"pdf services job\", or \"adobe document automation\". saas-packs read glob grep write edit "
+      "searchText": "adobe-core-workflow-b execute an adobe pdf services operation through explicit asset custody, asynchronous status, output verification, and cleanup. use for approved document conversion, extraction, or generation. use when the task requires pdf services controlled document job. trigger with \"process pdf with adobe\", \"pdf services job\", or \"adobe document automation\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-cost-tuning",
       "slug": "adobe-cost-tuning",
       "name": "adobe-cost-tuning",
-      "description": "Reduce Adobe integration spend using contract, invoice, usage, queue, storage, and retry evidence instead of invented per-call prices. Use when this Adobe operator workflow is needed. Trigger with \"reduce Adobe cost\", \"Adobe spend review\", or \"PDF transaction budget\".",
+      "description": "Reduce Adobe integration spend using contract, invoice, usage, queue, storage, and retry evidence instead of invented per-call prices. Use when the task requires adobe workload cost and waste review. Trigger with \"reduce Adobe cost\", \"Adobe spend review\", or \"PDF transaction budget\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -15774,14 +15774,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-cost-tuning reduce adobe integration spend using contract, invoice, usage, queue, storage, and retry evidence instead of invented per-call prices. use when this adobe operator workflow is needed. trigger with \"reduce adobe cost\", \"adobe spend review\", or \"pdf transaction budget\". saas-packs read glob grep write edit "
+      "searchText": "adobe-cost-tuning reduce adobe integration spend using contract, invoice, usage, queue, storage, and retry evidence instead of invented per-call prices. use when the task requires adobe workload cost and waste review. trigger with \"reduce adobe cost\", \"adobe spend review\", or \"pdf transaction budget\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-data-handling",
       "slug": "adobe-data-handling",
       "name": "adobe-data-handling",
-      "description": "Analyze and enforce classification, minimization, signed-URL custody, retention, deletion, content provenance, and privacy-request boundaries for Adobe workflows. Use when this Adobe operator workflow is needed. Trigger with \"Adobe data handling\", \"PDF privacy\", or \"Firefly content policy\".",
+      "description": "Analyze and enforce classification, minimization, signed-URL custody, retention, deletion, content provenance, and privacy-request boundaries for Adobe workflows. Use when the task requires adobe data custody and privacy review. Trigger with \"Adobe data handling\", \"PDF privacy\", or \"Firefly content policy\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -15796,14 +15796,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-data-handling analyze and enforce classification, minimization, signed-url custody, retention, deletion, content provenance, and privacy-request boundaries for adobe workflows. use when this adobe operator workflow is needed. trigger with \"adobe data handling\", \"pdf privacy\", or \"firefly content policy\". saas-packs read glob grep write edit "
+      "searchText": "adobe-data-handling analyze and enforce classification, minimization, signed-url custody, retention, deletion, content provenance, and privacy-request boundaries for adobe workflows. use when the task requires adobe data custody and privacy review. trigger with \"adobe data handling\", \"pdf privacy\", or \"firefly content policy\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-debug-bundle",
       "slug": "adobe-debug-bundle",
       "name": "adobe-debug-bundle",
-      "description": "Assemble a minimal, reproducible Adobe diagnostic bundle with default-deny collection and verifiable redaction. Use for engineering or Adobe support escalation. Use when this Adobe operator workflow is needed. Trigger with \"Adobe debug bundle\", \"collect Adobe diagnostics\", or \"prepare Adobe support case\".",
+      "description": "Assemble a minimal, reproducible Adobe diagnostic bundle with default-deny collection and verifiable redaction. Use for engineering or Adobe support escalation. Use when the task requires adobe redacted diagnostic bundle. Trigger with \"Adobe debug bundle\", \"collect Adobe diagnostics\", or \"prepare Adobe support case\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -15818,14 +15818,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-debug-bundle assemble a minimal, reproducible adobe diagnostic bundle with default-deny collection and verifiable redaction. use for engineering or adobe support escalation. use when this adobe operator workflow is needed. trigger with \"adobe debug bundle\", \"collect adobe diagnostics\", or \"prepare adobe support case\". saas-packs read glob grep write edit "
+      "searchText": "adobe-debug-bundle assemble a minimal, reproducible adobe diagnostic bundle with default-deny collection and verifiable redaction. use for engineering or adobe support escalation. use when the task requires adobe redacted diagnostic bundle. trigger with \"adobe debug bundle\", \"collect adobe diagnostics\", or \"prepare adobe support case\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-deploy-integration",
       "slug": "adobe-deploy-integration",
       "name": "adobe-deploy-integration",
-      "description": "Deploy an Adobe-backed service or App Builder application with isolated environments, immutable artifacts, canaries, observability, and rollback. Use when this Adobe operator workflow is needed. Trigger with \"deploy Adobe integration\", \"aio app deploy\", or \"promote Adobe app\".",
+      "description": "Deploy an Adobe-backed service or App Builder application with isolated environments, immutable artifacts, canaries, observability, and rollback. Use when the task requires adobe integration deployment. Trigger with \"deploy Adobe integration\", \"aio app deploy\", or \"promote Adobe app\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -15840,14 +15840,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-deploy-integration deploy an adobe-backed service or app builder application with isolated environments, immutable artifacts, canaries, observability, and rollback. use when this adobe operator workflow is needed. trigger with \"deploy adobe integration\", \"aio app deploy\", or \"promote adobe app\". saas-packs read glob grep write edit "
+      "searchText": "adobe-deploy-integration deploy an adobe-backed service or app builder application with isolated environments, immutable artifacts, canaries, observability, and rollback. use when the task requires adobe integration deployment. trigger with \"deploy adobe integration\", \"aio app deploy\", or \"promote adobe app\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-enterprise-rbac",
       "slug": "adobe-enterprise-rbac",
       "name": "adobe-enterprise-rbac",
-      "description": "Govern Adobe Developer Console roles, product profiles, technical accounts, User Management API automation, and periodic access review. Use when this Adobe operator workflow is needed. Trigger with \"Adobe RBAC\", \"Adobe product profiles\", or \"Adobe user provisioning\".",
+      "description": "Govern Adobe Developer Console roles, product profiles, technical accounts, User Management API automation, and periodic access review. Use when the task requires adobe enterprise access governance. Trigger with \"Adobe RBAC\", \"Adobe product profiles\", or \"Adobe user provisioning\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -15862,14 +15862,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-enterprise-rbac govern adobe developer console roles, product profiles, technical accounts, user management api automation, and periodic access review. use when this adobe operator workflow is needed. trigger with \"adobe rbac\", \"adobe product profiles\", or \"adobe user provisioning\". saas-packs read glob grep write edit "
+      "searchText": "adobe-enterprise-rbac govern adobe developer console roles, product profiles, technical accounts, user management api automation, and periodic access review. use when the task requires adobe enterprise access governance. trigger with \"adobe rbac\", \"adobe product profiles\", or \"adobe user provisioning\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-hello-world",
       "slug": "adobe-hello-world",
       "name": "adobe-hello-world",
-      "description": "Prove one Adobe API connection with a current, read-only or synthetic operation and a content-safe receipt. Use during onboarding before any production workflow. Use when this Adobe operator workflow is needed. Trigger with \"Adobe hello world\", \"test Adobe connection\", or \"verify Adobe entitlement\".",
+      "description": "Prove one Adobe API connection with a current, read-only or synthetic operation and a content-safe receipt. Use during onboarding before any production workflow. Use when the task requires adobe minimal access proof. Trigger with \"Adobe hello world\", \"test Adobe connection\", or \"verify Adobe entitlement\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -15884,14 +15884,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-hello-world prove one adobe api connection with a current, read-only or synthetic operation and a content-safe receipt. use during onboarding before any production workflow. use when this adobe operator workflow is needed. trigger with \"adobe hello world\", \"test adobe connection\", or \"verify adobe entitlement\". saas-packs read glob grep write edit "
+      "searchText": "adobe-hello-world prove one adobe api connection with a current, read-only or synthetic operation and a content-safe receipt. use during onboarding before any production workflow. use when the task requires adobe minimal access proof. trigger with \"adobe hello world\", \"test adobe connection\", or \"verify adobe entitlement\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-incident-runbook",
       "slug": "adobe-incident-runbook",
       "name": "adobe-incident-runbook",
-      "description": "Triage, contain, recover, and review Adobe auth, product, async-job, event, storage, spend, or App Builder incidents with evidence. Use when this Adobe operator workflow is needed. Trigger with \"Adobe incident\", \"Firefly outage\", or \"Adobe credential leak\".",
+      "description": "Triage, contain, recover, and review Adobe auth, product, async-job, event, storage, spend, or App Builder incidents with evidence. Use when the task requires adobe integration incident command. Trigger with \"Adobe incident\", \"Firefly outage\", or \"Adobe credential leak\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -15906,7 +15906,7 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-incident-runbook triage, contain, recover, and review adobe auth, product, async-job, event, storage, spend, or app builder incidents with evidence. use when this adobe operator workflow is needed. trigger with \"adobe incident\", \"firefly outage\", or \"adobe credential leak\". saas-packs read glob grep write edit "
+      "searchText": "adobe-incident-runbook triage, contain, recover, and review adobe auth, product, async-job, event, storage, spend, or app builder incidents with evidence. use when the task requires adobe integration incident command. trigger with \"adobe incident\", \"firefly outage\", or \"adobe credential leak\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
@@ -15935,7 +15935,7 @@
       "id": "adobe-known-pitfalls",
       "slug": "adobe-known-pitfalls",
       "name": "adobe-known-pitfalls",
-      "description": "Detect current high-risk Adobe integration traps before they become production incidents. Use when this Adobe operator workflow is needed. Trigger with \"Adobe pitfalls\", \"review Adobe integration\", or \"find obsolete Adobe code\".",
+      "description": "Detect current high-risk Adobe integration traps before they become production incidents. Use when the task requires adobe integration pitfall review. Trigger with \"Adobe pitfalls\", \"review Adobe integration\", or \"find obsolete Adobe code\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -15950,14 +15950,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-known-pitfalls detect current high-risk adobe integration traps before they become production incidents. use when this adobe operator workflow is needed. trigger with \"adobe pitfalls\", \"review adobe integration\", or \"find obsolete adobe code\". saas-packs read glob grep write edit "
+      "searchText": "adobe-known-pitfalls detect current high-risk adobe integration traps before they become production incidents. use when the task requires adobe integration pitfall review. trigger with \"adobe pitfalls\", \"review adobe integration\", or \"find obsolete adobe code\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-load-scale",
       "slug": "adobe-load-scale",
       "name": "adobe-load-scale",
-      "description": "Derive a safe Adobe workload envelope from synthetic load, queue/backpressure behavior, current service constraints, spend, and output correctness. Use when this Adobe operator workflow is needed. Trigger with \"load test Adobe\", \"scale Firefly jobs\", or \"Adobe capacity plan\".",
+      "description": "Derive a safe Adobe workload envelope from synthetic load, queue/backpressure behavior, current service constraints, spend, and output correctness. Use when the task requires adobe capacity and load envelope. Trigger with \"load test Adobe\", \"scale Firefly jobs\", or \"Adobe capacity plan\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -15972,7 +15972,7 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-load-scale derive a safe adobe workload envelope from synthetic load, queue/backpressure behavior, current service constraints, spend, and output correctness. use when this adobe operator workflow is needed. trigger with \"load test adobe\", \"scale firefly jobs\", or \"adobe capacity plan\". saas-packs read glob grep write edit "
+      "searchText": "adobe-load-scale derive a safe adobe workload envelope from synthetic load, queue/backpressure behavior, current service constraints, spend, and output correctness. use when the task requires adobe capacity and load envelope. trigger with \"load test adobe\", \"scale firefly jobs\", or \"adobe capacity plan\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
@@ -16001,7 +16001,7 @@
       "id": "adobe-migration-deep-dive",
       "slug": "adobe-migration-deep-dive",
       "name": "adobe-migration-deep-dive",
-      "description": "Analyze and execute a multi-workload migration into or across Adobe services with contract evidence, dependency waves, dual-run reconciliation, cost controls, and rollback. Use when this Adobe operator workflow is needed. Trigger with \"Adobe migration plan\", \"move workflow to Adobe\", or \"Adobe platform consolidation\".",
+      "description": "Analyze and execute a multi-workload migration into or across Adobe services with contract evidence, dependency waves, dual-run reconciliation, cost controls, and rollback. Use when the task requires adobe platform migration program. Trigger with \"Adobe migration plan\", \"move workflow to Adobe\", or \"Adobe platform consolidation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -16016,14 +16016,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-migration-deep-dive analyze and execute a multi-workload migration into or across adobe services with contract evidence, dependency waves, dual-run reconciliation, cost controls, and rollback. use when this adobe operator workflow is needed. trigger with \"adobe migration plan\", \"move workflow to adobe\", or \"adobe platform consolidation\". saas-packs read glob grep write edit "
+      "searchText": "adobe-migration-deep-dive analyze and execute a multi-workload migration into or across adobe services with contract evidence, dependency waves, dual-run reconciliation, cost controls, and rollback. use when the task requires adobe platform migration program. trigger with \"adobe migration plan\", \"move workflow to adobe\", or \"adobe platform consolidation\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-multi-env-setup",
       "slug": "adobe-multi-env-setup",
       "name": "adobe-multi-env-setup",
-      "description": "Separate Adobe development, stage, and production organizations/projects/workspaces, credentials, profiles, storage, events, budgets, and evidence. Use when this Adobe operator workflow is needed. Trigger with \"Adobe environments\", \"separate Adobe staging\", or \"Adobe workspace setup\".",
+      "description": "Separate Adobe development, stage, and production organizations/projects/workspaces, credentials, profiles, storage, events, budgets, and evidence. Use when the task requires adobe multi-environment isolation. Trigger with \"Adobe environments\", \"separate Adobe staging\", or \"Adobe workspace setup\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -16038,14 +16038,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-multi-env-setup separate adobe development, stage, and production organizations/projects/workspaces, credentials, profiles, storage, events, budgets, and evidence. use when this adobe operator workflow is needed. trigger with \"adobe environments\", \"separate adobe staging\", or \"adobe workspace setup\". saas-packs read glob grep write edit "
+      "searchText": "adobe-multi-env-setup separate adobe development, stage, and production organizations/projects/workspaces, credentials, profiles, storage, events, budgets, and evidence. use when the task requires adobe multi-environment isolation. trigger with \"adobe environments\", \"separate adobe staging\", or \"adobe workspace setup\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-observability",
       "slug": "adobe-observability",
       "name": "adobe-observability",
-      "description": "Instrument Adobe integrations with redacted structured logs, request/job/activation correlation, service-level indicators, alerts, and evidence retention. Use when this Adobe operator workflow is needed. Trigger with \"monitor Adobe API\", \"Adobe observability\", or \"App Builder logs\".",
+      "description": "Instrument Adobe integrations with redacted structured logs, request/job/activation correlation, service-level indicators, alerts, and evidence retention. Use when the task requires adobe content-safe observability. Trigger with \"monitor Adobe API\", \"Adobe observability\", or \"App Builder logs\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -16060,14 +16060,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-observability instrument adobe integrations with redacted structured logs, request/job/activation correlation, service-level indicators, alerts, and evidence retention. use when this adobe operator workflow is needed. trigger with \"monitor adobe api\", \"adobe observability\", or \"app builder logs\". saas-packs read glob grep write edit "
+      "searchText": "adobe-observability instrument adobe integrations with redacted structured logs, request/job/activation correlation, service-level indicators, alerts, and evidence retention. use when the task requires adobe content-safe observability. trigger with \"monitor adobe api\", \"adobe observability\", or \"app builder logs\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-performance-tuning",
       "slug": "adobe-performance-tuning",
       "name": "adobe-performance-tuning",
-      "description": "Improve Adobe integration latency and throughput from measurements while preserving correctness, policy, and spend boundaries. Use when this Adobe operator workflow is needed. Trigger with \"tune Adobe performance\", \"reduce Firefly latency\", or \"optimize PDF jobs\".",
+      "description": "Improve Adobe integration latency and throughput from measurements while preserving correctness, policy, and spend boundaries. Use when the task requires adobe measured performance tuning. Trigger with \"tune Adobe performance\", \"reduce Firefly latency\", or \"optimize PDF jobs\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -16082,14 +16082,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-performance-tuning improve adobe integration latency and throughput from measurements while preserving correctness, policy, and spend boundaries. use when this adobe operator workflow is needed. trigger with \"tune adobe performance\", \"reduce firefly latency\", or \"optimize pdf jobs\". saas-packs read glob grep write edit "
+      "searchText": "adobe-performance-tuning improve adobe integration latency and throughput from measurements while preserving correctness, policy, and spend boundaries. use when the task requires adobe measured performance tuning. trigger with \"tune adobe performance\", \"reduce firefly latency\", or \"optimize pdf jobs\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-policy-guardrails",
       "slug": "adobe-policy-guardrails",
       "name": "adobe-policy-guardrails",
-      "description": "Analyze and enforce repository, runtime, data, spend, endpoint, and approval guardrails without guessing secret formats or content-policy rules. Use when this Adobe operator workflow is needed. Trigger with \"Adobe guardrails\", \"block unsafe Adobe calls\", or \"Adobe policy checks\".",
+      "description": "Analyze and enforce repository, runtime, data, spend, endpoint, and approval guardrails without guessing secret formats or content-policy rules. Use when the task requires adobe policy and execution guardrails. Trigger with \"Adobe guardrails\", \"block unsafe Adobe calls\", or \"Adobe policy checks\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -16104,14 +16104,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-policy-guardrails analyze and enforce repository, runtime, data, spend, endpoint, and approval guardrails without guessing secret formats or content-policy rules. use when this adobe operator workflow is needed. trigger with \"adobe guardrails\", \"block unsafe adobe calls\", or \"adobe policy checks\". saas-packs read glob grep write edit "
+      "searchText": "adobe-policy-guardrails analyze and enforce repository, runtime, data, spend, endpoint, and approval guardrails without guessing secret formats or content-policy rules. use when the task requires adobe policy and execution guardrails. trigger with \"adobe guardrails\", \"block unsafe adobe calls\", or \"adobe policy checks\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-prod-checklist",
       "slug": "adobe-prod-checklist",
       "name": "adobe-prod-checklist",
-      "description": "Issue an evidence-backed production decision across Adobe auth, entitlements, API versions, data custody, async reliability, spend, observability, and rollback. Use before launch or a material integration change. Use when this Adobe operator workflow is needed. Trigger with \"Adobe production checklist\", \"approve Adobe launch\", or \"Adobe go-live review\".",
+      "description": "Issue an evidence-backed production decision across Adobe auth, entitlements, API versions, data custody, async reliability, spend, observability, and rollback. Use before launch or a material integration change. Use when the task requires adobe production readiness decision. Trigger with \"Adobe production checklist\", \"approve Adobe launch\", or \"Adobe go-live review\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -16126,7 +16126,7 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-prod-checklist issue an evidence-backed production decision across adobe auth, entitlements, api versions, data custody, async reliability, spend, observability, and rollback. use before launch or a material integration change. use when this adobe operator workflow is needed. trigger with \"adobe production checklist\", \"approve adobe launch\", or \"adobe go-live review\". saas-packs read glob grep write edit "
+      "searchText": "adobe-prod-checklist issue an evidence-backed production decision across adobe auth, entitlements, api versions, data custody, async reliability, spend, observability, and rollback. use before launch or a material integration change. use when the task requires adobe production readiness decision. trigger with \"adobe production checklist\", \"approve adobe launch\", or \"adobe go-live review\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
@@ -16155,7 +16155,7 @@
       "id": "adobe-reference-architecture",
       "slug": "adobe-reference-architecture",
       "name": "adobe-reference-architecture",
-      "description": "Define a production Adobe architecture spanning identity, service adapters, async workers, asset custody, I/O Events, App Builder, evidence, and recovery. Use when this Adobe operator workflow is needed. Trigger with \"design Adobe architecture\", \"Adobe reference architecture\", or \"standardize Adobe services\".",
+      "description": "Define a production Adobe architecture spanning identity, service adapters, async workers, asset custody, I/O Events, App Builder, evidence, and recovery. Use when the task requires adobe integration reference architecture. Trigger with \"design Adobe architecture\", \"Adobe reference architecture\", or \"standardize Adobe services\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -16170,14 +16170,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-reference-architecture define a production adobe architecture spanning identity, service adapters, async workers, asset custody, i/o events, app builder, evidence, and recovery. use when this adobe operator workflow is needed. trigger with \"design adobe architecture\", \"adobe reference architecture\", or \"standardize adobe services\". saas-packs read glob grep write edit "
+      "searchText": "adobe-reference-architecture define a production adobe architecture spanning identity, service adapters, async workers, asset custody, i/o events, app builder, evidence, and recovery. use when the task requires adobe integration reference architecture. trigger with \"design adobe architecture\", \"adobe reference architecture\", or \"standardize adobe services\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-reliability-patterns",
       "slug": "adobe-reliability-patterns",
       "name": "adobe-reliability-patterns",
-      "description": "Analyze and design idempotency, bounded polling, per-service circuits, durable queues, DLQ/replay, degradation, and reconciliation for Adobe workloads. Use when this Adobe operator workflow is needed. Trigger with \"Adobe reliability\", \"Firefly retry design\", or \"PDF job recovery\".",
+      "description": "Analyze and design idempotency, bounded polling, per-service circuits, durable queues, DLQ/replay, degradation, and reconciliation for Adobe workloads. Use when the task requires adobe async reliability controls. Trigger with \"Adobe reliability\", \"Firefly retry design\", or \"PDF job recovery\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -16192,7 +16192,7 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-reliability-patterns analyze and design idempotency, bounded polling, per-service circuits, durable queues, dlq/replay, degradation, and reconciliation for adobe workloads. use when this adobe operator workflow is needed. trigger with \"adobe reliability\", \"firefly retry design\", or \"pdf job recovery\". saas-packs read glob grep write edit "
+      "searchText": "adobe-reliability-patterns analyze and design idempotency, bounded polling, per-service circuits, durable queues, dlq/replay, degradation, and reconciliation for adobe workloads. use when the task requires adobe async reliability controls. trigger with \"adobe reliability\", \"firefly retry design\", or \"pdf job recovery\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
@@ -16243,7 +16243,7 @@
       "id": "adobe-upgrade-migration",
       "slug": "adobe-upgrade-migration",
       "name": "adobe-upgrade-migration",
-      "description": "Migrate Adobe integrations away from Service Account JWT, Photoshop v1, retired Lightroom Firefly Services, or drifting SDK/API contracts with canaries and rollback. Use when this Adobe operator workflow is needed. Trigger with \"upgrade Adobe integration\", \"migrate Adobe JWT\", or \"Photoshop v2 migration\".",
+      "description": "Migrate Adobe integrations away from Service Account JWT, Photoshop v1, retired Lightroom Firefly Services, or drifting SDK/API contracts with canaries and rollback. Use when the task requires adobe end-of-life and contract migration. Trigger with \"upgrade Adobe integration\", \"migrate Adobe JWT\", or \"Photoshop v2 migration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -16258,14 +16258,14 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-upgrade-migration migrate adobe integrations away from service account jwt, photoshop v1, retired lightroom firefly services, or drifting sdk/api contracts with canaries and rollback. use when this adobe operator workflow is needed. trigger with \"upgrade adobe integration\", \"migrate adobe jwt\", or \"photoshop v2 migration\". saas-packs read glob grep write edit "
+      "searchText": "adobe-upgrade-migration migrate adobe integrations away from service account jwt, photoshop v1, retired lightroom firefly services, or drifting sdk/api contracts with canaries and rollback. use when the task requires adobe end-of-life and contract migration. trigger with \"upgrade adobe integration\", \"migrate adobe jwt\", or \"photoshop v2 migration\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "adobe-webhooks-events",
       "slug": "adobe-webhooks-events",
       "name": "adobe-webhooks-events",
-      "description": "Implement Adobe I/O Events registration, challenge validation, authentic delivery, idempotent enqueue, replay operations, and disablement recovery. Use when this Adobe operator workflow is needed. Trigger with \"Adobe webhook\", \"Adobe I/O Events\", or \"verify Adobe event\".",
+      "description": "Implement Adobe I/O Events registration, challenge validation, authentic delivery, idempotent enqueue, replay operations, and disablement recovery. Use when the task requires adobe i/o events authentic delivery. Trigger with \"Adobe webhook\", \"Adobe I/O Events\", or \"verify Adobe event\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -16280,7 +16280,7 @@
         "name": "adobe-pack",
         "category": "saas-packs"
       },
-      "searchText": "adobe-webhooks-events implement adobe i/o events registration, challenge validation, authentic delivery, idempotent enqueue, replay operations, and disablement recovery. use when this adobe operator workflow is needed. trigger with \"adobe webhook\", \"adobe i/o events\", or \"verify adobe event\". saas-packs read glob grep write edit "
+      "searchText": "adobe-webhooks-events implement adobe i/o events registration, challenge validation, authentic delivery, idempotent enqueue, replay operations, and disablement recovery. use when the task requires adobe i/o events authentic delivery. trigger with \"adobe webhook\", \"adobe i/o events\", or \"verify adobe event\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",

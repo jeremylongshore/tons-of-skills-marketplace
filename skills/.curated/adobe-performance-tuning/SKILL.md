@@ -1,7 +1,7 @@
 ---
 name: adobe-performance-tuning
 description: >-
-  Improve Adobe integration latency and throughput from measurements while preserving correctness, policy, and spend boundaries. Use when this Adobe operator workflow is needed. Trigger with "tune Adobe performance", "reduce Firefly latency", or "optimize PDF jobs".
+  Improve Adobe integration latency and throughput from measurements while preserving correctness, policy, and spend boundaries. Use when the task requires adobe measured performance tuning. Trigger with "tune Adobe performance", "reduce Firefly latency", or "optimize PDF jobs".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<service-operation> <measurement-window> <objective>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Improve Adobe integration latency and throughput from measurements while preserving correctness, policy, and spend boundaries.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Improve Adobe integration latency and throughput from measurements while preserving correctness, policy, and spend boundaries. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

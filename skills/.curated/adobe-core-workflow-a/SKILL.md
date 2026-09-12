@@ -1,7 +1,7 @@
 ---
 name: adobe-core-workflow-a
 description: >-
-  Run a current Adobe Firefly image generation job with prompt approval, response-led polling, artifact custody, and cancellation. Use for approved creative automation. Use when this Adobe operator workflow is needed. Trigger with "generate with Firefly", "Firefly async job", or "Adobe image generation".
+  Run a current Adobe Firefly image generation job with prompt approval, response-led polling, artifact custody, and cancellation. Use for approved creative automation. Use when the task requires firefly controlled async generation. Trigger with "generate with Firefly", "Firefly async job", or "Adobe image generation".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<approved-prompt> <model-operation> <output-destination>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Run a current Adobe Firefly image generation job with prompt approval, response-led polling, artifact custody, and cancellation.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Run a current Adobe Firefly image generation job with prompt approval, response-led polling, artifact custody, and cancellation. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

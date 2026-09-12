@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Create narrow, version-pinned Adobe SDK and REST adapters with typed contracts, redaction, bounded polling, and compatibility evidence.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Create narrow, version-pinned Adobe SDK and REST adapters with typed contracts, redaction, bounded polling, and compatibility evidence. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Establish least privilege, credential rotation, webhook authenticity, signed-URL custody, log minimization, and destructive-action controls.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Establish least privilege, credential rotation, webhook authenticity, signed-URL custody, log minimization, and destructive-action controls. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

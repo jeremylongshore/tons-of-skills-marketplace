@@ -1,7 +1,7 @@
 ---
 name: adobe-deploy-integration
 description: >-
-  Deploy an Adobe-backed service or App Builder application with isolated environments, immutable artifacts, canaries, observability, and rollback. Use when this Adobe operator workflow is needed. Trigger with "deploy Adobe integration", "aio app deploy", or "promote Adobe app".
+  Deploy an Adobe-backed service or App Builder application with isolated environments, immutable artifacts, canaries, observability, and rollback. Use when the task requires adobe integration deployment. Trigger with "deploy Adobe integration", "aio app deploy", or "promote Adobe app".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<artifact> <target-environment> <rollout-scope>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Deploy an Adobe-backed service or App Builder application with isolated environments, immutable artifacts, canaries, observability, and rollback.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Deploy an Adobe-backed service or App Builder application with isolated environments, immutable artifacts, canaries, observability, and rollback. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 

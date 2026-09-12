@@ -1,7 +1,7 @@
 ---
 name: adobe-advanced-troubleshooting
 description: >-
-  Isolate complex Adobe failures across DNS/TLS, auth, entitlement, schema, async state, storage, Runtime, and downstream layers without leaking credentials or content. Use when this Adobe operator workflow is needed. Trigger with "deep debug Adobe", "Adobe job stuck", or "Adobe intermittent failure".
+  Isolate complex Adobe failures across DNS/TLS, auth, entitlement, schema, async state, storage, Runtime, and downstream layers without leaking credentials or content. Use when the task requires adobe layered failure isolation. Trigger with "deep debug Adobe", "Adobe job stuck", or "Adobe intermittent failure".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<service> <operation> <incident-evidence>"
 version: 1.8.0
@@ -16,7 +16,7 @@ compatibility: "Designed for Claude Code; live Adobe actions require network acc
 
 ## Overview
 
-Isolate complex Adobe failures across DNS/TLS, auth, entitlement, schema, async state, storage, Runtime, and downstream layers without leaking credentials or content.. This workflow produces a reviewable artifact and evidence before any live side effect.
+Isolate complex Adobe failures across DNS/TLS, auth, entitlement, schema, async state, storage, Runtime, and downstream layers without leaking credentials or content. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 
