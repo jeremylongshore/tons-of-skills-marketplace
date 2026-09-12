@@ -1,9 +1,9 @@
 ---
-name: assemblyai-local-dev-loop
+name: assemblyai-reference-architecture
 description: >-
-  Build an AssemblyAI local loop with synthetic fixtures, recorded contracts, and an optional bounded live lane. Use when developing without exposing audio or uncontrolled credits. Trigger with "AssemblyAI local dev" or "mock AssemblyAI".
+  Analyze and design an AssemblyAI architecture spanning pre-recorded jobs, Streaming v3, LLM Gateway, callbacks, queues, retention, and audit evidence. Use when performing system design or review. Trigger with "AssemblyAI architecture" or "design AssemblyAI pipeline".
 allowed-tools: Read,Glob,Grep,Write,Edit
-argument-hint: "<repository-path> <workflow>"
+argument-hint: "<use-case> <region> <data-class>"
 version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
@@ -12,11 +12,11 @@ model: inherit
 effort: high
 compatibility: "Designed for Claude Code; live AssemblyAI work requires network access"
 ---
-# AssemblyAI Deterministic Local Development
+# AssemblyAI Governed Reference Architecture
 
 ## Overview
 
-Build an AssemblyAI local loop with synthetic fixtures, recorded contracts, and an optional bounded live lane. Treat live audio, transcript content, credentials, spend, and destructive state as separately governed boundaries.
+Design explicit trust and lifecycle boundaries for ingestion, jobs, live turns, analysis, and deletion. Keep data, credentials, region, spend, and destructive state visible.
 
 ## Prerequisites
 
@@ -26,7 +26,7 @@ Build an AssemblyAI local loop with synthetic fixtures, recorded contracts, and 
 
 ## Current Contract
 
-Ordinary development stays offline. Fixtures model REST job states, Streaming v3 messages, both webhook families, LLM Gateway outputs, throttling, duplicates, and termination. A public tunnel and live API call are explicit exposure and cost boundaries.
+Pre-recorded jobs are asynchronous resources addressed by transcript ID. Streaming v3 is a stateful billed session requiring termination. LLM Gateway is a separate analysis plane replacing LeMUR. Callback payloads differ by family. Region, principal, credential, retention, and deletion remain visible on every edge.
 
 ## Authentication
 
@@ -34,12 +34,12 @@ For live work, inject `ASSEMBLYAI_API_KEY` from an approved secret manager and s
 
 ## Instructions
 
-1. Map the adapter surfaces actually used.
-2. Create synthetic audio and content-free response fixtures.
-3. Inject a fake clock, deterministic jitter, and bounded queues.
-4. Cover delayed polling, 429, duplicates, malformed events, and disconnects.
-5. Protect live tests behind a separate flag and secret context.
-6. Review recorded-contract diffs against current first-party schemas.
+1. Capture use cases, SLOs, languages, data classes, consent, region, retention, and cost.
+2. Separate audio ingress, submitter, v3 gateway, token issuer, callback ingress, queues, workers, and stores.
+3. Assign each edge a principal, credential, host, timeout, retry budget, and schema.
+4. Model job and session states including duplicates, reconnect, failure, and termination.
+5. Place LLM Gateway behind prompt allowlists and output schemas.
+6. Map deletion through vendor, storage, databases, caches, search, and analytics.
 
 ## Tool Discipline
 
@@ -51,9 +51,9 @@ Require an accountable owner before live audio processing, production credential
 
 ## Failure Modes
 
-- A default test that needs a live key is not deterministic.
-- Real transcript text does not belong in golden fixtures.
-- A tunnel must be authenticated, disposable, and explicitly approved.
+- One opaque method cannot safely hide REST jobs and streaming sessions.
+- Polling in request handlers couples scaling and timeouts.
+- A design without credential, failure, rollback, and deletion paths is incomplete.
 
 ## Output
 
