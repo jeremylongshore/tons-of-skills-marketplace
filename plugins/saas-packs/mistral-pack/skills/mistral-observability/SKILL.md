@@ -1,265 +1,74 @@
 ---
 name: mistral-observability
-description: 'Set up comprehensive observability for Mistral AI with metrics, traces,
-  and alerts.
-
-  Use when implementing monitoring for Mistral AI operations, setting up dashboards,
-
-  or configuring alerting for integration health.
-
-  Trigger with phrases like "mistral monitoring", "mistral metrics",
-
-  "mistral observability", "monitor mistral", "mistral alerts".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.13.0
+description: >-
+  Instrument Mistral requests, streams, tools, batch, and workflows without logging sensitive content. Use when building dashboards or SLOs. Trigger with "monitor Mistral", "trace Mistral latency", or "add Mistral alerts".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<service> <slo> <telemetry-backend>"
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mistral
-- monitoring
-- observability
-- dashboard
-compatibility: Designed for Claude Code
+tags: [saas, mistral, observability]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live or external Mistral actions require network access and explicit approval"
 ---
-# Mistral AI Observability
+# Mistral Content-Free Observability
 
 ## Overview
 
-Monitor Mistral AI API usage, latency, token consumption, error rates, and costs. Covers instrumented client wrapper, Prometheus metrics, Grafana dashboard panels, alerting rules, and structured logging.
+Observe demand, reliability, latency, usage, and state convergence without credentials or content. Keep app telemetry authoritative; evaluate provider Public Preview observability separately.
 
 ## Prerequisites
 
-- Mistral API integration in production
-- Prometheus or OpenTelemetry-compatible metrics backend
-- Alerting system (Alertmanager, PagerDuty, or similar)
+- Defined SLOs, error taxonomy, data classification, and telemetry retention.
+- A correlation design using opaque application identifiers.
+- Metrics for queue, transport, stream, usage, tools, batch, workflows, and spend.
+
+## Current Contract
+
+Mistral documents Public Preview observability endpoints plus API/admin usage evidence. Preview adoption is optional and requires schema, retention, and availability evaluation.
+
+## Authentication
+
+Never emit authorization, keys, prompts, responses, embeddings, files, tool data, or signed URLs. Restrict admin/preview observability access separately.
 
 ## Instructions
 
-### Step 1: Instrumented Client Wrapper
+1. Define golden signals and state outcomes before fields.
+2. Emit endpoint class, opaque model, status/error, attempts, latency segments, usage, and terminal state.
+3. Propagate trace context without provider/customer content as identifiers.
+4. Dashboard SLOs, throttling, unfinished streams, duplicates, backlog, and spend anomalies.
+5. Alert on user impact and actionable budget/state thresholds with owners/runbooks.
+6. Evaluate beta observability for data, retention, access, export, failure, and rollback.
 
-```typescript
-import { Mistral } from '@mistralai/mistralai';
+## Tool Discipline
 
-const PRICING: Record<string, { input: number; output: number }> = {
-  'mistral-small-latest':  { input: 0.10, output: 0.30 },
-  'mistral-large-latest':  { input: 0.50, output: 1.50 },
-  'codestral-latest':      { input: 0.30, output: 0.90 },
-  'mistral-embed':         { input: 0.10, output: 0 },
-};
+Use Read, Glob, and Grep to inspect code, locks, configuration, tests, and evidence. Use Write and Edit only for approved repository changes. Invocation alone does not authorize network calls, paid usage, uploads, stateful resources, admin mutations, deployments, or deletion.
 
-interface MetricsEvent {
-  model: string;
-  endpoint: string;
-  durationMs: number;
-  status: 'success' | 'error';
-  statusCode?: number;
-  inputTokens?: number;
-  outputTokens?: number;
-  costUsd?: number;
-}
+## Approval Boundaries
 
-function emitMetrics(event: MetricsEvent): void {
-  // Push to your metrics backend (Prometheus, Datadog, etc.)
-  console.log(JSON.stringify({ type: 'mistral_metric', ...event }));
-}
-
-async function instrumentedChat(
-  client: Mistral,
-  model: string,
-  messages: any[],
-  options?: any,
-) {
-  const start = performance.now();
-  try {
-    const response = await client.chat.complete({ model, messages, ...options });
-    const duration = Math.round(performance.now() - start);
-    const pricing = PRICING[model] ?? PRICING['mistral-small-latest'];
-    const pt = response.usage?.promptTokens ?? 0;
-    const ct = response.usage?.completionTokens ?? 0;
-
-    emitMetrics({
-      model,
-      endpoint: 'chat.complete',
-      durationMs: duration,
-      status: 'success',
-      inputTokens: pt,
-      outputTokens: ct,
-      costUsd: (pt / 1e6) * pricing.input + (ct / 1e6) * pricing.output,
-    });
-
-    return response;
-  } catch (error: any) {
-    emitMetrics({
-      model,
-      endpoint: 'chat.complete',
-      durationMs: Math.round(performance.now() - start),
-      status: 'error',
-      statusCode: error.status,
-    });
-    throw error;
-  }
-}
-```
-
-### Step 2: Prometheus Metrics
-
-```typescript
-// Using prom-client
-import { Counter, Histogram, Gauge } from 'prom-client';
-
-const mistralRequests = new Counter({
-  name: 'mistral_requests_total',
-  help: 'Total Mistral API requests',
-  labelNames: ['model', 'endpoint', 'status'],
-});
-
-const mistralDuration = new Histogram({
-  name: 'mistral_request_duration_ms',
-  help: 'Mistral request duration in milliseconds',
-  labelNames: ['model', 'endpoint'],
-  buckets: [100, 250, 500, 1000, 2500, 5000, 10000],
-});
-
-const mistralTokens = new Counter({
-  name: 'mistral_tokens_total',
-  help: 'Total tokens consumed',
-  labelNames: ['model', 'direction'], // direction: input | output
-});
-
-const mistralCost = new Counter({
-  name: 'mistral_cost_usd_total',
-  help: 'Estimated cost in USD',
-  labelNames: ['model'],
-});
-
-const mistralErrors = new Counter({
-  name: 'mistral_errors_total',
-  help: 'Total Mistral errors',
-  labelNames: ['model', 'status_code'],
-});
-
-// Record metrics from instrumented wrapper
-function recordPrometheusMetrics(event: MetricsEvent): void {
-  mistralRequests.inc({ model: event.model, endpoint: event.endpoint, status: event.status });
-  mistralDuration.observe({ model: event.model, endpoint: event.endpoint }, event.durationMs);
-
-  if (event.status === 'success') {
-    if (event.inputTokens) mistralTokens.inc({ model: event.model, direction: 'input' }, event.inputTokens);
-    if (event.outputTokens) mistralTokens.inc({ model: event.model, direction: 'output' }, event.outputTokens);
-    if (event.costUsd) mistralCost.inc({ model: event.model }, event.costUsd);
-  } else {
-    mistralErrors.inc({ model: event.model, status_code: String(event.statusCode ?? 'unknown') });
-  }
-}
-```
-
-### Step 3: Alerting Rules
-
-```yaml
-# prometheus/mistral-alerts.yaml
-groups:
-  - name: mistral
-    rules:
-      - alert: MistralHighErrorRate
-        expr: rate(mistral_errors_total[5m]) / rate(mistral_requests_total[5m]) > 0.05
-        for: 5m
-        labels: { severity: critical }
-        annotations:
-          summary: "Mistral error rate exceeds 5%"
-          runbook: "See mistral-incident-runbook skill"
-
-      - alert: MistralHighLatency
-        expr: histogram_quantile(0.95, rate(mistral_request_duration_ms_bucket[5m])) > 5000
-        for: 5m
-        labels: { severity: warning }
-        annotations:
-          summary: "Mistral P95 latency exceeds 5 seconds"
-
-      - alert: MistralRateLimited
-        expr: rate(mistral_errors_total{status_code="429"}[5m]) > 0
-        for: 2m
-        labels: { severity: warning }
-        annotations:
-          summary: "Mistral rate limiting detected"
-
-      - alert: MistralCostSpike
-        expr: increase(mistral_cost_usd_total[1h]) > 10
-        labels: { severity: warning }
-        annotations:
-          summary: "Mistral spend exceeds $10/hour"
-
-      - alert: MistralAuthFailure
-        expr: increase(mistral_errors_total{status_code="401"}[5m]) > 0
-        labels: { severity: critical }
-        annotations:
-          summary: "Mistral authentication failing — API key may be revoked"
-```
-
-### Step 4: Grafana Dashboard Panels
-
-Key panels to create:
-
-| Panel | Query | Type |
-|-------|-------|------|
-| Request Rate | `rate(mistral_requests_total[5m])` | Time series |
-| P50/P95/P99 Latency | `histogram_quantile(0.95, rate(..._bucket[5m]))` | Time series |
-| Token Velocity | `rate(mistral_tokens_total{direction="output"}[5m])` | Time series |
-| Hourly Cost | `increase(mistral_cost_usd_total[1h])` | Stat |
-| Error Rate | `rate(mistral_errors_total[5m])` by status_code | Time series |
-| Model Distribution | `sum by (model) (rate(mistral_requests_total[5m]))` | Pie chart |
-
-### Step 5: Structured Log Format
-
-```typescript
-interface MistralLogEntry {
-  ts: string;
-  level: 'info' | 'warn' | 'error';
-  model: string;
-  endpoint: string;
-  durationMs: number;
-  inputTokens?: number;
-  outputTokens?: number;
-  costUsd?: number;
-  status: string;
-  statusCode?: number;
-  requestId?: string;
-}
-
-function logMistralRequest(entry: MistralLogEntry): void {
-  // Ship to SIEM, CloudWatch, or log aggregator
-  // NEVER log message content — PII risk
-  console.log(JSON.stringify(entry));
-}
-```
+Provider observability, trace export, identifier retention, sampling changes, or content-bearing fields require approval. Application-owned content-free telemetry remains the safe default.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Missing token counts | Streaming not aggregated | Sum tokens from stream chunks |
-| Cost drift from bill | Pricing table outdated | Update PRICING map when rates change |
-| Alert storm on 429s | Rate limit burst | Tune alert threshold, add request queue |
-| High cardinality | Per-request labels | Never label by request ID or user ID |
-
-## Examples
-
-### Investigate a sudden latency increase
-
-Start with the p95 panel grouped by model and endpoint, then correlate the time window with token velocity and 429 counts. Add a temporary alert only on bounded aggregate labels; never include prompt content, user identifiers, or request IDs in a metric label while diagnosing the issue.
-
-## Resources
-
-- [OpenLIT Mistral Monitoring](https://docs.mistral.ai/cookbooks/third_party-openlit-cookbook_mistral_opentelemetry/)
-- [Prometheus Client](https://github.com/siimon/prom-client)
-- [Grafana Dashboards](https://grafana.com/dashboards/)
+- Logging prompts turns telemetry into an uncontrolled content store.
+- `2xx` can hide invalid output or unfinished state.
+- High-cardinality customer text exposes data and destabilizes monitoring.
 
 ## Output
 
-- Instrumented client wrapper with timing and cost tracking
-- Prometheus metrics (requests, duration, tokens, cost, errors)
-- Alerting rules for error rate, latency, rate limits, cost, auth
-- Grafana dashboard panel specifications
-- Structured logging format for SIEM integration
+Return SLOs, telemetry schema and exclusions, dashboards, alerts and owners, preview decision, retention, evidence, and rollback. Identify every signal that remains unavailable.
+
+## Examples
+
+- Measure queue, first event, terminal latency, usage, and validation without response text.
+- Alert when workflow state stops converging despite a healthy stream.
+
+## Validation
+
+Inspect telemetry for all paths, scan for secrets and content, and test alert and runbook routing. Confirm cardinality and retention remain within approved bounds.
+
+## Resources
+
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable endpoints, models, limits, prices, preview status, or retention.
+- Record live account observations as environment-specific evidence, not universal Mistral guarantees.

@@ -1,294 +1,74 @@
 ---
 name: mistral-core-workflow-b
-description: 'Execute Mistral AI embeddings, function calling, and RAG pipelines.
-
-  Use when implementing semantic search, RAG applications,
-
-  tool-augmented LLM interactions, or code embeddings.
-
-  Trigger with phrases like "mistral embeddings", "mistral function calling",
-
-  "mistral tools", "mistral RAG", "mistral semantic search".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.13.0
+description: >-
+  Build Mistral embeddings, retrieval, and function-calling loops with tenant isolation and application-owned execution. Use when adding RAG or tools. Trigger with "build Mistral RAG", "use Mistral embeddings", or "add Mistral function calling".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<retrieval-corpus> <tool-policy> <tenant-boundary>"
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mistral
-- llm
-- embeddings
-- workflow
-compatibility: Designed for Claude Code
+tags: [saas, mistral, rag]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live or external Mistral actions require network access and explicit approval"
 ---
-# Mistral AI Core Workflow B: Embeddings & Function Calling
+# Mistral Retrieval and Tool Execution
 
 ## Overview
 
-Secondary workflows for Mistral AI: text/code embeddings with `mistral-embed` (1024 dimensions), function calling (tool use) with any chat model, and RAG pipeline combining both. Mistral supports `auto`, `any`, and `none` tool choice modes.
+Keep retrieval and tool use under application control. The model may propose queries or typed arguments; trusted code owns authorization, execution, side effects, and returned evidence.
 
 ## Prerequisites
 
-- Completed `mistral-install-auth` setup
-- `MISTRAL_API_KEY` environment variable set
-- Familiarity with `mistral-core-workflow-a`
+- A tenant-scoped corpus with chunking, deletion, and re-embedding policy.
+- A current embedding model selected from account evidence.
+- A closed tool registry with schemas, authorization, deadlines, and idempotency.
+
+## Current Contract
+
+Embeddings use `POST /v1/embeddings`; tool calls use the current chat schema. Vector shape, model access, tool schemas, and parallel behavior must come from the selected current contracts.
+
+## Authentication
+
+Use Bearer auth only for Mistral. Every retrieved record and proposed action must separately pass application user and tenant authorization.
 
 ## Instructions
 
-### Step 1: Generate Text Embeddings
+1. Define retrieval purpose, data class, tenant filter, deletion SLA, and evaluation set.
+2. Store embedding model, preprocessing version, and observed vector shape with each index.
+3. Retrieve with mandatory tenant filters and cap context before chat assembly.
+4. Validate each proposed tool name and argument against the closed registry and strict schema.
+5. Authorize and execute each side effect in trusted code with deadline and idempotency.
+6. Evaluate retrieval quality, access negatives, tool denial, usage, latency, and rollback.
 
-```typescript
-import { Mistral } from '@mistralai/mistralai';
+## Tool Discipline
 
-const client = new Mistral({ apiKey: process.env.MISTRAL_API_KEY });
+Use Read, Glob, and Grep to inspect code, locks, configuration, tests, and evidence. Use Write and Edit only for approved repository changes. Invocation alone does not authorize network calls, paid usage, uploads, stateful resources, admin mutations, deployments, or deletion.
 
-// Single text embedding
-const response = await client.embeddings.create({
-  model: 'mistral-embed',
-  inputs: ['Machine learning is fascinating.'],
-});
+## Approval Boundaries
 
-const vector = response.data[0].embedding;
-console.log(`Dimensions: ${vector.length}`); // 1024
-console.log(`Tokens used: ${response.usage.totalTokens}`);
-```
-
-### Step 2: Batch Embeddings with Rate Awareness
-
-```typescript
-async function batchEmbed(
-  texts: string[],
-  batchSize = 64,
-): Promise<number[][]> {
-  const allEmbeddings: number[][] = [];
-
-  for (let i = 0; i < texts.length; i += batchSize) {
-    const batch = texts.slice(i, i + batchSize);
-    const response = await client.embeddings.create({
-      model: 'mistral-embed',
-      inputs: batch,
-    });
-    allEmbeddings.push(...response.data.map(d => d.embedding));
-  }
-
-  return allEmbeddings;
-}
-
-// Embed 1000 documents in batches of 64
-const docs = ['doc1...', 'doc2...', /* ... */];
-const embeddings = await batchEmbed(docs);
-```
-
-### Step 3: Semantic Search with Cosine Similarity
-
-```typescript
-function cosineSimilarity(a: number[], b: number[]): number {
-  let dot = 0, normA = 0, normB = 0;
-  for (let i = 0; i < a.length; i++) {
-    dot += a[i] * b[i];
-    normA += a[i] * a[i];
-    normB += b[i] * b[i];
-  }
-  return dot / (Math.sqrt(normA) * Math.sqrt(normB));
-}
-
-class SemanticSearch {
-  private documents: Array<{ text: string; embedding: number[] }> = [];
-  private client: Mistral;
-
-  constructor() {
-    this.client = new Mistral({ apiKey: process.env.MISTRAL_API_KEY });
-  }
-
-  async index(texts: string[]): Promise<void> {
-    const response = await this.client.embeddings.create({
-      model: 'mistral-embed',
-      inputs: texts,
-    });
-    this.documents = texts.map((text, i) => ({
-      text,
-      embedding: response.data[i].embedding,
-    }));
-  }
-
-  async search(query: string, topK = 5): Promise<Array<{ text: string; score: number }>> {
-    const qEmbed = await this.client.embeddings.create({
-      model: 'mistral-embed',
-      inputs: [query],
-    });
-    const qVec = qEmbed.data[0].embedding;
-
-    return this.documents
-      .map(doc => ({ text: doc.text, score: cosineSimilarity(qVec, doc.embedding) }))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, topK);
-  }
-}
-```
-
-### Step 4: Function Calling (Tool Use)
-
-```typescript
-// 1. Define tools with JSON Schema
-const tools = [
-  {
-    type: 'function' as const,
-    function: {
-      name: 'get_weather',
-      description: 'Get current weather for a city',
-      parameters: {
-        type: 'object',
-        properties: {
-          city: { type: 'string', description: 'City name (e.g., "Paris")' },
-          units: { type: 'string', enum: ['celsius', 'fahrenheit'], default: 'celsius' },
-        },
-        required: ['city'],
-      },
-    },
-  },
-  {
-    type: 'function' as const,
-    function: {
-      name: 'search_database',
-      description: 'Search product database by query',
-      parameters: {
-        type: 'object',
-        properties: {
-          query: { type: 'string' },
-          limit: { type: 'integer', default: 10 },
-        },
-        required: ['query'],
-      },
-    },
-  },
-];
-
-// 2. Send request with tools
-const response = await client.chat.complete({
-  model: 'mistral-large-latest', // Large recommended for complex tool use
-  messages: [{ role: 'user', content: "What's the weather in Paris?" }],
-  tools,
-  toolChoice: 'auto', // 'auto' | 'any' | 'none'
-});
-```
-
-### Step 5: Tool Execution Loop
-
-```typescript
-// Tool registry maps function names to implementations
-const toolRegistry: Record<string, (args: any) => Promise<any>> = {
-  get_weather: async ({ city, units }) => ({ city, temp: 22, units: units ?? 'celsius' }),
-  search_database: async ({ query, limit }) => ({ results: [], total: 0 }),
-};
-
-async function chatWithTools(userMessage: string): Promise<string> {
-  const messages: any[] = [{ role: 'user', content: userMessage }];
-
-  while (true) {
-    const response = await client.chat.complete({
-      model: 'mistral-large-latest',
-      messages,
-      tools,
-      toolChoice: 'auto',
-    });
-
-    const choice = response.choices?.[0];
-    if (!choice) throw new Error('No response from model');
-
-    // If model wants to call tools
-    if (choice.message.toolCalls?.length) {
-      messages.push(choice.message); // Add assistant message with tool_calls
-
-      for (const call of choice.message.toolCalls) {
-        const fn = toolRegistry[call.function.name];
-        if (!fn) throw new Error(`Unknown tool: ${call.function.name}`);
-
-        const args = JSON.parse(call.function.arguments);
-        const result = await fn(args);
-
-        messages.push({
-          role: 'tool',
-          name: call.function.name,
-          content: JSON.stringify(result),
-          toolCallId: call.id,
-        });
-      }
-      continue; // Let model process tool results
-    }
-
-    // Model returned final text response
-    return choice.message.content ?? '';
-  }
-}
-```
-
-### Step 6: RAG Pipeline (Retrieval-Augmented Generation)
-
-```typescript
-async function ragChat(
-  query: string,
-  searcher: SemanticSearch,
-  topK = 3,
-): Promise<{ answer: string; sources: string[] }> {
-  // 1. Retrieve relevant documents
-  const results = await searcher.search(query, topK);
-  const context = results.map((r, i) => `[${i + 1}] ${r.text}`).join('\n\n');
-
-  // 2. Generate answer grounded in context
-  const response = await client.chat.complete({
-    model: 'mistral-small-latest',
-    messages: [
-      {
-        role: 'system',
-        content: `Answer based ONLY on the provided context. Cite sources as [1], [2], etc. If the context doesn't contain the answer, say "I don't have enough information."`,
-      },
-      {
-        role: 'user',
-        content: `Context:\n${context}\n\nQuestion: ${query}`,
-      },
-    ],
-    temperature: 0.1,
-  });
-
-  return {
-    answer: response.choices?.[0]?.message?.content ?? '',
-    sources: results.map(r => r.text),
-  };
-}
-```
-
-## Output
-
-- Text embeddings with `mistral-embed` (1024 dimensions)
-- Semantic search with cosine similarity ranking
-- Function calling with tool execution loop
-- RAG pipeline combining retrieval and generation
+Require approval before embedding customer data, creating an index, executing a mutation, widening corpus access, or allowing parallel actions.
 
 ## Error Handling
 
-| Issue | Cause | Resolution |
-|-------|-------|------------|
-| Empty embeddings | Invalid input text | Validate non-empty strings before API call |
-| Tool not found | Unknown function name | Check tool registry matches tool definitions |
-| Infinite tool loop | Model keeps calling tools | Add max iteration count (e.g., 10) |
-| RAG hallucination | Insufficient context | Add more documents, increase topK |
-| `400 Bad Request` | Missing `toolCallId` | Each tool result must include the matching `toolCallId` |
+- Mixed-model indexes can corrupt similarity meaning.
+- Prompt instructions cannot replace tenant filters or authorization.
+- Malformed or repeated tool calls must be rejected or deduplicated, never broadened.
+
+## Output
+
+Return corpus/tenant boundary, model/preprocessing versions, retrieval metrics, tool decisions, idempotency IDs, usage, retention, and rollback.
 
 ## Examples
 
-### Answer from a small document set
+- Retrieve only records authorized for one tenant and cite opaque IDs.
+- Let the model propose `lookup_order`; trusted code validates schema and entitlement.
 
-Embed the current policy documents, retrieve the three closest passages for a question, and pass only those passages to `ragChat`. Return the answer with its source identifiers; when retrieval returns no relevant passage, return an explicit insufficient-context response instead of guessing.
+## Validation
+
+Test cross-tenant denial, deletion propagation, model mismatch, empty retrieval, malformed/duplicate tools, cancellation, and mutation denial.
 
 ## Resources
 
-- [Embeddings API](https://docs.mistral.ai/capabilities/embeddings/)
-- [Function Calling](https://docs.mistral.ai/capabilities/function_calling/)
-- [RAG Guide](https://docs.mistral.ai/guides/rag/)
-- [Code Embeddings](https://docs.mistral.ai/capabilities/embeddings/code_embeddings/)
-
-## Next Steps
-
-For SDK patterns, see `mistral-sdk-patterns`. For agents, see `mistral-webhooks-events`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable endpoints, models, limits, prices, preview status, or retention.
+- Record live account observations as environment-specific evidence, not universal Mistral guarantees.

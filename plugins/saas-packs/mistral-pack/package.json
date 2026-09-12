@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/mistral-pack",
-  "version": "1.0.3",
-  "description": "Claude Code skill pack for Mistral AI - 24 skills covering LLM API integration with chat, embeddings, and function calling",
+  "version": "1.14.0",
+  "description": "Operator-grade Mistral skill pack with 24 current API, security, reliability, governance, and migration workflows",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -15,6 +15,8 @@
     "mistral",
     "mistral-ai",
     "llm",
+    "workflows",
+    "governance",
     "ai-skills",
     "saas-pack"
   ],
