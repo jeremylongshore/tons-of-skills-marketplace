@@ -1,235 +1,74 @@
 ---
 name: mistral-deploy-integration
-description: 'Deploy Mistral AI integrations to Vercel, Docker, and Cloud Run platforms.
-
-  Use when deploying Mistral AI-powered applications to production,
-
-  configuring platform-specific secrets, or setting up deployment pipelines.
-
-  Trigger with phrases like "deploy mistral", "mistral Vercel",
-
-  "mistral production deploy", "mistral Cloud Run", "mistral Docker".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(docker:*), Bash(gcloud:*)
-version: 1.13.0
+description: >-
+  Deploy a Mistral-backed service with secret isolation, bounded concurrency, health semantics, canary evidence, and rollback. Use when preparing runtime delivery. Trigger with "deploy a Mistral app", "configure Mistral production", or "canary a Mistral service".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<platform> <environment> <release-sha>"
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mistral
-- deployment
-compatibility: Designed for Claude Code
+tags: [saas, mistral, deployment]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live or external Mistral actions require network access and explicit approval"
 ---
-# Mistral AI Deploy Integration
+# Mistral Deployment Integration
 
 ## Overview
 
-Deploy Mistral AI-powered applications to production with secure API key management. Covers Vercel (Edge + Serverless), Docker, Cloud Run, and self-hosted vLLM deployments. All connect to `api.mistral.ai` or your own inference endpoint.
+Prepare a platform-neutral runtime boundary. Separate application health from provider readiness, keep credentials server-side, and make overload, provider failure, and rollback predictable.
 
 ## Prerequisites
 
-- Mistral AI production API key
-- Platform CLI installed (vercel, docker, or gcloud)
-- Application using `@mistralai/mistralai` SDK
+- An immutable artifact, lockfile, release SHA, and deployment owner.
+- An environment-scoped secret, egress policy, and tenant authorization design.
+- Capacity, timeout, queue, spend, observability, canary, and rollback policies.
+
+## Current Contract
+
+The API is `https://api.mistral.ai` with Bearer auth. Model and workspace capacity are runtime dependencies; application startup should not require a paid inference call.
+
+## Authentication
+
+Inject the key into a trusted server and restrict egress. Never pass it to browser, build output, health response, or an edge runtime without protected secret semantics.
 
 ## Instructions
 
-### Step 1: Platform Secret Configuration
+1. Map build, runtime, secret, egress, scaling, queue, and shutdown behavior.
+2. Package the pinned adapter and validate config without contacting Mistral during build.
+3. Set end-to-end deadlines, bounded concurrency, cancellation, and overload behavior.
+4. Implement local liveness and a separate dependency/readiness signal without provider data.
+5. Deploy to staging, run offline checks, then request approval for a synthetic canary.
+6. Compare evidence, promote within a fixed traffic bound, and prove rollback plus queue reconciliation.
 
-```bash
-set -euo pipefail
-# Vercel
-vercel env add MISTRAL_API_KEY production
-vercel env add MISTRAL_MODEL production  # optional: default model
+## Tool Discipline
 
-# Cloud Run
-echo -n "your-key" | gcloud secrets create mistral-api-key --data-file=-
+Use Read, Glob, and Grep to inspect code, locks, configuration, tests, and evidence. Use Write and Edit only for approved repository changes. Invocation alone does not authorize network calls, paid usage, uploads, stateful resources, admin mutations, deployments, or deletion.
 
-# Docker
-echo "MISTRAL_API_KEY=your-key" > .env.production
-echo ".env.production" >> .gitignore
-```
+## Approval Boundaries
 
-### Step 2: Vercel Edge Function
-
-```typescript
-// api/chat.ts — Vercel Edge Function with streaming
-import { Mistral } from '@mistralai/mistralai';
-
-export const config = { runtime: 'edge' };
-
-export default async function handler(req: Request) {
-  const client = new Mistral({ apiKey: process.env.MISTRAL_API_KEY! });
-  const { messages, stream = false } = await req.json();
-
-  if (stream) {
-    const streamResponse = await client.chat.stream({
-      model: process.env.MISTRAL_MODEL ?? 'mistral-small-latest',
-      messages,
-    });
-
-    const encoder = new TextEncoder();
-    const readable = new ReadableStream({
-      async start(controller) {
-        for await (const event of streamResponse) {
-          const content = event.data?.choices?.[0]?.delta?.content;
-          if (content) {
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content })}\n\n`));
-          }
-        }
-        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-        controller.close();
-      },
-    });
-
-    return new Response(readable, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-      },
-    });
-  }
-
-  const response = await client.chat.complete({
-    model: process.env.MISTRAL_MODEL ?? 'mistral-small-latest',
-    messages,
-  });
-
-  return Response.json(response);
-}
-```
-
-### Step 3: Docker Deployment
-
-```dockerfile
-FROM node:20-slim AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --production=false
-COPY . .
-RUN npm run build
-
-FROM node:20-slim
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-
-ENV NODE_ENV=production
-EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=5s \
-  CMD curl -sf http://localhost:3000/health || exit 1
-CMD ["node", "dist/index.js"]
-```
-
-```bash
-set -euo pipefail
-docker build -t mistral-app .
-docker run -d --name mistral-app \
-  -p 3000:3000 \
-  -e MISTRAL_API_KEY="$MISTRAL_API_KEY" \
-  -e MISTRAL_MODEL="mistral-small-latest" \
-  mistral-app
-```
-
-### Step 4: Cloud Run Deployment
-
-```bash
-set -euo pipefail
-# Build and push
-gcloud builds submit --tag gcr.io/$PROJECT_ID/mistral-app
-
-# Deploy with secret injection
-gcloud run deploy mistral-service \
-  --image gcr.io/$PROJECT_ID/mistral-app \
-  --region us-central1 \
-  --platform managed \
-  --set-secrets=MISTRAL_API_KEY=mistral-api-key:latest \
-  --set-env-vars=MISTRAL_MODEL=mistral-small-latest \
-  --min-instances=1 \
-  --max-instances=10 \
-  --memory=512Mi \
-  --timeout=60s
-```
-
-### Step 5: Self-Hosted with vLLM
-
-For data sovereignty or latency requirements, self-host open-weight Mistral models:
-
-```bash
-set -euo pipefail
-# Serve Mistral with vLLM (OpenAI-compatible API)
-docker run --runtime nvidia --gpus all \
-  -v ~/.cache/huggingface:/root/.cache/huggingface \
-  -p 8000:8000 \
-  -e HF_TOKEN="$HF_TOKEN" \
-  vllm/vllm-openai:latest \
-  --model mistralai/Mistral-Small-24B-Instruct-2501 \
-  --dtype auto \
-  --api-key "your-local-key"
-```
-
-Point the SDK at your local endpoint:
-
-```typescript
-import { Mistral } from '@mistralai/mistralai';
-
-const client = new Mistral({
-  apiKey: 'your-local-key',
-  serverURL: 'http://localhost:8000', // vLLM endpoint
-});
-```
-
-### Step 6: Health Check Endpoint
-
-```typescript
-import { Mistral } from '@mistralai/mistralai';
-
-export async function GET() {
-  const start = performance.now();
-  try {
-    const client = new Mistral({ apiKey: process.env.MISTRAL_API_KEY! });
-    await client.models.list();
-    return Response.json({
-      status: 'healthy',
-      provider: 'mistral',
-      latencyMs: Math.round(performance.now() - start),
-    });
-  } catch (error: any) {
-    return Response.json(
-      { status: 'unhealthy', error: error.message },
-      { status: 503 },
-    );
-  }
-}
-```
+Deployment, secret mutation, traffic shift, scaling, canary spend, and rollback execution each require explicit scope and approval.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| API key not found | Missing env/secret | Verify secret config on platform |
-| Function timeout | Long completion | Increase timeout, use streaming |
-| Cold start latency | Serverless spin-up | Set `min-instances=1` or use edge |
-| vLLM OOM | Model too large for GPU | Use quantized model or smaller variant |
-
-## Examples
-
-### Deploy with a rollback-ready health gate
-
-Deploy a Cloud Run revision with the API key injected from the platform secret store, then call the health endpoint before shifting traffic. If model listing fails or the endpoint reports unhealthy, keep traffic on the prior revision and inspect the redacted deployment logs before retrying.
-
-## Resources
-
-- [Mistral AI Documentation](https://docs.mistral.ai/)
-- [vLLM Deployment](https://docs.mistral.ai/deployment/self-deployment/vllm/)
-- [Cloud Deployment](https://docs.mistral.ai/deployment/ai-studio/)
+- Inference in liveness amplifies outage and spend.
+- Autoscaling without a shared limiter exceeds workspace capacity.
+- Rollback without queue/state reconciliation can duplicate work.
 
 ## Output
 
-- Platform-specific deployment configurations
-- Secure API key management per platform
-- Streaming support for Edge/Serverless
-- Health check endpoint
-- Self-hosted option with vLLM
+Return artifact/release identity, topology, secret/egress boundary, limits, health semantics, canary, traffic state, and rollback receipt.
+
+## Examples
+
+- Build once and inject production secrets only at runtime.
+- Keep liveness green during provider degradation while product behavior fails safely.
+
+## Validation
+
+Inspect artifact for secrets and test denied egress, overload, shutdown, outage, canary abort, rollback, and queue convergence.
+
+## Resources
+
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable endpoints, models, limits, prices, preview status, or retention.
+- Record live account observations as environment-specific evidence, not universal Mistral guarantees.

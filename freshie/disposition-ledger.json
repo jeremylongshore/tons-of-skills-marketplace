@@ -3,7 +3,7 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "f25fd4b1e4b01ca0a1d0af4a53703dd3122acdc9881981757e65a89091b3fb79",
+    "sha256": "3c075ef908758d88b290e1a3d5425131a44dda5be64d72778d853a937e20e077",
     "artifact_count": 3491
   },
   "rule_order": [
@@ -25799,8 +25799,8 @@
     },
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-ci-integration/SKILL.md",
-      "grade": "B",
-      "score": 81,
+      "grade": "A",
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -25811,7 +25811,7 @@
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-common-errors/SKILL.md",
       "grade": "A",
-      "score": 95,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -25821,8 +25821,8 @@
     },
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-core-workflow-a/SKILL.md",
-      "grade": "C",
-      "score": 79,
+      "grade": "A",
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -25832,8 +25832,8 @@
     },
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-core-workflow-b/SKILL.md",
-      "grade": "B",
-      "score": 88,
+      "grade": "A",
+      "score": 94,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -25843,8 +25843,8 @@
     },
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-cost-tuning/SKILL.md",
-      "grade": "B",
-      "score": 83,
+      "grade": "A",
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -25854,61 +25854,6 @@
     },
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-data-handling/SKILL.md",
-      "grade": "B",
-      "score": 80,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/mistral-pack/skills/mistral-debug-bundle/SKILL.md",
-      "grade": "B",
-      "score": 81,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/mistral-pack/skills/mistral-deploy-integration/SKILL.md",
-      "grade": "B",
-      "score": 81,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/mistral-pack/skills/mistral-enterprise-rbac/SKILL.md",
-      "grade": "B",
-      "score": 83,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/mistral-pack/skills/mistral-hello-world/SKILL.md",
-      "grade": "B",
-      "score": 81,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/mistral-pack/skills/mistral-incident-runbook/SKILL.md",
       "grade": "A",
       "score": 97,
       "diagnostics": [],
@@ -25919,9 +25864,64 @@
       ]
     },
     {
+      "path": "plugins/saas-packs/mistral-pack/skills/mistral-debug-bundle/SKILL.md",
+      "grade": "A",
+      "score": 99,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
+      "reason_codes": [
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/mistral-pack/skills/mistral-deploy-integration/SKILL.md",
+      "grade": "A",
+      "score": 99,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
+      "reason_codes": [
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/mistral-pack/skills/mistral-enterprise-rbac/SKILL.md",
+      "grade": "A",
+      "score": 97,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
+      "reason_codes": [
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/mistral-pack/skills/mistral-hello-world/SKILL.md",
+      "grade": "A",
+      "score": 98,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
+      "reason_codes": [
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/mistral-pack/skills/mistral-incident-runbook/SKILL.md",
+      "grade": "A",
+      "score": 95,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
+      "reason_codes": [
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-install-auth/SKILL.md",
-      "grade": "B",
-      "score": 80,
+      "grade": "A",
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -25931,8 +25931,8 @@
     },
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-local-dev-loop/SKILL.md",
-      "grade": "B",
-      "score": 81,
+      "grade": "A",
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -25943,7 +25943,7 @@
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-migration-deep-dive/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -25953,8 +25953,8 @@
     },
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-multi-env-setup/SKILL.md",
-      "grade": "B",
-      "score": 81,
+      "grade": "A",
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -25964,8 +25964,8 @@
     },
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-observability/SKILL.md",
-      "grade": "B",
-      "score": 82,
+      "grade": "A",
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -25975,8 +25975,8 @@
     },
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-performance-tuning/SKILL.md",
-      "grade": "B",
-      "score": 83,
+      "grade": "A",
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -25987,7 +25987,7 @@
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-prod-checklist/SKILL.md",
       "grade": "A",
-      "score": 91,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -25997,8 +25997,8 @@
     },
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-rate-limits/SKILL.md",
-      "grade": "B",
-      "score": 81,
+      "grade": "A",
+      "score": 95,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26009,7 +26009,7 @@
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-reference-architecture/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26019,8 +26019,8 @@
     },
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-sdk-patterns/SKILL.md",
-      "grade": "B",
-      "score": 80,
+      "grade": "A",
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26030,8 +26030,8 @@
     },
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-security-basics/SKILL.md",
-      "grade": "C",
-      "score": 79,
+      "grade": "A",
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26041,8 +26041,8 @@
     },
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-upgrade-migration/SKILL.md",
-      "grade": "B",
-      "score": 80,
+      "grade": "A",
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26052,8 +26052,8 @@
     },
     {
       "path": "plugins/saas-packs/mistral-pack/skills/mistral-webhooks-events/SKILL.md",
-      "grade": "B",
-      "score": 80,
+      "grade": "A",
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",

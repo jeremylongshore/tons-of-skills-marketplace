@@ -132,7 +132,7 @@ final DAG has nine dependency waves with maximum parallelism of three, a
 single onboarding/exit gate at the apex, and selective Epic 1 integration:
 research and safety-analysis work remains runnable, schema/fixture hardening
 waits for Epic 0 validators, experiment operationalization waits for workflow
-+ destructive-test-isolation controls, and the controlled BLUE → GOLD → BLUE
+\+ destructive-test-isolation controls, and the controlled BLUE → GOLD → BLUE
 proof waits for the final Epic 0 exit gate.
 
 The Beads config (`dolt.local-only: true`, `backup.enabled: false`, no remote)

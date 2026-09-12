@@ -8297,15 +8297,15 @@
       "slug": "mistral-pack",
       "name": "mistral-pack",
       "displayName": "mistral pack",
-      "description": "Complete Mistral AI integration skill pack with 24 skills covering model inference, embeddings, fine-tuning, and production deployments. Flagship tier vendor pack.",
-      "version": "1.13.0",
+      "description": "Operator-grade Mistral skill pack with 24 current API, security, reliability, governance, and migration workflows",
+      "version": "1.14.0",
       "category": "saas-packs",
       "keywords": [
         "mistral",
         "llm",
         "inference",
         "embeddings",
-        "fine-tuning",
+        "workflows",
         "ai",
         "machine-learning"
       ],

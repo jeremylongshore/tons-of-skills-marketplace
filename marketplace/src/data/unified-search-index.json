@@ -11111,14 +11111,14 @@
       "slug": "mistral-pack",
       "name": "mistral-pack",
       "displayName": "mistral pack",
-      "description": "Complete Mistral AI integration skill pack with 24 skills covering model inference, embeddings, fine-tuning, and production deployments. Flagship tier vendor pack.",
+      "description": "Operator-grade Mistral skill pack with 24 current API, security, reliability, governance, and migration workflows",
       "category": "saas-packs",
       "keywords": [
         "mistral",
         "llm",
         "inference",
         "embeddings",
-        "fine-tuning",
+        "workflows",
         "ai",
         "machine-learning"
       ],
@@ -11128,15 +11128,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.13.0",
+      "version": "1.14.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 84,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "mistral pack complete mistral ai integration skill pack with 24 skills covering model inference, embeddings, fine-tuning, and production deployments. flagship tier vendor pack. saas-packs mistral llm inference embeddings fine-tuning ai machine-learning"
+      "verificationScore": 97,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "mistral pack operator-grade mistral skill pack with 24 current api, security, reliability, governance, and migration workflows saas-packs mistral llm inference embeddings workflows ai machine-learning"
     },
     {
       "type": "plugin",
@@ -56011,504 +56011,528 @@
       "id": "mistral-ci-integration",
       "slug": "mistral-ci-integration",
       "name": "mistral-ci-integration",
-      "description": "Configure Mistral AI CI/CD integration with GitHub Actions and prompt testing. Use when setting up automated testing, prompt regression suites, or integrating Mistral AI quality gates into your build process. Trigger with phrases like \"mistral CI\", \"mistral GitHub Actions\", \"mistral automated tests\", \"CI mistral\", \"prompt testing\".",
+      "description": "Gate Mistral integrations with offline contract tests and a protected optional live smoke lane. Use when adding provider checks to CI. Trigger with \"test Mistral in CI\", \"add a Mistral quality gate\", or \"secure Mistral GitHub Actions\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(gh:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-ci-integration configure mistral ai ci/cd integration with github actions and prompt testing. use when setting up automated testing, prompt regression suites, or integrating mistral ai quality gates into your build process. trigger with phrases like \"mistral ci\", \"mistral github actions\", \"mistral automated tests\", \"ci mistral\", \"prompt testing\". saas-packs read write edit bash(gh:*) "
+      "searchText": "mistral-ci-integration gate mistral integrations with offline contract tests and a protected optional live smoke lane. use when adding provider checks to ci. trigger with \"test mistral in ci\", \"add a mistral quality gate\", or \"secure mistral github actions\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-common-errors",
       "slug": "mistral-common-errors",
       "name": "mistral-common-errors",
-      "description": "Diagnose and fix Mistral AI common errors and exceptions. Use when encountering Mistral errors, debugging failed requests, or troubleshooting integration issues. Trigger with phrases like \"mistral error\", \"fix mistral\", \"mistral not working\", \"debug mistral\".",
+      "description": "Diagnose Mistral authentication, validation, throttling, model, transport, and provider failures without unsafe retries. Use when an integration fails. Trigger with \"Mistral error\", \"fix a Mistral 429\", or \"debug a failed Mistral request\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(curl:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-common-errors diagnose and fix mistral ai common errors and exceptions. use when encountering mistral errors, debugging failed requests, or troubleshooting integration issues. trigger with phrases like \"mistral error\", \"fix mistral\", \"mistral not working\", \"debug mistral\". saas-packs read grep bash(curl:*) "
+      "searchText": "mistral-common-errors diagnose mistral authentication, validation, throttling, model, transport, and provider failures without unsafe retries. use when an integration fails. trigger with \"mistral error\", \"fix a mistral 429\", or \"debug a failed mistral request\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-core-workflow-a",
       "slug": "mistral-core-workflow-a",
       "name": "mistral-core-workflow-a",
-      "description": "Execute Mistral AI chat completions with streaming, multi-turn, and guardrails. Use when implementing chat interfaces, building conversational AI, or integrating Mistral for text generation. Trigger with phrases like \"mistral chat\", \"mistral completion\", \"mistral streaming\", \"mistral conversation\", \"mistral guardrails\".",
+      "description": "Implement governed Mistral chat, streaming, and structured-output requests with schema validation and model evidence. Use when building text-generation workflows. Trigger with \"build Mistral chat\", \"stream a Mistral response\", or \"return structured Mistral output\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-core-workflow-a execute mistral ai chat completions with streaming, multi-turn, and guardrails. use when implementing chat interfaces, building conversational ai, or integrating mistral for text generation. trigger with phrases like \"mistral chat\", \"mistral completion\", \"mistral streaming\", \"mistral conversation\", \"mistral guardrails\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "mistral-core-workflow-a implement governed mistral chat, streaming, and structured-output requests with schema validation and model evidence. use when building text-generation workflows. trigger with \"build mistral chat\", \"stream a mistral response\", or \"return structured mistral output\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-core-workflow-b",
       "slug": "mistral-core-workflow-b",
       "name": "mistral-core-workflow-b",
-      "description": "Execute Mistral AI embeddings, function calling, and RAG pipelines. Use when implementing semantic search, RAG applications, tool-augmented LLM interactions, or code embeddings. Trigger with phrases like \"mistral embeddings\", \"mistral function calling\", \"mistral tools\", \"mistral RAG\", \"mistral semantic search\".",
+      "description": "Build Mistral embeddings, retrieval, and function-calling loops with tenant isolation and application-owned execution. Use when adding RAG or tools. Trigger with \"build Mistral RAG\", \"use Mistral embeddings\", or \"add Mistral function calling\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-core-workflow-b execute mistral ai embeddings, function calling, and rag pipelines. use when implementing semantic search, rag applications, tool-augmented llm interactions, or code embeddings. trigger with phrases like \"mistral embeddings\", \"mistral function calling\", \"mistral tools\", \"mistral rag\", \"mistral semantic search\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "mistral-core-workflow-b build mistral embeddings, retrieval, and function-calling loops with tenant isolation and application-owned execution. use when adding rag or tools. trigger with \"build mistral rag\", \"use mistral embeddings\", or \"add mistral function calling\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-cost-tuning",
       "slug": "mistral-cost-tuning",
       "name": "mistral-cost-tuning",
-      "description": "Optimize Mistral AI costs through model selection, token management, and usage monitoring. Use when analyzing Mistral billing, reducing API costs, or implementing usage monitoring and budget alerts. Trigger with phrases like \"mistral cost\", \"mistral billing\", \"reduce mistral costs\", \"mistral pricing\", \"mistral budget\".",
+      "description": "Control Mistral spend with live account rates, usage attribution, admission budgets, and quality-preserving experiments. Use when forecasting or reducing cost. Trigger with \"optimize Mistral cost\", \"set a Mistral budget\", or \"explain Mistral spend\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-cost-tuning optimize mistral ai costs through model selection, token management, and usage monitoring. use when analyzing mistral billing, reducing api costs, or implementing usage monitoring and budget alerts. trigger with phrases like \"mistral cost\", \"mistral billing\", \"reduce mistral costs\", \"mistral pricing\", \"mistral budget\". saas-packs read grep "
+      "searchText": "mistral-cost-tuning control mistral spend with live account rates, usage attribution, admission budgets, and quality-preserving experiments. use when forecasting or reducing cost. trigger with \"optimize mistral cost\", \"set a mistral budget\", or \"explain mistral spend\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-data-handling",
       "slug": "mistral-data-handling",
       "name": "mistral-data-handling",
-      "description": "Implement Mistral AI PII handling, data retention, and GDPR/CCPA compliance patterns. Use when handling sensitive data, implementing data redaction, configuring retention policies, or ensuring compliance with privacy regulations for Mistral AI integrations. Trigger with phrases like \"mistral data\", \"mistral PII\", \"mistral GDPR\", \"mistral data retention\", \"mistral privacy\".",
+      "description": "Govern Mistral prompts, outputs, embeddings, files, OCR, audio, batch, stateful resources, and deletion evidence. Use when sensitive or retained data is involved. Trigger with \"Mistral data retention\", \"upload a file to Mistral\", or \"review Mistral privacy\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-data-handling implement mistral ai pii handling, data retention, and gdpr/ccpa compliance patterns. use when handling sensitive data, implementing data redaction, configuring retention policies, or ensuring compliance with privacy regulations for mistral ai integrations. trigger with phrases like \"mistral data\", \"mistral pii\", \"mistral gdpr\", \"mistral data retention\", \"mistral privacy\". saas-packs read write edit "
+      "searchText": "mistral-data-handling govern mistral prompts, outputs, embeddings, files, ocr, audio, batch, stateful resources, and deletion evidence. use when sensitive or retained data is involved. trigger with \"mistral data retention\", \"upload a file to mistral\", or \"review mistral privacy\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-debug-bundle",
       "slug": "mistral-debug-bundle",
       "name": "mistral-debug-bundle",
-      "description": "Collect Mistral AI debug evidence for support tickets and troubleshooting. Use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for Mistral AI problems. Trigger with phrases like \"mistral debug\", \"mistral support bundle\", \"collect mistral logs\", \"mistral diagnostic\".",
+      "description": "Assemble a content-free Mistral diagnostic bundle with hashes, schema facts, and explicit exclusions. Use when escalating a persistent integration problem. Trigger with \"build a Mistral debug bundle\", \"prepare Mistral support evidence\", or \"sanitize Mistral diagnostics\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(grep:*)",
-        "Bash(curl:*)",
-        "Bash(tar:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-debug-bundle collect mistral ai debug evidence for support tickets and troubleshooting. use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for mistral ai problems. trigger with phrases like \"mistral debug\", \"mistral support bundle\", \"collect mistral logs\", \"mistral diagnostic\". saas-packs read bash(grep:*) bash(curl:*) bash(tar:*) grep "
+      "searchText": "mistral-debug-bundle assemble a content-free mistral diagnostic bundle with hashes, schema facts, and explicit exclusions. use when escalating a persistent integration problem. trigger with \"build a mistral debug bundle\", \"prepare mistral support evidence\", or \"sanitize mistral diagnostics\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-deploy-integration",
       "slug": "mistral-deploy-integration",
       "name": "mistral-deploy-integration",
-      "description": "Deploy Mistral AI integrations to Vercel, Docker, and Cloud Run platforms. Use when deploying Mistral AI-powered applications to production, configuring platform-specific secrets, or setting up deployment pipelines. Trigger with phrases like \"deploy mistral\", \"mistral Vercel\", \"mistral production deploy\", \"mistral Cloud Run\", \"mistral Docker\".",
+      "description": "Deploy a Mistral-backed service with secret isolation, bounded concurrency, health semantics, canary evidence, and rollback. Use when preparing runtime delivery. Trigger with \"deploy a Mistral app\", \"configure Mistral production\", or \"canary a Mistral service\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(docker:*)",
-        "Bash(gcloud:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-deploy-integration deploy mistral ai integrations to vercel, docker, and cloud run platforms. use when deploying mistral ai-powered applications to production, configuring platform-specific secrets, or setting up deployment pipelines. trigger with phrases like \"deploy mistral\", \"mistral vercel\", \"mistral production deploy\", \"mistral cloud run\", \"mistral docker\". saas-packs read write edit bash(vercel:*) bash(docker:*) bash(gcloud:*) "
+      "searchText": "mistral-deploy-integration deploy a mistral-backed service with secret isolation, bounded concurrency, health semantics, canary evidence, and rollback. use when preparing runtime delivery. trigger with \"deploy a mistral app\", \"configure mistral production\", or \"canary a mistral service\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-enterprise-rbac",
       "slug": "mistral-enterprise-rbac",
       "name": "mistral-enterprise-rbac",
-      "description": "Configure Mistral AI enterprise access control and workspace management. Use when implementing role-based API key scoping, managing team access, or setting up organization-level controls for Mistral AI. Trigger with phrases like \"mistral access control\", \"mistral RBAC\", \"mistral enterprise\", \"mistral roles\", \"mistral team\".",
+      "description": "Design Mistral organization, workspace, role, service-account, workload-identity, and application RBAC boundaries. Use when governing enterprise access. Trigger with \"Mistral RBAC\", \"manage Mistral workspaces\", or \"audit Mistral service access\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-enterprise-rbac configure mistral ai enterprise access control and workspace management. use when implementing role-based api key scoping, managing team access, or setting up organization-level controls for mistral ai. trigger with phrases like \"mistral access control\", \"mistral rbac\", \"mistral enterprise\", \"mistral roles\", \"mistral team\". saas-packs read write edit "
+      "searchText": "mistral-enterprise-rbac design mistral organization, workspace, role, service-account, workload-identity, and application rbac boundaries. use when governing enterprise access. trigger with \"mistral rbac\", \"manage mistral workspaces\", or \"audit mistral service access\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-hello-world",
       "slug": "mistral-hello-world",
       "name": "mistral-hello-world",
-      "description": "Create a minimal working Mistral AI chat completion example. Use when starting a new Mistral integration, testing your setup, or learning basic Mistral API patterns. Trigger with phrases like \"mistral hello world\", \"mistral example\", \"mistral quick start\", \"simple mistral code\", \"mistral chat\".",
+      "description": "Validate one minimal Mistral chat request with pinned inputs, usage evidence, and zero sensitive data. Use when proving a new integration path. Trigger with \"Mistral hello world\", \"test my Mistral setup\", or \"make a first Mistral request\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-hello-world create a minimal working mistral ai chat completion example. use when starting a new mistral integration, testing your setup, or learning basic mistral api patterns. trigger with phrases like \"mistral hello world\", \"mistral example\", \"mistral quick start\", \"simple mistral code\", \"mistral chat\". saas-packs read write edit "
+      "searchText": "mistral-hello-world validate one minimal mistral chat request with pinned inputs, usage evidence, and zero sensitive data. use when proving a new integration path. trigger with \"mistral hello world\", \"test my mistral setup\", or \"make a first mistral request\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-incident-runbook",
       "slug": "mistral-incident-runbook",
       "name": "mistral-incident-runbook",
-      "description": "Execute Mistral AI incident response procedures with triage, mitigation, and postmortem. Use when responding to Mistral AI-related outages, investigating errors, or running post-incident reviews. Trigger with phrases like \"mistral incident\", \"mistral outage\", \"mistral down\", \"mistral on-call\", \"mistral emergency\".",
+      "description": "Analyze, contain, and recover Mistral credential, outage, throttling, data, spend, and state-reconciliation incidents. Use when responding to provider-related impact. Trigger with \"Mistral incident\", \"Mistral outage\", or \"rotate a leaked Mistral key\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
         "Grep",
-        "Bash(kubectl:*)",
-        "Bash(curl:*)"
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-incident-runbook execute mistral ai incident response procedures with triage, mitigation, and postmortem. use when responding to mistral ai-related outages, investigating errors, or running post-incident reviews. trigger with phrases like \"mistral incident\", \"mistral outage\", \"mistral down\", \"mistral on-call\", \"mistral emergency\". saas-packs read grep bash(kubectl:*) bash(curl:*) "
+      "searchText": "mistral-incident-runbook analyze, contain, and recover mistral credential, outage, throttling, data, spend, and state-reconciliation incidents. use when responding to provider-related impact. trigger with \"mistral incident\", \"mistral outage\", or \"rotate a leaked mistral key\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-install-auth",
       "slug": "mistral-install-auth",
       "name": "mistral-install-auth",
-      "description": "Install and configure the Mistral AI SDK with authentication. Use when setting up a new Mistral integration, configuring API keys, or initializing Mistral AI in your project. Trigger with phrases like \"install mistral\", \"setup mistral\", \"mistral auth\", \"configure mistral API key\".",
+      "description": "Establish Mistral API access with server-side credentials, workspace ownership, and revocation evidence. Use when installing or auditing a Mistral environment. Trigger with \"set up Mistral\", \"configure a Mistral key\", or \"audit Mistral authentication\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-install-auth install and configure the mistral ai sdk with authentication. use when setting up a new mistral integration, configuring api keys, or initializing mistral ai in your project. trigger with phrases like \"install mistral\", \"setup mistral\", \"mistral auth\", \"configure mistral api key\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "mistral-install-auth establish mistral api access with server-side credentials, workspace ownership, and revocation evidence. use when installing or auditing a mistral environment. trigger with \"set up mistral\", \"configure a mistral key\", or \"audit mistral authentication\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-local-dev-loop",
       "slug": "mistral-local-dev-loop",
       "name": "mistral-local-dev-loop",
-      "description": "Configure Mistral AI local development with hot reload, testing, and mocking. Use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with Mistral AI. Trigger with phrases like \"mistral dev setup\", \"mistral local development\", \"mistral dev environment\", \"develop with mistral\".",
+      "description": "Build an offline-first Mistral development loop with contract fixtures and an opt-in live smoke lane. Use when developing or testing an integration locally. Trigger with \"mock Mistral locally\", \"speed up Mistral development\", or \"test Mistral without API spend\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pnpm:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-local-dev-loop configure mistral ai local development with hot reload, testing, and mocking. use when setting up a development environment, configuring test workflows, or establishing a fast iteration cycle with mistral ai. trigger with phrases like \"mistral dev setup\", \"mistral local development\", \"mistral dev environment\", \"develop with mistral\". saas-packs read write edit bash(npm:*) bash(pnpm:*) grep "
+      "searchText": "mistral-local-dev-loop build an offline-first mistral development loop with contract fixtures and an opt-in live smoke lane. use when developing or testing an integration locally. trigger with \"mock mistral locally\", \"speed up mistral development\", or \"test mistral without api spend\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-migration-deep-dive",
       "slug": "mistral-migration-deep-dive",
       "name": "mistral-migration-deep-dive",
-      "description": "Execute migration to Mistral AI from OpenAI, Anthropic, or other providers. Use when migrating to Mistral AI from another provider, performing major refactoring, or re-platforming existing AI integrations to Mistral AI. Trigger with phrases like \"migrate to mistral\", \"mistral migration\", \"switch to mistral\", \"openai to mistral\", \"anthropic to mistral\".",
+      "description": "Migrate an existing model workload to Mistral through semantic mapping, dual-run evaluation, bounded canary, and provider rollback. Use when re-platforming from another provider. Trigger with \"migrate to Mistral\", \"move from OpenAI to Mistral\", or \"compare a workload with Mistral\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(node:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-migration-deep-dive execute migration to mistral ai from openai, anthropic, or other providers. use when migrating to mistral ai from another provider, performing major refactoring, or re-platforming existing ai integrations to mistral ai. trigger with phrases like \"migrate to mistral\", \"mistral migration\", \"switch to mistral\", \"openai to mistral\", \"anthropic to mistral\". saas-packs read write edit bash(npm:*) bash(node:*) grep "
+      "searchText": "mistral-migration-deep-dive migrate an existing model workload to mistral through semantic mapping, dual-run evaluation, bounded canary, and provider rollback. use when re-platforming from another provider. trigger with \"migrate to mistral\", \"move from openai to mistral\", or \"compare a workload with mistral\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-multi-env-setup",
       "slug": "mistral-multi-env-setup",
       "name": "mistral-multi-env-setup",
-      "description": "Configure Mistral AI across development, staging, and production environments. Use when setting up multi-environment deployments, configuring per-environment secrets, or implementing environment-specific Mistral AI configurations. Trigger with phrases like \"mistral environments\", \"mistral staging\", \"mistral dev prod\", \"mistral environment setup\".",
+      "description": "Isolate Mistral development, staging, and production by workspace, credential, data, budget, and routing policy. Use when configuring multiple environments. Trigger with \"separate Mistral environments\", \"configure Mistral staging\", or \"audit Mistral environment isolation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(gcloud:*)",
-        "Bash(vault:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-multi-env-setup configure mistral ai across development, staging, and production environments. use when setting up multi-environment deployments, configuring per-environment secrets, or implementing environment-specific mistral ai configurations. trigger with phrases like \"mistral environments\", \"mistral staging\", \"mistral dev prod\", \"mistral environment setup\". saas-packs read write edit bash(gcloud:*) bash(vault:*) "
+      "searchText": "mistral-multi-env-setup isolate mistral development, staging, and production by workspace, credential, data, budget, and routing policy. use when configuring multiple environments. trigger with \"separate mistral environments\", \"configure mistral staging\", or \"audit mistral environment isolation\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-observability",
       "slug": "mistral-observability",
       "name": "mistral-observability",
-      "description": "Set up comprehensive observability for Mistral AI with metrics, traces, and alerts. Use when implementing monitoring for Mistral AI operations, setting up dashboards, or configuring alerting for integration health. Trigger with phrases like \"mistral monitoring\", \"mistral metrics\", \"mistral observability\", \"monitor mistral\", \"mistral alerts\".",
+      "description": "Instrument Mistral requests, streams, tools, batch, and workflows without logging sensitive content. Use when building dashboards or SLOs. Trigger with \"monitor Mistral\", \"trace Mistral latency\", or \"add Mistral alerts\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-observability set up comprehensive observability for mistral ai with metrics, traces, and alerts. use when implementing monitoring for mistral ai operations, setting up dashboards, or configuring alerting for integration health. trigger with phrases like \"mistral monitoring\", \"mistral metrics\", \"mistral observability\", \"monitor mistral\", \"mistral alerts\". saas-packs read write edit "
+      "searchText": "mistral-observability instrument mistral requests, streams, tools, batch, and workflows without logging sensitive content. use when building dashboards or slos. trigger with \"monitor mistral\", \"trace mistral latency\", or \"add mistral alerts\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-performance-tuning",
       "slug": "mistral-performance-tuning",
       "name": "mistral-performance-tuning",
-      "description": "Optimize Mistral AI performance with caching, batching, and latency reduction. Use when experiencing slow API responses, implementing caching strategies, or optimizing request throughput for Mistral AI integrations. Trigger with phrases like \"mistral performance\", \"optimize mistral\", \"mistral latency\", \"mistral caching\", \"mistral slow\".",
+      "description": "Analyze and improve Mistral latency and throughput from measured queue, transport, streaming, retrieval, and token evidence. Use when optimizing a slow integration. Trigger with \"speed up Mistral\", \"reduce Mistral latency\", or \"tune Mistral throughput\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-performance-tuning optimize mistral ai performance with caching, batching, and latency reduction. use when experiencing slow api responses, implementing caching strategies, or optimizing request throughput for mistral ai integrations. trigger with phrases like \"mistral performance\", \"optimize mistral\", \"mistral latency\", \"mistral caching\", \"mistral slow\". saas-packs read write edit "
+      "searchText": "mistral-performance-tuning analyze and improve mistral latency and throughput from measured queue, transport, streaming, retrieval, and token evidence. use when optimizing a slow integration. trigger with \"speed up mistral\", \"reduce mistral latency\", or \"tune mistral throughput\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-prod-checklist",
       "slug": "mistral-prod-checklist",
       "name": "mistral-prod-checklist",
-      "description": "Execute Mistral AI production deployment checklist and rollback procedures. Use when deploying Mistral AI integrations to production, preparing for launch, or implementing go-live procedures. Trigger with phrases like \"mistral production\", \"deploy mistral\", \"mistral go-live\", \"mistral launch checklist\".",
+      "description": "Issue a fail-closed Mistral go-live decision from auth, reliability, spend, data, security, and rollback evidence. Use when reviewing a production launch. Trigger with \"Mistral production checklist\", \"approve Mistral go-live\", or \"review Mistral launch readiness\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(kubectl:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-prod-checklist execute mistral ai production deployment checklist and rollback procedures. use when deploying mistral ai integrations to production, preparing for launch, or implementing go-live procedures. trigger with phrases like \"mistral production\", \"deploy mistral\", \"mistral go-live\", \"mistral launch checklist\". saas-packs read bash(kubectl:*) bash(curl:*) grep "
+      "searchText": "mistral-prod-checklist issue a fail-closed mistral go-live decision from auth, reliability, spend, data, security, and rollback evidence. use when reviewing a production launch. trigger with \"mistral production checklist\", \"approve mistral go-live\", or \"review mistral launch readiness\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-rate-limits",
       "slug": "mistral-rate-limits",
       "name": "mistral-rate-limits",
-      "description": "Implement Mistral AI rate limiting, backoff, and request management. Use when handling rate limit errors, implementing retry logic, or optimizing API request throughput for Mistral AI. Trigger with phrases like \"mistral rate limit\", \"mistral throttling\", \"mistral 429\", \"mistral retry\", \"mistral backoff\".",
+      "description": "Control Mistral demand with live workspace limits, token-aware admission, bounded retry, and backpressure. Use when handling throttling or sizing throughput. Trigger with \"Mistral rate limits\", \"fix Mistral 429s\", or \"design Mistral backpressure\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-rate-limits implement mistral ai rate limiting, backoff, and request management. use when handling rate limit errors, implementing retry logic, or optimizing api request throughput for mistral ai. trigger with phrases like \"mistral rate limit\", \"mistral throttling\", \"mistral 429\", \"mistral retry\", \"mistral backoff\". saas-packs read write edit "
+      "searchText": "mistral-rate-limits control mistral demand with live workspace limits, token-aware admission, bounded retry, and backpressure. use when handling throttling or sizing throughput. trigger with \"mistral rate limits\", \"fix mistral 429s\", or \"design mistral backpressure\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-reference-architecture",
       "slug": "mistral-reference-architecture",
       "name": "mistral-reference-architecture",
-      "description": "Implement Mistral AI reference architecture with best-practice project layout. Use when designing new Mistral AI integrations, reviewing project structure, or establishing architecture standards for Mistral AI applications. Trigger with phrases like \"mistral architecture\", \"mistral best practices\", \"mistral project structure\", \"how to organize mistral\".",
+      "description": "Design a Mistral integration from policy gateway through adapter, queues, state reconciliation, and audited output. Use when establishing architecture. Trigger with \"design a Mistral architecture\", \"review a Mistral platform\", or \"standardize Mistral services\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep"
+        "Glob",
+        "Grep",
+        "Write",
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-reference-architecture implement mistral ai reference architecture with best-practice project layout. use when designing new mistral ai integrations, reviewing project structure, or establishing architecture standards for mistral ai applications. trigger with phrases like \"mistral architecture\", \"mistral best practices\", \"mistral project structure\", \"how to organize mistral\". saas-packs read grep "
+      "searchText": "mistral-reference-architecture design a mistral integration from policy gateway through adapter, queues, state reconciliation, and audited output. use when establishing architecture. trigger with \"design a mistral architecture\", \"review a mistral platform\", or \"standardize mistral services\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-sdk-patterns",
       "slug": "mistral-sdk-patterns",
       "name": "mistral-sdk-patterns",
-      "description": "Apply production-ready Mistral AI SDK patterns for TypeScript and Python. Use when implementing Mistral integrations, refactoring SDK usage, or establishing team coding standards for Mistral AI. Trigger with phrases like \"mistral SDK patterns\", \"mistral best practices\", \"mistral code patterns\", \"idiomatic mistral\".",
+      "description": "Design a pinned Mistral client adapter with typed results, cancellation, retry classification, and usage accounting. Use when implementing or refactoring SDK access. Trigger with \"wrap the Mistral SDK\", \"review Mistral client code\", or \"standardize Mistral calls\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-sdk-patterns apply production-ready mistral ai sdk patterns for typescript and python. use when implementing mistral integrations, refactoring sdk usage, or establishing team coding standards for mistral ai. trigger with phrases like \"mistral sdk patterns\", \"mistral best practices\", \"mistral code patterns\", \"idiomatic mistral\". saas-packs read write edit "
+      "searchText": "mistral-sdk-patterns design a pinned mistral client adapter with typed results, cancellation, retry classification, and usage accounting. use when implementing or refactoring sdk access. trigger with \"wrap the mistral sdk\", \"review mistral client code\", or \"standardize mistral calls\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-security-basics",
       "slug": "mistral-security-basics",
       "name": "mistral-security-basics",
-      "description": "Apply Mistral AI security best practices for secrets, prompt injection, and access control. Use when securing API keys, defending against prompt injection, or auditing Mistral AI security configuration. Trigger with phrases like \"mistral security\", \"mistral secrets\", \"secure mistral\", \"mistral prompt injection\".",
+      "description": "Threat-model Mistral credentials, untrusted content, model output, tools, files, and tenant access. Use when securing or reviewing an integration. Trigger with \"secure Mistral\", \"audit Mistral prompts\", or \"threat model a Mistral app\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-security-basics apply mistral ai security best practices for secrets, prompt injection, and access control. use when securing api keys, defending against prompt injection, or auditing mistral ai security configuration. trigger with phrases like \"mistral security\", \"mistral secrets\", \"secure mistral\", \"mistral prompt injection\". saas-packs read write grep "
+      "searchText": "mistral-security-basics threat-model mistral credentials, untrusted content, model output, tools, files, and tenant access. use when securing or reviewing an integration. trigger with \"secure mistral\", \"audit mistral prompts\", or \"threat model a mistral app\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-upgrade-migration",
       "slug": "mistral-upgrade-migration",
       "name": "mistral-upgrade-migration",
-      "description": "Analyze, plan, and execute Mistral AI SDK upgrades with breaking change detection. Use when upgrading Mistral SDK versions, detecting deprecations, or migrating to new API versions. Trigger with phrases like \"upgrade mistral\", \"mistral breaking changes\", \"update mistral SDK\", \"analyze mistral version\".",
+      "description": "Migrate a pinned Mistral client or deprecated API surface through characterization, contract diffing, and staged rollback. Use when upgrading SDKs or moving API generations. Trigger with \"upgrade Mistral SDK\", \"migrate Mistral Agents\", or \"fix Mistral deprecations\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(git:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-upgrade-migration analyze, plan, and execute mistral ai sdk upgrades with breaking change detection. use when upgrading mistral sdk versions, detecting deprecations, or migrating to new api versions. trigger with phrases like \"upgrade mistral\", \"mistral breaking changes\", \"update mistral sdk\", \"analyze mistral version\". saas-packs read write edit bash(npm:*) bash(git:*) "
+      "searchText": "mistral-upgrade-migration migrate a pinned mistral client or deprecated api surface through characterization, contract diffing, and staged rollback. use when upgrading sdks or moving api generations. trigger with \"upgrade mistral sdk\", \"migrate mistral agents\", or \"fix mistral deprecations\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",
       "id": "mistral-webhooks-events",
       "slug": "mistral-webhooks-events",
       "name": "mistral-webhooks-events",
-      "description": "Implement Mistral AI async patterns, batch API, agents, and event-driven workflows. Use when building async workflows, using the Agents API, batch inference, or handling long-running Mistral AI operations. Trigger with phrases like \"mistral events\", \"mistral async\", \"mistral agents\", \"mistral batch\", \"mistral queue\", \"mistral background jobs\".",
+      "description": "Implement Mistral Workflows event ingestion over SSE with checkpoints, deduplication, reconnect control, and reconciliation. Use when consuming workflow event streams. Trigger with \"stream Mistral workflow events\", \"reconcile Mistral runs\", or \"replace Mistral webhooks\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Glob",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(curl:*)"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.13.0",
+      "version": "1.14.0",
       "parentPlugin": {
         "name": "mistral-pack",
         "category": "saas-packs"
       },
-      "searchText": "mistral-webhooks-events implement mistral ai async patterns, batch api, agents, and event-driven workflows. use when building async workflows, using the agents api, batch inference, or handling long-running mistral ai operations. trigger with phrases like \"mistral events\", \"mistral async\", \"mistral agents\", \"mistral batch\", \"mistral queue\", \"mistral background jobs\". saas-packs read write edit bash(curl:*) "
+      "searchText": "mistral-webhooks-events implement mistral workflows event ingestion over sse with checkpoints, deduplication, reconnect control, and reconciliation. use when consuming workflow event streams. trigger with \"stream mistral workflow events\", \"reconcile mistral runs\", or \"replace mistral webhooks\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",

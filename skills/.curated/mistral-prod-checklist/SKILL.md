@@ -1,243 +1,74 @@
 ---
 name: mistral-prod-checklist
-description: 'Execute Mistral AI production deployment checklist and rollback procedures.
-
-  Use when deploying Mistral AI integrations to production, preparing for launch,
-
-  or implementing go-live procedures.
-
-  Trigger with phrases like "mistral production", "deploy mistral",
-
-  "mistral go-live", "mistral launch checklist".
-
-  '
-allowed-tools: Read, Bash(kubectl:*), Bash(curl:*), Grep
-version: 1.13.0
+description: >-
+  Issue a fail-closed Mistral go-live decision from auth, reliability, spend, data, security, and rollback evidence. Use when reviewing a production launch. Trigger with "Mistral production checklist", "approve Mistral go-live", or "review Mistral launch readiness".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<service> <environment> <release-sha>"
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mistral
-- deployment
-compatibility: Designed for Claude Code
+tags: [saas, mistral, production]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live or external Mistral actions require network access and explicit approval"
 ---
-# Mistral AI Production Checklist
+# Mistral Production Readiness Gate
 
 ## Overview
 
-Complete checklist for deploying Mistral AI integrations to production. Covers credential management, code quality gates, health endpoints, circuit breaker resilience, gradual rollout, and rollback procedures.
+Turn readiness into an evidence-backed decision. Missing ownership, unsafe data, unbounded demand, or untested rollback blocks launch.
 
 ## Prerequisites
 
-- Staging environment tested and verified
-- Production API keys from La Plateforme
-- Deployment pipeline (CI/CD) configured
-- Monitoring and alerting ready (see `mistral-observability`)
+- An immutable candidate and environment inventory.
+- Named service, security, privacy, spend, and incident owners.
+- Current model/API evidence, load results, data policy, runbook, and rollback proof.
+
+## Current Contract
+
+Model access, limits, billing, and preview status can change. Evidence must be timestamped and environment-specific; Public Preview surfaces need an explicit risk decision.
+
+## Authentication
+
+Verify secret injection, isolation, rotation ownership, and absence from artifacts without displaying credential values. Confirm the production runtime cannot expose the secret to browser code.
 
 ## Instructions
 
-### Step 1: Pre-Deployment Verification
+1. Pin release, dependency lock, endpoints, model policy, and provider evidence.
+2. Review auth, tenancy, safety, file/data lifecycle, and ZDR applicability.
+3. Review deadlines, retries, backpressure, state reconciliation, and degradation.
+4. Prove usage attribution, spend caps, alerts, and billing ownership.
+5. Run offline gates and approved canary tests including failure and rollback.
+6. Record PASS, CONDITIONAL, or BLOCKED with owner and evidence per gap.
 
-**Credentials**
+## Tool Discipline
 
-- [ ] Production API key stored in secret manager (never in env files or code)
-- [ ] Key tested with `curl -H "Authorization: Bearer $KEY" https://api.mistral.ai/v1/models`
-- [ ] Key has appropriate model access scope
-- [ ] Fallback key available for rotation
+Use Read, Glob, and Grep to inspect code, locks, configuration, tests, and evidence. Use Write and Edit only for approved repository changes. Invocation alone does not authorize network calls, paid usage, uploads, stateful resources, admin mutations, deployments, or deletion.
 
-**Code Quality**
+## Approval Boundaries
 
-- [ ] `npm run typecheck` passes
-- [ ] `npm test` passes (unit + integration)
-- [ ] No hardcoded keys: `grep -r "MISTRAL_API_KEY\|sk-" src/ --include="*.ts"`
-- [ ] Error handling covers 401, 429, 500+ status codes
-- [ ] Rate limiting/backoff implemented
-- [ ] Logging excludes message content and API keys
-
-**Model Configuration**
-
-- [ ] Using versioned model IDs or `-latest` aliases intentionally
-- [ ] `maxTokens` set to prevent runaway costs
-- [ ] `temperature` set appropriately (0 for deterministic, 0.7 for creative)
-- [ ] Token budget alerts configured
-
-### Step 2: Health Check Endpoint
-
-```typescript
-import { Mistral } from '@mistralai/mistralai';
-
-interface HealthStatus {
-  status: 'healthy' | 'degraded' | 'unhealthy';
-  provider: 'mistral';
-  latencyMs: number;
-  model?: string;
-  error?: string;
-}
-
-export async function checkHealth(): Promise<HealthStatus> {
-  const start = performance.now();
-  try {
-    const client = new Mistral({ apiKey: process.env.MISTRAL_API_KEY! });
-    const models = await client.models.list();
-    const latencyMs = Math.round(performance.now() - start);
-
-    return {
-      status: latencyMs > 5000 ? 'degraded' : 'healthy',
-      provider: 'mistral',
-      latencyMs,
-      model: models.data?.[0]?.id,
-    };
-  } catch (error: any) {
-    return {
-      status: 'unhealthy',
-      provider: 'mistral',
-      latencyMs: Math.round(performance.now() - start),
-      error: error.message,
-    };
-  }
-}
-
-// Express route
-app.get('/health', async (req, res) => {
-  const health = await checkHealth();
-  res.status(health.status === 'unhealthy' ? 503 : 200).json(health);
-});
-```
-
-### Step 3: Circuit Breaker
-
-```typescript
-class MistralCircuitBreaker {
-  private failures = 0;
-  private lastFailure = 0;
-  private state: 'closed' | 'open' | 'half-open' = 'closed';
-  private readonly threshold = 5;
-  private readonly resetMs = 60_000;
-
-  async execute<T>(fn: () => Promise<T>, fallback?: () => T): Promise<T> {
-    if (this.state === 'open') {
-      if (Date.now() - this.lastFailure > this.resetMs) {
-        this.state = 'half-open';
-      } else if (fallback) {
-        return fallback();
-      } else {
-        throw new Error('Circuit breaker open — Mistral unavailable');
-      }
-    }
-
-    try {
-      const result = await fn();
-      if (this.state === 'half-open') {
-        this.state = 'closed';
-        this.failures = 0;
-      }
-      return result;
-    } catch (error: any) {
-      if (error.status >= 500 || error.status === 429) {
-        this.failures++;
-        this.lastFailure = Date.now();
-        if (this.failures >= this.threshold) {
-          this.state = 'open';
-        }
-      }
-      throw error;
-    }
-  }
-}
-```
-
-### Step 4: Gradual Rollout
-
-```bash
-set -euo pipefail
-# Deploy to canary (10% traffic)
-kubectl set image deployment/mistral-app app=mistral-app:v2
-kubectl rollout pause deployment/mistral-app
-
-# Monitor for 10 minutes
-echo "Monitoring canary..."
-for i in $(seq 1 10); do
-  curl -sf https://yourapp.com/health | jq '.services.mistral'
-  sleep 60
-done
-
-# If healthy, resume rollout
-kubectl rollout resume deployment/mistral-app
-kubectl rollout status deployment/mistral-app
-```
-
-### Step 5: Post-Deployment Verification
-
-```bash
-set -euo pipefail
-# 1. Health check
-curl -sf https://yourapp.com/health | jq '.'
-
-# 2. Smoke test
-curl -X POST https://yourapp.com/api/chat \
-  -H "Content-Type: application/json" \
-  -d '{"messages":[{"role":"user","content":"ping"}]}' | jq '.choices[0].message.content'
-
-# 3. Check error rate in monitoring
-echo "Check Grafana/Datadog for mistral_errors_total"
-```
-
-### Step 6: Emergency Rollback
-
-```bash
-set -euo pipefail
-# Immediate rollback
-kubectl rollout undo deployment/mistral-app
-kubectl rollout status deployment/mistral-app
-
-# Verify
-curl -sf https://yourapp.com/health | jq '.'
-```
-
-## Alert Configuration
-
-| Alert | Condition | Severity |
-|-------|-----------|----------|
-| API Down | 5xx errors > 10/min | P1 |
-| High Latency | p95 > 5000ms for 5min | P2 |
-| Rate Limited | 429 errors > 5/min | P2 |
-| Auth Failure | Any 401 error | P1 |
-| Circuit Open | Breaker triggered | P2 |
-| Cost Spike | Spend > $10/hour | P3 |
-
-## Documentation Requirements
-
-- [ ] Incident runbook created (see `mistral-incident-runbook`)
-- [ ] Key rotation procedure documented
-- [ ] Rollback procedure tested
-- [ ] On-call escalation path defined
-- [ ] API usage limits documented
-
-## Output
-
-- Production deployment with verified credentials
-- Health check endpoint with latency monitoring
-- Circuit breaker for graceful degradation
-- Gradual rollout procedure
-- Emergency rollback tested
+This skill cannot deploy, enable preview APIs, increase limits, upload data, mutate keys, or waive a failed gate.
 
 ## Error Handling
 
-| Issue | Detection | Resolution |
-|-------|-----------|------------|
-| Deploy failure | `kubectl rollout status` | `kubectl rollout undo` |
-| Health check 503 | Alert triggered | Check Mistral status, verify credentials |
-| Circuit open | Metrics alert | Investigate availability, wait for reset |
-| High error rate | Monitoring alert | Check logs, consider rollback |
+- A successful health call does not prove load safety or rollback.
+- Undocumented fallback can silently alter cost and behavior.
+- Rollback leaving queues/files/state unreconciled is incomplete.
+
+## Output
+
+Return release/environment, gate matrix, evidence times, blockers, accepted preview risks, decision, approvers, canary, and rollback receipt.
 
 ## Examples
 
-### Gate a canary before resuming rollout
+- Block launch when spend alerts and tenant tests lack evidence.
+- Approve only a fixed-bound canary with a verified disable switch.
 
-Pause the deployment, run the health and chat smoke tests against the canary revision, and inspect the error-rate and auth-failure panels for the defined observation period. Resume only when the checks hold; otherwise execute `kubectl rollout undo` and keep the incident record linked to the failed revision.
+## Validation
+
+Re-run every gate at the exact SHA, exercise rollback/provider failure, and verify evidence links and owners.
 
 ## Resources
 
-- [Mistral AI Status](https://status.mistral.ai/)
-- [Mistral AI Console](https://console.mistral.ai/)
-- [Rate Limits](https://docs.mistral.ai/deployment/ai-studio/tier/)
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable endpoints, models, limits, prices, preview status, or retention.
+- Record live account observations as environment-specific evidence, not universal Mistral guarantees.

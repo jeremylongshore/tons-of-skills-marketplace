@@ -1,215 +1,74 @@
 ---
 name: mistral-enterprise-rbac
-description: 'Configure Mistral AI enterprise access control and workspace management.
-
-  Use when implementing role-based API key scoping, managing team access,
-
-  or setting up organization-level controls for Mistral AI.
-
-  Trigger with phrases like "mistral access control", "mistral RBAC",
-
-  "mistral enterprise", "mistral roles", "mistral team".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.13.0
+description: >-
+  Design Mistral organization, workspace, role, service-account, workload-identity, and application RBAC boundaries. Use when governing enterprise access. Trigger with "Mistral RBAC", "manage Mistral workspaces", or "audit Mistral service access".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<organization> <workspace-model> <identity-source>"
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mistral
-- rbac
-compatibility: Designed for Claude Code
+tags: [saas, mistral, rbac]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live or external Mistral actions require network access and explicit approval"
 ---
-# Mistral AI Enterprise RBAC
+# Mistral Enterprise Access Governance
 
 ## Overview
 
-Control access to Mistral AI at the organization level using La Plateforme workspace management: scoped API keys per team, model access restrictions, spending limits, key auditing, and automated rotation. Mistral organizes access via **Organizations > Workspaces > API Keys**, with rate limits set at the workspace level.
+Separate provider administration from application authorization. Provider controls govern resources/capacity; the application still enforces users, tenants, data, and tools.
 
 ## Prerequisites
 
-- Mistral La Plateforme organization account ([console.mistral.ai](https://console.mistral.ai/))
-- Organization admin or owner role
-- Understanding of workspace vs key-level controls
+- An identity source, joiner/mover/leaver process, and access owner.
+- Organization/workspace inventory, role catalog, service identities, and break-glass policy.
+- Current roles, service-account, workload-identity, and audit evidence.
+
+## Current Contract
+
+Mistral documents workspaces, groups, roles, service accounts, workload identity, keys, and audit logs. Exact entitlements and plan access come from current admin evidence.
+
+## Authentication
+
+Prefer approved non-human service identities. API keys authenticate provider calls but never substitute for application user identity or tenant authorization.
 
 ## Instructions
 
-### Step 1: Workspace Strategy
+1. Inventory users, groups, roles, service accounts, workload identities, keys, and membership.
+2. Map least-privilege provider permissions and separate billing, security, and runtime duties.
+3. Define app roles/tenant checks separately for prompts, files, retrieval, tools, and output.
+4. Set provisioning, review, expiration, rotation, revocation, and break-glass controls.
+5. Verify audit coverage for critical admin actions and evidence retention.
+6. Test joiner, mover, leaver, compromised service, wrong workspace, and emergency access.
 
-| Workspace | Team | Models Allowed | RPM | Monthly Budget |
-|-----------|------|----------------|-----|----------------|
-| dev-workspace | All developers | mistral-small, codestral | 60 | $50 |
-| ml-workspace | ML engineers | All models | 200 | $500 |
-| prod-workspace | CI/CD only | Per-service scoped | 500 | $2000 |
+## Tool Discipline
 
-Create workspaces via La Plateforme console: Organization > Workspaces > Create.
+Use Read, Glob, and Grep to inspect code, locks, configuration, tests, and evidence. Use Write and Edit only for approved repository changes. Invocation alone does not authorize network calls, paid usage, uploads, stateful resources, admin mutations, deployments, or deletion.
 
-### Step 2: Scoped API Keys per Team
+## Approval Boundaries
 
-Create keys with model restrictions and rate limits in the console, or via API:
-
-```bash
-set -euo pipefail
-# Dev team — restricted to cost-effective models
-curl -X POST https://api.mistral.ai/v1/api-keys \
-  -H "Authorization: Bearer $MISTRAL_ADMIN_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "dev-team-key",
-    "description": "Dev team — small models only",
-    "workspace_id": "ws_dev_xxx"
-  }'
-
-# ML team — full model access
-curl -X POST https://api.mistral.ai/v1/api-keys \
-  -H "Authorization: Bearer $MISTRAL_ADMIN_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "ml-team-key",
-    "description": "ML team — all models",
-    "workspace_id": "ws_ml_xxx"
-  }'
-```
-
-### Step 3: Application-Level Model Gateway
-
-Enforce model access in your application layer:
-
-```typescript
-const ROLE_PERMISSIONS: Record<string, {
-  allowedModels: string[];
-  maxTokensPerRequest: number;
-  dailyTokenBudget: number;
-}> = {
-  analyst: {
-    allowedModels: ['mistral-small-latest', 'mistral-embed'],
-    maxTokensPerRequest: 500,
-    dailyTokenBudget: 100_000,
-  },
-  developer: {
-    allowedModels: ['mistral-small-latest', 'codestral-latest', 'mistral-embed'],
-    maxTokensPerRequest: 2000,
-    dailyTokenBudget: 500_000,
-  },
-  senior: {
-    allowedModels: ['mistral-small-latest', 'mistral-large-latest', 'codestral-latest', 'mistral-embed'],
-    maxTokensPerRequest: 4000,
-    dailyTokenBudget: 1_000_000,
-  },
-  admin: {
-    allowedModels: ['*'],
-    maxTokensPerRequest: 8000,
-    dailyTokenBudget: Infinity,
-  },
-};
-
-function authorizeRequest(role: string, model: string, estimatedTokens: number): boolean {
-  const perms = ROLE_PERMISSIONS[role];
-  if (!perms) return false;
-
-  const modelAllowed = perms.allowedModels.includes('*') || perms.allowedModels.includes(model);
-  const tokensAllowed = estimatedTokens <= perms.maxTokensPerRequest;
-
-  return modelAllowed && tokensAllowed;
-}
-```
-
-### Step 4: Spending Limits
-
-Configure in La Plateforme console: Organization > Billing > Budget Alerts.
-
-```typescript
-// Application-level budget enforcement
-class SpendingGuard {
-  private hourlySpend = 0;
-  private hourStart = Date.now();
-  private readonly maxHourlyUsd: number;
-
-  constructor(maxHourlyUsd: number) {
-    this.maxHourlyUsd = maxHourlyUsd;
-  }
-
-  recordCost(costUsd: number): void {
-    if (Date.now() - this.hourStart > 3_600_000) {
-      this.hourlySpend = 0;
-      this.hourStart = Date.now();
-    }
-    this.hourlySpend += costUsd;
-  }
-
-  canSpend(estimatedCostUsd: number): boolean {
-    return this.hourlySpend + estimatedCostUsd <= this.maxHourlyUsd;
-  }
-}
-```
-
-### Step 5: Key Audit
-
-```bash
-set -euo pipefail
-# List all API keys with metadata
-curl -s https://api.mistral.ai/v1/api-keys \
-  -H "Authorization: Bearer $MISTRAL_ADMIN_KEY" | \
-  jq '.data[] | {name, id, created_at, last_used_at}'
-
-# Identify unused keys (not used in 30+ days)
-curl -s https://api.mistral.ai/v1/api-keys \
-  -H "Authorization: Bearer $MISTRAL_ADMIN_KEY" | \
-  jq '.data[] | select(.last_used_at < (now - 2592000 | todate)) | {name, id, last_used_at}'
-```
-
-### Step 6: Automated Key Rotation
-
-```typescript
-// Rotate keys on a 90-day schedule
-async function rotateApiKey(oldKeyId: string, keyName: string): Promise<string> {
-  // 1. Create new key
-  const newKey = await createApiKey({ name: `${keyName}-${Date.now()}` });
-
-  // 2. Update consuming services (secret manager)
-  await updateSecret('mistral-api-key', newKey.apiKey);
-
-  // 3. Wait for propagation (services pick up new secret)
-  await new Promise(r => setTimeout(r, 60_000));
-
-  // 4. Verify new key works
-  const client = new Mistral({ apiKey: newKey.apiKey });
-  await client.models.list(); // throws if invalid
-
-  // 5. Revoke old key
-  await revokeApiKey(oldKeyId);
-
-  console.log(`Rotated key: ${keyName} (old: ${oldKeyId}, new: ${newKey.id})`);
-  return newKey.id;
-}
-```
+Any user, group, role, workspace, service account, workload identity, key, or break-glass mutation requires authorized administration.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Key revoked or invalid | Regenerate on La Plateforme |
-| `403 Model not allowed` | Key restricted from model | Use key with broader scope |
-| `429 Rate limit` | Workspace RPM exceeded | Distribute across workspaces |
-| Spending alert | Monthly budget near cap | Review per-key usage, restrict heavy consumers |
-
-## Examples
-
-### Rotate a service key without downtime
-
-Create a replacement key with the service’s least-privileged model scope, update the secret-manager reference, and verify `models.list()` from the deployed revision before revoking the old key. Keep both key IDs in the audit record so an unexpected consumer can be identified during the overlap window.
-
-## Resources
-
-- [La Plateforme Console](https://console.mistral.ai/)
-- Organizations & Workspaces
-- [Rate Limits & Tiers](https://docs.mistral.ai/deployment/ai-studio/tier/)
+- Broad workspace roles expose resources even when UI hides them.
+- Shared human keys defeat attribution/offboarding.
+- Provider RBAC cannot protect an app tool that skips app authorization.
 
 ## Output
 
-- Workspace-based team isolation
-- Scoped API keys with model restrictions
-- Application-level model access gateway
-- Spending limits and budget alerts
-- Key audit and rotation automation
+Return identity/workspace matrix, provider/app role separation, lifecycle controls, audit coverage, toxic combinations, approvals, and rollback.
+
+## Examples
+
+- Give runtime only needed provider access while app enforces tenant retrieval.
+- Offboard a user and verify service credentials remain independently owned.
+
+## Validation
+
+Review effective permissions, test cross-workspace and cross-tenant denial, rotate and revoke a test identity, and verify audit and break-glass expiry. Record every expected denial.
+
+## Resources
+
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable endpoints, models, limits, prices, preview status, or retention.
+- Record live account observations as environment-specific evidence, not universal Mistral guarantees.
