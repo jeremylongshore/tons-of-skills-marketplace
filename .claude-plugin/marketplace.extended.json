@@ -9536,13 +9536,17 @@
     {
       "name": "onenote-pack",
       "source": "./plugins/saas-packs/onenote-pack",
-      "description": "Claude Code skill pack for OneNote (18 skills)",
-      "version": "1.6.0",
+      "description": "Operator-grade OneNote pack for delegated access, hierarchy inventory, controlled HTML content, polling reconciliation, security, reliability, and migration",
+      "version": "1.7.0",
       "category": "saas-packs",
       "keywords": [
         "onenote",
-        "saas",
-        "sdk",
+        "microsoft-graph",
+        "delegated-auth",
+        "notebooks",
+        "html-content",
+        "reconciliation",
+        "security",
         "integration"
       ],
       "author": {
@@ -9554,10 +9558,10 @@
         "skills": 18
       },
       "verification": {
-        "score": 91,
+        "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {

@@ -3,7 +3,7 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "e3fb37f009939b6d3f22a00b9e32d57c912aa27a922a09fd551c84ff58833f8d",
+    "sha256": "ac97d39914c970d8f0c595b9d0d1b93dd369cf10ec419fbcb4d5ab549140b892",
     "artifact_count": 3491
   },
   "rule_order": [
@@ -26968,7 +26968,7 @@
     {
       "path": "plugins/saas-packs/onenote-pack/skills/onenote-ci-integration/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26979,7 +26979,7 @@
     {
       "path": "plugins/saas-packs/onenote-pack/skills/onenote-common-errors/SKILL.md",
       "grade": "A",
-      "score": 91,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26990,7 +26990,7 @@
     {
       "path": "plugins/saas-packs/onenote-pack/skills/onenote-core-workflow-a/SKILL.md",
       "grade": "A",
-      "score": 91,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -27001,7 +27001,7 @@
     {
       "path": "plugins/saas-packs/onenote-pack/skills/onenote-core-workflow-b/SKILL.md",
       "grade": "A",
-      "score": 91,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -27012,7 +27012,7 @@
     {
       "path": "plugins/saas-packs/onenote-pack/skills/onenote-cost-tuning/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -27034,7 +27034,7 @@
     {
       "path": "plugins/saas-packs/onenote-pack/skills/onenote-deploy-integration/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -27045,7 +27045,7 @@
     {
       "path": "plugins/saas-packs/onenote-pack/skills/onenote-hello-world/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -27056,7 +27056,7 @@
     {
       "path": "plugins/saas-packs/onenote-pack/skills/onenote-install-auth/SKILL.md",
       "grade": "A",
-      "score": 95,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -27066,8 +27066,8 @@
     },
     {
       "path": "plugins/saas-packs/onenote-pack/skills/onenote-local-dev-loop/SKILL.md",
-      "grade": "B",
-      "score": 87,
+      "grade": "A",
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -27077,8 +27077,8 @@
     },
     {
       "path": "plugins/saas-packs/onenote-pack/skills/onenote-performance-tuning/SKILL.md",
-      "grade": "B",
-      "score": 86,
+      "grade": "A",
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -27088,8 +27088,8 @@
     },
     {
       "path": "plugins/saas-packs/onenote-pack/skills/onenote-prod-checklist/SKILL.md",
-      "grade": "B",
-      "score": 89,
+      "grade": "A",
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -27099,8 +27099,8 @@
     },
     {
       "path": "plugins/saas-packs/onenote-pack/skills/onenote-rate-limits/SKILL.md",
-      "grade": "B",
-      "score": 88,
+      "grade": "A",
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -27111,7 +27111,7 @@
     {
       "path": "plugins/saas-packs/onenote-pack/skills/onenote-reference-architecture/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -27121,8 +27121,8 @@
     },
     {
       "path": "plugins/saas-packs/onenote-pack/skills/onenote-sdk-patterns/SKILL.md",
-      "grade": "B",
-      "score": 87,
+      "grade": "A",
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -27133,7 +27133,7 @@
     {
       "path": "plugins/saas-packs/onenote-pack/skills/onenote-security-basics/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -27144,7 +27144,7 @@
     {
       "path": "plugins/saas-packs/onenote-pack/skills/onenote-upgrade-migration/SKILL.md",
       "grade": "A",
-      "score": 91,
+      "score": 95,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -27154,8 +27154,8 @@
     },
     {
       "path": "plugins/saas-packs/onenote-pack/skills/onenote-webhooks-events/SKILL.md",
-      "grade": "B",
-      "score": 89,
+      "grade": "A",
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
