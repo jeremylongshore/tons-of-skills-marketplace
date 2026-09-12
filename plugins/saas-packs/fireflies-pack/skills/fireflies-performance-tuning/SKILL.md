@@ -1,236 +1,74 @@
 ---
 name: fireflies-performance-tuning
-description: 'Optimize Fireflies.ai GraphQL query performance with field selection,
-  caching, and batching.
-
-  Use when experiencing slow API responses, implementing caching,
-
-  or optimizing transcript processing throughput.
-
-  Trigger with phrases like "fireflies performance", "optimize fireflies",
-
-  "fireflies latency", "fireflies caching", "fireflies slow", "fireflies batch".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
+description: >-
+  Reduce Fireflies latency and quota use through field minimization, bounded pagination, caching of non-sensitive metadata, and asynchronous webhook-driven retrieval. Use when calls are slow or wasteful. Trigger with "speed up Fireflies", "optimize Fireflies query", or "reduce Fireflies calls".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <workflow-scope>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- fireflies
-- api
-- performance
-compatibility: Designed for Claude Code
+tags: [saas, fireflies, performance, graphql]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Fireflies work requires network access"
 ---
-# Fireflies.ai Performance Tuning
+# Fireflies GraphQL Performance Tuning
 
 ## Overview
 
-Optimize Fireflies.ai GraphQL API performance. The biggest wins: request only needed fields (transcripts with sentences can be very large), cache immutable transcripts, and batch operations within rate limits.
-
-## Examples
-
-Benchmark a synthetic transcript query using only an opaque ID and aggregate field counts, then enable a short-lived cache in staging. Verify the cache respects access and retention rules, an unauthorized consumer is denied, and metrics do not contain transcript text or speaker names.
+Reduce Fireflies latency and quota use through field minimization, bounded pagination, caching of non-sensitive metadata, and asynchronous webhook-driven retrieval.
 
 ## Prerequisites
 
-- `FIREFLIES_API_KEY` configured
-- Understanding of your access pattern (list vs detail, frequency)
-- Optional: Redis or LRU cache library
+- The target repository or integration path and the requested operator outcome.
+- The Fireflies principal, team, environment, and data classification for the work.
+- Current Fireflies documentation, credentials only when needed, and an accountable approver.
+
+## Current Contract
+
+GraphQL performance starts with smaller field selections and fewer calls. transcripts pages at most 50 records; cache only approved metadata, never assume summaries or sentences are immutable while processing, and prefer Webhooks V2 over aggressive polling.
+
+## Authentication
+
+For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret manager and send it only as `Authorization: Bearer REDACTED_KEY` to `https://api.fireflies.ai/graphql`. Never print, commit, place in a URL, forward to a browser, or include the key in evidence. Webhook signing secrets are separate credentials and must not be reused as API keys.
 
 ## Instructions
 
-### Step 1: Field Selection -- The Biggest Win
+1. Measure latency, response bytes, selected fields, pages, errors, and quota use by operation.
+2. Remove unused nested fields and split metadata discovery from sensitive detail retrieval.
+3. Set explicit result caps and page only while the caller still needs data.
+4. Replace processing-status polling with meeting.transcribed or meeting.summarized events where appropriate.
+5. Cache only classified metadata with tenant-aware keys and bounded TTLs.
+6. Limit concurrency below the applicable plan and operation budgets.
+7. Compare before/after metrics on synthetic or approved records and keep rollback settings.
 
-Transcript responses with `sentences` can be enormous. Always request the minimum fields needed.
+## Tool Discipline
 
-```typescript
-// BAD: Fetching everything when you only need titles
-const HEAVY = `{ transcripts(limit: 50) {
-  id title date duration sentences { text speaker_name start_time end_time }
-  summary { overview action_items keywords outline bullet_gist }
-  analytics { speakers { name duration word_count } }
-} }`;
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
 
-// GOOD: Light query for listing
-const LIGHT = `{ transcripts(limit: 50) {
-  id title date duration organizer_email
-} }`;
+## Approval Boundaries
 
-// GOOD: Full query only when drilling into a specific transcript
-const DETAIL = `query($id: String!) { transcript(id: $id) {
-  id title
-  sentences { speaker_name text start_time end_time }
-  summary { overview action_items keywords }
-} }`;
-```
-
-### Step 2: Cache Transcripts (They Are Immutable)
-
-Once a transcript is processed, its content never changes. Cache aggressively.
-
-```typescript
-import { LRUCache } from "lru-cache";
-
-const transcriptCache = new LRUCache<string, any>({
-  max: 500,
-  ttl: 1000 * 60 * 60, // 1 hour -- transcripts are immutable
-});
-
-async function getCachedTranscript(id: string) {
-  const cached = transcriptCache.get(id);
-  if (cached) return cached;
-
-  const data = await firefliesQuery(`
-    query($id: String!) {
-      transcript(id: $id) {
-        id title date duration
-        speakers { name }
-        sentences { speaker_name text start_time end_time }
-        summary { overview action_items keywords }
-      }
-    }
-  `, { id });
-
-  transcriptCache.set(id, data.transcript);
-  return data.transcript;
-}
-```
-
-### Step 3: Redis Cache for Multi-Instance Deployments
-
-```typescript
-import Redis from "ioredis";
-
-const redis = new Redis(process.env.REDIS_URL!);
-const CACHE_TTL = 3600; // 1 hour in seconds
-
-async function getTranscriptCached(id: string) {
-  const cacheKey = `fireflies:transcript:${id}`;
-
-  // Check cache
-  const cached = await redis.get(cacheKey);
-  if (cached) return JSON.parse(cached);
-
-  // Fetch from API
-  const data = await firefliesQuery(`
-    query($id: String!) {
-      transcript(id: $id) {
-        id title date duration
-        sentences { speaker_name text start_time end_time }
-        summary { overview action_items keywords }
-      }
-    }
-  `, { id });
-
-  // Cache the result
-  await redis.set(cacheKey, JSON.stringify(data.transcript), "EX", CACHE_TTL);
-  return data.transcript;
-}
-```
-
-### Step 4: Batch Processing with Rate Limit Awareness
-
-```typescript
-import PQueue from "p-queue";
-
-// Business plan: 60 req/min. Safe rate: 1 req/sec with headroom.
-const queue = new PQueue({
-  concurrency: 1,
-  interval: 1100,
-  intervalCap: 1,
-});
-
-async function batchFetchTranscripts(ids: string[]) {
-  console.log(`Fetching ${ids.length} transcripts (rate-limited)...`);
-
-  const results = await Promise.all(
-    ids.map(id => queue.add(() => getCachedTranscript(id)))
-  );
-
-  const cacheHits = ids.filter(id => transcriptCache.has(id)).length;
-  console.log(`Done. Cache hits: ${cacheHits}/${ids.length}`);
-  return results;
-}
-```
-
-### Step 5: Warm Cache on Webhook Events
-
-```typescript
-// When a transcript completes, pre-cache it immediately
-async function onWebhookEvent(event: { meetingId: string; eventType: string }) {
-  if (event.eventType === "Transcription completed") {
-    // Pre-warm the cache so future reads are instant
-    await getCachedTranscript(event.meetingId);
-    console.log(`Pre-cached transcript: ${event.meetingId}`);
-  }
-}
-```
-
-### Step 6: Pagination for Large Result Sets
-
-```typescript
-async function getAllTranscripts(batchSize = 50) {
-  const allTranscripts: any[] = [];
-  let hasMore = true;
-  let offset = 0;
-
-  while (hasMore) {
-    const data = await firefliesQuery(`
-      query($limit: Int, $skip: Int) {
-        transcripts(limit: $limit, skip: $skip) {
-          id title date duration
-        }
-      }
-    `, { limit: batchSize, skip: offset });
-
-    allTranscripts.push(...data.transcripts);
-
-    if (data.transcripts.length < batchSize) {
-      hasMore = false;
-    } else {
-      offset += batchSize;
-      // Rate limit: wait between pages
-      await new Promise(r => setTimeout(r, 1100));
-    }
-  }
-
-  return allTranscripts;
-}
-```
-
-## Performance Benchmarks
-
-| Optimization | Before | After | Improvement |
-|-------------|--------|-------|-------------|
-| Field selection (list) | ~2s (with sentences) | ~200ms (metadata only) | 10x |
-| LRU cache (detail view) | ~500ms (API call) | <1ms (cache hit) | 500x |
-| Batch with queue | Rate limited/errors | Smooth throughput | Reliable |
-| Webhook pre-cache | Cold fetch on user visit | Instant from cache | UX improvement |
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Slow list queries | Requesting sentences in list | Use light query without `sentences` |
-| Rate limit 429 | Burst requests | Use PQueue with 1.1s interval |
-| Large response OOM | Transcript with 2+ hour meeting | Stream/paginate sentences |
-| Stale cache | (Not a real issue -- transcripts are immutable) | N/A |
+Require approval before caching meeting-derived data, increasing concurrency, widening selections, or using a broader transcript cohort.
 
 ## Output
 
-- Field-optimized GraphQL queries (light list, full detail)
-- LRU and Redis caching for immutable transcripts
-- Rate-limited batch processor
-- Webhook-driven cache warming
+Return the exact operation or event surface, environment, authorization class, selected field groups, validation results, content-free metrics, decisions, and a concise pass/fail receipt. Keep secrets and meeting-derived content out of general output.
+
+## Validation
+
+Before reporting success, rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current contract, verify no secret or meeting-derived content entered logs or artifacts, and record unresolved uncertainty explicitly.
+
+## Error Handling
+
+- Faster query returns less required data: reject the optimization.
+- Cache crosses principals or tenants: purge through the approved incident procedure.
+- Polling causes throttling: stop and switch to event-driven status where supported.
+
+## Examples
+
+- "Review fireflies graphql performance tuning" produces a bounded plan and redacted receipt.
+- A request that widens access or mutates production is paused at the approval boundary.
 
 ## Resources
 
-- [Fireflies API Docs](https://docs.fireflies.ai/)
-- [lru-cache](https://github.com/isaacs/node-lru-cache)
-- [p-queue](https://github.com/sindresorhus/p-queue)
-
-## Next Steps
-
-For cost optimization, see `fireflies-cost-tuning`.
+Read [official Fireflies.ai evidence](references/official-docs.md) before relying on a field, filter, event, permission, plan limit, mutation, or processing state.

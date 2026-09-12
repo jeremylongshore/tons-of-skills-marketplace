@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/fireflies-pack",
-  "version": "1.0.2",
-  "description": "Claude Code skill pack for Fireflies.ai - 24 skills covering AI meeting transcription and intelligence",
+  "version": "1.12.0",
+  "description": "Operator-grade Fireflies.ai GraphQL and Webhooks V2 pack with 24 governed meeting-data workflows",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -13,9 +13,11 @@
     "claude-code",
     "claude-code-plugin",
     "fireflies",
-    "meeting-transcription",
-    "ai-notes",
-    "intelligence",
+    "graphql",
+    "webhooks-v2",
+    "meeting-data",
+    "askfred",
+    "governance",
     "ai-skills",
     "saas-pack"
   ],

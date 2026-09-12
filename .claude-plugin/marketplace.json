@@ -5460,15 +5460,16 @@
     {
       "name": "fireflies-pack",
       "source": "./plugins/saas-packs/fireflies-pack",
-      "description": "Complete Fireflies integration skill pack with 24 skills covering meeting transcription, AI summaries, and conversation intelligence. Flagship tier vendor pack.",
-      "version": "1.11.0",
+      "description": "Operator-grade Fireflies.ai GraphQL and Webhooks V2 pack with 24 governed workflows for meeting data, AskFred, ingestion, security, reliability, and production operations.",
+      "version": "1.12.0",
       "category": "saas-packs",
       "keywords": [
         "fireflies",
-        "meeting-transcription",
-        "ai-notes",
-        "conversation-intelligence",
-        "summaries"
+        "graphql",
+        "webhooks-v2",
+        "meeting-data",
+        "askfred",
+        "governance"
       ],
       "author": {
         "name": "Jeremy Longshore",

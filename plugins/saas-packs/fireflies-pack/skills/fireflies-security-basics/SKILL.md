@@ -1,217 +1,74 @@
 ---
 name: fireflies-security-basics
-description: 'Apply Fireflies.ai security best practices for API keys and webhook
-  verification.
-
-  Use when securing API keys, verifying webhook signatures,
-
-  or auditing Fireflies.ai security configuration.
-
-  Trigger with phrases like "fireflies security", "fireflies secrets",
-
-  "secure fireflies", "fireflies webhook signature", "fireflies HMAC".
-
-  '
-allowed-tools: Read, Write, Grep
-version: 1.11.0
+description: >-
+  Harden Fireflies bearer authentication, GraphQL selections, webhook signatures, logs, and privileged mutations against secret and meeting-data exposure. Use when performing security review or baseline implementation. Trigger with "secure Fireflies", "Fireflies threat model", or "Fireflies key safety".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <workflow-scope>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- fireflies
-- api
-- security
-compatibility: Designed for Claude Code
+tags: [saas, fireflies, security, webhooks]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Fireflies work requires network access"
 ---
-# Fireflies.ai Security Basics
+# Fireflies Integration Security Baseline
 
 ## Overview
 
-Security essentials for Fireflies.ai: API key management, webhook HMAC-SHA256 signature verification, transcript access controls, and audit practices.
-
-## Examples
-
-Use a scoped staging key and a synthetic signed webhook event. Confirm invalid signatures are rejected without logging the body, access is limited to the approved test channel, and revoking the key immediately blocks further requests. Record only redacted control evidence.
+Harden Fireflies bearer authentication, GraphQL selections, webhook signatures, logs, and privileged mutations against secret and meeting-data exposure.
 
 ## Prerequisites
 
-- Fireflies.ai API key
-- Understanding of environment variables
-- HTTPS endpoint for webhooks (required by Fireflies)
+- The target repository or integration path and the requested operator outcome.
+- The Fireflies principal, team, environment, and data classification for the work.
+- Current Fireflies documentation, credentials only when needed, and an accountable approver.
+
+## Current Contract
+
+Protect two independent secrets: the API bearer key for outbound GraphQL and the Webhooks V2 signing secret for inbound HMAC verification. Verify X-Hub-Signature over the raw body as sha256=HEX_DIGEST with a timing-safe comparison before parsing.
+
+## Authentication
+
+For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret manager and send it only as `Authorization: Bearer REDACTED_KEY` to `https://api.fireflies.ai/graphql`. Never print, commit, place in a URL, forward to a browser, or include the key in evidence. Webhook signing secrets are separate credentials and must not be reused as API keys.
 
 ## Instructions
 
-### Step 1: Secure API Key Storage
+1. Inventory API keys, webhook secrets, principals, environments, and data flows.
+2. Keep bearer calls server-side and use separate secrets per environment.
+3. Restrict GraphQL documents and selected fields to reviewed operations.
+4. Verify webhook signatures on raw bytes, reject missing or malformed headers, then parse JSON.
+5. Redact Authorization, signatures, meeting IDs, emails, text, summaries, and media URLs from logs.
+6. Gate role, privacy, sharing, channel, upload, live-meeting, and deletion mutations.
+7. Test key rotation, replay handling, redaction, and incident response.
 
-```bash
-# .env (NEVER commit)
-FIREFLIES_API_KEY=your-api-key
-FIREFLIES_WEBHOOK_SECRET=your-16-to-32-char-secret
+## Tool Discipline
 
-# .gitignore
-.env
-.env.local
-.env.*.local
-```
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
 
-**Pre-commit hook to catch leaked keys:**
+## Approval Boundaries
 
-```bash
-#!/bin/bash
-# .git/hooks/pre-commit
-if git diff --cached --name-only | xargs grep -l 'FIREFLIES_API_KEY\s*=' 2>/dev/null; then
-  echo "ERROR: Potential API key in commit. Remove before committing."
-  exit 1
-fi
-```
-
-### Step 2: Webhook Signature Verification (HMAC-SHA256)
-
-Fireflies signs webhook payloads with HMAC-SHA256. The signature arrives in the `x-hub-signature` header.
-
-```typescript
-import crypto from "crypto";
-
-function verifyFirefliesWebhook(
-  payload: string,
-  signature: string,
-  secret: string
-): boolean {
-  const expected = crypto
-    .createHmac("sha256", secret)
-    .update(payload)
-    .digest("hex");
-
-  // Timing-safe comparison prevents timing attacks
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expected)
-  );
-}
-
-// Express middleware
-import express from "express";
-const app = express();
-
-app.post("/webhooks/fireflies",
-  express.raw({ type: "application/json" }),
-  (req, res) => {
-    const signature = req.headers["x-hub-signature"] as string;
-    const payload = req.body.toString();
-
-    if (!signature || !verifyFirefliesWebhook(payload, signature, process.env.FIREFLIES_WEBHOOK_SECRET!)) {
-      console.warn("Invalid webhook signature rejected");
-      return res.status(401).json({ error: "Invalid signature" });
-    }
-
-    const event = JSON.parse(payload);
-    console.log(`Verified webhook: ${event.eventType} for ${event.meetingId}`);
-    res.status(200).json({ received: true });
-  }
-);
-```
-
-### Step 3: Configure Webhook Secret
-
-1. Go to [app.fireflies.ai/settings](https://app.fireflies.ai/settings)
-2. Select **Developer settings** tab
-3. Enter a 16-32 character secret or click **Generate**
-4. Store the secret in your environment as `FIREFLIES_WEBHOOK_SECRET`
-
-### Step 4: Python Webhook Verification
-
-```python
-import hmac, hashlib, json
-from flask import Flask, request, jsonify
-
-app = Flask(__name__)
-
-def verify_signature(payload: bytes, signature: str, secret: str) -> bool:
-    expected = hmac.new(
-        secret.encode(), payload, hashlib.sha256
-    ).hexdigest()
-    return hmac.compare_digest(signature, expected)
-
-@app.post("/webhooks/fireflies")
-def handle_webhook():
-    signature = request.headers.get("x-hub-signature", "")
-    if not verify_signature(request.data, signature, os.environ["FIREFLIES_WEBHOOK_SECRET"]):
-        return jsonify({"error": "Invalid signature"}), 401
-
-    event = request.json
-    print(f"Verified: {event['eventType']} for {event['meetingId']}")
-    return jsonify({"received": True})
-```
-
-### Step 5: Transcript Privacy Levels
-
-Fireflies supports these privacy levels via `updateMeetingPrivacy`:
-
-| Level | Access |
-|-------|--------|
-| `owner` | Only meeting organizer |
-| `participants` | Only meeting participants |
-| `teammatesandparticipants` | Workspace members + participants |
-| `teammates` | All workspace members |
-| `link` | Anyone with the link |
-
-```typescript
-// Lock a transcript to participants only
-await firefliesQuery(`
-  mutation($id: String!, $privacy: String!) {
-    updateMeetingPrivacy(transcript_id: $id, privacy_level: $privacy)
-  }
-`, { id: "transcript-id", privacy: "participants" });
-```
-
-### Step 6: API Key Rotation
-
-```bash
-set -euo pipefail
-# 1. Generate new key in Fireflies dashboard (Integrations > Fireflies API)
-# 2. Test new key
-curl -s -X POST https://api.fireflies.ai/graphql \
-  -H "Authorization: Bearer $NEW_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "{ user { email } }"}' | jq '.data.user.email'
-
-# 3. Update environment/secret store
-# 4. Verify production
-# 5. Old key is automatically invalidated when new one is generated
-```
-
-## Security Checklist
-
-- [ ] API key in environment variables, not code
-- [ ] `.env` files in `.gitignore`
-- [ ] Webhook signatures verified with HMAC-SHA256
-- [ ] Webhook secret is 16-32 characters
-- [ ] Transcript privacy set to `participants` or stricter
-- [ ] Pre-commit hook catches key leaks
-- [ ] Separate API keys for dev/staging/prod
-- [ ] HTTPS required for all webhook endpoints
-
-## Error Handling
-
-| Issue | Detection | Fix |
-|-------|-----------|-----|
-| Leaked API key | Git scanning, CI alerts | Regenerate immediately in dashboard |
-| Invalid webhook signature | 401 from your endpoint | Verify secret matches dashboard |
-| Overly permissive privacy | Audit transcript visibility | Set to `participants` default |
-| Key rotation gap | Auth failures after rotation | Deploy new key before revoking old |
+Require approval before any production key or signing-secret change, privacy/share mutation, role change, recording/upload, or transcript deletion.
 
 ## Output
 
-- Secure API key storage with leak prevention
-- HMAC-SHA256 webhook signature verification
-- Privacy-controlled transcript access
-- Key rotation procedure
+Return the exact operation or event surface, environment, authorization class, selected field groups, validation results, content-free metrics, decisions, and a concise pass/fail receipt. Keep secrets and meeting-derived content out of general output.
+
+## Validation
+
+Before reporting success, rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current contract, verify no secret or meeting-derived content entered logs or artifacts, and record unresolved uncertainty explicitly.
+
+## Error Handling
+
+- Signature mismatch: return 401 and preserve only safe delivery metadata.
+- Suspected bearer leak: revoke or rotate through the incident owner and audit access.
+- Unreviewed field selection: block deployment until data classification is complete.
+
+## Examples
+
+- "Review fireflies integration security baseline" produces a bounded plan and redacted receipt.
+- A request that widens access or mutates production is paused at the approval boundary.
 
 ## Resources
 
-- [Fireflies Webhooks](https://docs.fireflies.ai/graphql-api/webhooks)
-- [Fireflies Privacy Settings](https://fireflies.ai/privacy)
-
-## Next Steps
-
-For production deployment, see `fireflies-prod-checklist`.
+Read [official Fireflies.ai evidence](references/official-docs.md) before relying on a field, filter, event, permission, plan limit, mutation, or processing state.
