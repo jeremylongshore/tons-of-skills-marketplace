@@ -26,7 +26,7 @@ Develop the Ideogram boundary against owned request and response contracts befor
 
 ## Current Contract
 
-Current generation surfaces include V4 synchronous and asynchronous routes, transparent variants, P-Image, and V3 compatibility routes. Async work returns a `generation_id`; status is reconciled through `GET /v1/generations/{generation_id}` or a webhook. Returned asset URLs are temporary.
+Current generation surfaces include V4 synchronous and asynchronous routes, transparent variants, P-Image, and V3 compatibility routes. Async work returns a `generation_id`; status is reconciled by appending that returned value to `GET /v1/generations/` or by receiving a webhook. Returned asset URLs are temporary.
 
 ## Authentication
 
@@ -70,4 +70,6 @@ Run the narrowest test command twice, confirm identical results, scan fixtures f
 
 ## Resources
 
-- [Current first-party evidence map](references/official-docs.md)
+- [Current first-party evidence map](references/official-docs.md) — use the dated endpoint, webhook, billing, team, and training links as the contract index for this workflow.
+- Recheck the endpoint-specific page and current OpenAPI description before relying on an enum, limit, beta feature, or lifecycle claim.
+- Record live observations as environment-specific evidence, not as universal vendor guarantees.

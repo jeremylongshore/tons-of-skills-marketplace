@@ -10600,7 +10600,7 @@
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 95,
+      "verificationScore": 98,
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "ideogram pack operator-grade ideogram skill pack with 24 current v4, async, security, storage, governance, and migration workflows saas-packs ideogram image-generation text-to-image ai-art typography creative design"
@@ -46387,7 +46387,7 @@
       "id": "ideogram-incident-runbook",
       "slug": "ideogram-incident-runbook",
       "name": "ideogram-incident-runbook",
-      "description": "Contain Ideogram incidents involving credentials, billing, throttling, unsafe output, webhook loss, asset expiry, or storage failure. Use when coordinating production response and recovery. Trigger with \"Ideogram incident\", \"contain an Ideogram outage\", or \"recover missing Ideogram images\".",
+      "description": "Analyze and contain Ideogram incidents involving credentials, billing, throttling, unsafe output, webhook loss, asset expiry, or storage failure. Use when coordinating production response and recovery. Trigger with \"Ideogram incident\", \"contain an Ideogram outage\", or \"recover missing Ideogram images\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -46402,7 +46402,7 @@
         "name": "ideogram-pack",
         "category": "saas-packs"
       },
-      "searchText": "ideogram-incident-runbook contain ideogram incidents involving credentials, billing, throttling, unsafe output, webhook loss, asset expiry, or storage failure. use when coordinating production response and recovery. trigger with \"ideogram incident\", \"contain an ideogram outage\", or \"recover missing ideogram images\". saas-packs read glob grep write edit "
+      "searchText": "ideogram-incident-runbook analyze and contain ideogram incidents involving credentials, billing, throttling, unsafe output, webhook loss, asset expiry, or storage failure. use when coordinating production response and recovery. trigger with \"ideogram incident\", \"contain an ideogram outage\", or \"recover missing ideogram images\". saas-packs read glob grep write edit "
     },
     {
       "type": "skill",

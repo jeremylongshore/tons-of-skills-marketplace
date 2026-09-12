@@ -1,7 +1,7 @@
 ---
 name: ideogram-incident-runbook
 description: >-
-  Contain Ideogram incidents involving credentials, billing, throttling, unsafe output, webhook loss, asset expiry, or storage failure. Use when coordinating production response and recovery. Trigger with "Ideogram incident", "contain an Ideogram outage", or "recover missing Ideogram images".
+  Analyze and contain Ideogram incidents involving credentials, billing, throttling, unsafe output, webhook loss, asset expiry, or storage failure. Use when coordinating production response and recovery. Trigger with "Ideogram incident", "contain an Ideogram outage", or "recover missing Ideogram images".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<incident-id> <symptom> <environment>"
 version: 1.11.0
@@ -71,4 +71,6 @@ Confirm impact has stopped, all known generations and objects reconcile, synthet
 
 ## Resources
 
-- [Current first-party evidence map](references/official-docs.md)
+- [Current first-party evidence map](references/official-docs.md) — use the dated endpoint, webhook, billing, team, and training links as the contract index for this workflow.
+- Recheck the endpoint-specific page and current OpenAPI description before relying on an enum, limit, beta feature, or lifecycle claim.
+- Record live observations as environment-specific evidence, not as universal vendor guarantees.

@@ -40,7 +40,7 @@ Webhook trust comes from signature verification, not a shared API key in the cal
 4. Enforce a bounded timestamp window and bind the callback to a known submitted generation and expected application tenant.
 5. Persist a deduplication record keyed by generation and delivery evidence, return `2xx` quickly, and enqueue processing.
 6. Validate safety, download approved output, persist it, and transition state idempotently.
-7. On verification failure, refresh JWKS once; on missing delivery, poll `GET /v1/generations/{generation_id}`.
+7. On verification failure, refresh JWKS once; on missing delivery, append the returned generation ID to `GET /v1/generations/` and poll that resource.
 
 ## Tool Discipline
 
@@ -71,4 +71,6 @@ Test byte mutation, header mutation, stale timestamps, unknown and rotated keys,
 
 ## Resources
 
-- [Current first-party evidence map](references/official-docs.md)
+- [Current first-party evidence map](references/official-docs.md) — use the dated endpoint, webhook, billing, team, and training links as the contract index for this workflow.
+- Recheck the endpoint-specific page and current OpenAPI description before relying on an enum, limit, beta feature, or lifecycle claim.
+- Record live observations as environment-specific evidence, not as universal vendor guarantees.

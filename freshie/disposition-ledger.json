@@ -3,7 +3,7 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "dbf14e3988ae7f79a69ce14ddb4d3c2ec80960706317e5740977ef36d3221ad2",
+    "sha256": "f25fd4b1e4b01ca0a1d0af4a53703dd3122acdc9881981757e65a89091b3fb79",
     "artifact_count": 3491
   },
   "rule_order": [
@@ -21609,7 +21609,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-ci-integration/SKILL.md",
       "grade": "A",
-      "score": 99,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21620,7 +21620,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-common-errors/SKILL.md",
       "grade": "A",
-      "score": 97,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21631,7 +21631,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-core-workflow-a/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21653,7 +21653,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-cost-tuning/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21664,7 +21664,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-data-handling/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21675,7 +21675,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-debug-bundle/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21686,7 +21686,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-deploy-integration/SKILL.md",
       "grade": "A",
-      "score": 99,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21697,7 +21697,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-enterprise-rbac/SKILL.md",
       "grade": "A",
-      "score": 95,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21752,7 +21752,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-migration-deep-dive/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21763,7 +21763,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-multi-env-setup/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21774,7 +21774,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-observability/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21785,7 +21785,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-performance-tuning/SKILL.md",
       "grade": "A",
-      "score": 99,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21796,7 +21796,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-prod-checklist/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21807,7 +21807,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-rate-limits/SKILL.md",
       "grade": "A",
-      "score": 97,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21818,7 +21818,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-reference-architecture/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21829,7 +21829,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-sdk-patterns/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21840,7 +21840,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-security-basics/SKILL.md",
       "grade": "A",
-      "score": 97,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21851,7 +21851,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-upgrade-migration/SKILL.md",
       "grade": "A",
-      "score": 97,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -21862,7 +21862,7 @@
     {
       "path": "plugins/saas-packs/ideogram-pack/skills/ideogram-webhooks-events/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",

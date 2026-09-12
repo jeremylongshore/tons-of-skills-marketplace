@@ -16973,7 +16973,7 @@
     {
       "slug": "ideogram-incident-runbook",
       "name": "ideogram-incident-runbook",
-      "description": "Contain Ideogram incidents involving credentials, billing, throttling, unsafe output, webhook loss, asset expiry, or storage failure. Use when coordinating production response and recovery. Trigger with \"Ideogram incident\", \"contain an Ideogram outage\", or \"recover missing Ideogram images\".",
+      "description": "Analyze and contain Ideogram incidents involving credentials, billing, throttling, unsafe output, webhook loss, asset expiry, or storage failure. Use when coordinating production response and recovery. Trigger with \"Ideogram incident\", \"contain an Ideogram outage\", or \"recover missing Ideogram images\".",
       "version": "1.11.0",
       "category": "saas-packs",
       "parentPlugin": "ideogram-pack",
@@ -34804,7 +34804,7 @@
     }
   ],
   "count": 2900,
-  "generatedAt": "2026-09-12T07:55:50.721Z",
+  "generatedAt": "2026-09-12T08:21:07.989Z",
   "categories": [
     "ai-agency",
     "ai-ml",
