@@ -1267,6 +1267,34 @@ sources:
       - '**/node_modules/**'
       - '**/*.log'
 
+
+  # ============================================================
+  # HOL Guard (Hashgraph Online)
+  # https://github.com/hashgraph-online/hol-guard-plugin
+  # Submission: #1193
+  # ============================================================
+
+  - name: hol-guard
+    description: Local pre-execution security controls and pre-install scanning for AI agent tools, packages, skills, plugins, and MCP servers.
+    repo: hashgraph-online/hol-guard-plugin
+    source_path: distributions/tons-of-skills-marketplace
+    target_path: plugins/security/hol-guard
+    author:
+      name: Hashgraph Online
+      github: hashgraph-online
+    license: Apache-2.0
+    category: security
+    verified: false
+    include:
+      - '/.claude-plugin/plugin.json'
+      - '/skills/hol-guard/SKILL.md'
+      - '/skills/plugin-scanner/SKILL.md'
+      - '/README.md'
+      - '/LICENSE'
+    exclude:
+      - 'node_modules/**'
+      - '.git/**'
+      - '*.log'
 # Sync configuration
 config:
   # Branch to sync from (default: main)
