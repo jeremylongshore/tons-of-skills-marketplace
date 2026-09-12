@@ -1,217 +1,81 @@
 ---
 name: adobe-ci-integration
-description: 'Configure CI/CD pipelines for Adobe integrations with GitHub Actions,
-
-  including OAuth credential injection, PDF Services testing, Firefly API
-
-  smoke tests, and secret scanning for Adobe credential patterns.
-
-  Trigger with phrases like "adobe CI", "adobe GitHub Actions",
-
-  "adobe automated tests", "CI adobe", "adobe pipeline".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*)
-version: 1.7.0
+description: >-
+  Build deterministic CI gates for Adobe adapters without giving fork jobs credentials or spending against live creative/document APIs. Use when testing integration changes. Trigger with "test Adobe in CI", "Adobe contract tests", or "gate Adobe deploy".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository> <services> <trusted-lane>"
+version: 1.8.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- design
-- adobe
-compatibility: Designed for Claude Code
+tags: [saas, adobe, ci]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Adobe actions require network access, appropriate entitlement and authentication, and explicit approval"
 ---
-# Adobe CI Integration
+# Adobe Contract-Safe CI
 
 ## Overview
 
-Set up CI/CD pipelines for Adobe API integrations with proper credential management, unit/integration test separation, and secret scanning for Adobe-specific credential patterns.
+Build deterministic CI gates for Adobe adapters without giving fork jobs credentials or spending against live creative/document APIs.. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 
-- GitHub repository with Actions enabled
-- Adobe Developer Console credentials for CI (separate from production)
-- npm/pnpm project with vitest configured
+- Current first-party Adobe documentation for every selected service, API version, auth flow, limit, and lifecycle.
+- Named product, identity, security, data, budget, release, and operations owners appropriate to the scope.
+- Synthetic or approved non-production fixtures with secret and content canaries.
+
+## Current Contract
+
+Pull requests can prove routes, headers, schemas, polling, redaction, EOL bans, errors, and retries offline. Live tests require a protected trusted branch, non-production project/workspace, synthetic fixtures, strict budget, and explicit mutation/cleanup boundaries. Recheck the dated evidence map before relying on mutable product behavior.
+
+## Authentication
+
+Fork and untrusted PR jobs receive no secrets. Protected lanes use environment-scoped credentials and record aliases only; secret canaries gate artifacts and logs.
 
 ## Instructions
 
-### Step 1: Store Adobe Credentials as GitHub Secrets
+1. Map CI trust boundaries, service adapters, fixtures, secret sources, deploy workflows, and fork behavior.
+2. Add offline request/response contracts for auth, async URLs, PDF assets, webhooks, errors, throttling, and EOL endpoints.
+3. Separate untrusted PR jobs from protected credentialed smoke and deploy jobs.
+4. Use synthetic inputs, transaction/generation ceilings, serialized jobs, and deterministic cleanup in any live lane.
+5. Gate on secret scans, obsolete-route scans, negative cases, generated-file checks, and immutable artifact identity.
+6. Treat skipped trusted tests as unknown and retain redacted receipts plus cleanup evidence.
 
-```bash
-# Set OAuth Server-to-Server credentials
-gh secret set ADOBE_CLIENT_ID --body "your-ci-client-id"
-gh secret set ADOBE_CLIENT_SECRET --body "your-ci-client-secret"
-gh secret set ADOBE_SCOPES --body "openid,AdobeID,firefly_api"
-```
+## Tool Discipline
 
-### Step 2: Create CI Workflow
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, Adobe content, consent, uploads, generation, spend, deployment, registration changes, replay, cancellation, or deletion.
 
-```yaml
-# .github/workflows/adobe-integration.yml
-name: Adobe Integration Tests
+## Approval Boundaries
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm test -- --coverage
-        # Unit tests run with mocked Adobe APIs — no credentials needed
-
-  secret-scan:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Scan for Adobe credentials
-        run: |
-          FOUND=0
-          # Adobe OAuth client secrets start with p8_
-          if grep -rE "p8_[A-Za-z0-9_-]{20,}" --include="*.ts" --include="*.js" --include="*.py" --include="*.json" . 2>/dev/null; then
-            echo "::error::Adobe client_secret pattern found in source"
-            FOUND=1
-          fi
-          # Adobe IMS access tokens
-          if grep -rE "eyJ[A-Za-z0-9_-]{50,}" --include="*.ts" --include="*.js" . 2>/dev/null; then
-            echo "::warning::Potential Adobe access token found"
-          fi
-          exit $FOUND
-
-  integration-tests:
-    needs: [unit-tests, secret-scan]
-    runs-on: ubuntu-latest
-    # Only run on main branch (uses real API credentials)
-    if: github.ref == 'refs/heads/main'
-    env:
-      ADOBE_CLIENT_ID: ${{ secrets.ADOBE_CLIENT_ID }}
-      ADOBE_CLIENT_SECRET: ${{ secrets.ADOBE_CLIENT_SECRET }}
-      ADOBE_SCOPES: ${{ secrets.ADOBE_SCOPES }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-
-      - name: Verify Adobe OAuth credentials
-        run: |
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
-            'https://ims-na1.adobelogin.com/ims/token/v3' \
-            -d "client_id=${ADOBE_CLIENT_ID}&client_secret=${ADOBE_CLIENT_SECRET}&grant_type=client_credentials&scope=${ADOBE_SCOPES}")
-          if [ "$HTTP_CODE" != "200" ]; then
-            echo "::error::Adobe OAuth token generation failed (HTTP $HTTP_CODE)"
-            exit 1
-          fi
-          echo "Adobe credentials verified"
-
-      - name: Run integration tests
-        run: npm run test:integration
-        timeout-minutes: 5
-```
-
-### Step 3: Write CI-Friendly Integration Tests
-
-```typescript
-// tests/integration/adobe-api.test.ts
-import { describe, it, expect } from 'vitest';
-import { getAccessToken } from '../../src/adobe/client';
-
-const hasCredentials = !!(
-  process.env.ADOBE_CLIENT_ID && process.env.ADOBE_CLIENT_SECRET
-);
-
-describe.skipIf(!hasCredentials)('Adobe API Integration', () => {
-  it('should generate valid OAuth access token', async () => {
-    const token = await getAccessToken();
-    expect(token).toBeTruthy();
-    expect(token.length).toBeGreaterThan(100);
-  }, 10_000);
-
-  it('should call Firefly API health endpoint', async () => {
-    const token = await getAccessToken();
-    const response = await fetch('https://firefly-api.adobe.io/v3/images/generate', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'x-api-key': process.env.ADOBE_CLIENT_ID!,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        prompt: 'solid blue square',
-        n: 1,
-        size: { width: 512, height: 512 },
-      }),
-    });
-
-    // 200 = success, 429 = rate limited (acceptable in CI)
-    expect([200, 429]).toContain(response.status);
-  }, 30_000);
-});
-```
-
-### Step 4: Release Workflow with Adobe Validation
-
-```yaml
-# .github/workflows/release.yml
-on:
-  push:
-    tags: ['v*']
-
-jobs:
-  release:
-    runs-on: ubuntu-latest
-    env:
-      ADOBE_CLIENT_ID: ${{ secrets.ADOBE_CLIENT_ID_PROD }}
-      ADOBE_CLIENT_SECRET: ${{ secrets.ADOBE_CLIENT_SECRET_PROD }}
-      ADOBE_SCOPES: ${{ secrets.ADOBE_SCOPES }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20' }
-      - run: npm ci
-      - run: npm test
-      - name: Verify Adobe production credentials
-        run: npm run test:integration
-      - run: npm run build
-      - run: npm publish
-```
-
-## Output
-
-- Unit test pipeline (no credentials needed)
-- Secret scanning for Adobe credential patterns
-- Integration tests with real API (main branch only)
-- Release workflow with credential validation gate
+Repository and sandbox owners approve trusted live lanes; security approves secret access; product and budget owners approve any upload, generation, write, deploy, or deletion.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `invalid_client` in CI | Wrong secret value | Re-set with `gh secret set` |
-| Integration test 429 | Rate limited | Accept 429 as valid CI result |
-| Secret scan false positive | Test fixture data | Exclude test directories from scan |
-| Timeout on Firefly test | API latency | Increase vitest timeout to 30s |
+- A 429 is not an acceptable successful assertion.
+- Never auto-update fixtures from live customer data.
+- Fail if a fork can request a secret-bearing environment.
+
+## Output
+
+Return the trust matrix, fixtures, gates, commands, live boundary, secret evidence, cleanup, and owners. Mark assumptions, observed environment behavior, owners, evidence dates, and unresolved gaps explicitly.
 
 ## Examples
 
-Start with the smallest applicable command or code example already provided in this guide, using a non-production Adobe environment and credentials. Confirm the documented response or validation result before applying the pattern to production.
+- Prove a fork job has no Adobe secrets.
+- Reject JWT, /sensei/cutout, and Lightroom Firefly Services routes statically.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- fork isolation
+- secret canary
+- contract drift
+- 429
+- obsolete route
+- cleanup
 
 ## Resources
 
-- [GitHub Actions Secrets](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions)
-- [Adobe Developer Console](https://developer.adobe.com/console)
-
-## Next Steps
-
-For deployment patterns, see `adobe-deploy-integration`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Adobe sources before execution.
+- Treat observed tenant or product behavior as environment-specific evidence, never a universal Adobe guarantee.

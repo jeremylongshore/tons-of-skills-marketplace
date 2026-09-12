@@ -1,273 +1,81 @@
 ---
 name: adobe-load-scale
-description: 'Implement load testing, auto-scaling, and capacity planning for Adobe
-  API
-
-  integrations with k6 scripts targeting Firefly, PDF Services, and
-
-  Photoshop APIs, plus Kubernetes HPA configuration.
-
-  Trigger with phrases like "adobe load test", "adobe scale",
-
-  "adobe performance test", "adobe capacity", "adobe benchmark".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(k6:*), Bash(kubectl:*)
-version: 1.7.0
+description: >-
+  Derive a safe Adobe workload envelope from synthetic load, queue/backpressure behavior, current service constraints, spend, and output correctness. Use when this Adobe operator workflow is needed. Trigger with "load test Adobe", "scale Firefly jobs", or "Adobe capacity plan".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<workload> <target-volume> <sandbox>"
+version: 1.8.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- design
-- adobe
-compatibility: Designed for Claude Code
+tags: [saas, adobe, capacity]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Adobe actions require network access, appropriate entitlement and authentication, and explicit approval"
 ---
-# Adobe Load & Scale
+# Adobe Capacity and Load Envelope
 
 ## Overview
 
-Load testing and scaling strategies for Adobe API integrations. Adobe APIs are async and relatively slow (5-30s per operation), requiring different load testing approaches than typical REST APIs.
+Derive a safe Adobe workload envelope from synthetic load, queue/backpressure behavior, current service constraints, spend, and output correctness.. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 
-- k6 load testing tool installed (`npm install -g k6` or `brew install k6`)
-- Adobe Developer Console credentials for testing (separate from production)
-- Kubernetes cluster with HPA configured (for auto-scaling)
-- Understanding of your Adobe API rate limits
+- Current first-party Adobe documentation for every selected service, API version, auth flow, limit, and lifecycle.
+- Named product, identity, security, data, budget, release, and operations owners appropriate to the scope.
+- Synthetic or approved non-production fixtures with secret and content canaries.
+
+## Current Contract
+
+Capacity is service-, operation-, entitlement-, and contract-specific. Measure arrival rate, queue age, concurrency, vendor time, 429/5xx, retries, terminal completion, storage transfer, cost units, and correctness. Do not publish guessed universal throughput. Recheck the dated evidence map before relying on mutable product behavior.
+
+## Authentication
+
+Use dedicated sandbox credentials, synthetic non-sensitive inputs, environment assertions, and a hard kill switch. Credential sharding to evade limits is forbidden.
 
 ## Instructions
 
-### Step 1: k6 Load Test for Firefly API
+1. Define workload shape, target volume, objectives, data/output checks, budget, ramp, abort thresholds, and cleanup.
+2. Read current product constraints and measure a single-job baseline across all lifecycle stages.
+3. Build an open/closed load model that drives the queue, not direct uncontrolled vendor floods.
+4. Ramp one dimension at a time while recording concurrency, latency, 429s, failures, completions, spend, and artifacts.
+5. Exercise backpressure, cancellation, unknown completion, vendor degradation, worker restart, and DLQ recovery.
+6. Publish the conservative envelope, autoscaling/queue controls, emergency stop, capacity owner, and retest date.
 
-```javascript
-// adobe-firefly-load.js
-import http from 'k6/http';
-import { check, sleep } from 'k6';
-import { Rate, Trend } from 'k6/metrics';
+## Tool Discipline
 
-const errorRate = new Rate('adobe_errors');
-const fireflyDuration = new Trend('firefly_duration');
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, Adobe content, consent, uploads, generation, spend, deployment, registration changes, replay, cancellation, or deletion.
 
-export const options = {
-  stages: [
-    { duration: '1m', target: 2 },    // Warm up (Adobe APIs are slow)
-    { duration: '3m', target: 5 },    // Steady state
-    { duration: '2m', target: 10 },   // Stress (watch for 429s)
-    { duration: '1m', target: 0 },    // Ramp down
-  ],
-  thresholds: {
-    http_req_duration: ['p(95)<30000'],  // 30s — Firefly is async/slow
-    adobe_errors: ['rate<0.05'],         // < 5% error rate
-  },
-};
+## Approval Boundaries
 
-// Pre-generate token (shared across VUs)
-const TOKEN = __ENV.ADOBE_ACCESS_TOKEN;
-const CLIENT_ID = __ENV.ADOBE_CLIENT_ID;
-
-export default function () {
-  const response = http.post(
-    'https://firefly-api.adobe.io/v3/images/generate',
-    JSON.stringify({
-      prompt: `Load test image ${Date.now()}`,
-      n: 1,
-      size: { width: 512, height: 512 },  // Smallest size for speed
-    }),
-    {
-      headers: {
-        'Authorization': `Bearer ${TOKEN}`,
-        'x-api-key': CLIENT_ID,
-        'Content-Type': 'application/json',
-      },
-      timeout: '60s',
-    }
-  );
-
-  const success = check(response, {
-    'status is 200': (r) => r.status === 200,
-    'status is not 429': (r) => r.status !== 429,
-  });
-
-  errorRate.add(!success);
-  fireflyDuration.add(response.timings.duration);
-
-  if (response.status === 429) {
-    const retryAfter = parseInt(response.headers['Retry-After'] || '30');
-    console.log(`Rate limited, waiting ${retryAfter}s`);
-    sleep(retryAfter);
-  } else {
-    sleep(3); // Respect rate limits between requests
-  }
-}
-```
-
-### Step 2: k6 Load Test for PDF Services
-
-```javascript
-// adobe-pdf-load.js
-import http from 'k6/http';
-import { check, sleep } from 'k6';
-
-export const options = {
-  stages: [
-    { duration: '1m', target: 3 },
-    { duration: '5m', target: 10 },
-    { duration: '1m', target: 0 },
-  ],
-  thresholds: {
-    http_req_duration: ['p(95)<15000'],  // PDF ops are faster than Firefly
-    http_req_failed: ['rate<0.02'],
-  },
-};
-
-export default function () {
-  // Test your app's PDF endpoint (which calls Adobe PDF Services internally)
-  const response = http.post(
-    `${__ENV.APP_URL}/api/extract-pdf`,
-    http.file(open('./test-fixtures/sample-5page.pdf', 'b'), 'test.pdf'),
-    { timeout: '30s' }
-  );
-
-  check(response, {
-    'extraction successful': (r) => r.status === 200,
-    'has text content': (r) => JSON.parse(r.body).text?.length > 0,
-  });
-
-  sleep(2);
-}
-```
-
-### Step 3: Run Load Tests
-
-```bash
-# 1. Generate access token for load test
-export ADOBE_ACCESS_TOKEN=$(curl -s -X POST \
-  'https://ims-na1.adobelogin.com/ims/token/v3' \
-  -d "client_id=${ADOBE_CLIENT_ID}&client_secret=${ADOBE_CLIENT_SECRET}&grant_type=client_credentials&scope=${ADOBE_SCOPES}" | jq -r '.access_token')
-
-# 2. Run Firefly load test
-k6 run --env ADOBE_ACCESS_TOKEN=${ADOBE_ACCESS_TOKEN} \
-  --env ADOBE_CLIENT_ID=${ADOBE_CLIENT_ID} \
-  adobe-firefly-load.js
-
-# 3. Run PDF Services load test
-k6 run --env APP_URL=https://staging.yourapp.com \
-  adobe-pdf-load.js
-
-# 4. Export results to InfluxDB for Grafana dashboards
-k6 run --out influxdb=http://localhost:8086/k6 adobe-firefly-load.js
-```
-
-### Step 4: Kubernetes Auto-Scaling
-
-```yaml
-# k8s/adobe-hpa.yaml
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: adobe-service-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: adobe-service
-  minReplicas: 2
-  maxReplicas: 20
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 60
-    # Scale on pending Adobe jobs (custom metric from Prometheus)
-    - type: Pods
-      pods:
-        metric:
-          name: adobe_pending_jobs
-        target:
-          type: AverageValue
-          averageValue: 5
-  behavior:
-    scaleUp:
-      stabilizationWindowSeconds: 60
-      policies:
-        - type: Pods
-          value: 2
-          periodSeconds: 60
-    scaleDown:
-      stabilizationWindowSeconds: 300  # Slow scale-down (Adobe jobs are long)
-```
-
-### Step 5: Capacity Planning
-
-```typescript
-// Adobe-specific capacity considerations:
-// 1. Each Firefly request blocks for 5-30s — need many concurrent workers
-// 2. PDF Services is faster (2-10s) but has monthly transaction limits
-// 3. Photoshop API jobs are async — workers poll and block on I/O
-// 4. IMS token generation is shared — cache aggressively
-
-interface AdobeCapacityPlan {
-  api: string;
-  peakRps: number;
-  avgLatencyMs: number;
-  concurrencyNeeded: number;  // peakRps * avgLatencyMs / 1000
-  podsNeeded: number;         // concurrencyNeeded / connectionsPerPod
-  monthlyTransactions: number;
-  tierNeeded: string;
-}
-
-function planCapacity(metrics: {
-  peakRps: number;
-  avgLatencyMs: number;
-  connectionsPerPod: number;
-}): AdobeCapacityPlan {
-  const concurrency = metrics.peakRps * metrics.avgLatencyMs / 1000;
-  const pods = Math.ceil(concurrency / metrics.connectionsPerPod);
-
-  return {
-    api: 'firefly',
-    peakRps: metrics.peakRps,
-    avgLatencyMs: metrics.avgLatencyMs,
-    concurrencyNeeded: Math.ceil(concurrency),
-    podsNeeded: pods,
-    monthlyTransactions: metrics.peakRps * 3600 * 8 * 22, // 8h/day, 22 days
-    tierNeeded: pods > 5 ? 'Enterprise' : 'Pro',
-  };
-}
-
-// Example: 2 RPS peak, 10s avg latency, 5 connections per pod
-// concurrency = 2 * 10 = 20 concurrent requests
-// pods = 20 / 5 = 4 pods minimum
-```
-
-## Output
-
-- k6 load test scripts for Firefly and PDF Services
-- Kubernetes HPA with Adobe-aware scaling metrics
-- Capacity planning model accounting for async API latency
-- Benchmark results template for documentation
+Sandbox, vendor-account, data, budget, and operations owners approve tests. Bulk generation/transactions, cancellation, and artifact deletion require explicit execution approval.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| All requests 429 in k6 | Rate limit exceeded | Reduce VU count; add sleep |
-| k6 timeout | Adobe API > 60s | Increase k6 request timeout |
-| HPA not scaling | Custom metric not exposed | Verify Prometheus metric exists |
-| Token expires mid-test | Long test duration | Token valid 24h; pre-generate |
+- Never load-test production customer workflows.
+- Abort on unexpected spend, content leakage, growing unknown jobs, or error threshold.
+- Do not use identities or projects as rate-limit shards.
+
+## Output
+
+Return assumptions, current constraints, load model, raw/result metrics, correctness evidence, safe envelope, aborts, cleanup, and retest owner. Mark assumptions, observed environment behavior, owners, evidence dates, and unresolved gaps explicitly.
 
 ## Examples
 
-Start with the smallest applicable command or code example already provided in this guide, using a non-production Adobe environment and credentials. Confirm the documented response or validation result before applying the pattern to production.
+- Show queue backpressure before the service is saturated.
+- Recover a worker restart without duplicate submission.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- ramp
+- 429
+- vendor 5xx
+- unknown completion
+- worker restart
+- kill switch
 
 ## Resources
 
-- [k6 Documentation](https://k6.io/docs/)
-- [Kubernetes HPA](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)
-- [Firefly Async API](https://developer.adobe.com/firefly-services/docs/firefly-api/guides/how-tos/using-async-apis)
-
-## Next Steps
-
-For reliability patterns, see `adobe-reliability-patterns`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Adobe sources before execution.
+- Treat observed tenant or product behavior as environment-specific evidence, never a universal Adobe guarantee.

@@ -1,223 +1,81 @@
 ---
 name: adobe-performance-tuning
-description: 'Optimize Adobe API performance with token caching, async job batching,
-
-  connection pooling, and response caching for Firefly, PDF Services,
-
-  and Photoshop API workflows.
-
-  Trigger with phrases like "adobe performance", "optimize adobe",
-
-  "adobe latency", "adobe caching", "adobe slow", "adobe batch".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
+description: >-
+  Improve Adobe integration latency and throughput from measurements while preserving correctness, policy, and spend boundaries. Use when this Adobe operator workflow is needed. Trigger with "tune Adobe performance", "reduce Firefly latency", or "optimize PDF jobs".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<service-operation> <measurement-window> <objective>"
+version: 1.8.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- design
-- adobe
-compatibility: Designed for Claude Code
+tags: [saas, adobe, performance]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Adobe actions require network access, appropriate entitlement and authentication, and explicit approval"
 ---
-# Adobe Performance Tuning
+# Adobe Measured Performance Tuning
 
 ## Overview
 
-Optimize Adobe API performance across Firefly Services, PDF Services, and Photoshop APIs. Key bottlenecks include IMS token generation, async job polling overhead, and cold-start latency on serverless platforms.
+Improve Adobe integration latency and throughput from measurements while preserving correctness, policy, and spend boundaries.. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 
-- Adobe SDK installed and functional
-- Understanding of which APIs your app uses most
-- Redis or in-memory cache available (optional)
-- Performance monitoring in place
+- Current first-party Adobe documentation for every selected service, API version, auth flow, limit, and lifecycle.
+- Named product, identity, security, data, budget, release, and operations owners appropriate to the scope.
+- Synthetic or approved non-production fixtures with secret and content canaries.
 
-## Latency Benchmarks (Real-World)
+## Current Contract
 
-| Operation | P50 | P95 | P99 |
-|-----------|-----|-----|-----|
-| IMS Token Generation | 200ms | 500ms | 1s |
-| Firefly Text-to-Image (sync) | 5s | 12s | 20s |
-| Firefly Text-to-Image (async poll) | 8s | 15s | 25s |
-| PDF Extract (10-page doc) | 3s | 8s | 15s |
-| PDF Create from HTML | 2s | 5s | 10s |
-| Photoshop Remove Background | 4s | 10s | 18s |
-| Lightroom Auto Tone | 3s | 8s | 15s |
+No universal Adobe latency table is a production contract. Measure token reuse, queue wait, upload/download, submission, status polling, vendor processing, validation, and downstream work separately by service and operation. Recheck the dated evidence map before relying on mutable product behavior.
+
+## Authentication
+
+Use content-free metrics and aliases. Token reuse must honor actual expiry response and revocation; cached signed URLs and customer outputs are not performance caches by default.
 
 ## Instructions
 
-### Optimization 1: Cache IMS Access Tokens (Biggest Win)
+1. Define objective, workload, input class, concurrency, cost ceiling, completeness, and measurement window.
+2. Instrument queue, transport, vendor job, polling, storage transfer, validation, retry, and downstream spans.
+3. Measure percentiles, 429s, failures, bytes, transactions/generations, and artifact correctness from a synthetic canary.
+4. Test token reuse, connection reuse, right-sized inputs, bounded concurrency, adaptive polling, and safe deduplication independently.
+5. Canary one change within current documented constraints and compare correctness plus spend, not latency alone.
+6. Retain verified gains with rollback thresholds and remove instrumentation that captures sensitive content.
 
-The IMS token endpoint returns tokens valid for 24 hours. Never re-generate per request:
+## Tool Discipline
 
-```typescript
-// WRONG: generates new token every call (adds 200-500ms each time)
-async function makeRequest() {
-  const token = await getAccessToken(); // hits IMS every time
-}
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, Adobe content, consent, uploads, generation, spend, deployment, registration changes, replay, cancellation, or deletion.
 
-// RIGHT: cache token and only refresh when expiring
-let tokenCache: { token: string; expiresAt: number } | null = null;
+## Approval Boundaries
 
-async function getCachedToken(): Promise<string> {
-  if (tokenCache && tokenCache.expiresAt > Date.now() + 300_000) {
-    return tokenCache.token; // Cache hit — 0ms
-  }
-  const res = await fetch('https://ims-na1.adobelogin.com/ims/token/v3', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: process.env.ADOBE_CLIENT_ID!,
-      client_secret: process.env.ADOBE_CLIENT_SECRET!,
-      grant_type: 'client_credentials',
-      scope: process.env.ADOBE_SCOPES!,
-    }),
-  });
-  const data = await res.json();
-  tokenCache = { token: data.access_token, expiresAt: Date.now() + data.expires_in * 1000 };
-  return tokenCache.token;
-}
-```
-
-### Optimization 2: Parallel Async Job Submission
-
-Firefly and Photoshop APIs are async — submit all jobs first, then poll all:
-
-```typescript
-// SLOW: sequential (total = sum of all job times)
-for (const prompt of prompts) {
-  const result = await generateImageSync(prompt); // 5-20s each
-}
-
-// FAST: parallel submit + parallel poll (total = max job time)
-async function batchFireflyGenerate(prompts: string[]) {
-  const token = await getCachedToken();
-
-  // 1. Submit all jobs simultaneously
-  const jobSubmissions = await Promise.all(
-    prompts.map(prompt =>
-      fetch('https://firefly-api.adobe.io/v3/images/generate-async', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'x-api-key': process.env.ADOBE_CLIENT_ID!,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt, n: 1, size: { width: 1024, height: 1024 } }),
-      }).then(r => r.json())
-    )
-  );
-
-  // 2. Poll all jobs in parallel
-  const results = await Promise.all(
-    jobSubmissions.map(job => pollUntilDone(job.statusUrl, token))
-  );
-
-  return results;
-}
-```
-
-### Optimization 3: Response Caching for Repeated Operations
-
-```typescript
-import { LRUCache } from 'lru-cache';
-
-// Cache PDF extraction results (same PDF = same output)
-const extractionCache = new LRUCache<string, any>({
-  max: 100,
-  ttl: 3600_000, // 1 hour
-});
-
-async function cachedPdfExtract(pdfHash: string, pdfPath: string) {
-  const cached = extractionCache.get(pdfHash);
-  if (cached) {
-    console.log('PDF extraction cache hit');
-    return cached;
-  }
-
-  const result = await extractPdfContent(pdfPath);
-  extractionCache.set(pdfHash, result);
-  return result;
-}
-```
-
-### Optimization 4: Connection Keep-Alive
-
-```typescript
-import { Agent } from 'https';
-
-// Reuse TCP connections to Adobe endpoints
-const adobeAgent = new Agent({
-  keepAlive: true,
-  maxSockets: 10,
-  maxFreeSockets: 5,
-  timeout: 60_000,
-});
-
-// Use with node-fetch or undici
-const response = await fetch(url, {
-  // @ts-ignore — agent option supported by node-fetch
-  agent: adobeAgent,
-  headers: { ... },
-});
-```
-
-### Optimization 5: Smart Polling Intervals
-
-```typescript
-// Adaptive polling: start fast, slow down over time
-async function adaptivePoll(statusUrl: string, token: string) {
-  const intervals = [1000, 2000, 3000, 5000, 5000, 10000]; // ms
-  let attempt = 0;
-
-  while (true) {
-    const res = await fetch(statusUrl, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'x-api-key': process.env.ADOBE_CLIENT_ID!,
-      },
-    });
-    const status = await res.json();
-
-    if (status.status === 'succeeded') return status;
-    if (status.status === 'failed') throw new Error(status.error?.message);
-
-    const delay = intervals[Math.min(attempt, intervals.length - 1)];
-    await new Promise(r => setTimeout(r, delay));
-    attempt++;
-  }
-}
-```
-
-## Output
-
-- IMS token cached for 24h (eliminates 200-500ms per request)
-- Parallel job submission for batch operations
-- LRU response caching for repeated extractions
-- Connection keep-alive reducing TLS handshake overhead
-- Adaptive polling reducing unnecessary API calls
+Workload, data, and budget owners approve load or generation tests. Do not increase credentials or identities to manufacture throughput.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Stale cached token | Token revoked mid-lifecycle | Catch 401, clear cache, retry once |
-| Parallel rate limiting | Too many concurrent jobs | Add p-queue concurrency limit |
-| Cache memory pressure | Too many cached results | Set LRU max size |
-| Connection pool exhaustion | Too many parallel requests | Limit maxSockets to 10-20 |
+- Delete invented benchmark tables.
+- Do not parallelize past queue, spend, or service evidence.
+- Roll back if output correctness, content provenance, throttling, or cost worsens.
+
+## Output
+
+Return baseline spans, bottleneck attribution, experiments, before/after percentiles, correctness/spend proof, selected change, and rollback. Mark assumptions, observed environment behavior, owners, evidence dates, and unresolved gaps explicitly.
 
 ## Examples
 
-Start with the smallest applicable command or code example already provided in this guide, using a non-production Adobe environment and credentials. Confirm the documented response or validation result before applying the pattern to production.
+- Compare fixed polling with bounded response-led adaptive polling.
+- Prove token reuse stops on actual expiry or revocation.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- queue wait
+- upload bottleneck
+- 429
+- unknown status
+- cache staleness
+- rollback
 
 ## Resources
 
-- [Firefly Async API Guide](https://developer.adobe.com/firefly-services/docs/firefly-api/guides/how-tos/using-async-apis)
-- [PDF Services Quickstart](https://developer.adobe.com/document-services/docs/overview/pdf-services-api/quickstarts/nodejs/)
-- [LRU Cache npm](https://github.com/isaacs/node-lru-cache)
-
-## Next Steps
-
-For cost optimization, see `adobe-cost-tuning`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Adobe sources before execution.
+- Treat observed tenant or product behavior as environment-specific evidence, never a universal Adobe guarantee.
