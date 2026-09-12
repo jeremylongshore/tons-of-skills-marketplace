@@ -71,4 +71,6 @@ Test every allow and deny edge, cross-tenant and cross-environment access, depro
 
 ## Resources
 
-- [Current first-party evidence map](references/official-docs.md)
+- [Current first-party evidence map](references/official-docs.md) — use the dated endpoint, webhook, billing, team, and training links as the contract index for this workflow.
+- Recheck the endpoint-specific page and current OpenAPI description before relying on an enum, limit, beta feature, or lifecycle claim.
+- Record live observations as environment-specific evidence, not as universal vendor guarantees.

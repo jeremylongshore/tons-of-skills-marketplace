@@ -131,7 +131,7 @@ class IdeogramPackContractTest(unittest.TestCase):
         for current in (
             "/v1/ideogram-v4/generate",
             "/v1/ideogram-v4/async/generate",
-            "GET /v1/generations/{generation_id}",
+            "GET /v1/generations/",
             "Api-Key",
             "is_image_safe",
             "Ed25519",
