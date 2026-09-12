@@ -1,207 +1,74 @@
 ---
 name: ideogram-debug-bundle
-description: 'Collect Ideogram debug evidence for support tickets and troubleshooting.
-
-  Use when encountering persistent issues, preparing support tickets,
-
-  or collecting diagnostic information for Ideogram problems.
-
-  Trigger with phrases like "ideogram debug", "ideogram support bundle",
-
-  "collect ideogram logs", "ideogram diagnostic".
-
-  '
-allowed-tools: Read, Bash(curl:*), Bash(tar:*), Bash(node:*), Grep
-version: 1.10.0
+description: >-
+  Assemble a sanitized Ideogram support bundle with contract, status, queue, storage, and deployment evidence. Use when escalating an incident without exposing keys, prompts, images, or temporary URLs. Trigger with "build an Ideogram debug bundle", "sanitize Ideogram evidence", or "prepare an Ideogram support case".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<incident-id> <time-window> <output-path>"
+version: 1.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ideogram
-- debugging
-- support
-compatibility: Designed for Claude Code
+tags: [saas, ideogram, diagnostics]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; bundle creation operates on explicitly scoped local evidence"
 ---
-# Ideogram Debug Bundle
-
-## Current State
-
-!`node --version 2>/dev/null || echo 'N/A'`
-!`python3 --version 2>/dev/null || echo 'N/A'`
-!`echo "IDEOGRAM_API_KEY set: ${IDEOGRAM_API_KEY:+YES}${IDEOGRAM_API_KEY:-NO}"`
+# Ideogram Sanitized Debug Bundle
 
 ## Overview
 
-Collect diagnostic information for Ideogram API issues. Produces a tarball with environment details, API connectivity tests, request/response samples, and redacted configuration -- suitable for attaching to support tickets.
+Create the minimum diagnostic package needed to reproduce or escalate an Ideogram problem. Preserve endpoint, schema, status, timing, concurrency, async, safety, and storage facts while excluding the content and credentials that commonly leak through generic support archives.
 
 ## Prerequisites
 
-- `IDEOGRAM_API_KEY` environment variable set
-- `curl` and `tar` available
-- Permission to collect environment info
+- An incident identifier, bounded time window, affected environment, and bundle recipient.
+- Approved local evidence locations and a data-classification owner.
+- A redaction policy, maximum bundle size, retention deadline, and deletion owner.
+
+## Current Contract
+
+Useful content-free fields include endpoint family, method, deployment SHA, adapter version, HTTP status, sanitized vendor error class, `generation_id`, async state, `is_image_safe`, URL-present boolean, queue depth, in-flight count, latency, and object-store result. Prompts, uploaded media, generated images, keys, and expiring URLs are not required by default.
+
+## Authentication
+
+Represent authentication as booleans and provenance such as `header_present=true` and `secret_source=production-manager`. Never collect the `Api-Key` value, environment dumps, shell history, request headers, or secret-manager payloads.
 
 ## Instructions
 
-### Step 1: Full Debug Bundle Script
+1. Define the incident, window, recipient, evidence roots, permitted fields, byte ceiling, and deletion deadline.
+2. Use an allowlist schema rather than copying full logs, requests, responses, or environment state.
+3. Collect version, endpoint, status, timing, concurrency, queue, safety, polling or webhook, and storage facts.
+4. Replace user, object, request, and generation identifiers with stable incident-local tokens unless the recipient explicitly requires an opaque vendor ID.
+5. Scan the staged bundle for credential patterns, prompts, URLs, image signatures, EXIF, binary files, and customer identifiers.
+6. Write a manifest with hashes, field provenance, redaction counts, limitations, owner, and expiry.
+7. Obtain recipient approval, transfer through the approved channel, and record deletion.
 
-```bash
-#!/bin/bash
-set -euo pipefail
+## Tool Discipline
 
-BUNDLE_DIR="ideogram-debug-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE_DIR"
+Use Read, Glob, and Grep to locate and inspect the approved evidence scope. Use Write and Edit only inside the explicitly named staging directory and manifest. Do not run live calls, expand the time window, scrape home directories, or attach repository secrets.
 
-cat > "$BUNDLE_DIR/summary.txt" <<HEADER
-=== Ideogram Debug Bundle ===
-Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)
-Hostname: $(hostname)
-HEADER
+## Approval Boundaries
 
-# --- Environment ---
-{
-  echo "--- Runtime ---"
-  echo "Node: $(node --version 2>/dev/null || echo 'not installed')"
-  echo "Python: $(python3 --version 2>/dev/null || echo 'not installed')"
-  echo "OS: $(uname -srm)"
-  echo ""
-  echo "--- Ideogram Config ---"
-  echo "API Key: ${IDEOGRAM_API_KEY:+SET (length=${#IDEOGRAM_API_KEY})}${IDEOGRAM_API_KEY:-NOT SET}"
-} >> "$BUNDLE_DIR/summary.txt"
-
-# --- API Connectivity Test ---
-{
-  echo ""
-  echo "--- API Test (Legacy Generate) ---"
-  RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}\nTIME_TOTAL:%{time_total}" \
-    -X POST https://api.ideogram.ai/generate \
-    -H "Api-Key: ${IDEOGRAM_API_KEY:-missing}" \
-    -H "Content-Type: application/json" \
-    -d '{"image_request":{"prompt":"debug test","model":"V_2_TURBO","magic_prompt_option":"OFF"}}' \
-    2>&1 || echo "CURL_FAILED")
-  echo "$RESPONSE" | grep -E "HTTP_STATUS|TIME_TOTAL|error" || true
-  echo "$RESPONSE" | head -5 > "$BUNDLE_DIR/api-response-sample.json"
-} >> "$BUNDLE_DIR/summary.txt"
-
-# --- DNS Resolution ---
-{
-  echo ""
-  echo "--- DNS & Network ---"
-  echo "DNS resolve: $(nslookup api.ideogram.ai 2>/dev/null | grep -A1 'Name:' | tail -1 || echo 'nslookup unavailable')"
-  echo "TLS test: $(curl -s -o /dev/null -w '%{ssl_verify_result}' https://api.ideogram.ai/ 2>/dev/null || echo 'failed')"
-} >> "$BUNDLE_DIR/summary.txt"
-
-# --- Local Configuration (redacted) ---
-if [ -f .env ]; then
-  sed 's/=.*/=***REDACTED***/' .env > "$BUNDLE_DIR/env-redacted.txt"
-fi
-
-# --- Package versions ---
-{
-  echo ""
-  echo "--- Dependencies ---"
-  npm list --depth=0 2>/dev/null || echo "No package.json found"
-  pip freeze 2>/dev/null | grep -i ideogram || echo "No Python ideogram packages"
-} >> "$BUNDLE_DIR/summary.txt"
-
-# --- Package ---
-tar -czf "$BUNDLE_DIR.tar.gz" "$BUNDLE_DIR"
-rm -rf "$BUNDLE_DIR"
-echo "Bundle created: $BUNDLE_DIR.tar.gz"
-echo "Contents: summary.txt, api-response-sample.json, env-redacted.txt"
-```
-
-### Step 2: Quick One-Line Diagnostics
-
-```bash
-set -euo pipefail
-# Test API key validity
-curl -s -o /dev/null -w "Status: %{http_code} | Time: %{time_total}s\n" \
-  -X POST https://api.ideogram.ai/generate \
-  -H "Api-Key: $IDEOGRAM_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"image_request":{"prompt":"test","model":"V_2_TURBO","magic_prompt_option":"OFF"}}'
-
-# Test V3 endpoint
-curl -s -o /dev/null -w "V3 Status: %{http_code}\n" \
-  -X POST https://api.ideogram.ai/v1/ideogram-v3/generate \
-  -H "Api-Key: $IDEOGRAM_API_KEY" \
-  -F "prompt=test" -F "rendering_speed=FLASH"
-```
-
-### Step 3: Request Logging Wrapper
-
-```typescript
-// Add to your client for capturing failed requests
-async function debuggableRequest(url: string, init: RequestInit) {
-  const start = Date.now();
-  const response = await fetch(url, init);
-  const elapsed = Date.now() - start;
-
-  if (!response.ok) {
-    const body = await response.text();
-    console.error(JSON.stringify({
-      timestamp: new Date().toISOString(),
-      url,
-      method: init.method,
-      status: response.status,
-      elapsed_ms: elapsed,
-      error: body.slice(0, 500),
-      // Redact API key from headers
-      headers: Object.fromEntries(
-        Object.entries(init.headers ?? {}).map(([k, v]) =>
-          [k, k.toLowerCase() === "api-key" ? "***REDACTED***" : v]
-        )
-      ),
-    }, null, 2));
-    throw new Error(`Ideogram ${response.status}: ${body}`);
-  }
-
-  return response;
-}
-```
-
-## Sensitive Data Handling
-
-**ALWAYS REDACT before sharing:**
-
-- API keys and tokens
-- `.env` file values
-- PII in prompts
-- File paths containing usernames
-
-**Safe to include:**
-
-- HTTP status codes and error messages
-- Request timing and latency
-- Runtime versions (Node, Python)
-- Package dependency versions
+Require approval before including raw vendor bodies, opaque production identifiers, customer-derived metadata, or any content. The recipient and expiry must be known before transfer; bundle creation alone does not authorize sharing.
 
 ## Error Handling
 
-| Item | Purpose | Included |
-|------|---------|----------|
-| API key status | Auth verification | SET/NOT SET only |
-| HTTP status code | Error classification | Full code |
-| Response time | Latency diagnosis | Seconds |
-| DNS resolution | Network diagnosis | IP only |
-| Package versions | Compatibility check | Version strings |
+- Stop if an allowlist field cannot be separated from prompt or image content.
+- Reject archives containing `IDEOGRAM_API_KEY`, `Api-Key`, signed URLs, image magic bytes, or unbounded logs.
+- If evidence is insufficient, report the missing field instead of broadening collection silently.
 
 ## Output
 
-- `ideogram-debug-YYYYMMDD-HHMMSS.tar.gz` containing:
-  - `summary.txt` -- environment, API test, DNS, dependencies
-  - `api-response-sample.json` -- truncated API response
-  - `env-redacted.txt` -- configuration with values masked
+Return bundle path, manifest hash, incident and time scope, file and byte counts, redaction and secret-scan results, recipient, transfer status, expiry, and deletion receipt. Do not echo bundle content into the response.
 
 ## Examples
 
-`incident=inc-opaque-21; window=15m; generator=sandbox; latency=p95-420ms; destination=restricted-support; prompt_fields=excluded; image_fields=excluded; retention=7d` is a useful debug summary.
+- Include deployment SHA, V4 route, `429` count, peak in-flight count, and retry policy; omit bodies and prompts.
+- Report `files=4; secrets=0; images=0; urls=0; recipient=vendor-support; expires=24h`.
+
+## Validation
+
+Open every staged file through the allowlist parser, rerun secret and binary scans, verify hashes after transfer, and test deletion. A compressed archive is not safe merely because it is encrypted.
 
 ## Resources
 
-- [Ideogram API Overview](https://developer.ideogram.ai/ideogram-api/api-overview)
-- Enterprise support: `partnership@ideogram.ai`
-
-## Next Steps
-
-For rate limit issues, see `ideogram-rate-limits`.
+- [Current first-party evidence map](references/official-docs.md)

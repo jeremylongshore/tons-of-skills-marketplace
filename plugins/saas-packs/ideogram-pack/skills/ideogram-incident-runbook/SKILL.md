@@ -1,256 +1,74 @@
 ---
 name: ideogram-incident-runbook
-description: 'Execute Ideogram incident response with triage, mitigation, and postmortem.
-
-  Use when responding to Ideogram-related outages, investigating errors,
-
-  or running post-incident reviews for Ideogram integration failures.
-
-  Trigger with phrases like "ideogram incident", "ideogram outage",
-
-  "ideogram down", "ideogram on-call", "ideogram emergency", "ideogram broken".
-
-  '
-allowed-tools: Read, Grep, Bash(kubectl:*), Bash(curl:*)
-version: 1.10.0
+description: >-
+  Contain Ideogram incidents involving credentials, billing, throttling, unsafe output, webhook loss, asset expiry, or storage failure. Use when coordinating production response and recovery. Trigger with "Ideogram incident", "contain an Ideogram outage", or "recover missing Ideogram images".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<incident-id> <symptom> <environment>"
+version: 1.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ideogram
-- incident-response
-compatibility: Designed for Claude Code
+tags: [saas, ideogram, incident-response]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; operational mutations require the incident commander's approval"
 ---
-# Ideogram Incident Runbook
+# Ideogram Incident Response
 
 ## Overview
 
-Rapid incident response for Ideogram API outages, auth failures, rate limiting, and degraded generation quality. Covers triage, immediate remediation, fallback activation, and postmortem process.
-
-## Severity Levels
-
-| Level | Definition | Response Time | Example |
-|-------|------------|---------------|---------|
-| P1 | API unreachable or all requests failing | < 15 min | 401 on valid key, 500 on all requests |
-| P2 | Degraded quality or performance | < 1 hour | P95 latency > 30s, high 429 rate |
-| P3 | Minor impact, workaround exists | < 4 hours | Occasional safety rejections, slow downloads |
-| P4 | No user impact | Next business day | Monitoring gaps, stale cache |
-
-## Quick Triage (Run These First)
-
-```bash
-set -euo pipefail
-
-echo "=== IDEOGRAM TRIAGE ==="
-
-# 1. Test API connectivity and auth
-echo -n "API status: "
-curl -s -o /dev/null -w "%{http_code}" \
-  -X POST https://api.ideogram.ai/generate \
-  -H "Api-Key: $IDEOGRAM_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"image_request":{"prompt":"triage test","model":"V_2_TURBO","magic_prompt_option":"OFF"}}'
-echo ""
-
-# 2. Test V3 endpoint
-echo -n "V3 status: "
-curl -s -o /dev/null -w "%{http_code}" \
-  -X POST https://api.ideogram.ai/v1/ideogram-v3/generate \
-  -H "Api-Key: $IDEOGRAM_API_KEY" \
-  -F "prompt=triage test" -F "rendering_speed=FLASH"
-echo ""
-
-# 3. Check DNS resolution
-echo -n "DNS: "
-nslookup api.ideogram.ai 2>/dev/null | grep -A1 "Name:" | tail -1 || echo "lookup failed"
-
-# 4. Measure latency
-echo -n "Latency: "
-curl -s -o /dev/null -w "%{time_total}s" \
-  -X POST https://api.ideogram.ai/generate \
-  -H "Api-Key: $IDEOGRAM_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"image_request":{"prompt":"latency test","model":"V_2_TURBO","magic_prompt_option":"OFF"}}'
-echo ""
-```
-
-## Decision Tree
-
-```
-Is api.ideogram.ai returning errors?
-├─ YES: What status code?
-│   ├─ 401 → Key revoked or misconfigured. See "Auth Failure" below.
-│   ├─ 402 → Credits exhausted. Top up immediately.
-│   ├─ 422 → Safety filter. Prompt issue, not outage.
-│   ├─ 429 → Rate limited. Reduce concurrency.
-│   ├─ 500/503 → Ideogram outage. Enable fallback.
-│   └─ Timeout → Network or Ideogram performance issue.
-├─ NO: Are images generating but quality is bad?
-│   ├─ YES → Check model version, style params, magic_prompt setting.
-│   └─ NO → Check image download (URLs may have expired).
-└─ Not sure: Run triage script above.
-```
-
-## Immediate Actions
-
-### 401 -- Authentication Failure
-
-```bash
-set -euo pipefail
-# Verify key is set
-echo "Key present: ${IDEOGRAM_API_KEY:+YES}${IDEOGRAM_API_KEY:-NO}"
-echo "Key length: ${#IDEOGRAM_API_KEY}"
-
-# If key was rotated, update everywhere:
-# 1. Ideogram dashboard: create new key
-# 2. Update secret manager / env vars
-# 3. Restart affected services
-
-# Kubernetes
-kubectl create secret generic ideogram-secrets \
-  --from-literal=api-key="$NEW_KEY" \
-  --dry-run=client -o yaml | kubectl apply -f -
-kubectl rollout restart deployment/ideogram-service
-```
-
-### 429 -- Sustained Rate Limiting
-
-```bash
-set -euo pipefail
-# Reduce concurrency immediately
-kubectl set env deployment/ideogram-service IDEOGRAM_CONCURRENCY=3
-
-# If sustained, contact Ideogram for limit increase
-# partnership@ideogram.ai
-```
-
-### 500/503 -- Ideogram Outage
-
-```bash
-set -euo pipefail
-# Enable fallback mode (return placeholder images)
-kubectl set env deployment/ideogram-service IDEOGRAM_FALLBACK=true
-kubectl rollout restart deployment/ideogram-service
-
-# Monitor for resolution, then disable fallback
-# kubectl set env deployment/ideogram-service IDEOGRAM_FALLBACK=false
-```
-
-### 402 -- Credits Exhausted
-
-```
-1. Log into ideogram.ai > Settings > API Beta
-2. Check current balance
-3. Increase auto top-up amount
-4. Or manually add credits
-5. Verify generation works again
-```
-
-## Fallback Implementation
-
-```typescript
-const FALLBACK_ENABLED = process.env.IDEOGRAM_FALLBACK === "true";
-
-async function generateWithFallback(prompt: string, options: any = {}) {
-  if (FALLBACK_ENABLED) {
-    return {
-      data: [{
-        url: `https://placehold.co/1024x1024/333/fff?text=${encodeURIComponent("Image unavailable")}`,
-        seed: 0,
-        resolution: "1024x1024",
-        is_image_safe: true,
-        fallback: true,
-      }],
-    };
-  }
-
-  try {
-    return await generateImage(prompt, options);
-  } catch (err: any) {
-    if (err.status >= 500) {
-      console.error("Ideogram 5xx -- serving fallback");
-      return generateWithFallback(prompt, options);
-    }
-    throw err;
-  }
-}
-```
-
-## Communication Templates
-
-### Internal (Slack)
-
-```
-P[X] INCIDENT: Ideogram Integration
-Status: INVESTIGATING / MITIGATED / RESOLVED
-Impact: [e.g., Image generation unavailable for users]
-Cause: [e.g., API returning 500, or key revoked]
-Action: [e.g., Fallback enabled, monitoring for resolution]
-Next update: [time]
-Owner: @[name]
-```
-
-## Postmortem Template
-
-```markdown
-## Incident: Ideogram [Type]
-**Date:** YYYY-MM-DD | **Duration:** Xh Ym | **Severity:** P[1-4]
-
-### Summary
-[1-2 sentences]
-
-### Timeline
-- HH:MM - First alert triggered
-- HH:MM - Triage started
-- HH:MM - Fallback enabled
-- HH:MM - Root cause identified
-- HH:MM - Resolved
-
-### Root Cause
-[Technical explanation]
-
-### Action Items
-- [ ] [Fix] - Owner - Due date
-- [ ] [Prevention] - Owner - Due date
-```
-
-## Error Handling
-
-| Issue | Detection | Mitigation |
-|-------|-----------|------------|
-| Total API outage | Health check fails | Enable fallback images |
-| Key revoked | 401 on valid config | Rotate key immediately |
-| Credits depleted | 402 responses | Top up, pause batch jobs |
-| Rate limit flood | Sustained 429 | Reduce concurrency to 3 |
-
-## Output
-
-- Incident identified and categorized by severity
-- Immediate remediation applied
-- Fallback activated if needed
-- Stakeholders notified with template
-- Evidence collected for postmortem
+Stabilize an Ideogram integration before chasing image quality or replaying paid requests. Preserve evidence, reduce blast radius, reconcile accepted work, protect sensitive media, and choose recovery actions by incident class.
 
 ## Prerequisites
 
-- An incident owner, a synthetic prompt with no protected content, approved support path, and redaction policy for prompt, asset, and output fields.
+- Incident commander, environment, start time, impact statement, and communication channel.
+- Read access to content-free application, queue, vendor-status, webhook, polling, storage, and billing evidence.
+- Known controls for admission, concurrency, key revocation, traffic rollback, queue drain, and publication stop.
+
+## Current Contract
+
+Incidents commonly cross separate boundaries: server-side `Api-Key`, prepaid shared team credit, default in-flight capacity, async `generation_id`, signed but non-guaranteed webhook delivery, item safety, expiring URLs, and application storage. Recovery must not collapse these into a generic retry.
+
+## Authentication
+
+Never paste the API key into incident chat or commands. Verify secret provenance through metadata; if exposure is credible, stop new traffic, revoke under owner approval, rotate consumers, and audit historical leakage.
 
 ## Instructions
 
-1. Open a timestamped incident, classify impact, and reproduce once with the synthetic prompt.
-2. Isolate identity, endpoint, content-policy, quota, generation, storage, or destination failure using status and opaque correlation IDs only.
-3. Freeze nonessential rollout changes, apply one reversible remediation, and monitor the synthetic probe and aggregate metrics.
-4. Stop if a change expands source, destination, or output-retention scope; close only after rollback decision and owner review.
+1. Declare severity, impact, affected environment and tenants, known time window, and incident commander.
+2. Freeze risky deployments and broad retries; preserve sanitized statuses, identifiers, queue state, and storage receipts.
+3. Classify credential, depleted credit, validation, `429` pressure, vendor capacity, unsafe publication, webhook loss, expired URL, or storage failure.
+4. Contain with the smallest control: close admission, reduce concurrency, stop publishing, switch to polling, isolate storage, or roll back traffic.
+5. Reconcile every accepted async identifier before resubmission and prevent duplicate asset publication.
+6. Recover with synthetic canaries, then restore bounded traffic while monitoring safety, durable completion, errors, latency, and spend.
+7. Record timeline, decisions, evidence, customer impact, cleanup, follow-ups, and final state.
+
+## Tool Discipline
+
+Use Read, Glob, and Grep for evidence and known runbooks. Use Write and Edit for approved incident records or fixes. Do not revoke keys, add credit, delete assets, replay jobs, or deploy without incident authority.
+
+## Approval Boundaries
+
+The incident commander approves containment and restoration; security owns credential response, billing owns credit, moderation owns unsafe publication, and data owners approve asset access or deletion. Separate reversible mitigation from destructive action.
+
+## Error Handling
+
+- Do not regenerate solely because a vendor URL expired; confirm rights, budget, and absence of durable copy.
+- Do not increase concurrency during `429` pressure.
+- Missing webhook delivery should trigger polling reconciliation, not duplicate submission.
+
+## Output
+
+Return incident class, impact, timeline, evidence IDs, containment, accepted-work reconciliation, spend and data exposure, recovery canary, owners, residual risk, and rollback or cleanup state. Exclude secrets and content.
 
 ## Examples
 
-`P2; integration=staging-generator; error=429; action=bounded-backoff; fixture=fictional; output_retention=none; rollback=not-needed` is a safe incident summary.
+- On webhook loss, keep submissions bounded, poll known generation IDs, and deduplicate late deliveries.
+- On unsafe publication, stop the publisher while preserving the generation and safety decision evidence.
+
+## Validation
+
+Confirm impact has stopped, all known generations and objects reconcile, synthetic canaries pass, and monitoring remains stable through the observation window. Test that rollback and emergency admission closure still work.
 
 ## Resources
 
-- [Ideogram API Overview](https://developer.ideogram.ai/ideogram-api/api-overview)
-- Enterprise support: `partnership@ideogram.ai`
-
-## Next Steps
-
-For data handling patterns, see `ideogram-data-handling`.
+- [Current first-party evidence map](references/official-docs.md)

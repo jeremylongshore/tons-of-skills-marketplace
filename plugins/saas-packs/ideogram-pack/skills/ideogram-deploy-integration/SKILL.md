@@ -1,229 +1,74 @@
 ---
 name: ideogram-deploy-integration
-description: 'Deploy Ideogram integrations to Vercel, Cloud Run, and Docker platforms.
-
-  Use when deploying Ideogram-powered applications to production,
-
-  configuring platform-specific secrets, or setting up deployment pipelines.
-
-  Trigger with phrases like "deploy ideogram", "ideogram Vercel",
-
-  "ideogram production deploy", "ideogram Cloud Run", "ideogram Docker".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(gcloud:*), Bash(docker:*)
-version: 1.10.0
+description: >-
+  Deploy an Ideogram server boundary with queues, storage, safety enforcement, observability, canaries, and rollback. Use when shipping a new runtime or changing production topology. Trigger with "deploy Ideogram", "ship an Ideogram worker", or "review Ideogram production architecture".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<platform> <release-sha> <environment>"
+version: 1.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ideogram
-- deployment
-compatibility: Designed for Claude Code
+tags: [saas, ideogram, deployment]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; deployment and live generation require explicit approval"
 ---
-# Ideogram Deploy Integration
+# Ideogram Deployment Boundary
 
 ## Overview
 
-Deploy Ideogram image generation endpoints to Vercel, Cloud Run, or Docker. Key concerns: API key security, function timeouts (generation takes 5-15s), image persistence (URLs expire), and CDN integration for serving generated images.
+Deploy Ideogram behind an application-owned server, queue, safety policy, and durable object store. Match runtime deadlines to sync or async behavior, keep paid authority out of clients, and preserve a reversible traffic path.
 
 ## Prerequisites
 
-- `IDEOGRAM_API_KEY` configured
-- Cloud storage for generated images (S3, GCS, or R2)
-- Platform CLI installed (vercel, gcloud, or docker)
+- Frozen release SHA, platform owner, environment, traffic slice, SLO, and rollback target.
+- Secret manager, queue or concurrency control, object storage, monitoring, and incident response.
+- Positive credit, billing owner, approved synthetic canary, and retention policy.
+
+## Current Contract
+
+Ideogram calls use `https://api.ideogram.ai`; default capacity is 10 in-flight requests. Async routes return `generation_id` and support webhook delivery with polling fallback. Image URLs expire, so deployment must download validated outputs into application storage before acknowledging durable completion.
+
+## Authentication
+
+Inject `IDEOGRAM_API_KEY` into the server or worker identity and send it only as `Api-Key`. A public browser receives application-scoped authorization, never the vendor credential or direct vendor URL.
 
 ## Instructions
 
-### Step 1: API Endpoint (Next.js / Vercel)
+1. Map request ingress, tenant auth, validation, queue, Ideogram route, webhook, polling, download, safety, storage, and publishing boundaries.
+2. Choose sync only when platform and request deadlines safely cover generation plus download; otherwise persist async state.
+3. Configure account-level concurrency below verified capacity, bounded queues, retry deadlines, and graceful drain.
+4. Inject secrets by runtime reference, restrict egress to the approved host, and prevent request or response body logging.
+5. Validate safety and media type before writing an opaque tenant-scoped object; discard temporary URLs.
+6. Deploy a synthetic canary, compare status, latency, storage, safety, and cost signals, then increase traffic gradually.
+7. Roll back traffic and reconcile in-flight generations and objects before terminating the prior version.
 
-```typescript
-// app/api/generate/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+## Tool Discipline
 
-const s3 = new S3Client({ region: process.env.AWS_REGION });
+Use Read, Glob, and Grep for manifests, infrastructure, adapters, and evidence. Use Write and Edit only for approved deployment changes. Invocation does not authorize a deploy, secret mutation, credit purchase, traffic shift, or destructive cleanup.
 
-export async function POST(req: NextRequest) {
-  const { prompt, style, aspectRatio } = await req.json();
+## Approval Boundaries
 
-  if (!prompt || prompt.length > 10000) {
-    return NextResponse.json({ error: "Invalid prompt" }, { status: 400 });
-  }
-
-  // Generate image via Ideogram
-  const response = await fetch("https://api.ideogram.ai/generate", {
-    method: "POST",
-    headers: {
-      "Api-Key": process.env.IDEOGRAM_API_KEY!,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      image_request: {
-        prompt,
-        model: "V_2",
-        style_type: style || "AUTO",
-        aspect_ratio: aspectRatio || "ASPECT_1_1",
-        magic_prompt_option: "AUTO",
-      },
-    }),
-  });
-
-  if (!response.ok) {
-    const err = await response.text();
-    return NextResponse.json({ error: `Generation failed: ${response.status}` }, { status: 502 });
-  }
-
-  const result = await response.json();
-  const image = result.data[0];
-
-  // Download and persist to S3 (Ideogram URLs expire)
-  const imgResponse = await fetch(image.url);
-  const buffer = Buffer.from(await imgResponse.arrayBuffer());
-  const key = `generated/${image.seed}-${Date.now()}.png`;
-
-  await s3.send(new PutObjectCommand({
-    Bucket: process.env.S3_BUCKET!,
-    Key: key,
-    Body: buffer,
-    ContentType: "image/png",
-  }));
-
-  return NextResponse.json({
-    url: `https://${process.env.CDN_DOMAIN}/${key}`,
-    seed: image.seed,
-    resolution: image.resolution,
-    style: image.style_type,
-  });
-}
-
-export const maxDuration = 60; // Vercel function timeout
-```
-
-### Step 2: Vercel Configuration
-
-```json
-{
-  "functions": {
-    "app/api/generate/route.ts": {
-      "maxDuration": 60
-    }
-  },
-  "env": {
-    "IDEOGRAM_API_KEY": "@ideogram-api-key"
-  }
-}
-```
-
-```bash
-set -euo pipefail
-# Set secrets
-vercel env add IDEOGRAM_API_KEY production
-vercel env add S3_BUCKET production
-vercel env add CDN_DOMAIN production
-```
-
-### Step 3: Cloud Run Deployment
-
-```dockerfile
-FROM node:20-slim
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-RUN npm run build
-EXPOSE 3000
-# Cloud Run sets PORT automatically
-CMD ["node", "dist/server.js"]
-```
-
-```bash
-set -euo pipefail
-# Store API key in Secret Manager
-echo -n "$IDEOGRAM_API_KEY" | gcloud secrets create ideogram-api-key --data-file=-
-
-# Deploy with secret mount
-gcloud run deploy ideogram-service \
-  --image=gcr.io/$PROJECT_ID/ideogram-service \
-  --set-secrets=IDEOGRAM_API_KEY=ideogram-api-key:latest \
-  --timeout=120 \
-  --memory=512Mi \
-  --max-instances=10 \
-  --allow-unauthenticated
-```
-
-### Step 4: Docker Compose (Self-Hosted)
-
-```yaml
-# docker-compose.yml
-services:
-  ideogram-api:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - IDEOGRAM_API_KEY=${IDEOGRAM_API_KEY}
-      - S3_BUCKET=${S3_BUCKET}
-      - NODE_ENV=production
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: unless-stopped
-```
-
-### Step 5: Health Check Endpoint
-
-```typescript
-// app/api/health/route.ts
-export async function GET() {
-  const checks = {
-    ideogram: {
-      configured: !!process.env.IDEOGRAM_API_KEY,
-      keyLength: process.env.IDEOGRAM_API_KEY?.length ?? 0,
-    },
-    storage: {
-      configured: !!process.env.S3_BUCKET,
-    },
-  };
-
-  const healthy = checks.ideogram.configured && checks.storage.configured;
-
-  return Response.json({
-    status: healthy ? "healthy" : "degraded",
-    checks,
-  }, { status: healthy ? 200 : 503 });
-}
-```
+Require explicit approval for production secret access, new egress, live spend, policy changes, storage retention, traffic shifting, and rollback. Preserve the previous deployable artifact until in-flight work is reconciled.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Function timeout | Generation takes 5-15s | Set timeout to 60s+ |
-| Content filtered | Prompt policy violation | Return 422 with user-friendly message |
-| Storage upload fails | Bad credentials | Verify S3/GCS permissions |
-| Rate limited | Too many concurrent users | Queue generation jobs with BullMQ |
-| Expired URL | Late download | Download immediately in same request |
+- Stop rollout on secret exposure, rising `429`, lost async state, unsafe-publication paths, or storage failure.
+- Do not declare success while assets exist only at expiring vendor URLs.
+- Drain or cancel local queue work before rollback; reconcile accepted vendor work idempotently.
 
 ## Output
 
-- Deployed API endpoint with image generation
-- Images persisted to durable storage with CDN URLs
-- Health check endpoint for monitoring
-- Platform-specific configuration files
+Return release SHA, platform, topology, secret reference, concurrency and deadline settings, canary metrics, storage and safety results, traffic state, costs, and rollback receipt. Exclude credentials and content.
 
 ## Examples
 
-`artifact=sha256:opaque; env=staging; canary=sandbox-gallery; health=pass; rights=test-owned; destination=approved; output_retention=none; rollback=release-r31` supports controlled promotion.
+- Deploy a queue-backed worker for async V4 and a verified webhook receiver with polling reconciliation.
+- Keep the old worker at zero new traffic until all known generation IDs reach terminal state.
+
+## Validation
+
+Verify deployed digest, secret provenance, egress, queue bounds, signature checks, polling fallback, storage deletion, dashboards, and rollback. Confirm the canary object and temporary metadata are removed.
 
 ## Resources
 
-- [Ideogram API Reference](https://developer.ideogram.ai/api-reference)
-- [Vercel Functions](https://vercel.com/docs/functions)
-- [Cloud Run Docs](https://cloud.google.com/run/docs)
-
-## Next Steps
-
-For event-driven patterns, see `ideogram-webhooks-events`.
+- [Current first-party evidence map](references/official-docs.md)

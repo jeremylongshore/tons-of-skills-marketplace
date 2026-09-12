@@ -251,7 +251,7 @@
         "url": "https://github.com/ratamaha-git"
       },
       "verification": {
-        "score": 95,
+        "score": 97,
         "grade": "A",
         "badge": "gold",
         "lastValidated": "2026-09-11T00:00:00.000Z"
@@ -7406,8 +7406,8 @@
     {
       "name": "ideogram-pack",
       "source": "./plugins/saas-packs/ideogram-pack",
-      "description": "Complete Ideogram integration skill pack with 24 skills covering AI image generation, text rendering, and creative design workflows. Flagship tier vendor pack.",
-      "version": "1.10.0",
+      "description": "Operator-grade Ideogram skill pack with 24 current V4, async, security, storage, governance, and migration workflows",
+      "version": "1.11.0",
       "category": "saas-packs",
       "keywords": [
         "ideogram",
@@ -7427,10 +7427,10 @@
         "skills": 24
       },
       "verification": {
-        "score": 84,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "score": 95,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {

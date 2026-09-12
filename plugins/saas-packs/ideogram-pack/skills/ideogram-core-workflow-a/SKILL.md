@@ -1,223 +1,74 @@
 ---
 name: ideogram-core-workflow-a
-description: 'Execute Ideogram primary workflow: text-to-image generation with text
-  rendering.
-
-  Use when generating images from text prompts, creating designs with embedded text,
-
-  or building the main image generation pipeline.
-
-  Trigger with phrases like "ideogram generate image", "ideogram text to image",
-
-  "create image with ideogram", "ideogram primary workflow".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.10.0
+description: >-
+  Select and operate the current Ideogram generation route across V4 sync, V4 async, transparency, and P-Image. Use when designing a text-to-image workflow with explicit latency and output contracts. Trigger with "generate with Ideogram V4", "choose an Ideogram model route", or "build transparent Ideogram images".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<use-case> <latency-class> <output-contract>"
+version: 1.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ideogram
-- workflow
-- image-generation
-- text-rendering
-compatibility: Designed for Claude Code
+tags: [saas, ideogram, generation]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live image generation consumes prepaid credit"
 ---
-# Ideogram Core Workflow A -- Text-to-Image Generation
+# Ideogram Generation Route Selection
 
 ## Overview
 
-Primary workflow for Ideogram: generating images from text prompts. Ideogram excels at rendering legible text inside images -- a capability where most image models fail. Use this for social media graphics, marketing banners, product mockups, posters, logos, and any visual that combines illustration with typography.
+Choose the smallest current generation surface that satisfies latency, transparency, prompt, and model requirements. Make route choice explicit so applications do not inherit stale legacy endpoints or accidentally treat synchronous and asynchronous lifecycles as equivalent.
 
 ## Prerequisites
 
-- Completed `ideogram-install-auth` setup
-- `IDEOGRAM_API_KEY` environment variable set
-- Understanding of style types and aspect ratios
+- An approved use case, prompt and input classification, latency target, output count, and cost ceiling.
+- A server-side key, positive credit, durable storage, and content-review policy.
+- Current endpoint-specific documentation; generic examples do not override route contracts.
+
+## Current Contract
+
+Ideogram documents V4 synchronous `/v1/ideogram-v4/generate`, V4 asynchronous `/v1/ideogram-v4/async/generate`, transparent variants, and P-Image sync/async routes. V4 accepts either text or structured JSON prompting; JSON prompting disables magic prompt. V4 `FLASH` currently returns `400`.
+
+## Authentication
+
+Send the server-side `IDEOGRAM_API_KEY` only through the `Api-Key` header to `https://api.ideogram.ai`. Never expose the key or direct paid-generation authority to a browser or untrusted tenant.
 
 ## Instructions
 
-### Step 1: Choose Parameters for Your Use Case
+1. Classify whether the workload requires V4, transparency, P-Image, structured prompting, or compatibility with an existing V3 flow.
+2. Choose synchronous handling only when the request deadline safely includes generation and immediate download; otherwise choose async.
+3. Build the exact endpoint-specific multipart payload and reject mutually exclusive or unsupported fields before sending.
+4. Bound output count, input size, rendering option, in-flight concurrency, and total operation deadline.
+5. Validate safety on every returned image and persist approved assets immediately because vendor URLs expire.
+6. For async work, persist `generation_id`, reconcile webhook and polling results idempotently, and close only on a recognized terminal state.
+7. Record route, policy, spend, safety, storage, and cleanup evidence without retaining content.
 
-| Use Case | Style Type | Aspect Ratio | Model | Notes |
-|----------|-----------|--------------|-------|-------|
-| Social media post | `DESIGN` | `ASPECT_1_1` | `V_2` | Best text rendering |
-| Blog hero image | `REALISTIC` | `ASPECT_16_9` | `V_2` | Photorealistic |
-| Story / Reel | `GENERAL` | `ASPECT_9_16` | `V_2_TURBO` | Fast, vertical |
-| Logo / Icon | `DESIGN` | `ASPECT_1_1` | `V_2` | Clean typography |
-| Product mockup | `REALISTIC` | `ASPECT_4_3` | `V_2` | Studio quality |
-| Anime illustration | `ANIME` | `ASPECT_3_4` | `V_2` | Japanese art style |
-| 3D render | `RENDER_3D` | `ASPECT_16_9` | `V_2` | 3D scene |
-| Wide banner | `DESIGN` | `ASPECT_3_1` | `V_2` | Website header |
+## Tool Discipline
 
-### Step 2: Generate Image (Legacy Endpoint)
+Use Read, Glob, and Grep to inspect product requirements, adapters, and fixtures. Use Write and Edit for approved implementation or documentation changes. Do not perform live generation, upload customer content, or alter production traffic by invocation alone.
 
-```typescript
-import { writeFileSync, mkdirSync } from "fs";
+## Approval Boundaries
 
-async function generateImage(prompt: string, options: {
-  model?: string;
-  style_type?: string;
-  aspect_ratio?: string;
-  negative_prompt?: string;
-  seed?: number;
-} = {}) {
-  const response = await fetch("https://api.ideogram.ai/generate", {
-    method: "POST",
-    headers: {
-      "Api-Key": process.env.IDEOGRAM_API_KEY!,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      image_request: {
-        prompt,
-        model: options.model ?? "V_2",
-        style_type: options.style_type ?? "DESIGN",
-        aspect_ratio: options.aspect_ratio ?? "ASPECT_1_1",
-        magic_prompt_option: "AUTO",
-        negative_prompt: options.negative_prompt,
-        seed: options.seed,
-        num_images: 1,
-      },
-    }),
-  });
-
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Generation failed (${response.status}): ${err}`);
-  }
-
-  const result = await response.json();
-  const image = result.data[0];
-
-  // Download immediately -- URLs expire after ~1 hour
-  const imgResp = await fetch(image.url);
-  const buffer = Buffer.from(await imgResp.arrayBuffer());
-  mkdirSync("./output", { recursive: true });
-  const filename = `ideogram-${image.seed}.png`;
-  writeFileSync(`./output/${filename}`, buffer);
-
-  return { ...image, localPath: `./output/${filename}` };
-}
-```
-
-### Step 3: Generate with V3 Endpoint (Multipart)
-
-```typescript
-async function generateV3(prompt: string, options: {
-  aspect_ratio?: string;
-  style_type?: string;
-  rendering_speed?: string;
-  negative_prompt?: string;
-  magic_prompt?: string;
-  style_preset?: string;
-} = {}) {
-  const form = new FormData();
-  form.append("prompt", prompt);
-  form.append("aspect_ratio", options.aspect_ratio ?? "1x1");
-  form.append("style_type", options.style_type ?? "DESIGN");
-  form.append("rendering_speed", options.rendering_speed ?? "DEFAULT");
-  form.append("magic_prompt", options.magic_prompt ?? "AUTO");
-  if (options.negative_prompt) form.append("negative_prompt", options.negative_prompt);
-  if (options.style_preset) form.append("style_preset", options.style_preset);
-
-  const response = await fetch("https://api.ideogram.ai/v1/ideogram-v3/generate", {
-    method: "POST",
-    headers: { "Api-Key": process.env.IDEOGRAM_API_KEY! },
-    body: form,
-  });
-
-  if (!response.ok) throw new Error(`V3 generation failed: ${response.status}`);
-  return response.json();
-}
-```
-
-### Step 4: Text-in-Image Best Practices
-
-```typescript
-// Ideogram renders quoted text literally inside the image
-const textPrompts = [
-  // Enclose desired text in quotes within the prompt
-  'A coffee shop chalkboard menu with text "DAILY SPECIALS" and "Latte $4.50"',
-  'A retro neon sign glowing with the words "OPEN 24 HOURS"',
-  'Professional business card design with "Jane Smith" and "CEO" text',
-  'Birthday card with elegant gold script "Happy Birthday!"',
-];
-
-// Use DESIGN style for best text accuracy
-for (const prompt of textPrompts) {
-  const result = await generateImage(prompt, {
-    style_type: "DESIGN",
-    negative_prompt: "blurry text, misspelled, distorted letters",
-  });
-  console.log(`Generated: ${result.localPath} (seed: ${result.seed})`);
-}
-```
-
-### Step 5: Batch Generation with Seed Consistency
-
-```typescript
-// Use the same seed to reproduce or create consistent variations
-async function generateVariations(basePrompt: string, seed: number) {
-  const variations = [
-    { suffix: ", minimalist style", style: "DESIGN" },
-    { suffix: ", photorealistic", style: "REALISTIC" },
-    { suffix: ", anime style", style: "ANIME" },
-  ];
-
-  const results = [];
-  for (const v of variations) {
-    const result = await generateImage(`${basePrompt}${v.suffix}`, {
-      style_type: v.style,
-      seed,
-    });
-    results.push(result);
-    await new Promise(r => setTimeout(r, 3000)); // Rate limit courtesy
-  }
-  return results;
-}
-```
-
-## V3 Style Presets (50+)
-
-`80S_ILLUSTRATION`, `90S_NOSTALGIA`, `ART_DECO`, `ART_POSTER`, `BAUHAUS`, `BLUEPRINT`, `BRIGHT_ART`, `CHILDRENS_BOOK`, `COLLAGE`, `CUBISM`, `DOUBLE_EXPOSURE`, `DRAMATIC_CINEMA`, `EDITORIAL`, `FLAT_ART`, `FLAT_VECTOR`, `GOLDEN_HOUR`, `GRAFFITI_I`, `HALFTONE_PRINT`, `JAPANDI_FUSION`, `LONG_EXPOSURE`, `MAGAZINE_EDITORIAL`, `MIXED_MEDIA`, `MONOCHROME`, `OIL_PAINTING`, `POP_ART`, `RETRO_ETCHING`, `SURREAL_COLLAGE`, `TRAVEL_POSTER`, `VINTAGE_POSTER`, `WATERCOLOR`, and more.
-
-## V3 Rendering Speeds
-
-| Speed | Quality | Cost | Use Case |
-|-------|---------|------|----------|
-| `FLASH` | Lowest | Cheapest | Quick previews |
-| `TURBO` | Good | Low | Drafts, iteration |
-| `DEFAULT` | High | Standard | Production assets |
-| `QUALITY` | Highest | Premium | Final deliverables |
+Require approval for paid calls, sensitive prompts or images, external publication, model or rendering changes, copyright-detection policy changes, and production rollout. A route migration needs a canary and reversible traffic control.
 
 ## Error Handling
 
-| Error | HTTP Status | Cause | Solution |
-|-------|-------------|-------|----------|
-| Content filtered | 422 | Prompt failed safety check | Remove brand names, trademarks, or flagged terms |
-| Bad aspect ratio | 400 | Invalid enum value | Use exact enum values (e.g., `ASPECT_16_9` not `16:9`) |
-| Rate limited | 429 | 10+ in-flight requests | Queue with 3s delays between calls |
-| Expired URL | -- | Downloaded too late | Fetch image within minutes of generation |
+- Reject V4 `FLASH` until endpoint documentation states support.
+- Treat `400`, `401`, `422`, and `429` by class; do not retry validation or authentication failures.
+- Treat `is_image_safe=false` and an empty URL as a completed policy outcome, not transport failure.
 
 ## Output
 
-- Generated image files downloaded to `./output/`
-- Metadata: URL, seed, resolution, style type, safety status
-- Seed values logged for reproducibility
+Return selected route, sync or async mode, prompt form, bounds, status counts, safe and unsafe counts, opaque generation IDs, persistence result, latency, spend owner, and rollback state. Exclude credentials, prompts, images, and temporary URLs.
 
 ## Examples
 
-Run a fictional prompt fixture and record `fixture=image-basic-v2; rights=test-owned; destination=sandbox-gallery; policy=pass; output_retention=none; cleanup=complete` rather than retaining prompt or image data.
+- Route an interactive opaque-image request to V4 sync and a batch campaign to V4 async.
+- Route a background-free catalog asset to the transparent endpoint only after storage and moderation are ready.
+
+## Validation
+
+Compare route and multipart fields with current first-party docs, run fixture coverage for every terminal outcome, verify URL persistence and removal, and confirm concurrency plus deadline limits. Test the traffic rollback before enabling the canary.
 
 ## Resources
 
-- [Legacy Generate API](https://developer.ideogram.ai/api-reference/api-reference/generate)
-- [V3 Generate API](https://developer.ideogram.ai/api-reference/api-reference/generate-v3)
-- [Style Guide](https://docs.ideogram.ai/using-ideogram/generation-settings/style)
-- [Aspect Ratios](https://docs.ideogram.ai/using-ideogram/generation-settings/aspect-ratio-and-dimensions)
-
-## Next Steps
-
-For editing and remixing, see `ideogram-core-workflow-b`.
+- [Current first-party evidence map](references/official-docs.md)
