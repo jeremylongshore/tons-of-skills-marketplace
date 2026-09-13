@@ -1205,6 +1205,28 @@ sources:
       - '*.log'
 
   # ============================================================
+  # OrcaReplay (Continuum AI)
+  # https://github.com/Continuum-AI-Corp/OrcaReplay
+  # ============================================================
+
+  - name: orca-replay
+    description: Answer questions about a past agent run from its recording instead of from memory - which step changed a file, why a command ran, where the build broke - and replay or fork that run offline. Requires the orcareplay npm package with its MCP server registered as orca, and at least one recorded run.
+    repo: Continuum-AI-Corp/OrcaReplay
+    source_path: skills/orca-replay
+    target_path: plugins/code-quality/orca-replay
+    author:
+      name: Continuum AI
+      github: Continuum-AI-Corp
+    license: Apache-2.0
+    category: code-quality
+    verified: false
+    include:
+      - '/SKILL.md'
+    exclude:
+      - 'node_modules/**'
+      - '.git/**'
+
+  # ============================================================
   # UIZZE (Samuel Bushi)
   # https://github.com/uizze/uizze
   # Submission: #1104
