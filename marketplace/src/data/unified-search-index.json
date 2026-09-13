@@ -638,6 +638,7 @@
       "configuration",
       "connection-pool",
       "consistency",
+      "construction",
       "consulting",
       "consumer-driven",
       "contabo",
@@ -748,6 +749,7 @@
       "discovery",
       "distribution",
       "dlt",
+      "dmsa",
       "docker",
       "docker-compose",
       "docs",
@@ -13114,13 +13116,14 @@
       "slug": "procore-pack",
       "name": "procore-pack",
       "displayName": "procore pack",
-      "description": "Claude Code skill pack for Procore (24 skills)",
+      "description": "24 governed Procore operator workflows for OAuth, REST, webhooks, files, permissions, health, and synchronization",
       "category": "saas-packs",
       "keywords": [
         "procore",
-        "saas",
-        "sdk",
-        "integration"
+        "construction",
+        "dmsa",
+        "webhooks",
+        "operations"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -13128,15 +13131,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.5.0",
+      "version": "2.0.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 86,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "procore pack claude code skill pack for procore (24 skills) saas-packs procore saas sdk integration"
+      "verificationScore": 94,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "procore pack 24 governed procore operator workflows for oauth, rest, webhooks, files, permissions, health, and synchronization saas-packs procore construction dmsa webhooks operations"
     },
     {
       "type": "plugin",
@@ -64284,576 +64287,504 @@
       "id": "procore-ci-integration",
       "slug": "procore-ci-integration",
       "name": "procore-ci-integration",
-      "description": "Procore ci integration — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore ci integration\", \"procore-ci-integration\".",
+      "description": "Gate Procore adapters in CI with offline contract fixtures, host and secret guards, pagination tests, retry safety, and optional bounded sandbox checks. Use when adding endpoints or preventing integration regressions. Trigger with: \"test Procore in CI\", \"add Procore contract tests\", \"gate a Procore adapter\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-ci-integration procore ci integration — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore ci integration\", \"procore-ci-integration\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-ci-integration gate procore adapters in ci with offline contract fixtures, host and secret guards, pagination tests, retry safety, and optional bounded sandbox checks. use when adding endpoints or preventing integration regressions. trigger with: \"test procore in ci\", \"add procore contract tests\", \"gate a procore adapter\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-common-errors",
       "slug": "procore-common-errors",
       "name": "procore-common-errors",
-      "description": "Procore common errors — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore common errors\", \"procore-common-errors\".",
+      "description": "Triage Procore OAuth, routing, permission, validation, pagination, throttling, and webhook failures without widening access or retrying blindly. Use when a Procore integration returns 4xx or 5xx responses, empty data, or missing deliveries. Trigger with: \"debug Procore 403\", \"fix Procore API errors\", \"why is Procore returning 404\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-common-errors procore common errors — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore common errors\", \"procore-common-errors\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-common-errors triage procore oauth, routing, permission, validation, pagination, throttling, and webhook failures without widening access or retrying blindly. use when a procore integration returns 4xx or 5xx responses, empty data, or missing deliveries. trigger with: \"debug procore 403\", \"fix procore api errors\", \"why is procore returning 404\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-core-workflow-a",
       "slug": "procore-core-workflow-a",
       "name": "procore-core-workflow-a",
-      "description": "Procore core workflow a — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore core workflow a\", \"procore-core-workflow-a\".",
+      "description": "Implement a governed Procore RFI lifecycle from read-only discovery through an approved create or update. Use when integrating RFI intake, assignment, response tracking, attachments, or closure without guessing workflow transitions. Trigger with: \"automate Procore RFIs\", \"create a Procore RFI\", \"sync RFI status\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-core-workflow-a procore core workflow a — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore core workflow a\", \"procore-core-workflow-a\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-core-workflow-a implement a governed procore rfi lifecycle from read-only discovery through an approved create or update. use when integrating rfi intake, assignment, response tracking, attachments, or closure without guessing workflow transitions. trigger with: \"automate procore rfis\", \"create a procore rfi\", \"sync rfi status\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-core-workflow-b",
       "slug": "procore-core-workflow-b",
       "name": "procore-core-workflow-b",
-      "description": "Procore core workflow b — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore core workflow b\", \"procore-core-workflow-b\".",
+      "description": "Implement a Procore submittal workflow with version-aware discovery, required-field validation, workflow-state reconciliation, and controlled notifications. Use when listing, creating, routing, or reading submittals and their workflow data. Trigger with: \"automate Procore submittals\", \"create a Procore submittal\", \"inspect submittal workflow\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-core-workflow-b procore core workflow b — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore core workflow b\", \"procore-core-workflow-b\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-core-workflow-b implement a procore submittal workflow with version-aware discovery, required-field validation, workflow-state reconciliation, and controlled notifications. use when listing, creating, routing, or reading submittals and their workflow data. trigger with: \"automate procore submittals\", \"create a procore submittal\", \"inspect submittal workflow\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-cost-tuning",
       "slug": "procore-cost-tuning",
       "name": "procore-cost-tuning",
-      "description": "Procore cost tuning — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore cost tuning\", \"procore-cost-tuning\".",
+      "description": "Recover Procore API capacity by eliminating failed calls, redundant polling, repeated lookups, and unused payloads. Use when request volume, infrastructure spend, or backlog growth is high; this workflow does not invent provider pricing. Trigger with: \"reduce Procore API calls\", \"cut Procore sync cost\", \"stop Procore polling\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-cost-tuning procore cost tuning — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore cost tuning\", \"procore-cost-tuning\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-cost-tuning recover procore api capacity by eliminating failed calls, redundant polling, repeated lookups, and unused payloads. use when request volume, infrastructure spend, or backlog growth is high; this workflow does not invent provider pricing. trigger with: \"reduce procore api calls\", \"cut procore sync cost\", \"stop procore polling\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-data-handling",
       "slug": "procore-data-handling",
       "name": "procore-data-handling",
-      "description": "Procore data handling — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore data handling\", \"procore-data-handling\".",
+      "description": "Transfer Procore documents, images, and attachments through the documented upload and secure-download contracts with checksums, bounded retention, and resource association. Use when importing, exporting, or migrating construction files. Trigger with: \"upload a file to Procore\", \"download Procore documents securely\", \"migrate Procore attachments\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-data-handling procore data handling — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore data handling\", \"procore-data-handling\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-data-handling transfer procore documents, images, and attachments through the documented upload and secure-download contracts with checksums, bounded retention, and resource association. use when importing, exporting, or migrating construction files. trigger with: \"upload a file to procore\", \"download procore documents securely\", \"migrate procore attachments\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-debug-bundle",
       "slug": "procore-debug-bundle",
       "name": "procore-debug-bundle",
-      "description": "Procore debug bundle — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore debug bundle\", \"procore-debug-bundle\".",
+      "description": "Produce a minimal redacted Procore diagnostic manifest for escalation without collecting credentials, customer payloads, or attachment contents. Use when an API failure needs handoff to engineering or Procore support. Trigger with: \"build a Procore debug bundle\", \"prepare Procore support evidence\", \"redact Procore diagnostics\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-debug-bundle procore debug bundle — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore debug bundle\", \"procore-debug-bundle\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-debug-bundle produce a minimal redacted procore diagnostic manifest for escalation without collecting credentials, customer payloads, or attachment contents. use when an api failure needs handoff to engineering or procore support. trigger with: \"build a procore debug bundle\", \"prepare procore support evidence\", \"redact procore diagnostics\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-deploy-integration",
       "slug": "procore-deploy-integration",
       "name": "procore-deploy-integration",
-      "description": "Procore deploy integration — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore deploy integration\", \"procore-deploy-integration\".",
+      "description": "Promote a Procore app version through sandbox verification, permission-diff review, semantic versioning, release notes, production promotion, and post-deploy proof. Use when shipping a connector or embedded app change. Trigger with: \"deploy a Procore integration\", \"promote a Procore app version\", \"release Procore manifest\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-deploy-integration procore deploy integration — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore deploy integration\", \"procore-deploy-integration\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-deploy-integration promote a procore app version through sandbox verification, permission-diff review, semantic versioning, release notes, production promotion, and post-deploy proof. use when shipping a connector or embedded app change. trigger with: \"deploy a procore integration\", \"promote a procore app version\", \"release procore manifest\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-enterprise-rbac",
       "slug": "procore-enterprise-rbac",
       "name": "procore-enterprise-rbac",
-      "description": "Procore enterprise rbac — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore enterprise rbac\", \"procore-enterprise-rbac\".",
+      "description": "Govern Procore DMSA and user access through endpoint-to-tool permission mapping, permitted projects, installation review, and negative tests. Use when designing least privilege, investigating 403 or hidden 404 responses, or upgrading an app manifest. Trigger with: \"audit Procore permissions\", \"scope a Procore DMSA\", \"review Procore project access\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-enterprise-rbac procore enterprise rbac — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore enterprise rbac\", \"procore-enterprise-rbac\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-enterprise-rbac govern procore dmsa and user access through endpoint-to-tool permission mapping, permitted projects, installation review, and negative tests. use when designing least privilege, investigating 403 or hidden 404 responses, or upgrading an app manifest. trigger with: \"audit procore permissions\", \"scope a procore dmsa\", \"review procore project access\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-hello-world",
       "slug": "procore-hello-world",
       "name": "procore-hello-world",
-      "description": "Procore hello world — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore hello world\", \"procore-hello-world\".",
+      "description": "Prove a Procore connection with a read-only, company-routed smoke test before enabling mutations. Use when verifying a new token, app installation, DMSA project scope, environment, or deployment. Trigger with: \"test my Procore connection\", \"run a Procore smoke test\", \"verify Procore access\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-hello-world procore hello world — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore hello world\", \"procore-hello-world\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-hello-world prove a procore connection with a read-only, company-routed smoke test before enabling mutations. use when verifying a new token, app installation, dmsa project scope, environment, or deployment. trigger with: \"test my procore connection\", \"run a procore smoke test\", \"verify procore access\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-incident-runbook",
       "slug": "procore-incident-runbook",
       "name": "procore-incident-runbook",
-      "description": "Procore incident runbook — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore incident runbook\", \"procore-incident-runbook\".",
+      "description": "Analyze, triage, and recover a Procore integration incident across provider health, OAuth, company routing, permissions, rate limits, webhooks, files, and synchronization gaps. Use when service objectives or data parity are breached. Trigger with: \"run Procore incident response\", \"Procore sync is down\", \"recover missing Procore updates\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-incident-runbook procore incident runbook — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore incident runbook\", \"procore-incident-runbook\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-incident-runbook analyze, triage, and recover a procore integration incident across provider health, oauth, company routing, permissions, rate limits, webhooks, files, and synchronization gaps. use when service objectives or data parity are breached. trigger with: \"run procore incident response\", \"procore sync is down\", \"recover missing procore updates\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-install-auth",
       "slug": "procore-install-auth",
       "name": "procore-install-auth",
-      "description": "Procore install auth — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore install auth\", \"procore-install-auth\".",
+      "description": "Choose and implement the correct Procore OAuth 2.0 boundary for a user-facing app or headless data connector. Use when registering credentials, selecting Authorization Code versus DMSA Client Credentials, caching tokens, or planning revocation. Trigger with: \"set up Procore auth\", \"choose Procore OAuth flow\", \"configure a Procore DMSA\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-install-auth procore install auth — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore install auth\", \"procore-install-auth\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-install-auth choose and implement the correct procore oauth 2.0 boundary for a user-facing app or headless data connector. use when registering credentials, selecting authorization code versus dmsa client credentials, caching tokens, or planning revocation. trigger with: \"set up procore auth\", \"choose procore oauth flow\", \"configure a procore dmsa\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-local-dev-loop",
       "slug": "procore-local-dev-loop",
       "name": "procore-local-dev-loop",
-      "description": "Procore local dev loop — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore local dev loop\", \"procore-local-dev-loop\".",
+      "description": "Build a deterministic Procore integration loop with fixtures, a Developer Sandbox, and explicit mutation cleanup. Use when developing endpoint adapters, reproducing provider failures, or testing pagination and retry logic locally. Trigger with: \"set up Procore local development\", \"test Procore with fixtures\", \"reproduce a Procore API bug\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-local-dev-loop procore local dev loop — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore local dev loop\", \"procore-local-dev-loop\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-local-dev-loop build a deterministic procore integration loop with fixtures, a developer sandbox, and explicit mutation cleanup. use when developing endpoint adapters, reproducing provider failures, or testing pagination and retry logic locally. trigger with: \"set up procore local development\", \"test procore with fixtures\", \"reproduce a procore api bug\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-migration-deep-dive",
       "slug": "procore-migration-deep-dive",
       "name": "procore-migration-deep-dive",
-      "description": "Procore migration deep dive — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore migration deep dive\", \"procore-migration-deep-dive\".",
+      "description": "Plan and execute a resumable Procore data migration with dependency ordering, stable origin identifiers, sync actions where supported, file transfer, checkpoints, reconciliation, and rollback. Use when importing or exporting construction records at scale. Trigger with: \"migrate data to Procore\", \"build a Procore backfill\", \"reconcile a Procore migration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-migration-deep-dive procore migration deep dive — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore migration deep dive\", \"procore-migration-deep-dive\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-migration-deep-dive plan and execute a resumable procore data migration with dependency ordering, stable origin identifiers, sync actions where supported, file transfer, checkpoints, reconciliation, and rollback. use when importing or exporting construction records at scale. trigger with: \"migrate data to procore\", \"build a procore backfill\", \"reconcile a procore migration\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-multi-env-setup",
       "slug": "procore-multi-env-setup",
       "name": "procore-multi-env-setup",
-      "description": "Procore multi env setup — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore multi env setup\", \"procore-multi-env-setup\".",
+      "description": "Configure Procore Developer, On-Demand, Monthly, and production environments without mixing app keys, OAuth credentials, hosts, company IDs, or reset assumptions. Use when building an environment matrix or onboarding customer testing. Trigger with: \"configure Procore environments\", \"set up Procore sandbox\", \"fix Procore sandbox credentials\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-multi-env-setup procore multi env setup — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore multi env setup\", \"procore-multi-env-setup\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-multi-env-setup configure procore developer, on-demand, monthly, and production environments without mixing app keys, oauth credentials, hosts, company ids, or reset assumptions. use when building an environment matrix or onboarding customer testing. trigger with: \"configure procore environments\", \"set up procore sandbox\", \"fix procore sandbox credentials\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-observability",
       "slug": "procore-observability",
       "name": "procore-observability",
-      "description": "Procore observability — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore observability\", \"procore-observability\".",
+      "description": "Monitor Procore Integration Health, API activity, rate budget, webhook deliveries, and synchronization freshness with route-level ownership. Use when defining dashboards, alerts, service objectives, or a regular health-review cadence. Trigger with: \"monitor Procore integration\", \"review Procore API activity\", \"alert on Procore health\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-observability procore observability — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore observability\", \"procore-observability\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-observability monitor procore integration health, api activity, rate budget, webhook deliveries, and synchronization freshness with route-level ownership. use when defining dashboards, alerts, service objectives, or a regular health-review cadence. trigger with: \"monitor procore integration\", \"review procore api activity\", \"alert on procore health\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-performance-tuning",
       "slug": "procore-performance-tuning",
       "name": "procore-performance-tuning",
-      "description": "Procore performance tuning — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore performance tuning\", \"procore-performance-tuning\".",
+      "description": "Reduce Procore synchronization latency through measured call sequencing, endpoint-specific pagination, caching, batching, and bounded concurrency. Use when a connector is slow, request-heavy, or accumulating lag. Trigger with: \"speed up Procore sync\", \"optimize Procore pagination\", \"reduce Procore integration latency\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-performance-tuning procore performance tuning — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore performance tuning\", \"procore-performance-tuning\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-performance-tuning reduce procore synchronization latency through measured call sequencing, endpoint-specific pagination, caching, batching, and bounded concurrency. use when a connector is slow, request-heavy, or accumulating lag. trigger with: \"speed up procore sync\", \"optimize procore pagination\", \"reduce procore integration latency\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-prod-checklist",
       "slug": "procore-prod-checklist",
       "name": "procore-prod-checklist",
-      "description": "Procore prod checklist — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore prod checklist\", \"procore-prod-checklist\".",
+      "description": "Gate a Procore integration for production with evidence for security, permissions, lifecycle, support, sandbox testing, health, rate handling, webhooks, and rollback. Use when preparing for customer launch or Marketplace submission. Trigger with: \"review Procore production readiness\", \"check Procore launch\", \"prepare Procore Marketplace approval\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-prod-checklist procore prod checklist — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore prod checklist\", \"procore-prod-checklist\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-prod-checklist gate a procore integration for production with evidence for security, permissions, lifecycle, support, sandbox testing, health, rate handling, webhooks, and rollback. use when preparing for customer launch or marketplace submission. trigger with: \"review procore production readiness\", \"check procore launch\", \"prepare procore marketplace approval\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-rate-limits",
       "slug": "procore-rate-limits",
       "name": "procore-rate-limits",
-      "description": "Procore rate limits — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore rate limits\", \"procore-rate-limits\".",
+      "description": "Implement adaptive Procore throttling from response headers across spike, hourly, and heavy-load conditions. Use when handling 429 or 503 responses, sizing concurrency, or protecting webhook backlogs. Trigger with: \"handle Procore rate limits\", \"fix Procore 429\", \"throttle Procore workers\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-rate-limits procore rate limits — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore rate limits\", \"procore-rate-limits\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-rate-limits implement adaptive procore throttling from response headers across spike, hourly, and heavy-load conditions. use when handling 429 or 503 responses, sizing concurrency, or protecting webhook backlogs. trigger with: \"handle procore rate limits\", \"fix procore 429\", \"throttle procore workers\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-reference-architecture",
       "slug": "procore-reference-architecture",
       "name": "procore-reference-architecture",
-      "description": "Procore reference architecture — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore reference architecture\", \"procore-reference-architecture\".",
+      "description": "Design a governed Procore data connector with explicit tenant routing, durable work queues, endpoint adapters, webhook hydration, reconciliation, and audit receipts. Use when choosing integration boundaries or reviewing a production architecture. Trigger with: \"design a Procore connector\", \"review Procore architecture\", \"plan Procore data synchronization\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-reference-architecture procore reference architecture — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore reference architecture\", \"procore-reference-architecture\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-reference-architecture design a governed procore data connector with explicit tenant routing, durable work queues, endpoint adapters, webhook hydration, reconciliation, and audit receipts. use when choosing integration boundaries or reviewing a production architecture. trigger with: \"design a procore connector\", \"review procore architecture\", \"plan procore data synchronization\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-sdk-patterns",
       "slug": "procore-sdk-patterns",
       "name": "procore-sdk-patterns",
-      "description": "Procore sdk patterns — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore sdk patterns\", \"procore-sdk-patterns\".",
+      "description": "Design a thin Procore REST client that preserves endpoint-specific versions, company routing, pagination links, errors, and rate headers. Use when building or reviewing a shared HTTP adapter instead of copying ad hoc requests. Trigger with: \"build a Procore client\", \"review Procore SDK patterns\", \"standardize Procore API calls\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-sdk-patterns procore sdk patterns — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore sdk patterns\", \"procore-sdk-patterns\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-sdk-patterns design a thin procore rest client that preserves endpoint-specific versions, company routing, pagination links, errors, and rate headers. use when building or reviewing a shared http adapter instead of copying ad hoc requests. trigger with: \"build a procore client\", \"review procore sdk patterns\", \"standardize procore api calls\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-security-basics",
       "slug": "procore-security-basics",
       "name": "procore-security-basics",
-      "description": "Procore security basics — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore security basics\", \"procore-security-basics\".",
+      "description": "Threat-model a Procore integration across OAuth credentials, company routing, DMSA permissions, webhooks, files, logs, and revocation. Use when reviewing a new app, hardening production, or responding to credential exposure. Trigger with: \"secure a Procore integration\", \"review Procore API security\", \"rotate Procore credentials\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-security-basics procore security basics — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore security basics\", \"procore-security-basics\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-security-basics threat-model a procore integration across oauth credentials, company routing, dmsa permissions, webhooks, files, logs, and revocation. use when reviewing a new app, hardening production, or responding to credential exposure. trigger with: \"secure a procore integration\", \"review procore api security\", \"rotate procore credentials\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-upgrade-migration",
       "slug": "procore-upgrade-migration",
       "name": "procore-upgrade-migration",
-      "description": "Procore upgrade migration — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore upgrade migration\", \"procore-upgrade-migration\".",
+      "description": "Migrate one Procore endpoint contract after a lifecycle, deprecation, version, or webhook payload change using observed traffic and dual-read evidence. Use when the changelog announces a replacement or Integration Health detects deprecated usage. Trigger with: \"upgrade a Procore API version\", \"remove deprecated Procore endpoint\", \"migrate Procore webhook payload\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-upgrade-migration procore upgrade migration — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore upgrade migration\", \"procore-upgrade-migration\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-upgrade-migration migrate one procore endpoint contract after a lifecycle, deprecation, version, or webhook payload change using observed traffic and dual-read evidence. use when the changelog announces a replacement or integration health detects deprecated usage. trigger with: \"upgrade a procore api version\", \"remove deprecated procore endpoint\", \"migrate procore webhook payload\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "procore-webhooks-events",
       "slug": "procore-webhooks-events",
       "name": "procore-webhooks-events",
-      "description": "Procore webhooks events — construction management platform integration. Use when working with Procore API for project management, RFIs, or submittals. Trigger with phrases like \"procore webhooks events\", \"procore-webhooks-events\".",
+      "description": "Operate Procore hooks, triggers, deliveries, deduplication, and reconciliation as a best-effort notification system. Use when creating webhook subscriptions, upgrading payload formats, or recovering delayed, duplicate, or discarded deliveries. Trigger with: \"set up Procore webhooks\", \"handle duplicate Procore events\", \"reconcile Procore webhook gaps\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.5.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "procore-pack",
         "category": "saas-packs"
       },
-      "searchText": "procore-webhooks-events procore webhooks events — construction management platform integration. use when working with procore api for project management, rfis, or submittals. trigger with phrases like \"procore webhooks events\", \"procore-webhooks-events\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(curl:*) grep "
+      "searchText": "procore-webhooks-events operate procore hooks, triggers, deliveries, deduplication, and reconciliation as a best-effort notification system. use when creating webhook subscriptions, upgrading payload formats, or recovering delayed, duplicate, or discarded deliveries. trigger with: \"set up procore webhooks\", \"handle duplicate procore events\", \"reconcile procore webhook gaps\". saas-packs read grep write edit "
     },
     {
       "type": "skill",

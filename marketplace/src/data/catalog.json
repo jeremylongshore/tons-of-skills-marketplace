@@ -10023,14 +10023,15 @@
       "slug": "procore-pack",
       "name": "procore-pack",
       "displayName": "procore pack",
-      "description": "Claude Code skill pack for Procore (24 skills)",
-      "version": "1.5.0",
+      "description": "24 governed Procore operator workflows for OAuth, REST, webhooks, files, permissions, health, and synchronization",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "procore",
-        "saas",
-        "sdk",
-        "integration"
+        "construction",
+        "dmsa",
+        "webhooks",
+        "operations"
       ],
       "hasSkills": true,
       "skillCount": 24,

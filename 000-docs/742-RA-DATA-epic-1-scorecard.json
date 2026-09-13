@@ -14,16 +14,16 @@
     "source": "scripts/validate-skills-schema.py --marketplace --skills-only --json",
     "status": "measured",
     "values": {
-      "a_error_total": 26,
-      "a_failing": 9,
-      "ab_error_total": 232,
-      "ab_failing": 82,
-      "b_failing": 73,
-      "error_files": 339,
-      "error_total": 2860,
+      "a_error_total": 25,
+      "a_failing": 8,
+      "ab_error_total": 208,
+      "ab_failing": 58,
+      "b_failing": 50,
+      "error_files": 315,
+      "error_total": 2836,
       "grade_distribution": {
-        "A": 2762,
-        "B": 438,
+        "A": 2785,
+        "B": 415,
         "C": 133,
         "D": 154,
         "F": 4
@@ -42,7 +42,7 @@
       "values": {
         "plugin_agent_files": 352,
         "raw_tracked_plugin_skill_files": 2991,
-        "tracked_files": 25662
+        "tracked_files": 25712
       }
     },
     "2": {
@@ -90,8 +90,8 @@
           "validator_reported_mixed_denominator_percent": 80.9
         },
         "marketplace_terminal": {
-          "error_total_all_validated_surfaces": 3097,
-          "fully_compliant_surfaces": 1944,
+          "error_total_all_validated_surfaces": 3073,
+          "fully_compliant_surfaces": 1968,
           "terminal_denominator": {
             "agents": 363,
             "commands": 370,
@@ -101,19 +101,19 @@
             "skills": 3491
           },
           "validated_plugin_manifests": 595,
-          "validator_reported_mixed_denominator_percent": 40.4
+          "validator_reported_mixed_denominator_percent": 40.9
         },
         "skill_rows": {
-          "a_error_total": 26,
-          "a_failing": 9,
-          "ab_error_total": 232,
-          "ab_failing": 82,
-          "b_failing": 73,
-          "error_files": 339,
-          "error_total": 2860,
+          "a_error_total": 25,
+          "a_failing": 8,
+          "ab_error_total": 208,
+          "ab_failing": 58,
+          "b_failing": 50,
+          "error_files": 315,
+          "error_total": 2836,
           "grade_distribution": {
-            "A": 2762,
-            "B": 438,
+            "A": 2785,
+            "B": 415,
             "C": 133,
             "D": 154,
             "F": 4
@@ -131,15 +131,15 @@
       "values": {
         "average_score": 91.5,
         "grade_distribution": {
-          "A": 2762,
-          "B": 438,
+          "A": 2785,
+          "B": 415,
           "C": 133,
           "D": 154,
           "F": 4
         },
         "grade_percentages": {
-          "A": 79.1,
-          "B": 12.5,
+          "A": 79.8,
+          "B": 11.9,
           "C": 3.8,
           "D": 4.4,
           "F": 0.1
@@ -154,12 +154,12 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "a_error_total": 26,
-        "a_failing": 9,
-        "ab_error_total": 232,
-        "ab_failing": 82,
-        "b_error_total": 206,
-        "b_failing": 73,
+        "a_error_total": 25,
+        "a_failing": 8,
+        "ab_error_total": 208,
+        "ab_failing": 58,
+        "b_error_total": 183,
+        "b_failing": 50,
         "certified_target": 0,
         "skill_summary_rows": 3491
       }
@@ -286,7 +286,7 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "distinct_values": 355,
+        "distinct_values": 379,
         "invalid_or_empty": 0,
         "target_free_text_values": 0,
         "values": [
@@ -391,7 +391,7 @@
             "value": "Cross-platform — talks WebDriver HTTP directly via Node's built-in node:https; no platform-specific binary dependency. Requires Node.js >= 18, a persistent local filesystem (the observe-decide-act loop passes state through local turn files), and ~/.kobiton/.credentials written by /automate:setup — scripts/appium.js reads that file directly and never calls the MCP getCredential tool, so it is required, not a fallback. An authenticated Kobiton MCP connection is additionally useful for device selection."
           },
           {
-            "count": 2351,
+            "count": 2327,
             "value": "Designed for Claude Code"
           },
           {
@@ -1376,6 +1376,18 @@
           },
           {
             "count": 1,
+            "value": "Requires Procore Developer Portal app ownership, an installable app version, and authorized sandbox and production administrators."
+          },
+          {
+            "count": 1,
+            "value": "Requires Procore company administrator access, the application manifest, and an approved endpoint inventory."
+          },
+          {
+            "count": 1,
+            "value": "Requires a CI runner, sanitized fixtures, and optional isolated Procore Developer Sandbox credentials for protected provider tests."
+          },
+          {
+            "count": 1,
             "value": "Requires a CI system with fork-secret isolation, sanitized fixtures, and optional protected environment credentials."
           },
           {
@@ -1385,6 +1397,22 @@
           {
             "count": 1,
             "value": "Requires a Flexport administrator, an approved secret store, and network access to api.flexport.com."
+          },
+          {
+            "count": 1,
+            "value": "Requires a Procore Developer account, an approved secret store, and network access to the selected Procore environment."
+          },
+          {
+            "count": 1,
+            "value": "Requires a Procore app and the administrator access applicable to the selected sandbox or production company."
+          },
+          {
+            "count": 1,
+            "value": "Requires a Procore project with Submittals enabled and an OAuth principal authorized for the chosen endpoint and workflow action."
+          },
+          {
+            "count": 1,
+            "value": "Requires a Procore project with the RFI tool enabled and an OAuth principal holding the endpoint-specific permissions."
           },
           {
             "count": 1,
@@ -1448,7 +1476,15 @@
           },
           {
             "count": 1,
+            "value": "Requires a public HTTPS receiver, durable queue, reconciliation store, and Webhooks API permissions for the intended Procore scope."
+          },
+          {
+            "count": 1,
             "value": "Requires a redacted response receipt with surface, operation, HTTP or JSON-RPC status, and correlation metadata."
+          },
+          {
+            "count": 1,
+            "value": "Requires a release candidate, Procore app version, sandbox evidence, operational owners, and production approval authority."
           },
           {
             "count": 1,
@@ -1460,7 +1496,27 @@
           },
           {
             "count": 1,
+            "value": "Requires a valid Procore OAuth Bearer token and read access to at least one permitted company or project."
+          },
+          {
+            "count": 1,
+            "value": "Requires access to Procore Developer Portal health data plus application metrics, logs, queue state, and deployment identifiers."
+          },
+          {
+            "count": 1,
+            "value": "Requires access to Procore response headers and a queue or scheduler capable of pausing and bounding concurrency."
+          },
+          {
+            "count": 1,
+            "value": "Requires access to application telemetry, Procore status and health evidence, deployment controls, and approved incident communications."
+          },
+          {
+            "count": 1,
             "value": "Requires access to current Flexport version documentation, account version context, contract tests, and a rollback owner."
+          },
+          {
+            "count": 1,
+            "value": "Requires access to sanitized integration logs and an approved encrypted destination for the final diagnostic manifest."
           },
           {
             "count": 1,
@@ -1469,6 +1525,10 @@
           {
             "count": 1,
             "value": "Requires accountable engineering, security, data, and business owners plus a tested rollback."
+          },
+          {
+            "count": 1,
+            "value": "Requires an HTTP client with access to documented Procore REST endpoints and a caller-supplied OAuth token provider."
           },
           {
             "count": 12,
@@ -1536,11 +1596,27 @@
           },
           {
             "count": 1,
+            "value": "Requires application architecture, data classification, permission inventory, and access to the Procore app configuration."
+          },
+          {
+            "count": 1,
             "value": "Requires approved Flexport capabilities, account context, and organizational security/data constraints."
           },
           {
             "count": 1,
             "value": "Requires approved Flexport credentials and access to a tenant with a non-sensitive testable shipment or empty-list response."
+          },
+          {
+            "count": 1,
+            "value": "Requires approved source and target access, a documented resource dependency graph, durable checkpoint storage, and a tested rollback plan."
+          },
+          {
+            "count": 1,
+            "value": "Requires approved source files, Procore resource permissions, encrypted temporary storage, and checksum-capable transfer tooling."
+          },
+          {
+            "count": 1,
+            "value": "Requires approved system boundaries, Procore app ownership, data classification, and durable queue and state storage."
           },
           {
             "count": 1,
@@ -1561,6 +1637,10 @@
           {
             "count": 24,
             "value": "Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change"
+          },
+          {
+            "count": 1,
+            "value": "Requires current Procore API reference and changelog access plus route-level production traffic evidence."
           },
           {
             "count": 24,
@@ -1604,6 +1684,10 @@
           },
           {
             "count": 1,
+            "value": "Requires local test tooling and, for provider tests, a Procore Developer Sandbox with sandbox OAuth credentials."
+          },
+          {
+            "count": 1,
             "value": "Requires locally pinned infrastructure tools; optional sandbox checks require an explicitly selected non-production kube context"
           },
           {
@@ -1636,7 +1720,19 @@
           },
           {
             "count": 1,
+            "value": "Requires route-level timing, call-count, pagination, rate-header, and backlog measurements for the target Procore workload."
+          },
+          {
+            "count": 1,
+            "value": "Requires sanitized request metadata, provider response details, and access to the relevant Procore app and endpoint documentation."
+          },
+          {
+            "count": 1,
             "value": "Requires source/target contracts, content rights, user-consent analysis, rollback authority, and a bounded migration cohort."
+          },
+          {
+            "count": 1,
+            "value": "Requires the Procore API Call Activity Report or equivalent route-level request counts plus infrastructure cost telemetry."
           },
           {
             "count": 1,
@@ -3132,7 +3228,7 @@
         "invalid_patterns": 0,
         "invisible_files": 5,
         "target_invisible_files": 0,
-        "tracked_files": 25662
+        "tracked_files": 25712
       }
     },
     "47": {
@@ -3217,15 +3313,15 @@
       "dimension": "Inventory header versus rows",
       "reproduce": "pnpm run measure:e1 --row=52 --stdout",
       "source": [
-        "freshie/reports/run-delta-126.json",
+        "freshie/reports/run-delta-127.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],
       "status": "target_met",
       "values": {
-        "dolt_commit": "lgliudip9rrg5is49rng6iohppcfmaqo",
+        "dolt_commit": "ccifml2jpnk66o7qda1qn4jkgkkkrspk",
         "header_total_skills": 2914,
-        "run_id": 126,
+        "run_id": 127,
         "skill_row_delta": 0,
         "skill_rows": 2914,
         "target_skill_row_delta": 0
@@ -3238,32 +3334,32 @@
       "source": [
         "freshie/grade-histogram.json",
         "freshie/grades.csv",
-        "freshie/reports/run-delta-126.json"
+        "freshie/reports/run-delta-127.json"
       ],
       "status": "target_met",
       "values": {
         "compliance_rows": 3491,
-        "export_dolt_commit": "lgliudip9rrg5is49rng6iohppcfmaqo",
-        "export_run_id": 126,
+        "export_dolt_commit": "ccifml2jpnk66o7qda1qn4jkgkkkrspk",
+        "export_run_id": 127,
         "grades_csv_rows": 3491,
-        "grades_csv_sha256": "660041dd340a5550a8f2cf7bea353d3cf1b2fe81938b4142e5c901018e31c7c1",
+        "grades_csv_sha256": "dfc2caf3c9817fc0026a048cc354bab7f57f0d9e19989c3922d59e993d201cef",
         "histogram_grades": {
-          "A": 2762,
-          "B": 438,
+          "A": 2785,
+          "B": 415,
           "C": 133,
           "D": 154,
           "F": 4
         },
         "histogram_total": 3491,
         "immutable_grade_counts": {
-          "A": 2762,
-          "B": 438,
+          "A": 2785,
+          "B": 415,
           "C": 133,
           "D": 154,
           "F": 4
         },
-        "inventory_dolt_commit": "lgliudip9rrg5is49rng6iohppcfmaqo",
-        "inventory_run_id": 126,
+        "inventory_dolt_commit": "ccifml2jpnk66o7qda1qn4jkgkkkrspk",
+        "inventory_run_id": 127,
         "target_lag_runs": 0
       }
     },
@@ -3273,7 +3369,7 @@
       "reproduce": "pnpm run measure:e1 --row=54 --stdout",
       "source": [
         "freshie/reports/legacy-forge-proofs-demotion.json",
-        "freshie/reports/run-delta-126.json",
+        "freshie/reports/run-delta-127.json",
         "freshie/reports/run-delta-19.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py",
@@ -3287,7 +3383,7 @@
           "E2": 0,
           "E3": 0
         },
-        "current_run_id": 126,
+        "current_run_id": 127,
         "invalid_identities": 0,
         "legacy_e0_records": 3,
         "retained_e2_e3": 0,
@@ -3311,7 +3407,7 @@
       "source": [
         "000-docs/807-DR-STND-evaluation-evidence.md",
         "freshie/reports/legacy-forge-proofs-demotion.json",
-        "freshie/reports/run-delta-126.json",
+        "freshie/reports/run-delta-127.json",
         "freshie/reports/run-delta-19.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
