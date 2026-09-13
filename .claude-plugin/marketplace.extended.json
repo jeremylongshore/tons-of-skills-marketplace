@@ -9692,14 +9692,15 @@
     {
       "name": "procore-pack",
       "source": "./plugins/saas-packs/procore-pack",
-      "description": "Claude Code skill pack for Procore (24 skills)",
-      "version": "1.5.0",
+      "description": "24 governed Procore operator workflows for OAuth, REST, webhooks, files, permissions, health, and synchronization",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "procore",
-        "saas",
-        "sdk",
-        "integration"
+        "construction",
+        "dmsa",
+        "webhooks",
+        "operations"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -9710,10 +9711,10 @@
         "skills": 24
       },
       "verification": {
-        "score": 86,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "score": 94,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-13T00:00:00.000Z"
       }
     },
     {

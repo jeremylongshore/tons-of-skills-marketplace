@@ -1,66 +1,76 @@
-# Procore Skill Pack
+# Procore Operator Pack
 
-> Claude Code skill pack for Procore — construction management, projects, RFIs, submittals, and project management API (24 skills)
+> 24 governed Claude Code workflows for Procore OAuth, DMSA permissions, REST resources, webhooks, files, integration health, and construction-data synchronization.
 
-## What This Covers
-
-Procore is a construction management platform. This pack covers the **Procore REST API** for managing projects, RFIs, submittals, daily logs, drawings, and construction workflows. Auth via OAuth2 (client credentials or authorization code).
-
-**Key APIs:** Companies, Projects, RFIs, Submittals, Documents, Daily Logs, Photos, Observations. Base URL: `https://api.procore.com/rest/v1.0/`. Auth: OAuth2 Bearer token.
-
-## Installation
+## Install
 
 ```bash
 /plugin install procore-pack@claude-code-plugins-plus
 ```
 
-## Skills Included
+The public npm package is `@intentsolutionsio/procore-pack`. Every public skill slug remains stable across the 2.0.0 quality release.
 
-### Standard Skills (S01-S12)
+## What changed in 2.0.0
 
-| Skill | Description |
-|-------|-------------|
-| `procore-install-auth` | OAuth2 setup (client credentials or authorization code flow) |
-| `procore-hello-world` | List companies, get project, create an RFI |
-| `procore-local-dev-loop` | Sandbox API testing, mock responses, pytest |
-| `procore-sdk-patterns` | Python SDK wrapper, pagination, error handling |
-| `procore-core-workflow-a` | RFI workflow: create, assign, respond, close |
-| `procore-core-workflow-b` | Submittal workflow: create, review, approve/reject |
-| `procore-common-errors` | Fix OAuth errors, 403/404, pagination issues |
-| `procore-debug-bundle` | Collect API logs, project state, error traces |
-| `procore-rate-limits` | Handle 429 errors with backoff |
-| `procore-security-basics` | OAuth credential management, scope control |
-| `procore-prod-checklist` | Production deployment checklist |
-| `procore-upgrade-migration` | API version migration (v1.0 to v1.1) |
+This release replaces the repeated tutorial lattice with distinct operator outcomes grounded in current first-party Procore documentation. It removes guessed fields, one-size-fits-all versions, fixed rate assumptions, unsafe bulk diagnostic archives, and fictional pack-wide version jumps.
 
-### Pro Skills (P13-P18)
+Key boundaries:
 
-| Skill | Description |
-|-------|-------------|
-| `procore-ci-integration` | CI pipeline with sandbox Procore API tests |
-| `procore-deploy-integration` | Deploy construction integration service |
-| `procore-webhooks-events` | Handle project, RFI, submittal change events |
-| `procore-performance-tuning` | Batch operations, efficient project queries |
-| `procore-cost-tuning` | Optimize API calls and data sync |
-| `procore-reference-architecture` | Construction integration architecture |
+- User-context apps use OAuth Authorization Code; unattended data connectors use Client Credentials through a permissioned Developer Managed Service Account.
+- Company routing, tool permissions, project membership, enabled tools, and DMSA permitted projects jointly determine access.
+- Developer, On-Demand, Monthly, and production environments have different key, credential, host, installation, and reset contracts.
+- API versions and page limits are endpoint-specific; clients preserve Link, rate, retry, and error metadata.
+- Webhooks are best-effort notifications. Durable queues, idempotency, hydration, and periodic REST reconciliation provide complete downstream state.
+- Direct uploads, secure downloads, and resource association are separate file contracts.
+- Local Grade A validation is not Procore certification, Marketplace approval, or behavioral verification.
 
-### Flagship Skills (F19-F24)
+## Skills
 
-| Skill | Description |
-|-------|-------------|
-| `procore-multi-env-setup` | Sandbox/production environment configuration |
-| `procore-observability` | Monitoring Procore API health and latency |
-| `procore-incident-runbook` | Triage Procore integration failures |
-| `procore-data-handling` | Construction document and photo management |
-| `procore-enterprise-rbac` | Project-level permissions and role management |
-| `procore-migration-deep-dive` | Migrate construction data to/from Procore |
+| Skill | Operator outcome |
+| --- | --- |
+| `procore-install-auth` | Choose user OAuth or DMSA auth, scope permissions, and govern token lifecycle |
+| `procore-hello-world` | Prove identity, company routing, project scope, and pagination read-only |
+| `procore-local-dev-loop` | Test fixtures and bounded Developer Sandbox mutations with cleanup |
+| `procore-sdk-patterns` | Preserve endpoint versions, routing, pagination, rate headers, and errors |
+| `procore-core-workflow-a` | Create and reconcile governed RFI lifecycle changes |
+| `procore-core-workflow-b` | Operate version-aware submittal and workflow-data contracts |
+| `procore-common-errors` | Classify identity, routing, permission, validation, rate, and provider failures |
+| `procore-debug-bundle` | Produce a minimal redacted escalation manifest |
+| `procore-rate-limits` | Pace workers from spike, hourly, reset, and Retry-After evidence |
+| `procore-security-basics` | Threat-model credentials, tenants, permissions, files, logs, and writes |
+| `procore-prod-checklist` | Gate launch with functional, reliability, security, and operations evidence |
+| `procore-upgrade-migration` | Cut over one documented endpoint or payload contract at a time |
+| `procore-ci-integration` | Run offline adapter gates plus optional protected sandbox checks |
+| `procore-deploy-integration` | Align app-version promotion with an immutable integration release |
+| `procore-webhooks-events` | Configure hooks and triggers, deduplicate, hydrate, and reconcile gaps |
+| `procore-performance-tuning` | Improve useful records per call without sacrificing completeness |
+| `procore-cost-tuning` | Recover API and infrastructure budget without invented provider pricing |
+| `procore-reference-architecture` | Design tenant-bound queues, adapters, hydration, reconciliation, and receipts |
+| `procore-multi-env-setup` | Isolate credentials, hosts, keys, company IDs, installs, and refresh behavior |
+| `procore-observability` | Join Integration Health and API activity with route and freshness telemetry |
+| `procore-incident-runbook` | Stabilize, classify, mitigate, reconcile, and settle integration incidents |
+| `procore-data-handling` | Govern uploads, associations, secure downloads, checksums, and retention |
+| `procore-enterprise-rbac` | Map endpoint operations to DMSA or user permissions and permitted projects |
+| `procore-migration-deep-dive` | Execute resumable, dependency-ordered, reconciled data migrations |
 
-## Key Documentation
+## Operating standard
 
-- [Procore Developers](https://developers.procore.com/)
-- [REST API Reference](https://developers.procore.com/reference/rest)
-- [OAuth2 Endpoints](https://developers.procore.com/documentation/oauth-endpoints)
-- Python SDK
+Every skill includes explicit triggers, prerequisites, authentication, bounded instructions, outputs, examples, failure handling, and dated first-party source notes. Provider-side mutations are never implied by installation, validation, or a successful read.
+
+Validate the pack from the repository root:
+
+```bash
+python3 scripts/validate-skills-schema.py --marketplace --fail-on-warn --min-grade A plugins/saas-packs/procore-pack
+python3 -m unittest tests.test_procore_pack_contract -v
+```
+
+## First-party documentation
+
+- [Procore developer documentation](https://developers.procore.com/documentation/)
+- [Procore REST API reference](https://developers.procore.com/reference/rest)
+- [Choose an authentication method](https://developers.procore.com/documentation/oauth-choose-grant-type)
+- [Procore sandboxes](https://developers.procore.com/documentation/development-environments)
+- [Integration Health](https://developers.procore.com/documentation/integration-health)
 
 ## License
 

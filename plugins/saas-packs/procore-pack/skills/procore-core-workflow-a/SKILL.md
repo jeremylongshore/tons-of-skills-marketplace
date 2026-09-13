@@ -1,109 +1,92 @@
 ---
 name: procore-core-workflow-a
-description: "Procore core workflow a \u2014 construction management platform integration.\n\
-  Use when working with Procore API for project management, RFIs, or submittals.\n\
-  Trigger with phrases like \"procore core workflow a\", \"procore-core-workflow-a\"\
-  .\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Bash(curl:*), Grep
-version: 1.5.0
+description: >-
+  Implement a governed Procore RFI lifecycle from read-only discovery through an approved create or update. Use when integrating RFI intake, assignment, response tracking, attachments, or closure without guessing workflow transitions. Trigger with: "automate Procore RFIs", "create a Procore RFI", "sync RFI status".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[rfi-operation-and-project]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- procore
-- construction
-- project-management
-compatibility: Designed for Claude Code
+  - saas
+  - procore
+  - rfi
+  - project-management
+compatibility: 'Requires a Procore project with the RFI tool enabled and an OAuth principal holding the endpoint-specific permissions.'
 ---
-# Procore Core Workflow A
+
+# Procore Governed RFI Lifecycle
 
 ## Overview
 
-Build a complete RFI workflow: create, assign, respond, track, and close RFIs using the Procore API.
+Treat an RFI as a permissioned construction record with project configuration and business transitions, not generic CRUD. Derive fields and allowed actions from the current RFI reference and target project before submitting a mutation.
 
 ## Prerequisites
 
-- Completed `procore-hello-world` with project access
+- Target company and project identifiers with the RFI tool enabled
+- OAuth principal permitted for the exact read or write operation
+- Current RFI endpoint reference, project field configuration, and approval owner
 
 ## Instructions
 
-### Step 1: Create RFI with Full Details
+### Step 1: Discover the project contract
 
-```python
-rfi_data = {
-    "rfi": {
-        "subject": "HVAC duct routing — Level 2 conflict",
-        "question_body": "The HVAC ducts conflict with structural beams at grid B-4. Need routing alternatives.",
-        "assignee_id": 11111,
-        "rfi_manager_id": 22222,
-        "due_date": "2026-04-15",
-        "priority": "high",
-        "cost_impact": "yes",
-        "schedule_impact": "yes",
-    }
-}
-rfi = requests.post(
-    f"{BASE}/projects/{project_id}/rfis",
-    headers={**headers, "Content-Type": "application/json"},
-    json=rfi_data,
-)
-rfi_id = rfi.json()["id"]
-```
+List or show a representative RFI to confirm response shape, configurable fields, status values, and project access. Follow Link-header pagination for inventory reads.
 
-### Step 2: Add Response to RFI
+### Step 2: Build the intent
 
-```python
-response = requests.post(
-    f"{BASE}/projects/{project_id}/rfis/{rfi_id}/responses",
-    headers={**headers, "Content-Type": "application/json"},
-    json={
-        "response": {
-            "body": "Route ducts below beam using 8-inch offset. See attached drawing.",
-        }
-    },
-)
-```
+Capture subject, question, RFI manager, assignees, due-date policy, attachments, and notification choice. Resolve every referenced user or resource inside the same project.
 
-### Step 3: Track RFI Status
+### Step 3: Validate without side effects
 
-```python
-rfi_detail = requests.get(f"{BASE}/projects/{project_id}/rfis/{rfi_id}", headers=headers)
-data = rfi_detail.json()
-print(f"RFI #{data['number']}: {data['status']['name']}")
-print(f"  Days open: {data.get('days_open', 0)}")
-print(f"  Responses: {len(data.get('responses', []))}")
-```
+Check required fields against the live endpoint reference and project configuration. Present a sanitized mutation preview and require an identified approver.
 
-### Step 4: Close RFI
+### Step 4: Execute once
 
-```python
-requests.patch(
-    f"{BASE}/projects/{project_id}/rfis/{rfi_id}",
-    headers={**headers, "Content-Type": "application/json"},
-    json={"rfi": {"status": "closed"}},
-)
-```
+Send the documented request only after approval. Record the response ID and status immediately; never infer success from a network timeout.
+
+### Step 5: Reconcile lifecycle
+
+Read the RFI after each material transition. Drive responses, distribution, acceptance, or closure only through documented endpoints and fields rather than invented status strings.
+
+### Step 6: Preserve audit evidence
+
+Store identifiers, before-and-after state hashes, actor, timestamp, and outcome without construction narrative or attachment contents.
+
+## Authentication
+
+RFI calls use an OAuth 2.0 Bearer token and the required company routing context. Effective access comes from the user or DMSA permissions, project membership, and whether the RFI tool is enabled.
+
+## Tool Discipline
+
+Use Read and Grep to inspect endpoint contracts, project configuration, and existing adapters. Use Write or Edit only for the approved adapter, test, mutation manifest, or redacted receipt; do not perform an unapproved RFI mutation.
 
 ## Output
 
-- RFI created with full metadata (priority, impacts, due date)
-- Responses added to RFI thread
-- Status tracked through lifecycle
-- RFI closed upon resolution
+- Validated RFI intent and permission evidence
+- Approved mutation plus read-after-write reconciliation
+- Sanitized lifecycle and rollback receipt
+
+Return the project, operation, RFI identifier, observed transition, approval reference, and unresolved dependencies.
+
+## Examples
+
+A field issue becomes an RFI only after the integration resolves the project RFI manager and validates required fields. The service previews the request, records approval, creates once, and reads the returned record before notifying downstream systems.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `422 Invalid assignee` | User not on project | Verify user is a project member |
-| `403 Cannot close` | Not RFI manager | Only RFI manager can close |
-| Missing responses | RFI in draft status | Distribute RFI first |
+| Failure | Response |
+| --- | --- |
+| Required user is invalid | Resolve membership in the target project; do not substitute another user. |
+| 403 or hidden 404 | Check app connection, RFI permissions, project membership, and tool enablement. |
+| 422 validation response | Surface the provider error and project field contract; do not strip fields blindly. |
+| Mutation outcome is unknown | Reconcile by returned ID or an approved correlation key before retrying. |
 
 ## Resources
 
-- [RFIs API](https://developers.procore.com/reference/rest/rfis)
-- [Procore Developers](https://developers.procore.com/)
-
-## Next Steps
-
-Submittal workflow: `procore-core-workflow-b`
+- [First-party source notes](references/official-docs.md)
+- [RFI API reference](https://developers.procore.com/reference/rest/rfis?version=latest)
+- [Error code reference](https://developers.procore.com/documentation/error-reference)
+- [File attachments and image uploads](https://developers.procore.com/documentation/tutorial-attachments)
