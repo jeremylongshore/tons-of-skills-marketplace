@@ -1,130 +1,99 @@
 ---
 name: runway-core-workflow-a
-description: "Runway core workflow a \u2014 AI video generation and creative AI platform.\n\
-  Use when working with Runway for video generation, image editing, or creative AI.\n\
-  Trigger with phrases like \"runway core workflow a\", \"runway-core-workflow-a\"\
-  , \"AI video generation\".\n"
-allowed-tools: Read, Write, Edit, Bash(pip:*), Bash(npm:*), Bash(curl:*), Grep
-version: 1.4.0
+description: >-
+  Design a Runway text-to-video job from the current model-discriminated API contract and preserve its asynchronous evidence. Use when implementing direct model generation. Trigger with: "Runway text to video", "choose Runway video model", "submit Runway generation".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[prompt-and-output-contract]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- runway
-- ai
-- video-generation
-- creative
-compatibility: Designed for Claude Code
+  - saas
+  - runway
+  - text-to-video
+  - models
+  - workflow
+compatibility: 'Requires server-side Runway Dev access, current first-party documentation, an approved credit budget, and controlled media storage.'
 ---
-# Runway Core Workflow A
+
+# Model-Grounded Text-to-Video Workflow
 
 ## Overview
 
-Advanced text-to-video generation: prompt engineering, model selection, parameter tuning, and batch generation.
+Treat model choice as an API-schema decision, not a marketing label. Runway request bodies are discriminated by `model`; valid ratios, durations, prompt limits, optional controls, price, and even required fields can differ between models.
 
 ## Prerequisites
 
-- Completed `runway-hello-world`
+- A product requirement covering quality, latency, duration, ratio, and budget
+- Current Runway models, API reference, and pricing pages
+- Durable task tracking and owned output storage
 
 ## Instructions
 
-### Step 1: Model Selection
+### Step 1: Define the output contract
 
-```python
-from runwayml import RunwayML
-client = RunwayML()
+Record modality, intended use, dimensions, duration, audio need, quality threshold, deadline, moderation policy, and maximum credits. Separate hard constraints from preferences.
 
-# Available models:
-# gen3a_turbo   — Fast, lower cost, good quality
-# gen4_turbo    — Latest model, highest quality
+### Step 2: Choose direct model or router
 
-task = client.image_to_video.create(
-    model='gen4_turbo',
-    prompt_text='A futuristic cityscape at night with flying cars and neon signs, cyberpunk aesthetic',
-    duration=10,
-    ratio='16:9',
-)
-result = task.wait_for_task_output()
-```
+Use a direct model when reproducibility requires a reviewed identifier. Use a saved Model Router when policy should optimize cost, latency, or quality within approved allow and deny lists; use its dry run before billable work.
 
-### Step 2: Prompt Engineering Tips
+### Step 3: Read the exact variant
 
-```python
-# Structure: Subject + Action + Setting + Style + Camera
-prompts = [
-    # Good: specific, visual, stylistic
-    "A red fox walking through a snowy forest, soft winter light, documentary style, tracking shot",
+Inspect the current `text_to_video` schema for the chosen model. For example, `gen4.5` currently supports text input, but this skill does not transplant its ratio or duration fields to another model.
 
-    # Good: detailed motion and camera
-    "Waves of golden wheat swaying in the wind, drone flyover, warm sunset, cinematic grain",
+### Step 4: Freeze and submit
 
-    # Bad: too abstract
-    # "Something beautiful happening" — too vague
-]
-```
+Persist the model or router config, normalized request, documentation fingerprint, and approval before create. Store the returned task ID immediately.
 
-### Step 3: Batch Generation
+### Step 5: Observe without duplication
 
-```python
-import asyncio
+Use the SDK wait helper or bounded polling. Treat `THROTTLED` as queued and distinguish queue time from execution time. Recover from client interruption by retrieving the saved task.
 
-prompts = [
-    "A butterfly emerging from a cocoon, macro lens, time-lapse, studio lighting",
-    "Rain falling on a Tokyo street at night, reflections, neon, dolly zoom",
-    "A chef preparing sushi in a traditional kitchen, close-up, warm lighting",
-]
+### Step 6: Validate and preserve
 
-tasks = []
-for prompt in prompts:
-    task = client.image_to_video.create(
-        model='gen3a_turbo',
-        prompt_text=prompt,
-        duration=5,
-    )
-    tasks.append(task)
-    print(f"Queued: {task.id}")
+On success, download output, verify media type, duration, dimensions, and checksum, then run the product quality review. On failure, apply the HTTP or task-failure policy rather than silently changing models.
 
-# Wait for all
-for task in tasks:
-    result = task.wait_for_task_output()
-    status = "OK" if result.status == "SUCCEEDED" else "FAILED"
-    print(f"  {task.id}: {status}")
-```
+## Authentication
 
-### Step 4: Output Format Options
+All model, router, task, and usage calls use the server-side Runway API secret. Direct HTTP also sends the reviewed `X-Runway-Version`; temporary output URLs remain confidential until copied to controlled storage.
 
-```python
-task = client.image_to_video.create(
-    model='gen3a_turbo',
-    prompt_text='Abstract paint mixing in slow motion, vibrant colors, black background',
-    duration=5,
-    ratio='9:16',      # Vertical for mobile/TikTok
-    # ratio='16:9',    # Landscape for YouTube
-    # ratio='1:1',     # Square for Instagram
-)
-```
+## Tool Discipline
+
+Use Read and Grep to inspect application configuration, provider documentation, lockfiles, fixtures, schemas, tests, and redacted operational evidence before proposing a change. Use Write or Edit only for an approved implementation, configuration, test, runbook, or redacted receipt. Do not create, cancel, delete, retry, deploy, rotate, revoke, publish, or otherwise mutate production Runway resources without explicit operator approval.
 
 ## Output
 
-- Videos generated with optimal model selection
-- Prompt engineering best practices applied
-- Batch generation for multiple videos
-- Output in various aspect ratios
+- Reviewed model-or-router decision with current schema and price evidence
+- Durable request fingerprint, task timeline, and terminal-state receipt
+- Owned output plus technical and product-quality results
+
+Return the environment, organization alias, operation and task identifiers, API and SDK versions, model or router policy, source-contract fingerprint, task-state evidence, credit boundary, output disposition, unresolved risk, rollback state, and final decision without exposing API secrets, prompt or media contents, or temporary signed URLs.
+
+## Examples
+
+A product requires portrait video under a fixed ceiling. The team reviews two eligible models, dry-runs an approved router, records the selected policy, submits one task, and accepts the asset only after terminal success and media validation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Low quality | Gen3a_turbo for complex scene | Use gen4_turbo for higher quality |
-| Content rejection | Policy violation | Remove violent/explicit content from prompt |
-| Slow generation | High queue | Use turbo model or try later |
-| Wrong aspect ratio | Not specified | Always set ratio explicitly |
+| Failure | Response |
+| --- | --- |
+| No model satisfies hard constraints | Return the incompatibility instead of inventing an identifier or unsupported field. |
+| Request receives `400` | Compare every field with the exact selected model variant; do not reuse another model's ratio or duration. |
+| Client disconnects after create | Resume from the stored task ID and never infer that no task was created. |
+
+## Validation
+
+Use contract tests for every approved model or router configuration, reject unknown identifiers and extra fields, simulate disconnect recovery, and verify technical plus human quality gates on a controlled canary.
 
 ## Resources
 
-- [Runway API Documentation](https://docs.dev.runwayml.com/)
-- [Input Parameters](https://docs.dev.runwayml.com/assets/inputs/)
-
-## Next Steps
-
-Image-to-video: `runway-core-workflow-b`
+- [First-party source notes](references/official-docs.md)
+- [Runway agent context](https://docs.dev.runwayml.com/ai-context.md)
+- [API reference](https://docs.dev.runwayml.com/api.md)
+- [Models](https://docs.dev.runwayml.com/guides/models.md)
+- [Usage tiers](https://docs.dev.runwayml.com/usage/tiers.md)
+- [Pricing](https://docs.dev.runwayml.com/guides/pricing.md)
+- [Production checklist](https://docs.dev.runwayml.com/guides/go-live.md)

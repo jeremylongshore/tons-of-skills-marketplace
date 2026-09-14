@@ -9810,14 +9810,17 @@
     {
       "name": "runway-pack",
       "source": "./plugins/saas-packs/runway-pack",
-      "description": "Claude Code skill pack for Runway (18 skills)",
-      "version": "1.4.0",
+      "description": "Operator-grade Runway Dev workflows for secure, model-aware, asynchronous media generation (18 skills)",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "runway",
         "saas",
         "sdk",
-        "integration"
+        "integration",
+        "video-generation",
+        "task-lifecycle",
+        "media-governance"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -9828,10 +9831,10 @@
         "skills": 18
       },
       "verification": {
-        "score": 86,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "score": 95,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-13T00:00:00.000Z"
       }
     },
     {
