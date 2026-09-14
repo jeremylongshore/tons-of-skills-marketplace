@@ -1267,6 +1267,34 @@ sources:
       - '**/node_modules/**'
       - '**/*.log'
 
+  # ============================================================
+  # DVERA (Suresoft Technologies)
+  # https://github.com/SuresoftTechnologies/dvera-plugin
+  # ============================================================
+
+  - name: dvera
+    description: Prepare and coordinate C/C++ verification with CT (Controller Tester) for mission-critical software - project setup, analysis, test generation and execution, MC-DC coverage review, GoogleTest reuse, and regression follow-up.
+    repo: SuresoftTechnologies/dvera-plugin
+    source_path: .
+    target_path: plugins/testing/dvera
+    author:
+      name: Suresoft Technologies
+      github: SuresoftTechnologies
+      email: bizcenter@suresofttech.com
+    license: MIT
+    category: testing
+    verified: false
+    include:
+      - 'skills/**'
+      - '.claude-plugin/**'
+      - 'README.md'
+      - 'LICENSE'
+    exclude:
+      - '.git/**'
+      - 'scripts/**'
+      - 'resources/**'
+      - '__pycache__/**'
+
 # Sync configuration
 config:
   # Branch to sync from (default: main)
