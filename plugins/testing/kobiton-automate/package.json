@@ -16,17 +16,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jeremylongshore/claude-code-plugins-plus-skills.git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/testing/kobiton-automate"
   },
   "homepage": "https://tonsofskills.com/plugins/kobiton-automate",
-  "bugs": "https://github.com/jeremylongshore/claude-code-plugins-plus-skills/issues",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
   "license": "MIT",
   "author": {
     "name": "Kobiton Inc."
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "files": [
     "README.md",

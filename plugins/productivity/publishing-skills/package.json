@@ -16,18 +16,15 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jeremylongshore/claude-code-plugins-plus-skills.git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/productivity/publishing-skills"
   },
   "homepage": "https://automatelab.tech/products/skills-and-plugins/publishing-skills/",
-  "bugs": "https://github.com/jeremylongshore/claude-code-plugins-plus-skills/issues",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
   "license": "MIT-0",
   "author": {
     "name": "AutomateLab",
     "url": "https://github.com/AutomateLab-tech"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "files": [
     "README.md",

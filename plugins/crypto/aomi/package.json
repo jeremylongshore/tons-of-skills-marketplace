@@ -25,19 +25,16 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jeremylongshore/claude-code-plugins-plus-skills.git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/crypto/aomi"
   },
   "homepage": "https://tonsofskills.com/plugins/aomi",
-  "bugs": "https://github.com/jeremylongshore/claude-code-plugins-plus-skills/issues",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
   "license": "MIT",
   "author": {
     "name": "Aomi Labs",
     "url": "https://aomi.dev",
     "email": "info@aomi.dev"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "files": [
     "README.md",
