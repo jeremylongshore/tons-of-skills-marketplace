@@ -81,7 +81,7 @@ Across **386 published packages** in the [claude-code-plugins](https://www.npmjs
 | 9   | [`@intentsolutionsio/klingai-pack`](https://www.npmjs.com/package/@intentsolutionsio/klingai-pack)                     |      105 |
 | 10  | [`@intentsolutionsio/elevenlabs-pack`](https://www.npmjs.com/package/@intentsolutionsio/elevenlabs-pack)               |       96 |
 
-<sub>Last refreshed 2026-09-13T01:34:20.284Z.</sub>
+<sub>Last refreshed 2026-09-16T01:29:17.625Z.</sub>
 
 <!-- NPM-STATS:END -->
 
