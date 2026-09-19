@@ -51,7 +51,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install root dev dependencies
         run: pnpm install --frozen-lockfile --filter "claude-code-plugins-monorepo"
@@ -658,7 +658,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Run verification pipeline
         run: node scripts/run-verification-pipeline.mjs
@@ -937,7 +937,7 @@ jobs:
         if: matrix.test-type == 'validation-scripts'
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Setup pnpm for validation
         if: matrix.test-type == 'validation-scripts'
@@ -1009,7 +1009,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Run package manager policy check
         run: node scripts/check-package-manager.mjs
@@ -1161,7 +1161,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
@@ -1330,7 +1330,7 @@ jobs:
       - name: Setup Node.js (for js codeblock syntax checks)
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
 
       # BLOCKING — codebase passed baseline at PR #771 (2026-05-23).
       # 5,991 of 16,298 fenced code blocks checked (only python/bash/sh/
@@ -1379,7 +1379,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install root dev dependencies
         run: pnpm install --frozen-lockfile --filter "claude-code-plugins-monorepo"
@@ -1400,7 +1400,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install root dev dependencies
         run: pnpm install --frozen-lockfile --filter "claude-code-plugins-monorepo"
@@ -1460,7 +1460,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
 
       # Synced-plugin lint exclusions must be present BEFORE markdownlint runs,
       # so a new external-synced plugin fails here with an actionable "run this
@@ -1721,7 +1721,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Verify CODEOWNERS per-plugin block is in sync
         run: node scripts/generate-codeowners.mjs --check
@@ -1756,7 +1756,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Check deterministic marketplace projections
         run: |
@@ -1787,7 +1787,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install root measurement dependencies
         run: pnpm install --frozen-lockfile --filter "claude-code-plugins-monorepo"
