@@ -35,7 +35,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -65,7 +65,7 @@ jobs:
             "$RUNNER_TEMP/marketplace-compliance-baseline/scripts/.marketplace-compliance-baseline.json"
 
       - name: Upload the immutable capture artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: marketplace-compliance-baseline-${{ github.run_id }}
           path: ${{ runner.temp }}/marketplace-compliance-baseline

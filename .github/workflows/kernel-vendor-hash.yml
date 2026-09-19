@@ -70,7 +70,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -165,7 +165,7 @@ jobs:
 
       - name: Upload version-coupling report artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: kernel-vendor-hash-report
           path: scripts/.kernel-vendor-hash/report.json

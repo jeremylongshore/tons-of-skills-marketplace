@@ -93,7 +93,7 @@ jobs:
           path: pr
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -266,7 +266,7 @@ jobs:
           ls -la /tmp/prescreen-bundle/
 
       - name: Upload validate artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: prescreen-bundle
           path: /tmp/prescreen-bundle/
@@ -300,14 +300,14 @@ jobs:
           path: base
 
       - name: Download validate artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: prescreen-bundle
           path: /tmp/prescreen-bundle/
           merge-multiple: true
 
       - name: Set up Python (for summarize + comment-builder)
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
