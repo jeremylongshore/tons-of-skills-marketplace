@@ -999,7 +999,7 @@ jobs:
 
       - name: Upload test coverage
         if: matrix.test-type == 'python-tests' && always()
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           files: ./coverage.xml
           flags: python
