@@ -1,4 +1,4 @@
-mcp>=1.0.0
+mcp>=1.0.0,<2  # 2.x removed the Server.list_tools()/call_tool() decorators this server uses
 cryptography>=42.0.0
 pytest>=8.0.0
 pytest-asyncio>=0.23.0

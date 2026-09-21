@@ -64,12 +64,12 @@ jobs:
         run: pip install pyyaml
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
 
       # The in-process re-grade defense in build mode imports the canonical
       # validator, which loads the @intentsolutions/core kernel schemas from
