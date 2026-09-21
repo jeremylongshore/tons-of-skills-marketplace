@@ -1,7 +1,7 @@
 {
   "name": "runway-pack",
-  "version": "1.4.0",
-  "description": "Claude Code skill pack for Runway (18 skills)",
+  "version": "2.0.0",
+  "description": "Operator-grade Runway Dev workflows for secure, model-aware, asynchronous media generation (18 skills)",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,11 @@
   "license": "MIT",
   "keywords": [
     "runway",
-    "runway",
     "saas",
     "sdk",
-    "integration"
+    "integration",
+    "video-generation",
+    "task-lifecycle",
+    "media-governance"
   ]
 }
