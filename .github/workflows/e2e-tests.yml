@@ -181,7 +181,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          # The runner installs marketplace/package.json, whose engine follows
+          # the repository floor even though this job does not rebuild Astro.
+          node-version: 22
 
       - name: Install marketplace dependencies
         run: |

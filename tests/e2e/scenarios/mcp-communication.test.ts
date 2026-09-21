@@ -66,13 +66,22 @@ describe('MCP Server Communication', () => {
 
     it('should timeout on slow server startup', async () => {
       // Arrange - create server that never responds
-      const serverPath = await createSlowMcpServer(env.basePath, 'slow-server');
+      const serverPath = await createNeverReadyMcpServer(env.basePath, 'slow-server');
+      let childProcess: McpServer['process'] | undefined;
 
       // Act & Assert
-      await expect(startMcpServer(serverPath, 'slow-server'))
+      await expect(startMcpServer(serverPath, 'slow-server', {
+        startupTimeoutMs: 100,
+        onSpawn: process => {
+          childProcess = process;
+        }
+      }))
         .rejects
         .toThrow('MCP Server startup timeout');
-    }, 10000); // Increase timeout for this test
+
+      expect(childProcess).toBeDefined();
+      expect(childProcess?.exitCode ?? childProcess?.signalCode).not.toBeNull();
+    });
 
     it('should handle server crash during startup', async () => {
       // Arrange - create server that crashes immediately
@@ -82,6 +91,39 @@ describe('MCP Server Communication', () => {
       await expect(startMcpServer(serverPath, 'crash-server'))
         .rejects
         .toThrow();
+    });
+
+    it('should stop idempotently and expose live status', async () => {
+      const serverPath = await createMockMcpServer(env.basePath, 'test-server');
+      const server = await startMcpServer(serverPath, 'test-server');
+
+      await Promise.all([server.stop(), server.stop()]);
+      await server.stop();
+
+      expect(server.status).toBe('stopped');
+      expect(server.process.exitCode ?? server.process.signalCode).not.toBeNull();
+      expect(server.process.listenerCount('error')).toBe(0);
+      expect(server.process.listenerCount('exit')).toBe(0);
+      expect(server.process.listenerCount('close')).toBe(0);
+      expect(server.process.stderr?.listenerCount('data')).toBe(0);
+    });
+
+    it('should not resolve stop on a process error before close', async () => {
+      const serverPath = await createIgnoringSignalMcpServer(env.basePath, 'stubborn-server');
+      const server = await startMcpServer(serverPath, 'stubborn-server', {
+        stopGraceMs: 100
+      });
+      let stopped = false;
+
+      const stopPromise = server.stop().then(() => {
+        stopped = true;
+      });
+      server.process.emit('error', new Error('synthetic process error'));
+      await new Promise(resolve => setTimeout(resolve, 20));
+
+      expect(stopped).toBe(false);
+      await stopPromise;
+      expect(server.status).toBe('stopped');
     });
   });
 
@@ -217,17 +259,22 @@ describe('MCP Server Communication', () => {
 
     it('should handle tool invocation timeout', async () => {
       // Arrange - server that never responds to tool calls
-      const serverPath = await createSlowMcpServer(env.basePath, 'slow-server');
+      const serverPath = await createIgnoringMcpServer(env.basePath, 'slow-server');
       const server = await startMcpServer(serverPath, 'slow-server');
+      const stdoutListeners = server.process.stdout?.listenerCount('data');
+      const exitListeners = server.process.listenerCount('exit');
 
       // Act & Assert
-      await expect(invokeMcpTool(server, 'slow-tool', {}))
+      await expect(invokeMcpTool(server, 'slow-tool', {}, 100))
         .rejects
         .toThrow('MCP tool invocation timeout');
 
+      expect(server.process.stdout?.listenerCount('data')).toBe(stdoutListeners);
+      expect(server.process.listenerCount('exit')).toBe(exitListeners);
+
       // Cleanup
       await server.stop();
-    }, 15000);
+    });
 
     it('should pass parameters correctly', async () => {
       // Arrange
@@ -410,18 +457,76 @@ process.on('SIGTERM', () => {
 }
 
 /**
- * Helper: Create a slow MCP server that times out
+ * Helper: Create an MCP server that never reaches ready state
  */
-async function createSlowMcpServer(basePath: string, name: string): Promise<string> {
+async function createNeverReadyMcpServer(
+  basePath: string,
+  name: string
+): Promise<string> {
   const serverDir = path.join(basePath, 'mcp-servers', name);
   await fs.mkdir(serverDir, { recursive: true });
 
   const serverCode = `#!/usr/bin/env node
 
-// Slow server that never responds
-setTimeout(() => {
-  // Do nothing - let it timeout
-}, 60000);
+setInterval(() => {}, 60000);
+`;
+
+  const serverPath = path.join(serverDir, 'server.js');
+  await fs.writeFile(serverPath, serverCode);
+  await fs.chmod(serverPath, 0o755);
+
+  return serverPath;
+}
+
+/**
+ * Helper: Create a ready MCP server that intentionally ignores tool calls
+ */
+async function createIgnoringMcpServer(basePath: string, name: string): Promise<string> {
+  const serverDir = path.join(basePath, 'mcp-servers', name);
+  await fs.mkdir(serverDir, { recursive: true });
+
+  const serverCode = `#!/usr/bin/env node
+
+process.stdout.write(JSON.stringify({
+  jsonrpc: '2.0',
+  method: 'tools/list',
+  params: {
+    tools: [{
+      name: 'slow-tool',
+      description: 'Intentionally ignores calls',
+      inputSchema: { type: 'object' }
+    }]
+  }
+}) + '\\n');
+
+process.stdin.resume();
+process.on('SIGTERM', () => process.exit(0));
+`;
+
+  const serverPath = path.join(serverDir, 'server.js');
+  await fs.writeFile(serverPath, serverCode);
+  await fs.chmod(serverPath, 0o755);
+
+  return serverPath;
+}
+
+/**
+ * Helper: Create a ready MCP server that requires forced termination
+ */
+async function createIgnoringSignalMcpServer(basePath: string, name: string): Promise<string> {
+  const serverDir = path.join(basePath, 'mcp-servers', name);
+  await fs.mkdir(serverDir, { recursive: true });
+
+  const serverCode = `#!/usr/bin/env node
+
+process.stdout.write(JSON.stringify({
+  jsonrpc: '2.0',
+  method: 'tools/list',
+  params: { tools: [] }
+}) + '\\n');
+
+process.on('SIGTERM', () => {});
+setInterval(() => {}, 60000);
 `;
 
   const serverPath = path.join(serverDir, 'server.js');

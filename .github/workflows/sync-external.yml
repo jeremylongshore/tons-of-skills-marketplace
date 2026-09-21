@@ -75,7 +75,7 @@ jobs:
           node-version: '22'
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         # version is read from package.json `packageManager` field
         # (specifying both `version: 9` and `packageManager` causes pnpm/action-setup
         # to error with ERR_PNPM_BAD_PM_VERSION)

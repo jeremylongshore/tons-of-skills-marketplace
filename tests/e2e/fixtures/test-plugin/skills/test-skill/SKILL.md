@@ -1,12 +1,16 @@
 ---
 name: test-skill
 description: |
-  Test skill for E2E validation. Trigger with "run test skill" or "execute test".
-  Use this skill when testing skill activation and tool permissions.
-allowed-tools: Read, Write, Bash
+  Test skill for E2E validation. Use when testing skill activation and tool
+  permissions. Trigger with "run test skill" or "execute test".
+allowed-tools: Read, Write, Bash(pnpm:*)
 version: 1.0.0
 license: MIT
 author: Test Author <test@example.com>
+compatibility: Works with model-agnostic agents that support Agent Skills frontmatter.
+tags:
+  - testing
+  - e2e
 ---
 
 # Test Skill
@@ -20,7 +24,12 @@ This skill validates:
 - Frontmatter parsing (YAML)
 - Trigger phrase detection
 - Tool permission validation
-- 2025 schema compliance
+- Current marketplace schema compliance
+
+## Prerequisites
+
+- Run only inside the isolated E2E test directory.
+- Use fixture data rather than production credentials or user files.
 
 ## Activation
 
@@ -35,9 +44,9 @@ This skill activates when you use phrases like:
 - **Write** - Write test results
 - **Bash** - Execute test commands
 
-## Implementation
+## Instructions
 
-This skill performs basic test operations to validate the plugin system works correctly.
+Use this skill only to perform the isolated fixture operations below.
 
 ### Test Operations
 
@@ -45,13 +54,22 @@ This skill performs basic test operations to validate the plugin system works co
 2. Write test results
 3. Execute validation commands
 
-## Expected Behavior
+## Output
 
 When activated, this skill should:
 - Load successfully from the plugin
 - Parse frontmatter correctly
 - Match trigger phrases
 - Respect tool permissions
+
+## Examples
+
+- `run test skill` activates the fixture.
+- `execute test` exercises the alternate trigger phrase.
+
+## Safety Justification
+
+Write access creates disposable fixture output only. Scoped Bash access permits pnpm test commands only; it does not authorize arbitrary shell commands.
 
 ## Error Handling
 

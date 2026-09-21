@@ -6,7 +6,7 @@ This is the Tons of Skills Claude Code plugin marketplace. Author plugins under 
 
 ## Build, Test, and Development
 
-Use Node 20+ and pnpm 9.15.9+ at the repository root; `marketplace/` deliberately uses npm.
+Use Node 22.12+ and pnpm 9.15.9+ for repository-level commands; `.node-version` records the tested Node floor. `marketplace/` deliberately uses npm. Independently consumable packages and focused CI jobs may retain their own lower Node floors when they do not enter the full-repository or marketplace build path; see `000-docs/814-DR-STND-node-runtime-contract.md`.
 
 ```bash
 pnpm install

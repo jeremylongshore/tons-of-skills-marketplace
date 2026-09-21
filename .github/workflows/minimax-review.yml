@@ -78,7 +78,7 @@ jobs:
       - name: MiniMax code review (defect + A-grade coach lane)
         # jeremylongshore/minimax-code-review — maintained fork, SHA-pinned per
         # supply-chain policy (per-reviewer markers, <think>-strip, INCLUDE_PR_BODY).
-        uses: jeremylongshore/minimax-code-review@d1314b96c1b261d5bf026d0a669823a7e5ce6b46
+        uses: jeremylongshore/minimax-code-review@2f8eefa6d1eccf8301ad230cd23ed8fc59df6f62
         with:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           MINIMAX_MODEL: ${{ vars.MINIMAX_MODEL || 'MiniMax-M3' }}
@@ -146,7 +146,7 @@ jobs:
           github.event.pull_request.head.repo.full_name == github.repository }}
     steps:
       - name: MiniMax adversarial review (claims lane)
-        uses: jeremylongshore/minimax-code-review@d1314b96c1b261d5bf026d0a669823a7e5ce6b46
+        uses: jeremylongshore/minimax-code-review@2f8eefa6d1eccf8301ad230cd23ed8fc59df6f62
         with:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           MINIMAX_MODEL: ${{ vars.MINIMAX_MODEL || 'MiniMax-M3' }}
@@ -268,7 +268,7 @@ jobs:
 
       - name: MiniMax A-grade coach (validator-grounded)
         if: steps.grade.outputs.has_changes == 'true'
-        uses: jeremylongshore/minimax-code-review@d1314b96c1b261d5bf026d0a669823a7e5ce6b46
+        uses: jeremylongshore/minimax-code-review@2f8eefa6d1eccf8301ad230cd23ed8fc59df6f62
         with:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           MINIMAX_MODEL: ${{ vars.MINIMAX_MODEL || 'MiniMax-M3' }}

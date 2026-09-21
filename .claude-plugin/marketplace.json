@@ -5185,7 +5185,7 @@
       "name": "mattyp-changelog",
       "source": "./plugins/devops/mattyp-changelog",
       "description": "Automates changelog generation from git history with config validation and quality scoring. Use when publishing weekly updates, release notes, or PR summaries. Trigger with /changelog-weekly, /changelog-custom, or /changelog-validate.",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "category": "devops",
       "keywords": [
         "changelog",

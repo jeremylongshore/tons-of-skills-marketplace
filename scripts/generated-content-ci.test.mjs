@@ -9,6 +9,10 @@ import { compareSkillNamesOrdinal } from '../marketplace/scripts/discover-skills
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const WORKFLOW = readFileSync(`${ROOT}/.github/workflows/validate-plugins.yml`, 'utf8');
+const STANDALONE_E2E_WORKFLOW = readFileSync(
+  `${ROOT}/.github/workflows/standalone-e2e.yml`,
+  'utf8',
+);
 const PACKAGE = JSON.parse(readFileSync(`${ROOT}/package.json`, 'utf8'));
 const GENERATED_CONTENT_COMMAND = PACKAGE.scripts['validate:generated-content'];
 const PARSER_SECURITY_SUITES = [
@@ -19,6 +23,7 @@ const PARSER_SECURITY_SUITES = [
 const RED_PROOF_CHILD = 'GENERATED_CONTENT_SECURITY_RED_PROOF_CHILD';
 const RED_PROOF_TARGET = 'GENERATED_CONTENT_SECURITY_RED_PROOF_TARGET';
 const DISCOVER_SKILLS = readFileSync(`${ROOT}/marketplace/scripts/discover-skills.mjs`, 'utf8');
+const SKILL_FRONTMATTER = readFileSync(`${ROOT}/scripts/skill-frontmatter.mjs`, 'utf8');
 const VENDORED_JS_YAML = `${ROOT}/scripts/vendor/js-yaml-4.1.1/js-yaml.mjs`;
 const VENDORED_JS_YAML_SHA256 = 'efbc45850bf15f0c8ee3434983f512be656002d7507dc292c7ade4449b5d57fa';
 const VENDORED_JS_YAML_PATH = 'scripts/vendor/js-yaml-4.1.1/js-yaml.mjs';
@@ -94,9 +99,11 @@ test('generated content drift job is unconditional, credential-free, and exact',
 test('generated content parser uses the pinned install-free YAML implementation', () => {
   assert.match(
     DISCOVER_SKILLS,
-    /import yaml from '\.\.\/\.\.\/scripts\/vendor\/js-yaml-4\.1\.1\/js-yaml\.mjs';/,
+    /import \{ parseSkillFrontmatter \} from '\.\.\/\.\.\/scripts\/skill-frontmatter\.mjs';/,
   );
+  assert.match(SKILL_FRONTMATTER, /import yaml from '\.\/vendor\/js-yaml-4\.1\.1\/js-yaml\.mjs';/);
   assert.doesNotMatch(DISCOVER_SKILLS, /(?:from|require\()\s*['"]js-yaml['"]/);
+  assert.doesNotMatch(SKILL_FRONTMATTER, /(?:from|require\()\s*['"]js-yaml['"]/);
   assert.equal(
     createHash('sha256').update(readFileSync(VENDORED_JS_YAML)).digest('hex'),
     VENDORED_JS_YAML_SHA256,
@@ -114,6 +121,27 @@ test('generated content parser uses the pinned install-free YAML implementation'
       `${ignoreFile} must preserve the pinned upstream bytes with one exact exclusion`,
     );
   }
+});
+
+test('standalone E2E owns vendored parser changes and uses immutable credential-free actions', () => {
+  assert.equal(
+    countLiteral(STANDALONE_E2E_WORKFLOW, "- 'scripts/vendor/js-yaml-4.1.1/**'"),
+    2,
+    'pull_request and push must both run standalone E2E for vendored parser changes',
+  );
+  assert.match(
+    STANDALONE_E2E_WORKFLOW,
+    /actions\/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6\n {8}with:\n {10}persist-credentials: false/,
+  );
+  assert.match(
+    STANDALONE_E2E_WORKFLOW,
+    /pnpm\/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4/,
+  );
+  assert.match(
+    STANDALONE_E2E_WORKFLOW,
+    /actions\/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6/,
+  );
+  assert.doesNotMatch(STANDALONE_E2E_WORKFLOW, /uses: [^\n]+@v\d+/);
 });
 
 test('canonical generated content command executes parser security suites exactly once', () => {

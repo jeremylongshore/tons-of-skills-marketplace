@@ -3,6 +3,24 @@ import fs from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { spawn, ChildProcess } from 'child_process';
+import {
+  parseSkillFrontmatter,
+  type SkillFrontmatterValue
+} from '../../scripts/skill-frontmatter.mjs';
+
+const activeMcpServers = new Set<McpServer>();
+// The harness projects the marketplace-required fields used by these scenarios.
+// Full field semantics stay owned by the repository's validate-skills-schema.py gate.
+const SKILL_REQUIRED_FIELDS = [
+  'name',
+  'description',
+  'allowed-tools',
+  'version',
+  'author',
+  'license',
+  'compatibility',
+  'tags'
+] as const;
 
 /**
  * Test environment for isolated E2E testing
@@ -44,6 +62,8 @@ export interface Skill {
   version: string;
   author: string;
   license: string;
+  compatibility: string;
+  tags: string[];
   content: string;
   triggerPhrases: string[];
 }
@@ -67,6 +87,12 @@ export interface McpTool {
   name: string;
   description: string;
   inputSchema: Record<string, unknown>;
+}
+
+export interface McpServerOptions {
+  startupTimeoutMs?: number;
+  stopGraceMs?: number;
+  onSpawn?: (serverProcess: ChildProcess) => void;
 }
 
 /**
@@ -203,24 +229,39 @@ export async function loadSkill(
   // Read skill file
   const skillContent = await fs.readFile(skillPath, 'utf-8');
 
-  // Parse frontmatter
-  const frontmatterMatch = skillContent.match(/^---\n([\s\S]+?)\n---/);
-  if (!frontmatterMatch) {
+  const frontmatter = parseSkillFrontmatter(skillContent);
+  if (!frontmatter) {
     throw new Error(`Invalid skill: missing frontmatter in ${skillPath}`);
   }
 
-  const frontmatter = parseFrontmatter(frontmatterMatch[1]);
+  const missingFields = SKILL_REQUIRED_FIELDS.filter(
+    field => frontmatter[field] === undefined || frontmatter[field] === null
+  );
+  if (missingFields.length > 0) {
+    throw new Error(`Invalid skill: missing required fields: ${missingFields.join(', ')}`);
+  }
+
+  const name = requireStringField(frontmatter, 'name');
+  const description = requireStringField(frontmatter, 'description');
+  const version = requireStringField(frontmatter, 'version');
+  const author = requireStringField(frontmatter, 'author');
+  const license = requireStringField(frontmatter, 'license');
+  const compatibility = requireStringField(frontmatter, 'compatibility');
+  const tags = parseStringList(frontmatter.tags, 'tags');
+  const allowedTools = parseAllowedTools(frontmatter['allowed-tools']);
 
   // Extract trigger phrases from description
-  const triggerPhrases = extractTriggerPhrases(frontmatter.description || '');
+  const triggerPhrases = extractTriggerPhrases(description);
 
   return {
-    name: frontmatter.name || skillName,
-    description: frontmatter.description || '',
-    allowedTools: parseAllowedTools(frontmatter['allowed-tools'] || ''),
-    version: frontmatter.version || '1.0.0',
-    author: frontmatter.author || 'Unknown',
-    license: frontmatter.license || 'MIT',
+    name: name || skillName,
+    description,
+    allowedTools,
+    version,
+    author,
+    license,
+    compatibility,
+    tags,
     content: skillContent,
     triggerPhrases
   };
@@ -271,7 +312,8 @@ export async function activateSkill(
  */
 export async function startMcpServer(
   serverPath: string,
-  serverName: string
+  serverName: string,
+  options: McpServerOptions = {}
 ): Promise<McpServer> {
   return new Promise((resolve, reject) => {
     // Spawn MCP server process
@@ -279,93 +321,149 @@ export async function startMcpServer(
       stdio: ['pipe', 'pipe', 'pipe'],
       env: { ...process.env, NODE_ENV: 'test' }
     });
+    options.onSpawn?.(serverProcess);
 
-    const tools = new Map<string, McpTool>();
-    let status: McpServer['status'] = 'starting';
+    const startupTimeoutMs = options.startupTimeoutMs ?? 5000;
+    const stopGraceMs = options.stopGraceMs ?? 2000;
+
+    const server: McpServer = {
+      process: serverProcess,
+      name: serverName,
+      tools: new Map<string, McpTool>(),
+      status: 'starting',
+      stop: async () => {}
+    };
+    let startupSettled = false;
+    let stopPromise: Promise<void> | undefined;
+    let startupTimer: NodeJS.Timeout;
+    let processClosed = false;
+
+    const removeStartupListeners = () => {
+      serverProcess.stdout?.off('data', handleStdout);
+      serverProcess.off('error', handleStartupError);
+      serverProcess.off('exit', handleStartupExit);
+    };
+
+    const finishStartup = (error?: Error) => {
+      if (startupSettled) return;
+      startupSettled = true;
+      clearTimeout(startupTimer);
+      removeStartupListeners();
+      if (error) {
+        reject(error);
+      } else {
+        activeMcpServers.add(server);
+        resolve(server);
+      }
+    };
+
+    const markStopped = () => {
+      server.status = 'stopped';
+      activeMcpServers.delete(server);
+    };
+
+    const handleLifecycleExit = () => markStopped();
+    const handleLifecycleError = () => {
+      if (server.status !== 'stopped') server.status = 'error';
+    };
+    const handleStderr = (data: Buffer) => {
+      console.error(`MCP Server error: ${data.toString()}`);
+    };
+    const removeLifecycleListeners = () => {
+      serverProcess.off('exit', handleLifecycleExit);
+      serverProcess.off('error', handleLifecycleError);
+      serverProcess.stderr?.off('data', handleStderr);
+    };
+    const handleLifecycleClose = () => {
+      processClosed = true;
+      markStopped();
+      removeLifecycleListeners();
+    };
+
+    serverProcess.once('exit', handleLifecycleExit);
+    serverProcess.on('error', handleLifecycleError);
+    serverProcess.once('close', handleLifecycleClose);
+    serverProcess.stderr?.on('data', handleStderr);
+
+    server.stop = () => {
+      if (stopPromise) return stopPromise;
+      stopPromise = new Promise<void>(stopResolve => {
+        clearTimeout(startupTimer);
+        removeStartupListeners();
+
+        if (processClosed) {
+          markStopped();
+          stopResolve();
+          return;
+        }
+
+        let forceTimer: NodeJS.Timeout;
+        const stopped = () => {
+          clearTimeout(forceTimer);
+          serverProcess.off('close', stopped);
+          markStopped();
+          stopResolve();
+        };
+
+        forceTimer = setTimeout(() => {
+          if (!processClosed) {
+            serverProcess.kill('SIGKILL');
+          }
+        }, stopGraceMs);
+        serverProcess.once('close', stopped);
+        if (serverProcess.exitCode === null && serverProcess.signalCode === null) {
+          serverProcess.kill('SIGTERM');
+        }
+      });
+      return stopPromise;
+    };
 
     // Collect stdout for tool registration
     let stdoutBuffer = '';
-    serverProcess.stdout.on('data', (data) => {
+    const handleStdout = (data: Buffer) => {
       stdoutBuffer += data.toString();
 
-      // Parse JSON-RPC messages for tool registration
       const messages = stdoutBuffer.split('\n');
+      stdoutBuffer = messages.pop() ?? '';
       for (const message of messages) {
         if (!message.trim()) continue;
 
         try {
           const parsed = JSON.parse(message);
           if (parsed.method === 'tools/list') {
-            // Server has sent tools list
             for (const tool of parsed.params?.tools || []) {
-              tools.set(tool.name, {
+              server.tools.set(tool.name, {
                 name: tool.name,
                 description: tool.description,
                 inputSchema: tool.inputSchema
               });
             }
-            status = 'ready';
+            server.status = 'ready';
+            finishStartup();
           }
-        } catch (e) {
+        } catch {
           // Not JSON, ignore
         }
       }
-    });
+    };
+    serverProcess.stdout?.on('data', handleStdout);
 
-    // Handle errors
-    serverProcess.stderr.on('data', (data) => {
-      console.error(`MCP Server error: ${data.toString()}`);
-    });
+    const handleStartupError = (error: Error) => {
+      void server.stop().then(() => finishStartup(error));
+    };
+    const handleStartupExit = (code: number | null) => {
+      void server.stop().then(() => {
+        finishStartup(new Error(`MCP Server exited with code ${code}`));
+      });
+    };
+    serverProcess.once('error', handleStartupError);
+    serverProcess.once('exit', handleStartupExit);
 
-    serverProcess.on('error', (error) => {
-      status = 'error';
-      reject(error);
-    });
-
-    serverProcess.on('exit', (code) => {
-      status = 'stopped';
-      if (code !== 0) {
-        reject(new Error(`MCP Server exited with code ${code}`));
-      }
-    });
-
-    // Wait for server to be ready (timeout after 5s)
-    const timeout = setTimeout(() => {
-      if (status !== 'ready') {
-        serverProcess.kill();
-        reject(new Error('MCP Server startup timeout'));
-      }
-    }, 5000);
-
-    // Check for ready status
-    const readyCheck = setInterval(() => {
-      if (status === 'ready') {
-        clearInterval(readyCheck);
-        clearTimeout(timeout);
-
-        const stop = async () => {
-          return new Promise<void>((resolve) => {
-            serverProcess.on('exit', () => resolve());
-            serverProcess.kill('SIGTERM');
-
-            // Force kill after 2s if not stopped
-            setTimeout(() => {
-              if (status !== 'stopped') {
-                serverProcess.kill('SIGKILL');
-              }
-            }, 2000);
-          });
-        };
-
-        resolve({
-          process: serverProcess,
-          name: serverName,
-          tools,
-          status,
-          stop
-        });
-      }
-    }, 100);
+    startupTimer = setTimeout(() => {
+      void server.stop().then(() => {
+        finishStartup(new Error('MCP Server startup timeout'));
+      });
+    }, startupTimeoutMs);
   });
 }
 
@@ -375,7 +473,8 @@ export async function startMcpServer(
 export async function invokeMcpTool(
   server: McpServer,
   toolName: string,
-  params: Record<string, unknown>
+  params: Record<string, unknown>,
+  timeoutMs = 10000
 ): Promise<unknown> {
   if (!server.tools.has(toolName)) {
     throw new Error(`Tool ${toolName} not found on server ${server.name}`);
@@ -393,35 +492,54 @@ export async function invokeMcpTool(
       }
     };
 
-    // Send request to server
-    server.process.stdin?.write(JSON.stringify(request) + '\n');
-
-    // Wait for response
-    const responseHandler = (data: Buffer) => {
-      const response = data.toString();
-      try {
-        const parsed = JSON.parse(response);
-        if (parsed.id === requestId) {
-          server.process.stdout?.off('data', responseHandler);
-
-          if (parsed.error) {
-            reject(new Error(parsed.error.message));
-          } else {
-            resolve(parsed.result);
-          }
-        }
-      } catch (e) {
-        // Not JSON or not our response, ignore
-      }
+    let responseBuffer = '';
+    let settled = false;
+    let timeout: NodeJS.Timeout;
+    const finish = (error?: Error, result?: unknown) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      server.process.stdout?.off('data', responseHandler);
+      server.process.off('exit', exitHandler);
+      server.process.off('error', errorHandler);
+      if (error) reject(error);
+      else resolve(result);
     };
 
-    server.process.stdout?.on('data', responseHandler);
+    const responseHandler = (data: Buffer) => {
+      responseBuffer += data.toString();
+      const messages = responseBuffer.split('\n');
+      responseBuffer = messages.pop() ?? '';
+      for (const message of messages) {
+        if (!message.trim()) continue;
+        try {
+          const parsed = JSON.parse(message);
+          if (parsed.id === requestId) {
+            if (parsed.error) finish(new Error(parsed.error.message));
+            else finish(undefined, parsed.result);
+            return;
+          }
+        } catch {
+          // Not JSON or not our response, ignore
+        }
+      }
+    };
+    const exitHandler = () => finish(new Error('MCP Server exited during tool invocation'));
+    const errorHandler = (error: Error) => finish(error);
 
-    // Timeout after 10s
-    setTimeout(() => {
-      server.process.stdout?.off('data', responseHandler);
-      reject(new Error('MCP tool invocation timeout'));
-    }, 10000);
+    server.process.stdout?.on('data', responseHandler);
+    server.process.once('exit', exitHandler);
+    server.process.once('error', errorHandler);
+
+    timeout = setTimeout(() => finish(new Error('MCP tool invocation timeout')), timeoutMs);
+
+    if (!server.process.stdin || server.process.stdin.destroyed) {
+      finish(new Error('MCP Server stdin is unavailable'));
+      return;
+    }
+    server.process.stdin.write(JSON.stringify(request) + '\n', error => {
+      if (error) finish(error);
+    });
   });
 }
 
@@ -446,39 +564,64 @@ async function copyDirectory(src: string, dest: string): Promise<void> {
 }
 
 /**
- * Helper: Parse YAML frontmatter
+ * Helper: Require a non-empty string frontmatter field
  */
-function parseFrontmatter(yaml: string): Record<string, string> {
-  const result: Record<string, string> = {};
-  const lines = yaml.split('\n');
-
-  for (const line of lines) {
-    const colonIndex = line.indexOf(':');
-    if (colonIndex === -1) continue;
-
-    const key = line.substring(0, colonIndex).trim();
-    let value = line.substring(colonIndex + 1).trim();
-
-    // Handle multiline strings (|)
-    if (value === '|') {
-      // Next lines are the value until we hit a new key
-      continue;
-    }
-
-    result[key] = value;
+function requireStringField(
+  frontmatter: Record<string, SkillFrontmatterValue>,
+  fieldName: string
+): string {
+  const value = frontmatter[fieldName];
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    throw new TypeError(`Invalid skill: ${fieldName} must be a non-empty string`);
   }
-
-  return result;
+  return value.trim();
 }
 
 /**
- * Helper: Parse allowed-tools string
+ * Helper: Parse string-or-list metadata
  */
-function parseAllowedTools(toolsString: string): string[] {
-  return toolsString
-    .split(',')
-    .map(tool => tool.trim())
-    .filter(tool => tool.length > 0);
+function parseStringList(value: SkillFrontmatterValue, fieldName: string): string[] {
+  if (!Array.isArray(value)) {
+    throw new TypeError(`Invalid skill: ${fieldName} must be a YAML list`);
+  }
+  const result = value.map((item, index) => {
+    if (typeof item !== 'string' || item.trim().length === 0) {
+      throw new TypeError(`Invalid skill: ${fieldName}[${index}] must be a non-empty string`);
+    }
+    return item.trim();
+  });
+  if (result.length === 0) {
+    throw new TypeError(`Invalid skill: ${fieldName} must not be empty`);
+  }
+  return result;
+}
+
+function parseAllowedTools(value: SkillFrontmatterValue): string[] {
+  if (Array.isArray(value)) return parseStringList(value, 'allowed-tools');
+  if (typeof value !== 'string') {
+    throw new TypeError('Invalid skill: allowed-tools must be a string or YAML list');
+  }
+
+  const tools: string[] = [];
+  let token = '';
+  let depth = 0;
+  for (const character of value.trim()) {
+    if (character === '(') depth += 1;
+    if (character === ')') {
+      depth -= 1;
+      if (depth < 0) throw new TypeError('Invalid skill: unbalanced allowed-tools scope');
+    }
+    if ((character === ',' || /\s/u.test(character)) && depth === 0) {
+      if (token.trim()) tools.push(token.trim());
+      token = '';
+    } else {
+      token += character;
+    }
+  }
+  if (depth !== 0) throw new TypeError('Invalid skill: unbalanced allowed-tools scope');
+  if (token.trim()) tools.push(token.trim());
+  if (tools.length === 0) throw new TypeError('Invalid skill: allowed-tools must not be empty');
+  return tools;
 }
 
 /**
@@ -539,7 +682,9 @@ beforeEach(async () => {
  * Global teardown: Log test environment info
  */
 afterEach(() => {
+  const cleanup = [...activeMcpServers].map(server => server.stop());
   if (process.env.E2E_DEBUG) {
     console.log('Test completed');
   }
+  return Promise.all(cleanup);
 });

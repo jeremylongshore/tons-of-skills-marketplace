@@ -32,10 +32,16 @@ const PLUGINS_DIR = join(ROOT, 'plugins');
 // actual repository GitHub Actions is running in.
 const REPO_URL = 'https://github.com/jeremylongshore/tons-of-skills-marketplace';
 const SCOPE = '@intentsolutionsio';
+// Recognize the former Intent Solutions scope for legacy first-party
+// metadata, but never infer source ownership from a scope alone.
+const INTENT_SOLUTIONS_SCOPES = [SCOPE, '@intentsolutions'];
 const LEGACY_REPO_URLS = [
   'https://github.com/jeremylongshore/claude-code-plugins-plus-skills',
   'https://github.com/jeremylongshore/claude-code-plugins',
 ];
+const MANAGED_REPOSITORY_URLS = new Set(
+  [REPO_URL, ...LEGACY_REPO_URLS].map((url) => `git+${url}.git`),
+);
 
 // FS-only / personal-prefix dirs and known duplicates — skip entirely.
 const EXCLUDE_PREFIXES = [
@@ -130,7 +136,17 @@ function isValidNpmName(name) {
   return /^[a-z0-9][a-z0-9._-]*$/.test(body);
 }
 
-function buildPackageJson(pluginDir, pluginJson) {
+export function trackingPostinstall(slug) {
+  return (
+    'node -e "console.log(\\"\\\\n→ This npm package is a tracking/proof artifact. Install the plugin via:\\\\n  ccpi install ' +
+    slug +
+    '\\\\n  or /plugin install ' +
+    slug +
+    '@claude-code-plugins-plus in Claude Code\\\\n\\")"'
+  );
+}
+
+export function buildPackageJson(pluginDir, pluginJson, { sourceOwned = false } = {}) {
   const slug = slugFromPath(pluginDir);
   const relDir = repositoryRelativePath(ROOT, pluginDir);
   const name = scopedName(slug);
@@ -167,6 +183,7 @@ function buildPackageJson(pluginDir, pluginJson) {
 
   const pkg = {
     name,
+    ...(sourceOwned ? { private: true } : {}),
     version:
       pluginJson.version && /^\d+\.\d+\.\d+/.test(pluginJson.version)
         ? pluginJson.version
@@ -186,23 +203,34 @@ function buildPackageJson(pluginDir, pluginJson) {
       email: 'jeremy@intentsolutions.io',
       url: 'https://github.com/jeremylongshore',
     },
-    publishConfig: { access: 'public' },
+    ...(sourceOwned ? {} : { publishConfig: { access: 'public' } }),
     files,
     scripts: {
-      postinstall:
-        'node -e "console.log(\\"\\\\n→ This npm package is a tracking/proof artifact. Install the plugin via:\\\\n  ccpi install ' +
-        slug +
-        '\\\\n  or /plugin install ' +
-        slug +
-        '@claude-code-plugins-plus in Claude Code\\\\n\\")"',
+      postinstall: trackingPostinstall(slug),
     },
   };
 
   return pkg;
 }
 
+export function isRepositoryGeneratedTrackingManifest(pkg, relDir) {
+  const repository = pkg?.repository;
+  const repositoryUrl = typeof repository === 'object' ? repository?.url : null;
+  const repositoryDirectory = typeof repository === 'object' ? repository?.directory : null;
+  const slug = nodePath.posix.basename(String(relDir).replaceAll('\\', '/'));
+  const generatedName = INTENT_SOLUTIONS_SCOPES.some((scope) => pkg?.name === scope + '/' + slug);
+  return (
+    MANAGED_REPOSITORY_URLS.has(repositoryUrl) &&
+    repositoryDirectory === relDir &&
+    generatedName &&
+    pkg?.scripts?.postinstall === trackingPostinstall(slug)
+  );
+}
+
 export function reconcileGeneratedPackageMetadata(pkg, relDir, { sourceOwned = false } = {}) {
-  if (sourceOwned) return { changed: false, pkg };
+  if (sourceOwned && !isRepositoryGeneratedTrackingManifest(pkg, relDir)) {
+    return { changed: false, pkg };
+  }
   const repositoryUrl = typeof pkg?.repository === 'object' ? pkg.repository?.url : null;
   const managedByRepositoryPolicy =
     pkg?.name?.startsWith(`${SCOPE}/`) ||
@@ -210,12 +238,24 @@ export function reconcileGeneratedPackageMetadata(pkg, relDir, { sourceOwned = f
       /^git\+https:\/\/github\.com\/jeremylongshore\/(?:claude-code-plugins(?:-plus-skills)?|tons-of-skills-marketplace)\.git$/.test(
         repositoryUrl ?? '',
       ));
-  if (!managedByRepositoryPolicy) return { changed: false, pkg };
+  if (!sourceOwned && !managedByRepositoryPolicy) return { changed: false, pkg };
   const rewritten = rewriteLegacyRepositoryUrls(JSON.stringify(pkg));
-  if (rewritten === JSON.stringify(pkg)) return { changed: false, pkg };
+  const rewrittenPackage = JSON.parse(rewritten);
+  // The classifier is deliberately strict. Once it proves this is our
+  // tracking manifest, restore the private boundary as defense in depth; the
+  // standalone mirror checker remains the fail-closed gate for drift.
+  let reconciled = sourceOwned ? { ...rewrittenPackage, private: true } : rewrittenPackage;
+  if (sourceOwned && rewrittenPackage.publishConfig?.access === 'public') {
+    const remainingPublishConfig = { ...rewrittenPackage.publishConfig };
+    delete remainingPublishConfig.access;
+    reconciled = { ...reconciled };
+    if (Object.keys(remainingPublishConfig).length === 0) delete reconciled.publishConfig;
+    else reconciled.publishConfig = remainingPublishConfig;
+  }
+  if (JSON.stringify(reconciled) === JSON.stringify(pkg)) return { changed: false, pkg };
   return {
     changed: true,
-    pkg: JSON.parse(rewritten),
+    pkg: reconciled,
   };
 }
 
@@ -317,16 +357,22 @@ async function main() {
       const packagePath = join(pluginDir, 'package.json');
       const source = readFileSync(packagePath, 'utf-8');
       const pkg = JSON.parse(source);
+      const sourceOwned = existsSync(join(pluginDir, '.source.json'));
       const reconciled = reconcileGeneratedPackageMetadata(
         pkg,
         repositoryRelativePath(ROOT, pluginDir),
         {
-          sourceOwned: existsSync(join(pluginDir, '.source.json')),
+          sourceOwned,
         },
       );
       existing.push(pluginDir);
       if (reconciled.changed) {
-        metadataUpdates.push({ packagePath, source: rewriteLegacyRepositoryUrls(source) });
+        metadataUpdates.push({
+          packagePath,
+          source: sourceOwned
+            ? JSON.stringify(reconciled.pkg, null, 2) + '\n'
+            : rewriteLegacyRepositoryUrls(source),
+        });
       }
       continue;
     }
@@ -337,7 +383,13 @@ async function main() {
       skipped.push({ pluginDir, reason: `invalid npm name: ${candidateName}` });
       continue;
     }
-    needsScaffold.push({ pluginDir, slug, candidateName, pluginJson });
+    needsScaffold.push({
+      pluginDir,
+      slug,
+      candidateName,
+      pluginJson,
+      sourceOwned: existsSync(join(pluginDir, '.source.json')),
+    });
   }
 
   console.log(`Plugins with package.json already: ${existing.length}`);
@@ -382,8 +434,8 @@ async function main() {
   }
 
   let written = 0;
-  for (const { pluginDir, pluginJson } of needsScaffold) {
-    const pkg = buildPackageJson(pluginDir, pluginJson);
+  for (const { pluginDir, pluginJson, sourceOwned } of needsScaffold) {
+    const pkg = buildPackageJson(pluginDir, pluginJson, { sourceOwned });
     const out = JSON.stringify(pkg, null, 2) + '\n';
     writeFileSync(join(pluginDir, 'package.json'), out);
     written++;
