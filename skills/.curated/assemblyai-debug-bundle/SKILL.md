@@ -1,207 +1,75 @@
 ---
 name: assemblyai-debug-bundle
-description: 'Collect AssemblyAI debug evidence for support tickets and troubleshooting.
-
-  Use when encountering persistent issues, preparing support tickets,
-
-  or collecting diagnostic information for AssemblyAI problems.
-
-  Trigger with phrases like "assemblyai debug", "assemblyai support bundle",
-
-  "collect assemblyai logs", "assemblyai diagnostic".
-
-  '
-allowed-tools: Read, Bash(grep:*), Bash(curl:*), Bash(tar:*), Grep
-version: 1.5.0
+description: >-
+  Produce a redacted AssemblyAI diagnostic bundle for support and incident triage. Use when evidence is needed without exposing keys, URLs, audio, transcripts, or prompts. Trigger with "AssemblyAI debug bundle" or "support evidence".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<incident-id> <environment> <time-window>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ai
-- speech-to-text
-- assemblyai
-- transcription
-compatibility: Designed for Claude Code
+tags: [saas, assemblyai]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live AssemblyAI work requires network access"
 ---
-# AssemblyAI Debug Bundle
+# AssemblyAI Privacy-safe Diagnostic Bundle
 
 ## Overview
 
-Collect all diagnostic information needed to resolve AssemblyAI issues — SDK version, transcript status, API connectivity, and configuration — packaged for support tickets.
+Produce a redacted AssemblyAI diagnostic bundle for support and incident triage. Treat live audio, transcript content, credentials, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- `assemblyai` package installed
-- Access to application logs
-- Failed transcript ID (if applicable)
+- The target repository or integration path and the requested operator outcome.
+- The AssemblyAI project, environment, region, data classification, and accountable owner.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Allowlisted evidence includes hosts, SDK version, operation, models, hashed IDs, status transitions, timestamps, durations, response or close codes, delivery attempts, and termination state. Exclude authorization values, signed URLs, token responses, audio, transcript text, prompts, and full callback bodies by default.
+
+## Authentication
+
+For live work, inject `ASSEMBLYAI_API_KEY` from an approved secret manager and send the raw value only in the AssemblyAI `Authorization` header to the configured first-party host. Never print, commit, place in a URL, or expose it to an untrusted client. Callback secrets and temporary streaming tokens are separate credentials.
 
 ## Instructions
 
-### Step 1: Create Debug Bundle Script
+1. Define incident scope, audience, region, and evidence expiry.
+2. Inventory logs before copying and label content-bearing fields.
+3. Extract only allowlisted metadata and hash stable identifiers when useful.
+4. Replace every secret or content field with a fixed marker.
+5. Scan the staged bundle for secrets and speech-derived content.
+6. Obtain review, transfer securely, and record destruction date.
 
-```bash
-#!/bin/bash
-# assemblyai-debug-bundle.sh
-set -euo pipefail
+## Tool Discipline
 
-BUNDLE_DIR="assemblyai-debug-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE_DIR"
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call AssemblyAI, upload audio, open a streaming session, mint a token, replay a callback, deploy, rotate a key, or delete a transcript merely because this skill was invoked.
 
-echo "=== AssemblyAI Debug Bundle ===" > "$BUNDLE_DIR/summary.txt"
-echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$BUNDLE_DIR/summary.txt"
-echo "" >> "$BUNDLE_DIR/summary.txt"
+## Approval Boundaries
 
-# Environment
-echo "--- Runtime ---" >> "$BUNDLE_DIR/summary.txt"
-node --version >> "$BUNDLE_DIR/summary.txt" 2>&1 || echo "Node.js not found" >> "$BUNDLE_DIR/summary.txt"
-echo "Platform: $(uname -s) $(uname -m)" >> "$BUNDLE_DIR/summary.txt"
-echo "ASSEMBLYAI_API_KEY: ${ASSEMBLYAI_API_KEY:+[SET (${#ASSEMBLYAI_API_KEY} chars)]}" >> "$BUNDLE_DIR/summary.txt"
-echo "" >> "$BUNDLE_DIR/summary.txt"
+Require an accountable owner before live audio processing, production credential or endpoint changes, paid model or capacity changes, content retention, callback replay, deployment, or deletion. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-# SDK version
-echo "--- SDK Version ---" >> "$BUNDLE_DIR/summary.txt"
-npm list assemblyai 2>/dev/null >> "$BUNDLE_DIR/summary.txt" || echo "assemblyai not in node_modules" >> "$BUNDLE_DIR/summary.txt"
-echo "" >> "$BUNDLE_DIR/summary.txt"
+## Failure Modes
 
-# API connectivity
-echo "--- API Connectivity ---" >> "$BUNDLE_DIR/summary.txt"
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-  -H "Authorization: ${ASSEMBLYAI_API_KEY:-none}" \
-  https://api.assemblyai.com/v2/transcript 2>/dev/null || echo "FAILED")
-echo "GET /v2/transcript: HTTP $HTTP_CODE" >> "$BUNDLE_DIR/summary.txt"
-
-STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-  https://api.assemblyai.com/v2 2>/dev/null || echo "FAILED")
-echo "GET /v2: HTTP $STATUS_CODE" >> "$BUNDLE_DIR/summary.txt"
-echo "" >> "$BUNDLE_DIR/summary.txt"
-
-# AssemblyAI service status
-echo "--- Service Status ---" >> "$BUNDLE_DIR/summary.txt"
-curl -s https://status.assemblyai.com/api/v2/status.json 2>/dev/null \
-  | python3 -m json.tool 2>/dev/null >> "$BUNDLE_DIR/summary.txt" \
-  || echo "Could not fetch status" >> "$BUNDLE_DIR/summary.txt"
-
-# Package bundle
-tar -czf "$BUNDLE_DIR.tar.gz" "$BUNDLE_DIR"
-rm -rf "$BUNDLE_DIR"
-echo ""
-echo "Bundle created: $BUNDLE_DIR.tar.gz"
-echo "Review for sensitive data before sharing with support."
-```
-
-### Step 2: Programmatic Transcript Diagnostics
-
-```typescript
-import { AssemblyAI } from 'assemblyai';
-
-const client = new AssemblyAI({
-  apiKey: process.env.ASSEMBLYAI_API_KEY!,
-});
-
-async function diagnoseTranscript(transcriptId: string) {
-  const transcript = await client.transcripts.get(transcriptId);
-
-  const report = {
-    id: transcript.id,
-    status: transcript.status,
-    error: transcript.error ?? null,
-    audio_url: transcript.audio_url,
-    audio_duration: transcript.audio_duration,
-    language_code: transcript.language_code,
-    speech_model: transcript.speech_model,
-    created: transcript.created,
-    completed: transcript.completed,
-
-    // Feature flags that were enabled
-    features: {
-      speaker_labels: !!transcript.utterances?.length,
-      sentiment_analysis: !!transcript.sentiment_analysis_results?.length,
-      entity_detection: !!transcript.entities?.length,
-      auto_highlights: !!transcript.auto_highlights_result?.results?.length,
-      content_safety: !!transcript.content_safety_labels?.results?.length,
-      redact_pii: transcript.text?.includes('####') || transcript.text?.includes('['),
-      summarization: !!transcript.summary,
-    },
-
-    // Word count / duration sanity check
-    word_count: transcript.words?.length ?? 0,
-    words_per_minute: transcript.audio_duration
-      ? ((transcript.words?.length ?? 0) / (transcript.audio_duration / 60)).toFixed(1)
-      : 'N/A',
-  };
-
-  console.log(JSON.stringify(report, null, 2));
-  return report;
-}
-
-// Usage: diagnoseTranscript('your-transcript-id');
-```
-
-### Step 3: Check Recent Failed Transcripts
-
-```typescript
-async function findFailedTranscripts(limit = 50) {
-  const page = await client.transcripts.list({ limit });
-  const failed = page.transcripts.filter(t => t.status === 'error');
-
-  console.log(`Found ${failed.length} failed transcripts out of ${page.transcripts.length}:`);
-  for (const t of failed) {
-    console.log(`  ${t.id} | ${t.created} | ${t.error}`);
-  }
-
-  return failed;
-}
-```
-
-## What to Include in a Support Ticket
-
-**Always include:**
-
-- Transcript ID (e.g., `6wij2z3g66-...`)
-- Error message (exact text)
-- SDK version (`npm list assemblyai`)
-- Node.js version
-- Timestamp of the failure (UTC)
-
-**Never include:**
-
-- Your API key
-- Raw audio containing PII
-- Customer data
-
-**Helpful extras:**
-
-- Audio file format and duration
-- Which features were enabled (speaker_labels, etc.)
-- Whether the issue is intermittent or consistent
+- Recursive environment dumps collect unrelated secrets.
+- Full vendor responses remain sensitive after key removal.
+- Hashing low-entropy personal values is not anonymization.
 
 ## Output
 
-- `assemblyai-debug-YYYYMMDD-HHMMSS.tar.gz` archive with:
-  - `summary.txt` — Runtime, SDK version, API connectivity, service status
-- Programmatic transcript diagnosis report
-- List of recently failed transcripts
+Return the operation scope, environment, region, contract surface, authorization class, model and feature decisions, deterministic validation results, content-free identifiers, risks, cleanup or rollback state, and a concise pass/fail receipt. Exclude credentials, signed URLs, audio, transcript text, prompts, and customer-derived content.
 
-## Examples
+## Example
 
-For a single failed job, collect the opaque transcript ID, timestamp, SDK version, redacted status code, and selected feature flags into an access-restricted archive. Inspect and redact it before sharing with support, encrypt it in transit, then delete it according to the incident retention policy. Do not include audio URLs, raw transcript text, request headers, or API-key length metadata.
+- Start with the named environment, approved regional host, synthetic fixture identity, and bounded operation budget.
+- Finish with safe IDs, contract and assertion counts, terminal state, cleanup status, and the decision owner; never reproduce speech content.
 
-## Error Handling
+## Validation
 
-| Item | Purpose | Check |
-|------|---------|-------|
-| SDK version | Version-specific bugs | `npm list assemblyai` |
-| API connectivity | Network/firewall | `curl api.assemblyai.com` |
-| Service status | Outage check | status.assemblyai.com |
-| Transcript status | Job-specific error | `client.transcripts.get(id)` |
-| Audio URL | Accessibility | `curl -I <audio_url>` |
+Rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm rollback, termination, or deletion state before reporting success.
 
-## Resources
+## References
 
-- [AssemblyAI Support](https://support.assemblyai.com)
-- [AssemblyAI Status Page](https://status.assemblyai.com)
-- [AssemblyAI Community Discord](https://www.assemblyai.com/discord)
+Review the dated first-party evidence map before relying on any model, parameter, limit, price, region, or lifecycle claim.
 
-## Next Steps
-
-For rate limit issues, see `assemblyai-rate-limits`.
+- [Current first-party evidence map](references/official-docs.md)

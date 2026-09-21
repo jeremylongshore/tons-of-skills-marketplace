@@ -1,175 +1,87 @@
 ---
 name: castai-core-workflow-b
-description: 'Configure CAST AI Workload Autoscaler for pod-level right-sizing and
-  VPA.
-
-  Use when enabling workload autoscaling, configuring resource recommendations,
-
-  or tuning pod CPU and memory requests with CAST AI.
-
-  Trigger with phrases like "cast ai workload autoscaler", "cast ai pod sizing",
-
-  "cast ai resource recommendations", "cast ai VPA".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(kubectl:*), Grep
-version: 1.4.0
+description: 'Enable CAST AI optimization through a measured canary with explicit node and workload policy boundaries. Use when observation-first onboarding is complete and Node Autoscaling, Workload Autoscaling, or managed HPA behavior can be activated. Trigger with: "enable CAST AI automation", "canary CAST AI autoscaling", "apply CAST AI optimization policies".'
+allowed-tools: Read, Grep, Write, Edit, Bash(kubectl:*), Bash(terraform:*), Bash(castctl:*)
+version: 2.0.0
+argument-hint: '[cluster-and-canary-workload]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- kubernetes
-- cost-optimization
-- castai
-compatibility: Designed for Claude Code
+  - saas
+  - kubernetes
+  - cast-ai
+  - autoscaling
+  - rollout
+compatibility: 'Requires a connected cluster, representative baseline, and approved ownership of node and workload scaling controls'
 ---
-# CAST AI Core Workflow: Workload Autoscaler
+
+# CAST AI Controlled Optimization Rollout
 
 ## Overview
 
-CAST AI Workload Autoscaler right-sizes pod resource requests based on actual usage, reducing over-provisioning without manual VPA tuning. This skill covers enabling the workload autoscaler, configuring scaling policies per workload, and using annotations for fine-grained control.
+Turn recommendations into automation one bounded control at a time. Separate node capacity, vertical workload rightsizing, and horizontal replica control so each has an observable success condition and rollback.
 
 ## Prerequisites
 
-- Completed `castai-core-workflow-a` (cluster-level policies)
-- CAST AI agent v1.60+ installed
-- Workload Autoscaler enabled in CAST AI console
+- A healthy connected cluster and representative cost/workload baseline
+- Current scaling policies, node templates, PDBs, HPAs, quotas, and protected namespaces
+- A low-risk canary workload with an accountable owner
 
 ## Instructions
 
-### Step 1: Install Workload Autoscaler Components
+### Step 1: Define the control matrix
 
-```bash
-helm upgrade --install castai-workload-autoscaler \
-  castai-helm/castai-workload-autoscaler \
-  -n castai-agent \
-  --set castai.apiKey="${CASTAI_API_KEY}" \
-  --set castai.clusterID="${CASTAI_CLUSTER_ID}"
-```
+Use Read and Grep to map Node Autoscaling, Workload Autoscaler vertical mode, horizontal autoscaling, existing HPAs, and external provisioners. Record one owner for each control. Do not transfer HPA ownership implicitly.
 
-### Step 2: Query Workload Recommendations
+### Step 2: Set guardrails
 
-```bash
-# Get resource recommendations for a specific workload
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  "https://api.cast.ai/v1/workload-autoscaling/clusters/${CASTAI_CLUSTER_ID}/workloads" \
-  | jq '.items[] | {
-    name: .workloadName,
-    namespace: .namespace,
-    currentCpu: .currentCpuRequest,
-    recommendedCpu: .recommendedCpuRequest,
-    currentMemory: .currentMemoryRequest,
-    recommendedMemory: .recommendedMemoryRequest,
-    savingsPercent: .estimatedSavingsPercent
-  }'
-```
+Use Write or Edit to define approved node templates, availability zones, instance lifecycle constraints, maximum CPU, workload minimums/maximums, policy assignment, PDB expectations, and rollback thresholds. Do not add the deprecated cluster minimum CPU setting.
 
-### Step 3: Configure Per-Workload Policies via Annotations
+### Step 3: Preview the change
 
-```yaml
-# Add annotations to deployments for CAST AI workload autoscaler
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: my-api
-  annotations:
-    # Enable workload autoscaling
-    autoscaling.cast.ai/enabled: "true"
-    # CPU configuration
-    autoscaling.cast.ai/cpu-min: "100m"
-    autoscaling.cast.ai/cpu-max: "4000m"
-    autoscaling.cast.ai/cpu-headroom: "15"
-    # Memory configuration
-    autoscaling.cast.ai/memory-min: "128Mi"
-    autoscaling.cast.ai/memory-max: "8Gi"
-    autoscaling.cast.ai/memory-headroom: "20"
-    # Apply changes automatically vs recommendation-only
-    autoscaling.cast.ai/apply-type: "immediate"
-spec:
-  template:
-    spec:
-      containers:
-        - name: api
-          resources:
-            requests:
-              cpu: "500m"      # Will be auto-adjusted by CAST AI
-              memory: "512Mi"  # Will be auto-adjusted by CAST AI
-```
+Use Bash(terraform:_) to produce a saved reviewed plan when Terraform owns the configuration. Use Bash(castctl:_) only for supported inspection or documented feature operations. Confirm the diff affects the intended cluster and canary only.
 
-### Step 4: Create a Scaling Policy via API
+### Step 4: Enable a workload canary
 
-```bash
-curl -X POST -H "X-API-Key: ${CASTAI_API_KEY}" \
-  -H "Content-Type: application/json" \
-  "https://api.cast.ai/v1/workload-autoscaling/clusters/${CASTAI_CLUSTER_ID}/policies" \
-  -d '{
-    "name": "cost-optimized",
-    "applyType": "IMMEDIATE",
-    "management": {
-      "cpu": {
-        "function": "QUANTILE",
-        "args": { "quantile": 0.95 },
-        "overhead": 0.15,
-        "min": 50,
-        "max": 8000
-      },
-      "memory": {
-        "function": "MAX",
-        "overhead": 0.20,
-        "min": 64,
-        "max": 16384
-      }
-    },
-    "antiShrink": {
-      "enabled": true,
-      "cooldownSeconds": 300
-    }
-  }'
-```
+Choose Immediate mode only when controlled pod replacement is acceptable; the Eviction API will enforce PDBs. Choose Deferred mode when recommendations should apply on natural recreation. If horizontal autoscaling is enabled, review the native `autoscaling/v2` HPA configuration and any take-ownership decision.
 
-### Step 5: Monitor Workload Scaling Events
+### Step 5: Observe capacity and workload outcomes
 
-```bash
-# Check scaling events
-kubectl get events -n default --field-selector reason=CastAIWorkloadAutoscaled
+Use Bash(kubectl:\*) to inspect pending pods, scheduling events, HPA state, pod replacements, PDBs, requests, and node changes. Compare availability, latency, saturation, and spend to the pre-change baseline; do not optimize on cost alone.
 
-# View current vs recommended via API
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  "https://api.cast.ai/v1/workload-autoscaling/clusters/${CASTAI_CLUSTER_ID}/workloads/${WORKLOAD_ID}" \
-  | jq '.scalingEvents[-5:]'
-```
+### Step 6: Expand or roll back
 
-## Error Handling
+Expand one policy assignment group at a time only after the canary window passes. Roll back automation or policy assignment when error budget, capacity, disruption, or performance thresholds fail, while preserving evidence.
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Workload not appearing | Missing annotation | Add `autoscaling.cast.ai/enabled: "true"` |
-| OOMKilled after scaling | Memory headroom too low | Increase `memory-headroom` to 25+ |
-| CPU throttling | CPU recommendation too aggressive | Increase `cpu-headroom` or set higher min |
-| No recommendations yet | Insufficient data | Wait 24h for usage data collection |
+## Tool Discipline
+
+Use Read and Grep for ownership and policy evidence. Use Write and Edit for the control matrix and rollback record. Use Bash(terraform:_), Bash(castctl:_), and Bash(kubectl:\*) only inside the approved plan, rollout, and observation boundaries.
 
 ## Output
 
-Produce an approved workload-autoscaler policy, the observed request/limit
-baseline, selected guardrails, change ticket, and before/after workload health
-evidence. Keep the policy scoped to the named workload and retain the prior
-configuration so it can be restored if latency, errors, or eviction behavior
-regresses.
+- Node/workload/HPA ownership matrix
+- Guardrails and canary selection
+- Before-and-after availability, capacity, and cost evidence
+- Expansion decision or tested rollback receipt
 
 ## Examples
 
-Apply a conservative policy to one staging deployment with a 15 percent memory
-overhead and a five-minute anti-shrink cooldown. Observe a controlled demand
-change, compare p95 latency and restart counts to the baseline, then promote
-only after service owners approve the evidence; revert the annotation if the
-workload OOMs or violates its disruption budget.
+A stateless deployment starts in Deferred vertical mode with no HPA ownership transfer. A later reviewed change enables policy-managed horizontal scaling after the workload owner approves replica bounds and stabilization behavior.
+
+## Error Handling
+
+| Failure                               | Response                                                                     |
+| ------------------------------------- | ---------------------------------------------------------------------------- |
+| PDB blocks Immediate mode             | Preserve availability and select Deferred mode or revise with owner approval |
+| Pending pods cannot match templates   | Roll back and correct template constraints                                   |
+| Existing HPA is unexpectedly replaced | Disable managed horizontal scaling and restore declared ownership            |
+| Cost falls while latency regresses    | Roll back; performance guardrails take precedence                            |
 
 ## Resources
 
-- [Workload Autoscaler Overview](https://docs.cast.ai/docs/workload-autoscaling-overview)
-- [Annotations Reference](https://docs.cast.ai/docs/workload-autoscaler-annotations-reference)
-- [Scaling Policies](https://docs.cast.ai/docs/woop-scaling-policies-manage)
-
-## Next Steps
-
-For troubleshooting CAST AI errors, see `castai-common-errors`.
+- [Rollout evidence and source notes](references/official-docs.md)
+- [Scaling policies](https://docs.cast.ai/docs/woop-scaling-policies)
+- [Horizontal Pod Autoscaling](https://docs.cast.ai/docs/horizontal-pod-autoscaling)
+- [Node Autoscaling](https://docs.cast.ai/docs/autoscaler)

@@ -13,7 +13,7 @@ description: 'Implement tool use (function calling) with Claude to let it execut
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -203,8 +203,8 @@ See Step 1 (tool definition), Step 2 (sending with tools), Step 3 (executing and
 
 ## Resources
 
-- [Tool Use Guide](https://docs.anthropic.com/en/docs/build-with-claude/tool-use)
-- [Tool Use API Reference](https://docs.anthropic.com/en/api/messages)
+- [Tool Use Guide](https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview)
+- [Tool Use API Reference](https://platform.claude.com/docs/en/api/messages)
 
 ## Next Steps
 

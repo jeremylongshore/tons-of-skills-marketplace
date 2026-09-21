@@ -8,7 +8,7 @@ description: "Works correctly with LangChain 1.0's typed content blocks on AIMes
   , \"AIMessage.content\", \"tool_use block\", \"claude\nimage input\", \"langchain\
   \ multimodal\", \"thinking block replay\",\n\"claude citations\".\n"
 allowed-tools: Read, Write, Edit, Bash(python:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -332,9 +332,9 @@ handling and the `ToolMessage` ordering invariant.
 - [LangChain messages concept](https://python.langchain.com/docs/concepts/messages/)
 - [LangChain multimodality](https://python.langchain.com/docs/concepts/multimodality/)
 - [`AIMessage` API reference](https://python.langchain.com/api_reference/core/messages/langchain_core.messages.ai.AIMessage.html)
-- [Anthropic content blocks / messages API](https://docs.anthropic.com/en/api/messages-examples)
-- [Anthropic extended thinking](https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking)
-- [Anthropic citations](https://docs.anthropic.com/en/docs/build-with-claude/citations)
+- [Anthropic content blocks / messages API](https://platform.claude.com/docs/en/build-with-claude/working-with-messages)
+- [Anthropic extended thinking](https://platform.claude.com/docs/en/build-with-claude/extended-thinking)
+- [Anthropic citations](https://platform.claude.com/docs/en/build-with-claude/citations)
 - [OpenAI vision](https://platform.openai.com/docs/guides/vision)
 - [Gemini multimodal](https://ai.google.dev/gemini-api/docs/vision)
 - Companion skill: `langchain-model-inference` (read its `references/content-blocks.md` for the `str` vs `list[dict]` fundamentals)

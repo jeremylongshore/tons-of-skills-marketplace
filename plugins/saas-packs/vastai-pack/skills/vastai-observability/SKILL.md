@@ -1,172 +1,93 @@
 ---
 name: vastai-observability
-description: 'Monitor Vast.ai GPU instance health, utilization, and costs.
-
-  Use when setting up monitoring dashboards, configuring alerts,
-
-  or tracking GPU utilization and spending.
-
-  Trigger with phrases like "vastai monitoring", "vastai metrics",
-
-  "vastai observability", "monitor vastai", "vastai alerts".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vastai:*), Bash(curl:*)
-version: 1.11.0
+description: >-
+  Observe Vast.ai renter instances and Serverless resources using actionable state, logs, queue, utilization, balance, and cost signals. Use when building dashboards, alerts, or release telemetry. Trigger with: "monitor Vast.ai", "alert on Vast.ai instances", "observe Vast.ai Serverless".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[resource-scope-slos-and-alert-destinations]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- monitoring
-- observability
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - observability
+  - alerts
+  - serverless
+compatibility: 'Requires read-scoped Vast.ai access, resource labels, durable telemetry storage, and named responders.'
 ---
-# Vast.ai Observability
+
+# Vast.ai Control-Plane Observability
 
 ## Overview
 
-Monitor Vast.ai GPU instance health, utilization, and costs. Key metrics: GPU utilization (idle GPUs waste $0.20-$4.00/hr), instance uptime, training progress, cost accumulation, and spot preemption events.
+Measure provider state and workload health separately. Alerts must identify a resource, threshold, evidence link, responder, and safe action; a dashboard without terminal-state and billing coverage is incomplete.
 
 ## Prerequisites
 
-- Vast.ai account with active instances
-- `vastai` CLI installed
-- Optional: Prometheus, Grafana, or Datadog for dashboarding
+- Instance, endpoint, workergroup, deployment, and account scopes
+- Latency, error, queue, utilization, state-age, balance, and cost objectives
+- Collection interval, retention, alert routing, and incident owner
 
 ## Instructions
 
-### Step 1: Instance Metrics Collector
+### Step 1: Inventory labeled resources
 
-```python
-import subprocess, json, time
-from datetime import datetime
+Map instance labels and Serverless IDs to service, environment, release, cost center, and owner.
 
-class VastMetricsCollector:
-    def __init__(self, output_file="vast_metrics.jsonl"):
-        self.output_file = output_file
+### Step 2: Collect structured control state
 
-    def collect(self):
-        result = subprocess.run(
-            ["vastai", "show", "instances", "--raw"],
-            capture_output=True, text=True)
-        instances = json.loads(result.stdout)
+Read instance actual status, timestamps, price, disk, and endpoints; collect endpoint/workergroup status, logs, and deployment versions.
 
-        metrics = {
-            "timestamp": datetime.utcnow().isoformat(),
-            "total_instances": len(instances),
-            "running": 0, "total_hourly_cost": 0,
-            "instances": [],
-        }
+### Step 3: Collect workload signals
 
-        for inst in instances:
-            status = inst.get("actual_status", "unknown")
-            dph = inst.get("dph_total", 0)
-            if status == "running":
-                metrics["running"] += 1
-                metrics["total_hourly_cost"] += dph
+Measure request/job success, latency, queue time, GPU utilization, memory, disk, checkpoint age, and last successful artifact.
 
-            metrics["instances"].append({
-                "id": inst["id"],
-                "gpu": inst.get("gpu_name"),
-                "status": status,
-                "dph": dph,
-                "gpu_util": inst.get("gpu_util", 0),
-                "gpu_temp": inst.get("gpu_temp", 0),
-            })
+### Step 4: Add billing protection
 
-        with open(self.output_file, "a") as f:
-            f.write(json.dumps(metrics) + "\n")
+Track credit balance, instance and storage charges, active/stopped age, and orphaned resources. Alert before balance or cleanup risk becomes urgent.
 
-        return metrics
+### Step 5: Define stateful alerts
 
-    def run(self, interval=60):
-        while True:
-            m = self.collect()
-            print(f"[{m['timestamp']}] Running: {m['running']} | "
-                  f"Cost: ${m['total_hourly_cost']:.3f}/hr")
-            time.sleep(interval)
-```
+Alert on terminal states, excessive transition age, queue/SLO breach, checkpoint staleness, low balance, and cleanup failure with deduplication.
 
-### Step 2: Alert Conditions
+### Step 6: Test the path
 
-```python
-def check_alerts(metrics):
-    alerts = []
+Inject a canary event or threshold breach, verify delivery and ownership, then record recovery and false-positive behavior.
 
-    # Idle GPU alert (running but <10% utilization)
-    for inst in metrics["instances"]:
-        if inst["status"] == "running" and inst["gpu_util"] < 10:
-            alerts.append(f"IDLE: Instance {inst['id']} GPU util={inst['gpu_util']}% "
-                         f"(wasting ${inst['dph']:.3f}/hr)")
+## Authentication
 
-    # High temperature alert
-    for inst in metrics["instances"]:
-        if inst.get("gpu_temp", 0) > 85:
-            alerts.append(f"HOT: Instance {inst['id']} GPU temp={inst['gpu_temp']}C")
+Use read-only keys for collectors and distinct secrets for alert sinks. Never put a mutation-capable Vast.ai key in dashboards or telemetry processors.
 
-    # Budget alert
-    daily_projection = metrics["total_hourly_cost"] * 24
-    if daily_projection > 100:
-        alerts.append(f"BUDGET: Projected daily cost ${daily_projection:.2f}")
+## Tool Discipline
 
-    return alerts
-```
-
-### Step 3: Remote GPU Monitoring
-
-```bash
-# SSH into instance and collect nvidia-smi metrics
-ssh -p $PORT root@$HOST "nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total,temperature.gpu,power.draw --format=csv,noheader,nounits"
-# Output: 95, 20480, 24576, 72, 285
-```
-
-### Step 4: Prometheus Exporter (Optional)
-
-```python
-from prometheus_client import Gauge, start_http_server
-
-gpu_util = Gauge("vastai_gpu_utilization", "GPU utilization %", ["instance_id", "gpu_name"])
-hourly_cost = Gauge("vastai_hourly_cost", "Total hourly cost USD")
-instance_count = Gauge("vastai_instance_count", "Running instances")
-
-def export_metrics(metrics):
-    instance_count.set(metrics["running"])
-    hourly_cost.set(metrics["total_hourly_cost"])
-    for inst in metrics["instances"]:
-        if inst["status"] == "running":
-            gpu_util.labels(inst["id"], inst["gpu"]).set(inst["gpu_util"])
-
-start_http_server(9090)  # Prometheus scrape target
-```
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- Metrics collector with JSONL output
-- Alert conditions (idle GPU, high temp, budget)
-- Remote GPU monitoring via SSH + nvidia-smi
-- Optional Prometheus exporter for Grafana dashboards
+- Resource-to-owner inventory and telemetry schema
+- Dashboard and actionable alert definitions
+- Alert-path test, retention, and unresolved coverage receipt
 
-## Error Handling
-
-| Alert | Threshold | Response |
-|-------|-----------|----------|
-| Idle GPU | util < 10% for > 10 min | Investigate or destroy instance |
-| High temp | > 85C sustained | Reduce workload or report to host |
-| Budget exceeded | Projected daily > $100 | Destroy non-critical instances |
-| Instance offline | Status changed from running | Trigger auto-recovery |
-
-## Resources
-
-- [Vast.ai CLI](https://docs.vast.ai/cli/get-started)
-- [NVIDIA nvidia-smi](https://developer.nvidia.com/nvidia-system-management-interface)
-
-## Next Steps
-
-For incident response procedures, see `vastai-incident-runbook`.
+Return resource scope, collection interval, SLOs, tested alert, responder, evidence location, and blind spots.
 
 ## Examples
 
-**Quick dashboard**: Run `VastMetricsCollector().run(interval=30)` in tmux on a monitoring server. Pipe alerts to Slack via webhook.
+A dashboard separates an instance's `running` state from workload request success, pages on stale external checkpoints and low balance, and assigns stopped-storage leaks to the billing owner.
 
-**Cost tracking**: Parse `vast_metrics.jsonl` to plot hourly cost over time and identify spending patterns.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Collector receives 403 | Add only the documented read category needed by that metric. |
+| Resource is missing from inventory | Quarantine the alert and assign ownership before automated action. |
+| Metrics lag exceeds the SLO | Mark the dashboard stale and use direct provider state during incidents. |
+| Alert contains a secret or payload | Disable the route, scrub data, rotate credentials, and narrow fields. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [Serverless logging](https://docs.vast.ai/guides/serverless/logging)
+- [Manage instances](https://docs.vast.ai/guides/instances/manage-instances)
+- [Notification webhooks](https://docs.vast.ai/guides/reference/notification-webhooks)

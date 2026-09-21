@@ -1,169 +1,97 @@
 ---
 name: coderabbit-hello-world
-description: 'Create a minimal working CodeRabbit configuration and trigger your first
-  AI review.
-
-  Use when starting with CodeRabbit, testing your setup,
-
-  or learning basic .coderabbit.yaml patterns.
-
-  Trigger with phrases like "coderabbit hello world", "coderabbit example",
-
-  "coderabbit quick start", "first coderabbit review".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*), Bash(git:*)
-version: 1.11.0
-license: MIT
+description: >-
+  Run a bounded first pull-request review with minimal supported configuration and explicit cleanup. Use when this operator task needs a current, evidence-backed
+  CodeRabbit workflow. Trigger with "smoke test CodeRabbit".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[target] [evidence-or-scope]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- coderabbit
-- quickstart
-- testing
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current CodeRabbit documentation and approved access for any live organization, repository, billing, or API change
+tags: [saas, coderabbit, quickstart, smoke-test, pull-requests]
 ---
-# CodeRabbit Hello World
+# CodeRabbit First Review
 
 ## Overview
 
-Minimal working example demonstrating CodeRabbit AI code review. CodeRabbit reviews PRs automatically via a GitHub/GitLab App -- no SDK or API calls needed. You configure behavior through a `.coderabbit.yaml` file and interact via PR comments.
+Prove installation and review behavior with a synthetic reversible PR. Avoid production secrets, branch-rule changes, and timing promises.
 
 ## Prerequisites
 
-- CodeRabbit GitHub App installed (see `coderabbit-install-auth`)
-- A repository with at least one branch
+- Identify the CodeRabbit organization, Git provider, repository, plan, and accountable owner.
+- Read `references/official-docs.md` and re-check any time-sensitive contract before execution.
+- Use synthetic or read-only evidence until the approval boundary is satisfied.
+- Preserve the repository's independent CI, security, and human-review requirements.
+
+## Current Contract
+
+- CodeRabbit works with defaults; YAML is optional customization.
+- Repository YAML belongs at root and is read from the feature branch.
+- Draft reviews are disabled by default.
+- Configuration and review commands expose or control review state.
+
+## Authentication
+
+Treat Git-provider sessions, CodeRabbit web sessions, CLI credentials, and CodeRabbit API keys as separate credentials. Use only an already-approved session or secret-manager reference, never print a secret, and do not place credentials in `.coderabbit.yaml`, source files, logs, or deliverables.
 
 ## Instructions
 
-### Step 1: Create Minimal Configuration
+1. Choose an approved test repository and verify installation scope.
 
-```yaml
-# .coderabbit.yaml (repository root)
-language: "en-US"
-reviews:
-  profile: "assertive"
-  high_level_summary: true
-  auto_review:
-    enabled: true
-    drafts: false
-chat:
-  auto_reply: true
-```
+2. Create one harmless feature-branch change and optional minimal schema-linked YAML.
 
-### Step 2: Add Path-Specific Instructions
+3. Open a non-draft PR and observe walkthrough, findings, and CI.
 
-```yaml
-# .coderabbit.yaml - add review context for better feedback
-reviews:
-  profile: "assertive"
-  high_level_summary: true
-  auto_review:
-    enabled: true
-    drafts: false
-  path_instructions:
-    - path: "src/**/*.ts"
-      instructions: "Check for proper TypeScript types. Flag any use of `any`."
-    - path: "**/*.test.*"
-      instructions: "Verify edge cases are covered. Check async handling."
-chat:
-  auto_reply: true
-```
+4. Respond once, then close or merge under normal policy and clean up.
 
-### Step 3: Create a PR to Trigger Review
+## Tool Discipline
 
-```bash
-set -euo pipefail
-git checkout -b feat/hello-coderabbit
+- Use **Glob** to locate candidate configuration and evidence files without widening scope.
+- Use **Grep** to find relevant fields, commands, identifiers, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use these file tools as a substitute for authenticated CodeRabbit or provider operations.
 
-# Add the configuration file
-cat > .coderabbit.yaml << 'YAML'
-language: "en-US"
-reviews:
-  profile: "assertive"
-  high_level_summary: true
-  auto_review:
-    enabled: true
-    drafts: false
-  path_instructions:
-    - path: "src/**"
-      instructions: "Check for proper error handling and input validation."
-chat:
-  auto_reply: true
-YAML
+## Approval Boundaries
 
-git add .coderabbit.yaml
-git commit -m "feat: add CodeRabbit AI code review configuration"
-git push -u origin feat/hello-coderabbit
-gh pr create --title "feat: enable CodeRabbit AI code review" \
-  --body "Adding .coderabbit.yaml for automated code reviews"
-```
-
-### Step 4: Interact with CodeRabbit on the PR
-
-Once CodeRabbit posts its review (typically 2-5 minutes), you can interact:
-
-```markdown
-# In a PR comment, use these commands:
-@coderabbitai summary        # Get a walkthrough of all changes
-@coderabbitai full review    # Re-run a complete review from scratch
-@coderabbitai resolve        # Mark all CodeRabbit comments as resolved
-@coderabbitai help           # List all available commands
-
-# Reply to any CodeRabbit comment to have a conversation about the feedback
-# CodeRabbit will respond with context-aware explanations
-```
-
-### Step 5: Try the CLI for Local Reviews (Optional)
-
-```bash
-set -euo pipefail
-# Review staged changes before committing
-git add -A
-cr review
-
-# Review with interactive mode for back-and-forth discussion
-cr review --interactive
-
-# Review specific files
-cr review src/index.ts src/utils.ts
-```
-
-## What CodeRabbit Posts on Your PR
-
-1. **Walkthrough comment**: High-level summary of all changes with a file-by-file breakdown
-2. **Sequence diagram**: Visual control flow of the changes (if enabled)
-3. **Line-level comments**: Specific suggestions on individual code lines
-4. **Review status**: Approved or changes-requested based on severity of findings
+Require owner approval before installation, a production-repository test PR, or merge. Keep analysis and drafts local until approval is explicit, and record who approved the action and its scope.
 
 ## Output
 
-- `.coderabbit.yaml` committed to repository root
-- First AI review posted on a test PR within 2-5 minutes
-- Interactive review conversation demonstrated
+A receipt with repository, branch, PR, config hash, review surfaces, CI, and cleanup. Include source dates, unknowns, and the exact boundary between observed fact and recommendation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| No review appears | App not installed on this repo | Check GitHub App > Repository access |
-| YAML syntax error | Invalid configuration | Validate YAML at yamlchecker.com |
-| Review on wrong branch | Missing base_branches filter | Add `base_branches: [main]` to config |
-| Bot not responding to commands | Typo in mention | Must use exact `@coderabbitai` mention |
+| Condition | Response |
+|---|---|
+| Current contract is unclear or docs disagree | Stop mutation, cite both sources, and request owner resolution. |
+| Required access or approval is missing | Produce a draft and evidence plan only. |
+| Validation or pilot behavior differs from expectation | Restore the prior state and retain the failed evidence. |
+| Output contains secrets or private code | Stop, quarantine the artifact, redact it, and notify the data owner. |
 
 ## Examples
 
-Install the app on one pilot repository, commit a minimal configuration, open a
-small test pull request, and verify the walkthrough and one follow-up command.
-If the expected review does not appear, inspect app access and the base-branch
-configuration before adding broader repository permissions or retrying commands.
+### Example 1
+
+Validate a private-repository installation with a docs-only PR.
+
+### Example 2
+
+Confirm a `chill` profile change is read before merge.
+
+## Validation
+
+- Confirm every claim against the dated sources in `references/official-docs.md`.
+- Verify the requested scope, owner, approval, happy path, failure path, and rollback.
+- Re-read the effective configuration or provider state after any approved change.
+- Report unsupported fields, undocumented endpoints, and unverified assumptions as failures.
 
 ## Resources
 
-- [YAML Configuration Guide](https://docs.coderabbit.ai/getting-started/yaml-configuration)
-- [Review Commands Reference](https://docs.coderabbit.ai/reference/review-commands)
-- [CodeRabbit CLI](https://www.coderabbit.ai/cli)
-
-## Next Steps
-
-Proceed to `coderabbit-local-dev-loop` for a full development workflow with CodeRabbit.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

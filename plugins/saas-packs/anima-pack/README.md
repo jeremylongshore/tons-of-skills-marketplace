@@ -1,8 +1,11 @@
 # Anima Skill Pack
 
-> Claude Code skills for Anima design-to-code automation — Figma to React/Vue/HTML with Tailwind, MUI, shadcn (18 skills)
+> Validated Anima workflows for authorized Figma, website, and prompt-to-code operations (18 skills)
 
-Anima converts Figma designs into production-ready code using AI-powered code generation. These skills use the real `@animaapp/anima-sdk` npm package with the `generateCode` API supporting React, Vue, HTML, TypeScript, Tailwind, MUI, AntD, and shadcn output.
+These skills use `@animaapp/anima-sdk` 0.27.0 and its current backend contract.
+They cover Figma generation, public website conversion, early-preview prompt
+generation, secure deployment, reliability, and governed output review. Current
+framework targets are React and HTML; Vue is not advertised by this SDK version.
 
 ## Installation
 
@@ -17,14 +20,14 @@ Anima converts Figma designs into production-ready code using AI-powered code ge
 | Skill | What It Does |
 |-------|-------------|
 | `anima-install-auth` | Install `@animaapp/anima-sdk`, configure Anima + Figma tokens |
-| `anima-hello-world` | Generate React/Vue/HTML from Figma with all framework presets |
-| `anima-local-dev-loop` | Multi-preset comparison, Vite preview, iterative generation |
-| `anima-sdk-patterns` | Singleton client, generation cache, output normalizer, retry |
+| `anima-hello-world` | Generate reviewed React or HTML output from an approved Figma node |
+| `anima-local-dev-loop` | Compare supported presets in a bounded local review loop |
+| `anima-sdk-patterns` | Build a typed client, output normalizer, and content-addressed cache |
 | `anima-core-workflow-a` | Automated Figma-to-React pipeline with component scanning |
-| `anima-core-workflow-b` | Website-to-code cloning, design token mapping, post-processing |
+| `anima-core-workflow-b` | Convert an authorized website or prompt, then govern customization |
 | `anima-common-errors` | Diagnose auth, node, generation, and output quality errors |
 | `anima-debug-bundle` | Diagnostic bundle with SDK version and Figma access status |
-| `anima-rate-limits` | Bottleneck throttler (10 gen/min), batch generator, 429 retry |
+| `anima-rate-limits` | Honor structured Figma rate-limit callbacks and bounded retry budgets |
 | `anima-security-basics` | Token scope restriction, server-side enforcement, secret manager |
 | `anima-prod-checklist` | Production readiness validation for design-to-code pipelines |
 | `anima-upgrade-migration` | SDK upgrades, manual plugin to automated SDK migration |
@@ -42,10 +45,11 @@ Anima converts Figma designs into production-ready code using AI-powered code ge
 
 ## Key Concepts
 
-- **Real SDK** — All code uses `@animaapp/anima-sdk` (`import { Anima } from '@animaapp/anima-sdk'`)
+- **Current SDK** — Examples follow the public 0.27.0 implementation and documentation
 - **Server-side only** — SDK runs on backend; never ship tokens to browser
-- **Figma API integration** — Uses Figma Personal Access Tokens and Webhooks v2
-- **Framework support** — React, Vue, HTML with Tailwind, CSS, MUI, AntD, shadcn
+- **Least privilege** — Figma access uses current granular scopes and approved source allowlists
+- **Framework support** — React or HTML with `plain_css`, Tailwind, or inline styles
+- **Review boundary** — Generated output is quarantined until path, dependency, security, build, and visual checks pass
 
 ## License
 

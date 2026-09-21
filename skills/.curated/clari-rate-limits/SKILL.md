@@ -1,132 +1,91 @@
 ---
 name: clari-rate-limits
-description: 'Handle Clari API rate limits with backoff and export job scheduling.
-
-  Use when hitting 429 errors, optimizing export frequency,
-
-  or scheduling bulk forecast exports.
-
-  Trigger with phrases like "clari rate limit", "clari 429",
-
-  "clari throttle", "clari api limits".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.6.0
+description: >-
+  Analyze and schedule Clari exports, ingestion jobs, and Copilot reads within provider concurrency and quota controls. Use when preventing 429 responses or coordinating workers. Trigger with: "handle Clari rate limits", "schedule Clari jobs", "recover from Clari 429".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[surface-workload-and-service-level-objective]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- revenue-intelligence
-- forecasting
-- clari
-compatibility: Designed for Claude Code
+  - saas
+  - clari
+  - rate-limits
+  - quota
+  - scheduling
+compatibility: 'Requires workload volume estimates, retained job or pagination state, and access to organization limits where the provider exposes them.'
 ---
-# Clari Rate Limits
+
+# Clari Quota-Aware Request Scheduling
 
 ## Overview
 
-The Clari API enforces rate limits per API key. Export jobs are asynchronous and queued server-side, so the primary concern is polling frequency and concurrent export requests.
+Model each Clari surface as its own constrained queue. Revenue exports consume organization-level concurrent and rolling quota capacity, ingestion can reject excess concurrent async jobs, and Copilot has documented per-second and weekly ceilings.
 
 ## Prerequisites
 
-- A scoped API token and approved forecast export scope
-- Persistent job/attempt tracking for retry and idempotency decisions
-- A scheduler that can defer work without spawning duplicate workers
-- Monitoring for queue depth, response class, and terminal failures
-
-## Rate Limit Behavior
-
-| Aspect | Value |
-|--------|-------|
-| Scope | Per API key |
-| Response on limit | HTTP 429 |
-| Export job queue | Server-managed, async |
-| Recommended polling | 5-10 second intervals |
+- Request inventory split by Revenue export, ingestion, and Copilot
+- Priority classes, latency objectives, and retry budget
+- Durable job IDs, cursors, and deduplication keys
 
 ## Instructions
 
-### Exponential Backoff for Export Polling
+### Step 1: Read the applicable limits
 
-```python
-import time
-import requests
+Use `/admin/limits` for Revenue export capacity and record the Copilot 10-per-second and 100,000-per-week ceilings from the current contract.
 
-def poll_with_backoff(
-    job_id: str,
-    api_key: str,
-    max_attempts: int = 60,
-    base_delay: float = 5.0,
-    max_delay: float = 60.0,
-) -> dict:
-    for attempt in range(max_attempts):
-        resp = requests.get(
-            f"https://api.clari.com/v4/export/jobs/{job_id}",
-            headers={"apikey": api_key},
-        )
+### Step 2: Allocate capacity
 
-        if resp.status_code == 429:
-            retry_after = int(resp.headers.get("Retry-After", base_delay))
-            time.sleep(retry_after)
-            continue
+Reserve headroom for interactive or recovery work and assign explicit concurrency to each scheduler rather than letting every worker retry independently.
 
-        resp.raise_for_status()
-        status = resp.json()
+### Step 3: Make work resumable
 
-        if status["status"] in ("COMPLETED", "FAILED"):
-            return status
+Persist export job IDs, ingestion job IDs, Copilot cursors, and request fingerprints before polling or retrying.
 
-        delay = min(base_delay * (1.5 ** attempt), max_delay)
-        time.sleep(delay)
+### Step 4: Apply bounded backoff
 
-    raise TimeoutError(f"Job {job_id} did not complete in {max_attempts} attempts")
-```
+Honor provider retry guidance when present; otherwise use capped exponential backoff with jitter and a maximum elapsed time.
 
-### Sequential Export Scheduler
+### Step 5: Prevent duplicate mutations
 
-```python
-def export_all_periods(
-    client,
-    forecast_name: str,
-    periods: list[str],
-    delay_between: float = 10.0,
-) -> list[dict]:
-    results = []
-    for period in periods:
-        print(f"Exporting {period}...")
-        job = client.export_forecast(forecast_name, period)
-        result = poll_with_backoff(job["jobId"], client.config.api_key)
-        results.append(result)
-        time.sleep(delay_between)  # Avoid hitting rate limits
-    return results
-```
+Before replaying a queue or ingestion request, reconcile retained state and provider jobs. Reads may resume from checkpoints; writes require an explicit idempotency decision.
 
-## Error Handling
+### Step 6: Measure and tune
 
-| Scenario | Detection | Response |
-|----------|-----------|----------|
-| 429 with Retry-After | Check header | Wait exact duration |
-| 429 without header | Status code only | Backoff from 5s |
-| Job queue full | Multiple pending jobs | Wait for completion before new exports |
+Track queue delay, attempts, 429 rate, quota remaining, terminal latency, and abandoned work by surface.
+
+## Authentication
+
+Limit reads and job polling still require the correct surface credential. Redact authentication headers and keep scheduler state free of secret values and customer payloads.
+
+## Tool Discipline
+
+Use Read and Grep to inspect configuration, provider contracts, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not issue, rotate, revoke, create, update, cancel, delete, export, ingest, or publish provider data without explicit operator approval.
 
 ## Output
 
-Return a per-job state record with export period, provider job ID, attempts,
-applied delay, response class, and terminal decision. Do not report tokens or
-raw forecast records; callers must receive a bounded retryable failure rather
-than silently starting a parallel export.
+- Per-surface capacity model and worker allocation
+- Retry, checkpoint, and deduplication policy
+- Quota dashboard with alert and shedding thresholds
+
+Return the exact surface, environment, resource or job identifiers, contract fingerprint, evidence, unresolved risks, and final decision without exposing credentials or sensitive customer data.
 
 ## Examples
 
-Submit one export for a staging period and persist its job ID before polling.
-On a 429 with `Retry-After`, reschedule the same job after that interval; if
-the attempt budget expires, mark the run unavailable and alert the scheduler
-instead of issuing another export request.
+A scheduler permits at most the organization’s reported export concurrency minus one recovery slot, polls known job IDs with jitter, and independently throttles Copilot reads below both documented ceilings.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Limits endpoint is unavailable | Use the last verified lower bound, reduce concurrency, and alert rather than guessing upward. |
+| 429 recurs after backoff | Open the circuit, preserve checkpoints, and reduce admission until the provider window clears. |
+| Quota is exhausted | Defer noncritical exports and obtain an approved quota or cadence change before resuming. |
 
 ## Resources
 
-- [Clari API Reference](https://developer.clari.com/documentation/external_spec)
-
-## Next Steps
-
-For security configuration, see `clari-security-basics`.
+- [First-party source notes](references/official-docs.md)
+- [Clari Revenue API reference](https://developer.clari.com/default/documentation/external_spec)
+- [Clari Copilot API reference](https://api-doc.copilot.clari.com/)

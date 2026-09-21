@@ -1,151 +1,87 @@
 ---
 name: castai-debug-bundle
-description: 'Collect CAST AI diagnostic bundle for support tickets and troubleshooting.
-
-  Use when preparing a support case, collecting agent logs,
-
-  or building a diagnostic snapshot of cluster state.
-
-  Trigger with phrases like "cast ai debug", "cast ai support bundle",
-
-  "collect cast ai diagnostics", "cast ai logs".
-
-  '
-allowed-tools: Read, Bash(kubectl:*), Bash(curl:*), Bash(tar:*), Bash(helm:*), Grep
-version: 1.4.0
+description: 'Create a bounded, redacted CAST AI diagnostic bundle that preserves component, policy, and Kubernetes evidence for escalation. Use when triage must be handed to platform engineering, a cloud owner, or CAST AI support. Trigger with: "collect CAST AI diagnostics", "make a CAST AI support bundle", "capture CAST AI evidence".'
+allowed-tools: Read, Grep, Write, Bash(kubectl:*), Bash(helm:*), Bash(castctl:*)
+version: 2.0.0
+argument-hint: '[kube-context-and-time-window]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- kubernetes
-- cost-optimization
-- castai
-compatibility: Designed for Claude Code
+  - saas
+  - kubernetes
+  - cast-ai
+  - diagnostics
+  - support
+compatibility: 'Requires read-only access to the selected cluster; collection must follow local data-handling and support-sharing policy'
 ---
-# CAST AI Debug Bundle
+
+# CAST AI Redacted Diagnostic Bundle
 
 ## Overview
 
-Collect all CAST AI component logs, cluster state, and configuration into a single archive for troubleshooting or support tickets. The bundle captures agent status, Helm releases, autoscaler policies, node inventory, and recent events.
+Capture enough evidence to reproduce a CAST AI failure without exporting credentials, Secret payloads, broad cluster inventory, application data, or unbounded logs.
 
 ## Prerequisites
 
-- `kubectl` access to the cluster running CAST AI
-- `CASTAI_API_KEY` and `CASTAI_CLUSTER_ID` configured
-- `helm` installed
+- Exact kube context, cluster identifier, CAST AI region, incident window, and symptom
+- Approved local destination with retention and audience
+- Redaction rules for names, labels, annotations, IPs, account data, and credentials
 
 ## Instructions
 
-### Step 1: Run the Debug Bundle Script
+### Step 1: Declare the bundle contract
 
-```bash
-#!/bin/bash
-# castai-debug-bundle.sh
-set -euo pipefail
+Use Write to record incident ID, collector, start and end time, selected namespaces, commands, excluded data classes, redaction method, checksum method, retention, and recipients.
 
-BUNDLE_DIR="castai-debug-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE_DIR"
+### Step 2: Inventory component versions
 
-echo "=== CAST AI Debug Bundle ===" | tee "$BUNDLE_DIR/summary.txt"
-echo "Generated: $(date -u)" | tee -a "$BUNDLE_DIR/summary.txt"
-echo "Cluster ID: ${CASTAI_CLUSTER_ID:-unknown}" | tee -a "$BUNDLE_DIR/summary.txt"
+Use Bash(castctl:_) for version information, Bash(helm:_) for release metadata and redacted values, and Bash(kubectl:\*) for component images and readiness. Do not collect Helm secrets, rendered Secret objects, service-account tokens, or kubeconfig contents.
 
-# 1. Helm releases
-echo "--- Helm Releases ---" >> "$BUNDLE_DIR/summary.txt"
-helm list -n castai-agent -o yaml > "$BUNDLE_DIR/helm-releases.yaml" 2>&1
+### Step 3: Capture bounded health evidence
 
-# 2. Pod status
-echo "--- Pod Status ---" >> "$BUNDLE_DIR/summary.txt"
-kubectl get pods -n castai-agent -o wide > "$BUNDLE_DIR/pod-status.txt" 2>&1
+Collect status, restart counts, recent warning events, selected resource descriptions, and logs constrained by component, time, and line count. Include metrics-server status when workload recommendations are involved and pending-pod reasons when node capacity is involved.
 
-# 3. Agent logs (last 200 lines each)
-for deploy in castai-agent cluster-controller castai-evictor castai-spot-handler castai-workload-autoscaler; do
-  kubectl logs -n castai-agent "deployment/$deploy" --tail=200 \
-    > "$BUNDLE_DIR/${deploy}-logs.txt" 2>&1 || echo "Not found: $deploy" >> "$BUNDLE_DIR/summary.txt"
-done
+### Step 4: Capture declared policy context
 
-# 4. Cluster events (CAST AI related)
-kubectl get events -n castai-agent --sort-by='.lastTimestamp' \
-  > "$BUNDLE_DIR/events.txt" 2>&1
+Use Read and Grep on repository-owned Terraform, Helm values, annotations, node templates, PDBs, and HPAs. Record source paths and commit identifiers. Prefer diffs and normalized summaries over raw state files.
 
-# 5. Node inventory
-kubectl get nodes -o wide > "$BUNDLE_DIR/nodes.txt" 2>&1
+### Step 5: Redact and verify
 
-# 6. API cluster status (redact API key from output)
-if [ -n "${CASTAI_API_KEY:-}" ] && [ -n "${CASTAI_CLUSTER_ID:-}" ]; then
-  curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-    "https://api.cast.ai/v1/kubernetes/external-clusters/${CASTAI_CLUSTER_ID}" \
-    | jq '{name, status, agentStatus, providerType, createdAt}' \
-    > "$BUNDLE_DIR/cluster-status.json" 2>&1
+Scan the bundle for API keys, authorization headers, tokens, Secret data, cloud account identifiers, email addresses, private endpoints, and application payloads. Replace values consistently so relationships remain debuggable.
 
-  curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-    "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/policies" \
-    > "$BUNDLE_DIR/policies.json" 2>&1
-fi
+### Step 6: Seal the handoff
 
-# 7. RBAC check
-kubectl get clusterrole -l app.kubernetes.io/managed-by=castai \
-  > "$BUNDLE_DIR/rbac.txt" 2>&1
+Write a manifest of included files, omitted evidence, timestamps, tool versions, hashes, and known gaps. Open the sanitized files before sharing and require a second-person review for external support transfer.
 
-# 8. Package bundle
-tar -czf "$BUNDLE_DIR.tar.gz" "$BUNDLE_DIR"
-rm -rf "$BUNDLE_DIR"
-echo "Bundle created: $BUNDLE_DIR.tar.gz"
-```
+## Tool Discipline
 
-### Step 2: Review Before Sharing
-
-**Safe to include:**
-
-- Pod logs (no secrets in CAST AI agent logs)
-- Helm release metadata
-- Node names and instance types
-- Autoscaler policies
-- Cluster events
-
-**Redact before sharing:**
-
-- API keys (the script never writes them)
-- Custom environment variables
-- Internal hostnames if sensitive
-
-### Step 3: Submit to CAST AI Support
-
-1. Generate bundle: `bash castai-debug-bundle.sh`
-2. Attach `castai-debug-*.tar.gz` to support ticket at support.cast.ai
-3. Include your cluster ID and a description of the issue
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `kubectl` permission denied | Missing RBAC | Use cluster-admin kubeconfig |
-| Empty log files | Pod not running | Note which components are down |
-| API call fails | Key expired | Bundle still useful with kubectl data |
-| tar fails | Disk full | Clean temp files first |
+Use Read and Grep for source and redaction review. Use Write only for sanitized bundle artifacts and the manifest. Use Bash(kubectl:_), Bash(helm:_), and Bash(castctl:\*) for non-mutating, bounded inspection; never request Secret contents or stream logs indefinitely.
 
 ## Output
 
-The command produces one timestamped `castai-debug-*.tar.gz` archive plus a
-summary that identifies failed collection steps. Before it leaves the cluster,
-an operator reviews the archive for credentials, workload environment values,
-customer identifiers, and internal network names; remove or redact those
-entries and retain the review decision with the support case.
+- Sanitized component and cluster-health evidence
+- Policy/source-of-truth references
+- Redaction report and file manifest
+- Checksums, retention, audience, and escalation question
 
 ## Examples
 
-During an autoscaler incident, collect the archive, verify that `summary.txt`
-records the affected cluster and UTC time, then inspect `policies.json` and
-agent logs locally. Attach only the redacted archive to the support case and
-include the incident window and the failed component name rather than pasting
-raw logs into a public channel.
+A workload-autoscaler incident includes component versions, a 15-minute warning-event window, PDB status, policy name, and sanitized logs. It excludes Secret objects, all-namespace inventory, Terraform state, and unrelated application logs.
+
+## Error Handling
+
+| Failure                           | Response                                                            |
+| --------------------------------- | ------------------------------------------------------------------- |
+| Context or time window is unknown | Stop and resolve scope before collection                            |
+| A command would reveal a Secret   | Omit it and document the evidence gap                               |
+| Redaction cannot preserve safety  | Keep the bundle local and share a summary                           |
+| Bundle exceeds approved scope     | Delete the excess from the exact bundle and regenerate its manifest |
 
 ## Resources
 
-- [CAST AI Support](https://support.cast.ai)
-- [CAST AI Status](https://status.cast.ai)
-- [Component Troubleshooting](https://docs.cast.ai/docs/casti-ai-components)
-
-## Next Steps
-
-For rate limit handling, see `castai-rate-limits`.
+- [Bundle evidence and source notes](references/official-docs.md)
+- [Workload Autoscaler overview](https://docs.cast.ai/docs/workload-autoscaling-overview)
+- [Node Autoscaling](https://docs.cast.ai/docs/autoscaler)
+- [Connect with castctl](https://docs.cast.ai/docs/connect-with-castctl)

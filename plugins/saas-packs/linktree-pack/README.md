@@ -1,8 +1,8 @@
 # Linktree Skill Pack
 
-> Claude Code skill pack for Linktree integration (18 skills)
+> Production-grade Linktree operator workflows grounded in public Help Center guidance; partner automation remains contract-gated (18 skills)
 
-Link-in-bio platform API integration for profile and link management across 25M+ creators.
+This pack covers governed profile publishing, Insights, access, security, rollout, migration, and private partner-integration design. It does not claim a public Linktree SDK, REST host, endpoint catalog, API key, webhook contract, or numeric request quota. Linktree's public developer page currently routes prospective developers through registration and existing partners through the Marketplace; private automation requires the user's approved partner documentation.
 
 ## Installation
 
@@ -12,37 +12,34 @@ Link-in-bio platform API integration for profile and link management across 25M+
 
 ## Skills Included
 
-### Standard Skills (S01-S12)
+| Skill | Operator workflow |
+|---|---|
+| `linktree-hello-world` | First-publish smoke test |
+| `linktree-install-auth` | Account, Workspace, MFA, and recovery readiness |
+| `linktree-core-workflow-a` | Governed campaign publication |
+| `linktree-core-workflow-b` | Insights decision loop |
+| `linktree-sdk-patterns` | Partner-contract adapter boundary |
+| `linktree-local-dev-loop` | Synthetic integration rehearsal |
+| `linktree-ci-integration` | Content-change CI gate |
+| `linktree-deploy-integration` | Staged profile rollout |
+| `linktree-webhooks-events` | Partner event contract or documented alternative review |
+| `linktree-rate-limits` | Contract-grounded capacity control |
+| `linktree-cost-tuning` | Plan and feature value review |
+| `linktree-reference-architecture` | Integration authority architecture |
+| `linktree-security-basics` | Account and data security baseline |
+| `linktree-debug-bundle` | Redacted operator evidence bundle |
+| `linktree-common-errors` | Operator troubleshooting triage |
+| `linktree-performance-tuning` | Visitor-path performance study |
+| `linktree-prod-checklist` | Production change checklist |
+| `linktree-upgrade-migration` | Plan, profile, and Workspace migration |
 
-| Skill | Description |
-|-------|-------------|
-| `linktree-common-errors` | Common Errors |
-| `linktree-core-workflow-a` | Core Workflow A |
-| `linktree-core-workflow-b` | Core Workflow B |
-| `linktree-debug-bundle` | Debug Bundle |
-| `linktree-hello-world` | Hello World |
-| `linktree-install-auth` | Install Auth |
-| `linktree-local-dev-loop` | Local Dev Loop |
-| `linktree-prod-checklist` | Prod Checklist |
-| `linktree-rate-limits` | Rate Limits |
-| `linktree-sdk-patterns` | Sdk Patterns |
-| `linktree-security-basics` | Security Basics |
-| `linktree-upgrade-migration` | Upgrade Migration |
+Each skill includes a distinct, dated `references/official-docs.md` evidence map. Public workflows use documented Linktree Admin, profile, Help Center, Insights, pricing, privacy, and status surfaces. Account-specific plan availability and private partner contracts always outrank generic examples.
 
-### Pro Skills (P13-P18)
+## Safety Boundary
 
-| Skill | Description |
-|-------|-------------|
-| `linktree-ci-integration` | Ci Integration |
-| `linktree-cost-tuning` | Cost Tuning |
-| `linktree-deploy-integration` | Deploy Integration |
-| `linktree-performance-tuning` | Performance Tuning |
-| `linktree-reference-architecture` | Reference Architecture |
-| `linktree-webhooks-events` | Webhooks Events |
-
-## Usage
-
-Skills trigger automatically when you discuss Linktree topics.
+- Never request passwords, MFA codes, recovery codes, cookies, browser sessions, or raw subscriber exports.
+- Never infer partner hosts, authentication, schemas, events, quotas, or retry behavior.
+- Require named owners, exact target profiles, synthetic tests where applicable, explicit approval, and rollback evidence before live changes.
 
 ## License
 

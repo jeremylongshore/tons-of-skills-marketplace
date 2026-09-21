@@ -1,210 +1,76 @@
 ---
 name: brightdata-webhooks-events
-description: 'Implement Bright Data webhook signature validation and event handling.
-
-  Use when setting up webhook endpoints, implementing signature verification,
-
-  or handling Bright Data event notifications securely.
-
-  Trigger with phrases like "brightdata webhook", "brightdata events",
-
-  "brightdata webhook signature", "handle brightdata events", "brightdata notifications".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*)
-version: 1.6.0
+description: 'Build a secure receiver and replay contract for Bright Data snapshot delivery without assuming provider IPs, payload size, or retry timing. Use when accepting webhook-style dataset delivery. Trigger with: "receive a Bright Data snapshot", "secure Bright Data delivery", "design Bright Data webhook handling".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: "[receiver-path]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
-- scraping
-- data
-- brightdata
-compatibility: Designed for Claude Code
+- web-data
+- bright-data
+- snapshot-delivery
+- operations
+compatibility: 'Requires a managed HTTPS destination, an approved Bright Data snapshot, and durable streaming storage'
 ---
-# Bright Data Webhooks & Events
+# Bright Data Snapshot Delivery Receiver
 
 ## Overview
 
-Handle Bright Data webhook deliveries from the Web Scraper API and Datasets API. When you trigger an async collection, Bright Data sends the results to your webhook URL with the collected data in JSON, NDJSON, or CSV format.
+Treat snapshot delivery as an untrusted, repeatable data-transfer event. Configure delivery with the current `POST /datasets/v3/deliver/SNAPSHOT_ID` API, authenticate the managed destination, stream the body, validate it, and make downstream processing idempotent.
 
 ## Prerequisites
 
-- Web Scraper API or Datasets API configured
-- HTTPS endpoint accessible from internet
-- API token for webhook Authorization header
+- A completed approved snapshot and its expected schema
+- A managed HTTPS endpoint with destination authentication
+- Durable quarantine storage and a replay ledger
 
 ## Instructions
 
-### Step 1: Configure Webhook URL When Triggering Collection
+### Step 1: Establish the delivery contract
 
-```typescript
-// trigger-with-webhook.ts
-const API_TOKEN = process.env.BRIGHTDATA_API_TOKEN!;
+Read the receiver and Grep for body buffering, unauthenticated routes, hard-coded provider IPs, guessed retry schedules, and direct writes to trusted tables. Record the expected schema, format, destination, and ownership.
 
-async function triggerWithWebhook(datasetId: string, urls: string[]) {
-  const params = new URLSearchParams({
-    dataset_id: datasetId,
-    format: 'json',
-    endpoint: 'https://your-app.com/webhooks/brightdata', // Your webhook URL
-    uncompressed_webhook: 'true', // Send uncompressed for easier handling
-    auth_header: `Bearer ${process.env.BRIGHTDATA_WEBHOOK_SECRET}`, // Auth header sent with delivery
-  });
+### Step 2: Configure an approved destination
 
-  // Optional: notification URL (lightweight ping when done)
-  params.set('notify', 'https://your-app.com/webhooks/brightdata-notify');
+Write or Edit the integration so an authorized control-plane client requests `POST /datasets/v3/deliver/SNAPSHOT_ID` with `type=webhook` and managed destination authentication. Never place destination credentials in the URL or logs.
 
-  const response = await fetch(
-    `https://api.brightdata.com/datasets/v3/trigger?${params}`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${API_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(urls.map(url => ({ url }))),
-    }
-  );
+### Step 3: Receive defensively
 
-  const result = await response.json();
-  console.log('Snapshot ID:', result.snapshot_id);
-  return result;
-}
-```
+Stream the request into bounded quarantine storage. Authenticate before processing, cap bytes and duration, compute a digest, validate format and schema, and derive an idempotency key from trusted delivery context plus content digest.
 
-### Step 2: Webhook Endpoint — Receive Data Delivery
+### Step 4: Acknowledge and replay safely
 
-```typescript
-// api/webhooks/brightdata.ts
-import express from 'express';
+Acknowledge only after durable acceptance. Make duplicates no-ops, quarantine malformed or oversized content, and replay from retained evidence through the same validator. Do not invent provider retry or source-IP guarantees.
 
-const app = express();
+## Tool Discipline
 
-// Bright Data sends collected data as JSON array
-app.post('/webhooks/brightdata',
-  express.json({ limit: '50mb' }), // Collections can be large
-  async (req, res) => {
-    // Validate Authorization header
-    const authHeader = req.headers.authorization;
-    if (authHeader !== `Bearer ${process.env.BRIGHTDATA_WEBHOOK_SECRET}`) {
-      console.error('Invalid webhook authorization');
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const records = req.body; // Array of scraped records
-    console.log(`Received ${records.length} records`);
-
-    // Process records
-    for (const record of records) {
-      console.log(`URL: ${record.url}`);
-      console.log(`Title: ${record.title}`);
-      console.log(`Data: ${JSON.stringify(record).substring(0, 200)}`);
-    }
-
-    // Store results
-    await saveToDatabase(records);
-
-    // Return 200 quickly — Bright Data retries on non-2xx
-    res.status(200).json({ received: records.length });
-  }
-);
-```
-
-### Step 3: Notification Endpoint (Lightweight)
-
-```typescript
-// api/webhooks/brightdata-notify.ts
-// Notification is a small JSON with snapshot status — not the full data
-app.post('/webhooks/brightdata-notify',
-  express.json(),
-  async (req, res) => {
-    const { snapshot_id, status } = req.body;
-    console.log(`Collection ${snapshot_id}: ${status}`);
-
-    if (status === 'ready') {
-      // Option A: Data already delivered to endpoint above
-      // Option B: Fetch data manually
-      const data = await fetch(
-        `https://api.brightdata.com/datasets/v3/snapshot/${snapshot_id}?format=json`,
-        { headers: { 'Authorization': `Bearer ${process.env.BRIGHTDATA_API_TOKEN}` } }
-      );
-      const records = await data.json();
-      console.log(`Fetched ${records.length} records from snapshot`);
-    }
-
-    res.status(200).json({ received: true });
-  }
-);
-```
-
-### Step 4: Idempotency and Deduplication
-
-```typescript
-// Bright Data may retry delivery — deduplicate by snapshot_id
-const processedSnapshots = new Set<string>();
-
-async function handleDelivery(snapshotId: string, records: any[]) {
-  if (processedSnapshots.has(snapshotId)) {
-    console.log(`Snapshot ${snapshotId} already processed, skipping`);
-    return;
-  }
-
-  await saveToDatabase(records);
-  processedSnapshots.add(snapshotId);
-
-  // For production, use Redis instead of in-memory Set
-  // await redis.set(`bd:snapshot:${snapshotId}`, '1', 'EX', 86400 * 7);
-}
-```
-
-### Step 5: Test Webhooks Locally
-
-```bash
-# Expose local server with ngrok
-ngrok http 3000
-
-# Trigger a small collection with your ngrok URL
-curl -X POST "https://api.brightdata.com/datasets/v3/trigger?dataset_id=YOUR_ID&format=json&endpoint=https://YOUR.ngrok.io/webhooks/brightdata&auth_header=Bearer%20test_secret" \
-  -H "Authorization: Bearer ${BRIGHTDATA_API_TOKEN}" \
-  -H "Content-Type: application/json" \
-  -d '[{"url": "https://example.com"}]'
-```
-
-## Webhook Delivery Configuration
-
-| Parameter | Values | Default |
-|-----------|--------|---------|
-| `format` | `json`, `ndjson`, `csv`, `jsonl` | `json` |
-| `uncompressed_webhook` | `true`, `false` | `false` (gzip) |
-| `endpoint` | Your webhook URL | None |
-| `auth_header` | Authorization header value | None |
-| `notify` | Notification-only URL | None |
+Use Read and Grep to inspect receiver, routing, and storage code. Use Write and Edit for receiver logic, validation, idempotency, fixtures, and the replay runbook. This skill does not invoke delivery or expose a public endpoint.
 
 ## Output
 
-- Webhook endpoint receiving collection results
-- Authorization header validation
-- Notification endpoint for status updates
-- Deduplication by snapshot_id
+- Authenticated streaming receiver contract
+- Schema, idempotency, quarantine, and replay implementation
+- Redaction-safe success and failure tests
 
 ## Examples
 
-Verify the raw delivery signature or shared secret before parsing, persist a redacted receipt and idempotency key before acknowledging, then enqueue a worker that rechecks target/data policy. Do not expose a callback that automatically expands collection or forwards raw results; failed deliveries remain pending for safe replay.
+The receiver authenticates a managed header, streams NDJSON to quarantine while hashing it, rejects an unexpected schema, and promotes a validated object exactly once even if the same payload arrives again.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| No delivery received | Wrong endpoint URL | Check URL in trigger params |
-| 413 Payload Too Large | Large collection | Increase body limit or use streaming |
-| Duplicate deliveries | Retry on timeout | Implement snapshot_id deduplication |
-| Auth header mismatch | Wrong secret | Check `auth_header` in trigger params |
+| Failure | Meaning | Response |
+|---------|---------|----------|
+| Destination auth is missing | Anyone may submit data | Reject before reading the payload |
+| Payload exceeds the configured ceiling | Transfer is outside the workload contract | Stop streaming and quarantine metadata |
+| Digest already exists | Delivery is a duplicate | Return the documented safe acknowledgement without reprocessing |
 
 ## Resources
 
-- [Web Scraper API Webhooks](https://docs.brightdata.com/scraping-automation/web-data-apis/web-scraper-api/trigger-a-collection)
-- [Datasets API Delivery](https://docs.brightdata.com/scraping-automation/web-data-apis/web-scraper-api/overview)
-
-## Next Steps
-
-For performance optimization, see `brightdata-performance-tuning`.
+- [Deliver snapshot](https://docs.brightdata.com/api-reference/scrapers/delivery-apis/deliver-snapshot)
+- [Scraper data delivery](https://docs.brightdata.com/products/scrapers/scrapers-library/data-delivery)
+- [Download snapshot](https://docs.brightdata.com/api-reference/scrapers/delivery-apis/download-snapshot)
+- [REST API authentication](https://docs.brightdata.com/api-reference/authentication)

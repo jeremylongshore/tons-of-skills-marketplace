@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/quicknode-pack",
-  "version": "1.0.2",
-  "description": "Claude Code skill pack for QuickNode - 18 skills covering blockchain node infrastructure, RPC endpoints, and web3 APIs",
+  "version": "2.0.0",
+  "description": "18 governed QuickNode operator workflows for blockchain RPC and data infrastructure",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -13,11 +13,10 @@
     "claude-code",
     "claude-code-plugin",
     "quicknode",
-    "blockchain-nodes",
-    "rpc-endpoints",
-    "web3-api",
-    "ai-skills",
-    "saas-pack"
+    "blockchain",
+    "rpc",
+    "operations",
+    "streams"
   ],
   "author": {
     "name": "Jeremy Longshore",

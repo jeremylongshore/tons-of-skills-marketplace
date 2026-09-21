@@ -12,7 +12,7 @@ description: 'Collect comprehensive debug information for Clerk issues.
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(node:*), Grep
-version: 1.14.0
+version: 1.15.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

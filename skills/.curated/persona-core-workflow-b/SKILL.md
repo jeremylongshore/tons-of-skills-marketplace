@@ -1,173 +1,99 @@
 ---
 name: persona-core-workflow-b
-description: 'Work with Persona verification types: government ID, selfie, database
-  checks.
-
-  Use when implementing specific verification checks, reviewing verification results,
-
-  or building custom verification workflows.
-
-  Trigger with phrases like "persona verification", "government ID check",
-
-  "selfie verification", "persona database check", "verification results".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Grep
-version: 1.4.0
+description: >-
+  Interpret Persona verification resources without collapsing provider evidence into an automatic business decision. Use when mapping checks to review outcomes. Trigger with: "evaluate Persona verification", "map KYC result", "handle Persona checks".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[inquiry-id-and-policy]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- persona
-- verification
-- government-id
-- selfie
-- kyc
-compatibility: Designed for Claude Code
+  - saas
+  - persona
+  - verifications
+  - decisioning
+  - kyc
+compatibility: 'Requires an authorized Persona environment, current first-party documentation, a reviewed dated API version, and privacy-safe operational evidence.'
 ---
-# Persona Core Workflow B — Verification Checks
+
+# Persona Verification Evidence and Decision Boundary
 
 ## Overview
 
-Work with Persona's verification types: government ID (passport, driver's license), selfie liveness detection, and database checks (SSN, watchlist). Covers retrieving verification details, interpreting check results, and handling edge cases.
+Separate Persona verification lifecycle evidence from the application’s approve, reject, or review decision. Government ID, phone, selfie, document, and database verification types can evolve; the integration must tolerate unfamiliar types and values.
 
 ## Prerequisites
 
-- Completed `persona-core-workflow-a` (inquiry flow)
-- Inquiry Template with verification checks configured
+- Inquiry ID with authorized access
+- Versioned business decision policy and manual-review owner
+- PII-minimized mapping for needed verification attributes
 
 ## Instructions
 
-### Step 1: List Verifications for an Inquiry
+### Step 1: Read authoritative resources
 
-```python
-import os, requests
+Fetch the inquiry and related verification resources under the pinned API version. Record IDs, types, statuses, checks, and timestamps without copying unnecessary PII.
 
-HEADERS = {
-    "Authorization": f"Bearer {os.environ['PERSONA_API_KEY']}",
-    "Persona-Version": "2023-01-05",
-}
-BASE = "https://withpersona.com/api/v1"
+### Step 2: Validate completeness
 
-# Get all verifications for an inquiry
-resp = requests.get(f"{BASE}/inquiries/inq_XXXXX", headers=HEADERS)
-resp.raise_for_status()
-inquiry = resp.json()["data"]
-verifications = inquiry["relationships"]["verifications"]["data"]
+Determine which verification types the template and policy require. Missing evidence is unknown or incomplete, not a silent pass.
 
-for v in verifications:
-    v_resp = requests.get(f"{BASE}/verifications/{v['id']}", headers=HEADERS)
-    v_data = v_resp.json()["data"]["attributes"]
-    print(f"  Type: {v['type']}")
-    print(f"  Status: {v_data['status']}")  # passed, failed, requires_retry
-    print(f"  Checks: {v_data.get('checks', [])}")
-```
+### Step 3: Normalize conservatively
 
-### Step 2: Government ID Verification Results
+Map known provider states to internal evidence states and preserve unknown types or values for review. Never fabricate check enums.
 
-```python
-# Government ID verification includes extracted data
-def get_gov_id_details(verification_id: str) -> dict:
-    resp = requests.get(f"{BASE}/verifications/{verification_id}", headers=HEADERS)
-    resp.raise_for_status()
-    attrs = resp.json()["data"]["attributes"]
+### Step 4: Apply the policy boundary
 
-    return {
-        "status": attrs["status"],
-        "first_name": attrs.get("name-first"),
-        "last_name": attrs.get("name-last"),
-        "dob": attrs.get("birthdate"),
-        "id_number": attrs.get("identification-number"),
-        "id_class": attrs.get("id-class"),          # dl, pp, id
-        "country": attrs.get("country-code"),
-        "expiry": attrs.get("expiration-date"),
-        "checks": {
-            check["name"]: check["status"]
-            for check in attrs.get("checks", [])
-        },
-    }
+Evaluate provider evidence through the versioned internal policy. Record the policy version and reasons independently of Persona’s status.
 
-# Example checks: id_barcode_detection, id_integrity, id_selfie_comparison
-```
+### Step 5: Handle later changes
 
-### Step 3: Selfie Liveness Check
+Accept verified webhook updates and reconcile the resource before changing the decision. Guard terminal decisions against stale or out-of-order events.
 
-```python
-def get_selfie_result(verification_id: str) -> dict:
-    resp = requests.get(f"{BASE}/verifications/{verification_id}", headers=HEADERS)
-    attrs = resp.json()["data"]["attributes"]
+### Step 6: Produce an auditable receipt
 
-    return {
-        "status": attrs["status"],
-        "center_photo_url": attrs.get("center-photo-url"),
-        "checks": {
-            check["name"]: check["status"]
-            for check in attrs.get("checks", [])
-        },
-        # Key checks: selfie_pose_detection, selfie_liveness_detection
-    }
-```
+Retain resource IDs, redacted evidence facts, event IDs, policy version, decision, reviewer, and appeal or retry route.
 
-### Step 4: Database Verification (SSN, Watchlist)
+## Authentication
 
-```python
-def get_database_check(verification_id: str) -> dict:
-    resp = requests.get(f"{BASE}/verifications/{verification_id}", headers=HEADERS)
-    attrs = resp.json()["data"]["attributes"]
+Use a service bearer key limited to the correct Persona environment. Authorization to retrieve a verification does not authorize broad storage or display of its PII.
 
-    return {
-        "status": attrs["status"],
-        "checks": {
-            check["name"]: {
-                "status": check["status"],
-                "reasons": check.get("reasons", []),
-            }
-            for check in attrs.get("checks", [])
-        },
-        # Key checks: database_ssn_check, database_watchlist_check
-    }
-```
+## Tool Discipline
 
-### Step 5: Decision Logic
-
-```python
-def make_verification_decision(inquiry_id: str) -> str:
-    resp = requests.get(f"{BASE}/inquiries/{inquiry_id}", headers=HEADERS)
-    verifications = resp.json()["data"]["relationships"]["verifications"]["data"]
-
-    all_passed = True
-    for v in verifications:
-        v_resp = requests.get(f"{BASE}/verifications/{v['id']}", headers=HEADERS)
-        status = v_resp.json()["data"]["attributes"]["status"]
-        if status != "passed":
-            all_passed = False
-            print(f"  FAILED: {v['type']} — {status}")
-
-    return "approved" if all_passed else "manual_review"
-```
+Use Read and Grep to inspect application configuration, provider documentation, fixtures, schemas, tests, and redacted operational evidence before proposing a change. Use Write or Edit only for an approved implementation, configuration, test, runbook, or redacted receipt. Do not create, resume, approve, decline, redact, rotate, revoke, deploy, or otherwise mutate production Persona resources without explicit operator approval.
 
 ## Output
 
-- Verification results retrieved with extracted data
-- Government ID fields (name, DOB, ID number) parsed
-- Selfie liveness status checked
-- Database checks (SSN, watchlist) interpreted
+- Normalized verification-evidence set
+- Versioned business decision with explicit unknowns
+- Manual-review and audit receipt
+
+Return the environment, resource and event identifiers, API version, template context, source-contract fingerprint, evidence, unresolved risk, rollback state, and final decision without exposing bearer keys, webhook secrets, inquiry session tokens, raw identity documents, or unnecessary PII.
+
+## Examples
+
+A government-ID verification is passed but a required selfie resource is absent. The evidence mapper records one pass and one missing requirement; the policy sends the case to review instead of approving it.
 
 ## Error Handling
 
-| Verification Status | Meaning | Action |
-|--------------------|---------|--------|
-| `passed` | All checks passed | Approve user |
-| `failed` | One or more checks failed | Decline or manual review |
-| `requires_retry` | Poor image quality | Ask user to retry |
-| `initiated` | Check still running | Poll again |
+| Failure | Response |
+| --- | --- |
+| Unknown verification type | Preserve its resource ID and type, mark the mapping unsupported, and route to review. |
+| Conflicting evidence | Re-read the inquiry and verifications, compare creation times, and apply the reviewed policy. |
+| PII appears in telemetry | Stop export, restrict access, redact the field, and follow the incident process. |
+
+## Validation
+
+Verify the result against the linked first-party evidence, the pinned API version, redacted contract fixtures, an expected failure path, and the documented rollback or manual-disposition path. A successful request is not proof of a successful identity decision.
 
 ## Resources
 
-- [Government ID Verifications](https://docs.withpersona.com/api-reference/verifications/government-id-verifications)
-- [Verification Checks](https://docs.withpersona.com/api-reference/verifications)
-
-## Next Steps
-
-- Handle events via webhooks: `persona-webhooks-events`
-- Debug verification issues: `persona-common-errors`
+- [First-party source notes](references/official-docs.md)
+- [API introduction](https://docs.withpersona.com/api-introduction)
+- [API quickstart](https://docs.withpersona.com/api-quickstart-tutorial)
+- [API keys](https://docs.withpersona.com/api-keys)
+- [Rate limits](https://docs.withpersona.com/rate-limiting)
+- [Webhook best practices](https://docs.withpersona.com/webhooks-best-practices)
+- [Request idempotence](https://docs.withpersona.com/idempotence)

@@ -12,7 +12,7 @@ description: 'Deploy Claude-powered applications to Vercel, Fly.io, and Cloud Ru
 
   '
 allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(fly:*), Bash(gcloud:*)
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -165,7 +165,7 @@ See Vercel Edge Function (with SSE streaming), Fly.io Dockerfile, Cloud Run depl
 
 ## Resources
 
-- [Anthropic API Docs](https://docs.anthropic.com/en/api/getting-started)
+- [Anthropic API Docs](https://platform.claude.com/docs/en/api/overview)
 - [Vercel AI SDK](https://sdk.vercel.ai/docs) (optional higher-level wrapper)
 
 ## Next Steps

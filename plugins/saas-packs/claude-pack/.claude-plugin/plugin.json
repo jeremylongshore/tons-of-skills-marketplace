@@ -1,6 +1,6 @@
 {
   "name": "claude-pack",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Claude Code skill pack for building with the Claude API and Anthropic SDK (30 skills)",
   "author": {
     "name": "Jeremy Longshore",

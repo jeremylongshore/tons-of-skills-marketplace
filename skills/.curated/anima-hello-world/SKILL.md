@@ -1,18 +1,21 @@
 ---
 name: anima-hello-world
-description: 'Generate React/Vue/HTML code from a Figma design using the Anima SDK.
+description: 'Generate reviewable React or HTML code from a Figma design using the Anima SDK.
 
   Use when testing design-to-code conversion, learning Anima''s code output format,
 
   or building your first automated design-to-code pipeline.
 
-  Trigger: "anima hello world", "anima example", "figma to react",
+  Trigger with: "anima hello world", "anima example", "figma to react",
 
   "figma to code", "anima generate code".
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*)
-version: 1.4.0
+version: 2.0.0
+argument-hint: "[figma-url] [node-id]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -22,13 +25,15 @@ tags:
 - anima
 - react
 - code-generation
-compatibility: Designed for Claude Code
+compatibility: Requires Node.js 20+, approved Anima API access, current Anima SDK documentation, and authorized Figma or website source access
 ---
 # Anima Hello World
 
 ## Overview
 
-Generate production-ready React, Vue, or HTML code from a Figma design using the `@animaapp/anima-sdk`. This example converts a Figma component into clean TypeScript React with Tailwind CSS.
+Generate reviewable React or HTML from one approved Figma node with the backend-only
+`@animaapp/anima-sdk`. Keep credentials server-side and treat every generated file
+as untrusted output until its path, dependencies, build, and visual result pass review.
 
 ## Prerequisites
 
@@ -59,7 +64,7 @@ async function generateReactComponent() {
       language: 'typescript',
       framework: 'react',
       styling: 'tailwind',
-      uiLibrary: 'none',  // or 'mui', 'antd', 'shadcn'
+      // Omit uiLibrary for vanilla React, or select a supported library.
     },
   });
 
@@ -67,34 +72,30 @@ async function generateReactComponent() {
   const outputDir = './generated';
   fs.mkdirSync(outputDir, { recursive: true });
 
-  for (const file of files) {
-    const filePath = path.join(outputDir, file.fileName);
-    fs.writeFileSync(filePath, file.content);
-    console.log(`Generated: ${filePath} (${file.content.length} chars)`);
+  for (const [fileName, file] of Object.entries(files)) {
+    const filePath = path.resolve(outputDir, fileName);
+    if (!filePath.startsWith(`${path.resolve(outputDir)}${path.sep}`)) {
+      throw new Error(`Refusing output path: ${fileName}`);
+    }
+    if (file.isBinary) throw new Error(`Handle binary output separately: ${fileName}`);
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, file.content, { flag: 'wx' });
+    console.log(`Generated: ${fileName} (${file.content.length} chars)`);
   }
 
   return files;
 }
 
-generateReactComponent().catch(console.error);
+generateReactComponent().catch(() => {
+  console.error({ failureClass: 'generation-failed' });
+  process.exitCode = 1;
+});
 ```
 
-### Step 2: Try Different Framework Outputs
+### Step 2: Try Supported Output Settings
 
 ```typescript
-// Generate Vue + Tailwind
-const vueFiles = await anima.generateCode({
-  fileKey: process.env.FIGMA_FILE_KEY!,
-  figmaToken: process.env.FIGMA_TOKEN!,
-  nodesId: ['1:2'],
-  settings: {
-    language: 'typescript',
-    framework: 'vue',
-    styling: 'tailwind',
-  },
-});
-
-// Generate HTML + CSS (no framework)
+// Generate HTML with the SDK's plain_css setting.
 const htmlFiles = await anima.generateCode({
   fileKey: process.env.FIGMA_FILE_KEY!,
   figmaToken: process.env.FIGMA_TOKEN!,
@@ -102,7 +103,7 @@ const htmlFiles = await anima.generateCode({
   settings: {
     language: 'javascript',
     framework: 'html',
-    styling: 'css',
+    styling: 'plain_css',
   },
 });
 
@@ -123,12 +124,8 @@ const shadcnFiles = await anima.generateCode({
 ### Step 3: Inspect Generated Output
 
 ```typescript
-// The generated files array contains:
-interface GeneratedFile {
-  fileName: string;    // e.g., 'HeroSection.tsx', 'styles.css'
-  content: string;     // Full file content
-  type: string;        // 'component', 'style', 'asset'
-}
+// `files` is a record keyed by relative filename.
+type GeneratedFiles = Record<string, { content: string; isBinary: boolean }>;
 
 // Example output structure for React + Tailwind:
 // generated/
@@ -140,11 +137,9 @@ interface GeneratedFile {
 ### Step 4: Integrate into Existing Project
 
 ```bash
-# Copy generated files into your project
-cp -r generated/components/* src/components/design/
-
-# Install any missing dependencies
-npm install  # Anima generates standard React/Vue code — no special deps
+# Review before copying; do not execute generated package scripts.
+npm run format -- --check generated
+npm run typecheck
 ```
 
 ## Settings Reference
@@ -152,16 +147,19 @@ npm install  # Anima generates standard React/Vue code — no special deps
 | Setting | Options | Default |
 |---------|---------|---------|
 | `language` | `typescript`, `javascript` | `typescript` |
-| `framework` | `react`, `vue`, `html` | `react` |
-| `styling` | `tailwind`, `css`, `styled-components` | `tailwind` |
-| `uiLibrary` | `none`, `mui`, `antd`, `shadcn` | `none` |
+| `framework` | `react`, `html` | Required |
+| `styling` | `plain_css`, `tailwind`, `inline_styles` | Required |
+| `uiLibrary` | `mui`, `antd`, `radix`, `shadcn`, `clean_react`, `custom_design_system` | Omit for vanilla React |
+
+## Tool Discipline
+
+Use Read and Grep to inspect the existing integration and generated diff before changing anything. Use Write or Edit only inside the approved generated-code, test, or configuration paths. Use the declared Bash commands only for the explicit install, validation, or diagnostic steps in this workflow; never print tokens, source designs, generated source, or private website captures.
 
 ## Output
 
-- Generated React/Vue/HTML files from Figma design
-- Clean TypeScript with Tailwind CSS classes
-- Files ready to drop into existing project
-- Multiple framework outputs compared
+- A contained React or HTML generation result from one approved Figma node
+- A filename/content manifest and rejected-path report
+- Formatter, type-check, dependency, and visual-review receipts
 
 ## Examples
 
@@ -188,7 +186,3 @@ use a broader file token or copy unreviewed generated code directly to main.
 - [Anima API Docs](https://docs.animaapp.com/docs/anima-api)
 - [Anima SDK GitHub](https://github.com/AnimaApp/anima-sdk)
 - [Anima Blog: Figma to React](https://www.animaapp.com/blog/design-to-code/how-to-export-figma-to-react/)
-
-## Next Steps
-
-Proceed to `anima-local-dev-loop` for iterative design-to-code development.

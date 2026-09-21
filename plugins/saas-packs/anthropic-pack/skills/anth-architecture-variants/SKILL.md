@@ -11,7 +11,7 @@ description: 'Choose and implement Claude API architecture patterns for differen
 
   '
 allowed-tools: Read, Write, Edit, Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -181,9 +181,9 @@ For a synthetic 20-RPM interactive workload with a strict streaming UX, select t
 
 ## Resources
 
-- [API Getting Started](https://docs.anthropic.com/en/api/getting-started)
-- [Streaming](https://docs.anthropic.com/en/api/messages-streaming)
-- [Batches](https://docs.anthropic.com/en/api/creating-message-batches)
+- [API Getting Started](https://platform.claude.com/docs/en/api/overview)
+- [Streaming](https://platform.claude.com/docs/en/build-with-claude/streaming)
+- [Batches](https://platform.claude.com/docs/en/api/messages/batches/create)
 
 ## Next Steps
 

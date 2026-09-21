@@ -1,183 +1,103 @@
 ---
 name: flexport-migration-deep-dive
-description: 'Execute major migration strategies for Flexport including migrating
-  from
-
-  legacy freight forwarders, ERP system integration, and strangler fig patterns.
-
-  Trigger: "flexport migration", "migrate to flexport", "flexport ERP integration".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.6.0
+description: >-
+  Migrate a legacy or v2-era Flexport integration to current v3 and MCP-aware contracts without unsafe concurrent production writers. Use when inventorying old endpoints, changing versions, or replacing custom workflows. Trigger with: "migrate Flexport integration", "upgrade Flexport v2", "adopt Flexport MCP".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[current-surface-and-target-outcome]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - migration
+  - versioning
+compatibility: 'Requires a legacy contract inventory, current Flexport account version context, and an authorized cutover owner.'
 ---
-# Flexport Migration Deep Dive
+
+# Controlled Flexport Integration Migration
 
 ## Overview
 
-Guide for migrating to Flexport from legacy freight forwarders, manual spreadsheet workflows, or other logistics platforms. Uses a strangler fig pattern to gradually move operations to the Flexport API while maintaining existing systems.
+Migration is a sequence of read-only comparison, explicit field mapping, shadow evaluation, and one controlled write owner. Never dual-book freight or dual-create trade records merely to compare systems.
 
 ## Prerequisites
 
-- Authorized migration scope, owners for product/shipment/document data, retention requirements, and legal/compliance review where required.
-- An inventory of source fields, approved target mappings, sandbox fixtures, rollback, and reconciliation owners.
-
-## Output
-
-Maintain a migration receipt with source/target scope, field classification, staged validation, aggregate reconciliation, approver, rollback status, and unresolved exceptions. Keep invoices, customs documentation, addresses, and commercial terms in approved systems only.
-
-## Error Handling
-
-- Stop a migration batch on unknown mapping, unauthorized destination, or aggregate reconciliation mismatch.
-- Quarantine failures by opaque ID and route them to the data owner instead of retrying with expanded permissions.
-- Restore the prior integration path before repeating a failed production cutover.
-
-## Examples
-
-Migrate a fictional product and shipment record through staging, compare only approved identifiers and aggregate counts, then deliberately introduce an unknown tariff field. Confirm the batch stops for review without exposing the source record or proceeding to production.
-
-## Migration Scenarios
-
-| From | To | Complexity | Timeline |
-|------|----|-----------|----------|
-| Spreadsheet/email | Flexport API | Low | 2-4 weeks |
-| Legacy freight forwarder API | Flexport API | Medium | 4-8 weeks |
-| ERP (SAP, Oracle) | ERP + Flexport | High | 8-16 weeks |
-| Multiple forwarders | Flexport consolidated | High | 6-12 weeks |
+- Endpoint/tool inventory with read/write classification
+- Captured account default version and any `Flexport-Version` overrides
+- Business-key mapping, rollback plan, and reconciliation owner
 
 ## Instructions
 
-### Phase 1: Data Migration — Product Catalog
+### Step 1: Inventory reality
 
-```typescript
-// Migrate product catalog from legacy system to Flexport Product Library
-async function migrateProducts(legacyProducts: LegacyProduct[]) {
-  const results = { success: 0, failed: 0, errors: [] as string[] };
+Trace every legacy path, version header, response assumption, event name, expansion, credential, and mutation.
 
-  for (const legacy of legacyProducts) {
-    try {
-      await fetch('https://api.flexport.com/products', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          name: legacy.description,
-          sku: legacy.partNumber,
-          hs_code: legacy.tariffCode,
-          country_of_origin: legacy.originCountry,
-          unit_cost: { amount: legacy.unitCost, currency: legacy.currency },
-          weight: { value: legacy.weightKg, unit: 'kg' },
-        }),
-      });
-      results.success++;
-    } catch (err) {
-      results.failed++;
-      results.errors.push(`${legacy.partNumber}: ${err}`);
-    }
-  }
+### Step 2: Map to documented targets
 
-  console.log(`Products migrated: ${results.success}/${legacyProducts.length}`);
-  return results;
-}
+Choose current v3 REST endpoints or MCP tools by outcome. Record unsupported fields/operations rather than guessing equivalents.
+
+### Step 3: Build tolerant readers
+
+Accept documented envelopes and additive fields, preserve opaque identifiers, and add sanitized fixtures for old/new differences.
+
+### Step 4: Shadow reads only
+
+Compare current and target read paths over an approved sample. Normalize only business facts and investigate discrepancies.
+
+### Step 5: Cut over one writer
+
+Freeze the legacy mutation queue, reconcile in-flight operations, switch one authoritative writer, and retain a rapid rollback that cannot produce concurrent writes.
+
+### Step 6: Verify and retire
+
+Reconcile provider resources, events, and local operation keys across the cutover window before removing old credentials/code.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
+
+## Output
+
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
+
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
 ```
 
-### Phase 2: Strangler Fig — Dual-Write
+## Examples
 
-```typescript
-// During migration, write to both systems
-class DualWriteShipmentService {
-  constructor(
-    private legacy: LegacyForwarderClient,
-    private flexport: FlexportClient,
-    private featureFlags: FeatureFlags,
-  ) {}
+A v2-era shipment reader moves to v3 with an explicit version override and tolerant fields. Its booking path remains unchanged until a separate approved cutover can guarantee one writer and reconcile every in-flight booking.
 
-  async createBooking(params: BookingParams) {
-    // Always write to legacy during migration
-    const legacyResult = await this.legacy.createBooking(params);
+## Error Handling
 
-    // Write to Flexport if enabled for this route
-    if (this.featureFlags.isEnabled('flexport_booking', { route: params.route })) {
-      try {
-        const fpResult = await this.flexport.createBooking(params);
-        // Compare results for validation
-        this.compareResults(legacyResult, fpResult);
-      } catch (err) {
-        // Log but don't fail — legacy is still primary
-        logger.warn({ err, route: params.route }, 'Flexport dual-write failed');
-      }
-    }
-
-    return legacyResult;  // Legacy is source of truth during migration
-  }
-}
-```
-
-### Phase 3: Cutover — Route by Route
-
-```typescript
-// Migrate routes one at a time, validate, then cut over
-const MIGRATION_PHASES = [
-  { routes: ['CNSHA-USLAX'], startDate: '2025-04-01', description: 'Shanghai-LA (highest volume)' },
-  { routes: ['CNSHA-DEHAM', 'CNSHA-NLRTM'], startDate: '2025-05-01', description: 'Asia-Europe' },
-  { routes: ['*'], startDate: '2025-06-01', description: 'All remaining routes' },
-];
-
-// Validate migration readiness per route
-async function validateRoute(route: string): Promise<{
-  productsCovered: boolean;
-  webhooksWorking: boolean;
-  dataParity: boolean;
-}> {
-  // Check all products on this route exist in Flexport
-  const products = await db.products.findMany({ where: { routes: { has: route } } });
-  const fpProducts = await flexport('/products?per=100');
-  const fpSkus = new Set(fpProducts.data.records.map((p: any) => p.sku));
-  const productsCovered = products.every(p => fpSkus.has(p.sku));
-
-  return { productsCovered, webhooksWorking: true, dataParity: true };
-}
-```
-
-### Phase 4: Decommission Legacy
-
-```typescript
-// After all routes migrated and validated
-async function decommissionLegacy() {
-  // Final data sync — export all historical data
-  const allShipments = await legacy.exportAllShipments();
-  await archiveToS3(allShipments, 'legacy-forwarder-archive');
-
-  // Disable legacy API keys
-  // Remove dual-write code paths
-  // Update monitoring to Flexport-only alerts
-  logger.info('Legacy forwarder decommissioned');
-}
-```
-
-## Migration Checklist
-
-- [ ] Product catalog migrated and validated
-- [ ] Purchase order history exported
-- [ ] Webhook endpoints configured and tested
-- [ ] Dual-write enabled for first route
-- [ ] Data parity validated between systems
-- [ ] Stakeholders notified of cutover schedule
-- [ ] Rollback procedure documented and tested
-- [ ] Legacy system archived (not deleted)
+| Failure | Response |
+| --- | --- |
+| No mapping for a legacy field | Escalate the business dependency; do not fabricate a target. |
+| Read comparison diverges | Pause cutover and verify version, expansion, pagination, and semantics. |
+| Both writers become active | Freeze both, reconcile provider state, and restore one owner. |
+| Rollback could duplicate freight | Do not execute it until operation identities are reconciled. |
 
 ## Resources
 
-- [Flexport Developer Portal](https://developers.flexport.com/)
-- [Flexport API Reference](https://apidocs.flexport.com/)
-- [Products API Tutorial](https://developers.flexport.com/tutorials/products-api-tutorial/)
-
-## Next Steps
-
-This completes the Flexport skill pack. Start with `flexport-install-auth` for new integrations.
+- [First-party source notes](references/official-docs.md)
+- [Versioning](https://apidocs.flexport.com/v3/tag/Versioning/)
+- [Flexport v3 API reference](https://apidocs.flexport.com/v3/)
+- [MCP tools](https://apidocs.flexport.com/v3/tag/MCP-Tools/)

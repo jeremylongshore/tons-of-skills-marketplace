@@ -12,7 +12,7 @@ description: 'Migrate to Claude API from OpenAI, Gemini, or other LLM providers.
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -176,8 +176,8 @@ Replay a synthetic fixture with one system instruction, one user turn, and a no-
 
 ## Resources
 
-- [Anthropic vs OpenAI Migration](https://docs.anthropic.com/en/docs/about-claude/models)
-- [Messages API Reference](https://docs.anthropic.com/en/api/messages)
+- [Anthropic vs OpenAI Migration](https://platform.claude.com/docs/en/models/overview)
+- [Messages API Reference](https://platform.claude.com/docs/en/api/messages)
 
 ## Next Steps
 

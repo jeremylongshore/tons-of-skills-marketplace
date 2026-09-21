@@ -13,9 +13,9 @@ client_class: Anthropic
 
 # URLs
 api_url: https://api.anthropic.com
-docs_url: https://docs.anthropic.com
+docs_url: https://platform.claude.com/docs/en/home
 status_url: https://status.anthropic.com
-changelog_url: https://docs.anthropic.com/en/docs/about-claude/models
+changelog_url: https://platform.claude.com/docs/en/models/overview
 
 # Verification code for install-auth
 verification_code: "const anthropic = new Anthropic(); const msg = await anthropic.messages.create({ model: 'claude-sonnet-4-20250514', max_tokens: 10, messages: [{ role: 'user', content: 'ping' }] }); console.log(msg.content[0].text ? 'OK' : 'Failed');"

@@ -1,175 +1,103 @@
 ---
 name: flexport-common-errors
-description: 'Diagnose and fix common Flexport API errors including HTTP status codes,
-
-  webhook failures, and data validation issues.
-
-  Trigger: "flexport error", "fix flexport", "flexport not working", "debug flexport
-  API".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.6.0
+description: >-
+  Classify Flexport REST, OAuth, webhook, and MCP failures into safe operator actions. Use when triaging status/code/message errors, permission failures, validation problems, or ambiguous mutations. Trigger with: "debug Flexport error", "Flexport 422", "Flexport permission denied".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[redacted-failure-receipt]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - errors
+  - operations
+compatibility: 'Requires a redacted response receipt with surface, operation, HTTP or JSON-RPC status, and correlation metadata.'
 ---
-# Flexport Common Errors
+
+# Flexport Failure Classification
 
 ## Overview
 
-Quick reference for the most common Flexport API v2 errors. The API returns standard HTTP codes with JSON error bodies containing `code`, `message`, and sometimes `details` fields.
+Do not convert every failure into a retry. First identify the surface and operation class, then distinguish authentication, authorization, validation, provider availability, and ambiguous mutation outcomes.
 
 ## Prerequisites
 
-- An authorized support role, opaque correlation ID, redacted telemetry, and a safe sandbox or read-only reproduction path.
-- An incident owner for credentials, shipment data, customs documents, and external notifications.
+- Redacted surface and operation name
+- HTTP status or JSON-RPC error plus documented provider code/message
+- Knowledge of whether the failed operation could mutate freight or trade records
 
 ## Instructions
 
-1. Classify the failure as authentication, authorization, schema, throttling, upstream availability, or delivery.
-2. Reproduce with a fictional or read-only sandbox request before retrying a production operation.
-3. Check scoped credentials, environment, payload schema, target/destination policy, and queue state in order.
-4. Apply the smallest reversible correction, verify success and safe failure behavior, and escalate possible exposure immediately.
+### Step 1: Identify the surface
 
-## Error Handling
+Label OAuth token, REST v3, MCP JSON-RPC, or webhook delivery; each has different failure semantics.
 
-- Do not retry permission failures with broader keys; route them to the authorized owner.
-- Bound retry/backoff, maintain idempotency, and quarantine exhausted work for review.
-- Redact commercial terms, addresses, invoices, documents, and headers from support evidence.
+### Step 2: Protect evidence
+
+Capture timestamp, credential alias, version header, operation digest, status/code/message, and provider correlation metadata without payloads or secrets.
+
+### Step 3: Classify deterministically
+
+Separate 401 authentication, 403 permission/scope, 404 resource or route, 400/422 request validation, throttling evidence, and 5xx/transport uncertainty.
+
+### Step 4: Choose retry eligibility
+
+Retry only transient, idempotent work with bounded backoff. Never retry a create or booking until its prior outcome is reconciled.
+
+### Step 5: Correct the owner
+
+Route credential issues to credential owners, schema issues to integration owners, business validation to data owners, and provider incidents to support.
+
+### Step 6: Close with a proof
+
+Record the corrected contract or recovered result and add a regression fixture when the defect was local.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
 
 ## Output
 
-Return a diagnostic receipt with the error category, opaque correlation ID, safe reproduction result, corrective action, verification, owner, and follow-up. Keep shipment records, commercial documents, addresses, and credentials in authorized systems rather than the receipt.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
+
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
+```
 
 ## Examples
 
-Use a synthetic booking to trigger a controlled validation error, correct the field mapping, and verify the result using only an opaque identifier. On a permission failure, pause the worker until the approved owner validates a least-privilege sandbox request.
+A document upload returns 422 with a provider message. The operator preserves the code/message, fixes the source document metadata, and submits a new approved operation rather than repeatedly sending the unchanged payload.
 
-## Error Reference
+## Error Handling
 
-### 401 Unauthorized — Invalid or Missing API Key
-
-```json
-{ "error": { "code": "UNAUTHORIZED", "message": "Invalid API key" } }
-```
-
-**Causes:** Missing `Authorization` header, expired JWT token, revoked API key.
-
-**Fix:**
-
-```bash
-# Verify key is set
-echo $FLEXPORT_API_KEY | head -c 10
-# Test with cURL
-curl -s -o /dev/null -w "%{http_code}" \
-  -H "Authorization: Bearer $FLEXPORT_API_KEY" \
-  -H "Flexport-Version: 2" \
-  https://api.flexport.com/shipments?per=1
-```
-
-### 403 Forbidden — Insufficient Permissions
-
-**Causes:** API key lacks required scope, IP whitelist blocking, sandbox key used on production.
-
-**Fix:** Check key permissions in Flexport Portal > Settings > Developer. Ensure key scope includes the endpoint you are calling.
-
-### 404 Not Found — Resource Does Not Exist
-
-```json
-{ "error": { "code": "NOT_FOUND", "message": "Shipment shp_xxx not found" } }
-```
-
-**Causes:** Wrong ID format, resource deleted, using test ID in production.
-
-**Fix:** List resources first to get valid IDs:
-
-```bash
-curl -s -H "Authorization: Bearer $FLEXPORT_API_KEY" \
-     -H "Flexport-Version: 2" \
-     https://api.flexport.com/shipments?per=1 | jq '.data.records[0].id'
-```
-
-### 422 Unprocessable Entity — Validation Failed
-
-```json
-{ "error": { "code": "VALIDATION_ERROR", "message": "Invalid port code", "details": [...] } }
-```
-
-**Common validation failures:**
-
-| Field | Issue | Fix |
-|-------|-------|-----|
-| `origin_port.code` | Not a valid UN/LOCODE | Use `CNSHA`, `USLAX`, `DEHAM` format |
-| `hs_code` | Wrong format | Use 6-10 digit codes like `8479.89` |
-| `cargo_ready_date` | In the past | Use future ISO date |
-| `freight_type` | Unsupported value | Use `ocean`, `air`, or `trucking` |
-| `incoterm` | Invalid | Use `FOB`, `CIF`, `EXW`, `DDP` |
-
-### 429 Too Many Requests — Rate Limited
-
-```json
-{ "error": { "code": "RATE_LIMITED", "message": "Rate limit exceeded" } }
-```
-
-**Fix:** Check response headers and back off:
-
-```typescript
-function handleRateLimit(res: Response): number {
-  const retryAfter = res.headers.get('Retry-After');
-  const remaining = res.headers.get('X-RateLimit-Remaining');
-  console.log(`Rate limited. Remaining: ${remaining}. Retry after: ${retryAfter}s`);
-  return parseInt(retryAfter || '60') * 1000;
-}
-```
-
-### 500/502/503 — Server Errors
-
-**Causes:** Flexport internal issue, maintenance window, upstream provider failure.
-
-**Fix:**
-
-```bash
-# Check Flexport status page
-curl -s https://status.flexport.com/api/v2/status.json | jq '.status'
-```
-
-Retry with exponential backoff for transient 5xx errors. See `flexport-rate-limits`.
-
-## Diagnostic Script
-
-```bash
-#!/bin/bash
-echo "=== Flexport Diagnostics ==="
-echo "API Key set: ${FLEXPORT_API_KEY:+YES}"
-echo "Key prefix: ${FLEXPORT_API_KEY:0:8}..."
-echo -n "API status: "
-curl -s -o /dev/null -w "%{http_code}" \
-  -H "Authorization: Bearer $FLEXPORT_API_KEY" \
-  -H "Flexport-Version: 2" \
-  https://api.flexport.com/shipments?per=1
-echo ""
-echo -n "Status page: "
-curl -s https://status.flexport.com/api/v2/status.json | jq -r '.status.description'
-```
-
-## Escalation Path
-
-1. Run diagnostic script above
-2. Collect request ID from response headers (`X-Request-Id`)
-3. Check [Flexport Status](https://status.flexport.com)
-4. Contact Flexport support with request ID and error details
+| Failure | Response |
+| --- | --- |
+| 401 persists after one cached-token refresh | Stop and inspect credential revocation, audience, and secret source. |
+| 403 on one endpoint | Verify OAuth endpoint resources or MCP role permission; do not broaden silently. |
+| 404 on `/tools/...` | Use the real MCP JSON-RPC endpoint rather than the synthetic docs path. |
+| Timeout after mutation | Reconcile using known references before any retry. |
 
 ## Resources
 
-- [Flexport API Reference](https://apidocs.flexport.com/)
-- [Flexport Status Page](https://status.flexport.com)
-- [Developer Portal](https://developers.flexport.com/)
-
-## Next Steps
-
-For comprehensive debugging, see `flexport-debug-bundle`.
+- [First-party source notes](references/official-docs.md)
+- [Flexport v3 API reference](https://apidocs.flexport.com/v3/)
+- [API credential FAQ](https://developers.flexport.com/faq/api-credentials/)
+- [MCP tools](https://apidocs.flexport.com/v3/tag/MCP-Tools/)

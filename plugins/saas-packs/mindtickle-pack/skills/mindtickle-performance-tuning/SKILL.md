@@ -1,226 +1,78 @@
 ---
 name: mindtickle-performance-tuning
-description: 'Optimize MindTickle API integration performance with caching, bulk progress
-  queries, and webhook processing.
-
-  Use when learner progress queries are slow, report generation times out, or completion
-  webhooks cause backpressure.
-
-  Trigger with "mindtickle performance tuning".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.7.0
-license: MIT
+description: 'Diagnose and improve a Mindtickle integration with measured latency, backlog, freshness, and reconciliation evidence. Use when reports or syncs miss objectives. Trigger with "tune Mindtickle performance".'
+argument-hint: "[service] [measurement-window]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mindtickle
-- sales
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, mindtickle, performance, observability, reliability]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; production load, concurrency, caching, and schedule changes require service and tenant-owner approval
 ---
-# MindTickle Performance Tuning
+# Evidence-Driven Mindtickle Integration Performance
 
 ## Overview
 
-MindTickle's API serves sales enablement data across courses, quizzes, and analytics — enterprise deployments tracking thousands of reps make bulk progress queries and report generation the primary bottlenecks. This skill covers caching learner data, batching progress operations, and handling rate limits during high-volume training campaigns.
-
-## Instructions
-
-1. Implement Redis caching (or in-memory Map for development) with TTLs matching data volatility
-2. Use offset-based pagination for user and course lists to avoid incomplete result sets
-3. Queue incoming completion webhooks through Redis to handle campaign burst traffic
-4. Wrap all API calls with the rate limit handler before deploying to production
+Improve the customer-controlled integration path from a reproducible baseline while respecting tenant contracts, privacy, freshness, and correctness.
 
 ## Prerequisites
 
-- MindTickle API key with admin or integration scope
-- Redis instance for caching learner progress and report data
-- Node.js 18+ with native fetch
-- Webhook endpoint configured for course/quiz completion events
+- A service-level objective, representative workload, current contract digest, and observation window
+- Metrics for latency, attempts, errors, retries, backlog age, throughput, freshness, and reconciliation
+- A non-production load path or approved canary with explicit abort thresholds
 
-## Caching Strategy
+## Tool Discipline
 
-```typescript
-import Redis from "ioredis";
+Use `Read`, `Glob`, and `Grep` to inspect traces and configuration, `WebFetch` for current authorized contracts, and `Write` or `Edit` for benchmarks, controlled changes, tests, and redacted receipts.
 
-const redis = new Redis(process.env.REDIS_URL);
+## Current Contract
 
-// Course catalog changes rarely — cache 30 minutes
-// User progress updates frequently during campaigns — cache 2 minutes
-const TTL = { courses: 1800, progress: 120, reports: 600, users: 900 } as const;
+Performance spans the customer application, network, identity, adapter, tenant operations, and downstream systems. Mindtickle states support for scalable integrations but does not publish universal latency or quota targets, so customer objectives and tenant-specific evidence must remain separate.
 
-async function getCachedCourses(orgId: string): Promise<MindTickleCourse[]> {
-  const key = `mt:courses:${orgId}`;
-  const cached = await redis.get(key);
-  if (cached) return JSON.parse(cached);
+## Authentication
 
-  const courses = await mindtickleApi.listCourses(orgId);
-  await redis.setex(key, TTL.courses, JSON.stringify(courses));
-  return courses;
-}
+Benchmark with synthetic or aggregate data and a least-privilege non-production principal. Never use extra credentials to create artificial concurrency or include payload contents in traces.
 
-async function getCachedProgress(userId: string, courseId: string): Promise<UserProgress> {
-  const key = `mt:progress:${userId}:${courseId}`;
-  const cached = await redis.get(key);
-  if (cached) return JSON.parse(cached);
+## Instructions
 
-  const progress = await mindtickleApi.getUserProgress(userId, courseId);
-  await redis.setex(key, TTL.progress, JSON.stringify(progress));
-  return progress;
-}
-```
+1. Define the user or business symptom, objective, correctness invariant, workload, and baseline window.
+2. Break elapsed time into queue, customer processing, network, tenant response, downstream processing, and reconciliation.
+3. Segment by operation, page or batch, payload class, tenant, response class, and time without exposing personal data.
+4. Rank bottlenecks by measured contribution and distinguish latency from throttling, backlog, and data-quality delay.
+5. Propose one controlled change at a time: scheduling, bounded concurrency, pagination, batching, caching, indexing, or payload reduction only where the contract permits it.
+6. Define cache ownership, freshness, invalidation, privacy, and stale-data behavior before enabling a cache.
+7. Run the experiment within abort thresholds and compare p50, tail latency, errors, retries, backlog, freshness, and reconciliation.
+8. Retain the change only when the improvement is repeatable and correctness is unchanged; otherwise roll back.
 
-## Batch Operations
+## Approval Boundaries
 
-```typescript
-import pLimit from "p-limit";
-
-const limit = pLimit(6); // MindTickle allows moderate concurrency
-
-// Bulk fetch progress for all reps in a training campaign
-async function batchFetchTeamProgress(
-  userIds: string[],
-  courseId: string
-): Promise<UserProgress[]> {
-  return Promise.all(
-    userIds.map((uid) => limit(() => getCachedProgress(uid, courseId)))
-  );
-}
-
-// Paginate through all users in an organization
-async function fetchAllUsers(orgId: string): Promise<MindTickleUser[]> {
-  const users: MindTickleUser[] = [];
-  let offset = 0;
-  const pageSize = 200;
-
-  do {
-    const page = await mindtickleApi.listUsers(orgId, { offset, limit: pageSize });
-    users.push(...page.users);
-    offset += pageSize;
-    if (page.users.length < pageSize) break;
-  } while (true);
-
-  return users;
-}
-```
-
-## Connection Pooling
-
-```typescript
-import { Agent } from "undici";
-
-const mindtickleAgent = new Agent({
-  connect: { timeout: 8_000 }, // Report endpoints can be slow
-  keepAliveTimeout: 30_000,
-  keepAliveMaxTimeout: 60_000,
-  pipelining: 1,
-  connections: 10, // Persistent pool for MindTickle API
-});
-
-async function mindtickleApiFetch(path: string, init?: RequestInit): Promise<Response> {
-  return fetch(`https://api.mindtickle.com/v2${path}`, {
-    ...init,
-    // @ts-expect-error undici dispatcher
-    dispatcher: mindtickleAgent,
-    headers: { Authorization: `Token ${process.env.MINDTICKLE_API_KEY}`, ...init?.headers },
-  });
-}
-```
-
-## Rate Limit Management
-
-```typescript
-async function withRateLimit<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      return await fn();
-    } catch (err: any) {
-      if (err.status === 429) {
-        const retryAfter = parseInt(err.headers?.["retry-after"] ?? "10", 10);
-        const backoff = retryAfter * 1000 * Math.pow(2, attempt);
-        console.warn(`MindTickle rate limited. Retrying in ${backoff}ms (attempt ${attempt + 1})`);
-        await new Promise((r) => setTimeout(r, backoff));
-        continue;
-      }
-      throw err;
-    }
-  }
-  throw new Error("MindTickle API: max retries exceeded");
-}
-```
-
-## Monitoring & Metrics
-
-```typescript
-import { Counter, Histogram } from "prom-client";
-
-const mtApiLatency = new Histogram({
-  name: "mindtickle_api_duration_seconds",
-  help: "MindTickle API call latency",
-  labelNames: ["endpoint", "status"],
-  buckets: [0.1, 0.5, 1, 2, 5, 10], // Reports can take 5-10s
-});
-
-const mtCacheHits = new Counter({
-  name: "mindtickle_cache_hits_total",
-  help: "Cache hits for MindTickle course and progress data",
-  labelNames: ["cache_type"], // courses | progress | reports | users
-});
-
-const mtWebhookLatency = new Histogram({
-  name: "mindtickle_webhook_processing_seconds",
-  help: "Time to process MindTickle completion webhooks",
-  buckets: [0.01, 0.05, 0.1, 0.25, 0.5],
-});
-```
-
-## Performance Checklist
-
-- [ ] Cache TTLs set: courses 30min, progress 2min, reports 10min, users 15min
-- [ ] Batch size optimized (200 users per page, 6 concurrent progress fetches)
-- [ ] Offset-based pagination for user and course lists
-- [ ] Connection pooling via undici Agent with 8s timeout for reports
-- [ ] Rate limit retry with exponential backoff in place
-- [ ] Webhook processor handles burst completions without backpressure
-- [ ] Monitoring dashboards tracking API latency, cache hits, and webhook processing time
-
-## Error Handling
-
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| Report generation timeouts | Analytics queries over large date ranges | Limit date range to 30 days, cache reports for 10min |
-| Stale progress data during live training | Reps complete modules but dashboard shows old state | Invalidate progress cache on completion webhook |
-| Webhook processing backpressure | Training campaign triggers 1000+ completions in minutes | Queue webhooks in Redis, process with worker at controlled rate |
-| 429 during bulk progress export | Fetching progress for all reps across all courses | Reduce concurrency to 3 and add 500ms delay between course batches |
-| Incomplete user list pagination | Offset math error causes skipped or duplicate users | Always check `page.users.length < pageSize` as termination condition |
+Do not load-test production, raise concurrency, retain learner data in a cache, or trade correctness for speed without explicit owners.
 
 ## Output
 
-After applying these optimizations, expect:
+Return the objective, baseline, bottleneck evidence, experiment, approvals, before-and-after metrics, correctness reconciliation, decision, and rollback receipt.
 
-- Course catalog queries under 50ms (cached) vs 300ms+ (uncached)
-- Team progress batch fetches completing in seconds instead of minutes
-- Webhook processing sustained at 100+ completions/second without backpressure
+## Error Handling
 
-## Examples
+| Condition | Response |
+|---|---|
+| Metrics omit queue or retry time | Repair instrumentation before claiming improvement. |
+| Vendor behavior changes during a test | Stop, preserve the window, and rerun after the contract is stable. |
+| Faster run produces divergent data | Roll back immediately and investigate correctness first. |
 
-```typescript
-// Full optimized team progress fetch — cache + rate limit + batching
-const users = await fetchAllUsers("org-123");
-const progress = await batchFetchTeamProgress(
-  users.map((u) => u.id),
-  "course-onboarding-2026"
-);
+## Example
 
-// Alternative: use background refresh for reports instead of on-demand generation
-const report = await getCachedReport("quarterly-readiness", { backgroundRefresh: true });
+```text
+objective=freshness-under-target; baseline=7d; bottleneck=customer-queue; change=schedule-partition; tail-latency=improved; reconciliation=exact
 ```
 
 ## Resources
 
-- [MindTickle Integration Platform](https://www.mindtickle.com/platform/integrations/)
+- [Mindtickle integrations](https://www.mindtickle.com/platform/integrations/)
+- [Mindtickle Service Level Agreement](https://www.mindtickle.com/legal/service-level-agreement/)
 
 ## Next Steps
 
-See `mindtickle-reference-architecture`.
+Observe the retained change for a full workload cycle and update the capacity policy with measured evidence.

@@ -6,11 +6,11 @@ order: 1
 keywords: ["Tons of Skills marketplace", "Claude Code plugins marketplace", "browse plugins", "plugin categories", "Cowork downloads", "plugin verification", "skill browsing", "plugin comparison"]
 officialLinks:
   - title: "Claude Code Plugins"
-    url: "https://docs.anthropic.com/en/docs/claude-code/plugins"
+    url: "https://code.claude.com/docs/en/plugins"
   - title: "Claude Code Skills"
-    url: "https://docs.anthropic.com/en/docs/claude-code/skills"
+    url: "https://code.claude.com/docs/en/skills"
   - title: "Claude Code Overview"
-    url: "https://docs.anthropic.com/en/docs/claude-code/overview"
+    url: "https://code.claude.com/docs/en/overview"
 relatedDocs:
   - "getting-started/installation"
   - "ecosystem/community-resources"

@@ -1,4 +1,4 @@
-mcp>=0.9.0
+mcp>=0.9.0,<2  # 2.x removed the Server.list_tools()/call_tool() decorators this server uses
 aiohttp>=3.9.0
 jsonschema>=4.20.0
 PyYAML>=6.0.1

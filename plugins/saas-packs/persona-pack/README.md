@@ -1,12 +1,6 @@
-# Persona Skill Pack
+# Persona Operator Skill Pack
 
-> Claude Code skill pack for Persona identity verification — KYC, inquiry flows, government ID verification, and webhook-driven verification pipelines (18 skills)
-
-## What This Covers
-
-Persona is an identity verification platform for KYC/AML compliance. This pack covers the **Persona REST API** for creating and managing inquiries, verification checks (government ID, selfie, database), webhook event handling, and embedding the Persona flow in web applications.
-
-**Key APIs:** Inquiries (create, resume, list), Verifications (government ID, selfie, database), Accounts, Webhooks, Reports, API Keys. Auth via `Authorization: Bearer persona_<env>_xxx`.
+> Eighteen production-grade Claude Code skills for Persona inquiry lifecycles, verification evidence, authentic webhooks, privacy, rate control, delivery, and recovery.
 
 ## Installation
 
@@ -14,48 +8,49 @@ Persona is an identity verification platform for KYC/AML compliance. This pack c
 /plugin install persona-pack@claude-code-plugins-plus
 ```
 
-## Skills Included
+The pack assumes an authorized Persona environment, the correct REST base `https://api.withpersona.com/api/v1`, and a deliberately pinned dated API version. It does not provide legal advice or turn provider verification status into an automatic customer decision.
 
-### Standard Skills (S01-S12)
+## Skills
 
-| Skill | Description |
-|-------|-------------|
-| `persona-install-auth` | Configure API keys (`persona_sandbox_*` / `persona_production_*`), set up Bearer auth |
-| `persona-hello-world` | Create your first inquiry, embed the Persona flow, check verification status |
-| `persona-local-dev-loop` | Sandbox testing, ngrok for webhooks, mock verification responses |
-| `persona-sdk-patterns` | API client wrapper, typed responses, pagination, error handling |
-| `persona-core-workflow-a` | Full KYC flow: create inquiry template, embed flow, poll for completion |
-| `persona-core-workflow-b` | Verification checks: government ID, selfie liveness, database lookups |
-| `persona-common-errors` | Fix 401, 404, webhook signature failures, inquiry state errors |
-| `persona-debug-bundle` | Collect inquiry IDs, API responses, webhook logs for support |
-| `persona-rate-limits` | Handle 429 errors, implement backoff, queue verification requests |
-| `persona-security-basics` | API key rotation, webhook secret management, PII handling |
-| `persona-prod-checklist` | Go-live: production API keys, webhook HTTPS, compliance review |
-| `persona-upgrade-migration` | API version upgrades, deprecated field migration |
+| Skill | Operator outcome |
+| --- | --- |
+| `persona-install-auth` | Establish environment-scoped, least-privilege API authentication |
+| `persona-hello-world` | Prove a replay-safe sandbox inquiry create-and-read path |
+| `persona-local-dev-loop` | Run deterministic synthetic and raw-webhook fixture loops |
+| `persona-sdk-patterns` | Build a tolerant typed JSON:API adapter |
+| `persona-core-workflow-a` | Operate account-linked inquiry and session lifecycles |
+| `persona-core-workflow-b` | Separate verification evidence from business decisions |
+| `persona-common-errors` | Triage API, inquiry, session, webhook, and throttle failures |
+| `persona-debug-bundle` | Produce a redacted, hashed diagnostic manifest |
+| `persona-rate-limits` | Control environment limits and product quotas from live evidence |
+| `persona-security-basics` | Protect PII, keys, session tokens, webhooks, and redaction |
+| `persona-prod-checklist` | Gate production with accountable evidence and rollback |
+| `persona-upgrade-migration` | Migrate dated API versions with canary and rollback |
+| `persona-ci-integration` | Enforce offline contracts and bounded sandbox smoke tests |
+| `persona-deploy-integration` | Release immutable configuration without event loss |
+| `persona-webhooks-events` | Authenticate, deduplicate, order, and reconcile events |
+| `persona-performance-tuning` | Replace polling with event-driven bounded reconciliation |
+| `persona-cost-tuning` | Remove accidental usage without weakening policy |
+| `persona-reference-architecture` | Design an account-linked KYC control plane |
 
-### Pro Skills (P13-P18)
+## Non-negotiable boundaries
 
-| Skill | Description |
-|-------|-------------|
-| `persona-ci-integration` | GitHub Actions with sandbox API testing, webhook simulation |
-| `persona-deploy-integration` | Deploy verification service with secrets management |
-| `persona-webhooks-events` | Handle inquiry.completed, verification.passed/failed events |
-| `persona-performance-tuning` | Batch inquiry creation, parallel verification polling |
-| `persona-cost-tuning` | Optimize verification costs with template selection and caching |
-| `persona-reference-architecture` | KYC service architecture with Persona as verification provider |
+- REST calls use environment-scoped bearer authentication and an explicit `Persona-Version`.
+- Webhook signatures cover `timestamp + "." + rawBody`; duplicate and out-of-order delivery are expected.
+- Inquiry session tokens are client capabilities, not API keys, and should not be logged.
+- Identity evidence, provider status, and the application’s decision policy remain separate.
+- Redaction is destructive and governed; sandbox contains no real verification outcome.
 
-## Usage
+Each skill contains a first-party evidence file with a retrieval date and split SHA-256 fingerprints so documentation drift is reviewable.
 
-- "Set up Persona verification" -- triggers `persona-install-auth`
-- "Create KYC inquiry" -- triggers `persona-core-workflow-a`
-- "Handle Persona webhook" -- triggers `persona-webhooks-events`
+## Documentation
 
-## Key Documentation
-
-- [Persona API Introduction](https://docs.withpersona.com/api-introduction)
-- [API Quickstart](https://docs.withpersona.com/api-quickstart-tutorial)
-- [Webhook Events](https://docs.withpersona.com/quickstart-webhooks)
-- [API Keys](https://docs.withpersona.com/api-keys)
+- [Persona API introduction](https://docs.withpersona.com/api-introduction)
+- [Creating inquiries](https://docs.withpersona.com/creating-inquiries)
+- [Inquiry sessions](https://docs.withpersona.com/inquiry-sessions)
+- [Webhook best practices](https://docs.withpersona.com/webhooks-best-practices)
+- [Rate limiting](https://docs.withpersona.com/rate-limiting)
+- [Versioning](https://docs.withpersona.com/versioning)
 
 ## License
 

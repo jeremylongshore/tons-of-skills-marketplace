@@ -1,206 +1,81 @@
 ---
 name: alchemy-security-basics
-description: 'Apply Web3 security best practices for Alchemy-powered applications.
-
-  Use when securing API keys, validating blockchain inputs, preventing
-
-  private key exposure, or hardening dApp infrastructure.
-
-  Trigger: "alchemy security", "web3 security", "protect private key",
-
-  "alchemy API key security", "dApp security".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.5.0
+description: >-
+  Analyze and secure Alchemy credentials, browser access, wallet authority, webhook verification, and untrusted chain data. Use when securing an Alchemy-backed application. Trigger with "secure Alchemy", "Alchemy API key exposure", or "verify an Alchemy webhook".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<application> <credential-class> <runtime>"
+version: 2.0.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- blockchain
-- web3
-- alchemy
-- security
-compatibility: Designed for Claude Code
+tags: [saas, alchemy, security, web3]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Alchemy access requires network access, an appropriate credential, account capacity, and explicit approval"
 ---
-# Alchemy Security Basics
+# Alchemy Credential and Trust-Boundary Security
 
 ## Overview
 
-Web3 security practices for Alchemy-powered applications: API key protection, private key management, input validation, and smart contract interaction safety.
-
-## Security Checklist
-
-| Category | Requirement | Priority |
-|----------|------------|----------|
-| API keys | Never expose in client-side code | Critical |
-| Private keys | Use environment vars or secret manager | Critical |
-| Addresses | Validate and checksum all inputs | High |
-| RPC calls | Never pass user input directly to RPC | High |
-| Webhooks | Verify HMAC signatures | High |
-| Dependencies | Audit npm packages for supply chain | Medium |
+Analyze and secure Alchemy credentials, browser access, wallet authority, webhook verification, and untrusted chain data. This workflow produces a reviewable artifact and negative-path evidence before any live side effect.
 
 ## Prerequisites
 
-- A threat model that names provider-key, deployer-key, webhook, public-route,
-  and user-input trust boundaries.
-- Managed secret storage and a revocation owner for every provider or signing
-  credential; do not rely on a developer workstation environment file in
-  production.
-- Security tests using synthetic inputs and a reviewed incident path for
-  suspected key exposure, invalid signatures, or unsafe contract operations.
+- Current first-party Alchemy documentation for the selected product, chain, feature, client, authentication method, limit, and lifecycle.
+- Named product, application, security, data/privacy, budget, release, and operations owners appropriate to the requested scope.
+- Synthetic or approved non-production fixtures, a credential canary, explicit success criteria, and a tested rollback boundary.
+
+## Current Contract
+
+An Alchemy application key identifies and limits provider access but is not a wallet private key. Frontend use is not categorically forbidden: current guidance supports explicit allowlists and recommends short-lived JWTs where appropriate. Admin keys, Notify tokens, webhook signing keys, and transaction signing authority remain server-side and separately controlled.
+
+## Authentication
+
+Create a credential matrix covering application keys, access keys, Admin access, Notify management, webhook verification, and wallet signers. Assign owner, storage, runtime, scopes/allowlists, rotation, revocation, monitoring, and incident procedure to each.
 
 ## Instructions
 
-### Step 1: API Key Protection
+1. Map browser, edge, server, CI, webhook, admin, and wallet trust boundaries and the data crossing each boundary.
+2. Choose server header auth for confidential workloads; if browser access is justified, apply exact allowlists or short-lived JWTs and test bypass conditions.
+3. Validate chain IDs, addresses, block selectors, contract ABIs, method allowlists, response sizes, and remote NFT metadata before use.
+4. Keep read clients separate from signers; require explicit transaction simulation, user intent, policy checks, and approval in a distinct workflow.
+5. Verify Notify payloads against the raw body using HMAC-SHA256 and the per-webhook signing key before parsing or side effects.
+6. Run source, artifact, log, browser-bundle, and configuration secret scans; exercise rotation and incident response before production.
 
-```typescript
-// WRONG — API key in frontend code
-// const alchemy = new Alchemy({ apiKey: 'demo123' }); // NEVER DO THIS
+## Tool Discipline
 
-// RIGHT — API key in backend proxy
-// src/api/proxy.ts
-import express from 'express';
-import { Alchemy, Network } from 'alchemy-sdk';
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, wallet addresses, customer data, plan changes, spend, key creation or rotation, webhook changes, deployment, replay, transaction construction, signing, broadcast, or deletion.
 
-const app = express();
-const alchemy = new Alchemy({
-  apiKey: process.env.ALCHEMY_API_KEY, // Server-side only
-  network: Network.ETH_MAINNET,
-});
+## Approval Boundaries
 
-// Proxy endpoint — frontend calls this instead of Alchemy directly
-app.get('/api/balance/:address', async (req, res) => {
-  const { address } = req.params;
-  if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
-    return res.status(400).json({ error: 'Invalid address format' });
-  }
-  const balance = await alchemy.core.getBalance(address);
-  res.json({ balance: balance.toString() });
-});
-
-// Alchemy Dashboard: restrict API key to specific domains/IPs
-// Dashboard > App > Settings > Allowed Domains
-```
-
-### Step 2: Input Validation for Blockchain Queries
-
-```typescript
-// src/security/validators.ts
-import { ethers } from 'ethers';
-
-function validateAddress(input: string): string {
-  if (!ethers.isAddress(input)) throw new Error(`Invalid address: ${input}`);
-  return ethers.getAddress(input); // Returns checksummed address
-}
-
-function validateBlockNumber(input: string | number): string {
-  if (input === 'latest' || input === 'pending' || input === 'earliest') return input;
-  const num = typeof input === 'string' ? parseInt(input) : input;
-  if (isNaN(num) || num < 0) throw new Error(`Invalid block number: ${input}`);
-  return `0x${num.toString(16)}`;
-}
-
-function validateTokenId(input: string): string {
-  if (!/^\d+$/.test(input) && !input.startsWith('0x')) {
-    throw new Error(`Invalid token ID: ${input}`);
-  }
-  return input;
-}
-
-export { validateAddress, validateBlockNumber, validateTokenId };
-```
-
-### Step 3: Private Key Safety
-
-```typescript
-// src/security/wallet-safety.ts
-// NEVER:
-// - Hardcode private keys in source code
-// - Log private keys or mnemonic phrases
-// - Store private keys in .env files committed to git
-// - Accept private keys from user input in a web app
-
-// Safe wallet setup for server-side operations
-import { ethers } from 'ethers';
-import { Alchemy, Network } from 'alchemy-sdk';
-
-async function createSafeWallet() {
-  const alchemy = new Alchemy({
-    apiKey: process.env.ALCHEMY_API_KEY,
-    network: Network.ETH_SEPOLIA,
-  });
-
-  const provider = await alchemy.config.getProvider();
-
-  // Load private key from secret manager (GCP example)
-  const { SecretManagerServiceClient } = await import('@google-cloud/secret-manager');
-  const client = new SecretManagerServiceClient();
-  const [version] = await client.accessSecretVersion({
-    name: `projects/${process.env.GCP_PROJECT}/secrets/deployer-private-key/versions/latest`,
-  });
-  const privateKey = version.payload?.data?.toString() || '';
-
-  const wallet = new ethers.Wallet(privateKey, provider);
-  return wallet;
-}
-```
-
-### Step 4: Webhook Signature Verification
-
-```typescript
-// src/security/webhook-verify.ts
-import crypto from 'crypto';
-
-function verifyAlchemyWebhookSignature(
-  body: string,
-  signature: string,
-  signingKey: string,
-): boolean {
-  const hmac = crypto.createHmac('sha256', signingKey);
-  hmac.update(body, 'utf8');
-  const expectedSig = hmac.digest('hex');
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSig),
-  );
-}
-```
-
-## Output
-
-- API key proxy pattern (never expose to client)
-- Input validation for addresses, blocks, and token IDs
-- Private key loaded from secret manager
-- Webhook HMAC signature verification
-
-## Examples
-
-Deploy the balance proxy in staging with an injected managed provider key, then
-send a checksummed test address and an invalid address. The valid request should
-return the intended public chain result; the invalid request must be rejected
-before the provider call, and neither response may contain a credential. Send
-one synthetic signed webhook and one signature mismatch to prove the verifier
-accepts only the valid event. If a key appears in a bundle, an invalid signature
-is processed, or a private key reaches application memory outside the approved
-signing boundary, stop deployment, revoke the affected credential where needed,
-and investigate before resuming traffic.
+Security approves browser keys, JWT issuers, secret stores, signing boundaries, and incident response. Wallet transactions, new allowlists, credential rotation, or revocation require the named owner.
 
 ## Error Handling
 
-| Failure | Response |
-|---------|----------|
-| Provider or private key is exposed | Revoke/rotate it, remove the exposure, audit affected artifacts, and redeploy. |
-| Address, block, or token input is invalid | Reject before issuing an RPC or contract request. |
-| Webhook signature cannot be verified | Reject and record only safe event metadata for investigation. |
-| Server-side signer is unavailable | Fail closed; do not accept a replacement private key from a request or fallback file. |
+- Do not compare webhook signatures with ordinary string equality or after reserializing JSON.
+- Do not let an application API key or read client imply transaction-signing permission.
+- If credential material is exposed, fail closed, rotate or revoke it, inspect downstream use, and preserve a redacted receipt.
+
+## Output
+
+Return the threat model, credential matrix, browser/server decision, input and response controls, signer separation, webhook verification contract, scan evidence, rotation exercise, and open risks. Mark assumptions, observations, source dates, environment-specific behavior, owners, and unresolved gaps explicitly.
+
+## Examples
+
+- Approve a restricted browser read only after proving the configured origin allowlist rejects an unlisted origin and the bundle contains no broader credential.
+- Reject a webhook whose signature is valid only after JSON reserialization because verification must cover the exact raw body.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- unlisted browser origin
+- expired short-lived JWT
+- wrong chain
+- oversized response
+- bad webhook signature
+- secret canary in build artifact
 
 ## Resources
 
-- [Alchemy Security Best Practices](https://www.alchemy.com/docs)
-- [Ethers.js Security](https://docs.ethers.org/v6/)
-- Web3 Security Checklist
-
-## Next Steps
-
-For production deployment, see `alchemy-prod-checklist`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Alchemy sources before execution.
+- Treat observed account, application, network, indexer, chain, or provider behavior as environment-specific evidence, never a universal guarantee.

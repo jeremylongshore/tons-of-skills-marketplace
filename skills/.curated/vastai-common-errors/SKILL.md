@@ -1,150 +1,93 @@
 ---
 name: vastai-common-errors
-description: 'Diagnose and fix Vast.ai common errors and exceptions.
-
-  Use when encountering Vast.ai errors, debugging failed instances,
-
-  or troubleshooting GPU rental issues.
-
-  Trigger with phrases like "vastai error", "fix vastai",
-
-  "vastai not working", "debug vastai", "vastai instance failed".
-
-  '
-allowed-tools: Read, Grep, Bash(vastai:*), Bash(curl:*)
-version: 1.11.0
+description: >-
+  Classify Vast.ai authentication, offer, instance-state, SSH, image, credit, and API failures before choosing a recovery action. Use when automation is stuck or a GPU workload cannot start. Trigger with: "diagnose Vast.ai", "why is my instance scheduling", "fix a Vast.ai CLI error".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[command-instance-id-and-redacted-error]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- debugging
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - troubleshooting
+  - instances
+  - diagnostics
+compatibility: 'Requires the Vast.ai CLI, redacted structured output, and access to the affected account or instance.'
 ---
-# Vast.ai Common Errors
+
+# Vast.ai Failure Classifier
 
 ## Overview
 
-Quick reference for the most common Vast.ai errors across CLI, REST API, and instance operations. Vast.ai uses HTTP status codes for API errors and instance status strings for machine-level issues.
+Diagnose from provider state and error evidence instead of retrying every failure. Separate identity and permission errors, marketplace scarcity, transient startup, terminal host states, billing stops, SSH configuration, and workload exits.
 
 ## Prerequisites
 
-- Vast.ai CLI installed (`pip install vastai`)
-- API key configured
+- Exact command, non-secret arguments, exit status, timestamp, and redacted response
+- Affected account context, instance ID, image identity, and expected state
+- Authority to inspect but not automatically destroy or fund resources
 
 ## Instructions
 
-### API Errors
+### Step 1: Capture structured evidence
 
-| HTTP Code | Error | Cause | Fix |
-|-----------|-------|-------|-----|
-| 401 | Unauthorized | Invalid or missing API key | Verify with `vastai show user`; regenerate at cloud.vast.ai |
-| 403 | Forbidden | Insufficient balance or permissions | Add credits; check account restrictions |
-| 404 | Not Found | Instance or offer ID does not exist | Re-search offers; instance may have been destroyed |
-| 409 | Conflict | Offer already rented by someone else | Search again and pick another offer |
-| 429 | Rate Limited | Too many API requests | Wait 60s and retry with backoff |
-| 500 | Server Error | Vast.ai platform issue | Check status.vast.ai; retry after 5 minutes |
+Run the failing command with `--raw` where supported and record CLI version. For request diagnosis, use `--explain` or `--curl` only after ensuring generated output cannot expose the key.
 
-### Instance Status Errors
+### Step 2: Classify control-plane failure
 
-| Status | Meaning | Action |
-|--------|---------|--------|
-| `loading` | Docker image downloading | Wait; large images can take 5-10 min |
-| `running` | Instance ready | Connect via SSH |
-| `exited` | Container stopped | Check logs: `vastai logs INSTANCE_ID` |
-| `error` | Provisioning failed | Destroy and try a different offer |
-| `offline` | Host machine went down | Destroy; provision on a different host |
+Treat 401 as credential failure, 403 as missing scoped permission, 429 as endpoint/identity rate limiting, and insufficient credit or spend-rate errors as billing policy—not host failure.
 
-### Common CLI Errors
+### Step 3: Classify instance state
 
-```bash
-# Error: "No offers found"
-# Cause: Filters too restrictive
-# Fix: Relax filters
-vastai search offers 'num_gpus=1 rentable=true' --limit 5  # broader search
+Loading may reflect an image pull; scheduling after a stop may wait indefinitely for the original GPU; exited is a workload/container failure; unknown or offline indicates missing host heartbeat.
 
-# Error: "Insufficient funds"
-# Fix: Check balance and add credits
-vastai show user --raw | python3 -c "import sys,json; d=json.load(sys.stdin); print(f'Balance: \${d[\"balance\"]:.2f}')"
+### Step 4: Check SSH and network facts
 
-# Error: "Instance creation failed"
-# Fix: Try a different offer or smaller disk
-vastai create instance OFFER_ID --image ubuntu --disk 10
-```
+Wait for `running`, resolve the current SSH URL, verify the registered public key and selected private key, and do not disable host verification as a blanket fix.
 
-### Docker Image Errors
+### Step 5: Choose reversible recovery
 
-```bash
-# Error: Instance stuck in "loading" for >10 minutes
-# Cause: Very large Docker image or slow host internet
-# Fix: Use smaller base images or pre-cached templates
-# Good: pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime (4GB)
-# Bad:  custom-image-with-everything:latest (30GB)
+Relax offer filters explicitly, repair permissions, change host, restore credit through the approved owner, or resume from checkpoint according to the class.
 
-# Error: "Container exited immediately"
-# Cause: Bad entrypoint or missing dependencies
-# Fix: Check logs
-vastai logs INSTANCE_ID --tail 50
-```
+### Step 6: Close or escalate
 
-### SSH Connection Errors
+Preserve identifiers and redacted evidence, confirm any replacement or cleanup, and escalate host or billing cases without speculative retries.
 
-```bash
-# Error: "Connection refused" after instance shows "running"
-# Cause: SSH server not yet started inside container
-# Fix: Wait 30-60 seconds after status changes to running
+## Authentication
 
-# Error: "Permission denied (publickey)"
-# Cause: SSH key not uploaded to Vast.ai
-# Fix: Upload at cloud.vast.ai > Account > SSH Keys
+Do not paste API keys into diagnostic commands. A scoped read key is usually sufficient for user, instance, logs, offers, and audit evidence; request additional authority only for the selected recovery.
 
-# Error: "Host key verification failed"
-# Fix: Use -o StrictHostKeyChecking=no for ephemeral instances
-ssh -p PORT -o StrictHostKeyChecking=no root@HOST
-```
+## Tool Discipline
 
-### GPU/CUDA Errors
-
-```bash
-# Error: "CUDA not available" inside container
-# Cause: Docker image missing CUDA or driver mismatch
-# Fix: Use NVIDIA-provided images with matching CUDA version
-# Check host CUDA: vastai show instance ID --raw | jq '.cuda_max_good'
-
-# Error: "CUDA out of memory"
-# Cause: Model too large for GPU VRAM
-# Fix: Search for more VRAM or reduce batch size
-vastai search offers 'gpu_ram>=48 num_gpus=1' --order dph_total
-```
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- Identified error with matching resolution
-- Corrected configuration or command
-- Verification that the fix resolves the issue
+- Failure class and evidence timeline
+- Ranked recovery action with mutation boundary
+- Redacted resolution or escalation receipt
 
-## Error Handling
-
-| Category | Diagnostic Command |
-|----------|--------------------|
-| Auth issues | `vastai show user` |
-| Instance status | `vastai show instances` |
-| Instance logs | `vastai logs INSTANCE_ID` |
-| Offer availability | `vastai search offers 'rentable=true' --limit 5` |
-| Balance check | `vastai show user --raw \| jq '.balance'` |
-
-## Resources
-
-- [Vast.ai Documentation](https://docs.vast.ai)
-- [Vast.ai Status Page](https://status.vast.ai)
-- [CLI Reference](https://docs.vast.ai/cli/get-started)
-
-## Next Steps
-
-For comprehensive debugging, see `vastai-debug-bundle`.
+Return command, CLI version, resource ID, observed status/error class, chosen response, outcome, and remaining billing risk.
 
 ## Examples
 
-**Instance won't start**: Run `vastai show instance ID --raw | jq '{actual_status, status_msg}'` to get the status message. If `error`, destroy and reprovision on a different host.
+An instance stuck in `scheduling` after being stopped is classified as GPU reacquisition, not image failure; the operator copies recoverable data or creates a new instance instead of waiting without a deadline.
 
-**Billing surprise**: Run `vastai show instances` to check for forgotten running instances. Destroy any you're not using to stop charges.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Evidence contains a credential | Stop, redact, rotate if exposed, and recollect safely. |
+| Error shape is inconsistent | Preserve HTTP status plus `msg` or `message` and classify conservatively. |
+| Host is offline | Do not attempt repair on the host; preserve the instance ID and use external checkpoints. |
+| Balance is zero | Escalate to the billing owner because resources and data may be at risk. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [Troubleshooting](https://docs.vast.ai/guides/reference/troubleshooting)
+- [Manage instances](https://docs.vast.ai/guides/instances/manage-instances)
+- [CLI rate limits and errors](https://docs.vast.ai/cli/rate-limits)

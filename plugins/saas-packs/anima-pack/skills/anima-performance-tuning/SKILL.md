@@ -7,11 +7,14 @@ description: 'Optimize Anima code generation performance with caching, paralleli
 
   or improving generated code quality for production use.
 
-  Trigger: "anima performance", "anima slow", "anima optimization", "anima caching".
+  Trigger with: "anima performance", "anima slow", "anima optimization", "anima caching".
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*)
-version: 1.4.0
+version: 2.0.0
+argument-hint: "[generation-workload]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -20,7 +23,7 @@ tags:
 - figma
 - anima
 - performance
-compatibility: Designed for Claude Code
+compatibility: Requires Node.js 20+, approved Anima API access, current Anima SDK documentation, and authorized Figma or website source access
 ---
 # Anima Performance Tuning
 
@@ -30,14 +33,12 @@ Improve design-to-code throughput without treating cache hits or smaller output
 as success unless the result still matches the approved design version,
 accessibility expectations, and project build contract.
 
-## Performance Targets
+## Measurement Contract
 
-| Operation | Target | Notes |
-|-----------|--------|-------|
-| Single component generation | < 10s | Depends on complexity |
-| Batch (10 components) | < 2 min | With rate limit delays |
-| Cache hit | < 10ms | File-based cache |
-| Full design system (50 components) | < 15 min | Sequential with 6s delays |
+Record source-fetch, queue, generation, asset, validation, and review durations
+separately. Establish targets from the team's own representative fixtures and
+provider agreement; do not present illustrative latency or quota numbers as an
+Anima service-level objective.
 
 ## Prerequisites
 
@@ -48,6 +49,12 @@ accessibility expectations, and project build contract.
 - Review gates for generated output so performance changes cannot automatically
   replace approved components or strip required licenses/accessibility content.
 
+## Authentication
+
+Load `ANIMA_TOKEN` and the source-scoped `FIGMA_TOKEN` only in the backend worker.
+Performance tests use synthetic allowlisted sources; do not broaden credentials
+or retry authorization failures to make a benchmark complete.
+
 ## Instructions
 
 ### Step 1: File-Based Generation Cache
@@ -56,6 +63,7 @@ accessibility expectations, and project build contract.
 // src/performance/cache.ts
 import crypto from 'crypto';
 import fs from 'fs';
+import { Anima } from '@animaapp/anima-sdk';
 
 class GenerationCache {
   private dir: string;
@@ -65,16 +73,17 @@ class GenerationCache {
     fs.mkdirSync(cacheDir, { recursive: true });
   }
 
-  private hash(fileKey: string, nodeId: string, settings: any): string {
-    return crypto.createHash('md5').update(`${fileKey}:${nodeId}:${JSON.stringify(settings)}`).digest('hex');
+  private hash(fileKey: string, sourceRevision: string, nodeId: string, settings: object): string {
+    return crypto.createHash('sha256').update(`${fileKey}:${sourceRevision}:${nodeId}:${JSON.stringify(settings)}`).digest('hex');
   }
 
   async getOrGenerate(
-    anima: any,
-    params: any,
+    anima: Anima,
+    params: Parameters<Anima['generateCode']>[0],
+    sourceRevision: string,
     maxAgeMs: number = 3600000, // 1 hour
-  ): Promise<any> {
-    const key = this.hash(params.fileKey, params.nodesId[0], params.settings);
+  ): Promise<Awaited<ReturnType<Anima['generateCode']>>> {
+    const key = this.hash(params.fileKey, sourceRevision, params.nodesId[0], params.settings);
     const path = `${this.dir}/${key}.json`;
 
     if (fs.existsSync(path)) {
@@ -141,26 +150,28 @@ async function generateOnlyChanged(
 }
 ```
 
-### Step 3: Output Size Optimization
+### Step 3: Validate Output Without Semantic Rewriting
 
 ```typescript
-// src/performance/output-opt.ts
-// Post-process generated code for smaller bundle size
-
-function optimizeOutput(content: string): string {
-  return content
-    .replace(/\/\*[\s\S]*?\*\//g, '')         // Remove block comments
-    .replace(/^\s*\/\/.*$/gm, '')              // Remove line comments
-    .replace(/\n{3,}/g, '\n\n')               // Collapse multiple blank lines
-    .trim();
+// Preserve generated semantics; measure before applying reviewed transforms.
+function recordOutput(fileName: string, content: string) {
+  return {
+    fileName,
+    bytes: Buffer.byteLength(content),
+    digest: crypto.createHash('sha256').update(content).digest('hex'),
+  };
 }
 ```
+
+## Tool Discipline
+
+Use Read and Grep to inspect the existing integration and generated diff before changing anything. Use Write or Edit only inside the approved generated-code, test, or configuration paths. Use the declared Bash commands only for the explicit install, validation, or diagnostic steps in this workflow; never print tokens, source designs, generated source, or private website captures.
 
 ## Output
 
 - File-based generation cache with TTL
 - Incremental generation (only changed components)
-- Output size optimization via post-processing
+- Output size and digest measurements without destructive rewriting
 
 ## Examples
 
@@ -186,7 +197,3 @@ validated generation path while investigating the aggregate measurements.
 
 - [Anima API](https://docs.animaapp.com/docs/anima-api)
 - [Figma API Nodes](https://www.figma.com/developers/api#get-file-nodes-endpoint)
-
-## Next Steps
-
-For cost optimization, see `anima-cost-tuning`.

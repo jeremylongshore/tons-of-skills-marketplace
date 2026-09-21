@@ -1,177 +1,89 @@
 ---
 name: vastai-install-auth
-description: 'Install and configure Vast.ai CLI and REST API authentication.
-
-  Use when setting up a new Vast.ai integration, configuring API keys,
-
-  or initializing Vast.ai GPU cloud access in your project.
-
-  Trigger with phrases like "install vastai", "setup vastai",
-
-  "vastai auth", "configure vastai API key", "vastai gpu setup".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(pip:*), Bash(vastai:*), Bash(curl:*), Grep
-version: 1.11.0
+description: >-
+  Install the supported Vast.ai CLI and establish a least-privilege authentication boundary without leaking or persisting the wrong key. Use when bootstrapping a workstation, CI runner, or automation account. Trigger with: "install Vast.ai", "configure VAST_API_KEY", "create a scoped Vast.ai key".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[workstation-or-ci-and-required-operations]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- api
-- authentication
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - authentication
+  - cli
+  - least-privilege
+compatibility: 'Requires a Vast.ai account, an approved secret store, and Linux, macOS, WSL, or Python 3.9+.'
 ---
-# Vast.ai Install & Auth
+
+# Vast.ai CLI Authentication Boundary
 
 ## Overview
 
-Set up the Vast.ai CLI and REST API access for renting GPU compute instances. Vast.ai is a marketplace where individual hosts and data centers list GPU machines at prices significantly below hyperscaler providers.
+Install from the provider-supported channel, choose file-backed versus environment-backed authentication by runtime, and prove that the key can perform only the intended operations. The current CLI migrates legacy key files into the XDG configuration location.
 
 ## Prerequisites
 
-- Python 3.8+
-- Vast.ai account at https://cloud.vast.ai
-- Credit card or credits loaded for GPU rental
+- Named workload owner and classified workstation, CI, container, or service runtime
+- Permission inventory covering search, instance, user, billing, machine, and team operations
+- Approved secret store plus a rotation and revocation owner
 
 ## Instructions
 
-### Step 1: Install the CLI
+### Step 1: Select the install channel
 
-```bash
-set -euo pipefail
-pip install vastai
-vastai --version
-```
+Use the managed installer on Linux, macOS, or WSL when an isolated runtime is desired. Use the `vastai` PyPI package for Windows or Python SDK work; record the installed version.
 
-### Step 2: Get Your API Key
+### Step 2: Place the credential
 
-1. Log in at https://cloud.vast.ai
-2. Navigate to **Account** > **API Keys** (or visit https://cloud.vast.ai/cli/)
-3. Copy your API key (a long hexadecimal string)
+For an interactive workstation, let `vastai set api-key` write `~/.config/vastai/vast_api_key` or the corresponding XDG configuration path. For CI or containers, inject `VAST_API_KEY`; the environment value takes precedence and avoids a key file.
 
-### Step 3: Configure Authentication
+### Step 3: Create least privilege
 
-```bash
-# Save API key to ~/.vast_api_key
-vastai set api-key YOUR_API_KEY_HERE
+Build a permission file containing only the categories and endpoint constraints the workload needs, then create a named scoped key. Do not use a full-access console key for shared automation.
 
-# Verify authentication
-vastai show user
-```
+### Step 4: Verify positive and negative paths
 
-For programmatic use, set the environment variable:
+Run `vastai show user --raw`, one required operation, and one operation expected to be denied. Preserve only status, key ID, and permission evidence.
 
-```bash
-export VASTAI_API_KEY="your-api-key-here"
-echo 'VASTAI_API_KEY=your-api-key' >> .env
-```
+### Step 5: Plan rotation
 
-### Step 4: Verify with REST API
+Create and verify the replacement before deleting the old key. Revoke immediately if a key, command trace, or artifact may have exposed its value.
 
-```bash
-# Direct REST API call — base URL is cloud.vast.ai/api/v0
-curl -s -H "Authorization: Bearer $VASTAI_API_KEY" \
-  "https://cloud.vast.ai/api/v0/users/current" | jq '{id, username, balance}'
-```
+## Authentication
 
-### Step 5: Python Client Setup
+Every API request requires a key. Treat `VAST_API_KEY`, the XDG key file, and the legacy `~/.vast_api_key` location as secrets; never print key values or copy them into receipts.
 
-```python
-# vastai_client.py
-import os
-import requests
-from typing import Optional, Dict, Any, List
+## Tool Discipline
 
-class VastClient:
-    BASE_URL = "https://cloud.vast.ai/api/v0"
-
-    def __init__(self, api_key: Optional[str] = None):
-        self.api_key = api_key or os.environ.get("VASTAI_API_KEY")
-        if not self.api_key:
-            # Fall back to ~/.vast_api_key
-            key_file = os.path.expanduser("~/.vast_api_key")
-            if os.path.exists(key_file):
-                self.api_key = open(key_file).read().strip()
-        if not self.api_key:
-            raise ValueError("No API key found. Run: vastai set api-key YOUR_KEY")
-
-        self.session = requests.Session()
-        self.session.headers.update({
-            "Authorization": f"Bearer {self.api_key}",
-            "Accept": "application/json",
-        })
-
-    def _request(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
-        url = f"{self.BASE_URL}{endpoint}"
-        resp = self.session.request(method, url, **kwargs)
-        resp.raise_for_status()
-        return resp.json()
-
-    def search_offers(self, query: Dict[str, Any]) -> List[Dict]:
-        return self._request("GET", "/bundles/", params={"q": str(query)})
-
-    def create_instance(self, offer_id: int, image: str, disk_gb: float = 20,
-                        onstart: str = "", env: Dict = None) -> Dict:
-        body = {"client_id": "me", "image": image, "disk": disk_gb,
-                "onstart": onstart, "env": env or {}}
-        return self._request("PUT", f"/asks/{offer_id}/", json=body)
-
-    def show_instances(self) -> List[Dict]:
-        return self._request("GET", "/instances/")["instances"]
-
-    def destroy_instance(self, instance_id: int) -> Dict:
-        return self._request("DELETE", f"/instances/{instance_id}/")
-
-# Quick verification
-if __name__ == "__main__":
-    client = VastClient()
-    user = client._request("GET", "/users/current")
-    print(f"Authenticated as: {user['username']}")
-    print(f"Balance: ${user.get('balance', 0):.2f}")
-```
-
-### Step 6: Verify Connection
-
-```bash
-# CLI verification
-vastai show user
-vastai search offers 'num_gpus=1 gpu_name=RTX_4090' --limit 3
-
-# Python verification
-python vastai_client.py
-```
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- `vastai` CLI installed and authenticated
-- API key saved to `~/.vast_api_key` and/or environment variable
-- Python client wrapper with search, create, show, destroy methods
-- Successful authentication verification
+- Install channel and exact CLI/SDK version
+- Scoped permission manifest with positive and expected-denial results
+- Redacted rotation, revocation, and rollback receipt
 
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Invalid API key` | Wrong or expired key | Regenerate at cloud.vast.ai/cli/ |
-| `403 Forbidden` | Insufficient balance | Add credits at cloud.vast.ai |
-| `Connection refused` | Firewall blocking HTTPS | Allow outbound 443 to cloud.vast.ai |
-| `Module not found: vastai` | pip install failed | Run `pip install --upgrade vastai` |
-| `~/.vast_api_key not found` | CLI not configured | Run `vastai set api-key YOUR_KEY` |
-
-## Resources
-
-- [Vast.ai CLI Documentation](https://docs.vast.ai/cli/get-started)
-- [REST API Reference](https://vast.ai/developers/api)
-- [API Introduction](https://docs.vast.ai/api-reference/introduction)
-- [GitHub: vast-cli](https://github.com/vast-ai/vast-cli)
-
-## Next Steps
-
-After successful auth, proceed to `vastai-hello-world` for your first GPU instance rental.
+Return runtime, install channel, key ID, granted categories, verification outcomes, and credential owner.
 
 ## Examples
 
-**Quick CLI test**: Run `vastai search offers 'reliability > 0.99 num_gpus=1' --order 'dph_total'` to find the cheapest reliable single-GPU offers. Verify your key works before writing any code.
+A CI deployer receives `misc`, `user_read`, `instance_read`, and `instance_write` without billing or team access; its key is injected as a masked environment secret and deleted after replacement validation.
 
-**REST API test**: Use curl with your Bearer token to hit `cloud.vast.ai/api/v0/users/current` and confirm your username and balance are returned correctly.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| `vastai show user` returns 401 | Stop retries; verify key source, precedence, revocation state, and account context. |
+| Required command returns 403 | Add only the missing documented category or endpoint constraint, then rerun the negative test. |
+| CLI reads an unexpected legacy key | Inspect XDG precedence and migrate or revoke the stale credential. |
+| Credential may be exposed | Revoke it, scrub artifacts, rotate dependent jobs, and document the incident. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [CLI authentication](https://docs.vast.ai/cli/authentication)
+- [CLI permissions](https://docs.vast.ai/cli/permissions)
+- [Official Vast.ai CLI](https://github.com/vast-ai/vast-cli)

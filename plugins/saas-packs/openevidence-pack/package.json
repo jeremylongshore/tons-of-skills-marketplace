@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/openevidence-pack",
-  "version": "1.0.3",
-  "description": "Claude Code skill pack for OpenEvidence - 24 skills covering medical AI, clinical decision support, and evidence-based medicine",
+  "version": "1.14.0",
+  "description": "Production OpenEvidence operator pack for governed clinical evidence and product workflows",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -13,10 +13,10 @@
     "claude-code",
     "claude-code-plugin",
     "openevidence",
-    "medical-ai",
-    "clinical-decision-support",
-    "healthcare",
-    "hipaa",
+    "clinical-evidence",
+    "evidence-review",
+    "healthcare-governance",
+    "clinical-safety",
     "ai-skills",
     "saas-pack"
   ],

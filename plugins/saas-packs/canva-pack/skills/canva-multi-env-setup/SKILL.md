@@ -1,207 +1,92 @@
 ---
 name: canva-multi-env-setup
-description: 'Configure Canva Connect API across development, staging, and production
-  environments.
-
-  Use when setting up multi-environment deployments, managing OAuth credentials per
-  environment,
-
-  or implementing environment-specific Canva configurations.
-
-  Trigger with phrases like "canva environments", "canva staging",
-
-  "canva dev prod", "canva environment setup", "canva config by env".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(aws:*), Bash(gcloud:*), Bash(vault:*)
-version: 1.5.0
+description: 'Configure isolated development, staging, and production Canva integrations. Use when separating redirect URIs, credentials, users, token stores, scopes, data, and audit evidence across environments. Trigger with: "Canva environments", "Canva staging setup", "separate Canva credentials".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[environment-set-and-secret-backend]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - environments
+  - operations
+compatibility: 'Requires controlled domains and an approved secret backend for every named environment.'
 ---
-# Canva Multi-Environment Setup
+
+# Canva Environment Isolation
 
 ## Overview
 
-Configure Canva Connect API integrations across development, staging, and production. Each environment needs separate OAuth integrations registered in the Canva developer portal with distinct redirect URIs.
+Give each environment an independent Canva integration and trust boundary. Prevent a staging build, callback, credential, user, or token record from resolving to production.
 
 ## Prerequisites
 
-- Separate reviewed OAuth clients, redirect URIs, secret stores, tenant/asset scopes, and owners for each environment.
-- Synthetic development/staging assets and a deployment process that cannot silently select production configuration.
+- Named environments, owners, domains, and deployment identities
+- Separate Developer Portal integrations and redirect URIs
+- Secret backend, token namespace, test-user, data, and audit policy per environment
 
 ## Instructions
 
-1. Resolve the environment from an explicit allowlist and fail if its OAuth client, redirect URI, or scope configuration is absent or mismatched.
-2. Keep tokens, caches, queues, and webhook endpoints isolated by environment; never share production credentials with lower environments.
-3. Verify staging with synthetic assets, then promote immutable configuration through the reviewed release path.
+### Step 1: Build the matrix
 
-## Environment Strategy
+Use Read and Grep to map environment to integration ID, exact redirect hosts, scopes, preview features, secret references, token/data namespace, and owners.
 
-| Environment | Canva Integration | Redirect URI | Data |
-|-------------|------------------|--------------|------|
-| Development | `my-app-dev` | `http://localhost:3000/auth/canva/callback` | Test account |
-| Staging | `my-app-staging` | `https://staging.myapp.com/auth/canva/callback` | Staging account |
-| Production | `my-app-prod` | `https://myapp.com/auth/canva/callback` | Real users |
+### Step 2: Separate integrations
 
-**Important:** Register a separate Canva integration per environment. Each gets its own client ID and secret.
+Create or verify distinct Canva integrations where isolation is required. Never distinguish environments only with a runtime variable while sharing credentials.
 
-## Configuration
+### Step 3: Constrain configuration
 
-```typescript
-// src/config/canva.ts
-interface CanvaEnvConfig {
-  clientId: string;
-  clientSecret: string;
-  redirectUri: string;
-  baseUrl: string;  // Always api.canva.com — Canva has no sandbox API
-  scopes: string[];
-  debug: boolean;
-}
+Use Write or Edit to validate environment identity, controlled host allowlists, exact callback routes, expected integration ID, and forbidden cross-environment values at startup.
 
-const configs: Record<string, CanvaEnvConfig> = {
-  development: {
-    clientId: process.env.CANVA_CLIENT_ID!,
-    clientSecret: process.env.CANVA_CLIENT_SECRET!,
-    redirectUri: 'http://localhost:3000/auth/canva/callback',
-    baseUrl: 'https://api.canva.com/rest/v1', // No sandbox exists
-    scopes: ['design:content:write', 'design:content:read', 'design:meta:read', 'asset:write', 'asset:read'],
-    debug: true,
-  },
-  staging: {
-    clientId: process.env.CANVA_CLIENT_ID!,
-    clientSecret: process.env.CANVA_CLIENT_SECRET!,
-    redirectUri: process.env.CANVA_REDIRECT_URI!,
-    baseUrl: 'https://api.canva.com/rest/v1',
-    scopes: ['design:content:write', 'design:content:read', 'design:meta:read', 'asset:write', 'asset:read'],
-    debug: false,
-  },
-  production: {
-    clientId: process.env.CANVA_CLIENT_ID!,
-    clientSecret: process.env.CANVA_CLIENT_SECRET!,
-    redirectUri: process.env.CANVA_REDIRECT_URI!,
-    baseUrl: 'https://api.canva.com/rest/v1',
-    scopes: ['design:content:write', 'design:content:read', 'design:meta:read'],
-    debug: false,
-  },
-};
+### Step 4: Isolate secrets and tokens
 
-export function getCanvaConfig(): CanvaEnvConfig {
-  const env = process.env.NODE_ENV || 'development';
-  return configs[env] || configs.development;
-}
-```
+Use separate secret paths, encryption keys where policy requires, access policies, token tables or namespaces, backup rules, and rotation owners.
 
-## Secret Management
+### Step 5: Isolate users and data
 
-### Local Development
+Use synthetic development/staging users and assets. Prevent non-production workers, webhooks, or support tooling from reading production records.
 
-```bash
-# .env.local (git-ignored)
-CANVA_CLIENT_ID=OCA_dev_xxxxxxxx
-CANVA_CLIENT_SECRET=dev_xxxxxxxx
-```
+### Step 6: Test negative boundaries
 
-### GitHub Actions / CI
+Prove staging cannot use production client secrets, callbacks, tokens, queues, databases, or webhook routes; fail closed on mismatch.
 
-```bash
-# Per-environment secrets
-gh secret set CANVA_CLIENT_ID --env staging --body "OCA_staging_xxx"
-gh secret set CANVA_CLIENT_SECRET --env staging --body "staging_xxx"
-gh secret set CANVA_CLIENT_ID --env production --body "OCA_prod_xxx"
-gh secret set CANVA_CLIENT_SECRET --env production --body "prod_xxx"
-```
+### Step 7: Record promotion rules
 
-### Production — Cloud Secret Managers
+Document which artifact is shared, which configuration must differ, rollback, environment cleanup, and evidence needed before production.
 
-```bash
-# GCP Secret Manager
-gcloud secrets create canva-client-id-prod --data-file=-
-gcloud secrets create canva-client-secret-prod --data-file=-
+## Authentication
 
-# AWS Secrets Manager
-aws secretsmanager create-secret \
-  --name canva/production/client-id \
-  --secret-string "OCA_prod_xxx"
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-# HashiCorp Vault
-vault kv put secret/canva/production \
-  client_id="OCA_prod_xxx" \
-  client_secret="prod_xxx"
-```
+## Tool Discipline
 
-## Environment Isolation Guards
-
-```typescript
-// Prevent accidental cross-environment operations
-function assertEnvironment(expected: string): void {
-  const actual = process.env.NODE_ENV || 'development';
-  if (actual !== expected) {
-    throw new Error(`Expected ${expected} environment, got ${actual}`);
-  }
-}
-
-// Guard destructive operations
-async function deleteAllUserDesigns(userId: string, token: string) {
-  assertEnvironment('development'); // Block in staging/production
-  // ...
-}
-```
-
-## Token Storage per Environment
-
-```typescript
-// Development: file-based for convenience
-// Staging/Production: encrypted database
-
-function getTokenStore(): TokenStore {
-  const env = process.env.NODE_ENV || 'development';
-
-  if (env === 'development') {
-    return new FileTokenStore('.canva-tokens.json'); // git-ignored
-  }
-
-  return new DatabaseTokenStore({
-    connectionString: process.env.DATABASE_URL!,
-    encryptionKey: process.env.TOKEN_ENCRYPTION_KEY!,
-  });
-}
-```
-
-## Canva-Specific Considerations
-
-1. **No sandbox API** — Canva has no separate sandbox environment. All environments hit `api.canva.com/rest/v1`. Use separate Canva accounts for dev/staging.
-2. **Separate integrations** — Each environment should be a distinct integration in the Canva developer portal to avoid redirect URI conflicts.
-3. **Scope differences** — Use broader scopes in dev for testing, minimal scopes in production.
-4. **Token isolation** — Never share tokens across environments. Refresh tokens are single-use.
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-Environment setup yields an approved environment label, configuration/version receipt, OAuth/redirect validation, and scope-isolation result. It excludes client secrets, tokens, tenant identifiers, and design data.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-For a staging release, load the dedicated staging client and redirect URI from protected configuration, verify a synthetic design callback, and record the redacted result. If the environment resolves to production or shares a credential, fail the deployment rather than falling back.
+The same reviewed artifact runs in staging and production, but startup validation requires different integration IDs, callback hosts, vault paths, token namespaces, and test policies.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Wrong redirect URI | Environment mismatch | Use per-environment integration |
-| Missing secret | Not deployed to env | Add via secret manager |
-| Token cross-contamination | Shared token store | Isolate by environment prefix |
-| Production guard triggered | Wrong NODE_ENV | Set correct environment variable |
+| Failure | Response |
+| --- | --- |
+| Two environments share a secret | Stop deployment and separate/rotate credentials |
+| Callback host is unexpected | Reject the request before token exchange |
+| Production token appears in staging | Contain, revoke, and audit the cross-boundary path |
+| Environment matrix is stale | Block promotion until owners reconfirm it |
 
 ## Resources
 
-- [Canva Creating Integrations](https://www.canva.dev/docs/connect/creating-integrations/)
-- [Canva Authentication](https://www.canva.dev/docs/connect/authentication/)
-- [12-Factor App Config](https://12factor.net/config)
-
-## Next Steps
-
-For observability setup, see `canva-observability`.
+- [First-party source notes](references/official-docs.md)
+- [Creating integrations](https://www.canva.dev/docs/connect/creating-integrations/)
+- [Connect security](https://www.canva.dev/docs/connect/guidelines/security/)

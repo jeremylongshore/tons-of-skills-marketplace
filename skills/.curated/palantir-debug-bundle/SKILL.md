@@ -1,135 +1,95 @@
 ---
 name: palantir-debug-bundle
-description: 'Collect Palantir Foundry debug evidence for support tickets and troubleshooting.
-
-  Use when encountering persistent Foundry issues, preparing support tickets,
-
-  or collecting diagnostic information for Foundry problems.
-
-  Trigger with phrases like "palantir debug", "foundry support bundle",
-
-  "collect palantir logs", "foundry diagnostic".
-
-  '
-allowed-tools: Read, Bash(grep:*), Bash(curl:*), Bash(tar:*), Grep
-version: 1.5.0
-license: MIT
+description: >-
+  Collect a minimal, redacted Foundry diagnostic bundle for API, OSDK, transform, or Compute Module incidents. Use when support or engineering needs reproducible evidence without credentials or protected data. Trigger with "Palantir debug bundle".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[request-build-or-module-id]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- debugging
-- diagnostics
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, debugging, incident-response]
 ---
-# Palantir Debug Bundle
+# Palantir Redacted Diagnostic Bundle
 
 ## Overview
 
-Collect all diagnostic information needed for Foundry support tickets: SDK version, auth status, API connectivity, build logs, and environment details. Secrets are automatically redacted.
+Collect identifiers and platform evidence that allow another operator to reproduce the failure while excluding bearer tokens, secrets, object values, dataset rows, and unnecessary logs. The bundle is an inventory and evidence manifest, not an indiscriminate archive.
 
 ## Prerequisites
 
-- `foundry-platform-sdk` installed
-- Access to application logs and Foundry build logs
-- Permission to collect environment info
+- Identify the failure surface, time window, owner, support case, audience, and maximum allowed data classification.
+- Obtain request IDs, build IDs, repository branch/commit, module version, SDK package versions, and non-secret environment metadata.
+- Read `references/official-docs.md` and confirm whether log access is enabled and appropriately marked.
+- Create the bundle in an access-controlled temporary location with an expiration owner.
+
+## Current Contract
+
+- Foundry build reports, debugger sessions, and metrics are distinct evidence surfaces.
+- Service and trace logs can contain values from prompts, objects, or upstream systems; viewing them can require Edit permission, log access, and markings.
+- A caller can record OAuth grant type and scope names without recording a bearer token or client secret.
+- Python transform debugging is an interactive investigation tool; debugger values are not proof of committed output.
 
 ## Instructions
 
-### Step 1: Create Debug Bundle Script
+1. Write a manifest naming the incident, audience, time window, collection authority, and prohibited data.
 
-```bash
-#!/bin/bash
-set -euo pipefail
-BUNDLE_DIR="foundry-debug-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE_DIR"
+2. Collect exact IDs, versions, branch/commit, timestamps, status or error names, sanitized request metadata, and relevant platform links.
 
-echo "=== Foundry Debug Bundle ===" > "$BUNDLE_DIR/summary.txt"
-echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$BUNDLE_DIR/summary.txt"
+3. Export only the smallest log excerpts authorized for the audience and replace tokens, secrets, personal data, and protected values with typed redaction markers.
 
-# Python environment
-echo -e "\n--- Python Environment ---" >> "$BUNDLE_DIR/summary.txt"
-python --version >> "$BUNDLE_DIR/summary.txt" 2>&1
-pip show foundry-platform-sdk 2>/dev/null | grep -E "^(Name|Version)" >> "$BUNDLE_DIR/summary.txt"
-pip show palantir-sdk 2>/dev/null | grep -E "^(Name|Version)" >> "$BUNDLE_DIR/summary.txt"
+4. Reproduce the issue with a safe request, preview, or sandbox build and record the result.
 
-# Environment variables (redacted)
-echo -e "\n--- Environment (redacted) ---" >> "$BUNDLE_DIR/summary.txt"
-echo "FOUNDRY_HOSTNAME: ${FOUNDRY_HOSTNAME:-NOT SET}" >> "$BUNDLE_DIR/summary.txt"
-echo "FOUNDRY_TOKEN: ${FOUNDRY_TOKEN:+[SET, length=${#FOUNDRY_TOKEN}]}" >> "$BUNDLE_DIR/summary.txt"
-echo "FOUNDRY_CLIENT_ID: ${FOUNDRY_CLIENT_ID:+[SET]}" >> "$BUNDLE_DIR/summary.txt"
-echo "FOUNDRY_CLIENT_SECRET: ${FOUNDRY_CLIENT_SECRET:+[SET]}" >> "$BUNDLE_DIR/summary.txt"
-```
+5. Review the bundle against the prohibition list, compute file hashes, set an expiration, and transfer through the approved channel.
 
-### Step 2: Test API Connectivity
+## Tool Discipline
 
-```bash
-# API connectivity test
-echo -e "\n--- API Connectivity ---" >> "$BUNDLE_DIR/summary.txt"
-if [ -n "${FOUNDRY_HOSTNAME:-}" ] && [ -n "${FOUNDRY_TOKEN:-}" ]; then
-  HTTP_CODE=$(curl -s -o "$BUNDLE_DIR/api-response.json" -w "%{http_code}" \
-    -H "Authorization: Bearer $FOUNDRY_TOKEN" \
-    "https://$FOUNDRY_HOSTNAME/api/v2/ontologies" 2>/dev/null || echo "FAILED")
-  echo "Ontology API: HTTP $HTTP_CODE" >> "$BUNDLE_DIR/summary.txt"
-else
-  echo "Skipped: FOUNDRY_HOSTNAME or FOUNDRY_TOKEN not set" >> "$BUNDLE_DIR/summary.txt"
-fi
-```
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-### Step 3: Collect Build Logs and Error Context
+## Approval Boundaries
 
-```bash
-# Collect recent Python errors
-echo -e "\n--- Recent Errors ---" >> "$BUNDLE_DIR/summary.txt"
-grep -rn "foundry\.\|ApiError\|Traceback" *.log 2>/dev/null | tail -30 >> "$BUNDLE_DIR/errors.txt" || true
-
-# Collect .env (redacted)
-if [ -f .env ]; then
-  sed 's/=.*/=***REDACTED***/' .env > "$BUNDLE_DIR/config-redacted.txt"
-fi
-```
-
-### Step 4: Package and Verify
-
-```bash
-tar -czf "$BUNDLE_DIR.tar.gz" "$BUNDLE_DIR"
-echo "Bundle: $BUNDLE_DIR.tar.gz ($(du -h "$BUNDLE_DIR.tar.gz" | cut -f1))"
-rm -rf "$BUNDLE_DIR"
-```
+The resource owner authorizes evidence collection; the security or data owner authorizes any logs; the support owner authorizes transfer. Never attach `.env`, credential files, raw headers, datasets, object payloads, or complete log exports.
 
 ## Output
 
-- `foundry-debug-YYYYMMDD-HHMMSS.tar.gz` containing:
-  - `summary.txt` — SDK versions, env vars (redacted), API status
-  - `api-response.json` — raw API response for diagnosis
-  - `errors.txt` — recent error logs
-  - `config-redacted.txt` — configuration with secrets masked
+A manifest plus minimal redacted evidence: identifiers, versions, topology, timestamps, status/error names, selected platform links, reproduction result, file hashes, redaction record, audience, and expiration.
 
 ## Error Handling
 
-| Item | Purpose | Sensitive? |
-|------|---------|------------|
-| SDK versions | Compatibility check | No |
-| API HTTP code | Connectivity diagnosis | No |
-| Error logs | Root cause analysis | Review before sharing |
-| Config (redacted) | Configuration issues | Auto-redacted |
-| Bearer tokens | Auth diagnosis | NEVER include raw values |
+| Condition | Response |
+|---|---|
+| The only reproduction requires production writeback | Stop and design a non-production or validation-only reproduction. |
+| Log access is unavailable | Record the missing evidence and ask the authorized owner; do not broaden your own access. |
+| A secret appears during review | Quarantine the bundle, rotate the exposed credential, regenerate sanitized evidence, and document the incident. |
+| The bundle is too large to review | Reduce it to the failing request/build/module and the smallest relevant time window. |
 
 ## Examples
 
-### Submit to Palantir Support
+### Example 1
 
-1. Run: `bash foundry-debug-bundle.sh`
-2. Review the tarball for any leaked secrets
-3. Open a support ticket in Palantir's support portal
-4. Attach the bundle with a description of the issue
+Prepare an API support bundle containing request ID, endpoint template, response status, grant type, scope names, SDK version, timestamps, and a redacted reproduction—without headers or object data.
+
+### Example 2
+
+Prepare a transform-build bundle containing build and job IDs, branch commit, declared inputs/outputs, failing stack frames, selected metrics, and a one-page reproduction manifest.
+
+## Validation
+
+- A second operator can identify and reproduce the failure from the manifest.
+- Every file has an owner, classification, hash, and expiration.
+- Secret and sensitive-value scans find no unapproved data.
+- Log evidence is limited to the authorized source executor and time window.
+- The transfer receipt confirms the intended audience only.
 
 ## Resources
 
-- [Foundry Documentation](https://www.palantir.com/docs/foundry)
-- [Foundry API Reference](https://www.palantir.com/docs/foundry/api/general/overview/introduction)
-
-## Next Steps
-
-For rate limit issues, see `palantir-rate-limits`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

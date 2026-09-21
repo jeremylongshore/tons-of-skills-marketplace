@@ -57,7 +57,7 @@
         "score": 90,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -88,7 +88,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -123,7 +123,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -156,10 +156,10 @@
         "commands": 1
       },
       "verification": {
-        "score": 95,
+        "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -181,7 +181,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -207,14 +207,14 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "agent-context-manager",
       "source": "./plugins/productivity/agent-context-manager",
       "description": "Automatically detects and loads AGENTS.md files to provide agent-specific instructions",
-      "version": "1.23.0",
+      "version": "1.24.0",
       "category": "productivity",
       "keywords": [
         "agents",
@@ -228,7 +228,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -254,7 +254,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -303,7 +303,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -356,14 +356,14 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "ai-sdk-agents",
       "source": "./plugins/ai-ml/ai-sdk-agents",
       "description": "Multi-agent orchestration with AI SDK v5 - handoffs, routing, and coordination for any AI provider (OpenAI, Anthropic, Google)",
-      "version": "1.36.0",
+      "version": "1.37.0",
       "category": "ai-ml",
       "keywords": [
         "ai-sdk",
@@ -394,7 +394,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -417,7 +417,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -441,7 +441,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -465,7 +465,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -488,7 +488,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -511,7 +511,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -534,7 +534,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -557,7 +557,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -581,7 +581,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -604,7 +604,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -628,7 +628,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -653,7 +653,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -676,7 +676,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -699,7 +699,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -722,7 +722,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -745,7 +745,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -768,7 +768,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -791,7 +791,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -814,7 +814,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -837,7 +837,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -861,7 +861,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -884,7 +884,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -907,7 +907,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -932,7 +932,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -955,7 +955,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -978,7 +978,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1002,7 +1002,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1025,7 +1025,7 @@
         "score": 93,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1050,7 +1050,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1072,7 +1072,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1096,7 +1096,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1120,7 +1120,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1143,7 +1143,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1168,7 +1168,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1191,7 +1191,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1216,7 +1216,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1239,7 +1239,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1261,7 +1261,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1284,7 +1284,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1309,7 +1309,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1335,7 +1335,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1363,7 +1363,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1387,7 +1387,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1412,7 +1412,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1436,7 +1436,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1461,7 +1461,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1483,7 +1483,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1507,7 +1507,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1532,7 +1532,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1557,7 +1557,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1583,7 +1583,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1634,7 +1634,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1657,7 +1657,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1726,7 +1726,7 @@
         "score": 92,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1753,7 +1753,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1777,7 +1777,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1804,7 +1804,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1828,7 +1828,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1853,7 +1853,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1875,7 +1875,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1899,7 +1899,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1921,7 +1921,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1945,7 +1945,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1967,7 +1967,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -1991,7 +1991,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2013,7 +2013,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2035,7 +2035,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2059,7 +2059,7 @@
         "score": 92,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2081,7 +2081,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2105,7 +2105,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2127,7 +2127,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2149,7 +2149,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2171,7 +2171,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2193,7 +2193,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2216,7 +2216,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2240,7 +2240,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2262,7 +2262,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2302,7 +2302,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2326,7 +2326,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2350,7 +2350,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2372,7 +2372,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2394,7 +2394,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2420,7 +2420,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2442,7 +2442,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2466,7 +2466,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2490,7 +2490,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2516,7 +2516,7 @@
         "score": 93,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2541,7 +2541,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2565,7 +2565,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2589,7 +2589,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2647,7 +2647,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2672,7 +2672,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2695,7 +2695,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2736,7 +2736,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2761,7 +2761,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2841,7 +2841,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2863,14 +2863,14 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "engineer-design-diagram",
       "source": "./plugins/devops/engineer-design-diagram",
       "description": "Generate production-grade engineering design diagrams (architecture, sequence, delta, drift) as self-contained dark-themed HTML files with accessible inline SVG. Grounds every diagram in real repo topology via DCI — package manifests, docker-compose, k8s, terraform, import graph. Four modes: generate, diff, trace, watch. Semantic OKLCH palette; Mermaid fallback for large graphs.",
-      "version": "0.5.0",
+      "version": "0.6.0",
       "category": "devops",
       "keywords": [
         "architecture",
@@ -2896,7 +2896,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2920,7 +2920,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2943,7 +2943,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -2980,7 +2980,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3011,7 +3011,7 @@
         "score": 83,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3035,7 +3035,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3070,7 +3070,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3094,9 +3094,20 @@
       "description": "Evidence-cited grader for Claude Code artifacts — the audit-skill runs the free skillcrossroads CLI for file:line scorecards, letter grades, and ranked fix lists",
       "version": "0.11.4",
       "category": "community",
-      "keywords": ["audit", "quality", "linter", "scorecard"],
+      "keywords": [
+        "audit",
+        "quality",
+        "linter",
+        "scorecard"
+      ],
       "author": {
         "name": "Steve Harlow"
+      },
+      "verification": {
+        "score": 100,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3120,7 +3131,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3141,7 +3152,7 @@
         "score": 93,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3168,7 +3179,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3186,7 +3197,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3217,7 +3228,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3266,7 +3277,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3288,7 +3299,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3314,7 +3325,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3339,7 +3350,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3365,7 +3376,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3388,7 +3399,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3427,7 +3438,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3449,7 +3460,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3473,7 +3484,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3499,7 +3510,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3523,7 +3534,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3546,7 +3557,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3568,7 +3579,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3592,7 +3603,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3629,7 +3640,7 @@
         "score": 81,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3654,7 +3665,7 @@
         "score": 90,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3679,7 +3690,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3704,7 +3715,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3728,7 +3739,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3751,7 +3762,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3776,7 +3787,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3799,7 +3810,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3843,7 +3854,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3869,7 +3880,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3895,7 +3906,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3918,7 +3929,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3945,7 +3956,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3968,7 +3979,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -3992,7 +4003,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4019,7 +4030,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4043,7 +4054,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4067,7 +4078,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4091,7 +4102,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4115,7 +4126,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4139,7 +4150,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4163,7 +4174,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4206,7 +4217,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4230,7 +4241,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4254,7 +4265,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4279,7 +4290,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4303,7 +4314,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4336,7 +4347,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4358,7 +4369,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4383,7 +4394,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4442,7 +4453,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4466,7 +4477,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4496,7 +4507,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4518,7 +4529,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4540,7 +4551,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4569,7 +4580,7 @@
         "score": 93,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4592,7 +4603,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4615,7 +4626,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4638,7 +4649,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4662,7 +4673,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4696,7 +4707,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4730,7 +4741,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4782,7 +4793,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4805,7 +4816,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4829,7 +4840,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4853,7 +4864,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4877,7 +4888,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4898,7 +4909,7 @@
         "score": 89,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4921,7 +4932,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4944,7 +4955,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -4970,7 +4981,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5010,7 +5021,7 @@
         "score": 92,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5034,14 +5045,14 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "severity1-marketplace",
       "source": "./plugins/security/severity1-marketplace",
       "description": "Severity level classification and prompt improvement for marketplace plugins. Assigns severity ratings (S1-Critical through S4-Low) and enhances plugin prompts for clarity, safety, and effectiveness.",
-      "version": "1.6.0",
+      "version": "1.7.0",
       "category": "security",
       "keywords": [
         "severity",
@@ -5066,7 +5077,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5091,7 +5102,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5109,7 +5120,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5131,7 +5142,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5153,7 +5164,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5175,7 +5186,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5197,7 +5208,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5228,7 +5239,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5252,7 +5263,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5276,7 +5287,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5300,7 +5311,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5322,7 +5333,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5352,7 +5363,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5376,7 +5387,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5400,7 +5411,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5425,7 +5436,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5447,7 +5458,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5487,7 +5498,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5511,7 +5522,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5533,7 +5544,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5558,7 +5569,7 @@
         "score": 93,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5580,7 +5591,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5618,7 +5629,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5650,7 +5661,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5673,7 +5684,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5697,7 +5708,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5721,7 +5732,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5745,7 +5756,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5772,7 +5783,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5797,7 +5808,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5822,7 +5833,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5847,7 +5858,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5870,7 +5881,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5894,7 +5905,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5921,7 +5932,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5946,7 +5957,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -5970,7 +5981,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6029,7 +6040,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6055,7 +6066,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6079,7 +6090,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6127,7 +6138,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6150,7 +6161,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6173,7 +6184,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6198,7 +6209,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6248,7 +6259,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6297,7 +6308,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6326,7 +6337,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6353,7 +6364,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6384,7 +6395,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6414,7 +6425,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6441,7 +6452,7 @@
         "score": 93,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6469,7 +6480,7 @@
         "score": 93,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6496,7 +6507,7 @@
         "score": 93,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6525,7 +6536,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6556,7 +6567,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6592,7 +6603,7 @@
         "score": 93,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6655,7 +6666,7 @@
       "name": "skill-creator",
       "source": "./plugins/skill-enhancers/skill-creator",
       "description": "Create and validate production-grade agent skills with 100-point marketplace grading. Supports creation workflows, eval-driven development, and auto-fix for spec compliance.",
-      "version": "5.22.0",
+      "version": "5.23.0",
       "category": "skill-enhancers",
       "keywords": [
         "skill-creation",
@@ -6677,10 +6688,10 @@
         "total": 1
       },
       "verification": {
-        "score": 97,
+        "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6712,7 +6723,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6743,7 +6754,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6814,7 +6825,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6873,7 +6884,7 @@
         "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6909,7 +6920,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6936,14 +6947,14 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "mattyp-changelog",
       "source": "./plugins/devops/mattyp-changelog",
       "description": "Automates changelog generation from git history with config validation and quality scoring. Use when publishing weekly updates, release notes, or PR summaries. Trigger with /changelog-weekly, /changelog-custom, or /changelog-validate.",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "category": "devops",
       "keywords": [
         "changelog",
@@ -6964,7 +6975,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -6999,7 +7010,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7032,7 +7043,7 @@
         "score": 92,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7062,14 +7073,14 @@
         "score": 87,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "cursor-pack",
       "source": "./plugins/saas-packs/cursor-pack",
       "description": "Complete Cursor integration skill pack with 30 skills covering AI code editing, composer workflows, codebase indexing, and productivity features. Flagship+ tier vendor pack.",
-      "version": "1.18.0",
+      "version": "1.19.0",
       "category": "saas-packs",
       "keywords": [
         "cursor",
@@ -7092,14 +7103,14 @@
         "score": 93,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "exa-pack",
       "source": "./plugins/saas-packs/exa-pack",
-      "description": "Complete Exa integration skill pack with 30 skills covering neural search, semantic retrieval, web search API, and AI-powered discovery. Flagship+ tier vendor pack.",
-      "version": "1.11.0",
+      "description": "Governed Exa operator pack with 30 workflows for Search, Contents, Agent, Monitors, Websets, access, reliability, cost, and security.",
+      "version": "1.12.0",
       "category": "saas-packs",
       "keywords": [
         "exa",
@@ -7119,17 +7130,17 @@
         "skills": 30
       },
       "verification": {
-        "score": 84,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 95,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {
       "name": "firecrawl-pack",
       "source": "./plugins/saas-packs/firecrawl-pack",
-      "description": "Complete Firecrawl integration skill pack with 30 skills covering web scraping, crawling, markdown conversion, and LLM-ready data extraction. Flagship+ tier vendor pack.",
-      "version": "1.11.0",
+      "description": "Operator-grade Firecrawl v2 skill pack with 30 governed acquisition, security, reliability, and production workflows",
+      "version": "1.12.0",
       "category": "saas-packs",
       "keywords": [
         "firecrawl",
@@ -7149,10 +7160,10 @@
         "skills": 30
       },
       "verification": {
-        "score": 83,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7182,7 +7193,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7211,7 +7222,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7241,7 +7252,7 @@
         "score": 92,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7271,7 +7282,7 @@
         "score": 91,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7298,17 +7309,17 @@
         "skills": 30
       },
       "verification": {
-        "score": 96,
+        "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-09T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "coderabbit-pack",
       "source": "./plugins/saas-packs/coderabbit-pack",
-      "description": "Complete CodeRabbit integration skill pack with 24 skills covering AI code review, PR automation, and code quality analysis. Flagship tier vendor pack.",
-      "version": "1.11.0",
+      "description": "Evidence-backed CodeRabbit operator workflows for reviews, CLI, configuration, security, governance, APIs, and incident response (24 skills)",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "coderabbit",
@@ -7327,24 +7338,25 @@
         "skills": 24
       },
       "verification": {
-        "score": 85,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {
       "name": "fireflies-pack",
       "source": "./plugins/saas-packs/fireflies-pack",
-      "description": "Complete Fireflies integration skill pack with 24 skills covering meeting transcription, AI summaries, and conversation intelligence. Flagship tier vendor pack.",
-      "version": "1.11.0",
+      "description": "Operator-grade Fireflies.ai GraphQL and Webhooks V2 pack with 24 governed workflows for meeting data, AskFred, ingestion, security, reliability, and production operations.",
+      "version": "1.12.0",
       "category": "saas-packs",
       "keywords": [
         "fireflies",
-        "meeting-transcription",
-        "ai-notes",
-        "conversation-intelligence",
-        "summaries"
+        "graphql",
+        "webhooks-v2",
+        "meeting-data",
+        "askfred",
+        "governance"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -7355,10 +7367,10 @@
         "skills": 24
       },
       "verification": {
-        "score": 83,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {
@@ -7388,14 +7400,14 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "ideogram-pack",
       "source": "./plugins/saas-packs/ideogram-pack",
-      "description": "Complete Ideogram integration skill pack with 24 skills covering AI image generation, text rendering, and creative design workflows. Flagship tier vendor pack.",
-      "version": "1.10.0",
+      "description": "Operator-grade Ideogram skill pack with 24 current V4, async, security, storage, governance, and migration workflows",
+      "version": "1.11.0",
       "category": "saas-packs",
       "keywords": [
         "ideogram",
@@ -7415,25 +7427,25 @@
         "skills": 24
       },
       "verification": {
-        "score": 84,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {
       "name": "instantly-pack",
       "source": "./plugins/saas-packs/instantly-pack",
-      "description": "Complete Instantly integration skill pack with 24 skills covering cold email, outreach automation, and lead generation. Flagship tier vendor pack.",
-      "version": "1.12.0",
+      "description": "Operator-grade Instantly API v2 pack with 24 source-grounded skills for campaigns, accounts, leads, scoped access, webhooks, reliability, and governed delivery.",
+      "version": "1.13.0",
       "category": "saas-packs",
       "keywords": [
         "instantly",
-        "cold-email",
-        "outreach",
-        "email-automation",
-        "lead-generation",
-        "sales"
+        "api-v2",
+        "campaign-operations",
+        "deliverability",
+        "webhooks",
+        "governance"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -7444,10 +7456,10 @@
         "skills": 24
       },
       "verification": {
-        "score": 81,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7473,26 +7485,28 @@
         "skills": 24
       },
       "verification": {
-        "score": 92,
+        "score": 93,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-09T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "vastai-pack",
       "source": "./plugins/saas-packs/vastai-pack",
-      "description": "Complete Vast.ai integration skill pack with 24 skills covering GPU marketplace, cloud compute, and ML infrastructure. Flagship tier vendor pack.",
-      "version": "1.11.0",
+      "description": "Evidence-gated Vast.ai operator pack for GPU rentals, Serverless, governance, recovery, and cost control (24 skills)",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "vastai",
         "vast-ai",
         "gpu-marketplace",
         "cloud-gpu",
-        "ml-infrastructure",
-        "compute",
-        "training"
+        "serverless",
+        "checkpoint-recovery",
+        "signed-webhooks",
+        "teams-rbac",
+        "cost-control"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -7503,10 +7517,10 @@
         "skills": 24
       },
       "verification": {
-        "score": 86,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 93,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-13T00:00:00.000Z"
       }
     },
     {
@@ -7537,7 +7551,7 @@
         "score": 92,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7568,7 +7582,7 @@
         "score": 89,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7598,7 +7612,7 @@
         "score": 92,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7629,14 +7643,14 @@
         "score": 90,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "langchain-py-pack",
       "source": "./plugins/saas-packs/langchain-py-pack",
       "description": "LangChain 1.0 + LangGraph 1.0 skill pack for Python. Pain-first skills anchored to a 68-entry pain catalog covering content blocks, streaming token accounting, structured-output, vector stores, checkpointing, HITL, middleware, Deep Agents, and native OTEL. Includes 33 skills across four epics.",
-      "version": "2.6.0",
+      "version": "2.7.0",
       "category": "saas-packs",
       "keywords": [
         "langchain",
@@ -7662,7 +7676,7 @@
         "score": 92,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7691,7 +7705,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7721,7 +7735,7 @@
         "score": 91,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7752,7 +7766,7 @@
         "score": 80,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7782,14 +7796,14 @@
         "score": 87,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "clerk-pack",
       "source": "./plugins/saas-packs/clerk-pack",
       "description": "Complete Clerk integration skill pack with 24 skills covering authentication, user management, embeddable UIs, and identity platform. Flagship tier vendor pack.",
-      "version": "1.14.0",
+      "version": "1.15.0",
       "category": "saas-packs",
       "keywords": [
         "clerk",
@@ -7813,23 +7827,22 @@
         "score": 93,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "linear-pack",
       "source": "./plugins/saas-packs/linear-pack",
-      "description": "Complete Linear integration skill pack with 24 skills covering issue tracking, project management, workflows, and team collaboration. Flagship tier vendor pack.",
-      "version": "1.12.0",
+      "description": "Operator-grade Linear pack with 24 source-grounded skills for GraphQL, OAuth, issue and project workflows, webhooks, reliability, data governance, and enterprise access.",
+      "version": "1.13.0",
       "category": "saas-packs",
       "keywords": [
         "linear",
-        "issues",
-        "project-management",
-        "tracking",
-        "workflows",
-        "agile",
-        "team-collaboration"
+        "graphql",
+        "oauth",
+        "issue-operations",
+        "webhooks",
+        "data-governance"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -7840,10 +7853,10 @@
         "skills": 24
       },
       "verification": {
-        "score": 81,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 99,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7874,21 +7887,21 @@
         "score": 91,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "mistral-pack",
       "source": "./plugins/saas-packs/mistral-pack",
-      "description": "Complete Mistral AI integration skill pack with 24 skills covering model inference, embeddings, fine-tuning, and production deployments. Flagship tier vendor pack.",
-      "version": "1.13.0",
+      "description": "Operator-grade Mistral skill pack with 24 current API, security, reliability, governance, and migration workflows",
+      "version": "1.14.0",
       "category": "saas-packs",
       "keywords": [
         "mistral",
         "llm",
         "inference",
         "embeddings",
-        "fine-tuning",
+        "workflows",
         "ai",
         "machine-learning"
       ],
@@ -7901,10 +7914,10 @@
         "skills": 24
       },
       "verification": {
-        "score": 84,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 97,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {
@@ -7934,7 +7947,7 @@
         "score": 87,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7964,7 +7977,7 @@
         "score": 90,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -7994,7 +8007,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8024,7 +8037,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8054,7 +8067,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8084,7 +8097,7 @@
         "score": 89,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8114,23 +8127,22 @@
         "score": 91,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "openevidence-pack",
       "source": "./plugins/saas-packs/openevidence-pack",
-      "description": "Complete OpenEvidence integration skill pack with 24 skills covering medical AI, clinical decision support, evidence-based queries, and healthcare workflows. Flagship tier vendor pack.",
-      "version": "1.13.0",
+      "description": "Operator-grade OpenEvidence pack with 24 source-grounded skills for clinical evidence review, safe adoption, privacy, security, and product workflow governance.",
+      "version": "1.14.0",
       "category": "saas-packs",
       "keywords": [
         "openevidence",
-        "medical-ai",
-        "clinical",
-        "healthcare",
-        "evidence-based",
-        "decision-support",
-        "medicine"
+        "clinical-evidence",
+        "evidence-review",
+        "healthcare-governance",
+        "privacy",
+        "clinical-safety"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -8141,10 +8153,10 @@
         "skills": 24
       },
       "verification": {
-        "score": 81,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8174,7 +8186,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8204,7 +8216,7 @@
         "score": 91,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8232,7 +8244,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8263,7 +8275,7 @@
         "score": 90,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8293,7 +8305,7 @@
         "score": 92,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8325,7 +8337,7 @@
         "score": 89,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8354,7 +8366,7 @@
         "score": 92,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8395,14 +8407,14 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "abridge-pack",
       "source": "./plugins/saas-packs/abridge-pack",
-      "description": "Claude Code skill pack for Abridge (18 skills)",
-      "version": "1.4.0",
+      "description": "Abridge health-system rollout, clinical workflow, Epic handoff, security, and reliability operator skills (18 skills; live actions remain approval-gated)",
+      "version": "1.5.0",
       "category": "saas-packs",
       "keywords": [
         "abridge",
@@ -8419,23 +8431,27 @@
         "skills": 18
       },
       "verification": {
-        "score": 80,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "adobe-pack",
       "source": "./plugins/saas-packs/adobe-pack",
-      "description": "Claude Code skill pack for Adobe (30 skills)",
-      "version": "1.7.0",
+      "description": "Operate Adobe Firefly, Photoshop v2, PDF Services, I/O Events, App Builder, and enterprise access through 30 evidence-backed skills with safe auth, data, spend, deployment, and recovery boundaries.",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "adobe",
-        "saas",
-        "sdk",
-        "integration"
+        "firefly",
+        "photoshop-api",
+        "pdf-services",
+        "adobe-io-events",
+        "app-builder",
+        "oauth",
+        "enterprise-integration"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -8446,22 +8462,24 @@
         "skills": 30
       },
       "verification": {
-        "score": 82,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "verified",
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {
       "name": "alchemy-pack",
       "source": "./plugins/saas-packs/alchemy-pack",
-      "description": "Claude Code skill pack for Alchemy (18 skills)",
-      "version": "1.5.0",
+      "description": "Evidence-backed Alchemy operator workflows for current Node, Data, Portfolio, NFT, Wallet, Notify, Admin, reliability, security, and migration contracts (18 skills)",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "alchemy",
+        "web3",
         "saas",
-        "sdk",
+        "viem",
+        "wallet-apis",
         "integration"
       ],
       "author": {
@@ -8473,10 +8491,10 @@
         "skills": 18
       },
       "verification": {
-        "score": 84,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "verified",
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {
@@ -8500,17 +8518,17 @@
         "skills": 24
       },
       "verification": {
-        "score": 79,
-        "grade": "C",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 99,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "anima-pack",
       "source": "./plugins/saas-packs/anima-pack",
-      "description": "Claude Code skill pack for Anima (18 skills)",
-      "version": "1.4.0",
+      "description": "Anima design-to-code operator pack with 18 Grade-A skills",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "anima",
@@ -8527,17 +8545,17 @@
         "skills": 18
       },
       "verification": {
-        "score": 85,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 95,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {
       "name": "anthropic-pack",
       "source": "./plugins/saas-packs/anthropic-pack",
       "description": "Claude Code skill pack for Anthropic (30 skills)",
-      "version": "1.6.0",
+      "version": "1.7.0",
       "category": "saas-packs",
       "keywords": [
         "anthropic",
@@ -8557,7 +8575,7 @@
         "score": 88,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8584,7 +8602,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8611,7 +8629,7 @@
         "score": 87,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8639,14 +8657,14 @@
         "score": 87,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "assemblyai-pack",
       "source": "./plugins/saas-packs/assemblyai-pack",
-      "description": "Claude Code skill pack for AssemblyAI (18 skills)",
-      "version": "1.5.0",
+      "description": "Governed AssemblyAI operator pack for pre-recorded STT, Streaming v3, Speech Understanding, and LLM Gateway",
+      "version": "1.12.0",
       "category": "saas-packs",
       "keywords": [
         "assemblyai",
@@ -8663,10 +8681,10 @@
         "skills": 18
       },
       "verification": {
-        "score": 83,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 94,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {
@@ -8690,23 +8708,25 @@
         "skills": 18
       },
       "verification": {
-        "score": 79,
-        "grade": "C",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "bamboohr-pack",
       "source": "./plugins/saas-packs/bamboohr-pack",
-      "description": "Claude Code skill pack for BambooHR (18 skills)",
-      "version": "1.4.0",
+      "description": "Operator-grade BambooHR pack with 18 source-grounded skills for authentication, HR data pipelines, webhooks, security, reliability, and release governance.",
+      "version": "1.5.0",
       "category": "saas-packs",
       "keywords": [
         "bamboohr",
         "saas",
-        "sdk",
-        "integration"
+        "hr-integrations",
+        "employee-data",
+        "oauth",
+        "webhooks"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -8720,21 +8740,23 @@
         "score": 81,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "brightdata-pack",
       "source": "./plugins/saas-packs/brightdata-pack",
-      "description": "Claude Code skill pack for Bright Data (18 skills)",
-      "version": "1.6.0",
+      "description": "18 Grade-A skills for governed Bright Data proxy, Browser API, and snapshot operations",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
-        "brightdata",
-        "bright data",
+        "bright-data",
+        "web-data",
+        "proxy-network",
+        "browser-api",
+        "snapshots",
         "saas",
-        "sdk",
-        "integration"
+        "sdk"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -8745,17 +8767,17 @@
         "skills": 18
       },
       "verification": {
-        "score": 85,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 93,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-13T00:00:00.000Z"
       }
     },
     {
       "name": "canva-pack",
       "source": "./plugins/saas-packs/canva-pack",
-      "description": "Claude Code skill pack for Canva (30 skills)",
-      "version": "1.5.0",
+      "description": "30 governed Canva Connect operator workflows for OAuth, designs, asynchronous jobs, and secure integrations",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "canva",
@@ -8772,24 +8794,24 @@
         "skills": 30
       },
       "verification": {
-        "score": 86,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 94,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-13T00:00:00.000Z"
       }
     },
     {
       "name": "castai-pack",
       "source": "./plugins/saas-packs/castai-pack",
-      "description": "Claude Code skill pack for Cast AI (18 skills)",
-      "version": "1.4.0",
+      "description": "18 governed CAST AI operator workflows for Kubernetes cost monitoring and autoscaling",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "castai",
         "cast ai",
         "saas",
-        "sdk",
-        "integration"
+        "autoscaling",
+        "operations"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -8800,22 +8822,23 @@
         "skills": 18
       },
       "verification": {
-        "score": 85,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 92,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-13T00:00:00.000Z"
       }
     },
     {
       "name": "clari-pack",
       "source": "./plugins/saas-packs/clari-pack",
-      "description": "Claude Code skill pack for Clari (18 skills)",
-      "version": "1.6.0",
+      "description": "18 governed Clari operator workflows for Revenue API exports, v2 ingestion, Copilot, governance, and production operations",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "clari",
-        "saas",
-        "sdk",
+        "revenue-operations",
+        "forecasting",
+        "copilot",
         "integration"
       ],
       "author": {
@@ -8827,10 +8850,10 @@
         "skills": 18
       },
       "verification": {
-        "score": 86,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 95,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-13T00:00:00.000Z"
       }
     },
     {
@@ -8857,7 +8880,7 @@
         "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8882,23 +8905,24 @@
         "skills": 24
       },
       "verification": {
-        "score": 80,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 99,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "cohere-pack",
       "source": "./plugins/saas-packs/cohere-pack",
-      "description": "Claude Code skill pack for Cohere (24 skills)",
-      "version": "1.5.0",
+      "description": "Source-grounded Cohere v2 operator workflows for Chat, Embed, Rerank, RAG, tools, security, migration, and production operations",
+      "version": "1.6.0",
       "category": "saas-packs",
       "keywords": [
         "cohere",
-        "saas",
-        "sdk",
-        "integration"
+        "api-v2",
+        "rag",
+        "tool-use",
+        "model-operations"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -8909,10 +8933,10 @@
         "skills": 24
       },
       "verification": {
-        "score": 81,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8939,7 +8963,7 @@
         "score": 91,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8966,7 +8990,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -8993,7 +9017,7 @@
         "score": 90,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -9020,7 +9044,7 @@
         "score": 92,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -9047,20 +9071,21 @@
         "score": 91,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "flexport-pack",
       "source": "./plugins/saas-packs/flexport-pack",
-      "description": "Claude Code skill pack for Flexport (24 skills)",
-      "version": "1.6.0",
+      "description": "24 governed Flexport v3 and MCP operator workflows for freight, trade data, webhooks, and secure integrations",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "flexport",
-        "saas",
-        "sdk",
-        "integration"
+        "freight",
+        "supply-chain",
+        "mcp",
+        "operations"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -9071,24 +9096,25 @@
         "skills": 24
       },
       "verification": {
-        "score": 86,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 93,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-13T00:00:00.000Z"
       }
     },
     {
       "name": "flyio-pack",
       "source": "./plugins/saas-packs/flyio-pack",
-      "description": "Claude Code skill pack for Fly.io (18 skills)",
-      "version": "1.7.0",
+      "description": "Operator-grade Fly.io skill pack for controlled app, Machine, data, security, deployment, and observability workflows (18 skills)",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "flyio",
         "fly.io",
         "saas",
-        "sdk",
-        "integration"
+        "machines-api",
+        "deployment",
+        "operations"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -9099,10 +9125,10 @@
         "skills": 18
       },
       "verification": {
-        "score": 86,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 95,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-13T00:00:00.000Z"
       }
     },
     {
@@ -9129,7 +9155,7 @@
         "score": 88,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -9156,7 +9182,7 @@
         "score": 88,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -9183,7 +9209,7 @@
         "score": 87,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -9211,7 +9237,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -9238,7 +9264,7 @@
         "score": 91,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -9265,7 +9291,7 @@
         "score": 90,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -9292,7 +9318,7 @@
         "score": 91,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -9319,7 +9345,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -9346,19 +9372,19 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "linktree-pack",
       "source": "./plugins/saas-packs/linktree-pack",
-      "description": "Claude Code skill pack for Linktree (18 skills)",
-      "version": "1.7.0",
+      "description": "Production-grade Linktree operator workflows grounded in public Help Center guidance; partner automation remains contract-gated (18 skills)",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "linktree",
         "saas",
-        "sdk",
+        "operator-workflows",
         "integration"
       ],
       "author": {
@@ -9370,23 +9396,24 @@
         "skills": 18
       },
       "verification": {
-        "score": 80,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 97,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "lucidchart-pack",
       "source": "./plugins/saas-packs/lucidchart-pack",
-      "description": "Claude Code skill pack for Lucidchart (18 skills)",
-      "version": "1.7.0",
+      "description": "Governed Lucid integration workflows for REST, Standard Import, editor extensions, and data connectors (18 skills)",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "lucidchart",
         "saas",
-        "sdk",
-        "integration"
+        "standard-import",
+        "extension-api",
+        "data-connectors"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -9397,23 +9424,24 @@
         "skills": 18
       },
       "verification": {
-        "score": 80,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 95,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "mindtickle-pack",
       "source": "./plugins/saas-packs/mindtickle-pack",
-      "description": "Claude Code skill pack for Mindtickle (18 skills)",
-      "version": "1.7.0",
+      "description": "Governed Mindtickle workflows for tenant access, learning, readiness, integrations, security, and operations (18 skills)",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "mindtickle",
         "saas",
-        "sdk",
-        "integration"
+        "revenue-enablement",
+        "tenant-integration",
+        "readiness"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -9424,17 +9452,17 @@
         "skills": 18
       },
       "verification": {
-        "score": 80,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 94,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "miro-pack",
       "source": "./plugins/saas-packs/miro-pack",
-      "description": "Claude Code skill pack for Miro (24 skills)",
-      "version": "1.7.0",
+      "description": "Miro operator workflows for OAuth, boards, governance, migration, and resilient synchronization (24 skills; live actions remain approval-gated)",
+      "version": "1.9.0",
       "category": "saas-packs",
       "keywords": [
         "miro",
@@ -9451,23 +9479,26 @@
         "skills": 24
       },
       "verification": {
-        "score": 80,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 99,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "navan-pack",
       "source": "./plugins/saas-packs/navan-pack",
-      "description": "Claude Code skill pack for Navan (26 skills)",
-      "version": "1.8.0",
+      "description": "Operator-grade Navan pack with 26 current travel, expense, identity, security, reliability, and migration workflows",
+      "version": "1.9.0",
       "category": "saas-packs",
       "keywords": [
         "navan",
         "saas",
-        "sdk",
-        "integration"
+        "travel",
+        "expense",
+        "identity",
+        "integration",
+        "governance"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -9478,23 +9509,27 @@
         "skills": 26
       },
       "verification": {
-        "score": 94,
+        "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {
       "name": "notion-pack",
       "source": "./plugins/saas-packs/notion-pack",
-      "description": "Claude Code skill pack for Notion (32 skills)",
-      "version": "1.39.0",
+      "description": "Operator-grade Notion pack with 32 current access, data-source, content, webhook, security, reliability, and migration workflows",
+      "version": "1.40.0",
       "category": "saas-packs",
       "keywords": [
         "notion",
         "saas",
-        "sdk",
-        "integration"
+        "data-source",
+        "content",
+        "webhooks",
+        "security",
+        "integration",
+        "governance"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -9505,22 +9540,26 @@
         "skills": 32
       },
       "verification": {
-        "score": 95,
+        "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {
       "name": "onenote-pack",
       "source": "./plugins/saas-packs/onenote-pack",
-      "description": "Claude Code skill pack for OneNote (18 skills)",
-      "version": "1.6.0",
+      "description": "Operator-grade OneNote pack for delegated access, hierarchy inventory, controlled HTML content, polling reconciliation, security, reliability, and migration",
+      "version": "1.7.0",
       "category": "saas-packs",
       "keywords": [
         "onenote",
-        "saas",
-        "sdk",
+        "microsoft-graph",
+        "delegated-auth",
+        "notebooks",
+        "html-content",
+        "reconciliation",
+        "security",
         "integration"
       ],
       "author": {
@@ -9532,10 +9571,10 @@
         "skills": 18
       },
       "verification": {
-        "score": 91,
+        "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {
@@ -9563,20 +9602,22 @@
         "score": 91,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "palantir-pack",
       "source": "./plugins/saas-packs/palantir-pack",
-      "description": "Claude Code skill pack for Palantir (24 skills)",
-      "version": "1.5.0",
+      "description": "Evidence-backed Palantir Foundry operator workflows for data pipelines, Ontology applications, DevOps, governance, security, and operations (24 skills)",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "palantir",
-        "saas",
-        "sdk",
-        "integration"
+        "foundry",
+        "ontology",
+        "devops",
+        "data-governance",
+        "security"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -9587,17 +9628,17 @@
         "skills": 24
       },
       "verification": {
-        "score": 85,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {
       "name": "persona-pack",
       "source": "./plugins/saas-packs/persona-pack",
-      "description": "Claude Code skill pack for Persona (18 skills)",
-      "version": "1.4.0",
+      "description": "Operator-grade Persona identity workflow pack with 18 skills for inquiry lifecycles, authentic webhooks, privacy, reliability, and governed production delivery",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "persona",
@@ -9614,10 +9655,10 @@
         "skills": 18
       },
       "verification": {
-        "score": 86,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 95,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-13T00:00:00.000Z"
       }
     },
     {
@@ -9649,20 +9690,21 @@
         "score": 93,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "procore-pack",
       "source": "./plugins/saas-packs/procore-pack",
-      "description": "Claude Code skill pack for Procore (24 skills)",
-      "version": "1.5.0",
+      "description": "24 governed Procore operator workflows for OAuth, REST, webhooks, files, permissions, health, and synchronization",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "procore",
-        "saas",
-        "sdk",
-        "integration"
+        "construction",
+        "dmsa",
+        "webhooks",
+        "operations"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -9673,23 +9715,24 @@
         "skills": 24
       },
       "verification": {
-        "score": 86,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 94,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-13T00:00:00.000Z"
       }
     },
     {
       "name": "quicknode-pack",
       "source": "./plugins/saas-packs/quicknode-pack",
-      "description": "Claude Code skill pack for QuickNode (18 skills)",
-      "version": "1.5.0",
+      "description": "18 governed QuickNode operator workflows for blockchain RPC and data infrastructure",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "quicknode",
-        "saas",
-        "sdk",
-        "integration"
+        "blockchain",
+        "rpc",
+        "operations",
+        "streams"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -9700,23 +9743,25 @@
         "skills": 18
       },
       "verification": {
-        "score": 85,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 92,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-13T00:00:00.000Z"
       }
     },
     {
       "name": "ramp-pack",
       "source": "./plugins/saas-packs/ramp-pack",
-      "description": "Claude Code skill pack for Ramp (24 skills)",
-      "version": "1.4.0",
+      "description": "Evidence-backed Ramp operator workflows for OAuth, cards, accounting, webhooks, security, reliability, and migration (24 skills)",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "ramp",
-        "saas",
-        "sdk",
-        "integration"
+        "fintech",
+        "accounting",
+        "webhooks",
+        "security",
+        "reliability"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -9727,23 +9772,25 @@
         "skills": 24
       },
       "verification": {
-        "score": 85,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {
       "name": "remofirst-pack",
       "source": "./plugins/saas-packs/remofirst-pack",
-      "description": "Claude Code skill pack for RemoFirst (12 skills)",
-      "version": "1.4.0",
+      "description": "Evidence-backed RemoFirst operator workflows for EOR, contractors, payroll, security, and supported HRIS connectors (12 skills)",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "remofirst",
         "saas",
-        "sdk",
-        "integration"
+        "eor",
+        "payroll",
+        "workday",
+        "adp"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -9754,10 +9801,10 @@
         "skills": 12
       },
       "verification": {
-        "score": 84,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 97,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-12T00:00:00.000Z"
       }
     },
     {
@@ -9784,19 +9831,20 @@
         "score": 86,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "salesforce-pack",
       "source": "./plugins/saas-packs/salesforce-pack",
-      "description": "Claude Code skill pack for Salesforce (30 skills)",
-      "version": "1.7.0",
+      "description": "Governed Salesforce operator workflows for API access, data, events, security, delivery, and production operations. Use when authenticating to a Salesforce org, querying or moving data, deploying metadata, handling events, or operating a production change.",
+      "version": "1.8.0",
       "category": "saas-packs",
       "keywords": [
         "salesforce",
-        "saas",
-        "sdk",
+        "crm",
+        "api",
+        "pub-sub",
         "integration"
       ],
       "author": {
@@ -9808,10 +9856,10 @@
         "skills": 30
       },
       "verification": {
-        "score": 81,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 94,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -9835,23 +9883,24 @@
         "skills": 18
       },
       "verification": {
-        "score": 79,
-        "grade": "C",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "serpapi-pack",
       "source": "./plugins/saas-packs/serpapi-pack",
-      "description": "Claude Code skill pack for SerpApi (18 skills)",
-      "version": "1.4.0",
+      "description": "Governed SerpAPI workflows for search clients, engines, testing, capacity, privacy, deployment, and operations (18 skills)",
+      "version": "1.6.0",
       "category": "saas-packs",
       "keywords": [
         "serpapi",
         "saas",
-        "sdk",
-        "integration"
+        "search-api",
+        "production-integration",
+        "governance"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -9862,10 +9911,10 @@
         "skills": 18
       },
       "verification": {
-        "score": 80,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 94,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -9894,7 +9943,7 @@
         "score": 93,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -9921,7 +9970,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -9945,10 +9994,10 @@
         "skills": 10
       },
       "verification": {
-        "score": 78,
-        "grade": "C",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -9972,10 +10021,10 @@
         "skills": 18
       },
       "verification": {
-        "score": 79,
-        "grade": "C",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 97,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10000,10 +10049,10 @@
         "skills": 16
       },
       "verification": {
-        "score": 79,
-        "grade": "C",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 97,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10027,22 +10076,22 @@
         "skills": 24
       },
       "verification": {
-        "score": 77,
-        "grade": "C",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 99,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "workhuman-pack",
       "source": "./plugins/saas-packs/workhuman-pack",
-      "description": "Claude Code skill pack for Workhuman (18 skills)",
-      "version": "1.3.0",
+      "description": "Governed Workhuman operator workflows for recognition, rewards, Workday integration, security, and production operations",
+      "version": "1.4.0",
       "category": "saas-packs",
       "keywords": [
         "workhuman",
         "saas",
-        "sdk",
+        "recognition",
         "integration"
       ],
       "author": {
@@ -10054,10 +10103,10 @@
         "skills": 18
       },
       "verification": {
-        "score": 80,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 93,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10088,7 +10137,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-09T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10117,7 +10166,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10148,7 +10197,7 @@
         "score": 82,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10187,7 +10236,7 @@
         "score": 93,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10243,7 +10292,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10278,7 +10327,7 @@
         "score": 90,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10313,7 +10362,7 @@
         "score": 88,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10342,7 +10391,7 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10378,7 +10427,7 @@
         "score": 90,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10415,7 +10464,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10448,7 +10497,7 @@
         "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10477,10 +10526,10 @@
         "agents": 9
       },
       "verification": {
-        "score": 78,
-        "grade": "C",
-        "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 99,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10511,7 +10560,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10539,7 +10588,7 @@
         "score": 68,
         "grade": "D",
         "badge": "bronze",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10571,7 +10620,7 @@
         "score": 66,
         "grade": "D",
         "badge": "bronze",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10599,7 +10648,7 @@
         "score": 67,
         "grade": "D",
         "badge": "bronze",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10618,7 +10667,7 @@
         "score": 71,
         "grade": "C",
         "badge": "bronze",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10663,7 +10712,7 @@
         "score": 69,
         "grade": "D",
         "badge": "bronze",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10690,7 +10739,7 @@
         "score": 88,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10723,7 +10772,7 @@
         "score": 77,
         "grade": "C",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10751,7 +10800,7 @@
         "score": 70,
         "grade": "C",
         "badge": "bronze",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10770,7 +10819,7 @@
         "score": 64,
         "grade": "D",
         "badge": "bronze",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10789,7 +10838,7 @@
         "score": 67,
         "grade": "D",
         "badge": "bronze",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10808,7 +10857,7 @@
         "score": 67,
         "grade": "D",
         "badge": "bronze",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10827,7 +10876,7 @@
         "score": 68,
         "grade": "D",
         "badge": "bronze",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10874,7 +10923,7 @@
         "score": 67,
         "grade": "D",
         "badge": "bronze",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10924,7 +10973,7 @@
         "score": 90,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -10979,23 +11028,22 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "publishing-skills",
       "source": "./plugins/productivity/publishing-skills",
-      "description": "Four composable skills that turn an AI agent into a platform-agnostic long-tail SEO publishing pipeline — topic research, drafting, SVG figures, and an editorial calendar. Ships Ghost, WordPress, and static-site adapters.",
-      "version": "0.1.0",
+      "description": "Governed editorial workflows for evidence-backed topic research, content scheduling, accessible SVG figures, source-grounded drafting, and approved CMS handoff. Use when planning, researching, illustrating, drafting, or handing off a publication-ready article.",
+      "version": "0.2.0",
       "category": "productivity",
       "keywords": [
-        "ghost",
-        "blogging",
         "seo",
-        "content-creation",
+        "editorial-workflow",
+        "source-verification",
+        "accessible-svg",
         "publishing",
-        "claude-code",
-        "ai-writing"
+        "cms"
       ],
       "author": {
         "name": "AutomateLab",
@@ -11005,10 +11053,10 @@
       "repository": "https://github.com/AutomateLab-tech/publishing-skills",
       "license": "MIT-0",
       "verification": {
-        "score": 61,
-        "grade": "D",
-        "badge": "bronze",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "score": 95,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -11041,7 +11089,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -11070,7 +11118,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -11089,7 +11137,7 @@
         "score": 77,
         "grade": "C",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -11128,7 +11176,7 @@
         "score": 78,
         "grade": "C",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -11155,7 +11203,7 @@
         "score": 88,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -11190,7 +11238,7 @@
         "score": 82,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -11217,7 +11265,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -11247,7 +11295,7 @@
         "score": 80,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -11277,7 +11325,7 @@
         "score": 81,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -11308,14 +11356,14 @@
         "score": 92,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "agent-safety-preflight",
       "source": "./plugins/security/agent-safety-preflight",
       "description": "Local Claude Code command that generates a repo-risk receipt before AI-agent edits.",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "category": "security",
       "keywords": [
         "security",
@@ -11338,7 +11386,7 @@
         "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -11366,7 +11414,7 @@
         "score": 93,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -11395,7 +11443,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -11423,7 +11471,7 @@
         "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -11442,7 +11490,7 @@
         "score": 53,
         "grade": "F",
         "badge": null,
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -11470,7 +11518,7 @@
         "score": 89,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -11507,7 +11555,7 @@
         "score": 85,
         "grade": "B",
         "badge": "silver",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
@@ -11538,14 +11586,14 @@
         "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     },
     {
       "name": "claude-pack",
       "source": "./plugins/saas-packs/claude-pack",
       "description": "Claude Code skill pack for building with the Claude API and Anthropic SDK.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "saas-packs",
       "keywords": [
         "claude",
@@ -11567,7 +11615,7 @@
         "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-05T00:00:00.000Z"
+        "lastValidated": "2026-09-11T00:00:00.000Z"
       }
     }
   ]

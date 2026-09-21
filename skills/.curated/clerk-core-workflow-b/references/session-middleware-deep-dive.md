@@ -275,8 +275,8 @@ export async function updateOrgSettings(settings: Record<string, any>) {
 
 ## Error Handling
 
-Full session, JWT template, and organization-session patterns are in
-[references/session-middleware-deep-dive.md](references/session-middleware-deep-dive.md).
+The sections above contain the full session, JWT template, and
+organization-session patterns.
 
 ## Output
 

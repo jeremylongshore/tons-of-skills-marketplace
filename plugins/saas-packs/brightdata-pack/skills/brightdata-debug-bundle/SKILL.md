@@ -1,175 +1,80 @@
 ---
 name: brightdata-debug-bundle
-description: 'Collect Bright Data debug evidence for support tickets and troubleshooting.
-
-  Use when encountering persistent issues, preparing support tickets,
-
-  or collecting diagnostic information for Bright Data problems.
-
-  Trigger with phrases like "brightdata debug", "brightdata support bundle",
-
-  "collect brightdata logs", "brightdata diagnostic".
-
-  '
-allowed-tools: Read, Bash(grep:*), Bash(curl:*), Bash(tar:*), Grep
-version: 1.6.0
+description: 'Assemble a Bright Data support bundle that preserves diagnostic value while excluding credentials, target data, and secret-bearing URLs. Use when escalating a persistent proxy, Browser API, snapshot, or delivery incident. Trigger with: "build a Bright Data debug bundle", "prepare evidence for Bright Data support", "redact a Bright Data incident".'
+allowed-tools: Read, Grep, Write, Edit, Bash(python:*)
+version: 2.0.0
+argument-hint: "[run-receipt]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
-- scraping
-- data
-- brightdata
-compatibility: Designed for Claude Code
+- web-data
+- bright-data
+- debug-bundle
+- operations
+compatibility: 'Requires an approved Bright Data account or offline fixtures, current Bright Data documentation, and an authorized public-data collection purpose'
 ---
-# Bright Data Debug Bundle
+# Bright Data Redacted Support Bundle
 
 ## Overview
 
-Collect all diagnostic information needed for Bright Data support tickets: proxy connectivity, zone status, response headers, and error logs.
+Build a deterministic manifest of configuration shape, timestamps, versions, provider codes, and operation identifiers. Default-deny all raw headers and payloads, then include only explicitly allowlisted diagnostic fields.
 
 ## Prerequisites
 
-- Bright Data zone credentials configured
-- curl available
-- Permission to collect environment info
+- A run receipt and named incident owner
+- A private output directory with a retention deadline
+- A redaction policy covering URLs, credentials, cookies, headers, and target data
 
 ## Instructions
 
-### Step 1: Create Debug Bundle Script
+### Step 1: Inventory inputs
 
-```bash
-#!/bin/bash
-# brightdata-debug-bundle.sh
-set -euo pipefail
+Read the receipt and Grep candidate logs for secret names, proxy URLs, Bearer values, cookies, query strings, and target content before copying anything.
 
-BUNDLE_DIR="brightdata-debug-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE_DIR"
+### Step 2: Create the manifest
 
-echo "=== Bright Data Debug Bundle ===" | tee "$BUNDLE_DIR/summary.txt"
-echo "Generated: $(date -u)" | tee -a "$BUNDLE_DIR/summary.txt"
-echo "" >> "$BUNDLE_DIR/summary.txt"
+Write a small metadata file with product, zone alias, client/runtime version, UTC window, operation ID, state, and current provider error fields.
+
+```json
+{"product":"web-scraper-api","zone_alias":"production-redacted","operation_id":"s_redacted","provider_code":"client_10000","raw_payload_included":false}
 ```
 
-### Step 2: Collect Environment and Connectivity
+### Step 3: Redact and validate
 
-```bash
-# Runtime versions
-echo "--- Runtime ---" >> "$BUNDLE_DIR/summary.txt"
-node --version >> "$BUNDLE_DIR/summary.txt" 2>&1 || echo "Node.js: not found" >> "$BUNDLE_DIR/summary.txt"
-python3 --version >> "$BUNDLE_DIR/summary.txt" 2>&1 || echo "Python: not found" >> "$BUNDLE_DIR/summary.txt"
+Use Edit only to remove disallowed material from the private bundle. Use Bash(python:*) to scan for configured secret values and forbidden keys; fail closed if any match remains.
 
-# Credential check (presence only, never log values)
-echo "--- Credentials ---" >> "$BUNDLE_DIR/summary.txt"
-echo "BRIGHTDATA_CUSTOMER_ID: ${BRIGHTDATA_CUSTOMER_ID:+[SET]}" >> "$BUNDLE_DIR/summary.txt"
-echo "BRIGHTDATA_ZONE: ${BRIGHTDATA_ZONE:-[NOT SET]}" >> "$BUNDLE_DIR/summary.txt"
-echo "BRIGHTDATA_ZONE_PASSWORD: ${BRIGHTDATA_ZONE_PASSWORD:+[SET]}" >> "$BUNDLE_DIR/summary.txt"
-echo "BRIGHTDATA_API_TOKEN: ${BRIGHTDATA_API_TOKEN:+[SET]}" >> "$BUNDLE_DIR/summary.txt"
+### Step 4: Seal the evidence
 
-# SSL cert check
-echo "--- SSL Certificate ---" >> "$BUNDLE_DIR/summary.txt"
-if [ -f "./brd-ca.crt" ]; then
-  openssl x509 -in ./brd-ca.crt -noout -subject -enddate >> "$BUNDLE_DIR/summary.txt" 2>&1
-else
-  echo "brd-ca.crt: NOT FOUND" >> "$BUNDLE_DIR/summary.txt"
-fi
-```
+Record sorted file hashes, owner, purpose, recipient, and deletion time. Transmit only through the approved private support channel; never attach it to a public issue.
 
-### Step 3: Test Proxy Connectivity with Verbose Headers
+## Tool Discipline
 
-```bash
-# Proxy connectivity test with full response headers
-echo "--- Proxy Test ---" >> "$BUNDLE_DIR/summary.txt"
-PROXY_USER="brd-customer-${BRIGHTDATA_CUSTOMER_ID}-zone-${BRIGHTDATA_ZONE}"
-curl -x "http://${PROXY_USER}:${BRIGHTDATA_ZONE_PASSWORD}@brd.superproxy.io:33335" \
-  -s -D "$BUNDLE_DIR/proxy-headers.txt" \
-  -o "$BUNDLE_DIR/proxy-response.txt" \
-  -w "HTTP %{http_code} in %{time_total}s\n" \
-  https://lumtest.com/myip.json 2>> "$BUNDLE_DIR/summary.txt" || echo "Proxy FAILED" >> "$BUNDLE_DIR/summary.txt"
-
-# Extract X-Luminati headers (error details)
-grep -i "x-luminati\|x-brd" "$BUNDLE_DIR/proxy-headers.txt" >> "$BUNDLE_DIR/summary.txt" 2>/dev/null || true
-
-# Direct connectivity test (bypasses proxy)
-echo "--- Direct Connectivity ---" >> "$BUNDLE_DIR/summary.txt"
-curl -s -o /dev/null -w "brightdata.com: HTTP %{http_code}\n" https://brightdata.com >> "$BUNDLE_DIR/summary.txt"
-curl -s -o /dev/null -w "status page: HTTP %{http_code}\n"  >> "$BUNDLE_DIR/summary.txt"
-
-# Port check
-echo "--- Port Connectivity ---" >> "$BUNDLE_DIR/summary.txt"
-nc -zv brd.superproxy.io 33335 >> "$BUNDLE_DIR/summary.txt" 2>&1 || echo "Port 33335: BLOCKED" >> "$BUNDLE_DIR/summary.txt"
-nc -zv brd.superproxy.io 9222 >> "$BUNDLE_DIR/summary.txt" 2>&1 || echo "Port 9222: BLOCKED" >> "$BUNDLE_DIR/summary.txt"
-```
-
-### Step 4: Check Zone Status via API
-
-```bash
-# Zone status (requires API token)
-if [ -n "${BRIGHTDATA_API_TOKEN:-}" ]; then
-  echo "--- Zone Status ---" >> "$BUNDLE_DIR/summary.txt"
-  curl -s -H "Authorization: Bearer ${BRIGHTDATA_API_TOKEN}" \
-    "https://api.brightdata.com/zone/get_active_zones" \
-    | python3 -m json.tool >> "$BUNDLE_DIR/zone-status.json" 2>/dev/null || true
-fi
-```
-
-### Step 5: Package and Report
-
-```bash
-# Collect recent error logs (redacted)
-if [ -d "logs" ]; then
-  grep -i "brightdata\|proxy\|502\|407\|luminati" logs/*.log 2>/dev/null \
-    | tail -100 | sed 's/password=[^ ]*/password=***REDACTED***/g' \
-    >> "$BUNDLE_DIR/error-logs.txt"
-fi
-
-# Package bundle
-tar -czf "$BUNDLE_DIR.tar.gz" "$BUNDLE_DIR"
-echo ""
-echo "Bundle created: $BUNDLE_DIR.tar.gz"
-echo "Contents:"
-ls -la "$BUNDLE_DIR/"
-echo ""
-echo "REVIEW FOR SENSITIVE DATA BEFORE SHARING"
-```
+Use Read and Grep for discovery and pre-copy review. Use Write and Edit only inside the exact private bundle path. Use Bash(python:*) for local redaction and checksum checks; it must not upload the bundle or call Bright Data.
 
 ## Output
 
-- `summary.txt` — credentials check, connectivity results, error headers
-- `proxy-headers.txt` — full proxy response headers with X-Luminati diagnostics
-- `proxy-response.txt` — proxy test response body
-- `zone-status.json` — zone configuration and status
-- `error-logs.txt` — recent errors (passwords redacted)
-
-## Sensitive Data Checklist
-
-**ALWAYS REDACT before sharing:**
-
-- API tokens and zone passwords
-- Customer IDs
-- Target URLs (if confidential)
-
-**Safe to include:**
-
-- Error codes and X-Luminati headers
-- Response timing
-- Runtime versions
-- Port connectivity results
-
-## Error Handling
-
-If the requested evidence contains a credential, full target URL, raw payload, or collected data, stop and redact or obtain the designated security/compliance approval before collection. A failed diagnostic is recorded as a redacted status with its opaque request identifier; do not retry by changing zones or bypassing target policy.
+- Private manifest plus allowlisted redacted diagnostics
+- Zero-secret scan and sorted file-hash receipt
+- Named recipient, retention deadline, and deletion owner
 
 ## Examples
 
-For a scoped incident, collect the zone label, request identifier, status category, SDK/version, and timestamp in an encrypted bundle after redaction. Do not include credentials, proxy endpoints, full target URLs, response bodies, or collected data. Share only with approved responders and delete under the incident retention policy.
+Include `Proxy-Status`, `x-brd-err-code`, a rounded UTC window, and an opaque snapshot ID. Exclude proxy username/password, API key, target URL query, response body, cookies, and collected records.
+
+## Error Handling
+
+| Failure | Meaning | Response |
+|---------|---------|----------|
+| Secret scan finds a value | Redaction is incomplete | Quarantine the bundle and rebuild from the allowlist |
+| Raw target content is required to reproduce | Support request exceeds the safe default | Obtain data-owner approval and use a separate controlled transfer |
+| No operation identifier exists | Evidence cannot be correlated | Reproduce once against an approved test target |
 
 ## Resources
 
-- [Bright Data Support Portal](https://brightdata.com/cp/support)
-- Status Page
-- Troubleshooting Guide
-
-## Next Steps
-
-For rate limit issues, see `brightdata-rate-limits`.
+- [Proxy error catalog](https://docs.brightdata.com/proxy-networks/errorCatalog)
+- [Network status](https://brightdata.com/network-status)
+- [Authentication and API keys](https://docs.brightdata.com/api-reference/authentication)
+- [Acceptable use policy](https://docs.brightdata.com/general/policy/acceptable-use-policy)

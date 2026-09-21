@@ -33,7 +33,7 @@ npm install -g @anthropic-ai/claude-code
 # Verify installation
 claude --version</code></pre>
 
-<p>If you see a version number, you're ready to go. Visit the <a href="https://docs.anthropic.com/en/docs/claude-code">official Claude Code documentation</a> for detailed setup instructions, including authentication and configuration.</p>
+<p>If you see a version number, you're ready to go. Visit the <a href="https://code.claude.com/docs">official Claude Code documentation</a> for detailed setup instructions, including authentication and configuration.</p>
 
 <h3>First Launch</h3>
 

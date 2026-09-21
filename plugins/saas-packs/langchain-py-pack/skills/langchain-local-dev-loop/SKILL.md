@@ -7,7 +7,7 @@ description: "Build a fast, deterministic local test loop for LangChain 1.0 / La
   \ pytest\", \"FakeListChatModel\", \"VCR langchain\",\n\"langchain test fixtures\"\
   , \"langchain integration test\".\n"
 allowed-tools: Read, Write, Edit, Bash(pytest:*), Bash(python:*), Bash(pip:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

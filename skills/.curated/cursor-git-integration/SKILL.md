@@ -10,7 +10,7 @@ description: 'Integrate Git workflows with Cursor IDE: AI commit messages, @Git 
 
   '
 allowed-tools: Read, Write, Edit, Bash(cmd:*)
-version: 1.18.0
+version: 1.19.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

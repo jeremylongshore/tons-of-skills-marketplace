@@ -14,7 +14,7 @@ description: 'Optimize Claude API performance with prompt caching, model selecti
 
   '
 allowed-tools: Read, Write, Edit, Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -187,9 +187,9 @@ Benchmark 500 synthetic `fixture-prompt-*` requests in a staging workspace with 
 
 ## Resources
 
-- [Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
-- [Token Counting](https://docs.anthropic.com/en/docs/build-with-claude/token-counting)
-- [Pricing](https://docs.anthropic.com/en/docs/about-claude/pricing)
+- [Prompt Caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)
+- [Token Counting](https://platform.claude.com/docs/en/build-with-claude/token-counting)
+- [Pricing](https://platform.claude.com/docs/en/about-claude/pricing)
 
 ## Next Steps
 

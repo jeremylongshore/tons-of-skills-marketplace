@@ -10,7 +10,7 @@ description: "Produce a reproducible, sanitized diagnostic bundle for a LangChai
   \ diagnostic export\", \"langsmith trace export\", \"astream_events dump\",\n\"\
   langchain incident bundle\".\n"
 allowed-tools: Read, Write, Edit, Bash(python:*), Bash(pip:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

@@ -7,7 +7,7 @@ description: Draft changelog PRs by collecting GitHub/Slack/Git changes, formatt
   "create changelog PR".
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(git:*), Bash(gh:*), Bash(python:*),
   Bash(date:*)
-version: 0.3.0
+version: 0.4.0
 author: Mattyp
 license: MIT
 tags:

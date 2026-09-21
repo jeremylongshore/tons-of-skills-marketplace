@@ -9,7 +9,7 @@ description: "Compose LangChain 1.0 chains with RunnableParallel, RunnableBranch
   , \"passthrough assign\", \"langchain lcel\", \"runnable lambda\",\n\"debug probe\"\
   .\n"
 allowed-tools: Read, Write, Edit, Bash(python:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

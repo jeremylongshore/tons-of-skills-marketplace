@@ -1,68 +1,93 @@
 ---
 name: ramp-prod-checklist
-description: "Ramp prod checklist \u2014 corporate card and expense management API\
-  \ integration.\nUse when working with Ramp for card management, expenses, or accounting\
-  \ sync.\nTrigger with phrases like \"ramp prod checklist\", \"ramp-prod-checklist\"\
-  , \"corporate card API\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.4.0
-license: MIT
+description: >-
+  Run a fail-closed readiness review for a Ramp integration before enabling production traffic or financial writes. Use when launching, expanding scopes, or changing architecture materially. Trigger with "Ramp production checklist" or "launch Ramp integration".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[integration-or-environment]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ramp
-- fintech
-- expenses
-- corporate-cards
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Ramp Developer API documentation and approved access for any live financial, card, identity, accounting, application, or configuration change
+tags: [saas, ramp, production, readiness, governance]
 ---
-# Ramp Prod Checklist
+# Ramp Production Readiness Gate
 
 ## Overview
 
-Implementation patterns for Ramp prod checklist using the Developer API with OAuth2 authentication.
+Convert launch assumptions into evidenced gates. Review the exact artifact, environment, OAuth authority, data handling, endpoint contracts, reconciliation, incident controls, and rollback before any production write.
 
 ## Prerequisites
 
-- Completed `ramp-install-auth` setup
+- Identify the Ramp application, environment, business entities, affected data and workflows, accountable owner, and rollback boundary.
+- Read `references/official-docs.md` and re-check endpoint schemas, scopes, limits, and support status before a live operation.
+- Use synthetic fixtures or Ramp sandbox until production access and business effects are explicitly approved.
+- Prepare approved secret storage and a sanitized evidence location.
+
+## Current Contract
+
+- Production is isolated from sandbox and requires its own Ramp application, credentials, scopes, redirects, subscriptions, and approved business access.
+- Third-party integrations use Authorization Code; internal server integrations may use Client Credentials.
+- Card, accounting, bill, reimbursement, and other writes create business effects that need endpoint-specific idempotency and reconciliation.
+- Current OpenAPI and guide exports may supersede copied examples or generated client assumptions.
 
 ## Instructions
 
-### Step 1: API Call Pattern
+1. Freeze the exact artifact, dependency lock, configuration digest, schema checksum, target entities, operations, scopes, event types, data classes, and owners.
 
-```python
-import os, requests
+2. Prove production host/application/secret provenance, minimum authority, credential rotation, negative access, and no sandbox fallback.
 
-# Obtain token
-token_resp = requests.post(f"{os.environ['RAMP_BASE_URL'].replace('/v1','')}/v1/token", data={
-    "grant_type": "client_credentials",
-    "client_id": os.environ["RAMP_CLIENT_ID"],
-    "client_secret": os.environ["RAMP_CLIENT_SECRET"],
-})
-access_token = token_resp.json()["access_token"]
-headers = {"Authorization": f"Bearer {access_token}"}
+3. Pass unit, contract, schema-drift, security, redaction, pagination, retry, idempotency, duplicate-event, deferred-task, and rollback tests.
 
-cards = requests.get(f"{os.environ['RAMP_BASE_URL']}/cards", headers=headers)
-print(f"Cards: {len(cards.json()['data'])}")
-```
+4. Execute a read-only production inventory and reconcile expected entities and source objects; resolve every unexplained difference.
+
+5. Obtain independent approvals, canary the smallest cohort with writes explicitly enabled, reconcile business effects, and record go/no-go plus rollback authority.
+
+## Tool Discipline
+
+- Use **Glob** to locate candidate code, manifests, fixtures, and evidence without widening scope.
+- Use **Grep** to find relevant endpoints, fields, permissions, identifiers, errors, and stale assumptions.
+- Use **Read** to inspect the smallest required local files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, configuration, or evidence artifact.
+- Use **Edit** only for a bounded approved change with a known rollback.
+- Local file tools do not authorize a Ramp operation or replace owner approval.
+
+## Approval Boundaries
+
+Application, security, privacy, business, and finance/accounting owners approve their boundaries. One operator may not self-approve all production risk.
 
 ## Output
 
-- Ramp API integration for prod checklist
+A signed readiness matrix tied to an exact artifact/config, authority and data inventories, test evidence, read-only baseline, canary reconciliation, rollback plan, and launch decision.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| 401 Unauthorized | Expired token | Re-authenticate |
-| 429 Rate Limited | Too many requests | Implement backoff |
-| 403 Forbidden | Insufficient permissions | Check API app permissions |
+| Condition | Response |
+|---|---|
+| A required gate has no owner | Block launch and assign accountable ownership; absence is not a waiver. |
+| The final artifact differs from tested bytes | Retest the exact candidate and invalidate prior approval. |
+| Canary has an unexplained mismatch | Disable writes and resolve it before expanding traffic. |
+
+## Examples
+
+### Example 1
+
+Launch a read-only analytics connector after scope denial tests, data review, and one-entity production reconciliation.
+
+### Example 2
+
+Enable accounting writes for a five-object cohort only after ERP and Ramp receipts match exactly.
+
+## Validation
+
+- Approvals reference the exact immutable artifact and configuration.
+- Scopes, entities, subscriptions, data flows, and writes match the reviewed inventory.
+- All tests and negative-access checks pass on current contracts.
+- Canary, reconciliation, stop conditions, and rollback are complete before expansion.
 
 ## Resources
 
-- [Ramp API Documentation](https://docs.ramp.com/)
-- [Authorization](https://docs.ramp.com/developer-api/v1/authorization)
-
-## Next Steps
-
-See related Ramp skills for more workflows.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract and current OpenAPI schema before any live request.
+- Treat unresolved vendor behavior, authority, or financial state as a stop condition.

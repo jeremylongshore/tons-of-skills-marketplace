@@ -1,7 +1,7 @@
 {
   "name": "flyio-pack",
-  "version": "1.7.0",
-  "description": "Claude Code skill pack for Fly.io (18 skills)",
+  "version": "2.0.0",
+  "description": "Operator-grade Fly.io skill pack for controlled app, Machine, data, security, deployment, and observability workflows (18 skills)",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -11,7 +11,8 @@
     "flyio",
     "fly.io",
     "saas",
-    "sdk",
-    "integration"
+    "machines-api",
+    "deployment",
+    "operations"
   ]
 }

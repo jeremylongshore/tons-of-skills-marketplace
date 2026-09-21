@@ -1,199 +1,92 @@
 ---
 name: canva-upgrade-migration
-description: 'Plan and execute Canva Connect API version upgrades and breaking change
-  detection.
-
-  Use when Canva releases API changes, migrating brand template IDs,
-
-  or adapting to endpoint deprecations.
-
-  Trigger with phrases like "upgrade canva", "canva API changes",
-
-  "canva breaking changes", "canva deprecation", "canva changelog".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(git:*)
-version: 1.5.0
+description: 'Plan and verify a Canva Connect contract upgrade from pinned OpenAPI and changelog evidence. Use when endpoints, scopes, enums, validation, deprecations, or preview behavior change. Trigger with: "upgrade Canva API", "Canva breaking change", "diff Canva OpenAPI".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[current-contract-and-target-version]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - upgrade
+  - operations
+compatibility: 'Requires current and target contract artifacts, compatibility tests, feature flags, and rollback authority.'
 ---
-# Canva Upgrade & Migration
+
+# Canva Contract Upgrade
 
 ## Overview
 
-Guide for handling Canva Connect API changes. Canva uses a single REST API version (`/rest/v1/`) but evolves endpoints over time. Monitor the [changelog](https://www.canva.dev/docs/connect/changelog/) for breaking changes.
+Canva uses date-based Connect API versions while the path v1 is an epoch marker. Preview features may change without a new version, so upgrade evidence must include feature status and live protected checks.
 
 ## Prerequisites
 
-- A pinned current artifact, tested rollback version, and current official changelog evidence.
-- Synthetic or approved non-production assets and a protected OAuth test tenant.
+- Current OpenAPI/checksum, generated code, and deployment version
+- Target OpenAPI/changelog and affected operation inventory
+- Compatibility suite, migration owner, rollout window, and rollback
 
 ## Instructions
 
-1. Map the announced change to scopes, endpoints, stored identifiers, and response contracts.
-2. Test behind a feature flag with only approved synthetic assets and minimum scopes.
-3. Compare redacted authorization, schema, rate/cost, and publication outcomes before promotion.
-4. Roll back on a policy, contract, or reconciliation difference.
+### Step 1: Freeze both contracts
 
-## Known Migrations
+Use Read and Grep to record exact source URLs, retrieval times, bytes/checksums, API version metadata, generator version, and current deployed artifact.
 
-### Brand Template ID Migration (September 2025)
+### Step 2: Classify the diff
 
-Canva migrated brand templates to a new ID format. Old IDs accepted for 6 months.
+Review endpoints, methods, scopes, required inputs, validation, enums, response requiredness, error/status behavior, deprecations, and preview changes.
 
-```typescript
-// Check if your stored template IDs need updating
-async function migrateBrandTemplateIds(
-  db: Database, token: string
-): Promise<{ migrated: number; failed: string[] }> {
-  const stored = await db.getBrandTemplateIds();
-  let migrated = 0;
-  const failed: string[] = [];
+### Step 3: Map consumers
 
-  // Fetch current templates from Canva
-  const { items } = await canvaAPI('/brand-templates', token);
-  const currentIds = new Set(items.map((t: any) => t.id));
+Find adapters, schemas, fixtures, policies, UI assumptions, queues, data stores, metrics, and runbooks that depend on each changed fact.
 
-  for (const oldId of stored) {
-    if (!currentIds.has(oldId)) {
-      // Old ID — try to find matching template by title
-      const match = items.find((t: any) => t.title === await db.getTemplateName(oldId));
-      if (match) {
-        await db.updateTemplateId(oldId, match.id);
-        migrated++;
-      } else {
-        failed.push(oldId);
-      }
-    }
-  }
+### Step 4: Build compatibility
 
-  return { migrated, failed };
-}
-```
+Use Write or Edit to update code and add old/new fixtures for success, error, unknown additive fields, changed enums, async states, redaction, and rollback.
 
-### Comment API Migration
+### Step 5: Protect authorization
 
-The Comment API endpoints were refactored — `Create Comment` and `Create Reply` are deprecated in favor of `Create Thread` and `Create Reply (v2)`.
+Treat any scope or capability change as an authorization migration requiring portal configuration and possibly fresh user consent; never silently broaden.
 
-```typescript
-// OLD (deprecated)
-// POST /v1/designs/{id}/comments — deprecated
+### Step 6: Roll out gradually
 
-// NEW
-// POST /v1/designs/{id}/comment_threads — Create Thread
-// POST /v1/designs/{id}/comment_threads/{threadId}/replies — Create Reply
-```
+Ship an immutable feature-flagged artifact to a protected environment, run mocked plus read-only live evidence, then expose a bounded cohort under local thresholds.
 
-## Pre-Upgrade Assessment
+### Step 7: Reconcile and close
 
-```typescript
-async function assessCanvaIntegration(token: string): Promise<void> {
-  const checks = [
-    { name: 'Users API', path: '/users/me' },
-    { name: 'Designs List', path: '/designs?limit=1' },
-    { name: 'Brand Templates', path: '/brand-templates?limit=1' },
-    { name: 'Exports', path: '/exports' },  // Will 405 (POST only) but confirms route exists
-  ];
+Roll back on drift, preserve job/resource identity across versions, remove deprecated code after the window, and record exact evidence and residual preview risk.
 
-  for (const check of checks) {
-    try {
-      const res = await fetch(`https://api.canva.com/rest/v1${check.path}`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-      console.log(`[${res.ok || res.status === 405 ? 'OK' : 'WARN'}] ${check.name}: HTTP ${res.status}`);
-    } catch (e: any) {
-      console.log(`[FAIL] ${check.name}: ${e.message}`);
-    }
-  }
-}
-```
+## Authentication
 
-## Breaking Change Detection
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-```typescript
-// Monitor API responses for deprecation signals
-function checkForDeprecationWarnings(response: Response, endpoint: string): void {
-  const deprecation = response.headers.get('Deprecation');
-  const sunset = response.headers.get('Sunset');
-  const link = response.headers.get('Link');
+## Tool Discipline
 
-  if (deprecation) {
-    console.warn(`[DEPRECATION] ${endpoint}: deprecated=${deprecation}, sunset=${sunset}`);
-    console.warn(`  Migration guide: ${link}`);
-    // Alert ops team
-  }
-}
-```
-
-## Upgrade Branch Workflow
-
-```bash
-# 1. Create upgrade branch
-git checkout -b upgrade/canva-api-changes
-
-# 2. Check Canva changelog for breaking changes
-# https://www.canva.dev/docs/connect/changelog/
-
-# 3. Download latest OpenAPI spec for diff
-curl -o openapi-new.yml https://www.canva.dev/sources/connect/api/latest/api.yml
-diff openapi-old.yml openapi-new.yml | head -100
-
-# 4. Run integration tests against staging
-CANVA_ACCESS_TOKEN=$STAGING_TOKEN npm test
-
-# 5. Deploy to staging first
-# 6. Monitor for 24 hours before production
-```
-
-## Rollback Procedure
-
-```typescript
-// Feature-flag controlled rollback
-const USE_NEW_COMMENT_API = process.env.CANVA_NEW_COMMENT_API === 'true';
-
-async function createComment(designId: string, message: string, token: string) {
-  if (USE_NEW_COMMENT_API) {
-    return canvaAPI(`/designs/${designId}/comment_threads`, token, {
-      method: 'POST',
-      body: JSON.stringify({ message }),
-    });
-  }
-  // Fallback to deprecated endpoint during transition
-  return canvaAPI(`/designs/${designId}/comments`, token, {
-    method: 'POST',
-    body: JSON.stringify({ message }),
-  });
-}
-```
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-The upgrade produces a compatibility matrix, artifact/config versions, redacted test receipt, feature-flag decision, and rollback reference. It excludes tokens, design contents, signed URLs, and tenant-identifying data.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-Pin the prior client version, test the new version against a synthetic design export, compare the validated schema and policy decision, and promote only after owner approval. If a new scope or response field is unexpected, leave the flag disabled and restore the prior release.
+An OpenAPI diff adds a response field and changes a preview enum. The adapter accepts the additive field, handles unknown preview values safely, and deploys behind a flag without changing scopes.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| 404 on endpoint | Endpoint removed or renamed | Check changelog for replacement |
-| Old template IDs fail | ID format migration | Re-fetch template list |
-| Deprecated header | Endpoint sunsetting | Migrate to replacement |
-| Response schema changed | New/removed fields | Update Zod schemas, add optional chaining |
+| Failure | Response |
+| --- | --- |
+| Target contract is not pinned | Do not begin implementation |
+| Scope changed | Stop for consent and authorization review |
+| Preview behavior lacks compatibility | Disable that path or keep rollout experimental |
+| Rollback cannot read new state | Add a reversible schema/adapter plan before release |
 
 ## Resources
 
-- [Canva Changelog](https://www.canva.dev/docs/connect/changelog/)
-- [OpenAPI Spec](https://www.canva.dev/sources/connect/api/latest/api.yml)
-- Canva API Reference
-
-## Next Steps
-
-For CI integration during upgrades, see `canva-ci-integration`.
+- [First-party source notes](references/official-docs.md)
+- [API versions](https://www.canva.dev/docs/connect/versions/)
+- [Connect changelog](https://www.canva.dev/docs/connect/changelog/)

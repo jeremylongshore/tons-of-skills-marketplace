@@ -1,100 +1,78 @@
 ---
 name: lucidchart-common-errors
-description: 'Diagnose and fix Lucidchart common errors.
-
-  Trigger: "lucidchart error", "fix lucidchart", "debug lucidchart".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.7.0
-license: MIT
+description: 'Triage Lucid authentication, scope, version, import, export, extension, and connector failures from bounded evidence. Use when a Lucid integration fails. Trigger with "troubleshoot Lucid".'
+argument-hint: "[symptom] [integration-kind]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- lucidchart
-- diagramming
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, lucidchart, troubleshooting, oauth, diagnostics]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live diagnosis requires authorized Lucid evidence and approval from the document, application, connector, or account owner
 ---
-# Lucidchart Common Errors
+# Lucid Integration Error Triage
 
 ## Overview
 
-Lucidchart's API enables programmatic diagram creation, document management, shape manipulation, and team collaboration workflows. Common integration errors include OAuth token expiration during long-running batch operations, document lock conflicts when multiple users edit simultaneously, and shape API 422 errors from invalid geometry or missing parent references. The OAuth token refresh flow is the most common stumbling block -- access tokens expire after 60 minutes, and batch operations that exceed this window fail mid-run. This reference covers authentication, document lifecycle, and shape-level validation issues for the Lucid developer platform.
+Identify the failing layer before changing credentials, scopes, documents, packages, or connector state.
 
-## Error Reference
+## Prerequisites
 
-| Code | Message | Cause | Fix |
-|------|---------|-------|-----|
-| `401` | `Token expired` | OAuth2 access token expired | Use refresh token to obtain new access token |
-| `403` | `Insufficient scopes` | OAuth app missing required permission scopes | Re-authorize with `lucidchart.document.content` and needed scopes |
-| `404` | `Document not found` | Invalid document ID or user lacks access | Verify document ID and that API user has viewer/editor role |
-| `409` | `Document locked` | Another user is actively editing | Wait for lock release or use force-unlock with admin privileges |
-| `422` | `Invalid shape data` | Shape position/size out of bounds or missing parent | Validate x/y/width/height > 0; ensure parent page exists |
-| `422` | `Invalid connection` | Source or target shape ID does not exist | Create shapes before connecting them; verify shape IDs |
-| `429` | `Rate limited` | Exceeded 100 requests/minute | Implement exponential backoff; batch shape operations |
-| `500` | `Export failed` | PDF/PNG export timed out on complex diagram | Reduce page count or simplify shapes before export |
+- A redacted request ID, timestamp, status, integration kind, endpoint or command, and API/package version
+- Expected token type and scopes from the exact official operation page
+- Permission to inspect the relevant repository and Lucid project
 
-## Error Handler
+## Tool Discipline
 
-```typescript
-interface LucidchartError {
-  code: number;
-  message: string;
-  category: "auth" | "rate_limit" | "validation" | "conflict";
-}
+Use `Read`, `Glob`, and `Grep` for local evidence, `WebFetch` for official Lucid contracts and status, and `Write` or `Edit` only for approved fixes or redacted receipts.
 
-function classifyLucidchartError(status: number, body: string): LucidchartError {
-  if (status === 401 || status === 403) {
-    return { code: status, message: body, category: "auth" };
-  }
-  if (status === 429) {
-    return { code: 429, message: "Rate limited", category: "rate_limit" };
-  }
-  if (status === 409) {
-    return { code: 409, message: body, category: "conflict" };
-  }
-  return { code: status, message: body, category: "validation" };
-}
-```
+## Current Contract
 
-## Debugging Guide
+- 401 can reflect invalid or revoked credentials; 403 can reflect token type, scope, resource access, or endpoint rules.
+- 429 behavior and limits are endpoint-specific; never substitute a pack-wide quota.
+- Standard Import, REST resources, editor extensions, and data connectors have different failure surfaces.
 
-### Authentication Errors
+## Authentication
 
-Lucidchart uses OAuth2 with access and refresh tokens. Access tokens expire after 60 minutes. Always implement token refresh logic. A 403 typically means missing OAuth scopes rather than invalid credentials -- check the `scopes` parameter in your authorization URL against the API endpoints you are calling.
+Never collect raw tokens, secrets, authorization codes, cookies, or complete request headers. Confirm only credential class, grant, scope names, issuer environment, rotation state, and a redacted fingerprint.
 
-### Rate Limit Errors
+## Instructions
 
-The API enforces 100 requests/minute per OAuth token. Shape creation in bulk should use batch endpoints. Export operations (PDF, PNG) count against the same limit. Use `Retry-After` header and implement exponential backoff starting at 1 second.
+1. Establish the last known good time and whether Lucid status reports an incident.
+2. Classify the layer: network, auth, authorization, version, payload, document permission, extension build, or connector callback.
+3. Compare token type, scopes, endpoint, method, content type, and `Lucid-Api-Version` with the exact current operation page.
+4. For imports, inspect archive paths, `document.json`, IDs, product, size, and media references without uploading customer content.
+5. For extensions, inspect manifest scopes, package versions, build output, developer mode, and browser console evidence.
+6. Reproduce with the smallest sanitized fixture and one reversible action.
+7. Record the proven cause, fix, verification, rollback, and evidence gaps.
 
-### Validation Errors
+## Approval Boundaries
 
-Shape creation requires valid `x`, `y`, `width`, and `height` values (all positive integers). Zero or negative values return 422. Connections require both source and target shape IDs to exist on the same page -- cross-page connections are not supported. Page references must use valid page IDs from the document; list pages first before creating shapes.
+Do not broaden scopes, rotate credentials, alter sharing, upload documents, replay callbacks, or publish packages without owner approval.
+
+## Output
+
+Return symptom, layer, evidence, ruled-out causes, confirmed cause, bounded fix, verification, rollback, and owner actions.
 
 ## Error Handling
 
-| Scenario | Pattern | Recovery |
-|----------|---------|----------|
-| OAuth token expired mid-batch | 401 after N successful calls | Refresh token, resume from last successful operation |
-| Document locked by teammate | 409 on write operations | Poll lock status every 10s; notify user if persistent |
-| Shape API 422 | Invalid geometry values | Validate all shape coordinates are positive before API call |
-| Export timeout on large diagram | 500 on PDF/PNG export | Export individual pages instead of full document |
-| Connection fails between shapes | Target shape not yet created | Create all shapes first, then create connections |
+| Condition | Response |
+|---|---|
+| Evidence contains a secret | Stop, redact, rotate through the owner, and do not retain it. |
+| Endpoint contract differs from memory | Treat current official documentation as authoritative. |
+| Cause remains ambiguous | Return competing hypotheses and the smallest discriminating test. |
 
-## Quick Diagnostic
+## Example
 
-```bash
-# Verify OAuth token validity
-curl -s -o /dev/null -w "%{http_code}" \
-  -H "Authorization: Bearer $LUCID_ACCESS_TOKEN" \
-  https://api.lucid.co/v1/users/me
+```text
+layer=authorization; status=403; token=user; expected-scope=lucidchart.document.content:readonly; secret-retained=no; next=owner-reconsent
 ```
 
 ## Resources
 
-- [Lucid Developer Docs](https://developer.lucid.co/reference/overview)
-- Lucid OAuth2 Guide
+- [Official documentation map](references/official-docs.md)
 
 ## Next Steps
 
-See `lucidchart-debug-bundle`.
+Turn a confirmed recurring failure into a sanitized regression test.

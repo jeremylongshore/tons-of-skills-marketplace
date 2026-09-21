@@ -12,7 +12,7 @@ description: 'Implement user sign-up and sign-in flows with Clerk.
 
   '
 allowed-tools: Read, Write, Edit, Grep
-version: 1.14.0
+version: 1.15.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

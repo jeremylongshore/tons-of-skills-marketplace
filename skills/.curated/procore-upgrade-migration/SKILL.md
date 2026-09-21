@@ -1,66 +1,92 @@
 ---
 name: procore-upgrade-migration
-description: "Procore upgrade migration \u2014 construction management platform integration.\n\
-  Use when working with Procore API for project management, RFIs, or submittals.\n\
-  Trigger with phrases like \"procore upgrade migration\", \"procore-upgrade-migration\"\
-  .\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Bash(curl:*), Grep
-version: 1.5.0
+description: >-
+  Migrate one Procore endpoint contract after a lifecycle, deprecation, version, or webhook payload change using observed traffic and dual-read evidence. Use when the changelog announces a replacement or Integration Health detects deprecated usage. Trigger with: "upgrade a Procore API version", "remove deprecated Procore endpoint", "migrate Procore webhook payload".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[old-contract-and-replacement-contract]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- procore
-- construction
-- project-management
-compatibility: Designed for Claude Code
+  - saas
+  - procore
+  - api-lifecycle
+  - migration
+compatibility: 'Requires current Procore API reference and changelog access plus route-level production traffic evidence.'
 ---
-# Procore Upgrade Migration
+
+# Procore Endpoint Contract Cutover
 
 ## Overview
 
-Implementation patterns for Procore upgrade migration using the REST API with OAuth2 authentication.
+Migrate the concrete resource and operation named by provider evidence. Procore does not expose one universal pack-wide version transition, so never claim a generic v1-to-v1.1 upgrade without endpoint-specific documentation.
 
 ## Prerequisites
 
-- Completed `procore-install-auth` setup
+- Deprecated route, method, version, or payload format and documented replacement
+- API Call Activity Report slice covering every deployed caller
+- Old and new response contracts, test fixtures, rollout owner, and removal deadline
 
 ## Instructions
 
-### Step 1: API Call Pattern
+### Step 1: Prove affected traffic
 
-```python
-import os, requests
+Find the normalized deprecated route in production activity and search every service, scheduled job, event handler, and shared adapter for callers.
 
-token_resp = requests.post("https://login.procore.com/oauth/token", data={
-    "grant_type": "client_credentials",
-    "client_id": os.environ["PROCORE_CLIENT_ID"],
-    "client_secret": os.environ["PROCORE_CLIENT_SECRET"],
-})
-access_token = token_resp.json()["access_token"]
-headers = {"Authorization": f"Bearer {access_token}"}
+### Step 2: Diff contracts
 
-companies = requests.get("https://api.procore.com/rest/v1.0/companies", headers=headers)
-print(f"Companies: {len(companies.json())}")
-```
+Compare paths, headers, IDs, query parameters, request fields, response fields, pagination, permissions, status codes, webhook schema, and lifecycle phase.
+
+### Step 3: Build a compatibility adapter
+
+Isolate the new contract behind a resource-specific interface. Normalize only fields the business layer truly needs and preserve provider errors and metadata.
+
+### Step 4: Verify side by side
+
+For reads, compare sanitized result sets and state hashes. For writes, use sandbox fixtures or a provider-supported idempotent strategy; do not duplicate live mutations.
+
+### Step 5: Roll out by cohort
+
+Canary the new adapter, monitor error and rate signals, and keep an explicit rollback boundary while the old route remains supported.
+
+### Step 6: Remove the old path
+
+After traffic evidence reaches zero and the observation clears, remove compatibility code, fixtures, configuration, and documentation for the deprecated contract.
+
+## Authentication
+
+Both contracts use the intended OAuth 2.0 principal and company boundary. A migration must not widen DMSA permissions or switch grant types unless that separate security change is reviewed.
+
+## Tool Discipline
+
+Use Read and Grep to inspect changelogs, activity reports, adapters, and callers. Use Write or Edit only for the approved adapter, migration test, rollout configuration, or receipt; do not perform duplicate live writes.
 
 ## Output
 
-- Procore API integration for upgrade migration
+- Provider evidence and complete caller inventory
+- Contract diff, compatibility adapter, and equivalence tests
+- Canary, rollback, zero-traffic, and removal receipt
+
+Return the exact old and new contracts, affected volume, semantic differences, rollout status, and deletion evidence.
+
+## Examples
+
+A deprecated webhook route is still called by one monthly job. The team adds the documented scoped replacement, verifies payload and permission differences, canaries it, and removes the legacy route only after the API activity report shows no callers.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| 401 Unauthorized | Expired token | Re-authenticate |
-| 429 Rate Limited | Too many requests | Implement backoff |
-| 403 Forbidden | Insufficient permissions | Check project role |
+| Failure | Response |
+| --- | --- |
+| Replacement is not documented | Stop and contact Procore API support rather than guessing a private route. |
+| Read results diverge | Classify each delta and delay cutover until expected differences are approved. |
+| New contract needs more permission | Review the manifest change separately and rerun negative-access tests. |
+| Old traffic persists | Find the remaining caller; do not delete compatibility code. |
 
 ## Resources
 
-- [Procore Developers](https://developers.procore.com/)
-- [REST API Reference](https://developers.procore.com/reference/rest)
-
-## Next Steps
-
-See related Procore skills for more workflows.
+- [First-party source notes](references/official-docs.md)
+- [API lifecycle](https://developers.procore.com/documentation/rest-api-lifecycle)
+- [API changelog](https://developers.procore.com/documentation/changelog)
+- [Integration Health](https://developers.procore.com/documentation/integration-health)

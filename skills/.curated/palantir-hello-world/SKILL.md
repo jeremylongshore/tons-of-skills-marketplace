@@ -1,188 +1,99 @@
 ---
 name: palantir-hello-world
-description: 'Create a minimal working Palantir Foundry example querying Ontology
-  objects.
-
-  Use when starting a new Foundry integration, testing your setup,
-
-  or learning basic Foundry API and Ontology patterns.
-
-  Trigger with phrases like "palantir hello world", "palantir example",
-
-  "palantir quick start", "foundry first query".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(pip:*), Bash(npm:*)
-version: 1.5.0
-license: MIT
+description: >-
+  Create a minimal generated-OSDK application that performs one bounded Ontology read and optionally validates one Action. Use when proving a new Developer Console application end to end. Trigger with "Palantir hello world" or "first OSDK app".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[developer-console-application]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- ontology
-- getting-started
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, osdk, getting-started]
 ---
-# Palantir Hello World
+# Palantir OSDK First Read and Validated Action
 
 ## Overview
 
-Build a minimal working example that connects to Palantir Foundry, queries Ontology objects via the REST API, reads a dataset, and applies an action. Uses real `foundry-platform-sdk` Python API calls.
+Prove the smallest safe vertical slice: Developer Console application, generated OSDK, authenticated client, bounded object read, and an optional validation-only Action. Avoid mixing the Platform SDK, OSDK, transforms, and deployment in the first proof.
 
 ## Prerequisites
 
-- Completed `palantir-install-auth` setup
-- Valid bearer token or OAuth2 credentials
-- At least one Ontology with object types configured in your Foundry enrollment
+- Choose a non-production Foundry environment and a low-sensitivity object type with a few synthetic or approved test objects.
+- Identify the application owner, Ontology owner, OSDK language, user-delegated or backend-service grant, and selected Ontology resources.
+- Read `references/official-docs.md` plus the generated application-specific documentation in Developer Console.
+- Prepare an approved Action only if validation-only behavior is available and no production write is required.
+
+## Current Contract
+
+- Developer Console creates and manages OSDK applications and generates language-specific packages for selected Ontology resources.
+- The generated OSDK exposes the actual object types, links, Actions, and Functions selected for that application.
+- An OSDK application authenticates with OAuth as a public/confidential user application or backend service, according to its design.
+- A first read should be bounded by filters, selected properties, deterministic ordering, and pagination.
+
+## Authentication
+
+Use the Developer Console generated setup for the chosen grant. Keep client secrets and bearer tokens in approved local or deployment secret storage. Record grant type, scopes, restrictions, redirect behavior, and principal without recording credential values.
 
 ## Instructions
 
-### Step 1: List Available Ontologies
+1. Create or select the Developer Console application and add only one test object type plus an approved Action if needed.
 
-```python
-import os
-import foundry
+2. Generate and install the OSDK version shown by Developer Console; pin the generated package and compatible client.
 
-client = foundry.FoundryClient(
-    auth=foundry.UserTokenAuth(
-        hostname=os.environ["FOUNDRY_HOSTNAME"],
-        token=os.environ["FOUNDRY_TOKEN"],
-    ),
-    hostname=os.environ["FOUNDRY_HOSTNAME"],
-)
+3. Initialize the authenticated client using the generated setup and verify the expected principal/environment.
 
-# List all ontologies you have access to
-for ont in client.ontologies.Ontology.list():
-    print(f"Ontology: {ont.api_name}  RID: {ont.rid}")
-```
+4. Read a small deterministic page of objects with selected properties and record pagination behavior.
 
-### Step 2: Query Ontology Objects
+5. If writeback is in scope, run the generated Action in validation-only mode, review the result, and stop before execution unless separately approved.
 
-```python
-# List objects of type "Employee" from the default ontology
-# The object type api_name comes from your Ontology configuration
-ONTOLOGY = "your-ontology-api-name"
-OBJECT_TYPE = "Employee"
+## Tool Discipline
 
-objects = client.ontologies.OntologyObject.list(
-    ontology=ONTOLOGY,
-    object_type=OBJECT_TYPE,
-    page_size=5,
-)
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-for obj in objects.data:
-    props = obj.properties
-    print(f"  {props.get('fullName', 'N/A')} — {props.get('department', 'N/A')}")
-```
+## Approval Boundaries
 
-### Step 3: Get a Single Object by Primary Key
-
-```python
-employee = client.ontologies.OntologyObject.get(
-    ontology=ONTOLOGY,
-    object_type=OBJECT_TYPE,
-    primary_key="EMP-001",
-)
-print(f"Found: {employee.properties}")
-```
-
-### Step 4: Read a Dataset
-
-```python
-# Read rows from a Foundry dataset (tabular)
-DATASET_RID = "ri.foundry.main.dataset.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-
-# Get dataset metadata
-dataset = client.datasets.Dataset.get(dataset_rid=DATASET_RID)
-print(f"Dataset: {dataset.name}, Path: {dataset.path}")
-
-# Read rows from the dataset (CSV format)
-content = client.datasets.Dataset.read(
-    dataset_rid=DATASET_RID,
-    branch_id="master",
-    format="arrow",  # or "csv"
-)
-print(f"Read {len(content)} bytes of data")
-```
-
-### Step 5: Apply an Ontology Action
-
-```python
-# Actions modify objects — e.g., updating an employee's department
-result = client.ontologies.Action.apply(
-    ontology=ONTOLOGY,
-    action_type="updateDepartment",
-    parameters={
-        "employeeId": "EMP-001",
-        "newDepartment": "Engineering",
-    },
-)
-print(f"Action result: {result.validation}")
-```
-
-### Step 6: Run and Verify
-
-```bash
-set -euo pipefail
-python hello_foundry.py
-# Expected output:
-# Ontology: my-company  RID: ri.ontology.main.ontology.xxx
-# Employee: Jane Doe — Engineering
-# Action result: VALID
-```
+The Ontology owner approves selected resources; the application owner approves the OAuth client; the data owner approves test data; any Action execution requires explicit writeback approval beyond this first-read workflow.
 
 ## Output
 
-- Authenticated connection to Palantir Foundry
-- Listed ontologies and object types
-- Retrieved objects with property values
-- Read dataset content
-- Applied an action to modify an object
+A minimal repository or patch with pinned OSDK/client versions, environment-safe configuration, one bounded read, optional validation-only Action, test evidence, and a cleanup/rollback note.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `ObjectTypeNotFound` | Wrong `api_name` | Check Ontology Manager for exact object type names |
-| `ObjectNotFound` | Invalid primary key | Verify the key exists; keys are case-sensitive |
-| `ActionValidationFailed` | Missing required params | Check action definition for required parameters |
-| `DatasetNotFound` | Wrong RID or no access | Verify RID in Foundry UI; check project permissions |
-| `401 Unauthorized` | Token expired | Regenerate in Developer Console |
+| Condition | Response |
+|---|---|
+| The object type is absent from the generated package | Select and publish it in Developer Console, then regenerate; do not create a handwritten substitute. |
+| OAuth succeeds but the read is forbidden | Check application restrictions and principal permissions without widening both at once. |
+| The query returns too much data | Add filters, properties, page size, and deterministic ordering before proceeding. |
+| Action validation reports errors | Present the generated validation result and stop execution. |
 
 ## Examples
 
-### Using the REST API Directly (curl)
+### Example 1
 
-```bash
-# List objects via REST
-curl -s -H "Authorization: Bearer $FOUNDRY_TOKEN" \
-  "https://$FOUNDRY_HOSTNAME/api/v2/ontologies/my-ontology/objects/Employee?pageSize=5" \
-  | python -m json.tool
-```
+Generate a TypeScript OSDK for one `Equipment` object type, load a deterministic first page containing only approved properties, and print identifiers rather than sensitive values.
 
-### TypeScript OSDK Equivalent
+### Example 2
 
-```typescript
-import { createClient } from "@osdk/client";
-import { Employee } from "@my-app/sdk";  // generated from OSDK
+Add a generated `UpdateStatus` Action to a test application, call validation-only with a synthetic object, review the validation result, and leave actual execution disabled.
 
-const employees = await client(Employee)
-  .where({ department: "Engineering" })
-  .fetchPage({ pageSize: 10 });
+## Validation
 
-employees.data.forEach(emp => console.log(emp.fullName));
-```
+- The package is generated from the target Developer Console application and pinned.
+- The client authenticates to the intended Foundry environment and principal.
+- The read is bounded, deterministic, and uses approved properties.
+- No secret or protected object value is committed or logged.
+- An Action, if present, remains validation-only unless execution has a separate receipt.
 
 ## Resources
 
-- [Foundry API Introduction](https://www.palantir.com/docs/foundry/api/general/overview/introduction)
-- [Get Object API](https://www.palantir.com/docs/foundry/api/ontology-resources/objects/get-object)
-- [Python SDK PyPI](https://pypi.org/project/foundry-platform-sdk/)
-- [Code Examples](https://www.palantir.com/docs/foundry/code-examples/foundry-apis-local-environment)
-
-## Next Steps
-
-- Set up iterative development: `palantir-local-dev-loop`
-- Build data pipelines with transforms: `palantir-core-workflow-a`
-- Query and link objects: `palantir-core-workflow-b`
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

@@ -1,241 +1,91 @@
 ---
 name: cohere-prod-checklist
-description: 'Execute Cohere production deployment checklist and rollback procedures.
-
-  Use when deploying Cohere integrations to production, preparing for launch,
-
-  or implementing go-live procedures for Cohere-powered apps.
-
-  Trigger with phrases like "cohere production", "deploy cohere",
-
-  "cohere go-live", "cohere launch checklist".
-
-  '
-allowed-tools: Read, Bash(kubectl:*), Bash(curl:*), Grep
-version: 1.5.0
-license: MIT
+description: >-
+  Issue an evidence-backed Cohere production go or no-go decision covering capacity, quality, security, operations, and rollback. Use when preparing to launch a Cohere workload. Trigger with "Cohere production checklist", "Cohere go live", or "Cohere launch review".
+argument-hint: "[service] [environment]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ai
-- nlp
 - cohere
-compatibility: Designed for Claude Code
+- production
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Cohere API key
 ---
-# Cohere Production Checklist
+# Cohere Production Readiness
 
 ## Overview
 
-Complete go-live checklist for deploying Cohere API v2 integrations to production with safety gates, health checks, and rollback procedures.
+Convert a staged Cohere integration into a reversible production release with explicit owners, thresholds, and evidence.
 
 ## Prerequisites
 
-- Staging environment tested and verified
-- Production API key (not trial) from [dashboard.cohere.com](https://dashboard.cohere.com)
-- Deployment pipeline configured
-- Monitoring and alerting ready
+- The target repository, runtime, environment, and accountable owner
+- An approved Cohere team and key for any live verification
+- Current quality, security, privacy, capacity, and change-control requirements
 
-## Checklist
+## Tool Discipline
 
-### API & Authentication
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current Cohere primary documentation. Use `Write` or `Edit` only when the user requested implementation and the exact target files are known; never write credentials or customer content.
 
-- [ ] Using **production** API key (not trial — trial is rate-limited to 20 calls/min)
-- [ ] `CO_API_KEY` stored in secret manager (Vault, AWS Secrets Manager, GCP Secret Manager)
-- [ ] Key rotation procedure documented and tested
-- [ ] Billing alerts configured at dashboard.cohere.com
-- [ ] Using API v2 endpoints (`CohereClientV2`, not `CohereClient`)
+## Current Contract
 
-### Code Quality
+- Public-facing workloads require the appropriate production key and acceptance of Cohere's current terms.
+- Sensitive-use declarations can affect approval and capacity; verify the actual organization state.
+- Models, limits, pricing, and deprecations must be checked at release time.
+- Production readiness includes retrieval or task quality, not merely a successful API call.
 
-- [ ] All API calls specify `model` parameter explicitly
-- [ ] `embeddingTypes` set for all Embed calls (required for v3+)
-- [ ] `inputType` set for all Embed calls (required for v3+)
-- [ ] Error handling catches `CohereError` and `CohereTimeoutError`
-- [ ] Retry logic with exponential backoff for 429 and 5xx
-- [ ] No hardcoded API keys in source code
-- [ ] Request/response logging excludes API keys and PII
+## Authentication
 
-### Model Selection
-
-- [ ] Correct model IDs used (not deprecated names):
-
-| Use Case | Recommended Model | Fallback |
-|----------|------------------|----------|
-| Chat/generation | `command-a-03-2025` | `command-r-plus-08-2024` |
-| Lightweight chat | `command-r7b-12-2024` | `command-r-08-2024` |
-| Embeddings | `embed-v4.0` | `embed-english-v3.0` |
-| Reranking | `rerank-v3.5` | `rerank-english-v3.0` |
-
-### Performance
-
-- [ ] Embed calls batched (up to 96 texts per request)
-- [ ] Rerank calls limited to 1000 documents per request
-- [ ] Streaming enabled for user-facing chat (`chatStream`)
-- [ ] Connection pooling / keep-alive configured
-- [ ] Response caching for repeated embed/rerank queries
-- [ ] `maxTokens` set to prevent runaway generation costs
-
-### Health Check Endpoint
-
-```typescript
-// /api/health
-import { CohereClientV2, CohereError } from 'cohere-ai';
-
-const cohere = new CohereClientV2();
-
-export async function GET() {
-  const start = Date.now();
-  let cohereStatus: 'healthy' | 'degraded' | 'down' = 'down';
-
-  try {
-    // Cheapest possible health check — minimal chat
-    await cohere.chat({
-      model: 'command-r7b-12-2024',
-      messages: [{ role: 'user', content: 'ping' }],
-      maxTokens: 1,
-    });
-    cohereStatus = 'healthy';
-  } catch (err) {
-    if (err instanceof CohereError && err.statusCode === 429) {
-      cohereStatus = 'degraded'; // Rate limited but reachable
-    }
-  }
-
-  return Response.json({
-    status: cohereStatus === 'healthy' ? 'ok' : 'degraded',
-    cohere: {
-      status: cohereStatus,
-      latencyMs: Date.now() - start,
-    },
-    timestamp: new Date().toISOString(),
-  });
-}
-```
-
-### Circuit Breaker
-
-```typescript
-class CohereCircuitBreaker {
-  private failures = 0;
-  private lastFailure = 0;
-  private state: 'closed' | 'open' | 'half-open' = 'closed';
-
-  constructor(
-    private threshold = 5,
-    private resetMs = 60_000
-  ) {}
-
-  async call<T>(fn: () => Promise<T>, fallback?: () => T): Promise<T> {
-    if (this.state === 'open') {
-      if (Date.now() - this.lastFailure > this.resetMs) {
-        this.state = 'half-open';
-      } else if (fallback) {
-        return fallback();
-      } else {
-        throw new Error('Cohere circuit breaker is open');
-      }
-    }
-
-    try {
-      const result = await fn();
-      this.failures = 0;
-      this.state = 'closed';
-      return result;
-    } catch (err) {
-      this.failures++;
-      this.lastFailure = Date.now();
-
-      if (this.failures >= this.threshold) {
-        this.state = 'open';
-        console.error(`Cohere circuit breaker OPEN after ${this.failures} failures`);
-      }
-      throw err;
-    }
-  }
-}
-
-const breaker = new CohereCircuitBreaker();
-```
-
-### Gradual Rollout
-
-```bash
-# Pre-flight
-curl -sf https://staging.example.com/api/health | jq '.cohere'
-curl -s https://status.cohere.com/api/v2/status.json | jq '.status'
-
-# Deploy with canary (10% traffic)
-kubectl apply -f k8s/production.yaml
-kubectl rollout pause deployment/app
-
-# Monitor for 10 minutes: error rate, latency, 429s
-# Check: No increase in CohereError rate
-# Check: P95 latency < 5s for chat, < 500ms for embed/rerank
-
-# Proceed to 100%
-kubectl rollout resume deployment/app
-kubectl rollout status deployment/app
-```
-
-### Monitoring Alerts
-
-| Alert | Condition | Severity |
-|-------|-----------|----------|
-| Cohere unreachable | Health check fails 3x | P1 |
-| High error rate | 5xx > 5% of requests/5min | P1 |
-| Rate limited | 429 > 10/min | P2 |
-| High latency | Chat P95 > 10s | P2 |
-| Auth failure | Any 401 response | P1 |
-| Budget exceeded | Daily token cost > threshold | P2 |
-
-### Rollback
-
-```bash
-# Immediate rollback
-kubectl rollout undo deployment/app
-kubectl rollout status deployment/app
-
-# Verify rollback
-curl -sf https://api.example.com/api/health | jq '.cohere'
-```
+Use an environment-specific key injected from an approved secret manager. Never print, persist, commit, or place `CO_API_KEY` in an example. Confirm access with the least costly bounded operation appropriate to the task, and treat key creation, rotation, revocation, role changes, and production-capacity requests as owner-approved actions.
 
 ## Instructions
 
-Complete the production checklist in sequence: verify scoped secret and model
-configuration, run a bounded health request, test circuit-breaker, budget, and
-alert behavior, then obtain the documented approval before enabling user
-traffic. Capture evidence for rollback and data/safety controls; an available
-endpoint alone is not production acceptance.
+1. Verify production key ownership, model availability, contractual data terms, and current capacity.
+2. Attach offline and bounded live evaluations for quality, citations, safety, and failure handling.
+3. Confirm secret isolation, tenant boundaries, redaction, timeouts, retries, and circuit breaking.
+4. Set latency, error, throttle, cost, quality, and queue thresholds with named responders.
+5. Run a staged canary with rollback criteria and no unapproved model fallback.
+6. Record GO or NO-GO, approvers, evidence links, release window, and rollback command owner.
+
+## Approval Boundaries
+
+Do not expose or rotate keys, change Cohere Team roles, accept commercial terms, enable sensitive production data, increase spend or capacity, switch production models, send a support bundle, or execute model-proposed side effects without the accountable owner's approval. Keep diagnosis read-only unless implementation was requested.
+
+## Output
+
+Return the resolved API and model contract, files or settings inspected, evidence collected, validation result, remaining risk, owner, and rollback or next action. Redact keys, authorization headers, prompts, retrieved documents, embeddings, customer identifiers, and unrestricted environment output.
 
 ## Error Handling
 
 | Condition | Response |
 |---|---|
-| Authentication or secret failure | Keep traffic disabled, rotate/repair the scoped secret, then revalidate. |
-| Provider outage/timeout | Trip the approved circuit breaker or fallback and preserve idempotent work. |
-| Budget or rate threshold breached | Stop expansion, apply the budget control, and notify the owner. |
-| Unsafe or ungrounded output | Disable the affected feature path and engage the safety owner. |
+| Trial key | Do not launch a public production workload on evaluation capacity. |
+| No quality gate | Block release until representative evaluation thresholds exist. |
+| No rollback | Block release until traffic can be restored safely. |
+| Model near retirement | Migrate or obtain an explicit time-bound exception. |
 
 ## Examples
 
-Before release, send a synthetic staging request through the deployed path,
-verify health, alerts, circuit breaker, and rollback, and attach redacted
-evidence to the change record. If any control fails, retain the prior certified
-release and correct it before promotion.
+Use this compact handoff shape to keep the selected scope, validation evidence, and operational result reviewable.
 
-## Output
+Input:
 
-- Production-ready Cohere integration with health checks
-- Circuit breaker preventing cascade failures
-- Monitoring alerts for Cohere-specific error conditions
-- Documented rollback procedure
+```text
+service=support-rag; canary=5%; quality-threshold=approved; rollback=ready
+```
+
+Expected handoff:
+
+```text
+decision=GO; model=resolved; capacity=verified; evidence=linked
+```
 
 ## Resources
 
-- [Cohere Going Live Guide](https://docs.cohere.com/docs/going-live)
-- [Cohere Status Page](https://status.cohere.com)
-- [Cohere Pricing](https://cohere.com/pricing)
-
-## Next Steps
-
-For version upgrades, see `cohere-upgrade-migration`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Going live](https://docs.cohere.com/docs/going-live)
+- [Deprecations](https://docs.cohere.com/docs/deprecations)

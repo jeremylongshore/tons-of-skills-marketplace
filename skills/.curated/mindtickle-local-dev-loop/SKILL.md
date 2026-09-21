@@ -1,114 +1,78 @@
 ---
 name: mindtickle-local-dev-loop
-description: 'Local Dev Loop for MindTickle.
-
-  Trigger: "mindtickle local dev loop".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Build a fast, secret-free local development loop for a Mindtickle adapter using frozen tenant-contract fixtures. Use when developing without live learner data. Trigger with "set up Mindtickle local development".'
+argument-hint: "[project-path] [contract-fixture]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mindtickle
-- sales
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, mindtickle, local-development, fixtures, testing]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live tenant access is outside the local loop and requires separate approval
 ---
-# MindTickle Local Dev Loop
+# Mindtickle Contract-Fixture Development Loop
 
 ## Overview
 
-Local development workflow for MindTickle sales enablement and readiness API integration. Provides a fast feedback loop with mock training modules, user progress, and coaching data so you can build sales readiness dashboards without needing a live MindTickle instance. Toggle between mock mode for rapid iteration and sandbox mode for validating against the real MindTickle platform.
+Make adapter development deterministic by separating domain behavior from the tenant transport and exercising only sanitized, versioned fixtures locally.
 
-## Environment Setup
+## Prerequisites
 
-```bash
-cp .env.example .env
-# Set your credentials:
-# MINDTICKLE_API_KEY=mt_xxxxxxxxxxxx
-# MINDTICKLE_BASE_URL=https://api.mindtickle.com/v2
-# MOCK_MODE=true
-npm install express axios dotenv tsx typescript @types/node
-npm install -D vitest supertest @types/express
-```
+- An authorized tenant contract digest and sanitized success and failure examples
+- A product-specific adapter boundary from `mindtickle-sdk-patterns`
+- A secret scanner and repository policy for generated or confidential artifacts
 
-## Dev Server
+## Tool Discipline
 
-```typescript
-// src/dev/server.ts
-import express from "express";
-import { createProxyMiddleware } from "http-proxy-middleware";
-const app = express();
-app.use(express.json());
-const MOCK = process.env.MOCK_MODE === "true";
-if (!MOCK) {
-  app.use("/v2", createProxyMiddleware({
-    target: process.env.MINDTICKLE_BASE_URL,
-    changeOrigin: true,
-    headers: { Authorization: `Bearer ${process.env.MINDTICKLE_API_KEY}` },
-  }));
-} else {
-  const { mountMockRoutes } = require("./mocks");
-  mountMockRoutes(app);
-}
-app.listen(3007, () => console.log(`MindTickle dev server on :3007 [mock=${MOCK}]`));
-```
+Use `Read`, `Glob`, and `Grep` to inspect code and fixtures, `WebFetch` only to refresh approved contract sources, and `Write` or `Edit` for local adapters, fixtures, tests, and documentation.
 
-## Mock Mode
+## Current Contract
 
-```typescript
-// src/dev/mocks.ts — realistic sales enablement training data
-export function mountMockRoutes(app: any) {
-  app.get("/v2/modules", (_req: any, res: any) => res.json([
-    { id: "mod_1", title: "Q4 Product Launch", type: "course", status: "published", enrolledCount: 85, completionRate: 0.72 },
-    { id: "mod_2", title: "Objection Handling", type: "coaching", status: "published", enrolledCount: 120, completionRate: 0.58 },
-  ]));
-  app.get("/v2/users/:id/progress", (req: any, res: any) => res.json({
-    userId: req.params.id, completedModules: 8, totalModules: 12, averageScore: 82,
-    recentActivity: [{ moduleId: "mod_1", score: 91, completedAt: "2025-09-10T15:30:00Z" }],
-  }));
-  app.get("/v2/leaderboard", (_req: any, res: any) => res.json({
-    topPerformers: [
-      { userId: "usr_1", name: "Sarah Kim", score: 95, modulesCompleted: 12 },
-      { userId: "usr_2", name: "James Park", score: 88, modulesCompleted: 10 },
-    ],
-  }));
-  app.post("/v2/coaching/sessions", (req: any, res: any) => res.status(201).json({ id: "cs_1", ...req.body, status: "scheduled" }));
-}
-```
+Public Mindtickle pages establish API families but not a public emulator or universal SDK. Local mode must therefore emulate the frozen customer contract, identify synthetic values clearly, and fail closed when an unrecorded operation appears.
 
-## Testing Workflow
+## Authentication
 
-```bash
-npm run dev:mock &                    # Start mock server in background
-npm run test                          # Unit tests with vitest
-npm run test -- --watch               # Watch mode for rapid iteration
-MOCK_MODE=false npm run test:integration  # Integration test against real API
-```
+Local mode accepts no real credential. Represent auth outcomes with synthetic fixtures and reserve any tenant smoke test for a separately approved integration lane.
 
-## Debug Tips
+## Instructions
 
-- MindTickle user IDs are org-scoped — IDs from one org will 404 on another
-- Progress endpoints return `null` for users who have not started any modules
-- Coaching session creation requires both `coachId` and `learnerId` fields
-- Use `/v2/modules?status=draft` to test against unpublished content without affecting live users
-- Check `completionRate` is a decimal (0.72) not a percentage (72) when building dashboards
+1. Record the contract digest, fixture provenance, sanitization method, and supported operation list.
+2. Route domain code through the adapter interface; reject direct network calls outside the transport module.
+3. Add deterministic fixtures for success, empty results, pagination, validation, authorization, throttling signal, timeout ambiguity, and schema drift.
+4. Validate fixtures against internal schemas and scan them for secrets and identifying data.
+5. Provide a fake clock, stable identifiers, bounded randomness, and deterministic retry scheduling.
+6. Run focused tests after every change and compare normalized outputs rather than vendor-specific ordering unless documented.
+7. Fail the local server when code requests an unknown route, tenant, or fixture instead of silently returning a generic response.
+8. Document the exact command, expected test count, contract expiry, and handoff to the integration lane.
+
+## Approval Boundaries
+
+Do not copy production responses wholesale, enable fallback network access, or accept real tokens in local mode.
+
+## Output
+
+Return the adapter boundary, fixture inventory and digest, sanitization receipt, deterministic commands, test results, unsupported operations, and contract refresh date.
 
 ## Error Handling
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| `401 Unauthorized` | Invalid API key | Regenerate at MindTickle admin console |
-| `403 Forbidden` | Key lacks admin scope | Request API access from MindTickle CSM |
-| `404 Not Found` | User or module ID invalid | Fetch list endpoints to verify IDs |
-| `429 Rate Limited` | Too many requests | Add exponential backoff, use mock mode |
-| `ECONNREFUSED :3007` | Dev server not running | Run `npm run dev:mock` first |
+| Condition | Response |
+|---|---|
+| Fixture contains sensitive data | Quarantine and replace it with a minimal synthetic case. |
+| Contract and fixture diverge | Fail tests and update through the authorized contract-change workflow. |
+| Code attempts live access | Block the request and report the calling path. |
+
+## Example
+
+```text
+contract-sha256=...; fixtures=8; synthetic=true; secrets=0; tests=24-pass; network=blocked
+```
 
 ## Resources
 
-- [MindTickle Platform Integrations](https://www.mindtickle.com/platform/integrations/)
+- [Mindtickle integrations and API families](https://www.mindtickle.com/platform/integrations/)
+- [Mindtickle Trust](https://www.mindtickle.com/trust/)
 
 ## Next Steps
 
-See `mindtickle-debug-bundle`.
+Promote the same fixtures to CI and keep the live smoke lane explicitly opt-in.

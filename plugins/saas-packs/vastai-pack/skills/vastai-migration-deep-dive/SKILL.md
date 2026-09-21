@@ -1,198 +1,93 @@
 ---
 name: vastai-migration-deep-dive
-description: 'Migrate GPU workloads to or from Vast.ai, or between GPU providers.
-
-  Use when switching from AWS/GCP/Azure GPU instances to Vast.ai,
-
-  migrating between GPU types, or re-platforming ML infrastructure.
-
-  Trigger with phrases like "migrate to vastai", "vastai migration",
-
-  "switch to vastai", "vastai from aws", "vastai from lambda".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vastai:*), Bash(docker:*), Grep
-version: 1.11.0
+description: >-
+  Migrate a GPU workload from another provider to Vast.ai through inventory, container and data parity, a checkpointed canary, measured comparison, and rollback. Use when planning or executing a provider cutover. Trigger with: "migrate Runpod to Vast.ai", "move GPU jobs to Vast.ai", "validate a Vast.ai migration".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[source-provider-workload-and-cutover-objective]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- migration
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - migration
+  - cutover
+  - rollback
+compatibility: 'Requires source-provider inventory, portable workload artifacts, Vast.ai capacity, external storage, and an approved rollback window.'
 ---
-# Vast.ai Migration Deep Dive
 
-## Current State
-
-!`vastai --version 2>/dev/null || echo 'vastai CLI not installed'`
-!`pip show vastai 2>/dev/null | grep Version || echo 'N/A'`
+# Evidence-Gated Migration to Vast.ai
 
 ## Overview
 
-Migrate GPU workloads to Vast.ai from hyperscaler providers (AWS, GCP, Azure) or other GPU clouds (Lambda, RunPod, CoreWeave). Also covers migrating between GPU types on Vast.ai and the reverse migration away from Vast.ai.
+Separate portability from cutover. First identify source-provider dependencies, then prove immutable image, storage, networking, secrets, GPU, and output behavior on a disposable Vast.ai canary before moving production work.
 
 ## Prerequisites
 
-- Existing GPU workload with Docker image
-- Understanding of current GPU costs and utilization
-- Checkpoint-based training pipeline (for training migrations)
+- Source inventory covering images, accelerators, storage, network, identity, schedules, and cost
+- Acceptance thresholds for correctness, throughput, latency, recovery, and total spend
+- Versioned data/checkpoint transfer, dual-run or drain plan, and rollback owner
 
 ## Instructions
 
-### Step 1: Cost Comparison Analysis
+### Step 1: Freeze source truth
 
-```python
-# Compare your current GPU costs against Vast.ai marketplace prices
-PROVIDER_COSTS = {
-    "aws_p4d.24xlarge":      {"gpu": "A100 40GB", "gpus": 8, "hourly": 32.77},
-    "aws_p3.2xlarge":        {"gpu": "V100 16GB", "gpus": 1, "hourly": 3.06},
-    "gcp_a2-highgpu-1g":     {"gpu": "A100 40GB", "gpus": 1, "hourly": 3.67},
-    "azure_NC24ads_A100_v4": {"gpu": "A100 80GB", "gpus": 1, "hourly": 3.67},
-    "lambda_1xA100":         {"gpu": "A100",      "gpus": 1, "hourly": 1.25},
-}
+Record source release, image digest, GPU profile, command, secrets interfaces, ports, persistent data, checkpoints, SLOs, and representative outputs.
 
-VASTAI_TYPICAL = {
-    "RTX_4090":  0.20,
-    "A100":      1.50,
-    "H100_SXM":  3.00,
-}
+### Step 2: Map Vast.ai equivalents
 
-def savings_analysis(current_provider, current_hourly, vastai_gpu, vastai_hourly):
-    monthly_current = current_hourly * 730  # hours/month
-    monthly_vastai = vastai_hourly * 730
-    savings = monthly_current - monthly_vastai
-    pct = (savings / monthly_current) * 100
-    print(f"Current ({current_provider}): ${monthly_current:,.0f}/mo")
-    print(f"Vast.ai ({vastai_gpu}): ${monthly_vastai:,.0f}/mo")
-    print(f"Savings: ${savings:,.0f}/mo ({pct:.0f}%)")
+Choose offer or Serverless profiles, template, disk/volume/cloud-copy route, scoped keys, SSH/network mode, and lifecycle semantics.
 
-savings_analysis("AWS p3.2xlarge", 3.06, "RTX_4090", 0.20)
-# Output: Savings: $2,088/mo (93%)
-```
+### Step 3: Prove artifact parity
 
-### Step 2: Docker Image Migration
+Run the same image and input sample on one disposable Vast.ai target; verify CUDA, dependencies, output schema, checksums, and external checkpoint recovery.
 
-```bash
-# Most Docker images work unchanged on Vast.ai
-# Key differences:
-# - Vast.ai instances run as root
-# - /workspace is the default working directory
-# - SSH access (not IAM roles) for authentication
+### Step 4: Compare production characteristics
 
-# Adapt your existing Dockerfile
-cat << 'DOCKERFILE' > Dockerfile.vastai
-FROM your-existing-image:latest
+Measure startup, throughput, latency, reliability, bandwidth, storage, interruption recovery, and cost per accepted unit.
 
-# Vast.ai instances use /workspace by default
-WORKDIR /workspace
+### Step 5: Cut over reversibly
 
-# Install any Vast.ai-specific tools
-RUN pip install boto3  # for S3 checkpoint uploads
+Quiesce or dual-run according to data semantics, move only verified state, switch a bounded slice, and monitor explicit acceptance gates.
 
-# Copy training code
-COPY src/ /workspace/src/
-COPY configs/ /workspace/configs/
+### Step 6: Accept or roll back
 
-CMD ["python", "src/train.py"]
-DOCKERFILE
+Promote only if every gate passes. Otherwise restore source routing, reconcile writes and checkpoints, and destroy rejected Vast.ai resources.
 
-docker build -t ghcr.io/org/training:vastai -f Dockerfile.vastai .
-docker push ghcr.io/org/training:vastai
-```
+## Authentication
 
-### Step 3: Adapt Cloud Storage Credentials
+Translate identity to scoped Vast.ai keys and separate storage/registry credentials. Do not export source-provider credentials into images or long-lived Vast.ai environment variables.
 
-```bash
-# On AWS/GCP: IAM roles provide automatic credentials
-# On Vast.ai: Pass credentials explicitly via environment variables
+## Tool Discipline
 
-# Create instance with env vars for cloud storage access
-vastai create instance $OFFER_ID \
-  --image ghcr.io/org/training:vastai \
-  --disk 100 \
-  --env "AWS_ACCESS_KEY_ID=AKIA... AWS_SECRET_ACCESS_KEY=... AWS_DEFAULT_REGION=us-east-1"
-```
-
-### Step 4: Migration Validation
-
-```bash
-#!/bin/bash
-set -euo pipefail
-echo "Migration Validation Checklist"
-
-# 1. Docker image runs on Vast.ai
-vastai create instance $OFFER_ID --image ghcr.io/org/training:vastai --disk 50
-# Wait for running...
-
-# 2. GPU access works
-ssh -p $PORT root@$HOST "nvidia-smi && python -c 'import torch; print(torch.cuda.is_available())'"
-
-# 3. Cloud storage works
-ssh -p $PORT root@$HOST "aws s3 ls s3://your-bucket/ | head -5"
-
-# 4. Training runs and saves checkpoints
-ssh -p $PORT root@$HOST "cd /workspace && python src/train.py --epochs 1 --checkpoint-dir /workspace/ckpt"
-
-# 5. Checkpoints uploaded to cloud storage
-ssh -p $PORT root@$HOST "aws s3 sync /workspace/ckpt/ s3://your-bucket/ckpt/"
-
-# 6. Clean up
-vastai destroy instance $INSTANCE_ID
-echo "Migration validation complete"
-```
-
-### Step 5: Rollback Plan
-
-```markdown
-## Rollback Procedure
-1. Stop all Vast.ai instances: `vastai show instances` → `vastai destroy instance ID`
-2. Re-provision on original cloud provider
-3. Resume training from cloud-stored checkpoint
-4. Vast.ai Docker image remains available for future retry
-```
-
-## Migration Comparison
-
-| Factor | AWS/GCP/Azure | Vast.ai |
-|--------|--------------|---------|
-| Pricing | Fixed, premium | Variable, 50-90% cheaper |
-| GPU availability | On-demand guaranteed | Marketplace (may sell out) |
-| SLA | 99.9% uptime | No SLA (spot instances) |
-| IAM roles | Native | Manual credential passing |
-| Networking | VPC, private subnets | Public SSH only |
-| Storage | EBS/PD attached | Local disk + cloud storage |
-| Support | Enterprise support | Community/email |
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- Cost savings analysis comparing providers
-- Adapted Docker image for Vast.ai
-- Cloud credential migration pattern
-- Validation script for migration testing
-- Rollback procedure
+- Source-to-Vast dependency and control map
+- Canary parity, recovery, performance, and cost evidence
+- Cutover or rollback timeline with reconciled data and resource cleanup
 
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Docker image incompatible | Relies on IAM roles or cloud-specific APIs | Pass credentials via env vars |
-| CUDA version mismatch | Different CUDA on Vast.ai hosts | Filter by `cuda_max_good` in search |
-| Data transfer too slow | Large dataset over public internet | Stage data in cloud storage, download on instance |
-| No matching offers | Specific GPU unavailable | Try alternative GPU type or wait for availability |
-
-## Resources
-
-- [Vast.ai vs AWS](https://vast.ai/)
-- [Vast.ai CLI](https://docs.vast.ai/cli/get-started)
-- [Docker Migration](https://docs.docker.com/get-started/)
-
-## Next Steps
-
-Review `vastai-reference-architecture` for best-practice project structure.
+Return source/target releases, immutable identities, data checkpoint, acceptance deltas, decision, rollback point, and destroyed resources.
 
 ## Examples
 
-**AWS to Vast.ai**: Replace p3.2xlarge ($3.06/hr) with RTX 4090 ($0.20/hr) for a 93% cost reduction. Adapt the Dockerfile to pass AWS credentials via env vars for S3 checkpoint access.
+A Runpod training job keeps its container contract, moves checkpoints to a versioned cloud prefix, proves resume on one Vast.ai canary, then shifts scheduled jobs while the source environment remains available for one rollback window.
 
-**Hybrid approach**: Use Vast.ai for experimentation and hyperparameter search (cheap GPUs), then run final training on AWS for SLA guarantees.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Source dependency has no target equivalent | Design and test an adapter before cutover. |
+| Data or output checksums differ | Stop migration and reconcile the semantic difference. |
+| Target capacity violates policy | Delay or approve a documented alternate; do not weaken constraints silently. |
+| Rollback window closes early | Issue NO-GO until source restoration remains provable. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [Runpod to Vast migration](https://docs.vast.ai/examples/migrations/runpod-to-vast)
+- [Salad to Vast migration](https://docs.vast.ai/examples/migrations/salad-to-vast)
+- [Vast.ai concepts](https://docs.vast.ai/guides/concepts)

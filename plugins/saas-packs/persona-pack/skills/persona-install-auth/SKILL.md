@@ -1,134 +1,95 @@
 ---
 name: persona-install-auth
-description: 'Configure Persona API authentication with sandbox and production API
-  keys.
-
-  Use when setting up identity verification, configuring API credentials,
-
-  or initializing Persona in your project.
-
-  Trigger with phrases like "install persona", "setup persona",
-
-  "persona auth", "persona API key", "KYC setup".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.4.0
+description: >-
+  Configure sandbox and production Persona API keys, dated API-version headers, and a least-privilege client boundary. Use when bootstrapping or rotating Persona credentials. Trigger with: "set up Persona auth", "rotate Persona API key", "configure Persona environment".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[environment-and-service]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- persona
-- identity
-- kyc
-- authentication
-compatibility: Designed for Claude Code
+  - saas
+  - persona
+  - authentication
+  - api-keys
+  - environment
+compatibility: 'Requires an authorized Persona environment, current first-party documentation, a reviewed dated API version, and privacy-safe operational evidence.'
 ---
-# Persona Install & Auth
+
+# Persona Environment and Least-Privilege API Key Setup
 
 ## Overview
 
-Set up Persona API authentication. Persona uses Bearer token auth with environment-prefixed API keys (`persona_sandbox_*` for testing, `persona_production_*` for live). No SDK required -- direct REST API calls with any HTTP client.
+Establish an explicit environment boundary before any identity workflow. Persona API keys are environment-specific, may carry different configured API versions, and must reach `https://api.withpersona.com/api/v1`; a credential check must not create or mutate an inquiry.
 
 ## Prerequisites
 
-- Persona account at [withpersona.com](https://withpersona.com)
-- At least one Inquiry Template configured in the Persona Dashboard
-- Node.js 18+ or Python 3.9+
+- Persona Dashboard access authorized for the target environment
+- A named service owner, secret store, and rotation window
+- The approved dated Persona API version; current documentation shows `2025-12-08`
 
 ## Instructions
 
-### Step 1: Get API Keys
+### Step 1: Inventory the boundary
 
-```text
-1. Log into dashboard.withpersona.com
-2. Go to Settings > API Keys
-3. Copy your sandbox key (starts with persona_sandbox_)
-4. For production: copy production key (starts with persona_production_)
-```
+Record sandbox or production, owning service, inquiry template, API-key permissions, configured API version, and secret-store location. Never infer environment from an untrusted request.
 
-### Step 2: Configure Environment
+### Step 2: Create and store the key
 
-```bash
-# .env — never commit
-PERSONA_API_KEY=persona_sandbox_xxxxxxxxxxxxxxxxxxxxxxxx
-PERSONA_API_VERSION=2023-01-05
+Create the narrowest key supported by the Dashboard. Put the value in the deployment secret store, expose it only as `PERSONA_API_KEY`, and retain only the key name and final four characters in receipts.
 
-# .gitignore
-echo '.env' >> .gitignore
-```
+### Step 3: Pin request metadata
 
-### Step 3: Install HTTP Client
+Set the base URL to `https://api.withpersona.com/api/v1`. Send `Authorization: Bearer ...`, `Persona-Version: 2025-12-08` or the reviewed target version, `Accept: application/json`, and `Content-Type: application/json` for bodies.
 
-```bash
-set -euo pipefail
-# Node.js
-npm install axios dotenv
+### Step 4: Run a read-only probe
 
-# Python
-pip install requests python-dotenv
-```
+List one inquiry or call another approved read endpoint. Capture status, response request identifier, rate-limit headers, environment, and API version without storing response PII.
 
-### Step 4: Verify Connection (Node.js)
+### Step 5: Prove separation and rotation
 
-```typescript
-import axios from 'axios';
+Confirm sandbox and production secrets cannot be swapped by configuration fallback. Exercise dual-secret rollout, old-key revocation, and rollback in sandbox before production.
 
-const persona = axios.create({
-  baseURL: 'https://withpersona.com/api/v1',
-  headers: {
-    'Authorization': `Bearer ${process.env.PERSONA_API_KEY}`,
-    'Persona-Version': process.env.PERSONA_API_VERSION || '2023-01-05',
-    'Content-Type': 'application/json',
-  },
-});
+## Authentication
 
-async function verify() {
-  const { data } = await persona.get('/inquiries?page[size]=1');
-  console.log(`Connected! Found ${data.data.length} inquiry(ies).`);
-}
-verify().catch(console.error);
-```
+Persona REST authentication uses an environment-scoped API key as a bearer token. The `Persona-Version` request header overrides the version configured on that key for the request, so pin it deliberately and test each key independently.
 
-### Step 5: Verify Connection (Python)
+## Tool Discipline
 
-```python
-import os, requests
-from dotenv import load_dotenv
-
-load_dotenv()
-
-headers = {
-    "Authorization": f"Bearer {os.environ['PERSONA_API_KEY']}",
-    "Persona-Version": os.environ.get("PERSONA_API_VERSION", "2023-01-05"),
-}
-
-resp = requests.get("https://withpersona.com/api/v1/inquiries?page[size]=1", headers=headers)
-resp.raise_for_status()
-print(f"Connected! Status: {resp.status_code}")
-```
+Use Read and Grep to inspect application configuration, provider documentation, fixtures, schemas, tests, and redacted operational evidence before proposing a change. Use Write or Edit only for an approved implementation, configuration, test, runbook, or redacted receipt. Do not create, resume, approve, decline, redact, rotate, revoke, deploy, or otherwise mutate production Persona resources without explicit operator approval.
 
 ## Output
 
-- API key configured and verified
-- HTTP client set up with correct headers
-- Successful test call to Persona API
+- Environment-and-service credential inventory
+- Redacted read-only connectivity receipt
+- Rotation, revocation, and rollback procedure
+
+Return the environment, resource and event identifiers, API version, template context, source-contract fingerprint, evidence, unresolved risk, rollback state, and final decision without exposing bearer keys, webhook secrets, inquiry session tokens, raw identity documents, or unnecessary PII.
+
+## Examples
+
+For a sandbox worker, store `persona_sandbox_…` in the sandbox secret scope, pin the reviewed dated version, list at most one inquiry, and record only status, request ID, and quota headers. A production key is never copied into that scope.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Invalid or expired API key | Verify key in Dashboard > Settings > API Keys |
-| `403 Forbidden` | Key doesn't match environment | Use `persona_sandbox_*` for testing |
-| `400 Missing Persona-Version` | Version header not set | Add `Persona-Version: 2023-01-05` header |
-| Connection refused | Network/firewall issue | Ensure HTTPS to withpersona.com is allowed |
+| Failure | Response |
+| --- | --- |
+| 401 unauthorized | Check the secret binding, revocation state, and bearer header; do not print the key. |
+| 403 or unexpected data | Stop and verify environment, tenant, and key permissions before retrying. |
+| Version-dependent response | Compare the explicit `Persona-Version` header with the key’s Dashboard version and the migration fixture. |
+
+## Validation
+
+Verify the result against the linked first-party evidence, the pinned API version, redacted contract fixtures, an expected failure path, and the documented rollback or manual-disposition path. A successful request is not proof of a successful identity decision.
 
 ## Resources
 
-- [Persona API Introduction](https://docs.withpersona.com/api-introduction)
-- [API Keys](https://docs.withpersona.com/api-keys)
-- [API Quickstart](https://docs.withpersona.com/api-quickstart-tutorial)
-
-## Next Steps
-
-Create your first inquiry: `persona-hello-world`
+- [First-party source notes](references/official-docs.md)
+- [API introduction](https://docs.withpersona.com/api-introduction)
+- [API quickstart](https://docs.withpersona.com/api-quickstart-tutorial)
+- [API keys](https://docs.withpersona.com/api-keys)
+- [Rate limits](https://docs.withpersona.com/rate-limiting)
+- [Webhook best practices](https://docs.withpersona.com/webhooks-best-practices)
+- [Request idempotence](https://docs.withpersona.com/idempotence)

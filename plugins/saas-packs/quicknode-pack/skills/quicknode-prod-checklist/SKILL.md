@@ -1,60 +1,86 @@
 ---
 name: quicknode-prod-checklist
-description: "QuickNode prod checklist \u2014 blockchain RPC and Web3 infrastructure\
-  \ integration.\nUse when working with QuickNode for blockchain development.\nTrigger\
-  \ with phrases like \"quicknode prod checklist\", \"quicknode-prod-checklist\",\
-  \ \"blockchain RPC\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.5.0
+description: 'Run a fail-closed production-readiness review for a QuickNode endpoint and its SDK, transaction, Stream, or Webhook consumers. Use when preparing a launch, major traffic increase, or provider migration. Trigger with: "QuickNode production checklist", "audit QuickNode readiness", "approve a QuickNode launch".'
+allowed-tools: Read, Grep, Bash(qn:*)
+version: 2.0.0
+argument-hint: '[service-and-environment]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- quicknode
-- blockchain
-- web3
-- rpc
-- ethereum
-compatibility: Designed for Claude Code
+  - saas
+  - quicknode
+  - production
+  - readiness
+  - governance
+compatibility: 'Readiness evidence varies by chain, product, plan, and application write authority'
 ---
-# QuickNode Prod Checklist
+
+# QuickNode Production Readiness
 
 ## Overview
 
-Implementation patterns for QuickNode prod checklist using blockchain RPC endpoints and the QuickNode SDK.
+Review the actual runtime and QuickNode control plane against declared identity, security, capacity, data, correctness, observability, and recovery contracts. Return a decision with blockers, not a generic checklist score.
 
 ## Prerequisites
 
-- Completed `quicknode-install-auth` setup
+- Release commit and deployment inventory
+- Chain/network, data-retention, and product requirements
+- SLOs, budget, incident owner, and rollback runbook
 
 ## Instructions
 
-### Step 1: Connect to QuickNode
+### Step 1: Verify identity and secrets
 
-```typescript
-import { ethers } from 'ethers';
-const provider = new ethers.JsonRpcProvider(process.env.QUICKNODE_ENDPOINT);
-const block = await provider.getBlockNumber();
-console.log(`Connected at block ${block}`);
-```
+Use Read and Grep to confirm environment-specific secret references, expected chain IDs, no literal endpoint tokens, separate Admin API keys, and no funded signer in CI or logs.
+
+### Step 2: Verify provider controls
+
+Use Bash(qn:*) for read-only inspection of endpoint status, tokens, filters, method/IP limits, tags, usage, metrics, and active or paused event products. Record unavailable plan-gated evidence.
+
+### Step 3: Verify data and write semantics
+
+Confirm API family, method entitlement, archive/pruning boundary, pagination, block tags, transaction idempotency, nonce owner, confirmation depth, and reorg behavior.
+
+### Step 4: Verify reliability
+
+Check finite timeouts, bounded concurrency, classified retries, circuit breaking, WebSocket recovery, Stream/Webhook idempotency, destination acknowledgement, and backlog monitoring.
+
+### Step 5: Verify observability and cost
+
+Require endpoint and application latency, error layers, request IDs, chain errors, credit use, transaction landing, event completeness, and secret-safe logs.
+
+### Step 6: Exercise recovery
+
+Run a read-only smoke test and tabletop credential rotation, endpoint cutover, provider degradation, event replay, and rollback. Name decision owners and expiry dates for any waiver.
+
+## Tool Discipline
+
+Use Read and Grep for repository evidence and Bash(qn:*) for read-only provider evidence. This review does not deploy, change limits, revoke credentials, pause streams, or approve its own waivers.
 
 ## Output
 
-- QuickNode integration for prod checklist
+- PASS, CONDITIONAL, or BLOCKED decision
+- Evidence per readiness dimension
+- Owned blockers and expiring waivers
+- Recovery and rollback receipt
+
+## Examples
+
+A service is BLOCKED because it assumes archive state on a pruned chain and has no transaction-reconciliation path, even though its endpoint health and latency are green.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| 401 Unauthorized | Invalid endpoint token | Verify URL from Dashboard |
-| Rate limited | Too many requests | Implement backoff or upgrade plan |
-| Method not found | Add-on required | Enable in QuickNode Dashboard |
+| Failure | Response |
+| --- | --- |
+| Evidence unavailable | Mark the dimension unproven; do not infer pass |
+| Secret exposure found | Block launch and rotate the credential |
+| Recovery exercise fails | Block launch until rollback is repaired |
+| Waiver has no owner or expiry | Reject the waiver |
 
 ## Resources
 
-- [QuickNode Docs](https://www.quicknode.com/docs/welcome)
-- [Ethereum API](https://www.quicknode.com/docs/ethereum)
-
-## Next Steps
-
-See related QuickNode skills for more workflows.
+- [Readiness evidence and source notes](references/official-docs.md)
+- [QuickNode dashboard](https://www.quicknode.com/guides/quicknode-products/how-to-use-the-quicknode-dashboard)
+- [Supported chains and pruning](https://www.quicknode.com/docs/platform/supported-chains-node-types)

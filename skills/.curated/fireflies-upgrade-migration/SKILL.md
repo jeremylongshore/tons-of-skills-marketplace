@@ -1,226 +1,74 @@
 ---
 name: fireflies-upgrade-migration
-description: 'Handle Fireflies.ai API deprecations and migrate to current query patterns.
-
-  Use when updating deprecated fields, migrating query patterns,
-
-  or responding to Fireflies API changelog updates.
-
-  Trigger with phrases like "upgrade fireflies", "fireflies deprecated",
-
-  "fireflies migration", "fireflies breaking changes", "fireflies changelog".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.11.0
+description: >-
+  Migrate Fireflies GraphQL documents and webhook consumers away from deprecated fields and legacy event shapes with dual-read evidence and rollback. Use when responding after schema drift or documentation changes. Trigger with "upgrade Fireflies API", "Fireflies deprecated field", or "migrate Fireflies webhook".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <workflow-scope>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- fireflies
-- api
-- migration
-compatibility: Designed for Claude Code
+tags: [saas, fireflies, migration, graphql]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Fireflies work requires network access"
 ---
-# Fireflies.ai Upgrade & Migration
-
-## Current State
-
-!`npm list graphql graphql-request 2>/dev/null || echo 'No graphql packages'`
+# Fireflies Schema and Contract Migration
 
 ## Overview
 
-Fireflies.ai uses a GraphQL API (no versioned SDK). Breaking changes come as field deprecations and new query parameter patterns. This skill covers all known deprecations and migration paths.
+Migrate Fireflies GraphQL documents and webhook consumers away from deprecated fields and legacy event shapes with dual-read evidence and rollback.
 
 ## Prerequisites
 
-- Current provider change information and an inventory of queries, downstream consumers, retention rules, and access scopes.
-- Staging credentials, synthetic meeting fixtures, a rollback owner, and an acceptance checklist for schema and permission behavior.
+- The target repository or integration path and the requested operator outcome.
+- The Fireflies principal, team, environment, and data classification for the work.
+- Current Fireflies documentation, credentials only when needed, and an accountable approver.
+
+## Current Contract
+
+Current transcript-list filters replace title with keyword and replace organizer_email and participant_email with organizers and participants. Webhooks V2 uses event, timestamp, meeting_id, and granular meeting.transcribed or meeting.summarized events instead of the V1 eventType shape.
+
+## Authentication
+
+For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret manager and send it only as `Authorization: Bearer REDACTED_KEY` to `https://api.fireflies.ai/graphql`. Never print, commit, place in a URL, forward to a browser, or include the key in evidence. Webhook signing secrets are separate credentials and must not be reused as API keys.
 
 ## Instructions
 
-1. Identify each deprecated field/query and classify it as compatible, transformed, removed, or unknown.
-2. Update one mapping at a time in staging with fictional data; keep the prior query available through reconciliation.
-3. Verify access controls, transcript minimization, idempotent delivery, and expected error handling before a small canary.
-4. Compare aggregate results, obtain the owner’s approval, and roll back immediately on schema, permission, or retention mismatch.
+1. Inventory static GraphQL documents, selected fields, response parsers, webhook payloads, and fixtures.
+2. Map deprecated fields and V1 webhook assumptions to current documented contracts.
+3. Add compatibility parsing only where a measured transition requires it.
+4. Update synthetic fixtures and contract tests before production traffic.
+5. Run shadow comparisons on authorized metadata and compare IDs, counts, nullability, and event sequencing.
+6. Cut over one operation or event family at a time with rollback flags.
+7. Remove compatibility code only after the observation window and owner sign-off.
 
-## Examples
+## Tool Discipline
 
-Run the old and proposed query against a synthetic transcript, compare only schema-valid fields and aggregate counts, and introduce an unauthorized field deliberately. The canary must reject the extra field and retain the prior query until the mapping review is approved.
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
 
-## Known Deprecations
+## Approval Boundaries
 
-### Transcript Query Parameter Changes
-
-```typescript
-// DEPRECATED: Single organizer email string
-const OLD = `{ transcripts(organizer_email: "alice@co.com") { id } }`;
-
-// CURRENT: Array of organizer emails
-const NEW = `{ transcripts(organizers: ["alice@co.com"]) { id } }`;
-```
-
-```typescript
-// DEPRECATED: Single participant email string
-const OLD = `{ transcripts(participant_email: "bob@co.com") { id } }`;
-
-// CURRENT: Array of participant emails
-const NEW = `{ transcripts(participants: ["bob@co.com"]) { id } }`;
-```
-
-```typescript
-// DEPRECATED: title parameter for search
-const OLD = `{ transcripts(title: "standup") { id } }`;
-
-// CURRENT: keyword with scope
-const NEW = `{ transcripts(keyword: "standup") { id } }`;
-```
-
-```typescript
-// DEPRECATED: date parameter (single date)
-const OLD = `{ transcripts(date: "2026-03-01") { id } }`;
-
-// CURRENT: fromDate/toDate range
-const NEW = `{
-  transcripts(
-    fromDate: "2026-03-01T00:00:00Z"
-    toDate: "2026-03-31T23:59:59Z"
-  ) { id }
-}`;
-```
-
-### Field-Level Deprecations
-
-```typescript
-// DEPRECATED
-transcript.host_email
-
-// CURRENT
-transcript.organizer_email
-```
-
-## Migration Procedure
-
-### Step 1: Scan Codebase for Deprecated Patterns
-
-```bash
-set -euo pipefail
-echo "=== Scanning for deprecated Fireflies patterns ==="
-
-# Deprecated query parameters
-grep -rn 'organizer_email:' --include='*.ts' --include='*.js' --include='*.py' . || echo "No organizer_email (good)"
-grep -rn 'participant_email:' --include='*.ts' --include='*.js' --include='*.py' . || echo "No participant_email (good)"
-grep -rn 'host_email' --include='*.ts' --include='*.js' --include='*.py' . || echo "No host_email (good)"
-grep -rn 'transcripts(.*title:' --include='*.ts' --include='*.js' --include='*.py' . || echo "No title param (good)"
-grep -rn 'transcripts(.*date:' --include='*.ts' --include='*.js' --include='*.py' . || echo "No date param (good)"
-```
-
-### Step 2: Update Query Patterns
-
-Create a migration helper:
-
-```typescript
-// migrations/fireflies-deprecations.ts
-
-/**
- * Maps old query parameter names to new ones.
- * Update your GraphQL queries to use the new parameter names.
- */
-const PARAM_MIGRATIONS: Record<string, string> = {
-  "organizer_email": "organizers (now an array)",
-  "participant_email": "participants (now an array)",
-  "title": "keyword",
-  "date": "fromDate + toDate",
-  "host_email": "organizer_email",
-};
-
-export function checkForDeprecations(query: string): string[] {
-  const warnings: string[] = [];
-  for (const [old, replacement] of Object.entries(PARAM_MIGRATIONS)) {
-    if (query.includes(old)) {
-      warnings.push(`Deprecated: "${old}" → use "${replacement}"`);
-    }
-  }
-  return warnings;
-}
-```
-
-### Step 3: Introspect Schema for Changes
-
-```bash
-set -euo pipefail
-# Discover all available query fields
-curl -s -X POST https://api.fireflies.ai/graphql \
-  -H "Authorization: Bearer $FIREFLIES_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "{ __schema { queryType { fields { name args { name type { name kind } } } } } }"
-  }' | jq '.data.__schema.queryType.fields[] | {name, args: [.args[] | .name]}'
-
-# Discover transcript fields
-curl -s -X POST https://api.fireflies.ai/graphql \
-  -H "Authorization: Bearer $FIREFLIES_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "{ __type(name: \"Transcript\") { fields { name type { name kind } } } }"
-  }' | jq '.data.__type.fields[] | .name'
-```
-
-### Step 4: Test Updated Queries
-
-```typescript
-import { describe, it, expect } from "vitest";
-import { checkForDeprecations } from "../migrations/fireflies-deprecations";
-
-describe("Deprecation Check", () => {
-  it("should flag deprecated parameters", () => {
-    const warnings = checkForDeprecations(
-      '{ transcripts(organizer_email: "test") { id } }'
-    );
-    expect(warnings.length).toBeGreaterThan(0);
-    expect(warnings[0]).toContain("organizers");
-  });
-
-  it("should pass clean queries", () => {
-    const warnings = checkForDeprecations(
-      '{ transcripts(organizers: ["test"]) { id } }'
-    );
-    expect(warnings.length).toBe(0);
-  });
-});
-```
-
-### Step 5: Monitor Fireflies Changelog
-
-```bash
-# Check for API updates
-set -euo pipefail
-curl -s https://docs.fireflies.ai/additional-info/change-log | head -100
-# Or visit: https://docs.fireflies.ai/getting-started/whats-new
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Field not found | Using removed field | Introspect schema, update query |
-| Unexpected null | Field renamed | Check deprecation list above |
-| Query validation error | Old parameter name | Update to array-based params |
-| Type mismatch | String vs array param | Wrap single value in array |
+Require approval before enabling a new event subscription, widening transcript search, changing selected sensitive fields, or removing rollback compatibility.
 
 ## Output
 
-- Codebase scanned for deprecated patterns
-- All queries updated to current API patterns
-- Schema introspection results for reference
-- Tests verifying updated queries work
+Return the exact operation or event surface, environment, authorization class, selected field groups, validation results, content-free metrics, decisions, and a concise pass/fail receipt. Keep secrets and meeting-derived content out of general output.
+
+## Validation
+
+Before reporting success, rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current contract, verify no secret or meeting-derived content entered logs or artifacts, and record unresolved uncertainty explicitly.
+
+## Error Handling
+
+- New field is absent: preserve nullability and verify entitlement or processing state.
+- Duplicate V1/V2 events: deduplicate on event identity and meeting ID.
+- Result-set drift: halt cutover and compare filter semantics.
+
+## Examples
+
+- "Review fireflies schema and contract migration" produces a bounded plan and redacted receipt.
+- A request that widens access or mutates production is paused at the approval boundary.
 
 ## Resources
 
-- [Fireflies Changelog](https://docs.fireflies.ai/additional-info/change-log)
-- [Fireflies What's New](https://docs.fireflies.ai/getting-started/whats-new)
-- [Fireflies Introspection](https://docs.fireflies.ai/fundamentals/introspection)
-
-## Next Steps
-
-For CI integration during upgrades, see `fireflies-ci-integration`.
+Read [official Fireflies.ai evidence](references/official-docs.md) before relying on a field, filter, event, permission, plan limit, mutation, or processing state.

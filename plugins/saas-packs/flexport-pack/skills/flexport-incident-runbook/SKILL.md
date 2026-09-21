@@ -1,138 +1,103 @@
 ---
 name: flexport-incident-runbook
-description: 'Execute Flexport incident response for API outages, webhook failures,
-
-  and supply chain data sync issues with triage and mitigation steps.
-
-  Trigger: "flexport incident", "flexport outage", "flexport down", "flexport emergency".
-
-  '
-allowed-tools: Read, Bash(curl:*), Bash(jq:*), Grep
-version: 1.6.0
+description: >-
+  Analyze, contain, and reconcile a Flexport integration incident without unsafe retries or invented webhook replay APIs. Use when events stop, payload parsing fails, credentials break, or mutation outcomes are uncertain. Trigger with: "Flexport incident", "missing Flexport events", "reconcile Flexport outage".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[incident-window-and-affected-surface]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - incident-response
+  - reconciliation
+compatibility: 'Requires an incident commander, read access to redacted telemetry, and an approved reconciliation credential.'
 ---
-# Flexport Incident Runbook
+
+# Flexport Delivery-Gap Incident Runbook
 
 ## Overview
 
-Incident response procedures for Flexport logistics API integration failures. Covers shipment tracking outages, customs data sync failures, webhook delivery loss, and API degradation scenarios. Flexport powers real-time supply chain visibility, so incidents directly impact shipment tracking, booking workflows, and customs compliance reporting. Classify severity immediately using the matrix below, then follow the matching playbook.
+Preserve freight correctness first. Freeze uncertain mutations, separate provider delivery from local processing, and reconstruct affected state with documented resource/event reads.
 
 ## Prerequisites
 
-- An incident commander, communication owner, secure evidence location, credential-revocation path, and rollback operator.
-- Redaction rules for commercial terms, addresses, customs documents, invoice details, and shipment payloads.
+- Incident owner, severity, start time, and affected tenant/workflow
+- Last known good release and configuration
+- Bounded reconciliation query and business owners for disputed state
 
 ## Instructions
 
-1. Assign severity and an opaque incident ID; pause unsafe booking, sync, or notification workflows.
-2. Classify the event as availability, authorization, delivery, data-integrity, policy, or suspected exposure.
-3. Apply the smallest safe mitigation, verify recovery using a sandbox/read-only probe, and test a safe failure path.
-4. Rotate/revoke credentials when exposure is possible and resume queues only after idempotency and destination checks pass.
-5. Record the timeline, impact, mitigation, owner, and post-incident follow-up.
+### Step 1: Contain
+
+Disable automatic bookings and affected writes. Keep authenticated webhook acceptance only if durable enqueue and deduplication remain correct.
+
+### Step 2: Bound the window
+
+Identify first/last bad receipt by surface, operation, release, credential alias, and version without examining broad sensitive payloads.
+
+### Step 3: Split failure domains
+
+Test OAuth, REST read, MCP connection, webhook ingress, queue processing, and downstream state independently.
+
+### Step 4: Reconcile read-only
+
+Use `/events` or affected resource reads to compare provider state with durable local operation keys. Do not assume Flexport exposes a webhook replay endpoint.
+
+### Step 5: Repair deterministically
+
+Reprocess authenticated durable events or apply approved state corrections exactly once; reconcile uncertain creates/bookings before retry.
+
+### Step 6: Recover and learn
+
+Restore traffic by cohort, verify the full incident window, rotate exposed credentials if needed, and add a sanitized regression fixture.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
 
 ## Output
 
-Produce a redacted incident receipt with severity, opaque ID, impact, mitigation, recovery verification, rollback/revocation decision, and follow-ups. Sensitive evidence stays in the approved incident store.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
+
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
+```
 
 ## Examples
 
-For a simulated webhook outage, pause the staging worker and verify no milestone is replayed twice. Restore one synthetic canary event after health recovers, then resume only when the incident commander records the recovery evidence.
-
-## Severity Levels
-
-| Level | Definition | Response Time | Example |
-|-------|-----------|---------------|---------|
-| P1 - Critical | Full API outage or customs data loss | 15 min | Flexport API returns 5xx on all endpoints |
-| P2 - High | Partial failure or webhook delivery loss | 30 min | Webhook events not arriving, stale shipment data |
-| P3 - Medium | Degraded performance or rate limiting | 2 hours | 429 responses, elevated latency on tracking calls |
-| P4 - Low | Single endpoint issue or key rotation | 8 hours | One shipment query failing, API key nearing expiry |
-
-## Diagnostic Steps
-
-```bash
-# Check API health
-curl -s -o /dev/null -w "HTTP %{http_code}\n" \
-  -H "Authorization: Bearer $FLEXPORT_API_KEY" \
-  -H "Flexport-Version: 2" \
-  https://api.flexport.com/shipments?per=1
-
-# Check platform status
-curl -s https://status.flexport.com/api/v2/status.json | jq -r '.status.description'
-
-# Check rate limit remaining
-curl -s -D - -o /dev/null \
-  -H "Authorization: Bearer $FLEXPORT_API_KEY" \
-  -H "Flexport-Version: 2" \
-  https://api.flexport.com/shipments?per=1 2>/dev/null | grep -i "x-ratelimit"
-```
-
-## Incident Playbooks
-
-### API Outage
-
-1. Confirm via status.flexport.com and diagnostic script above
-2. Enable circuit breaker to serve cached shipment data
-3. Notify downstream consumers that tracking data is stale
-4. Queue failed requests for replay once API recovers
-5. Monitor status page for Flexport resolution updates
-
-### Authentication Failure
-
-1. Verify API key is set and not expired: check `$FLEXPORT_API_KEY`
-2. Test with a minimal authenticated request (see diagnostics)
-3. If 401: rotate API key in Flexport portal, deploy new key
-4. If 403: check API key scopes match required permissions
-5. Revoke compromised keys after new key is confirmed working
-
-### Data Sync Failure
-
-1. Check webhook endpoint health — is your receiver returning 200?
-2. Query `/webhooks` to verify subscription is active
-3. Identify missed events by comparing last processed timestamp
-4. Trigger manual sync for affected shipments via `/shipments` polling
-5. Replay missed webhook events using Flexport's retry mechanism
-
-## Communication Template
-
-```markdown
-**Incident**: Flexport Integration [Outage/Degradation]
-**Status**: [Investigating/Identified/Mitigating/Resolved]
-**Started**: YYYY-MM-DD HH:MM UTC
-**Impact**: [N shipments affected / tracking data stale since HH:MM]
-**Current action**: [Circuit breaker active / manual sync running / key rotation in progress]
-**Next update**: HH:MM UTC
-```
-
-## Post-Incident
-
-- [ ] Document timeline from detection to resolution
-- [ ] Identify root cause (Flexport outage / key expiry / webhook endpoint failure)
-- [ ] Calculate impact: affected shipments, stale data duration, missed customs deadlines
-- [ ] Add monitoring for the specific failure mode that was missed
-- [ ] Implement or verify circuit breaker covers the failed endpoint
-- [ ] Replay any missed webhook events and reconcile data
+A receiver deployment parsed bodies before signature validation and dropped events. The team restores the prior release, queries the bounded event/resource window, deduplicates by durable operation identity, and backfills only missing local transitions.
 
 ## Error Handling
 
-| Incident Type | Detection | Resolution |
-|--------------|-----------|------------|
-| Shipment tracking outage | 5xx on `/shipments` endpoints | Circuit breaker + cached data fallback |
-| Customs data sync failure | Stale customs docs, webhook gaps | Manual sync + webhook replay |
-| Webhook delivery loss | Missing events in processing queue | Verify endpoint, replay from last checkpoint |
-| API rate limiting | 429 responses, `Retry-After` header | Reduce concurrency, implement request queuing |
-| API key compromise | Unexpected 401 after working state | Rotate key immediately, audit access logs |
+| Failure | Response |
+| --- | --- |
+| Provider reads unavailable | Maintain the mutation freeze and preserve the reconciliation window. |
+| Duplicate business action found | Stop workers and choose one authoritative provider resource. |
+| Event type newly additive | Update tolerant routing and replay only authenticated durable items. |
+| Incident needs sensitive payload | Escalate access and minimize fields rather than copying broad logs. |
 
 ## Resources
 
-- [Flexport Status](https://status.flexport.com)
-- [Flexport API Docs](https://developers.flexport.com)
-
-## Next Steps
-
-See `flexport-observability` for monitoring setup and alerting thresholds.
+- [First-party source notes](references/official-docs.md)
+- [Events](https://apidocs.flexport.com/v3/tag/Event/)
+- [Shipment API tutorial](https://developers.flexport.com/tutorials/shipment-api-tutorial/)
+- [Webhook endpoints](https://apidocs.flexport.com/v3/tag/Webhook-Endpoints/)

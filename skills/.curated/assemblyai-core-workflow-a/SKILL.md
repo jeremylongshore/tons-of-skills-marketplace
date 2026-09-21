@@ -1,239 +1,75 @@
 ---
 name: assemblyai-core-workflow-a
-description: 'Execute AssemblyAI primary workflow: async transcription with audio
-  intelligence.
-
-  Use when transcribing audio/video files, enabling speaker diarization,
-
-  sentiment analysis, entity detection, PII redaction, or content moderation.
-
-  Trigger with phrases like "assemblyai transcribe", "assemblyai transcription",
-
-  "transcribe audio", "speaker diarization assemblyai".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.5.0
+description: >-
+  Analyze and operate a production AssemblyAI pre-recorded pipeline with explicit models, Speech Understanding, callbacks, and retention controls. Use when running asynchronous transcription. Trigger with "AssemblyAI async transcription" or "pre-recorded pipeline".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<audio-source> <model-policy> <output-scope>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ai
-- speech-to-text
-- assemblyai
-- transcription
-compatibility: Designed for Claude Code
+tags: [saas, assemblyai]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live AssemblyAI work requires network access"
 ---
-# AssemblyAI Core Workflow A — Async Transcription
+# AssemblyAI Governed Pre-recorded Pipeline
 
 ## Overview
 
-Primary money-path workflow: submit audio for async transcription with audio intelligence features. The SDK handles file upload (for local files), queues the transcription job, and polls until completion.
+Operate pre-recorded transcription as an auditable asynchronous job. Keep live audio, credentials, spend, retention, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- `assemblyai` package installed
-- API key configured in `ASSEMBLYAI_API_KEY`
+- The target repository or integration path and the requested operator outcome.
+- The AssemblyAI project, environment, region, data classification, and accountable owner.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Submit to `/v2/transcript` with explicit `speech_models`; complete by bounded polling or authenticated webhook, then retrieve by transcript ID. Verify every intelligence, redaction, language, and prompting parameter against the selected current model. Route new LLM analysis to LLM Gateway, not deprecated transcript summary parameters.
+
+## Authentication
+
+For live work, inject `ASSEMBLYAI_API_KEY` from an approved secret manager and send the raw value only in the AssemblyAI `Authorization` header to the configured first-party host. Never print, commit, place in a URL, or expose it to an untrusted client. Callback secrets and temporary streaming tokens are separate credentials.
 
 ## Instructions
 
-### Step 1: Basic Async Transcription
+1. Confirm consent, purpose, region, language, and model policy.
+2. Request only supported, approved transcription and understanding features.
+3. Deliver audio without exposing storage credentials.
+4. Persist transcript ID and an internal dedupe key after one submission.
+5. Validate terminal status, duration, model, and redaction before release.
+6. Propagate retention and deletion to every downstream copy.
 
-```typescript
-import { AssemblyAI } from 'assemblyai';
+## Tool Discipline
 
-const client = new AssemblyAI({
-  apiKey: process.env.ASSEMBLYAI_API_KEY!,
-});
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call AssemblyAI, upload audio, open a streaming session, mint a token, replay a callback, deploy, rotate a key, or delete a transcript merely because this skill was invoked.
 
-// Remote URL — SDK queues and polls automatically
-const transcript = await client.transcripts.transcribe({
-  audio: 'https://example.com/meeting-recording.mp3',
-});
+## Approval Boundaries
 
-console.log(transcript.text);
-console.log(`Duration: ${transcript.audio_duration}s`);
-console.log(`Words: ${transcript.words?.length}`);
-```
+Require an accountable owner before live audio processing, production credential or endpoint changes, paid model or capacity changes, content retention, callback replay, deployment, or deletion. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-### Step 2: Local File Upload
+## Failure Modes
 
-```typescript
-// The SDK uploads the file and transcribes in one call
-const transcript = await client.transcripts.transcribe({
-  audio: './recordings/interview.wav',
-});
-
-// Or from a buffer/stream
-import fs from 'fs';
-const buffer = fs.readFileSync('./recordings/interview.wav');
-const transcript2 = await client.transcripts.transcribe({
-  audio: buffer,
-});
-```
-
-### Step 3: Speaker Diarization
-
-```typescript
-const transcript = await client.transcripts.transcribe({
-  audio: audioUrl,
-  speaker_labels: true,
-  speakers_expected: 3,  // Optional: hint for expected speaker count
-});
-
-// Utterances are grouped by speaker
-for (const utterance of transcript.utterances ?? []) {
-  console.log(`Speaker ${utterance.speaker}: ${utterance.text}`);
-  // Speaker A: Good morning, thanks for joining.
-  // Speaker B: Happy to be here.
-}
-```
-
-### Step 4: Full Audio Intelligence Stack
-
-```typescript
-const transcript = await client.transcripts.transcribe({
-  audio: audioUrl,
-
-  // Speaker identification
-  speaker_labels: true,
-
-  // Content analysis
-  sentiment_analysis: true,
-  entity_detection: true,
-  auto_highlights: true,
-  iab_categories: true,       // Topic detection (IAB taxonomy)
-  content_safety: true,        // Flag sensitive content
-  summarization: true,
-  summary_model: 'informative',
-  summary_type: 'bullets',
-
-  // Formatting
-  punctuate: true,
-  format_text: true,
-  language_code: 'en',
-
-  // Word boost for domain terms
-  word_boost: ['AssemblyAI', 'LeMUR', 'transcription'],
-  boost_param: 'high',
-});
-
-// --- Access results ---
-
-// Sentiment per sentence
-for (const s of transcript.sentiment_analysis_results ?? []) {
-  console.log(`[${s.sentiment}] ${s.text}`);
-  // [POSITIVE] I really enjoyed working on this project.
-}
-
-// Named entities
-for (const e of transcript.entities ?? []) {
-  console.log(`${e.entity_type}: ${e.text}`);
-  // person_name: John Smith
-  // location: San Francisco
-}
-
-// Auto-highlighted key phrases
-for (const h of transcript.auto_highlights_result?.results ?? []) {
-  console.log(`"${h.text}" (count: ${h.count}, rank: ${h.rank})`);
-}
-
-// IAB content categories
-const categories = transcript.iab_categories_result?.summary ?? {};
-for (const [category, relevance] of Object.entries(categories)) {
-  if ((relevance as number) > 0.5) {
-    console.log(`Topic: ${category} (${((relevance as number) * 100).toFixed(0)}%)`);
-  }
-}
-
-// Content safety labels
-for (const result of transcript.content_safety_labels?.results ?? []) {
-  for (const label of result.labels) {
-    console.log(`Safety: ${label.label} (${(label.confidence * 100).toFixed(0)}%)`);
-  }
-}
-
-// Summary
-console.log('Summary:', transcript.summary);
-```
-
-### Step 5: PII Redaction
-
-```typescript
-const transcript = await client.transcripts.transcribe({
-  audio: audioUrl,
-  redact_pii: true,
-  redact_pii_policies: [
-    'email_address',
-    'phone_number',
-    'person_name',
-    'credit_card_number',
-    'social_security_number',
-    'date_of_birth',
-  ],
-  redact_pii_sub: 'hash',  // Replace PII with hash. Options: 'hash' | 'entity_name'
-  redact_pii_audio: true,  // Also generate redacted audio file
-});
-
-// Text has PII replaced: "My name is ####" or "My name is [PERSON_NAME]"
-console.log(transcript.text);
-
-// Get redacted audio URL (takes extra processing time)
-if (transcript.redact_pii_audio_quality) {
-  const redactedAudio = await client.transcripts.redactedAudio(transcript.id);
-  console.log('Redacted audio URL:', redactedAudio.redacted_audio_url);
-}
-```
-
-### Step 6: Manage Transcripts
-
-```typescript
-// List recent transcripts
-const page = await client.transcripts.list({ limit: 20 });
-for (const t of page.transcripts) {
-  console.log(`${t.id} | ${t.status} | ${t.audio_duration}s`);
-}
-
-// Get a specific transcript
-const existing = await client.transcripts.get('transcript-id');
-
-// Delete a transcript (GDPR compliance)
-await client.transcripts.delete('transcript-id');
-```
-
-## Supported Audio Formats
-
-MP3, WAV, FLAC, M4A, OGG, WebM, MP4, AAC. Max file size: 5 GB. Max duration: 10 hours (async). The SDK auto-detects format.
+- Unsupported features require redesign, not silent omission.
+- Reconcile the ledger before resubmission to avoid duplicate cost.
+- Speaker labels remain pseudonymous unless identity mapping is separately approved.
 
 ## Output
 
-- Complete transcript with word-level timestamps and confidence scores
-- Speaker-labeled utterances (with `speaker_labels: true`)
-- Sentiment analysis, entity detection, key phrases, topic categories
-- PII-redacted text and audio
-- Content safety labels for moderation
+Return the operation scope, environment, region, contract surface, authorization class, model and feature decisions, deterministic validation results, content-free identifiers, risks, cleanup or rollback state, and a concise pass/fail receipt. Exclude credentials, signed URLs, audio, transcript text, prompts, and customer-derived content.
 
-## Examples
+## Example
 
-For a consented meeting recording, submit a server-controlled audio object with only the features approved for that data class, store the returned transcript ID in the operation ledger, and route transcript text and intelligence output only to the authorized downstream processor. Before deletion, reconcile the ID against the retention manifest and use a reviewed bounded batch.
+- Start with the named environment, approved regional host, synthetic fixture identity, and bounded operation budget.
+- Finish with safe IDs, contract and assertion counts, terminal state, cleanup status, and the decision owner; never reproduce speech content.
 
-## Error Handling
+## Validation
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `transcript.status === 'error'` | Corrupted audio or unsupported format | Verify audio file plays locally |
-| `download_url must be accessible` | Private/expired URL | Use a publicly accessible URL or upload locally |
-| `Could not process audio` | File too short (<200ms) or silent | Ensure audio has speech content |
-| `word_boost` has no effect | Misspelled terms or wrong model | Check spelling; word boost works with Best model tier |
+Rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm rollback, termination, or deletion state before reporting success.
 
-## Resources
+## References
 
-- [Transcription API Reference](https://www.assemblyai.com/docs/api-reference/transcripts/submit)
-- [Audio Intelligence Models](https://www.assemblyai.com/docs/audio-intelligence)
-- [PII Redaction Guide](https://www.assemblyai.com/docs/audio-intelligence/pii-redaction)
-- [Speaker Diarization](https://www.assemblyai.com/docs/speech-to-text/speaker-diarization)
+Review the dated first-party evidence map before relying on any model, parameter, limit, price, region, or lifecycle claim.
 
-## Next Steps
-
-For real-time streaming transcription, see `assemblyai-core-workflow-b`.
-For LLM-powered analysis of transcripts, see `assemblyai-sdk-patterns` (LeMUR examples).
+- [Current first-party evidence map](references/official-docs.md)

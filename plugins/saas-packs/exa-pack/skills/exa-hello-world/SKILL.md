@@ -1,181 +1,75 @@
 ---
 name: exa-hello-world
-description: 'Create a minimal working Exa search example with real results.
-
-  Use when starting a new Exa integration, testing your setup,
-
-  or learning basic search, searchAndContents, and findSimilar patterns.
-
-  Trigger with phrases like "exa hello world", "exa example",
-
-  "exa quick start", "simple exa search", "first exa query".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(node:*), Bash(npx:*)
-version: 1.11.0
+description: >-
+  Prove a new Exa Search integration with a bounded synthetic query and content-free assertions. Use when operating or reviewing this Exa boundary. Trigger with "Exa hello world", "review Exa hello world", or "fix Exa hello world".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<synthetic-query> <environment>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- api
-- quickstart
-- neural-search
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Hello World
+# Exa Search Smoke Test
 
 ## Overview
 
-Minimal working examples demonstrating all core Exa search operations: basic search, search with contents, find similar, and get contents. Each example is runnable standalone.
+Prove a new Exa Search integration with a bounded synthetic query and content-free assertions. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- `exa-js` SDK installed (`npm install exa-js`)
-- `EXA_API_KEY` environment variable set
-- Node.js 18+ with ES module support
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+POST /search requires a query and defaults to type auto. New code should not select legacy neural terminology. A successful smoke test checks requestId, bounded results, valid HTTP(S) URLs, and costDollars rather than snapshotting volatile rankings or page text.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Basic Search (Metadata Only)
+1. Define a non-sensitive query with a stable topical expectation.
+2. Set an explicit result cap and omit content extraction for the first probe.
+3. Submit one authorized request through the application adapter.
+4. Validate requestId, result count, URL schemes, and the cost field.
+5. Repeat only once when the failure is explicitly retryable.
+6. Delete transient output and retain only content-free evidence.
 
-```typescript
-import Exa from "exa-js";
+## Tool Discipline
 
-const exa = new Exa(process.env.EXA_API_KEY);
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-// Basic search returns URLs, titles, and scores — no page content
-const results = await exa.search("best practices for building RAG pipelines", {
-  type: "auto",       // auto | neural | keyword | fast | instant
-  numResults: 5,
-});
+## Approval Boundaries
 
-for (const r of results.results) {
-  console.log(`[${r.score.toFixed(2)}] ${r.title}`);
-  console.log(`  ${r.url}`);
-}
-```
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-### Step 2: Search with Contents
+## Failure Modes
 
-```typescript
-// searchAndContents returns text, highlights, and/or summary with each result
-const results = await exa.searchAndContents(
-  "how transformers work in large language models",
-  {
-    type: "neural",
-    numResults: 3,
-    text: { maxCharacters: 1000 },
-    highlights: { maxCharacters: 500, query: "attention mechanism" },
-    summary: { query: "explain transformers simply" },
-  }
-);
-
-for (const r of results.results) {
-  console.log(`## ${r.title}`);
-  console.log(`URL: ${r.url}`);
-  console.log(`Summary: ${r.summary}`);
-  console.log(`Text preview: ${r.text?.substring(0, 200)}...`);
-  console.log(`Highlights: ${r.highlights?.join(" | ")}`);
-  console.log();
-}
-```
-
-### Step 3: Find Similar Pages
-
-```typescript
-// findSimilar takes a URL and returns semantically similar pages
-const similar = await exa.findSimilarAndContents(
-  "https://arxiv.org/abs/2301.00234",
-  {
-    numResults: 5,
-    text: { maxCharacters: 500 },
-    excludeSourceDomain: true,
-  }
-);
-
-console.log("Pages similar to the seed URL:");
-for (const r of similar.results) {
-  console.log(`  ${r.title} — ${r.url}`);
-}
-```
-
-### Step 4: Get Contents for Known URLs
-
-```typescript
-// getContents retrieves page content for specific URLs
-const contents = await exa.getContents(
-  ["https://example.com/article-1", "https://example.com/article-2"],
-  {
-    text: { maxCharacters: 2000 },
-    highlights: { maxCharacters: 500 },
-    livecrawl: "preferred",
-    livecrawlTimeout: 10000,
-  }
-);
-
-for (const r of contents.results) {
-  console.log(`${r.title}: ${r.text?.length} chars retrieved`);
-}
-```
+- HTTP 200 does not prove relevance or freshness.
+- Exact rank and title snapshots are brittle because the web index changes.
+- A live smoke test without an approved budget is not an offline validation.
 
 ## Output
 
-- Working TypeScript file with Exa client initialization
-- Search results printed to console with titles, URLs, and scores
-- Content extraction (text, highlights, summary) demonstrated
-- Similarity search results from a seed URL
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-## Error Handling
+## Example
 
-| Error | HTTP Code | Cause | Solution |
-|-------|-----------|-------|----------|
-| `INVALID_API_KEY` | 401 | API key missing or invalid | Check `EXA_API_KEY` env var |
-| `INVALID_REQUEST_BODY` | 400 | Malformed parameters | Verify parameter types match SDK docs |
-| `NO_MORE_CREDITS` | 402 | Account credits depleted | Top up at dashboard.exa.ai |
-| `429 Too Many Requests` | 429 | Rate limit exceeded | Wait and retry; default is 10 QPS |
-| Empty `results` array | 200 | Query too narrow or filters too strict | Broaden query or relax date/domain filters |
+- Search for a public standards topic with type auto and three results, then assert shape and topical domains without storing returned text.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-## Examples
+## Validation
 
-### Complete Runnable Script
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-```typescript
-import Exa from "exa-js";
+## References
 
-const exa = new Exa(process.env.EXA_API_KEY);
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-async function main() {
-  // 1. Search
-  const search = await exa.search("AI safety research", { numResults: 3 });
-  console.log(`Found ${search.results.length} results\n`);
-
-  // 2. Search with contents
-  const detailed = await exa.searchAndContents("AI safety research", {
-    numResults: 2,
-    text: true,
-    highlights: { maxCharacters: 300 },
-  });
-  console.log("First result text length:", detailed.results[0]?.text?.length);
-
-  // 3. Find similar
-  if (search.results[0]) {
-    const similar = await exa.findSimilar(search.results[0].url, {
-      numResults: 3,
-    });
-    console.log("\nSimilar pages:", similar.results.map(r => r.title));
-  }
-}
-
-main().catch(console.error);
-```
-
-## Resources
-
-- [Exa Quickstart](https://docs.exa.ai/reference/quickstart)
-- [Exa Search Reference](https://docs.exa.ai/reference/search)
-- [Exa Cheat Sheet](https://docs.exa.ai/sdks/cheat-sheet)
-
-## Next Steps
-
-Proceed to `exa-core-workflow-a` for neural search patterns or `exa-sdk-patterns` for production-ready code.
+- [Current first-party evidence map](references/official-docs.md)

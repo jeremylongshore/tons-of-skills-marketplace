@@ -1,154 +1,76 @@
 ---
 name: brightdata-prod-checklist
-description: 'Execute Bright Data production deployment checklist and rollback procedures.
-
-  Use when deploying Bright Data integrations to production, preparing for launch,
-
-  or implementing go-live procedures.
-
-  Trigger with phrases like "brightdata production", "deploy brightdata",
-
-  "brightdata go-live", "brightdata launch checklist".
-
-  '
-allowed-tools: Read, Bash(kubectl:*), Bash(curl:*), Grep
-version: 1.6.0
+description: 'Gate a Bright Data integration for production with authorization, reliability, cost, data, and rollback evidence. Use when promoting a proxy, Browser API, scraper, snapshot, or delivery workload. Trigger with: "production checklist for Bright Data", "approve this Bright Data rollout", "review a Bright Data release".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: "[release-candidate]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
-- scraping
-- data
-- brightdata
-compatibility: Designed for Claude Code
+- web-data
+- bright-data
+- prod-checklist
+- operations
+compatibility: 'Requires an approved Bright Data account or offline fixtures, current Bright Data documentation, and an authorized public-data collection purpose'
 ---
-# Bright Data Production Checklist
+# Bright Data Production Readiness Gate
 
 ## Overview
 
-Complete checklist for deploying Bright Data scraping integrations to production with zone verification, monitoring, and rollback procedures.
+Make production promotion a fail-closed evidence decision. A green connectivity test is insufficient without target authorization, schema and data controls, secret ownership, backpressure, observability, and a tested rollback.
 
 ## Prerequisites
 
-- Staging environment tested
-- Production zone credentials in secrets vault
-- Monitoring and alerting configured
+- A release candidate tied to an approved workload manifest
+- Staging results for success and documented failure classes
+- Named service, data, security, finance, and rollback owners
 
 ## Instructions
 
-### Step 1: Zone and Credential Verification
+### Step 1: Validate authority
 
-- [ ] Production zone active in Bright Data CP
-- [ ] Zone password stored in secrets vault (not `.env`)
-- [ ] API token scoped to production zone only
-- [ ] SSL certificate (`brd-ca.crt`) deployed
-- [ ] Separate zone from development/staging
+Read approvals and Grep runtime configuration for unlisted targets, fields, products, zones, or delivery destinations. Verify public-data scope and recipient and retention decisions.
 
-```bash
-# Verify production zone is active
-curl -s -H "Authorization: Bearer ${BRIGHTDATA_API_TOKEN}" \
-  https://api.brightdata.com/zone/get_active_zones \
-  | python3 -c "import sys,json; zones=json.load(sys.stdin); print([z['name'] for z in zones])"
+### Step 2: Validate controls
 
-# Test production proxy connectivity
-curl -x "http://brd-customer-${BRIGHTDATA_CUSTOMER_ID}-zone-${BRIGHTDATA_ZONE}:${BRIGHTDATA_ZONE_PASSWORD}@brd.superproxy.io:33335" \
-  -s -w "HTTP %{http_code} in %{time_total}s\n" \
-  https://lumtest.com/myip.json
-```
+Confirm secret-manager binding, environment isolation, egress allowlists, redirect denial, byte, record, and job ceilings, adaptive backpressure, redacted telemetry, and idempotent processing.
 
-### Step 2: Code Quality
+### Step 3: Exercise failure paths
 
-- [ ] No hardcoded credentials (grep for passwords, tokens)
-- [ ] Retry logic with exponential backoff (see `brightdata-rate-limits`)
-- [ ] Request queuing with concurrency limits (p-queue)
-- [ ] Response validation (check for CAPTCHA pages, empty responses)
-- [ ] Timeout set to 60-120s for Web Unlocker
-- [ ] Error logging includes `X-Luminati-Error` headers
+Write or Edit tests for revoked credentials, policy 403, 429, provider 5xx, snapshot failure or expiry, malformed schema, oversized delivery, duplicate delivery, and downstream outage.
 
-### Step 3: Infrastructure
+### Step 4: Canary and decide
 
-- [ ] Health check endpoint tests proxy connectivity
-- [ ] Monitoring tracks proxy response times, error rates
-- [ ] Budget alerts configured in Bright Data CP
-- [ ] Circuit breaker for proxy failures
+Run a bounded approved canary through the deployment workflow. Compare authorization, success, error, latency, cost, and data-quality thresholds; promote only with a rollback receipt.
 
-```typescript
-// Health check endpoint
-export async function healthCheck() {
-  const start = Date.now();
-  try {
-    const client = getBrightDataClient();
-    const res = await client.get('https://lumtest.com/myip.json');
-    return {
-      status: 'healthy',
-      proxy_ip: res.data.ip,
-      latency_ms: Date.now() - start,
-    };
-  } catch (error: any) {
-    return {
-      status: 'degraded',
-      error: error.response?.headers?.['x-luminati-error'] || error.message,
-      latency_ms: Date.now() - start,
-    };
-  }
-}
-```
+## Tool Discipline
 
-### Step 4: Monitoring and Alerts
-
-| Alert | Condition | Severity |
-|-------|-----------|----------|
-| Proxy down | 5xx errors > 10/min | P1 |
-| High latency | p99 > 30s | P2 |
-| Budget spike | Daily cost > 2x average | P2 |
-| Auth failures | 407 errors > 0 | P1 |
-| Target blocked | `target_site_blocked` > 20% | P3 |
-
-### Step 5: Gradual Rollout
-
-```bash
-# Pre-flight
-curl -s api/v2/status.json | python3 -c "import sys,json; s=json.load(sys.stdin); print(f'Status: {s[\"status\"][\"description\"]}')"
-
-# Deploy with canary
-kubectl apply -f k8s/production.yaml
-kubectl rollout status deployment/scraper --timeout=300s
-
-# Verify scraping works post-deploy
-curl -s http://localhost:8080/health | python3 -m json.tool
-```
-
-## Rollback Procedure
-
-```bash
-# Immediate rollback
-kubectl rollout undo deployment/scraper
-kubectl rollout status deployment/scraper
-
-# If zone compromised, pause in Bright Data CP immediately
-```
+Use Read and Grep for release-evidence inspection. Use Write and Edit for missing tests, manifests, runbooks, and the decision record. This skill does not change production credentials, zones, traffic, or delivery destinations.
 
 ## Output
 
-- Verified production zone and credentials
-- Health check endpoint monitoring proxy connectivity
-- Alert rules for proxy errors and budget spikes
-- Documented rollback procedure
-
-## Error Handling
-
-Block promotion when target authorization, data classification, secret injection, rate/cost caps, retention, monitoring, or rollback evidence is missing. On a policy or data-quality incident, pause the affected zone/job, preserve a redacted receipt, and escalate; do not broaden proxy routing or retries to work around the failure.
+- Pass or fail matrix for authority, safety, reliability, cost, and data
+- Canary metrics and explicit promotion decision
+- Rollback trigger, procedure, owner, and proof
 
 ## Examples
 
-Before enablement, validate a controlled target in the production-equivalent environment with a strict rate ceiling and no retained payload. Capture the policy approval, configuration version, status, and rollback version. Gradually increase only after the owner accepts the redacted receipt and reconciliation result.
+Release one worker with a low job and byte ceiling and an approved test target. Promote only after duplicate delivery, policy denial, secret redaction, schema quarantine, and rollback drills all produce their expected receipts.
+
+## Error Handling
+
+| Failure | Meaning | Response |
+|---------|---------|----------|
+| A required owner has not approved | Release authority is incomplete | Keep the candidate staged |
+| Rollback depends on an untested old zone | Recovery is speculative | Run the rollback drill before promotion |
+| Canary produces unexpected fields | Data contract drifted | Quarantine results and fail the gate |
 
 ## Resources
 
-- Bright Data Status
-- [Zone Management](https://brightdata.com/cp/zones)
-- Usage Dashboard
-
-## Next Steps
-
-For version upgrades, see `brightdata-upgrade-migration`.
+- [Acceptable use policy](https://docs.brightdata.com/general/policy/acceptable-use-policy)
+- [Proxy error catalog](https://docs.brightdata.com/proxy-networks/errorCatalog)
+- [Network status](https://brightdata.com/network-status)
+- [Scraper data delivery](https://docs.brightdata.com/products/scrapers/scrapers-library/data-delivery)

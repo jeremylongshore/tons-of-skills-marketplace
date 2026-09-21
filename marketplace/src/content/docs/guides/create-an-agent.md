@@ -14,9 +14,9 @@ keywords:
   - "agent development"
 officialLinks:
   - title: "Anthropic Claude Code Documentation"
-    url: "https://docs.anthropic.com/en/docs/claude-code/"
+    url: "https://code.claude.com/docs/en/"
   - title: "Anthropic Agents Reference"
-    url: "https://docs.anthropic.com/en/docs/claude-code/agents"
+    url: "https://code.claude.com/docs/en/agents"
 relatedDocs:
   - "concepts/agents"
   - "reference/skill-frontmatter"

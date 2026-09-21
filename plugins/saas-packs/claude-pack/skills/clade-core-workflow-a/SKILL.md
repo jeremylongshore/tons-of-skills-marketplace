@@ -10,7 +10,7 @@ description: 'Redirect to claude-model-inference for Messages API streaming,
 
   '
 allowed-tools: Read
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -70,8 +70,8 @@ const stream = client.messages.stream({
 
 ## Resources
 
-- [Messages API](https://docs.anthropic.com/en/api/messages)
-- [Streaming](https://docs.anthropic.com/en/api/messages-streaming)
+- [Messages API](https://platform.claude.com/docs/en/api/messages)
+- [Streaming](https://platform.claude.com/docs/en/build-with-claude/streaming)
 
 ## Next Steps
 

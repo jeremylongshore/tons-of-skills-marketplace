@@ -1,244 +1,75 @@
 ---
 name: exa-enterprise-rbac
-description: 'Manage Exa API key scoping, team access controls, and domain restrictions.
-
-  Use when implementing multi-key access control, configuring per-team search limits,
-
-  or setting up organization-level Exa governance.
-
-  Trigger with phrases like "exa access control", "exa RBAC",
-
-  "exa enterprise", "exa team keys", "exa permissions".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*)
-version: 1.11.0
+description: >-
+  Govern Exa membership, API and service keys, team budgets, MCP OAuth, and enterprise managed authorization through least privilege and revocation evidence. Use when operating or reviewing this Exa boundary. Trigger with "Exa enterprise rbac", "review Exa enterprise rbac", or "fix Exa enterprise rbac".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<organization> <team> <role-change>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- rbac
-- enterprise
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Enterprise RBAC
-
-## Output
-
-- A least-privilege Exa project/credential role configuration with named owners, review evidence, and a tested revocation path.
-- Verified separation between development, staging, and production access scopes.
-
-## Examples
-
-Grant a development service identity only the search/research capability it needs, verify it against a non-sensitive query, and confirm it cannot use production credentials or administrative actions. Record ownership and access-review date; revoke broad roles and correct group mappings before continuing.
+# Exa Team and Enterprise Access Governance
 
 ## Overview
 
-Manage access to Exa search API through API key scoping and application-level controls. Exa is API-key-based (no built-in RBAC), so access control is implemented through multiple API keys per use case, application-layer permission enforcement, domain restrictions per team, and per-key usage monitoring.
+Govern Exa membership, API and service keys, team budgets, MCP OAuth, and enterprise managed authorization through least privilege and revocation evidence. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- Exa API account with team/enterprise plan
-- Dashboard access at dashboard.exa.ai
-- Multiple API keys for key isolation
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Exa teams own usage and plan features; team admins invite members. Team Management is separately enabled and uses service keys to manage API keys. Enterprise managed authorization for Claude follows Okta directory state for eligible organizations, uses auth.exa.ai and mcp.exa.ai/mcp with scope mcp:tools, and does not create users.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Key-Per-Use-Case Architecture
+1. Inventory organization, teams, admins, members, keys, OAuth clients, and workloads.
+2. Map each human and service identity to an accountable owner and required surface.
+3. Separate administrative service keys from ordinary runtime keys.
+4. Apply key budgets and rate limits where the enabled API supports them.
+5. Test member removal, key revocation, directory deprovisioning, and MCP session termination.
+6. Review access, orphaned schedules, spend, and exceptions on a fixed cadence.
 
-```typescript
-// config/exa-keys.ts
-import Exa from "exa-js";
+## Tool Discipline
 
-// Create separate clients for each use case
-const exaClients = {
-  // High-volume RAG pipeline — production key with higher limits
-  ragPipeline: new Exa(process.env.EXA_KEY_RAG!),
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-  // Internal research tool — lower volume key
-  researchTool: new Exa(process.env.EXA_KEY_RESEARCH!),
+## Approval Boundaries
 
-  // Customer-facing search — separate key for isolation
-  customerSearch: new Exa(process.env.EXA_KEY_CUSTOMER!),
-};
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-export function getExaForUseCase(
-  useCase: keyof typeof exaClients
-): Exa {
-  const client = exaClients[useCase];
-  if (!client) throw new Error(`No Exa client for use case: ${useCase}`);
-  return client;
-}
-```
+## Failure Modes
 
-### Step 2: Application-Level Permission Enforcement
+- A team membership model is not a claim of fine-grained resource RBAC.
+- Enterprise managed authorization requires pre-provisioned matching users.
+- Removing an application key does not revoke a user's OAuth or managed-auth access.
 
-```typescript
-// middleware/exa-permissions.ts
-interface ExaPermissions {
-  maxResults: number;
-  allowedTypes: ("auto" | "neural" | "keyword" | "fast" | "deep")[];
-  allowedCategories: string[];
-  includeDomains?: string[];     // restrict to these domains
-  dailySearchLimit: number;
-}
+## Output
 
-const ROLE_PERMISSIONS: Record<string, ExaPermissions> = {
-  "rag-pipeline": {
-    maxResults: 10,
-    allowedTypes: ["neural", "auto"],
-    allowedCategories: [],
-    dailySearchLimit: 10000,
-  },
-  "research-analyst": {
-    maxResults: 25,
-    allowedTypes: ["neural", "keyword", "auto", "deep"],
-    allowedCategories: ["research paper", "news"],
-    dailySearchLimit: 500,
-  },
-  "marketing-team": {
-    maxResults: 5,
-    allowedTypes: ["keyword", "auto"],
-    allowedCategories: ["company", "news"],
-    dailySearchLimit: 100,
-  },
-  "compliance-team": {
-    maxResults: 10,
-    allowedTypes: ["keyword", "auto"],
-    allowedCategories: [],
-    includeDomains: ["nist.gov", "owasp.org", "sans.org", "sec.gov"],
-    dailySearchLimit: 200,
-  },
-};
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-function validateSearchRequest(
-  role: string,
-  searchType: string,
-  numResults: number,
-  category?: string
-): { allowed: boolean; reason?: string } {
-  const perms = ROLE_PERMISSIONS[role];
-  if (!perms) return { allowed: false, reason: "Unknown role" };
-  if (!perms.allowedTypes.includes(searchType as any)) {
-    return { allowed: false, reason: `Search type ${searchType} not allowed for ${role}` };
-  }
-  if (numResults > perms.maxResults) {
-    return { allowed: false, reason: `Max ${perms.maxResults} results for ${role}` };
-  }
-  if (category && perms.allowedCategories.length > 0 && !perms.allowedCategories.includes(category)) {
-    return { allowed: false, reason: `Category ${category} not allowed for ${role}` };
-  }
-  return { allowed: true };
-}
-```
+## Example
 
-### Step 3: Domain Restrictions per Team
+- A production worker gets a budgeted runtime key; only a controlled automation service gets the separately enabled Team Management service key.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-```typescript
-// Enforce domain restrictions so compliance-sensitive teams
-// only see results from vetted sources
-async function enforcedSearch(
-  exa: Exa,
-  role: string,
-  query: string,
-  opts: any = {}
-) {
-  const perms = ROLE_PERMISSIONS[role];
-  if (!perms) throw new Error(`Unknown role: ${role}`);
+## Validation
 
-  const validation = validateSearchRequest(
-    role,
-    opts.type || "auto",
-    opts.numResults || 10,
-    opts.category
-  );
-  if (!validation.allowed) throw new Error(validation.reason);
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-  return exa.searchAndContents(query, {
-    ...opts,
-    numResults: Math.min(opts.numResults || 10, perms.maxResults),
-    type: opts.type || "auto",
-    // Merge domain restrictions from role permissions
-    includeDomains: perms.includeDomains || opts.includeDomains,
-  });
-}
-```
+## References
 
-### Step 4: Per-Key Usage Tracking
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-```typescript
-// Track usage per API key / role for budget enforcement
-class KeyUsageTracker {
-  private usage = new Map<string, { count: number; resetAt: number }>();
-
-  checkAndIncrement(role: string): void {
-    const perms = ROLE_PERMISSIONS[role];
-    if (!perms) throw new Error(`Unknown role: ${role}`);
-
-    const now = Date.now();
-    const dayStart = new Date().setHours(0, 0, 0, 0);
-    let entry = this.usage.get(role);
-
-    if (!entry || entry.resetAt < now) {
-      entry = { count: 0, resetAt: dayStart + 24 * 60 * 60 * 1000 };
-    }
-
-    if (entry.count >= perms.dailySearchLimit) {
-      throw new Error(
-        `Daily search limit (${perms.dailySearchLimit}) exceeded for ${role}`
-      );
-    }
-
-    entry.count++;
-    this.usage.set(role, entry);
-  }
-
-  getUsage(role: string) {
-    const entry = this.usage.get(role);
-    const limit = ROLE_PERMISSIONS[role]?.dailySearchLimit || 0;
-    return {
-      used: entry?.count || 0,
-      limit,
-      remaining: limit - (entry?.count || 0),
-    };
-  }
-}
-```
-
-### Step 5: Key Rotation Procedure
-
-```bash
-set -euo pipefail
-# 1. Create new key in Exa dashboard (dashboard.exa.ai)
-# 2. Deploy new key alongside old key
-# 3. Verify new key works
-curl -s -o /dev/null -w "%{http_code}" \
-  -X POST https://api.exa.ai/search \
-  -H "x-api-key: $NEW_EXA_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"query":"key rotation test","numResults":1}'
-
-# 4. Switch traffic to new key
-# 5. Monitor for errors
-# 6. Revoke old key in dashboard after 24h
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `401` on search | Invalid or revoked API key | Regenerate in dashboard |
-| `429 rate limited` | Key-level rate limit exceeded | Distribute across keys |
-| Daily limit hit | Search budget exhausted | Adjust limits or wait for reset |
-| Wrong domain results | Missing domain filter | Apply `includeDomains` per role |
-
-## Resources
-
-- [Exa API Documentation](https://docs.exa.ai)
-- [Exa Dashboard](https://dashboard.exa.ai)
-- [Exa API Key Usage](https://docs.exa.ai/reference/team-management/get-api-key-usage)
-
-## Next Steps
-
-For policy enforcement, see `exa-policy-guardrails`. For multi-env setup, see `exa-multi-env-setup`.
+- [Current first-party evidence map](references/official-docs.md)

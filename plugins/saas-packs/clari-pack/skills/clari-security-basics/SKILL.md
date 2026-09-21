@@ -1,117 +1,91 @@
 ---
 name: clari-security-basics
-description: 'Secure Clari API tokens and implement data handling best practices.
-
-  Use when managing API tokens, restricting data access,
-
-  or implementing PII handling for exported forecast data.
-
-  Trigger with phrases like "clari security", "clari api key rotation",
-
-  "secure clari", "clari pii handling".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.6.0
+description: >-
+  Secure Clari identities, credentials, exported revenue data, Copilot content, and ingestion mutations. Use when threat-modeling or reviewing least privilege and data handling. Trigger with: "secure Clari", "threat-model Clari", "review Clari access".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[surface-data-classes-and-destination]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- revenue-intelligence
-- forecasting
-- clari
-compatibility: Designed for Claude Code
+  - saas
+  - clari
+  - security
+  - least-privilege
+  - data-governance
+compatibility: 'Requires security ownership, a data-classification policy, approved secret storage, and an inventory of Clari surfaces and destinations.'
 ---
-# Clari Security Basics
+
+# Secure Clari Data Integration Boundary
 
 ## Overview
 
-Secure your Clari integration: API token management, exported data PII handling, and access control best practices.
+Protect both control-plane credentials and the business data they unlock. Clari exports can contain hierarchy, identity, forecast, quota, CRM, activity, and conversation data, while ingestion and Copilot CRM endpoints can mutate provider state.
 
 ## Prerequisites
 
-- An approved secret manager and named API-token owner
-- A documented data classification for forecast and rep-level exports
-- Role-based access groups for production and non-production consumers
-- A tested token-rotation and incident escalation path
+- Integration data-flow diagram and endpoint inventory
+- Named secret, privacy, retention, and incident owners
+- Destination encryption, access-control, audit, and deletion capabilities
 
 ## Instructions
 
-### Step 1: Token Management
+### Step 1: Classify every flow
 
-```bash
-# Store token in secrets manager
-aws secretsmanager create-secret \
-  --name "clari/prod/api-token" \
-  --secret-string "${CLARI_API_KEY}"
+Identify credentials, user and participant identifiers, revenue values, activity metadata, transcripts, recordings, and CRM objects by sensitivity.
 
-# In CI/CD, load from secrets
-export CLARI_API_KEY=$(aws secretsmanager get-secret-value \
-  --secret-id "clari/prod/api-token" --query SecretString --output text)
-```
+### Step 2: Minimize authority
 
-**Rotation**: Clari API tokens are generated per-user. To rotate, generate a new token in User Settings, update all consumers, then discard the old one.
+Use dedicated identities, separate Revenue, ingestion, and Copilot secrets, narrow hierarchy or workspace access, and deny mutation endpoints unless required.
 
-### Step 2: Exported Data PII Handling
+### Step 3: Protect credentials
 
-Clari export data contains PII (rep names, emails, deal amounts):
+Store only references in configuration, redact all documented auth headers, rotate on schedule, and test revocation without exposing values.
 
-```python
-def redact_pii(entries: list[dict]) -> list[dict]:
-    """Redact PII from forecast entries for non-production use."""
-    import hashlib
+### Step 4: Protect data in motion and at rest
 
-    redacted = []
-    for entry in entries:
-        r = entry.copy()
-        if "ownerEmail" in r:
-            r["ownerEmail"] = hashlib.sha256(
-                r["ownerEmail"].encode()
-            ).hexdigest()[:12] + "@redacted"
-        if "ownerName" in r:
-            r["ownerName"] = f"Rep-{hashlib.sha256(r['ownerName'].encode()).hexdigest()[:6]}"
-        redacted.append(r)
-    return redacted
-```
+Require HTTPS, encryption, restricted landing zones, field-level minimization, retention limits, and governed deletion.
 
-### Step 3: Security Checklist
+### Step 5: Constrain mutations
 
-- [ ] API token in secrets manager, not in code
-- [ ] `.env` files in `.gitignore`
-- [ ] Exported data stored in access-controlled warehouse
-- [ ] PII redacted in non-production environments
-- [ ] Export download URLs are temporary -- do not cache
-- [ ] Audit who has API token access
-- [ ] Token regenerated if any team member leaves
+Gate ingestion and Copilot create, update, or delete actions behind validation, reconciliation, explicit operator approval, and rollback planning.
 
-## Error Handling
+### Step 6: Exercise response
 
-| Condition | Response |
-|---|---|
-| Token is exposed or a user departs | Revoke and replace it, audit access, and retain redacted incident evidence. |
-| Export lands outside approved storage | Restrict access, remove the unauthorized copy through the approved retention process, and notify data governance. |
-| PII is needed in a non-production test | Use synthetic or irreversibly redacted data; do not copy production records. |
-| Access review finds excess privilege | Remove the role, confirm no dependent job fails, and document the decision. |
+Test credential exposure, overbroad access, incorrect export publication, and unauthorized mutation scenarios; retain redacted evidence.
+
+## Authentication
+
+Revenue `apikey`, ingestion `partnerkey`, and Copilot key/password credentials are distinct high-impact secrets. Never log them, accept them in free-form prompts, or reuse one surface’s credential in another client.
+
+## Tool Discipline
+
+Use Read and Grep to inspect configuration, provider contracts, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not issue, rotate, revoke, create, update, cancel, delete, export, ingest, or publish provider data without explicit operator approval.
 
 ## Output
 
-Create a security review record with token owner, secret reference, authorized
-roles, data destinations, redaction status, rotation date, and exception
-approvals. The record must never contain a live token, temporary download URL,
-or unredacted forecast/rep data.
+- Threat model and data-classification matrix
+- Least-privilege credential and endpoint policy
+- Rotation, revocation, deletion, and incident drill receipts
+
+Return the exact surface, environment, resource or job identifiers, contract fingerprint, evidence, unresolved risks, and final decision without exposing credentials or sensitive customer data.
 
 ## Examples
 
-When an analyst leaves, issue a replacement service token in the secret store,
-update the affected job, prove that it runs with its assigned role, then revoke
-the former user token. If an export was copied into a test workspace, quarantine
-it and replace it with redacted data before work resumes.
+A pipeline grants a forecast integration user access only to the required hierarchy, stores raw exports in a restricted landing zone, publishes minimized aggregates, and denies ingestion and Copilot CRM mutation endpoints.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Secret appears in a log or fixture | Revoke or rotate it immediately, contain the artifact, and document affected access. |
+| Identity sees unexpected hierarchy data | Stop exports, reduce provider access, and review already-landed data before resuming. |
+| Unauthorized mutation occurs | Disable the writer, preserve audit evidence, reconcile provider state, and execute the approved rollback. |
 
 ## Resources
 
-- [Clari Security](https://www.clari.com/trust)
-- [Clari Developer Portal](https://developer.clari.com)
-
-## Next Steps
-
-For production deployment, see `clari-prod-checklist`.
+- [First-party source notes](references/official-docs.md)
+- [Clari Revenue API reference](https://developer.clari.com/default/documentation/external_spec)
+- [Clari Copilot API reference](https://api-doc.copilot.clari.com/)

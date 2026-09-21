@@ -1,133 +1,88 @@
 ---
 name: castai-hello-world
-description: 'Query CAST AI cluster savings report and node inventory.
-
-  Use when verifying CAST AI connectivity, viewing cluster cost savings,
-
-  or listing managed nodes after onboarding.
-
-  Trigger with phrases like "cast ai hello world", "cast ai savings",
-
-  "cast ai cluster status", "test cast ai connection".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(kubectl:*)
-version: 1.4.0
+description: 'Run a safe first CAST AI cluster connection that proves Cost Monitoring and agent health before enabling optimization. Use when starting a new evaluation, sandbox, or operator walkthrough. Trigger with: "CAST AI hello world", "try CAST AI safely", "connect my first CAST AI cluster".'
+allowed-tools: Read, Grep, Write, Bash(castctl:*), Bash(kubectl:*)
+version: 2.0.0
+argument-hint: '[sandbox-kube-context]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- kubernetes
-- cost-optimization
-- castai
-compatibility: Designed for Claude Code
+  - saas
+  - kubernetes
+  - cast-ai
+  - quickstart
+  - onboarding
+compatibility: 'Requires a supported Kubernetes cluster, castctl, reviewed cloud permissions, and an approved CAST AI organization'
 ---
-# CAST AI Hello World
+
+# CAST AI Safe First Connection
 
 ## Overview
 
-First API calls against the CAST AI REST API: list connected clusters, retrieve the savings report, and inspect node inventory. All examples use `curl` with the `X-API-Key` header -- no SDK required.
+Prove the minimum useful loop: identify one sandbox cluster, preview the connection, connect with Cost Monitoring, verify telemetry, and leave optimization automation unchanged.
 
 ## Prerequisites
 
-- Completed `castai-install-auth` setup
-- `CASTAI_API_KEY` environment variable set
-- At least one cluster connected to CAST AI
+- A disposable or non-production kube context with an accountable owner
+- castctl installed from an official distribution and authenticated to the intended organization
+- Cluster-admin and reviewed provider permissions
+- An approved evidence and cleanup plan
 
 ## Instructions
 
-### Step 1: List Connected Clusters
+### Step 1: Confirm the sandbox
 
-```bash
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  https://api.cast.ai/v1/kubernetes/external-clusters \
-  | jq '.items[] | {id, name, status, providerType}'
-```
+Use Bash(kubectl:\*) to print the current context and inspect only basic cluster identity. Use Read and Grep to ensure the cluster is not already owned by CAST AI, another autoscaler, Terraform, or GitOps.
 
-Expected output:
+### Step 2: Preview with castctl
 
-```json
-{
-  "id": "abc123-def456",
-  "name": "production-eks",
-  "status": "ready",
-  "providerType": "eks"
-}
-```
+Use Bash(castctl:\*) to check the client version and run the documented cluster connection dry-run. Review detected provider, cluster name, region, organization, proposed features, namespace, and cloud changes.
 
-### Step 2: Get Cluster Savings Report
+### Step 3: Record the decision
 
-```bash
-export CASTAI_CLUSTER_ID="your-cluster-id"
+Use Write to capture the dry-run, selected cluster, owners, features, start time, expected telemetry, and cleanup path. Cost Monitoring is always enabled; do not select Node or Workload Autoscaling merely to complete a quickstart.
 
-# Current month savings
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/savings" \
-  | jq '{
-    monthlySavings: .monthlySavings,
-    savingsPercentage: .savingsPercentage,
-    currentCost: .currentMonthlyCost,
-    optimizedCost: .optimizedMonthlyCost
-  }'
-```
+### Step 4: Connect once
 
-### Step 3: List Cluster Nodes
+Run the reviewed interactive connection. Confirm the prompt resolves the same cluster and organization. Keep the returned console URL, but never store the browser token, kubeconfig, or API key in the receipt.
 
-```bash
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  "https://api.cast.ai/v1/kubernetes/external-clusters/${CASTAI_CLUSTER_ID}/nodes" \
-  | jq '.items[] | {
-    name: .name,
-    instanceType: .instanceType,
-    lifecycle: .lifecycle,
-    cpu: .allocatableCpu,
-    memory: .allocatableMemory,
-    zone: .zone
-  }'
-```
+### Step 5: Verify the loop
 
-### Step 4: Check Autoscaler Policies
+Use Bash(kubectl:\*) to verify `castai-agent` namespace workloads, readiness, and recent warning events. Confirm the console identifies the correct cluster and begins showing cost data. Treat an empty initial report as ingestion time, not proof of zero cost.
 
-```bash
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/policies" \
-  | jq '{
-    enabled: .enabled,
-    unschedulablePods: .unschedulablePods.enabled,
-    nodeDownscaler: .nodeDownscaler.enabled,
-    spotInstances: .spotInstances.enabled
-  }'
-```
+### Step 6: Close or hand off
+
+If the evaluation continues, hand off to observation-first onboarding. If it ends, use the documented disconnect path only after reviewing cloud and cluster cleanup effects and preserving the final receipt.
+
+## Tool Discipline
+
+Use Read and Grep for ownership checks. Use Write for the sanitized quickstart receipt. Use Bash(castctl:_) for documented dry-run, connection, and status operations and Bash(kubectl:_) for bounded verification only.
 
 ## Output
 
-The first read-only run returns a list of connected clusters, a monthly-savings
-snapshot, node inventory, and autoscaler-policy state. Save only the fields
-needed for the onboarding record; cluster names, account metadata, and spend
-data should be treated as environment-sensitive operational information.
+- Reviewed connection preview
+- One correctly identified sandbox cluster
+- Agent and initial telemetry evidence
+- Explicit continuation or cleanup owner
 
 ## Examples
 
-Run the cluster-list command against a non-production key, select one expected
-cluster ID, then request its node inventory and policy state. A successful
-onboarding result shows the expected cluster name and an online agent; a 401 or
-offline agent is a stop condition, not a reason to retry with a broader key.
+A team connects a sandbox EKS cluster for Cost Monitoring, confirms agent readiness, and waits for representative data. It does not enable node automation or change workload requests during the first session.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Bad API key | Regenerate at console.cast.ai |
-| `404 Not Found` | Wrong cluster ID | List clusters first to get correct ID |
-| Empty `items` array | No clusters connected | Run `castai-install-auth` to onboard |
-| `agentStatus: offline` | Agent not running | Check `kubectl get pods -n castai-agent` |
+| Failure                                      | Response                                                 |
+| -------------------------------------------- | -------------------------------------------------------- |
+| The context is production                    | Stop and select an approved sandbox                      |
+| Dry-run detects the wrong provider or region | Correct environment selection before connecting          |
+| Agent pods fail readiness                    | Collect bounded evidence and do not add features         |
+| Cleanup consequences are unclear             | Leave state unchanged and escalate to the platform owner |
 
 ## Resources
 
-- [CAST AI API Reference](https://api.cast.ai/v1/spec/openapi.json)
-- [CAST AI Console](https://console.cast.ai)
-- [Savings Report Docs](https://docs.cast.ai/docs/getting-started)
-
-## Next Steps
-
-Proceed to `castai-local-dev-loop` to set up a development workflow.
+- [Quickstart evidence and source notes](references/official-docs.md)
+- [Connect with castctl](https://docs.cast.ai/docs/connect-with-castctl)
+- [Cost monitoring overview](https://docs.cast.ai/docs/cost-management)
+- [Connecting your cluster](https://docs.cast.ai/docs/connecting-your-cluster)

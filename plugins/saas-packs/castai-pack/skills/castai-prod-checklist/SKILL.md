@@ -1,160 +1,88 @@
 ---
 name: castai-prod-checklist
-description: 'Production readiness checklist for CAST AI cluster onboarding.
-
-  Use when going live with CAST AI autoscaling, validating Phase 2 setup,
-
-  or preparing for production cost optimization.
-
-  Trigger with phrases like "cast ai production", "cast ai go-live",
-
-  "cast ai checklist", "cast ai launch".
-
-  '
-allowed-tools: Read, Bash(kubectl:*), Bash(curl:*), Bash(helm:*), Grep
-version: 1.4.0
+description: 'Run a fail-closed production-readiness review for a CAST AI cluster before enabling or expanding automation. Use when deciding onboarding approval, control-plane migration, or rollout between cluster rings. Trigger with: "review CAST AI for production", "CAST AI go-live checklist", "approve CAST AI automation".'
+allowed-tools: Read, Grep, Write, Edit, Bash(kubectl:*), Bash(helm:*), Bash(terraform:*), Bash(castctl:*)
+version: 2.0.0
+argument-hint: '[cluster-and-change-record]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- kubernetes
-- cost-optimization
-- castai
-compatibility: Designed for Claude Code
+  - saas
+  - kubernetes
+  - cast-ai
+  - production-readiness
+  - governance
+compatibility: 'Requires access to the target cluster, declared infrastructure source, application SLOs, and change-management evidence'
 ---
-# CAST AI Production Checklist
+
+# CAST AI Production Readiness Gate
 
 ## Overview
 
-Complete checklist for enabling CAST AI cost optimization on a production Kubernetes cluster. Covers Phase 1 (monitoring) through Phase 2 (full automation) with validation steps at each stage.
+Approve production only when identity, ownership, connectivity, observability, scaling safety, cost interpretation, rollback, and evidence are all explicit. An unchecked or unknown item is a stop, not a soft pass.
 
 ## Prerequisites
 
-- CAST AI tested on a staging cluster first
-- Production API key (Full Access)
-- Change management approval for node lifecycle changes
+- Exact production kube context and CAST AI organization/region
+- Reviewed infrastructure plan and pinned artifacts
+- Workload owners, SLOs, PDBs, HPAs, quotas, and maintenance window
+- Incident, rollback, and support escalation owners
 
 ## Instructions
 
-Complete the phases in order and preserve evidence for every checked item.
-Start in monitoring-only mode, verify the production cluster identity and
-baseline metrics, then request the approved change window before enabling
-automation. Use a two-person review for capacity limits, disruption budgets,
-and the emergency-disable procedure; do not copy staging keys, policies, or
-test evidence into the production record without revalidation.
+### Step 1: Verify identity and ownership
 
-## Phase 1: Monitoring Only
+Use Read and Grep to prove cluster, organization, region, cloud account, IaC source, reconcilers, and secret references. Confirm one owner for node provisioning, vertical rightsizing, and each HPA.
 
-- [ ] Agent installed with read-only key
-- [ ] Agent pod healthy: `kubectl get pods -n castai-agent`
-- [ ] Console shows cluster as "Connected"
-- [ ] Savings report generating (wait 24h for full data)
-- [ ] Review savings estimate before enabling automation
+### Step 2: Verify installation and access
 
-## Phase 2: Autoscaling Enabled
+Use Bash(castctl:_) for supported version or status inspection, Bash(helm:_) for pinned release evidence, and Bash(kubectl:\*) for component readiness and warning events. Confirm least-privilege cloud permissions and required outbound connectivity.
 
-- [ ] Full Access API key provisioned and stored in secrets manager
-- [ ] Cluster controller installed
-- [ ] Evictor installed with conservative settings (non-aggressive)
-- [ ] Spot handler installed for graceful interruption handling
-- [ ] Autoscaler policies configured with appropriate limits:
-  - [ ] `clusterLimits.cpu.maxCores` set to safe ceiling
-  - [ ] `unschedulablePods.headroom` configured (10-15%)
-  - [ ] `nodeDownscaler.emptyNodes.delaySeconds` >= 300 for production
-  - [ ] `spotInstances.spotDiversityEnabled` = true
-- [ ] Node templates created for workload-specific needs (GPU, high-memory)
-- [ ] PodDisruptionBudgets set on all critical workloads
+### Step 3: Verify scaling guardrails
 
-## Workload Autoscaler
+Review node templates, maximum CPU, cloud quotas, protected namespaces, workload policy assignment, minimum/maximum requests, apply mode, recommendation confidence, PDB behavior, HPA bounds, and ownership transfer. Reject deprecated cluster minimum CPU configuration.
 
-- [ ] Workload autoscaler installed
-- [ ] Critical deployments annotated with min/max resource bounds
-- [ ] Anti-shrink cooldown set (300s minimum)
-- [ ] Memory headroom >= 20% for production workloads
+### Step 4: Verify cost and reporting
 
-## Security
+Confirm baseline source, representative data window, public versus adjusted prices, automation adoption, and reconciliation owner. Do not use available or modeled savings as an unconditional release gate.
 
-- [ ] API key in secrets manager (not Helm values files)
-- [ ] Kvisor security agent installed
-- [ ] Network policies applied to castai-agent namespace
-- [ ] RBAC reviewed and minimized
-- [ ] Key rotation scheduled (90-day interval)
+### Step 5: Verify delivery and rollback
 
-## Monitoring and Alerting
+Use Bash(terraform:_) for the saved plan and Bash(helm:_) for the reviewed render. Confirm no unexpected deletion, disconnect, IAM expansion, CRD replacement, webhook collision, or automation enablement. Use Write or Edit to record tested rollback steps and thresholds.
 
-- [ ] Alert on agent pod restarts: `kube_pod_container_status_restarts_total{namespace="castai-agent"}`
-- [ ] Alert on API errors in agent logs
-- [ ] CAST AI console email notifications enabled
-- [ ] Savings report reviewed weekly
-- [ ] Dashboard tracking spot vs on-demand node ratio
+### Step 6: Make the decision
 
-## Rollback Procedure
+Record PASS only when every required item has evidence. Otherwise record HOLD with the exact owner and missing proof. Approve one cluster ring and one automation dimension at a time.
 
-```bash
-# Disable autoscaling immediately (keeps agent monitoring)
-curl -X PUT -H "X-API-Key: ${CASTAI_API_KEY}" \
-  -H "Content-Type: application/json" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/policies" \
-  -d '{"enabled": false}'
+## Tool Discipline
 
-# Or remove all CAST AI components
-helm uninstall castai-evictor -n castai-agent
-helm uninstall cluster-controller -n castai-agent
-# Keep the agent for monitoring if desired
-```
-
-## Error Handling
-
-| Condition | Response |
-|---|---|
-| Agent offline or API authentication fails | Keep automation disabled; verify secret reference, RBAC, and egress before retrying. |
-| Policy response differs from the approved limits | Stop rollout, restore the prior policy, and reopen change review. |
-| Eviction or latency alert fires | Disable autoscaling using the tested path and engage the workload owner. |
-| Rollback command cannot be exercised safely | Do not proceed to go-live; repair the runbook and test it in staging. |
-
-## Validation Commands
-
-```bash
-# Final pre-go-live verification
-echo "=== CAST AI Production Validation ==="
-
-# Agent healthy
-kubectl get pods -n castai-agent -o wide
-
-# All components running
-helm list -n castai-agent
-
-# Policies correct
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/policies" \
-  | jq '{enabled, unschedulablePods: .unschedulablePods.enabled, downscaler: .nodeDownscaler.enabled, spot: .spotInstances.enabled}'
-
-# Savings estimate
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/savings" \
-  | jq '{monthly: .monthlySavings, percent: .savingsPercentage}'
-```
+Use Read and Grep for evidence review. Use Write and Edit for the signed gate record. Use Bash(kubectl:_), Bash(helm:_), Bash(terraform:_), and Bash(castctl:_) for non-secret inspection, render, and plan operations; do not perform the production change from the checklist.
 
 ## Output
 
-Create a production-readiness record that ties each checklist item to its
-evidence, accountable owner, approval, validation timestamp, and tested
-rollback. A healthy agent alone does not authorize go-live: policy limits,
-disruption controls, monitoring, and the emergency-disable path must all be
-confirmed against the intended production cluster.
+- Evidence-linked readiness matrix
+- Explicit PASS or HOLD decision
+- Approved scope, window, and owners
+- Rollback and incident triggers
 
 ## Examples
 
-For a production launch, capture a redacted policy response, current Helm
-release state, agent health, alert test, and savings-baseline review in the
-change record. If an approval or rollback test is missing, leave autoscaling
-disabled and resolve that gap before enabling it for production workloads.
+A cluster passes observation readiness but holds node automation because Karpenter ownership is unresolved. Another passes a Deferred workload canary while managed HPA takeover remains out of scope.
+
+## Error Handling
+
+| Failure                                   | Response                                 |
+| ----------------------------------------- | ---------------------------------------- |
+| Evidence is stale or from another cluster | Mark the gate HOLD                       |
+| Ownership is shared or implicit           | Resolve control authority before release |
+| Rollback is untested                      | Limit to observation mode                |
+| Secret appears in an artifact             | Stop, rotate, and regenerate evidence    |
 
 ## Resources
 
-- [CAST AI Autoscaler Checklist](https://docs.cast.ai/docs/autoscaler-checklist)
-- [CAST AI Status](https://status.cast.ai)
-
-## Next Steps
-
-For version upgrades, see `castai-upgrade-migration`.
+- [Readiness evidence and source notes](references/official-docs.md)
+- [Connect with castctl](https://docs.cast.ai/docs/connect-with-castctl)
+- [Node Autoscaling](https://docs.cast.ai/docs/autoscaler)
+- [Workload Autoscaler overview](https://docs.cast.ai/docs/workload-autoscaling-overview)

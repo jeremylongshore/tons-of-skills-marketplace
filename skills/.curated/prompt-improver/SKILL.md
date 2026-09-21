@@ -7,7 +7,7 @@ description: 'Analyze and improve plugin prompts, skill definitions, and command
 
   '
 allowed-tools: Read, Write, Edit, Glob, Grep
-version: 1.6.0
+version: 1.7.0
 author: severity1 <severity1@intentsolutions.io>
 license: MIT
 tags:
@@ -113,7 +113,7 @@ Identify temporary files (*.tmp, *.bak, *.swp) in the project. List them for use
 
 - A plugin directory containing at least one SKILL.md, command, or agent markdown file
 - Read access to the target plugin's `.claude-plugin/plugin.json` for context
-- Familiarity with the [2026 SKILL.md frontmatter spec](https://docs.anthropic.com/en/docs/claude-code/plugins)
+- Familiarity with the [2026 SKILL.md frontmatter spec](https://code.claude.com/docs/en/plugins)
 
 ## Output
 
@@ -133,6 +133,6 @@ The skill produces a structured analysis report containing:
 
 ## Resources
 
-- [Claude Code plugins documentation](https://docs.anthropic.com/en/docs/claude-code/plugins) — official plugin and SKILL.md spec
-- [Prompt engineering guide](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering) — Anthropic best practices for prompt design
+- [Claude Code plugins documentation](https://code.claude.com/docs/en/plugins) — official plugin and SKILL.md spec
+- [Prompt engineering guide](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview) — Anthropic best practices for prompt design
 - Marketplace conventions: see the repository CLAUDE.md for field requirements and structure

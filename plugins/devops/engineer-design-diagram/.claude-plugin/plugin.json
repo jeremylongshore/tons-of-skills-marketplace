@@ -1,6 +1,6 @@
 {
   "name": "engineer-design-diagram",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Generate production-grade engineering design diagrams (architecture, sequence, delta, drift) as self-contained dark-themed HTML files with accessible inline SVG. Grounds every diagram in real repo topology via DCI — package manifests, docker-compose, k8s, terraform, import graph.",
   "author": {
     "name": "Jeremy Longshore",

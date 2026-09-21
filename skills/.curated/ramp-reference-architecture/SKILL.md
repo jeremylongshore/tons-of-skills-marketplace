@@ -1,68 +1,93 @@
 ---
 name: ramp-reference-architecture
-description: "Ramp reference architecture \u2014 corporate card and expense management\
-  \ API integration.\nUse when working with Ramp for card management, expenses, or\
-  \ accounting sync.\nTrigger with phrases like \"ramp reference architecture\", \"\
-  ramp-reference-architecture\", \"corporate card API\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.4.0
-license: MIT
+description: >-
+  Design a production Ramp integration with isolated OAuth clients, typed API adapters, durable webhook ingestion, reconciliation workers, and audited financial writes. Use when reviewing architecture or building a new platform. Trigger with "Ramp architecture" or "design Ramp integration".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[integration-or-environment]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ramp
-- fintech
-- expenses
-- corporate-cards
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Ramp Developer API documentation and approved access for any live financial, card, identity, accounting, application, or configuration change
+tags: [saas, ramp, architecture, integration, governance]
 ---
-# Ramp Reference Architecture
+# Ramp Integration Reference Architecture
 
 ## Overview
 
-Implementation patterns for Ramp reference architecture using the Developer API with OAuth2 authentication.
+Separate trust and failure domains: credential broker, typed adapter, event ingress, durable work ledger, financial connectors, reconciliation, and evidence. Keep write authority narrower than read and observability paths.
 
 ## Prerequisites
 
-- Completed `ramp-install-auth` setup
+- Identify the Ramp application, environment, business entities, affected data and workflows, accountable owner, and rollback boundary.
+- Read `references/official-docs.md` and re-check endpoint schemas, scopes, limits, and support status before a live operation.
+- Use synthetic fixtures or Ramp sandbox until production access and business effects are explicitly approved.
+- Prepare approved secret storage and a sanitized evidence location.
+
+## Current Contract
+
+- Ramp supports direct Developer API, webhooks, MCP, and CLI surfaces for different automation jobs; long-lived deterministic integrations belong on the Developer API.
+- Webhook events are notifications and may be duplicated or out of order; fetch current resource state before acting when needed.
+- OAuth grant, scope, principal, entity, and object policy jointly determine authority.
+- Accounting and card workflows have distinct approval, idempotency, sensitive-data, and reconciliation requirements.
 
 ## Instructions
 
-### Step 1: API Call Pattern
+1. Define business capabilities, actors, tenants/entities, latency, volumes, data classes, financial effects, recovery objectives, and prohibited actions.
 
-```python
-import os, requests
+2. Partition separate OAuth applications and services for read-only ingestion, event receipt, accounting writes, and card/spend authority where trust differs.
 
-# Obtain token
-token_resp = requests.post(f"{os.environ['RAMP_BASE_URL'].replace('/v1','')}/v1/token", data={
-    "grant_type": "client_credentials",
-    "client_id": os.environ["RAMP_CLIENT_ID"],
-    "client_secret": os.environ["RAMP_CLIENT_SECRET"],
-})
-access_token = token_resp.json()["access_token"]
-headers = {"Authorization": f"Bearer {access_token}"}
+3. Place an allowlisted typed adapter behind secret-managed token acquisition; centralize rate budget, pagination, error parsing, trace IDs, and schema-version evidence.
 
-cards = requests.get(f"{os.environ['RAMP_BASE_URL']}/cards", headers=headers)
-print(f"Cards: {len(cards.json()['data'])}")
-```
+4. Ingest verified webhooks into a durable deduplicating queue, process asynchronously, and reconcile current API state plus downstream effects on a schedule.
+
+5. Design deployment, observability, incident isolation, data retention, negative-access tests, and rollback; threat-model every path that can spend, sync, or expose card data.
+
+## Tool Discipline
+
+- Use **Glob** to locate candidate code, manifests, fixtures, and evidence without widening scope.
+- Use **Grep** to find relevant endpoints, fields, permissions, identifiers, errors, and stale assumptions.
+- Use **Read** to inspect the smallest required local files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, configuration, or evidence artifact.
+- Use **Edit** only for a bounded approved change with a known rollback.
+- Local file tools do not authorize a Ramp operation or replace owner approval.
+
+## Approval Boundaries
+
+Architecture, security, privacy, business, and finance owners approve boundaries. Ramp approval is required for vendor-restricted surfaces such as production Vault access.
 
 ## Output
 
-- Ramp API integration for reference architecture
+A context and data-flow design, trust boundaries, application/scope matrix, component ownership, event/reconciliation model, threat analysis, SLOs, rollout, and rollback.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| 401 Unauthorized | Expired token | Re-authenticate |
-| 429 Rate Limited | Too many requests | Implement backoff |
-| 403 Forbidden | Insufficient permissions | Check API app permissions |
+| Condition | Response |
+|---|---|
+| One service holds every scope | Split authority by capability and lifecycle, then retest cross-boundary denial. |
+| Webhooks directly perform financial writes | Insert a durable deduplicating ledger and reconcile current state before side effects. |
+| Observability needs raw payloads | Design field-safe structured signals and restricted evidence access instead. |
+
+## Examples
+
+### Example 1
+
+Design a read-only warehouse exporter with webhook triggers and periodic reconciliation, isolated from accounting-write credentials.
+
+### Example 2
+
+Design an ERP connector whose source ledger, downstream receipt, and Ramp sync receipt form one auditable state machine.
+
+## Validation
+
+- Every component has a single trust purpose, owner, and failure boundary.
+- Secrets, card data, identity data, and financial writes follow minimized paths.
+- Duplicates, out-of-order events, timeouts, partial failure, and replay are modeled.
+- Authority and reconciliation have positive and negative verification.
 
 ## Resources
 
-- [Ramp API Documentation](https://docs.ramp.com/)
-- [Authorization](https://docs.ramp.com/developer-api/v1/authorization)
-
-## Next Steps
-
-See related Ramp skills for more workflows.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract and current OpenAPI schema before any live request.
+- Treat unresolved vendor behavior, authority, or financial state as a stop condition.

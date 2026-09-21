@@ -1,285 +1,97 @@
 ---
 name: coderabbit-performance-tuning
-description: 'Optimize CodeRabbit review speed, relevance, and signal-to-noise ratio.
-
-  Use when reviews take too long, contain too many irrelevant comments,
-
-  or when teams are experiencing review fatigue.
-
-  Trigger with phrases like "coderabbit performance", "optimize coderabbit",
-
-  "coderabbit slow", "coderabbit noise", "coderabbit too many comments", "coderabbit
-  relevance".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*)
-version: 1.11.0
-license: MIT
+description: >-
+  Improve review speed and signal using measured scope, config, cache, and review behavior without timing bands. Use when this operator task needs a current, evidence-backed
+  CodeRabbit workflow. Trigger with "tune CodeRabbit performance".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[target] [evidence-or-scope]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- coderabbit
-- performance
-- tuning
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current CodeRabbit documentation and approved access for any live organization, repository, billing, or API change
+tags: [saas, coderabbit, performance, noise-reduction, measurement]
 ---
-# CodeRabbit Performance Tuning
+# CodeRabbit Review Performance Tuning
 
 ## Overview
 
-Optimize CodeRabbit review speed, relevance, and developer experience. Review time is primarily a function of PR size. Comment quality is controlled by profile selection, path instructions, and learnings. This skill covers all the levers for tuning CodeRabbit to your team's needs.
+Optimize operator-controlled inputs and measure effects. Separate service latency, provider delay, limits, diff size, paths, tools, and guidance.
 
 ## Prerequisites
 
-- CodeRabbit installed and producing reviews
-- `.coderabbit.yaml` in repository root
-- Several PRs worth of review history to evaluate
+- Identify the CodeRabbit organization, Git provider, repository, plan, and accountable owner.
+- Read `references/official-docs.md` and re-check any time-sensitive contract before execution.
+- Use synthetic or read-only evidence until the approval boundary is satisfied.
+- Preserve the repository's independent CI, security, and human-review requirements.
 
-## Performance Factors
+## Current Contract
 
-| Factor | Impact | You Control? |
-|--------|--------|-------------|
-| PR size (lines changed) | Review speed (2-15 min) | Yes -- keep PRs small |
-| Profile (chill/assertive) | Comment volume | Yes -- `.coderabbit.yaml` |
-| Path instructions | Comment relevance | Yes -- `.coderabbit.yaml` |
-| Path filters | Files reviewed | Yes -- `.coderabbit.yaml` |
-| Learnings | Long-term quality | Yes -- via PR comment feedback |
-| CodeRabbit service load | Review latency | No -- check status page |
+- Path filters change scope; path instructions change guidance.
+- Incremental reviews can pause after configured reviewed commits.
+- Caching normally accelerates review but can be disabled.
+- Plan limits belong to the live plans contract.
+
+## Authentication
+
+Treat Git-provider sessions, CodeRabbit web sessions, CLI credentials, and CodeRabbit API keys as separate credentials. Use only an already-approved session or secret-manager reference, never print a secret, and do not place credentials in `.coderabbit.yaml`, source files, logs, or deliverables.
 
 ## Instructions
 
-### Step 1: Optimize PR Size for Faster Reviews
+1. Capture events, files, diff size, tools, cache, limits, findings, and timing.
 
-```markdown
-# PR size directly impacts review speed and quality
+2. Classify delay or noise by boundary.
 
-| PR Size | Review Time | Review Quality |
-|---------|------------|----------------|
-| < 200 lines | 2-3 min | Excellent -- focused, actionable |
-| 200-500 lines | 3-7 min | Good -- catches most issues |
-| 500-1000 lines | 7-12 min | Moderate -- may miss nuanced issues |
-| 1000+ lines | 12-15+ min | Low -- too much context |
+3. Pilot one scope, filter, instruction, profile, or incremental-review change.
 
-# Enforce PR size limits with CI:
-```
+4. Compare equivalent samples and roll back hidden-risk regressions.
 
-```yaml
-# .github/workflows/pr-size.yml
-name: PR Size Check
-on: [pull_request]
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Check PR size
-        run: |
-          TOTAL=$(git diff --stat origin/${{ github.base_ref }}...HEAD | tail -1 | \
-            grep -oP '\d+ insertion|d+ deletion' | grep -oP '\d+' | \
-            awk '{sum+=$1} END {print sum+0}')
-          echo "Lines changed: $TOTAL"
-          if [ "$TOTAL" -gt 500 ]; then
-            echo "::warning::Large PR ($TOTAL lines). Consider splitting for better CodeRabbit review quality."
-          fi
-```
+## Tool Discipline
 
-### Step 2: Choose the Right Review Profile
+- Use **Glob** to locate candidate configuration and evidence files without widening scope.
+- Use **Grep** to find relevant fields, commands, identifiers, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use these file tools as a substitute for authenticated CodeRabbit or provider operations.
 
-```yaml
-# .coderabbit.yaml - Profile comparison
-reviews:
-  profile: "assertive"    # Start here, tune based on team feedback
+## Approval Boundaries
 
-# Profile decision guide:
-#
-# "chill":
-#   - 1-3 comments per PR
-#   - Only critical issues and bugs
-#   - Best for: senior teams, high-trust environments
-#   - Warning: may miss moderate issues
-#
-# "assertive" (recommended):
-#   - 3-8 comments per PR
-#   - Bugs, security, best practices
-#   - Best for: most teams
-#   - Good balance of signal-to-noise
-#
-# Tune based on metrics:
-#   - Team ignoring most comments? → Switch to chill
-#   - Security issues slipping through? → Stay on assertive
-#   - New or junior team? → assertive catches more learning opportunities
-```
-
-### Step 3: Add Path Instructions for Relevance
-
-```yaml
-# .coderabbit.yaml - Context makes reviews more relevant
-reviews:
-  path_instructions:
-    # Tell CodeRabbit WHAT to look for (increases relevance)
-    - path: "src/api/**"
-      instructions: |
-        Review for: input validation, proper HTTP status codes, auth middleware.
-        Ignore: import order, logging format.
-
-    - path: "src/components/**"
-      instructions: |
-        Review for: accessibility (aria labels), performance (memo/useMemo).
-        Ignore: CSS naming, component file structure.
-
-    - path: "**/*.test.*"
-      instructions: |
-        Review for: assertion completeness, edge cases, async handling.
-        Do NOT comment on: test naming conventions, import order.
-
-    # Tell CodeRabbit what NOT to comment on (reduces noise)
-    - path: "src/legacy/**"
-      instructions: |
-        Legacy code being incrementally migrated.
-        ONLY flag: security vulnerabilities, data loss risks, crashes.
-        Do NOT suggest: refactoring, naming changes, style improvements.
-
-    - path: "scripts/**"
-      instructions: |
-        One-off scripts. Only flag: security issues, destructive operations
-        without confirmation, missing error handling on file/network ops.
-```
-
-### Step 4: Exclude Low-Value Files
-
-```yaml
-# .coderabbit.yaml - Skip files that generate noise
-reviews:
-  path_filters:
-    # Auto-generated files (no useful feedback possible)
-    - "!**/*.lock"
-    - "!**/package-lock.json"
-    - "!**/pnpm-lock.yaml"
-    - "!**/*.generated.*"
-    - "!**/generated/**"
-
-    # Build output
-    - "!dist/**"
-    - "!build/**"
-    - "!**/*.min.js"
-    - "!**/*.min.css"
-
-    # Test fixtures and snapshots
-    - "!**/*.snap"
-    - "!**/__mocks__/**"
-    - "!**/fixtures/**"
-    - "!**/testdata/**"
-
-    # Third-party code
-    - "!vendor/**"
-    - "!node_modules/**"
-
-    # Data files
-    - "!**/*.csv"
-    - "!**/*.sql"           # DB migrations (review manually)
-
-  auto_review:
-    ignore_title_keywords:
-      - "WIP"
-      - "DO NOT MERGE"
-      - "chore: bump"
-      - "chore(deps)"
-      - "auto-generated"
-    drafts: false            # Skip draft PRs
-```
-
-### Step 5: Train CodeRabbit with Learnings
-
-```markdown
-# CodeRabbit learns from your feedback on PR comments.
-# This improves relevance over time.
-
-# When CodeRabbit gives feedback you disagree with, reply:
-"We intentionally use default exports in this project for Next.js pages.
-Please don't flag default exports in files under src/pages/."
-
-# When CodeRabbit catches something valuable, reinforce it:
-"Good catch! Always flag missing error boundaries in React components."
-
-# View and manage learnings:
-# app.coderabbit.ai > Organization > Learnings
-
-# Learnings persist across PRs and repos within the organization.
-# They are the most effective long-term tuning mechanism.
-```
-
-### Step 6: Measure Improvement
-
-```bash
-set -euo pipefail
-ORG="${1:-your-org}"
-REPO="${2:-your-repo}"
-
-echo "=== Review Quality Metrics ==="
-
-TOTAL_PRS=0
-TOTAL_COMMENTS=0
-
-for PR_NUM in $(gh api "repos/$ORG/$REPO/pulls?state=closed&per_page=20" --jq '.[].number'); do
-  COMMENTS=$(gh api "repos/$ORG/$REPO/pulls/$PR_NUM/comments" \
-    --jq '[.[] | select(.user.login=="coderabbitai[bot]")] | length' 2>/dev/null || echo "0")
-  if [ "$COMMENTS" -gt 0 ]; then
-    TOTAL_PRS=$((TOTAL_PRS + 1))
-    TOTAL_COMMENTS=$((TOTAL_COMMENTS + COMMENTS))
-    echo "PR #$PR_NUM: $COMMENTS comments"
-  fi
-done
-
-if [ "$TOTAL_PRS" -gt 0 ]; then
-  AVG=$(( TOTAL_COMMENTS / TOTAL_PRS ))
-  echo ""
-  echo "Average: $AVG comments/PR"
-  echo ""
-  if [ "$AVG" -gt 10 ]; then
-    echo "Recommendation: Switch to 'chill' profile or add path_instructions"
-  elif [ "$AVG" -lt 2 ]; then
-    echo "Recommendation: Switch to 'assertive' profile for more thorough reviews"
-  else
-    echo "Good signal-to-noise ratio"
-  fi
-fi
-```
+Require security or code-owner approval before exclusions, tool disablement, or shared changes. Keep analysis and drafts local until approval is explicit, and record who approved the action and its scope.
 
 ## Output
 
-- PR size guidelines documented and enforced via CI
-- Review profile selected based on team needs
-- Path instructions configured for relevant feedback
-- Low-value files excluded from review
-- Learnings trained from team feedback
-- Review quality measured with metrics
+A baseline, hypothesis, patch, comparison, risk check, and keep-or-rollback decision. Include source dates, unknowns, and the exact boundary between observed fact and recommendation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Review takes 15+ min | PR too large (1000+ lines) | Split into smaller PRs |
-| Too many irrelevant comments | No path_instructions | Add context for key directories |
-| Team ignoring reviews | Review fatigue from noise | Switch to `chill`, add exclusions |
-| Same issue flagged repeatedly | Learning not created | Reply to comment stating the preference |
-| Reviews on generated code | Missing path_filters | Add `!**/generated/**` to exclusions |
+| Condition | Response |
+|---|---|
+| Current contract is unclear or docs disagree | Stop mutation, cite both sources, and request owner resolution. |
+| Required access or approval is missing | Produce a draft and evidence plan only. |
+| Validation or pilot behavior differs from expectation | Restore the prior state and retain the failed evidence. |
+| Output contains secrets or private code | Stop, quarantine the artifact, redact it, and notify the data owner. |
 
 ## Examples
 
-Establish a baseline for review latency, comment acceptance, and pull-request
-size in one pilot repository, then add one targeted exclusion or instruction
-and compare the next set of reviews. Keep security-relevant paths in scope; if
-the change reduces useful findings or coverage, restore the prior profile and
-reassess with the team owner.
+### Example 1
+
+Exclude generated artifacts while retaining sensitive code.
+
+### Example 2
+
+Tune incremental-review pause for a high-churn branch.
+
+## Validation
+
+- Confirm every claim against the dated sources in `references/official-docs.md`.
+- Verify the requested scope, owner, approval, happy path, failure path, and rollback.
+- Re-read the effective configuration or provider state after any approved change.
+- Report unsupported fields, undocumented endpoints, and unverified assumptions as failures.
 
 ## Resources
 
-- [CodeRabbit Review Profiles](https://docs.coderabbit.ai/reference/configuration)
-- [Path Instructions Guide](https://docs.coderabbit.ai/guides/review-instructions)
-- [CodeRabbit Learnings](https://docs.coderabbit.ai/guides/learnings)
-
-## Next Steps
-
-For learnings and advanced tuning, see `coderabbit-core-workflow-b`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

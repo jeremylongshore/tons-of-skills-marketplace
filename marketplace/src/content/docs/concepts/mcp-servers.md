@@ -16,7 +16,7 @@ officialLinks:
   - title: "Model Context Protocol Specification"
     url: "https://modelcontextprotocol.io"
   - title: "Claude Code MCP Documentation"
-    url: "https://docs.anthropic.com/en/docs/claude-code/mcp"
+    url: "https://code.claude.com/docs/en/mcp"
   - title: "MCP TypeScript SDK"
     url: "https://github.com/modelcontextprotocol/typescript-sdk"
 relatedDocs:

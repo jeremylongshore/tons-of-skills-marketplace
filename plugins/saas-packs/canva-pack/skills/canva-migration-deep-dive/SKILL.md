@@ -1,313 +1,92 @@
 ---
 name: canva-migration-deep-dive
-description: 'Execute major Canva Connect API integration migrations with strangler
-  fig pattern.
-
-  Use when migrating to Canva from another design platform, re-platforming
-
-  existing integrations, or performing major architectural changes.
-
-  Trigger with phrases like "migrate to canva", "canva migration",
-
-  "switch to canva", "canva replatform", "replace design tool with canva".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(node:*), Bash(kubectl:*)
-version: 1.5.0
+description: 'Plan and execute a staged migration into or across Canva Connect application boundaries. Use when replacing a legacy design provider, moving token or job infrastructure, or introducing new Canva API surfaces. Trigger with: "migrate to Canva", "Canva strangler migration", "move Canva integration".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[source-contract-and-rollout-window]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - migration
+  - operations
+compatibility: 'Requires source/target contracts, content rights, user-consent analysis, rollback authority, and a bounded migration cohort.'
 ---
-# Canva Migration Deep Dive
+
+# Canva Integration Migration Program
 
 ## Overview
 
-Comprehensive guide for migrating to the Canva Connect API from another design platform or from direct image generation. Uses the strangler fig pattern for gradual, safe migration.
+Separate provider-contract, credential, application-data, and user-experience migrations. Preserve reversibility and reconcile every asynchronous or mutating operation before moving the next cohort.
 
 ## Prerequisites
 
-- A migration owner, approved source/destination asset inventory, encrypted backup, retention policy, and rollback plan.
-- A synthetic pilot corpus and a durable manifest mapping authorized source records to destination references.
+- Source and target operation/capability matrix
+- Data inventory, rights, retention, consent, and identifier map
+- Cohort plan, feature flag, validation sample, rollback, and owner
 
 ## Instructions
 
-1. Run extract, transform, and Canva import/export as separate, inspectable phases; do not stream unreviewed assets into production.
-2. Validate rights, data classification, template/input schema, and destination scope before each bounded batch.
-3. Reconcile manifests, obtain owner approval between batches, and stop on content, entitlement, authorization, or fidelity gaps.
-4. Retain protected artifacts only under the migration policy and keep the rollback path executable.
+### Step 1: Define parity honestly
 
-## Migration Types
+Use Read and Grep to map supported, changed, preview, unavailable, and intentionally retired operations. Do not invent workarounds for unsupported provider behavior.
 
-| Type | Duration | Risk | Example |
-|------|----------|------|---------|
-| Fresh integration | Days | Low | New app adding Canva support |
-| From image gen APIs | 2-4 weeks | Medium | Replace Imgix/Cloudinary templates with Canva |
-| From competitor | 4-8 weeks | Medium | Replace Figma API / Adobe Express |
-| Major re-architecture | Months | High | Rebuild design system on Canva |
+### Step 2: Design identity and consent
 
-## Pre-Migration Assessment
+Keep Canva user/tenant identity separate from legacy IDs, request only explicit scopes, and identify when fresh user authorization is mandatory.
 
-### Asset Inventory
+### Step 3: Design data movement
 
-```typescript
-interface MigrationAssessment {
-  currentAssets: number;           // Images, templates in old system
-  designTemplates: number;         // Templates to recreate as Canva brand templates
-  apiCallsPerDay: number;          // Current design API usage
-  usersToMigrate: number;          // Users who need Canva OAuth
-  requiredCanvaTier: 'free' | 'pro' | 'enterprise';
-  blockers: string[];
-}
+Classify assets, designs, metadata, comments, and references; validate rights and format before transfer; avoid copying content that lacks an approved purpose.
 
-async function assessMigration(): Promise<MigrationAssessment> {
-  return {
-    currentAssets: await countCurrentAssets(),
-    designTemplates: await countTemplates(),
-    apiCallsPerDay: await getAverageApiCalls(),
-    usersToMigrate: await countActiveUsers(),
-    requiredCanvaTier: needsAutofill() ? 'enterprise' : 'free',
-    blockers: [
-      // Common blockers:
-      // - Need Enterprise for brand template autofill
-      // - Rate limits may be too low for current volume
-      // - No batch API — must process designs one at a time
-    ],
-  };
-}
-```
+### Step 4: Build dual-path evidence
 
-### Canva API Capability Mapping
+Use Write or Edit to add contract tests, operation identity, reconciliation, comparison receipts, and a feature-flagged target path without duplicating writes.
 
-```typescript
-// Map your current operations to Canva Connect API endpoints
-const operationMapping = {
-  // Old system → Canva endpoint
-  'createFromTemplate': 'POST /v1/autofills',           // Requires Enterprise
-  'generateImage':      'POST /v1/designs + POST /v1/exports',
-  'uploadAsset':        'POST /v1/asset-uploads',
-  'listDesigns':        'GET /v1/designs',
-  'exportAsPDF':        'POST /v1/exports (format: pdf)',
-  'exportAsPNG':        'POST /v1/exports (format: png)',
-  'organizeFolder':     'POST /v1/folders',
-  'addComment':         'POST /v1/designs/{id}/comment_threads',
-};
-```
+### Step 5: Migrate a small cohort
 
-## Migration Strategy: Strangler Fig
+Choose approved synthetic or low-risk users, enforce rate/admission controls, verify each result, and stop on authorization, data, or parity drift.
 
-### Phase 1: Adapter Layer (Week 1-2)
+### Step 6: Roll forward or back
 
-```typescript
-// src/services/design-adapter.ts
-// Abstract interface that both old and new systems implement
+Advance only from measured evidence. Roll back routing without losing target-side job/resource identity, then reconcile and clean partial artifacts.
 
-interface DesignService {
-  createDesign(input: CreateDesignInput): Promise<Design>;
-  exportDesign(designId: string, format: ExportFormat): Promise<string[]>;
-  uploadAsset(file: Buffer, name: string): Promise<string>;
-}
+### Step 7: Close the legacy path
 
-// Old implementation
-class LegacyDesignService implements DesignService {
-  async createDesign(input: CreateDesignInput) {
-    return oldApi.generateImage(input);
-  }
-  // ...
-}
+After the retention and rollback window, revoke unused credentials, delete approved stale data, remove old routes, and preserve a content-free audit receipt.
 
-// New Canva implementation
-class CanvaDesignService implements DesignService {
-  constructor(private canva: CanvaClient) {}
+## Authentication
 
-  async createDesign(input: CreateDesignInput) {
-    const { design } = await this.canva.request('/designs', {
-      method: 'POST',
-      body: JSON.stringify({
-        design_type: { type: 'custom', width: input.width, height: input.height },
-        title: input.title,
-      }),
-    });
-    return { id: design.id, editUrl: design.urls.edit_url };
-  }
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-  async exportDesign(designId: string, format: ExportFormat) {
-    const { job } = await this.canva.request('/exports', {
-      method: 'POST',
-      body: JSON.stringify({ design_id: designId, format: { type: format } }),
-    });
-    return this.pollExport(job.id);
-  }
+## Tool Discipline
 
-  async uploadAsset(file: Buffer, name: string) {
-    const nameBase64 = Buffer.from(name).toString('base64');
-    const res = await fetch('https://api.canva.com/rest/v1/asset-uploads', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.canva.getToken()}`,
-        'Content-Type': 'application/octet-stream',
-        'Asset-Upload-Metadata': JSON.stringify({ name_base64: nameBase64 }),
-      },
-      body: file,
-    });
-    const data = await res.json();
-    return data.job.id;
-  }
-}
-```
-
-### Phase 2: Feature Flag Traffic Split (Week 3-4)
-
-```typescript
-// Route traffic based on feature flag
-function getDesignService(userId: string): DesignService {
-  const canvaPercentage = getFeatureFlag('canva_migration_pct', userId);
-  const roll = deterministicRoll(userId); // Same user always gets same path
-
-  if (roll < canvaPercentage) {
-    const tokens = await tokenStore.get(userId);
-    if (tokens) {
-      return new CanvaDesignService(new CanvaClient({ ...config, tokens }));
-    }
-    // User hasn't connected Canva yet — fall back to legacy
-  }
-
-  return new LegacyDesignService();
-}
-
-// Gradual rollout: 5% → 25% → 50% → 100%
-```
-
-### Phase 3: Asset Migration (Week 5-6)
-
-```typescript
-// Migrate existing assets to Canva
-async function migrateAssets(
-  assets: { url: string; name: string }[],
-  token: string
-): Promise<Map<string, string>> {
-  const idMapping = new Map<string, string>(); // oldId → canvaAssetId
-
-  for (const asset of assets) {
-    try {
-      // Upload via URL — rate limit: 30/min
-      const { job } = await canvaAPI('/url-asset-uploads', token, {
-        method: 'POST',
-        body: JSON.stringify({ name: asset.name, url: asset.url }),
-      });
-
-      // Poll for completion
-      let upload = job;
-      while (upload.status === 'in_progress') {
-        await new Promise(r => setTimeout(r, 2000));
-        const poll = await canvaAPI(`/url-asset-uploads/${upload.id}`, token);
-        upload = poll.job;
-      }
-
-      if (upload.status === 'success') {
-        idMapping.set(asset.url, upload.asset.id);
-      }
-    } catch (error) {
-      console.error(`Failed to migrate asset: ${asset.name}`, error);
-    }
-
-    // Respect rate limits
-    await new Promise(r => setTimeout(r, 2500)); // ~24 uploads/min
-  }
-
-  return idMapping;
-}
-```
-
-### Phase 4: Cutover & Cleanup (Week 7-8)
-
-```typescript
-// Final validation before removing legacy system
-async function validateMigration(token: string): Promise<{
-  passed: boolean;
-  checks: { name: string; result: boolean; details: string }[];
-}> {
-  const checks = [
-    {
-      name: 'Design creation',
-      fn: async () => {
-        const { design } = await canvaAPI('/designs', token, {
-          method: 'POST',
-          body: JSON.stringify({
-            design_type: { type: 'custom', width: 100, height: 100 },
-            title: 'Migration validation test',
-          }),
-        });
-        return { result: !!design.id, details: `Design ID: ${design.id}` };
-      },
-    },
-    {
-      name: 'Export works',
-      fn: async () => {
-        // Test with an existing design
-        return { result: true, details: 'Export endpoint accessible' };
-      },
-    },
-    {
-      name: 'Rate limits adequate',
-      fn: async () => {
-        // Check current usage vs limits
-        return { result: true, details: 'Within rate limits' };
-      },
-    },
-  ];
-
-  const results = [];
-  for (const check of checks) {
-    try {
-      const { result, details } = await check.fn();
-      results.push({ name: check.name, result, details });
-    } catch (e: any) {
-      results.push({ name: check.name, result: false, details: e.message });
-    }
-  }
-
-  return { passed: results.every(r => r.result), checks: results };
-}
-```
-
-## Rollback Plan
-
-```bash
-# Immediate rollback — switch feature flag to 0%
-curl -X PUT "https://flagservice.internal/api/flags/canva_migration_pct" \
-  -d '{"value": 0}'
-
-# Verify legacy system still works
-curl -s "https://api.ourapp.com/health" | jq '.services.legacy_design'
-```
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-Migration yields a protected source receipt, transform exception report, destination manifest, reconciliation result, and rollback decision. Routine telemetry uses opaque identifiers and counts rather than asset contents, URLs, or user data.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-Migrate a small synthetic pilot into a dedicated test tenant, compare every manifest key and expected fidelity exception, then delete the pilot output under policy. For production, move in approved batches and pause immediately if rights, count, or output classification differs from the plan.
+A legacy export path is replaced cohort by cohort. The application compares contract outcomes, routes one authorized cohort to Canva, and retains enough opaque identity to roll back and reconcile without double creation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Asset upload fails | File too large or unsupported format | Pre-validate, compress |
-| Rate limit during migration | Too many uploads | Add delays between uploads |
-| User hasn't connected Canva | Missing OAuth | Prompt to connect, fallback |
-| Feature parity gap | Canva API doesn't support operation | Document, workaround, or defer |
+| Failure | Response |
+| --- | --- |
+| Feature parity is missing | Document it and defer or retire the use case |
+| Identifier mapping is ambiguous | Stop migration for the affected records |
+| Dual path can double-write | Add single authoritative routing and operation identity |
+| Rollback loses target jobs | Persist and reconcile them before proceeding |
 
 ## Resources
 
-- [Canva Connect API](https://www.canva.dev/docs/connect/)
-- [Canva Starter Kit](https://github.com/canva-sdks/canva-connect-api-starter-kit)
-- [Strangler Fig Pattern](https://martinfowler.com/bliki/StranglerFigApplication.html)
-
-## Next Steps
-
-For advanced troubleshooting, see `canva-advanced-troubleshooting`.
+- [First-party source notes](references/official-docs.md)
+- [API versions](https://www.canva.dev/docs/connect/versions/)
+- [Latest OpenAPI](https://www.canva.dev/sources/connect/api/latest/api.yml)

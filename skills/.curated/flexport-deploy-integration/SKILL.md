@@ -1,112 +1,103 @@
 ---
 name: flexport-deploy-integration
-description: 'Deploy Flexport logistics integrations to Vercel, Fly.io, and Cloud
-  Run.
-
-  Use when deploying shipment tracking dashboards, webhook receivers,
-
-  or supply chain automation services to production infrastructure.
-
-  Trigger: "deploy flexport", "flexport hosting", "flexport Cloud Run".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(fly:*), Bash(gcloud:*), Grep
-version: 1.6.0
+description: >-
+  Deploy a Flexport REST, MCP, or webhook integration through provider-neutral canaries and rollback gates. Use when releasing credential, receiver, schema, or workflow changes. Trigger with: "deploy Flexport integration", "canary Flexport webhook", "roll back Flexport release".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[release-sha-and-surface]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - deployment
+  - reliability
+compatibility: 'Requires an approved delivery platform, secret injection, health checks, and rollback capability.'
 ---
-# Flexport Deploy Integration
+
+# Flexport Integration Deployment Canary
 
 ## Overview
 
-Deploy Flexport-powered applications to production. Webhook receivers need always-on hosting. Dashboards can use serverless. Background sync workers suit containers.
+Keep deployment mechanics provider-neutral and Flexport validation surface-specific. A safe release proves secret injection, read-only access, version handling, webhook raw-body verification, and mutation gates before traffic expands.
 
 ## Prerequisites
 
-- A deployment owner, approved logistics-data destinations, scoped secret-manager references, and tested rollback path.
-- A staging environment with fictional shipments and a policy that excludes commercial documents from logs and health checks.
-
-## Output
-
-Record the release/image identifier, environment, integration owner, approved destinations, canary result, aggregate health metrics, and rollback outcome. Do not include credentials, bills of lading, addresses, invoices, or shipment payloads.
-
-## Error Handling
-
-- Stop promotion on signature, permission, destination, or idempotency failures.
-- Pause workers and rotate scoped credentials when an exposure is suspected.
-- Preserve only redacted incident evidence and use the rollback path before replaying events.
-
-## Examples
-
-Deploy a staging receiver with a fictional shipment event, verify the signature and opaque event ID, then simulate an upstream failure. The service must return a generic health result, avoid logging the payload, and roll back the canary before production sync is enabled.
+- Immutable release artifact and reviewed configuration diff
+- Secret references supplied by the deployment platform, not command-line values
+- Read-only canary and tested rollback procedure
 
 ## Instructions
 
-### Option A: Vercel (Dashboard + Webhook Routes)
+### Step 1: Classify the change
 
-```typescript
-// app/api/webhooks/flexport/route.ts (Next.js App Router)
-import crypto from 'crypto';
+Label REST schema/version, OAuth credential, MCP tool/session, webhook receiver, or business-policy change and name its rollback unit.
 
-export async function POST(req: Request) {
-  const body = await req.text();
-  const sig = req.headers.get('x-hub-signature') || '';
-  const expected = 'sha256=' + crypto.createHmac('sha256', process.env.FLEXPORT_WEBHOOK_SECRET!)
-    .update(body).digest('hex');
-  if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) {
-    return new Response('Invalid signature', { status: 401 });
-  }
-  const event = JSON.parse(body);
-  // Process milestone, booking, invoice events
-  return new Response('OK');
-}
+### Step 2: Validate offline
+
+Run contract fixtures for documented success, additive fields, auth errors, webhook signatures, and ambiguous mutations.
+
+### Step 3: Deploy dark
+
+Start the release with mutations disabled and no automatic booking, document creation, or record update.
+
+### Step 4: Run a read-only canary
+
+Reuse a cached token and perform one approved shipment read or MCP tracking call. For receivers, send a signed synthetic fixture through the exact raw-body path.
+
+### Step 5: Expand gradually
+
+Increase traffic by a reversible cohort while monitoring auth, permission, parsing, queue, duplicate, and reconciliation outcomes.
+
+### Step 6: Rollback on invariant breach
+
+Restore the prior artifact/configuration together, preserve redacted evidence, and reconcile any ambiguous in-flight mutation.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
+
+## Output
+
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
+
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
 ```
 
-### Option B: Fly.io (Always-On Webhook Receiver)
+## Examples
 
-```toml
-# fly.toml
-app = "flexport-webhooks"
-primary_region = "iad"
-[http_service]
-  internal_port = 3000
-  force_https = true
-  min_machines_running = 1
-```
+A receiver release first validates a synthetic `X-Hub-Signature-256` request, then receives a small traffic cohort. Any authentication or duplicate-rate regression routes callbacks back to the previous release.
 
-```bash
-fly secrets set FLEXPORT_API_KEY="key" FLEXPORT_WEBHOOK_SECRET="secret"
-fly deploy
-```
+## Error Handling
 
-### Option C: Cloud Run (Shipment Sync Worker)
-
-```bash
-gcloud run deploy flexport-sync \
-  --source . --region us-central1 \
-  --set-secrets "FLEXPORT_API_KEY=flexport-key:latest" \
-  --min-instances 1 --timeout 300
-```
-
-## Post-Deploy Verification
-
-```bash
-curl -X POST https://your-app.fly.dev/webhooks/flexport \
-  -H "X-Hub-Signature: sha256=invalid" -d '{"type":"test"}'
-# Expected: 401 (signature verification working)
-```
+| Failure | Response |
+| --- | --- |
+| Secret absent | Fail startup; never accept an unauthenticated fallback. |
+| Canary uses wrong account/version | Stop rollout and correct configuration identity. |
+| Mutation occurs in dark mode | Disable the release and reconcile the resource immediately. |
+| Rollback leaves queue split | Pause consumers and restore one authoritative ownership boundary. |
 
 ## Resources
 
-- [Flexport Webhooks API](https://apidocs.flexport.com/v2/tag/Webhook-Endpoints/)
-- [Fly.io Docs](https://fly.io/docs/)
-- [Cloud Run Docs](https://cloud.google.com/run/docs)
-
-## Next Steps
-
-For webhook event handling, see `flexport-webhooks-events`.
+- [First-party source notes](references/official-docs.md)
+- [Versioning](https://apidocs.flexport.com/v3/tag/Versioning/)
+- [Webhook endpoints](https://apidocs.flexport.com/v3/tag/Webhook-Endpoints/)
+- [MCP tools](https://apidocs.flexport.com/v3/tag/MCP-Tools/)

@@ -1,110 +1,90 @@
 ---
 name: openevidence-enterprise-rbac
-description: 'Enterprise Rbac for OpenEvidence.
-
-  Trigger: "openevidence enterprise rbac".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.13.0
-license: MIT
+description: >-
+  Define and verify institutional OpenEvidence access governance without inventing RBAC, SCIM, or administration APIs. Use when working with OpenEvidence in a healthcare organization. Trigger with "openevidence enterprise rbac", "OpenEvidence access", or a matching workflow request.
+argument-hint: "[access-matrix-path] [institution]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.14.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - openevidence
-- healthcare
-compatibility: Designed for Claude Code
+- access
+- governance
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; requires authorized OpenEvidence access and qualified clinical review for patient-care use
 ---
-# OpenEvidence Enterprise RBAC
+# OpenEvidence Institutional Access Governance
 
 ## Overview
 
-OpenEvidence delivers AI-powered clinical decision support using peer-reviewed medical literature. Enterprise RBAC controls access to clinical queries, PHI-adjacent data, and research datasets. Clinicians query evidence with full access. Researchers access de-identified datasets and can create study cohorts. Admins manage institutional access, SSO configuration, and compliance settings. HIPAA requires strict audit logging of every clinical query, PHI access event, and data export. Institutional access agreements define which evidence libraries each organization can query.
+Translate institutional roles and least-privilege expectations into verifiable product and contract controls. Keep inputs minimal, separate observed facts from assumptions, and leave consequential decisions with the named accountable owner.
 
-## Role Hierarchy
+## Prerequisites
 
-| Role | Permissions | Scope |
-|------|------------|-------|
-| Institutional Admin | Manage users, SSO config, compliance settings, usage analytics | Organization-wide |
-| Clinician | Query clinical evidence, view full citations, bookmark findings | Institutional library |
-| Researcher | Access de-identified datasets, create study cohorts, export data | Approved studies |
-| Medical Student | Query evidence with supervised access, no PHI datasets | Educational library |
-| Auditor | Read-only access to query logs and compliance reports | Organization-wide |
+- A clearly bounded workflow, accountable clinical owner, and organizational policy
+- Current first-party OpenEvidence documentation and applicable institution agreements
+- Synthetic or properly authorized minimum-necessary data
 
-## Permission Check
+## Tool Discipline
 
-```typescript
-async function checkClinicalAccess(userId: string, resource: string, accessLevel: string): Promise<boolean> {
-  const response = await fetch(`${OE_API}/v1/institutions/${INSTITUTION_ID}/permissions`, {
-    headers: { Authorization: `Bearer ${OE_API_TOKEN}`, 'Content-Type': 'application/json' },
-  });
-  const perms = await response.json();
-  const user = perms.members.find((m: any) => m.id === userId);
-  if (!user) return false;
-  const allowed = ROLE_ACCESS[user.role];
-  return allowed?.resources.includes(resource) && allowed.levels.includes(accessLevel);
-}
-```
+Use `Read`, `Glob`, and `Grep` to inspect supplied policies, plans, and evidence. Use `WebFetch` only for current first-party OpenEvidence documentation. Use `Write` or `Edit` only when the user requests a named deliverable with an approved destination. Never expose credentials, PHI, recordings, or unrestricted environment output.
 
-## Role Assignment
+## Current Contract
 
-```typescript
-async function assignInstitutionalRole(email: string, role: string, library: string): Promise<void> {
-  await fetch(`${OE_API}/v1/institutions/${INSTITUTION_ID}/members`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${OE_API_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, role, libraryAccess: library, hipaaAcknowledged: true }),
-  });
-}
+- No public RBAC, SCIM, provisioning, or administration API contract was found in the audited product documentation.
+- Only the current institution agreement and authorized administration interface can establish available controls.
+- Shared credentials are prohibited by the published account terms.
 
-async function revokeAccess(email: string): Promise<void> {
-  await fetch(`${OE_API}/v1/institutions/${INSTITUTION_ID}/members/${email}`, {
-    method: 'DELETE',
-    headers: { Authorization: `Bearer ${OE_API_TOKEN}` },
-  });
-}
-```
+## Authentication
 
-## Audit Logging
+Use only the official OpenEvidence web/mobile sign-in or an institution-approved access path. Do not invent API keys, OAuth clients, SDK credentials, service accounts, or private endpoints. Never ask a user to reveal a password, session token, cookie, or recovery code.
 
-```typescript
-interface OpenEvidenceAuditEntry {
-  timestamp: string; userId: string; role: string;
-  action: 'clinical_query' | 'dataset_access' | 'export' | 'phi_view' | 'role_change';
-  resource: string; institutionId: string; queryHash?: string; result: 'allowed' | 'denied';
-}
+## Instructions
 
-function logClinicalAccess(entry: OpenEvidenceAuditEntry): void {
-  console.log(JSON.stringify({ ...entry, hipaaCompliant: true }));
-}
-```
+1. Inventory user populations, clinical roles, administrators, support staff, devices, workflows, and sensitive data exposure.
+2. Read the agreement and authorized admin documentation; mark SSO, provisioning, audit, and role features confirmed or unknown.
+3. Define joiner, mover, leaver, periodic review, break-glass, and compromised-account procedures.
+4. Map each workflow to minimum access and an accountable approver; prohibit shared accounts.
+5. Run a sample access review using authorized records without exporting unnecessary personal data.
+6. Return confirmed controls, gaps, compensating controls, vendor questions, owners, and review cadence.
 
-## RBAC Checklist
+## Approval Boundaries
 
-- [ ] Institutional access agreements define available evidence libraries
-- [ ] Clinician role verified against NPI or institutional credentials
-- [ ] Researcher access limited to IRB-approved de-identified datasets
-- [ ] Medical student access supervised with educational library scope
-- [ ] All clinical queries logged with timestamp, user, and query hash
-- [ ] PHI access events tracked separately for HIPAA audit readiness
-- [ ] Data export restricted to researcher role with approval workflow
-- [ ] Quarterly access review aligned with HIPAA compliance cycle
+Do not create or share accounts; change access, roles, agreements, consent, retention, or security settings; enter PHI; record a conversation; copy content into another system; contact a patient; make a diagnosis or treatment decision; submit billing; transmit a support packet; run a production pilot; or represent vendor capabilities without explicit approval from the accountable owner. A qualified professional remains responsible for clinical decisions.
+
+## Output
+
+Return scope, current first-party evidence and date, data classification, workflow or findings, citations reviewed, assumptions rejected, clinical and governance owners, approval state, unresolved risk, and the exact next action. Redact patient and credential data.
 
 ## Error Handling
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| `403` on clinical query endpoint | User not provisioned at institution | Add user via institutional admin portal |
-| Dataset access denied | Study not in user's approved IRB list | Submit IRB approval to institutional admin |
-| Export blocked | Role lacks export permission | Upgrade to researcher role with export rights |
-| SSO login loop | SAML assertion missing institution claim | Configure institution attribute in IdP SAML settings |
-| Query results redacted | Library not included in institutional agreement | Contact OpenEvidence to expand library access |
+| Condition | Response |
+|---|---|
+| Admin capability unclear | Mark unknown and seek written confirmation; do not infer an endpoint. |
+| Orphaned account | Follow the authorized deprovisioning path and record the owner. |
+| Shared login discovered | Stop the practice, preserve evidence, and initiate individual access remediation. |
+
+## Examples
+
+This compact example shows the minimum reviewable handoff; adapt fields to the approved workflow without adding sensitive data.
+
+Input:
+
+```text
+institution=clinic; users=physicians+schedulers; SSO=unknown; review=quarterly
+```
+
+Expected handoff:
+
+```text
+controls=confirmed/unknown matrix; gaps=3; shared-accounts=0; owner=IAM
+```
 
 ## Resources
 
-- [OpenEvidence Platform](https://www.openevidence.com)
-- OpenEvidence for Institutions
-
-## Next Steps
-
-See `openevidence-security-basics`.
+- [OpenEvidence official evidence register](references/official-docs.md)
+- [OpenEvidence User Guide](https://www.openevidence.com/user-guide)
+- [OpenEvidence Terms of Use](https://www.openevidence.com/policies/terms)

@@ -1,125 +1,95 @@
 ---
 name: flyio-install-auth
-description: 'Install flyctl CLI and configure Fly.io authentication with API tokens.
-
-  Use when setting up a new Fly.io project, configuring deploy tokens,
-
-  or initializing the Machines API for edge compute deployments.
-
-  Trigger: "install fly.io", "setup flyctl", "fly.io auth", "fly.io API token".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(fly:*), Bash(curl:*), Grep
-version: 1.7.0
+description: >-
+  Install or upgrade flyctl and establish least-privilege Fly.io authentication with expiry and rotation evidence. Use when onboarding an operator or automation identity. Trigger with: "install flyctl", "create Fly deploy token", "test Fly API auth".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[interactive-or-automation-scope]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- edge-compute
-- flyio
-compatibility: Designed for Claude Code
+  - saas
+  - flyio
+  - authentication
+  - flyctl
+  - tokens
+compatibility: 'Requires a supported operator workstation or CI runner, a Fly.io account, an approved organization or app scope, and a secret manager.'
 ---
-# Fly.io Install & Auth
+
+# Fly.io CLI and Least-Privilege Token Setup
 
 ## Overview
 
-Install `flyctl` CLI and configure authentication for Fly.io edge compute platform. Two auth methods: **interactive login** (opens browser) and **API tokens** (CI/CD and Machines API). The Machines API base URL is `https://api.machines.dev`.
-
-## Output
-
-Record the authentication method, secret-manager reference, minimum scope, validation time, owner, and rotation/revocation procedure. Never put a token, header, machine response, or organization data in the receipt.
-
-## Examples
-
-Use an app-scoped staging deploy token injected by the CI environment, verify a read-only status check, then revoke it and confirm it can no longer access the app. Keep only redacted evidence of the scope and result.
+Separate interactive login from automation credentials. Current Fly.io guidance provides scoped deploy, organization, read-only, SSH, Machine-exec, and WireGuard token types; choose the smallest authority and lifespan that satisfies the workflow.
 
 ## Prerequisites
 
-- Fly.io account at [fly.io](https://fly.io)
-- macOS, Linux, or WSL2
+- Named human or workload identity and business owner
+- Target organization, app, commands, environment, and expiry requirement
+- Approved installation source and secret storage location
 
 ## Instructions
 
-### Step 1: Install flyctl
+### Step 1: Select the identity mode
 
-```bash
-# macOS / Linux
-curl -L https://fly.io/install.sh | sh
+Use browser login for a human workstation. For automation, map required actions to app deploy, organization deploy, read-only, SSH, Machine-exec, or WireGuard scope.
 
-# Or via Homebrew
-brew install flyctl
+### Step 2: Install from an official channel
 
-# Verify
-fly version
-```
+Follow the provider installation method for the operating system, then record `fly version` and the provider-maintained release tag. Pin CI setup where reproducibility matters.
 
-### Step 2: Authenticate
+### Step 3: Create a scoped expiring token
 
-```bash
-# Interactive login (opens browser)
-fly auth login
+Prefer `fly tokens create deploy` for one app and `fly tokens create readonly` for observation. Use organization scope only for justified multi-app operations.
 
-# Or with token (CI/CD)
-fly auth token  # Get current token
-export FLY_API_TOKEN="fo1_your_token_here"
+### Step 4: Store and inject once
 
-# Verify auth
-fly auth whoami
-```
+Place the token in the approved secret manager and expose it only as `FLY_API_TOKEN` or `FLY_ACCESS_TOKEN` to the intended process.
 
-### Step 3: Create API Token for Machines API
+### Step 5: Validate the smallest read
 
-```bash
-# Create deploy token (scoped to an app)
-fly tokens create deploy -a my-app
+Confirm effective identity and scope through a non-mutating app or Machine read. Distinguish an empty scoped listing from a failed credential.
 
-# Create org-level token
-fly tokens create org
+### Step 6: Plan rotation and revocation
 
-# Use with Machines API
-curl -s -H "Authorization: Bearer $FLY_API_TOKEN" \
-  https://api.machines.dev/v1/apps | jq '.[].name'
-```
+Record token ID, owner, scope, expiry, dependents, overlap procedure, emergency revocation, and post-rotation verification.
 
-### Step 4: Verify Machines API Access
+## Authentication
 
-```typescript
-const FLY_API = 'https://api.machines.dev';
+Machines API requests send `Authorization: Bearer <token>` to the public `https://api.machines.dev` endpoint outside the private network. The hidden deprecated `fly auth token` output is an all-powerful short-lived login token and must not be used as the routine CI credential.
 
-async function verifyFlyAccess() {
-  const res = await fetch(`${FLY_API}/v1/apps`, {
-    headers: { 'Authorization': `Bearer ${process.env.FLY_API_TOKEN}` },
-  });
-  const apps = await res.json();
-  console.log(`Connected. Found ${apps.length} apps.`);
-  apps.forEach((app: any) => console.log(`  ${app.name} (${app.organization.slug})`));
-}
-```
+## Tool Discipline
 
-## Token Types
+Use Read and Grep to inspect application configuration, deployment evidence, provider documentation, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for an approved plan, configuration, implementation, test, or redacted receipt. Do not create, deploy, scale, restart, stop, suspend, destroy, rotate, revoke, expose, or migrate live Fly.io resources without explicit operator approval.
 
-| Token Type | Scope | Lifetime | Use Case |
-|------------|-------|----------|----------|
-| User token | All orgs/apps | Until revoked | Development, personal |
-| Deploy token | Single app | Until revoked | CI/CD per app |
-| Org token | All apps in org | Until revoked | Org-wide automation |
-| Machines token | API access | Until revoked | Machines API calls |
+## Output
+
+- flyctl installation and version receipt
+- Token inventory containing only identifier, owner, scope, expiry, and secret reference
+- Read-only scope proof plus rotation and revocation runbook
+
+Return the target organization, app, environment, region set, Machine or database identifiers, source-contract fingerprint, evidence, unresolved risks, rollback state, and final decision without exposing tokens, secrets, connection strings, or customer data.
+
+## Examples
+
+A single-app production pipeline receives a 30-day app deploy token in its protected environment. A monitoring job receives a separate organization read-only token. Both record token IDs and owners, while values remain only in the secret manager.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Error: not authenticated` | No token set | Run `fly auth login` or set `FLY_API_TOKEN` |
-| `401 Unauthorized` | Invalid/expired token | Regenerate with `fly tokens create` |
-| `Could not find app` | Wrong app name | Check with `fly apps list` |
-| `flyctl not found` | CLI not installed | Run install script above |
+| Failure | Response |
+| --- | --- |
+| Identity appears valid but listings are empty | Check scope filters and target app before broadening access; scoped tokens can hide out-of-scope resources. |
+| Token is exposed | Revoke by token ID, rotate dependents, inspect access evidence, and avoid repeating the value in the incident record. |
+| flyctl behavior differs from docs | Record the installed version, compare with the current provider release, and revalidate commands before use. |
 
 ## Resources
 
-- [Fly.io CLI Reference](https://fly.io/docs/flyctl/)
-- [Machines API Docs](https://fly.io/docs/machines/api/)
-- [API Tokens](https://fly.io/docs/reference/deploy-tokens/)
-
-## Next Steps
-
-After auth, proceed to `flyio-hello-world` for your first deployment.
+- [First-party source notes](references/official-docs.md)
+- [Machines API setup](https://fly.io/docs/machines/api/working-with-machines-api/)
+- [Automation and tokens](https://fly.io/docs/flyctl/integrating/)
+- [App configuration](https://fly.io/docs/reference/configuration/)
+- [Access tokens](https://fly.io/docs/security/tokens/)
+- [fly tokens create](https://fly.io/docs/flyctl/tokens-create/)
+- [flyctl releases](https://github.com/superfly/flyctl/releases)

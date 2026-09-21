@@ -1,230 +1,74 @@
 ---
 name: mistral-install-auth
-description: 'Install and configure the Mistral AI SDK with authentication.
-
-  Use when setting up a new Mistral integration, configuring API keys,
-
-  or initializing Mistral AI in your project.
-
-  Trigger with phrases like "install mistral", "setup mistral",
-
-  "mistral auth", "configure mistral API key".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.13.0
+description: >-
+  Establish Mistral API access with server-side credentials, workspace ownership, and revocation evidence. Use when installing or auditing a Mistral environment. Trigger with "set up Mistral", "configure a Mistral key", or "audit Mistral authentication".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<runtime> <workspace> <environment>"
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mistral
-- api
-- authentication
-compatibility: Designed for Claude Code
+tags: [saas, mistral, authentication]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live or external Mistral actions require network access and explicit approval"
 ---
-# Mistral AI Install & Auth
+# Mistral Authentication and Installation
 
 ## Overview
 
-Set up the official Mistral AI SDK (`@mistralai/mistralai` for TypeScript, `mistralai` for Python) and configure authentication for chat completions, embeddings, function calling, vision, and agents.
+Create a reviewable authentication boundary before any inference call. Separate workspace access, secret custody, application authorization, and billing so possession of a key never implies permission to spend or process arbitrary data.
 
 ## Prerequisites
 
-- Node.js 18+ or Python 3.9+
-- Package manager (npm, pnpm, yarn, or pip)
-- Mistral AI account at [console.mistral.ai](https://console.mistral.ai/)
-- API key from La Plateforme (Settings > API Keys)
+- A named workspace administrator, application owner, and spend owner.
+- An approved server-side secret manager and environment-specific rollback route.
+- A runtime and official client selected from current first-party documentation.
+
+## Current Contract
+
+Mistral API requests use Bearer authentication at `https://api.mistral.ai`. Studio-created keys are displayed once. Free mode can include usage; current billing and limits must be read from the account rather than encoded.
+
+## Authentication
+
+Store the credential as `MISTRAL_API_KEY` and send it only in the `Authorization: Bearer` header from a trusted server. Never place it in source, browser bundles, URLs, prompts, logs, screenshots, fixtures, or support archives.
 
 ## Instructions
 
-### Step 1: Install SDK
+1. Inventory the workspace, runtime, environment, data class, volume, and accountable owners.
+2. Confirm the administrator permitted to create and revoke an environment-scoped key.
+3. Capture the one-time key directly into the approved secret manager and configure only its reference.
+4. Pin the client dependency and API host without recording the secret value.
+5. Validate configuration offline; request approval before one synthetic live call.
+6. Record ownership, creation date, rotation route, live-check receipt, and rollback readiness.
 
-**Node.js (TypeScript/JavaScript) — ESM only**
+## Tool Discipline
 
-```bash
-set -euo pipefail
-# npm
-npm install @mistralai/mistralai
+Use Read, Glob, and Grep to inspect code, locks, configuration, tests, and evidence. Use Write and Edit only for approved repository changes. Invocation alone does not authorize network calls, paid usage, uploads, stateful resources, admin mutations, deployments, or deletion.
 
-# pnpm
-pnpm add @mistralai/mistralai
+## Approval Boundaries
 
-# yarn
-yarn add @mistralai/mistralai
-```
-
-**Python**
-
-```bash
-set -euo pipefail
-pip install mistralai
-```
-
-### Step 2: Configure Authentication
-
-**Environment Variables (Recommended)**
-
-```bash
-# Set in shell
-export MISTRAL_API_KEY="your-api-key"
-
-# Or create .env file (add to .gitignore!)
-echo 'MISTRAL_API_KEY=your-api-key' >> .env
-echo '.env' >> .gitignore
-```
-
-**Using dotenv (Node.js)**
-
-```bash
-set -euo pipefail
-npm install dotenv
-```
-
-```typescript
-import 'dotenv/config';
-```
-
-### Step 3: Verify Connection
-
-**TypeScript**
-
-```typescript
-import { Mistral } from '@mistralai/mistralai';
-
-const client = new Mistral({
-  apiKey: process.env.MISTRAL_API_KEY,
-});
-
-async function testConnection() {
-  try {
-    const models = await client.models.list();
-    console.log('Connection successful! Available models:');
-    for (const model of models.data ?? []) {
-      console.log(`  - ${model.id}`);
-    }
-  } catch (error: any) {
-    if (error.status === 401) {
-      console.error('Invalid API key. Check your key at console.mistral.ai');
-    } else {
-      console.error('Connection failed:', error.message);
-    }
-  }
-}
-
-testConnection();
-```
-
-**Python**
-
-```python
-import os
-from mistralai import Mistral
-
-client = Mistral(api_key=os.environ["MISTRAL_API_KEY"])
-
-def test_connection():
-    try:
-        models = client.models.list()
-        print("Connection successful! Available models:")
-        for model in models.data:
-            print(f"  - {model.id}")
-    except Exception as e:
-        print(f"Connection failed: {e}")
-
-test_connection()
-```
-
-### Step 4: Production — Secret Manager
-
-```typescript
-// GCP Secret Manager (recommended for production)
-import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
-
-const sm = new SecretManagerServiceClient();
-
-async function getMistralKey(): Promise<string> {
-  const [version] = await sm.accessSecretVersion({
-    name: 'projects/my-project/secrets/mistral-api-key/versions/latest',
-  });
-  return version.payload?.data?.toString() ?? '';
-}
-```
-
-```typescript
-// AWS Secrets Manager alternative
-import { SecretsManager } from '@aws-sdk/client-secrets-manager';
-
-const sm = new SecretsManager({ region: 'us-east-1' });
-
-async function getMistralKey(): Promise<string> {
-  const { SecretString } = await sm.getSecretValue({
-    SecretId: 'mistral/api-key',
-  });
-  return SecretString!;
-}
-```
-
-## Output
-
-- Installed SDK package (`@mistralai/mistralai` or `mistralai`)
-- Environment variable or .env file with API key
-- Successful connection verification listing available models
+Require explicit approval for key creation or revocation, billing or role changes, live requests, deployments, or customer-derived content.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Invalid or missing API key | Verify key at console.mistral.ai |
-| `Module not found` | SDK not installed | Run `npm install @mistralai/mistralai` |
-| `ERR_REQUIRE_ESM` | Using CommonJS require | SDK is ESM-only; use `import` or dynamic `await import()` |
-| Network Error | Firewall blocking HTTPS | Ensure outbound HTTPS to `api.mistral.ai` is allowed |
+- A `401` usually indicates a missing, malformed, revoked, or wrong-environment key.
+- A valid key can still fail because the workspace is suspended or at a current rate/spend boundary.
+- Any browser or log exposure is an incident: revoke, rotate consumers, and verify history removal.
+
+## Output
+
+Return workspace, environment, secret-reference name, host, client pin, owner, validation state, evidence IDs, risks, and rollback. Exclude credentials and content.
 
 ## Examples
 
-### TypeScript Client with Retry
+- Prepare a Python service with an injected production secret and no live request.
+- Report `environment=staging; auth=Bearer; live_smoke=awaiting-approval`.
 
-```typescript
-import { Mistral } from '@mistralai/mistralai';
+## Validation
 
-const client = new Mistral({
-  apiKey: process.env.MISTRAL_API_KEY,
-  timeoutMs: 30_000,
-  maxRetries: 3,
-});
-
-export default client;
-```
-
-### Python Client with Retry
-
-```python
-import os
-from mistralai import Mistral
-
-client = Mistral(
-    api_key=os.environ["MISTRAL_API_KEY"],
-    timeout_ms=30_000,
-    max_retries=3,
-)
-```
-
-### Validate API Key Format
-
-```typescript
-function validateMistralApiKey(key: string): boolean {
-  // Mistral keys are typically 32-char hex strings
-  return /^[a-zA-Z0-9]{20,}$/.test(key);
-}
-```
+Confirm host/header, scan tracked output for secrets, prove no browser exposure, and verify the owner can revoke the key.
 
 ## Resources
 
-- [Mistral AI Documentation](https://docs.mistral.ai/)
-- [Mistral AI Console](https://console.mistral.ai/)
-- [TypeScript SDK (client-ts)](https://github.com/mistralai/client-ts)
-- [Python SDK (client-python)](https://github.com/mistralai/client-python)
-- [API Reference](https://docs.mistral.ai/api/)
-
-## Next Steps
-
-After successful auth, proceed to `mistral-hello-world` for your first chat completion.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable endpoints, models, limits, prices, preview status, or retention.
+- Record live account observations as environment-specific evidence, not universal Mistral guarantees.

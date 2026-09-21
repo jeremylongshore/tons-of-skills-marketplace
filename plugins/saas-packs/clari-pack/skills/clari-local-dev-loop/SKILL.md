@@ -1,158 +1,91 @@
 ---
 name: clari-local-dev-loop
-description: 'Set up local development for Clari API integrations with mock data.
-
-  Use when building forecast dashboards, testing export pipelines,
-
-  or iterating on Clari data transformations locally.
-
-  Trigger with phrases like "clari dev setup", "clari local testing",
-
-  "develop with clari", "clari mock data".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(python3:*), Grep
-version: 1.6.0
+description: >-
+  Build and test a Clari integration locally with redacted fixtures and a deterministic job simulator. Use when developing without spending quota or exposing customer data. Trigger with: "mock Clari locally", "build Clari fixtures", "test Clari offline".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[surface-contract-and-fixture-set]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- revenue-intelligence
-- forecasting
-- clari
-compatibility: Designed for Claude Code
+  - saas
+  - clari
+  - local-development
+  - fixtures
+  - contract-testing
+compatibility: 'Requires a local test runner, approved synthetic or irreversibly redacted fixtures, and a pinned provider contract snapshot.'
 ---
-# Clari Local Dev Loop
+
+# Clari Offline Contract Development Loop
 
 ## Overview
 
-Local development workflow for Clari integrations: mock forecast data for offline testing, schedule recurring exports, and build data transformation pipelines.
+Make offline development the default and live provider calls an explicit integration stage. Model the provider’s authentication headers, job transitions, pagination, error objects, and schema drift without storing secrets or production records.
 
 ## Prerequisites
 
-- Completed `clari-install-auth` setup
-- Python 3.10+ or Node.js 18+
-- Local database or data warehouse access for testing
+- Chosen Clari surface and pinned contract version or fingerprint
+- Synthetic fixtures covering success, empty, partial, and failure responses
+- Local secret scanning and test-data classification rules
 
 ## Instructions
 
-### Step 1: Project Structure
+### Step 1: Define the contract boundary
 
-```
-clari-integration/
-├── src/
-│   ├── clari_client.py       # API client wrapper
-│   ├── export_pipeline.py    # Export and transform pipeline
-│   ├── models.py             # Data models for forecast data
-│   └── config.py             # Environment config
-├── tests/
-│   ├── fixtures/
-│   │   ├── forecast_export.json    # Sample export response
-│   │   └── job_status.json         # Sample job status
-│   └── test_pipeline.py
-├── .env.local                # Dev credentials (git-ignored)
-├── .env.example
-└── requirements.txt
-```
+List endpoints, headers, request fields, response fields, job states, and pagination semantics used by the integration.
 
-### Step 2: Mock Forecast Data for Testing
+### Step 2: Build synthetic fixtures
 
-```python
-# tests/fixtures/forecast_export.json
-MOCK_FORECAST = {
-    "entries": [
-        {
-            "ownerName": "Jane Smith",
-            "ownerEmail": "jane@example.com",
-            "forecastAmount": 250000,
-            "quotaAmount": 300000,
-            "crmTotal": 180000,
-            "crmClosed": 120000,
-            "adjustmentAmount": 15000,
-            "timePeriod": "2026_Q1"
-        },
-        {
-            "ownerName": "Bob Johnson",
-            "ownerEmail": "bob@example.com",
-            "forecastAmount": 180000,
-            "quotaAmount": 250000,
-            "crmTotal": 140000,
-            "crmClosed": 90000,
-            "adjustmentAmount": 0,
-            "timePeriod": "2026_Q1"
-        }
-    ]
-}
-```
+Create minimal payloads that preserve shapes and identifiers while containing no real people, accounts, calls, forecasts, or deal values.
 
-### Step 3: Test Pipeline Without API Calls
+### Step 3: Simulate state transitions
 
-```python
-# tests/test_pipeline.py
-import pytest
-from src.export_pipeline import transform_forecast_data
+Make the test server move deterministically through queued, running, completed, aborted, rate-limited, and timed-out paths.
 
-def test_forecast_aggregation():
-    data = MOCK_FORECAST
-    result = transform_forecast_data(data)
-    assert result["total_forecast"] == 430000
-    assert result["total_quota"] == 550000
-    assert result["attainment_percent"] == pytest.approx(78.2, rel=0.1)
-    assert len(result["reps"]) == 2
+### Step 4: Exercise adapters
 
-def test_handles_empty_export():
-    result = transform_forecast_data({"entries": []})
-    assert result["total_forecast"] == 0
-```
+Run parser, schema, retry, pagination, idempotency, and redaction tests against the simulator with network access disabled.
 
-### Step 4: Development Run Script
+### Step 5: Add one gated live smoke test
 
-```bash
-#!/bin/bash
-# scripts/dev-export.sh
-set -euo pipefail
+Use a dedicated non-production identity and the smallest read-only request; skip it unless credentials and explicit integration-test approval are present.
 
-source .env.local
+### Step 6: Refresh deliberately
 
-echo "=== Clari Dev Export ==="
-python3 src/export_pipeline.py \
-  --forecast "company_forecast" \
-  --period "2026_Q1" \
-  --format json \
-  --output ./data/latest-export.json
+When the provider contract changes, review the diff, update fixtures and assertions together, and retain the old failing fixture as migration evidence.
 
-echo "Export saved to ./data/latest-export.json"
-echo "Records: $(jq '.entries | length' ./data/latest-export.json)"
-```
+## Authentication
 
-## Error Handling
+Offline tests must use obvious dummy values. A gated live test may read credentials from the approved secret manager at runtime, but must never serialize headers or provider payloads into test output.
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Import error | Missing dependency | `pip install -r requirements.txt` |
-| Empty export | Wrong time period | Use a period with submitted forecasts |
-| Mock data stale | Schema changed | Re-download a sample from API |
-| `.env.local` not loading | Missing dotenv | `pip install python-dotenv` |
+## Tool Discipline
+
+Use Read and Grep to inspect configuration, provider contracts, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not issue, rotate, revoke, create, update, cancel, delete, export, ingest, or publish provider data without explicit operator approval.
 
 ## Output
 
-The development run produces a local, access-controlled fixture or explicitly
-approved sanitized export plus a manifest with period, schema version, record
-count, transformation result, and test status. Never commit `.env.local`, live
-tokens, temporary download URLs, or raw production forecast records.
+- Pinned endpoint and schema contract manifest
+- Synthetic fixture set with provenance and data-classification receipt
+- Offline test report plus separately identified live-smoke result
+
+Return the exact surface, environment, resource or job identifiers, contract fingerprint, evidence, unresolved risks, and final decision without exposing credentials or sensitive customer data.
 
 ## Examples
 
-Run the pipeline against a synthetic fixture, assert the aggregate totals, and
-write only the sanitized result to the local data directory. If a developer
-needs a real schema sample, obtain a limited read-only export, redact it before
-use, and delete it under the project retention rule after the test completes.
+A local export client receives synthetic `SCHEDULED`, `STARTED`, and `DONE` responses, then a 429 and an `ABORTED` job. CI proves bounded retry and redaction without consuming a Clari export.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Fixture contains real customer data | Quarantine and remove it, rotate any exposed credential, and replace it with generated values. |
+| Mock diverges from the provider contract | Pin the current contract fingerprint and add a regression fixture for the observed delta. |
+| Live smoke runs unexpectedly | Fail closed unless an explicit environment gate and non-production credential are both present. |
 
 ## Resources
 
-- [Clari API Reference](https://developer.clari.com/documentation/external_spec)
-- [pytest Documentation](https://docs.pytest.org)
-
-## Next Steps
-
-See `clari-sdk-patterns` for production-ready API wrappers.
+- [First-party source notes](references/official-docs.md)
+- [Clari Revenue API reference](https://developer.clari.com/default/documentation/external_spec)
+- [Clari Copilot API reference](https://api-doc.copilot.clari.com/)

@@ -16,7 +16,7 @@ jobs:
   generate-and-review:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Step 1: Generate the prompt-spec
       - name: Generate prompt-spec
@@ -48,7 +48,7 @@ jobs:
 
       # Step 3: Upload spec as artifact (always)
       - name: Upload spec artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: prompt-spec-pr-${{ github.event.pull_request.number }}
           path: .pr-to-prompt/specs/
@@ -56,7 +56,7 @@ jobs:
       # Step 4: Post risk summary comment (only for risky PRs)
       - name: Post risk comment
         if: steps.risk.outputs.needs_review == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');

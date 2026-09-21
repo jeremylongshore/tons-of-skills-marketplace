@@ -8,7 +8,7 @@ description: "Manage LangChain 1.0 prompts like code \u2014 LangSmith prompt hub
   \ \"langchain prompt hub\", \"langsmith prompts\",\n\"prompt versioning\", \"claude\
   \ xml prompt\", \"few-shot example selector\",\n\"prompt engineering\".\n"
 allowed-tools: Read, Write, Edit, Bash(python:*), Bash(pip:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -372,6 +372,6 @@ See [Few-Shot Selectors](references/few-shot-selectors.md) for split, curation, 
 - [LangChain Python: Prompt templates](https://python.langchain.com/docs/concepts/prompt_templates/)
 - [LangChain Python: Few-shot prompting](https://python.langchain.com/docs/how_to/few_shot_examples_chat/)
 - [LangChain Python: Example selectors](https://python.langchain.com/docs/how_to/example_selectors/)
-- [Anthropic: Use XML tags in prompts](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/use-xml-tags)
-- [Anthropic: Giving Claude a role (system prompts)](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/system-prompts)
+- [Anthropic: Use XML tags in prompts](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#structure-prompts-with-xml-tags)
+- [Anthropic: Giving Claude a role (system prompts)](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#give-claude-a-role)
 - Pack pain catalog: `docs/pain-catalog.md` (entries P03, P53, P57, P58)

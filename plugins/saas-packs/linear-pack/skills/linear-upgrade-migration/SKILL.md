@@ -1,253 +1,92 @@
 ---
 name: linear-upgrade-migration
-description: 'Upgrade Linear SDK versions and handle breaking changes safely.
-
-  Use when updating to a new SDK version, handling deprecations,
-
-  or migrating between API versions.
-
-  Trigger: "upgrade linear SDK", "linear SDK migration",
-
-  "update linear", "linear breaking changes", "linear deprecation".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(npx:*), Grep
-version: 1.12.0
-license: MIT
+description: >-
+  Upgrade a Linear integration across SDK releases and GraphQL deprecations with typed inventory, staged verification, and rollback. Use when package updates or schema notices require code changes. Trigger with "upgrade Linear SDK", "migrate Linear API code", or "fix Linear deprecation".
+argument-hint: "[repository-path] [target-version-or-deprecation]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.13.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linear
-- api
-- migration
-compatibility: Designed for Claude Code
+- upgrade
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Linear workspace credential
 ---
-# Linear Upgrade Migration
+# Linear SDK and Schema Upgrade
 
 ## Overview
 
-Safely upgrade `@linear/sdk` versions with zero downtime. The SDK is auto-generated from Linear's GraphQL schema -- major versions can rename fields, change return types, add required parameters, or remove deprecated methods. This skill covers version checking, upgrade procedure, compatibility layers, and rollback.
+Derive the migration from the installed/current SDK diff and live schema instead of assuming every version change repeats the historical 1.x-to-2.x rename.
 
 ## Prerequisites
 
-- Existing Linear integration with version control (Git)
-- Test suite covering Linear SDK operations
-- Understanding of semantic versioning
+- The target repository, Linear workspace, environment, and accountable owner
+- Current security, privacy, compliance, capacity, and change-control requirements
+- An approved Linear credential only when a bounded live verification is necessary
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current first-party Linear documentation and package metadata. Use `Write` or `Edit` only for requested implementation with known target files. Never write credentials, customer content, unrestricted environment output, or unredacted GraphQL variables.
+
+## Current Contract
+
+- The historical SDK 2.x migration changed mutations from model-first to verb-first names; modern upgrades must use actual release and type changes.
+- Linear GraphQL has no conventional versioned API; deprecated fields use `@deprecated`, and API changes appear in the changelog with an `[API]` prefix.
+- On 2026-09-11 npm reported `@linear/sdk` 95.0.0 requiring Node.js `>=18.x`; recheck before each upgrade.
+
+## Authentication
+
+Use a personal API key only for owner-controlled scripts, OAuth with PKCE for user-delegated applications, or an enabled client-credentials grant for approved automation. Personal keys use `Authorization: <API_KEY>`; OAuth tokens use `Authorization: Bearer <ACCESS_TOKEN>`. Store credentials server-side in an approved secret manager.
+
+Treat app approval, team access, scope changes, credential creation, rotation, revocation, and production access as owner-approved actions.
 
 ## Instructions
 
-### Step 1: Check Current vs Latest Version
+1. Record current Node, SDK, lockfile, generated types, GraphQL operations, custom raw queries, and deprecated-field usage.
+2. Read the target package metadata, repository changes, generated schema/type diff, and applicable Linear API changelog entries.
+3. Classify compile-time renames, behavioral changes, auth/data implications, and runtime-only risks.
+4. Upgrade on a bounded branch, commit the resolved lockfile, and repair adapters before business call sites.
+5. Run static checks, unit/fixture tests, GraphQL contract tests, and an approved read-only workspace probe.
+6. Stage rollout with package rollback instructions, monitoring thresholds, and schema reconciliation evidence.
 
-```bash
-set -euo pipefail
-# Current installed version
-npm list @linear/sdk 2>/dev/null || echo "Not installed"
+## Approval Boundaries
 
-# Latest available
-npm view @linear/sdk version
+Do not create, reveal, rotate, or revoke credentials; authorize an OAuth app; change scopes or team access; create, mutate, archive, or delete workspace data; configure or re-enable webhooks; import or export data; change roles, SCIM, or audit streaming; transmit diagnostics; change paid entitlements; or perform another production mutation without explicit approval from the accountable owner. Keep diagnosis read-only unless implementation was requested.
 
-# All recent versions
-npm view @linear/sdk versions --json | jq '.[-10:]'
-```
+## Output
 
-### Step 2: Review Changelog for Breaking Changes
-
-```bash
-set -euo pipefail
-# View SDK changelog on GitHub
-npm view @linear/sdk repository.url
-# Then check: https://github.com/linear/linear/blob/master/packages/sdk/CHANGELOG.md
-
-# Also review Linear's API changelog:
-# https://linear.app/changelog (filter for API/developer updates)
-```
-
-Common breaking changes between major versions:
-
-- **Renamed fields**: e.g., `issue.state` property vs lazy relation
-- **Changed return types**: direct value to paginated connection
-- **New required parameters**: mutations gaining mandatory fields
-- **Removed methods**: deprecated methods dropped
-- **ESM/CJS**: module system changes
-
-### Step 3: Create Upgrade Branch and Install
-
-```bash
-set -euo pipefail
-git checkout -b upgrade/linear-sdk-$(npm view @linear/sdk version)
-npm install @linear/sdk@latest
-
-# Immediately check for type errors
-npx tsc --noEmit 2>&1 | head -50
-```
-
-### Step 4: Fix Type Errors with Compatibility Layer
-
-```typescript
-// src/linear-compat.ts
-// Bridge pattern for gradual migration across SDK versions
-
-import { LinearClient } from "@linear/sdk";
-
-/**
- * Normalize issue state access across SDK versions.
- * SDK v2: issue.state was a direct string property
- * SDK v3+: issue.state is a lazy-loaded WorkflowState relation
- */
-export async function getIssueStateName(issue: any): Promise<string> {
-  if (typeof issue.state === "string") return issue.state;
-  const state = await issue.state;
-  return state?.name ?? "unknown";
-}
-
-export async function getIssueStateType(issue: any): Promise<string> {
-  if (typeof issue.stateType === "string") return issue.stateType;
-  const state = await issue.state;
-  return state?.type ?? "unknown";
-}
-
-/**
- * Normalize team access — some versions changed from direct to paginated.
- */
-export async function getTeamByKey(client: LinearClient, key: string) {
-  const teams = await client.teams({ filter: { key: { eq: key } } });
-  return teams.nodes[0];
-}
-
-/**
- * Normalize issue creation return — handle both success shapes.
- */
-export async function createIssue(
-  client: LinearClient,
-  input: { teamId: string; title: string; [key: string]: any }
-) {
-  const result = await client.createIssue(input);
-  // Some versions return { success, issue } others return directly
-  if ("success" in result) {
-    return { success: result.success, issue: await result.issue };
-  }
-  return { success: true, issue: result };
-}
-```
-
-### Step 5: Run Tests and Fix Failures
-
-```bash
-set -euo pipefail
-# Type-check
-npx tsc --noEmit
-
-# Run unit tests
-npm test
-
-# Run integration tests (if API key available)
-npm run test:integration 2>&1 || true
-
-# Lint
-npm run lint 2>&1 || true
-```
-
-Common fixes:
-
-```typescript
-// Fix: Property 'x' does not exist
-// Old: issue.statusName
-// New: (await issue.state)?.name
-
-// Fix: Type 'X' is not assignable to type 'Y'
-// Old: const states: string[] = team.states
-// New: const states = await team.states()
-
-// Fix: Expected 2 arguments but got 1
-// Check if mutation added required parameter
-// Old: client.updateIssue(id, { title: "new" })
-// New: client.updateIssue(id, { title: "new" })  // usually same
-```
-
-### Step 6: Test in Staging Before Production
-
-```bash
-set -euo pipefail
-# Deploy to staging
-npm run build
-npm run deploy:staging
-
-# Run integration tests against staging
-LINEAR_API_KEY=$STAGING_LINEAR_API_KEY npm run test:integration
-
-# Check health endpoint
-curl -s https://staging.yourapp.com/health/linear | jq .
-```
-
-### Step 7: Deploy with Rollback Plan
-
-```bash
-set -euo pipefail
-# Commit upgrade
-git add package.json package-lock.json src/linear-compat.ts
-git commit -m "chore: upgrade @linear/sdk to $(npm list @linear/sdk --json | jq -r '.dependencies["@linear/sdk"].version')"
-git push origin upgrade/linear-sdk-*
-
-# If something breaks in production:
-git revert HEAD
-npm install  # Restores previous version
-npm run deploy
-```
-
-## Version Compatibility
-
-| SDK Range | Node.js | TypeScript | Notable Changes |
-|-----------|---------|------------|-----------------|
-| 1.x | 14+ | 4.5+ | Initial release, callback-style |
-| 2.x-16.x | 16+ | 4.7+ | ESM support, typed models |
-| 17.x-28.x | 18+ | 5.0+ | Strict types, new entity models |
-| Latest | 18+ | 5.0+ | Refresh tokens, initiatives, agents |
+Return the workspace and team scope, auth mode without credential value, files and contracts inspected, exact operation names, evidence collected, validation result, sensitive fields redacted, remaining risk, accountable owner, approval state, and rollback or next action.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Property does not exist` | Renamed field | Check changelog, update field name |
-| `Type is not assignable` | Changed return type | Update type annotations |
-| `Module not found` | ESM/CJS mismatch | Update import syntax or `tsconfig` |
-| `Cannot find name` | Removed export | Replace with new API equivalent |
-| Tests pass, prod fails | SDK version mismatch in lockfile | Delete `node_modules`, `npm ci` |
+| Condition | Response |
+|---|---|
+| No release evidence | Do not guess migration steps from the version number; inspect the package/schema diff. |
+| Node incompatible | Upgrade runtime through its own approved lane or choose a supported SDK version. |
+| Deprecated field still works | Schedule removal from the documented notice; do not rely on a non-functioning stub. |
+| Live probe differs | Stop rollout, preserve the response contract, and update tests/adapter deliberately. |
 
 ## Examples
 
-### Pre-Upgrade Audit Script
+Use a compact handoff that makes scope, mutation authority, and verification evidence reviewable.
 
-```typescript
-// scripts/audit-linear-usage.ts
-// Run before upgrading to find all SDK touchpoints
+Input:
 
-import { readFileSync } from "fs";
-import { globSync } from "glob";
+```text
+current=resolved-lockfile; target=95.0.0; raw-queries=4; deprecations=inventory
+```
 
-const files = globSync("src/**/*.ts");
-const patterns = [
-  /LinearClient/g,
-  /client\.issues/g,
-  /client\.createIssue/g,
-  /client\.updateIssue/g,
-  /\.state\b/g,
-  /\.assignee\b/g,
-  /rawRequest/g,
-];
+Expected handoff:
 
-for (const file of files) {
-  const content = readFileSync(file, "utf-8");
-  for (const pattern of patterns) {
-    const matches = content.match(pattern);
-    if (matches) {
-      console.log(`${file}: ${pattern.source} (${matches.length} occurrences)`);
-    }
-  }
-}
+```text
+diff=reviewed; tests=required; rollout=staged; rollback=package-pin
 ```
 
 ## Resources
 
-- [SDK Changelog](https://github.com/linear/linear/blob/master/packages/sdk/CHANGELOG.md)
-- [API Changelog](https://linear.app/changelog)
-- [SDK npm Page](https://www.npmjs.com/package/@linear/sdk)
+- [Skill-specific official documentation](references/official-docs.md)
+- [Linear developer documentation index](https://linear.app/llms.txt)
+- [Linear GraphQL API](https://linear.app/developers/graphql.md)

@@ -14,20 +14,17 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jeremylongshore/claude-code-plugins-plus-skills.git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/design/uizze"
   },
   "homepage": "https://tonsofskills.com/plugins/uizze",
-  "bugs": "https://github.com/jeremylongshore/claude-code-plugins-plus-skills/issues",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
   "private": true,
   "license": "MIT",
   "author": {
     "name": "UIZZE",
     "email": "business@uizze.com",
     "url": "https://uizze.com"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "files": [
     "README.md",

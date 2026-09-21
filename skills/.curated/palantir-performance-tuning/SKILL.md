@@ -1,181 +1,95 @@
 ---
 name: palantir-performance-tuning
-description: 'Optimize Palantir Foundry API performance with caching, batching, and
-  pagination.
-
-  Use when experiencing slow API responses, optimizing transform builds,
-
-  or improving request throughput for Foundry integrations.
-
-  Trigger with phrases like "palantir performance", "optimize foundry",
-
-  "foundry slow", "palantir caching", "foundry batch".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.5.0
-license: MIT
+description: >-
+  Tune Foundry transforms, OSDK queries, and Compute Modules from measured bottlenecks and correctness constraints. Use when latency, queue time, memory, throughput, or freshness misses objectives. Trigger with "Palantir performance" or "Foundry build slow".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[build-query-or-module]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- performance
-- optimization
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, performance, optimization]
 ---
-# Palantir Performance Tuning
+# Palantir Workload Performance Tuning
 
 ## Overview
 
-Optimize Foundry API performance: efficient pagination, client-side caching, batch object retrieval, and Spark transform tuning with `@configure` profiles.
+Identify whether delay comes from build scheduling, compute, data shape, transaction history, query breadth, network concurrency, or interactive replicas. Change one layer at a time and retain output parity and access controls.
 
 ## Prerequisites
 
-- Completed `palantir-install-auth` setup
-- Working Foundry integration to optimize
-- Access to Foundry build metrics (for transform tuning)
+- Name the workload owner, service/data objective, representative window, exact build/query/module, and correctness tolerance.
+- Capture queue time, duration, CPU, memory, input/output volume, retries, pagination, selected properties, and replica behavior.
+- Read `references/official-docs.md` and confirm required engine features before changing compute.
+- Prepare a sandbox branch or non-production application and a repeatable benchmark.
+
+## Current Contract
+
+- Foundry build metrics show requested and observed CPU/memory and can distinguish scheduling from execution constraints.
+- Single-node and Spark engines support different features; Polars is recommended for many production single-node transforms but is not universally interchangeable.
+- Incremental histories can become progressively slow and may require a snapshot build.
+- OSDK query performance depends on filters, selected properties, pagination, links, aggregations, and subscription shape.
 
 ## Instructions
 
-### Step 1: Efficient Pagination
+1. Define one user-visible or data objective and reproduce the miss on an exact workload version.
 
-```python
-from functools import lru_cache
+2. Locate the dominant bottleneck using Foundry metrics, build reports, query traces or timings, and module replica evidence.
 
-def fetch_all_objects(client, ontology: str, object_type: str, page_size: int = 500):
-    """Fetch all objects with maximum page size to minimize API calls."""
-    all_objects = []
-    page_token = None
-    while True:
-        result = client.ontologies.OntologyObject.list(
-            ontology=ontology,
-            object_type=object_type,
-            page_size=min(page_size, 500),  # Foundry max is 500
-            page_token=page_token,
-        )
-        all_objects.extend(result.data)
-        page_token = result.next_page_token
-        if not page_token:
-            break
-    return all_objects
-```
+3. Choose one bounded experiment: engine/resource request, partition/join shape, incremental snapshot, query filter/property selection, pagination, concurrency, or replica configuration.
 
-### Step 2: Client-Side Caching
+4. Run the benchmark and compare correctness, access behavior, latency distribution, throughput, queue time, resource use, and failure rate.
 
-```python
-from cachetools import TTLCache
-import hashlib, json
+5. Promote only a statistically and operationally meaningful improvement, then observe a representative production window.
 
-_cache = TTLCache(maxsize=1000, ttl=300)  # 5-minute TTL
+## Tool Discipline
 
-def cached_get_object(client, ontology, object_type, primary_key):
-    """Cache Ontology object reads to reduce API calls."""
-    cache_key = f"{ontology}:{object_type}:{primary_key}"
-    if cache_key in _cache:
-        return _cache[cache_key]
-    obj = client.ontologies.OntologyObject.get(
-        ontology=ontology, object_type=object_type, primary_key=primary_key,
-    )
-    _cache[cache_key] = obj
-    return obj
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-def invalidate_cache(ontology, object_type, primary_key):
-    cache_key = f"{ontology}:{object_type}:{primary_key}"
-    _cache.pop(cache_key, None)
-```
+## Approval Boundaries
 
-### Step 3: Batch Object Retrieval
-
-```python
-def batch_get_objects(client, ontology, object_type, primary_keys, batch_size=50):
-    """Retrieve multiple objects using search filter instead of individual GETs."""
-    results = {}
-    for i in range(0, len(primary_keys), batch_size):
-        batch = primary_keys[i:i+batch_size]
-        search_result = client.ontologies.OntologyObject.search(
-            ontology=ontology,
-            object_type=object_type,
-            where={
-                "type": "in",
-                "field": "primaryKey",
-                "value": batch,
-            },
-            page_size=batch_size,
-        )
-        for obj in search_result.data:
-            pk = obj.properties.get("primaryKey", obj.rid)
-            results[pk] = obj
-    return results
-```
-
-### Step 4: Transform Build Performance
-
-```python
-from transforms.api import transform_df, Input, Output, configure, incremental
-
-# Use incremental for append-only data — processes only new rows
-@incremental()
-@transform_df(
-    Output("/Company/datasets/events_processed"),
-    events=Input("/Company/datasets/raw_events"),
-)
-def process_events(events):
-    return events.filter(events.event_type.isNotNull())
-
-# Tune Spark resources for heavy aggregations
-@configure(profile=["DRIVER_MEMORY_LARGE", "EXECUTOR_MEMORY_LARGE"])
-@transform_df(
-    Output("/Company/datasets/daily_summary"),
-    data=Input("/Company/datasets/large_table"),
-)
-def daily_summary(data):
-    from pyspark.sql import functions as F
-    return data.groupBy("date", "region").agg(
-        F.sum("revenue").alias("total_revenue"),
-        F.countDistinct("user_id").alias("unique_users"),
-    )
-```
-
-### Step 5: Connection Pooling
-
-```python
-import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
-
-session = requests.Session()
-adapter = HTTPAdapter(
-    pool_connections=10,
-    pool_maxsize=20,
-    max_retries=Retry(total=3, backoff_factor=0.5, status_forcelist=[429, 500, 502, 503]),
-)
-session.mount("https://", adapter)
-```
+Data and pipeline owners approve transform or snapshot changes; application owners approve query changes; platform owners approve module resources or scaling. Do not trade away correctness, security, or availability without an explicit owner decision.
 
 ## Output
 
-- Maximum page size pagination reducing API call count
-- TTL-based caching for repeated object reads
-- Batch search replacing individual GET calls
-- Optimized Spark transforms with `@configure` and `@incremental`
+A performance profile, bottleneck hypothesis, experiment, exact version, before/after metrics, parity and access tests, accepted change, rollback threshold, and follow-up observation.
 
 ## Error Handling
 
-| Performance Issue | Diagnosis | Fix |
-|-------------------|-----------|-----|
-| Slow pagination | Small page_size | Increase to 500 (max) |
-| Repeated reads | No caching | Add TTLCache |
-| N+1 object fetches | Individual GETs | Use batch search |
-| Transform OOM | Insufficient memory | Add `@configure(profile=["..._LARGE"])` |
-| Full rebuild on append data | Not incremental | Add `@incremental()` decorator |
+| Condition | Response |
+|---|---|
+| Metrics show queue delay rather than compute saturation | Avoid increasing resources blindly; assess requested resources and scheduler availability. |
+| An engine change loses a required feature | Reject the experiment and use a compatible engine or redesign the workload. |
+| Incremental latency grows over time | Rehearse a controlled snapshot and validate parity before resetting history. |
+| A faster query changes returned objects | Restore the prior query and correct filters, ordering, properties, or pagination. |
+
+## Examples
+
+### Example 1
+
+Diagnose an OOM transform by comparing requested and observed memory, join shape, input volume, and engine features, then validate one resource or algorithm change on a branch build.
+
+### Example 2
+
+Reduce an OSDK page's latency by adding a selective filter, requesting only displayed properties, bounding page size, and proving the same authorized object set and continuation behavior.
+
+## Validation
+
+- The bottleneck is supported by measured platform evidence.
+- Before/after runs use the same representative workload and exact code/data contract.
+- Outputs and permissions remain equivalent within the approved tolerance.
+- Tail latency, queue time, failures, and resource use are all reported.
+- Rollback is tested or mechanically straightforward.
 
 ## Resources
 
-- [Transforms @configure](https://www.palantir.com/docs/foundry/api-reference/transforms-python-library/api-configure)
-- [Incremental Transforms](https://www.palantir.com/docs/foundry/transforms-python/transforms-pipelines)
-- [cachetools](https://cachetools.readthedocs.io/)
-
-## Next Steps
-
-For cost optimization, see `palantir-cost-tuning`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

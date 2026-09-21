@@ -12,7 +12,7 @@ description: 'Send your first message to Claude using the Anthropic SDK.
 
   '
 allowed-tools: Read, Write, Edit
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -127,8 +127,8 @@ See Step 1 (basic message), Step 2 (system prompt), and Step 3 (multi-turn) abov
 
 ## Resources
 
-- [Messages API Reference](https://docs.anthropic.com/en/api/messages)
-- [Model Overview](https://docs.anthropic.com/en/docs/about-claude/models)
+- [Messages API Reference](https://platform.claude.com/docs/en/api/messages)
+- [Model Overview](https://platform.claude.com/docs/en/models/overview)
 
 ## Next Steps
 

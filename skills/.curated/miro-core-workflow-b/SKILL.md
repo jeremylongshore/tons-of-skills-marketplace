@@ -1,283 +1,84 @@
 ---
 name: miro-core-workflow-b
-description: 'Manage Miro connectors, images, embeds, app cards, and document items
-  via REST API v2.
-
-  Use for visual workflows, embedding content, and building rich board layouts.
-
-  Trigger with phrases like "miro connectors", "miro embed",
-
-  "miro app card", "miro image upload", "connect miro items".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.7.0
-license: MIT
+description: "Design and implement a Miro read-and-reconcile client with cursor-safe pagination, bounded snapshots, and drift reports. Use when syncing or auditing Miro content. Trigger with \"reconcile Miro board\"."
+argument-hint: "[board-id] [scope]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - miro
-- connectors
-- embeds
-- app-cards
-compatibility: Designed for Claude Code
+- boards
+- reconciliation
+- sync
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live work requires an authorized Miro app and redacted evidence
 ---
-# Miro Core Workflow B — Connectors, Embeds & Rich Items
+# Miro Board Read and Reconciliation
 
 ## Overview
 
-Advanced item operations: connectors between items, image uploads, embedded content, app cards for custom integrations, and document items — all via the Miro REST API v2.
+Produce a consistent, bounded view of board state and distinguish indexing delay, pagination defects, and real drift before proposing changes; use the evidence produced here to make the next decision explicit and reviewable.
 
 ## Prerequisites
 
-- Completed `miro-core-workflow-a` (boards and basic items)
-- Access token with `boards:read` and `boards:write` scopes
+- Approved board and team scope
+- OAuth installation with `boards:read`
+- Field, item-type, pagination, freshness, and redaction requirements
 
-## Connectors
+## Tool Discipline
 
-Connectors are lines that visually link two items on a board. They replaced "lines" from the v1 API.
+Use `Read`, `Glob`, and `Grep` to inspect the repository, configuration names, adapters, tests, and evidence. Use `WebFetch` only for current official Miro documentation. Use `Write` or `Edit` after confirming the requested mode, target environment, tenant, board, and approval boundary. These declared tools do not call authenticated Miro APIs or deployment CLIs; implement client, configuration, and test changes, then return exact operator commands or an approval-gated handoff for live execution.
 
-### Create a Connector
+## Current Contract
 
-```typescript
-// POST https://api.miro.com/v2/boards/{board_id}/connectors
-const connector = await miroFetch(`/v2/boards/${boardId}/connectors`, 'POST', {
-  startItem: {
-    id: startItemId,
-    position: {
-      x: 1.0,   // 0.0–1.0 relative position on item boundary
-      y: 0.5,   // 0.0 = top/left, 1.0 = bottom/right
-    },
-    // or use snapTo: 'right' | 'left' | 'top' | 'bottom' | 'auto'
-  },
-  endItem: {
-    id: endItemId,
-    snapTo: 'left',
-  },
-  captions: [
-    {
-      content: 'depends on',
-      position: 0.5,             // 0.0–1.0 along the connector line
-      textAlignVertical: 'top',  // 'top' | 'middle' | 'bottom'
-    },
-  ],
-  shape: 'curved',               // 'straight' | 'elbowed' | 'curved'
-  style: {
-    color: '#1a1a2e',
-    fontSize: 12,
-    strokeColor: '#1a1a2e',
-    strokeWidth: 2,
-    strokeStyle: 'normal',       // 'normal' | 'dashed' | 'dotted'
-    startStrokeCap: 'none',      // 'none' | 'stealth' | 'diamond' | 'filled_diamond' | etc.
-    endStrokeCap: 'stealth',     // arrow-style endpoint
-  },
-});
+- Board collection filters other than team/project can have indexing delay.
+- Collection endpoints use cursor pagination where documented; cursor presence, not page fullness, controls continuation.
+- Different item types have distinct v2 schemas and must not be collapsed into a v1 widget shape.
+- Resource URLs and board content are sensitive and may be time-bound or access-controlled.
 
-console.log(`Connector ${connector.id}: ${startItemId} → ${endItemId}`);
-```
+## Authentication
 
-### List All Connectors on a Board
-
-```typescript
-// GET https://api.miro.com/v2/boards/{board_id}/connectors
-const connectors = await miroFetch(`/v2/boards/${boardId}/connectors?limit=50`);
-for (const c of connectors.data) {
-  console.log(`${c.startItem.id} --[${c.captions?.[0]?.content ?? ''}]--> ${c.endItem.id}`);
-}
-```
-
-### Update a Connector
-
-```typescript
-// PATCH https://api.miro.com/v2/boards/{board_id}/connectors/{connector_id}
-await miroFetch(`/v2/boards/${boardId}/connectors/${connectorId}`, 'PATCH', {
-  captions: [{ content: 'blocks', position: 0.5 }],
-  style: { strokeColor: '#ff0000', endStrokeCap: 'filled_triangle' },
-});
-```
-
-### Delete a Connector
-
-```typescript
-// DELETE https://api.miro.com/v2/boards/{board_id}/connectors/{connector_id}
-await miroFetch(`/v2/boards/${boardId}/connectors/${connectorId}`, 'DELETE');
-```
-
-## Images
-
-### Upload Image from URL
-
-```typescript
-// POST https://api.miro.com/v2/boards/{board_id}/images
-const image = await miroFetch(`/v2/boards/${boardId}/images`, 'POST', {
-  data: {
-    url: 'https://example.com/architecture-diagram.png',
-    title: 'System Architecture',
-  },
-  position: { x: 500, y: 0 },
-  geometry: { width: 400 },   // height auto-calculated from aspect ratio
-});
-```
-
-### Upload Image from Base64 Data URL
-
-```typescript
-import fs from 'fs';
-
-// Read file and convert to data URL
-const imageBuffer = fs.readFileSync('diagram.png');
-const base64 = imageBuffer.toString('base64');
-const dataUrl = `data:image/png;base64,${base64}`;
-
-const image = await miroFetch(`/v2/boards/${boardId}/images`, 'POST', {
-  data: { url: dataUrl, title: 'Local Diagram' },
-  position: { x: 0, y: 400 },
-});
-```
-
-## Embed Items
-
-Embed external content (URLs rendered as previews).
-
-```typescript
-// POST https://api.miro.com/v2/boards/{board_id}/embeds
-const embed = await miroFetch(`/v2/boards/${boardId}/embeds`, 'POST', {
-  data: {
-    url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    mode: 'inline',    // 'inline' | 'modal'
-    previewUrl: '',     // optional custom preview image
-  },
-  position: { x: -400, y: 400 },
-  geometry: { width: 480, height: 270 },
-});
-```
-
-## App Cards
-
-App cards display custom data from your integration, with structured fields and status indicators.
-
-```typescript
-// POST https://api.miro.com/v2/boards/{board_id}/app_cards
-const appCard = await miroFetch(`/v2/boards/${boardId}/app_cards`, 'POST', {
-  data: {
-    title: 'JIRA-1234: Fix login bug',
-    description: 'Users unable to log in after password reset',
-    status: 'connected',     // 'disconnected' | 'connected' | 'disabled'
-    fields: [
-      { value: 'High', iconUrl: '', fillColor: '#ff0000', iconShape: 'round', tooltip: 'Priority' },
-      { value: 'In Progress', fillColor: '#ffd700', iconShape: 'square', tooltip: 'Status' },
-      { value: 'John Doe', tooltip: 'Assignee' },
-    ],
-  },
-  style: { cardTheme: '#2d9bf0' },
-  position: { x: 600, y: 200 },
-});
-```
-
-### Update App Card Status
-
-```typescript
-// PATCH https://api.miro.com/v2/boards/{board_id}/app_cards/{item_id}
-await miroFetch(`/v2/boards/${boardId}/app_cards/${appCardId}`, 'PATCH', {
-  data: {
-    status: 'connected',
-    fields: [
-      { value: 'Done', fillColor: '#00c853', tooltip: 'Status' },
-    ],
-  },
-});
-```
-
-## Document Items
-
-```typescript
-// POST https://api.miro.com/v2/boards/{board_id}/documents
-const doc = await miroFetch(`/v2/boards/${boardId}/documents`, 'POST', {
-  data: {
-    url: 'https://example.com/spec.pdf',
-    title: 'Technical Specification v2',
-  },
-  position: { x: -600, y: 0 },
-});
-```
-
-## Building a Visual Workflow
-
-Complete example: Kanban-style board with frames, cards, and connectors.
-
-```typescript
-async function buildKanbanBoard(boardId: string) {
-  // Create column frames
-  const todoFrame = await miroFetch(`/v2/boards/${boardId}/frames`, 'POST', {
-    data: { title: 'To Do', format: 'custom' },
-    position: { x: 0, y: 0 },
-    geometry: { width: 400, height: 800 },
-  });
-
-  const doingFrame = await miroFetch(`/v2/boards/${boardId}/frames`, 'POST', {
-    data: { title: 'In Progress', format: 'custom' },
-    position: { x: 500, y: 0 },
-    geometry: { width: 400, height: 800 },
-  });
-
-  const doneFrame = await miroFetch(`/v2/boards/${boardId}/frames`, 'POST', {
-    data: { title: 'Done', format: 'custom' },
-    position: { x: 1000, y: 0 },
-    geometry: { width: 400, height: 800 },
-  });
-
-  // Add cards inside frames
-  const card1 = await miroFetch(`/v2/boards/${boardId}/cards`, 'POST', {
-    data: { title: 'Design API schema', description: 'OpenAPI 3.1 spec' },
-    position: { x: 0, y: -200 },    // Inside todo frame
-    parent: { id: todoFrame.id },
-  });
-
-  const card2 = await miroFetch(`/v2/boards/${boardId}/cards`, 'POST', {
-    data: { title: 'Implement auth', description: 'OAuth 2.0 flow' },
-    position: { x: 500, y: -200 },
-    parent: { id: doingFrame.id },
-  });
-
-  // Connect cards to show dependency
-  await miroFetch(`/v2/boards/${boardId}/connectors`, 'POST', {
-    startItem: { id: card1.id, snapTo: 'right' },
-    endItem: { id: card2.id, snapTo: 'left' },
-    captions: [{ content: 'blocks' }],
-    style: { endStrokeCap: 'stealth', strokeStyle: 'dashed' },
-  });
-}
-```
+For REST work, use OAuth 2.0 Authorization Code with the narrowest Miro scopes. Bind each encrypted token record to its user, application, authorized team, and granted scopes. Never print access tokens, refresh tokens, client secrets, authorization codes, or board content.
 
 ## Instructions
 
-Use the ordered procedures and code samples in this guide as a sequence: begin with the prerequisites, apply the configuration or operational step for the target environment, then perform the documented validation or cleanup before proceeding. Keep credentials in the documented secret store; never hard-code them in source.
+1. Confirm token context and board ownership boundary.
+2. Define item types, fields, page/item ceilings, freshness window, and comparison keys.
+3. Traverse documented cursors while detecting repeats and enforcing termination limits.
+4. Normalize item-specific fields without discarding type or parent relationships.
+5. Compare the snapshot with the approved baseline and classify added, changed, missing, and uncertain records.
+6. Return a redacted drift report; propose writes separately with a new approval boundary.
+
+## Approval Boundaries
+
+Do not expand from one board/team to an organization-wide inventory, follow download URLs, or persist content beyond the approved purpose without approval. Pause when the responsible owner or exact target is uncertain.
 
 ## Output
 
-Following this guide produces the Miro integration outcome for its topic—configuration, validation evidence, operational recovery, or a documented migration result. Record command output and relevant identifiers so a failed step is traceable.
-
-## Examples
-
-Start with the smallest applicable command or code example in the relevant section, using a dedicated test board and non-production credentials. Confirm the expected response or validation result before applying the pattern to production.
+Return board context, pages/items read, cursor termination reason, freshness caveats, drift counts, uncertain records, and a content-handling receipt. State what was not inspected or changed so the receipt cannot overclaim coverage.
 
 ## Error Handling
 
-| Error | Status | Cause | Solution |
-|-------|--------|-------|----------|
-| `connectorStartItemNotFound` | 404 | Start item deleted | Verify both items exist |
-| `connectorEndItemNotFound` | 404 | End item deleted | Verify both items exist |
-| `invalidImageUrl` | 400 | URL inaccessible | Check URL is publicly reachable |
-| `imageTooLarge` | 400 | File exceeds size limit | Resize image before upload |
-| `embedUrlNotSupported` | 400 | URL cannot be embedded | Check Miro's supported embed providers |
+| Condition | Response |
+|---|---|
+| Cursor repeats | Stop and report an incomplete snapshot. |
+| Item type is unknown | Preserve its type and minimal raw structure; do not coerce it. |
+| Index lag suspected | Wait a bounded interval and re-read before declaring loss. |
+| Read scope is too broad | Reduce filters and fields before continuing. |
+
+## Examples
+
+The example is a redacted operator receipt; identifiers are hashes or bounded labels, not board content or credentials.
+
+```text
+board=hash:41a; pages=4; items=263; cursor=end; added=2; changed=1; missing=0; uncertain=0
+```
 
 ## Resources
 
-- [Work with Connectors](https://developers.miro.com/docs/work-with-connectors)
-- [Create Connector](https://developers.miro.com/reference/create-connector)
-- [App Card Use Cases](https://developers.miro.com/docs/app-card-use-cases)
-- [Create Image from Data URL](https://developers.miro.com/docs/create-an-image-from-a-data-url-source)
-
-## Next Steps
-
-For common errors and troubleshooting, see `miro-common-errors`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Get items](https://developers.miro.com/reference/get-items)
+- [REST comparison](https://developers.miro.com/docs/rest-api-comparison-guide)

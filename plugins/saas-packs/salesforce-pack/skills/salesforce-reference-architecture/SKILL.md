@@ -1,221 +1,79 @@
 ---
 name: salesforce-reference-architecture
-description: 'Implement Salesforce integration reference architecture with jsforce,
-  SFDX, and event-driven patterns.
-
-  Use when designing new Salesforce integrations, reviewing project structure,
-
-  or establishing architecture standards for Salesforce-connected applications.
-
-  Trigger with phrases like "salesforce architecture", "salesforce project structure",
-
-  "salesforce integration design", "how to organize salesforce code", "salesforce
-  layout".
-
-  '
-allowed-tools: Read, Grep
-version: 1.7.0
-license: MIT
+description: 'Design a governed Salesforce integration architecture with explicit authority, identity, API, event, data, evidence, limit, and recovery boundaries. Use when conducting architecture reviews. Trigger with "design Salesforce architecture".'
+argument-hint: "[system-or-domain] [constraints]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- crm
-- salesforce
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, salesforce, architecture, integration, governance]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; architecture and production trust-boundary decisions require enterprise, security, data, and Salesforce platform approval
 ---
-# Salesforce Reference Architecture
+# Governed Salesforce Integration Reference Architecture
 
 ## Overview
 
-Production-ready architecture patterns for Salesforce integrations, covering Node.js integration apps, SFDX metadata projects, and event-driven sync architectures.
+Create an evidence-backed target architecture that names every source of truth, mutation path, principal, data class, failure boundary, and recovery mechanism.
 
 ## Prerequisites
 
-- Understanding of layered architecture
-- jsforce and Salesforce CLI experience
-- TypeScript project setup
-- Decision on sync model (polling vs event-driven)
+- Business capabilities, system context, sources of truth, data owners, consumers, service objectives, and constraints
+- Org topology, Salesforce products, External Client Apps or existing Connected Apps, APIs, events, limits, and entitlements
+- Security, privacy, residency, retention, reconciliation, disaster recovery, support, and change-control requirements
 
-## Project Structure
+## Tool Discipline
 
-### Node.js Integration App
+Use `Read`, `Glob`, and `Grep` to inspect approved repository and evidence files, `WebFetch` to re-check current first-party Salesforce documentation, and `Write` or `Edit` only for secretless plans, fixtures, configuration, and redacted receipts.
 
-```
-my-sf-integration/
-├── src/
-│   ├── salesforce/
-│   │   ├── connection.ts       # Singleton jsforce connection with auto-refresh
-│   │   ├── types.ts            # Typed sObject interfaces (Account, Contact, etc.)
-│   │   ├── queries.ts          # SOQL query builders
-│   │   ├── mutations.ts        # Create/update/delete operations
-│   │   └── events.ts           # CDC and Platform Event subscribers
-│   ├── services/
-│   │   ├── account-sync.ts     # Business logic for Account sync
-│   │   ├── contact-sync.ts     # Business logic for Contact sync
-│   │   └── opportunity-sync.ts # Pipeline/forecast sync
-│   ├── api/
-│   │   ├── routes.ts           # Express/Fastify routes
-│   │   └── health.ts           # Health check with SF connectivity
-│   ├── jobs/
-│   │   ├── full-sync.ts        # Scheduled full data sync
-│   │   └── incremental-sync.ts # CDC-based incremental sync
-│   └── index.ts
-├── tests/
-│   ├── unit/                   # Mocked jsforce tests
-│   └── integration/            # Live sandbox tests
-├── config/
-│   ├── default.json            # Shared config
-│   └── production.json         # Production overrides
-└── package.json
-```
+## Current Contract
 
-### SFDX Metadata Project (Apex, LWC, Triggers)
+Salesforce provides multiple synchronous, asynchronous, bulk, composite, and event integration surfaces with org-specific availability and limits. No single direct API, middleware, replicated database, or event pattern is correct for every domain.
 
-```
-my-sf-app/
-├── force-app/main/default/
-│   ├── classes/                # Apex classes
-│   │   ├── AccountTriggerHandler.cls
-│   │   ├── ContactService.cls
-│   │   └── IntegrationService.cls
-│   ├── triggers/               # Apex triggers
-│   │   └── AccountTrigger.trigger
-│   ├── lwc/                    # Lightning Web Components
-│   │   └── accountList/
-│   ├── objects/                # Custom object metadata
-│   │   └── Integration_Log__c/
-│   ├── permissionsets/
-│   │   └── Integration_API_Access.permissionset-meta.xml
-│   └── flows/                  # Screen/record-triggered flows
-├── scripts/apex/               # Anonymous Apex scripts
-├── config/
-│   └── project-scratch-def.json
-└── sfdx-project.json
-```
+## Authentication
 
-## Integration Patterns
+Model human, integration, deployment, diagnostic, and break-glass principals separately. Bind each to an approved app, OAuth flow, minimum permissions, secret custody, rotation, revocation, and audit path.
 
-### Pattern A: Polling-Based Sync
+## Instructions
 
-```
-┌─────────────┐     SOQL Query      ┌─────────────┐
-│   Your App  │ ──────────────────▶  │  Salesforce  │
-│  (cron job) │  SELECT ... WHERE    │     Org      │
-│             │ ◀──────────────────  │              │
-│             │     JSON Records     │              │
-└─────────────┘                      └─────────────┘
+1. Map systems, trust zones, sources of truth, record and event ownership, consumers, data classes, and business invariants.
+2. Inventory orgs, products, editions, packages, schemas, API versions, events, limits, identities, and operational dependencies.
+3. Select interaction patterns per use case: synchronous request, asynchronous bulk, composite, event, scheduled reconciliation, or replicated read model.
+4. Define contracts for schema, versioning, idempotency, ordering, pagination, checkpoints, retries, dead letters, and backfills.
+5. Design CRUD and field access, sharing, encryption, retention, audit, residency, redaction, support, and separation of duties.
+6. Model outages, limit exhaustion, partial writes, event gaps, schema drift, wrong-org access, and disaster recovery.
+7. Validate with threat, failure, capacity, cost, operability, migration, and rollback reviews and record rejected alternatives.
 
-Pros: Simple, works with any edition
-Cons: Latency (polling interval), wastes API calls on empty polls
-Use: Small data volumes, non-real-time requirements
-```
+## Approval Boundaries
 
-### Pattern B: Event-Driven Sync (Recommended)
-
-```
-┌─────────────┐                      ┌─────────────┐
-│   Your App  │ ◀─── CDC Events ───  │  Salesforce  │
-│  (listener) │   /data/Change*      │     Org      │
-│             │                      │              │
-│             │ ── REST API ───────▶ │              │
-│             │   Write-back         │              │
-└─────────────┘                      └─────────────┘
-
-Pros: Real-time, no wasted API calls, scalable
-Cons: Requires Enterprise+, CDC setup, event replay handling
-Use: Real-time sync, high-volume changes
-```
-
-### Pattern C: Bi-Directional Sync (Heroku Connect)
-
-```
-┌─────────────┐     SQL Queries      ┌─────────────┐
-│   Your App  │ ──────────────────▶  │   Postgres   │
-│             │ ◀──────────────────  │ (Heroku DB)  │
-└─────────────┘                      └──────┬───────┘
-                                            │
-                                     Heroku Connect
-                                     (automatic sync)
-                                            │
-                                     ┌──────▼───────┐
-                                     │  Salesforce  │
-                                     │     Org      │
-                                     └─────────────┘
-
-Pros: Zero API calls from your app, automatic bi-directional sync
-Cons: Heroku cost, 10-min sync delay, limited to standard objects
-Use: Heavy read/write, SQL-friendly teams
-```
-
-## Key Architecture Decisions
-
-| Decision | Recommendation | Rationale |
-|----------|---------------|-----------|
-| Connection management | Singleton with auto-refresh | 1 connection per process, handles token expiry |
-| SOQL queries | Typed query builders | Prevents field name typos, enables refactoring |
-| Bulk operations | Bulk API 2.0 for 10K+, Collections for <200 | Optimizes API call consumption |
-| Error handling | Map SF error codes to domain errors | `INVALID_FIELD` → `SchemaError`, etc. |
-| Real-time sync | CDC over polling | No wasted API calls, sub-second latency |
-| Data mapping | Explicit field mapping layer | Decouples app schema from SF schema |
-| Testing | Mock jsforce in unit tests | Fast tests without org dependency |
-
-## Data Mapping Layer
-
-```typescript
-// src/salesforce/mappers.ts
-// Decouple your app's domain model from Salesforce field names
-
-interface AppContact {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  companyId: string;
-}
-
-function fromSalesforceContact(sf: any): AppContact {
-  return {
-    id: sf.Id,
-    firstName: sf.FirstName || '',
-    lastName: sf.LastName,
-    email: sf.Email || '',
-    companyId: sf.AccountId || '',
-  };
-}
-
-function toSalesforceContact(app: Partial<AppContact>): Record<string, any> {
-  const sf: Record<string, any> = {};
-  if (app.firstName !== undefined) sf.FirstName = app.firstName;
-  if (app.lastName !== undefined) sf.LastName = app.lastName;
-  if (app.email !== undefined) sf.Email = app.email;
-  if (app.companyId !== undefined) sf.AccountId = app.companyId;
-  return sf;
-}
-```
+Do not establish new trust, data movement, system authority, production mutation, or vendor dependency without architecture, security, data, and business approval.
 
 ## Output
 
-- Node.js integration project with layered architecture
-- SFDX metadata project structure
-- Integration pattern selected (polling, event-driven, or Heroku Connect)
-- Data mapping layer decoupling app from SF schema
+Return context and container views, authority matrix, trust and data-flow boundaries, contracts, failure scenarios, capacity and cost assumptions, decisions, risks, and migration plan.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Tight coupling to SF schema | Direct field access | Add mapping layer |
-| N+1 queries | Loop with individual queries | Use relationship SOQL or Collections |
-| Stale cache | TTL too long | Use CDC events to invalidate |
-| Event loss | No replay tracking | Persist last replayId |
+| Condition | Response |
+|---|---|
+| Two systems claim authority for the same field | Resolve ownership and conflict policy before implementation. |
+| Recovery depends only on replay availability | Add durable reconciliation and backfill from the source of truth. |
+| Entitlement or limit assumption is unverified | Mark the design provisional and obtain current org evidence. |
+
+## Example
+
+A redacted completion receipt might look like this:
+
+```text
+domain=orders; authority=erp; salesforce=crm-projection; writes=governed; events=cdc; reconcile=daily; recovery=tested
+```
 
 ## Resources
 
-- [Salesforce Integration Patterns](https://developer.salesforce.com/docs/atlas.en-us.integration_patterns_and_practices.meta/integration_patterns_and_practices/)
-- [Heroku Connect](https://devcenter.heroku.com/articles/heroku-connect)
-- [Change Data Capture](https://developer.salesforce.com/docs/atlas.en-us.change_data_capture.meta/change_data_capture/)
-- [jsforce Documentation](https://jsforce.github.io/document/)
+- [Salesforce integration patterns](https://developer.salesforce.com/docs/atlas.en-us.integration_patterns_and_practices.meta/integration_patterns_and_practices/)
+- [Salesforce Pub/Sub API](https://developer.salesforce.com/docs/platform/pub-sub-api/overview)
 
 ## Next Steps
 
-For multi-environment setup, see `salesforce-multi-env-setup`.
+Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.

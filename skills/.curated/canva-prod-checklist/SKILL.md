@@ -1,188 +1,92 @@
 ---
 name: canva-prod-checklist
-description: 'Execute Canva Connect API production deployment checklist and go-live
-  procedures.
-
-  Use when deploying Canva integrations to production, preparing for launch,
-
-  or validating production readiness.
-
-  Trigger with phrases like "canva production", "deploy canva",
-
-  "canva go-live", "canva launch checklist".
-
-  '
-allowed-tools: Read, Bash(kubectl:*), Bash(curl:*), Grep
-version: 1.5.0
+description: 'Gate a Canva Connect release on authorization, review eligibility, data controls, async recovery, observability, and rollback evidence. Use when promoting a backend integration or enabling a new Canva operation. Trigger with: "Canva production checklist", "release Canva integration", "Canva go-live review".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[release-id-and-environment]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - production
+  - operations
+compatibility: 'Requires an exact release artifact, controlled production integration, current feature-status evidence, and rollback authority.'
 ---
-# Canva Production Checklist
+
+# Canva Production Readiness Gate
 
 ## Overview
 
-Complete checklist for deploying Canva Connect API integrations to production, covering OAuth configuration, security, error handling, monitoring, and Canva's integration review process.
+Make go-live an evidence decision tied to an immutable artifact. Preview features, broad scopes, unsafe callback hosts, ambiguous jobs, or unverifiable rollback keep the release closed.
 
 ## Prerequisites
 
-- An approved release owner, exact artifact/configuration version, and tested rollback artifact.
-- Mocked tests plus a protected integration environment using synthetic or approved non-production assets and least-privilege credentials.
+- Release digest, configuration version, owner, and change scope
+- Production integration, exact redirects, explicit scopes, and feature statuses
+- Test receipts, migrations, observability, data policy, incident plan, and rollback
 
 ## Instructions
 
-1. Execute the checklist against the exact production candidate and policy configuration.
-2. Verify scopes, asset/publication authorization, retention, webhook validation, rate/cost controls, and redacted observability before enabling writes or exports.
-3. Keep traffic disabled and roll back if any evidence is missing; do not replace controlled tests with live design data.
+### Step 1: Verify identity and trust
 
-## Pre-Deployment
+Use Read and Grep to confirm exact artifact, environment, integration ID, callback hosts, backend-only secrets, CI event boundaries, and operator ownership.
 
-### OAuth & Security
+### Step 2: Verify authorization
 
-- [ ] Client ID and secret stored in secret manager (not env files)
-- [ ] Redirect URIs use HTTPS and match production domains
-- [ ] Only required OAuth scopes requested (least privilege)
-- [ ] Access tokens stored encrypted at rest
-- [ ] Refresh token rotation handled (single-use tokens)
-- [ ] Token revocation implemented for user disconnect
-- [ ] No client secrets in frontend code
+Review minimum explicit scopes, tenant/resource checks, capabilities, consent changes, disconnect cleanup, and token-refresh serialization.
 
-### API Integration
+### Step 3: Verify provider contracts
 
-- [ ] All API calls use `api.canva.com/rest/v1/*` endpoints
-- [ ] Rate limits respected with exponential backoff (see `canva-rate-limits`)
-- [ ] Export polling implemented with timeout (don't poll forever)
-- [ ] 429 responses handled with `Retry-After` header
-- [ ] 401 responses trigger automatic token refresh
-- [ ] Error responses parsed and logged (without tokens)
-- [ ] Blank designs auto-delete warning handled (7-day window)
-- [ ] Export download URLs consumed within 24-hour window
+Pin current OpenAPI/changelog, identify deprecated and preview APIs, and confirm public-review eligibility. Canva states public integrations using preview features cannot pass review.
 
-### Webhook Security
+### Step 4: Verify operations
 
-- [ ] Webhook endpoint uses HTTPS
-- [ ] JWK signature verification implemented (see `canva-webhooks-events`)
-- [ ] Webhook handler returns 200 immediately
-- [ ] Heavy processing done asynchronously
-- [ ] Idempotency keys prevent duplicate processing
+Prove operation identity, bounded retry, endpoint/user queueing, async job reconciliation, webhook idempotency if used, and partial-failure cleanup.
 
-### Data Handling
+### Step 5: Verify data and telemetry
 
-- [ ] No access tokens in log output
-- [ ] User design metadata treated as sensitive
-- [ ] Temporary URLs (thumbnails, exports) not cached beyond expiry
-- [ ] Thumbnail URLs expire in 15 minutes — refresh as needed
-- [ ] Edit/view URLs expire in 30 days — regenerate via API
+Prove content/credential classification, retention/deletion, URL handling, log redaction, low-cardinality metrics, alert ownership, and debug-bundle expiry.
 
-## Production Readiness Verification
+### Step 6: Exercise failure and rollback
 
-```bash
-#!/bin/bash
-# canva-prod-verify.sh
+Use Write or Edit to record mocked failures, protected read-only integration proof, migration recovery, rollback command/path, and post-rollback reconciliation.
 
-echo "=== Canva Production Readiness ==="
+### Step 7: Approve or refuse
 
-# 1. Verify API connectivity from production
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-  -H "Authorization: Bearer $CANVA_ACCESS_TOKEN" \
-  "https://api.canva.com/rest/v1/users/me")
-echo "[$([ $HTTP_CODE = 200 ] && echo 'PASS' || echo 'FAIL')] API connectivity: HTTP $HTTP_CODE"
+Record exact evidence, approver, residual risks, and activation steps. Refuse if any required fact is inferred rather than proven.
 
-# 2. Test design creation
-DESIGN=$(curl -s -X POST "https://api.canva.com/rest/v1/designs" \
-  -H "Authorization: Bearer $CANVA_ACCESS_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"design_type":{"type":"custom","width":100,"height":100},"title":"Prod Test"}')
-DESIGN_ID=$(echo "$DESIGN" | python3 -c "import sys,json; print(json.load(sys.stdin)['design']['id'])" 2>/dev/null)
-echo "[$([ -n "$DESIGN_ID" ] && echo 'PASS' || echo 'FAIL')] Design creation: $DESIGN_ID"
+## Authentication
 
-# 3. Test export
-if [ -n "$DESIGN_ID" ]; then
-  EXPORT=$(curl -s -X POST "https://api.canva.com/rest/v1/exports" \
-    -H "Authorization: Bearer $CANVA_ACCESS_TOKEN" \
-    -H "Content-Type: application/json" \
-    -d "{\"design_id\":\"$DESIGN_ID\",\"format\":{\"type\":\"png\"}}")
-  EXPORT_ID=$(echo "$EXPORT" | python3 -c "import sys,json; print(json.load(sys.stdin)['job']['id'])" 2>/dev/null)
-  echo "[$([ -n "$EXPORT_ID" ] && echo 'PASS' || echo 'FAIL')] Export job: $EXPORT_ID"
-fi
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-echo ""
-echo "=== Done ==="
-```
+## Tool Discipline
 
-## Canva Integration Review
-
-For **public integrations** (available to all Canva users), you must pass Canva's review:
-
-1. Submit your integration for review in the Canva developer portal
-2. Canva reviews security, OAuth implementation, and UX
-3. Preview features (e.g., webhooks) are **not allowed** in public integrations
-4. Fix any issues and resubmit
-
-**Private integrations** (your organization only) do not require review.
-
-## Health Check Endpoint
-
-```typescript
-app.get('/health', async (req, res) => {
-  const start = Date.now();
-  let canvaStatus = 'unknown';
-
-  try {
-    const me = await fetch('https://api.canva.com/rest/v1/users/me', {
-      headers: { 'Authorization': `Bearer ${getServiceToken()}` },
-      signal: AbortSignal.timeout(5000),
-    });
-    canvaStatus = me.ok ? 'healthy' : `error:${me.status}`;
-  } catch {
-    canvaStatus = 'unreachable';
-  }
-
-  res.json({
-    status: canvaStatus === 'healthy' ? 'healthy' : 'degraded',
-    services: { canva: { status: canvaStatus, latencyMs: Date.now() - start } },
-    timestamp: new Date().toISOString(),
-  });
-});
-```
-
-## Monitoring Alerts
-
-| Alert | Condition | Severity |
-|-------|-----------|----------|
-| Auth failures | 401 errors > 0 | P1 |
-| Rate limited | 429 errors > 5/min | P2 |
-| Export failures | `license_required` or `internal_failure` | P3 |
-| API unreachable | Connection timeout | P1 |
-| Token refresh fails | Refresh returns error | P1 |
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-The readiness run produces a redacted go/no-go receipt with artifact/config versions, approved scope, test mode, health result, and rollback version. It excludes credentials, design content, asset URLs, and user data.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-Run mocked tests and one approved synthetic-asset integration check before release, then attach the receipt. If authorization, retention, rate-limit, or reconciliation evidence fails, leave the release disabled and restore the prior artifact.
+A public release using a preview webhook path is refused. The team ships the non-preview core after exact-head tests and keeps the preview feature in a separate non-public experiment.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Token refresh loop | Revoked refresh token | Re-authorize user |
-| Export stuck `in_progress` | Backend delay | Timeout after 120s, retry |
-| Webhook URL rejected | HTTP not HTTPS | Use HTTPS endpoint |
-| Review rejection | Using preview features | Remove preview-only features |
+| Failure | Response |
+| --- | --- |
+| Preview status is unclear | Treat the feature as ineligible until confirmed |
+| Rollback was not exercised | Do not approve production |
+| Scope set exceeds features | Reduce scopes and obtain new consent where required |
+| Health proof mutates content | Replace it with a protected non-mutating read |
 
 ## Resources
 
-- [Canva Connect Quickstart](https://www.canva.dev/docs/connect/quickstart/)
-- [Creating Integrations](https://www.canva.dev/docs/connect/creating-integrations/)
-- [Canva Changelog](https://www.canva.dev/docs/connect/changelog/)
-
-## Next Steps
-
-For version upgrades, see `canva-upgrade-migration`.
+- [First-party source notes](references/official-docs.md)
+- [Creating integrations](https://www.canva.dev/docs/connect/creating-integrations/)
+- [Connect security](https://www.canva.dev/docs/connect/guidelines/security/)

@@ -6,13 +6,13 @@ order: 4
 keywords: ["Claude Code FAQ", "plugin FAQ", "skills FAQ", "Claude Code troubleshooting", "plugin installation help", "SKILL.md help", "ccpi FAQ", "Claude Code marketplace FAQ"]
 officialLinks:
   - title: "Claude Code Overview"
-    url: "https://docs.anthropic.com/en/docs/claude-code/overview"
+    url: "https://code.claude.com/docs/en/overview"
   - title: "Claude Code Skills"
-    url: "https://docs.anthropic.com/en/docs/claude-code/skills"
+    url: "https://code.claude.com/docs/en/skills"
   - title: "Claude Code Plugins"
-    url: "https://docs.anthropic.com/en/docs/claude-code/plugins"
+    url: "https://code.claude.com/docs/en/plugins"
   - title: "Claude Code Best Practices"
-    url: "https://docs.anthropic.com/en/docs/claude-code/best-practices"
+    url: "https://code.claude.com/docs/en/best-practices"
 relatedDocs:
   - "getting-started/installation"
   - "ecosystem/marketplace-overview"
@@ -28,7 +28,7 @@ Plugins are packaged extensions for Claude Code -- Anthropic's agentic coding as
 
 For example, a security plugin might include a skill that automatically applies secure coding patterns, a `/security-audit` command that scans your codebase for vulnerabilities, and an agent that autonomously reviews pull requests for security issues.
 
-Plugins follow the directory structure and manifest format defined in the [official Anthropic plugin specification](https://docs.anthropic.com/en/docs/claude-code/plugins).
+Plugins follow the directory structure and manifest format defined in the [official Anthropic plugin specification](https://code.claude.com/docs/en/plugins).
 
 ### Are Claude Code plugins free?
 
@@ -157,7 +157,7 @@ license: MIT
 
 The body below the frontmatter contains the detailed instructions -- what Claude should do, in what order, with what constraints, and how to handle edge cases.
 
-See the [official Skills documentation](https://docs.anthropic.com/en/docs/claude-code/skills) for the complete specification.
+See the [official Skills documentation](https://code.claude.com/docs/en/skills) for the complete specification.
 
 ### How do skills auto-activate?
 
@@ -181,7 +181,7 @@ Absolutely. Creating a skill requires:
 1. A directory under `skills/skill-name/` inside your plugin.
 2. A `SKILL.md` file with valid YAML frontmatter and instructional content in the body.
 
-You can create skills for personal use (drop them in your local plugins directory) or contribute them to the marketplace. The [official Skills specification](https://docs.anthropic.com/en/docs/claude-code/skills) defines all available frontmatter fields and features.
+You can create skills for personal use (drop them in your local plugins directory) or contribute them to the marketplace. The [official Skills specification](https://code.claude.com/docs/en/skills) defines all available frontmatter fields and features.
 
 To validate a skill you have written:
 
@@ -221,7 +221,7 @@ The core differences are:
 
 Use skills for focused, single-purpose instructions. Use agents when you need Claude to adopt a specialized persona and work autonomously through a complex, multi-step task.
 
-See the [official Agents documentation](https://docs.anthropic.com/en/docs/claude-code/agents) for the complete specification.
+See the [official Agents documentation](https://code.claude.com/docs/en/agents) for the complete specification.
 
 ## MCP Questions
 
@@ -231,7 +231,7 @@ MCP stands for Model Context Protocol. It is a protocol for connecting Claude Co
 
 MCP plugins are distinct from instruction-only plugins. While most plugins in the Tons of Skills marketplace are pure markdown (skills, commands, agents), a small number are MCP servers written in TypeScript that run as background processes.
 
-See the [official MCP documentation](https://docs.anthropic.com/en/docs/claude-code/mcp) for architecture details and development guides.
+See the [official MCP documentation](https://code.claude.com/docs/en/mcp) for architecture details and development guides.
 
 ### Do I need MCP to use Claude Code plugins?
 
@@ -356,8 +356,8 @@ The universal validator checks plugins against two tiers:
 If you see validation errors:
 
 1. Read the error message carefully -- it tells you exactly which field is missing or malformed.
-2. Check your `plugin.json` against the [plugin specification](https://docs.anthropic.com/en/docs/claude-code/plugins).
-3. Check your SKILL.md frontmatter against the [skills specification](https://docs.anthropic.com/en/docs/claude-code/skills).
+2. Check your `plugin.json` against the [plugin specification](https://code.claude.com/docs/en/plugins).
+3. Check your SKILL.md frontmatter against the [skills specification](https://code.claude.com/docs/en/skills).
 4. Run with `--verbose` for detailed output:
 
    ```bash

@@ -1,150 +1,100 @@
 ---
 name: persona-webhooks-events
-description: 'Handle Persona webhook events for inquiry and verification status changes.
-
-  Use when working with Persona identity verification.
-
-  Trigger with phrases like "persona webhooks-events", "persona webhooks-events".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*)
-version: 1.4.0
+description: >-
+  Verify, persist, deduplicate, order, and reconcile Persona webhook events from exact raw bytes. Use when implementing webhook consumers. Trigger with: "handle Persona webhook", "verify Persona-Signature", "dedupe Persona events".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[endpoint-and-event-policy]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- persona
-- identity
-- kyc
-- verification
-compatibility: Designed for Claude Code
+  - saas
+  - persona
+  - webhooks
+  - hmac
+  - idempotency
+compatibility: 'Requires an authorized Persona environment, current first-party documentation, a reviewed dated API version, and privacy-safe operational evidence.'
 ---
-# persona webhooks events | sed 's/\b\(.\)/\u\1/g'
+
+# Authentic and Idempotent Persona Event Intake
 
 ## Overview
 
-HMAC signature verification, inquiry.completed/approved/declined events, idempotent processing.
+A webhook is an untrusted delivery until its signature passes. Persona may deliver duplicates or events out of order, so authenticity, durable receipt, idempotency, event-time ordering, and resource reconciliation are distinct steps.
 
 ## Prerequisites
 
-- Completed `persona-install-auth` setup
-- Valid Persona API key (sandbox or production)
+- HTTPS endpoint retaining exact raw request bytes
+- Persona webhook secret with rotation metadata
+- Durable unique event store and reconciliation worker
 
 ## Instructions
 
-### Step 1: Configure Webhook in Dashboard
+### Step 1: Capture before parsing
 
-```text
-1. Dashboard > Settings > Webhooks > Add Webhook
-2. URL: https://your-app.com/webhooks/persona
-3. Events: inquiry.completed, inquiry.approved, inquiry.declined,
-           verification.passed, verification.failed
-4. Copy the webhook secret for signature verification
-```
+Read the exact raw bytes and `Persona-Signature` header. Enforce size, method, content-type, and timestamp policy before business work.
 
-### Step 2: Webhook Endpoint with HMAC Verification
+### Step 2: Parse signature candidates
 
-```typescript
-import express from 'express';
-import crypto from 'crypto';
+Extract `t` and every `v1` value. Reject malformed or missing components; retain only redacted diagnostic metadata.
 
-const app = express();
+### Step 3: Compute and compare
 
-app.post('/webhooks/persona',
-  express.raw({ type: 'application/json' }),
-  async (req, res) => {
-    const signature = req.headers['persona-signature'] as string;
-    const secret = process.env.PERSONA_WEBHOOK_SECRET!;
+Compute HMAC-SHA256 with the webhook secret over `t + '.' + rawBody`. Compare against every `v1` candidate in constant time to support rotation.
 
-    // Verify HMAC-SHA256 signature
-    const expectedSig = crypto
-      .createHmac('sha256', secret)
-      .update(req.body)
-      .digest('hex');
+### Step 4: Acknowledge durable receipt
 
-    if (!crypto.timingSafeEqual(Buffer.from(signature || ''), Buffer.from(expectedSig))) {
-      return res.status(401).json({ error: 'Invalid signature' });
-    }
+After authenticity, insert the event ID and raw-body hash under a uniqueness constraint, then acknowledge quickly. Duplicate inserts are successful no-ops.
 
-    const event = JSON.parse(req.body.toString());
-    await handlePersonaEvent(event);
-    res.status(200).json({ received: true });
-  }
-);
-```
+### Step 5: Process in provider time
 
-### Step 3: Event Handlers
+Route by event type while tolerating unknown types. Use `data.attributes.created-at`, not arrival order, to guard state transitions.
 
-```typescript
-async function handlePersonaEvent(event: any) {
-  const { type, data } = event;
+### Step 6: Reconcile before consequential action
 
-  switch (type) {
-    case 'inquiry.completed':
-      const inquiryId = data.attributes.payload.data.id;
-      const referenceId = data.attributes.payload.data.attributes['reference-id'];
-      console.log(`Inquiry completed: ${inquiryId} for user ${referenceId}`);
-      // Update user KYC status in your database
-      await updateUserKycStatus(referenceId, 'completed');
-      break;
+For approval, rejection, payout, or access changes, read the current Persona resource and apply the versioned domain policy.
 
-    case 'inquiry.approved':
-      await updateUserKycStatus(data.attributes.payload.data.attributes['reference-id'], 'approved');
-      break;
+## Authentication
 
-    case 'inquiry.declined':
-      await updateUserKycStatus(data.attributes.payload.data.attributes['reference-id'], 'declined');
-      break;
+Webhook authentication uses the endpoint signing secret and the `Persona-Signature` HMAC protocol; it does not use the REST bearer key. Resource reconciliation uses the environment bearer key separately.
 
-    case 'verification.passed':
-      console.log(`Verification passed: ${data.attributes.payload.data.id}`);
-      break;
+## Tool Discipline
 
-    case 'verification.failed':
-      console.log(`Verification failed: ${data.attributes.payload.data.id}`);
-      break;
-
-    default:
-      console.log(`Unhandled event: ${type}`);
-  }
-}
-```
-
-### Step 4: Idempotent Processing
-
-```typescript
-const processedEvents = new Set<string>();
-
-async function idempotentHandle(event: any) {
-  const eventId = event.data.id;
-  if (processedEvents.has(eventId)) {
-    console.log(`Skipping duplicate: ${eventId}`);
-    return;
-  }
-  await handlePersonaEvent(event);
-  processedEvents.add(eventId);
-}
-```
+Use Read and Grep to inspect application configuration, provider documentation, fixtures, schemas, tests, and redacted operational evidence before proposing a change. Use Write or Edit only for an approved implementation, configuration, test, runbook, or redacted receipt. Do not create, resume, approve, decline, redact, rotate, revoke, deploy, or otherwise mutate production Persona resources without explicit operator approval.
 
 ## Output
 
-- Webhook endpoint with HMAC signature verification
-- Event handlers for inquiry and verification lifecycle
-- Idempotent processing preventing duplicates
+- Signature-verification contract and test vectors
+- Durable event receipt, dedupe, ordering, and routing design
+- Reconciliation and business-transition receipt
+
+Return the environment, resource and event identifiers, API version, template context, source-contract fingerprint, evidence, unresolved risk, rollback state, and final decision without exposing bearer keys, webhook secrets, inquiry session tokens, raw identity documents, or unnecessary PII.
+
+## Examples
+
+During rotation a header contains two `v1` candidates. The consumer computes both constant-time comparisons, accepts the matching active secret, stores the event once, and ignores a later duplicate delivery.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Invalid signature | Wrong webhook secret | Re-copy secret from Dashboard |
-| Missing events | Events not selected | Check webhook configuration |
-| Duplicate processing | Retry delivery | Use event ID deduplication |
+| Failure | Response |
+| --- | --- |
+| Signature mismatch | Return the configured failure response, record a redacted hash and timestamp, and never enqueue business work. |
+| Duplicate event | Acknowledge the already persisted ID without repeating side effects. |
+| Older event arrives later | Store it for audit, compare provider creation time and current resource state, and prevent regression. |
+| Unknown event type | Preserve and observe it safely; do not crash the intake lane. |
+
+## Validation
+
+Verify the result against the linked first-party evidence, the pinned API version, redacted contract fixtures, an expected failure path, and the documented rollback or manual-disposition path. A successful request is not proof of a successful identity decision.
 
 ## Resources
 
-- [Webhooks Quickstart](https://docs.withpersona.com/quickstart-webhooks)
-- [Create a Webhook](https://docs.withpersona.com/api-reference/webhooks/create-a-webhook)
-
-## Next Steps
-
-For common errors, see `persona-common-errors`.
+- [First-party source notes](references/official-docs.md)
+- [API introduction](https://docs.withpersona.com/api-introduction)
+- [API quickstart](https://docs.withpersona.com/api-quickstart-tutorial)
+- [API keys](https://docs.withpersona.com/api-keys)
+- [Rate limits](https://docs.withpersona.com/rate-limiting)
+- [Webhook best practices](https://docs.withpersona.com/webhooks-best-practices)
+- [Request idempotence](https://docs.withpersona.com/idempotence)

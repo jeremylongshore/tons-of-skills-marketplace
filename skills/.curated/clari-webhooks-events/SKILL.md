@@ -1,181 +1,90 @@
 ---
 name: clari-webhooks-events
-description: 'Monitor Clari forecast changes using export job polling and change detection.
-
-  Use when tracking forecast submission changes, building alerts
-
-  for significant forecast movements, or syncing Clari data in near-real-time.
-
-  Trigger with phrases like "clari webhooks", "clari notifications",
-
-  "clari forecast alerts", "clari change detection".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(python3:*)
-version: 1.6.0
+description: >-
+  Detect Clari changes through supported paginated audit reads and asynchronous activity exports instead of assuming webhooks. Use when building an administrative or sales-activity feed. Trigger with: "monitor Clari changes", "stream Clari audit events", "replace Clari webhooks".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[feed-audit-or-activity-and-window]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- revenue-intelligence
-- forecasting
-- clari
-compatibility: Designed for Claude Code
+  - saas
+  - clari
+  - audit-events
+  - activity-export
+  - change-detection
+compatibility: 'Requires Revenue API access to the chosen audit or activity surface, durable checkpoint or window state, and an approved downstream event sink.'
 ---
-# Clari Webhooks & Events
+
+# Clari Audit and Activity Change Feed
 
 ## Overview
 
-Clari does not provide real-time webhooks. Instead, build change detection by comparing periodic exports. This skill covers scheduled export diffing, Slack alerts for forecast movements, and Copilot webhook integration.
+The published Revenue contract does not define a general webhook subscription surface. Preserve this public route by implementing provider-supported polling: direct paginated audit reads for administrative changes or asynchronous activity exports for emails, meetings, and files.
 
 ## Prerequisites
 
-- Authorized Clari/Copilot access and a registered HTTPS receiver
-- Durable event/snapshot storage with bounded retention
-- An allow-listed downstream notification target
-- An approved threshold and escalation policy for forecast changes
+- Chosen feed type, organization scope, and authorized fields
+- Monotonic time window or pagination checkpoint with overlap policy
+- Deduplication store and downstream event schema
 
 ## Instructions
 
-### Step 1: Forecast Change Detection Pipeline
+### Step 1: Choose the supported source
 
-```python
-# forecast_monitor.py
-import json
-from pathlib import Path
-from datetime import datetime
+Use `GET /audit/events` for paginated audit changes or `POST /export/activity` plus the export-job lifecycle for activity data.
 
-def detect_changes(
-    current: list[dict],
-    previous: list[dict],
-    threshold_pct: float = 10.0,
-) -> list[dict]:
-    prev_map = {e["ownerEmail"]: e for e in previous}
-    changes = []
+### Step 2: Freeze the window
 
-    for entry in current:
-        prev = prev_map.get(entry["ownerEmail"])
-        if not prev:
-            continue
+Record inclusive and exclusive boundaries, page limit, overlap allowance, timezone, and the first checkpoint before requesting data.
 
-        prev_fc = prev["forecastAmount"]
-        curr_fc = entry["forecastAmount"]
-        if prev_fc == 0:
-            continue
+### Step 3: Read or queue
 
-        change_pct = ((curr_fc - prev_fc) / prev_fc) * 100
-        if abs(change_pct) >= threshold_pct:
-            changes.append({
-                "rep": entry["ownerName"],
-                "previous": prev_fc,
-                "current": curr_fc,
-                "change_pct": round(change_pct, 1),
-                "direction": "increased" if change_pct > 0 else "decreased",
-                "detected_at": datetime.utcnow().isoformat(),
-            })
+Page audit events in stable order, or queue one activity export and persist its job ID before polling.
 
-    return sorted(changes, key=lambda x: abs(x["change_pct"]), reverse=True)
+### Step 4: Normalize event identity
 
-def save_snapshot(entries: list[dict], path: str = "data/latest.json"):
-    Path(path).parent.mkdir(exist_ok=True)
-    with open(path, "w") as f:
-        json.dump(entries, f)
+Derive a deterministic key from provider identifiers, event type, actor, timestamp, and source window; retain the source job or page lineage.
 
-def load_snapshot(path: str = "data/latest.json") -> list[dict]:
-    try:
-        with open(path) as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return []
-```
+### Step 5: Deduplicate and advance
 
-### Step 2: Slack Alert for Forecast Changes
+Publish only validated unseen events, then advance the checkpoint atomically after the downstream sink acknowledges the batch.
 
-```python
-import requests
+### Step 6: Detect gaps and replay
 
-def send_forecast_alert(changes: list[dict], slack_webhook: str):
-    if not changes:
-        return
+Monitor lag, empty windows, page discontinuity, aborted jobs, and reconciliation counts; replay from the last safe checkpoint within retention.
 
-    blocks = [f"*Clari Forecast Changes Detected*\n"]
-    for c in changes[:10]:
-        emoji = ":chart_with_upwards_trend:" if c["direction"] == "increased" else ":chart_with_downwards_trend:"
-        blocks.append(
-            f"{emoji} *{c['rep']}*: ${c['previous']:,.0f} -> ${c['current']:,.0f} "
-            f"({c['change_pct']:+.1f}%)"
-        )
+## Authentication
 
-    requests.post(slack_webhook, json={"text": "\n".join(blocks)})
-```
+Use the Revenue `apikey` header and an identity authorized for the selected audit or activity data. Do not log actor identities, email content, meeting details, filenames, or the token in event-processing telemetry.
 
-### Step 3: Scheduled Monitor (Cron)
+## Tool Discipline
 
-```bash
-#!/bin/bash
-# Run every 4 hours: 0 */4 * * * /path/to/clari-monitor.sh
-cd /opt/clari-integration
-python3 -c "
-from clari_client import ClariClient
-from forecast_monitor import detect_changes, save_snapshot, load_snapshot, send_forecast_alert
-import os
-
-client = ClariClient()
-data = client.export_and_download('company_forecast', '2026_Q1')
-current = data.get('entries', [])
-previous = load_snapshot()
-
-changes = detect_changes(current, previous)
-if changes:
-    send_forecast_alert(changes, os.environ['SLACK_WEBHOOK_URL'])
-    print(f'Detected {len(changes)} changes')
-
-save_snapshot(current)
-"
-```
-
-### Step 4: Copilot Webhook (Conversation Intelligence)
-
-The Clari Copilot API supports real-time webhooks for call events:
-
-```bash
-# Register webhook with Copilot API
-curl -X POST https://api.copilot.clari.com/v1/webhooks \
-  -H "Authorization: Bearer ${COPILOT_ACCESS_TOKEN}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "url": "https://your-app.com/webhooks/clari-copilot",
-    "events": ["call.completed", "call.analyzed"]
-  }'
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| False change alerts | Data timing differences | Increase threshold to 15% |
-| Snapshot file missing | First run | Initialize with empty list |
-| Slack post fails | Bad webhook URL | Test URL with `curl` |
+Use Read and Grep to inspect configuration, provider contracts, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not issue, rotate, revoke, create, update, cancel, delete, export, ingest, or publish provider data without explicit operator approval.
 
 ## Output
 
-Record the source event or snapshot version, evaluated threshold, deduplication
-key, notification decision, delivery result, and safe correlation ID. Do not
-place full forecast amounts, rep identities, bearer tokens, or webhook URLs in
-shared notifications or logs.
+- Feed definition and checkpoint policy
+- Normalized event batches with provider lineage and deterministic keys
+- Lag, gap, deduplication, replay, and checkpoint receipts
+
+Return the exact surface, environment, resource or job identifiers, contract fingerprint, evidence, unresolved risks, and final decision without exposing credentials or sensitive customer data.
 
 ## Examples
 
-For a Copilot call event, authenticate and validate the request before writing
-its event ID to durable idempotency storage; send one redacted alert only after
-that write succeeds. For scheduled forecast comparisons, suppress a duplicate
-snapshot and escalate only changes that cross the approved threshold.
+An audit feed polls with a small overlap, deduplicates by provider event identity, publishes a validated batch, and advances its cursor only after the sink acknowledges it. No unsupported webhook registration is attempted.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Page or window gap is detected | Stop checkpoint advancement and replay from the last verified boundary. |
+| Activity export aborts | Retain the job ID and request fingerprint, diagnose the failure, and avoid blind duplicate submission. |
+| Downstream acknowledgement is unknown | Replay the same deterministic batch and let deduplication prevent duplicate effects. |
 
 ## Resources
 
-- [Clari Copilot API](https://api-doc.copilot.clari.com)
-- [Clari Developer Portal](https://developer.clari.com)
-
-## Next Steps
-
-For performance optimization, see `clari-performance-tuning`.
+- [First-party source notes](references/official-docs.md)
+- [Clari Revenue API reference](https://developer.clari.com/default/documentation/external_spec)

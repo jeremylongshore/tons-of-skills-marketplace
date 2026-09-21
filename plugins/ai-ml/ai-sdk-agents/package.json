@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/ai-sdk-agents",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Multi-agent orchestration with AI SDK v5 - handoffs, routing, and coordination for any AI provider (OpenAI, Anthropic, Google)",
   "keywords": [
     "ai-sdk",

@@ -81,7 +81,7 @@ Build production Claude API integrations with the Messages API, tool use, stream
 
 ## Resources
 
-- [Anthropic API Docs](https://docs.anthropic.com/en/api/getting-started)
+- [Anthropic API Docs](https://platform.claude.com/docs/en/api/overview)
 - [Python SDK](https://github.com/anthropics/anthropic-sdk-python)
 - [TypeScript SDK](https://github.com/anthropics/anthropic-sdk-typescript)
 - [Console](https://console.anthropic.com)

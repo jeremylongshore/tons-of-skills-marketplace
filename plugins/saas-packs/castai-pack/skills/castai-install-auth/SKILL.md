@@ -1,165 +1,87 @@
 ---
 name: castai-install-auth
-description: 'Install and configure CAST AI agent on a Kubernetes cluster with API
-  key authentication.
-
-  Use when onboarding a cluster to CAST AI, setting up Helm charts,
-
-  or configuring Terraform provider authentication.
-
-  Trigger with phrases like "install cast ai", "connect cluster to cast ai",
-
-  "cast ai setup", "cast ai api key", "cast ai helm install".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(helm:*), Bash(kubectl:*), Bash(terraform:*),
-  Grep
-version: 1.4.0
+description: 'Choose and configure the correct CAST AI authentication boundary for castctl, REST API, Terraform, or enterprise child-organization access. Use when connecting a cluster, provisioning an automation identity, or repairing region and organization mismatches. Trigger with: "authenticate CAST AI", "set up a CAST AI API key", "configure CAST AI access".'
+allowed-tools: Read, Grep, Write, Edit, Bash(castctl:*), Bash(curl:*)
+version: 2.0.0
+argument-hint: '[client-and-organization-scope]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- kubernetes
-- cost-optimization
-- castai
-compatibility: Designed for Claude Code
+  - saas
+  - kubernetes
+  - cast-ai
+  - authentication
+  - security
+compatibility: 'Requires CAST AI console access to create scoped keys; regional endpoints are US, EU, or India as documented'
 ---
-# CAST AI Install & Auth
+
+# CAST AI Authentication Boundary
 
 ## Overview
 
-Connect a Kubernetes cluster (EKS, GKE, AKS, or KOPS) to CAST AI for cost optimization, autoscaling, and security scanning. Covers API key generation, Helm chart installation of the CAST AI agent, and Terraform provider setup.
+Keep human castctl login, service API keys, enterprise organization targeting, and cluster installation secrets separate. Choose the narrowest identity for one client, region, organization, and lifecycle.
 
 ## Prerequisites
 
-- A running Kubernetes cluster (EKS, GKE, AKS, or KOPS)
-- `kubectl` configured with cluster admin access
-- `helm` v3 installed
-- A CAST AI account at https://console.cast.ai
+- The intended client: castctl, REST, Terraform, CI, or another approved integration
+- CAST AI organization, role binding, and environment region
+- An approved secret manager, rotation owner, and expiration or review date
 
 ## Instructions
 
-### Step 1: Generate an API Key
+### Step 1: Classify the actor
 
-Log in to https://console.cast.ai and navigate to **API** > **API Access Keys**. Create a Full Access key for Terraform-managed clusters, or Read-Only for monitoring-only.
+Use Read and Grep to find existing CAST AI environment variables, provider configuration, CI secrets, Helm values, and runbooks. Distinguish a human interactive session from non-interactive automation; do not reuse one credential across both.
 
-```bash
-export CASTAI_API_KEY="your-api-key-here"
+### Step 2: Select the authentication path
 
-# Verify the key works
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  https://api.cast.ai/v1/kubernetes/external-clusters | jq '.items | length'
-```
+For human cluster connection, use Bash(castctl:\*) with browser login; castctl stores its own local token and organization selection. For REST or Terraform automation, create an API access key whose inherited role bindings match the required operations.
 
-### Step 2: Install the CAST AI Agent via Helm
+### Step 3: Pin region and organization
 
-```bash
-# Add the CAST AI Helm repository
-helm repo add castai-helm https://castai.github.io/helm-charts
-helm repo update
+Use the documented US, EU, or India API base that matches the CAST AI environment. Send API keys only in the `X-API-Key` header. For an enterprise key targeting a child organization, also provide `X-CastAI-Organization-Id`; never infer that identifier from a cluster name.
 
-# Install the read-only monitoring agent (Phase 1)
-helm upgrade --install castai-agent castai-helm/castai-agent \
-  -n castai-agent --create-namespace \
-  --set apiKey="${CASTAI_API_KEY}" \
-  --set provider="eks"  # eks | gke | aks
+### Step 4: Store without exposure
 
-kubectl get pods -n castai-agent
-```
+Use Write or Edit to add secret references, not values, to configuration. Keep keys out of Git, command history, URLs, Terraform outputs, plan artifacts, Helm-rendered output, logs, and support bundles.
 
-### Step 3: Enable Full Automation (Phase 2)
+### Step 5: Verify minimally
 
-```bash
-export CASTAI_CLUSTER_ID="your-cluster-id"
+Use Bash(curl:\*) only against a documented read endpoint selected from the current CAST AI API specification. Limit output to status and a non-sensitive identifier, set a timeout, and test the expected 401 or 403 path with no credential.
 
-# Cluster controller -- manages node lifecycle
-helm upgrade --install cluster-controller castai-helm/castai-cluster-controller \
-  -n castai-agent \
-  --set castai.apiKey="${CASTAI_API_KEY}" \
-  --set castai.clusterID="${CASTAI_CLUSTER_ID}"
+### Step 6: Record lifecycle
 
-# Evictor -- consolidates underutilized nodes
-helm upgrade --install castai-evictor castai-helm/castai-evictor \
-  -n castai-agent \
-  --set castai.apiKey="${CASTAI_API_KEY}" \
-  --set castai.clusterID="${CASTAI_CLUSTER_ID}"
+Document owner, client, role basis, organization, region, storage location, creation time, review date, rotation procedure, and revocation condition. Because a created key cannot be viewed again, loss requires replacement rather than recovery.
 
-# Spot handler -- graceful spot instance interruption
-helm upgrade --install castai-spot-handler castai-helm/castai-spot-handler \
-  -n castai-agent \
-  --set castai.provider="eks" \
-  --set castai.clusterID="${CASTAI_CLUSTER_ID}"
-```
+## Tool Discipline
 
-### Step 4: Terraform Provider (Alternative)
-
-```hcl
-terraform {
-  required_providers {
-    castai = {
-      source  = "castai/castai"
-      version = "~> 7.0"
-    }
-  }
-}
-
-provider "castai" {
-  api_token = var.castai_api_token
-}
-
-variable "castai_api_token" {
-  type      = string
-  sensitive = true
-}
-
-resource "castai_eks_cluster" "this" {
-  account_id = data.aws_caller_identity.current.account_id
-  region     = var.aws_region
-  name       = var.cluster_name
-}
-```
-
-### Step 5: Verify Connection
-
-```bash
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  "https://api.cast.ai/v1/kubernetes/external-clusters/${CASTAI_CLUSTER_ID}" \
-  | jq '{name: .name, status: .status, agentStatus: .agentStatus}'
-# => { "name": "my-cluster", "status": "ready", "agentStatus": "online" }
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Invalid or expired API key | Regenerate at console.cast.ai > API |
-| `403 Forbidden` | Key lacks permissions | Use Full Access key for write operations |
-| Agent `CrashLoopBackOff` | RBAC misconfiguration | Check `kubectl logs -n castai-agent` |
-| `cluster not found` | Wrong cluster ID | Verify ID at console.cast.ai > Clusters |
-| Helm chart not found | Repo not added | Run `helm repo add castai-helm ...` |
+Use Read and Grep for credential-reference discovery. Use Write and Edit only for secret references and lifecycle documentation. Use Bash(castctl:_) for documented interactive auth and Bash(curl:_) for a bounded read-only verification; never print headers or key values.
 
 ## Output
 
-Record the connected cluster ID, environment, installation method, secret-store
-reference, least-privilege key owner, agent health, and verification time. Do
-not place the API key, Terraform state, Helm values containing secrets, or raw
-provider output in tickets, repositories, or chat transcripts.
+- Actor/client authentication decision
+- Region and organization boundary
+- Secret-reference configuration
+- Minimal verification and rotation record
 
 ## Examples
 
-For a staging EKS cluster, provision the key through the approved secret store,
-install the agent with the secret reference, and verify an `online` agent using
-the read-only status request. If the agent cannot authenticate, remove the
-failed secret reference and diagnose RBAC or network egress before issuing a
-replacement key.
+A developer uses castctl browser login for a reviewed sandbox connection. A CI job uses a separate organization-scoped read-only API key against the EU endpoint and cannot target sibling organizations.
+
+## Error Handling
+
+| Failure                          | Response                                                           |
+| -------------------------------- | ------------------------------------------------------------------ |
+| A key appears in history or logs | Revoke it, remove exposure, and create a replacement               |
+| API returns 401                  | Verify key validity and regional base without widening permissions |
+| API returns 403                  | Review role bindings and organization targeting                    |
+| Enterprise call hits wrong child | Stop and correct the explicit organization header                  |
 
 ## Resources
 
-- [CAST AI Getting Started](https://docs.cast.ai/docs/getting-started)
-- [CAST AI Helm Charts](https://docs.cast.ai/docs/helm-charts)
-- [Terraform Provider](https://registry.terraform.io/providers/castai/castai/latest/docs)
-- [API Reference](https://api.cast.ai/v1/spec/openapi.json)
-
-## Next Steps
-
-Proceed to `castai-hello-world` to query cluster savings and node status.
+- [Authentication evidence and source notes](references/official-docs.md)
+- [API access](https://docs.cast.ai/docs/api-access)
+- [Connect with castctl](https://docs.cast.ai/docs/connect-with-castctl)
+- [CAST AI API specification](https://api.cast.ai/spec/)

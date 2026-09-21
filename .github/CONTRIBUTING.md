@@ -287,7 +287,7 @@ tiers, areas, vetting, and delegation — are in
 
 ## Code of Conduct
 
-This project follows a code of conduct to ensure a welcoming environment for all participants. See [Code of Conduct](../000-docs/006-BL-POLI-code-of-conduct.md) for details.
+This project follows a code of conduct to ensure a welcoming environment for all participants. See the [Code of Conduct](../CODE_OF_CONDUCT.md) for details.
 
 ## Security
 

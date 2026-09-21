@@ -6,9 +6,9 @@ order: 3
 keywords: ["Claude Code community", "contribute plugins", "open source", "GitHub", "Discord", "Claude Code learning", "plugin development", "Claude Code ecosystem tools"]
 officialLinks:
   - title: "Claude Code Overview"
-    url: "https://docs.anthropic.com/en/docs/claude-code/overview"
+    url: "https://code.claude.com/docs/en/overview"
   - title: "Claude Code Plugins"
-    url: "https://docs.anthropic.com/en/docs/claude-code/plugins"
+    url: "https://code.claude.com/docs/en/plugins"
 relatedDocs:
   - "ecosystem/marketplace-overview"
   - "ecosystem/official-anthropic-docs"
@@ -124,7 +124,7 @@ At minimum, your plugin needs:
 - **`README.md`** describing what the plugin does, how to install it, and how to use it.
 - **At least one skill, command, or agent file** providing actual functionality.
 
-Follow the [SKILL.md specification](https://docs.anthropic.com/en/docs/claude-code/skills) for skill files and the [plugin specification](https://docs.anthropic.com/en/docs/claude-code/plugins) for overall structure.
+Follow the [SKILL.md specification](https://code.claude.com/docs/en/skills) for skill files and the [plugin specification](https://code.claude.com/docs/en/plugins) for overall structure.
 
 ### Step 3: Validate locally
 

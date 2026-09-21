@@ -8,7 +8,7 @@ description: "Build composable middleware for LangChain 1.0 chains and LangGraph
   langchain middleware\", \"langgraph middleware\", \"PII redaction\nmiddleware\"\
   , \"cache middleware order\", \"langchain guardrails\".\n"
 allowed-tools: Read, Write, Edit, Bash(python:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

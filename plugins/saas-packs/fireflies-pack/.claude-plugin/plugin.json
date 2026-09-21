@@ -1,7 +1,7 @@
 {
   "name": "fireflies-pack",
-  "version": "1.11.0",
-  "description": "Claude Code skill pack for Fireflies.ai (24 skills)",
+  "version": "1.12.0",
+  "description": "Operator-grade Fireflies.ai GraphQL and Webhooks V2 pack with 24 governed meeting-data workflows",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -11,7 +11,10 @@
     "fireflies",
     "fireflies.ai",
     "saas",
-    "sdk",
+    "graphql",
+    "webhooks-v2",
+    "meeting-data",
+    "governance",
     "integration"
   ]
 }

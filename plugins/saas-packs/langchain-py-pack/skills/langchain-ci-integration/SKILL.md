@@ -9,7 +9,7 @@ description: "Wire LangChain 1.0 / LangGraph 1.0 tests into a GitHub Actions pip
   , \"langchain test pipeline\",\n\"vcr ci\", \"langchain eval gate\", \"pytest -W\
   \ error langchain\".\n"
 allowed-tools: Read, Write, Edit, Bash(python:*), Bash(pytest:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

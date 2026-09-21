@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/remofirst-pack",
-  "version": "1.0.1",
-  "description": "Claude Code skill pack for RemoFirst - 12 skills covering global employment, EOR services, and international payroll",
+  "version": "2.0.0",
+  "description": "Evidence-backed RemoFirst operator workflows for EOR, contractors, payroll, security, and supported HRIS connectors (12 skills)",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -13,9 +13,10 @@
     "claude-code",
     "claude-code-plugin",
     "remofirst",
-    "global-employment",
     "eor",
-    "international-payroll",
+    "payroll",
+    "workday",
+    "adp",
     "ai-skills",
     "saas-pack"
   ],

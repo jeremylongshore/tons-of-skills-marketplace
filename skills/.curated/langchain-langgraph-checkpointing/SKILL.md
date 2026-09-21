@@ -7,7 +7,7 @@ description: "Persist LangGraph agent state correctly with MemorySaver and Postg
   \ checkpointer\", \"MemorySaver\", \"PostgresSaver\",\n\"thread_id\", \"langgraph\
   \ time travel\", \"langgraph state persistence\".\n"
 allowed-tools: Read, Write, Edit, Bash(python:*), Bash(psql:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

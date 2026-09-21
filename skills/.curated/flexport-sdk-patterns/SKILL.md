@@ -1,192 +1,103 @@
 ---
 name: flexport-sdk-patterns
-description: 'Apply production-ready Flexport API patterns for TypeScript and Python.
-
-  Use when building typed HTTP clients, implementing pagination,
-
-  or establishing team coding standards for Flexport logistics integration.
-
-  Trigger: "flexport SDK patterns", "flexport best practices", "flexport client wrapper".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.6.0
+description: >-
+  Design typed adapters for Flexport REST v3 and the Flexport MCP server while preserving their different contracts. Use when building a client library, response parser, MCP transport, or shared integration boundary. Trigger with: "build Flexport client", "type Flexport responses", "connect Flexport MCP".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[language-and-required-capabilities]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - architecture
+  - sdk
+compatibility: 'Requires current Flexport v3 and MCP schemas plus a typed application language or runtime validation library.'
 ---
-# Flexport SDK Patterns
+
+# Flexport Dual-Surface Client Contracts
 
 ## Overview
 
-Production-ready patterns for the Flexport REST API v2. Since Flexport has no official npm/pip SDK, you build typed HTTP clients. Key patterns: singleton client, paginated iteration, retry wrapper, and Zod response validation.
+REST resources and MCP tools are two distinct public surfaces. Keep separate transports, authentication/session handling, error models, and pagination adapters behind business-level interfaces.
 
 ## Prerequisites
 
-- Scoped credentials from the secret manager, approved endpoint/destination policies, and fictional sandbox fixtures.
-- An idempotency/retry design, redacted telemetry, and a clear owner for schema or permission failures.
-
-## Output
-
-Return a client-validation receipt with contract version, fixture version, aggregate schema result, idempotency behavior, owner, and redacted failure reference. Do not log headers, documents, or shipment payloads.
-
-## Examples
-
-Use a fictional shipment with an opaque ID to exercise pagination and a schema error. Verify that a retry cannot duplicate a write and that a rejected field is quarantined for review rather than forwarded to an external system.
+- Inventory of required REST endpoints and MCP tools
+- Pinned account/version behavior and schema snapshot date
+- Runtime validation, redaction, timeout, and test-fixture strategy
 
 ## Instructions
 
-### Pattern 1: Singleton Client with Auto-Retry
+### Step 1: Define business ports
 
-```typescript
-// src/flexport/client.ts
-import { z } from 'zod';
+Express outcomes such as `readShipment`, `browseRisk`, or `evaluateRate`; keep HTTP paths and MCP JSON-RPC details behind adapters.
 
-class FlexportClient {
-  private static instance: FlexportClient | null = null;
-  private base = 'https://api.flexport.com';
-  private headers: Record<string, string>;
+### Step 2: Build the REST adapter
 
-  private constructor(apiKey: string) {
-    this.headers = {
-      'Authorization': `Bearer ${apiKey}`,
-      'Flexport-Version': '2',
-      'Content-Type': 'application/json',
-    };
-  }
+Use base `https://api.flexport.com`, Bearer authentication, optional `Flexport-Version`, documented envelopes, status/code/message errors, and link-style pagination where documented.
 
-  static getInstance(): FlexportClient {
-    if (!this.instance) {
-      const key = process.env.FLEXPORT_API_KEY;
-      if (!key) throw new Error('Missing FLEXPORT_API_KEY');
-      this.instance = new FlexportClient(key);
-    }
-    return this.instance;
-  }
+### Step 3: Build the MCP adapter
 
-  async request<T>(path: string, options: RequestInit = {}): Promise<T> {
-    const res = await fetch(`${this.base}${path}`, { ...options, headers: { ...this.headers, ...options.headers } });
-    if (res.status === 429) {
-      const retryAfter = parseInt(res.headers.get('Retry-After') || '60');
-      await new Promise(r => setTimeout(r, retryAfter * 1000));
-      return this.request(path, options);  // Retry once
-    }
-    if (!res.ok) {
-      const body = await res.text();
-      throw new FlexportAPIError(res.status, body, path);
-    }
-    return res.json();
-  }
-}
+Use Streamable HTTP JSON-RPC at `POST https://mcp.flexport.com/mcp`. Treat the per-tool paths shown in reference pages as synthetic documentation, not literal REST routes.
 
-class FlexportAPIError extends Error {
-  constructor(public status: number, public body: string, public path: string) {
-    super(`Flexport ${status} on ${path}: ${body}`);
-    this.name = 'FlexportAPIError';
-  }
-}
+### Step 4: Validate at runtime
+
+Accept documented additive fields, preserve opaque identifiers/cursors, and reject missing required fields without guessing replacements.
+
+### Step 5: Normalize evidence, not schemas
+
+Return a stable application result and surface provider metadata separately; do not force REST and MCP payloads into one lossy provider model.
+
+### Step 6: Contract-test both surfaces
+
+Replay sanitized official-shape fixtures for success, pagination, permission errors, additive fields, and ambiguous transport failure.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
+
+## Output
+
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
+
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
 ```
 
-### Pattern 2: Paginated Iterator
+## Examples
 
-```typescript
-// Iterate all pages of a Flexport list endpoint
-async function* paginate<T>(path: string, perPage = 25): AsyncGenerator<T> {
-  const client = FlexportClient.getInstance();
-  let page = 1;
-  while (true) {
-    const separator = path.includes('?') ? '&' : '?';
-    const res = await client.request<{ data: { records: T[]; total_count: number } }>(
-      `${path}${separator}page=${page}&per=${perPage}`
-    );
-    for (const record of res.data.records) yield record;
-    if (res.data.records.length < perPage) break;
-    page++;
-  }
-}
-
-// Usage: iterate all shipments
-for await (const shipment of paginate<Shipment>('/shipments')) {
-  console.log(shipment.id, shipment.status);
-}
-```
-
-### Pattern 3: Zod Response Validation
-
-```typescript
-const ShipmentSchema = z.object({
-  id: z.string(),
-  status: z.enum(['booked', 'in_transit', 'arrived', 'delivered']),
-  freight_type: z.enum(['ocean', 'air', 'trucking']),
-  origin_port: z.object({ code: z.string(), name: z.string() }),
-  destination_port: z.object({ code: z.string(), name: z.string() }),
-  cargo_ready_date: z.string(),
-  estimated_arrival_date: z.string().nullable(),
-});
-
-type Shipment = z.infer<typeof ShipmentSchema>;
-
-async function getShipment(id: string): Promise<Shipment> {
-  const client = FlexportClient.getInstance();
-  const res = await client.request<{ data: unknown }>(`/shipments/${id}`);
-  return ShipmentSchema.parse(res.data);  // Throws ZodError on mismatch
-}
-```
-
-### Pattern 4: Python Typed Client
-
-```python
-import os, requests
-from dataclasses import dataclass
-from typing import Iterator
-
-@dataclass
-class Shipment:
-    id: str
-    status: str
-    freight_type: str
-
-class FlexportClient:
-    BASE = 'https://api.flexport.com'
-
-    def __init__(self):
-        self.session = requests.Session()
-        self.session.headers.update({
-            'Authorization': f'Bearer {os.environ["FLEXPORT_API_KEY"]}',
-            'Flexport-Version': '2',
-        })
-
-    def list_shipments(self, per: int = 25) -> Iterator[Shipment]:
-        page = 1
-        while True:
-            r = self.session.get(f'{self.BASE}/shipments', params={'page': page, 'per': per})
-            r.raise_for_status()
-            records = r.json()['data']['records']
-            for rec in records:
-                yield Shipment(id=rec['id'], status=rec['status'], freight_type=rec['freight_type'])
-            if len(records) < per:
-                break
-            page += 1
-```
+The application calls one `ShipmentReader` interface. Its REST adapter follows shipment pagination links; its MCP adapter sends `tools/call` for `browse_shipments` and advances `end_cursor`, while both return the same minimal internal summary.
 
 ## Error Handling
 
-| Pattern | Use Case | Benefit |
-|---------|----------|---------|
-| Singleton | All API calls | One instance, consistent config |
-| Paginator | List endpoints | No data loss from pagination |
-| Zod validation | Response parsing | Catches API contract changes early |
-| Error class | All failures | Structured error data for logging |
+| Failure | Response |
+| --- | --- |
+| Synthetic tool path called as REST | Replace it with an MCP JSON-RPC `tools/call` request. |
+| Unknown additive field | Preserve or ignore it safely; do not fail a tolerant reader. |
+| Required field absent | Quarantine the response and compare against the current schema. |
+| Transport outcome ambiguous | Reconcile the operation rather than blind-retrying a mutation. |
 
 ## Resources
 
-- [Flexport API Reference](https://apidocs.flexport.com/)
-- [Zod Documentation](https://zod.dev/)
-
-## Next Steps
-
-Apply patterns in `flexport-core-workflow-a` for real-world usage.
+- [First-party source notes](references/official-docs.md)
+- [Flexport v3 API reference](https://apidocs.flexport.com/v3/)
+- [MCP tools](https://apidocs.flexport.com/v3/tag/MCP-Tools/)
+- [Versioning](https://apidocs.flexport.com/v3/tag/Versioning/)

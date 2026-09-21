@@ -1,185 +1,95 @@
 ---
 name: palantir-observability
-description: 'Set up observability for Palantir Foundry integrations with metrics,
-  logging, and alerts.
-
-  Use when implementing monitoring for Foundry API calls, setting up dashboards,
-
-  or configuring alerting for Foundry integration health.
-
-  Trigger with phrases like "palantir monitoring", "foundry metrics",
-
-  "palantir observability", "monitor foundry", "foundry alerts".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.5.0
-license: MIT
+description: >-
+  Design Foundry observability using build metrics, execution history, governed logs, audit exports, and monitoring subscriptions. Use when defining dashboards, alerts, or operational evidence. Trigger with "Foundry observability" or "Palantir monitoring".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[pipeline-action-function-or-module]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- observability
-- monitoring
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, observability, monitoring]
 ---
-# Palantir Observability
+# Palantir Foundry Observability Design
 
 ## Overview
 
-Set up comprehensive observability for Foundry integrations: structured logging with request IDs, Prometheus metrics for API latency/errors, health check endpoints, and alert rules.
+Use Foundry-native telemetry for Foundry workloads and export only when there is a governed consumer. Distinguish operational metrics, service/trace logs, execution history, monitoring notifications, and audit logs because they have different access and retention semantics.
 
 ## Prerequisites
 
-- Working Foundry integration
-- Prometheus + Grafana (or equivalent monitoring stack)
-- Familiarity with `palantir-prod-checklist`
+- Identify the resource, owner, service objectives, failure modes, audiences, data classification, and incident process.
+- Inventory available build metrics, resource metrics, execution history, logs, monitoring views, audit exports, and external notification targets.
+- Read `references/official-docs.md` and confirm current log-access and marking policy.
+- Define the minimum telemetry needed to detect user-visible or data-quality failures.
+
+## Current Contract
+
+- Transform build metrics expose CPU, memory, and job behavior in build reports.
+- Ontology and AIP metrics, execution history, and logs have different permission requirements; logs may require Edit permission, enabled log access, and markings.
+- Organization log exports support Palantir or OpenTelemetry payload formats and must respect source-executor and export-dataset marking requirements.
+- Audit logs record high-level security and administrative activity and require tightly controlled export datasets.
 
 ## Instructions
 
-### Step 1: Structured Logging
+1. Define measurable service and data objectives, owners, thresholds, and response actions before creating dashboards.
 
-```python
-import logging, json, time, uuid
+2. Map each signal to the authoritative Foundry surface and identify its permission, marking, retention, and export requirements.
 
-class FoundryLogger:
-    def __init__(self):
-        self.logger = logging.getLogger("foundry")
-        handler = logging.StreamHandler()
-        handler.setFormatter(logging.Formatter("%(message)s"))
-        self.logger.addHandler(handler)
-        self.logger.setLevel(logging.INFO)
+3. Create views or exports with minimum fields and protected destinations; avoid logging object values, prompts, or secrets.
 
-    def log_api_call(self, method: str, endpoint: str, status: int, duration_ms: float):
-        self.logger.info(json.dumps({
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "request_id": str(uuid.uuid4())[:8],
-            "service": "foundry",
-            "method": method,
-            "endpoint": endpoint,
-            "status": status,
-            "duration_ms": round(duration_ms, 2),
-            "level": "error" if status >= 400 else "info",
-        }))
-```
+4. Test each alert with a controlled failure and confirm routing, deduplication, acknowledgement, escalation, and recovery.
 
-### Step 2: Prometheus Metrics
+5. Review false positives, blind spots, access, retention, and evidence quality after a representative operating window.
 
-```python
-from prometheus_client import Counter, Histogram, Gauge
+## Tool Discipline
 
-foundry_requests = Counter(
-    "foundry_api_requests_total",
-    "Total Foundry API requests",
-    ["method", "endpoint", "status"],
-)
-foundry_latency = Histogram(
-    "foundry_api_latency_seconds",
-    "Foundry API request latency",
-    ["endpoint"],
-    buckets=[0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0],
-)
-foundry_health = Gauge(
-    "foundry_api_healthy",
-    "1 if Foundry API is reachable, 0 otherwise",
-)
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-def instrumented_call(client, method, *args, **kwargs):
-    endpoint = method.__qualname__
-    start = time.monotonic()
-    try:
-        result = method(*args, **kwargs)
-        status = 200
-        return result
-    except foundry.ApiError as e:
-        status = e.status_code
-        raise
-    finally:
-        duration = time.monotonic() - start
-        foundry_requests.labels(method="API", endpoint=endpoint, status=str(status)).inc()
-        foundry_latency.labels(endpoint=endpoint).observe(duration)
-```
+## Approval Boundaries
 
-### Step 3: Health Check with Metrics
-
-```python
-import time
-
-async def foundry_health_check():
-    start = time.monotonic()
-    try:
-        list(client.ontologies.Ontology.list())
-        latency = (time.monotonic() - start) * 1000
-        foundry_health.set(1)
-        return {"status": "healthy", "latency_ms": round(latency, 1)}
-    except Exception as e:
-        foundry_health.set(0)
-        return {"status": "unhealthy", "error": str(e)}
-```
-
-### Step 4: Alert Rules (Prometheus)
-
-```yaml
-groups:
-  - name: foundry
-    rules:
-      - alert: FoundryAPIDown
-        expr: foundry_api_healthy == 0
-        for: 2m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Foundry API unreachable for 2+ minutes"
-
-      - alert: FoundryHighErrorRate
-        expr: rate(foundry_api_requests_total{status=~"5.."}[5m]) > 0.05
-        for: 5m
-        labels:
-          severity: warning
-
-      - alert: FoundryHighLatency
-        expr: histogram_quantile(0.99, foundry_api_latency_seconds_bucket) > 10
-        for: 10m
-        labels:
-          severity: warning
-```
-
-### Step 5: Dashboard Queries (Grafana)
-
-```
-# Request rate by status
-rate(foundry_api_requests_total[5m])
-
-# P99 latency
-histogram_quantile(0.99, rate(foundry_api_latency_seconds_bucket[5m]))
-
-# Error ratio
-sum(rate(foundry_api_requests_total{status=~"[45].."}[5m]))
-/ sum(rate(foundry_api_requests_total[5m]))
-```
+Resource owners approve service objectives; security/data owners approve log access, markings, and exports; organization administrators approve audit exports; incident owners approve external routing. Never enable broad logs merely to make dashboards easier.
 
 ## Output
 
-- Structured JSON logging with request IDs
-- Prometheus metrics for requests, latency, and health
-- Alert rules for API downtime, error rate, and latency
-- Grafana dashboard queries
+An observability matrix with objectives, signals, Foundry sources, queries/views, thresholds, audiences, permissions, markings, retention, notification routes, runbooks, and tested alert receipts.
 
 ## Error Handling
 
-| Alert | Threshold | Action |
-|-------|-----------|--------|
-| API Down | Health check fails 2min | Page on-call, check `palantir-incident-runbook` |
-| High Error Rate | 5xx > 5% for 5min | Check Foundry status, review logs |
-| High Latency | p99 > 10s for 10min | Review query complexity, check Foundry load |
-| Rate Limited | 429 count spike | Tune rate limiter settings |
+| Condition | Response |
+|---|---|
+| Metrics exist but no action is defined | Assign owner, threshold, severity, and runbook before enabling the alert. |
+| Logs reveal protected values | Disable or restrict access/export, correct markings and logging, and review exposure. |
+| An export omits required source markings | Stop the export and align source-executor and destination controls. |
+| Health is green while data is stale | Add freshness, build, transaction, and downstream-consumer signals. |
+
+## Examples
+
+### Example 1
+
+Monitor a transform with build success, freshness, duration, CPU, memory, input/output volume, and data expectations, then test the alert by failing a sandbox build.
+
+### Example 2
+
+Govern an action's service logs by enabling log access with markings, limiting viewers, defining retention, and keeping audit logs as a separate security evidence stream.
+
+## Validation
+
+- Every signal maps to a user, data, security, or reliability objective.
+- Controlled tests exercise alert, route, acknowledgement, and recovery.
+- Logs and exports have approved permissions, markings, and retention.
+- Dashboards include freshness and correctness rather than only endpoint availability.
+- Quarterly review has an owner and evidence source.
 
 ## Resources
 
-- [Prometheus Python Client](https://github.com/prometheus/client_python)
-- [Foundry API Reference](https://www.palantir.com/docs/foundry/api/general/overview/introduction)
-
-## Next Steps
-
-For multi-environment setup, see `palantir-multi-env-setup`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

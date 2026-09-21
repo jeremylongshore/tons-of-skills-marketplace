@@ -1,216 +1,97 @@
 ---
 name: coderabbit-sdk-patterns
-description: 'Apply production-ready CodeRabbit automation patterns using GitHub API
-  and PR comments.
-
-  Use when building automation around CodeRabbit reviews, processing review feedback
-
-  programmatically, or integrating CodeRabbit into custom workflows.
-
-  Trigger with phrases like "coderabbit automation", "coderabbit API patterns",
-
-  "automate coderabbit", "coderabbit github api", "process coderabbit reviews".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*), Bash(node:*)
-version: 1.11.0
-license: MIT
+description: >-
+  Build a least-privilege adapter for documented REST API operations without inventing endpoints or treating PR comments as an SDK. Use when this operator task needs a current, evidence-backed
+  CodeRabbit workflow. Trigger with "integrate with the CodeRabbit API".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[target] [evidence-or-scope]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- coderabbit
-- automation
-- github-api
-- typescript
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current CodeRabbit documentation and approved access for any live organization, repository, billing, or API change
+tags: [saas, coderabbit, api, integration, enterprise]
 ---
-# CodeRabbit SDK Patterns
+# CodeRabbit API Adapter Patterns
 
 ## Overview
 
-CodeRabbit does not have a traditional SDK. You interact with it through `.coderabbit.yaml` configuration, PR comment commands (`@coderabbitai`), and the GitHub/GitLab API to process its review output. These patterns show how to automate around CodeRabbit reviews programmatically.
+CodeRabbit documents REST APIs for organizations, metrics, learnings, users, roles, logs, and security. Implement only referenced operations.
 
 ## Prerequisites
 
-- CodeRabbit installed on repository (see `coderabbit-install-auth`)
-- GitHub CLI (`gh`) or GitHub API access via personal access token
-- Node.js 18+ for automation scripts
+- Identify the CodeRabbit organization, Git provider, repository, plan, and accountable owner.
+- Read `references/official-docs.md` and re-check any time-sensitive contract before execution.
+- Use synthetic or read-only evidence until the approval boundary is satisfied.
+- Preserve the repository's independent CI, security, and human-review requirements.
+
+## Current Contract
+
+- API auth uses the documented `x-coderabbitai-api-key` header.
+- Many endpoints require Enterprise, roles, permissions, and a suitable key.
+- Pagination, partial success, exports, and feature flags vary.
+- Reviewed docs do not identify a general official language SDK.
+
+## Authentication
+
+Treat Git-provider sessions, CodeRabbit web sessions, CLI credentials, and CodeRabbit API keys as separate credentials. Use only an already-approved session or secret-manager reference, never print a secret, and do not place credentials in `.coderabbit.yaml`, source files, logs, or deliverables.
 
 ## Instructions
 
-### Step 1: Fetch CodeRabbit Reviews via GitHub API
+1. Select one operation and record plan, permission, key type, request, pagination, and response.
 
-```typescript
-// scripts/fetch-coderabbit-reviews.ts
-import { Octokit } from "@octokit/rest";
+2. Build a thin typed adapter with injected URL and secret reference.
 
-const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+3. Implement only documented errors and preserve partial success.
 
-async function getCodeRabbitReview(owner: string, repo: string, prNumber: number) {
-  const reviews = await octokit.pulls.listReviews({ owner, repo, pull_number: prNumber });
+4. Test fixtures, then one approved read-only request.
 
-  const coderabbitReview = reviews.data.find(
-    (r) => r.user?.login === "coderabbitai[bot]"
-  );
+## Tool Discipline
 
-  if (!coderabbitReview) {
-    console.log("No CodeRabbit review found yet. Review typically takes 2-5 minutes.");
-    return null;
-  }
+- Use **Glob** to locate candidate configuration and evidence files without widening scope.
+- Use **Grep** to find relevant fields, commands, identifiers, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use these file tools as a substitute for authenticated CodeRabbit or provider operations.
 
-  return {
-    state: coderabbitReview.state,      // "APPROVED" | "CHANGES_REQUESTED" | "COMMENTED"
-    body: coderabbitReview.body,         // Walkthrough summary
-    submittedAt: coderabbitReview.submitted_at,
-  };
-}
-```
+## Approval Boundaries
 
-### Step 2: Extract Line-Level Comments
-
-```typescript
-async function getCodeRabbitComments(owner: string, repo: string, prNumber: number) {
-  const comments = await octokit.pulls.listReviewComments({
-    owner, repo, pull_number: prNumber,
-  });
-
-  const coderabbitComments = comments.data
-    .filter((c) => c.user?.login === "coderabbitai[bot]")
-    .map((c) => ({
-      file: c.path,
-      line: c.line || c.original_line,
-      body: c.body,
-      severity: categorizeSeverity(c.body),
-      url: c.html_url,
-    }));
-
-  return coderabbitComments;
-}
-
-function categorizeSeverity(body: string): "critical" | "warning" | "suggestion" {
-  const lower = body.toLowerCase();
-  if (lower.includes("security") || lower.includes("vulnerability") || lower.includes("injection")) {
-    return "critical";
-  }
-  if (lower.includes("bug") || lower.includes("error") || lower.includes("issue")) {
-    return "warning";
-  }
-  return "suggestion";
-}
-```
-
-### Step 3: Post Commands to CodeRabbit via PR Comments
-
-```typescript
-// Programmatically trigger CodeRabbit actions
-async function sendCodeRabbitCommand(
-  owner: string, repo: string, prNumber: number, command: string
-) {
-  await octokit.issues.createComment({
-    owner, repo, issue_number: prNumber,
-    body: `@coderabbitai ${command}`,
-  });
-}
-
-// Available commands:
-// "full review"                    - Complete review from scratch
-// "summary"                        - Generate walkthrough summary
-// "resolve"                        - Mark all comments resolved
-// "generate-docstrings"            - Generate docstrings for functions
-// "configuration"                  - Show current config as YAML
-// "run <recipe>"                   - Run a finishing touch recipe
-```
-
-### Step 4: Build a Review Dashboard Script
-
-```bash
-#!/bin/bash
-# scripts/coderabbit-dashboard.sh - Review metrics for last 50 PRs
-set -euo pipefail
-
-ORG="${1:?Usage: $0 <org> <repo>}"
-REPO="${2:?Usage: $0 <org> <repo>}"
-
-echo "=== CodeRabbit Review Dashboard ==="
-echo "Repository: $ORG/$REPO"
-echo ""
-
-# Count PRs with CodeRabbit reviews
-TOTAL=$(gh api "repos/$ORG/$REPO/pulls?state=closed&per_page=50" --jq 'length')
-REVIEWED=0
-
-for PR_NUM in $(gh api "repos/$ORG/$REPO/pulls?state=closed&per_page=50" --jq '.[].number'); do
-  HAS_CR=$(gh api "repos/$ORG/$REPO/pulls/$PR_NUM/reviews" \
-    --jq '[.[] | select(.user.login=="coderabbitai[bot]")] | length' 2>/dev/null || echo "0")
-  [ "$HAS_CR" -gt 0 ] && REVIEWED=$((REVIEWED + 1))
-done
-
-echo "Review Coverage: $REVIEWED/$TOTAL PRs reviewed ($(( REVIEWED * 100 / TOTAL ))%)"
-```
-
-### Step 5: GitHub Actions Automation
-
-```yaml
-# .github/workflows/coderabbit-gate.yml
-# Block merge until CodeRabbit has reviewed
-name: CodeRabbit Review Gate
-
-on:
-  pull_request_review:
-    types: [submitted]
-
-jobs:
-  check-coderabbit:
-    if: github.event.review.user.login == 'coderabbitai[bot]'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check review state
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data: reviews } = await github.rest.pulls.listReviews({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number,
-            });
-            const crReview = reviews.find(r => r.user.login === 'coderabbitai[bot]');
-            if (crReview?.state === 'CHANGES_REQUESTED') {
-              core.setFailed('CodeRabbit requested changes. Address feedback before merging.');
-            } else {
-              core.info(`CodeRabbit review state: ${crReview?.state || 'pending'}`);
-            }
-```
+Require Admin and security approval for keys; require separate approval for writes, roles, seats, or exports. Keep analysis and drafts local until approval is explicit, and record who approved the action and its scope.
 
 ## Output
 
-- GitHub API integration for fetching CodeRabbit review data
-- Automated command posting to trigger CodeRabbit actions
-- Review metrics dashboard script
-- CI gate that enforces CodeRabbit approval before merge
+A contract record, adapter, redacted fixtures, pagination handling, live-read receipt, and rotation owner. Include source dates, unknowns, and the exact boundary between observed fact and recommendation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Review not found | PR too new | Wait 2-5 minutes for review to complete |
-| 403 from GitHub API | Token missing scopes | Ensure `repo` scope on personal access token |
-| Bot login doesn't match | Different app slug | Check with `coderabbitai[bot]` (includes `[bot]` suffix) |
-| Rate limited by GitHub | Too many API calls | Use pagination and caching for bulk queries |
+| Condition | Response |
+|---|---|
+| Current contract is unclear or docs disagree | Stop mutation, cite both sources, and request owner resolution. |
+| Required access or approval is missing | Produce a draft and evidence plan only. |
+| Validation or pilot behavior differs from expectation | Restore the prior state and retain the failed evidence. |
+| Output contains secrets or private code | Stop, quarantine the artifact, redact it, and notify the data owner. |
 
 ## Examples
 
-Use a scoped GitHub token in a staging workflow to retrieve CodeRabbit’s review
-state for one disposable pull request, then verify that a requested-changes
-state fails the intended gate. If the bot review is missing, return a pending
-result and use bounded polling; do not treat an unknown state as approval or
-expand token access to bypass the check.
+### Example 1
+
+Fetch paginated metrics with cursor provenance.
+
+### Example 2
+
+Reconcile partial success before bulk role changes.
+
+## Validation
+
+- Confirm every claim against the dated sources in `references/official-docs.md`.
+- Verify the requested scope, owner, approval, happy path, failure path, and rollback.
+- Re-read the effective configuration or provider state after any approved change.
+- Report unsupported fields, undocumented endpoints, and unverified assumptions as failures.
 
 ## Resources
 
-- [CodeRabbit Review Commands](https://docs.coderabbit.ai/reference/review-commands)
-- [GitHub REST API - Pull Reviews](https://docs.github.com/en/rest/pulls/reviews)
-- [Octokit.js](https://github.com/octokit/octokit.js)
-
-## Next Steps
-
-Apply patterns in `coderabbit-core-workflow-a` for real-world review workflows.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

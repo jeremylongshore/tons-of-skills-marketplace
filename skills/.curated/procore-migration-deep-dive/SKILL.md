@@ -1,66 +1,92 @@
 ---
 name: procore-migration-deep-dive
-description: "Procore migration deep dive \u2014 construction management platform\
-  \ integration.\nUse when working with Procore API for project management, RFIs,\
-  \ or submittals.\nTrigger with phrases like \"procore migration deep dive\", \"\
-  procore-migration-deep-dive\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Bash(curl:*), Grep
-version: 1.5.0
+description: >-
+  Plan and execute a resumable Procore data migration with dependency ordering, stable origin identifiers, sync actions where supported, file transfer, checkpoints, reconciliation, and rollback. Use when importing or exporting construction records at scale. Trigger with: "migrate data to Procore", "build a Procore backfill", "reconcile a Procore migration".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[source-target-and-resource-domains]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- procore
-- construction
-- project-management
-compatibility: Designed for Claude Code
+  - saas
+  - procore
+  - data-migration
+  - reconciliation
+compatibility: 'Requires approved source and target access, a documented resource dependency graph, durable checkpoint storage, and a tested rollback plan.'
 ---
-# Procore Migration Deep Dive
+
+# Procore Resumable Data Migration
 
 ## Overview
 
-Implementation patterns for Procore migration deep dive using the REST API with OAuth2 authentication.
+Move records as an ordered, observable, and reversible program rather than a bulk request loop. Use documented resource contracts, stable external identity, supported sync actions, and separate file workflows while preserving tenant and project boundaries.
 
 ## Prerequisites
 
-- Completed `procore-install-auth` setup
+- Source and target owners, data classification, retention, and legal approval
+- Resource inventory, volume, dependency graph, field mapping, and unsupported-feature list
+- DMSA or user permission map, rate budget, checkpoint store, and rollback boundary
 
 ## Instructions
 
-### Step 1: API Call Pattern
+### Step 1: Profile and map
 
-```python
-import os, requests
+Count records and files by company, project, resource, status, and dependency. Map required fields, codes, users, locations, permissions, timestamps, and external identifiers.
 
-token_resp = requests.post("https://login.procore.com/oauth/token", data={
-    "grant_type": "client_credentials",
-    "client_id": os.environ["PROCORE_CLIENT_ID"],
-    "client_secret": os.environ["PROCORE_CLIENT_SECRET"],
-})
-access_token = token_resp.json()["access_token"]
-headers = {"Authorization": f"Bearer {access_token}"}
+### Step 2: Design stable identity
 
-companies = requests.get("https://api.procore.com/rest/v1.0/companies", headers=headers)
-print(f"Companies: {len(companies.json())}")
-```
+Use documented `origin_id` or equivalent only where the resource supports it. Define source-to-Procore mapping, collision handling, and a replay-safe uniqueness rule.
+
+### Step 3: Order dependencies
+
+Create prerequisite company and project data before dependent records. Follow documented API call sequencing and isolate unsupported resources for explicit disposition.
+
+### Step 4: Execute resumably
+
+Process bounded batches, follow rate headers, checkpoint after verified commits, and use sync actions only for supported resources. Transfer files through their separate documented upload and association flow.
+
+### Step 5: Reconcile continuously
+
+Compare counts, key fields, relationships, file checksums, failures, duplicates, and state hashes per batch. Quarantine poison records without blocking the entire migration.
+
+### Step 6: Cut over and settle
+
+Run final delta capture, freeze writes if required, verify parity, switch consumers, observe, and preserve rollback until the agreed settlement window closes.
+
+## Authentication
+
+Migration calls use an OAuth 2.0 Bearer token for the approved user or DMSA and explicit company and project scope. The migration must not obtain broad permissions merely to simplify dependency handling.
+
+## Tool Discipline
+
+Use Read and Grep to inspect mappings, contracts, checkpoints, and reconciliation evidence. Use Write or Edit only for the approved migration adapter, manifest, quarantine record, test, or receipt; never place source data in source control.
 
 ## Output
 
-- Procore API integration for migration deep dive
+- Resource map, dependency order, and unsupported-feature disposition
+- Batch checkpoints, identity mappings, and failure quarantine
+- Parity, cutover, rollback, and settlement receipt
+
+Return migrated and failed counts, checkpoint, divergence summary, file verification, permission boundary, and next safe action.
+
+## Examples
+
+A backfill creates prerequisite project metadata before RFIs, assigns stable external identity only on resources that support it, uploads attachments through the documented file flow, and advances each checkpoint only after count and relationship reconciliation.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| 401 Unauthorized | Expired token | Re-authenticate |
-| 429 Rate Limited | Too many requests | Implement backoff |
-| 403 Forbidden | Insufficient permissions | Check project role |
+| Failure | Response |
+| --- | --- |
+| Origin identifier collides | Quarantine the record and resolve mapping ownership; do not overwrite blindly. |
+| Resource lacks sync support | Use its documented endpoint with a specific idempotency plan or exclude it. |
+| Batch parity fails | Stop checkpoint advancement and reconcile the smallest divergent set. |
+| Rate budget falls | Pause according to response headers and resume from the last verified checkpoint. |
 
 ## Resources
 
-- [Procore Developers](https://developers.procore.com/)
-- [REST API Reference](https://developers.procore.com/reference/rest)
-
-## Next Steps
-
-See related Procore skills for more workflows.
+- [First-party source notes](references/official-docs.md)
+- [Using Sync Actions](https://developers.procore.com/documentation/using-sync-actions)
+- [API call sequencing](https://developers.procore.com/documentation/api-call-sequencing)
+- [Direct file uploads](https://developers.procore.com/documentation/tutorial-uploads)

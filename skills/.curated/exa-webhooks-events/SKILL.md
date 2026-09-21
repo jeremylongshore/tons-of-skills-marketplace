@@ -1,256 +1,75 @@
 ---
 name: exa-webhooks-events
-description: 'Build event-driven integrations with Exa using scheduled monitors and
-  content alerts.
-
-  Use when building content monitoring, competitive intelligence pipelines,
-
-  or scheduled search automation with Exa.
-
-  Trigger with phrases like "exa monitor", "exa content alerts",
-
-  "exa scheduled search", "exa event-driven", "exa notifications".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(node:*)
-version: 1.11.0
+description: >-
+  Receive Exa Monitor events through verified signatures, replay resistance, deduplication, and fast acknowledgment. Use when operating or reviewing this Exa boundary. Trigger with "Exa webhooks events", "review Exa webhooks events", or "fix Exa webhooks events".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<monitor-id> <receiver-route>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- webhooks
-- monitoring
-- automation
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Webhooks & Events
-
-## Output
-
-- A verified signed/idempotent event path with redacted observability, bounded retry, and recovery ownership.
-- A receipt with correlation ID, environment, type, state/result, and safe replay decision.
+# Exa Monitor Webhook Processing
 
 ## Overview
 
-Build event-driven integrations around Exa neural search. Exa is a synchronous search API (no native webhooks), so this skill covers building async patterns: scheduled content monitoring with `searchAndContents`, similarity alerts with `findSimilarAndContents`, new content detection using date filters, and webhook-style notification delivery.
+Receive Exa Monitor events through verified signatures, replay resistance, deduplication, and fast acknowledgment. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- `exa-js` installed and `EXA_API_KEY` configured
-- Queue system (BullMQ/Redis) or cron scheduler
-- Webhook endpoint for notifications
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
 
-## Event Patterns
+## Current Contract
 
-| Pattern | Mechanism | Use Case |
-|---------|-----------|----------|
-| Content monitor | Scheduled `searchAndContents` with `startPublishedDate` | New article alerts |
-| Similarity alert | Periodic `findSimilarAndContents` + diff | Competitive monitoring |
-| Content change | Re-search + compare result sets | Update tracking |
-| Research digest | Scheduled `answer` + email/Slack | Daily briefings |
+Monitors schedule recurring searches, deduplicate prior results, and deliver to an HTTPS public webhook. The one-time webhookSecret is returned only when a Monitor is created. Exa-Signature carries timestamp and v1 values for HMAC-SHA256 verification over the signed payload; redirects are not followed.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Content Monitor Service
+1. Create or rotate a Monitor only with an approved query, schedule, destination, and budget.
+2. Store the one-time webhook secret immediately in the receiver secret store.
+3. Verify the raw body timestamp and HMAC using constant-time comparison before parsing.
+4. Reject stale, malformed, unsigned, redirected, or unrecognized deliveries.
+5. Deduplicate on stable event and run identifiers, acknowledge quickly, and enqueue work.
+6. Reconcile webhook processing with the Monitor run API and retain content-free evidence.
 
-```typescript
-import Exa from "exa-js";
-import { Queue, Worker } from "bullmq";
+## Tool Discipline
 
-const exa = new Exa(process.env.EXA_API_KEY!);
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-interface SearchMonitor {
-  id: string;
-  query: string;
-  webhookUrl: string;
-  lastResultUrls: Set<string>;
-  intervalMinutes: number;
-  searchType: "auto" | "neural" | "keyword";
-}
+## Approval Boundaries
 
-const monitorQueue = new Queue("exa-monitors", {
-  connection: { host: "localhost", port: 6379 },
-});
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-async function createMonitor(config: Omit<SearchMonitor, "lastResultUrls">) {
-  await monitorQueue.add("check-search", config, {
-    repeat: { every: config.intervalMinutes * 60 * 1000 },
-    jobId: config.id,
-  });
-  console.log(`Monitor created: ${config.id} (every ${config.intervalMinutes} min)`);
-}
-```
+## Failure Modes
 
-### Step 2: Execute Monitored Searches
+- Never reconstruct a signature from reserialized JSON.
+- The secret cannot be fetched later if it was not stored at creation.
+- Webhook receipt alone does not prove downstream processing or a completed Monitor run.
 
-```typescript
-const worker = new Worker("exa-monitors", async (job) => {
-  const monitor = job.data;
+## Output
 
-  // Search for new content published since last check
-  const results = await exa.searchAndContents(monitor.query, {
-    type: monitor.searchType || "auto",
-    numResults: 10,
-    text: { maxCharacters: 500 },
-    highlights: { maxCharacters: 300, query: monitor.query },
-    // Only find content published in the monitoring window
-    startPublishedDate: getLastCheckDate(monitor.id),
-  });
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-  // Filter to genuinely new results
-  const newResults = results.results.filter(
-    r => !monitor.lastResultUrls?.has(r.url)
-  );
+## Example
 
-  if (newResults.length > 0) {
-    await sendWebhook(monitor.webhookUrl, {
-      event: "exa.new_results",
-      monitorId: monitor.id,
-      query: monitor.query,
-      timestamp: new Date().toISOString(),
-      results: newResults.map(r => ({
-        title: r.title,
-        url: r.url,
-        snippet: r.text?.substring(0, 200),
-        highlights: r.highlights,
-        publishedDate: r.publishedDate,
-        score: r.score,
-      })),
-    });
+- Verify Exa-Signature against the raw request body, persist the event ID, enqueue processing, and reconcile the associated run.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-    // Update tracked URLs
-    await updateLastResultUrls(monitor.id, newResults.map(r => r.url));
-  }
-}, { connection: { host: "localhost", port: 6379 } });
-```
+## Validation
 
-### Step 3: Similarity Alert System
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-```typescript
-async function monitorSimilarContent(
-  seedUrl: string,
-  webhookUrl: string,
-  checkIntervalHours = 24
-) {
-  const results = await exa.findSimilarAndContents(seedUrl, {
-    numResults: 5,
-    text: { maxCharacters: 300 },
-    excludeSourceDomain: true,
-    // Only find content from the last check period
-    startPublishedDate: new Date(
-      Date.now() - checkIntervalHours * 60 * 60 * 1000
-    ).toISOString(),
-  });
+## References
 
-  if (results.results.length > 0) {
-    await sendWebhook(webhookUrl, {
-      event: "exa.similar_content_found",
-      seedUrl,
-      matchCount: results.results.length,
-      matches: results.results.map(r => ({
-        title: r.title,
-        url: r.url,
-        snippet: r.text?.substring(0, 200),
-        score: r.score,
-      })),
-    });
-  }
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-  return results.results.length;
-}
-```
-
-### Step 4: Webhook Delivery with Retry
-
-```typescript
-async function sendWebhook(url: string, payload: any, maxRetries = 3) {
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Exa-Event": payload.event,
-        },
-        body: JSON.stringify(payload),
-      });
-      if (response.ok) return;
-      console.warn(`Webhook ${response.status}: ${url}`);
-    } catch (error) {
-      if (attempt === maxRetries - 1) throw error;
-    }
-    await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
-  }
-}
-```
-
-### Step 5: Daily Research Digest
-
-```typescript
-async function generateDailyDigest(
-  topics: string[],
-  webhookUrl: string
-) {
-  const digest = [];
-
-  for (const topic of topics) {
-    const results = await exa.searchAndContents(topic, {
-      type: "neural",
-      numResults: 3,
-      summary: { query: `Latest developments in: ${topic}` },
-      startPublishedDate: new Date(
-        Date.now() - 24 * 60 * 60 * 1000
-      ).toISOString(),
-    });
-
-    digest.push({
-      topic,
-      articles: results.results.map(r => ({
-        title: r.title,
-        url: r.url,
-        summary: r.summary,
-      })),
-    });
-  }
-
-  await sendWebhook(webhookUrl, {
-    event: "exa.daily_digest",
-    date: new Date().toISOString().split("T")[0],
-    topics: digest,
-  });
-}
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Rate limited monitors | Too many concurrent checks | Stagger monitor intervals |
-| Empty results | Date filter too narrow | Widen to 48-hour windows |
-| Duplicate alerts | Missing URL dedup | Track result URLs between runs |
-| Webhook delivery fails | Endpoint down | Retry with exponential backoff |
-
-## Examples
-
-### Create a Competitive Intelligence Monitor
-
-```typescript
-await createMonitor({
-  id: "competitor-watch",
-  query: "AI code review tools launch announcement",
-  webhookUrl: "https://api.myapp.com/webhooks/exa-alerts",
-  intervalMinutes: 60,
-  searchType: "neural",
-});
-```
-
-## Resources
-
-- [Exa Search Reference](https://docs.exa.ai/reference/search)
-- Exa Find Similar
-- [BullMQ Documentation](https://docs.bullmq.io/)
-
-## Next Steps
-
-For deployment setup, see `exa-deploy-integration`.
+- [Current first-party evidence map](references/official-docs.md)

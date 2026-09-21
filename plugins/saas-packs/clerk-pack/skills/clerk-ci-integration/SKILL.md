@@ -12,7 +12,7 @@ description: 'Configure Clerk CI/CD integration with GitHub Actions and testing.
 
   '
 allowed-tools: Read, Write, Edit, Bash(gh:*)
-version: 1.14.0
+version: 1.15.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

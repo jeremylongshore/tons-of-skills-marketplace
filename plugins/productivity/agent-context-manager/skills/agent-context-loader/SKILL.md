@@ -8,7 +8,7 @@ description: 'Execute proactive auto-loading: automatically detects and loads ag
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(general:*), Bash(util:*)
-version: 1.23.0
+version: 1.24.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
@@ -74,6 +74,6 @@ Automatic discovery and loading of `AGENTS.md` files across project hierarchies 
 
 ## Resources
 
-- Claude Code AGENTS.md specification: https://docs.anthropic.com/en/docs/agents
-- Monorepo workspace patterns for agent configuration: https://docs.anthropic.com/en/docs/claude-code
+- AGENTS.md open specification: https://agents.md/
+- Monorepo workspace patterns for agent configuration: https://code.claude.com/docs
 - File discovery best practices for hierarchical configuration loading

@@ -1,140 +1,92 @@
 ---
 name: clari-prod-checklist
-description: 'Production readiness checklist for Clari API integrations.
-
-  Use when launching a Clari data pipeline, validating export automation,
-
-  or preparing for production forecast sync.
-
-  Trigger with phrases like "clari production", "clari go-live",
-
-  "clari checklist", "clari launch".
-
-  '
-allowed-tools: Read, Bash(curl:*), Grep
-version: 1.6.0
+description: >-
+  Analyze and gate a Clari integration for production with evidence for access, correctness, resilience, privacy, rollback, and ownership. Use when approving a launch or material change. Trigger with: "review Clari readiness", "approve Clari production", "run the Clari launch checklist".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[integration-release-and-environment]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- revenue-intelligence
-- forecasting
-- clari
-compatibility: Designed for Claude Code
+  - saas
+  - clari
+  - production-readiness
+  - release-gate
+  - operations
+compatibility: 'Requires a release candidate, non-production test evidence, named owners, and an approved production change window.'
 ---
-# Clari Production Checklist
+
+# Clari Integration Production Readiness
 
 ## Overview
 
-Clari provides revenue intelligence through forecast data, pipeline analytics, and deal inspection. A production integration typically exports forecast snapshots, syncs pipeline data to a warehouse, and powers revenue dashboards. Incorrect data pipelines mean unreliable forecasts, missed quota signals, or stale deal intelligence that undermines board-level reporting.
+Convert production readiness into a fail-closed evidence bundle. A green decision requires proof of provider access, contract compatibility, data correctness, quota behavior, observability, security, recovery, and operator ownership.
 
 ## Prerequisites
 
-- Approved production data owner, change record, and release window
-- Separate production credential, state, and warehouse role
-- Certified staging export and tested recovery from partial or stale data
-- Monitoring, access-control, and retention policies accepted by owners
+- Versioned release candidate and endpoint inventory
+- Completed non-production happy-path and failure-path tests
+- Change owner, business owner, security owner, and rollback authority
 
 ## Instructions
 
-Complete the checklist in sequence: verify identity and secret boundaries,
-validate API/export behavior with a controlled read, confirm idempotent loading
-and freshness alerting, then secure the required approvals before enabling the
-scheduled production job. Capture evidence for each item; do not promote a
-staging result or use a successful connection alone as production acceptance.
+### Step 1: Verify identity and contracts
 
-## Authentication & Secrets
+Confirm surface-specific credentials, effective scope, base URL, API version, schema fingerprint, and entitlement.
 
-- [ ] `CLARI_API_KEY` stored in secrets manager (not config files)
-- [ ] Token tested against production endpoint before go-live
-- [ ] Key rotation procedure documented (quarterly cycle)
-- [ ] Separate tokens for dev/staging/prod environments
-- [ ] Service account with least-privilege scopes (read-only for exports)
+### Step 2: Verify data correctness
 
-## API Integration
+Reconcile counts, identifiers, time periods, totals, pagination, and empty-result behavior against an approved source.
 
-- [ ] Production base URL configured (`https://api.clari.com/v1`)
-- [ ] Rate limit handling with exponential backoff
-- [ ] All required `typesToExport` configured (forecast, quota, crm_closed)
-- [ ] Time period coverage verified (current quarter + 4 historical)
-- [ ] Deduplication logic handles re-exports and overlapping periods
-- [ ] Pagination implemented for large pipeline result sets
-- [ ] Export job polling with configurable timeout (default: 10 min)
+### Step 3: Verify resilience
 
-## Error Handling & Resilience
+Exercise timeout, 429, provider 5xx, aborted job, partial load, schema drift, and restart from checkpoint.
 
-- [ ] Circuit breaker configured for Clari API outages
-- [ ] Retry with backoff for 429/5xx responses
-- [ ] Empty export results handled (data quality alert, not silent pass)
-- [ ] Export job timeout detection with automatic re-queue
-- [ ] MERGE/UPSERT in warehouse prevents duplicate forecast records
-- [ ] Data retention policy enforced (rolling 8 quarters typical)
+### Step 4: Verify security and privacy
 
-## Monitoring & Alerting
+Prove secret redaction, least privilege, encryption, retention, deletion, mutation gates, and sensitive-content minimization.
 
-- [ ] API latency tracked per export job
-- [ ] Error rate alerts set (threshold: any export failure)
-- [ ] Forecast amount anomaly detection (>20% swing triggers review)
-- [ ] Pipeline health dashboard with job completion rates
-- [ ] Daily reconciliation: exported row counts vs expected
+### Step 5: Verify operations
 
-## Validation Script
+Confirm dashboards, alerts, service-status dependency, runbook, support bundle, capacity headroom, and on-call ownership.
 
-```typescript
-async function checkClariReadiness(): Promise<void> {
-  const checks: { name: string; pass: boolean; detail: string }[] = [];
-  // API connectivity
-  try {
-    const res = await fetch('https://api.clari.com/v1/forecast/types', {
-      headers: { Authorization: `Bearer ${process.env.CLARI_API_KEY}` },
-    });
-    checks.push({ name: 'Clari API', pass: res.ok, detail: res.ok ? 'Connected' : `HTTP ${res.status}` });
-  } catch (e: any) { checks.push({ name: 'Clari API', pass: false, detail: e.message }); }
-  // Credentials present
-  checks.push({ name: 'API Key Set', pass: !!process.env.CLARI_API_KEY, detail: process.env.CLARI_API_KEY ? 'Present' : 'MISSING' });
-  // Export types available
-  try {
-    const res = await fetch('https://api.clari.com/v1/forecast/types', {
-      headers: { Authorization: `Bearer ${process.env.CLARI_API_KEY}` },
-    });
-    const data = await res.json();
-    const count = Array.isArray(data) ? data.length : 0;
-    checks.push({ name: 'Export Types', pass: count > 0, detail: `${count} types available` });
-  } catch (e: any) { checks.push({ name: 'Export Types', pass: false, detail: e.message }); }
-  for (const c of checks) console.log(`[${c.pass ? 'PASS' : 'FAIL'}] ${c.name}: ${c.detail}`);
-}
-checkClariReadiness();
-```
+### Step 6: Approve or reject
 
-## Error Handling
+Record exact artifact hashes and approvers. Launch only when rollback is rehearsed and no required evidence is missing.
 
-| Check | Risk if Skipped | Priority |
-|-------|----------------|----------|
-| API key rotation | Expired token halts all exports | P1 |
-| Empty export detection | Silent data gaps in forecasts | P1 |
-| Duplicate record prevention | Inflated pipeline numbers | P2 |
-| Export job timeout | Stuck jobs block scheduling queue | P2 |
-| Forecast anomaly alerts | Missed revenue signals | P3 |
+## Authentication
+
+Production secrets must be injected from the approved manager into the matching client and never copied into release artifacts. Verify rotation and emergency revocation before launch.
+
+## Tool Discipline
+
+Use Read and Grep to inspect configuration, provider contracts, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not issue, rotate, revoke, create, update, cancel, delete, export, ingest, or publish provider data without explicit operator approval.
 
 ## Output
 
-Publish a production-readiness receipt tying every control to redacted evidence,
-owner, approval, validation time, and tested rollback decision. The receipt
-must state the currently certified forecast period and must not contain live
-tokens, raw forecast values, or rep-level data outside approved storage.
+- Signed readiness matrix with evidence links and hashes
+- Go/no-go decision with explicit exceptions, owners, and expiry
+- Rollback trigger, procedure, and rehearsed result
+
+Return the exact surface, environment, resource or job identifiers, contract fingerprint, evidence, unresolved risks, and final decision without exposing credentials or sensitive customer data.
 
 ## Examples
 
-Before launch, run one protected-environment export, verify the source period,
-row count, warehouse merge, freshness alert, and recovery path, then record
-the results in the change ticket. If the export is empty or the anomaly check
-cannot run, keep publication disabled and restore the last certified dataset.
+A forecast pipeline passes reconciliation and restart tests but lacks a verified token revocation drill. The launch remains no-go until rotation and dependent-job recovery are demonstrated.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Required evidence is missing | Return no-go and name the owner and exact proof required. |
+| Provider limit has no headroom | Reduce workload or obtain approved capacity before launch. |
+| Rollback is untested | Rehearse it in non-production and retain the receipt before approval. |
 
 ## Resources
 
-- [Clari API Reference](https://developer.clari.com/documentation/external_spec)
-- [Clari Status](https://status.clari.com)
-
-## Next Steps
-
-See `clari-security-basics` for data access controls and PII handling.
+- [First-party source notes](references/official-docs.md)
+- [Clari Revenue API reference](https://developer.clari.com/default/documentation/external_spec)
+- [Clari Copilot API reference](https://api-doc.copilot.clari.com/)
+- [Clari service status](https://clari.statuspage.io/)

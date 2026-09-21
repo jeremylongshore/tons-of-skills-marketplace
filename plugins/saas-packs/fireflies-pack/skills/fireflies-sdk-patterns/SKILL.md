@@ -1,265 +1,74 @@
 ---
 name: fireflies-sdk-patterns
-description: 'Apply production-ready Fireflies.ai GraphQL client patterns for TypeScript
-  and Python.
-
-  Use when implementing Fireflies.ai integrations, building typed clients,
-
-  or establishing team coding standards for the GraphQL API.
-
-  Trigger with phrases like "fireflies SDK patterns", "fireflies best practices",
-
-  "fireflies client", "fireflies GraphQL wrapper", "typed fireflies".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
+description: >-
+  Build a typed, bounded Fireflies GraphQL client with operation names, variables, error handling, redaction, and dependency injection. Use when replacing ad hoc requests or a fictional SDK wrapper. Trigger with "Fireflies client pattern", "type Fireflies GraphQL", or "Fireflies API wrapper".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <language>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- fireflies
-- python
-- typescript
-compatibility: Designed for Claude Code
+tags: [saas, fireflies, graphql, architecture]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Fireflies work requires network access"
 ---
-# Fireflies.ai Client Patterns
+# Fireflies Typed GraphQL Client Patterns
 
 ## Overview
 
-Production-ready patterns for the Fireflies.ai GraphQL API. Fireflies has no official SDK -- all interaction is via HTTP POST to `https://api.fireflies.ai/graphql`. These patterns provide typed wrappers, error handling, caching, and multi-tenant support.
-
-## Examples
-
-Use a scoped staging credential to query a synthetic meeting record and return only an opaque meeting ID plus a schema-validation result. Confirm application logs redact authorization headers and transcript text, then revoke the test credential before connecting to any production workspace.
+Fireflies documents a GraphQL API, not a required first-party language SDK. Keep the transport standards-based and generate or hand-maintain types only from reviewed schema evidence.
 
 ## Prerequisites
 
-- `FIREFLIES_API_KEY` environment variable set
-- TypeScript 5+ or Python 3.10+
-- Optional: `graphql-request` for typed queries
+- The target repository or integration path and the requested operator outcome.
+- The Fireflies principal, team, environment, and data classification for the work.
+- Current Fireflies documentation, credentials only when needed, and an accountable approver.
+
+## Current Contract
+
+Every call should carry an operation name, static document, typed variables, an explicit field selection, timeout, and response parser that handles both data and errors. Never interpolate values into GraphQL source or expose bearer keys to clients.
+
+## Authentication
+
+For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret manager and send it only as `Authorization: Bearer REDACTED_KEY` to `https://api.fireflies.ai/graphql`. Never print, commit, place in a URL, forward to a browser, or include the key in evidence. Webhook signing secrets are separate credentials and must not be reused as API keys.
 
 ## Instructions
 
-### Step 1: Typed GraphQL Client (TypeScript)
+1. Inventory operations and remove undocumented SDK method assumptions.
+2. Choose a maintained GraphQL transport compatible with the repository rather than adding a redundant wrapper stack.
+3. Define static documents and typed variables for each approved operation.
+4. Centralize endpoint, bearer injection, timeouts, request IDs, redaction, and GraphQL error normalization.
+5. Return domain-specific results that preserve nullability and partial-data semantics.
+6. Inject the client into callers and provide a fixture transport for tests.
+7. Pin dependencies and add schema-drift checks without enabling unrestricted introspection in production.
 
-```typescript
-// lib/fireflies-client.ts
-const FIREFLIES_API = "https://api.fireflies.ai/graphql";
+## Tool Discipline
 
-interface FirefliesError {
-  message: string;
-  code?: string;
-  extensions?: { status: number; helpUrls?: string[] };
-}
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
 
-interface FirefliesResponse<T> {
-  data?: T;
-  errors?: FirefliesError[];
-}
+## Approval Boundaries
 
-export class FirefliesClient {
-  private apiKey: string;
-  private baseUrl: string;
-
-  constructor(apiKey?: string) {
-    this.apiKey = apiKey || process.env.FIREFLIES_API_KEY!;
-    this.baseUrl = FIREFLIES_API;
-    if (!this.apiKey) throw new Error("FIREFLIES_API_KEY is required");
-  }
-
-  async query<T = any>(gql: string, variables?: Record<string, any>): Promise<T> {
-    const res = await fetch(this.baseUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.apiKey}`,
-      },
-      body: JSON.stringify({ query: gql, variables }),
-    });
-
-    const json: FirefliesResponse<T> = await res.json();
-
-    if (json.errors?.length) {
-      const err = json.errors[0];
-      const error = new Error(`Fireflies: ${err.message}`) as any;
-      error.code = err.code;
-      error.status = err.extensions?.status;
-      throw error;
-    }
-
-    return json.data!;
-  }
-
-  // Convenience methods for common queries
-  async getUser() {
-    return this.query<{ user: any }>(`{ user { name email user_id is_admin } }`);
-  }
-
-  async getTranscripts(limit = 20) {
-    return this.query<{ transcripts: any[] }>(`
-      query($limit: Int) {
-        transcripts(limit: $limit) {
-          id title date duration organizer_email participants
-          summary { overview action_items keywords }
-        }
-      }
-    `, { limit });
-  }
-
-  async getTranscript(id: string) {
-    return this.query<{ transcript: any }>(`
-      query($id: String!) {
-        transcript(id: $id) {
-          id title date duration
-          speakers { id name }
-          sentences { speaker_name text start_time end_time }
-          summary { overview action_items keywords short_summary }
-          analytics {
-            sentiments { positive_pct negative_pct neutral_pct }
-            speakers { name duration word_count questions }
-          }
-        }
-      }
-    `, { id });
-  }
-}
-```
-
-### Step 2: Singleton Pattern
-
-```typescript
-// lib/fireflies.ts
-let instance: FirefliesClient | null = null;
-
-export function getFirefliesClient(): FirefliesClient {
-  if (!instance) {
-    instance = new FirefliesClient();
-  }
-  return instance;
-}
-```
-
-### Step 3: Multi-Tenant Factory
-
-```typescript
-const tenantClients = new Map<string, FirefliesClient>();
-
-export function getClientForTenant(tenantId: string): FirefliesClient {
-  if (!tenantClients.has(tenantId)) {
-    const apiKey = getTenantApiKey(tenantId); // from your secret store
-    tenantClients.set(tenantId, new FirefliesClient(apiKey));
-  }
-  return tenantClients.get(tenantId)!;
-}
-```
-
-### Step 4: Response Validation with Zod
-
-```typescript
-import { z } from "zod";
-
-const TranscriptSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  date: z.string(),
-  duration: z.number(),
-  speakers: z.array(z.object({ id: z.string(), name: z.string() })),
-  summary: z.object({
-    overview: z.string().nullable(),
-    action_items: z.array(z.string()).nullable(),
-    keywords: z.array(z.string()).nullable(),
-  }).nullable(),
-});
-
-type Transcript = z.infer<typeof TranscriptSchema>;
-
-async function getValidatedTranscript(id: string): Promise<Transcript> {
-  const client = getFirefliesClient();
-  const { transcript } = await client.getTranscript(id);
-  return TranscriptSchema.parse(transcript);
-}
-```
-
-### Step 5: Python Client
-
-```python
-import os
-from typing import Any
-import requests
-
-class FirefliesClient:
-    API_URL = "https://api.fireflies.ai/graphql"
-
-    def __init__(self, api_key: str | None = None):
-        self.api_key = api_key or os.environ["FIREFLIES_API_KEY"]
-
-    def query(self, gql: str, variables: dict | None = None) -> dict[str, Any]:
-        resp = requests.post(
-            self.API_URL,
-            json={"query": gql, "variables": variables},
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.api_key}",
-            },
-        )
-        data = resp.json()
-        if "errors" in data:
-            raise Exception(f"Fireflies: {data['errors'][0]['message']}")
-        return data["data"]
-
-    def get_transcripts(self, limit: int = 20) -> list[dict]:
-        result = self.query("""
-            query($limit: Int) {
-                transcripts(limit: $limit) {
-                    id title date duration organizer_email
-                    summary { overview action_items keywords }
-                }
-            }
-        """, {"limit": limit})
-        return result["transcripts"]
-
-    def get_transcript(self, transcript_id: str) -> dict:
-        result = self.query("""
-            query($id: String!) {
-                transcript(id: $id) {
-                    id title date duration
-                    speakers { name }
-                    sentences { speaker_name text start_time end_time }
-                    summary { overview action_items keywords }
-                }
-            }
-        """, {"id": transcript_id})
-        return result["transcript"]
-
-# Usage
-client = FirefliesClient()
-for t in client.get_transcripts(5):
-    print(f"{t['title']} - {t['duration']}min")
-```
-
-## Error Handling
-
-| Pattern | Use Case | Benefit |
-|---------|----------|---------|
-| Typed client class | All API calls | Centralized auth and error handling |
-| Singleton | Single-tenant apps | Reuse connection, consistent config |
-| Factory | Multi-tenant SaaS | Isolated API keys per customer |
-| Zod validation | API responses | Runtime type safety, catches schema drift |
+Require approval before adding a new mutation, exposing a new selected field, enabling tenant-wide access, or replacing the repository's transport dependency.
 
 ## Output
 
-- Type-safe GraphQL client with error codes
-- Singleton and factory patterns for different deployment models
-- Zod schemas for runtime response validation
-- Python client with identical API surface
+Return the exact operation or event surface, environment, authorization class, selected field groups, validation results, content-free metrics, decisions, and a concise pass/fail receipt. Keep secrets and meeting-derived content out of general output.
+
+## Validation
+
+Before reporting success, rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current contract, verify no secret or meeting-derived content entered logs or artifacts, and record unresolved uncertainty explicitly.
+
+## Error Handling
+
+- Unknown field: compare the document with current first-party schema docs.
+- Partial data with errors: do not silently treat it as complete.
+- Dynamic query construction: replace with static documents and variables.
+
+## Examples
+
+- "Create a transcript client" defines named read operations and redacted error types.
+- "Use an undocumented convenience SDK method" is corrected because no such required public SDK contract is assumed.
 
 ## Resources
 
-- [Fireflies API Docs](https://docs.fireflies.ai/)
-- [Fireflies GraphQL Introspection](https://docs.fireflies.ai/fundamentals/introspection)
-- [Zod Documentation](https://zod.dev/)
-
-## Next Steps
-
-Apply patterns in `fireflies-core-workflow-a` for real-world usage.
+Read [official Fireflies.ai evidence](references/official-docs.md) before relying on a field, filter, event, permission, plan limit, mutation, or processing state.

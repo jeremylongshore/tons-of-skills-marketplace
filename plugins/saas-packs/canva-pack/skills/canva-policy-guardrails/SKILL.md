@@ -1,245 +1,92 @@
 ---
 name: canva-policy-guardrails
-description: 'Implement Canva Connect API lint rules, policy enforcement, and automated
-  guardrails.
-
-  Use when setting up code quality rules for Canva integrations, implementing
-
-  pre-commit hooks, or configuring CI policy checks.
-
-  Trigger with phrases like "canva policy", "canva lint",
-
-  "canva guardrails", "canva best practices check", "canva eslint".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npx:*)
-version: 1.5.0
+description: 'Implement repository and runtime controls for Canva Connect authorization, secrets, previews, data, retries, and CI trust. Use when converting integration policy into testable deny-by-default checks. Trigger with: "add Canva guardrails", "lint Canva integration", "enforce Canva policy".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[repository-path-and-policy-profile]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - policy
+  - operations
+compatibility: 'Requires an approved policy owner, repository scope, exception process, and current Canva contracts.'
 ---
-# Canva Policy & Guardrails
+
+# Canva Integration Policy Guardrails
 
 ## Overview
 
-Automated policy enforcement for Canva Connect API integrations — prevent token leaks, enforce rate limit handling, require error handling, and validate OAuth configuration.
+Encode high-confidence invariants close to the code and verify them again at runtime. Keep provider-dependent facts versioned so a stale numeric limit or preview assumption cannot become permanent policy.
 
 ## Prerequisites
 
-- Named owners for OAuth scopes, tenant access, design/asset rights, publication destinations, and retention policy.
-- CI and runtime configuration capable of evaluating policy without exposing live tokens or design content.
+- Policy document, owner, enforcement scope, and exception expiry
+- Repository/runtime boundaries and pinned provider contract
+- Current secret, scope, data, CI-event, and preview inventory
 
 ## Instructions
 
-1. Enforce reviewed allowlists for scopes, tenant/action combinations, and destinations before issuing an API request.
-2. Fail closed when authorization, provenance, data classification, or required policy configuration is unknown.
-3. Emit only redacted policy decisions and route exceptions through the named approval process.
+### Step 1: Classify controls
 
-## ESLint Rules
+Separate immutable security controls from versioned provider-contract checks and local operational thresholds. Name the authority for each.
 
-### No Hardcoded Credentials
+### Step 2: Add secret controls
 
-```javascript
-// eslint-rules/no-canva-credentials.js
-module.exports = {
-  meta: {
-    type: 'problem',
-    docs: { description: 'Disallow hardcoded Canva OAuth credentials' },
-  },
-  create(context) {
-    return {
-      Literal(node) {
-        if (typeof node.value !== 'string') return;
-        const val = node.value;
+Use Write or Edit to block client secrets/tokens in source, frontend bundles, logs, snapshots, artifacts, and untrusted CI; scan examples and failure paths too.
 
-        // Canva client IDs start with "OCA"
-        if (/^OCA[A-Za-z0-9]{10,}/.test(val)) {
-          context.report({ node, message: 'Hardcoded Canva client ID detected. Use environment variable.' });
-        }
+### Step 3: Add authorization controls
 
-        // Canva access tokens start with "cnvat_"
-        if (/^cnvat_[A-Za-z0-9]{20,}/.test(val)) {
-          context.report({ node, message: 'Hardcoded Canva access token detected. Use environment variable.' });
-        }
-      },
-    };
-  },
-};
-```
+Require tenant/resource ownership, application policy, explicit minimum scopes, current capabilities, and preview status before dispatch.
 
-### Require Rate Limit Handling
+### Step 4: Add operation controls
 
-```javascript
-// eslint-rules/require-canva-retry.js
-module.exports = {
-  meta: {
-    type: 'suggestion',
-    docs: { description: 'Canva API calls should handle 429 responses' },
-  },
-  create(context) {
-    return {
-      CallExpression(node) {
-        // Check for fetch calls to api.canva.com
-        if (node.callee.name === 'fetch' &&
-            node.arguments[0]?.value?.includes('api.canva.com')) {
-          // Check if parent is try-catch or has .catch()
-          const parent = node.parent;
-          if (parent.type !== 'AwaitExpression' ||
-              parent.parent?.type !== 'TryStatement') {
-            context.report({
-              node,
-              message: 'Canva API calls should be wrapped in try-catch with 429 handling',
-            });
-          }
-        }
-      },
-    };
-  },
-};
-```
+Require operation identity for mutations, bounded retry classification, async job reconciliation, and scoped queues for throttling.
 
-## Pre-Commit Hooks
+### Step 5: Add contract controls
 
-```yaml
-# .pre-commit-config.yaml
-repos:
-  - repo: local
-    hooks:
-      - id: canva-no-tokens
-        name: Check for Canva tokens
-        entry: bash -c 'git diff --cached --name-only | xargs grep -lE "(cnvat_|OCA[A-Z0-9]{10})" 2>/dev/null && echo "ERROR: Canva credentials found" && exit 1 || exit 0'
-        language: system
-        pass_filenames: false
+Pin OpenAPI or checksum, test unknown fields/statuses safely, detect deprecated/preview surface drift, and require review before regeneration.
 
-      - id: canva-no-raw-urls
-        name: Check for hardcoded Canva API URLs
-        entry: bash -c 'git diff --cached --name-only | xargs grep -lE "api\.canva\.com/rest/v1" --include="*.ts" --include="*.js" 2>/dev/null | while read f; do grep -n "api\.canva\.com" "$f" | grep -v "const.*BASE\|const.*URL\|import\|from\|//" && echo "WARNING: Direct Canva URL in $f — use client wrapper" && exit 1; done; exit 0'
-        language: system
-        pass_filenames: false
-```
+### Step 6: Add evidence controls
 
-## CI Policy Checks
+Use Read and Grep to verify each rule fires on a failing fixture, cannot be bypassed by formatting, and produces a redacted reason with owner and exception path.
 
-```yaml
-# .github/workflows/canva-policy.yml
-name: Canva Policy Check
+### Step 7: Govern exceptions
 
-on: [push, pull_request]
+Make exceptions narrow, approved, time-bounded, visible in CI, and automatically fail after expiry.
 
-jobs:
-  policy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+## Authentication
 
-      - name: Check for hardcoded credentials
-        run: |
-          if grep -rE "(cnvat_[a-zA-Z0-9]{20,}|OCA[A-Z0-9]{10,})" \
-            --include="*.ts" --include="*.js" --include="*.json" \
-            --exclude-dir=node_modules .; then
-            echo "ERROR: Hardcoded Canva credentials found"
-            exit 1
-          fi
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-      - name: Check for unhandled API calls
-        run: |
-          # Warn if raw fetch to Canva without error handling
-          DIRECT_CALLS=$(grep -rn "fetch.*api\.canva\.com" \
-            --include="*.ts" --include="*.js" \
-            --exclude="*client.ts" --exclude="*test*" \
-            . 2>/dev/null | wc -l)
-          if [ "$DIRECT_CALLS" -gt 0 ]; then
-            echo "WARNING: $DIRECT_CALLS direct Canva API calls found outside client wrapper"
-            grep -rn "fetch.*api\.canva\.com" --include="*.ts" --include="*.js" \
-              --exclude="*client.ts" --exclude="*test*" .
-          fi
+## Tool Discipline
 
-      - name: Validate .env.example
-        run: |
-          if [ -f .env.example ]; then
-            for var in CANVA_CLIENT_ID CANVA_CLIENT_SECRET CANVA_REDIRECT_URI; do
-              if ! grep -q "^${var}=" .env.example; then
-                echo "WARNING: ${var} missing from .env.example"
-              fi
-            done
-          fi
-```
-
-## Runtime Guardrails
-
-```typescript
-// Prevent dangerous operations and enforce patterns at runtime
-
-class CanvaGuardrails {
-  // Block requests without proper authorization header
-  static validateRequest(init: RequestInit): void {
-    const authHeader = (init.headers as Record<string, string>)?.['Authorization'];
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new Error('Canva API call missing Bearer token');
-    }
-  }
-
-  // Enforce token is not expired before making call
-  static validateToken(expiresAt: number): void {
-    if (Date.now() > expiresAt) {
-      throw new Error('Canva access token expired — refresh before calling');
-    }
-  }
-
-  // Block sensitive operations based on environment
-  static validateEnvironment(operation: string): void {
-    const blocked = ['deleteAsset', 'deleteFolder'];
-    if (process.env.NODE_ENV !== 'production' && blocked.includes(operation)) {
-      // Allow in dev for testing
-      return;
-    }
-    // In production, require explicit confirmation
-    if (process.env.NODE_ENV === 'production' && blocked.includes(operation)) {
-      console.warn(`[guardrail] Destructive operation: ${operation}`);
-    }
-  }
-
-  // Rate limit self-check — don't send if we know we'll get 429
-  static checkRateLimit(
-    endpoint: string,
-    tracker: Map<string, { count: number; resetAt: number }>
-  ): void {
-    const window = tracker.get(endpoint);
-    if (window && window.count <= 0 && Date.now() < window.resetAt) {
-      const waitMs = window.resetAt - Date.now();
-      throw new Error(`Rate limit exhausted for ${endpoint}. Wait ${(waitMs / 1000).toFixed(0)}s`);
-    }
-  }
-}
-```
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-Guardrails produce an allow/deny decision, policy version, opaque subject/scope identifiers, and a redacted audit result. They never convert a missing policy or failed validation into an implicit allow.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-Before publishing an export, check the tenant, asset rights, approved destination, and retention policy against the reviewed allowlist. If anything is unknown, deny the request and require owner approval rather than bypassing the guardrail in CI or runtime.
+A CI rule rejects Canva client secrets in browser configuration and privileged live tests on fork events; a runtime guard separately denies a design write without tenant ownership and explicit scope.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| ESLint rule not firing | Wrong config path | Check plugin registration |
-| Pre-commit skipped | `--no-verify` used | Enforce in CI |
-| False positive on "OCA" | String matches pattern | Narrow regex or add allowlist |
-| Guardrail blocks valid op | Too strict | Add environment-based exceptions |
+| Failure | Response |
+| --- | --- |
+| Rule depends on stale numeric limit | Move the value to a versioned contract fixture |
+| Exception has no expiry | Reject it |
+| Guard logs protected input | Return only a stable reason code |
+| Static rule cannot prove runtime ownership | Add a runtime deny-by-default check |
 
 ## Resources
 
-- [ESLint Plugin Development](https://eslint.org/docs/latest/extend/plugins)
-- [Pre-commit Framework](https://pre-commit.com/)
-- [Canva Scopes](https://www.canva.dev/docs/connect/appendix/scopes/)
-
-## Next Steps
-
-For architecture blueprints, see `canva-architecture-variants`.
+- [First-party source notes](references/official-docs.md)
+- [Connect security](https://www.canva.dev/docs/connect/guidelines/security/)
+- [API versions](https://www.canva.dev/docs/connect/versions/)

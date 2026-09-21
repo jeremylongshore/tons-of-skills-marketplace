@@ -9,7 +9,7 @@ description: 'Configure Cursor privacy mode, data handling, telemetry, and sensi
 
   '
 allowed-tools: Read, Write, Edit, Bash(cmd:*)
-version: 1.18.0
+version: 1.19.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

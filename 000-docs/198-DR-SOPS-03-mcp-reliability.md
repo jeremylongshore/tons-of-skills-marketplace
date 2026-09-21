@@ -28,6 +28,7 @@ Building reliable MCP (Model Context Protocol) servers is critical for productio
 Model Context Protocol enables Claude to interact with external tools and data sources through a standardized interface. MCP servers expose tools that Claude can invoke during conversations.
 
 **Claude Code Plugins Marketplace**:
+
 - 6 MCP servers (2% of 258 plugins)
 - Examples: `project-health-auditor`, `conversational-api-debugger`
 - Transport: stdio (standard input/output)
@@ -49,7 +50,7 @@ const server = new Server(
       tools: {},
       resources: {},
     },
-  }
+  },
 );
 
 // 1. Tool Registration
@@ -62,21 +63,19 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         type: 'object',
         properties: {
           code: { type: 'string' },
-          language: { type: 'string' }
+          language: { type: 'string' },
         },
-        required: ['code']
-      }
-    }
-  ]
+        required: ['code'],
+      },
+    },
+  ],
 }));
 
 // 2. Tool Execution
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (request.params.name === 'analyze-code') {
     return {
-      content: [
-        { type: 'text', text: 'Analysis result...' }
-      ]
+      content: [{ type: 'text', text: 'Analysis result...' }],
     };
   }
   throw new Error('Unknown tool');
@@ -88,6 +87,7 @@ await server.connect(transport);
 ```
 
 **Critical Points**:
+
 - Server runs as subprocess (spawned by Claude Code)
 - Communication via stdio (stdin/stdout)
 - Must handle tool calls synchronously
@@ -121,19 +121,19 @@ class HealthChecker {
     const checks = await Promise.all([
       this.checkDatabase(),
       this.checkExternalAPI(),
-      this.checkMemory()
+      this.checkMemory(),
     ]);
 
     const status: HealthStatus = {
-      healthy: checks.every(c => c.healthy),
+      healthy: checks.every((c) => c.healthy),
       timestamp: Date.now(),
       checks: {
         database: checks[0].healthy,
         api: checks[1].healthy,
-        memory: checks[2].healthy
+        memory: checks[2].healthy,
       },
       uptime: Date.now() - this.startTime,
-      version: '1.0.0'
+      version: '1.0.0',
     };
 
     this.lastCheck = status;
@@ -154,7 +154,7 @@ class HealthChecker {
   private async checkExternalAPI(): Promise<{ healthy: boolean }> {
     try {
       const response = await fetch('https://api.example.com/health', {
-        timeout: 5000
+        timeout: 5000,
       });
       return { healthy: response.ok };
     } catch (error) {
@@ -182,19 +182,21 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     {
       name: 'health-check',
       description: 'Check MCP server health',
-      inputSchema: { type: 'object', properties: {} }
-    }
-  ]
+      inputSchema: { type: 'object', properties: {} },
+    },
+  ],
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (request.params.name === 'health-check') {
     const status = await healthChecker.check();
     return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify(status, null, 2)
-      }]
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(status, null, 2),
+        },
+      ],
     };
   }
 });
@@ -215,7 +217,7 @@ class MCPWatchdog {
 
   async start(serverPath: string) {
     this.process = spawn('node', [serverPath], {
-      stdio: ['pipe', 'pipe', 'pipe']
+      stdio: ['pipe', 'pipe', 'pipe'],
     });
 
     this.process.on('exit', (code: number) => {
@@ -242,13 +244,11 @@ class MCPWatchdog {
     this.restartTimes.push(now);
 
     // Remove old restart times outside window
-    this.restartTimes = this.restartTimes.filter(
-      t => now - t < this.restartWindow
-    );
+    this.restartTimes = this.restartTimes.filter((t) => now - t < this.restartWindow);
 
     if (this.restartTimes.length >= this.maxRestarts) {
       console.error(
-        `MCP server crashed ${this.maxRestarts} times in ${this.restartWindow}ms. Giving up.`
+        `MCP server crashed ${this.maxRestarts} times in ${this.restartWindow}ms. Giving up.`,
       );
       process.exit(1);
     }
@@ -287,7 +287,7 @@ class ConnectionPool {
     for (let i = 0; i < this.minConnections; i++) {
       const db = await open({
         filename: dbPath,
-        driver: sqlite3.Database
+        driver: sqlite3.Database,
       });
       this.pool.push(db);
       this.available.push(db);
@@ -306,7 +306,7 @@ class ConnectionPool {
     if (this.pool.length < this.maxConnections) {
       const db = await open({
         filename: this.pool[0].config.filename,
-        driver: sqlite3.Database
+        driver: sqlite3.Database,
       });
       this.pool.push(db);
       this.inUse.add(db);
@@ -360,11 +360,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
 ```typescript
 class TimeoutManager {
-  async withTimeout<T>(
-    promise: Promise<T>,
-    timeoutMs: number,
-    operation: string
-  ): Promise<T> {
+  async withTimeout<T>(promise: Promise<T>, timeoutMs: number, operation: string): Promise<T> {
     const timeout = new Promise<never>((_, reject) => {
       setTimeout(() => {
         reject(new Error(`${operation} timed out after ${timeoutMs}ms`));
@@ -382,17 +378,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const result = await timeout.withTimeout(
       expensiveOperation(),
       30000, // 30 second timeout
-      'Tool execution'
+      'Tool execution',
     );
     return { content: [{ type: 'text', text: result }] };
   } catch (error) {
     if (error.message.includes('timed out')) {
       return {
-        content: [{
-          type: 'text',
-          text: 'Error: Operation timed out. Please try again.'
-        }],
-        isError: true
+        content: [
+          {
+            type: 'text',
+            text: 'Error: Operation timed out. Please try again.',
+          },
+        ],
+        isError: true,
       };
     }
     throw error;
@@ -416,12 +414,12 @@ interface ToolResult {
 class GracefulDegradation {
   async executeWithFallback(
     primary: () => Promise<string>,
-    fallback: () => Promise<string>
+    fallback: () => Promise<string>,
   ): Promise<ToolResult> {
     try {
       const result = await primary();
       return {
-        content: [{ type: 'text', text: result }]
+        content: [{ type: 'text', text: result }],
       };
     } catch (error) {
       console.warn('Primary operation failed, using fallback:', error);
@@ -429,19 +427,23 @@ class GracefulDegradation {
       try {
         const result = await fallback();
         return {
-          content: [{
-            type: 'text',
-            text: `⚠️ Primary method failed. Using cached/fallback data:\n\n${result}`
-          }],
-          fallback: true
+          content: [
+            {
+              type: 'text',
+              text: `⚠️ Primary method failed. Using cached/fallback data:\n\n${result}`,
+            },
+          ],
+          fallback: true,
         };
       } catch (fallbackError) {
         return {
-          content: [{
-            type: 'text',
-            text: `Error: Both primary and fallback methods failed.\nPrimary: ${error.message}\nFallback: ${fallbackError.message}`
-          }],
-          isError: true
+          content: [
+            {
+              type: 'text',
+              text: `Error: Both primary and fallback methods failed.\nPrimary: ${error.message}\nFallback: ${fallbackError.message}`,
+            },
+          ],
+          isError: true,
         };
       }
     }
@@ -469,7 +471,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
         const age = Date.now() - cached.timestamp;
         return `${JSON.stringify(cached.data)}\n\n(Cached ${Math.floor(age / 1000)}s ago)`;
-      }
+      },
     );
   }
 });
@@ -487,7 +489,7 @@ class CircuitBreaker {
   constructor(
     private threshold = 5,
     private timeout = 60000,
-    private halfOpenAttempts = 3
+    private halfOpenAttempts = 3,
   ) {}
 
   async execute<T>(fn: () => Promise<T>): Promise<T> {
@@ -534,7 +536,7 @@ class CircuitBreaker {
     return {
       state: this.state,
       failures: this.failures,
-      lastFailure: this.lastFailure
+      lastFailure: this.lastFailure,
     };
   }
 }
@@ -553,11 +555,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   } catch (error) {
     if (error.message.includes('Circuit breaker is OPEN')) {
       return {
-        content: [{
-          type: 'text',
-          text: 'Service temporarily unavailable due to repeated failures. Please try again later.'
-        }],
-        isError: true
+        content: [
+          {
+            type: 'text',
+            text: 'Service temporarily unavailable due to repeated failures. Please try again later.',
+          },
+        ],
+        isError: true,
       };
     }
     throw error;
@@ -585,7 +589,7 @@ class MetricsCollector {
     toolCalls: new Map(),
     errors: new Map(),
     latencies: new Map(),
-    lastUpdated: Date.now()
+    lastUpdated: Date.now(),
   };
 
   recordToolCall(toolName: string, latencyMs: number, error?: Error) {
@@ -620,7 +624,7 @@ class MetricsCollector {
         errors,
         errorRate: errorRate.toFixed(2) + '%',
         avgLatency: avgLatency.toFixed(0) + 'ms',
-        p95Latency: this.percentile(latencies, 95).toFixed(0) + 'ms'
+        p95Latency: this.percentile(latencies, 95).toFixed(0) + 'ms',
       };
     });
 
@@ -660,19 +664,21 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     {
       name: 'get-metrics',
       description: 'Get MCP server performance metrics',
-      inputSchema: { type: 'object', properties: {} }
-    }
-  ]
+      inputSchema: { type: 'object', properties: {} },
+    },
+  ],
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (request.params.name === 'get-metrics') {
     const summary = metrics.getMetrics();
     return {
-      content: [{
-        type: 'text',
-        text: '# MCP Server Metrics\n\n' + JSON.stringify(summary, null, 2)
-      }]
+      content: [
+        {
+          type: 'text',
+          text: '# MCP Server Metrics\n\n' + JSON.stringify(summary, null, 2),
+        },
+      ],
     };
   }
 });
@@ -713,24 +719,26 @@ CMD ["node", "dist/index.js"]
 ```javascript
 // ecosystem.config.js
 module.exports = {
-  apps: [{
-    name: 'mcp-server',
-    script: './dist/index.js',
-    instances: 1,
-    exec_mode: 'fork',
-    autorestart: true,
-    watch: false,
-    max_memory_restart: '512M',
-    env: {
-      NODE_ENV: 'production'
+  apps: [
+    {
+      name: 'mcp-server',
+      script: './dist/index.js',
+      instances: 1,
+      exec_mode: 'fork',
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '512M',
+      env: {
+        NODE_ENV: 'production',
+      },
+      error_file: './logs/error.log',
+      out_file: './logs/out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      merge_logs: true,
+      min_uptime: '10s',
+      max_restarts: 10,
     },
-    error_file: './logs/error.log',
-    out_file: './logs/out.log',
-    log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-    merge_logs: true,
-    min_uptime: '10s',
-    max_restarts: 10
-  }]
+  ],
 };
 ```
 
@@ -762,14 +770,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const response = await fetch(url, {
           method,
           headers: JSON.parse(headers),
-          timeout: 10000
+          timeout: 10000,
         });
 
         return {
           status: response.status,
           statusText: response.statusText,
           headers: Object.fromEntries(response.headers),
-          body: await response.text()
+          body: await response.text(),
         };
       });
 
@@ -777,10 +785,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       metrics.recordToolCall('test-api', latency);
 
       return {
-        content: [{
-          type: 'text',
-          text: `✓ API Response (${latency}ms)\n\n${JSON.stringify(result, null, 2)}`
-        }]
+        content: [
+          {
+            type: 'text',
+            text: `✓ API Response (${latency}ms)\n\n${JSON.stringify(result, null, 2)}`,
+          },
+        ],
       };
     } catch (error) {
       const latency = Date.now() - startTime;
@@ -788,20 +798,24 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       if (error.message.includes('Circuit breaker is OPEN')) {
         return {
-          content: [{
-            type: 'text',
-            text: `⚠️ API temporarily unavailable (circuit breaker triggered)\n\nThe API has failed ${breaker.getState().failures} times. Waiting 30s before retry.`
-          }],
-          isError: true
+          content: [
+            {
+              type: 'text',
+              text: `⚠️ API temporarily unavailable (circuit breaker triggered)\n\nThe API has failed ${breaker.getState().failures} times. Waiting 30s before retry.`,
+            },
+          ],
+          isError: true,
         };
       }
 
       return {
-        content: [{
-          type: 'text',
-          text: `❌ API Error (${latency}ms)\n\n${error.message}`
-        }],
-        isError: true
+        content: [
+          {
+            type: 'text',
+            text: `❌ API Error (${latency}ms)\n\n${error.message}`,
+          },
+        ],
+        isError: true,
       };
     }
   }
@@ -813,6 +827,7 @@ await server.connect(transport);
 ```
 
 **Performance Metrics**:
+
 - Average latency: 850ms (API calls)
 - Circuit breaker trips: 2% of requests (external API failures)
 - Uptime: 99.7% (7 restarts in 30 days)
@@ -839,7 +854,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const result = {
           method: 'full-ast-analysis',
           issues: issues.length,
-          details: issues
+          details: issues,
         };
 
         cache.set(projectPath, { data: result, timestamp: Date.now() });
@@ -856,19 +871,24 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
         // Simple grep-based scan
         const issues = await simplePatternScan(projectPath);
-        return JSON.stringify({
-          method: 'pattern-scan-fallback',
-          issues: issues.length,
-          details: issues,
-          note: 'Full AST analysis unavailable, using pattern matching'
-        }, null, 2);
-      }
+        return JSON.stringify(
+          {
+            method: 'pattern-scan-fallback',
+            issues: issues.length,
+            details: issues,
+            note: 'Full AST analysis unavailable, using pattern matching',
+          },
+          null,
+          2,
+        );
+      },
     );
   }
 });
 ```
 
 **Fallback Statistics**:
+
 - Primary method success: 94%
 - Fallback triggered: 6% (missing dependencies, large codebases)
 - Cache hit rate: 78%
@@ -881,6 +901,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 ### DO ✅
 
 1. **Implement comprehensive health checks**
+
    ```typescript
    // Check all critical dependencies
    const healthChecker = new HealthChecker();
@@ -893,6 +914,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
    ```
 
 2. **Use connection pooling for all database access**
+
    ```typescript
    // Avoid connection exhaustion
    const pool = new ConnectionPool();
@@ -908,16 +930,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
    ```
 
 3. **Set aggressive timeouts on all external calls**
+
    ```typescript
    const timeout = new TimeoutManager();
    const result = await timeout.withTimeout(
      fetch('https://api.example.com'),
      5000, // 5 second max
-     'External API call'
+     'External API call',
    );
    ```
 
 4. **Collect granular metrics for debugging**
+
    ```typescript
    const metrics = new MetricsCollector();
    // Track every tool call
@@ -929,15 +953,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
    ```
 
 5. **Always provide fallback behavior**
+
    ```typescript
    // Never fail completely
    return await degradation.executeWithFallback(
      () => primaryMethod(),
-     () => cachedOrSimplifiedMethod()
+     () => cachedOrSimplifiedMethod(),
    );
    ```
 
 6. **Use circuit breakers for external dependencies**
+
    ```typescript
    const breaker = new CircuitBreaker(3, 30000);
    // Prevent cascade failures
@@ -945,10 +971,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
    ```
 
 7. **Log stderr separately from stdout**
+
    ```typescript
    // MCP uses stdout for protocol, stderr for logs
    console.error('Error occurred:', error); // ✅ stderr
-   console.log('Result:', data);            // ❌ breaks MCP
+   console.log('Result:', data); // ❌ breaks MCP
    ```
 
 8. **Implement structured logging**
@@ -956,13 +983,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
    const logger = {
      error: (msg: string, meta?: any) => {
        console.error(JSON.stringify({ level: 'error', message: msg, ...meta }));
-     }
+     },
    };
    ```
 
 ### DON'T ❌
 
 1. **Don't write to stdout except MCP responses**
+
    ```typescript
    // ❌ Breaks MCP protocol
    console.log('Debug message');
@@ -972,6 +1000,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
    ```
 
 2. **Don't hold database connections indefinitely**
+
    ```typescript
    // ❌ Connection leak
    const db = await pool.acquire();
@@ -988,6 +1017,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
    ```
 
 3. **Don't ignore timeout errors**
+
    ```typescript
    // ❌ Silent failure
    try {
@@ -1004,6 +1034,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
    ```
 
 4. **Don't skip health monitoring in production**
+
    ```typescript
    // ❌ No visibility
    await server.connect(transport);
@@ -1017,6 +1048,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
    ```
 
 5. **Don't use synchronous file I/O**
+
    ```typescript
    // ❌ Blocks event loop
    const data = fs.readFileSync('./data.json');
@@ -1026,6 +1058,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
    ```
 
 6. **Don't restart on every error**
+
    ```typescript
    // ❌ Restart loop
    process.on('uncaughtException', () => {
@@ -1047,16 +1080,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 ### MCP Development
 
 **MCP SDK**:
+
 ```bash
 npm install @modelcontextprotocol/sdk
 ```
+
 - MCP Specification
 - SDK Documentation
-- [Claude Code MCP Guide](https://docs.anthropic.com/claude/docs/model-context-protocol)
+- [Claude Code MCP Guide](https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro)
 
 ### Analytics & Monitoring
 
 **Analytics Daemon** (from this marketplace):
+
 ```bash
 cd packages/analytics-daemon
 pnpm start
@@ -1065,6 +1101,7 @@ pnpm start
 ```
 
 **Monitor MCP Server Events**:
+
 ```typescript
 const ws = new WebSocket('ws://localhost:3456');
 ws.onmessage = (event) => {
@@ -1078,6 +1115,7 @@ ws.onmessage = (event) => {
 ### Plugins with MCP Servers
 
 From this marketplace (258 plugins):
+
 - `project-health-auditor` - Codebase scanning with health checks
 - `conversational-api-debugger` - API testing with circuit breakers
 - `beads-mcp` - Beads task tracker MCP server
@@ -1105,6 +1143,7 @@ From this marketplace (258 plugins):
 7. **Stdio is sacred** - Only use stdout for MCP protocol, stderr for logs
 
 **Production Readiness Checklist**:
+
 - [ ] Health check endpoint implemented
 - [ ] Connection pooling configured (database, external APIs)
 - [ ] Request timeouts set (<30s for all operations)

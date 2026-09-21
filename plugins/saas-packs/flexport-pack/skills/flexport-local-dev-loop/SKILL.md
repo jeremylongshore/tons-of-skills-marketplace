@@ -1,184 +1,103 @@
 ---
 name: flexport-local-dev-loop
-description: 'Configure Flexport local development with mock API responses and testing.
-
-  Use when setting up a development environment, creating mock shipment data,
-
-  or establishing a fast iteration cycle for Flexport logistics integration.
-
-  Trigger: "flexport dev setup", "flexport local development", "flexport mock API".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pnpm:*), Grep
-version: 1.6.0
+description: >-
+  Develop Flexport integrations locally with sanitized contract fixtures and explicit live-test boundaries. Use when implementing REST v3 parsers, MCP tool adapters, webhook verification, or failure handling. Trigger with: "develop Flexport locally", "mock Flexport API", "test Flexport webhook".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[surface-and-feature]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - development
+  - testing
+compatibility: 'Requires a local test runner and sanitized fixtures; live credentials are optional and must use an approved account.'
 ---
-# Flexport Local Dev Loop
+
+# Flexport Contract-Fixture Development Loop
 
 ## Overview
 
-Set up a fast, reproducible local development workflow for Flexport integrations. Since Flexport has no official SDK, the dev loop centers on a typed HTTP client wrapper with mock responses for testing.
+Most development should run without credentials. Model official v3, MCP, and webhook shapes as fixtures, then use a separately approved read-only live smoke test only for gaps fixtures cannot prove.
 
 ## Prerequisites
 
-- Fictional fixtures only, a local directory excluded from version control, and an approved sandbox/read-only test path.
-- Separate developer credentials supplied through an approved secret manager, never copied into fixtures or shell history.
-
-## Output
-
-Produce a local test receipt with fixture version, schema/contract result, opaque correlation IDs, and redacted failures. No real shipment, address, invoice, customs, or credential data belongs in the repository.
-
-## Error Handling
-
-- Stop fixture generation if it contains real exports, documents, or identifiers; replace with synthetic values.
-- Treat schema and authorization mismatches as review items rather than widening scope or retrying production actions.
-- Revoke a test credential and report a redacted incident if exposure is possible.
-
-## Examples
-
-Test a fictional container event with an opaque ID and invented ports. Run offline unit tests, confirm no network call is made, then validate a read-only sandbox probe separately. Ensure deleting the fixture removes every local derived artifact.
+- Current first-party schema pages and snapshot date
+- Sanitized success, pagination, additive-field, and error fixtures
+- Separate local secret injection and no-production-data rule
 
 ## Instructions
 
-### Step 1: Project Structure
+### Step 1: Choose one contract
 
-```
-flexport-integration/
-├── src/
-│   ├── flexport/
-│   │   ├── client.ts          # Typed Flexport API client
-│   │   ├── types.ts           # API response types
-│   │   └── mock-data.ts       # Test fixtures
-│   └── index.ts
-├── tests/
-│   ├── flexport.test.ts       # Unit tests with mocks
-│   └── integration.test.ts   # Live API tests (CI only)
-├── .env.local                 # Local secrets (git-ignored)
-├── .env.example
-└── package.json
-```
+Name the exact REST endpoint, MCP tool, or webhook event and expected business outcome.
 
-### Step 2: Typed Client Wrapper
+### Step 2: Capture shape, not data
 
-```typescript
-// src/flexport/types.ts
-interface FlexportShipment {
-  id: string;
-  status: 'booked' | 'in_transit' | 'arrived' | 'delivered';
-  freight_type: 'ocean' | 'air' | 'trucking';
-  origin_port: { code: string; name: string };
-  destination_port: { code: string; name: string };
-  cargo_ready_date: string;
-  estimated_arrival_date: string;
-}
+Build synthetic fixtures from documented field names/types. Replace all identifiers, routes, parties, financials, and document content.
 
-interface FlexportResponse<T> {
-  data: { records: T[]; total_count: number };
-}
+### Step 3: Test invariants
 
-// src/flexport/client.ts
-export class FlexportClient {
-  private base = 'https://api.flexport.com';
-  private headers: Record<string, string>;
+Cover required fields, unknown additive fields, opaque cursors/links, status/code/message errors, and missing authorization.
 
-  constructor(apiKey: string) {
-    this.headers = {
-      'Authorization': `Bearer ${apiKey}`,
-      'Flexport-Version': '2',
-      'Content-Type': 'application/json',
-    };
-  }
+### Step 4: Exercise raw webhooks
 
-  async listShipments(page = 1, per = 25): Promise<FlexportResponse<FlexportShipment>> {
-    const res = await fetch(`${this.base}/shipments?page=${page}&per=${per}`, {
-      headers: this.headers,
-    });
-    if (!res.ok) throw new Error(`Flexport ${res.status}: ${await res.text()}`);
-    return res.json();
-  }
-}
+Sign exact synthetic bytes with a test secret and test malformed, wrong-length, duplicate, and valid SHA-256 signatures before parsing.
+
+### Step 5: Gate live checks
+
+If needed, use an approved credential for one read-only operation. Never create bookings, documents, purchase orders, or invoices from the local loop.
+
+### Step 6: Promote the receipt
+
+Commit fixtures and assertions, not tokens or live payloads; record schema source and review date.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
+
+## Output
+
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
+
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
 ```
 
-### Step 3: Mock Data for Testing
+## Examples
 
-```typescript
-// src/flexport/mock-data.ts
-export const mockShipment: FlexportShipment = {
-  id: 'shp_test_001',
-  status: 'in_transit',
-  freight_type: 'ocean',
-  origin_port: { code: 'CNSHA', name: 'Shanghai' },
-  destination_port: { code: 'USLAX', name: 'Los Angeles' },
-  cargo_ready_date: '2025-04-01',
-  estimated_arrival_date: '2025-05-15',
-};
+A developer implements `browse_shipments` pagination using synthetic `end_cursor` fixtures, adds an unknown field to prove tolerant parsing, and keeps the real MCP connection disabled in default tests.
 
-export function mockFlexportFetch(path: string) {
-  if (path.includes('/shipments')) {
-    return { data: { records: [mockShipment], total_count: 1 } };
-  }
-  throw new Error(`No mock for ${path}`);
-}
-```
+## Error Handling
 
-### Step 4: Vitest Unit Tests
-
-```typescript
-// tests/flexport.test.ts
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { FlexportClient } from '../src/flexport/client';
-import { mockShipment } from '../src/flexport/mock-data';
-
-describe('FlexportClient', () => {
-  beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ data: { records: [mockShipment], total_count: 1 } }),
-    }));
-  });
-
-  it('lists shipments', async () => {
-    const client = new FlexportClient('test-key');
-    const result = await client.listShipments();
-    expect(result.data.records).toHaveLength(1);
-    expect(result.data.records[0].freight_type).toBe('ocean');
-  });
-
-  it('sends correct auth header', async () => {
-    const client = new FlexportClient('test-key');
-    await client.listShipments();
-    expect(fetch).toHaveBeenCalledWith(
-      expect.stringContaining('/shipments'),
-      expect.objectContaining({ headers: expect.objectContaining({ 'Flexport-Version': '2' }) }),
-    );
-  });
-});
-```
-
-### Step 5: Dev Scripts
-
-```json
-{
-  "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "test": "vitest",
-    "test:watch": "vitest --watch",
-    "test:integration": "FLEXPORT_LIVE=1 vitest tests/integration.test.ts"
-  }
-}
-```
+| Failure | Response |
+| --- | --- |
+| Fixture contains live data | Replace it with synthetic values and purge the original from artifacts. |
+| Docs and observed shape differ | Record a minimal field-name diff and verify version/account context. |
+| Test requests a mutation | Block it at the adapter and require an explicit higher environment. |
+| Credential discovered in repository | Revoke or rotate, remove it from history, and repair secret injection. |
 
 ## Resources
 
-- [Flexport Developer Portal](https://developers.flexport.com/)
-- [Vitest Documentation](https://vitest.dev/)
-
-## Next Steps
-
-See `flexport-sdk-patterns` for production-ready code patterns.
+- [First-party source notes](references/official-docs.md)
+- [Flexport v3 API reference](https://apidocs.flexport.com/v3/)
+- [MCP tools](https://apidocs.flexport.com/v3/tag/MCP-Tools/)
+- [Webhook endpoints](https://apidocs.flexport.com/v3/tag/Webhook-Endpoints/)

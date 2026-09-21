@@ -1,100 +1,91 @@
 ---
 name: linktree-common-errors
-description: 'Diagnose and fix Linktree common errors.
-
-  Trigger: "linktree error", "fix linktree", "debug linktree".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.7.0
-license: MIT
+description: 'Triage common Linktree publishing, login, destination, rendering, and Insights symptoms with bounded evidence. Use when an operator reports a Linktree problem. Trigger with "troubleshoot Linktree".'
+argument-hint: "[profile-url] [symptom]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linktree
-- social
-compatibility: Designed for Claude Code
+- troubleshooting
+- triage
+- operations
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live work requires an authorized Linktree account and approval from the profile, Workspace, data, or partner-integration owner
 ---
-# Linktree Common Errors
+# Linktree Operator Troubleshooting Triage
 
 ## Overview
 
-Linktree's API manages link-in-bio profiles, individual links, appearance settings, and analytics. Common integration errors include URL validation failures when adding links with unsupported schemes, profile-not-found errors from incorrect username lookups, and analytics data lag that causes empty responses for recently created links. Analytics data lags 15-30 minutes behind real-time, which frequently causes confusion when verifying newly created links. This reference covers HTTP errors, link management issues, and analytics-specific quirks that affect Linktree API consumers.
+Classify the failing layer before changing anything: account access, Linktree status, profile configuration, browser rendering, destination system, analytics delay, or private integration.
 
-## Error Reference
+## Prerequisites
 
-| Code | Message | Cause | Fix |
-|------|---------|-------|-----|
-| `400` | `Invalid URL format` | Link URL missing scheme or malformed | Ensure URLs include `https://` prefix and pass URL validation |
-| `401` | `Authentication failed` | API key invalid or expired | Regenerate key at linktr.ee developer portal |
-| `403` | `Plan feature restricted` | Endpoint requires Pro/Premium plan | Upgrade plan or use alternative endpoint for free tier |
-| `404` | `Profile not found` | Username does not exist or is deactivated | Verify username spelling; check profile is active |
-| `404` | `Link not found` | Link ID deleted or belongs to another profile | List links first to confirm valid IDs |
-| `409` | `Duplicate link` | Same URL already exists on profile | Check existing links before adding; update instead of create |
-| `422` | `Validation error` | Title too long or thumbnail URL invalid | Title max 100 chars; thumbnail must be valid image URL |
-| `429` | `Rate limited` | Exceeded 100 requests/minute | Implement exponential backoff; check `Retry-After` header |
+- An authorized Linktree account or a clearly bounded design-only task
+- The profile, Workspace, destination, campaign, data, or integration owner appropriate to the requested change
+- Current account evidence for plan-dependent features and user-supplied approved partner documentation for every private interface
 
-## Error Handler
+## Tool Discipline
 
-```typescript
-interface LinktreeError {
-  code: number;
-  message: string;
-  category: "auth" | "rate_limit" | "validation" | "not_found";
-}
+Use `Read`, `Glob`, and `Grep` to inspect repository specifications, sanitized fixtures, policies, tests, and prior receipts.
 
-function classifyLinktreeError(status: number, body: string): LinktreeError {
-  if (status === 401 || status === 403) {
-    return { code: status, message: body, category: "auth" };
-  }
-  if (status === 429) {
-    return { code: 429, message: "Rate limited", category: "rate_limit" };
-  }
-  if (status === 404) {
-    return { code: 404, message: body, category: "not_found" };
-  }
-  return { code: status, message: body, category: "validation" };
-}
-```
+Use `WebFetch` only for current official Linktree documentation or explicitly approved partner documentation.
 
-## Debugging Guide
+Use `Write` or `Edit` only after confirming scope, target, owners, data classification, and approval state. These tools do not confer Linktree access, account authority, or permission to process visitor data. Return exact operator steps or an approval-gated handoff when a live action is not authorized.
 
-### Authentication Errors
+## Current Contract
 
-Linktree API keys are passed via `Authorization: Bearer` header. Keys are scoped per account, not per profile. A 403 may indicate a plan-level restriction rather than a credentials issue -- verify the endpoint is available on your current plan tier before regenerating the key. Free-tier keys cannot access analytics or appearance customization endpoints.
+- A visible Linktree button and its destination are separate failure domains.
+- Linktree documents account-login recovery and states that Insights data may not appear immediately.
+- Private partner behavior cannot be diagnosed from invented public response codes or endpoints.
 
-### Rate Limit Errors
+## Authentication
 
-The API enforces 100 requests/minute per key. Batch link creation using array endpoints when available. Analytics endpoints have stricter limits (30/min). Use the `Retry-After` header value and implement exponential backoff starting at 1 second.
+For Admin work, use only the operator's individually provisioned Linktree account, documented Workspace role, and enabled MFA. Never request passwords, one-time codes, browser cookies, recovery codes, or session material. For partner automation, use only the authentication method, environment, scope, storage, rotation, and revocation process in the user-supplied approved partner contract. Public help pages do not establish a general API credential.
 
-### Validation Errors
+## Instructions
 
-Link URLs must include the `https://` or `http://` scheme. Custom schemes (e.g., `mailto:`, `tel:`) are not supported via API. Titles are capped at 100 characters. Thumbnail URLs must resolve to valid image formats (PNG, JPG, GIF). Profile appearance updates fail silently if the theme ID does not exist -- validate theme availability first.
+1. Capture the exact symptom, profile URL, link title, expected result, first-seen time and timezone, affected audience, device class, and latest approved change.
+2. Use Read, Glob, and Grep to inspect change receipts, destination inventory, browser evidence, and sanitized integration logs.
+3. Check official service status, then reproduce signed out and distinguish missing or disabled content from a broken external destination.
+4. For login symptoms, follow documented recovery and MFA guidance; never request a password, one-time code, or session cookie.
+5. For Insights symptoms, verify metric definition, date range, plan availability, test traffic, and documented refresh behavior before declaring data loss.
+6. Use Write or Edit to record the classification, evidence, one reversible next action, and escalation owner.
+7. Use WebFetch only for current official Linktree status and help guidance.
+
+## Approval Boundaries
+
+Do not change multiple links during diagnosis, collect credentials, or blame Linktree when evidence points to a destination or browser-specific failure.
+
+## Output
+
+Return symptom, failing layer, evidence, status, reproduction matrix, latest change, safe next action, rollback state, escalation owner, and confidence.
 
 ## Error Handling
 
-| Scenario | Pattern | Recovery |
-|----------|---------|----------|
-| Link validation fails | URL missing scheme | Prepend `https://` and retry |
-| Analytics returns empty | Data not yet available | Analytics lag 15-30 min; retry after delay |
-| Profile lookup fails | Username typo or deactivated | Search by email if available; confirm active status |
-| Duplicate link on create | Same URL already on profile | Fetch existing links, update instead of create |
-| Bulk link import partial failure | Some URLs invalid | Parse error array, fix URLs, retry failed items |
+| Condition | Response |
+|---|---|
+| Failure layer is ambiguous | Freeze changes and gather one discriminating observation at a time. |
+| Only signed-in reproduction exists | Repeat signed out before concluding the public experience is affected. |
+| Support asks for sensitive data | Provide a redacted minimum or use an approved secure channel. |
 
-## Quick Diagnostic
+## Example
 
-```bash
-# Verify API connectivity and key validity
-curl -s -o /dev/null -w "%{http_code}" \
-  -H "Authorization: Bearer $LINKTREE_API_KEY" \
-  https://api.linktr.ee/v1/profile
+The example is a synthetic, redacted operator receipt, not proof of Linktree access or a live account change.
+
+```text
+symptom=blank-destination; layer=external-site; signed-out=yes; devices=2/2; status=operational; latest-change=none; next=destination-owner; confidence=high
 ```
 
 ## Resources
 
-- [Linktree Developer Docs](https://linktr.ee/marketplace/developer)
-- [Linktree API Reference](https://developers.linktr.ee)
+- [Official documentation map](references/official-docs.md) — dated evidence and limits for this workflow.
+
+Read the map before acting. Recheck current account and partner-specific evidence for plan-dependent or private behavior.
 
 ## Next Steps
 
-See `linktree-debug-bundle`.
+Revalidate source dates, owner approval, target profile, and rollback readiness before repeating the workflow in another account, Workspace, campaign, region, plan, or integration.

@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/procore-pack",
-  "version": "1.0.2",
-  "description": "Claude Code skill pack for Procore - 24 skills covering construction management, project tracking, and field operations",
+  "version": "2.0.0",
+  "description": "24 governed Procore operator workflows for OAuth, REST, webhooks, files, permissions, health, and synchronization",
   "main": "README.md",
   "type": "module",
   "files": [

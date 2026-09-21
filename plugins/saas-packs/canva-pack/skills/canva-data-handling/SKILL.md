@@ -1,225 +1,88 @@
 ---
 name: canva-data-handling
-description: 'Implement Canva Connect API data handling, PII protection, and GDPR/CCPA
-  compliance.
-
-  Use when handling user design data, implementing data retention policies,
-
-  or ensuring privacy compliance for Canva integrations.
-
-  Trigger with phrases like "canva data", "canva PII",
-
-  "canva GDPR", "canva data retention", "canva privacy", "canva CCPA".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.5.0
+description: 'Analyze and govern Canva credentials, user metadata, designs, assets, comments, and temporary result URLs across their lifecycle. Use when defining collection, storage, access, retention, deletion, or privacy controls. Trigger with: "classify Canva data", "Canva retention", "delete Canva integration data".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[data-classification-and-retention-policy]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - data
+  - operations
+compatibility: 'Requires an approved organizational privacy/security policy and resource-owner authorization; this skill is not legal advice.'
 ---
-# Canva Data Handling
+
+# Canva Data Lifecycle Control
 
 ## Overview
 
-Handle Canva Connect API data responsibly. The API exposes user identifiers, design metadata, design content (via exports), uploaded assets, and comments. Apply proper classification, retention, and privacy controls.
+Create an application-specific lifecycle map for every Canva data class. Minimize stored content, keep credentials segregated, and make deletion/revocation evidence reproducible without logging protected values.
 
 ## Prerequisites
 
-- A documented inventory for design metadata/content, exports, assets, comments, OAuth tokens, and signed URLs.
-- Approved encrypted storage, retention/deletion workflow, and a privacy/incident owner.
+- Current data-flow and storage inventory
+- Approved classification, retention, deletion, and legal-hold policy
+- Tenant and resource ownership model plus incident contacts
 
 ## Instructions
 
-1. Collect only fields needed for the approved purpose and classify them before persistence or sharing.
-2. Keep tokens and temporary export URLs server-side, encrypted, access-controlled, and excluded from logs and analytics.
-3. Apply retention/deletion policy to exports and caches, then retain only a redacted execution receipt.
+### Step 1: Inventory data classes
 
-## Data Classification — Canva API Responses
+Use Read and Grep to locate client secrets, access and refresh tokens, OAuth state/verifier, user/profile metadata, design references/content, assets, comments, job results, and logs.
 
-| Data Type | Source Endpoint | Sensitivity | Handling |
-|-----------|----------------|-------------|----------|
-| User ID, Team ID | `GET /v1/users/me` | Internal | Don't expose externally |
-| User profile | `GET /v1/users/me/profile` | PII | Encrypt at rest, minimize |
-| Design metadata | `GET /v1/designs` | Business | Standard protection |
-| Design content | Export URLs from `/v1/exports` | Confidential | Time-limited URLs, don't cache |
-| OAuth tokens | `/v1/oauth/token` | Secret | Encrypt, never log |
-| Asset files | `/v1/asset-uploads` | Business | Validate, scan for malware |
-| Comments | `/v1/designs/{id}/comment_threads` | PII | May contain personal data |
-| Webhook payloads | Incoming POST | Mixed | Verify signature first |
+### Step 2: Define collection purpose
 
-## Token Protection
+For each class, record purpose, explicit scope, source endpoint, owner, destination, processors, and whether collection can be avoided.
 
-```typescript
-// NEVER log tokens — they grant full access to a user's Canva account
-function redactCanvaData(data: any): any {
-  const sensitiveKeys = [
-    'access_token', 'refresh_token', 'authorization',
-    'client_secret', 'code_verifier',
-  ];
+### Step 3: Protect credentials
 
-  if (typeof data !== 'object' || data === null) return data;
+Store client secrets and user tokens in protected backend systems, separate access from refresh tokens, restrict operators, and exclude them from logs and backups where policy requires.
 
-  const redacted = Array.isArray(data) ? [...data] : { ...data };
-  for (const key of Object.keys(redacted)) {
-    if (sensitiveKeys.includes(key.toLowerCase())) {
-      redacted[key] = '[REDACTED]';
-    } else if (typeof redacted[key] === 'object') {
-      redacted[key] = redactCanvaData(redacted[key]);
-    }
-  }
-  return redacted;
-}
+### Step 4: Control content and URLs
 
-// Safe logging
-console.log('Canva response:', JSON.stringify(redactCanvaData(apiResponse)));
-```
+Encrypt approved stored content, authorize every read, avoid durable storage of signed URLs, and derive expiry from current response evidence rather than a fixed assumption.
 
-## Temporary URL Handling
+### Step 5: Implement lifecycle
 
-Canva API responses include URLs with limited lifetimes. Never cache beyond expiry.
+Use Write or Edit to apply policy-controlled expiration, consent revocation, account deletion, resource deletion, legal hold, and processor cleanup.
 
-```typescript
-interface CanvaUrlPolicy {
-  type: string;
-  ttl: number;        // milliseconds
-  cacheable: boolean;
-}
+### Step 6: Prove completion
 
-const URL_POLICIES: Record<string, CanvaUrlPolicy> = {
-  thumbnail:  { type: 'thumbnail',  ttl: 15 * 60 * 1000,      cacheable: false }, // 15 min
-  edit_url:   { type: 'edit_url',   ttl: 30 * 24 * 60 * 60 * 1000, cacheable: true }, // 30 days
-  view_url:   { type: 'view_url',   ttl: 30 * 24 * 60 * 60 * 1000, cacheable: true }, // 30 days
-  export_url: { type: 'export_url', ttl: 24 * 60 * 60 * 1000, cacheable: false }, // 24 hours
-};
+Record counts, policy version, timestamps, opaque references, failed deletions, and follow-up owner without retaining deleted content in the receipt.
 
-// Track URL expiry
-class CanvaUrlTracker {
-  private urls = new Map<string, { url: string; expiresAt: number }>();
+## Authentication
 
-  store(id: string, type: string, url: string): void {
-    const policy = URL_POLICIES[type];
-    this.urls.set(`${id}:${type}`, {
-      url,
-      expiresAt: Date.now() + (policy?.ttl || 0),
-    });
-  }
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-  get(id: string, type: string): string | null {
-    const entry = this.urls.get(`${id}:${type}`);
-    if (!entry || Date.now() > entry.expiresAt) return null;
-    return entry.url;
-  }
-}
-```
+## Tool Discipline
 
-## Data Retention
-
-| Data Type | Retention | Reason |
-|-----------|-----------|--------|
-| OAuth tokens | Until user disconnects | Active session |
-| Design metadata (cached) | 5-60 minutes | Performance cache |
-| Export download URLs | Max 24 hours | Canva-enforced expiry |
-| API request logs | 30 days | Debugging |
-| Error logs | 90 days | Root cause analysis |
-| Audit logs | 7 years | Compliance |
-| Webhook events | 30 days | Processing/replay |
-
-### Automatic Cleanup
-
-```typescript
-async function cleanupCanvaData(): Promise<void> {
-  const now = Date.now();
-
-  // Remove expired export URLs
-  await db.exportUrls.deleteMany({ expiresAt: { $lt: new Date(now) } });
-
-  // Remove old API logs
-  const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
-  await db.canvaApiLogs.deleteMany({
-    createdAt: { $lt: thirtyDaysAgo },
-    type: { $nin: ['audit'] },
-  });
-
-  // Remove tokens for deleted/inactive users
-  await db.canvaTokens.deleteMany({ userId: { $in: await getDeletedUserIds() } });
-}
-```
-
-## GDPR/CCPA Compliance
-
-### Data Subject Access Request
-
-```typescript
-async function exportCanvaUserData(userId: string): Promise<object> {
-  const tokens = await tokenStore.get(userId);
-
-  return {
-    source: 'Canva Connect API',
-    exportedAt: new Date().toISOString(),
-    data: {
-      identity: tokens ? await canvaAPI('/users/me', tokens.accessToken) : null,
-      hasActiveConnection: !!tokens,
-      // Note: Canva stores the user's designs — their data is in Canva's system
-      // Your app only stores: tokens, cached metadata, and integration state
-    },
-  };
-}
-```
-
-### Right to Deletion
-
-```typescript
-async function deleteCanvaUserData(userId: string): Promise<void> {
-  // 1. Revoke tokens (disconnects from Canva)
-  const tokens = await tokenStore.get(userId);
-  if (tokens) {
-    await revokeCanvaToken(tokens.accessToken, clientId, clientSecret);
-  }
-
-  // 2. Delete stored tokens
-  await tokenStore.delete(userId);
-
-  // 3. Clear cached design metadata
-  await cache.deletePattern(`canva:user:${userId}:*`);
-
-  // 4. Audit log (required — do not delete)
-  await auditLog.record({
-    action: 'GDPR_DELETION',
-    userId,
-    service: 'canva',
-    timestamp: new Date(),
-  });
-}
-```
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-Data handling produces a scoped inventory, storage/retention decision, and redacted access or deletion receipt. It excludes design content, tokens, signed URLs, and personal identifiers from routine telemetry.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-For a short-lived export, place the file in encrypted job storage with an expiry and authorize access through a server route. For a deletion request, verify the subject through the approved workflow, process only in-scope data, and record the redacted completion receipt.
+A user disconnects the integration. The service revokes or discards tokens, expires cached metadata and result references, schedules approved content deletion, and records a content-free receipt.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Token in logs | Missing redaction | Wrap all logging with redactCanvaData |
-| Expired URL served | No expiry tracking | Use CanvaUrlTracker |
-| DSAR incomplete | Missing data inventory | Document all Canva data stored |
-| Orphaned tokens | User deleted without cleanup | Run periodic cleanup job |
+| Failure | Response |
+| --- | --- |
+| Owner cannot be resolved | Quarantine access and stop processing |
+| Deletion conflicts with legal hold | Preserve only the authorized hold and record its authority |
+| Token appears in telemetry | Contain, revoke, and remediate the logging path |
+| Processor deletion fails | Record the exception and escalate to the policy owner |
 
 ## Resources
 
-- [Canva Privacy Policy](https://www.canva.com/policies/privacy-policy/)
-- GDPR Developer Guide
-- Canva API Reference
-
-## Next Steps
-
-For enterprise access control, see `canva-enterprise-rbac`.
+- [First-party source notes](references/official-docs.md)
+- [Connect security](https://www.canva.dev/docs/connect/guidelines/security/)
+- [Canva privacy policy](https://www.canva.com/policies/privacy-policy/)

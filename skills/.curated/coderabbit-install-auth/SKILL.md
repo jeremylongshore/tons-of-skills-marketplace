@@ -1,167 +1,97 @@
 ---
 name: coderabbit-install-auth
-description: 'Install and configure CodeRabbit AI code review on GitHub or GitLab
-  repositories.
-
-  Use when setting up CodeRabbit for the first time, installing the GitHub App,
-
-  configuring the CLI, or connecting CodeRabbit to your repositories.
-
-  Trigger with phrases like "install coderabbit", "setup coderabbit",
-
-  "coderabbit auth", "configure coderabbit", "add coderabbit to repo".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*), Bash(curl:*)
-version: 1.11.0
-license: MIT
+description: >-
+  Analyze and implement platform installation plus interactive or headless CLI authentication with least privilege. Use when this operator task needs a current, evidence-backed
+  CodeRabbit workflow. Trigger with "install CodeRabbit".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[target] [evidence-or-scope]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- coderabbit
-- authentication
-- setup
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current CodeRabbit documentation and approved access for any live organization, repository, billing, or API change
+tags: [saas, coderabbit, installation, authentication, platforms]
 ---
-# CodeRabbit Install & Auth
+# CodeRabbit Installation and Authentication
 
 ## Overview
 
-CodeRabbit is an AI-powered code review platform. It installs as a GitHub App (or GitLab integration) and automatically reviews pull requests. There is no SDK to install -- you configure it via a `.coderabbit.yaml` file and interact through PR comments. Optionally, install the CLI for local pre-commit reviews.
+Route setup through the provider-specific flow and separate web-app installation from CLI auth. Never solicit or print credentials.
 
 ## Prerequisites
 
-- GitHub organization admin or GitLab group owner permissions
-- A repository to enable CodeRabbit on
-- (Optional) Shell access for CLI installation
+- Identify the CodeRabbit organization, Git provider, repository, plan, and accountable owner.
+- Read `references/official-docs.md` and re-check any time-sensitive contract before execution.
+- Use synthetic or read-only evidence until the approval boundary is satisfied.
+- Preserve the repository's independent CI, security, and human-review requirements.
+
+## Current Contract
+
+- GitHub, GitLab, Azure DevOps, and Bitbucket use different authorization contracts.
+- Organization access may require admin approval and explicit repo scope.
+- Interactive and headless Agentic-key CLI auth are separate.
+- Headless keys belong in a secret store, not repository config.
+
+## Authentication
+
+Treat Git-provider sessions, CodeRabbit web sessions, CLI credentials, and CodeRabbit API keys as separate credentials. Use only an already-approved session or secret-manager reference, never print a secret, and do not place credentials in `.coderabbit.yaml`, source files, logs, or deliverables.
 
 ## Instructions
 
-### Step 1: Install the CodeRabbit GitHub App
+1. Identify provider, hosting, owner, repositories, data class, plan, and surface.
 
-```markdown
-1. Navigate to https://github.com/apps/coderabbitai
-2. Click "Install" and select your organization
-3. Choose repository access:
-   - "All repositories" for org-wide coverage
-   - "Only select repositories" for targeted setup
-4. Authorize the requested permissions (read code, write PR comments)
-5. You will be redirected to app.coderabbit.ai to complete onboarding
-```
+2. Review permissions and choose the smallest installation scope.
 
-### Step 2: Verify Installation
+3. Complete user-driven authorization or approved secret-store headless auth.
 
-```bash
-set -euo pipefail
-# Confirm the GitHub App is installed on your repo
-gh api repos/YOUR_ORG/YOUR_REPO/installation --jq '.app_slug'
-# Expected output: coderabbitai
-```
+4. Verify one bounded review and record permissions and rotation owner.
 
-### Step 3: Create Base Configuration
+## Tool Discipline
 
-```yaml
-# .coderabbit.yaml (place in repository root)
-language: "en-US"
-reviews:
-  profile: "assertive"          # Options: chill, assertive
-  request_changes_workflow: false
-  high_level_summary: true
-  poem: false
-  review_status: true
-  collapse_walkthrough: false
-  sequence_diagrams: true
-  auto_review:
-    enabled: true
-    drafts: false
-    base_branches:
-      - main
-      - develop
-chat:
-  auto_reply: true
-```
+- Use **Glob** to locate candidate configuration and evidence files without widening scope.
+- Use **Grep** to find relevant fields, commands, identifiers, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use these file tools as a substitute for authenticated CodeRabbit or provider operations.
 
-### Step 4: Install the CLI (Optional)
+## Approval Boundaries
 
-```bash
-set -euo pipefail
-# Install CodeRabbit CLI for local pre-commit reviews
-curl -fsSL https://cli.coderabbit.ai/install.sh | sh
-
-# Verify installation
-cr --version
-```
-
-### Step 5: Trigger Your First Review
-
-```bash
-set -euo pipefail
-# Create a test branch and PR to verify CodeRabbit is active
-git checkout -b test/coderabbit-verification
-echo "// test change" >> src/index.ts
-git add src/index.ts && git commit -m "test: verify coderabbit integration"
-git push -u origin test/coderabbit-verification
-gh pr create --title "test: verify CodeRabbit" --body "Testing CodeRabbit integration"
-
-# CodeRabbit will post a review within 2-5 minutes
-# Check the PR for the walkthrough comment and line-level feedback
-```
-
-### GitLab Setup (Alternative)
-
-```markdown
-1. Navigate to app.coderabbit.ai and sign in with GitLab
-2. Select your GitLab group during onboarding
-3. Provide a GitLab access token with api and read_repository scopes
-4. CodeRabbit automatically configures the webhook:
-   https://coderabbit.ai/gitlabHandler
-5. Place .coderabbit.yaml in repository root (same format as GitHub)
-```
+Require organization-admin approval for installation and security approval for headless keys. Keep analysis and drafts local until approval is explicit, and record who approved the action and its scope.
 
 ## Output
 
-- CodeRabbit GitHub App installed on selected repositories
-- `.coderabbit.yaml` configuration file in repository root
-- (Optional) CLI installed for local reviews
-- First automated review posted on a test PR
+An installation decision, scope, permission inventory, auth method, verification, and rotation owner. Include source dates, unknowns, and the exact boundary between observed fact and recommendation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| No review on PR | App not installed on repo | Add repo in GitHub App settings > Repository access |
-| "Not accessible" error | Missing permissions | Reinstall GitHub App with correct org/repo selection |
-| Review only on some PRs | PR author has no seat | Assign a seat at app.coderabbit.ai > Subscription |
-| CLI install fails | Unsupported platform | Check system requirements at coderabbit.ai/cli |
-| GitLab webhook missing | Token scope insufficient | Ensure token has `api` and `read_repository` scopes |
-
-## Seat Management
-
-CodeRabbit charges per seat (developer who creates PRs). To manage seats:
-
-```markdown
-1. Go to app.coderabbit.ai > Organization > Subscription
-2. Assign seats to specific developers, or set "Active committers" mode
-3. Bot accounts (dependabot, renovate) should NOT consume seats
-4. Only users who open PRs need seats; reviewers do not
-```
+| Condition | Response |
+|---|---|
+| Current contract is unclear or docs disagree | Stop mutation, cite both sources, and request owner resolution. |
+| Required access or approval is missing | Produce a draft and evidence plan only. |
+| Validation or pilot behavior differs from expectation | Restore the prior state and retain the failed evidence. |
+| Output contains secrets or private code | Stop, quarantine the artifact, redact it, and notify the data owner. |
 
 ## Examples
 
-Install CodeRabbit on one staging or pilot repository, add the minimal
-`.coderabbit.yaml`, open a harmless test pull request, and verify the review is
-posted without exposing repository secrets or private diff content in logs. If
-the app has unexpected repository access or a token scope is broader than
-approved, remove access and correct the installation before rollout.
+### Example 1
+
+Install on one GitHub pilot repository.
+
+### Example 2
+
+Inject an Agentic API key from a runner secret manager.
+
+## Validation
+
+- Confirm every claim against the dated sources in `references/official-docs.md`.
+- Verify the requested scope, owner, approval, happy path, failure path, and rollback.
+- Re-read the effective configuration or provider state after any approved change.
+- Report unsupported fields, undocumented endpoints, and unverified assumptions as failures.
 
 ## Resources
 
-- [CodeRabbit Getting Started](https://docs.coderabbit.ai/getting-started/yaml-configuration)
-- [GitHub App Installation](https://github.com/apps/coderabbitai)
-- [GitLab Integration](https://docs.coderabbit.ai/platforms/gitlab-com)
-- [CodeRabbit CLI](https://www.coderabbit.ai/cli)
-- [Configuration Reference](https://docs.coderabbit.ai/reference/configuration)
-
-## Next Steps
-
-Proceed to `coderabbit-hello-world` for your first customized review configuration.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

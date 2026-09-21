@@ -1,317 +1,96 @@
 ---
 name: bamboohr-performance-tuning
-description: 'Optimize BambooHR API performance with caching, batch reports, incremental
-  sync,
-
-  and connection pooling. Use when experiencing slow API responses,
-
-  implementing caching, or optimizing sync throughput.
-
-  Trigger with phrases like "bamboohr performance", "optimize bamboohr",
-
-  "bamboohr latency", "bamboohr caching", "bamboohr slow", "bamboohr batch".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.4.0
+description: >-
+  Improve BambooHR sync throughput with dataset v2 projection, pagination,
+  deterministic ordering, bounded concurrency, and measured caching. Use when
+  an HR pipeline is slow or creates N+1 traffic. Trigger with "BambooHR
+  performance", "BambooHR slow sync", or "optimize BambooHR pipeline".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<pipeline-path> <latency-or-volume-goal>"
+version: 1.5.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- hr
-- bamboohr
-- performance
+tags: [saas, hr, bamboohr, performance, datasets]
+model: inherit
+effort: high
 compatibility: Designed for Claude Code
 ---
 # BambooHR Performance Tuning
 
 ## Overview
 
-Optimize BambooHR API performance through request reduction, caching, incremental sync, and connection pooling. The biggest wins come from eliminating N+1 query patterns using custom reports and the changed-since endpoint.
+Optimize from a measured request graph while preserving completeness and
+privacy. The first objective is usually eliminating per-employee fan-out, not
+raising concurrency against an unknown tenant limit.
 
 ## Prerequisites
 
-- BambooHR API client configured
-- Redis or in-memory cache available (optional)
-- Performance monitoring in place
+- The target repository or integration path and the requested operator outcome.
+- The tenant, identity, and data scope only when approved live work is in scope.
+- The current evidence register plus customer-specific permissions and agreements.
+
+## Current Contract
+
+Dataset v2 returns selected fields with `links` and `meta` pagination and permits
+page sizes up to 1000 in the reviewed OpenAPI. Its request uses `filter`,
+`orderBy`, `page`, and `pageSize`. Dataset v1 data retrieval and custom-report
+paths carry deprecation notices and should not anchor new optimizations.
+
+## Authentication
+
+Benchmark with the same auth mode and effective field permissions as production,
+but only in an approved test tenant or sanitized workload. Different identities
+can produce different shapes, so never compare results without recording the
+credential alias and permission set.
 
 ## Instructions
 
-### Step 1: Eliminate N+1 Queries with Custom Reports
+1. Establish baseline p50/p95 latency, request count by operation, page count,
+   records and bytes received, retries, error rate, CPU/memory, destination time,
+   and end-to-end freshness.
+2. Draw the request graph. Replace N+1 employee reads with dataset v2 projections
+   where the required fields and semantics are supported.
+3. Minimize `fields`, add deterministic `orderBy`, and tune `pageSize` below the
+   documented maximum based on payload, memory, latency, and `413` behavior.
+4. Stream or page through data and commit checkpoints only after destination
+   durability. Do not load the complete workforce into memory by default.
+5. Cache stable metadata such as dataset/field definitions with a bounded TTL.
+   Do not cache tokens or unrestricted employee payloads in a shared cache.
+6. Add per-tenant concurrency control and reuse safe HTTP connections. Increase
+   parallelism only during a measured canary and watch `429` and tail latency.
+7. Compare exact record identities and reconciliation counts before and after.
+   Roll back if freshness, completeness, permissions, or memory regresses.
 
-The single biggest performance improvement: use `POST /reports/custom` instead of individual employee GETs.
+## Tool Discipline
 
-```typescript
-// BAD: 501 API calls for 500 employees
-const dir = await client.getDirectory();                      // 1 call
-for (const emp of dir.employees) {
-  await client.getEmployee(emp.id, ['salary', 'hireDate']);   // 500 calls
-}
+Use Read, Glob, and Grep to inspect the request graph and current metrics. Use
+Write/Edit for approved instrumentation, query changes, and tests. This skill
+does not authorize a production benchmark or HR-data export.
 
-// GOOD: 1 API call for all employees with all needed fields
-const report = await client.customReport([
-  'firstName', 'lastName', 'department', 'jobTitle',
-  'hireDate', 'workEmail', 'status', 'location',
-  'supervisor', 'employeeNumber',
-]);
-// 1 call, returns all employees with all fields
-```
+## Approval Boundaries
 
-**Performance impact:** 500x reduction in API calls. Custom reports return all active employees in one request.
-
-### Step 2: Incremental Sync with Changed-Since
-
-```typescript
-import { readFileSync, writeFileSync } from 'fs';
-
-const LAST_SYNC_FILE = '.bamboohr-last-sync';
-
-async function incrementalSync(client: BambooHRClient): Promise<string[]> {
-  // Read last sync timestamp
-  let lastSync: string;
-  try {
-    lastSync = readFileSync(LAST_SYNC_FILE, 'utf-8').trim();
-  } catch {
-    lastSync = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(); // Default: 24h ago
-  }
-
-  // GET /employees/changed/?since=... — returns only changed employee IDs
-  const changed = await client.request<{
-    employees: Record<string, { id: string; lastChanged: string }>;
-  }>('GET', `/employees/changed/?since=${lastSync}`);
-
-  const changedIds = Object.keys(changed.employees || {});
-  console.log(`${changedIds.length} employees changed since ${lastSync}`);
-
-  if (changedIds.length === 0) return [];
-
-  // Fetch only changed employees' details
-  // For large sets, use custom report with filter; for small sets, individual GETs
-  if (changedIds.length > 20) {
-    // Bulk: use custom report (returns all, then filter client-side)
-    const report = await client.customReport([
-      'firstName', 'lastName', 'department', 'status',
-    ]);
-    const changedData = report.employees.filter(e =>
-      changedIds.includes(e.id?.toString()),
-    );
-    // Process changedData...
-  } else {
-    // Small set: individual GETs are fine
-    for (const id of changedIds) {
-      const emp = await client.getEmployee(id, ['firstName', 'lastName', 'department', 'status']);
-      // Process emp...
-    }
-  }
-
-  // Save sync timestamp
-  writeFileSync(LAST_SYNC_FILE, new Date().toISOString());
-  return changedIds;
-}
-```
-
-**Also available for table data:**
-
-```typescript
-// GET /employees/changed/tables/{tableName}?since=...
-const changedJobs = await client.request<any>(
-  'GET', `/employees/changed/tables/jobInfo?since=${lastSync}`,
-);
-// Returns { employees: { "123": { lastChanged: "..." }, ... } }
-```
-
-### Step 3: Response Caching
-
-```typescript
-import { LRUCache } from 'lru-cache';
-
-// BambooHR directory data changes infrequently — cache aggressively
-const cache = new LRUCache<string, any>({
-  max: 500,
-  ttl: 5 * 60 * 1000, // 5 minutes for directory data
-});
-
-async function cachedRequest<T>(
-  key: string,
-  fetcher: () => Promise<T>,
-  ttlMs?: number,
-): Promise<T> {
-  const cached = cache.get(key) as T | undefined;
-  if (cached) {
-    console.log(`Cache hit: ${key}`);
-    return cached;
-  }
-
-  const result = await fetcher();
-  cache.set(key, result, { ttl: ttlMs });
-  return result;
-}
-
-// Usage
-const directory = await cachedRequest(
-  'directory',
-  () => client.getDirectory(),
-  5 * 60 * 1000, // Cache for 5 min
-);
-
-// Single employee — shorter cache
-const employee = await cachedRequest(
-  `employee:${id}`,
-  () => client.getEmployee(id, fields),
-  60 * 1000, // Cache for 1 min
-);
-```
-
-**Redis caching for multi-instance deployments:**
-
-```typescript
-import Redis from 'ioredis';
-
-const redis = new Redis(process.env.REDIS_URL);
-
-async function redisCached<T>(
-  key: string,
-  fetcher: () => Promise<T>,
-  ttlSec = 300,
-): Promise<T> {
-  const cached = await redis.get(`bamboohr:${key}`);
-  if (cached) return JSON.parse(cached);
-
-  const result = await fetcher();
-  await redis.setex(`bamboohr:${key}`, ttlSec, JSON.stringify(result));
-  return result;
-}
-
-// Invalidate on webhook
-async function invalidateCache(employeeId: string) {
-  await redis.del(`bamboohr:employee:${employeeId}`);
-  await redis.del('bamboohr:directory'); // Directory includes this employee
-}
-```
-
-### Step 4: Connection Pooling
-
-```typescript
-import { Agent } from 'https';
-
-// Reuse TCP connections for BambooHR API calls
-const keepAliveAgent = new Agent({
-  keepAlive: true,
-  maxSockets: 5,        // Max 5 parallel connections
-  maxFreeSockets: 2,
-  timeout: 30_000,
-  keepAliveMsecs: 10_000,
-});
-
-// Pass to fetch via undici or node-fetch
-// For native fetch in Node 20+, connection pooling is automatic
-```
-
-### Step 5: Request Batching with DataLoader
-
-```typescript
-import DataLoader from 'dataloader';
-
-// Batch individual employee GETs into a custom report
-const employeeLoader = new DataLoader<string, Record<string, string>>(
-  async (ids) => {
-    // One custom report instead of N individual GETs
-    const report = await client.customReport([
-      'id', 'firstName', 'lastName', 'department', 'jobTitle',
-    ]);
-
-    const byId = new Map(report.employees.map(e => [e.id, e]));
-    return ids.map(id => byId.get(id) || new Error(`Employee ${id} not found`));
-  },
-  {
-    maxBatchSize: 100,
-    batchScheduleFn: cb => setTimeout(cb, 50), // Batch window: 50ms
-    cache: true,
-  },
-);
-
-// Usage — automatically batched into one API call
-const [emp1, emp2, emp3] = await Promise.all([
-  employeeLoader.load('1'),
-  employeeLoader.load('2'),
-  employeeLoader.load('3'),
-]);
-```
-
-### Step 6: Performance Monitoring
-
-```typescript
-class BambooHRMetrics {
-  private requests: { duration: number; status: number; endpoint: string }[] = [];
-
-  record(endpoint: string, status: number, durationMs: number) {
-    this.requests.push({ duration: durationMs, status, endpoint });
-
-    // Keep last 1000 requests
-    if (this.requests.length > 1000) this.requests.shift();
-  }
-
-  summary() {
-    const durations = this.requests.map(r => r.duration).sort((a, b) => a - b);
-    const errors = this.requests.filter(r => r.status >= 400);
-
-    return {
-      totalRequests: this.requests.length,
-      errorRate: (errors.length / Math.max(this.requests.length, 1) * 100).toFixed(1) + '%',
-      p50: durations[Math.floor(durations.length * 0.5)] || 0,
-      p95: durations[Math.floor(durations.length * 0.95)] || 0,
-      p99: durations[Math.floor(durations.length * 0.99)] || 0,
-      topEndpoints: this.topEndpoints(),
-    };
-  }
-
-  private topEndpoints() {
-    const counts = new Map<string, number>();
-    for (const r of this.requests) {
-      counts.set(r.endpoint, (counts.get(r.endpoint) || 0) + 1);
-    }
-    return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
-  }
-}
-```
+Require approval before querying production, changing field selection or cache
+retention, increasing concurrency, or replacing a source endpoint. Performance
+does not justify silently omitting inactive or future-dated records.
 
 ## Output
 
-- N+1 queries eliminated via custom reports (500x reduction)
-- Incremental sync using changed-since endpoint
-- Multi-tier caching (LRU in-memory + Redis)
-- Connection pooling with keep-alive
-- DataLoader-based request batching
-- Performance metrics with p50/p95/p99
-
-## Performance Reference
-
-| Optimization | Before | After | Improvement |
-|-------------|--------|-------|-------------|
-| Custom reports vs N+1 | 501 calls | 1 call | 500x |
-| Incremental sync | Full pull | Delta only | 10-100x |
-| Directory caching (5 min) | Every request | 1/5 min | 50x |
-| Connection pooling | New conn/request | Reused | 2-3x latency |
-
-## Examples
-
-Benchmark a sandbox or synthetic workload using the minimum approved fields, establish a latency and freshness baseline, and alter one cache, queue, or batch variable behind a rollback flag. Encrypt cached HR data, expire it under policy, and disable the optimization if reconciliation or authorization evidence diverges.
+Return baseline and candidate metrics, request-graph delta, selected fields and
+pagination, cache/concurrency policy, reconciliation proof, canary scope,
+rollback thresholds, and measured result.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Cache stampede | All caches expire simultaneously | Stagger TTLs with jitter |
-| Stale data | Cache TTL too long | Invalidate on webhook events |
-| DataLoader timeout | Custom report too slow | Reduce batch size |
-| Memory pressure | LRU cache too large | Set `max` entries limit |
+- Faster but incomplete: reject the change and restore the last checkpoint.
+- `413`: lower page size/field count and remeasure.
+- Rising `429` or tail latency: reduce concurrency and open the circuit.
+- Schema drift: quarantine the page rather than skipping fields or records.
+
+## Examples
+
+- "Make the nightly sync faster" begins with a request-count and reconciliation baseline.
+- "Run 100 workers" is replaced by a per-tenant canary with explicit stop thresholds.
 
 ## Resources
 
-- [BambooHR API Technical Overview](https://documentation.bamboohr.com/docs/api-details)
-- [DataLoader Documentation](https://github.com/graphql/dataloader)
-- [LRU Cache Documentation](https://github.com/isaacs/node-lru-cache)
-
-## Next Steps
-
-For cost optimization, see `bamboohr-cost-tuning`.
+Read [official evidence](references/official-docs.md) before altering data access.

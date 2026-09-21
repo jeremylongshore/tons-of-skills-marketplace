@@ -1,7 +1,7 @@
 {
   "name": "flexport-pack",
-  "version": "1.6.0",
-  "description": "Claude Code skill pack for Flexport (24 skills)",
+  "version": "2.0.0",
+  "description": "24 governed Flexport v3 and MCP operator workflows for freight, trade data, webhooks, and secure integrations",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,9 @@
   "license": "MIT",
   "keywords": [
     "flexport",
-    "flexport",
-    "saas",
-    "sdk",
-    "integration"
+    "freight",
+    "supply-chain",
+    "mcp",
+    "operations"
   ]
 }

@@ -1,55 +1,54 @@
-# Fly.io Skill Pack
+# Fly.io Operator Skill Pack
 
-> 18 production-ready Claude Code skills for Fly.io edge compute -- real flyctl commands, Machines API code, and fly.toml configuration.
+> 18 source-grounded skills for controlled Fly.io application, Machine, data, security, deployment, and observability workflows.
 
-## What This Is
+## What this pack does
 
-A complete skill pack for deploying, scaling, and operating apps on Fly.io. Every skill contains real `flyctl` commands, Machines API (`https://api.machines.dev`) TypeScript code, and production `fly.toml` configuration. No placeholder CLI commands, no fake SDK imports.
+This pack turns Fly.io platform operations into bounded, reviewable procedures. It covers Fly Launch and `fly.toml`, the Machines REST API, scoped access tokens, progressive delivery, health and lifecycle evidence, Managed Postgres, region-bound Fly Volumes, private 6PN networking, cost and performance review, and operational change detection.
+
+The skills do not claim that a planned command ran successfully. Live creation, deployment, scaling, restart, stop, suspension, deletion, token rotation, or data migration requires explicit operator approval and post-operation reconciliation.
+
+## Current provider boundaries
+
+- Use scoped tokens created with `fly tokens create`; do not use the deprecated hidden `fly auth token` output as a routine CI credential.
+- The public Machines API base is `https://api.machines.dev`; authenticated requests use a bearer token.
+- Machines API action limits are generally per action and per Machine or app identifier, not the old invented organization-wide table.
+- Managed Postgres is the provider-managed database service. The older unmanaged Postgres-app documentation is not presented as the supported default.
+- Fly Volumes are local NVMe storage tied to Machines and regions; snapshots do not make a single volume globally replicated.
+- Rolling, canary, blue-green, and immediate are provider-supported deploy strategies. Canary and blue-green cannot be used with attached Machine volumes; blue-green requires health checks.
+- Current regions and capacity are discovered from the provider rather than frozen as a marketing count.
+- General Fly Apps do not have a documented customer-configured webhook subscription and signing contract. The event skill uses supported state reads, waits, health evidence, and log shipping.
 
 ## Installation
 
-```bash
-/plugin install flyio-pack@claude-code-plugins-plus
-```
+`/plugin install flyio-pack@claude-code-plugins-plus`
 
 ## Skills
 
-### Standard Skills (S01-S12)
+| Skill | Operator outcome |
+| --- | --- |
+| `flyio-install-auth` | Install or upgrade flyctl and establish expiring least-privilege tokens. |
+| `flyio-hello-world` | Review and verify a minimal first Fly Launch deployment. |
+| `flyio-local-dev-loop` | Separate local container checks from disposable remote integration tests. |
+| `flyio-sdk-patterns` | Build a typed local Machines API adapter without inventing an official SDK. |
+| `flyio-core-workflow-a` | Operate app configuration, secrets, deployment, scaling, and rollback. |
+| `flyio-core-workflow-b` | Design Managed Postgres, Fly Volumes, and private 6PN data paths. |
+| `flyio-common-errors` | Triage release, Machine, health, routing, private DNS, and volume failures. |
+| `flyio-debug-bundle` | Produce minimal redacted support evidence with hashes and retention. |
+| `flyio-rate-limits` | Enforce documented per-action and per-identifier Machines API pacing. |
+| `flyio-security-basics` | Harden tokens, deploy authority, App secrets, images, and networks. |
+| `flyio-prod-checklist` | Gate production across ownership, resilience, data, cost, and rollback. |
+| `flyio-upgrade-migration` | Migrate current runtime, config, Machine, region, volume, or database surfaces. |
+| `flyio-ci-integration` | Build protected deterministic CI release lanes. |
+| `flyio-deploy-integration` | Select and govern rolling, canary, or blue-green delivery. |
+| `flyio-webhooks-events` | Detect supported Machine, health, release, and log changes without fake webhooks. |
+| `flyio-performance-tuning` | Tune placement, resources, concurrency, autostart, and data locality. |
+| `flyio-cost-tuning` | Reconcile current bills and optimize without freezing volatile prices. |
+| `flyio-reference-architecture` | Design explicit routing, Machine, data, identity, and recovery boundaries. |
 
-| # | Skill | What It Does |
-|---|-------|-------------|
-| S01 | `flyio-install-auth` | Install flyctl, configure auth tokens, verify Machines API access |
-| S02 | `flyio-hello-world` | `fly launch` a Docker app, deploy via Machines API, verify with cURL |
-| S03 | `flyio-local-dev-loop` | Docker local builds, `fly proxy` for remote services, dev fly.toml |
-| S04 | `flyio-sdk-patterns` | Typed Machines API client, multi-region deploy, blue-green via API |
-| S05 | `flyio-core-workflow-a` | fly.toml config, secrets, scaling across regions, app lifecycle |
-| S06 | `flyio-core-workflow-b` | Fly Postgres, persistent volumes, 6PN private networking |
-| S07 | `flyio-common-errors` | Health check failures, build errors, volume mounts, .internal DNS |
-| S08 | `flyio-debug-bundle` | Collect status, machine state, logs, volumes, doctor into tarball |
-| S09 | `flyio-rate-limits` | Machines API limits, retry with backoff, batch operations |
-| S10 | `flyio-security-basics` | Encrypted secrets, deploy tokens, TLS certs, WireGuard VPN |
-| S11 | `flyio-prod-checklist` | Health checks, auto-scaling, monitoring, rollback procedure |
-| S12 | `flyio-upgrade-migration` | Apps v1 to v2, flyctl upgrade, Postgres major version upgrade |
+## Evidence and maintenance
 
-### Pro Skills (P13-P18)
-
-| # | Skill | What It Does |
-|---|-------|-------------|
-| P13 | `flyio-ci-integration` | GitHub Actions with deploy tokens, staging/production workflows |
-| P14 | `flyio-deploy-integration` | Blue-green via Machines API, canary release, multi-region rollout |
-| P15 | `flyio-webhooks-events` | Machine state polling, health check handlers, structured log processing |
-| P16 | `flyio-performance-tuning` | Suspend vs stop, VM sizing, multi-region latency, connection pooling |
-| P17 | `flyio-cost-tuning` | Pricing reference, auto-stop config, resource audit, right-sizing |
-| P18 | `flyio-reference-architecture` | Multi-region web + Postgres + Redis + worker architecture |
-
-## Key Fly.io Concepts
-
-- **Machines API**: `https://api.machines.dev` with `Authorization: Bearer <token>`
-- **flyctl**: CLI for `fly launch`, `fly deploy`, `fly scale`, `fly secrets`
-- **fly.toml**: App config -- services, auto-stop, concurrency, VM sizing
-- **6PN**: Private networking via `.internal` DNS between apps in same org
-- **Regions**: 30+ worldwide, Anycast routing to nearest
-- **Fly Postgres**: Managed Postgres running as a Fly app with automated replication
+Every skill includes `references/official-docs.md` with first-party URLs, retrieval date, snapshot fingerprints, applied facts, and a refresh rule. The provider-maintained flyctl repository was observed at `v0.4.102` on 2026-09-10. Re-fetch first-party sources before changing token types, commands, API paths, limits, state names, regions, deployment strategies, storage behavior, or price-sensitive guidance.
 
 ## License
 

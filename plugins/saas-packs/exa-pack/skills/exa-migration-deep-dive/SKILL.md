@@ -1,231 +1,75 @@
 ---
 name: exa-migration-deep-dive
-description: 'Migrate from other search APIs (Google, Bing, Tavily, Serper) to Exa
-  neural search.
-
-  Use when switching to Exa from another search provider, migrating search pipelines,
-
-  or evaluating Exa as a replacement for traditional search APIs.
-
-  Trigger with phrases like "migrate to exa", "switch to exa", "replace google search
-  with exa",
-
-  "exa vs tavily", "exa migration", "move to exa".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(node:*)
-version: 1.11.0
+description: >-
+  Migrate a legacy web-search integration to Exa through semantic, filter, freshness, relevance, cost, and rollback comparisons. Use when operating or reviewing this Exa boundary. Trigger with "Exa migration deep dive", "review Exa migration deep dive", or "fix Exa migration deep dive".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<source-provider> <query-corpus> <cutover-window>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- migration
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Migration Deep Dive
-
-## Prerequisites
-
-- An inventory of existing retrieval/data flows, policy classification, sanitized evaluation set, acceptance threshold, and rollback owner.
-- Separate staging credentials and review for any automation or customer-query migration.
-
-## Output
-
-- A staged migration record with compatibility/evaluation evidence, owner, observation window, and rollback configuration.
-
-## Examples
-
-Run prior and target retrieval flows against sanitized evaluation queries in staging, compare aggregate citation/quality/latency/error data, then promote an approved canary. Roll back on policy or quality regression; do not bulk-replay customer queries or turn migration output into unreviewed decisions.
-
-## Current State
-
-!`npm list exa-js 2>/dev/null | grep exa-js || echo 'exa-js not installed'`
-!`npm list 2>/dev/null | grep -E '(google|bing|tavily|serper|serpapi)' || echo 'No competing search SDK found'`
+# Legacy Search to Exa Migration
 
 ## Overview
 
-Migrate from traditional search APIs (Google Custom Search, Bing Web Search, Tavily, Serper) to Exa's neural search API. Key differences: Exa uses semantic/neural search instead of keyword matching, returns content (text/highlights/summary) in a single API call, and supports similarity search from a seed URL.
+Migrate a legacy web-search integration to Exa through semantic, filter, freshness, relevance, cost, and rollback comparisons. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
-## API Comparison
+## Prerequisites
 
-| Feature | Google/Bing | Tavily | Exa |
-|---------|-------------|--------|-----|
-| Search model | Keyword | AI-enhanced | Neural embeddings |
-| Content in results | Snippets only | Full text | Text + highlights + summary |
-| Similarity search | No | No | `findSimilar()` by URL |
-| AI answer | No | Yes | `answer()` + `streamAnswer()` |
-| Categories | No | No | company, news, research paper, tweet, people |
-| Date filtering | Limited | Yes | `startPublishedDate` / `endPublishedDate` |
-| Domain filtering | Yes | Yes | `includeDomains` / `excludeDomains` (up to 1200) |
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Exa publishes a Bing migration guide, but provider fields and ranking semantics are not one-to-one. Exa Search supports domain, date, category, location, moderation, content, and deep-synthesis controls. Migration acceptance must evaluate the application outcome rather than translate parameters mechanically.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Install Exa SDK
+1. Inventory legacy queries, filters, result fields, freshness, quotas, and downstream assumptions.
+2. Build a consented evaluation corpus with relevance and safety judgments.
+3. Map each requirement to Exa Search or a separate Contents stage.
+4. Run shadow comparisons under matched result, freshness, and cost budgets.
+5. Canary traffic with output-shape compatibility and a provider rollback switch.
+6. Remove legacy credentials only after parity, observation, and stakeholder acceptance.
 
-```bash
-set -euo pipefail
-npm install exa-js
-# Remove old SDK if replacing
-# npm uninstall google-search-api tavily serpapi
-```
+## Tool Discipline
 
-### Step 2: Create Adapter Layer
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-```typescript
-// src/search/adapter.ts
-import Exa from "exa-js";
+## Approval Boundaries
 
-// Define a provider-agnostic search interface
-interface SearchResult {
-  title: string;
-  url: string;
-  snippet: string;
-  score?: number;
-  publishedDate?: string;
-}
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-interface SearchResponse {
-  results: SearchResult[];
-  query: string;
-}
+## Failure Modes
 
-// Exa implementation
-class ExaSearchAdapter {
-  private exa: Exa;
+- Do not equate rank positions across providers.
+- A field-name translation can hide different freshness or content semantics.
+- Dual-running providers doubles data-handling and cost scope during migration.
 
-  constructor(apiKey: string) {
-    this.exa = new Exa(apiKey);
-  }
+## Output
 
-  async search(query: string, numResults = 10): Promise<SearchResponse> {
-    const response = await this.exa.searchAndContents(query, {
-      type: "auto",
-      numResults,
-      text: { maxCharacters: 500 },
-      highlights: { maxCharacters: 300, query },
-    });
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-    return {
-      query,
-      results: response.results.map(r => ({
-        title: r.title || "Untitled",
-        url: r.url,
-        snippet: r.highlights?.join(" ") || r.text?.substring(0, 300) || "",
-        score: r.score,
-        publishedDate: r.publishedDate || undefined,
-      })),
-    };
-  }
+## Example
 
-  // Exa-only: similarity search (no equivalent in Google/Bing)
-  async findSimilar(url: string, numResults = 5): Promise<SearchResponse> {
-    const response = await this.exa.findSimilarAndContents(url, {
-      numResults,
-      text: { maxCharacters: 500 },
-      excludeSourceDomain: true,
-    });
+- Shadow ten percent of approved queries, compare relevance at five plus latency and cost, and cut over only after the safety floor holds.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-    return {
-      query: url,
-      results: response.results.map(r => ({
-        title: r.title || "Untitled",
-        url: r.url,
-        snippet: r.text?.substring(0, 300) || "",
-        score: r.score,
-      })),
-    };
-  }
-}
-```
+## Validation
 
-### Step 3: Feature Flag Traffic Shift
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-```typescript
-// src/search/router.ts
-function getSearchProvider(): "legacy" | "exa" {
-  const exaPercentage = Number(process.env.EXA_TRAFFIC_PERCENTAGE || "0");
-  return Math.random() * 100 < exaPercentage ? "exa" : "legacy";
-}
+## References
 
-async function search(query: string, numResults = 10): Promise<SearchResponse> {
-  const provider = getSearchProvider();
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-  if (provider === "exa") {
-    return exaAdapter.search(query, numResults);
-  }
-  return legacyAdapter.search(query, numResults);
-}
-
-// Gradually increase: 0% → 10% → 50% → 100%
-// EXA_TRAFFIC_PERCENTAGE=10
-```
-
-### Step 4: Query Translation
-
-```typescript
-// Exa neural search works best with natural language, not keyword syntax
-function translateQuery(legacyQuery: string): string {
-  return legacyQuery
-    // Remove boolean operators (Exa doesn't use them)
-    .replace(/\b(AND|OR|NOT)\b/gi, " ")
-    // Remove quotes (Exa uses semantic matching, not exact)
-    .replace(/"/g, "")
-    // Remove site: operator (use includeDomains instead)
-    .replace(/site:\S+/gi, "")
-    // Clean up extra whitespace
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-// Extract domain filters from legacy query
-function extractDomainFilter(query: string): string[] {
-  const domains: string[] = [];
-  const siteMatches = query.matchAll(/site:(\S+)/gi);
-  for (const match of siteMatches) {
-    domains.push(match[1]);
-  }
-  return domains;
-}
-```
-
-### Step 5: Validation and Comparison
-
-```typescript
-async function compareResults(query: string) {
-  const [legacyResults, exaResults] = await Promise.all([
-    legacyAdapter.search(query, 5),
-    exaAdapter.search(query, 5),
-  ]);
-
-  // Compare URL overlap
-  const legacyUrls = new Set(legacyResults.results.map(r => new URL(r.url).hostname));
-  const exaUrls = new Set(exaResults.results.map(r => new URL(r.url).hostname));
-  const overlap = [...legacyUrls].filter(u => exaUrls.has(u));
-
-  console.log(`Legacy results: ${legacyResults.results.length}`);
-  console.log(`Exa results: ${exaResults.results.length}`);
-  console.log(`Domain overlap: ${overlap.length}/${legacyUrls.size}`);
-
-  return { legacyResults, exaResults, overlapRate: overlap.length / legacyUrls.size };
-}
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Lower result count | Exa filters more aggressively | Increase `numResults` |
-| Different ranking | Neural vs keyword ranking | Expected — evaluate by relevance |
-| Boolean queries fail | Exa doesn't support AND/OR | Translate to natural language |
-| Missing `site:` filter | Different API parameter | Use `includeDomains` parameter |
-
-## Resources
-
-- [Exa vs Tavily Comparison](https://exa.ai/versus/tavily)
-- [Exa Search Reference](https://docs.exa.ai/reference/search)
-- [exa-js SDK](https://github.com/exa-labs/exa-js)
-
-## Next Steps
-
-For advanced troubleshooting, see `exa-advanced-troubleshooting`.
+- [Current first-party evidence map](references/official-docs.md)

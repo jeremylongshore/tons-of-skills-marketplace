@@ -40,6 +40,12 @@ syntax, CODEOWNERS, and document-governance checks; the CLI compatibility
 matrix; and package-publish lanes. This is deliberate scope preservation, not
 a second full-repository contract.
 
+This is a permission, not a description of the current state. When GitHub
+retired the `node20` action runtime, #1554 and #1558 moved every hosted lane to
+Node 22, so no lane runs Node 20 today. The CLI compatibility matrix is the one
+place that still exercises older lines, because `packages/cli` publishes with
+its own `>=18.0.0` floor.
+
 ## Narrower compatibility matrices
 
 The repository contains independently consumable packages and focused CI

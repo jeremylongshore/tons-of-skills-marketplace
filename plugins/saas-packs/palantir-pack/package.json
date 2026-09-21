@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/palantir-pack",
-  "version": "1.0.2",
-  "description": "Claude Code skill pack for Palantir - 24 skills covering data integration, ontology management, and analytics platforms",
+  "version": "2.0.0",
+  "description": "Evidence-backed Palantir Foundry operator workflows for data pipelines, Ontology applications, DevOps, governance, security, and operations (24 skills)",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -13,9 +13,11 @@
     "claude-code",
     "claude-code-plugin",
     "palantir",
-    "data-integration",
-    "ontology",
     "foundry",
+    "ontology",
+    "devops",
+    "data-governance",
+    "security",
     "ai-skills",
     "saas-pack"
   ],

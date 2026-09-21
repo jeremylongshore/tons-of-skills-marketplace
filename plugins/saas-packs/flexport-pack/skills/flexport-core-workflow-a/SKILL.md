@@ -1,167 +1,103 @@
 ---
 name: flexport-core-workflow-a
-description: 'Execute Flexport primary workflow: shipment booking and purchase order
-  management.
-
-  Use when creating bookings, managing purchase orders, tracking freight,
-
-  or building the core shipment lifecycle integration.
-
-  Trigger: "flexport booking", "flexport purchase order", "create flexport shipment".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.6.0
+description: >-
+  Run Flexport MCP rate discovery through a human-approved booking decision. Use when searching lanes, evaluating full price, requesting a quote, or booking freight with an auditable approval boundary. Trigger with: "search Flexport rates", "book Flexport freight", "approve Flexport quote".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[lane-cargo-and-approval-policy]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - booking
+  - mcp
+compatibility: 'Requires an authenticated Flexport MCP connection, account permission for selected tools, and an authorized freight approver.'
 ---
-# Flexport Core Workflow A: Bookings & Purchase Orders
+
+# Approval-Gated Flexport Rate to Booking
 
 ## Overview
 
-The primary Flexport integration path: create purchase orders, book shipments, and track cargo through the supply chain. The API v2 uses RESTful endpoints at `https://api.flexport.com` with JSON payloads.
-
-## Output
-
-Create an auditable workflow receipt with opaque booking/PO identifiers, authorized owner, validation state, approved destination, idempotency result, and next action. Keep commercial terms, addresses, documents, and cargo details inside the authorized system of record.
+Separate discovery from commitment. MCP rate tools can search, evaluate, request, and book; a booking must never be inferred from a search result or performed before a named approver accepts the final normalized terms.
 
 ## Prerequisites
 
-- Completed `flexport-install-auth` setup
-- Understanding of Flexport freight types (ocean FCL/LCL, air, trucking)
-- Valid shipper/consignee addresses configured in Flexport Portal
+- Validated origin, destination, cargo, dates, mode, and incoterm
+- Authenticated connection to `https://mcp.flexport.com/mcp`
+- Named approver, spend boundary, and duplicate-prevention store
 
 ## Instructions
 
-### Step 1: Create a Purchase Order
+### Step 1: Normalize the lane
 
-```typescript
-const BASE = 'https://api.flexport.com';
-const headers = {
-  'Authorization': `Bearer ${process.env.FLEXPORT_API_KEY}`,
-  'Flexport-Version': '2',
-  'Content-Type': 'application/json',
-};
+Resolve addresses, company entities, ports, addresses, and commodity inputs with read-only network tools. Preserve opaque Flexport identifiers.
 
-// POST /purchase_orders — create a PO to track inbound goods
-const po = await fetch(`${BASE}/purchase_orders`, {
-  method: 'POST',
-  headers,
-  body: JSON.stringify({
-    name: 'PO-2025-001',
-    status: 'open',
-    buyer: { name: 'Acme Corp', address: { country: 'US' } },
-    seller: { name: 'Shanghai Supplier', address: { country: 'CN' } },
-    line_items: [
-      { sku: 'WIDGET-A', quantity: 500, unit_of_measure: 'pieces' },
-      { sku: 'WIDGET-B', quantity: 200, unit_of_measure: 'pieces' },
-    ],
-    cargo_ready_date: '2025-04-15',
-    must_arrive_by: '2025-05-20',
-  }),
-}).then(r => r.json());
+### Step 2: Search without commitment
 
-console.log(`PO created: ${po.data.id}`);
+Call `rates_search_instant_price` with approved inputs and store the search/result identifiers plus a redacted input digest.
+
+### Step 3: Evaluate the candidate
+
+Use `rates_evaluate_total_price_from_instant_price_search` for the selected result. Present currency, charge breakdown, timing, assumptions, and expiry exactly as returned.
+
+### Step 4: Choose the branch
+
+If instant booking is unavailable, use `rates_request_rate` and reconcile the quote request. Do not substitute `rates_book_without_rate` unless that supplier flow was explicitly approved.
+
+### Step 5: Require human approval
+
+Bind the approver, exact evaluated result, cargo digest, and approval expiry. Re-evaluate when any material input or provider term changes.
+
+### Step 6: Book once and reconcile
+
+Persist an operation key before `rates_instant_book`; store the returned booking reference and reconcile ambiguous outcomes before any retry.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
+
+## Output
+
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
+
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
 ```
-
-### Step 2: Create a Booking
-
-```typescript
-// POST /bookings — book freight against a purchase order
-const booking = await fetch(`${BASE}/bookings`, {
-  method: 'POST',
-  headers,
-  body: JSON.stringify({
-    freight_type: 'ocean',          // ocean, air, trucking
-    incoterm: 'FOB',                // FOB, CIF, EXW, DDP, etc.
-    origin_port: { code: 'CNSHA' }, // Shanghai
-    destination_port: { code: 'USLAX' }, // Los Angeles
-    cargo_ready_date: '2025-04-15',
-    purchase_order_ids: [po.data.id],
-    wants_freight_management: true,
-    wants_customs_service: true,
-  }),
-}).then(r => r.json());
-
-console.log(`Booking: ${booking.data.id} | Status: ${booking.data.status}`);
-```
-
-### Step 3: Track Shipment Milestones
-
-```typescript
-// GET /shipments/:id — once booking is confirmed, a shipment is created
-// Milestones include: cargo_ready, departed, arrived, customs_cleared, delivered
-const shipment = await fetch(
-  `${BASE}/shipments/${booking.data.shipment_id}`, { headers }
-).then(r => r.json());
-
-console.log(`Shipment ${shipment.data.id}:`);
-console.log(`  Status: ${shipment.data.status}`);
-console.log(`  ETD: ${shipment.data.estimated_departure_date}`);
-console.log(`  ETA: ${shipment.data.estimated_arrival_date}`);
-console.log(`  Legs: ${shipment.data.legs?.length ?? 0}`);
-```
-
-### Step 4: Retrieve Documents
-
-```typescript
-// GET /shipments/:id/documents — commercial invoices, bills of lading, etc.
-const docs = await fetch(
-  `${BASE}/shipments/${shipment.data.id}/documents`, { headers }
-).then(r => r.json());
-
-docs.data.records.forEach((doc: any) => {
-  console.log(`${doc.document_type}: ${doc.file_name} (${doc.url})`);
-});
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `422 invalid port code` | Unrecognized UN/LOCODE | Use standard codes like CNSHA, USLAX |
-| `400 missing required field` | Incomplete booking | Check `freight_type`, `origin_port`, `destination_port` |
-| `409 duplicate PO` | PO name already exists | Use unique `name` field or append timestamp |
-| `404 shipment not found` | Booking not yet confirmed | Wait for booking confirmation webhook |
 
 ## Examples
 
-### List All Purchase Orders with Filters
+An operator searches an ocean lane, evaluates one returned rate, and receives a review card. Only after the logistics owner approves that exact result does the service make one booking call and record the returned reference.
 
-```typescript
-const pos = await fetch(
-  `${BASE}/purchase_orders?status=open&per=25&page=1`, { headers }
-).then(r => r.json());
+## Error Handling
 
-pos.data.records.forEach((po: any) => {
-  console.log(`${po.name} | ${po.status} | Ready: ${po.cargo_ready_date}`);
-});
-```
-
-### Update PO Line Items
-
-```typescript
-await fetch(`${BASE}/purchase_orders/${poId}`, {
-  method: 'PATCH',
-  headers,
-  body: JSON.stringify({
-    line_items: [{ sku: 'WIDGET-A', quantity: 750 }],  // Updated quantity
-  }),
-});
-```
+| Failure | Response |
+| --- | --- |
+| No instant rate | Create a quote request or stop; never fabricate a price. |
+| Permission denied | Route to an authorized role instead of escalating credentials. |
+| Terms changed after approval | Invalidate approval and present a fresh evaluation. |
+| Booking outcome ambiguous | Reconcile by known references before considering another mutation. |
 
 ## Resources
 
-- [Booking API Tutorial](https://developers.flexport.com/tutorials/booking/)
-- [Purchase Order API Tutorial](https://developers.flexport.com/tutorials/purchase-order-api-tutorial/)
-- [Shipment API Tutorial](https://developers.flexport.com/tutorials/shipment-api-tutorial/)
-- [API Reference](https://apidocs.flexport.com/)
-
-## Next Steps
-
-For customs and invoicing workflow, see `flexport-core-workflow-b`.
+- [First-party source notes](references/official-docs.md)
+- [Flexport MCP tools](https://apidocs.flexport.com/v3/tag/MCP-Tools/)
+- [Booking tutorial](https://developers.flexport.com/tutorials/booking/)
+- [Flexport API reference](https://apidocs.flexport.com/v3/)

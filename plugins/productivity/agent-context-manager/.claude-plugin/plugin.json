@@ -1,6 +1,6 @@
 {
   "name": "agent-context-manager",
-  "version": "1.23.0",
+  "version": "1.24.0",
   "description": "Automatically detects and loads AGENTS.md files to provide agent-specific instructions alongside CLAUDE.md. Enables specialized agent behaviors without manual intervention.",
   "author": {
     "name": "Jeremy Longshore"

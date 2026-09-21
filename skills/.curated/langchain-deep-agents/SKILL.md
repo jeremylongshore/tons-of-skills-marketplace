@@ -7,7 +7,7 @@ description: "Build a LangGraph 1.0 Deep Agent \u2014 planner + subagents + virt
   \ \"langchain deep agent\", \"planner subagent\", \"virtual filesystem\nagent\"\
   , \"reflection loop\", \"langgraph deep agent\".\n"
 allowed-tools: Read, Write, Edit, Bash(python:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

@@ -1,184 +1,99 @@
 ---
 name: palantir-local-dev-loop
-description: 'Configure Palantir Foundry local development with Python transforms
-  and testing.
-
-  Use when setting up a development environment, running transforms locally,
-
-  or establishing a fast iteration cycle with Foundry.
-
-  Trigger with phrases like "palantir dev setup", "palantir local development",
-
-  "foundry local dev", "develop with palantir".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(pip:*), Bash(npm:*), Grep
-version: 1.5.0
-license: MIT
+description: >-
+  Run a safe Foundry development loop using the Palantir VS Code extension, unit tests, preview/debug, repository synchronization, and remote builds. Use when iterating on transforms or OSDK code. Trigger with "Foundry local development".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[code-repository-or-application]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- development
-- testing
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, local-development, testing]
 ---
-# Palantir Local Dev Loop
+# Palantir Local and In-Platform Development Loop
 
 ## Overview
 
-Set up local development for Palantir Foundry integrations. Covers running transforms locally against sample data, mocking the Foundry API for fast iteration, and testing with pytest before pushing to Foundry.
+Keep pure logic fast and local while treating Foundry preview, checks, and builds as separate evidence. A local mock can verify application logic, but it cannot prove Foundry permissions, lineage, transactions, or full-data behavior.
 
 ## Prerequisites
 
-- Completed `palantir-install-auth` setup
-- Python 3.9+ with pip
-- A Foundry Code Repository cloned locally (or a standalone project)
+- Identify the Code Repository or Developer Console application, language, branch, data sensitivity, and target environment.
+- Install the supported Palantir VS Code extension or use an in-platform workspace as appropriate.
+- Read `references/official-docs.md` and the repository's generated in-platform documentation.
+- Prepare lightweight unit fixtures without production data and a sandbox branch.
+
+## Current Contract
+
+- Foundry Code Repositories support sandbox branches, automatic checks, unit tests, previews, pull requests, and full builds.
+- Preview can use sample or subset data; a full build runs on platform data and commits pipeline output.
+- The VS Code extension can preview, debug, synchronize, and initiate Foundry builds from a local workspace.
+- Local tests should isolate business logic and avoid relying on live external resources.
+
+## Authentication
+
+Use the approved Palantir VS Code or Developer Console sign-in for the intended environment. Keep generated OAuth settings and any test credentials in approved local secret storage, and never place tokens or production object data in fixtures, logs, or repository files.
 
 ## Instructions
 
-### Step 1: Project Structure
+1. Separate pure transformation or application logic from Foundry adapters and generated SDK code.
 
-```
-my-foundry-project/
-├── src/myproject/
-│   ├── __init__.py
-│   ├── pipeline.py          # @transform functions
-│   └── utils.py             # Shared logic
-├── tests/
-│   ├── conftest.py           # Fixtures with sample DataFrames
-│   ├── test_pipeline.py      # Transform unit tests
-│   └── sample_data/          # CSV/Parquet test fixtures
-├── .env                      # FOUNDRY_HOSTNAME, FOUNDRY_TOKEN
-├── requirements.txt          # foundry-platform-sdk, pytest, pyspark
-└── pyproject.toml
-```
+2. Write deterministic unit tests using synthetic fixtures and run them before any platform request.
 
-### Step 2: Install Local Dependencies
+3. Synchronize the sandbox branch, run Foundry checks, and preview representative inputs with protected-data rules intact.
 
-```bash
-set -euo pipefail
-pip install foundry-platform-sdk pyspark pytest pandas
-python -c "import foundry; import pyspark; print('Dependencies ready')"
-```
+4. Use the Foundry debugger for Python transform behavior when needed; treat observed values as diagnostic only.
 
-### Step 3: Test Transforms Locally with PySpark
+5. Push the exact branch, run the full Foundry build or bounded OSDK smoke test, inspect results, and open a reviewed pull request.
 
-```python
-# tests/conftest.py
-import pytest
-from pyspark.sql import SparkSession
+## Tool Discipline
 
-@pytest.fixture(scope="session")
-def spark():
-    return SparkSession.builder.master("local[2]").appName("test").getOrCreate()
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-@pytest.fixture
-def sample_orders(spark):
-    data = [
-        ("ORD-001", "alice@company.com", "2026-03-01", 99.99),
-        ("ORD-002", "bob@test.com", "2026-03-02", 49.99),      # test email
-        (None, "carol@company.com", "2026-03-03", 149.99),       # null ID
-    ]
-    return spark.createDataFrame(data, ["order_id", "email", "order_date_str", "total"])
-```
+## Approval Boundaries
 
-```python
-# tests/test_pipeline.py
-from myproject.pipeline import clean_orders
-
-def test_clean_orders_removes_nulls_and_test_emails(sample_orders):
-    result = clean_orders(sample_orders)
-    assert result.count() == 1  # Only alice remains
-    assert result.columns == ["order_id", "email", "order_date", "total_cents"]
-    row = result.first()
-    assert row.total_cents == 9999  # 99.99 * 100
-```
-
-### Step 4: Mock Foundry API for Integration Tests
-
-```python
-# tests/test_api.py
-import pytest
-from unittest.mock import MagicMock, patch
-
-def test_list_ontology_objects():
-    mock_client = MagicMock()
-    mock_client.ontologies.OntologyObject.list.return_value.data = [
-        MagicMock(properties={"fullName": "Alice", "department": "Engineering"}),
-    ]
-
-    result = mock_client.ontologies.OntologyObject.list(
-        ontology="test", object_type="Employee", page_size=10
-    )
-    assert len(result.data) == 1
-    assert result.data[0].properties["fullName"] == "Alice"
-```
-
-### Step 5: Run Tests
-
-```bash
-set -euo pipefail
-pytest tests/ -v --tb=short
-# Expected: all tests pass against local Spark + mocked API
-```
-
-### Step 6: Live API Smoke Test (Optional)
-
-```python
-# scripts/smoke_test.py — runs against real Foundry (needs credentials)
-import os, foundry, sys
-
-client = foundry.FoundryClient(
-    auth=foundry.UserTokenAuth(
-        hostname=os.environ["FOUNDRY_HOSTNAME"],
-        token=os.environ["FOUNDRY_TOKEN"],
-    ),
-    hostname=os.environ["FOUNDRY_HOSTNAME"],
-)
-
-try:
-    ontologies = list(client.ontologies.Ontology.list())
-    print(f"Smoke test passed: {len(ontologies)} ontologies accessible")
-except foundry.ApiError as e:
-    print(f"Smoke test failed: {e.status_code} {e.message}", file=sys.stderr)
-    sys.exit(1)
-```
+Local iteration does not authorize production data access, writeback, full builds, or merges. Obtain data-owner approval for representative protected inputs and repository-owner approval for merge or production build.
 
 ## Output
 
-- Local PySpark environment for testing transforms without Foundry
-- Mocked Foundry API client for integration tests
-- pytest suite validating pipeline logic
-- Optional live smoke test for credential verification
+A reproducible development command map, synthetic fixtures, unit-test evidence, branch/commit, preview/debug findings, Foundry check/build results, and known differences between local, preview, and full execution.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Java not found` (PySpark) | JDK not installed | Install JDK 11+: `apt install openjdk-11-jdk` |
-| `ModuleNotFoundError: pyspark` | Missing dependency | `pip install pyspark` |
-| Import error on transform functions | Circular imports | Keep transforms in separate modules |
-| Spark `AnalysisException` | Column name mismatch | Print `df.columns` in test to debug |
+| Condition | Response |
+|---|---|
+| Local tests pass but Foundry checks fail | Use the repository check details and compare dependency/build environments. |
+| Preview passes but full build fails | Inspect full-data edge cases, resources, and input transactions; preview is not production proof. |
+| Generated OSDK mocks drift | Regenerate from Developer Console and update contract tests against the pinned package. |
+| Debugger output differs from committed data | Treat debugger state as non-authoritative and verify the actual output transaction. |
 
 ## Examples
 
-### Watch Mode with pytest-watch
+### Example 1
 
-```bash
-pip install pytest-watch
-ptw tests/ -- -v --tb=short
-# Re-runs tests on every file save
-```
+Refactor a transform so its row-level normalization is a pure function covered by synthetic unit tests, then run Foundry preview and a branch build to verify dataset integration.
+
+### Example 2
+
+Mock a generated OSDK client for application unit tests, then run a bounded non-production smoke test to prove OAuth restrictions, object selection, and pagination.
+
+## Validation
+
+- Unit fixtures contain no protected production data.
+- The sandbox branch and local workspace are synchronized at one exact commit.
+- Foundry checks and the relevant full build or smoke test pass.
+- Preview limitations and environment differences are documented.
+- The pull request receives the required independent review.
 
 ## Resources
 
-- [Foundry Local Development](https://www.palantir.com/docs/foundry/transforms-python/local-development)
-- [Code Examples](https://www.palantir.com/docs/foundry/code-examples/foundry-apis-local-environment)
-- [PySpark Testing](https://spark.apache.org/docs/latest/api/python/getting_started/testing_pyspark.html)
-
-## Next Steps
-
-- Apply SDK patterns: `palantir-sdk-patterns`
-- Build data pipelines: `palantir-core-workflow-a`
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

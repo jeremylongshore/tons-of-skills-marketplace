@@ -59,25 +59,10 @@ import { fileURLToPath } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 /**
- * Maximum tolerated count. Lower this when links are fixed; the script will not
- * raise it for you.
- *
- * The 1 is a known, single defect, named here so nobody has to re-derive it:
- *
- *   plugins/saas-packs/clerk-pack/skills/clerk-core-workflow-b/references/
- *     session-middleware-deep-dive.md:279
- *   links to `references/session-middleware-deep-dive.md` — i.e. to ITSELF, from
- *   inside itself, so it resolves to references/references/... It is a stray copy
- *   of the pointer in the parent SKILL.md:52 (which is correct).
- *
- * Not fixed in the same change that introduced this gate because that file is a
- * PROMOTED source: `skills/.curated/clerk-core-workflow-b/references/...` is a
- * byte-identical generated mirror of it, and `promote-curated-check` fails a PR
- * that edits a promoted source without regenerating. Editing pack prose plus
- * syncing the curated mirror deserves its own review rather than riding along in
- * a CI-gate change. Lower this to 0 when that lands.
+ * Maximum tolerated count. Keep this at zero so a broken relative link cannot
+ * enter the tracked first-party Markdown corpus.
  */
-const BASELINE = 1;
+const BASELINE = 0;
 
 /** Links that are illustrations inside fenced code, not navigation. */
 function stripFencedCode(text) {

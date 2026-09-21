@@ -6,7 +6,7 @@ order: 3
 keywords: ["categories", "tags", "marketplace", "discovery", "filtering", "plugin categories", "keywords"]
 officialLinks:
   - title: "Claude Code Plugins Documentation"
-    url: "https://docs.anthropic.com/en/docs/claude-code/plugins"
+    url: "https://code.claude.com/docs/en/plugins"
   - title: "Tons of Skills Marketplace"
     url: "https://tonsofskills.com/explore"
 relatedDocs:

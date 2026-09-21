@@ -1,7 +1,7 @@
 {
   "name": "canva-pack",
-  "version": "1.5.0",
-  "description": "Claude Code skill pack for Canva (30 skills)",
+  "version": "2.0.0",
+  "description": "30 governed Canva Connect operator workflows for OAuth, designs, asynchronous jobs, and secure integrations",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,9 @@
   "license": "MIT",
   "keywords": [
     "canva",
-    "canva",
-    "saas",
-    "sdk",
-    "integration"
+    "oauth",
+    "design",
+    "operations",
+    "connect-api"
   ]
 }

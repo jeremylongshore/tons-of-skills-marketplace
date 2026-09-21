@@ -1,187 +1,79 @@
 ---
 name: mindtickle-reference-architecture
-description: 'Reference Architecture for MindTickle.
-
-  Trigger: "mindtickle reference architecture".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.7.0
-license: MIT
+description: 'Design a secure, tenant-scoped architecture for Mindtickle identity, managed connectors, APIs, data processing, and operations. Use when designing or reviewing an integration. Trigger with "design Mindtickle architecture".'
+argument-hint: "[architecture-brief] [environment]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mindtickle
-- sales
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, mindtickle, architecture, tenancy, integration]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; architecture approval belongs to customer security, data, identity, platform, and business owners
 ---
-# MindTickle Reference Architecture
+# Tenant-Scoped Mindtickle Integration Architecture
 
 ## Overview
 
-Design a multi-tenant integration layer for the MindTickle sales enablement platform. Strict tenant data isolation is the primary driver, enforced at the database, cache, and queue levels so training data, quiz scores, and readiness analytics never cross organizational boundaries.
-
-## Instructions
-
-1. Provision the prerequisites below with Row-Level Security enabled in PostgreSQL.
-2. Configure SCIM 2.0 webhook endpoints to receive HR system user events.
-3. Deploy the enablement service with tenant-scoped database connections.
-4. Start the SCIM consumer and analytics aggregator as separate worker processes.
-5. Validate tenant isolation by running cross-tenant query tests against RLS policies.
+Produce a decision-ready architecture that identifies every trust boundary, system of record, contract, data flow, failure mode, and operational owner.
 
 ## Prerequisites
 
-- Node.js 18+, TypeScript 5, PostgreSQL 15 with RLS, Redis 7, RabbitMQ or SQS
-- MindTickle API key with `users:read`, `courses:read`, `analytics:read` scopes
-- SCIM 2.0 endpoint credentials for user provisioning
+- A business workflow, tenant and environment inventory, package entitlement, and data classification
+- Current identity, connector, and tenant API artifacts with owners and provenance
+- Customer security, retention, residency, reliability, and support requirements
 
-## Architecture Diagram
+## Tool Discipline
 
-```
-HR System --> SCIM Webhook Ingester --> User Sync Service --> MindTickle API
-                                             |
-Client --> API Gateway --> EnablementService --+--> Analytics Aggregator
-                                |
-                         Tenant-scoped PostgreSQL (RLS)
-```
+Use `Read`, `Glob`, and `Grep` to inspect repository topology and existing decisions, `WebFetch` for current official contracts, and `Write` or `Edit` for diagrams, decisions, threat models, and redacted evidence.
 
-## Service Layer
+## Current Contract
 
-```typescript
-class EnablementService {
-  constructor(
-    private api: MindTickleApiClient,
-    private db: TenantScopedStore,
-    private events: EventPublisher
-  ) {}
+Mindtickle supports tenant-specific access, roles, managed integrations, REST-based API families, SCIM, SAML, OpenID, and package-dependent product modules. The architecture must not assume every tenant has every module or that managed connectors and custom APIs share one authorization model.
 
-  async syncCourseProgress(tenantId: string, userId: string): Promise<Progress> {
-    const courses = await this.api.getUserCourses(userId);
-    const progress = courses.map(c => ({
-      courseId: c.id, status: c.status, score: c.quizScore, completedAt: c.completedAt,
-    }));
-    await this.db.upsertProgress(tenantId, userId, progress);
-    await this.events.publish('progress.synced', { tenantId, userId });
-    return { userId, courses: progress };
-  }
+## Authentication
 
-  async processQuizResult(tenantId: string, result: QuizSubmission): Promise<void> {
-    await this.db.recordQuizResult(tenantId, result);
-    await this.events.publish('quiz.completed', { tenantId, ...result });
-  }
-}
-```
+Model interactive SSO, lifecycle provisioning, managed connectors, and API principals separately. Bind every principal, secret, queue, store, cache, and log to a tenant and environment with least privilege and revocation ownership.
 
-## Caching Strategy
+## Instructions
 
-```typescript
-class TenantCache {
-  constructor(private redis: RedisClient) {}
+1. Define scope, outcomes, non-goals, actors, systems of record, tenants, environments, and data classes.
+2. Draw trust boundaries and directional flows for identity, content, users, reporting, events, administration, support, and deletion.
+3. Attach an authoritative contract, owner, authentication class, and permitted operations to every external edge.
+4. Choose managed integration, file exchange, tenant API, or human workflow per use case based on supportability and risk.
+5. Define tenant isolation, schema validation, idempotency, reconciliation, backpressure, retention, encryption, and audit evidence.
+6. Model dependency outage, identity drift, partial writes, duplicate delivery, schema drift, credential compromise, and tenant misrouting.
+7. Specify service objectives, alerts, runbooks, support severity, capacity, recovery, and cost ownership.
+8. Record alternatives and tradeoffs, then obtain independent security, data, platform, and business review before implementation.
 
-  private key(tenantId: string, resource: string): string {
-    return `tenant:${tenantId}:${resource}`;
-  }
+## Approval Boundaries
 
-  async getUserRoster(tenantId: string): Promise<User[] | null> {
-    const raw = await this.redis.get(this.key(tenantId, 'roster'));
-    return raw ? JSON.parse(raw) : null;
-  }
-
-  async setUserRoster(tenantId: string, users: User[]): Promise<void> {
-    await this.redis.setEx(this.key(tenantId, 'roster'), 600, JSON.stringify(users));
-  }
-
-  async invalidateTenant(tenantId: string): Promise<void> {
-    const keys = await this.redis.keys(`tenant:${tenantId}:*`);
-    if (keys.length) await this.redis.del(keys);
-  }
-}
-// TTLs: roster 10 min, course catalog 30 min, quiz results not cached
-```
-
-## Event Pipeline
-
-```typescript
-class ScimWebhookConsumer {
-  constructor(private queue: MessageQueue, private db: TenantScopedStore) {}
-
-  async handleScimEvent(payload: ScimPayload): Promise<void> {
-    const tenantId = payload.tenantId;
-    if (payload.operation === 'CREATE') {
-      await this.db.provisionUser(tenantId, payload.user);
-    } else if (payload.operation === 'DELETE') {
-      await this.db.deactivateUser(tenantId, payload.user.id);
-    }
-    await this.queue.publish(`tenant.${tenantId}.user_changed`, payload);
-  }
-}
-
-class AnalyticsAggregator {
-  async aggregateTeamReadiness(tenantId: string): Promise<ReadinessReport> {
-    const scores = await this.db.getQuizScores(tenantId);
-    const completion = await this.db.getCourseCompletion(tenantId);
-    return { tenantId, avgScore: mean(scores), completionRate: ratio(completion) };
-  }
-}
-```
-
-## Data Model
-
-```typescript
-interface User {
-  id: string; tenantId: string; email: string;
-  role: 'rep' | 'manager' | 'admin';
-  scimExternalId: string; active: boolean;
-}
-interface CourseProgress {
-  userId: string; courseId: string;
-  status: 'not_started' | 'in_progress' | 'completed';
-  score: number | null; completedAt: Date | null;
-}
-interface QuizSubmission {
-  userId: string; courseId: string; quizId: string;
-  answers: { questionId: string; selected: string; correct: boolean }[];
-  score: number; submittedAt: Date;
-}
-interface ReadinessReport {
-  tenantId: string; avgScore: number; completionRate: number;
-}
-```
+Do not select a tenant default, combine credentials, export restricted data, introduce an unsupported integration path, or accept residual risk for another owner.
 
 ## Output
 
-Running this architecture produces tenant-isolated user rosters synced via SCIM, a course progress tracker with quiz scoring, and aggregated team readiness reports partitioned by organization.
-
-## Scaling Considerations
-
-- Enforce Row-Level Security in PostgreSQL so every query is tenant-scoped by default
-- Partition Redis keyspace by tenant prefix to enable per-tenant eviction policies
-- Route SCIM webhooks to tenant-specific queue channels to prevent noisy-neighbor stalls
-- Use connection pooling per tenant to respect MindTickle per-org rate limits (60 req/min)
+Return context and data-flow diagrams, contract registry, trust boundaries, tenancy controls, decision records, threat model, failure matrix, owners, open questions, and approval state.
 
 ## Error Handling
 
-| Component | Failure Mode | Recovery |
-|-----------|-------------|----------|
-| MindTickle API | 429 rate limit | Per-tenant backoff, queue surplus for next window |
-| SCIM Ingester | Malformed payload | Reject with 400, log to DLQ for manual review |
-| Tenant DB | RLS policy violation | Block query, alert on cross-tenant access attempt |
-| Analytics Aggregator | Stale data | Mark report provisional, schedule re-aggregation |
-| Event Queue | Tenant channel backup | Spill to overflow queue, process FIFO on recovery |
+| Condition | Response |
+|---|---|
+| An external edge lacks a contract | Mark it blocked and issue vendor or customer questions. |
+| Tenant context can be omitted | Redesign the boundary to fail closed before implementation. |
+| Managed and custom paths overlap | Assign one source of truth and explicit reconciliation ownership. |
 
-## Examples
+## Example
 
-```bash
-# Sync course progress for a specific user in a tenant
-curl http://localhost:3000/api/tenants/acme/users/u123/sync-progress
-# Trigger a team readiness report aggregation
-curl -X POST http://localhost:3000/api/tenants/acme/readiness/aggregate
+```text
+tenants=2-isolated; identity=sso-plus-scim; reporting=tenant-api; events=polling-until-contract; contracts=all-owned; review=approved-with-one-expiring-risk
 ```
 
 ## Resources
 
-- [MindTickle Platform Integrations](https://www.mindtickle.com/platform/integrations/)
+- [Mindtickle integrations](https://www.mindtickle.com/platform/integrations/)
+- [Mindtickle Trust](https://www.mindtickle.com/trust/)
+- [Subscription services](https://www.mindtickle.com/legal/description-of-subscription-services/)
 
 ## Next Steps
 
-See `mindtickle-deploy-integration`.
+Convert each approved external edge into contract fixtures, runbooks, and an independently testable deployment unit.

@@ -1,297 +1,74 @@
 ---
 name: mistral-local-dev-loop
-description: 'Configure Mistral AI local development with hot reload, testing, and
-  mocking.
-
-  Use when setting up a development environment, configuring test workflows,
-
-  or establishing a fast iteration cycle with Mistral AI.
-
-  Trigger with phrases like "mistral dev setup", "mistral local development",
-
-  "mistral dev environment", "develop with mistral".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pnpm:*), Grep
-version: 1.13.0
+description: >-
+  Build an offline-first Mistral development loop with contract fixtures and an opt-in live smoke lane. Use when developing or testing an integration locally. Trigger with "mock Mistral locally", "speed up Mistral development", or "test Mistral without API spend".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<runtime> <test-framework> <fixture-policy>"
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mistral
-- testing
-- workflow
-compatibility: Designed for Claude Code
+tags: [saas, mistral, testing]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live or external Mistral actions require network access and explicit approval"
 ---
-# Mistral AI Local Dev Loop
+# Mistral Deterministic Local Development Loop
 
 ## Overview
 
-Set up a fast, reproducible local development workflow for Mistral AI integrations: project scaffold, environment config, hot reload with `tsx`, unit tests with Vitest mocking, and integration tests against the live API.
+Make local iteration deterministic and free of accidental spend. Keep provider calls behind a narrow adapter, validate synthetic fixtures, and reserve live calls for a separately approved lane.
 
 ## Prerequisites
 
-- Completed `mistral-install-auth` setup
-- Node.js 18+ with npm/pnpm
-- `MISTRAL_API_KEY` set in environment
+- A package lock, test framework, and selected official client.
+- A provider-adapter boundary and synthetic fixture policy.
+- A secret manager for the optional live lane; never a checked-in `.env` value.
+
+## Current Contract
+
+Official clients wrap a changing HTTP schema. Local tests should assert the application-owned adapter; a narrow live smoke detects drift without making every test network-dependent.
+
+## Authentication
+
+Offline tests must not resolve `MISTRAL_API_KEY`. The live test is disabled by default, reads a protected secret only after its gate is enabled, and redacts transport metadata.
 
 ## Instructions
 
-### Step 1: Project Structure
+1. Map direct client imports and move calls behind one application interface.
+2. Define typed success, stream, tool-call, throttling, malformed, and terminal-error fixtures.
+3. Add a transport seam so tests fail on unexpected network access.
+4. Test usage normalization, error classification, idempotency, and redaction offline.
+5. Create a separately named live smoke with explicit environment and budget gates.
+6. Document fixture provenance, schema version, refresh method, and review owner.
 
-```
-my-mistral-project/
-├── src/
-│   ├── mistral/
-│   │   ├── client.ts       # Singleton client
-│   │   ├── config.ts       # Config with Zod validation
-│   │   └── types.ts        # TypeScript types
-│   └── index.ts
-├── tests/
-│   ├── unit/
-│   │   └── mistral.test.ts
-│   └── integration/
-│       └── mistral.integration.test.ts
-├── .env.local              # Local secrets (git-ignored)
-├── .env.example            # Template for team
-├── tsconfig.json
-├── vitest.config.ts
-└── package.json
-```
+## Tool Discipline
 
-### Step 2: Package Configuration
+Use Read, Glob, and Grep to inspect code, locks, configuration, tests, and evidence. Use Write and Edit only for approved repository changes. Invocation alone does not authorize network calls, paid usage, uploads, stateful resources, admin mutations, deployments, or deletion.
 
-**package.json**
+## Approval Boundaries
 
-```json
-{
-  "type": "module",
-  "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:integration": "vitest run tests/integration/",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@mistralai/mistralai": "^1.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^20.0.0",
-    "dotenv": "^16.0.0",
-    "tsx": "^4.0.0",
-    "typescript": "^5.0.0",
-    "vitest": "^1.0.0"
-  }
-}
-```
-
-**tsconfig.json**
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "outDir": "dist",
-    "rootDir": "src"
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
-}
-```
-
-### Step 3: Environment Setup
-
-```bash
-# Create environment template
-cat > .env.example << 'EOF'
-MISTRAL_API_KEY=your-api-key-here
-MISTRAL_MODEL=mistral-small-latest
-LOG_LEVEL=debug
-EOF
-
-cp .env.example .env.local
-echo '.env.local' >> .gitignore
-echo '.env' >> .gitignore
-```
-
-### Step 4: Client Module
-
-```typescript
-// src/mistral/client.ts
-import { Mistral } from '@mistralai/mistralai';
-import 'dotenv/config';
-
-let instance: Mistral | null = null;
-
-export function getMistralClient(): Mistral {
-  if (!instance) {
-    const apiKey = process.env.MISTRAL_API_KEY;
-    if (!apiKey) throw new Error('MISTRAL_API_KEY not set');
-    instance = new Mistral({ apiKey, timeoutMs: 30_000 });
-  }
-  return instance;
-}
-
-export function resetClient(): void {
-  instance = null;
-}
-```
-
-### Step 5: Unit Tests with Mocking
-
-**vitest.config.ts**
-
-```typescript
-import { defineConfig } from 'vitest/config';
-
-export default defineConfig({
-  test: {
-    globals: true,
-    environment: 'node',
-    include: ['tests/**/*.test.ts'],
-    coverage: { provider: 'v8', reporter: ['text', 'json'] },
-  },
-});
-```
-
-**tests/unit/mistral.test.ts**
-
-```typescript
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-
-// Mock the entire SDK
-vi.mock('@mistralai/mistralai', () => ({
-  Mistral: vi.fn().mockImplementation(() => ({
-    chat: {
-      complete: vi.fn().mockResolvedValue({
-        id: 'test-id',
-        model: 'mistral-small-latest',
-        choices: [{
-          index: 0,
-          message: { role: 'assistant', content: 'Mocked response' },
-          finishReason: 'stop',
-        }],
-        usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
-      }),
-      stream: vi.fn().mockImplementation(async function* () {
-        yield { data: { choices: [{ delta: { content: 'Streamed ' } }] } };
-        yield { data: { choices: [{ delta: { content: 'response' } }] } };
-      }),
-    },
-    embeddings: {
-      create: vi.fn().mockResolvedValue({
-        data: [{ embedding: new Array(1024).fill(0.1) }],
-        usage: { totalTokens: 5 },
-      }),
-    },
-    models: {
-      list: vi.fn().mockResolvedValue({ data: [{ id: 'mistral-small-latest' }] }),
-    },
-  })),
-}));
-
-describe('Mistral Client', () => {
-  beforeEach(() => { vi.clearAllMocks(); });
-
-  it('should complete chat', async () => {
-    const { Mistral } = await import('@mistralai/mistralai');
-    const client = new Mistral({ apiKey: 'test' });
-
-    const response = await client.chat.complete({
-      model: 'mistral-small-latest',
-      messages: [{ role: 'user', content: 'Test' }],
-    });
-
-    expect(response.choices?.[0]?.message?.content).toBe('Mocked response');
-    expect(response.usage?.totalTokens).toBe(15);
-  });
-
-  it('should generate embeddings', async () => {
-    const { Mistral } = await import('@mistralai/mistralai');
-    const client = new Mistral({ apiKey: 'test' });
-
-    const response = await client.embeddings.create({
-      model: 'mistral-embed',
-      inputs: ['test text'],
-    });
-
-    expect(response.data[0].embedding).toHaveLength(1024);
-  });
-});
-```
-
-### Step 6: Integration Test (Live API)
-
-```typescript
-// tests/integration/mistral.integration.test.ts
-import { describe, it, expect } from 'vitest';
-import { Mistral } from '@mistralai/mistralai';
-
-const apiKey = process.env.MISTRAL_API_KEY;
-
-describe.skipIf(!apiKey)('Mistral Integration', () => {
-  const client = new Mistral({ apiKey: apiKey! });
-
-  it('should list models', async () => {
-    const models = await client.models.list();
-    expect(models.data?.length).toBeGreaterThan(0);
-  }, 10_000);
-
-  it('should complete chat', async () => {
-    const response = await client.chat.complete({
-      model: 'mistral-small-latest',
-      messages: [{ role: 'user', content: 'Reply with "ok"' }],
-      maxTokens: 10,
-      temperature: 0,
-    });
-    expect(response.choices?.[0]?.message?.content).toBeTruthy();
-  }, 15_000);
-
-  it('should generate embeddings', async () => {
-    const response = await client.embeddings.create({
-      model: 'mistral-embed',
-      inputs: ['test'],
-    });
-    expect(response.data[0].embedding).toHaveLength(1024);
-  }, 10_000);
-});
-```
-
-## Output
-
-- Working dev environment with hot reload (`tsx watch`)
-- Unit tests with full SDK mocking
-- Integration tests against live API (skip when no key)
-- Environment variable management with `.env.local`
+Require approval before package changes, network access, provider-derived fixture capture, or a live test. Keep the default developer command entirely offline and credential-free.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Module not found | Missing dependency | Run `npm install` |
-| Env not loaded | Missing .env.local | Copy from .env.example |
-| Integration timeout | Slow API response | Increase test timeout |
-| Mock type errors | SDK interface changed | Update mock to match current SDK |
+- Mocks coupled to private client internals create false drift.
+- Any real prompt, file, or key in a fixture is a data incident.
+- Passing offline tests does not prove live account configuration.
+
+## Output
+
+Return adapter path, test commands, fixture inventory, network-denial evidence, live gate, coverage gaps, and review date.
 
 ## Examples
 
-### Separate deterministic and paid checks
+- Inject a fake chat transport and assert normalized usage.
+- Fail CI when offline tests attempt DNS or unexpectedly see the key.
 
-Run the mocked Vitest suite on every local change and CI pull request. Enable the integration suite only in a protected environment that supplies `MISTRAL_API_KEY`; it should skip—not fail—when that secret is intentionally absent from an untrusted pull request.
+## Validation
+
+Run without network and credential, mutate fixtures to prove failures, then use the live lane only after approval.
 
 ## Resources
 
-- [Mistral TypeScript SDK](https://github.com/mistralai/client-ts)
-- [Vitest Documentation](https://vitest.dev/)
-- [tsx](https://github.com/privatenumber/tsx)
-
-## Next Steps
-
-See `mistral-sdk-patterns` for production-ready code patterns.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable endpoints, models, limits, prices, preview status, or retention.
+- Record live account observations as environment-specific evidence, not universal Mistral guarantees.

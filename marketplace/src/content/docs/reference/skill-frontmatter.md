@@ -6,9 +6,9 @@ order: 1
 keywords: ["SKILL.md", "frontmatter", "yaml", "schema", "skills", "allowed-tools", "DCI", "path variables", "string substitutions"]
 officialLinks:
   - title: "Claude Code Skills Documentation"
-    url: "https://docs.anthropic.com/en/docs/claude-code/skills"
+    url: "https://code.claude.com/docs/en/skills"
   - title: "Claude Code Plugins Overview"
-    url: "https://docs.anthropic.com/en/docs/claude-code/plugins"
+    url: "https://code.claude.com/docs/en/plugins"
 relatedDocs:
   - "concepts/skills"
   - "guides/write-a-skill"

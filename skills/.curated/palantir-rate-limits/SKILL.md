@@ -1,163 +1,99 @@
 ---
 name: palantir-rate-limits
-description: 'Implement Palantir Foundry API rate limiting, backoff, and request queuing.
-
-  Use when handling 429 errors, implementing retry logic,
-
-  or optimizing API request throughput for Foundry.
-
-  Trigger with phrases like "palantir rate limit", "foundry throttling",
-
-  "palantir 429", "foundry retry", "palantir backoff".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.5.0
-license: MIT
+description: >-
+  Analyze and design bounded Foundry API concurrency, backoff, pagination, and overload behavior from current documented limits. Use when preventing or handling HTTP 429 or 503 responses. Trigger with "Palantir rate limit".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[client-or-endpoint]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- rate-limits
-- reliability
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, rate-limits, reliability]
 ---
-# Palantir Rate Limits
+# Palantir API Limit and Concurrency Control
 
 ## Overview
 
-Handle Foundry API rate limits with exponential backoff, request queuing, and monitoring. Foundry rate limits vary by endpoint and enrollment tier.
+Protect Foundry and the caller from retry storms. Budget requests across the acting user, bound concurrent work, honor server responses, and distinguish retryable throttling from authorization, validation, or permanent resource errors.
 
 ## Prerequisites
 
-- `foundry-platform-sdk` installed
-- Understanding of HTTP 429 responses
+- Identify the acting user or service user, applications sharing it, endpoints, workload peaks, page/batch shape, and service objective.
+- Capture response status, request identifiers, timestamps, server timing guidance, retry count, and current concurrency.
+- Read `references/official-docs.md` immediately before setting numeric budgets because effective and endpoint-specific limits may change.
+- Prepare load tests in an approved non-production scope.
+
+## Current Contract
+
+- The current general API documentation lists global per-user rate and concurrency limits across Foundry API endpoints.
+- Individual endpoints may impose stricter limits and return `429` or `503`.
+- Palantir recommends exponential backoff for throttled requests.
+- Limits can vary in practice, and disruptive throttling may require Palantir Support rather than client-side limit evasion.
+
+## Authentication
+
+Attribute the request budget to the actual OAuth principal. Do not distribute calls across extra tokens, users, or service users to evade a limit. Keep token material out of metrics and retry logs.
 
 ## Instructions
 
-### Step 1: Understand Foundry Rate Limits
+1. Inventory every worker and application using the same principal and estimate peak request rate plus in-flight concurrency.
 
-Foundry rate limits are per-user and per-endpoint. Key limits:
+2. Set a conservative shared concurrency budget and bounded queue with deadlines and cancellation.
 
-| Endpoint Category | Typical Limit | Burst |
-|-------------------|---------------|-------|
-| Ontology reads | 100 req/s | 200 |
-| Ontology writes (Actions) | 50 req/s | 100 |
-| Dataset reads | 50 req/s | 100 |
-| Search queries | 20 req/s | 50 |
+3. Retry only documented transient statuses, honoring server guidance and using capped exponential backoff with jitter.
 
-Rate limit headers returned:
+4. Use pagination, selective properties, batching supported by the endpoint, idempotency controls, and workload coalescing to reduce demand.
 
-- `X-RateLimit-Limit` — max requests per window
-- `X-RateLimit-Remaining` — requests left in window
-- `Retry-After` — seconds to wait (on 429)
+5. Load-test below the approved ceiling, simulate `429` and `503`, and verify recovery without duplicate writes or unbounded backlog.
 
-### Step 2: Implement Retry with Backoff (Python)
+## Tool Discipline
 
-```python
-import time
-import random
-import foundry
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-def retry_foundry_call(fn, *args, max_retries=5, base_delay=1.0, **kwargs):
-    """Retry Foundry API calls with jittered exponential backoff."""
-    for attempt in range(max_retries + 1):
-        try:
-            return fn(*args, **kwargs)
-        except foundry.ApiError as e:
-            if attempt == max_retries:
-                raise
-            if e.status_code not in (429, 500, 502, 503):
-                raise  # Non-retryable error
-            delay = base_delay * (2 ** attempt) + random.uniform(0, 0.5)
-            retry_after = getattr(e, "retry_after", None)
-            if retry_after:
-                delay = max(delay, float(retry_after))
-            print(f"  Retry {attempt+1}/{max_retries} in {delay:.1f}s (HTTP {e.status_code})")
-            time.sleep(delay)
+## Approval Boundaries
 
-# Usage
-employees = retry_foundry_call(
-    client.ontologies.OntologyObject.list,
-    ontology="my-company", object_type="Employee", page_size=100,
-)
-```
-
-### Step 3: Request Queue for Batch Operations
-
-```python
-import asyncio
-from collections import deque
-
-class FoundryRateLimiter:
-    """Token bucket rate limiter for batch Foundry operations."""
-    def __init__(self, max_per_second: int = 50):
-        self.max_per_second = max_per_second
-        self.tokens = max_per_second
-        self._last_refill = time.monotonic()
-
-    def _refill(self):
-        now = time.monotonic()
-        elapsed = now - self._last_refill
-        self.tokens = min(self.max_per_second, self.tokens + elapsed * self.max_per_second)
-        self._last_refill = now
-
-    def acquire(self):
-        self._refill()
-        if self.tokens < 1:
-            wait = (1 - self.tokens) / self.max_per_second
-            time.sleep(wait)
-            self._refill()
-        self.tokens -= 1
-
-limiter = FoundryRateLimiter(max_per_second=40)  # 80% of limit
-
-def rate_limited_call(fn, *args, **kwargs):
-    limiter.acquire()
-    return retry_foundry_call(fn, *args, **kwargs)
-```
-
-### Step 4: Batch Operations with Rate Limiting
-
-```python
-def batch_update_objects(client, ontology, action_type, items, batch_size=10):
-    """Apply actions in rate-limited batches."""
-    results = []
-    for i in range(0, len(items), batch_size):
-        batch = items[i:i+batch_size]
-        for item in batch:
-            result = rate_limited_call(
-                client.ontologies.Action.apply,
-                ontology=ontology,
-                action_type=action_type,
-                parameters=item,
-            )
-            results.append({"item": item, "status": result.validation})
-        print(f"  Processed {min(i+batch_size, len(items))}/{len(items)}")
-    return results
-```
+Application owners approve budgets and degradation; platform owners approve load tests; data owners approve any write retry or batch behavior. Creating principals to bypass limits is prohibited.
 
 ## Output
 
-- Automatic retry on 429/5xx with exponential backoff
-- Token bucket rate limiter for batch operations
-- Rate-limited batch processing for bulk updates
+A principal-level request inventory, endpoint budgets, concurrency and queue design, retry matrix, idempotency rules, test evidence, alert thresholds, and support escalation criteria.
 
 ## Error Handling
 
-| HTTP Code | Meaning | Action |
-|-----------|---------|--------|
-| 429 | Rate limited | Wait `Retry-After` seconds, then retry |
-| 500 | Server error | Retry with backoff |
-| 502/503 | Gateway error | Retry with backoff |
-| 400/403/404 | Client error | Do not retry — fix the request |
+| Condition | Response |
+|---|---|
+| A non-retryable 4xx is retried | Stop and route it to validation, authentication, authorization, or resource triage. |
+| Queue age exceeds the service objective | Reject or degrade work according to policy instead of accumulating unbounded backlog. |
+| Retries duplicate a write | Disable automatic retry until idempotency or reconciliation is proven. |
+| Throttling persists below the expected budget | Check shared-principal traffic and endpoint limits, preserve request IDs, and contact Palantir Support. |
+
+## Examples
+
+### Example 1
+
+Coordinate several workers under one client-credentials service user with a shared semaphore, bounded queue, capped jittered backoff, and metrics for `429`, `503`, in-flight requests, and queue age.
+
+### Example 2
+
+Make an object reader cheaper and safer by selecting required properties, paging deterministically, cancelling expired work, and lowering concurrency before increasing retries.
+
+## Validation
+
+- Request and concurrency budgets are enforced across all users of the principal.
+- Retry attempts and elapsed time have hard bounds.
+- Write operations are idempotent or reconciled before retry.
+- Load tests recover from throttling without a storm or duplicate side effects.
+- Alerts identify principal, endpoint, queue age, and request IDs without exposing tokens.
 
 ## Resources
 
-- [Foundry API Reference](https://www.palantir.com/docs/foundry/api/general/overview/introduction)
-- [Authentication Guide](https://www.palantir.com/docs/foundry/api/general/overview/authentication)
-
-## Next Steps
-
-For security best practices, see `palantir-security-basics`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

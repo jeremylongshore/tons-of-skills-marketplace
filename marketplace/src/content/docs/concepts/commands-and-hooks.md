@@ -14,11 +14,11 @@ keywords:
   - "CLAUDE_PLUGIN_ROOT"
 officialLinks:
   - title: "Claude Code Custom Slash Commands"
-    url: "https://docs.anthropic.com/en/docs/claude-code/slash-commands"
+    url: "https://code.claude.com/docs/en/slash-commands"
   - title: "Claude Code Hooks"
-    url: "https://docs.anthropic.com/en/docs/claude-code/hooks"
+    url: "https://code.claude.com/docs/en/hooks"
   - title: "Claude Code Plugins Overview"
-    url: "https://docs.anthropic.com/en/docs/claude-code/plugins"
+    url: "https://code.claude.com/docs/en/plugins"
 relatedDocs:
   - "concepts/plugins"
   - "concepts/skills"

@@ -1,241 +1,88 @@
 ---
 name: canva-architecture-variants
-description: 'Choose and implement Canva Connect API architecture blueprints for different
-  scales.
-
-  Use when designing new Canva integrations, choosing between monolith/service/microservice
-
-  architectures, or planning migration paths.
-
-  Trigger with phrases like "canva architecture", "canva blueprint",
-
-  "how to structure canva", "canva project layout", "canva microservice".
-
-  '
-allowed-tools: Read, Grep
-version: 1.5.0
+description: 'Choose a Canva Connect integration architecture from explicit trust, workload, and recovery constraints. Use when deciding between a backend monolith, service plus workers, or isolated multi-tenant services. Trigger with: "design Canva architecture", "scale Canva integration", "choose Canva topology".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[constraints-and-scale-profile]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - architecture
+  - operations
+compatibility: 'Architecture choices require a backend web application because Canva Connect secrets cannot be secured in browser-only clients.'
 ---
-# Canva Architecture Variants
+
+# Canva Architecture Decision
 
 ## Overview
 
-Three validated architecture patterns for Canva Connect API integrations. All use the REST API at `api.canva.com/rest/v1/*` with OAuth 2.0 PKCE tokens. The key architectural decision is how to handle token storage, async operations (exports, autofills), and rate limit management.
+Select the smallest topology that preserves backend OAuth, per-user token isolation, asynchronous job reconciliation, and policy-controlled data handling. Treat scale thresholds as measured local evidence, not Canva product limits.
 
 ## Prerequisites
 
-- A reviewed OAuth/asset authorization model, protected secrets/data stores, current provider constraints, and a named operations owner.
-- Mocked tests and a synthetic-asset integration environment for evaluating variants without using customer designs.
+- Expected operations, traffic shape, tenants, and recovery objectives
+- Data classification, retention policy, and secret backend
+- Current scopes, capabilities, preview dependencies, and deployment constraints
 
 ## Instructions
 
-1. Select a variant based on declared tenant isolation, data classification, operational SLOs, and expected export/async workload—not only implementation convenience.
-2. Place authorization, input validation, idempotency, rate/cost limits, and redacted audit logging in front of the Canva adapter in every variant.
-3. Test the chosen variant with synthetic assets, verify failure/rollback behavior, and record the approved scope before production rollout.
+### Step 1: Map trust boundaries
 
-## Variant A: Monolith (Simple)
+Identify browser, backend, token store, job ledger, worker, data store, and Canva API boundaries. Mark every place customer content or credentials could cross.
 
-**Best for:** MVPs, small teams, < 100 Canva users
+### Step 2: Choose the base shape
 
-```
-my-app/
-├── src/
-│   ├── canva/
-│   │   ├── client.ts          # REST client with auto-refresh
-│   │   ├── auth.ts            # OAuth PKCE flow
-│   │   └── types.ts
-│   ├── routes/
-│   │   ├── auth.ts            # OAuth callback
-│   │   └── designs.ts         # Design CRUD
-│   ├── store/
-│   │   └── tokens.ts          # SQLite/file token store
-│   └── index.ts
-```
+Use a backend monolith for one bounded service, a service plus worker when asynchronous jobs must outlive requests, or isolated services only when ownership and failure domains justify them.
 
-```typescript
-// Direct API calls in route handlers
-app.post('/api/designs', async (req, res) => {
-  const canva = getClientForUser(req.user.id);
+### Step 3: Design token rotation
 
-  const { design } = await canva.request('/designs', {
-    method: 'POST',
-    body: JSON.stringify({
-      design_type: { type: 'custom', width: 1080, height: 1080 },
-      title: req.body.title,
-    }),
-  });
+Serialize refresh per Canva user, atomically replace the single-use refresh token, and separate access-token and refresh-token storage.
 
-  res.json({ designId: design.id, editUrl: design.urls.edit_url });
-});
-```
+### Step 4: Design job reconciliation
 
-**Pros:** Fast to build, simple token management, easy to debug.
-**Cons:** Synchronous exports block requests, no job queue for autofills.
+Persist opaque job identity before dispatch, poll with bounded backoff, and reconcile terminal state before repeating a mutating operation.
 
----
+### Step 5: Design policy enforcement
 
-## Variant B: Service Layer (Moderate)
+Resolve tenant, resource, explicit scope, capability, preview status, and data policy before dispatch rather than inside a generic HTTP client.
 
-**Best for:** Growing apps, 100-1,000 users, multiple Canva features
+### Step 6: Record the decision
 
-```
-my-app/
-├── src/
-│   ├── canva/
-│   │   ├── client.ts
-│   │   └── auth.ts
-│   ├── services/
-│   │   ├── design.service.ts   # Business logic + caching
-│   │   ├── export.service.ts   # Async export with polling
-│   │   ├── asset.service.ts    # Upload management
-│   │   └── template.service.ts # Autofill orchestration
-│   ├── queue/
-│   │   └── export-worker.ts    # Background export processing
-│   ├── routes/
-│   └── store/
-│       └── tokens.ts           # PostgreSQL encrypted tokens
-```
+Use Write or Edit to capture selected shape, rejected alternatives, assumptions, failure modes, rollback, and validation evidence.
 
-```typescript
-// Service layer handles caching, retry, and async operations
-class ExportService {
-  constructor(
-    private canva: CanvaClient,
-    private cache: Redis,
-    private queue: Bull.Queue
-  ) {}
+## Authentication
 
-  async exportDesign(designId: string, format: object): Promise<string> {
-    // Check cache for recent export
-    const cached = await this.cache.get(`export:${designId}:${JSON.stringify(format)}`);
-    if (cached) return cached;
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-    // Queue export job — don't block the request
-    const job = await this.queue.add('canva-export', { designId, format });
-    return job.id;
-  }
-}
+## Tool Discipline
 
-// Background worker polls Canva export API
-exportQueue.process('canva-export', async (job) => {
-  const { designId, format } = job.data;
-  const canva = await getServiceClient();
-
-  const { job: exportJob } = await canva.request('/exports', {
-    method: 'POST',
-    body: JSON.stringify({ design_id: designId, format }),
-  });
-
-  // Poll for completion
-  let result = exportJob;
-  while (result.status === 'in_progress') {
-    await new Promise(r => setTimeout(r, 2000));
-    const poll = await canva.request(`/exports/${result.id}`);
-    result = poll.job;
-  }
-
-  return result.status === 'success' ? result.urls : null;
-});
-```
-
-**Pros:** Non-blocking exports, caching, separation of concerns.
-**Cons:** More infrastructure (Redis, job queue), more complex deployment.
-
----
-
-## Variant C: Microservice (Enterprise)
-
-**Best for:** 1,000+ users, multi-team, strict SLAs, Canva Enterprise with autofill
-
-```
-canva-service/                # Dedicated microservice
-├── src/
-│   ├── api/
-│   │   └── grpc/             # Internal gRPC API
-│   ├── canva/
-│   │   ├── client.ts
-│   │   └── auth.ts
-│   ├── services/
-│   ├── workers/
-│   │   ├── export.worker.ts
-│   │   ├── autofill.worker.ts
-│   │   └── webhook.worker.ts
-│   └── store/
-│       └── tokens.ts         # Vault-backed token storage
-├── k8s/
-│   ├── deployment.yaml
-│   ├── service.yaml
-│   └── hpa.yaml              # Scale based on queue depth
-```
-
-**Key differences:**
-
-- Dedicated service owns all Canva API interaction
-- gRPC for internal services, REST for external
-- Separate workers for exports, autofills, webhooks
-- Circuit breaker per operation type
-- Token storage in HashiCorp Vault or KMS
-- HPA scales based on export queue depth
-
----
-
-## Decision Matrix
-
-| Factor | Monolith | Service Layer | Microservice |
-|--------|----------|---------------|--------------|
-| Users | < 100 | 100-1,000 | 1,000+ |
-| Team Size | 1-3 | 3-10 | 10+ |
-| Export Volume | < 100/day | 100-2,000/day | 2,000-5,000/day |
-| Canva Tier | Free/Pro | Pro/Teams | Enterprise |
-| Infrastructure | Single server | App + Redis + queue | Kubernetes |
-| Time to Build | 1-2 days | 1-2 weeks | 2-4 weeks |
-
-## Migration Path
-
-```
-Monolith → Service Layer:
-1. Extract canva/ to services/
-2. Add Redis for caching
-3. Add BullMQ for async exports
-4. Move token store to PostgreSQL
-
-Service Layer → Microservice:
-1. Create canva-service repository
-2. Define gRPC contract
-3. Add per-operation workers
-4. Deploy to Kubernetes
-5. Migrate token store to Vault
-```
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-The architecture decision records the chosen variant, scope, authorization/data boundaries, resilience controls, test evidence, and rollback path. It excludes tokens, design contents, signed URLs, and tenant-identifying configuration values.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-For a multi-tenant export product, choose the variant that isolates tenant credentials and queues, validate a synthetic export with a policy-resolved asset, and document its rate/cost and recovery behavior. Reject a variant that requires exposing a token or sharing customer design data to meet its operational goal.
+A service exports designs asynchronously for multiple tenants. A backend owns OAuth and policy, a durable ledger owns job identity, and workers are partitioned by tenant without embedding user IDs in metrics.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Over-engineering | Wrong variant | Start simpler, migrate when needed |
-| Export blocking requests | No job queue (Variant A) | Queue with BullMQ |
-| Token management complex | Multi-user | Use factory pattern per user |
-| Integration export quota | > 5,000/day | Contact Canva for increase |
+| Failure | Response |
+| --- | --- |
+| Browser-only design proposed | Reject it because client secrets and token exchange require a backend |
+| Workers can double-submit | Add durable identity and reconciliation before scaling |
+| Topology chosen by guessed volume | Measure queue and failure behavior first |
+| Preview dependency blocks review | Separate or disable that feature for the public release |
 
 ## Resources
 
-- [Canva Starter Kit](https://github.com/canva-sdks/canva-connect-api-starter-kit)
-- Canva API Reference
-- [Monolith First](https://martinfowler.com/bliki/MonolithFirst.html)
-
-## Next Steps
-
-For common anti-patterns, see `canva-known-pitfalls`.
+- [First-party source notes](references/official-docs.md)
+- [Connect security](https://www.canva.dev/docs/connect/guidelines/security/)
+- [Authentication](https://www.canva.dev/docs/connect/authentication/)

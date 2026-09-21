@@ -1,274 +1,75 @@
 ---
 name: assemblyai-common-errors
-description: 'Diagnose and fix AssemblyAI common errors and exceptions.
-
-  Use when encountering AssemblyAI errors, debugging failed transcriptions,
-
-  or troubleshooting streaming and LeMUR issues.
-
-  Trigger with phrases like "assemblyai error", "fix assemblyai",
-
-  "assemblyai not working", "debug assemblyai", "transcription failed".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.5.0
+description: >-
+  Analyze and triage AssemblyAI REST, transcript, Streaming v3, webhook, and LLM Gateway failures without leaking customer content. Use when an integration errors or stalls. Trigger with "AssemblyAI error" or "failed transcript".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<request-or-transcript-id> <environment>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ai
-- speech-to-text
-- assemblyai
-- transcription
-compatibility: Designed for Claude Code
+tags: [saas, assemblyai]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live AssemblyAI work requires network access"
 ---
-# AssemblyAI Common Errors
+# AssemblyAI Failure Triage
 
 ## Overview
 
-Quick reference for the most common AssemblyAI errors across transcription, streaming, and LeMUR APIs with real error messages and solutions.
-
-## Scope and Safety
-
-Troubleshoot only the transcript, streaming session, or request identifier already placed in scope. Treat audio URLs, transcript text, prompts, and authorization headers as sensitive. Use redacted request metadata and official status information; never paste API keys into terminal commands, tickets, or chat.
+Analyze and triage failures by contract layer without exposing customer speech. Treat live data, credentials, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- `assemblyai` package installed
-- API key configured
-- Access to application logs or console
+- The target repository or integration path and the requested operator outcome.
+- The AssemblyAI project, environment, region, data classification, and accountable owner.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Transport status, transcript terminal status, WebSocket messages or close codes, webhook response behavior, and gateway results are separate failure layers. A 429 can represent shared account request or concurrency pressure; more keys do not multiply account capacity.
+
+## Authentication
+
+For live work, inject `ASSEMBLYAI_API_KEY` from an approved secret manager and send the raw value only in the AssemblyAI `Authorization` header to the configured first-party host. Never print, commit, place in a URL, or expose it to an untrusted client. Callback secrets and temporary streaming tokens are separate credentials.
 
 ## Instructions
 
-### Error 1: Authentication Failed
+1. Capture environment, region, operation, safe ID, timestamp, and last state.
+2. Separate network, auth, validation, quota, processing, streaming, callback, and gateway failures.
+3. Reproduce with synthetic input whenever possible.
+4. Compare model and parameters to current mode-specific docs.
+5. Collect only safe status, code, timing, and request metadata.
+6. Classify retry, input correction, capacity action, or escalation.
 
-```
-Error: Authentication error: Invalid API key
-Status: 401
-```
+## Tool Discipline
 
-**Cause:** API key is missing, invalid, or revoked.
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call AssemblyAI, upload audio, open a streaming session, mint a token, replay a callback, deploy, rotate a key, or delete a transcript merely because this skill was invoked.
 
-**Solution:**
+## Approval Boundaries
 
-```bash
-# Test directly without printing the key; load the header from a protected file
-# or use the SDK in a local developer session.
-curl --config <(printf '%s\n' "header = Authorization: $ASSEMBLYAI_API_KEY") \
-  https://api.assemblyai.com/v2/transcript \
-  -X GET
-```
+Require an accountable owner before live audio processing, production credential or endpoint changes, paid model or capacity changes, content retention, callback replay, deployment, or deletion. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
----
+## Failure Modes
 
-### Error 2: Transcription Status Error
-
-```json
-{ "status": "error", "error": "Download error: unable to download..." }
-```
-
-**Cause:** The `audio` URL is not publicly accessible, has expired, or returned non-audio content.
-
-**Solution:**
-
-```typescript
-// Verify URL is accessible
-const response = await fetch(audioUrl, { method: 'HEAD' });
-console.log('Content-Type:', response.headers.get('content-type'));
-console.log('Status:', response.status);
-// Content-Type should be audio/* or video/*
-
-// For private files, upload directly
-const transcript = await client.transcripts.transcribe({
-  audio: './local-file.mp3',  // SDK handles upload
-});
-```
-
----
-
-### Error 3: Could Not Process Audio
-
-```json
-{ "status": "error", "error": "Audio file could not be processed" }
-```
-
-**Cause:** Corrupted file, unsupported codec, file too short (<200ms), or audio is entirely silent.
-
-**Solution:**
-
-```bash
-# Check file with ffprobe
-ffprobe -v quiet -print_format json -show_format -show_streams input.mp3
-
-# Convert to a known-good format
-ffmpeg -i input.unknown -ar 16000 -ac 1 -f wav output.wav
-```
-
----
-
-### Error 4: Rate Limit Exceeded
-
-```
-Error: Rate limit exceeded
-Status: 429
-Header: Retry-After: 30
-```
-
-**Cause:** Too many concurrent requests. Free tier: 5 streams/min. Paid: 100 streams/min (auto-scales).
-
-**Solution:**
-
-```typescript
-import { AssemblyAI } from 'assemblyai';
-
-async function transcribeWithBackoff(audioUrl: string, retries = 3) {
-  const client = new AssemblyAI({ apiKey: process.env.ASSEMBLYAI_API_KEY! });
-
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      return await client.transcripts.transcribe({ audio: audioUrl });
-    } catch (err: any) {
-      if (err.status !== 429 || attempt === retries) throw err;
-      const delay = Math.pow(2, attempt) * 1000 + Math.random() * 500;
-      console.warn(`Rate limited. Retrying in ${delay.toFixed(0)}ms...`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-}
-```
-
----
-
-### Error 5: Streaming WebSocket Errors
-
-```
-WebSocket error: 4001 Not Authorized
-WebSocket error: 4008 Session limit reached
-WebSocket error: 4100 Endpoint not found
-```
-
-| Code | Meaning | Solution |
-|------|---------|----------|
-| `4001` | Bad API key or expired token | Refresh token via `client.streaming.createTemporaryToken()` |
-| `4008` | Max concurrent streams reached | Wait for existing streams to close |
-| `4100` | Wrong WebSocket URL | Use `wss://api.assemblyai.com/v2/realtime/ws` |
-| `4010` | Audio too short/no speech | Ensure microphone is capturing audio |
-
----
-
-### Error 6: LeMUR Errors
-
-```json
-{ "error": "Transcript not found" }
-{ "error": "Input text exceeds maximum length" }
-```
-
-**Cause:** Invalid `transcript_ids` or total audio exceeds 100-hour limit.
-
-**Solution:**
-
-```typescript
-// Verify transcript exists before LeMUR call
-const transcript = await client.transcripts.get(transcriptId);
-if (transcript.status !== 'completed') {
-  throw new Error(`Transcript ${transcriptId} status: ${transcript.status}`);
-}
-
-// For large inputs, chunk transcript_ids
-const chunks = [];
-for (let i = 0; i < transcriptIds.length; i += 10) {
-  chunks.push(transcriptIds.slice(i, i + 10));
-}
-for (const chunk of chunks) {
-  const { response } = await client.lemur.task({
-    transcript_ids: chunk,
-    prompt: 'Summarize key points.',
-  });
-}
-```
-
----
-
-### Error 7: Unsupported Language
-
-```json
-{ "status": "error", "error": "Language not supported" }
-```
-
-**Cause:** Specified `language_code` is not available for the selected model.
-
-**Solution:**
-
-```typescript
-// Use automatic language detection (recommended)
-const transcript = await client.transcripts.transcribe({
-  audio: audioUrl,
-  language_detection: true,  // Auto-detect from 99+ languages
-});
-
-console.log('Detected language:', transcript.language_code);
-```
-
----
-
-### Error 8: Word Boost Not Working
-
-**Symptom:** Custom terms are still transcribed incorrectly despite `word_boost`.
-
-**Solution:**
-
-```typescript
-const transcript = await client.transcripts.transcribe({
-  audio: audioUrl,
-  word_boost: ['LeMUR', 'AssemblyAI', 'Nova-3'],  // Max 1000 terms
-  boost_param: 'high',  // 'low' | 'default' | 'high'
-  speech_model: 'best',  // Word boost works with Best model tier
-});
-```
-
-## Quick Diagnostic Commands
-
-```bash
-# Check API status
-curl -s https://status.assemblyai.com/api/v2/status.json | jq '.status.description'
-
-# Test API connectivity
-curl -s -o /dev/null -w "%{http_code}" \
-  -H "Authorization: $ASSEMBLYAI_API_KEY" \
-  https://api.assemblyai.com/v2/transcript
-
-# Check installed SDK version
-npm list assemblyai
-
-# Verify env variable
-node -e "console.log(process.env.ASSEMBLYAI_API_KEY ? 'SET' : 'NOT SET')"
-```
-
-## Error Handling
-
-| Error | HTTP Code | Retryable | Action |
-|-------|-----------|-----------|--------|
-| Auth error | 401 | No | Fix API key |
-| Not found | 404 | No | Check transcript ID |
-| Rate limit | 429 | Yes | Exponential backoff |
-| Server error | 500-503 | Yes | Retry after delay |
-| Download error | N/A | Maybe | Check audio URL accessibility |
+- Repeated 401 responses need credential-owner review, not logging the key.
+- Terminal transcript errors are not fixed by infinite polling.
+- Streaming reconnects must not overwrite the prior session.
 
 ## Output
 
-Diagnosis returns a redacted status code/category, request or transcript identifier where available, retry decision, and next owner action. It excludes API keys, signed audio URLs, transcript text, and LeMUR prompts.
+Return the operation scope, environment, region, contract surface, authorization class, model and feature decisions, deterministic validation results, content-free identifiers, risks, cleanup or rollback state, and a concise pass/fail receipt. Exclude credentials, signed URLs, audio, transcript text, prompts, and customer-derived content.
 
-## Examples
+## Example
 
-For a 429, record the `Retry-After` value and the opaque workload key, pause further submissions, then retry only after the specified interval and a bounded backoff. For a 401, stop retries, rotate or replace the secret through the approved manager, and verify with the SDK without exposing the credential.
+- Start with the named environment, approved regional host, synthetic fixture identity, and bounded operation budget.
+- Finish with safe IDs, contract and assertion counts, terminal state, cleanup status, and the decision owner; never reproduce speech content.
 
-## Resources
+## Validation
 
-- [AssemblyAI Status Page](https://status.assemblyai.com)
-- [AssemblyAI API Error Codes](https://www.assemblyai.com/docs/api-reference/overview)
-- [AssemblyAI Support](https://support.assemblyai.com)
+Rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm rollback, termination, or deletion state before reporting success.
 
-## Next Steps
+## References
 
-For comprehensive debugging, see `assemblyai-debug-bundle`.
+Review the dated first-party evidence map before relying on any model, parameter, limit, price, region, or lifecycle claim.
+
+- [Current first-party evidence map](references/official-docs.md)

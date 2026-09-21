@@ -1,208 +1,81 @@
 ---
 name: alchemy-performance-tuning
-description: 'Optimize Alchemy SDK performance with caching, batching, and multi-chain
-  parallelism.
-
-  Use when reducing latency for blockchain queries, optimizing CU consumption,
-
-  or scaling dApps for high request volumes.
-
-  Trigger: "alchemy performance", "alchemy slow", "alchemy optimization",
-
-  "alchemy caching", "alchemy batch requests".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*)
-version: 1.5.0
+description: >-
+  Tune Alchemy-backed reads with measured latency, cache semantics, batching, concurrency, and freshness SLOs. Use when an integration is slow or wasteful. Trigger with "optimize Alchemy performance", "cache Alchemy data", or "reduce Alchemy latency".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<endpoint-class> <freshness-slo> <traffic-shape>"
+version: 2.0.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- blockchain
-- web3
-- alchemy
-- performance
-compatibility: Designed for Claude Code
+tags: [saas, alchemy, performance, caching]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Alchemy access requires network access, an appropriate credential, account capacity, and explicit approval"
 ---
-# Alchemy Performance Tuning
+# Alchemy Performance and Freshness Tuning
 
 ## Overview
 
-Optimize a Web3 application's response time and provider use through
-freshness-aware caching, bounded parallelism, batching, and real-time
-subscriptions. Measure improvements against an approved baseline rather than
-assuming fewer calls always preserves correct chain state.
-
-## Performance Targets
-
-| Operation | Target Latency | CU Cost |
-|-----------|---------------|---------|
-| `getBlockNumber` | < 50ms | 10 |
-| `getBalance` | < 100ms | 19 |
-| `getTokenBalances` | < 200ms | 50 |
-| `getNftsForOwner` | < 300ms | 50 |
-| `getAssetTransfers` | < 500ms | 150 |
-| Multi-chain portfolio | < 2s | ~400 |
+Tune Alchemy-backed reads with measured latency, cache semantics, batching, concurrency, and freshness SLOs. This workflow produces a reviewable artifact and negative-path evidence before any live side effect.
 
 ## Prerequisites
 
-- A representative, non-sensitive benchmark workload with baseline latency,
-  cache-hit, error-rate, and compute-unit measurements.
-- An explicit freshness policy for balances, blocks, transfers, ownership, and
-  metadata, approved by the product owner.
-- Monitoring and a rollback flag that can disable cache, batching, or WebSocket
-  changes if correctness or provider behavior regresses.
+- Current first-party Alchemy documentation for the selected product, chain, feature, client, authentication method, limit, and lifecycle.
+- Named product, application, security, data/privacy, budget, release, and operations owners appropriate to the requested scope.
+- Synthetic or approved non-production fixtures, a credential canary, explicit success criteria, and a tested rollback boundary.
+
+## Current Contract
+
+Performance depends on endpoint family, chain, response size, pagination, account throughput, region, cache state, and application work. There is no universal latency or batch-size guarantee. Optimization must preserve chain context, finality, partial-error semantics, and the product's freshness contract.
+
+## Authentication
+
+Telemetry may include key identifiers, wallet addresses, or request metadata; log only approved low-cardinality fields and never credential-bearing URLs or full user payloads.
 
 ## Instructions
 
-### Step 1: Response Caching with TTL
+1. Define endpoint-specific latency, completeness, freshness, and cost SLOs plus the user-visible degraded state.
+2. Measure an approved baseline by chain, method, payload/page size, cache state, and concurrency; record percentiles rather than a single average.
+3. Remove duplicate calls, bound pagination, choose current batch endpoints only where their documented semantics match, and cap concurrency below the shared account budget.
+4. Cache immutable block-scoped data longer than head-sensitive data; include chain, method, normalized parameters, block/finality context, and schema version in keys.
+5. Propagate partial failures and staleness metadata through caches; never cache a degraded result as complete success.
+6. Load-test the proposed envelope, compare against baseline, prove invalidation and rollback, then promote with telemetry and stop thresholds.
 
-```typescript
-// src/performance/cache.ts
-import { Alchemy, Network } from 'alchemy-sdk';
+## Tool Discipline
 
-class BlockchainCache {
-  private store = new Map<string, { data: any; expiry: number }>();
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, wallet addresses, customer data, plan changes, spend, key creation or rotation, webhook changes, deployment, replay, transaction construction, signing, broadcast, or deletion.
 
-  // Different TTLs for different data freshness needs
-  private TTL: Record<string, number> = {
-    blockNumber: 12000,     // 12s (~1 block)
-    balance: 30000,         // 30s
-    tokenBalances: 60000,   // 60s
-    nftOwnership: 300000,   // 5 min (NFTs transfer less frequently)
-    contractMetadata: 3600000, // 1 hour (rarely changes)
-    tokenMetadata: 86400000,   // 24 hours (almost never changes)
-  };
+## Approval Boundaries
 
-  async cached<T>(category: string, key: string, fetcher: () => Promise<T>): Promise<T> {
-    const cacheKey = `${category}:${key}`;
-    const entry = this.store.get(cacheKey);
-    if (entry && entry.expiry > Date.now()) return entry.data;
-
-    const data = await fetcher();
-    this.store.set(cacheKey, { data, expiry: Date.now() + (this.TTL[category] || 30000) });
-    return data;
-  }
-
-  invalidate(category: string): void {
-    for (const key of this.store.keys()) {
-      if (key.startsWith(`${category}:`)) this.store.delete(key);
-    }
-  }
-}
-
-const cache = new BlockchainCache();
-export { cache };
-```
-
-### Step 2: Parallel Multi-Chain Fetching
-
-```typescript
-// src/performance/parallel-fetch.ts
-import { Alchemy, Network } from 'alchemy-sdk';
-import { cache } from './cache';
-
-const CHAINS = [
-  { name: 'ethereum', network: Network.ETH_MAINNET },
-  { name: 'polygon', network: Network.MATIC_MAINNET },
-  { name: 'arbitrum', network: Network.ARB_MAINNET },
-  { name: 'base', network: Network.BASE_MAINNET },
-];
-
-async function multiChainBalance(address: string) {
-  const results = await Promise.allSettled(
-    CHAINS.map(chain =>
-      cache.cached('balance', `${chain.name}:${address}`, async () => {
-        const client = new Alchemy({ apiKey: process.env.ALCHEMY_API_KEY, network: chain.network });
-        const bal = await client.core.getBalance(address);
-        return { chain: chain.name, balance: (parseInt(bal.toString()) / 1e18).toFixed(6) };
-      })
-    )
-  );
-
-  return results
-    .filter((r): r is PromiseFulfilledResult<any> => r.status === 'fulfilled')
-    .map(r => r.value);
-}
-```
-
-### Step 3: Batch NFT Metadata (Reduce CU)
-
-```typescript
-// src/performance/batch-nft.ts
-import { Alchemy, Network } from 'alchemy-sdk';
-
-const alchemy = new Alchemy({ apiKey: process.env.ALCHEMY_API_KEY, network: Network.ETH_MAINNET });
-
-// SLOW: Individual calls = 50 CU each
-// async function slowGetMetadata(tokens) {
-//   return Promise.all(tokens.map(t => alchemy.nft.getNftMetadata(t.contract, t.tokenId)));
-// }
-
-// FAST: Batch call = 50 CU total for up to 100 tokens
-async function fastGetMetadata(tokens: Array<{ contractAddress: string; tokenId: string }>) {
-  return alchemy.nft.getNftMetadataBatch(tokens);
-}
-```
-
-### Step 4: WebSocket for Real-Time Data
-
-```typescript
-// src/performance/realtime.ts
-import { Alchemy, AlchemySubscription, Network } from 'alchemy-sdk';
-
-const alchemy = new Alchemy({ apiKey: process.env.ALCHEMY_API_KEY, network: Network.ETH_MAINNET });
-
-// Use WebSocket subscriptions instead of polling
-function watchAddress(address: string, onActivity: (tx: any) => void) {
-  alchemy.ws.on(
-    {
-      method: AlchemySubscription.PENDING_TRANSACTIONS,
-      toAddress: address,
-    },
-    (tx) => onActivity(tx)
-  );
-}
-
-// Auto-reconnect on disconnect
-alchemy.ws.on('close', () => {
-  console.log('WebSocket disconnected — reconnecting in 5s');
-  setTimeout(() => alchemy.ws.connect(), 5000);
-});
-```
-
-## Output
-
-- TTL-based response cache matching data freshness requirements
-- Parallel multi-chain fetching (4 chains in < 2s)
-- Batch NFT metadata (100x CU reduction)
-- WebSocket subscriptions replacing polling
-
-## Examples
-
-Benchmark a public test address across the four listed networks before and
-after enabling the balance cache. Confirm the cached run reduces provider calls
-while its displayed data never exceeds the approved 30-second freshness window,
-and verify a single failed chain remains visibly unavailable rather than
-silently omitted. Next, send a small synthetic NFT list through the batch path
-and compare response count with individual calls. If cache age, error rate, or
-WebSocket reconnect behavior violates the defined threshold, disable that
-optimization using the rollback flag and investigate from aggregate metrics.
+Product owns freshness and degraded UX; operations owns capacity and stop thresholds; privacy owns cached address data. Increasing spend or retention requires explicit approval.
 
 ## Error Handling
 
-| Failure | Response |
-|---------|----------|
-| Cache entry exceeds its freshness policy | Invalidate it and refresh from the provider before rendering a result. |
-| One chain query fails | Preserve successful-chain results and surface an explicit unavailable state for the failed chain. |
-| WebSocket repeatedly disconnects | Use bounded reconnect backoff, alert on sustained failure, and fall back to rate-limited polling. |
-| Batch call partially fails | Keep successful results, retry only eligible failed items, and respect the provider limit. |
+- Do not optimize by dropping failed networks, pages, or assets without declaring incompleteness.
+- Do not cache `latest` as though it were immutable; attach an observed block/finality context.
+- If an optimization worsens tail latency, error rate, freshness, or compute usage beyond threshold, roll it back.
+
+## Output
+
+Return the SLOs, segmented baseline, call graph, cache/batch/concurrency design, partial/stale state contract, load results, telemetry, stop thresholds, and rollback receipt. Mark assumptions, observations, source dates, environment-specific behavior, owners, and unresolved gaps explicitly.
+
+## Examples
+
+- Cache token metadata by chain and contract while refreshing head-sensitive balances under a shorter product-approved freshness SLO.
+- Reject a faster multi-chain result when it hides one network's `partialErrors` and therefore violates completeness semantics.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- cold cache
+- warm cache
+- stale invalidation
+- multi-page response
+- partial failure through cache
+- load rollback threshold
 
 ## Resources
 
-- [Alchemy Compute Units](https://www.alchemy.com/docs/reference/compute-unit-costs)
-- Alchemy WebSockets
-
-## Next Steps
-
-For cost optimization, see `alchemy-cost-tuning`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Alchemy sources before execution.
+- Treat observed account, application, network, indexer, chain, or provider behavior as environment-specific evidence, never a universal guarantee.

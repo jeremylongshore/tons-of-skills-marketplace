@@ -1,173 +1,91 @@
 ---
 name: cohere-install-auth
-description: 'Install and configure Cohere SDK authentication with API v2.
-
-  Use when setting up a new Cohere integration, configuring API keys,
-
-  or initializing the CohereClientV2 in your project.
-
-  Trigger with phrases like "install cohere", "setup cohere",
-
-  "cohere auth", "configure cohere API key".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.5.0
-license: MIT
+description: >-
+  Install current Cohere v2 SDKs, store an API key safely, and verify access without spending inference tokens. Use when connecting a repository or runtime to Cohere. Trigger with "Cohere auth", "install Cohere SDK", or "CO_API_KEY setup".
+argument-hint: "[repository-path] [typescript|python|rest]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ai
-- nlp
 - cohere
-compatibility: Designed for Claude Code
+- authentication
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Cohere API key
 ---
-# Cohere Install & Auth
+# Cohere Installation and Authentication
 
 ## Overview
 
-Set up the Cohere SDK (v2) and configure authentication for Chat, Embed, Rerank, and Classify endpoints.
+Select the current v2 client for the repository, keep credentials outside source control, and prove access with a read-only Models API request.
 
 ## Prerequisites
 
-- Node.js 18+ or Python 3.10+
-- Package manager (npm, pnpm, or pip)
-- Cohere account at [dashboard.cohere.com](https://dashboard.cohere.com)
-- API key from Cohere dashboard (trial keys are free, production keys require billing)
+- The target repository, runtime, environment, and accountable owner
+- An approved Cohere team and key for any live verification
+- Current quality, security, privacy, capacity, and change-control requirements
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current Cohere primary documentation. Use `Write` or `Edit` only when the user requested implementation and the exact target files are known; never write credentials or customer content.
+
+## Current Contract
+
+- TypeScript uses `CohereClientV2`; Python uses `cohere.ClientV2`.
+- Use `CO_API_KEY` as the local injection contract or pass an approved secret reference explicitly.
+- Pin a compatible SDK range and commit the resolved lockfile; do not copy an unbounded install command into CI.
+- Verify authentication by listing accessible models rather than generating billable output.
+
+## Authentication
+
+Use an environment-specific key injected from an approved secret manager. Never print, persist, commit, or place `CO_API_KEY` in an example. Confirm access with the least costly bounded operation appropriate to the task, and treat key creation, rotation, revocation, role changes, and production-capacity requests as owner-approved actions.
 
 ## Instructions
 
-### Step 1: Install SDK
+1. Inspect manifests, lockfiles, existing provider adapters, and secret-loading conventions.
+2. Choose TypeScript, Python, or REST and pin the current compatible SDK major.
+3. Document `CO_API_KEY` without writing its value, then update ignore rules if local environment files are used.
+4. Initialize the v2 client with the injected key and an explicit timeout.
+5. Run one read-only model-list probe and record the SDK version, status, and model count only.
+6. Assign ownership for key creation, rotation, revocation, and environment separation.
 
-```bash
-# Node.js / TypeScript
-npm install cohere-ai
+## Approval Boundaries
 
-# Python
-pip install cohere
-```
-
-### Step 2: Configure API Key
-
-```bash
-# Set environment variable
-export CO_API_KEY="your-api-key-here"
-
-# Or create .env file (add .env to .gitignore!)
-echo 'CO_API_KEY=your-api-key-here' >> .env
-```
-
-**Key types:**
-
-- **Trial key** — free, rate-limited (5-20 calls/min per endpoint, 1000/month others)
-- **Production key** — metered billing, 1000 calls/min all endpoints, unlimited monthly
-
-### Step 3: Verify Connection (TypeScript)
-
-```typescript
-import { CohereClientV2 } from 'cohere-ai';
-
-const cohere = new CohereClientV2({
-  token: process.env.CO_API_KEY,
-});
-
-async function verify() {
-  const response = await cohere.chat({
-    model: 'command-a-03-2025',
-    messages: [
-      { role: 'user', content: 'Say "connection verified" and nothing else.' },
-    ],
-  });
-  console.log('Status:', response.message?.content?.[0]?.text);
-}
-
-verify().catch(console.error);
-```
-
-### Step 4: Verify Connection (Python)
-
-```python
-import cohere
-import os
-
-co = cohere.ClientV2(api_key=os.environ.get("CO_API_KEY"))
-
-response = co.chat(
-    model="command-a-03-2025",
-    messages=[
-        {"role": "user", "content": "Say 'connection verified' and nothing else."}
-    ],
-)
-print("Status:", response.message.content[0].text)
-```
-
-## Available Models
-
-| Model | ID | Context | Best For |
-|-------|----|---------|----------|
-| Command A | `command-a-03-2025` | 256K | Latest, most capable |
-| Command R+ | `command-r-plus-08-2024` | 128K | Complex RAG, agents |
-| Command R | `command-r-08-2024` | 128K | RAG, cost-effective |
-| Command R7B | `command-r7b-12-2024` | 128K | Fast, lightweight |
-| Embed English v4 | `embed-v4.0` | 128K | Embeddings (EN) |
-| Embed Multilingual v3 | `embed-multilingual-v3.0` | 512 | Embeddings (100+ langs) |
-| Rerank v3.5 | `rerank-v3.5` | 4K | Search reranking |
+Do not expose or rotate keys, change Cohere Team roles, accept commercial terms, enable sensitive production data, increase spend or capacity, switch production models, send a support bundle, or execute model-proposed side effects without the accountable owner's approval. Keep diagnosis read-only unless implementation was requested.
 
 ## Output
 
-- Installed `cohere-ai` (TS) or `cohere` (Python) package
-- Environment variable `CO_API_KEY` configured
-- Verified API connectivity with a chat completion
+Return the resolved API and model contract, files or settings inspected, evidence collected, validation result, remaining risk, owner, and rollback or next action. Redact keys, authorization headers, prompts, retrieved documents, embeddings, customer identifiers, and unrestricted environment output.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `CohereApiError: invalid api token` | Wrong or expired key | Regenerate at dashboard.cohere.com |
-| `CohereConnectionError` | Network blocked | Ensure HTTPS to `api.cohere.com` allowed |
-| `429 Too Many Requests` | Trial rate limit hit | Wait 60s or upgrade to production key |
-| `MODULE_NOT_FOUND cohere-ai` | Package not installed | Run `npm install cohere-ai` |
+| Condition | Response |
+|---|---|
+| `401` | Confirm runtime injection and key state without printing the credential. |
+| No models | Check team membership and deployment availability before changing code. |
+| SDK shape mismatch | Compare the installed major with the official generated SDK reference. |
+| Exposed key | Rotate or revoke it and scrub retained logs immediately. |
 
 ## Examples
 
-Use a local secret store or CI secret injection, then fail fast before issuing a
-request if the key was not supplied. The check prevents an accidental unauthenticated
-request while keeping the credential out of source control and logs.
+Use this compact handoff shape to keep the selected scope, validation evidence, and operational result reviewable.
 
-```typescript
-import { CohereClientV2 } from 'cohere-ai';
+Input:
 
-const token = process.env.CO_API_KEY;
-if (!token) throw new Error('CO_API_KEY is required; configure it in the secret manager');
-
-const client = new CohereClientV2({ token });
-const result = await client.chat({
-  model: 'command-r7b-12-2024',
-  messages: [{ role: 'user', content: 'Reply with OK.' }],
-  maxTokens: 5,
-});
-console.log(result.message?.content?.[0]?.text);
+```text
+runtime=typescript; environment=ci; probe=models.list; secret=approved-reference
 ```
 
-For a CI verification, inject `CO_API_KEY` only into the trusted job that needs it,
-mask it in the runner, and rotate it immediately if it appears in an artifact or log.
+Expected handoff:
 
-## SDK Auto-Detection
-
-The SDK reads `CO_API_KEY` automatically if set. You can skip the `token` param:
-
-```typescript
-// Auto-reads CO_API_KEY from environment
-const cohere = new CohereClientV2();
+```text
+client=v2; sdk=cohere-ai@resolved; auth=pass; key-value=redacted
 ```
 
 ## Resources
 
-- [Cohere API v2 Reference](https://docs.cohere.com/reference/about)
-- [Cohere Dashboard](https://dashboard.cohere.com)
-- [Cohere Models Overview](https://docs.cohere.com/docs/models)
-- [API Key & Rate Limits](https://docs.cohere.com/docs/rate-limits)
-
-## Next Steps
-
-After successful auth, proceed to `cohere-hello-world` for your first real API call.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Create a v2 client](https://docs.cohere.com/docs/create-client)
+- [Models API](https://docs.cohere.com/reference/list-models)

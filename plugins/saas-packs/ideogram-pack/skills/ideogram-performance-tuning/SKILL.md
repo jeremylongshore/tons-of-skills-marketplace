@@ -1,251 +1,76 @@
 ---
 name: ideogram-performance-tuning
-description: 'Optimize Ideogram API performance with caching, model selection, and
-  parallel generation.
-
-  Use when experiencing slow generation, implementing caching strategies,
-
-  or optimizing throughput for Ideogram integrations.
-
-  Trigger with phrases like "ideogram performance", "optimize ideogram",
-
-  "ideogram latency", "ideogram caching", "ideogram slow", "ideogram speed".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.10.0
+description: >-
+  Optimize Ideogram latency and throughput through route choice, bounded media, concurrency, async handling, and immediate storage. Use when improving an established workload without weakening quality or safety. Trigger with "speed up Ideogram", "profile Ideogram latency", or "optimize Ideogram throughput".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<workload> <latency-slo> <quality-floor>"
+version: 1.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ideogram
-- api
-- performance
-compatibility: Designed for Claude Code
+tags: [saas, ideogram, performance]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; paid benchmarks require a bounded test plan"
 ---
 # Ideogram Performance Tuning
 
 ## Overview
 
-Optimize Ideogram image generation for speed, cost, and throughput. Key levers: model and rendering speed selection, prompt-based caching, parallel generation with concurrency limits, and CDN delivery of generated assets.
-
-## Performance Baselines
-
-| Model / Speed | Typical Latency | Relative Cost | Quality |
-|---------------|-----------------|---------------|---------|
-| V_2_TURBO | 3-6s | ~$0.05/image | Good |
-| V_2 | 8-15s | ~$0.08/image | High |
-| V3 FLASH | 2-4s | Lowest | Draft |
-| V3 TURBO | 4-8s | Low | Good |
-| V3 DEFAULT | 8-15s | Standard | High |
-| V3 QUALITY | 15-25s | Premium | Highest |
-
-## Instructions
-
-### Step 1: Speed Tiers by Use Case
-
-```typescript
-const SPEED_CONFIGS = {
-  // Preview / draft mode -- fastest, cheapest
-  preview: {
-    endpoint: "https://api.ideogram.ai/generate",
-    model: "V_2_TURBO",
-    note: "3-6s, good enough for iteration",
-  },
-  // Standard production -- balanced
-  standard: {
-    endpoint: "https://api.ideogram.ai/generate",
-    model: "V_2",
-    note: "8-15s, high quality for final assets",
-  },
-  // V3 with speed control
-  v3_fast: {
-    endpoint: "https://api.ideogram.ai/v1/ideogram-v3/generate",
-    rendering_speed: "TURBO",
-    note: "4-8s, V3 quality at faster speed",
-  },
-  v3_quality: {
-    endpoint: "https://api.ideogram.ai/v1/ideogram-v3/generate",
-    rendering_speed: "QUALITY",
-    note: "15-25s, maximum quality",
-  },
-} as const;
-
-function getConfig(tier: keyof typeof SPEED_CONFIGS) {
-  return SPEED_CONFIGS[tier];
-}
-```
-
-### Step 2: Prompt-Based Cache Layer
-
-```typescript
-import { createHash } from "crypto";
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "fs";
-import { join } from "path";
-
-const CACHE_DIR = "./ideogram-cache";
-
-function cacheKey(prompt: string, style: string, aspect: string): string {
-  return createHash("sha256")
-    .update(`${prompt.toLowerCase().trim()}:${style}:${aspect}`)
-    .digest("hex")
-    .slice(0, 16);
-}
-
-async function cachedGenerate(
-  prompt: string,
-  options: { style_type?: string; aspect_ratio?: string; model?: string } = {}
-) {
-  const style = options.style_type ?? "AUTO";
-  const aspect = options.aspect_ratio ?? "ASPECT_1_1";
-  const key = cacheKey(prompt, style, aspect);
-  const metaPath = join(CACHE_DIR, `${key}.json`);
-  const imgPath = join(CACHE_DIR, `${key}.png`);
-
-  // Return cached if exists
-  if (existsSync(metaPath) && existsSync(imgPath)) {
-    console.log(`Cache hit: ${key}`);
-    return JSON.parse(readFileSync(metaPath, "utf-8"));
-  }
-
-  // Generate and cache
-  const response = await fetch("https://api.ideogram.ai/generate", {
-    method: "POST",
-    headers: {
-      "Api-Key": process.env.IDEOGRAM_API_KEY!,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      image_request: {
-        prompt,
-        model: options.model ?? "V_2",
-        style_type: style,
-        aspect_ratio: aspect,
-        magic_prompt_option: "AUTO",
-      },
-    }),
-  });
-
-  if (!response.ok) throw new Error(`Generate failed: ${response.status}`);
-  const result = await response.json();
-  const image = result.data[0];
-
-  // Download and cache
-  const imgResp = await fetch(image.url);
-  const buffer = Buffer.from(await imgResp.arrayBuffer());
-
-  mkdirSync(CACHE_DIR, { recursive: true });
-  writeFileSync(imgPath, buffer);
-  writeFileSync(metaPath, JSON.stringify({
-    ...image,
-    localPath: imgPath,
-    cachedAt: new Date().toISOString(),
-  }));
-
-  return { ...image, localPath: imgPath };
-}
-```
-
-### Step 3: Parallel Generation with Concurrency Control
-
-```typescript
-import PQueue from "p-queue";
-
-// 8 concurrent (under Ideogram's 10 in-flight limit)
-const queue = new PQueue({ concurrency: 8 });
-
-async function parallelGenerate(
-  prompts: string[],
-  options: { style_type?: string; model?: string } = {}
-) {
-  const start = Date.now();
-
-  const results = await Promise.all(
-    prompts.map(prompt =>
-      queue.add(() => cachedGenerate(prompt, options))
-    )
-  );
-
-  const elapsed = ((Date.now() - start) / 1000).toFixed(1);
-  console.log(`Generated ${results.length} images in ${elapsed}s`);
-  console.log(`Throughput: ${(results.length / (elapsed as any)).toFixed(2)} img/s`);
-
-  return results;
-}
-
-// Generate 20 images -- queue manages concurrency automatically
-const prompts = Array.from({ length: 20 }, (_, i) => `Product design variant ${i + 1}`);
-await parallelGenerate(prompts, { style_type: "DESIGN", model: "V_2_TURBO" });
-```
-
-### Step 4: CDN Upload for Fast Delivery
-
-```typescript
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-
-const s3 = new S3Client({ region: "us-east-1" });
-
-async function generateWithCDN(prompt: string, options: any = {}) {
-  const result = await cachedGenerate(prompt, options);
-
-  // Upload to S3 for CDN delivery
-  const key = `ideogram/${result.seed}.png`;
-  const buffer = readFileSync(result.localPath);
-
-  await s3.send(new PutObjectCommand({
-    Bucket: process.env.S3_BUCKET!,
-    Key: key,
-    Body: buffer,
-    ContentType: "image/png",
-    CacheControl: "public, max-age=31536000, immutable",
-  }));
-
-  return {
-    cdnUrl: `https://${process.env.CDN_DOMAIN}/${key}`,
-    seed: result.seed,
-    resolution: result.resolution,
-  };
-}
-```
-
-## Performance Tips
-
-1. **Use TURBO for drafts** -- V_2_TURBO is 2-3x faster than V_2 at lower cost
-2. **Cache by prompt hash** -- identical prompts produce cacheable results
-3. **Batch with num_images** -- 4 images in 1 call is faster than 4 separate calls
-4. **Download immediately** -- URLs expire; download in the same function
-5. **Set CDN headers** -- images are immutable once generated; cache forever
-6. **Use V3 FLASH for previews** -- fastest option for UI thumbnails
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Rate limit 429 | Concurrency too high | Reduce queue concurrency to 5-8 |
-| Slow generation | QUALITY speed or complex prompt | Use TURBO for drafts, simplify prompts |
-| Expired URL | Delayed download | Download immediately in same function |
-| Cache stale | Prompt changed slightly | Normalize prompts before hashing |
-
-## Output
-
-- Speed-tiered configuration for different use cases
-- Prompt-based cache layer preventing duplicate generations
-- Parallel generation with concurrency control
-- CDN integration for fast image delivery
+Improve end-to-end time and useful throughput with measurements, not unsupported rendering flags. Separate queue wait, upload, vendor generation, webhook or polling, download, validation, and storage so optimization preserves safety, quality, cost, and asset durability.
 
 ## Prerequisites
 
-- Baseline latency/quota metrics, synthetic prompt fixture revision, error budget, and rollback revision for cache, concurrency, and retry policy.
+- Representative synthetic workload, latency and throughput SLOs, quality floor, and cost ceiling.
+- Per-stage metrics, current endpoint mix, output count, media sizes, and concurrency policy.
+- Approved benchmark budget, isolated destination, and cleanup owner.
+
+## Current Contract
+
+Ideogram offers synchronous and asynchronous routes plus V4, transparency, P-Image, V3, and outcome-focused tools. Route-specific rendering options differ; V4 `FLASH` currently returns `400`. Default capacity is 10 in-flight requests, and returned asset URLs require prompt download.
+
+## Authentication
+
+Benchmark workers use server-side `IDEOGRAM_API_KEY` through `Api-Key` to `https://api.ideogram.ai`. Metrics label endpoint, status, stage, and content-free workload class, never prompt or image content.
+
+## Instructions
+
+1. Measure queue, upload, generation, reconciliation, download, validation, and storage latency separately at p50, p95, and p99.
+2. Confirm the selected endpoint is the narrowest route that meets model, transparency, edit, or tool requirements.
+3. Bound input bytes, dimensions, output count, and post-processing; reject work unlikely to meet its deadline.
+4. Move long work to async, persist `generation_id`, acknowledge application requests early, and reconcile by webhook plus polling.
+5. Tune shared concurrency below observed capacity while tracking `429`, timeout, queue age, and cost per useful output.
+6. Compare one change at a time against the quality and safety floor; canary before rollout.
+7. Remove benchmark assets and restore the prior setting when any guardrail regresses.
+
+## Tool Discipline
+
+Use Read, Glob, and Grep to inspect metrics, queues, adapters, and fixtures. Use Write and Edit for approved instrumentation or tuning changes. Do not launch a paid benchmark or alter production capacity merely because this skill was selected.
+
+## Approval Boundaries
+
+Require owners for benchmark spend, traffic sampling, model or rendering changes, quality evaluation, concurrency increases, and deployment. Never trade away safety checks or durable persistence for lower apparent latency.
+
+## Error Handling
+
+- Unsupported V4 `FLASH` is a validation defect, not a performance strategy.
+- A faster response with an unsafe or unpersisted image is not a successful sample.
+- Stop a benchmark on rising errors, queue runaway, budget exhaustion, or storage cleanup failure.
+
+## Output
+
+Return baseline and candidate stage metrics, route and settings, concurrency, useful-output counts, error and safety rates, cost, statistical limitations, canary state, and rollback receipt. Exclude content and credentials.
 
 ## Examples
 
-`env=sandbox; p95=420ms->310ms; concurrency=2; quota=within-budget; rights=test-owned; destination=approved; output_retention=none; rollback=perf-r3` documents a safe canary.
+- Move batch generation from synchronous request threads to async submission and webhook reconciliation.
+- Reduce oversized uploads before increasing concurrency, then compare p95 end-to-end durable completion.
+
+## Validation
+
+Repeat the benchmark with the same synthetic workload, compare distributions and guardrails, verify account-wide pressure, and test rollback. Confirm all benchmark objects and temporary URLs are removed.
 
 ## Resources
 
-- [Ideogram API Reference](https://developer.ideogram.ai/api-reference)
-- [p-queue](https://github.com/sindresorhus/p-queue)
-
-## Next Steps
-
-For cost optimization, see `ideogram-cost-tuning`.
+- [Current first-party evidence map](references/official-docs.md) — use the dated endpoint, webhook, billing, team, and training links as the contract index for this workflow.
+- Recheck the endpoint-specific page and current OpenAPI description before relying on an enum, limit, beta feature, or lifecycle claim.
+- Record live observations as environment-specific evidence, not as universal vendor guarantees.

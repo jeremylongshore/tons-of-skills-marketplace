@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/agent-context-manager",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Automatically detects and loads AGENTS.md files to provide agent-specific instructions alongside CLAUDE.md. Enables specialized agent behaviors without manual intervention.",
   "keywords": [
     "agents",

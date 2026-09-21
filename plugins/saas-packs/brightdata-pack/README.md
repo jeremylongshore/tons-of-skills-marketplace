@@ -1,10 +1,12 @@
-# Bright Data Skill Pack
+# Bright Data Operator Pack
 
-> Claude Code skill pack for Bright Data web scraping, proxies, and data collection (18 skills)
+> 18 Grade-A skills for governed Bright Data proxy, Browser API, and snapshot operations
 
 ## What It Does
 
-Gives Claude Code deep knowledge of Bright Data's proxy infrastructure, Scraping Browser, SERP API, Web Scraper API, and Datasets API. Every skill contains real proxy configuration code using `brd.superproxy.io`, actual API endpoints, and production-tested patterns — no fake SDK imports.
+This pack helps Claude Code design, test, review, and operate authorized public-data collection with current Bright Data contracts. It separates proxy-zone credentials from REST API keys, uses the current Browser API name and Web Scraper snapshot lifecycle, and places policy, cost, data, and rollback controls around every live operation.
+
+The skills are evidence-first. Offline fixtures are the default for development and CI, live checks are bounded and independently protected, and collected data crosses quarantine and schema validation before reaching a consumer or delivery destination.
 
 ## Installation
 
@@ -14,40 +16,50 @@ Gives Claude Code deep knowledge of Bright Data's proxy infrastructure, Scraping
 
 ## Skills
 
-### Standard Skills (S01-S12)
+### Foundation and Core Workflows
 
 | Skill | What It Does |
 |-------|-------------|
-| `brightdata-install-auth` | Configure zone credentials, SSL cert, proxy authentication |
-| `brightdata-hello-world` | First scrape through Web Unlocker proxy with geo-targeting |
-| `brightdata-local-dev-loop` | Dev environment with response caching and mocked proxy tests |
-| `brightdata-sdk-patterns` | Proxy client singleton, retry wrapper, sticky sessions, cheerio parsing |
-| `brightdata-core-workflow-a` | Scraping Browser with Playwright/Puppeteer over CDP WebSocket |
-| `brightdata-core-workflow-b` | SERP API structured search results and Web Scraper API async triggers |
-| `brightdata-common-errors` | Diagnose 407, 502, SSL, timeout, and X-Luminati-Error headers |
-| `brightdata-debug-bundle` | Collect proxy connectivity, zone status, and error logs for support |
-| `brightdata-rate-limits` | Concurrent request limiter, backoff for proxy errors, trigger rate limits |
-| `brightdata-security-basics` | Zone isolation, credential rotation, git secret scanning |
-| `brightdata-prod-checklist` | Zone verification, health checks, monitoring alerts, rollback |
-| `brightdata-upgrade-migration` | Migrate between zones, products, and Datasets API versions |
+| `brightdata-install-auth` | Separate native proxy authentication from named-user REST API keys |
+| `brightdata-hello-world` | Run one authorized proxy smoke test against `geo.brdtest.com` |
+| `brightdata-local-dev-loop` | Build a credential-free, fixture-backed development loop |
+| `brightdata-sdk-patterns` | Wrap the official Python SDK and REST contracts behind typed adapters |
+| `brightdata-core-workflow-a` | Execute a bounded JavaScript-rendered task through Browser API |
+| `brightdata-core-workflow-b` | Operate the asynchronous trigger, progress, and snapshot lifecycle |
 
-### Pro Skills (P13-P18)
+### Reliability and Governance
 
 | Skill | What It Does |
 |-------|-------------|
-| `brightdata-ci-integration` | GitHub Actions with mocked unit tests and live proxy integration tests |
-| `brightdata-deploy-integration` | Deploy to Vercel, Fly.io, Cloud Run with secrets management |
-| `brightdata-webhooks-events` | Web Scraper API webhook delivery, notification endpoints, dedup |
-| `brightdata-performance-tuning` | Connection pooling, response caching, concurrent scraping, bulk API |
-| `brightdata-cost-tuning` | Product selection cost matrix, caching ROI, usage monitoring |
-| `brightdata-reference-architecture` | Multi-product client, scraping pipeline, cron scheduler |
+| `brightdata-common-errors` | Classify current `Proxy-Status` and `x-brd-*` failure evidence |
+| `brightdata-debug-bundle` | Produce a redacted, decision-ready provider support bundle |
+| `brightdata-rate-limits` | Derive product-specific admission and backoff from observed signals |
+| `brightdata-security-basics` | Enforce use authorization, least privilege, and data controls |
+| `brightdata-prod-checklist` | Gate production promotion with failure and rollback evidence |
+| `brightdata-upgrade-migration` | Migrate SDK, product, endpoint, and response-header contracts safely |
 
-## Key Concepts
+### Delivery and Operations
 
-- **No SDK** — Bright Data uses HTTP proxy protocol (`brd.superproxy.io:33335`) and REST APIs
-- **Zone credentials** — Customer ID + Zone Name + Zone Password, not API keys
-- **Products**: Web Unlocker (anti-bot bypass), Scraping Browser (JS rendering), SERP API (search results), Web Scraper API (async bulk), Datasets (pre-built)
-- **Geo-targeting** — append `-country-us` or `-city-newyork` to proxy username
+| Skill | What It Does |
+|-------|-------------|
+| `brightdata-ci-integration` | Add required offline contracts and an isolated optional live lane |
+| `brightdata-deploy-integration` | Split collection, snapshot, validation, and delivery workers |
+| `brightdata-webhooks-events` | Receive snapshot delivery with streaming, idempotency, and quarantine |
+| `brightdata-performance-tuning` | Tune one measured bottleneck through bounded canaries |
+| `brightdata-cost-tuning` | Attribute usage and enforce current-contract budgets and aborts |
+| `brightdata-reference-architecture` | Define governed control, collection, quarantine, and delivery planes |
+
+## Current Public Contracts
+
+- Native proxy access uses a zone username and password; REST API access uses a named-user API key.
+- Browser API is the current name for the former Scraping Browser product.
+- Web Scraper asynchronous work uses `/datasets/v3/trigger`, `/datasets/v3/progress/SNAPSHOT_ID`, and `/datasets/v3/snapshot/SNAPSHOT_ID`.
+- Snapshot destination delivery uses `/datasets/v3/deliver/SNAPSHOT_ID`.
+- Current proxy diagnostics use `Proxy-Status`, `x-brd-err-code`, `x-brd-error`, and `x-brd-err-msg`.
+- Bright Data publishes an official Python SDK.
+- The Acceptable Use Policy and the application's approved target manifest are hard boundaries.
+
+Each skill includes a dated `references/official-docs.md` receipt linking the first-party contracts it applies.
 
 ## License
 

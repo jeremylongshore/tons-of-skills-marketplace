@@ -1,277 +1,78 @@
 ---
 name: firecrawl-data-handling
-description: 'Process, validate, and store Firecrawl scraped content with deduplication
-  and chunking.
-
-  Use when handling scraped markdown, implementing content pipelines, building RAG
-  knowledge
-
-  bases, or processing crawl results for downstream consumption.
-
-  Trigger with phrases like "firecrawl data", "firecrawl content processing",
-
-  "firecrawl markdown cleaning", "firecrawl storage", "firecrawl RAG pipeline".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
+description: >-
+  Validate, minimize, classify, deduplicate, retain, and dispose of Firecrawl documents and extracted JSON safely. Use when building downstream storage, RAG, or analytics pipelines. Trigger with "store Firecrawl data", "Firecrawl RAG ingestion", or "clean scraped content".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <data-classification>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- compliance
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, data, privacy]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Data Handling
+# Firecrawl Content Data Handling
 
 ## Overview
 
-Process scraped web content from Firecrawl pipelines. Covers markdown cleaning, structured data extraction with Zod validation, content deduplication, chunking for LLM/RAG, and storage patterns for crawled content.
+Treat scraped pages, metadata, screenshots, file parses, and model-extracted JSON as untrusted external data. Preserve provenance while storing only what the approved use case requires.
 
 ## Prerequisites
 
-- A written target-domain allowlist, legal/terms review where required, and an approved data-retention boundary.
-- A schema and content classification policy that identifies prohibited, sensitive, or licensed material.
-- Secure storage with encryption, access ownership, and synthetic fixtures for pipeline testing.
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
 
-## Output
+## Current Contract
 
-Produce a processing receipt with source URL, capture timestamp, content hash, schema-validation result, classification, retention date, and destination reference. Store content only in the approved system and omit credentials, personal data, and raw document excerpts from logs.
+SDKs return document data directly; REST returns it under data. metadata.sourceURL and metadata.statusCode are essential provenance and quality fields. storeInCache, zeroDataRetention, lockdown, screenshots, raw HTML, file upload, and persistent browser profiles create materially different data-handling obligations.
+
+## Authentication
+
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Content Cleaning
+1. Document source authorization, data classification, permitted fields, purpose, storage region, retention period, deletion path, and downstream consumers.
+2. Validate the document envelope and origin status before processing. Reject unsupported content types, captured error pages, oversized fields, and missing provenance.
+3. Normalize canonical URLs, strip fragments and disallowed query material, and compute content hashes for deduplication without treating the hash as authorization.
+4. Sanitize HTML/Markdown for the destination, neutralize active content, and keep scraped instructions outside trusted agent/system context.
+5. Validate JSON extraction against the declared schema and business constraints. Preserve source links and confidence/review state with every record.
+6. Separate raw quarantine, approved normalized content, embeddings/indexes, and audit receipts. Encrypt sensitive data and enforce least-privilege access.
+7. Implement expiry, source deletion, legal hold, reprocessing, and downstream tombstone tests; verify disposal with counts and hashes.
 
-```typescript
-import FirecrawlApp from "@mendable/firecrawl-js";
+## Tool Discipline
 
-const firecrawl = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY!,
-});
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-// Scrape with clean output settings
-async function scrapeClean(url: string) {
-  const result = await firecrawl.scrapeUrl(url, {
-    formats: ["markdown"],
-    onlyMainContent: true,   // strips nav, footer, sidebar
-    excludeTags: ["script", "style", "nav", "footer", "iframe"],
-    waitFor: 2000,
-  });
+## Approval Boundaries
 
-  return {
-    url: result.metadata?.sourceURL || url,
-    title: result.metadata?.title || "",
-    markdown: cleanMarkdown(result.markdown || ""),
-    scrapedAt: new Date().toISOString(),
-  };
-}
+Require approval before storing raw HTML, screenshots, authenticated content, personal data, uploaded files, persistent profiles, or extending retention and downstream use.
 
-function cleanMarkdown(md: string): string {
-  return md
-    .replace(/\n{3,}/g, "\n\n")                    // collapse multiple newlines
-    .replace(/\[.*?\]\(javascript:.*?\)/g, "")      // remove JS links
-    .replace(/!\[.*?\]\(data:.*?\)/g, "")           // remove inline data URIs
-    .replace(/<!--[\s\S]*?-->/g, "")                // remove HTML comments
-    .replace(/<script[\s\S]*?<\/script>/gi, "")     // remove script tags
-    .trim();
-}
-```
+## Output
 
-### Step 2: Structured Extraction with Validation
-
-```typescript
-import { z } from "zod";
-
-const ArticleSchema = z.object({
-  title: z.string().min(1),
-  author: z.string().optional(),
-  publishedDate: z.string().optional(),
-  content: z.string().min(50),
-  wordCount: z.number(),
-});
-
-async function extractArticle(url: string) {
-  const result = await firecrawl.scrapeUrl(url, {
-    formats: ["extract"],
-    extract: {
-      schema: {
-        type: "object",
-        properties: {
-          title: { type: "string" },
-          author: { type: "string" },
-          publishedDate: { type: "string" },
-          content: { type: "string" },
-        },
-        required: ["title", "content"],
-      },
-    },
-  });
-
-  if (!result.extract) throw new Error(`Extraction failed for ${url}`);
-
-  return ArticleSchema.parse({
-    ...result.extract,
-    wordCount: (result.extract.content || "").split(/\s+/).length,
-  });
-}
-```
-
-### Step 3: Content Deduplication
-
-```typescript
-import { createHash } from "crypto";
-
-function contentHash(text: string): string {
-  return createHash("sha256")
-    .update(text.trim().toLowerCase())
-    .digest("hex");
-}
-
-function deduplicatePages(pages: Array<{ url: string; markdown: string }>) {
-  const seen = new Map<string, string>(); // hash -> first URL
-  const unique: typeof pages = [];
-  const duplicates: Array<{ url: string; duplicateOf: string }> = [];
-
-  for (const page of pages) {
-    const hash = contentHash(page.markdown);
-    if (seen.has(hash)) {
-      duplicates.push({ url: page.url, duplicateOf: seen.get(hash)! });
-    } else {
-      seen.set(hash, page.url);
-      unique.push(page);
-    }
-  }
-
-  console.log(`Dedup: ${pages.length} input, ${unique.length} unique, ${duplicates.length} duplicates`);
-  return { unique, duplicates };
-}
-```
-
-### Step 4: Chunk for LLM / RAG
-
-```typescript
-interface ContentChunk {
-  url: string;
-  title: string;
-  chunkIndex: number;
-  content: string;
-  wordCount: number;
-}
-
-function chunkForRAG(
-  url: string,
-  title: string,
-  markdown: string,
-  maxWords = 800
-): ContentChunk[] {
-  // Split by headings to preserve semantic boundaries
-  const sections = markdown.split(/\n(?=#{1,3}\s)/);
-  const chunks: ContentChunk[] = [];
-  let current = "";
-  let index = 0;
-
-  for (const section of sections) {
-    const combined = current ? `${current}\n\n${section}` : section;
-    if (combined.split(/\s+/).length > maxWords && current) {
-      chunks.push({
-        url, title, chunkIndex: index++,
-        content: current.trim(),
-        wordCount: current.split(/\s+/).length,
-      });
-      current = section;
-    } else {
-      current = combined;
-    }
-  }
-
-  if (current.trim()) {
-    chunks.push({
-      url, title, chunkIndex: index,
-      content: current.trim(),
-      wordCount: current.split(/\s+/).length,
-    });
-  }
-
-  return chunks;
-}
-```
-
-### Step 5: Crawl and Store Pipeline
-
-```typescript
-import { writeFileSync, mkdirSync } from "fs";
-import { join } from "path";
-
-async function crawlAndStore(baseUrl: string, outputDir: string, opts?: {
-  maxPages?: number;
-  paths?: string[];
-}) {
-  mkdirSync(outputDir, { recursive: true });
-
-  const crawlResult = await firecrawl.crawlUrl(baseUrl, {
-    limit: opts?.maxPages || 50,
-    includePaths: opts?.paths,
-    scrapeOptions: { formats: ["markdown"], onlyMainContent: true },
-  });
-
-  const pages = (crawlResult.data || []).map(page => ({
-    url: page.metadata?.sourceURL || baseUrl,
-    markdown: cleanMarkdown(page.markdown || ""),
-  }));
-
-  // Deduplicate
-  const { unique } = deduplicatePages(pages);
-
-  // Write files + manifest
-  const manifest = unique.map(page => {
-    const slug = new URL(page.url).pathname
-      .replace(/\//g, "_").replace(/^_|_$/g, "") || "index";
-    const filename = `${slug}.md`;
-    writeFileSync(join(outputDir, filename), page.markdown);
-    return { url: page.url, file: filename, size: page.markdown.length };
-  });
-
-  writeFileSync(join(outputDir, "manifest.json"), JSON.stringify(manifest, null, 2));
-  return manifest;
-}
-```
+Return the data inventory, provenance fields, validation and rejection counts, transformations, stores and access controls, retention/deletion plan, downstream lineage, and disposal evidence.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Empty content | JS not rendered | Increase `waitFor`, use `onlyMainContent` |
-| Garbage in markdown | Bad HTML cleanup | Add `excludeTags` for problematic elements |
-| Duplicate pages | URL aliases or redirects | Content-hash deduplication |
-| Oversized chunks | Long single sections | Add word limit to chunking logic |
-| Extract returns null | Page too complex for LLM | Simplify schema, use shorter prompt |
+- Provenance is missing: quarantine instead of indexing.
+- Prompt injection or active content is detected: keep it untrusted and route to review.
+- Deletion cannot reach derived stores: block the retention design until tombstones are end-to-end.
 
 ## Examples
 
-### Documentation Scraper with RAG Output
-
-```typescript
-const docs = await crawlAndStore("https://docs.example.com", "./scraped-docs", {
-  maxPages: 50,
-  paths: ["/docs/*", "/api/*"],
-});
-
-// Generate RAG-ready chunks
-for (const doc of docs) {
-  const content = readFileSync(`./scraped-docs/${doc.file}`, "utf-8");
-  const chunks = chunkForRAG(doc.url, doc.file, content);
-  console.log(`${doc.url}: ${chunks.length} chunks`);
-  // Feed chunks to vector store (Pinecone, Weaviate, pgvector, etc.)
-}
-```
+- "Prepare Firecrawl pages for RAG" creates a provenance-preserving, injection-aware normalization path.
+- "Keep everything forever" is rejected until purpose, access, and deletion obligations are approved.
 
 ## Resources
 
-- [Firecrawl Scrape Options](https://docs.firecrawl.dev/features/scrape)
-- [Firecrawl Extract](https://docs.firecrawl.dev/features/llm-extract)
-- [Zod Validation](https://zod.dev/)
-
-## Next Steps
-
-For access control, see `firecrawl-enterprise-rbac`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

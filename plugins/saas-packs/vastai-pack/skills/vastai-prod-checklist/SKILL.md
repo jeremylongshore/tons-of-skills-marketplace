@@ -1,137 +1,93 @@
 ---
 name: vastai-prod-checklist
-description: 'Execute Vast.ai production deployment checklist for GPU workloads.
-
-  Use when deploying training pipelines to production, preparing for
-
-  large-scale GPU jobs, or auditing production readiness.
-
-  Trigger with phrases like "vastai production", "deploy vastai",
-
-  "vastai go-live", "vastai launch checklist".
-
-  '
-allowed-tools: Read, Bash(vastai:*), Bash(curl:*), Grep
-version: 1.11.0
+description: >-
+  Analyze readiness and issue a production go/no-go decision for a Vast.ai renter workload using retained evidence for cost, capacity, security, recovery, observability, and teardown. Use when a release needs production approval. Trigger with: "approve Vast.ai production", "run the Vast.ai launch checklist", "is this Vast.ai workload production ready".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[release-id-workload-and-slo]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- deployment
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - production
+  - readiness
+  - governance
+compatibility: 'Requires an immutable release candidate, approved Vast.ai account, workload SLOs, security policy, and rollback owner.'
 ---
-# Vast.ai Production Checklist
+
+# Vast.ai Production Go/No-Go
 
 ## Overview
 
-Complete checklist for running production GPU workloads on Vast.ai, covering account setup, instance selection, data safety, monitoring, and cost controls.
+Production approval is an evidence bundle, not a list of optimistic assertions. Every gate needs an owner, artifact, and expiry; any failed critical gate yields NO-GO.
 
 ## Prerequisites
 
-- Vast.ai account with sufficient credits
-- Docker images tested and published to registry
-- Checkpoint-based training pipeline
+- Release ID, image digest, dataset/model identity, and expected traffic or job profile
+- Capacity, latency, reliability, recovery, security, and spend objectives
+- Named incident, billing, data-recovery, and teardown owners
 
 ## Instructions
 
-### Account & Authentication
+### Step 1: Verify account and permissions
 
-- [ ] API key stored in secrets manager (not in code or env files)
-- [ ] Dedicated SSH key pair for Vast.ai (not shared with other services)
-- [ ] Account balance sufficient for planned workload duration + 50% buffer
-- [ ] Billing alerts configured at cloud.vast.ai
+Confirm account/team context, positive balance or approved autobilling, least-privilege keys, audit visibility, and no credential in release artifacts.
 
-### Instance Selection
+### Step 2: Verify capacity policy
 
-- [ ] GPU type validated for workload (VRAM, compute capability)
-- [ ] Reliability filter set to `>= 0.98` for production jobs
-- [ ] Internet speed filter set to `inet_down >= 200` for data transfer
-- [ ] Disk allocation includes room for checkpoints + data + 20% overhead
-- [ ] CUDA version on host matches Docker image requirements
+Demonstrate compliant offers or Serverless worker capacity across required GPU, VRAM, geography, reliability, and price constraints.
 
-### Data Safety
+### Step 3: Verify immutable execution
 
-- [ ] Training data encrypted before upload to instances
-- [ ] Checkpoint saving every N steps (not just per epoch)
-- [ ] Checkpoints uploaded to persistent storage (S3/GCS) periodically
-- [ ] Instance cleanup script removes data before destruction
-- [ ] No sensitive data (API keys, PII) embedded in Docker images
+Pin image/template/model identity and prove startup, health, output contract, and workload-specific acceptance on a canary.
 
-### Spot Instance Protection
+### Step 4: Verify recovery
 
-- [ ] Spot preemption handler implemented (save checkpoint on SIGTERM)
-- [ ] Auto-recovery: detect destroyed instance, provision replacement, resume
-- [ ] On-demand fallback configured for critical final training stages
-- [ ] Checkpoint integrity verification after recovery
+Restore from an external checkpoint or roll back a Serverless template. Prove that stop, outbid, offline, expiry, and zero-balance paths have owners.
 
-### Monitoring & Alerting
+### Step 5: Verify operations
 
-- [ ] GPU utilization monitoring (alert if < 50% for > 10 min)
-- [ ] Instance health polling every 60 seconds
-- [ ] Cost accumulation tracking with budget threshold alerts
-- [ ] Training loss/metrics logged to external service (W&B, MLflow)
-- [ ] Dead instance detection (auto-destroy stuck instances)
+Show bounded retries, terminal-state handling, logs/metrics, signed webhook or polling coverage, cost alarms, and escalation contacts.
 
-### Cost Controls
+### Step 6: Issue the decision
 
-- [ ] Maximum `dph_total` set in search queries
-- [ ] Auto-destroy timeout for all instances (e.g., 24h max)
-- [ ] Daily spending limit configured
-- [ ] Cost-per-job tracking for budget reporting
+Record PASS, FAIL, owner, evidence URI, and expiry for each gate. Launch only on GO; retain the exact rollback and cleanup commands.
 
-### Verification Script
+## Authentication
 
-```bash
-#!/bin/bash
-set -euo pipefail
-echo "Vast.ai Production Readiness Check"
+Production keys must be named and scoped by function. Separate billing, team administration, deployment, workload storage, and monitoring authority.
 
-# 1. Auth
-vastai show user --raw | python3 -c "
-import sys, json; u=json.load(sys.stdin)
-balance = u.get('balance', 0)
-print(f'  Auth: OK | Balance: \${balance:.2f}')
-assert balance >= 10, f'Balance too low: \${balance:.2f}'
-" && echo "  Balance: PASS" || echo "  Balance: FAIL"
+## Tool Discipline
 
-# 2. Offer availability
-COUNT=$(vastai search offers 'reliability>0.98 num_gpus=1 rentable=true' --raw --limit 1 | python3 -c "import sys,json; print(len(json.load(sys.stdin)))")
-echo "  Offers available: $COUNT+ | PASS"
-
-# 3. Docker image pullable
-docker pull pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime > /dev/null 2>&1 && echo "  Docker image: PASS" || echo "  Docker image: FAIL"
-
-echo "Pre-flight checks complete."
-```
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- Production readiness checklist verified
-- Verification script passes all checks
-- Cost controls and monitoring configured
-- Data safety measures in place
+- Per-gate PASS/FAIL matrix with evidence and expiry
+- GO or NO-GO decision with accepted residual risks
+- Rollback, incident, billing, and teardown owner receipt
 
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Insufficient balance | Credits depleted mid-job | Set up auto-top-up or balance alerts |
-| Instance preempted during final epoch | Spot instance reclaimed | Use on-demand for final training stage |
-| Checkpoint corrupted | Interrupted mid-save | Implement atomic checkpoint writes (save to temp, rename) |
-| GPU utilization drops to 0% | Data pipeline bottleneck | Profile data loading; increase disk I/O |
-
-## Resources
-
-- [Vast.ai Documentation](https://docs.vast.ai)
-- [Instance Types](https://docs.vast.ai/api-reference/instances/create-instance)
-
-## Next Steps
-
-For version upgrades, see `vastai-upgrade-migration`.
+Return release ID, account context, immutable identities, gate results, decision, approvers, expiry, and rollback target.
 
 ## Examples
 
-**Pre-launch audit**: Run the verification script, check all boxes, confirm Docker image pulls successfully, and verify at least 3 matching offers are available before starting a production training run.
+A Serverless model release receives GO only after canary output parity, bounded scale testing, signed webhook acceptance, cost thresholds, and reverse rolling-update evidence are attached.
 
-**Budget-safe launch**: Set `max_dph=2.00`, auto-destroy timeout of 12 hours, and daily spend alert at $50 to prevent cost overruns.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Critical evidence is missing | Issue NO-GO; an owner assertion is not a substitute. |
+| Offer capacity is temporarily absent | Delay or use an approved alternate profile; do not weaken policy silently. |
+| Rollback was not exercised | Run it on the canary before production approval. |
+| Billing owner is unavailable | Issue NO-GO because zero balance can stop workloads and endanger data. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [Vast.ai pricing](https://docs.vast.ai/guides/pricing)
+- [Manage instances](https://docs.vast.ai/guides/instances/manage-instances)
+- [Notification webhooks](https://docs.vast.ai/guides/reference/notification-webhooks)

@@ -1,185 +1,93 @@
 ---
 name: vastai-enterprise-rbac
-description: 'Implement team access control and spending governance for Vast.ai GPU
-  cloud.
-
-  Use when managing multi-team GPU access, implementing spending controls,
-
-  or setting up API key separation for different teams.
-
-  Trigger with phrases like "vastai team access", "vastai RBAC",
-
-  "vastai enterprise", "vastai spending controls", "vastai permissions".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vastai:*)
-version: 1.11.0
+description: >-
+  Design and verify native Vast.ai Teams roles plus scoped API keys for least-privilege renter operations. Use when onboarding members, separating duties, or constraining automation. Trigger with: "configure Vast.ai RBAC", "create a Vast.ai team role", "scope a Vast.ai API key".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[team-actors-resources-and-required-actions]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- rbac
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - rbac
+  - teams
+  - governance
+compatibility: 'Requires a Vast.ai Team, team administration authority, an actor/action inventory, and an independent access reviewer.'
 ---
-# Vast.ai Enterprise RBAC
+
+# Native Vast.ai Team and Key Governance
 
 ## Overview
 
-Control access to Vast.ai GPU instances and spending through API key management, team-level budgets, and GPU allocation policies. Vast.ai uses a marketplace model with per-GPU-hour pricing (RTX 4090 ~$0.20/hr, A100 ~$1.50/hr, H100 ~$3.00/hr).
+Use the platform's Teams and permission-category model instead of inventing an application-only proxy. Separate human roles from automation keys, constrain high-risk endpoints when possible, and prove both required access and expected denial.
 
 ## Prerequisites
 
-- Vast.ai account(s) with API keys
-- Understanding of team GPU usage patterns
-- Budget allocation per team/project
+- Team owner and inventory of members, services, resources, and environments
+- Actor-by-action matrix for instance, user, billing, machine, miscellaneous, and team categories
+- Joiner, mover, leaver, emergency-access, and periodic-review procedures
 
 ## Instructions
 
-### Step 1: Team API Key Strategy
+### Step 1: Model responsibilities
 
-```python
-# Separate API keys per team for billing isolation
-# Option A: Separate Vast.ai accounts per team
-# Option B: Single account with application-level controls
+Map each actor to read and write operations. Keep billing-write, team-write, machine-write, and instance destruction separate unless a documented duty requires them.
 
-TEAM_CONFIGS = {
-    "ml-research": {
-        "api_key_env": "VASTAI_KEY_RESEARCH",
-        "gpu_whitelist": ["A100", "H100_SXM"],
-        "max_instances": 8,
-        "daily_budget": 200.00,
-        "max_dph": 4.00,
-    },
-    "ml-engineering": {
-        "api_key_env": "VASTAI_KEY_ENGINEERING",
-        "gpu_whitelist": ["RTX_4090", "A100"],
-        "max_instances": 4,
-        "daily_budget": 50.00,
-        "max_dph": 2.00,
-    },
-    "data-science": {
-        "api_key_env": "VASTAI_KEY_DATASCIENCE",
-        "gpu_whitelist": ["RTX_4090", "RTX_3090"],
-        "max_instances": 2,
-        "daily_budget": 10.00,
-        "max_dph": 0.30,
-    },
-}
-```
+### Step 2: Choose default or custom roles
 
-### Step 2: Policy Enforcement Layer
+Use Owner, Manager, or Member only when the preset matches. Otherwise create a named custom role from the minimum documented permission categories.
 
-```python
-class VastPolicyEnforcer:
-    def __init__(self, team_config):
-        self.config = team_config
-        self.client = VastClient(api_key=os.environ[team_config["api_key_env"]])
+### Step 3: Constrain automation keys
 
-    def can_provision(self, gpu_name, num_gpus=1):
-        """Check if provisioning is allowed by team policy."""
-        if gpu_name not in self.config["gpu_whitelist"]:
-            return False, f"GPU {gpu_name} not in team whitelist"
+Create a different named key per service and environment. Use endpoint and ID constraints where the API supports `eq`, `gte`, or `lte`.
 
-        running = len([i for i in self.client.show_instances()
-                      if i.get("actual_status") == "running"])
-        if running >= self.config["max_instances"]:
-            return False, f"Instance limit reached ({running}/{self.config['max_instances']})"
+### Step 4: Test both directions
 
-        return True, "OK"
+For every role or key, run one required action and one prohibited action. A role is not accepted until the denial is observed.
 
-    def provision_with_policy(self, gpu_name, image, disk_gb=20):
-        allowed, reason = self.can_provision(gpu_name)
-        if not allowed:
-            raise PermissionError(f"Policy violation: {reason}")
+### Step 5: Operate membership lifecycle
 
-        offers = self.client.search_offers({
-            "gpu_name": {"eq": gpu_name},
-            "dph_total": {"lte": self.config["max_dph"]},
-            "reliability2": {"gte": 0.95},
-            "rentable": {"eq": True},
-        })
-        if not offers.get("offers"):
-            raise RuntimeError("No offers matching policy constraints")
+Assign roles during invitation, review movers before expanding access, remove departed members, revoke stale keys, and record effective context.
 
-        return self.client.create_instance(
-            offers["offers"][0]["id"], image, disk_gb)
-```
+### Step 6: Review and recover
 
-### Step 3: Audit Logging
+Export members, roles, keys, and audit evidence on schedule; time-bound emergency elevation and verify removal afterward.
 
-```python
-import json, datetime
+## Authentication
 
-class AuditLogger:
-    def __init__(self, log_file="vast_audit.jsonl"):
-        self.log_file = log_file
+Team roles govern member actions; scoped API keys govern programmatic access. Do not share personal full-access keys, and never give monitoring or cost-analysis jobs write authority by convenience.
 
-    def log(self, team, action, details):
-        entry = {
-            "timestamp": datetime.datetime.utcnow().isoformat(),
-            "team": team,
-            "action": action,
-            **details,
-        }
-        with open(self.log_file, "a") as f:
-            f.write(json.dumps(entry) + "\n")
+## Tool Discipline
 
-# Usage
-audit = AuditLogger()
-audit.log("ml-research", "provision", {
-    "gpu": "A100", "offer_id": 12345, "dph": 1.50})
-audit.log("ml-research", "destroy", {
-    "instance_id": 67890, "duration_hours": 4.2, "total_cost": 6.30})
-```
-
-### Step 4: Spending Reports
-
-```python
-def team_spending_report(audit_file="vast_audit.jsonl"):
-    """Generate spending report from audit log."""
-    import json
-    costs = {}
-    with open(audit_file) as f:
-        for line in f:
-            entry = json.loads(line)
-            if entry["action"] == "destroy" and "total_cost" in entry:
-                team = entry["team"]
-                costs.setdefault(team, 0)
-                costs[team] += entry["total_cost"]
-
-    print("Team Spending Report:")
-    for team, cost in sorted(costs.items(), key=lambda x: -x[1]):
-        print(f"  {team}: ${cost:.2f}")
-```
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- Team-specific API key configuration
-- Policy enforcement layer (GPU whitelist, instance limits, budget caps)
-- Audit logging for all provisioning and destruction events
-- Spending reports per team
+- Actor/action matrix and role/key design
+- Positive and negative access-test evidence
+- Membership, key, review, and emergency-access receipt
 
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Policy violation on provision | GPU not in whitelist or limit reached | Request policy change or destroy idle instances |
-| Budget exceeded | Team exceeded daily limit | Alert team lead; pause provisioning until next day |
-| Missing API key | Environment variable not set | Configure key in secrets manager |
-| Audit log missing entries | Logger not wired into all operations | Audit the code paths for missing log calls |
-
-## Resources
-
-- [Vast.ai Account](https://cloud.vast.ai)
-- [REST API](https://vast.ai/developers/api)
-
-## Next Steps
-
-For migration strategies, see `vastai-migration-deep-dive`.
+Return team context, role/key IDs, permission categories and constraints, tests, exceptions, reviewer, and next review date.
 
 ## Examples
 
-**Team onboarding**: Create a new team config entry with conservative limits (2 instances, RTX 4090 only, $10/day). Increase limits after the team demonstrates responsible usage.
+A deployment service gets `misc`, `user_read`, `instance_read`, and `instance_write`; a monitoring key gets only read categories; neither receives billing-write or team-write, and prohibited credit transfer is tested.
 
-**Monthly chargeback**: Parse the audit log to generate per-team invoices for internal cost allocation.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Required action is denied | Add only the missing documented permission and rerun the denial suite. |
+| Prohibited action succeeds | Remove excess access immediately and review audit logs. |
+| Member context is ambiguous | Stop mutation and confirm personal versus team context. |
+| Emergency elevation outlives its window | Revoke it, verify denial, and open a governance incident. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [CLI permissions](https://docs.vast.ai/cli/permissions)
+- [API permissions](https://docs.vast.ai/api-reference/permissions)
+- [Teams roles](https://docs.vast.ai/guides/teams/teams-roles)

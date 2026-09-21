@@ -10,7 +10,7 @@ description: 'Set up observability for Claude API integrations with metrics, log
 
   '
 allowed-tools: Read, Write, Edit, Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -163,8 +163,8 @@ Send synthetic `fixture-request-001` through a staging client and assert `reques
 
 ## Resources
 
-- [Usage & Cost API](https://docs.anthropic.com/en/api/usage-cost-api)
-- [Rate Limits](https://docs.anthropic.com/en/api/rate-limits)
+- [Usage & Cost API](https://platform.claude.com/docs/en/manage-claude/usage-cost-api)
+- [Rate Limits](https://platform.claude.com/docs/en/api/rate-limits)
 - [API Status](https://status.anthropic.com)
 
 ## Next Steps

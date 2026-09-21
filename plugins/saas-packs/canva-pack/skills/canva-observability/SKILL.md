@@ -1,281 +1,92 @@
 ---
 name: canva-observability
-description: 'Set up observability for Canva Connect API integrations with metrics,
-  traces, and alerts.
-
-  Use when implementing monitoring for Canva API operations, setting up dashboards,
-
-  or configuring alerting for Canva integration health.
-
-  Trigger with phrases like "canva monitoring", "canva metrics",
-
-  "canva observability", "monitor canva", "canva alerts", "canva tracing".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.5.0
+description: 'Implement low-cardinality metrics, traces, logs, and alerts for Canva Connect workflows. Use when measuring API health, authorization failures, async-job reconciliation, queue pressure, or token rotation without exposing protected data. Trigger with: "monitor Canva", "Canva metrics", "Canva tracing".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[service-name-and-slo]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - observability
+  - operations
+compatibility: 'Requires an approved telemetry schema, retention policy, and SLO derived from the application rather than guessed provider guarantees.'
 ---
-# Canva Observability
+
+# Canva Privacy-Safe Observability
 
 ## Overview
 
-Instrument Canva Connect API calls with metrics, traces, and structured logging. Track latency, error rates, rate limit headroom, and export job completion times.
+Observe logical operations and provider requests separately. Keep metrics aggregate and logs content-free; do not assume undocumented rate-limit headers or fixed Canva latency thresholds.
 
 ## Prerequisites
 
-- A protected telemetry destination, retention policy, and alert owner.
-- A documented metric allowlist that excludes OAuth values, design contents, signed URLs, and personal identifiers.
+- Service and operation inventory plus local SLOs
+- Telemetry allowlist/denylist, retention, and access controls
+- Pinned endpoint/error/job contracts and incident routing
 
 ## Instructions
 
-1. Emit aggregate endpoint/status/latency metrics and opaque request identifiers only.
-2. Redact errors before logs/traces, bound log retention, and restrict dashboards to authorized operators.
-3. Alert on sustained authorization, rate, export, or webhook failures and link to the incident runbook.
-4. Do not automate retries or scope changes from a metric alone; reconcile through the protected operation ledger.
+### Step 1: Define semantic signals
 
-## Key Metrics
+Name logical operation count, provider request count, status/provider-code class, latency distribution, job age/terminal state, queue depth, refresh result, and reconciliation outcome.
 
-| Metric | Type | Labels | Description |
-|--------|------|--------|-------------|
-| `canva_api_requests_total` | Counter | `method`, `endpoint`, `status` | Total API calls |
-| `canva_api_duration_seconds` | Histogram | `method`, `endpoint` | Request latency |
-| `canva_api_errors_total` | Counter | `endpoint`, `error_code` | Error count |
-| `canva_export_duration_seconds` | Histogram | `format` | Export completion time |
-| `canva_token_refresh_total` | Counter | `status` | Token refresh attempts |
-| `canva_rate_limit_remaining` | Gauge | `endpoint` | Rate limit headroom |
+### Step 2: Control dimensions
 
-## Prometheus Instrumentation
+Allow method, normalized endpoint, environment, operation type, and coarse result. Exclude user, tenant, design, asset, token, URL, job, email, and raw error dimensions.
 
-```typescript
-import { Registry, Counter, Histogram, Gauge } from 'prom-client';
+### Step 3: Instrument the adapter
 
-const registry = new Registry();
+Use Write or Edit to create spans around authorized provider requests while keeping token refresh, job reconciliation, and business operations as distinct spans.
 
-const requestCounter = new Counter({
-  name: 'canva_api_requests_total',
-  help: 'Total Canva Connect API requests',
-  labelNames: ['method', 'endpoint', 'status'],
-  registers: [registry],
-});
+### Step 4: Measure local rate budget
 
-const requestDuration = new Histogram({
-  name: 'canva_api_duration_seconds',
-  help: 'Canva API request duration',
-  labelNames: ['method', 'endpoint'],
-  buckets: [0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10],
-  registers: [registry],
-});
+Track configured admission/concurrency and observed HTTP 429 by endpoint/user class. Record response retry instructions only when actually present; do not invent headroom gauges.
 
-const rateLimitGauge = new Gauge({
-  name: 'canva_rate_limit_remaining',
-  help: 'Remaining rate limit for endpoint',
-  labelNames: ['endpoint'],
-  registers: [registry],
-});
+### Step 5: Instrument async jobs
 
-const exportDuration = new Histogram({
-  name: 'canva_export_duration_seconds',
-  help: 'Time from export request to completion',
-  labelNames: ['format'],
-  buckets: [1, 2, 5, 10, 20, 30, 60],
-  registers: [registry],
-});
-```
+Measure age and terminal state from the persisted ledger, not from repeated submissions. Alert on reconciliation backlog and duplicate-attempt prevention.
 
-## Instrumented Client Wrapper
+### Step 6: Set evidence-based alerts
 
-```typescript
-async function instrumentedCanvaRequest<T>(
-  method: string,
-  endpoint: string,
-  fn: () => Promise<Response>
-): Promise<T> {
-  const timer = requestDuration.startTimer({ method, endpoint });
+Derive thresholds from application SLOs and measured baselines, require sustained windows, link runbooks, and avoid automatic scope, retry, or mutation changes.
 
-  try {
-    const res = await fn();
+### Step 7: Validate redaction
 
-    // Track rate limit headroom
-    const remaining = res.headers.get('X-RateLimit-Remaining');
-    if (remaining) {
-      rateLimitGauge.set({ endpoint }, parseInt(remaining));
-    }
+Use Read and Grep against tests and sample telemetry to prove credentials, bodies, URLs, profiles, and resource identifiers cannot be emitted.
 
-    const status = res.ok ? 'success' : `error_${res.status}`;
-    requestCounter.inc({ method, endpoint, status });
+## Authentication
 
-    if (!res.ok) {
-      const body = await res.text();
-      throw new CanvaAPIError(res.status, body, endpoint);
-    }
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-    return res.json();
-  } catch (error) {
-    requestCounter.inc({ method, endpoint, status: 'exception' });
-    throw error;
-  } finally {
-    timer();
-  }
-}
-```
+## Tool Discipline
 
-## OpenTelemetry Tracing
-
-```typescript
-import { trace, SpanStatusCode } from '@opentelemetry/api';
-
-const tracer = trace.getTracer('canva-connect-api');
-
-async function tracedCanvaCall<T>(
-  operationName: string,
-  fn: () => Promise<T>
-): Promise<T> {
-  return tracer.startActiveSpan(`canva.${operationName}`, async (span) => {
-    span.setAttribute('canva.base_url', 'api.canva.com/rest/v1');
-
-    try {
-      const result = await fn();
-      span.setStatus({ code: SpanStatusCode.OK });
-      return result;
-    } catch (error: any) {
-      span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
-      span.setAttribute('canva.error_code', error.status || 'unknown');
-      span.recordException(error);
-      throw error;
-    } finally {
-      span.end();
-    }
-  });
-}
-```
-
-## Structured Logging
-
-```typescript
-import pino from 'pino';
-
-const logger = pino({ name: 'canva', level: process.env.LOG_LEVEL || 'info' });
-
-function logCanvaRequest(data: {
-  method: string;
-  endpoint: string;
-  status: number;
-  durationMs: number;
-  rateLimitRemaining?: number;
-}) {
-  // NEVER log access tokens or refresh tokens
-  logger.info({
-    service: 'canva-connect-api',
-    ...data,
-  });
-}
-```
-
-## Alert Rules
-
-```yaml
-# prometheus/canva-alerts.yml
-groups:
-  - name: canva_connect_api
-    rules:
-      - alert: CanvaHighErrorRate
-        expr: |
-          rate(canva_api_errors_total[5m]) /
-          rate(canva_api_requests_total[5m]) > 0.05
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Canva API error rate > 5%"
-
-      - alert: CanvaHighLatency
-        expr: |
-          histogram_quantile(0.95,
-            rate(canva_api_duration_seconds_bucket[5m])
-          ) > 3
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Canva API P95 latency > 3s"
-
-      - alert: CanvaRateLimitLow
-        expr: canva_rate_limit_remaining < 5
-        for: 1m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Canva rate limit nearly exhausted"
-
-      - alert: CanvaTokenRefreshFailing
-        expr: increase(canva_token_refresh_total{status="error"}[15m]) > 0
-        labels:
-          severity: critical
-        annotations:
-          summary: "Canva token refresh failing — users may lose access"
-
-      - alert: CanvaExportSlow
-        expr: |
-          histogram_quantile(0.95,
-            rate(canva_export_duration_seconds_bucket[15m])
-          ) > 30
-        for: 10m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Canva exports taking > 30s at P95"
-```
-
-## Grafana Dashboard Queries
-
-```
-# Request rate by endpoint
-rate(canva_api_requests_total[5m])
-
-# P95 latency
-histogram_quantile(0.95, rate(canva_api_duration_seconds_bucket[5m]))
-
-# Error rate percentage
-100 * rate(canva_api_requests_total{status=~"error.*"}[5m]) / rate(canva_api_requests_total[5m])
-
-# Rate limit headroom
-canva_rate_limit_remaining
-
-# Export completion time P50/P95
-histogram_quantile(0.5, rate(canva_export_duration_seconds_bucket[5m]))
-histogram_quantile(0.95, rate(canva_export_duration_seconds_bucket[5m]))
-```
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-Observability produces redacted health, aggregate latency/error/rate indicators, alert state, and trace references. It contains no tokens, design text, asset URLs, raw payloads, or user profile data.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-When export failures cross the configured threshold, issue one deduplicated alert containing the aggregate count and trace reference, pause dependent exports, and invoke the incident runbook. Do not attach raw Canva responses or a design identifier to a broadly visible alert.
+A dashboard shows export logical operations, provider submissions, in-progress age, terminal failures, and reconciliation backlog by environment and endpoint pattern—with no user or design labels.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Missing metrics | No instrumentation | Wrap all API calls |
-| High cardinality | Too many label values | Use endpoint patterns, not full paths |
-| Alert storms | Thresholds too sensitive | Tune for-duration and threshold |
-| Token in logs | Missing redaction | Never log Authorization headers |
+| Failure | Response |
+| --- | --- |
+| Metric cardinality grows unexpectedly | Disable the new dimension and inspect label sources |
+| Token or URL reaches telemetry | Contain, revoke if needed, and remediate before restoring |
+| 429 signal lacks endpoint context | Fix normalized operation attribution |
+| Alert threshold has no SLO basis | Keep it advisory until calibrated |
 
 ## Resources
 
-- Canva API Reference
-- [Prometheus](https://prometheus.io/docs/practices/naming/)
-- [OpenTelemetry](https://opentelemetry.io/docs/)
-
-## Next Steps
-
-For incident response, see `canva-incident-runbook`.
+- [First-party source notes](references/official-docs.md)
+- [API request model](https://www.canva.dev/docs/connect/api-requests-responses/)
+- [Connect security](https://www.canva.dev/docs/connect/guidelines/security/)

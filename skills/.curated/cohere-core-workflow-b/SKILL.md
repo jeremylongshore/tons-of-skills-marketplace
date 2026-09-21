@@ -1,283 +1,91 @@
 ---
 name: cohere-core-workflow-b
-description: 'Build tool-use agents and function calling with Cohere API v2.
-
-  Use when implementing multi-step agents, function calling,
-
-  or building autonomous tool-using workflows with Cohere.
-
-  Trigger with phrases like "cohere tool use", "cohere agents",
-
-  "cohere function calling", "cohere multi-step".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.5.0
-license: MIT
+description: >-
+  Build a bounded Cohere v2 tool-use loop with JSON Schema, explicit dispatch, result correlation, and approval gates. Use when adding Cohere-powered agents or function calling. Trigger with "Cohere tool use", "Cohere agent", or "Cohere function calling".
+argument-hint: "[repository-path] [tool-name]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ai
-- nlp
 - cohere
-compatibility: Designed for Claude Code
+- tool-use
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Cohere API key
 ---
-# Cohere Tool Use & Agents (Core Workflow B)
+# Cohere Tool-Using Agent Loop
 
 ## Overview
 
-Build multi-step tool-using agents with Cohere's Chat API v2. The model decides which tools to call, you execute them, and feed results back in a loop until the task is complete.
+Let the model propose typed tool calls while application code validates, authorizes, executes, correlates, and limits every side effect.
 
 ## Prerequisites
 
-- Completed `cohere-install-auth` setup
-- Understanding of `cohere-core-workflow-a` (RAG)
-- Command R7B or newer model (required for tool use)
+- The target repository, runtime, environment, and accountable owner
+- An approved Cohere team and key for any live verification
+- Current quality, security, privacy, capacity, and change-control requirements
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current Cohere primary documentation. Use `Write` or `Edit` only when the user requested implementation and the exact target files are known; never write credentials or customer content.
+
+## Current Contract
+
+- Define each v2 tool as a function with JSON Schema parameters.
+- Read proposed calls from the response message and correlate results with `tool_call_id`.
+- Append the assistant tool-call message and tool results to the application-managed `messages` history.
+- Command A+ was the current high-capability tool-use candidate on the review date; resolve availability before pinning it.
+
+## Authentication
+
+Use an environment-specific key injected from an approved secret manager. Never print, persist, commit, or place `CO_API_KEY` in an example. Confirm access with the least costly bounded operation appropriate to the task, and treat key creation, rotation, revocation, role changes, and production-capacity requests as owner-approved actions.
 
 ## Instructions
 
-### Step 1: Define Tools
+1. Define a minimal tool allowlist, strict schemas, timeouts, and side-effect classifications.
+2. Resolve a live tool-capable model and submit the user message plus tool definitions.
+3. Validate tool name, arguments, tenant scope, and approval state before dispatch.
+4. Execute read-only calls automatically only if policy allows; pause for consequential writes.
+5. Append correlated tool results and continue until content is returned or the iteration budget is exhausted.
+6. Test unknown tools, invalid arguments, duplicate calls, timeouts, denial, and loop exhaustion.
 
-```typescript
-import { CohereClientV2 } from 'cohere-ai';
+## Approval Boundaries
 
-const cohere = new CohereClientV2();
-
-// Define tools the model can call
-const tools = [
-  {
-    type: 'function' as const,
-    function: {
-      name: 'get_weather',
-      description: 'Get current weather for a city',
-      parameters: {
-        type: 'object' as const,
-        properties: {
-          city: { type: 'string', description: 'City name' },
-          unit: { type: 'string', enum: ['celsius', 'fahrenheit'], description: 'Temperature unit' },
-        },
-        required: ['city'],
-      },
-    },
-  },
-  {
-    type: 'function' as const,
-    function: {
-      name: 'search_database',
-      description: 'Search internal database for records',
-      parameters: {
-        type: 'object' as const,
-        properties: {
-          query: { type: 'string', description: 'Search query' },
-          limit: { type: 'number', description: 'Max results' },
-        },
-        required: ['query'],
-      },
-    },
-  },
-];
-```
-
-### Step 2: Implement Tool Executors
-
-```typescript
-// Map tool names to actual implementations
-const toolExecutors: Record<string, (args: any) => Promise<string>> = {
-  get_weather: async ({ city, unit = 'celsius' }) => {
-    // Replace with real weather API call
-    return JSON.stringify({
-      city,
-      temperature: unit === 'celsius' ? 22 : 72,
-      unit,
-      condition: 'partly cloudy',
-    });
-  },
-
-  search_database: async ({ query, limit = 5 }) => {
-    // Replace with real database query
-    return JSON.stringify({
-      results: [
-        { id: 1, title: `Result for: ${query}`, relevance: 0.95 },
-      ],
-      total: 1,
-    });
-  },
-};
-```
-
-### Step 3: Single-Step Tool Use
-
-```typescript
-async function singleStepToolUse(userMessage: string) {
-  // 1. Send message with tools
-  const response = await cohere.chat({
-    model: 'command-a-03-2025',
-    messages: [{ role: 'user', content: userMessage }],
-    tools,
-  });
-
-  // 2. Check if model wants to call tools
-  if (response.finishReason === 'TOOL_CALL') {
-    const toolCalls = response.message?.toolCalls ?? [];
-
-    // 3. Execute each tool call
-    const toolResults = await Promise.all(
-      toolCalls.map(async (tc) => {
-        const executor = toolExecutors[tc.function.name];
-        const args = JSON.parse(tc.function.arguments);
-        const result = await executor(args);
-        return {
-          call: tc,
-          outputs: [{ result }],
-        };
-      })
-    );
-
-    // 4. Send tool results back for final answer
-    const finalResponse = await cohere.chat({
-      model: 'command-a-03-2025',
-      messages: [
-        { role: 'user', content: userMessage },
-        { role: 'assistant', toolCalls },
-        { role: 'tool', toolCallId: toolCalls[0].id, content: toolResults[0].outputs[0].result },
-      ],
-      tools,
-    });
-
-    return finalResponse.message?.content?.[0]?.text ?? '';
-  }
-
-  // No tool call — direct response
-  return response.message?.content?.[0]?.text ?? '';
-}
-```
-
-### Step 4: Multi-Step Agent Loop
-
-```typescript
-async function agentLoop(userMessage: string, maxSteps = 5) {
-  const messages: any[] = [{ role: 'user', content: userMessage }];
-
-  for (let step = 0; step < maxSteps; step++) {
-    const response = await cohere.chat({
-      model: 'command-a-03-2025',
-      messages,
-      tools,
-    });
-
-    // If model is done (no tool calls), return the answer
-    if (response.finishReason !== 'TOOL_CALL') {
-      return response.message?.content?.[0]?.text ?? '';
-    }
-
-    // Model wants to call tools
-    const toolCalls = response.message?.toolCalls ?? [];
-    messages.push({ role: 'assistant', toolCalls });
-
-    // Execute tools (parallel if multiple)
-    for (const tc of toolCalls) {
-      const executor = toolExecutors[tc.function.name];
-      if (!executor) {
-        messages.push({ role: 'tool', toolCallId: tc.id, content: `Error: Unknown tool ${tc.function.name}` });
-        continue;
-      }
-
-      try {
-        const args = JSON.parse(tc.function.arguments);
-        const result = await executor(args);
-        messages.push({ role: 'tool', toolCallId: tc.id, content: result });
-      } catch (err) {
-        messages.push({ role: 'tool', toolCallId: tc.id, content: `Error: ${(err as Error).message}` });
-      }
-    }
-
-    console.log(`Step ${step + 1}: executed ${toolCalls.length} tool(s)`);
-  }
-
-  return 'Agent reached max steps without completing.';
-}
-
-// Usage
-const answer = await agentLoop("What's the weather in Tokyo and search for 'Tokyo events'?");
-console.log(answer);
-```
-
-### Step 5: Force Tool Use
-
-```typescript
-// Force the model to use at least one tool
-const response = await cohere.chat({
-  model: 'command-a-03-2025',
-  messages: [{ role: 'user', content: 'Look up the weather in Paris' }],
-  tools,
-  toolChoice: 'REQUIRED', // REQUIRED = must use tool, NONE = cannot use tools
-});
-
-// toolChoice options:
-// - omitted: model decides freely
-// - 'REQUIRED': must call at least one tool
-// - 'NONE': cannot call any tools (text-only response)
-```
-
-### Step 6: Streaming Tool Use
-
-```typescript
-async function streamWithTools(userMessage: string) {
-  const stream = await cohere.chatStream({
-    model: 'command-a-03-2025',
-    messages: [{ role: 'user', content: userMessage }],
-    tools,
-  });
-
-  const toolCalls: any[] = [];
-
-  for await (const event of stream) {
-    switch (event.type) {
-      case 'tool-call-start':
-        console.log(`Tool call: ${event.delta?.message?.toolCalls?.function?.name}`);
-        break;
-      case 'tool-call-delta':
-        // Streaming tool arguments
-        break;
-      case 'content-delta':
-        process.stdout.write(event.delta?.message?.content?.text ?? '');
-        break;
-    }
-  }
-}
-```
+Do not expose or rotate keys, change Cohere Team roles, accept commercial terms, enable sensitive production data, increase spend or capacity, switch production models, send a support bundle, or execute model-proposed side effects without the accountable owner's approval. Keep diagnosis read-only unless implementation was requested.
 
 ## Output
 
-- Single-step tool calls with automatic execution
-- Multi-step agent loop handling sequential reasoning
-- Parallel tool execution for independent calls
-- Streaming with tool-call events
+Return the resolved API and model contract, files or settings inspected, evidence collected, validation result, remaining risk, owner, and rollback or next action. Redact keys, authorization headers, prompts, retrieved documents, embeddings, customer identifiers, and unrestricted environment output.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `tool not found` | Mismatched tool name | Verify `tools` array matches executors |
-| `invalid arguments` | Schema mismatch | Check tool parameter types |
-| Infinite loop | Model keeps calling tools | Set `maxSteps` limit |
-| `TOOL_CALL` with no toolCalls | Edge case | Check `response.message?.toolCalls` length |
+| Condition | Response |
+|---|---|
+| Unknown tool | Return a structured denial result; never dispatch by reflection. |
+| Invalid arguments | Reject before execution and preserve validation evidence. |
+| Missing correlation | Stop because tool results cannot be safely attached. |
+| Loop exhausted | Return partial state and request direction without another model call. |
 
 ## Examples
 
-Run a staging agent with an allow-listed weather or search tool, a small
-`maxSteps` limit, schema validation, and redacted trace IDs, then verify it
-terminates after the expected tool sequence. If a tool call is malformed or the
-model loops, fail the request safely and preserve only the diagnostic metadata
-needed to improve the tool contract.
+Use this compact handoff shape to keep the selected scope, validation evidence, and operational result reviewable.
+
+Input:
+
+```text
+goal=lookup-order; tools=read-only-order-status; max-iterations=4
+```
+
+Expected handoff:
+
+```text
+iterations=2; tool-calls=1; side-effects=none; final=validated
+```
 
 ## Resources
 
-- [Tool Use Quickstart](https://docs.cohere.com/docs/tool-use-quickstart)
-- [Multi-Step Tool Use](https://docs.cohere.com/docs/multi-step-tool-use)
-- [Tool Use Streaming](https://docs.cohere.com/docs/tool-use-streaming)
-- [Tool Use Citations](https://docs.cohere.com/docs/tool-use-citations)
-
-## Next Steps
-
-For common errors, see `cohere-common-errors`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Tool use](https://docs.cohere.com/docs/tool-use)
+- [v1 to v2 migration](https://docs.cohere.com/docs/migrating-v1-to-v2)

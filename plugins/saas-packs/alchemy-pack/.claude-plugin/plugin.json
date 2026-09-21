@@ -1,7 +1,7 @@
 {
   "name": "alchemy-pack",
-  "version": "1.5.0",
-  "description": "Claude Code skill pack for Alchemy (18 skills)",
+  "version": "2.0.0",
+  "description": "Evidence-backed Alchemy operator workflows for current Node, Data, Portfolio, NFT, Wallet, Notify, Admin, reliability, security, and migration contracts (18 skills)",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,10 @@
   "license": "MIT",
   "keywords": [
     "alchemy",
-    "alchemy",
+    "web3",
     "saas",
-    "sdk",
+    "viem",
+    "wallet-apis",
     "integration"
   ]
 }

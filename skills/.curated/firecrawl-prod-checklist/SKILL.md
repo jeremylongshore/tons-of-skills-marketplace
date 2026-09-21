@@ -1,200 +1,78 @@
 ---
 name: firecrawl-prod-checklist
-description: 'Execute Firecrawl production deployment checklist and rollback procedures.
-
-  Use when deploying Firecrawl integrations to production, preparing for launch,
-
-  or implementing go-live procedures.
-
-  Trigger with phrases like "firecrawl production", "deploy firecrawl",
-
-  "firecrawl go-live", "firecrawl launch checklist".
-
-  '
-allowed-tools: Read, Bash(kubectl:*), Bash(curl:*), Grep
-version: 1.11.0
+description: >-
+  Run a release gate for a Firecrawl v2 integration covering contracts, scope, identity, spend, retention, reliability, observability, and rollback. Use when preparing a production launch or major change. Trigger with "Firecrawl production checklist", "launch Firecrawl", or "Firecrawl go-live review".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <release-ref>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- deployment
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, production, release]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Production Checklist
+# Firecrawl Production Readiness Gate
 
 ## Overview
 
-Pre-deployment validation checklist for applications using Firecrawl's scrape, crawl, map, and extract APIs. Covers credential management, crawl safety limits, error handling, monitoring, and rollback.
-
-## Output
-
-Produce a launch receipt listing the approved deployment version, allowlist, crawl budget, evidence for completed controls, canary metrics, rollback owner, and unresolved exceptions. Exclude API keys and captured page content.
-
-## Error Handling
-
-- Stop promotion on credential exposure, allowlist bypass, unbounded crawl behavior, or a threshold breach.
-- Move exhausted jobs to a reviewed queue rather than retrying indefinitely.
-- Revoke affected credentials and preserve only redacted incident evidence when data or access boundaries may have been violated.
-
-## Examples
-
-Deploy a staging canary that crawls one approved synthetic target under a small credit budget. Simulate a throttle response and verify the job pauses safely, reports aggregate state, and can be rolled back without replaying pages.
+Produce evidence for a go/no-go decision. A checked box without an artifact, test, owner, or exact release reference is not evidence.
 
 ## Prerequisites
 
-- Staging environment tested and passing
-- Production API key from [firecrawl.dev/app](https://firecrawl.dev/app)
-- Monitoring infrastructure ready
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
 
-## Pre-Deployment Checklist
+## Current Contract
 
-### Credentials & Security
+The release must use current v2 endpoints or an explicitly isolated legacy path, the official SDK surface, complete async pagination, documented retryability, signed webhooks, explicit crawl/batch limits, current billing controls, and approved cache/retention behavior. Self-hosted releases require their own production controls beyond Compose evaluation.
 
-- [ ] Production `FIRECRAWL_API_KEY` in secure vault (not in code or .env)
-- [ ] Key starts with `fc-` and is scoped to production
-- [ ] Different API keys for dev/staging/production
-- [ ] `.env` files in `.gitignore`
-- [ ] Webhook secrets stored securely
-- [ ] Git history scanned for leaked keys
+## Authentication
 
-### Crawl Safety
-
-- [ ] All `crawlUrl` calls have `limit` parameter set
-- [ ] `maxDepth` configured to prevent unbounded crawling
-- [ ] `includePaths` / `excludePaths` filters applied where appropriate
-- [ ] Credit budget tracking implemented (daily limit alerts)
-- [ ] No hardcoded URLs in production code
-
-### Error Handling
-
-- [ ] 429 rate limit handling with exponential backoff
-- [ ] 402 credit exhaustion handled gracefully (no crash)
-- [ ] 401 auth failure logged and alerted
-- [ ] Async crawl jobs have timeout with deadline
-- [ ] Fallback from crawl to individual scrape on failure
-- [ ] Empty markdown detection (JS rendering issues)
-
-### Monitoring & Alerting
-
-- [ ] Scrape success/failure rate tracked
-- [ ] Credit consumption monitored
-- [ ] Crawl job completion rate tracked
-- [ ] Alert on credit balance below threshold
-- [ ] Alert on error rate > 5%
-- [ ] Webhook delivery failures logged
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Verify API Connectivity
+1. Pin the application release, dependency/lockfile, Firecrawl contract source, configuration hashes, environment, owners, target policy, and rollback candidate.
+2. Verify secret-managed identity, team ownership, key/format/endpoint/IP restrictions where available, rotation, fork-CI isolation, and no secret in source or artifacts.
+3. Verify domain authorization, URL canonicalization, explicit scope/limits, allowed formats/actions/headers/proxies, retention/cache/ZDR choices, and deletion.
+4. Test SDK/REST response handling, origin status, pagination, cancellation, 402/403/429, Retry-After, bounded server retries, partial results, webhook HMAC/idempotency, and downstream deduplication.
+5. Verify cost ceilings, pay-as-you-go policy, queue/concurrency headroom, dashboards, SLO alerts, incident ownership, vendor escalation, and degraded modes.
+6. Run one bounded staging canary with approved content-free assertions; then test rollback without replaying or duplicating accepted pages.
+7. Issue go only when required gates pass and approvals are attached; record exceptions with owner and expiry.
 
-```bash
-set -euo pipefail
-# Test production key
-curl -s https://api.firecrawl.dev/v1/scrape \
-  -H "Authorization: Bearer $FIRECRAWL_API_KEY_PROD" \
-  -H "Content-Type: application/json" \
-  -d '{"url":"https://example.com","formats":["markdown"]}' | jq '.success'
+## Tool Discipline
 
-# Check credit balance
-curl -s https://api.firecrawl.dev/v1/team/credits \
-  -H "Authorization: Bearer $FIRECRAWL_API_KEY_PROD" | jq .
-```
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-### Step 2: Health Check Endpoint
+## Approval Boundaries
 
-```typescript
-import FirecrawlApp from "@mendable/firecrawl-js";
+Require named security/data/product/operations approval for their controls and release-owner approval for go-live, plan/spend changes, exceptions, and rollback waivers.
 
-const firecrawl = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY!,
-});
+## Output
 
-export async function healthCheck() {
-  const start = Date.now();
-  try {
-    const result = await firecrawl.scrapeUrl("https://example.com", {
-      formats: ["markdown"],
-    });
-    return {
-      status: result.success ? "healthy" : "degraded",
-      latencyMs: Date.now() - start,
-      hasContent: (result.markdown?.length || 0) > 0,
-    };
-  } catch (error: any) {
-    return {
-      status: "unhealthy",
-      latencyMs: Date.now() - start,
-      error: error.statusCode || error.message,
-    };
-  }
-}
-```
+Return a release scorecard with evidence links, exact versions, gate verdicts, canary and rollback results, exceptions, owners, expiry, and final go/no-go decision.
 
-### Step 3: Production-Safe Crawl Wrapper
+## Error Handling
 
-```typescript
-export async function productionCrawl(url: string, opts: {
-  maxPages: number;
-  paths?: string[];
-  timeout?: number;
-}) {
-  // Hard credit safety — never exceed configured limit
-  const limit = Math.min(opts.maxPages, 500);
+- Required evidence is missing: mark the gate failed, not unknown-pass.
+- Canary content or spend exceeds policy: stop rollout and execute rollback.
+- Rollback duplicates downstream records: keep release blocked until idempotency is repaired.
 
-  const job = await firecrawl.asyncCrawlUrl(url, {
-    limit,
-    maxDepth: 3,
-    includePaths: opts.paths,
-    scrapeOptions: { formats: ["markdown"], onlyMainContent: true },
-  });
+## Examples
 
-  // Poll with timeout
-  const deadline = Date.now() + (opts.timeout || 600000);
-  let pollInterval = 2000;
-  let status = await firecrawl.checkCrawlStatus(job.id);
-
-  while (status.status === "scraping" && Date.now() < deadline) {
-    await new Promise(r => setTimeout(r, pollInterval));
-    pollInterval = Math.min(pollInterval * 1.5, 30000);
-    status = await firecrawl.checkCrawlStatus(job.id);
-  }
-
-  if (status.status !== "completed") {
-    throw new Error(`Crawl ${job.id} did not complete: ${status.status}`);
-  }
-  return status;
-}
-```
-
-### Step 4: Rollback Procedure
-
-```bash
-set -euo pipefail
-# Immediate rollback — disable Firecrawl integration
-kubectl set env deployment/app FIRECRAWL_ENABLED=false
-kubectl rollout restart deployment/app
-
-# Verify rollback
-curl -s https://app.example.com/health | jq '.services.firecrawl'
-```
-
-## Alerting Rules
-
-| Alert | Condition | Severity |
-|-------|-----------|----------|
-| API unreachable | Health check fails 3x | P1 |
-| Credits < 1000 | Balance check | P2 |
-| Error rate > 5% | 429/5xx rate | P2 |
-| Crawl timeout | Job stuck > 10min | P3 |
-| Auth failure | Any 401 response | P1 |
+- "Are we ready to launch?" returns evidence-backed gate verdicts and open owners.
+- "Ship despite unsigned webhooks" remains no-go until verification or polling-only architecture is approved.
 
 ## Resources
 
-- [Firecrawl Dashboard](https://firecrawl.dev/app)
-- [Firecrawl Rate Limits](https://docs.firecrawl.dev/rate-limits)
-- [Firecrawl API Reference](https://docs.firecrawl.dev/api-reference/introduction)
-
-## Next Steps
-
-For version upgrades, see `firecrawl-upgrade-migration`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

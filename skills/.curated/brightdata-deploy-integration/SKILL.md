@@ -1,193 +1,76 @@
 ---
 name: brightdata-deploy-integration
-description: 'Deploy Bright Data integrations to Vercel, Fly.io, and Cloud Run platforms.
-
-  Use when deploying Bright Data-powered applications to production,
-
-  configuring platform-specific secrets, or setting up deployment pipelines.
-
-  Trigger with phrases like "deploy brightdata", "brightdata Vercel",
-
-  "brightdata production deploy", "brightdata Cloud Run", "brightdata Fly.io".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(fly:*), Bash(gcloud:*)
-version: 1.6.0
+description: 'Design and review a bounded Bright Data worker deployment with separate proxy, Browser API, scraper, snapshot, and delivery responsibilities. Use when preparing a runtime topology or deployment manifest. Trigger with: "deploy this Bright Data worker", "design Bright Data queues", "review the Bright Data deployment".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: "[deployment-path]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
-- scraping
-- data
-- brightdata
-compatibility: Designed for Claude Code
+- web-data
+- bright-data
+- deploy-integration
+- operations
+compatibility: 'Requires an approved Bright Data workload, managed secrets, queueing, and a deployment platform'
 ---
-# Bright Data Deploy Integration
+# Bright Data Worker Deployment
 
 ## Overview
 
-Deploy Bright Data scraping applications to cloud platforms with proper secrets management. Key consideration: Bright Data proxy connections require outbound TCP to `brd.superproxy.io` on ports 33335 (proxy) and 9222 (Scraping Browser).
+Deploy collection as bounded workers instead of one privileged process. Separate synchronous proxy or Browser API requests from scraper triggers, snapshot polling, downloads, and destination delivery so each stage has its own authority, queue, resource ceiling, and rollback.
 
 ## Prerequisites
 
-- Bright Data production zone credentials
-- Platform CLI installed (vercel, fly, or gcloud)
-- Application tested in staging
+- An approved workload manifest naming targets, fields, products, and destinations
+- Managed secret references and environment-specific Bright Data resources
+- Queue, object-storage, quarantine, and observability facilities
 
 ## Instructions
 
-### Step 1: Vercel Deployment (Serverless)
+### Step 1: Inventory runtime responsibilities
 
-```bash
-# Add secrets
-vercel env add BRIGHTDATA_CUSTOMER_ID production
-vercel env add BRIGHTDATA_ZONE production
-vercel env add BRIGHTDATA_ZONE_PASSWORD production
-vercel env add BRIGHTDATA_API_TOKEN production
-```
+Read the application and Grep for proxy requests, Browser API sessions, `/datasets/v3/trigger`, progress checks, snapshot downloads, and delivery calls. Assign each responsibility to the smallest worker role.
 
-```json
-// vercel.json
-{
-  "functions": {
-    "api/scrape.ts": {
-      "maxDuration": 60
-    }
-  }
-}
-```
+### Step 2: Define admission and isolation
 
-```typescript
-// api/scrape.ts — Vercel serverless function
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import axios from 'axios';
-import https from 'https';
+Write or Edit deployment manifests with separate queues and identities for request, browser, trigger, poll, download, validate, and delivery workers. Add target allowlists, byte and record ceilings, timeouts, concurrency bounds, and dead-letter routing.
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const { url } = req.body;
-  if (!url) return res.status(400).json({ error: 'url required' });
+### Step 3: Protect data movement
 
-  const proxy = {
-    host: 'brd.superproxy.io',
-    port: 33335,
-    auth: {
-      username: `brd-customer-${process.env.BRIGHTDATA_CUSTOMER_ID}-zone-${process.env.BRIGHTDATA_ZONE}`,
-      password: process.env.BRIGHTDATA_ZONE_PASSWORD!,
-    },
-  };
+Stream large snapshots to bounded storage, validate schema before downstream use, quarantine unexpected content, and require an approved destination before invoking `/datasets/v3/deliver/SNAPSHOT_ID`.
 
-  try {
-    const response = await axios.get(url, {
-      proxy,
-      httpsAgent: new https.Agent({ rejectUnauthorized: false }),
-      timeout: 55000, // Leave 5s buffer for Vercel's 60s limit
-    });
-    res.json({ status: response.status, length: response.data.length });
-  } catch (error: any) {
-    res.status(502).json({ error: error.message });
-  }
-}
-```
+### Step 4: Make rollout reversible
 
-### Step 2: Fly.io Deployment (Long-Running)
+Specify health signals, queue-depth and error-class alerts, canary capacity, drain behavior, rollback version, secret revocation, and replay rules. Produce manifests and a deployment plan; do not initiate production traffic from this skill.
 
-```toml
-# fly.toml — better for Scraping Browser (needs WebSocket)
-app = "my-scraper"
-primary_region = "iad"
+## Tool Discipline
 
-[env]
-  NODE_ENV = "production"
-
-[http_service]
-  internal_port = 3000
-  force_https = true
-  auto_stop_machines = true
-  auto_start_machines = true
-  min_machines_running = 0
-```
-
-```bash
-# Set secrets
-fly secrets set BRIGHTDATA_CUSTOMER_ID=c_abc123
-fly secrets set BRIGHTDATA_ZONE=web_unlocker_prod
-fly secrets set BRIGHTDATA_ZONE_PASSWORD=z_prod_pass
-fly secrets set BRIGHTDATA_API_TOKEN=prod_token
-
-# Deploy
-fly deploy
-```
-
-### Step 3: Google Cloud Run
-
-```bash
-# Store secrets in Secret Manager
-echo -n "c_abc123" | gcloud secrets create brightdata-customer-id --data-file=-
-echo -n "web_unlocker_prod" | gcloud secrets create brightdata-zone --data-file=-
-echo -n "z_prod_pass" | gcloud secrets create brightdata-zone-password --data-file=-
-
-# Deploy with secret mounts
-gcloud run deploy scraper \
-  --image gcr.io/$PROJECT_ID/scraper \
-  --region us-central1 \
-  --set-secrets=BRIGHTDATA_CUSTOMER_ID=brightdata-customer-id:latest \
-  --set-secrets=BRIGHTDATA_ZONE=brightdata-zone:latest \
-  --set-secrets=BRIGHTDATA_ZONE_PASSWORD=brightdata-zone-password:latest \
-  --timeout=120 \
-  --memory=512Mi
-```
-
-### Step 4: Platform Comparison
-
-| Feature | Vercel | Fly.io | Cloud Run |
-|---------|--------|--------|-----------|
-| Max timeout | 60s (Pro: 300s) | No limit | 3600s |
-| WebSocket (Scraping Browser) | No | Yes | No |
-| Outbound TCP | Yes | Yes | Yes |
-| Best for | Web Unlocker API | Scraping Browser | Batch scraping |
-| Cold start | Fast | Configurable | Medium |
-
-### Step 5: Health Check Endpoint
-
-```typescript
-// api/health.ts — works on all platforms
-export async function GET() {
-  try {
-    const proxy = { host: 'brd.superproxy.io', port: 33335, auth: { username: `brd-customer-${process.env.BRIGHTDATA_CUSTOMER_ID}-zone-${process.env.BRIGHTDATA_ZONE}`, password: process.env.BRIGHTDATA_ZONE_PASSWORD! } };
-    const start = Date.now();
-    const res = await axios.get('https://lumtest.com/myip.json', { proxy, httpsAgent: new (await import('https')).Agent({ rejectUnauthorized: false }), timeout: 15000 });
-    return Response.json({ status: 'healthy', proxy_ip: res.data.ip, latency_ms: Date.now() - start });
-  } catch {
-    return Response.json({ status: 'degraded' }, { status: 503 });
-  }
-}
-```
+Use Read and Grep for topology and configuration discovery. Use Write and Edit for deployment manifests, queue contracts, policies, tests, and runbooks. This skill does not deploy, rotate credentials, create zones, or send provider requests.
 
 ## Output
 
-- Platform-specific deployment with secrets management
-- Health check endpoint verifying proxy connectivity
-- Timeout and memory configured for scraping workloads
+- Worker and queue topology with explicit trust boundaries
+- Resource, data, and destination controls per stage
+- Canary, drain, rollback, quarantine, and replay plan
 
 ## Examples
 
-Deploy a versioned worker with zone credentials injected only at runtime, enforce an allowlisted target policy at the application boundary, and run a read-only probe to a controlled target before accepting jobs. Promote gradually with hard rate and spend limits; preserve only redacted delivery evidence and roll back immediately if policy or reconciliation checks fail.
+A trigger worker creates one approved scraper job, a poller records state transitions, a downloader streams the completed snapshot to quarantine, a validator enforces the schema, and a delivery worker releases only accepted records to an approved destination.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Vercel timeout | 60s limit too short | Upgrade to Pro (300s) or use Fly.io |
-| WebSocket refused | Platform blocks WS | Use Fly.io for Scraping Browser |
-| Cold start timeout | Proxy handshake slow | Configure min instances |
-| Secrets not found | Wrong env name | Verify with platform CLI |
+| Failure | Meaning | Response |
+|---------|---------|----------|
+| One worker holds every credential | Blast radius is too large | Split identities and secret scopes |
+| Download memory grows with snapshot size | Transfer is unbounded | Stream with byte ceilings and backpressure |
+| Delivery destination is runtime input | Exfiltration boundary is open | Resolve destinations from an approved manifest |
 
 ## Resources
 
-- [Vercel Serverless Limits](https://vercel.com/docs/functions/runtimes#max-duration)
-- [Fly.io Documentation](https://fly.io/docs)
-- [Cloud Run Docs](https://cloud.google.com/run/docs)
-
-## Next Steps
-
-For webhook handling, see `brightdata-webhooks-events`.
+- [Asynchronous scraper requests](https://docs.brightdata.com/api-reference/rest-api/scraper/asynchronous-requests)
+- [Download snapshot](https://docs.brightdata.com/api-reference/scrapers/delivery-apis/download-snapshot)
+- [Deliver snapshot](https://docs.brightdata.com/api-reference/scrapers/delivery-apis/deliver-snapshot)
+- [REST API authentication](https://docs.brightdata.com/api-reference/authentication)

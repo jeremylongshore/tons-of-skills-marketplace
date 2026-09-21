@@ -1,7 +1,7 @@
 {
   "name": "vastai-pack",
-  "version": "1.11.0",
-  "description": "Claude Code skill pack for Vast.ai (24 skills)",
+  "version": "2.0.0",
+  "description": "Evidence-gated Vast.ai operator pack for GPU rentals, Serverless, governance, recovery, and cost control (24 skills)",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -11,7 +11,9 @@
     "vastai",
     "vast.ai",
     "saas",
-    "sdk",
-    "integration"
+    "gpu-operations",
+    "serverless",
+    "governance",
+    "recovery"
   ]
 }

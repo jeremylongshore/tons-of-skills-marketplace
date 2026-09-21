@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/exa-pack",
-  "version": "1.0.2",
-  "description": "Claude Code skill pack for Exa - 30 skills covering neural search and embeddings API",
+  "version": "1.12.0",
+  "description": "Claude Code skill pack for governed Exa retrieval, research, monitoring, and enterprise operations",
   "main": "README.md",
   "type": "module",
   "files": [

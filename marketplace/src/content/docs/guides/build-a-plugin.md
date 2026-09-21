@@ -14,9 +14,9 @@ keywords:
   - "build plugin"
 officialLinks:
   - title: "Anthropic Claude Code Documentation"
-    url: "https://docs.anthropic.com/en/docs/claude-code/"
+    url: "https://code.claude.com/docs/en/"
   - title: "Anthropic Plugins Reference"
-    url: "https://docs.anthropic.com/en/docs/claude-code/plugins"
+    url: "https://code.claude.com/docs/en/plugins"
 relatedDocs:
   - "concepts/plugins"
   - "reference/plugin-json-schema"

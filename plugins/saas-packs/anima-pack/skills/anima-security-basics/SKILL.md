@@ -1,16 +1,19 @@
 ---
 name: anima-security-basics
-description: 'Secure Anima and Figma tokens for design-to-code pipelines.
+description: 'Audit and harden Anima and Figma tokens for design-to-code pipelines.
 
   Use when protecting API credentials, restricting Figma access scope,
 
   or hardening CI/CD design automation pipelines.
 
-  Trigger: "anima security", "anima token safety", "figma token security".
+  Trigger with: "anima security", "anima token safety", "figma token security".
 
   '
 allowed-tools: Read, Write, Edit, Grep
-version: 1.4.0
+version: 2.0.0
+argument-hint: "[pipeline-or-environment]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -19,7 +22,7 @@ tags:
 - figma
 - anima
 - security
-compatibility: Designed for Claude Code
+compatibility: Requires Node.js 20+, approved Anima API access, current Anima SDK documentation, and authorized Figma or website source access
 ---
 # Anima Security Basics
 
@@ -44,7 +47,7 @@ secret exposure or unexpected file access a fail-closed condition.
 ## Security Checklist
 
 - [ ] Anima token stored in secret manager (not .env in prod)
-- [ ] Figma PAT has minimum required scope (file:read only)
+- [ ] Figma token uses only the endpoint-required granular read scopes
 - [ ] SDK runs server-side only (never ship tokens to browser)
 - [ ] `.env` files gitignored and chmod 600
 - [ ] CI secrets stored in GitHub Secrets, not workflow files
@@ -56,9 +59,11 @@ secret exposure or unexpected file access a fail-closed condition.
 
 ```bash
 # When creating a Figma Personal Access Token:
-# - Give it the MINIMUM scope needed: File Content (read-only)
-# - Do NOT grant write access unless you need Figma plugin features
-# - Set an expiration date (90 days recommended)
+# - Start with file_content:read for file/node content.
+# - Add file_metadata:read, file_versions:read, or library read scopes only
+#   when the selected endpoint requires them.
+# - Do not use the deprecated broad files:read scope for new integrations.
+# - Set an organization-approved expiration date.
 # - Create separate tokens for dev vs CI environments
 ```
 
@@ -116,6 +121,10 @@ async function loadAnimaSecrets(): Promise<{ animaToken: string; figmaToken: str
 }
 ```
 
+## Tool Discipline
+
+Use Read and Grep to inspect the existing integration and generated diff before changing anything. Use Write or Edit only inside the approved generated-code, test, or configuration paths. Use the declared Bash commands only for the explicit install, validation, or diagnostic steps in this workflow; never print tokens, source designs, generated source, or private website captures.
+
 ## Output
 
 - Figma token with minimal scope (read-only)
@@ -146,7 +155,3 @@ result in the receipt; never record the credentials or design contents.
 
 - [Figma Access Tokens](https://www.figma.com/developers/api#access-tokens)
 - [GCP Secret Manager](https://cloud.google.com/secret-manager)
-
-## Next Steps
-
-For production deployment, see `anima-prod-checklist`.

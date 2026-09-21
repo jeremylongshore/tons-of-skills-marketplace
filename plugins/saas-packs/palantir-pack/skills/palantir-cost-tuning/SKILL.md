@@ -1,145 +1,95 @@
 ---
 name: palantir-cost-tuning
-description: 'Optimize Palantir Foundry costs through compute tuning, incremental
-  builds, and usage monitoring.
-
-  Use when analyzing Foundry compute costs, reducing API usage,
-
-  or implementing cost monitoring for Foundry workloads.
-
-  Trigger with phrases like "palantir cost", "foundry billing",
-
-  "reduce foundry costs", "foundry pricing", "foundry expensive".
-
-  '
-allowed-tools: Read, Grep
-version: 1.5.0
-license: MIT
+description: >-
+  Reduce Foundry compute usage through measured engine, resource, incremental, schedule, and Compute Module decisions. Use when build or application usage is high or unpredictable. Trigger with "Foundry cost tuning" or "Palantir compute usage".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[pipeline-or-compute-module]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- cost
-- optimization
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, cost, compute]
 ---
-# Palantir Cost Tuning
+# Palantir Compute and Usage Optimization
 
 ## Overview
 
-Optimize Foundry compute and API costs through incremental transforms, right-sized Spark profiles, efficient pagination, and usage monitoring.
+Optimize from measured Foundry usage and telemetry, not invented data-volume bands. Separate transform-build consumption from interactive Compute Module replica consumption because they have different controls and failure modes.
 
 ## Prerequisites
 
-- Active Foundry enrollment with build history
-- Access to Foundry resource usage metrics
-- Understanding of transform build patterns
+- Identify the pipeline, build jobs, Compute Modules, schedules, owners, service objectives, and current usage window.
+- Capture build duration, requested and observed CPU/memory, queue time, input change rate, output volume, and module replica activity.
+- Read `references/official-docs.md` and confirm contract-specific pricing or usage questions with the account owner or Palantir representative.
+- Define correctness and latency constraints that cannot be traded away.
+
+## Current Contract
+
+- Python transforms can use single-node engines or Spark; required feature support constrains the choice.
+- Foundry build metrics expose requested and observed CPU and memory, enabling evidence-based resource changes.
+- Incremental transforms can reduce repeated work only when their transaction semantics remain correct.
+- Compute Module usage is measured while replicas are starting or active, including predictive autoscaling behavior.
 
 ## Instructions
 
-### Step 1: Cost Drivers in Foundry
+1. Build a baseline that separates transform jobs, schedules, previews, retries, snapshots, and Compute Module replicas.
 
-| Cost Category | Driver | Optimization |
-|---------------|--------|-------------|
-| Compute | Full rebuilds of large transforms | Use `@incremental()` |
-| Compute | Oversized Spark profiles | Right-size `@configure` profiles |
-| Storage | Redundant dataset snapshots | Configure retention policies |
-| API | High-frequency polling | Use webhooks instead |
-| API | Small page sizes | Use max page_size (500) |
+2. Rank usage drivers by measured consumption and business criticality.
 
-### Step 2: Convert Full Rebuilds to Incremental
+3. Test one change at a time: engine, resource request, incremental mode, schedule, batch shape, property selection, or replica policy.
 
-```python
-from transforms.api import transform_df, Input, Output, incremental
+4. Compare output parity, latency, failure rate, queue time, and consumption against the baseline.
 
-# BEFORE: Full rebuild every run (expensive for large datasets)
-@transform_df(Output("/out"), data=Input("/in"))
-def expensive(data):
-    return data.filter(data.status == "active")
+5. Promote the smallest validated change and monitor one full representative operating window.
 
-# AFTER: Only processes new/changed rows
-@incremental()
-@transform_df(Output("/out"), data=Input("/in"))
-def cheap(data):
-    return data.filter(data.status == "active")
-```
+## Tool Discipline
 
-### Step 3: Right-Size Spark Profiles
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-```python
-from transforms.api import configure
+## Approval Boundaries
 
-# DON'T: Default profile for everything
-# DO: Match profile to actual data size
-
-# Small data (< 1GB) — use lightweight transforms (no Spark)
-from transforms.api import transform_polars
-@transform_polars(Output("/out"), data=Input("/small_table"))
-def small_job(data):
-    return data.filter(data["status"] == "active")
-
-# Medium data (1-50GB) — default profile is fine
-@transform_df(Output("/out"), data=Input("/medium_table"))
-def medium_job(data):
-    return data.select("id", "name")
-
-# Large data (50GB+) — explicit large profile
-@configure(profile=["DRIVER_MEMORY_LARGE"])
-@transform_df(Output("/out"), data=Input("/big_table"))
-def large_job(data):
-    return data.groupBy("region").count()
-```
-
-### Step 4: Replace Polling with Webhooks
-
-```python
-# EXPENSIVE: Polling every 30 seconds
-import time
-while True:
-    result = client.ontologies.OntologyObject.list(
-        ontology="co", object_type="Order", page_size=100,
-    )
-    process_new_orders(result.data)
-    time.sleep(30)  # 2,880 API calls/day!
-
-# CHEAP: Webhook-driven (0 polling API calls)
-# Register webhook for ontology.object.created events
-# See palantir-webhooks-events skill
-```
-
-### Step 5: Monitor Usage
-
-```python
-def log_api_usage(response):
-    """Log rate limit headers to track usage patterns."""
-    remaining = response.headers.get("X-RateLimit-Remaining", "?")
-    limit = response.headers.get("X-RateLimit-Limit", "?")
-    print(f"API usage: {remaining}/{limit} remaining")
-```
+The pipeline owner approves transform and schedule changes; the application owner approves module scaling changes; the commercial owner approves interpretations of contract pricing. Never shut down production compute or relax correctness controls solely to reduce usage.
 
 ## Output
 
-- Incremental transforms reducing rebuild compute by 90%+
-- Right-sized Spark profiles matching actual data volumes
-- Webhook-driven architecture eliminating polling costs
-- Usage monitoring for ongoing optimization
+A measured baseline, ranked drivers, experiment plan, before/after telemetry, correctness evidence, approved change, savings estimate with assumptions, and rollback threshold.
 
 ## Error Handling
 
-| Optimization | Risk | Mitigation |
-|-------------|------|------------|
-| Incremental | Missed data on schema change | Schedule periodic full rebuild |
-| Polars (no Spark) | Data too large for memory | Fall back to Spark for > 1GB |
-| Aggressive caching | Stale data | Set TTL matching business requirements |
-| Webhook-only | Missed events | Periodic reconciliation job |
+| Condition | Response |
+|---|---|
+| Usage cannot be attributed | Add ownership and telemetry first; do not optimize from an aggregate bill alone. |
+| Incremental results diverge | Revert to the prior snapshot behavior and fix transaction semantics before continuing. |
+| Lower resources increase queueing or failures | Restore the prior request and evaluate engine choice or data-shape changes. |
+| Replica usage persists without requests | Inspect minimum replicas and predictive autoscaling; verify behavior before changing availability. |
+
+## Examples
+
+### Example 1
+
+Compare a Spark transform with a Polars implementation on representative branch builds, accepting the change only if required features, output parity, memory, duration, and reliability all pass.
+
+### Example 2
+
+Reduce Compute Module consumption by reviewing active and starting replica time, minimum-replica requirements, autoscaling behavior, and the application's cold-start objective.
+
+## Validation
+
+- Every recommendation points to a measured driver.
+- Correctness and security controls remain unchanged or improve.
+- Transform and Compute Module usage are reported separately.
+- A representative post-change window meets latency and reliability objectives.
+- Rollback thresholds and owners are explicit.
 
 ## Resources
 
-- [Incremental Transforms](https://www.palantir.com/docs/foundry/transforms-python/transforms-pipelines)
-- [Transform Polars](https://www.palantir.com/docs/foundry/transforms-python/lightweight-api-evolution)
-- [@configure Profiles](https://www.palantir.com/docs/foundry/api-reference/transforms-python-library/api-configure)
-
-## Next Steps
-
-For reference architecture, see `palantir-reference-architecture`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

@@ -8,7 +8,7 @@ description: 'Configure and select AI models in Cursor for Chat, Composer, and A
 
   '
 allowed-tools: Read, Write, Edit, Bash(cmd:*)
-version: 1.18.0
+version: 1.19.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

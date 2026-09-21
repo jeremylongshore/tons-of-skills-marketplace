@@ -1,16 +1,19 @@
 ---
 name: anima-upgrade-migration
-description: 'Upgrade @animaapp/anima-sdk versions and handle API changes.
+description: 'Analyze and execute @animaapp/anima-sdk upgrades with rollback evidence.
 
   Use when upgrading SDK versions, migrating from the Figma plugin workflow
 
   to SDK-based automation, or adapting to new Anima API features.
 
-  Trigger: "anima upgrade", "anima migration", "anima SDK update".
+  Trigger with: "anima upgrade", "anima migration", "anima SDK update".
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.4.0
+version: 2.0.0
+argument-hint: "[target-sdk-version]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -19,7 +22,7 @@ tags:
 - figma
 - anima
 - migration
-compatibility: Designed for Claude Code
+compatibility: Requires Node.js 20+, approved Anima API access, current Anima SDK documentation, and authorized Figma or website source access
 ---
 # Anima Upgrade & Migration
 
@@ -47,7 +50,7 @@ generated-code changes are detected before production output is replaced.
 | From | To | Complexity |
 |------|----|-----------|
 | Figma plugin (manual) | SDK automation | Medium |
-| SDK v1 → v2 | SDK latest | Low |
+| Older pinned SDK | Explicit reviewed target | Depends on release/type/generated-output diff |
 | Anima Playground | SDK API | Low |
 
 ## Instructions
@@ -58,11 +61,12 @@ generated-code changes are detected before production output is replaced.
 # Check current version
 npm list @animaapp/anima-sdk
 
-# Upgrade to latest
-npm install @animaapp/anima-sdk@latest
+# Select and record a concrete target; 0.27.0 was current on 2026-09-12.
+export APPROVED_ANIMA_VERSION="0.27.0"
+npm install --save-exact "@animaapp/anima-sdk@${APPROVED_ANIMA_VERSION}"
 
 # Check for breaking changes
-npm info @animaapp/anima-sdk changelog
+npm view "@animaapp/anima-sdk@${APPROVED_ANIMA_VERSION}" version dist.integrity
 ```
 
 ### Step 2: Migrate from Manual Plugin to SDK
@@ -76,6 +80,8 @@ npm info @animaapp/anima-sdk changelog
 
 // AFTER: Automated SDK workflow
 import { Anima } from '@animaapp/anima-sdk';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const anima = new Anima({ auth: { token: process.env.ANIMA_TOKEN! } });
 
@@ -89,8 +95,13 @@ async function syncDesignToCode() {
   });
 
   // Write to project, run through linter, create PR
-  for (const file of files) {
-    require('fs').writeFileSync(`src/components/generated/${file.fileName}`, file.content);
+  const root = path.resolve('src/components/generated');
+  for (const [fileName, file] of Object.entries(files)) {
+    if (file.isBinary) throw new Error(`Review binary output separately: ${fileName}`);
+    const target = path.resolve(root, fileName);
+    if (!target.startsWith(`${root}${path.sep}`)) throw new Error('Unsafe output path');
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, file.content);
   }
 }
 ```
@@ -100,9 +111,9 @@ async function syncDesignToCode() {
 ```typescript
 // Common API changes between versions:
 // - New settings options (e.g., uiLibrary: 'shadcn' added later)
-// - New frameworks (e.g., Next.js-specific output)
-// - Response format changes in files array
-// - New authentication methods
+// - Supported framework, styling, and UI-library unions
+// - Response record shape and binary-file handling
+// - Authentication, Figma access, streaming, and error types
 
 // Test after upgrade:
 async function testUpgrade() {
@@ -113,7 +124,7 @@ async function testUpgrade() {
     nodesId: ['1:2'],
     settings: { language: 'typescript', framework: 'react', styling: 'tailwind' },
   });
-  console.log(`Upgrade test: ${files.length} files generated`);
+  console.log(`Upgrade test: ${Object.keys(files).length} files generated`);
 }
 ```
 
@@ -131,9 +142,13 @@ Never log tokens, full Figma payloads, or design content while comparing
 versions. A migration is complete only after the pinned package, source
 version, artifact digest, test result, and rollback reference are recorded.
 
+## Tool Discipline
+
+Use Read and Grep to inspect the existing integration and generated diff before changing anything. Use Write or Edit only inside the approved generated-code, test, or configuration paths. Use the declared Bash commands only for the explicit install, validation, or diagnostic steps in this workflow; never print tokens, source designs, generated source, or private website captures.
+
 ## Output
 
-- SDK upgraded to latest version
+- SDK upgraded to the explicitly approved pinned version
 - Migrated from manual plugin to automated SDK
 - All generation tests passing after upgrade
 
@@ -163,7 +178,3 @@ restore the prior lockfile/package before rerunning.
 
 - [Anima SDK npm](https://www.npmjs.com/package/@animaapp/anima-sdk)
 - [Anima SDK GitHub](https://github.com/AnimaApp/anima-sdk)
-
-## Next Steps
-
-For CI/CD setup, see `anima-ci-integration`.

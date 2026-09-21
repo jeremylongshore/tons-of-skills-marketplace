@@ -1,222 +1,81 @@
 ---
 name: alchemy-sdk-patterns
-description: 'Apply production-ready Alchemy SDK patterns for Web3 applications.
-
-  Use when building reusable blockchain clients, implementing caching,
-
-  multi-chain abstractions, or type-safe contract interactions.
-
-  Trigger: "alchemy SDK patterns", "alchemy best practices", "alchemy code patterns".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.5.0
+description: >-
+  Route Alchemy work to viem, direct Data APIs, Wallet APIs v5, or Solana Web3.js without reviving the archived SDK. Use when designing shared clients and adapters. Trigger with "Alchemy SDK pattern", "replace alchemy-sdk", or "choose an Alchemy client".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<capability> <runtime> <chain-set>"
+version: 2.0.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- blockchain
-- web3
-- alchemy
-- patterns
-compatibility: Designed for Claude Code
+tags: [saas, alchemy, architecture, viem]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Alchemy access requires network access, an appropriate credential, account capacity, and explicit approval"
 ---
-# Alchemy SDK Patterns
+# Alchemy Client and API Routing Patterns
 
 ## Overview
 
-Production patterns for the `alchemy-sdk` package: singleton clients, multi-chain factories, response caching, and type-safe contract wrappers.
+Route Alchemy work to viem, direct Data APIs, Wallet APIs v5, or Solana Web3.js without reviving the archived SDK. This workflow produces a reviewable artifact and negative-path evidence before any live side effect.
 
 ## Prerequisites
 
-- A server-side environment with a managed provider key and a typed list of
-  supported chains; do not create browser-side clients with the key.
-- A freshness policy for each cached response type and a test fixture for both
-  successful and failed provider calls.
-- Input validation at the application boundary before an address, collection,
-  or network value reaches the client factory or query builder.
+- Current first-party Alchemy documentation for the selected product, chain, feature, client, authentication method, limit, and lifecycle.
+- Named product, application, security, data/privacy, budget, release, and operations owners appropriate to the requested scope.
+- Synthetic or approved non-production fixtures, a credential canary, explicit success criteria, and a tested rollback boundary.
+
+## Current Contract
+
+There is no single current JavaScript Alchemy SDK for every product. EVM Node reads belong behind a `viem` transport adapter, Data APIs behind response-contract adapters, transacting applications behind Wallet APIs v5, and Solana behind Solana Web3.js. The archived `alchemy-sdk` is migration input, not a new architecture choice.
+
+## Authentication
+
+Each adapter declares the credential it accepts and rejects other credential classes. Keep application keys, Admin access keys, Notify tokens, webhook signing keys, and wallet signing authority in separate types and secret paths.
 
 ## Instructions
 
-### Step 1: Multi-Chain Client Factory
+1. Inventory each existing call by capability, chain, runtime, side effect, data owner, and credential class.
+2. Assign Node RPC calls to a typed viem public client and keep the configured chain adjacent to the transport.
+3. Assign NFT, Transfers, Prices, Simulation, or Portfolio calls to a narrow HTTP adapter that validates the documented response and pagination contract.
+4. Assign smart-wallet creation and transaction flows to the current Wallet APIs v5 surface; isolate signing policy from data reads.
+5. Represent partial success, pagination, retryability, and unsupported-chain outcomes explicitly instead of returning `null` or an untyped provider exception.
+6. Add contract fixtures for success and every documented failure class, then ban new `alchemy-sdk` imports with a focused repository test.
 
-```typescript
-// src/alchemy/client-factory.ts
-import { Alchemy, Network } from 'alchemy-sdk';
+## Tool Discipline
 
-type ChainName = 'ethereum' | 'polygon' | 'arbitrum' | 'optimism' | 'base';
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, wallet addresses, customer data, plan changes, spend, key creation or rotation, webhook changes, deployment, replay, transaction construction, signing, broadcast, or deletion.
 
-const NETWORK_MAP: Record<ChainName, Network> = {
-  ethereum: Network.ETH_MAINNET,
-  polygon: Network.MATIC_MAINNET,
-  arbitrum: Network.ARB_MAINNET,
-  optimism: Network.OPT_MAINNET,
-  base: Network.BASE_MAINNET,
-};
+## Approval Boundaries
 
-class AlchemyClientFactory {
-  private static clients = new Map<string, Alchemy>();
-
-  static getClient(chain: ChainName): Alchemy {
-    if (!this.clients.has(chain)) {
-      this.clients.set(chain, new Alchemy({
-        apiKey: process.env.ALCHEMY_API_KEY,
-        network: NETWORK_MAP[chain],
-        maxRetries: 3,
-      }));
-    }
-    return this.clients.get(chain)!;
-  }
-
-  static getAllClients(): Map<ChainName, Alchemy> {
-    for (const chain of Object.keys(NETWORK_MAP) as ChainName[]) {
-      this.getClient(chain);
-    }
-    return this.clients as Map<ChainName, Alchemy>;
-  }
-}
-
-export { AlchemyClientFactory, ChainName };
-```
-
-### Step 2: Response Caching Layer
-
-```typescript
-// src/alchemy/cache.ts
-interface CacheEntry<T> { data: T; expiresAt: number; }
-
-class AlchemyCache {
-  private cache = new Map<string, CacheEntry<any>>();
-  private defaultTtlMs: number;
-
-  constructor(defaultTtlMs: number = 30000) { // 30s default
-    this.defaultTtlMs = defaultTtlMs;
-  }
-
-  async getOrFetch<T>(key: string, fetcher: () => Promise<T>, ttlMs?: number): Promise<T> {
-    const cached = this.cache.get(key);
-    if (cached && cached.expiresAt > Date.now()) return cached.data;
-
-    const data = await fetcher();
-    this.cache.set(key, { data, expiresAt: Date.now() + (ttlMs || this.defaultTtlMs) });
-    return data;
-  }
-
-  invalidate(keyPrefix: string): void {
-    for (const key of this.cache.keys()) {
-      if (key.startsWith(keyPrefix)) this.cache.delete(key);
-    }
-  }
-}
-
-// Usage with Alchemy
-const cache = new AlchemyCache();
-
-async function getCachedBalance(alchemy: Alchemy, address: string): Promise<string> {
-  return cache.getOrFetch(
-    `balance:${address}`,
-    async () => {
-      const balance = await alchemy.core.getBalance(address);
-      return (parseInt(balance.toString()) / 1e18).toFixed(6);
-    },
-    15000 // 15s cache for balances
-  );
-}
-
-export { AlchemyCache, getCachedBalance };
-```
-
-### Step 3: Typed NFT Query Builder
-
-```typescript
-// src/alchemy/nft-query.ts
-import { Alchemy, NftOrdering } from 'alchemy-sdk';
-
-class NftQueryBuilder {
-  private alchemy: Alchemy;
-  private _owner?: string;
-  private _contracts: string[] = [];
-  private _pageSize = 20;
-  private _excludeFilters: string[] = [];
-
-  constructor(alchemy: Alchemy) { this.alchemy = alchemy; }
-
-  forOwner(address: string): this { this._owner = address; return this; }
-  inCollection(contractAddress: string): this { this._contracts.push(contractAddress); return this; }
-  pageSize(size: number): this { this._pageSize = size; return this; }
-  excludeSpam(): this { this._excludeFilters.push('SPAM'); return this; }
-
-  async execute() {
-    if (!this._owner) throw new Error('Owner address required');
-
-    return this.alchemy.nft.getNftsForOwner(this._owner, {
-      contractAddresses: this._contracts.length > 0 ? this._contracts : undefined,
-      pageSize: this._pageSize,
-      excludeFilters: this._excludeFilters as any[],
-    });
-  }
-}
-
-// Usage:
-// const nfts = await new NftQueryBuilder(alchemy)
-//   .forOwner('vitalik.eth')
-//   .excludeSpam()
-//   .pageSize(50)
-//   .execute();
-```
-
-### Step 4: Error Classification
-
-```typescript
-// src/alchemy/errors.ts
-type AlchemyErrorType = 'rate_limit' | 'auth' | 'network' | 'invalid_params' | 'server' | 'unknown';
-
-function classifyError(error: any): { type: AlchemyErrorType; retryable: boolean; message: string } {
-  const status = error.response?.status || error.code;
-
-  if (status === 429) return { type: 'rate_limit', retryable: true, message: 'Rate limit exceeded' };
-  if (status === 401 || status === 403) return { type: 'auth', retryable: false, message: 'Invalid API key' };
-  if (status >= 500) return { type: 'server', retryable: true, message: 'Alchemy server error' };
-  if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') return { type: 'network', retryable: true, message: 'Network error' };
-  if (error.message?.includes('invalid params')) return { type: 'invalid_params', retryable: false, message: error.message };
-  return { type: 'unknown', retryable: false, message: error.message };
-}
-
-export { classifyError, AlchemyErrorType };
-```
-
-## Output
-
-- Multi-chain client factory with lazy initialization
-- Response cache with configurable TTL
-- Type-safe NFT query builder pattern
-- Structured error classification for retry decisions
-
-## Examples
-
-In a staging service, request a balance for a public test address twice through
-`getCachedBalance`, assert the second request is a cache hit within the
-approved TTL, then invalidate the prefix and verify the next request reaches
-the provider. Use the factory only for a configured chain and reject an
-unrecognized chain at the route boundary. Inject a `429` and a `401` into the
-error classifier to prove that only the rate-limit case is retryable. If a
-cached value breaches its freshness rule, a chain is not configured, or a key
-reaches a client artifact, disable the route and repair that boundary first.
+Architecture owns capability routing and adapter boundaries. Security owns credential types and signing policy. Replacing a production provider or transaction path requires a canary and rollback approval.
 
 ## Error Handling
 
-| Failure | Response |
-|---------|----------|
-| Provider rate limit or transient server error | Use bounded retry/backoff and retain a sanitized outcome metric. |
-| Authentication or authorization failure | Stop retries, verify managed-secret configuration, and rotate a suspected exposure. |
-| Invalid address, contract, or chain input | Reject before creating a provider operation. |
-| Cache contains stale or incompatible data | Invalidate it and refetch according to the declared freshness policy. |
+- Do not wrap every Alchemy product in a generic client that erases pagination, partial errors, or credential distinctions.
+- Do not convert a partial Portfolio response into complete success.
+- Do not let a read adapter gain wallet signing authority for convenience.
+
+## Output
+
+Return the call inventory, capability routing table, typed adapter contracts, credential separation, error algebra, fixture matrix, deprecated-import gate, migration order, and rollback boundaries. Mark assumptions, observations, source dates, environment-specific behavior, owners, and unresolved gaps explicitly.
+
+## Examples
+
+- Route `eth_getBalance` through a viem public client while routing multi-chain holdings through a Portfolio adapter that surfaces `partialErrors`.
+- Keep Wallet APIs transaction construction behind a separately approved signer boundary rather than extending a generic read client.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- unsupported chain
+- partial Portfolio success
+- pagination continuation
+- rate limit
+- wrong credential class
+- archived import reintroduced
 
 ## Resources
 
-- [Alchemy SDK GitHub](https://github.com/alchemyplatform/alchemy-sdk-js)
-- [Alchemy Docs](https://www.alchemy.com/docs)
-
-## Next Steps
-
-Apply patterns in `alchemy-core-workflow-a` for real portfolio tracking.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Alchemy sources before execution.
+- Treat observed account, application, network, indexer, chain, or provider behavior as environment-specific evidence, never a universal guarantee.

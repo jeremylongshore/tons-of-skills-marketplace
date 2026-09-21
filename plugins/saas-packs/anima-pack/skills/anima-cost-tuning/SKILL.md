@@ -7,11 +7,14 @@ description: 'Optimize Anima API costs through caching, incremental generation, 
 
   or right-sizing your Anima plan for team size.
 
-  Trigger: "anima cost", "anima pricing", "anima budget", "anima API usage".
+  Trigger with: "anima cost", "anima pricing", "anima budget", "anima API usage".
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*)
-version: 1.4.0
+version: 2.0.0
+argument-hint: "[usage-report-or-policy]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -20,7 +23,7 @@ tags:
 - figma
 - anima
 - cost-optimization
-compatibility: Designed for Claude Code
+compatibility: Requires Node.js 20+, approved Anima API access, current Anima SDK documentation, and authorized Figma or website source access
 ---
 # Anima Cost Tuning
 
@@ -32,7 +35,9 @@ planning inputs until the account owner confirms current contractual terms.
 
 ## Pricing Context
 
-Anima uses partner-based pricing (not self-service). API access is currently granted to partners with custom agreements. Costs are typically per-generation or per-seat.
+Do not infer price units from the SDK or marketing site. Obtain the current account
+agreement or usage report from the authorized owner and label every projection with
+its source date, currency, unit, and included allowance.
 
 ## Prerequisites
 
@@ -45,12 +50,18 @@ Anima uses partner-based pricing (not self-service). API access is currently gra
 
 ## Cost Optimization Strategies
 
-| Strategy | Savings | Implementation |
-|----------|---------|---------------|
-| Generation cache | 60-80% | Cache results; only regenerate on design change |
-| Incremental generation | 40-60% | Detect changed components; skip unchanged |
-| Batch scheduling | 20-30% | Generate during off-peak; avoid real-time |
-| Output reuse | 30-50% | Generate once, customize programmatically |
+| Strategy | Measure | Guardrail |
+|----------|---------|-----------|
+| Content-addressed reuse | Avoided duplicate generations | Bind source revision, node, SDK version, and settings |
+| Incremental generation | Changed versus unchanged nodes | Regenerate when change state is unknown |
+| Asset policy | Hosted versus external transfer | Follow security, retention, and licensing policy |
+| Output reuse | Accepted reusable components | Revalidate after source or dependency changes |
+
+## Authentication
+
+Read usage only through the account owner's authorized report or integration.
+Keep Anima and Figma credentials in the backend secret manager and aggregate
+telemetry before analysis so this workflow never receives token or design data.
 
 ## Instructions
 
@@ -71,13 +82,13 @@ class AnimaUsageTracker {
 
   record(entry: GenerationRecord): void { this.records.push(entry); }
 
-  getReport(): { total: number; cached: number; savings: string } {
+  getReport(): { total: number; cached: number; cacheHitRate: number | null } {
     const total = this.records.length;
     const cached = this.records.filter(r => r.cached).length;
     return {
       total,
       cached,
-      savings: total > 0 ? `${((cached / total) * 100).toFixed(0)}% saved by caching` : 'No data',
+      cacheHitRate: total > 0 ? cached / total : null,
     };
   }
 }
@@ -88,7 +99,7 @@ class AnimaUsageTracker {
 ```typescript
 // Only generate when:
 // 1. Figma file version changed (check via Figma API)
-// 2. Cache is expired (>1 hour for active dev, >24h for CI)
+// 2. The repository's reviewed cache-retention policy requires refresh
 // 3. Settings changed (new framework/styling)
 // 4. Force flag passed (manual override)
 
@@ -99,19 +110,23 @@ async function shouldGenerate(
 ): Promise<boolean> {
   // Check cache first
   const cached = cache.get(fileKey, nodeId);
-  if (cached && Date.now() - new Date(cached.generatedAt).getTime() < 3600000) {
-    console.log('Using cached generation (< 1 hour old)');
+  if (cached && cached.sourceRevision === cache.currentSourceRevision(fileKey)) {
+    console.log('Using source- and settings-bound cached generation');
     return false;
   }
   return true;
 }
 ```
 
+## Tool Discipline
+
+Use Read and Grep to inspect the existing integration and generated diff before changing anything. Use Write or Edit only inside the approved generated-code, test, or configuration paths. Use the declared Bash commands only for the explicit install, validation, or diagnostic steps in this workflow; never print tokens, source designs, generated source, or private website captures.
+
 ## Output
 
 - Usage tracking with cache hit rate reporting
 - Smart generation policy reducing unnecessary API calls
-- Cost savings through caching and incremental updates
+- A measured avoided-work report; monetary impact remains unclaimed without account data
 
 ## Examples
 
@@ -137,7 +152,3 @@ entire design file by default.
 
 - [Anima Pricing](https://www.animaapp.com)
 - [Anima API](https://docs.animaapp.com/docs/anima-api)
-
-## Next Steps
-
-For architecture design, see `anima-reference-architecture`.

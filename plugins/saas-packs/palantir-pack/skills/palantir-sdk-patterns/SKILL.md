@@ -1,208 +1,99 @@
 ---
 name: palantir-sdk-patterns
-description: 'Apply production-ready Palantir Foundry SDK patterns for Python and
-  TypeScript.
-
-  Use when implementing Foundry integrations, refactoring SDK usage,
-
-  or establishing team coding standards for Foundry API calls.
-
-  Trigger with phrases like "palantir SDK patterns", "foundry best practices",
-
-  "palantir code patterns", "idiomatic foundry SDK".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.5.0
-license: MIT
+description: >-
+  Implement resilient Palantir clients by choosing generated OSDK or Platform SDK, pinning contracts, and bounding authentication, pagination, retries, and writes. Use when building shared Foundry client code. Trigger with "Palantir SDK patterns".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[application-or-client-library]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- sdk
-- patterns
-- typescript
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, sdk, client-design]
 ---
-# Palantir SDK Patterns
+# Palantir SDK Boundary and Client Patterns
 
 ## Overview
 
-Production-ready patterns for Foundry Platform SDK and OSDK usage. Covers client singletons, typed error handling, pagination helpers, retry logic, and multi-tenant client factories.
+Keep application-specific Ontology access in the generated OSDK and broader platform operations in the Platform SDK. Wrap transport concerns without hiding the generated entity contract, OAuth authority, request identifiers, or Action validation.
 
 ## Prerequisites
 
-- Completed `palantir-install-auth` setup
-- Familiarity with async/await patterns
-- `foundry-platform-sdk` or `@osdk/client` installed
+- Identify the application job, language, required Ontology entities or Platform API operations, write behavior, and owner.
+- Select the target Developer Console application or current official Platform SDK package and pin its version.
+- Read `references/official-docs.md`, generated application documentation, and relevant migration guide.
+- Define request deadlines, page bounds, retryable statuses, idempotency, telemetry, and secret storage.
+
+## Current Contract
+
+- OSDK packages are generated for selected Ontology resources and support application-specific typed access.
+- Official Python and TypeScript Platform SDKs wrap Foundry/AIP REST APIs for broader platform operations.
+- Authentication authority is the intersection of OAuth scope, Developer Console restrictions, and principal permissions.
+- Generated OSDK versions can change call syntax; migration guides are part of the upgrade contract.
+
+## Authentication
+
+Inject an approved token provider or OAuth client into the boundary; never accept a raw long-lived token as ordinary configuration. Log grant/principal identifiers and request IDs where permitted, but never bearer tokens, client secrets, object values, or protected payloads.
 
 ## Instructions
 
-### Step 1: Singleton Client (Python)
+1. Write a decision record choosing OSDK or Platform SDK and list the exact required resources or operations.
 
-```python
-# src/foundry_client.py
-import os
-import foundry
-from functools import lru_cache
+2. Expose one client boundary that owns token acquisition, deadlines, request correlation, retry classification, and telemetry.
 
-@lru_cache(maxsize=1)
-def get_client() -> foundry.FoundryClient:
-    """Thread-safe singleton — cached after first call."""
-    auth = foundry.ConfidentialClientAuth(
-        client_id=os.environ["FOUNDRY_CLIENT_ID"],
-        client_secret=os.environ["FOUNDRY_CLIENT_SECRET"],
-        hostname=os.environ["FOUNDRY_HOSTNAME"],
-        scopes=["api:read-data", "api:write-data"],
-    )
-    auth.sign_in_as_service_user()
-    return foundry.FoundryClient(auth=auth, hostname=os.environ["FOUNDRY_HOSTNAME"])
-```
+3. Implement deterministic pagination and property selection; return continuation state rather than silently loading every page.
 
-### Step 2: Typed Error Handling
+4. Keep generated object, Action, and Function definitions visible to callers and validate Actions before approved execution.
 
-```python
-import foundry
-from dataclasses import dataclass
-from typing import TypeVar, Generic, Optional
+5. Add contract tests for auth denial, restrictions, page continuation, `429`/`503`, non-retryable errors, validation failures, and SDK upgrades.
 
-T = TypeVar("T")
+## Tool Discipline
 
-@dataclass
-class Result(Generic[T]):
-    data: Optional[T] = None
-    error: Optional[str] = None
-    status_code: Optional[int] = None
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-def safe_call(fn, *args, **kwargs) -> Result:
-    """Wrap any Foundry SDK call with structured error handling."""
-    try:
-        return Result(data=fn(*args, **kwargs))
-    except foundry.ApiError as e:
-        return Result(error=e.message, status_code=e.status_code)
-    except Exception as e:
-        return Result(error=str(e))
+## Approval Boundaries
 
-# Usage
-result = safe_call(
-    get_client().ontologies.OntologyObject.list,
-    ontology="my-company", object_type="Employee", page_size=10,
-)
-if result.error:
-    print(f"Error {result.status_code}: {result.error}")
-else:
-    print(f"Found {len(result.data.data)} objects")
-```
-
-### Step 3: Pagination Helper
-
-```python
-def paginate_objects(client, ontology: str, object_type: str, page_size: int = 100):
-    """Iterate through all objects with automatic pagination."""
-    page_token = None
-    while True:
-        result = client.ontologies.OntologyObject.list(
-            ontology=ontology,
-            object_type=object_type,
-            page_size=page_size,
-            page_token=page_token,
-        )
-        yield from result.data
-        page_token = result.next_page_token
-        if not page_token:
-            break
-
-# Usage
-for emp in paginate_objects(get_client(), "my-company", "Employee"):
-    print(emp.properties["fullName"])
-```
-
-### Step 4: Retry with Exponential Backoff
-
-```python
-import time
-import random
-
-def retry_with_backoff(fn, max_retries=3, base_delay=1.0):
-    """Retry on 429/5xx with jittered exponential backoff."""
-    for attempt in range(max_retries + 1):
-        try:
-            return fn()
-        except foundry.ApiError as e:
-            if attempt == max_retries or e.status_code not in (429, 500, 502, 503):
-                raise
-            delay = base_delay * (2 ** attempt) + random.uniform(0, 0.5)
-            print(f"Retry {attempt + 1}/{max_retries} in {delay:.1f}s (HTTP {e.status_code})")
-            time.sleep(delay)
-```
-
-### Step 5: TypeScript OSDK Patterns
-
-```typescript
-import { createClient, type Client } from "@osdk/client";
-import { createConfidentialOauthClient } from "@osdk/oauth";
-
-// Singleton with lazy initialization
-let _client: Client | null = null;
-
-export function getOsdkClient(): Client {
-  if (!_client) {
-    const oauth = createConfidentialOauthClient(
-      process.env.FOUNDRY_CLIENT_ID!,
-      process.env.FOUNDRY_CLIENT_SECRET!,
-      `https://${process.env.FOUNDRY_HOSTNAME}/multipass/api/oauth2/token`,
-    );
-    _client = createClient(
-      `https://${process.env.FOUNDRY_HOSTNAME}`,
-      process.env.ONTOLOGY_RID!,
-      oauth,
-    );
-  }
-  return _client;
-}
-```
+Application and platform owners approve the selected API surface; security owners approve token handling; data owners approve returned properties and writeback. Shared-client abstraction does not authorize new endpoints.
 
 ## Output
 
-- Thread-safe singleton client with cached auth
-- Structured Result type for error handling
-- Automatic pagination for large object sets
-- Retry logic with jittered backoff
+An SDK decision, pinned dependencies, typed client boundary, auth provider, pagination/retry policy, generated-contract usage, tests, telemetry/redaction rules, and upgrade procedure.
 
 ## Error Handling
 
-| Pattern | Use Case | Benefit |
-|---------|----------|---------|
-| Singleton | All API calls | One auth flow, reused connection |
-| Result wrapper | Error propagation | No uncaught exceptions |
-| Pagination helper | Large datasets | Memory-safe iteration |
-| Retry with backoff | Transient failures | Resilient operations |
+| Condition | Response |
+|---|---|
+| A wrapper accepts arbitrary endpoint paths | Replace it with typed/generated operations or an explicitly reviewed Platform API surface. |
+| A helper loads all pages | Return bounded pages or stream with cancellation and total-work limits. |
+| A write is retried automatically | Require documented idempotency or reconciliation before retry. |
+| Generated definitions change | Treat it as a contract migration and update tests plus call sites together. |
 
 ## Examples
 
-### Multi-Tenant Client Factory
+### Example 1
 
-```python
-_clients: dict[str, foundry.FoundryClient] = {}
+Build a TypeScript OSDK client boundary that accepts a token provider, requests selected properties, returns continuation state, preserves generated Action validation, and emits redacted request metrics.
 
-def get_client_for_tenant(tenant_id: str) -> foundry.FoundryClient:
-    if tenant_id not in _clients:
-        hostname = get_tenant_hostname(tenant_id)
-        token = get_tenant_token(tenant_id)
-        _clients[tenant_id] = foundry.FoundryClient(
-            auth=foundry.UserTokenAuth(hostname=hostname, token=token),
-            hostname=hostname,
-        )
-    return _clients[tenant_id]
-```
+### Example 2
+
+Build a Python Platform SDK service for one approved API group with Client Credentials auth, bounded pagination, retry only for transient responses, and request-ID capture.
+
+## Validation
+
+- SDK choice and Developer Console restrictions match the required surface.
+- All dependencies and generated packages are pinned.
+- Pagination, deadlines, cancellation, retries, and idempotency are tested.
+- Logs and errors contain no secrets or protected payloads.
+- Upgrade tests prove the exact new generated or Platform SDK contract.
 
 ## Resources
 
-- [Foundry Platform SDK](https://github.com/palantir/foundry-platform-python)
-- [SDK Reference](https://www.palantir.com/docs/foundry/api/general/overview/sdks)
-- [OSDK Overview](https://www.palantir.com/docs/foundry/ontology-sdk/overview)
-
-## Next Steps
-
-Apply patterns in `palantir-core-workflow-a` for real pipeline usage.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

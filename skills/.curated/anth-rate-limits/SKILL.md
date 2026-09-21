@@ -12,7 +12,7 @@ description: 'Implement Anthropic Claude API rate limiting, backoff, and quota m
 
   '
 allowed-tools: Read, Write, Edit
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -187,9 +187,9 @@ Queue 20 synthetic `OK` prompts behind a shared 10-RPM limiter, permit only the 
 
 ## Resources
 
-- [Rate Limits Documentation](https://docs.anthropic.com/en/api/rate-limits)
-- [Usage Tiers](https://docs.anthropic.com/en/api/service-tiers)
-- [Message Batches API](https://docs.anthropic.com/en/api/creating-message-batches)
+- [Rate Limits Documentation](https://platform.claude.com/docs/en/api/rate-limits)
+- [Usage Tiers](https://platform.claude.com/docs/en/api/service-tiers)
+- [Message Batches API](https://platform.claude.com/docs/en/api/messages/batches/create)
 
 ## Next Steps
 

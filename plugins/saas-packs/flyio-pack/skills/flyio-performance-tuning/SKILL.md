@@ -1,122 +1,96 @@
 ---
 name: flyio-performance-tuning
-description: 'Optimize Fly.io application performance with auto-stop/start tuning,
-
-  VM sizing, multi-region latency optimization, and connection pooling.
-
-  Trigger: "fly.io performance", "fly.io cold start", "fly.io latency", "fly.io VM
-  sizing".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(fly:*)
-version: 1.7.0
+description: >-
+  Analyze and tune Fly.io placement, VM resources, concurrency, autostart behavior, networking, and data locality from measured service objectives. Use when latency or saturation is unacceptable. Trigger with: "speed up Fly app", "tune Fly concurrency", "reduce Fly cold starts".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[app-slo-and-observation-window]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- edge-compute
-- flyio
-compatibility: Designed for Claude Code
+  - saas
+  - flyio
+  - performance
+  - concurrency
+  - placement
+compatibility: 'Requires application service objectives, representative traffic, metrics and health evidence, current Machine sizes, regions, and data dependency placement.'
 ---
-# Fly.io Performance Tuning
+
+# Fly.io Performance and Placement Tuning
 
 ## Overview
 
-Optimize Fly.io performance: eliminate cold starts, right-size VMs, leverage multi-region for low latency, and tune concurrency settings.
+Treat performance as an end-to-end path through Anycast routing, Fly Proxy, Machine placement, process concurrency, VM resources, autostart, and data locality. Optimize from percentiles and saturation evidence rather than assuming more regions or larger VMs always help.
 
 ## Prerequisites
 
-- A redacted baseline for latency, error rate, saturation, cost, and region-level health.
-- A staging application, synthetic load, named change owner, and a tested rollback mechanism.
-
-## Output
-
-Publish a tuning receipt with baseline/post-change aggregate metrics, VM/concurrency settings, regions affected, canary result, owner, and rollback outcome. Exclude runtime secrets, request bodies, and user data.
-
-## Error Handling
-
-- Stop rollout on health, latency, saturation, or cost threshold breaches and revert the canary.
-- Reduce concurrency or capacity changes before retrying a failed region promotion.
-- Keep diagnostics redacted and route deployment incidents to the on-call owner.
-
-## Examples
-
-Run a synthetic load test against a staging region, adjust one VM setting, and compare aggregate p95 latency and error rate. Simulate a failed health check and confirm the release rolls back before traffic expands.
+- Latency, throughput, error, availability, and cold-start objectives
+- Per-region request, CPU, memory, concurrency, restart, and dependency latency evidence
+- Current image, VM sizes, Machine counts, service concurrency, autostop, and database placement
 
 ## Instructions
 
-### Step 1: Eliminate Cold Starts
+### Step 1: Establish a representative baseline
 
-```toml
-# fly.toml — suspend instead of stop for faster resume (~100ms vs ~5s)
-[http_service]
-  auto_stop_machines = "suspend"   # Suspend to RAM, not full stop
-  auto_start_machines = true
-  min_machines_running = 1          # Always-warm in primary region
+Measure regional latency percentiles, errors, throughput, concurrency, CPU, memory, restarts, health transitions, cold starts, and dependency timing.
 
-# For latency-critical: keep machines running in all regions
-# min_machines_running applies globally
-```
+### Step 2: Locate the bottleneck
 
-### Step 2: Right-Size VMs
+Separate network distance, queueing, application work, CPU throttling, memory pressure, startup, connection setup, database latency, and capacity placement.
 
-```bash
-# Check current allocation
-fly scale show -a my-app
+### Step 3: Tune concurrency with capacity
 
-# Start small, scale up based on metrics
-fly scale vm shared-cpu-1x --memory 256    # Start here
-fly scale vm shared-cpu-1x --memory 512    # If memory-constrained
-fly scale vm shared-cpu-2x --memory 1024   # If CPU-bound
-fly scale vm performance-2x --memory 4096  # For compute-heavy workloads
-```
+Align service soft and hard limits with measured per-Machine capacity. Preserve headroom so Fly Proxy can route around unhealthy or saturated Machines.
 
-| Workload | VM | Memory | When |
-|----------|-------|--------|------|
-| Static site / API proxy | shared-cpu-1x | 256mb | Low traffic |
-| Node.js API | shared-cpu-1x | 512mb | Most apps |
-| Heavy processing | shared-cpu-2x | 1gb | Background jobs |
-| Database / ML | performance-2x | 4gb | Compute-intensive |
+### Step 4: Tune lifecycle behavior
 
-### Step 3: Multi-Region Latency Optimization
+Compare always-running, stopped, and suspended behavior. Autostart can reduce idle cost but adds startup delay; set minimum running capacity from the service objective.
 
-```bash
-# Deploy close to your users
-fly scale count 1 --region iad    # US East
-fly scale count 1 --region lhr    # Europe
-fly scale count 1 --region nrt    # Asia Pacific
+### Step 5: Align placement with state
 
-# Fly automatically routes to nearest region via Anycast
-# Verify: curl with timing
-curl -w "DNS: %{time_namelookup}s, Connect: %{time_connect}s, Total: %{time_total}s\n" \
-  -o /dev/null -s https://my-app.fly.dev/health
-```
+Add or remove regions based on user and dependency latency, available capacity, residency, and data topology. Keep region-bound volumes and database writes explicit.
 
-### Step 4: Connection Pooling for Postgres
+### Step 6: Change one variable and verify
 
-```typescript
-// Use connection pooling for Fly Postgres
-// PgBouncer runs on port 5433 (pooled) vs 5432 (direct)
-const pooledUrl = databaseConfig.pooledEndpoint;
+Canary a single resource, count, concurrency, lifecycle, or placement adjustment; compare the same observation window and roll back on regression.
 
-// Enable PgBouncer mode through the client's typed configuration.
-```
+## Authentication
 
-### Step 5: Tune Concurrency
+Use read-only access for metrics, health, state, and placement analysis. Resource or scaling changes require a deploy-capable scoped identity and explicit approval. Performance evidence must not include tokens, request bodies, or sensitive labels.
 
-```toml
-[http_service.concurrency]
-  type = "requests"       # or "connections"
-  hard_limit = 250        # Max before rejecting
-  soft_limit = 200        # Start scaling at this point
-```
+## Tool Discipline
+
+Use Read and Grep to inspect application configuration, deployment evidence, provider documentation, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for an approved plan, configuration, implementation, test, or redacted receipt. Do not create, deploy, scale, restart, stop, suspend, destroy, rotate, revoke, expose, or migrate live Fly.io resources without explicit operator approval.
+
+## Output
+
+- Regional performance baseline and bottleneck hypothesis
+- Ranked experiment plan with one variable, expected effect, risk, and rollback per test
+- Before/after service-objective and resource reconciliation
+
+Return the target organization, app, environment, region set, Machine or database identifiers, source-contract fingerprint, evidence, unresolved risks, rollback state, and final decision without exposing tokens, secrets, connection strings, or customer data.
+
+## Examples
+
+A globally routed API shows good edge latency but poor database calls outside the primary region. The operator avoids adding more web regions, first tests connection reuse and regional request routing, then measures the same percentile window before deciding on topology changes.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Metrics disagree with user impact | Validate time window, region, labels, sampling, and synthetic versus real traffic before tuning. |
+| Autostart causes latency spikes | Increase minimum running capacity or revert lifecycle settings while preserving the cost finding. |
+| One region is capacity constrained | Choose from current placement options, retain fallback capacity, and do not promise permanent regional availability. |
 
 ## Resources
 
-- [Auto Stop/Start](https://fly.io/docs/launch/autostop-autostart/)
-- [Machine Sizing](https://fly.io/docs/machines/)
-- [Suspend/Resume](https://fly.io/docs/reference/suspend-resume/)
-
-## Next Steps
-
-For cost optimization, see `flyio-cost-tuning`.
+- [First-party source notes](references/official-docs.md)
+- [Machines API setup](https://fly.io/docs/machines/api/working-with-machines-api/)
+- [Automation and tokens](https://fly.io/docs/flyctl/integrating/)
+- [App configuration](https://fly.io/docs/reference/configuration/)
+- [Metrics](https://fly.io/docs/monitoring/metrics/)
+- [Autostop and autostart](https://fly.io/docs/reference/fly-proxy-autostop-autostart/)
+- [Regions](https://fly.io/docs/reference/regions/)
+- [Private networking](https://fly.io/docs/networking/private-networking/)

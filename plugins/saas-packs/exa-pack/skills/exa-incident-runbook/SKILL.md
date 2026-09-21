@@ -1,236 +1,75 @@
 ---
 name: exa-incident-runbook
-description: 'Execute Exa incident response with triage, mitigation, and postmortem
-  procedures.
-
-  Use when responding to Exa-related outages, investigating errors,
-
-  or running post-incident reviews for Exa integration failures.
-
-  Trigger with phrases like "exa incident", "exa outage",
-
-  "exa down", "exa on-call", "exa emergency", "exa broken".
-
-  '
-allowed-tools: Read, Grep, Bash(kubectl:*), Bash(curl:*)
-version: 1.11.0
+description: >-
+  Contain Exa credential, data, cost, capacity, or correctness incidents while preserving safe evidence and vendor request IDs. Use when operating or reviewing this Exa boundary. Trigger with "Exa incident runbook", "review Exa incident runbook", or "fix Exa incident runbook".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<severity> <environment> <incident-window>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- incident-response
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Incident Runbook
-
-## Prerequisites
-
-- An incident ID, commander, affected environment/service, approved communication route, and redacted diagnostic access.
-- A safe mitigation/rollback path plus data/policy owner for query/result exposure decisions.
-
-## Instructions
-
-1. Declare scope and severity, preserve minimal redacted evidence, and stabilize customer or automation impact.
-2. Use the documented pause, credential revocation, rate reduction, or fallback before deep diagnosis.
-3. Verify recovery against the SLO and policy boundary, then create root-cause/prevention follow-up work.
-
-## Output
-
-- A time-stamped incident record with scope, mitigation, evidence, owner, and verified recovery or escalation.
-
-## Examples
-
-For an unexpected result or availability incident, record opaque request IDs, environment, status/latency aggregates, and policy category, then reduce traffic or use the approved fallback. Do not share raw customer queries, result content, or credentials in incident channels.
+# Exa Incident Containment Runbook
 
 ## Overview
 
-Rapid incident response procedures for Exa search API issues. Exa errors include a `requestId` field for support escalation. Default rate limit is 10 QPS. Contact hello@exa.ai for urgent production issues.
+Contain Exa credential, data, cost, capacity, or correctness incidents while preserving safe evidence and vendor request IDs. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
-## Severity Levels
+## Prerequisites
 
-| Level | Definition | Response Time | Example |
-|-------|------------|---------------|---------|
-| P1 | All Exa calls failing | < 15 min | 401/500 on every request |
-| P2 | Degraded performance | < 1 hour | High latency, partial failures |
-| P3 | Minor impact | < 4 hours | Empty results, content fetch failures |
-| P4 | No user impact | Next business day | Monitoring gaps |
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
 
-## Quick Triage (Run First)
+## Current Contract
 
-```bash
-set -euo pipefail
-echo "=== Exa Triage ==="
+Containment choices differ by incident: revoke or rotate a key, disable a caller, pause or delete Monitors, stop or cancel Agent runs, cancel Batches, quarantine webhook processing, or switch to a tested fallback. Deletion and cancellation are destructive and require exact targets.
 
-# 1. Test API connectivity
-echo -n "API Status: "
-HTTP_CODE=$(curl -s -o /tmp/exa-triage.json -w "%{http_code}" \
-  -X POST https://api.exa.ai/search \
-  -H "x-api-key: $EXA_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"query":"triage test","numResults":1}')
-echo "$HTTP_CODE"
+## Authentication
 
-# 2. Show error details if not 200
-if [ "$HTTP_CODE" != "200" ]; then
-  echo "Error response:"
-  cat /tmp/exa-triage.json | python3 -m json.tool 2>/dev/null || cat /tmp/exa-triage.json
-fi
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
-# 3. Check if it's a key issue
-echo ""
-echo "API Key: ${EXA_API_KEY:+SET (${#EXA_API_KEY} chars)}"
-```
+## Instructions
 
-## Decision Tree
+1. Declare severity, affected product, environment, owner, and evidence boundary.
+2. Stop new work at the narrowest reversible application or queue control.
+3. Snapshot content-free IDs, states, costs, error tags, timestamps, and request IDs.
+4. Rotate credentials or pause vendor resources only with exact authorization.
+5. Reconcile in-flight runs, batches, monitors, webhooks, and downstream outputs.
+6. Verify recovery, document residual risk, and time-bound evidence retention.
 
-```
-Exa API returning errors?
-├── YES: What HTTP code?
-│   ├── 401 → API key invalid/expired → Regenerate at dashboard.exa.ai
-│   ├── 402 → Credits exhausted → Top up at dashboard.exa.ai
-│   ├── 429 → Rate limited → Implement backoff, enable caching
-│   ├── 5xx → Exa server issue → Retry with backoff, wait for resolution
-│   └── 400 → Bad request → Fix request parameters
-└── NO: Is search quality degraded?
-    ├── Empty results → Broaden query, check date/domain filters
-    ├── Low relevance → Switch search type, rephrase query
-    └── Slow responses → Switch to faster search type, add caching
-```
+## Tool Discipline
 
-## Immediate Actions by Error Code
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-### 401/403 — Authentication
+## Approval Boundaries
 
-```bash
-set -euo pipefail
-# Verify API key
-echo "Key present: ${EXA_API_KEY:+yes}"
-echo "Key length: ${#EXA_API_KEY}"
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-# Test with a simple search
-curl -v -X POST https://api.exa.ai/search \
-  -H "x-api-key: $EXA_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"query":"auth test","numResults":1}' 2>&1 | grep "< HTTP"
+## Failure Modes
 
-# Fix: regenerate key at dashboard.exa.ai and update env
-```
+- Blind retries can amplify cost, rate limits, or incorrect output.
+- Deleting resources before capturing IDs can destroy the recovery trail.
+- Rotating an API key does not automatically invalidate unrelated OAuth or service-key sessions.
 
-### 429 — Rate Limited
+## Output
 
-```typescript
-// Enable emergency caching to reduce API calls
-import { LRUCache } from "lru-cache";
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-const emergencyCache = new LRUCache<string, any>({
-  max: 10000,
-  ttl: 30 * 60 * 1000, // 30-minute emergency TTL
-});
+## Example
 
-// Reduce concurrent requests
-import PQueue from "p-queue";
-const queue = new PQueue({ concurrency: 3, interval: 1000, intervalCap: 5 });
-```
+- Disable new Agent submissions, stop exact run IDs, preserve request IDs and cost totals, then restore through a one-run canary.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-### 5xx — Exa Server Errors
+## Validation
 
-```typescript
-// Enable graceful degradation
-async function searchWithFallback(query: string, opts: any) {
-  try {
-    return await exa.searchAndContents(query, opts);
-  } catch (err: any) {
-    if (err.status >= 500) {
-      console.error(`[Exa] ${err.status}: ${err.message} (requestId: ${err.requestId})`);
-      // Return cached results or show degraded UI
-      const cached = emergencyCache.get(query);
-      if (cached) return cached;
-      return { results: [], _degraded: true };
-    }
-    throw err;
-  }
-}
-```
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-## Communication Templates
+## References
 
-### Internal (Slack)
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-```
-P[1-4] INCIDENT: Exa Search Integration
-Status: INVESTIGATING
-Impact: [Describe user impact]
-Error: [HTTP code] [error tag]
-RequestId: [from error response]
-Current action: [What you're doing]
-Next update: [Time]
-```
-
-### Support Escalation
-
-```
-To: hello@exa.ai
-Subject: [P1/P2] Production issue — [brief description]
-
-RequestId: [from error response]
-Timestamp: [ISO 8601]
-HTTP Status: [code]
-Error Tag: [tag from response]
-Frequency: [every request / intermittent / percentage]
-Impact: [number of affected users/requests]
-```
-
-## Post-Incident
-
-### Evidence Collection
-
-```bash
-set -euo pipefail
-# Capture recent error logs
-kubectl logs -l app=exa-integration --since=1h 2>/dev/null | grep -i "error\|429\|500" | tail -50
-
-# Capture metrics snapshot
-curl -s "localhost:9090/api/v1/query?query=rate(exa_search_error[1h])" 2>/dev/null
-```
-
-### Postmortem Template
-
-```markdown
-## Incident: Exa [Error Type]
-**Date:** YYYY-MM-DD | **Duration:** Xh Ym | **Severity:** P[1-4]
-
-### Summary
-[1-2 sentence description]
-
-### Timeline
-- HH:MM — First error detected
-- HH:MM — Triage began
-- HH:MM — Root cause identified
-- HH:MM — Mitigation applied
-- HH:MM — Full recovery
-
-### Root Cause
-[Technical explanation]
-
-### Action Items
-- [ ] [Preventive measure] — Owner — Due date
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Intermittent 5xx | Exa server issues | Retry with backoff, check status page |
-| All requests 401 | API key rotated/expired | Regenerate at dashboard.exa.ai |
-| Sudden empty results | Exa index issue | Switch search type, broaden query |
-| Latency spike | Exa under load | Use `fast` type, enable caching |
-
-## Resources
-
-- [Exa Error Codes](https://docs.exa.ai/reference/error-codes)
-- [Exa Support](mailto:hello@exa.ai)
-
-## Next Steps
-
-For data handling, see `exa-data-handling`. For debugging, see `exa-debug-bundle`.
+- [Current first-party evidence map](references/official-docs.md)

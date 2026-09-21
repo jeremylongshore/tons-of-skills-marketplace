@@ -1,142 +1,95 @@
 ---
 name: persona-hello-world
-description: 'Create your first Persona identity verification inquiry and check its
-  status.
-
-  Use when learning Persona API basics, testing inquiry creation,
-
-  or building a simple verification flow.
-
-  Trigger with phrases like "persona hello world", "first persona inquiry",
-
-  "persona quick start", "test identity verification".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*)
-version: 1.4.0
+description: >-
+  Create and inspect one replay-safe Persona sandbox inquiry without implying a completed verification. Use when proving a new integration path. Trigger with: "test Persona inquiry", "Persona hello world", "smoke test Persona sandbox".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[sandbox-template-id]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- persona
-- identity
-- kyc
-- getting-started
-compatibility: Designed for Claude Code
+  - saas
+  - persona
+  - sandbox
+  - inquiries
+  - smoke-test
+compatibility: 'Requires an authorized Persona environment, current first-party documentation, a reviewed dated API version, and privacy-safe operational evidence.'
 ---
-# Persona Hello World
+
+# Persona Sandbox Inquiry Smoke Test
 
 ## Overview
 
-Create a Persona inquiry, generate an embed URL for the verification flow, and poll for the inquiry status. Uses the real Persona REST API with sandbox credentials.
+Prove the minimum create-and-read path in sandbox while keeping identity verification, account linkage, and session issuance explicit. A successful API response proves transport and contract compatibility, not that a person passed verification.
 
 ## Prerequisites
 
-- Completed `persona-install-auth` setup
-- An Inquiry Template ID from the Persona Dashboard (format: `itmpl_*`)
+- A sandbox API key and a reviewed dated API version
+- An enabled sandbox inquiry template ID
+- Synthetic test identity data and a durable unique operation ID
 
 ## Instructions
 
-### Step 1: Create an Inquiry
+### Step 1: Choose the create contract
 
-```python
-import os, requests
+Use exactly one of `inquiry-template-id`, `inquiry-template-version-id`, or the supported template selector. Prefer the stable template ID unless a controlled test intentionally pins a version.
 
-API_KEY = os.environ["PERSONA_API_KEY"]
-BASE = "https://withpersona.com/api/v1"
-HEADERS = {
-    "Authorization": f"Bearer {API_KEY}",
-    "Persona-Version": "2023-01-05",
-    "Content-Type": "application/json",
-}
+### Step 2: Create replay-safe intent
 
-# Create a new inquiry from a template
-resp = requests.post(f"{BASE}/inquiries", headers=HEADERS, json={
-    "data": {
-        "attributes": {
-            "inquiry-template-id": "itmpl_YOUR_TEMPLATE_ID",
-            "reference-id": "user-12345",  # Your internal user ID
-        }
-    }
-})
-resp.raise_for_status()
-inquiry = resp.json()["data"]
-inquiry_id = inquiry["id"]
-status = inquiry["attributes"]["status"]
-print(f"Inquiry created: {inquiry_id} (status: {status})")
-```
+Generate an `Idempotency-Key` from the operation ID, not a person or reference ID. Persist the request fingerprint before sending the POST.
 
-### Step 2: Get the Verification URL
+### Step 3: Link the account deliberately
 
-```python
-# The inquiry includes a session token for the embedded flow
-session_token = inquiry["attributes"].get("session-token")
-if session_token:
-    # Option A: Hosted flow (redirect user to Persona)
-    hosted_url = f"https://withpersona.com/verify?inquiry-id={inquiry_id}&session-token={session_token}"
-    print(f"Send user to: {hosted_url}")
+When auto-creating an account, use `meta.auto-create-account-reference-id`; do not revive deprecated request `reference-id` guidance. Use `meta.auto-create-inquiry-session` only when the client needs an immediate session.
 
-    # Option B: Embedded flow (JavaScript SDK in your page)
-    print(f"Embed with: Persona.Client({{ templateId: 'itmpl_...', inquiryId: '{inquiry_id}' }})")
-```
+### Step 4: Inspect the JSON:API result
 
-### Step 3: Poll for Completion
+Verify `data.type`, inquiry ID, status, template relationship, and optional `meta['session-token']`. Treat new fields and types as compatible additions.
 
-```python
-import time
+### Step 5: Read and dispose
 
-for _ in range(30):  # Poll for up to 5 minutes
-    resp = requests.get(f"{BASE}/inquiries/{inquiry_id}", headers=HEADERS)
-    resp.raise_for_status()
-    status = resp.json()["data"]["attributes"]["status"]
-    print(f"  Status: {status}")
+GET the inquiry, compare its ID and status, then retain a redacted receipt. Never claim pass, fail, or completion unless the observed inquiry and verification states support it.
 
-    if status in ("completed", "approved", "declined"):
-        break
-    time.sleep(10)
+## Authentication
 
-# Get verification details
-if status == "completed":
-    verifications = resp.json()["data"]["relationships"]["verifications"]["data"]
-    for v in verifications:
-        print(f"  Verification: {v['type']} — {v['id']}")
-```
+Use the sandbox bearer API key against `https://api.withpersona.com/api/v1` with the explicitly reviewed `Persona-Version`. Keep any session token server-side until delivered to the intended client through a protected channel.
 
-### Step 4: Retrieve Verification Results
+## Tool Discipline
 
-```python
-# Get detailed verification result
-verification_id = verifications[0]["id"]
-v_resp = requests.get(f"{BASE}/verifications/{verification_id}", headers=HEADERS)
-v_resp.raise_for_status()
-v_data = v_resp.json()["data"]["attributes"]
-print(f"  Check: {v_data['status']}")
-print(f"  Name: {v_data.get('name-first', 'N/A')} {v_data.get('name-last', 'N/A')}")
-```
+Use Read and Grep to inspect application configuration, provider documentation, fixtures, schemas, tests, and redacted operational evidence before proposing a change. Use Write or Edit only for an approved implementation, configuration, test, runbook, or redacted receipt. Do not create, resume, approve, decline, redact, rotate, revoke, deploy, or otherwise mutate production Persona resources without explicit operator approval.
 
 ## Output
 
-- Inquiry created with unique ID
-- Hosted or embedded verification URL generated
-- Inquiry status polled until completion
-- Verification results retrieved
+- One redacted create-request fingerprint and inquiry ID
+- Observed inquiry status and optional session-token disposition
+- Pass/fail smoke-test receipt separated from identity outcome
+
+Return the environment, resource and event identifiers, API version, template context, source-contract fingerprint, evidence, unresolved risk, rollback state, and final decision without exposing bearer keys, webhook secrets, inquiry session tokens, raw identity documents, or unnecessary PII.
+
+## Examples
+
+A CI operator creates one inquiry from template `itmpl_…` with operation key `smoke-<run-id>`, requests a session, asserts a JSON:API inquiry object, and records the returned session token only as present or absent.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `422 Unprocessable` | Invalid template ID | Verify template ID in Dashboard |
-| Inquiry stays `created` | User hasn't started flow | Share the hosted URL with user |
-| Empty verifications | Inquiry not completed | Wait for user to complete verification |
-| `404 Not Found` | Wrong inquiry ID | Check ID format: `inq_*` |
+| Failure | Response |
+| --- | --- |
+| 400 create error | Check JSON:API shape, template selector exclusivity, and environment ownership. |
+| 409 or replay mismatch | Compare the stored request fingerprint; never reuse an idempotency key with changed parameters. |
+| Inquiry remains pending | That is a valid transport result; use sandbox controls or the supported client flow rather than inventing a pass. |
+
+## Validation
+
+Verify the result against the linked first-party evidence, the pinned API version, redacted contract fixtures, an expected failure path, and the documented rollback or manual-disposition path. A successful request is not proof of a successful identity decision.
 
 ## Resources
 
-- [Inquiries Overview](https://docs.withpersona.com/inquiries)
-- [Accessing Inquiry Status](https://docs.withpersona.com/accessing-inquiry-status)
-- [API Quickstart Tutorial](https://docs.withpersona.com/api-quickstart-tutorial)
-
-## Next Steps
-
-- Build full KYC flow: `persona-core-workflow-a`
-- Handle webhook events: `persona-webhooks-events`
+- [First-party source notes](references/official-docs.md)
+- [API introduction](https://docs.withpersona.com/api-introduction)
+- [API quickstart](https://docs.withpersona.com/api-quickstart-tutorial)
+- [API keys](https://docs.withpersona.com/api-keys)
+- [Rate limits](https://docs.withpersona.com/rate-limiting)
+- [Webhook best practices](https://docs.withpersona.com/webhooks-best-practices)
+- [Request idempotence](https://docs.withpersona.com/idempotence)

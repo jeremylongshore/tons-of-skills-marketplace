@@ -1,159 +1,91 @@
 ---
 name: clari-hello-world
-description: 'Export your first Clari forecast and pipeline snapshot.
-
-  Use when testing Clari API connectivity, pulling forecast data,
-
-  or learning the export API structure.
-
-  Trigger with phrases like "clari hello world", "clari first export",
-
-  "clari test api", "clari forecast export".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(python3:*)
-version: 1.6.0
+description: >-
+  Run one bounded Clari forecast export through request, status polling, and result retrieval. Use when proving Revenue API connectivity or learning the job lifecycle. Trigger with: "run my first Clari export", "test Clari connectivity", "export a forecast snapshot".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[forecast-id-time-period-and-output-format]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- revenue-intelligence
-- forecasting
-- clari
-compatibility: Designed for Claude Code
+  - saas
+  - clari
+  - forecast
+  - export
+  - quickstart
+compatibility: 'Requires a Revenue API token, access to an existing Forecast Tab, and permission to export its hierarchy.'
 ---
-# Clari Hello World
+
+# First Clari Forecast Export
 
 ## Overview
 
-First API calls against Clari: list available forecasts, export a forecast snapshot, and check export job status. The Clari Export API is the primary integration point for getting forecast, quota, and CRM data out of Clari.
+Prove the complete asynchronous export contract with one small, non-production forecast request. Success means retaining the forecast ID, job ID, terminal state, result format, and a redacted schema sample—not merely receiving an initial HTTP response.
 
 ## Prerequisites
 
-- Completed `clari-install-auth` setup
-- `CLARI_API_KEY` environment variable set
-- At least one forecast configured in Clari
+- Forecast Tab ID copied from the entitled Clari Forecast view
+- A scoped Revenue API token stored outside the repository
+- A small time period, hierarchy scope, and approved output location
 
 ## Instructions
 
-### Step 1: List Available Forecasts
+### Step 1: Freeze the request
 
-```bash
-curl -s -H "apikey: ${CLARI_API_KEY}" \
-  https://api.clari.com/v4/export/forecast/list \
-  | jq '.forecasts[] | {forecastName, forecastId, timePeriods}'
-```
+Record the forecast ID, time period, requested data types, scope ID, currency, history choice, and JSON or CSV format.
 
-### Step 2: Export a Forecast
+### Step 2: Check capacity
 
-```python
-import requests
-import json
-import os
-import time
+Read `/admin/limits` and confirm both concurrent capacity and rolling monthly quota before consuming an export slot.
 
-api_key = os.environ["CLARI_API_KEY"]
-headers = {"apikey": api_key, "Content-Type": "text/plain"}
+### Step 3: Queue the export
 
-# Replace with your forecast name from Step 1
-forecast_name = "company_forecast"
+Submit `POST /export/forecast/{forecastId}` against the documented Revenue API base and retain the returned job ID.
 
-payload = json.dumps({
-    "timePeriod": "2026_Q1",
-    "typesToExport": [
-        "forecast",
-        "quota",
-        "forecast_updated",
-        "adjustment",
-        "crm_total",
-        "crm_closed"
-    ],
-    "currency": "USD",
-    "schedule": "NONE",
-    "includeHistorical": False,
-    "exportFormat": "JSON"
-})
+### Step 4: Poll deliberately
 
-response = requests.post(
-    f"https://api.clari.com/v4/export/forecast/{forecast_name}",
-    headers=headers,
-    data=payload,
-)
-response.raise_for_status()
+Read `/export/jobs/{jobId}` with bounded backoff until `DONE`, `ABORTED`, or an operator-defined timeout. Do not treat `SCHEDULED` or `STARTED` as completion.
 
-job = response.json()
-print(f"Export job started: {job['jobId']}")
-print(f"Status: {job['status']}")
-```
+### Step 5: Retrieve once
 
-### Step 3: Check Export Job Status
+Only after `DONE`, fetch `/export/jobs/{jobId}/results`, validate content type and shape, and store the result in the approved temporary boundary.
 
-```python
-# Poll for job completion
-job_id = job["jobId"]
+### Step 6: Close the proof
 
-while True:
-    status_resp = requests.get(
-        f"https://api.clari.com/v4/export/jobs/{job_id}",
-        headers={"apikey": api_key},
-    )
-    status = status_resp.json()
+Record row count, schema fingerprint, status timeline, and cleanup result; delete temporary exported data according to policy.
 
-    if status["status"] == "COMPLETED":
-        print(f"Export ready: {status['downloadUrl']}")
-        break
-    elif status["status"] == "FAILED":
-        print(f"Export failed: {status.get('error', 'Unknown')}")
-        break
+## Authentication
 
-    print(f"Status: {status['status']}... waiting 5s")
-    time.sleep(5)
-```
+Use the Revenue API token only in the `apikey` header over HTTPS. Never include the header, raw response body, or revenue values in logs; authorization follows the token owner’s Clari access and hierarchy.
 
-### Step 4: Download and Parse Results
+## Tool Discipline
 
-```python
-if status["status"] == "COMPLETED":
-    download = requests.get(status["downloadUrl"])
-    forecast_data = download.json()
-
-    # Print summary
-    for entry in forecast_data.get("entries", [])[:5]:
-        print(f"  Rep: {entry.get('ownerName')}")
-        print(f"  Forecast: ${entry.get('forecastAmount', 0):,.0f}")
-        print(f"  Quota: ${entry.get('quotaAmount', 0):,.0f}")
-        print()
-```
+Use Read and Grep to inspect configuration, provider contracts, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not issue, rotate, revoke, create, update, cancel, delete, export, ingest, or publish provider data without explicit operator approval.
 
 ## Output
 
-The first run returns the authorized forecast list, job status, and a bounded
-summary needed to confirm connectivity. Treat the downloaded payload as
-sensitive revenue data: do not print or persist rep-level calls, quota,
-adjustments, or CRM totals outside an approved storage boundary.
+- Redacted request manifest and returned job ID
+- Terminal-state timeline and result schema fingerprint
+- Pass/fail decision with cleanup receipt
+
+Return the exact surface, environment, resource or job identifiers, contract fingerprint, evidence, unresolved risks, and final decision without exposing credentials or sensitive customer data.
 
 ## Examples
 
-Use a staging token to list forecast names, submit one read-only export for an
-approved test period, and log only the job ID, terminal status, and aggregate
-entry count. If the job does not complete or the period is not expected, stop
-the walkthrough and investigate through the bounded rate-limit or diagnostic
-workflow rather than downloading more data.
+An operator requests a JSON export for one current-quarter Forecast Tab, observes `SCHEDULED`, `STARTED`, and `DONE`, retrieves the result once, and records field names and row count without retaining deal values in the test artifact.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Bad API key | Regenerate token in Clari settings |
-| No forecasts listed | Wrong org or no forecasts configured | Contact Clari admin |
-| Job stays `PENDING` | Large export | Wait longer, check job status endpoint |
-| `404` on forecast name | Name mismatch | Use exact name from list endpoint |
+| Failure | Response |
+| --- | --- |
+| Forecast ID rejected | Re-copy the ID from the intended Forecast Tab and verify the integration identity is opted into that hierarchy. |
+| Job remains non-terminal | Stop at the timeout, retain the job ID, inspect service status, and avoid queuing duplicate jobs. |
+| Results request fails | Confirm the job is `DONE`, the job ID belongs to the same token, and the export has not expired. |
 
 ## Resources
 
-- [Clari Export API](https://developer.clari.com/documentation/external_spec)
-- [Clari Community - API Guide](https://community.clari.com/product-q-a-6/clari-api-all-you-need-to-know-556)
-
-## Next Steps
-
-Proceed to `clari-local-dev-loop` for development workflow setup.
+- [First-party source notes](references/official-docs.md)
+- [Clari Revenue API reference](https://developer.clari.com/default/documentation/external_spec)
+- [Clari service status](https://clari.statuspage.io/)

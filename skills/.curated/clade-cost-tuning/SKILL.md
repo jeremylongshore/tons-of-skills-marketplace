@@ -5,7 +5,7 @@ description: "Optimize Anthropic API costs \u2014 model selection, prompt cachin
   \ monitoring.\nTrigger with \"anthropic pricing\", \"claude cost\", \"reduce anthropic\
   \ spend\",\n\"anthropic billing\", \"claude cheaper\".\n"
 allowed-tools: Read, Write, Edit
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -152,9 +152,9 @@ See Pricing table, five numbered strategy sections with code, and the Cost Compa
 ## Resources
 
 - [Pricing](https://www.anthropic.com/pricing)
-- [Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
-- [Message Batches](https://docs.anthropic.com/en/api/creating-message-batches)
-- [Token Counting](https://docs.anthropic.com/en/api/counting-tokens)
+- [Prompt Caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)
+- [Message Batches](https://platform.claude.com/docs/en/api/messages/batches/create)
+- [Token Counting](https://platform.claude.com/docs/en/api/messages/count_tokens)
 
 ## Next Steps
 

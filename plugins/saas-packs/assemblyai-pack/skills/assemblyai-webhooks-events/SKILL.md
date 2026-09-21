@@ -1,266 +1,75 @@
 ---
 name: assemblyai-webhooks-events
-description: 'Implement AssemblyAI webhook handling for transcription completion events.
-
-  Use when setting up webhook endpoints, handling transcription callbacks,
-
-  or processing async transcription results via webhooks.
-
-  Trigger with phrases like "assemblyai webhook", "assemblyai events",
-
-  "assemblyai transcription callback", "handle assemblyai webhook".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*)
-version: 1.5.0
+description: >-
+  Analyze and process AssemblyAI pre-recorded and streaming webhooks with authentication, fast acknowledgment, deduplication, and safe retrieval. Use when implementing event-driven completion. Trigger with "AssemblyAI webhook" or "AssemblyAI callback".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<callback-route> <event-family>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ai
-- speech-to-text
-- assemblyai
-- transcription
-- webhooks
-compatibility: Designed for Claude Code
+tags: [saas, assemblyai]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live AssemblyAI work requires network access"
 ---
-# AssemblyAI Webhooks & Events
+# AssemblyAI Authenticated Webhook Processing
 
 ## Overview
 
-Handle AssemblyAI webhooks for transcription completion. When you submit a transcript with `webhook_url`, AssemblyAI sends a POST request to your URL when the transcript is completed or fails. One webhook per transcript — no complex event routing needed.
+Process callbacks as authenticated, repeatable delivery attempts. Keep acknowledgment, content retrieval, persistence, replay, credentials, and deletion separately governed.
 
 ## Prerequisites
 
-- HTTPS endpoint accessible from the internet
-- `assemblyai` package installed
-- API key configured
+- The target repository or integration path and the requested operator outcome.
+- The AssemblyAI project, environment, region, data classification, and accountable owner.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
 
-## How AssemblyAI Webhooks Work
+## Current Contract
 
-1. You submit a transcription with `webhook_url` parameter
-2. AssemblyAI processes the audio asynchronously
-3. When done (completed or error), AssemblyAI sends a POST to your URL
-4. Your endpoint receives transcript ID and status, then fetches the full transcript
+Pre-recorded callbacks carry transcript ID and status; fetch the full transcript separately. Streaming callbacks after termination can carry finalized turns. AssemblyAI documents a 10-second acknowledgment window and up to 10 attempts when no 2xx is received; a 4xx stops retries. Verify the configured custom auth header.
 
-**Key difference from other APIs:** AssemblyAI webhooks are per-transcript (set at submission time), not a global webhook registration. There are no event types to subscribe to — you get one callback per transcript.
+## Authentication
+
+For live work, inject `ASSEMBLYAI_API_KEY` from an approved secret manager and send the raw value only in the AssemblyAI `Authorization` header to the configured first-party host. Never print, commit, place in a URL, or expose it to an untrusted client. Callback secrets and temporary streaming tokens are separate credentials.
 
 ## Instructions
 
-### Step 1: Submit Transcription with Webhook
+1. Bind each route to the correct event schema.
+2. Capture bounded raw bytes and verify the auth header before parsing.
+3. Validate content type and allowlisted fields.
+4. Derive a durable dedupe key from family and stable identity.
+5. Persist approved minimized data, then return 2xx within deadline.
+6. Retrieve pre-recorded results by ID and quarantine schema drift.
 
-```typescript
-import { AssemblyAI } from 'assemblyai';
+## Tool Discipline
 
-const client = new AssemblyAI({
-  apiKey: process.env.ASSEMBLYAI_API_KEY!,
-});
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call AssemblyAI, upload audio, open a streaming session, mint a token, replay a callback, deploy, rotate a key, or delete a transcript merely because this skill was invoked.
 
-// submit() queues the job and returns immediately (doesn't poll)
-const transcript = await client.transcripts.submit({
-  audio: 'https://example.com/meeting-recording.mp3',
-  webhook_url: 'https://your-app.com/webhooks/assemblyai',
+## Approval Boundaries
 
-  // Optional: auth header for webhook verification
-  webhook_auth_header_name: 'X-Webhook-Secret',
-  webhook_auth_header_value: process.env.ASSEMBLYAI_WEBHOOK_SECRET!,
+Require an accountable owner before live audio processing, production credential or endpoint changes, paid model or capacity changes, content retention, callback replay, deployment, or deletion. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-  // Enable features — results will be available when webhook fires
-  speaker_labels: true,
-  sentiment_analysis: true,
-  auto_highlights: true,
-});
+## Failure Modes
 
-console.log('Submitted:', transcript.id);
-// Returns immediately, webhook fires when processing completes
-```
-
-### Step 2: Webhook Endpoint (Express.js)
-
-```typescript
-import express from 'express';
-import { AssemblyAI, type Transcript } from 'assemblyai';
-
-const app = express();
-const client = new AssemblyAI({
-  apiKey: process.env.ASSEMBLYAI_API_KEY!,
-});
-
-app.post('/webhooks/assemblyai', express.json(), async (req, res) => {
-  // Step 1: Verify authenticity via custom auth header
-  const secret = req.headers['x-webhook-secret'];
-  if (secret !== process.env.ASSEMBLYAI_WEBHOOK_SECRET) {
-    console.warn('Webhook auth failed');
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  // Step 2: Extract payload
-  const { transcript_id, status } = req.body;
-  console.log(`Webhook received: ${transcript_id} — ${status}`);
-
-  // Step 3: Respond quickly (within 10 seconds)
-  res.status(200).json({ received: true });
-
-  // Step 4: Process asynchronously
-  try {
-    if (status === 'completed') {
-      const transcript = await client.transcripts.get(transcript_id);
-      await processCompletedTranscript(transcript);
-    } else if (status === 'error') {
-      await handleFailedTranscript(transcript_id, req.body.error);
-    }
-  } catch (error) {
-    console.error('Webhook processing error:', error);
-  }
-});
-
-async function processCompletedTranscript(transcript: Transcript) {
-  console.log(`Processing transcript ${transcript.id}:`);
-  console.log(`  Text: ${transcript.text?.length} chars`);
-  console.log(`  Duration: ${transcript.audio_duration}s`);
-  console.log(`  Speakers: ${transcript.utterances?.length ?? 0} utterances`);
-
-  // Store in database, notify user, trigger LeMUR analysis, etc.
-
-  // Example: Run LeMUR summarization after transcription completes
-  if (transcript.text && transcript.text.length > 100) {
-    const { response } = await client.lemur.summary({
-      transcript_ids: [transcript.id],
-      answer_format: 'bullet points',
-    });
-    console.log('Auto-summary:', response);
-  }
-}
-
-async function handleFailedTranscript(transcriptId: string, error?: string) {
-  console.error(`Transcript ${transcriptId} failed: ${error}`);
-  // Alert ops team, retry with different settings, etc.
-}
-
-app.listen(3000, () => console.log('Listening on :3000'));
-```
-
-### Step 3: Webhook Endpoint (Next.js App Router)
-
-```typescript
-// app/api/webhooks/assemblyai/route.ts
-import { AssemblyAI } from 'assemblyai';
-import { NextRequest, NextResponse } from 'next/server';
-
-const client = new AssemblyAI({
-  apiKey: process.env.ASSEMBLYAI_API_KEY!,
-});
-
-export async function POST(req: NextRequest) {
-  const secret = req.headers.get('x-webhook-secret');
-  if (secret !== process.env.ASSEMBLYAI_WEBHOOK_SECRET) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const body = await req.json();
-  const { transcript_id, status } = body;
-
-  if (status === 'completed') {
-    const transcript = await client.transcripts.get(transcript_id);
-    // Process transcript...
-    console.log(`Completed: ${transcript_id}, ${transcript.text?.length} chars`);
-  }
-
-  return NextResponse.json({ received: true });
-}
-```
-
-### Step 4: Idempotent Processing
-
-```typescript
-// Prevent duplicate processing if webhook is retried
-const processedTranscripts = new Set<string>();
-// In production, use Redis or a database instead of in-memory Set
-
-async function idempotentProcess(transcriptId: string, handler: () => Promise<void>) {
-  if (processedTranscripts.has(transcriptId)) {
-    console.log(`Already processed: ${transcriptId}`);
-    return;
-  }
-
-  await handler();
-  processedTranscripts.add(transcriptId);
-}
-
-// Usage in webhook handler:
-await idempotentProcess(transcript_id, async () => {
-  const transcript = await client.transcripts.get(transcript_id);
-  await processCompletedTranscript(transcript);
-});
-```
-
-### Step 5: Testing Webhooks Locally
-
-```bash
-# Option 1: ngrok
-ngrok http 3000
-# Use the HTTPS URL as your webhook_url
-
-# Option 2: Simulate webhook manually
-curl -X POST http://localhost:3000/webhooks/assemblyai \
-  -H "Content-Type: application/json" \
-  -H "X-Webhook-Secret: your-secret" \
-  -d '{
-    "transcript_id": "test-id-123",
-    "status": "completed"
-  }'
-```
-
-### Webhook Payload Reference
-
-AssemblyAI sends a POST with this JSON body:
-
-```json
-{
-  "transcript_id": "6wij2z3g66-...",
-  "status": "completed"
-}
-```
-
-For errors:
-
-```json
-{
-  "transcript_id": "6wij2z3g66-...",
-  "status": "error",
-  "error": "Download error: unable to download audio from URL"
-}
-```
-
-If `redact_pii_audio` was enabled, a second webhook fires when redacted audio is ready.
+- A transient 4xx can cause permanent loss because retries stop.
+- IP allowlisting supplements but does not replace callback auth.
+- Duplicate delivery must not duplicate downstream actions.
 
 ## Output
 
-- Webhook endpoint that receives transcription completion events
-- Auth header verification for secure webhook handling
-- Idempotent processing to handle retries
-- LeMUR auto-analysis triggered on completion
+Return the operation scope, environment, region, contract surface, authorization class, model and feature decisions, deterministic validation results, content-free identifiers, risks, cleanup or rollback state, and a concise pass/fail receipt. Exclude credentials, signed URLs, audio, transcript text, prompts, and customer-derived content.
 
-## Examples
+## Example
 
-On receipt, verify the authentication header against a secret manager value using constant-time comparison, validate the expected schema, write a durable idempotency record before acknowledging, and enqueue the transcript ID for a worker. Do not log the payload, transcript text, error detail, or generated summary; retries must reuse the same durable idempotency key.
+- Start with the named environment, approved regional host, synthetic fixture identity, and bounded operation budget.
+- Finish with safe IDs, contract and assertion counts, terminal state, cleanup status, and the decision owner; never reproduce speech content.
 
-## Error Handling
+## Validation
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Webhook not received | URL not accessible from internet | Verify HTTPS URL, check firewall |
-| 401 on webhook | Wrong auth header value | Match `webhook_auth_header_value` from submission |
-| Duplicate processing | Webhook retried after timeout | Implement idempotency (check transcript_id) |
-| Webhook timeout | Processing > 10 seconds | Return 200 immediately, process async |
-| Missing transcript data | Fetching too early | Fetch with `client.transcripts.get()` after webhook |
+Rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm rollback, termination, or deletion state before reporting success.
 
-## Resources
+## References
 
-- [AssemblyAI Webhooks Guide](https://www.assemblyai.com/docs/getting-started/webhooks)
-- [Webhook API Reference](https://www.assemblyai.com/docs/api-reference/transcripts/submit)
-- [Streaming Webhooks](https://www.assemblyai.com/docs/streaming/webhooks)
+Review the dated first-party evidence map before relying on any model, parameter, limit, price, region, or lifecycle claim.
 
-## Next Steps
-
-For performance optimization, see `assemblyai-performance-tuning`.
+- [Current first-party evidence map](references/official-docs.md)

@@ -1,200 +1,87 @@
 ---
 name: castai-webhooks-events
-description: 'Configure CAST AI webhook notifications for cluster events and audit
-  logs.
-
-  Use when setting up alerts for node scaling, cost threshold events,
-
-  or integrating CAST AI events with Slack, PagerDuty, or custom endpoints.
-
-  Trigger with phrases like "cast ai webhooks", "cast ai notifications",
-
-  "cast ai slack alerts", "cast ai events".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*)
-version: 1.4.0
+description: 'Design and operate CAST AI webhook notifications with explicit severity routing, schema tolerance, receiver security, deduplication, and audit-log reconciliation. Use when connecting CAST AI to an incident or operations system. Trigger with: "configure CAST AI webhooks", "route CAST AI notifications", "audit CAST AI events".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[receiver-and-notification-scope]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- kubernetes
-- cost-optimization
-- castai
-compatibility: Designed for Claude Code
+  - saas
+  - kubernetes
+  - cast-ai
+  - webhooks
+  - observability
+compatibility: 'Requires CAST AI organization notification access and an HTTPS receiver governed by the target incident-management system'
 ---
-# CAST AI Webhooks & Events
+
+# CAST AI Webhook Notification Lane
 
 ## Overview
 
-CAST AI emits events for node lifecycle changes, autoscaler decisions, and security findings. Configure webhook endpoints or use the audit log API to track all cluster operations. Integrates with Slack, PagerDuty, and custom HTTP endpoints.
+Route only actionable CAST AI notifications to a hardened receiver. Treat the console-configured request template as the payload contract and the CAST AI Audit log as reconciliation evidence, not as a guessed public event schema.
 
 ## Prerequisites
 
-- CAST AI cluster connected and active
-- HTTPS endpoint for receiving webhooks (or Slack webhook URL)
-- API key with Full Access
+- CAST AI organization, notification owner, severity policy, and receiver
+- HTTPS endpoint with authentication, request limits, retention, and on-call ownership
+- Sanitized sample template and failure fixture
 
 ## Instructions
 
-### Step 1: Configure Notification Channels in Console
+### Step 1: Define the event contract
 
-Navigate to console.cast.ai > your cluster > Notifications. Available channels:
+Use Read and Grep to identify required severity levels, cluster and organization scope, destination, payload fields, privacy classification, deduplication key, and escalation behavior. Exclude fields the receiver does not need.
 
-- **Slack**: Webhook URL integration
-- **Email**: Per-user notifications
-- **PagerDuty**: Incident escalation
-- **Custom webhook**: Any HTTPS endpoint
+### Step 2: Harden the receiver
 
-### Step 2: Query Audit Log via API
+Require TLS, an authenticated boundary appropriate to the chosen integration, bounded body size, content-type validation, request timeout, concurrency limit, replay resistance, redacted logs, and a durable queue. Do not claim CAST AI sends a signature or header unless the configured product flow documents it.
 
-```bash
-# Get recent cluster operations
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/audit-log?limit=20" \
-  | jq '.items[] | {
-    time: .createdAt,
-    action: .action,
-    initiator: .initiatedBy,
-    details: .details
-  }'
-```
+### Step 3: Configure the notification
 
-### Step 3: Build a Custom Notification Handler
+In the CAST AI organization, create a webhook with a clear name, callback URL, severity triggers, and valid JSON request template. Use Write or Edit to version the receiver's expected template and schema tests without committing destination secrets.
 
-```typescript
-// castai-webhook-handler.ts
-import express from "express";
+### Step 4: Normalize and route
 
-const app = express();
-app.use(express.json());
+Parse required fields defensively, preserve unknown fields, normalize timestamps, derive a stable deduplication key from configured content, and map severity through an approved table. A notification should enrich an incident, not directly mutate CAST AI or Kubernetes.
 
-interface CastAIEvent {
-  eventType: string;
-  clusterId: string;
-  clusterName: string;
-  timestamp: string;
-  data: {
-    nodeName?: string;
-    instanceType?: string;
-    lifecycle?: string;
-    action?: string;
-    savingsImpact?: number;
-  };
-}
+### Step 5: Test all outcomes
 
-app.post("/castai/events", async (req, res) => {
-  const event: CastAIEvent = req.body;
+Test valid, unknown-field, missing-optional-field, malformed, oversized, unauthorized, duplicate, delayed, and receiver-down cases. Verify bounded retry/queue behavior and that payloads or credentials do not leak into logs.
 
-  switch (event.eventType) {
-    case "node.added":
-      console.log(
-        `Node added: ${event.data.nodeName} (${event.data.instanceType}, ${event.data.lifecycle})`
-      );
-      await notifySlack(
-        `New ${event.data.lifecycle} node: ${event.data.instanceType}`
-      );
-      break;
+### Step 6: Reconcile with the Audit log
 
-    case "node.removed":
-      console.log(`Node removed: ${event.data.nodeName}`);
-      break;
+Use the CAST AI console Audit log to confirm user-initiated and automated policy operations around the test window. Record what the webhook delivered, what the audit view shows, and any known coverage gap.
 
-    case "node.spot_interrupted":
-      console.log(`Spot interruption: ${event.data.nodeName}`);
-      await notifyPagerDuty("Spot instance interrupted", event);
-      break;
+## Tool Discipline
 
-    case "savings.threshold":
-      console.log(`Savings threshold crossed: ${event.data.savingsImpact}%`);
-      break;
-
-    default:
-      console.log(`Unhandled event: ${event.eventType}`);
-  }
-
-  res.status(200).json({ received: true });
-});
-
-async function notifySlack(message: string): Promise<void> {
-  await fetch(process.env.SLACK_WEBHOOK_URL!, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      text: `:kubernetes: CAST AI: ${message}`,
-    }),
-  });
-}
-
-app.listen(3000, () => console.log("CAST AI webhook handler on :3000"));
-```
-
-### Step 4: Kubernetes-Native Event Monitoring
-
-```bash
-# Watch CAST AI events in the cluster
-kubectl get events -n castai-agent --watch \
-  --field-selector=source=castai
-
-# Or use a CronJob to post daily summaries
-```
-
-```yaml
-apiVersion: batch/v1
-kind: CronJob
-metadata:
-  name: castai-daily-summary
-spec:
-  schedule: "0 9 * * *"
-  jobTemplate:
-    spec:
-      template:
-        spec:
-          containers:
-            - name: summary
-              image: curlimages/curl
-              command:
-                - sh
-                - -c
-                - |
-                  SAVINGS=$(curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-                    "https://api.cast.ai/v1/kubernetes/clusters/${CLUSTER_ID}/savings")
-                  curl -X POST ${SLACK_WEBHOOK_URL} \
-                    -H "Content-Type: application/json" \
-                    -d "{\"text\": \"Daily CAST AI savings: $(echo $SAVINGS | jq -r '.monthlySavings') USD/month\"}"
-          restartPolicy: Never
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Webhook not firing | Wrong URL in console | Verify endpoint is reachable |
-| Slack message empty | Payload format changed | Check current event schema |
-| Duplicate events | No idempotency | Track event IDs in your handler |
-| Events delayed | Queue backlog | Monitor CAST AI status page |
+Use Read and Grep for receiver, runbook, and payload-contract discovery. Use Write and Edit for the versioned template, schema, tests, routing policy, and operational record. This skill does not create a live webhook or send test traffic without an approved external change.
 
 ## Output
 
-The receiver records the provider event ID, normalized event type, cluster ID,
-delivery timestamp, processing decision, and downstream notification result.
-Return a 2xx acknowledgement only after durable idempotency state is written;
-send malformed, unsigned, or unauthorized deliveries to a redacted quarantine
-queue with an operator-visible reason code.
+- Severity, payload, and privacy contract
+- Hardened receiver behavior and schema tests
+- Deduplication, routing, and outage policy
+- Webhook-versus-Audit-log reconciliation receipt
 
 ## Examples
 
-For a spot-interruption event, persist `eventId` with the cluster ID, enqueue a
-single PagerDuty notification, and return `{ "received": true }`. If the same
-event ID is retried, return 200 without creating a second incident. Test this
-flow with a synthetic payload and a non-production notification target before
-enabling the production channel.
+A critical notification opens or enriches one incident using a stable configured identifier. Duplicate deliveries are acknowledged without duplicate pages, and unknown payload fields are retained safely rather than rejecting the event.
+
+## Error Handling
+
+| Failure                              | Response                                                        |
+| ------------------------------------ | --------------------------------------------------------------- |
+| Receiver authentication is undefined | Do not expose the endpoint                                      |
+| Payload template is invalid JSON     | Reject configuration before activation                          |
+| Destination is unavailable           | Queue within a bound, then alert on delivery failure            |
+| Audit log and delivery disagree      | Record the gap and escalate before relying on complete coverage |
 
 ## Resources
 
-- [CAST AI Notifications](https://docs.cast.ai/docs/getting-started)
-- [CAST AI API Reference](https://api.cast.ai/v1/spec/openapi.json)
-
-## Next Steps
-
-For performance optimization, see `castai-performance-tuning`.
+- [Webhook evidence and source notes](references/official-docs.md)
+- [Set up webhook notifications](https://docs.cast.ai/docs/setup-notification-webhook)
+- [Audit log](https://docs.cast.ai/docs/audit-log)
+- [API access](https://docs.cast.ai/docs/api-access)

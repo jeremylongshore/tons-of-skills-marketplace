@@ -1,14 +1,13 @@
 {
   "name": "anima-pack",
-  "version": "1.4.0",
-  "description": "Claude Code skill pack for Anima (18 skills)",
+  "version": "2.0.0",
+  "description": "Anima design-to-code operator pack with 18 Grade-A skills",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
   },
   "license": "MIT",
   "keywords": [
-    "anima",
     "anima",
     "saas",
     "sdk",

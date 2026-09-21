@@ -10,7 +10,7 @@ description: 'Configure Anthropic enterprise organization management, Workspaces
 
   '
 allowed-tools: Read, Write, Edit, Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -140,7 +140,7 @@ In a sandbox, assign `fixture-service` the user role, request a permitted Haiku 
 ## Resources
 
 - [Console](https://console.anthropic.com)
-- [Workspaces](https://docs.anthropic.com/en/docs/administration/workspaces)
+- [Workspaces](https://platform.claude.com/docs/en/manage-claude/workspaces)
 
 ## Next Steps
 

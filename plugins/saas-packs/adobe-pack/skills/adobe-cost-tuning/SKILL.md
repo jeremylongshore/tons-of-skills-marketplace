@@ -1,229 +1,81 @@
 ---
 name: adobe-cost-tuning
-description: 'Optimize Adobe API costs across Firefly Services (generative credits),
-
-  PDF Services (document transactions), and Photoshop/Lightroom APIs.
-
-  Use when analyzing Adobe billing, reducing API costs,
-
-  or implementing usage monitoring and budget alerts.
-
-  Trigger with phrases like "adobe cost", "adobe billing", "adobe credits",
-
-  "reduce adobe costs", "adobe pricing", "adobe budget".
-
-  '
-allowed-tools: Read, Grep
-version: 1.7.0
+description: >-
+  Reduce Adobe integration spend using contract, invoice, usage, queue, storage, and retry evidence instead of invented per-call prices. Use when the task requires adobe workload cost and waste review. Trigger with "reduce Adobe cost", "Adobe spend review", or "PDF transaction budget".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<workload> <billing-window> <budget-objective>"
+version: 1.8.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- design
-- adobe
-compatibility: Designed for Claude Code
+tags: [saas, adobe, cost]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Adobe actions require network access, appropriate entitlement and authentication, and explicit approval"
 ---
-# Adobe Cost Tuning
+# Adobe Workload Cost and Waste Review
 
 ## Overview
 
-Optimize costs across Adobe's consumption-based APIs. Each API family has different pricing models: Firefly uses generative credits, PDF Services uses document transactions, and Photoshop/Lightroom use API call credits.
+Reduce Adobe integration spend using contract, invoice, usage, queue, storage, and retry evidence instead of invented per-call prices. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 
-- Access to Adobe Admin Console billing (https://adminconsole.adobe.com)
-- Understanding of current API usage patterns
-- Monitoring infrastructure for usage tracking
+- Current first-party Adobe documentation for every selected service, API version, auth flow, limit, and lifecycle.
+- Named product, identity, security, data, budget, release, and operations owners appropriate to the scope.
+- Synthetic or approved non-production fixtures with secret and content canaries.
+
+## Current Contract
+
+Firefly entitlements and generative usage, PDF Services document transactions, and application compute/storage/egress are distinct cost classes. Pricing and plan limits are mutable; use the account contract, live usage surface, and dated first-party pages. Recheck the dated evidence map before relying on mutable product behavior.
+
+## Authentication
+
+Collect aggregated aliases, operation classes, outcomes, retries, bytes, and durations. Prompts, assets, documents, users, tokens, and signed URLs are not cost telemetry.
 
 ## Instructions
 
-### Step 1: Understand Adobe API Pricing Models
+1. Define billing window, account/contract owner, services, operations, workload units, and non-negotiable quality objectives.
+2. Reconcile invoice/contract and service usage with submitted jobs, terminal outcomes, retries, duplicates, and storage/compute costs.
+3. Find duplicate submissions, failed transactions, oversized inputs, stale outputs, excessive polling, and unused environments.
+4. Model idempotency, caching-by-approved-hash, batching where documented, input sizing, queue admission, and retention changes.
+5. Canary one control and measure quality, latency, 429s, usage units, and downstream impact.
+6. Adopt only verified savings with budget alerts, anomaly ownership, rollback, and a dated pricing assumption register.
 
-| API | Free Tier | Paid Unit | Key Limit |
-|-----|-----------|-----------|-----------|
-| **PDF Services** | 500 tx/month | Document Transaction | Per-page for extract, per-file for create |
-| **Firefly API** | Trial credits | Generative Credit | 1 credit per image generated |
-| **Photoshop API** | Trial credits | API Credit | 1 credit per operation (cutout, actions, etc.) |
-| **Lightroom API** | Trial credits | API Credit | 1 credit per auto-edit |
-| **I/O Events** | Included | Free with entitlement | 3,000 events/5sec rate limit |
-| **Document Generation** | Part of PDF Services | Document Transaction | Per-document generated |
+## Tool Discipline
 
-### Step 2: Track Usage per API
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, Adobe content, consent, uploads, generation, spend, deployment, registration changes, replay, cancellation, or deletion.
 
-```typescript
-// src/adobe/usage-tracker.ts
-interface ApiUsageEntry {
-  api: 'firefly' | 'pdf-services' | 'photoshop' | 'lightroom';
-  operation: string;
-  timestamp: Date;
-  durationMs: number;
-  creditsUsed: number;
-}
+## Approval Boundaries
 
-class AdobeUsageTracker {
-  private entries: ApiUsageEntry[] = [];
-
-  record(entry: Omit<ApiUsageEntry, 'timestamp'>): void {
-    this.entries.push({ ...entry, timestamp: new Date() });
-  }
-
-  getMonthlySummary(): Record<string, { calls: number; credits: number }> {
-    const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
-    const monthly = this.entries.filter(e => e.timestamp >= monthStart);
-
-    return monthly.reduce((acc, entry) => {
-      const key = entry.api;
-      if (!acc[key]) acc[key] = { calls: 0, credits: 0 };
-      acc[key].calls++;
-      acc[key].credits += entry.creditsUsed;
-      return acc;
-    }, {} as Record<string, { calls: number; credits: number }>);
-  }
-
-  checkBudget(api: string, monthlyLimit: number): { remaining: number; warning: boolean } {
-    const summary = this.getMonthlySummary();
-    const used = summary[api]?.credits || 0;
-    const remaining = monthlyLimit - used;
-    return { remaining, warning: remaining < monthlyLimit * 0.2 };
-  }
-}
-```
-
-### Step 3: Cost Reduction Strategies
-
-**Strategy 1: Cache Firefly outputs by prompt hash**
-
-```typescript
-import crypto from 'crypto';
-
-function promptHash(prompt: string, size: { width: number; height: number }): string {
-  return crypto.createHash('sha256')
-    .update(`${prompt}:${size.width}x${size.height}`)
-    .digest('hex')
-    .slice(0, 16);
-}
-
-// Before generating, check if identical prompt was already run
-const hash = promptHash(prompt, { width: 1024, height: 1024 });
-const cached = await cache.get(`firefly:${hash}`);
-if (cached) return cached; // Saves 1 generative credit
-```
-
-**Strategy 2: Minimize PDF Services transactions**
-
-```typescript
-// EXPENSIVE: Extract + Create + Merge = 3 transactions
-await extractPdf(input);
-await createPdf(html);
-await mergePdfs([pdf1, pdf2]);
-
-// CHEAPER: Combine operations where possible
-// Use Document Generation API (1 transaction) instead of
-// creating PDF then merging
-await generateDocument(template, data); // 1 transaction
-```
-
-**Strategy 3: Right-size Firefly image dimensions**
-
-```typescript
-// Same credit cost but different use cases:
-// - Thumbnails: 512x512 (same 1 credit, faster generation)
-// - Social media: 1024x1024
-// - Print: 2048x2048 (same 1 credit, slower generation)
-// Generate at the size you actually need — don't upscale unnecessarily
-```
-
-**Strategy 4: Use Photoshop batch actions**
-
-```typescript
-// EXPENSIVE: 5 separate API calls = 5 credits
-await removeBackground(image1);
-await removeBackground(image2);
-// ...
-
-// CHEAPER: Photoshop Actions can chain operations
-// Record an action that does: remove bg + resize + add watermark
-// Run it once per image = 1 credit for all 3 operations
-await runPhotoshopAction(image, actionFile);
-```
-
-### Step 4: Budget Alert System
-
-```typescript
-// Check PDF Services free tier monthly limit
-const pdfTracker = new AdobeUsageTracker();
-
-// Wrap PDF Services calls with tracking
-async function trackedPdfExtract(pdfPath: string) {
-  const budget = pdfTracker.checkBudget('pdf-services', 500); // Free tier
-
-  if (budget.remaining <= 0) {
-    throw new Error('PDF Services monthly quota exhausted. Upgrade or wait for reset.');
-  }
-
-  if (budget.warning) {
-    console.warn(`PDF Services: only ${budget.remaining} transactions remaining this month`);
-    // Send alert to Slack/email
-  }
-
-  const result = await extractPdfContent(pdfPath);
-  pdfTracker.record({
-    api: 'pdf-services',
-    operation: 'extract',
-    durationMs: 0,
-    creditsUsed: 1,
-  });
-
-  return result;
-}
-```
-
-### Step 5: Cost Dashboard Query
-
-```sql
--- If tracking usage in your database
-SELECT
-  api,
-  operation,
-  DATE_TRUNC('day', timestamp) as date,
-  COUNT(*) as calls,
-  SUM(credits_used) as credits,
-  AVG(duration_ms) as avg_latency_ms
-FROM adobe_api_usage
-WHERE timestamp >= DATE_TRUNC('month', CURRENT_DATE)
-GROUP BY 1, 2, 3
-ORDER BY credits DESC;
-```
-
-## Output
-
-- Per-API usage tracking with credit consumption
-- Budget alerts at 80% threshold
-- Caching to prevent duplicate Firefly credit charges
-- Operation batching for Photoshop workflows
-- Monthly cost dashboard query
+Budget and workload owners approve spend controls; data owner approves hashing/caching/retention; product owner approves quality or freshness changes.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Unexpected charges | Untracked batch jobs | Wrap all calls with usage tracker |
-| Free tier exceeded | No budget alerts | Implement 80% warning threshold |
-| High Firefly costs | Duplicate prompts | Cache by prompt hash |
-| PDF overage | Unnecessary re-extractions | Cache extraction results |
+- Do not publish fixed prices or universal free-tier assumptions in workflow logic.
+- Do not cache policy-sensitive prompts or customer outputs without approval.
+- Do not lower cost by bypassing entitlements or multiplying credentials.
+
+## Output
+
+Return reconciled baseline, waste map, dated assumptions, control options, canary evidence, verified savings range, alerts, and rollback. Mark assumptions, observed environment behavior, owners, evidence dates, and unresolved gaps explicitly.
 
 ## Examples
 
-Start with the smallest applicable command or code example already provided in this guide, using a non-production Adobe environment and credentials. Confirm the documented response or validation result before applying the pattern to production.
+- Detect duplicate async submissions from one idempotency key.
+- Reconcile a failed PDF job against actual transaction evidence.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- duplicate
+- failed job
+- retry storm
+- stale asset
+- pricing drift
+- rollback
 
 ## Resources
 
-- [Adobe PDF Services Pricing](https://developer.adobe.com/document-services/pricing/main/)
-- [Firefly Services Documentation](https://developer.adobe.com/firefly-services/docs/guides/)
-- [Adobe Admin Console](https://adminconsole.adobe.com)
-
-## Next Steps
-
-For architecture patterns, see `adobe-reference-architecture`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Adobe sources before execution.
+- Treat observed tenant or product behavior as environment-specific evidence, never a universal Adobe guarantee.

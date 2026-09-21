@@ -1,130 +1,91 @@
 ---
 name: clari-cost-tuning
-description: 'Optimize Clari API usage and integration costs.
-
-  Use when reducing API call volume, optimizing export frequency,
-
-  or evaluating Clari license utilization.
-
-  Trigger with phrases like "clari cost", "clari api usage",
-
-  "reduce clari calls", "clari optimization".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.6.0
+description: >-
+  Analyze and optimize Clari integration consumption across export quota, Copilot requests, transfer, storage, and warehouse work. Use when reducing unnecessary runs. Trigger with: "reduce Clari cost", "budget Clari exports", "tune Clari retention".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[workload-retention-and-budget-objective]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- revenue-intelligence
-- forecasting
-- clari
-compatibility: Designed for Claude Code
+  - saas
+  - clari
+  - cost-governance
+  - quota
+  - retention
+compatibility: 'Requires workload inventory, organization limit evidence, destination usage metrics, and an approved freshness and retention policy.'
 ---
-# Clari Cost Tuning
+
+# Clari Export and Data-Cost Governance
 
 ## Overview
 
-Minimize Clari API overhead: reduce export frequency, cache aggressively, export only needed data types, and monitor usage.
+Optimize total integration consumption without inventing public Clari price claims. Provider request capacity, large result transfer, raw-data retention, repeated transformations, and warehouse scans are measurable levers even when commercial pricing is contract-specific.
 
 ## Prerequisites
 
-- An approved consumer inventory and freshness requirement for each report
-- Usage telemetry for API calls, export jobs, warehouse loads, and cache age
-- Data-owner approval for retention, aggregation, and delivery changes
-- A non-production validation path for schedule or payload changes
+- Export and Copilot request counts by workload and owner
+- Result bytes, rows, retention, storage, and warehouse scan metrics
+- Freshness, recovery, audit, and analytical requirements
 
 ## Instructions
 
-### Export Only What You Need
+### Step 1: Attribute consumption
 
-```python
-# Full export (6 data types) -- more API load
-full_types = ["forecast", "quota", "forecast_updated",
-              "adjustment", "crm_total", "crm_closed"]
+Tag every scheduled or ad hoc request with owner, business outcome, surface, window, selected data, and destination.
 
-# Minimal export (2 data types) -- faster and lighter
-minimal_types = ["forecast", "crm_closed"]
+### Step 2: Measure the full path
 
-# Use minimal for dashboards, full for audit/compliance
-```
+Track export quota, Copilot calls, result size, transfer, landing retention, transformation compute, warehouse storage, and query scans.
 
-### Optimize Export Frequency
+### Step 3: Remove redundant work
 
-| Use Case | Recommended Frequency |
-|----------|-----------------------|
-| Executive dashboard | Daily |
-| Forecast accuracy tracking | Weekly |
-| Compliance audit | Quarterly |
-| Ad-hoc analysis | On demand |
+Reuse immutable approved snapshots, coalesce identical requests, narrow history and fields, and resume from checkpoints instead of full reruns.
 
-### Cache to Avoid Redundant Exports
+### Step 4: Set freshness tiers
 
-```python
-# Cache recent exports (see clari-performance-tuning)
-cache = ExportCache(ttl_hours=8)
+Give operational, analytical, audit, and backfill workloads explicit cadences and defer low-value work when quota or budget is constrained.
 
-def smart_export(client, forecast_name, period):
-    cached = cache.get(forecast_name, period)
-    if cached:
-        print(f"Cache hit for {period}")
-        return cached
+### Step 5: Tune retention and layout
 
-    data = client.export_and_download(forecast_name, period)
-    entries = data.get("entries", [])
-    cache.set(forecast_name, period, entries)
-    return entries
-```
+Keep raw data only as policy requires, compact normalized data, partition by access pattern, and preserve lineage even when payloads expire.
 
-### Usage Tracking
+### Step 6: Review tradeoffs
 
-```python
-class ClariUsageTracker:
-    def __init__(self):
-        self.api_calls = 0
-        self.exports = 0
+Compare consumption savings with freshness, recovery, correctness, and compliance impact before promoting a change.
 
-    def track_call(self):
-        self.api_calls += 1
+## Authentication
 
-    def track_export(self):
-        self.exports += 1
+Consumption telemetry must contain credential references and workload identifiers, never secret values or sensitive payloads. Do not create additional tokens to bypass organization limits.
 
-    def report(self) -> dict:
-        return {
-            "api_calls": self.api_calls,
-            "exports": self.exports,
-        }
-```
+## Tool Discipline
 
-## Error Handling
-
-| Condition | Response |
-|---|---|
-| Consumer needs fresher data than the approved schedule | Obtain owner approval and measure incremental load before changing cadence. |
-| Cache returns an expired or mismatched period | Discard it and run the controlled export path. |
-| Usage spikes or provider throttles | Reduce scope/concurrency and preserve the last certified dataset. |
-| Cost reduction removes an audit-required field | Reject the change until the compliance owner approves an alternative. |
+Use Read and Grep to inspect configuration, provider contracts, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not issue, rotate, revoke, create, update, cancel, delete, export, ingest, or publish provider data without explicit operator approval.
 
 ## Output
 
-Publish a cost-and-usage decision with current and proposed cadence, payload
-scope, cache policy, observed API/warehouse load, forecast impact, owner, and
-rollback threshold. Keep business amounts and rep-level data out of the
-operational report unless the recipient is authorized.
+- Workload-level consumption and ownership ledger
+- Quota, request, storage, and warehouse budget policy
+- Before/after savings with freshness, correctness, and recovery impact
+
+Return the exact surface, environment, resource or job identifiers, contract fingerprint, evidence, unresolved risks, and final decision without exposing credentials or sensitive customer data.
 
 ## Examples
 
-Move a non-critical dashboard from hourly full exports to daily minimal exports
-in staging, verify freshness and audit coverage, and compare job count and
-warehouse cost for a week. Roll back the schedule if the certified data window
-or required field coverage no longer meets the report contract.
+A team replaces six overlapping quarterly exports with one immutable snapshot shared by approved consumers, retains raw data only for the required window, and preserves separate transformations and lineage.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Savings reduce required freshness | Restore the approved cadence for the affected service level. |
+| Shared snapshot mixes authorization scopes | Separate exports and storage boundaries even if consumption increases. |
+| Quota attribution is missing | Pause noncritical schedules until owners and business purposes are recorded. |
 
 ## Resources
 
-- [Clari Pricing](https://www.clari.com/pricing)
-
-## Next Steps
-
-For architecture patterns, see `clari-reference-architecture`.
+- [First-party source notes](references/official-docs.md)
+- [Clari Revenue API reference](https://developer.clari.com/default/documentation/external_spec)
+- [Clari Copilot API reference](https://api-doc.copilot.clari.com/)

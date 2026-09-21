@@ -6,13 +6,16 @@ description: 'Implement reference architecture for Anima design-to-code automati
 
   a Figma-to-React project, or planning team-scale design handoff.
 
-  Trigger: "anima architecture", "design-to-code architecture",
+  Trigger with: "anima architecture", "design-to-code architecture",
 
   "anima project structure", "figma automation architecture".
 
   '
 allowed-tools: Read, Write, Edit
-version: 1.4.0
+version: 2.0.0
+argument-hint: "[repository-or-service]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -21,7 +24,7 @@ tags:
 - figma
 - anima
 - architecture
-compatibility: Designed for Claude Code
+compatibility: Requires Node.js 20+, approved Anima API access, current Anima SDK documentation, and authorized Figma or website source access
 ---
 # Anima Reference Architecture
 
@@ -32,7 +35,7 @@ This architecture separates design-source intake, authenticated code generation,
 ## Prerequisites
 
 - Define the target framework, repository layout, supported Anima/Figma SDK versions, and the owner who approves generated changes. Pin dependencies and create a sandbox Figma file with synthetic components for pipeline tests.
-- Obtain Figma and Anima credentials through the deployment secret manager, using least-privilege scopes and short-lived credentials where supported. Verify webhook signatures before accepting events; never commit, print, or place tokens in generated code, cache files, pull requests, or receipts.
+- Obtain Figma and Anima credentials through the deployment secret manager, using least-privilege scopes and short-lived credentials where supported. Validate the configured Figma webhook passcode before accepting events; never commit, print, or place tokens in generated code, cache files, pull requests, or receipts.
 - Establish allowlists for Figma file IDs, node IDs, webhook sources, output repositories, and branch names. Define retention and deletion rules for source snapshots, generated output, and logs before enabling automation.
 - Prepare a dry-run mode, an artifact-diff gate, a staged canary environment, and a rollback reference to the last approved generated revision. Do not allow a webhook to publish directly to production.
 
@@ -53,7 +56,7 @@ This architecture separates design-source intake, authenticated code generation,
                                                       │
                                             ┌─────────▼────────┐
                                             │ Output            │
-                                            │ - React/Vue/HTML  │
+                                            │ - React or HTML   │
                                             │ - PR creation     │
                                             │ - Storybook sync  │
 └──────────────────┘
@@ -122,7 +125,11 @@ design-to-code/
 | Caching | File-based with MD5 keys | Simple, no external dependencies |
 | Post-processing | Custom normalizer | Match project conventions |
 | CI integration | GitHub Actions scheduled | Avoid real-time generation costs |
-| Output framework | React + Tailwind + shadcn | Most production-ready output |
+| Output framework | Repository-approved React or HTML settings | Match the pinned SDK and target application |
+
+## Tool Discipline
+
+Use Read and Grep to inspect the existing integration and generated diff before changing anything. Use Write or Edit only inside the approved generated-code, test, or configuration paths. Use the declared Bash commands only for the explicit install, validation, or diagnostic steps in this workflow; never print tokens, source designs, generated source, or private website captures.
 
 ## Output
 
@@ -136,7 +143,3 @@ design-to-code/
 - [Anima SDK GitHub](https://github.com/AnimaApp/anima-sdk)
 - [Figma Webhooks](https://www.figma.com/developers/api#webhooks-v2)
 - [Anima Figma Plugin](https://www.figma.com/community/plugin/857346721138427857)
-
-## Next Steps
-
-Start with `anima-install-auth`, then follow skills through production deployment.

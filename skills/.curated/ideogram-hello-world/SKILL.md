@@ -1,199 +1,76 @@
 ---
 name: ideogram-hello-world
-description: 'Create a minimal working Ideogram image generation example.
-
-  Use when starting a new Ideogram integration, testing your setup,
-
-  or learning basic Ideogram API patterns.
-
-  Trigger with phrases like "ideogram hello world", "ideogram example",
-
-  "ideogram quick start", "simple ideogram code", "first ideogram image".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(node:*), Bash(npx:*)
-version: 1.10.0
+description: >-
+  Generate and persist one bounded Ideogram V4 image through the current multipart endpoint. Use when testing a first server-side request or reviewing a minimal integration. Trigger with "first Ideogram image", "test Ideogram V4", or "build an Ideogram smoke test".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<prompt-class> <output-path> [environment]"
+version: 1.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ideogram
-- api
-- getting-started
-- image-generation
-compatibility: Designed for Claude Code
+tags: [saas, ideogram, generation]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live generation requires network access, a key, and prepaid credit"
 ---
-# Ideogram Hello World
+# First Ideogram V4 Generation
 
 ## Overview
 
-Generate your first AI image with Ideogram. Demonstrates the legacy `/generate` endpoint (JSON body) and the V3 `/v1/ideogram-v3/generate` endpoint (multipart form). Both return temporary image URLs that must be downloaded promptly.
+Prove the smallest current Ideogram integration: one server-side multipart request, one checked response, and immediate persistence of any returned image. Keep the smoke test bounded because the call spends prepaid credit and response URLs expire.
 
 ## Prerequisites
 
-- Completed `ideogram-install-auth` setup
-- `IDEOGRAM_API_KEY` environment variable set
-- Node.js 18+ or Python 3.10+
+- An approved `IDEOGRAM_API_KEY`, positive API credit, and a non-sensitive prompt.
+- Server-side network access and durable storage outside the repository.
+- A request deadline, maximum output count, and named spend owner.
+
+## Current Contract
+
+The synchronous V4 route is `POST /v1/ideogram-v4/generate` using `multipart/form-data`. Supply either `text_prompt` or `json_prompt`, never both. Structured JSON prompts disable magic prompt. A result can be present but unsafe, represented by `is_image_safe=false` and an empty URL.
+
+## Authentication
+
+Send `IDEOGRAM_API_KEY` only as the `Api-Key` header to `https://api.ideogram.ai`. Keep the request on a trusted server and never echo the key, prompt, response URL, or image bytes into logs or receipts.
 
 ## Instructions
 
-### Step 1: Quick Test with curl
+1. Confirm the prompt classification, destination, output count, deadline, and approval for a paid live request.
+2. Build a multipart body with exactly one prompt form, a supported aspect ratio, and an explicitly reviewed rendering option.
+3. Send the request to the V4 synchronous route with the server-side API key and a bounded timeout.
+4. Reject non-success status codes and validate the response schema before reading image fields.
+5. Check `is_image_safe`; treat an unsafe item or empty URL as a policy outcome, not a downloadable success.
+6. Download an approved image immediately, verify content type and byte limit, and store it under an application-owned opaque identifier.
+7. Return content-free request, storage, timing, safety, and cleanup evidence.
 
-```bash
-set -euo pipefail
-# Legacy endpoint (V_2 model, JSON body)
-curl -s -X POST https://api.ideogram.ai/generate \
-  -H "Api-Key: $IDEOGRAM_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "image_request": {
-      "prompt": "A cheerful golden retriever wearing sunglasses on a beach, with text saying \"Hello Ideogram!\"",
-      "model": "V_2",
-      "style_type": "REALISTIC",
-      "aspect_ratio": "ASPECT_16_9",
-      "magic_prompt_option": "AUTO"
-    }
-  }' | jq '.data[0] | {url, seed, resolution, is_image_safe}'
-```
+## Tool Discipline
 
-### Step 2: TypeScript -- Generate and Download
+Use Read, Glob, and Grep to inspect the existing adapter, storage boundary, and fixtures. Use Write and Edit only for approved code, fixture, or documentation changes. Do not run a paid request merely because this skill was selected.
 
-```typescript
-// hello-ideogram.ts
-import { writeFileSync } from "fs";
+## Approval Boundaries
 
-async function helloIdeogram() {
-  // Generate an image with embedded text (Ideogram's specialty)
-  const response = await fetch("https://api.ideogram.ai/generate", {
-    method: "POST",
-    headers: {
-      "Api-Key": process.env.IDEOGRAM_API_KEY!,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      image_request: {
-        prompt: 'Modern poster design with bold text "HELLO WORLD" in neon gradient, dark background, clean typography',
-        model: "V_2",
-        style_type: "DESIGN",
-        aspect_ratio: "ASPECT_1_1",
-        magic_prompt_option: "AUTO",
-        num_images: 1,
-      },
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Generation failed: ${response.status} ${await response.text()}`);
-  }
-
-  const result = await response.json();
-  const image = result.data[0];
-
-  console.log("Generated image:");
-  console.log("  URL:", image.url);
-  console.log("  Seed:", image.seed);
-  console.log("  Resolution:", image.resolution);
-  console.log("  Style:", image.style_type);
-  console.log("  Safe:", image.is_image_safe);
-
-  // Download immediately -- URLs expire after ~1 hour
-  const imgResponse = await fetch(image.url);
-  const buffer = Buffer.from(await imgResponse.arrayBuffer());
-  writeFileSync("hello-ideogram.png", buffer);
-  console.log("Saved to hello-ideogram.png");
-}
-
-helloIdeogram().catch(console.error);
-```
-
-### Step 3: Python -- Generate and Download
-
-```python
-# hello_ideogram.py
-import os, requests
-
-response = requests.post(
-    "https://api.ideogram.ai/generate",
-    headers={
-        "Api-Key": os.environ["IDEOGRAM_API_KEY"],
-        "Content-Type": "application/json",
-    },
-    json={
-        "image_request": {
-            "prompt": 'Modern poster design with bold text "HELLO WORLD" in neon gradient, dark background',
-            "model": "V_2",
-            "style_type": "DESIGN",
-            "aspect_ratio": "ASPECT_1_1",
-            "magic_prompt_option": "AUTO",
-        }
-    },
-)
-response.raise_for_status()
-
-image = response.json()["data"][0]
-print(f"URL: {image['url']}")
-print(f"Seed: {image['seed']}")
-
-# Download the image (URLs expire)
-img_data = requests.get(image["url"]).content
-with open("hello-ideogram.png", "wb") as f:
-    f.write(img_data)
-print("Saved to hello-ideogram.png")
-```
-
-## Key Parameters Quick Reference
-
-| Parameter | Values | Default |
-|-----------|--------|---------|
-| `model` | `V_1`, `V_1_TURBO`, `V_2`, `V_2_TURBO`, `V_2A`, `V_2A_TURBO` | `V_2` |
-| `style_type` | `AUTO`, `GENERAL`, `REALISTIC`, `DESIGN`, `RENDER_3D`, `ANIME` | `AUTO` |
-| `aspect_ratio` | `ASPECT_1_1`, `ASPECT_16_9`, `ASPECT_9_16`, `ASPECT_3_2`, `ASPECT_2_3`, `ASPECT_4_3`, `ASPECT_3_4`, `ASPECT_10_16`, `ASPECT_16_10`, `ASPECT_1_3`, `ASPECT_3_1` | `ASPECT_1_1` |
-| `magic_prompt_option` | `AUTO`, `ON`, `OFF` | `AUTO` |
-| `num_images` | 1-4 | 1 |
-
-## Response Shape
-
-```json
-{
-  "created": "2025-01-15T10:30:00Z",
-  "data": [
-    {
-      "url": "https://ideogram.ai/assets/image/...",
-      "prompt": "expanded prompt if magic_prompt was ON",
-      "resolution": "1024x1024",
-      "is_image_safe": true,
-      "seed": 12345,
-      "style_type": "DESIGN"
-    }
-  ]
-}
-```
+Require approval for live spend, sensitive prompts, customer images, external publication, or durable retention. The smoke test must not overwrite an existing asset; rollback removes only the newly created opaque object and associated test metadata.
 
 ## Error Handling
 
-| Error | HTTP Status | Cause | Solution |
-|-------|-------------|-------|----------|
-| Auth error | 401 | Missing or invalid `Api-Key` header | Check `IDEOGRAM_API_KEY` env var |
-| Safety rejected | 422 | Prompt failed content filter | Remove flagged terms, rephrase |
-| Rate limited | 429 | Too many in-flight requests | Wait and retry with backoff |
-| Bad request | 400 | Invalid parameter values | Check enum values match exactly |
+- `400` indicates an invalid combination or endpoint-specific option; V4 `FLASH` is currently not accepted.
+- `401`, `422`, and `429` require authentication, validation, and capacity-specific handling.
+- A successful HTTP response with `is_image_safe=false` must not be retried by mutating the prompt automatically.
 
 ## Output
 
-- Generated image file downloaded locally
-- Console output with URL, seed, resolution, and safety status
-- Seed value for reproducible regeneration
+Return endpoint, environment, prompt class, HTTP status, output and safe-item counts, opaque generation or request identifiers, durable storage key, latency, cost owner, and rollback status. Exclude raw prompts, credentials, image URLs, and image bytes.
 
 ## Examples
 
-Generate a fictional test image in a sandbox and record `fixture=hello-image-v1; rights=test-owned; destination=sandbox-gallery; result=accepted; output_retention=none; cleanup=complete`.
+- Generate a synthetic square label design, persist it to a test bucket, then delete it after assertions.
+- Report `endpoint=v4-sync; outputs=1; safe=1; persisted=yes; url_retained=no; cleanup=complete`.
+
+## Validation
+
+Re-run the adapter's deterministic fixture test, verify exactly one prompt form was sent, confirm the URL was not retained, and check storage and deletion receipts. Live output quality alone does not prove schema, safety, or retention correctness.
 
 ## Resources
 
-- [Legacy Generate Endpoint](https://developer.ideogram.ai/api-reference/api-reference/generate)
-- [V3 Generate Endpoint](https://developer.ideogram.ai/api-reference/api-reference/generate-v3)
-- [Ideogram Prompt Tips](https://docs.ideogram.ai/using-ideogram/generation-settings/style)
-
-## Next Steps
-
-Proceed to `ideogram-local-dev-loop` for development workflow setup.
+- [Current first-party evidence map](references/official-docs.md) — use the dated endpoint, webhook, billing, team, and training links as the contract index for this workflow.
+- Recheck the endpoint-specific page and current OpenAPI description before relying on an enum, limit, beta feature, or lifecycle claim.
+- Record live observations as environment-specific evidence, not as universal vendor guarantees.

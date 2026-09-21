@@ -1,284 +1,81 @@
 ---
 name: onenote-core-workflow-a
-description: 'Full CRUD lifecycle for OneNote notebooks, section groups, sections,
-  and pages via Graph API.
-
-  Use when building notebook management features, creating page hierarchies, or working
-  with XHTML content.
-
-  Trigger with "onenote crud", "onenote page management", "onenote notebook workflow".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.6.0
+description: >-
+  Enumerate approved OneNote notebooks, sections, section groups, and page metadata with complete pagination evidence. Use when building an inventory or selecting a stable content target. Trigger with "inventory OneNote", "list OneNote pages", or "map OneNote hierarchy".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<user-group-or-site> <content-scope> <output-fields>"
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- onenote
-- microsoft
-compatibility: Designed for Claude Code
+tags: [saas, onenote, inventory]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live OneNote actions require network access, delegated authentication, and explicit approval"
 ---
-# OneNote — Full CRUD Lifecycle (Notebooks, Sections, Pages)
+# OneNote Hierarchy Inventory
 
 ## Overview
 
-OneNote's hierarchy — Notebook, Section Group, Section, Page — maps cleanly to Graph API endpoints, but the implementation has sharp edges. Section groups created via API sometimes don't render in the desktop client. Page content must be strict XHTML with self-closing tags, and the HTML you send in differs from the HTML you get back. This skill covers the full create/read/update/delete lifecycle with production-safe patterns for every level of the hierarchy.
-
-Key pain points addressed:
-
-- Page content requires XHTML (all tags must close, UTF-8 encoded, no `rowspan`/`colspan`)
-- Section groups support API nesting depths that the desktop app cannot render beyond two levels
-- Output HTML from `GET /pages/{id}/content` contains Graph-injected `data-id` attributes and rewritten image URLs that differ from your input HTML
-- `PATCH` page updates use a JSON array with `target`/`action`/`content` — not raw HTML
+Enumerate approved OneNote notebooks, sections, section groups, and page metadata with complete pagination evidence.. This workflow produces an auditable decision or artifact before any live action.
 
 ## Prerequisites
 
-- Azure app registration with delegated permissions: `Notes.ReadWrite` or `Notes.ReadWrite.All`
-- App-only auth deprecated March 31, 2025 — use delegated auth only (DeviceCodeCredential or InteractiveBrowserCredential)
-- Python: `pip install msgraph-sdk azure-identity`
-- Node/TypeScript: `npm install @microsoft/microsoft-graph-client @azure/identity @azure/msal-node`
+- Current first-party Microsoft Graph OneNote documentation and the selected integration's tested contract.
+- Named identity, content, workload, security, and operations owners appropriate to the requested scope.
+- Synthetic or approved non-production fixtures with secrets and real notebook content removed.
+
+## Current Contract
+
+Production calls use the v1.0 user, group, or SharePoint-site OneNote root. Page lists are paged; broad all-pages reads can fail for users with many sections, so enumerate pages per approved section and follow every returned next link. Recheck the dated evidence map before relying on mutable permissions, limits, SDK behavior, supported resources, or cloud availability.
+
+## Authentication
+
+Use delegated Notes.Read unless writes are separately required. Confirm the signed-in user can access the selected user, group, or site content before retrieving metadata.
 
 ## Instructions
 
-### Step 1 — Authenticate with Delegated Credentials
+1. Resolve the exact user, group, or site location and approved notebook scope.
+2. Request only needed fields and expand hierarchy relationships when that reduces safe round trips.
+3. Enumerate notebooks, section groups, and sections while preserving stable IDs and parent links.
+4. List pages section by section and follow every opaque next link until completion.
+5. Record page counts, duplicate IDs, inaccessible containers, and the extraction watermark.
+6. Reconcile the manifest against expected roots and label incomplete or denied areas explicitly.
 
-**TypeScript:**
+## Tool Discipline
 
-```typescript
-import { Client } from "@microsoft/microsoft-graph-client";
-import { TokenCredentialAuthenticationProvider } from "@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials";
-import { DeviceCodeCredential } from "@azure/identity";
+Use Read, Glob, and Grep to inspect documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Invocation alone does not authorize network access, delegated credentials, tenant or notebook content, consent, file transfer, deployment, writes, spend, sharing changes, or deletion.
 
-const credential = new DeviceCodeCredential({
-  clientId: process.env.AZURE_CLIENT_ID!,
-  tenantId: process.env.AZURE_TENANT_ID!,
-});
-const scopes = ["Notes.ReadWrite"];
-const authProvider = new TokenCredentialAuthenticationProvider(credential, { scopes });
-const client = Client.initWithMiddleware({ authProvider });
-```
+## Approval Boundaries
 
-**Python:**
-
-```python
-from azure.identity import DeviceCodeCredential
-from msgraph import GraphServiceClient
-
-credential = DeviceCodeCredential(
-    client_id=os.environ["AZURE_CLIENT_ID"],
-    tenant_id=os.environ["AZURE_TENANT_ID"],
-)
-scopes = ["Notes.ReadWrite"]
-client = GraphServiceClient(credentials=credential, scopes=scopes)
-```
-
-### Step 2 — Create a Notebook
-
-```typescript
-const notebook = await client.api("/me/onenote/notebooks").post({
-  displayName: "Project Notes Q2 2026",
-});
-// notebook.id is the resource identifier for all child operations
-console.log(`Created notebook: ${notebook.id}`);
-```
-
-Notebook names must be unique per user. Attempting to create a duplicate returns `400 Bad Request` with code `20117`.
-
-### Step 3 — Create Section Groups and Sections
-
-```typescript
-// Create a section group (top-level organization)
-const group = await client.api(
-  `/me/onenote/notebooks/${notebook.id}/sectionGroups`
-).post({ displayName: "Engineering" });
-
-// Create a section inside the group
-const section = await client.api(
-  `/me/onenote/sectionGroups/${group.id}/sections`
-).post({ displayName: "Sprint 1" });
-
-// Create a section directly in the notebook (no group)
-const standaloneSection = await client.api(
-  `/me/onenote/notebooks/${notebook.id}/sections`
-).post({ displayName: "Quick Notes" });
-```
-
-> **Gotcha:** The API allows nesting section groups three or more levels deep, but the OneNote desktop app only renders two levels. The web app may show deeper nesting inconsistently. Stick to a maximum of two levels for cross-client compatibility.
-
-### Step 4 — Create a Page with XHTML Content
-
-OneNote pages use strict XHTML. Every tag must close. Use `data-tag` attributes for checkboxes and note tags.
-
-```typescript
-const htmlContent = `<!DOCTYPE html>
-<html lang="en-US">
-<head>
-  <title>Sprint Planning - March 2026</title>
-  <meta name="created" content="2026-03-23T10:00:00-05:00" />
-</head>
-<body>
-  <h1>Sprint Planning</h1>
-  <p>Attendees: Alice, Bob, Charlie</p>
-  <h2>Action Items</h2>
-  <ul>
-    <li data-tag="to-do">Deploy feature X by Friday</li>
-    <li data-tag="to-do">Review PR #488</li>
-    <li data-tag="to-do:completed">Set up staging environment</li>
-  </ul>
-  <table>
-    <tr><td>Task</td><td>Owner</td><td>Due</td></tr>
-    <tr><td>API integration</td><td>Alice</td><td>March 28</td></tr>
-  </table>
-  <p>Next meeting: <time datetime="2026-03-30T10:00:00-05:00">March 30</time></p>
-</body>
-</html>`;
-
-const page = await client.api(
-  `/me/onenote/sections/${section.id}/pages`
-).header("Content-Type", "text/html").post(htmlContent);
-console.log(`Page created: ${page.id} — "${page.title}"`);
-```
-
-**XHTML rules that cause silent failures if violated:**
-
-- All tags must self-close or have closing tags (`<br />`, not `<br>`)
-- No `rowspan` or `colspan` on `<td>` — use separate rows instead
-- `<img>` tags must include `alt` attribute
-- Content must be UTF-8 encoded
-
-### Step 5 — Retrieve Page Content
-
-```typescript
-// Metadata (title, timestamps, parent info) — fast, cacheable
-const metadata = await client.api(`/me/onenote/pages/${page.id}`).get();
-
-// Full HTML content — separate endpoint, slower
-const content = await client.api(`/me/onenote/pages/${page.id}/content`).get();
-// content is a ReadableStream — pipe or buffer it
-```
-
-> **Important:** The HTML returned by `GET /content` differs from your input. Graph injects `data-id` attributes on every element, rewrites image `src` URLs to Graph resource endpoints, and may restructure your table markup. Never diff input vs output HTML for change detection — compare `lastModifiedDateTime` instead.
-
-### Step 6 — Update Page Content (PATCH)
-
-Updates use a JSON array describing targeted changes, not raw HTML replacement:
-
-```typescript
-await client.api(`/me/onenote/pages/${page.id}/content`).patch([
-  {
-    target: "body",
-    action: "append",
-    content: "<p>Update: Feature X deployed successfully.</p>",
-  },
-  {
-    target: "#action-items",
-    action: "replace",
-    content: '<ul><li data-tag="to-do:completed">All items complete</li></ul>',
-  },
-]);
-```
-
-Valid `action` values: `append`, `replace`, `delete`, `insert`, `prepend`. The `target` is a CSS selector matching `data-id` attributes from the output HTML — you must `GET /content` first to obtain valid targets.
-
-### Step 7 — List and Filter Pages with OData
-
-```typescript
-const pages = await client.api("/me/onenote/sections/{sectionId}/pages")
-  .select("id,title,lastModifiedDateTime,createdDateTime")
-  .top(25)
-  .orderby("lastModifiedDateTime desc")
-  .get();
-
-for (const p of pages.value) {
-  console.log(`${p.title} — Last modified: ${p.lastModifiedDateTime}`);
-}
-```
-
-### Step 8 — Delete a Page
-
-```typescript
-await client.api(`/me/onenote/pages/${page.id}`).delete();
-// Returns 204 No Content on success
-// Deleted pages may still appear in LIST results for up to 30 minutes
-```
-
-## Output
-
-Successful CRUD operations return:
-
-- **Create notebook/section/page:** `201 Created` with resource JSON (includes `id`, `self`, `createdDateTime`)
-- **Get content:** `200 OK` with XHTML stream
-- **Patch:** `204 No Content` on success
-- **Delete:** `204 No Content` on success
+Require the content owner before traversing a new root or exporting metadata. The workflow is read-only and does not fetch page bodies unless separately approved.
 
 ## Error Handling
 
-| Status | Cause | Fix |
-|--------|-------|-----|
-| 400 | Invalid XHTML, unclosed tags, duplicate notebook name | Validate HTML before sending; check notebook name uniqueness |
-| 403 | Missing `Notes.ReadWrite` permission, wrong tenant | Verify Azure app permissions and consent status |
-| 404 | Notebook/section/page deleted or wrong ID | Confirm resource exists with a `GET` before mutation |
-| 429 | Rate limit hit (600/min per user) | Read `Retry-After` header, wait that many seconds |
-| 507 | Section page limit exceeded | Archive old pages to a new section; see `onenote-performance-tuning` |
+- Never infer completeness from the first page.
+- Do not use titles as identities or reconstruct opaque next links.
+- Stop if the resolved location differs from the approved user, group, or site.
+
+## Output
+
+Return the location contract, hierarchy manifest, page ledger, inaccessible scopes, reconciliation totals, watermark, and evidence gaps. Identify assumptions, owners, expirations, and evidence gaps explicitly.
 
 ## Examples
 
-**Python — Create notebook and page:**
+- Inventory a group notebook without querying unrelated user notebooks.
+- Resume a section page list from its exact saved next link.
 
-```python
-notebook = await client.me.onenote.notebooks.post(
-    {"displayName": "Python Notebook"}
-)
-sections = await client.me.onenote.notebooks.by_notebook_id(
-    notebook.id
-).sections.post({"displayName": "Notes"})
+## Validation
 
-html = """<!DOCTYPE html>
-<html><head><title>Hello from Python</title></head>
-<body><p>Created via msgraph-sdk.</p></body></html>"""
+Exercise and record these paths with expected and observed results:
 
-page = await client.me.onenote.sections.by_onenote_section_id(
-    sections.id
-).pages.post(html)
-```
-
-**TypeScript — Multipart page with embedded image:**
-
-```typescript
-const boundary = "MyPartBoundary";
-const body = [
-  `--${boundary}`,
-  'Content-Disposition: form-data; name="Presentation"',
-  "Content-Type: text/html",
-  "",
-  '<!DOCTYPE html><html><head><title>With Image</title></head>',
-  '<body><p>See diagram:</p><img src="name:diagram" alt="Architecture" /></body></html>',
-  `--${boundary}`,
-  'Content-Disposition: form-data; name="diagram"',
-  "Content-Type: image/png",
-  "",
-  imageBuffer.toString("binary"),
-  `--${boundary}--`,
-].join("\r\n");
-
-await client.api(`/me/onenote/sections/${sectionId}/pages`)
-  .header("Content-Type", `multipart/form-data; boundary=${boundary}`)
-  .post(body);
-```
+- empty notebook
+- nested section groups
+- multiple pages
+- duplicate ID
+- denied section
+- resume
 
 ## Resources
 
-- [OneNote API Overview](https://learn.microsoft.com/en-us/graph/api/resources/onenote-api-overview)
-- [Create Pages](https://learn.microsoft.com/en-us/graph/onenote-create-page)
-- [Update Pages](https://learn.microsoft.com/en-us/graph/onenote-update-page)
-- [Input/Output HTML](https://learn.microsoft.com/en-us/graph/onenote-input-output-html)
-- [Note Tags](https://learn.microsoft.com/en-us/graph/onenote-note-tags)
-- [Images & Files](https://learn.microsoft.com/en-us/graph/onenote-images-files)
-- [Azure App Registration](https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps)
-
-## Next Steps
-
-- See `onenote-core-workflow-b` for search, pagination, and cross-notebook queries
-- See `onenote-performance-tuning` for large notebook optimization and image upload limits
-- See `onenote-rate-limits` for throttling patterns when doing bulk page creation
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable behavior.
+- Treat observed tenant behavior as environment-specific evidence, never a universal OneNote guarantee.

@@ -1,196 +1,86 @@
 ---
 name: brightdata-core-workflow-a
-description: 'Scrape structured data with Bright Data Scraping Browser using Playwright/Puppeteer.
-
-  Use when scraping JavaScript-rendered pages, SPAs, or sites requiring browser interaction.
-
-  Trigger with phrases like "brightdata scraping browser", "brightdata playwright",
-
-  "brightdata puppeteer", "scrape SPA with brightdata", "browser scraping".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(npx:*), Grep
-version: 1.6.0
+description: 'Analyze an approved JavaScript-rendered task through Bright Data Browser API with bounded interaction and evidence. Use when a static request cannot satisfy an authorized public-data workflow and browser rendering is required. Trigger with: "use Bright Data Browser API", "connect Playwright to Bright Data", "collect a rendered public page".'
+allowed-tools: Read, Grep, Write, Edit, Bash(python:*)
+version: 2.0.0
+argument-hint: "[browser-task-manifest]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
-- scraping
-- data
-- brightdata
-- playwright
-- puppeteer
-compatibility: Designed for Claude Code
+- web-data
+- bright-data
+- core-workflow-a
+- operations
+compatibility: 'Requires an approved Bright Data account or offline fixtures, current Bright Data documentation, and an authorized public-data collection purpose'
 ---
-# Bright Data Scraping Browser
+# Bright Data Browser API Run
 
 ## Overview
 
-Use Bright Data's Scraping Browser to scrape JavaScript-rendered pages. The Scraping Browser works like a regular Playwright/Puppeteer browser but routes through Bright Data's proxy infrastructure with built-in CAPTCHA solving, fingerprint management, and automatic retries.
+Treat Browser API as a remote-browser data plane, not an unlimited browsing identity. Bind one browser zone, a public-target manifest, an interaction ceiling, and a minimal output schema before connecting.
 
 ## Prerequisites
 
-- Completed `brightdata-install-auth` setup
-- Scraping Browser zone active in Bright Data control panel
-- Playwright or Puppeteer installed
+- A Browser API zone username/password stored in the runtime secret manager
+- An approved public target and interaction manifest
+- Playwright plus the reviewed Bright Data Python SDK or current documented client
 
 ## Instructions
 
-### Step 1: Install Playwright
+### Step 1: Approve the task
 
-```bash
-npm install playwright
-npx playwright install chromium
+Read the task manifest and Grep for login, account creation, purchase, message, or other prohibited interactions. Refuse any nonpublic or abusive workflow.
+
+### Step 2: Connect through the SDK
+
+Build the connect URL with the official client and keep credentials out of logs.
+
+```python
+from brightdata import BrightDataClient
+
+client = BrightDataClient(
+    browser_username=browser_user,
+    browser_password=browser_password,
+)
+# Pass client.browser.get_connect_url() only to Playwright connect_over_cdp.
 ```
 
-### Step 2: Connect to Scraping Browser with Playwright
+### Step 3: Constrain the page
 
-```typescript
-// scraping-browser.ts
-import { chromium } from 'playwright';
-import 'dotenv/config';
+Allow only the manifest host set, cap navigation and wall time, block unnecessary assets where appropriate, and extract only named public fields. Do not add evasion behavior after a policy denial.
 
-const { BRIGHTDATA_CUSTOMER_ID, BRIGHTDATA_ZONE, BRIGHTDATA_ZONE_PASSWORD } = process.env;
+### Step 4: Review and close
 
-const AUTH = `brd-customer-${BRIGHTDATA_CUSTOMER_ID}-zone-${BRIGHTDATA_ZONE}:${BRIGHTDATA_ZONE_PASSWORD}`;
-const BROWSER_WS = `wss://${AUTH}@brd.superproxy.io:9222`;
+Use Bash(python:*) for fixture-backed browser tests. Persist the task ID, target class, field counts, provider errors, and policy decision; discard raw page content unless retention was explicitly approved.
 
-async function scrapWithBrowser(url: string) {
-  console.log('Connecting to Scraping Browser...');
-  const browser = await chromium.connectOverCDP(BROWSER_WS);
+## Tool Discipline
 
-  try {
-    const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
-
-    // Wait for dynamic content to load
-    await page.waitForSelector('body', { timeout: 30000 });
-
-    // Extract structured data
-    const data = await page.evaluate(() => ({
-      title: document.title,
-      metaDescription: document.querySelector('meta[name="description"]')?.getAttribute('content') || '',
-      h1: document.querySelector('h1')?.textContent?.trim() || '',
-      links: Array.from(document.querySelectorAll('a[href]')).slice(0, 20).map(a => ({
-        text: a.textContent?.trim(),
-        href: a.getAttribute('href'),
-      })),
-    }));
-
-    console.log('Scraped data:', JSON.stringify(data, null, 2));
-    return data;
-  } finally {
-    await browser.close();
-  }
-}
-
-scrapWithBrowser('https://example.com').catch(console.error);
-```
-
-### Step 3: Scrape Dynamic Product Listings
-
-```typescript
-// scrape-products.ts — real-world example
-import { chromium, Page } from 'playwright';
-import 'dotenv/config';
-
-interface Product {
-  name: string;
-  price: string;
-  rating: string;
-  url: string;
-}
-
-const AUTH = `brd-customer-${process.env.BRIGHTDATA_CUSTOMER_ID}-zone-${process.env.BRIGHTDATA_ZONE}:${process.env.BRIGHTDATA_ZONE_PASSWORD}`;
-
-async function scrapeProducts(searchUrl: string): Promise<Product[]> {
-  const browser = await chromium.connectOverCDP(`wss://${AUTH}@brd.superproxy.io:9222`);
-  const page = await browser.newPage();
-
-  try {
-    await page.goto(searchUrl, { waitUntil: 'networkidle', timeout: 90000 });
-
-    // Scroll to trigger lazy-loaded content
-    await autoScroll(page);
-
-    const products = await page.evaluate(() => {
-      return Array.from(document.querySelectorAll('[data-testid="product-card"]')).map(card => ({
-        name: card.querySelector('.product-title')?.textContent?.trim() || '',
-        price: card.querySelector('.price')?.textContent?.trim() || '',
-        rating: card.querySelector('.rating')?.textContent?.trim() || '',
-        url: card.querySelector('a')?.getAttribute('href') || '',
-      }));
-    });
-
-    return products;
-  } finally {
-    await browser.close();
-  }
-}
-
-async function autoScroll(page: Page): Promise<void> {
-  await page.evaluate(async () => {
-    await new Promise<void>((resolve) => {
-      let totalHeight = 0;
-      const distance = 300;
-      const timer = setInterval(() => {
-        window.scrollBy(0, distance);
-        totalHeight += distance;
-        if (totalHeight >= document.body.scrollHeight) {
-          clearInterval(timer);
-          resolve();
-        }
-      }, 200);
-    });
-  });
-}
-```
-
-### Step 4: Puppeteer Alternative
-
-```typescript
-// scraping-browser-puppeteer.ts
-import puppeteer from 'puppeteer-core';
-
-const AUTH = `brd-customer-${process.env.BRIGHTDATA_CUSTOMER_ID}-zone-${process.env.BRIGHTDATA_ZONE}:${process.env.BRIGHTDATA_ZONE_PASSWORD}`;
-
-async function scrapeWithPuppeteer(url: string) {
-  const browser = await puppeteer.connect({
-    browserWSEndpoint: `wss://${AUTH}@brd.superproxy.io:9222`,
-  });
-  const page = await browser.newPage();
-  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  const title = await page.title();
-  console.log('Page title:', title);
-  await browser.close();
-}
-```
+Use Read and Grep to verify the manifest and existing browser adapter. Use Write and Edit for the bounded task, schema, and tests. Use Bash(python:*) for offline tests; connecting a live browser still requires the recorded authorization gates.
 
 ## Output
 
-- Browser connection through Bright Data's proxy network
-- Scraped structured data from JS-rendered pages
-- Automatic CAPTCHA solving and fingerprint management
+- A bounded Browser API task manifest
+- Schema-validated public fields and redacted run receipt
+- Explicit close, retry, or policy-escalation result
 
 ## Examples
 
-For an approved collection job, document the target authorization, collection purpose, allowed fields, retention period, and rate limit before enqueueing work. Persist an idempotency key and redacted outcome, validate the result against the allowed schema, and stop rather than expanding scope when the response includes unexpected personal or restricted data.
+Use Browser API for an approved public page that requires JavaScript to render a price table. Navigate only to allowlisted hosts, extract the three approved fields, close the browser in `finally`, and reject any redirect to authentication.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `WebSocket connection failed` | Wrong zone or credentials | Verify Scraping Browser zone is active |
-| `Timeout 60000ms exceeded` | Slow page load | Increase timeout; use `domcontentloaded` instead of `networkidle` |
-| `Target closed` | Browser disconnected | Implement retry logic; browser sessions are ephemeral |
-| `Navigation failed` | Site blocked request | Scraping Browser handles this; increase timeout |
+| Failure | Meaning | Response |
+|---------|---------|----------|
+| Connection is rejected | Zone credentials, entitlement, or egress is wrong | Verify the owned zone; do not expose the connect URL |
+| Page redirects to login | The task crossed into nonpublic data | Stop and mark the target out of scope |
+| Policy error is returned | Product or target is not authorized | Escalate; never add bypass behavior |
 
 ## Resources
 
-- Scraping Browser Docs
-- [Scraping Browser Code Examples](https://docs.brightdata.com/scraping-automation/scraping-browser/code-examples)
-- [Playwright CDP Docs](https://playwright.dev/docs/api/class-browsertype#browser-type-connect-over-cdp)
-
-## Next Steps
-
-For SERP API scraping, see `brightdata-core-workflow-b`.
+- [Browser API](https://docs.brightdata.com/products/scraping-browser/introduction)
+- [Python SDK](https://docs.brightdata.com/api-reference/SDK)
+- [Acceptable use policy](https://docs.brightdata.com/general/policy/acceptable-use-policy)
+- [Proxy error catalog](https://docs.brightdata.com/proxy-networks/errorCatalog)

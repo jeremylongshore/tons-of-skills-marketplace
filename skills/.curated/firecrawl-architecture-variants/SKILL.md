@@ -1,262 +1,78 @@
 ---
 name: firecrawl-architecture-variants
-description: 'Choose and implement Firecrawl architecture patterns for different scales
-  and use cases.
-
-  Use when designing new Firecrawl integrations, choosing between on-demand/scheduled/pipeline
-
-  architectures, or planning scraping infrastructure.
-
-  Trigger with phrases like "firecrawl architecture", "firecrawl blueprint",
-
-  "how to structure firecrawl", "firecrawl at scale", "firecrawl pipeline design".
-
-  '
-allowed-tools: Read, Grep
-version: 1.11.0
+description: >-
+  Select a Firecrawl v2 architecture for interactive scrape, governed batch, scheduled crawl, search enrichment, or self-hosted processing. Use when designing or reviewing a Firecrawl system. Trigger with "Firecrawl architecture", "design a crawl pipeline", or "cloud versus self-hosted Firecrawl".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <workload-and-slo>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- migration
-- scaling
-- microservices
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, architecture, design]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Architecture Variants
+# Firecrawl Architecture Selection
 
 ## Overview
 
-Three deployment architectures for Firecrawl at different scales: on-demand scraping for simple use cases, scheduled crawl pipelines for content monitoring, and real-time ingestion pipelines for AI/RAG applications. Choose based on volume, latency requirements, and cost budget.
+Turn workload, freshness, compliance, throughput, and recovery requirements into an explicit architecture decision. Prefer the smallest Firecrawl surface that meets the outcome.
 
 ## Prerequisites
 
-- A documented use case, target-domain allowlist, data-retention policy, budget, and owner.
-- Explicit security boundaries between requesters, workers, content storage, and downstream consumers.
-- A staging environment with synthetic targets and a tested disable/rollback path.
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
 
-## Output
+## Current Contract
 
-Produce an architecture decision record naming the selected pattern, reason, trust boundaries, approved targets, retention and budget controls, operational owner, and rollback path. Keep captured content and credentials out of the record.
+Scrape is a synchronous single-resource primitive; crawl and batch scrape support asynchronous jobs, pagination, webhooks, and status retrieval; map discovers URLs without retrieving page content; search discovers external sources; parse handles local file bytes. The default self-hosted Compose stack does not provide every Cloud capability and is not a production security design.
 
-## Examples
+## Authentication
 
-For a knowledge-base pipeline, choose a scheduled queue only after a synthetic target proves the parser, retention policy, and budget controls. Route unknown targets to review, preserve aggregate job telemetry, and disable the consumer path if a policy check fails.
-
-## Decision Matrix
-
-| Factor | On-Demand | Scheduled Pipeline | Real-Time Pipeline |
-|--------|-----------|-------------------|-------------------|
-| Volume | < 500/day | 500-10K/day | 10K+/day |
-| Latency | Sync (2-10s) | Async (hours) | Async (minutes) |
-| Use Case | Single page lookup | Site monitoring | Knowledge base, RAG |
-| Credit Control | Per-request | Per-crawl budget | Credit pipeline |
-| Complexity | Low | Medium | High |
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Architecture 1: On-Demand Scraping
+1. Inventory the source domains, ownership or authorization basis, expected page volume, freshness target, output formats, data classification, and recovery objective.
+2. Choose scrape for bounded single pages, map plus selective scrape for curated URL sets, batch scrape for known URL collections, and crawl for recursive site discovery.
+3. Choose polling, WebSocket streaming, or signed webhooks for asynchronous delivery based on network topology and recovery needs.
+4. Decide Cloud versus self-hosting using required capabilities, data flows, operator staffing, availability target, and upgrade ownership. Record unsupported self-hosted features explicitly.
+5. Place a policy gateway before Firecrawl for domain authorization, request shaping, budgets, key selection, and audit receipts. Keep content storage and indexing downstream.
+6. Define queue limits, explicit crawl limits, retention/cache choices, idempotency keys, pagination ownership, and degraded modes.
+7. Validate the chosen variant with one approved canary and document failure, retry, cancellation, and rollback paths.
 
-```
-User Request → Backend API → firecrawl.scrapeUrl → Clean Content → Response
-```
+## Tool Discipline
 
-Best for: chatbots, content preview, single-page extraction.
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-```typescript
-import FirecrawlApp from "@mendable/firecrawl-js";
+## Approval Boundaries
 
-const firecrawl = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY!,
-});
+Require approval before selecting self-hosting, introducing a new external provider, permitting authenticated-page capture, enabling Cloud-only capabilities, or broadening domains and retention.
 
-// Simple API endpoint
-app.post("/api/scrape", async (req, res) => {
-  const { url } = req.body;
+## Output
 
-  const result = await firecrawl.scrapeUrl(url, {
-    formats: ["markdown"],
-    onlyMainContent: true,
-    waitFor: 3000,
-  });
-
-  res.json({
-    title: result.metadata?.title,
-    content: result.markdown,
-    url: result.metadata?.sourceURL,
-  });
-});
-
-// With LLM extraction
-app.post("/api/extract", async (req, res) => {
-  const { url, schema } = req.body;
-
-  const result = await firecrawl.scrapeUrl(url, {
-    formats: ["extract"],
-    extract: { schema },
-  });
-
-  res.json({ data: result.extract });
-});
-```
-
-### Architecture 2: Scheduled Crawl Pipeline
-
-```
-Scheduler (cron) → Crawl Queue → firecrawl.asyncCrawlUrl → Result Store
-                                                                  │
-                                                                  ▼
-                                                        Content Processor → Search Index
-```
-
-Best for: documentation monitoring, content indexing, competitive analysis.
-
-```typescript
-import cron from "node-cron";
-
-interface CrawlTarget {
-  id: string;
-  url: string;
-  maxPages: number;
-  paths?: string[];
-  schedule: string; // cron expression
-}
-
-const targets: CrawlTarget[] = [
-  { id: "docs", url: "https://docs.example.com", maxPages: 100, paths: ["/docs/*"], schedule: "0 2 * * *" },
-  { id: "blog", url: "https://blog.example.com", maxPages: 50, schedule: "0 4 * * 1" },
-];
-
-// Schedule crawls
-for (const target of targets) {
-  cron.schedule(target.schedule, async () => {
-    console.log(`Starting scheduled crawl: ${target.id}`);
-    const job = await firecrawl.asyncCrawlUrl(target.url, {
-      limit: target.maxPages,
-      includePaths: target.paths,
-      scrapeOptions: { formats: ["markdown"], onlyMainContent: true },
-    });
-    await db.saveCrawlJob({ targetId: target.id, jobId: job.id, startedAt: new Date() });
-  });
-}
-
-// Separate worker polls for results
-async function processPendingCrawls() {
-  const pending = await db.getPendingCrawlJobs();
-  for (const job of pending) {
-    const status = await firecrawl.checkCrawlStatus(job.jobId);
-    if (status.status === "completed") {
-      await indexPages(job.targetId, status.data || []);
-      await db.markComplete(job.id, status.data?.length || 0);
-      console.log(`Crawl ${job.targetId} complete: ${status.data?.length} pages indexed`);
-    }
-  }
-}
-setInterval(processPendingCrawls, 30000);
-```
-
-### Architecture 3: Real-Time Content Pipeline
-
-```
-URL Sources → Priority Queue → Firecrawl Workers → Content Validation
-                                                          │
-                                                          ▼
-                                                   Vector DB + Search Index
-                                                          │
-                                                          ▼
-                                                    RAG / AI Pipeline
-```
-
-Best for: AI training data, knowledge base, enterprise content platform.
-
-```typescript
-import PQueue from "p-queue";
-
-class ContentPipeline {
-  private queue: PQueue;
-  private firecrawl: FirecrawlApp;
-  private creditBudget: number;
-  private creditsUsed = 0;
-
-  constructor(concurrency = 5, dailyBudget = 10000) {
-    this.queue = new PQueue({ concurrency, interval: 1000, intervalCap: 10 });
-    this.firecrawl = new FirecrawlApp({ apiKey: process.env.FIRECRAWL_API_KEY! });
-    this.creditBudget = dailyBudget;
-  }
-
-  async ingest(urls: string[]) {
-    if (this.creditsUsed + urls.length > this.creditBudget) {
-      throw new Error("Daily credit budget exceeded");
-    }
-
-    // Use batch scrape for efficiency
-    const result = await this.queue.add(() =>
-      this.firecrawl.batchScrapeUrls(urls, {
-        formats: ["markdown"],
-        onlyMainContent: true,
-      })
-    );
-
-    this.creditsUsed += urls.length;
-
-    // Validate and process
-    const pages = (result?.data || []).filter(page => {
-      const md = page.markdown || "";
-      return md.length > 100 && !/captcha|access denied/i.test(md);
-    });
-
-    // Store in vector DB
-    for (const page of pages) {
-      await vectorStore.upsert({
-        id: page.metadata?.sourceURL,
-        content: page.markdown,
-        metadata: { title: page.metadata?.title, url: page.metadata?.sourceURL },
-      });
-    }
-
-    return { ingested: pages.length, rejected: urls.length - pages.length };
-  }
-
-  async discover(siteUrl: string, pathFilter: string) {
-    const map = await this.firecrawl.mapUrl(siteUrl);
-    return (map.links || []).filter(url => url.includes(pathFilter));
-  }
-}
-
-// Usage
-const pipeline = new ContentPipeline(5, 10000);
-const urls = await pipeline.discover("https://docs.example.com", "/api/");
-const result = await pipeline.ingest(urls.slice(0, 100));
-console.log(`Ingested ${result.ingested} pages into vector store`);
-```
-
-## Choosing Your Architecture
-
-```
-Need real-time, user-facing response?
-├── YES → On-Demand (Architecture 1)
-└── NO → How many pages/day?
-    ├── < 500 → On-Demand with caching
-    ├── 500-10K → Scheduled Pipeline (Architecture 2)
-    └── 10K+ → Real-Time Pipeline (Architecture 3)
-```
+Return an architecture decision record containing workload facts, chosen endpoints, sequence, trust boundaries, data flows, capacity assumptions, recovery path, alternatives rejected, validation evidence, and open approvals.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Slow on-demand response | JS-heavy target page | Add caching layer, reduce waitFor |
-| Stale indexed content | Crawl schedule too infrequent | Increase frequency for critical sources |
-| Credit overrun | Pipeline ingesting too aggressively | Implement daily budget with hard cap |
-| Duplicate content | Re-crawling same pages | Deduplicate by content hash before indexing |
+- Requirements conflict: surface the conflict and propose bounded variants instead of hiding it in implementation.
+- Self-host feature is unsupported: choose Cloud or identify and validate the required external service.
+- Recovery path is undefined: block launch until cancellation, replay, and deduplication behavior is owned.
+
+## Examples
+
+- "Design a nightly documentation ingest" selects a bounded crawl or map-plus-batch variant with async recovery.
+- "Keep all traffic inside our infrastructure" evaluates self-hosted capability gaps and operating cost before choosing it.
 
 ## Resources
 
-- [Firecrawl API Reference](https://docs.firecrawl.dev/api-reference/introduction)
-- [Batch Scrape](https://docs.firecrawl.dev/features/batch-scrape)
-- [Crawl Endpoint](https://docs.firecrawl.dev/features/crawl)
-
-## Next Steps
-
-For common pitfalls, see `firecrawl-known-pitfalls`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

@@ -1,6 +1,6 @@
 {
   "name": "mattyp-changelog",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Automate changelog generation: fetch recent changes, synthesize release notes, run quality gates, and prepare a PR.",
   "author": {
     "name": "Mattyp"

@@ -1,177 +1,99 @@
 ---
 name: palantir-webhooks-events
-description: 'Implement Palantir Foundry webhook handling for Ontology change events.
-
-  Use when reacting to Ontology object changes, dataset updates,
-
-  or build completion events from Foundry.
-
-  Trigger with phrases like "palantir webhook", "foundry events",
-
-  "palantir notifications", "ontology change events".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*)
-version: 1.5.0
-license: MIT
+description: >-
+  Choose and implement a supported Foundry event path using OSDK object subscriptions, direct WebSocket subscriptions, monitoring webhooks, or Data Connection webhooks. Use when reacting to object or monitoring changes. Trigger with "Palantir events" or "Foundry subscription".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[object-set-or-monitoring-view]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- webhooks
-- events
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, events, subscriptions]
 ---
-# Palantir Webhooks & Events
+# Palantir Event and Subscription Integration
 
 ## Overview
 
-Handle Foundry webhook events for Ontology changes, dataset updates, and build completions. Covers webhook registration via the Foundry API, signature verification, event routing, and idempotent processing.
+Start from the event producer and delivery guarantee: real-time Ontology object updates use OSDK or Object Set Watcher WebSocket subscriptions, while monitoring notifications and outbound integrations use their documented webhook surfaces. Never invent a general `ontology.object.created` registration API.
 
 ## Prerequisites
 
-- Foundry enrollment with webhook support enabled
-- HTTPS endpoint accessible from Foundry's network
-- `foundry-platform-sdk` installed
+- Identify the producer, consumer, object set or monitoring view, supported delivery surface, data sensitivity, latency objective, and recovery behavior.
+- Confirm the generated OSDK version or direct WebSocket contract, or the configured Data Connection webhook required by monitoring.
+- Read `references/official-docs.md` and verify target-enrollment feature access.
+- Prepare a non-production object set or monitoring view and an idempotent consumer.
+
+## Current Contract
+
+- TypeScript OSDK subscriptions require a compatible generated OSDK/client and receive object-set updates through `.subscribe`.
+- Direct Object Set Watcher subscriptions use a documented WebSocket endpoint and authenticate with a bearer token encoded in the WebSocket subprotocol format.
+- Subscriptions can report an out-of-date state that requires reloading the full object set.
+- Monitoring views can route notifications through webhooks configured in Data Connection; that is distinct from Ontology object subscriptions.
+
+## Authentication
+
+Use the generated OSDK token provider or the documented WebSocket bearer subprotocol. For outbound webhooks, use the authentication configured by the supported Data Connection webhook. Never invent or assume a signature header; record the actual configured authentication and secret owner.
 
 ## Instructions
 
-### Step 1: Register a Webhook via API
+1. Classify the event need as Ontology object-set change, monitoring notification, or another documented Foundry integration.
 
-```python
-import os, foundry
+2. Choose TypeScript OSDK subscription, direct WebSocket, or monitoring/Data Connection webhook and document why it matches.
 
-client = foundry.FoundryClient(
-    auth=foundry.ConfidentialClientAuth(
-        client_id=os.environ["FOUNDRY_CLIENT_ID"],
-        client_secret=os.environ["FOUNDRY_CLIENT_SECRET"],
-        hostname=os.environ["FOUNDRY_HOSTNAME"],
-        scopes=["api:read-data", "api:write-data"],
-    ),
-    hostname=os.environ["FOUNDRY_HOSTNAME"],
-)
+3. Define bounded object filters or monitoring criteria, returned properties/message content, authentication, reconnect/backoff, and cancellation.
 
-# Register webhook for object change events
-webhook = client.webhooks.Webhook.create(
-    url="https://myapp.example.com/webhooks/foundry",
-    event_types=["ontology.object.created", "ontology.object.updated"],
-    secret="whsec_your_webhook_secret_here",
-)
-print(f"Webhook registered: {webhook.rid}")
-```
+4. Implement idempotency and durable reconciliation; on `onOutOfDate`, disconnection, or delivery gap, reload authoritative state.
 
-### Step 2: Webhook Endpoint with Signature Verification
+5. Test create/update/delete or alert cases, duplicate delivery, reconnect, stale state, denied access, secret rotation, and consumer recovery.
 
-```python
-from flask import Flask, request, jsonify
-import hmac, hashlib
+## Tool Discipline
 
-app = Flask(__name__)
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-@app.post("/webhooks/foundry")
-def handle_foundry_webhook():
-    # Verify signature
-    signature = request.headers.get("X-Foundry-Signature", "")
-    timestamp = request.headers.get("X-Foundry-Timestamp", "")
-    secret = os.environ["FOUNDRY_WEBHOOK_SECRET"]
+## Approval Boundaries
 
-    signed_payload = f"{timestamp}.{request.get_data(as_text=True)}"
-    expected = hmac.new(
-        secret.encode(), signed_payload.encode(), hashlib.sha256
-    ).hexdigest()
-
-    if not hmac.compare_digest(signature, expected):
-        return jsonify({"error": "Invalid signature"}), 401
-
-    # Replay protection — reject timestamps older than 5 minutes
-    import time
-    if abs(time.time() - int(timestamp)) > 300:
-        return jsonify({"error": "Timestamp too old"}), 401
-
-    event = request.get_json()
-    handle_event(event)
-    return jsonify({"received": True}), 200
-```
-
-### Step 3: Event Router
-
-```python
-def handle_event(event: dict):
-    event_type = event.get("type", "")
-    handlers = {
-        "ontology.object.created": on_object_created,
-        "ontology.object.updated": on_object_updated,
-        "ontology.object.deleted": on_object_deleted,
-        "dataset.updated": on_dataset_updated,
-        "build.completed": on_build_completed,
-    }
-    handler = handlers.get(event_type)
-    if handler:
-        handler(event["data"])
-    else:
-        print(f"Unhandled event type: {event_type}")
-
-def on_object_created(data: dict):
-    obj_type = data["objectType"]
-    primary_key = data["primaryKey"]
-    print(f"Object created: {obj_type}/{primary_key}")
-    # Sync to external system, trigger workflow, etc.
-
-def on_object_updated(data: dict):
-    obj_type = data["objectType"]
-    changes = data.get("changedProperties", {})
-    print(f"Object updated: {obj_type} — changed: {list(changes.keys())}")
-
-def on_object_deleted(data: dict):
-    print(f"Object deleted: {data['objectType']}/{data['primaryKey']}")
-
-def on_dataset_updated(data: dict):
-    print(f"Dataset updated: {data['datasetRid']} branch={data['branch']}")
-
-def on_build_completed(data: dict):
-    status = data["buildStatus"]
-    print(f"Build {data['buildRid']}: {status}")
-```
-
-### Step 4: Idempotent Processing
-
-```python
-import redis
-
-r = redis.Redis.from_url(os.environ.get("REDIS_URL", "redis://localhost:6379"))
-
-def idempotent_handle(event: dict):
-    event_id = event["id"]
-    key = f"foundry:event:{event_id}"
-    if r.exists(key):
-        print(f"Skipping duplicate event: {event_id}")
-        return
-    handle_event(event)
-    r.setex(key, 86400 * 7, "processed")  # 7-day TTL
-```
+Ontology and data owners approve subscribed objects/properties; security owners approve authentication and outbound destinations; monitoring owners approve notification routing. A subscription does not authorize writeback.
 
 ## Output
 
-- Webhook registered with Foundry for Ontology/dataset events
-- Signature verification with replay protection
-- Event router dispatching to typed handlers
-- Idempotent processing preventing duplicate handling
+An event contract with producer, supported surface, filter, payload fields, auth, consumer, delivery/reconnect behavior, idempotency key, reconciliation, tests, observability, and disable procedure.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Invalid signature | Wrong webhook secret | Verify secret matches registration |
-| Timestamp rejected | Server clock drift | Sync NTP; widen tolerance |
-| Duplicate events | Network retry | Use event ID deduplication |
-| Handler timeout | Slow processing | Offload to background queue |
+| Condition | Response |
+|---|---|
+| The requested event has no documented surface | Do not invent one; use polling with an approved budget, a supported monitoring route, or ask Palantir Support. |
+| The subscription reports out of date | Reload the bounded authoritative object set and reconcile before processing more deltas. |
+| WebSocket reconnect loops | Apply bounded backoff, refresh auth as designed, and alert after the retry budget. |
+| A webhook auth header is assumed | Stop and inspect the actual Data Connection webhook configuration. |
+
+## Examples
+
+### Example 1
+
+Subscribe to an approved `Equipment` object set with TypeScript OSDK, select only required properties, handle updates and deletion, and reload on `onOutOfDate`.
+
+### Example 2
+
+Route a monitoring-view severity to a preconfigured Data Connection webhook, validate the `Message` input mapping, destination controls, duplicate handling, and disable path.
+
+## Validation
+
+- The chosen surface is explicitly documented for the producer.
+- Filters and returned data are least privilege.
+- Authentication and secret rotation match the selected surface.
+- Duplicates, disconnects, out-of-date state, and reconciliation are tested.
+- Consumer failure cannot silently lose authoritative state.
 
 ## Resources
 
-- [Foundry API Reference](https://www.palantir.com/docs/foundry/api/general/overview/introduction)
-- [Foundry Documentation](https://www.palantir.com/docs/foundry)
-
-## Next Steps
-
-For performance optimization, see `palantir-performance-tuning`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

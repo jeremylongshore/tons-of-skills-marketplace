@@ -134,8 +134,8 @@ RAG_PROMPT = ChatPromptTemplate.from_messages([
 
 ## Sources
 
-- Anthropic: Use XML tags — https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/use-xml-tags
-- Anthropic: Giving Claude a role via system prompts — https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/system-prompts
-- Anthropic: Let Claude think (chain of thought) — https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/chain-of-thought
-- Anthropic: Citations — https://docs.anthropic.com/en/docs/build-with-claude/citations
+- Anthropic: Use XML tags — https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#structure-prompts-with-xml-tags
+- Anthropic: Giving Claude a role via system prompts — https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#give-claude-a-role
+- Anthropic: Let Claude think (chain of thought) — https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#leverage-thinking-and-interleaved-thinking-capabilities
+- Anthropic: Citations — https://platform.claude.com/docs/en/build-with-claude/citations
 - Pack pain catalog entries: P02, P34, P58, P65

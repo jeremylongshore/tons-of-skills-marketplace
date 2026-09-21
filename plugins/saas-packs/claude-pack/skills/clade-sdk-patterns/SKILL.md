@@ -5,7 +5,7 @@ description: "Production-ready Anthropic SDK patterns \u2014 client config, retr
   \ types, and async patterns.\nTrigger with \"anthropic sdk\", \"claude client setup\"\
   , \"anthropic typescript\",\n\"anthropic python patterns\".\n"
 allowed-tools: Read, Write, Edit
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -231,8 +231,8 @@ See Client Configuration, Error Handling, Streaming Patterns, TypeScript Types, 
 
 - TypeScript SDK
 - Python SDK
-- [Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
-- [Message Batches](https://docs.anthropic.com/en/api/creating-message-batches)
+- [Prompt Caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)
+- [Message Batches](https://platform.claude.com/docs/en/api/messages/batches/create)
 
 ## Next Steps
 

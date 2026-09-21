@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Enable Corepack
         run: corepack enable
@@ -114,7 +114,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: 20
+          node-version: 22
           registry-url: 'https://registry.npmjs.org'
 
       - name: Enable Corepack
@@ -154,40 +154,43 @@ jobs:
             --sbom-dir /tmp/publication-sboms
           echo "publication_report=$(jq -c . /tmp/publication-report.json)" >> "$GITHUB_OUTPUT"
 
+      # `gh release create` replaces the archived actions/create-release, which
+      # only ever ran on the node12 runtime GitHub removed, so this step could not
+      # start. The version reaches the shell through env, never by interpolating
+      # an expression into the script. Skips cleanly if the release already
+      # exists, so a re-run after a partial publish does not fail here.
       - name: Create GitHub Release
-        uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e # v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref_name }}
-          release_name: CLI v${{ steps.version.outputs.version }}
-          body: |
-            ## @claude-code-plugins/ccp v${{ steps.version.outputs.version }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "Release $GITHUB_REF_NAME already exists; leaving it as is."
+            exit 0
+          fi
+          gh release create "$GITHUB_REF_NAME" \
+            --title "CLI v${VERSION}" \
+            --verify-tag \
+            --notes-file - <<NOTES
+          ## @intentsolutionsio/ccpi v${VERSION}
 
-            ### Installation
+          ### Installation
 
-            ```bash
-            npx @claude-code-plugins/ccp@${{ steps.version.outputs.version }} doctor
-            ```
+          \`\`\`bash
+          npx @intentsolutionsio/ccpi@${VERSION} doctor
+          \`\`\`
 
-            ### Features
+          ### What's Changed
 
-            - ✅ Universal package manager support (npm/bun/pnpm/deno)
-            - ✅ Cross-platform (Linux/macOS/Windows)
-            - ✅ System diagnostics with `ccp doctor`
-            - ✅ Plugin installation and management
+          See [CHANGELOG.md](https://github.com/${GITHUB_REPOSITORY}/blob/main/CHANGELOG.md) for details.
 
-            ### What's Changed
+          ### Links
 
-            See [CHANGELOG.md](https://github.com/jeremylongshore/claude-code-plugins/blob/main/000-docs/247-OD-CHNG-changelog.md) for details.
-
-            ### Links
-
-            - 📦 [npm Package](https://www.npmjs.com/package/@claude-code-plugins/ccp)
-            - 🌐 [Website](https://tonsofskills.com)
-            - 📚 [Documentation](https://github.com/jeremylongshore/claude-code-plugins/tree/main/packages/cli)
-          draft: false
-          prerelease: false
+          - [npm package](https://www.npmjs.com/package/@intentsolutionsio/ccpi)
+          - [Website](https://tonsofskills.com)
+          - [CLI documentation](https://github.com/${GITHUB_REPOSITORY}/tree/main/packages/cli)
+          NOTES
 
       - name: Report success
         run: |
@@ -195,11 +198,11 @@ jobs:
             echo "## 🎉 CLI Published Successfully"
             echo ""
             echo "**Version**: ${{ steps.version.outputs.version }}"
-            echo "**Package**: [@claude-code-plugins/ccp](https://www.npmjs.com/package/@claude-code-plugins/ccp)"
+            echo "**Package**: [@intentsolutionsio/ccpi](https://www.npmjs.com/package/@intentsolutionsio/ccpi)"
             echo ""
             echo "### Installation"
             echo "\`\`\`bash"
-            echo "npx @claude-code-plugins/ccp@${{ steps.version.outputs.version }} doctor"
+            echo "npx @intentsolutionsio/ccpi@${{ steps.version.outputs.version }} doctor"
             echo "\`\`\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -215,8 +218,10 @@ jobs:
 
       - name: Test installation from npm
         run: |
-          # Test with npx
-          npx @claude-code-plugins/ccp@latest --version
+          # Install the exact version this tag published, not @latest: a dist-tag
+          # can lag or point elsewhere, and only the exact version proves this run.
+          VERSION="${GITHUB_REF_NAME#cli-v}"
+          npx --yes "@intentsolutionsio/ccpi@${VERSION}" --version
 
           echo "✅ Package successfully published and installable"
 

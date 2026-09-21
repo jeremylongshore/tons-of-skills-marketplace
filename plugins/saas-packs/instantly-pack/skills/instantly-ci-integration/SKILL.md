@@ -1,263 +1,90 @@
 ---
 name: instantly-ci-integration
-description: 'Configure CI/CD pipelines for Instantly.ai integrations with GitHub
-  Actions.
-
-  Use when setting up automated testing, deployment pipelines,
-
-  or continuous validation of Instantly API integrations.
-
-  Trigger with phrases like "instantly ci", "instantly github actions",
-
-  "instantly pipeline", "instantly automated testing", "instantly ci/cd".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.12.0
-license: MIT
+description: >-
+  Gate Instantly API v2 integrations with offline schema checks and a bounded read-only smoke test. Use when adding Instantly to CI, validating generated clients, or probing a staging workspace. Trigger with "add Instantly CI checks", "validate Instantly OpenAPI", or "smoke-test Instantly staging".
+argument-hint: "[repository-path] [offline|staging]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.13.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - instantly
-- ci-cd
-- github-actions
-- testing
-compatibility: Designed for Claude Code
+- ci-integration
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Instantly workspace and API v2 key
 ---
-# Instantly CI Integration
+# Instantly API Contract CI
 
 ## Overview
 
-Set up CI/CD pipelines for Instantly API v2 integrations. Covers GitHub Actions workflows for testing against the Instantly mock server, validating API key scopes, and deploying webhook receivers. Uses the mock server at `` so CI runs don't send real emails or consume production API limits.
+Build a CI lane that catches request, scope, pagination, and response-shape drift before deployment. Record assumptions, evidence, approval state, and rollback ownership so another operator can reproduce the result.
 
 ## Prerequisites
 
-- GitHub repository with Instantly integration code
-- `INSTANTLY_API_KEY` secret in GitHub repo settings (for production tests)
-- Node.js 18+ or Python 3.10+ in the project
+- The target repository, Instantly workspace, environment, and accountable owner
+- Current security, privacy, compliance, capacity, and change-control requirements
+- An approved API v2 key only when a bounded live verification is necessary
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current first-party Instantly documentation and package metadata. Use `Write` or `Edit` only when implementation was requested and exact target files are known; never write credentials, lead data, email content, or unrestricted environment output.
+
+## Current Contract
+
+- API keys are bearer tokens with endpoint-specific scopes.
+- Default workspace limits are 100 requests per second and 6,000 per minute; endpoint overrides still apply.
+- Live CI probes must use a non-production workspace and read-only scopes.
+
+## Authentication
+
+Use an API v2 key as `Authorization: Bearer <key>` against `https://api.instantly.ai/api/v2`. Grant only the endpoint-specific scopes needed, inject the key from an approved server-side secret manager, and never print, persist, commit, or place it in a URL. Treat key creation, rotation, revocation, member changes, workspace delegation, and production access as owner-approved actions.
 
 ## Instructions
 
-### Step 1: GitHub Actions Workflow
+1. Inventory every Instantly call and map it to an API v2 operation and required scope.
+2. Validate request fixtures offline against pinned OpenAPI-derived types.
+3. Test 401, 403, 429, pagination, timeout, and redaction behavior.
+4. Permit one bounded staging list request only when CI secrets and owner approval exist.
+5. Fail on schema drift, secret output, unbounded pagination, or mutation attempts.
+6. Publish the tested SDK/CLI version, fixtures, and rollback owner.
 
-```yaml
-# .github/workflows/instantly-ci.yml
-name: Instantly Integration CI
+## Approval Boundaries
 
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
-
-env:
-  INSTANTLY_USE_MOCK: "true"
-  INSTANTLY_BASE_URL: "https://developer.instantly.ai/_mock/api/v2"
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - run: npm ci
-
-      - name: Type check
-        run: npx tsc --noEmit
-
-      - name: Lint
-        run: npx eslint src/ --ext .ts
-
-      - name: Unit tests (mock server)
-        run: npx vitest run --reporter=verbose
-        env:
-          INSTANTLY_API_KEY: "mock-key-for-ci"
-          INSTANTLY_USE_MOCK: "true"
-
-      - name: Validate API client types
-        run: npx tsx scripts/validate-types.ts
-
-  integration-test:
-    runs-on: ubuntu-latest
-    needs: test
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - run: npm ci
-
-      - name: Integration tests (live API, read-only)
-        run: npx vitest run tests/integration/ --reporter=verbose
-        env:
-          INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
-          INSTANTLY_BASE_URL: "https://api.instantly.ai/api/v2"
-```
-
-### Step 2: API Scope Validation Script
-
-```typescript
-// scripts/validate-types.ts
-// Verifies the API client types match expected Instantly v2 schema
-
-import { InstantlyClient } from "../src/instantly/client";
-
-async function validateApiAccess() {
-  const client = new InstantlyClient();
-
-  // Validate read-only operations work
-  const campaigns = await client.getCampaigns({ limit: 1 });
-  console.log("campaigns: OK");
-
-  const accounts = await client.getAccounts({ limit: 1 });
-  console.log("accounts: OK");
-
-  console.log("All API validations passed");
-}
-
-validateApiAccess().catch((err) => {
-  console.error("Validation failed:", err.message);
-  process.exit(1);
-});
-```
-
-### Step 3: Integration Test Suite
-
-```typescript
-// tests/integration/instantly.test.ts
-import { describe, it, expect } from "vitest";
-import { InstantlyClient } from "../../src/instantly/client";
-
-const client = new InstantlyClient();
-
-describe("Instantly API v2 Integration", () => {
-  it("should authenticate and list campaigns", async () => {
-    const campaigns = await client.getCampaigns({ limit: 5 });
-    expect(Array.isArray(campaigns)).toBe(true);
-  });
-
-  it("should list email accounts", async () => {
-    const accounts = await client.getAccounts({ limit: 5 });
-    expect(Array.isArray(accounts)).toBe(true);
-  });
-
-  it("should fetch campaign analytics", async () => {
-    const campaigns = await client.getCampaigns({ limit: 1 });
-    if (campaigns.length > 0) {
-      const analytics = await client.getCampaignAnalytics([campaigns[0].id]);
-      expect(Array.isArray(analytics)).toBe(true);
-    }
-  });
-
-  it("should handle 401 on invalid key", async () => {
-    const badClient = new InstantlyClient({ apiKey: "invalid-key" });
-    await expect(badClient.getCampaigns({ limit: 1 })).rejects.toThrow();
-  });
-
-  it("should create and delete a lead list", async () => {
-    const list = await client.request<{ id: string }>("/lead-lists", {
-      method: "POST",
-      body: JSON.stringify({ name: `ci-test-${Date.now()}` }),
-    });
-    expect(list.id).toBeDefined();
-
-    await client.request(`/lead-lists/${list.id}`, { method: "DELETE" });
-  });
-});
-```
-
-### Step 4: Deployment Workflow
-
-```yaml
-# .github/workflows/deploy.yml
-name: Deploy Instantly Integration
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - run: npm ci && npm run build
-
-      - name: Deploy webhook receiver
-        uses: google-github-actions/deploy-cloudrun@v2
-        with:
-          service: instantly-webhooks
-          region: us-central1
-          image: gcr.io/${{ secrets.GCP_PROJECT }}/instantly-webhooks
-          env_vars: |
-            INSTANTLY_API_KEY=${{ secrets.INSTANTLY_API_KEY }}
-            INSTANTLY_WEBHOOK_SECRET=${{ secrets.INSTANTLY_WEBHOOK_SECRET }}
-
-      - name: Verify deployment
-        run: |
-          curl -s -o /dev/null -w "%{http_code}" \
-            https://instantly-webhooks-abc123.run.app/health | \
-            grep -q "200" && echo "Deploy OK" || exit 1
-```
-
-### Step 5: Pre-Commit Hook
-
-```bash
-#!/bin/bash
-# .husky/pre-commit
-set -euo pipefail
-
-# Prevent committing API keys
-if grep -rn "Bearer [a-zA-Z0-9_-]\{20,\}" src/ --include="*.ts" --include="*.js" 2>/dev/null; then
-  echo "ERROR: Possible API key found in source code"
-  exit 1
-fi
-
-# Type check
-npx tsc --noEmit
-
-# Run unit tests
-npx vitest run --reporter=dot
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| CI fails on mock server | Mock schema doesn't match code | Update types to match v2 schema |
-| Integration tests `401` | Secret not set in GitHub | Add `INSTANTLY_API_KEY` to repo secrets |
-| Rate limited in CI | Too many parallel runs | Use mock server for PR checks |
-| Deploy fails | Missing env vars | Check secrets are set in deployment target |
+Do not create, rotate, reveal, or revoke keys; invite or remove members; delegate across workspaces; connect sending accounts; create or activate campaigns; import or delete leads; change suppression or retention; register, patch, resume, or delete webhooks; alter plans or paid capacity; transmit diagnostics; or perform another production mutation without explicit approval from the accountable owner. Keep diagnosis read-only unless implementation was requested.
 
 ## Output
 
-Publish a CI receipt with commit SHA, fixture revision, sandbox campaign, test totals, consent/suppression checks, sent-count assertion, canary outcome, and rollback reference. Exclude recipients, copy, sender details, and secrets.
+Return the workspace-safe scope, files and contracts inspected, exact API v2 routes and required scopes, evidence collected, validation result, sensitive fields redacted, remaining risk, accountable owner, approval state, and rollback or next action.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| `401` | Stop and verify that the bearer key exists, is current, and was not revoked. |
+| `403` | Stop and compare the operation with its exact required scope; do not broaden to `all:all` by default. |
+| `429` | Coordinate the workspace-wide budget, honor endpoint overrides, and bound retries. |
+| Schema or tenant mismatch | Fail closed, preserve redacted evidence, and do not retry a mutation. |
 
 ## Examples
 
-`sha=abc123; fixtures=v5; campaign=ci-synthetic; tests=18/18; consent=pass; suppression=pass; sends=0; canary=not-promoted` is a valid pre-production receipt.
+Use a compact handoff that makes scope, mutation authority, and evidence reviewable.
+
+Input:
+
+```text
+mode=offline; surfaces=campaigns,accounts; mutation=forbidden
+```
+
+Expected handoff:
+
+```text
+contracts=pass; live-smoke=skipped; secrets=redacted
+```
 
 ## Resources
 
-- Instantly Mock Server
-- [GitHub Actions Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
-- [Instantly API v2 Docs](https://developer.instantly.ai/)
-
-## Next Steps
-
-For deployment to cloud platforms, see `instantly-deploy-integration`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Instantly API v2 documentation](https://developer.instantly.ai/)
+- [Instantly API v2 OpenAPI document](https://api.instantly.ai/openapi/api_v2.json)

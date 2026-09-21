@@ -14,19 +14,19 @@
     "source": "scripts/validate-skills-schema.py --marketplace --skills-only --json",
     "status": "measured",
     "values": {
-      "a_error_total": 31,
-      "a_failing": 14,
-      "ab_error_total": 488,
-      "ab_failing": 224,
-      "b_failing": 210,
-      "error_files": 556,
-      "error_total": 3385,
+      "a_error_total": 25,
+      "a_failing": 8,
+      "ab_error_total": 190,
+      "ab_failing": 40,
+      "b_failing": 32,
+      "error_files": 297,
+      "error_total": 2818,
       "grade_distribution": {
-        "A": 2095,
-        "B": 958,
-        "C": 276,
-        "D": 157,
-        "F": 5
+        "A": 2857,
+        "B": 344,
+        "C": 132,
+        "D": 154,
+        "F": 4
       },
       "rows": 3491
     }
@@ -42,7 +42,7 @@
       "values": {
         "plugin_agent_files": 352,
         "raw_tracked_plugin_skill_files": 2991,
-        "tracked_files": 24402
+        "tracked_files": 25895
       }
     },
     "2": {
@@ -90,8 +90,8 @@
           "validator_reported_mixed_denominator_percent": 80.9
         },
         "marketplace_terminal": {
-          "error_total_all_validated_surfaces": 3622,
-          "fully_compliant_surfaces": 1307,
+          "error_total_all_validated_surfaces": 3055,
+          "fully_compliant_surfaces": 2046,
           "terminal_denominator": {
             "agents": 363,
             "commands": 370,
@@ -101,22 +101,22 @@
             "skills": 3491
           },
           "validated_plugin_manifests": 595,
-          "validator_reported_mixed_denominator_percent": 27.2
+          "validator_reported_mixed_denominator_percent": 42.5
         },
         "skill_rows": {
-          "a_error_total": 31,
-          "a_failing": 14,
-          "ab_error_total": 488,
-          "ab_failing": 224,
-          "b_failing": 210,
-          "error_files": 556,
-          "error_total": 3385,
+          "a_error_total": 25,
+          "a_failing": 8,
+          "ab_error_total": 190,
+          "ab_failing": 40,
+          "b_failing": 32,
+          "error_files": 297,
+          "error_total": 2818,
           "grade_distribution": {
-            "A": 2095,
-            "B": 958,
-            "C": 276,
-            "D": 157,
-            "F": 5
+            "A": 2857,
+            "B": 344,
+            "C": 132,
+            "D": 154,
+            "F": 4
           },
           "rows": 3491
         }
@@ -129,19 +129,19 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "average_score": 88.7,
+        "average_score": 91.7,
         "grade_distribution": {
-          "A": 2095,
-          "B": 958,
-          "C": 276,
-          "D": 157,
-          "F": 5
+          "A": 2857,
+          "B": 344,
+          "C": 132,
+          "D": 154,
+          "F": 4
         },
         "grade_percentages": {
-          "A": 60,
-          "B": 27.4,
-          "C": 7.9,
-          "D": 4.5,
+          "A": 81.8,
+          "B": 9.9,
+          "C": 3.8,
+          "D": 4.4,
           "F": 0.1
         },
         "rows": 3491
@@ -154,12 +154,12 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "a_error_total": 31,
-        "a_failing": 14,
-        "ab_error_total": 488,
-        "ab_failing": 224,
-        "b_error_total": 457,
-        "b_failing": 210,
+        "a_error_total": 25,
+        "a_failing": 8,
+        "ab_error_total": 190,
+        "ab_failing": 40,
+        "b_error_total": 165,
+        "b_failing": 32,
         "certified_target": 0,
         "skill_summary_rows": 3491
       }
@@ -286,7 +286,7 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "distinct_values": 103,
+        "distinct_values": 440,
         "invalid_or_empty": 0,
         "target_free_text_values": 0,
         "values": [
@@ -316,6 +316,14 @@
           },
           {
             "count": 1,
+            "value": "Architecture choices require a backend web application because Canva Connect secrets cannot be secured in browser-only clients."
+          },
+          {
+            "count": 1,
+            "value": "Canva webhooks and keys are preview; Canva states public integrations using preview features cannot pass review."
+          },
+          {
+            "count": 1,
             "value": "Claude Code native workflows; Codex/OpenCode/Grok portable adapter"
           },
           {
@@ -337,6 +345,10 @@
           {
             "count": 1,
             "value": "Claude Code, Codex, OpenCode, Antigravity (needs gh CLI + git remote); Desktop/web via pasted issue text (lossy)"
+          },
+          {
+            "count": 1,
+            "value": "Collection requires an incident ID, approved evidence destination, retention period, and reviewer."
           },
           {
             "count": 1,
@@ -364,10 +376,22 @@
           },
           {
             "count": 1,
+            "value": "Control-plane reads require authenticated qn access; product and endpoint changes remain approval-gated"
+          },
+          {
+            "count": 1,
+            "value": "Covers documented CAST AI connection and umbrella-chart modes; exact components and permissions depend on selected features and provider"
+          },
+          {
+            "count": 1,
+            "value": "Credit formulas, product inclusion, and prices are plan-specific and must be read from current account data"
+          },
+          {
+            "count": 1,
             "value": "Cross-platform — talks WebDriver HTTP directly via Node's built-in node:https; no platform-specific binary dependency. Requires Node.js >= 18, a persistent local filesystem (the observe-decide-act loop passes state through local turn files), and ~/.kobiton/.credentials written by /automate:setup — scripts/appium.js reads that file directly and never calls the MCP getCredential tool, so it is required, not a fallback. An authenticated Kobiton MCP connection is additionally useful for device selection."
           },
           {
-            "count": 3097,
+            "count": 2249,
             "value": "Designed for Claude Code"
           },
           {
@@ -416,6 +440,30 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; API artifacts and credentials must be supplied by an authorized customer or Mindtickle representative"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; API version, dependency, metadata, and production changes require code and Salesforce platform owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; CI must keep customer contracts and credentials out of untrusted or fork-triggered jobs"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; CI secret and workflow changes require repository approval, and fork pull requests must never receive the SerpAPI key"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; CI secrets, protected environments, and tenant smoke tests require repository and tenant-owner approval"
+          },
+          {
+            "count": 30,
+            "value": "Designed for Claude Code; Firecrawl Cloud work requires network access"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; OAuth setup requires a ClickUp app owned by a Workspace owner or admin"
           },
           {
@@ -425,6 +473,26 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; a live lane requires a protected non-production ClickUp credential"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; a live smoke test requires a valid server-side key and may consume search allowance"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; access, SSO, sharing, app policy, and privileged-role changes require identity, security, admin, and data-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; account and group changes require an authorized RemoFirst administrator"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; account/archive reads and reproduction searches require authorization and privacy review"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; application deployment and production Salesforce traffic require platform, release, and org owner approval"
           },
           {
             "count": 1,
@@ -440,7 +508,79 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; architecture and production trust-boundary decisions require enterprise, security, data, and Salesforce platform approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; architecture approval belongs to customer security, data, identity, platform, and business owners"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; architecture decisions affecting identity, workforce, awards, financial flows, integrations, and data governance require accountable-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; architecture decisions involving data movement, OAuth, hosting, or production mutation require accountable owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; architecture output is a review artifact and does not authorize infrastructure, account, or production changes"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; architecture work is evidence-led and deployment-neutral"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; benchmarks require authorized synthetic or non-sensitive data"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; blocking policy and exceptions require code, security, Salesforce platform, and business-owner governance"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; budget, award, eligibility, license, service, and program changes require finance, HR, procurement, and program-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; bundle creation operates on explicitly scoped local evidence"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; bundle sharing requires data-owner approval and a secure approved support channel"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; capacity changes, workload deferral, and production concurrency require platform and business owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; capacity checks require account authorization and production concurrency changes require operator approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; claims require current sources, and CMS writes, schedules, publication, destructive edits, and credential use require content-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; collection and disclosure must follow customer privacy, retention, legal, security, and Workhuman support rules"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; commercial, license, retention, architecture, and workload changes require procurement, finance, platform, and business approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; competency models, employee assessments, coaching actions, and CRM correlation require HR, legal, and business-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; connector setup requires approved accounts in the participating systems"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; contract, seat, package, support, and renewal changes require commercial and business-owner approval"
           },
           {
             "count": 1,
@@ -448,7 +588,59 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; credential creation, OAuth registration, consent, and account-token grants require administrator or resource-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; credential, permission, workload, event, data, and production changes require incident commander and customer approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; credential, scope, data-retention, publication, and production-remediation decisions require security and resource-owner approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; current estimates require Together AI pricing and usage data"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; current prices must be checked at decision time"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; customer-derived media requires explicit authority"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; data extraction, transformation, loading, deletion, and cutover require source, target, privacy, and business-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; debug logs, event records, and org metadata require explicit support and data-owner authorization"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; deep logs, trace flags, query feedback, job access, and production reproduction require support and data-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; dependency changes and live API probes require application owner and Salesforce admin approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; dependency changes, developer installation, new scopes, and publication require explicit project-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; dependency installation, live comparison, and production rollout require repository and account-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; dependency mutation, API-version changes, data migration, installation, and production rollout require owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; deployment and live generation require explicit approval"
           },
           {
             "count": 1,
@@ -460,11 +652,87 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; deployment, secret, routing, and production search changes require explicit platform and account-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; deployment, secrets, network policy, and production enablement require service and tenant-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; deterministic local tests require no vendor credentials"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; developer-mode installation and any live source connection require approval from the project and data owners"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; diagnosis defaults to sanitized offline evidence"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; diagnostic reads and log access require the affected org owner and data-handling policy"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; document creation requires an authorized Lucid token and approval from the source-data and destination-folder owners"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; dual-run generation requires an approved cost and data plan"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; each live environment requires separately governed ClickUp authorization"
           },
           {
             "count": 1,
             "value": "Designed for Claude Code; enterprise endpoints require the relevant plan, owner authority, and approved identities"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; environment changes require the corresponding owners"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; event enablement, publication, subscription, relay, and replay changes require Salesforce admin and data owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; event subscriptions, endpoints, schedules, and production writes require tenant, security, and downstream-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; event subscriptions, endpoints, schedules, connectors, and production processing require customer and downstream-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; every approved live engine request may affect account allowance and throughput"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; evidence collection and disclosure require incident, security, and data-owner authorization"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; examples are transport patterns, not claims of an official SDK"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; file creation is local by default, while brand changes, data claims, uploads, overwrites, and publication require owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; generated clients and production calls require customer-authorized contracts and credentials"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; high-volume writes require capacity, data-owner, automation-owner, and production change approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; identity and client-app changes require Salesforce org owner and security approval"
           },
           {
             "count": 1,
@@ -480,15 +748,59 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; key rotation, ZeroTrace enablement, retention changes, and production proxy changes require security and account-owner approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; legal retention and data-subject decisions require authorized owners"
+          },
+          {
+            "count": 30,
+            "value": "Designed for Claude Code; live Adobe actions require network access, appropriate entitlement and authentication, and explicit approval"
+          },
+          {
+            "count": 18,
+            "value": "Designed for Claude Code; live Alchemy access requires network access, an appropriate credential, account capacity, and explicit approval"
+          },
+          {
+            "count": 18,
+            "value": "Designed for Claude Code; live AssemblyAI work requires network access"
           },
           {
             "count": 1,
             "value": "Designed for Claude Code; live CI requires a protected Together AI development project key"
           },
           {
+            "count": 30,
+            "value": "Designed for Claude Code; live Exa work requires network access"
+          },
+          {
+            "count": 24,
+            "value": "Designed for Claude Code; live Fireflies work requires network access"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live Ideogram work requires network access and prepaid API credit"
+          },
+          {
+            "count": 32,
+            "value": "Designed for Claude Code; live Notion actions require network access and explicit approval"
+          },
+          {
+            "count": 18,
+            "value": "Designed for Claude Code; live OneNote actions require network access, delegated authentication, and explicit approval"
+          },
+          {
+            "count": 9,
+            "value": "Designed for Claude Code; live RemoFirst access requires an approved client account and explicit operator action"
+          },
+          {
             "count": 1,
             "value": "Designed for Claude Code; live analysis requires sanitized ClickUp response headers"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live async submission, polling, schedules, and downstream notifications require account and system-owner approval"
           },
           {
             "count": 1,
@@ -500,11 +812,27 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; live capacity tests require explicit spend and load approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; live client verification requires a scoped ClickUp credential"
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; live client verification requires a separately approved key and allowance"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; live collection requires authorized ClickUp access and local retention controls"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live cutover requires change approval and paid canaries"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live data access and Lucid publication require owner approval and appropriately scoped credentials"
           },
           {
             "count": 1,
@@ -516,6 +844,22 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; live diagnosis requires authorized Lucid evidence and approval from the document, application, connector, or account owner"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live generation requires network access, a key, and prepaid credit"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live image generation consumes prepaid credit"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live image operations require approved rights, network access, and credit"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; live inference requires network access, an API key, and funded Together AI usage"
           },
           {
@@ -523,8 +867,28 @@
             "value": "Designed for Claude Code; live migration verification requires authorized Together AI access"
           },
           {
+            "count": 24,
+            "value": "Designed for Claude Code; live or external Mistral actions require network access and explicit approval"
+          },
+          {
+            "count": 26,
+            "value": "Designed for Claude Code; live or external Navan actions require network access and explicit approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live org authentication and deployment require protected runners, environments, and customer authorization"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live reproduction and archive access require an authorized key and may affect allowance"
+          },
+          {
             "count": 1,
             "value": "Designed for Claude Code; live response requires authorized operational access and an incident commander"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live searches and multi-page retrieval consume account allowance unless a matching server cache is served"
           },
           {
             "count": 1,
@@ -532,7 +896,59 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; live tenant access is outside the local loop and requires separate approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live tenant tests require explicit customer authorization and synthetic or approved data"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; live verification requires an authorized Lucid developer project and approval from the document, application, or account owner"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; live verification requires network access and a Together AI project key"
+          },
+          {
+            "count": 24,
+            "value": "Designed for Claude Code; live verification requires network access and an approved Cohere API key"
+          },
+          {
+            "count": 24,
+            "value": "Designed for Claude Code; live verification requires network access and an approved Instantly workspace and API v2 key"
+          },
+          {
+            "count": 24,
+            "value": "Designed for Claude Code; live verification requires network access and an approved Linear workspace credential"
+          },
+          {
+            "count": 18,
+            "value": "Designed for Claude Code; live work requires an authorized Abridge tenant, approved test data, and health-system change authority"
+          },
+          {
+            "count": 18,
+            "value": "Designed for Claude Code; live work requires an authorized Linktree account and approval from the profile, Workspace, data, or partner-integration owner"
+          },
+          {
+            "count": 24,
+            "value": "Designed for Claude Code; live work requires an authorized Miro app and redacted evidence"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; load generation, org capacity consumption, and automation effects require platform and environment-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; load tests and production concurrency, schedule, cache, or batch changes require accountable-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; load tests and production schedule changes require tenant-owner and service-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; log, Event Monitoring, alert, and data access require entitlement and security approval"
           },
           {
             "count": 1,
@@ -544,6 +960,22 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; new vendors, data movement, trust boundaries, and production architecture require enterprise approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; normal CI runs entirely offline"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; operational mutations require the incident commander's approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; optional live document creation requires an approved Lucid credential and destination"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; optional live probes require network access and a Together AI project key"
           },
           {
@@ -552,7 +984,35 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; org creation, metadata deployment, and test-data loading require Dev Hub and administrator authorization"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; org creation, refresh, feature enablement, data seeding, and promotion require Dev Hub and Salesforce administrator approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; package installation, secret creation, account access, and live searches require operator approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; paid benchmarks require a bounded test plan"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; personal-data access, export, retention, correction, and deletion require privacy, legal, security, and data-owner approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; plan and commercial decisions require current account-owner data"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; plan changes and production admission/cache changes require finance, product, and account-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; plan, billing, seat, and pricing decisions require current Lucid commercial evidence and account-owner approval"
           },
           {
             "count": 1,
@@ -564,7 +1024,87 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; production approval remains with customer business, security, data, identity, and service owners"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; production cache, output, or concurrency changes require owner approval and measured rollback criteria"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; production changes and vendor escalation require incident-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; production concurrency, replay, and load-test changes require service and resource-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; production cutover requires authorized administrators and business owners"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; production deployment and tenant mutations require release, program, HCM, payroll, security, and vendor-owner approval as applicable"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; production deployment, managed-connector enablement, and tenant mutations require explicit accountable-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; production deployments and record changes require formal customer change approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; production design requires current ClickUp plan, data, and authorization facts"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; production launch, publication, credentials, and rollback execution require accountable owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; production load, concurrency, caching, and schedule changes require service and tenant-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; production mutation requires explicit release approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; production profiling or live load tests require service, data, and account-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; production traffic and schedule changes require customer and integration-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; publishing content, assigning learners, and sending notifications require program-owner and tenant-admin approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; query, index, automation, concurrency, and production workload changes require platform and object owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; receiver tests should use local signed fixtures"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; recognition submissions, approvals, award values, communications, and spend changes require program-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; record creation or update requires object owner approval and a non-production test target"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; record mutations require business object owner approval and a tested rollback or compensating action"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; recording a fresh fixture is a live search and requires approval"
           },
           {
             "count": 1,
@@ -572,7 +1112,19 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; remediation that changes access, queries, workloads, events, or records requires the corresponding owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; remediation that changes identity, worker, recognition, award, spend, or connector state requires owner approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; requires Python 3, optionally JRig CLI for Tier 3"
+          },
+          {
+            "count": 24,
+            "value": "Designed for Claude Code; requires authorized OpenEvidence access and qualified clinical review for patient-care use"
           },
           {
             "count": 1,
@@ -581,6 +1133,30 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; requires the Notion MCP server (@notionhq/notion-mcp-server) and a Notion workspace with a Tasks database"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; retry, replay, queue, failover, and data repair changes require system and data-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; scheduling, publication, CMS reconciliation, and backlog mutation require the content owner's approval and current platform access"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; search evidence changes over time, and backlog writes require editorial approval plus revalidation of source currency"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; security review defaults to repository and fixture evidence"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; security, identity, permission, sharing, and encryption changes require customer security and Salesforce administrator approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; security, privacy, SSO, privilege, retention, and integration changes require accountable owner approval"
           },
           {
             "count": 1,
@@ -593,6 +1169,42 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; submission requires network access, a project key, training data, and funded Together AI usage"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; team and key mutations require authorized administrators"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; telemetry must remain content-free"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; tenant access, identity changes, managed integrations, and credential issuance require customer and Workhuman authorization"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; tenant access, identity configuration, connector enablement, and credential issuance require customer and Mindtickle authorization"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; tenant discovery requires authorized customer access and any external proof requires owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; tenant reads and recognition mutations require customer-authorized documentation and approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; tenant, identity, data, connector, and production migrations require named customer and vendor approvals"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; tenant, identity, data, credential, and security-control changes require their respective owners"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; tenant, identity, worker, award, financial, and connector changes require accountable owner approval"
           },
           {
             "count": 1,
@@ -612,11 +1224,67 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code; this skill audits and prepares a decision but does not authorize production changes"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; upload, publication, OAuth registration, connector deployment, and rollback require explicit owner approval"
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code; verification may require deployment, telemetry, billing, and Together project access"
           },
           {
             "count": 1,
             "value": "Designed for Claude Code; verification may require secret-store and Together AI project access"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; webhook registration, public endpoints, source credentials, replay, and production enablement require connector and source-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code; worker, award, compensation, payroll, and integration changes require HCM, payroll, security, and program-owner approval"
+          },
+          {
+            "count": 1,
+            "value": "Detailed endpoint logs are Enterprise-only; collect equivalent application evidence when unavailable"
+          },
+          {
+            "count": 1,
+            "value": "Diagnosis may use redacted production evidence; any live reproduction requires an approved test user and operation."
+          },
+          {
+            "count": 1,
+            "value": "EVM method availability, fee fields, and finality rules vary by chain and network"
+          },
+          {
+            "count": 1,
+            "value": "Error meanings can be chain-specific; use the selected chain reference plus QuickNode infrastructure codes"
+          },
+          {
+            "count": 1,
+            "value": "JWT, referrer allowlists, domain masking, and advanced rate controls can be plan-specific"
+          },
+          {
+            "count": 1,
+            "value": "Live checks require a protected CI environment and a read-only QuickNode credential"
+          },
+          {
+            "count": 1,
+            "value": "Live local OAuth requires a dedicated development integration, controlled redirect URI, test user, and encrypted or ephemeral backend token store."
+          },
+          {
+            "count": 1,
+            "value": "Live probes require an approved test user, least-privilege token, and incident-scoped authorization."
+          },
+          {
+            "count": 1,
+            "value": "Method and advanced endpoint limits depend on plan and chain; qn access requires an authenticated account"
+          },
+          {
+            "count": 1,
+            "value": "Metrics availability depends on plan; method behavior and safe batching vary by chain"
           },
           {
             "count": 7,
@@ -656,6 +1324,30 @@
           },
           {
             "count": 1,
+            "value": "Product availability, destination counts, and endpoint capabilities depend on chain and plan"
+          },
+          {
+            "count": 1,
+            "value": "Provider load testing requires explicit authorization, dedicated non-production users, synthetic data, and an abort owner."
+          },
+          {
+            "count": 1,
+            "value": "Readiness evidence varies by chain, product, plan, and application write authority"
+          },
+          {
+            "count": 1,
+            "value": "Requires CAST AI Cost Monitoring data and access to the organization pricing and workload context needed to interpret it"
+          },
+          {
+            "count": 1,
+            "value": "Requires CAST AI console access to create scoped keys; regional endpoints are US, EU, or India as documented"
+          },
+          {
+            "count": 1,
+            "value": "Requires CAST AI organization notification access and an HTTPS receiver governed by the target incident-management system"
+          },
+          {
+            "count": 1,
             "value": "Requires Claude Code >= v2.1.80 with a claude.ai login (Channels research preview rejects API-key-only auth), Bun >= 1.0 (Node.js fallback supported), and a Slack workspace where you can create apps. Doctor mode additionally shells out to curl and jq."
           },
           {
@@ -671,12 +1363,604 @@
             "value": "Requires Claude Code with the slack-channel plugin installed and paired (state under ~/.claude/channels/slack/), plus Bun to run the in-repo policy validator script."
           },
           {
+            "count": 1,
+            "value": "Requires Flexport administrator involvement, an enterprise identity inventory, and owners for each integration workload."
+          },
+          {
             "count": 2,
             "value": "Requires Hermes Agent plugin support and Xquik API access."
           },
           {
+            "count": 18,
+            "value": "Requires Node.js 20+, approved Anima API access, current Anima SDK documentation, and authorized Figma or website source access"
+          },
+          {
+            "count": 1,
+            "value": "Requires Procore Developer Portal app ownership, an installable app version, and authorized sandbox and production administrators."
+          },
+          {
+            "count": 1,
+            "value": "Requires Procore company administrator access, the application manifest, and an approved endpoint inventory."
+          },
+          {
+            "count": 1,
+            "value": "Requires Python 3.9+, the current Vast.ai package, a scoped API key, and tests that can replace network calls."
+          },
+          {
+            "count": 1,
+            "value": "Requires Revenue API access to the chosen audit or activity surface, durable checkpoint or window state, and an approved downstream event sink."
+          },
+          {
+            "count": 1,
+            "value": "Requires Revenue API export entitlement, an existing Forecast Tab, an approved warehouse target, and governed handling of revenue data."
+          },
+          {
+            "count": 1,
+            "value": "Requires Vast.ai Serverless access, a tested template, a scoped API key, representative load, and endpoint observability."
+          },
+          {
+            "count": 1,
+            "value": "Requires a CI runner, sanitized fixtures, and optional isolated Procore Developer Sandbox credentials for protected provider tests."
+          },
+          {
+            "count": 1,
+            "value": "Requires a CI runner, synthetic fixtures, a pinned first-party contract fingerprint, and a separately gated non-production credential for optional smoke tests."
+          },
+          {
+            "count": 1,
+            "value": "Requires a CI secret store, current Vast.ai CLI, immutable test image, registered SSH key, and a disposable test budget."
+          },
+          {
+            "count": 1,
+            "value": "Requires a CI system with fork-secret isolation, sanitized fixtures, and optional protected environment credentials."
+          },
+          {
+            "count": 1,
+            "value": "Requires a Canva Developer Portal integration, controlled redirect URI, backend secret store, and consent design."
+          },
+          {
+            "count": 1,
+            "value": "Requires a Flexport administrator, an approved secret store, and network access to api.flexport.com."
+          },
+          {
+            "count": 1,
+            "value": "Requires a Fly Launch app, immutable image, configured health checks, sufficient temporary capacity, and an approved deployment and rollback owner."
+          },
+          {
+            "count": 1,
+            "value": "Requires a Fly.io account and organization, a containerizable application, an available app name, and approval to create billable resources."
+          },
+          {
+            "count": 1,
+            "value": "Requires a Fly.io app, an approved CI system, an app-scoped or organization-scoped token, and a protected deployment environment."
+          },
+          {
+            "count": 1,
+            "value": "Requires a Fly.io organization, approved data classification and regions, a backup objective, and access to the relevant app and Managed Postgres controls."
+          },
+          {
+            "count": 1,
+            "value": "Requires a Procore Developer account, an approved secret store, and network access to the selected Procore environment."
+          },
+          {
+            "count": 1,
+            "value": "Requires a Procore app and the administrator access applicable to the selected sandbox or production company."
+          },
+          {
+            "count": 1,
+            "value": "Requires a Procore project with Submittals enabled and an OAuth principal authorized for the chosen endpoint and workflow action."
+          },
+          {
+            "count": 1,
+            "value": "Requires a Procore project with the RFI tool enabled and an OAuth principal holding the endpoint-specific permissions."
+          },
+          {
+            "count": 1,
+            "value": "Requires a QuickNode HTTP endpoint and a documented read method for the selected chain"
+          },
+          {
+            "count": 1,
+            "value": "Requires a QuickNode account; Admin API and advanced endpoint-security features depend on the account plan"
+          },
+          {
+            "count": 1,
+            "value": "Requires a Revenue API token, access to an existing Forecast Tab, and permission to export its hierarchy."
+          },
+          {
+            "count": 1,
+            "value": "Requires a Vast.ai Team, team administration authority, an actor/action inventory, and an independent access reviewer."
+          },
+          {
+            "count": 1,
+            "value": "Requires a Vast.ai account, an approved secret store, and Linux, macOS, WSL, or Python 3.9+."
+          },
+          {
+            "count": 1,
+            "value": "Requires a backend web application, approved secret store, threat owner, and current Canva security documentation."
+          },
+          {
+            "count": 1,
+            "value": "Requires a backend web application, durable token/job storage, approved data policy, and service ownership."
+          },
+          {
+            "count": 1,
+            "value": "Requires a backend-held access token for a dedicated authorized test user."
+          },
+          {
+            "count": 1,
+            "value": "Requires a classified workload, approved secrets and image registries, SSH key management, and a verified-datacenter policy."
+          },
+          {
+            "count": 1,
+            "value": "Requires a connected cluster, representative baseline, and approved ownership of node and workload scaling controls"
+          },
+          {
+            "count": 1,
+            "value": "Requires a data owner, approved purpose, destination controls, and organization-specific legal/security policy."
+          },
+          {
+            "count": 1,
+            "value": "Requires a documented application role model plus current Canva scope and capability evidence."
+          },
+          {
+            "count": 1,
+            "value": "Requires a durable operation ledger, current error contract, scoped queues, and explicit failure budgets."
+          },
+          {
+            "count": 1,
+            "value": "Requires a legacy contract inventory, current Flexport account version context, and an authorized cutover owner."
+          },
+          {
+            "count": 1,
+            "value": "Requires a local test runner and sanitized fixtures; live credentials are optional and must use an approved account."
+          },
+          {
+            "count": 1,
+            "value": "Requires a local test runner, approved synthetic or irreversibly redacted fixtures, and a pinned provider contract snapshot."
+          },
+          {
+            "count": 1,
+            "value": "Requires a managed HTTPS destination, an approved Bright Data snapshot, and durable streaming storage"
+          },
+          {
+            "count": 1,
+            "value": "Requires a pinned Canva OpenAPI snapshot and a backend credential/policy service; generated code is application-owned."
+          },
+          {
+            "count": 1,
+            "value": "Requires a pinned Clari API contract and an HTTP client with timeout, retry, TLS, and structured logging controls; no official public Clari SDK is assumed."
+          },
+          {
+            "count": 1,
+            "value": "Requires a protected benchmark workload, current endpoint contract, and approved latency, freshness, data, and rollback budgets."
+          },
+          {
+            "count": 1,
+            "value": "Requires a public HTTPS receiver, Flexport account Settings access, raw-body access, and a secret store."
+          },
+          {
+            "count": 1,
+            "value": "Requires a public HTTPS receiver, durable queue and deduplication store, secret manager, and notification webhook access."
+          },
+          {
+            "count": 1,
+            "value": "Requires a public HTTPS receiver, durable queue, reconciliation store, and Webhooks API permissions for the intended Procore scope."
+          },
+          {
+            "count": 1,
+            "value": "Requires a redacted request manifest, provider response status, correlation or error identifiers, and access to the matching first-party contract."
+          },
+          {
+            "count": 1,
+            "value": "Requires a redacted response receipt with surface, operation, HTTP or JSON-RPC status, and correlation metadata."
+          },
+          {
+            "count": 1,
+            "value": "Requires a release candidate, Procore app version, sandbox evidence, operational owners, and production approval authority."
+          },
+          {
+            "count": 1,
+            "value": "Requires a release candidate, non-production test evidence, named owners, and an approved production change window."
+          },
+          {
+            "count": 1,
+            "value": "Requires a repository with CAST AI infrastructure definitions; any live probe requires a protected environment and a dedicated read-only identity"
+          },
+          {
+            "count": 1,
+            "value": "Requires a representative benchmark, structured offer data, GPU telemetry, immutable images, and a cost objective."
+          },
+          {
+            "count": 1,
+            "value": "Requires a scoped Fly.io API token, an operation and resource inventory, durable job state, and current provider limit documentation."
+          },
+          {
+            "count": 1,
+            "value": "Requires a supported Kubernetes cluster, castctl, reviewed cloud permissions, and an approved CAST AI organization"
+          },
+          {
+            "count": 1,
+            "value": "Requires a supported operator workstation or CI runner, a Fly.io account, an approved organization or app scope, and a secret manager."
+          },
+          {
+            "count": 1,
+            "value": "Requires a valid Procore OAuth Bearer token and read access to at least one permitted company or project."
+          },
+          {
+            "count": 1,
+            "value": "Requires access to Procore Developer Portal health data plus application metrics, logs, queue state, and deployment identifiers."
+          },
+          {
+            "count": 1,
+            "value": "Requires access to Procore response headers and a queue or scheduler capable of pausing and bounding concurrency."
+          },
+          {
+            "count": 1,
+            "value": "Requires access to application telemetry, Procore status and health evidence, deployment controls, and approved incident communications."
+          },
+          {
+            "count": 1,
+            "value": "Requires access to current Flexport version documentation, account version context, contract tests, and a rollback owner."
+          },
+          {
+            "count": 1,
+            "value": "Requires access to sanitized integration logs and an approved encrypted destination for the final diagnostic manifest."
+          },
+          {
+            "count": 1,
+            "value": "Requires access to the target cluster, declared infrastructure source, application SLOs, and change-management evidence"
+          },
+          {
+            "count": 1,
+            "value": "Requires accountable engineering, security, data, and business owners plus a tested rollback."
+          },
+          {
+            "count": 1,
+            "value": "Requires affected resource IDs, read access, external checkpoints, incident authority, and a named billing owner."
+          },
+          {
+            "count": 1,
+            "value": "Requires an HTTP client with access to documented Procore REST endpoints and a caller-supplied OAuth token provider."
+          },
+          {
+            "count": 12,
+            "value": "Requires an approved Bright Data account or offline fixtures, current Bright Data documentation, and an authorized public-data collection purpose"
+          },
+          {
+            "count": 1,
+            "value": "Requires an approved Bright Data workload, managed secrets, queueing, and a deployment platform"
+          },
+          {
+            "count": 1,
+            "value": "Requires an approved delivery platform, secret injection, health checks, and rollback capability."
+          },
+          {
+            "count": 1,
+            "value": "Requires an approved orchestrator, secret manager, durable state store, destination, capacity plan, and rollback environment."
+          },
+          {
+            "count": 1,
+            "value": "Requires an approved organizational privacy/security policy and resource-owner authorization; this skill is not legal advice."
+          },
+          {
+            "count": 1,
+            "value": "Requires an approved policy owner, repository scope, exception process, and current Canva contracts."
+          },
+          {
+            "count": 1,
+            "value": "Requires an approved production app, accountable owners, service objectives, a scoped deploy identity, and evidence from a representative non-production release."
+          },
+          {
+            "count": 1,
+            "value": "Requires an approved public-data use case, named system owners, and current Bright Data product documentation"
+          },
+          {
+            "count": 1,
+            "value": "Requires an approved secret store, TLS egress/ingress, access review, and incident response."
+          },
+          {
+            "count": 1,
+            "value": "Requires an approved telemetry platform, redaction policy, and business service objectives."
+          },
+          {
+            "count": 1,
+            "value": "Requires an approved telemetry schema, retention policy, and SLO derived from the application rather than guessed provider guarantees."
+          },
+          {
+            "count": 1,
+            "value": "Requires an approved workload, phase-level telemetry, representative fixtures, and a bounded canary environment"
+          },
+          {
+            "count": 1,
+            "value": "Requires an authenticated Flexport MCP connection, account permission for selected tools, and an authorized freight approver."
+          },
+          {
+            "count": 18,
+            "value": "Requires an authorized Persona environment, current first-party documentation, a reviewed dated API version, and privacy-safe operational evidence."
+          },
+          {
+            "count": 1,
+            "value": "Requires an authorized test or production user, explicit design scopes, and approved content/retention policy."
+          },
+          {
+            "count": 1,
+            "value": "Requires an entitled Clari tenant, an approved integration owner, and access to the relevant Revenue API or conversation-intelligence workspace settings."
+          },
+          {
+            "count": 1,
+            "value": "Requires an exact release artifact, controlled production integration, current feature-status evidence, and rollback authority."
+          },
+          {
+            "count": 1,
+            "value": "Requires an existing Fly.io organization, an approved app target, a deploy-capable scoped identity, and a tested health and rollback contract."
+          },
+          {
+            "count": 1,
+            "value": "Requires an existing infrastructure delivery system and cloud-specific CAST AI permissions reviewed for each target cluster"
+          },
+          {
+            "count": 1,
+            "value": "Requires an immutable image, Vast.ai template or creation manifest, scoped deployment key, health contract, and rollback artifact."
+          },
+          {
+            "count": 1,
+            "value": "Requires an immutable release candidate, approved Vast.ai account, workload SLOs, security policy, and rollback owner."
+          },
+          {
+            "count": 1,
+            "value": "Requires an immutable training image, reachable checkpoint storage, a scoped Vast.ai key, and an approved GPU budget."
+          },
+          {
+            "count": 1,
+            "value": "Requires an incident commander, read access to redacted telemetry, and an approved reconciliation credential."
+          },
+          {
+            "count": 1,
+            "value": "Requires an incident identifier, authorized time window, redaction policy, and an encrypted evidence destination."
+          },
+          {
+            "count": 1,
+            "value": "Requires an incident workspace, approved redaction policy, and a named recipient for the diagnostic manifest."
+          },
+          {
+            "count": 1,
+            "value": "Requires an inventory of Vast.ai endpoints, calling identities, deadlines, and the current CLI or REST client."
+          },
+          {
+            "count": 1,
+            "value": "Requires application architecture, data classification, permission inventory, and access to the Procore app configuration."
+          },
+          {
+            "count": 1,
+            "value": "Requires application service objectives, representative traffic, metrics and health evidence, current Machine sizes, regions, and data dependency placement."
+          },
+          {
+            "count": 1,
+            "value": "Requires application source, a local container runtime where used, read access to a development Fly.io app, and explicit approval before connecting to remote data."
+          },
+          {
+            "count": 1,
+            "value": "Requires approved Clari products, destination systems, data classifications, service objectives, and platform ownership."
+          },
+          {
+            "count": 1,
+            "value": "Requires approved Flexport capabilities, account context, and organizational security/data constraints."
+          },
+          {
+            "count": 1,
+            "value": "Requires approved Flexport credentials and access to a tenant with a non-sensitive testable shipment or empty-list response."
+          },
+          {
+            "count": 1,
+            "value": "Requires approved source and target access, a documented resource dependency graph, durable checkpoint storage, and a tested rollback plan."
+          },
+          {
+            "count": 1,
+            "value": "Requires approved source files, Procore resource permissions, encrypted temporary storage, and checksum-capable transfer tooling."
+          },
+          {
+            "count": 1,
+            "value": "Requires approved storage endpoints, Vast.ai copy or cloud-copy access, integrity manifests, and a data-retention policy."
+          },
+          {
+            "count": 1,
+            "value": "Requires approved system boundaries, Procore app ownership, data classification, and durable queue and state storage."
+          },
+          {
+            "count": 1,
+            "value": "Requires control of the HTTPS callback domain, approved environment credentials, and a tested rollback artifact."
+          },
+          {
+            "count": 1,
+            "value": "Requires controlled domains and an approved secret backend for every named environment."
+          },
+          {
+            "count": 24,
+            "value": "Requires current CodeRabbit documentation and approved access for any live organization, repository, billing, or API change"
+          },
+          {
+            "count": 1,
+            "value": "Requires current Flexport v3 and MCP schemas plus a typed application language or runtime validation library."
+          },
+          {
+            "count": 24,
+            "value": "Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change"
+          },
+          {
+            "count": 1,
+            "value": "Requires current Procore API reference and changelog access plus route-level production traffic evidence."
+          },
+          {
+            "count": 24,
+            "value": "Requires current Ramp Developer API documentation and approved access for any live financial, card, identity, accounting, application, or configuration change"
+          },
+          {
+            "count": 1,
+            "value": "Requires current account usage data, approved workload ownership, and finance-defined budget thresholds"
+          },
+          {
+            "count": 1,
+            "value": "Requires current and target client versions, a test environment, immutable templates, and retained rollback artifacts."
+          },
+          {
+            "count": 1,
+            "value": "Requires current and target contract artifacts, compatibility tests, feature flags, and rollback authority."
+          },
+          {
+            "count": 1,
+            "value": "Requires current and target contract fingerprints, representative non-production data, a compatibility mapping, and a retained rollback path."
+          },
+          {
+            "count": 1,
+            "value": "Requires current and target contracts, an immutable backup or export where data is involved, a representative staging boundary, and approved rollback criteria."
+          },
+          {
+            "count": 1,
+            "value": "Requires current billing exports or invoices, app and database inventory, utilization evidence, service objectives, and an approved optimization window."
+          },
+          {
+            "count": 1,
+            "value": "Requires current endpoint rate metadata, observed response evidence, and an application operation ledger."
+          },
+          {
+            "count": 1,
+            "value": "Requires current tenant entitlement evidence and an approved measurement window; public pricing must not be inferred."
+          },
+          {
+            "count": 1,
+            "value": "Requires declared CAST AI feature mode and read access to rendered Kubernetes and cloud permission definitions"
+          },
+          {
+            "count": 1,
+            "value": "Requires endpoint-scoped Flexport credentials, approved trade data, and any account enablement required for commercial invoices."
+          },
+          {
+            "count": 1,
+            "value": "Requires entitlement to the Clari conversation-intelligence API, workspace integration credentials, and approval to process recordings, transcripts, and participant data."
+          },
+          {
+            "count": 1,
+            "value": "Requires environment owners, separate secret stores, and Flexport/account-executive coordination for any test credential."
+          },
+          {
+            "count": 1,
+            "value": "Requires incident authority, approved read-only diagnostics, service ownership, and rollback access."
+          },
+          {
             "count": 1,
             "value": "Requires internet access to call the first-party Xquik REST API."
+          },
+          {
+            "count": 1,
+            "value": "Requires local container tooling, the Vast.ai CLI, a registry, a scoped API key, and a disposable GPU budget."
+          },
+          {
+            "count": 1,
+            "value": "Requires local test tooling and, for provider tests, a Procore Developer Sandbox with sandbox OAuth credentials."
+          },
+          {
+            "count": 1,
+            "value": "Requires locally pinned infrastructure tools; optional sandbox checks require an explicitly selected non-production kube context"
+          },
+          {
+            "count": 1,
+            "value": "Requires named environments, Teams or account contexts, scoped keys, immutable templates, secret stores, and cost ownership."
+          },
+          {
+            "count": 1,
+            "value": "Requires named security and application owners, a Fly.io organization and app inventory, approved identity policy, and access to redacted configuration evidence."
+          },
+          {
+            "count": 1,
+            "value": "Requires offline Bright Data fixtures; an optional live lane requires protected CI secrets and an explicitly approved target"
+          },
+          {
+            "count": 1,
+            "value": "Requires operation-specific scopes, resource rights, current feature availability, and an approved asset/data classification."
+          },
+          {
+            "count": 1,
+            "value": "Requires per-operation metrics, bounded queues, and current endpoint documentation or observed provider responses."
+          },
+          {
+            "count": 1,
+            "value": "Requires read access to affected Vast.ai resources, an approved evidence location, and a defined incident window."
+          },
+          {
+            "count": 1,
+            "value": "Requires read access to the affected app, an incident time window, a secure evidence destination, and approval for any log or configuration collection."
+          },
+          {
+            "count": 1,
+            "value": "Requires read access to the affected app, the relevant release identifier, and permission to inspect redacted configuration, health, Machine, and log evidence."
+          },
+          {
+            "count": 1,
+            "value": "Requires read access to the selected app signals, durable checkpoint state, a bounded observation window, and an approved downstream alert or event sink."
+          },
+          {
+            "count": 1,
+            "value": "Requires read access to the target kube context; console or API evidence may require an appropriately scoped CAST AI identity"
+          },
+          {
+            "count": 1,
+            "value": "Requires read-only access to the selected cluster; collection must follow local data-handling and support-sharing policy"
+          },
+          {
+            "count": 1,
+            "value": "Requires read-scoped Vast.ai access, resource labels, durable telemetry storage, and named responders."
+          },
+          {
+            "count": 1,
+            "value": "Requires representative sanitized workloads, per-operation metrics, and rollback controls."
+          },
+          {
+            "count": 1,
+            "value": "Requires request metrics, business freshness objectives, and current endpoint pagination/expansion documentation."
+          },
+          {
+            "count": 1,
+            "value": "Requires route-level timing, call-count, pagination, rate-header, and backlog measurements for the target Procore workload."
+          },
+          {
+            "count": 1,
+            "value": "Requires sanitized request metadata, provider response details, and access to the relevant Procore app and endpoint documentation."
+          },
+          {
+            "count": 1,
+            "value": "Requires security ownership, a data-classification policy, approved secret storage, and an inventory of Clari surfaces and destinations."
+          },
+          {
+            "count": 1,
+            "value": "Requires source-provider inventory, portable workload artifacts, Vast.ai capacity, external storage, and an approved rollback window."
+          },
+          {
+            "count": 1,
+            "value": "Requires source/target contracts, content rights, user-consent analysis, rollback authority, and a bounded migration cohort."
+          },
+          {
+            "count": 1,
+            "value": "Requires the Procore API Call Activity Report or equivalent route-level request counts plus infrastructure cost telemetry."
+          },
+          {
+            "count": 1,
+            "value": "Requires the Vast.ai CLI, a valid API key, account credit, an SSH public key, and an approved container image."
+          },
+          {
+            "count": 1,
+            "value": "Requires the Vast.ai CLI, redacted structured output, and access to the affected account or instance."
+          },
+          {
+            "count": 1,
+            "value": "Requires the current CAST AI API specification and observability for the client; limits vary by endpoint and upstream edge controls"
+          },
+          {
+            "count": 1,
+            "value": "Requires the current CAST AI API specification; declarative infrastructure should use the supported Terraform provider where appropriate"
+          },
+          {
+            "count": 1,
+            "value": "Requires the current Machines OpenAPI contract, a supported runtime, a scoped test identity, fixtures, and a non-production integration boundary."
           },
           {
             "count": 4,
@@ -688,11 +1972,75 @@
           },
           {
             "count": 1,
+            "value": "Requires timing telemetry by stage, provider capacity evidence, representative workloads, and a rollbackable tuning boundary."
+          },
+          {
+            "count": 1,
+            "value": "Requires workload and data classification, Vast.ai account design, immutable artifacts, external storage, observability, and incident ownership."
+          },
+          {
+            "count": 1,
+            "value": "Requires workload and data requirements, service objectives, approved regions, dependency ownership, and a cost and recovery model."
+          },
+          {
+            "count": 1,
+            "value": "Requires workload inventory, organization limit evidence, destination usage metrics, and an approved freshness and retention policy."
+          },
+          {
+            "count": 1,
+            "value": "Requires workload performance requirements, Vast.ai offer and instance data, billing-read access, and a cleanup owner."
+          },
+          {
+            "count": 1,
+            "value": "Requires workload telemetry, SLOs, and read access to effective CAST AI and Kubernetes scaling configuration"
+          },
+          {
+            "count": 1,
+            "value": "Requires workload volume estimates, retained job or pagination state, and access to organization limits where the provider exposes them."
+          },
+          {
+            "count": 1,
+            "value": "Review uses repository and redacted runtime evidence; live mutation is outside this skill."
+          },
+          {
+            "count": 1,
             "value": "Runs on any MCP-aware host, including hosts with no local filesystem — this is the plugin's only pure-MCP skill, needing no local file, binary, or shell. Uses the Kobiton MCP tools createTestRun, getTestCase/getTestSuite, listDevices, and getOrgSettings; requires an authenticated Kobiton MCP connection. Delegates monitoring to the monitor-test-run skill (same plugin), which does need a local poller — so on a filesystem-less host, create the run and report its id rather than offering to watch it."
           },
           {
             "count": 1,
+            "value": "SDK base URL overrides are for local, staging, and approved sandbox boundaries"
+          },
+          {
+            "count": 1,
+            "value": "SDK native targets and chain API deprecations must be checked against current QuickNode documentation"
+          },
+          {
+            "count": 1,
+            "value": "Supported APIs, archive availability, pruning, and add-ons vary by chain and network"
+          },
+          {
+            "count": 1,
+            "value": "Supports CAST AI documented connection paths; cloud permissions and available features vary by provider and subscription"
+          },
+          {
+            "count": 1,
+            "value": "The live lane requires a protected environment and dedicated low-privilege test user; forked code must never receive secrets."
+          },
+          {
+            "count": 1,
+            "value": "Umbrella-chart upgrades using reset-then-reuse-values require Helm 3.14 or newer; standalone migration requires current castctl support"
+          },
+          {
+            "count": 1,
+            "value": "Unified SDK supports documented native targets; Node.js package supports TypeScript, CommonJS, ES modules, and Bun"
+          },
+          {
+            "count": 1,
             "value": "Verified against @aomi-labs/client v0.1.42 and the current aomi-widget/packages/client TypeScript CLI. Install globally via npm install -g @aomi-labs/client@latest, or run on demand via npx @aomi-labs/client@latest. The CLI defaults to https://api.aomi.dev; pass --backend-url https://api-staging.aomi.dev when explicitly targeting staging. viem and Solana signing dependencies are bundled by the package. Designed for claude-code; also works with Cursor, Codex CLI, Gemini, and any agent runtime that supports the Anthropic skill spec."
+          },
+          {
+            "count": 1,
+            "value": "Webhooks and Streams have distinct APIs and delivery controls; destination options depend on plan"
           },
           {
             "count": 1,
@@ -773,194 +2121,17 @@
       "cohort": "literal docs.anthropic.com occurrences in tracked text-like files",
       "dimension": "docs.anthropic.com occurrences",
       "measured_proxy": {
-        "files": 189,
-        "occurrences": 521,
+        "files": 12,
+        "occurrences": 22,
         "paths": [
-          "000-docs/198-DR-SOPS-03-mcp-reliability.md",
-          "000-docs/688-AA-AACR-2026-06-04-wiki-audit.md",
           "000-docs/719-RA-REPT-cleanup-candidate-register.json",
           "000-docs/719-RA-REPT-cleanup-candidate-register.md",
           "000-docs/725-RA-DATA-legacy-migration-inventory.md",
           "000-docs/727-AT-ARCH-master-modernization-blueprint.md",
           "000-docs/778-RA-DATA-model-agnostic-migration-surface.md",
-          "marketplace/src/content/blog-posts/noise-robust-signed-llm-judge-evals.md",
-          "marketplace/src/content/docs/concepts/agents.md",
-          "marketplace/src/content/docs/concepts/commands-and-hooks.md",
-          "marketplace/src/content/docs/concepts/mcp-servers.md",
-          "marketplace/src/content/docs/concepts/plugins.md",
-          "marketplace/src/content/docs/concepts/skills.md",
-          "marketplace/src/content/docs/ecosystem/community-resources.md",
-          "marketplace/src/content/docs/ecosystem/faq.md",
-          "marketplace/src/content/docs/ecosystem/marketplace-overview.md",
-          "marketplace/src/content/docs/ecosystem/official-anthropic-docs.md",
-          "marketplace/src/content/docs/getting-started/cli-reference.md",
-          "marketplace/src/content/docs/getting-started/first-plugin.md",
-          "marketplace/src/content/docs/getting-started/first-skill.md",
-          "marketplace/src/content/docs/getting-started/installation.md",
-          "marketplace/src/content/docs/guides/build-a-plugin.md",
-          "marketplace/src/content/docs/guides/create-an-agent.md",
-          "marketplace/src/content/docs/guides/mcp-server-plugin.md",
-          "marketplace/src/content/docs/guides/publish-to-marketplace.md",
-          "marketplace/src/content/docs/guides/saas-skill-packs.md",
-          "marketplace/src/content/docs/guides/write-a-skill.md",
-          "marketplace/src/content/docs/reference/allowed-tools.md",
-          "marketplace/src/content/docs/reference/cli-commands.md",
-          "marketplace/src/content/docs/reference/plugin-categories.md",
-          "marketplace/src/content/docs/reference/plugin-json-schema.md",
-          "marketplace/src/content/docs/reference/skill-frontmatter.md",
-          "marketplace/src/content/playbooks/03-mcp-reliability.md",
-          "marketplace/src/content/playbooks/12-beginner-onboarding.md",
-          "marketplace/src/data/skills-catalog.json",
           "plugins/ai-agency/tonone/README.md",
-          "plugins/ai-ml/ai-sdk-agents/README.md",
-          "plugins/devops/engineer-design-diagram/skills/engineer-design-diagram/references/docs-layout.md",
-          "plugins/productivity/agent-context-manager/skills/agent-context-loader/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/README.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-advanced-troubleshooting/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-architecture-variants/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-ci-integration/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-common-errors/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-core-workflow-a/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-core-workflow-b/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-cost-tuning/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-debug-bundle/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-deploy-integration/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-enterprise-rbac/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-hello-world/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-incident-runbook/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-install-auth/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-known-pitfalls/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-load-scale/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-local-dev-loop/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-migration-deep-dive/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-multi-env-setup/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-observability/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-performance-tuning/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-policy-guardrails/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-prod-checklist/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-rate-limits/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-reference-architecture/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-reliability-patterns/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-sdk-patterns/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-security-basics/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-upgrade-migration/SKILL.md",
-          "plugins/saas-packs/anthropic-pack/skills/anth-webhooks-events/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-advanced-troubleshooting/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-architecture-variants/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-common-errors/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-core-workflow-a/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-core-workflow-b/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-cost-tuning/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-data-handling/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-debug-bundle/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-deploy-integration/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-embeddings-search/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-hello-world/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-install-auth/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-known-pitfalls/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-load-scale/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-local-dev-loop/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-migration-deep-dive/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-model-inference/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-observability/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-performance-tuning/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-policy-guardrails/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-prod-checklist/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-rate-limits/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-reference-architecture/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-reliability-patterns/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-sdk-patterns/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-security-basics/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-upgrade-migration/SKILL.md",
-          "plugins/saas-packs/claude-pack/skills/clade-webhooks-events/SKILL.md",
-          "plugins/saas-packs/cursor-pack/skills/cursor-api-key-management/SKILL.md",
-          "plugins/saas-packs/langchain-py-pack/skills/langchain-content-blocks/SKILL.md",
-          "plugins/saas-packs/langchain-py-pack/skills/langchain-content-blocks/references/multimodal-composition.md",
-          "plugins/saas-packs/langchain-py-pack/skills/langchain-content-blocks/references/thinking-blocks.md",
-          "plugins/saas-packs/langchain-py-pack/skills/langchain-cost-tuning/SKILL.md",
-          "plugins/saas-packs/langchain-py-pack/skills/langchain-prompt-engineering/SKILL.md",
-          "plugins/saas-packs/langchain-py-pack/skills/langchain-prompt-engineering/references/claude-prompt-conventions.md",
-          "plugins/saas-packs/langchain-py-pack/skills/langchain-rate-limits/SKILL.md",
-          "plugins/saas-packs/langchain-py-pack/skills/langchain-rate-limits/references/provider-tier-matrix.md",
-          "plugins/saas-packs/langchain-py-pack/skills/langchain-security-basics/SKILL.md",
-          "plugins/saas-packs/langchain-py-pack/skills/langchain-security-basics/references/prompt-injection-defenses.md",
-          "plugins/saas-packs/vendors/anthropic.yaml",
-          "plugins/security/agent-safety-preflight/skills/agent-safety-preflight/SKILL.md",
-          "plugins/security/severity1-marketplace/skills/prompt-improver/SKILL.md",
-          "plugins/skill-enhancers/web-to-github-issue/README.md",
           "plugins/testing/kobiton-automate/README.md",
           "scripts/measure-canonical-surface.mjs",
-          "skills/.curated/agent-context-loader/SKILL.md",
-          "skills/.curated/agent-safety-preflight/SKILL.md",
-          "skills/.curated/anth-advanced-troubleshooting/SKILL.md",
-          "skills/.curated/anth-architecture-variants/SKILL.md",
-          "skills/.curated/anth-ci-integration/SKILL.md",
-          "skills/.curated/anth-common-errors/SKILL.md",
-          "skills/.curated/anth-core-workflow-a/SKILL.md",
-          "skills/.curated/anth-core-workflow-b/SKILL.md",
-          "skills/.curated/anth-cost-tuning/SKILL.md",
-          "skills/.curated/anth-debug-bundle/SKILL.md",
-          "skills/.curated/anth-deploy-integration/SKILL.md",
-          "skills/.curated/anth-enterprise-rbac/SKILL.md",
-          "skills/.curated/anth-hello-world/SKILL.md",
-          "skills/.curated/anth-incident-runbook/SKILL.md",
-          "skills/.curated/anth-install-auth/SKILL.md",
-          "skills/.curated/anth-known-pitfalls/SKILL.md",
-          "skills/.curated/anth-load-scale/SKILL.md",
-          "skills/.curated/anth-local-dev-loop/SKILL.md",
-          "skills/.curated/anth-migration-deep-dive/SKILL.md",
-          "skills/.curated/anth-multi-env-setup/SKILL.md",
-          "skills/.curated/anth-observability/SKILL.md",
-          "skills/.curated/anth-performance-tuning/SKILL.md",
-          "skills/.curated/anth-policy-guardrails/SKILL.md",
-          "skills/.curated/anth-prod-checklist/SKILL.md",
-          "skills/.curated/anth-rate-limits/SKILL.md",
-          "skills/.curated/anth-reference-architecture/SKILL.md",
-          "skills/.curated/anth-reliability-patterns/SKILL.md",
-          "skills/.curated/anth-security-basics/SKILL.md",
-          "skills/.curated/anth-upgrade-migration/SKILL.md",
-          "skills/.curated/anth-webhooks-events/SKILL.md",
-          "skills/.curated/clade-advanced-troubleshooting/SKILL.md",
-          "skills/.curated/clade-architecture-variants/SKILL.md",
-          "skills/.curated/clade-common-errors/SKILL.md",
-          "skills/.curated/clade-core-workflow-a/SKILL.md",
-          "skills/.curated/clade-core-workflow-b/SKILL.md",
-          "skills/.curated/clade-cost-tuning/SKILL.md",
-          "skills/.curated/clade-data-handling/SKILL.md",
-          "skills/.curated/clade-debug-bundle/SKILL.md",
-          "skills/.curated/clade-deploy-integration/SKILL.md",
-          "skills/.curated/clade-embeddings-search/SKILL.md",
-          "skills/.curated/clade-hello-world/SKILL.md",
-          "skills/.curated/clade-install-auth/SKILL.md",
-          "skills/.curated/clade-known-pitfalls/SKILL.md",
-          "skills/.curated/clade-load-scale/SKILL.md",
-          "skills/.curated/clade-local-dev-loop/SKILL.md",
-          "skills/.curated/clade-migration-deep-dive/SKILL.md",
-          "skills/.curated/clade-model-inference/SKILL.md",
-          "skills/.curated/clade-observability/SKILL.md",
-          "skills/.curated/clade-performance-tuning/SKILL.md",
-          "skills/.curated/clade-policy-guardrails/SKILL.md",
-          "skills/.curated/clade-prod-checklist/SKILL.md",
-          "skills/.curated/clade-rate-limits/SKILL.md",
-          "skills/.curated/clade-reference-architecture/SKILL.md",
-          "skills/.curated/clade-reliability-patterns/SKILL.md",
-          "skills/.curated/clade-sdk-patterns/SKILL.md",
-          "skills/.curated/clade-security-basics/SKILL.md",
-          "skills/.curated/clade-upgrade-migration/SKILL.md",
-          "skills/.curated/clade-webhooks-events/SKILL.md",
-          "skills/.curated/cursor-api-key-management/SKILL.md",
-          "skills/.curated/engineer-design-diagram/references/docs-layout.md",
-          "skills/.curated/langchain-content-blocks/SKILL.md",
-          "skills/.curated/langchain-content-blocks/references/multimodal-composition.md",
-          "skills/.curated/langchain-content-blocks/references/thinking-blocks.md",
-          "skills/.curated/langchain-cost-tuning/SKILL.md",
-          "skills/.curated/langchain-prompt-engineering/SKILL.md",
-          "skills/.curated/langchain-prompt-engineering/references/claude-prompt-conventions.md",
-          "skills/.curated/langchain-rate-limits/SKILL.md",
-          "skills/.curated/langchain-rate-limits/references/provider-tier-matrix.md",
-          "skills/.curated/langchain-security-basics/SKILL.md",
-          "skills/.curated/langchain-security-basics/references/prompt-injection-defenses.md",
-          "skills/.curated/prompt-improver/SKILL.md",
           "tests/fixtures/skill-frontmatter/17a1bc46/input.md",
           "tests/fixtures/skill-frontmatter/2b9b4960/input.md",
           "tests/fixtures/skill-frontmatter/d15c47d9/input.md",
@@ -973,191 +2144,14 @@
         "machine-readable generated-artifact registry for source versus projection split"
       ],
       "source": [
-        "000-docs/198-DR-SOPS-03-mcp-reliability.md",
-        "000-docs/688-AA-AACR-2026-06-04-wiki-audit.md",
         "000-docs/719-RA-REPT-cleanup-candidate-register.json",
         "000-docs/719-RA-REPT-cleanup-candidate-register.md",
         "000-docs/725-RA-DATA-legacy-migration-inventory.md",
         "000-docs/727-AT-ARCH-master-modernization-blueprint.md",
         "000-docs/778-RA-DATA-model-agnostic-migration-surface.md",
-        "marketplace/src/content/blog-posts/noise-robust-signed-llm-judge-evals.md",
-        "marketplace/src/content/docs/concepts/agents.md",
-        "marketplace/src/content/docs/concepts/commands-and-hooks.md",
-        "marketplace/src/content/docs/concepts/mcp-servers.md",
-        "marketplace/src/content/docs/concepts/plugins.md",
-        "marketplace/src/content/docs/concepts/skills.md",
-        "marketplace/src/content/docs/ecosystem/community-resources.md",
-        "marketplace/src/content/docs/ecosystem/faq.md",
-        "marketplace/src/content/docs/ecosystem/marketplace-overview.md",
-        "marketplace/src/content/docs/ecosystem/official-anthropic-docs.md",
-        "marketplace/src/content/docs/getting-started/cli-reference.md",
-        "marketplace/src/content/docs/getting-started/first-plugin.md",
-        "marketplace/src/content/docs/getting-started/first-skill.md",
-        "marketplace/src/content/docs/getting-started/installation.md",
-        "marketplace/src/content/docs/guides/build-a-plugin.md",
-        "marketplace/src/content/docs/guides/create-an-agent.md",
-        "marketplace/src/content/docs/guides/mcp-server-plugin.md",
-        "marketplace/src/content/docs/guides/publish-to-marketplace.md",
-        "marketplace/src/content/docs/guides/saas-skill-packs.md",
-        "marketplace/src/content/docs/guides/write-a-skill.md",
-        "marketplace/src/content/docs/reference/allowed-tools.md",
-        "marketplace/src/content/docs/reference/cli-commands.md",
-        "marketplace/src/content/docs/reference/plugin-categories.md",
-        "marketplace/src/content/docs/reference/plugin-json-schema.md",
-        "marketplace/src/content/docs/reference/skill-frontmatter.md",
-        "marketplace/src/content/playbooks/03-mcp-reliability.md",
-        "marketplace/src/content/playbooks/12-beginner-onboarding.md",
-        "marketplace/src/data/skills-catalog.json",
         "plugins/ai-agency/tonone/README.md",
-        "plugins/ai-ml/ai-sdk-agents/README.md",
-        "plugins/devops/engineer-design-diagram/skills/engineer-design-diagram/references/docs-layout.md",
-        "plugins/productivity/agent-context-manager/skills/agent-context-loader/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/README.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-advanced-troubleshooting/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-architecture-variants/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-ci-integration/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-common-errors/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-core-workflow-a/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-core-workflow-b/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-cost-tuning/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-debug-bundle/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-deploy-integration/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-enterprise-rbac/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-hello-world/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-incident-runbook/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-install-auth/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-known-pitfalls/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-load-scale/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-local-dev-loop/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-migration-deep-dive/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-multi-env-setup/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-observability/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-performance-tuning/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-policy-guardrails/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-prod-checklist/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-rate-limits/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-reference-architecture/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-reliability-patterns/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-sdk-patterns/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-security-basics/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-upgrade-migration/SKILL.md",
-        "plugins/saas-packs/anthropic-pack/skills/anth-webhooks-events/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-advanced-troubleshooting/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-architecture-variants/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-common-errors/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-core-workflow-a/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-core-workflow-b/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-cost-tuning/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-data-handling/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-debug-bundle/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-deploy-integration/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-embeddings-search/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-hello-world/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-install-auth/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-known-pitfalls/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-load-scale/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-local-dev-loop/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-migration-deep-dive/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-model-inference/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-observability/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-performance-tuning/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-policy-guardrails/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-prod-checklist/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-rate-limits/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-reference-architecture/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-reliability-patterns/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-sdk-patterns/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-security-basics/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-upgrade-migration/SKILL.md",
-        "plugins/saas-packs/claude-pack/skills/clade-webhooks-events/SKILL.md",
-        "plugins/saas-packs/cursor-pack/skills/cursor-api-key-management/SKILL.md",
-        "plugins/saas-packs/langchain-py-pack/skills/langchain-content-blocks/SKILL.md",
-        "plugins/saas-packs/langchain-py-pack/skills/langchain-content-blocks/references/multimodal-composition.md",
-        "plugins/saas-packs/langchain-py-pack/skills/langchain-content-blocks/references/thinking-blocks.md",
-        "plugins/saas-packs/langchain-py-pack/skills/langchain-cost-tuning/SKILL.md",
-        "plugins/saas-packs/langchain-py-pack/skills/langchain-prompt-engineering/SKILL.md",
-        "plugins/saas-packs/langchain-py-pack/skills/langchain-prompt-engineering/references/claude-prompt-conventions.md",
-        "plugins/saas-packs/langchain-py-pack/skills/langchain-rate-limits/SKILL.md",
-        "plugins/saas-packs/langchain-py-pack/skills/langchain-rate-limits/references/provider-tier-matrix.md",
-        "plugins/saas-packs/langchain-py-pack/skills/langchain-security-basics/SKILL.md",
-        "plugins/saas-packs/langchain-py-pack/skills/langchain-security-basics/references/prompt-injection-defenses.md",
-        "plugins/saas-packs/vendors/anthropic.yaml",
-        "plugins/security/agent-safety-preflight/skills/agent-safety-preflight/SKILL.md",
-        "plugins/security/severity1-marketplace/skills/prompt-improver/SKILL.md",
-        "plugins/skill-enhancers/web-to-github-issue/README.md",
         "plugins/testing/kobiton-automate/README.md",
         "scripts/measure-canonical-surface.mjs",
-        "skills/.curated/agent-context-loader/SKILL.md",
-        "skills/.curated/agent-safety-preflight/SKILL.md",
-        "skills/.curated/anth-advanced-troubleshooting/SKILL.md",
-        "skills/.curated/anth-architecture-variants/SKILL.md",
-        "skills/.curated/anth-ci-integration/SKILL.md",
-        "skills/.curated/anth-common-errors/SKILL.md",
-        "skills/.curated/anth-core-workflow-a/SKILL.md",
-        "skills/.curated/anth-core-workflow-b/SKILL.md",
-        "skills/.curated/anth-cost-tuning/SKILL.md",
-        "skills/.curated/anth-debug-bundle/SKILL.md",
-        "skills/.curated/anth-deploy-integration/SKILL.md",
-        "skills/.curated/anth-enterprise-rbac/SKILL.md",
-        "skills/.curated/anth-hello-world/SKILL.md",
-        "skills/.curated/anth-incident-runbook/SKILL.md",
-        "skills/.curated/anth-install-auth/SKILL.md",
-        "skills/.curated/anth-known-pitfalls/SKILL.md",
-        "skills/.curated/anth-load-scale/SKILL.md",
-        "skills/.curated/anth-local-dev-loop/SKILL.md",
-        "skills/.curated/anth-migration-deep-dive/SKILL.md",
-        "skills/.curated/anth-multi-env-setup/SKILL.md",
-        "skills/.curated/anth-observability/SKILL.md",
-        "skills/.curated/anth-performance-tuning/SKILL.md",
-        "skills/.curated/anth-policy-guardrails/SKILL.md",
-        "skills/.curated/anth-prod-checklist/SKILL.md",
-        "skills/.curated/anth-rate-limits/SKILL.md",
-        "skills/.curated/anth-reference-architecture/SKILL.md",
-        "skills/.curated/anth-reliability-patterns/SKILL.md",
-        "skills/.curated/anth-security-basics/SKILL.md",
-        "skills/.curated/anth-upgrade-migration/SKILL.md",
-        "skills/.curated/anth-webhooks-events/SKILL.md",
-        "skills/.curated/clade-advanced-troubleshooting/SKILL.md",
-        "skills/.curated/clade-architecture-variants/SKILL.md",
-        "skills/.curated/clade-common-errors/SKILL.md",
-        "skills/.curated/clade-core-workflow-a/SKILL.md",
-        "skills/.curated/clade-core-workflow-b/SKILL.md",
-        "skills/.curated/clade-cost-tuning/SKILL.md",
-        "skills/.curated/clade-data-handling/SKILL.md",
-        "skills/.curated/clade-debug-bundle/SKILL.md",
-        "skills/.curated/clade-deploy-integration/SKILL.md",
-        "skills/.curated/clade-embeddings-search/SKILL.md",
-        "skills/.curated/clade-hello-world/SKILL.md",
-        "skills/.curated/clade-install-auth/SKILL.md",
-        "skills/.curated/clade-known-pitfalls/SKILL.md",
-        "skills/.curated/clade-load-scale/SKILL.md",
-        "skills/.curated/clade-local-dev-loop/SKILL.md",
-        "skills/.curated/clade-migration-deep-dive/SKILL.md",
-        "skills/.curated/clade-model-inference/SKILL.md",
-        "skills/.curated/clade-observability/SKILL.md",
-        "skills/.curated/clade-performance-tuning/SKILL.md",
-        "skills/.curated/clade-policy-guardrails/SKILL.md",
-        "skills/.curated/clade-prod-checklist/SKILL.md",
-        "skills/.curated/clade-rate-limits/SKILL.md",
-        "skills/.curated/clade-reference-architecture/SKILL.md",
-        "skills/.curated/clade-reliability-patterns/SKILL.md",
-        "skills/.curated/clade-sdk-patterns/SKILL.md",
-        "skills/.curated/clade-security-basics/SKILL.md",
-        "skills/.curated/clade-upgrade-migration/SKILL.md",
-        "skills/.curated/clade-webhooks-events/SKILL.md",
-        "skills/.curated/cursor-api-key-management/SKILL.md",
-        "skills/.curated/engineer-design-diagram/references/docs-layout.md",
-        "skills/.curated/langchain-content-blocks/SKILL.md",
-        "skills/.curated/langchain-content-blocks/references/multimodal-composition.md",
-        "skills/.curated/langchain-content-blocks/references/thinking-blocks.md",
-        "skills/.curated/langchain-cost-tuning/SKILL.md",
-        "skills/.curated/langchain-prompt-engineering/SKILL.md",
-        "skills/.curated/langchain-prompt-engineering/references/claude-prompt-conventions.md",
-        "skills/.curated/langchain-rate-limits/SKILL.md",
-        "skills/.curated/langchain-rate-limits/references/provider-tier-matrix.md",
-        "skills/.curated/langchain-security-basics/SKILL.md",
-        "skills/.curated/langchain-security-basics/references/prompt-injection-defenses.md",
-        "skills/.curated/prompt-improver/SKILL.md",
         "tests/fixtures/skill-frontmatter/17a1bc46/input.md",
         "tests/fixtures/skill-frontmatter/2b9b4960/input.md",
         "tests/fixtures/skill-frontmatter/d15c47d9/input.md",
@@ -1384,7 +2378,7 @@
         "answers": [
           {
             "cohort": "curated-mirror",
-            "value": 2484
+            "value": 2628
           },
           {
             "cohort": "curriculum",
@@ -1834,10 +2828,10 @@
       ],
       "status": "measured",
       "values": {
-        "distinct_actions": 8,
+        "distinct_actions": 7,
         "mutable_uses": [],
         "target_mutable_uses": 0,
-        "total_uses": 38
+        "total_uses": 37
       }
     },
     "37": {
@@ -2124,7 +3118,7 @@
         "invalid_patterns": 0,
         "invisible_files": 5,
         "target_invisible_files": 0,
-        "tracked_files": 24402
+        "tracked_files": 25895
       }
     },
     "47": {
@@ -2209,15 +3203,15 @@
       "dimension": "Inventory header versus rows",
       "reproduce": "pnpm run measure:e1 --row=52 --stdout",
       "source": [
-        "freshie/reports/run-delta-68.json",
+        "freshie/reports/run-delta-133.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],
       "status": "target_met",
       "values": {
-        "dolt_commit": "ehdp345esbd36egqbuojp9q9013pvofb",
+        "dolt_commit": "bov00qvmn4v08t28navdolq4sshrekhi",
         "header_total_skills": 2914,
-        "run_id": 68,
+        "run_id": 133,
         "skill_row_delta": 0,
         "skill_rows": 2914,
         "target_skill_row_delta": 0
@@ -2230,32 +3224,32 @@
       "source": [
         "freshie/grade-histogram.json",
         "freshie/grades.csv",
-        "freshie/reports/run-delta-68.json"
+        "freshie/reports/run-delta-133.json"
       ],
       "status": "target_met",
       "values": {
         "compliance_rows": 3491,
-        "export_dolt_commit": "ehdp345esbd36egqbuojp9q9013pvofb",
-        "export_run_id": 68,
+        "export_dolt_commit": "bov00qvmn4v08t28navdolq4sshrekhi",
+        "export_run_id": 133,
         "grades_csv_rows": 3491,
-        "grades_csv_sha256": "ee6763964d633964bbc333a1545644faa09683f55245746df12b785153888b96",
+        "grades_csv_sha256": "5b22ab61101133aaa93b63bb7844cf219ede7e11323a4985208417bad05f3b1a",
         "histogram_grades": {
-          "A": 2095,
-          "B": 958,
-          "C": 276,
-          "D": 157,
-          "F": 5
+          "A": 2857,
+          "B": 344,
+          "C": 132,
+          "D": 154,
+          "F": 4
         },
         "histogram_total": 3491,
         "immutable_grade_counts": {
-          "A": 2095,
-          "B": 958,
-          "C": 276,
-          "D": 157,
-          "F": 5
+          "A": 2857,
+          "B": 344,
+          "C": 132,
+          "D": 154,
+          "F": 4
         },
-        "inventory_dolt_commit": "ehdp345esbd36egqbuojp9q9013pvofb",
-        "inventory_run_id": 68,
+        "inventory_dolt_commit": "bov00qvmn4v08t28navdolq4sshrekhi",
+        "inventory_run_id": 133,
         "target_lag_runs": 0
       }
     },
@@ -2265,8 +3259,8 @@
       "reproduce": "pnpm run measure:e1 --row=54 --stdout",
       "source": [
         "freshie/reports/legacy-forge-proofs-demotion.json",
+        "freshie/reports/run-delta-133.json",
         "freshie/reports/run-delta-19.json",
-        "freshie/reports/run-delta-68.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py",
         "scripts/record-jrig-proofs.mjs"
@@ -2279,7 +3273,7 @@
           "E2": 0,
           "E3": 0
         },
-        "current_run_id": 68,
+        "current_run_id": 133,
         "invalid_identities": 0,
         "legacy_e0_records": 3,
         "retained_e2_e3": 0,
@@ -2303,8 +3297,8 @@
       "source": [
         "000-docs/807-DR-STND-evaluation-evidence.md",
         "freshie/reports/legacy-forge-proofs-demotion.json",
+        "freshie/reports/run-delta-133.json",
         "freshie/reports/run-delta-19.json",
-        "freshie/reports/run-delta-68.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],

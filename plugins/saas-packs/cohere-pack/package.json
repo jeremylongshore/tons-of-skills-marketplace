@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/cohere-pack",
-  "version": "1.0.2",
-  "description": "Claude Code skill pack for Cohere - 24 skills covering NLP APIs, embeddings, and enterprise AI models",
+  "version": "1.6.0",
+  "description": "Source-grounded Cohere v2 operator workflows for Chat, Embed, Rerank, RAG, tools, security, migration, and production operations",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -13,11 +13,11 @@
     "claude-code",
     "claude-code-plugin",
     "cohere",
-    "nlp-api",
-    "embeddings",
-    "enterprise-ai",
-    "ai-skills",
-    "saas-pack"
+    "api-v2",
+    "rag",
+    "tool-use",
+    "model-operations",
+    "tonsofskills"
   ],
   "author": {
     "name": "Jeremy Longshore",
@@ -29,8 +29,12 @@
     "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/saas-packs/cohere-pack"
   },
-  "homepage": "https://tonsofskills.com/learn/cohere/",
+  "homepage": "https://tonsofskills.com/plugins/cohere-pack",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
   "publishConfig": {
     "access": "public"
+  },
+  "scripts": {
+    "postinstall": "node -e \"console.log('\\n→ This npm package is a tracking/proof artifact. Install the plugin via:\\n  ccpi install cohere-pack\\n  or /plugin install cohere-pack@claude-code-plugins-plus in Claude Code\\n')\""
   }
 }

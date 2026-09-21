@@ -42,7 +42,7 @@ Same skill. Same harness. Same prompt. The verdict flip-flopped across runs. An 
 
 Before writing code we ran a 12-agent research pass (positions recorded in an internal research brief, `025-RA-ANLY`, with 16 citations). Five findings survived and became the design.
 
-**Majority voting beats seed-determinism, definitively.** Anthropic's [Messages API](https://docs.anthropic.com/en/api/messages) exposes no seed parameter. Where seeds exist on other providers they are best-effort and get voided by backend fingerprint drift. Repeat-and-aggregate — the self-consistency pattern — is the only approach that works on every provider, so it is the only approach worth building on.
+**Majority voting beats seed-determinism, definitively.** Anthropic's [Messages API](https://platform.claude.com/docs/en/api/messages) exposes no seed parameter. Where seeds exist on other providers they are best-effort and get voided by backend fingerprint drift. Repeat-and-aggregate — the self-consistency pattern — is the only approach that works on every provider, so it is the only approach worth building on.
 
 **N = 5 samples meets the false-BLOCK budget** at a 0.8 agreement quorum. The binomial majority-error works out to ≈ 0.0022 against a 0.005 budget. For blockers we default to N = 11 — deliberate over-provisioning against vote correlation, held as a config default rather than a claim of independence.
 

@@ -14,9 +14,9 @@ keywords:
   - "plugin lifecycle"
 officialLinks:
   - title: "Claude Code Documentation"
-    url: "https://docs.anthropic.com/en/docs/claude-code/"
+    url: "https://code.claude.com/docs/en/"
   - title: "Claude Code Plugins Overview"
-    url: "https://docs.anthropic.com/en/docs/claude-code/plugins"
+    url: "https://code.claude.com/docs/en/plugins"
   - title: "Tons of Skills Marketplace"
     url: "https://tonsofskills.com"
 relatedDocs:

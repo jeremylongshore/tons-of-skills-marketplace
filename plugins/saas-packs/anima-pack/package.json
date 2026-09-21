@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/anima-pack",
-  "version": "1.0.0",
-  "description": "Claude Code skill pack for Anima - 18 skills covering design-to-code conversion and UI automation",
+  "version": "2.0.0",
+  "description": "Anima design-to-code operator pack with 18 Grade-A skills",
   "main": "README.md",
   "type": "module",
   "files": [

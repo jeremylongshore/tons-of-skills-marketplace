@@ -1,182 +1,78 @@
 ---
 name: firecrawl-debug-bundle
-description: 'Collect Firecrawl debug evidence for support tickets and troubleshooting.
-
-  Use when encountering persistent issues, preparing support tickets,
-
-  or collecting diagnostic information for Firecrawl problems.
-
-  Trigger with phrases like "firecrawl debug", "firecrawl support bundle",
-
-  "collect firecrawl logs", "firecrawl diagnostic".
-
-  '
-allowed-tools: Read, Bash(grep:*), Bash(curl:*), Bash(tar:*), Grep
-version: 1.11.0
+description: >-
+  Assemble a minimal, redacted Firecrawl diagnostic package for internal triage or vendor support. Use when a failure needs escalation without exposing keys or captured content. Trigger with "Firecrawl debug bundle", "Firecrawl support evidence", or "collect Firecrawl diagnostics".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<request-or-job-id> <output-directory>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- debugging
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, diagnostics, security]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Debug Bundle
-
-## Current State
-
-!`node --version 2>/dev/null || echo 'N/A'`
-!`npm list @mendable/firecrawl-js 2>/dev/null | grep firecrawl || echo 'SDK not installed'`
+# Firecrawl Privacy-Safe Support Evidence
 
 ## Overview
 
-Collect all diagnostic information needed for Firecrawl support tickets. Tests API connectivity, checks SDK version, verifies credentials, captures error context, and packages it all into a redacted bundle.
-
-## Examples
-
-For a synthetic crawl failure, collect the runtime version, opaque crawl ID, configured policy reference, and aggregate retry count. Review the bundle for secrets and page content, encrypt it in the approved evidence location, and share it only with the assigned incident owner before deleting it at the retention date.
+Produce structured evidence that can reproduce or classify a failure without dumping the repository, environment, request headers, URLs, or response bodies.
 
 ## Prerequisites
 
-- Firecrawl SDK installed
-- `FIRECRAWL_API_KEY` environment variable set
-- Access to application logs
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
+
+## Current Contract
+
+Useful evidence includes SDK/runtime version, v2 operation, timestamps, opaque request/job/webhook IDs, HTTP status, documented error/code, queue/job state, pagination state, option names, and content-free metrics. Firecrawl support does not need a broad tarball or the API key.
+
+## Authentication
+
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Create Debug Bundle Script
+1. Confirm the incident owner, destination, approved evidence fields, retention window, and whether target URLs themselves are sensitive.
+2. Collect package/runtime versions, operating context, v2 endpoint or SDK method, UTC timestamps, and a normalized option-name list.
+3. Record status, error/code/details after redaction, response headers on an allowlist, request/job/webhook IDs, queue state, pagination cursor presence, counts, sizes, timings, and metadata.statusCode distribution.
+4. Represent URLs with approved host labels or salted hashes; never include credentials, cookies, Authorization, custom headers, page content, screenshots, uploaded bytes, prompts, or extracted values.
+5. Run secret, token-pattern, URL-query, email, and content-leak scans over the proposed bundle. Manually inspect the exact files.
+6. Create a manifest with file hashes, collector version, redaction policy, known omissions, recipient, expiry, and deletion owner.
+7. Require recipient approval, transmit through the approved channel, and record deletion or ticket linkage.
 
-```bash
-#!/bin/bash
-set -euo pipefail
-# firecrawl-debug-bundle.sh
+## Tool Discipline
 
-BUNDLE_DIR="firecrawl-debug-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE_DIR"
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-echo "=== Firecrawl Debug Bundle ===" > "$BUNDLE_DIR/summary.txt"
-echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$BUNDLE_DIR/summary.txt"
-echo "" >> "$BUNDLE_DIR/summary.txt"
+## Approval Boundaries
 
-# Environment
-echo "--- Runtime ---" >> "$BUNDLE_DIR/summary.txt"
-node --version >> "$BUNDLE_DIR/summary.txt" 2>&1 || echo "Node: N/A" >> "$BUNDLE_DIR/summary.txt"
-echo "OS: $(uname -a)" >> "$BUNDLE_DIR/summary.txt"
-echo "FIRECRAWL_API_KEY: ${FIRECRAWL_API_KEY:+SET (${#FIRECRAWL_API_KEY} chars)}" >> "$BUNDLE_DIR/summary.txt"
-echo "FIRECRAWL_API_URL: ${FIRECRAWL_API_URL:-https://api.firecrawl.dev (default)}" >> "$BUNDLE_DIR/summary.txt"
-```
-
-### Step 2: Collect SDK and API Status
-
-```bash
-set -euo pipefail
-# SDK version
-echo "" >> "$BUNDLE_DIR/summary.txt"
-echo "--- SDK ---" >> "$BUNDLE_DIR/summary.txt"
-npm list @mendable/firecrawl-js 2>/dev/null >> "$BUNDLE_DIR/summary.txt" || echo "Not found in npm" >> "$BUNDLE_DIR/summary.txt"
-pip show firecrawl-py 2>/dev/null >> "$BUNDLE_DIR/summary.txt" || true
-
-# API connectivity test
-echo "" >> "$BUNDLE_DIR/summary.txt"
-echo "--- API Connectivity ---" >> "$BUNDLE_DIR/summary.txt"
-API_RESPONSE=$(curl -s -w "\n%{http_code}" https://api.firecrawl.dev/v1/scrape \
-  -H "Authorization: Bearer ${FIRECRAWL_API_KEY:-missing}" \
-  -H "Content-Type: application/json" \
-  -d '{"url":"https://example.com","formats":["markdown"]}' 2>&1)
-HTTP_CODE=$(echo "$API_RESPONSE" | tail -1)
-echo "API Status: HTTP $HTTP_CODE" >> "$BUNDLE_DIR/summary.txt"
-
-# Credit balance
-echo "" >> "$BUNDLE_DIR/summary.txt"
-echo "--- Credits ---" >> "$BUNDLE_DIR/summary.txt"
-curl -s https://api.firecrawl.dev/v1/team/credits \
-  -H "Authorization: Bearer ${FIRECRAWL_API_KEY:-missing}" 2>/dev/null | \
-  jq '{credits_remaining, plan}' >> "$BUNDLE_DIR/summary.txt" 2>/dev/null || echo "Could not fetch credits" >> "$BUNDLE_DIR/summary.txt"
-```
-
-### Step 3: Capture Error Context
-
-```bash
-set -euo pipefail
-# Recent error logs (redacted)
-echo "" >> "$BUNDLE_DIR/summary.txt"
-echo "--- Recent Errors ---" >> "$BUNDLE_DIR/summary.txt"
-grep -ri "firecrawl\|scrape\|crawl" /tmp/*.log 2>/dev/null | tail -30 >> "$BUNDLE_DIR/errors.txt" || echo "No log files found" >> "$BUNDLE_DIR/errors.txt"
-
-# Redact secrets from any config
-echo "--- Config (redacted) ---" >> "$BUNDLE_DIR/summary.txt"
-cat .env 2>/dev/null | sed 's/\(API_KEY\|SECRET\|TOKEN\|PASSWORD\)=.*/\1=***REDACTED***/' >> "$BUNDLE_DIR/config-redacted.txt" || echo "No .env file" >> "$BUNDLE_DIR/config-redacted.txt"
-```
-
-### Step 4: Run Diagnostic Scrape
-
-```typescript
-// diagnostic-scrape.ts — include output in debug bundle
-import FirecrawlApp from "@mendable/firecrawl-js";
-
-async function runDiagnostic() {
-  const firecrawl = new FirecrawlApp({
-    apiKey: process.env.FIRECRAWL_API_KEY!,
-  });
-
-  const tests = [
-    { name: "Basic scrape", fn: () => firecrawl.scrapeUrl("https://example.com", { formats: ["markdown"] }) },
-    { name: "Map endpoint", fn: () => firecrawl.mapUrl("https://example.com") },
-  ];
-
-  for (const test of tests) {
-    const start = Date.now();
-    try {
-      const result = await test.fn();
-      console.log(`PASS: ${test.name} (${Date.now() - start}ms)`);
-    } catch (err: any) {
-      console.log(`FAIL: ${test.name} (${Date.now() - start}ms) — ${err.statusCode}: ${err.message}`);
-    }
-  }
-}
-
-runDiagnostic();
-```
-
-### Step 5: Package Bundle
-
-```bash
-set -euo pipefail
-tar -czf "$BUNDLE_DIR.tar.gz" "$BUNDLE_DIR"
-echo "Bundle created: $BUNDLE_DIR.tar.gz"
-echo "Review for sensitive data before sharing!"
-rm -rf "$BUNDLE_DIR"
-```
+Require approval before collecting from production, including a hostname or request option value, sharing outside the organization, or extending bundle retention.
 
 ## Output
 
-- `firecrawl-debug-YYYYMMDD-HHMMSS.tar.gz` containing:
-  - `summary.txt` — Runtime, SDK version, API status, credits
-  - `errors.txt` — Recent error logs
-  - `config-redacted.txt` — Configuration with secrets masked
+Return a small manifest and redacted structured evidence files, scan results, omissions, recipient and purpose, expiry, hashes, and cleanup receipt. Do not create a repository or home-directory archive.
 
 ## Error Handling
 
-| Item | Purpose | Included |
-|------|---------|----------|
-| Node/Python version | Compatibility check | Yes |
-| SDK version | Version-specific bugs | Yes |
-| API HTTP status | Connectivity | Yes |
-| Credit balance | Quota issues | Yes |
-| Diagnostic scrape | End-to-end test | Yes |
+- Redaction scan finds a secret or content fragment: quarantine and rebuild the bundle.
+- Evidence cannot distinguish request from origin failure: add status and metadata distributions, not bodies.
+- Support requests raw credentials or unrestricted content: refuse and escalate through the security owner.
 
-## ALWAYS REDACT
+## Examples
 
-- API keys (anything starting with `fc-`)
-- Passwords, tokens, secrets
-- PII in scraped content
+- "Prepare evidence for a crawl timeout" returns timings, state, IDs, and redacted option names.
+- "Zip the whole repo and .env" is refused and replaced with a minimal allowlisted manifest.
 
 ## Resources
 
-- Firecrawl Status
-- [Firecrawl Dashboard](https://firecrawl.dev/app)
-- [GitHub Issues](https://github.com/mendableai/firecrawl/issues)
-
-## Next Steps
-
-For rate limit issues, see `firecrawl-rate-limits`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

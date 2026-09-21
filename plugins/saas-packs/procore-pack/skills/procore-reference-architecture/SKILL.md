@@ -1,66 +1,92 @@
 ---
 name: procore-reference-architecture
-description: "Procore reference architecture \u2014 construction management platform\
-  \ integration.\nUse when working with Procore API for project management, RFIs,\
-  \ or submittals.\nTrigger with phrases like \"procore reference architecture\",\
-  \ \"procore-reference-architecture\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Bash(curl:*), Grep
-version: 1.5.0
+description: >-
+  Design a governed Procore data connector with explicit tenant routing, durable work queues, endpoint adapters, webhook hydration, reconciliation, and audit receipts. Use when choosing integration boundaries or reviewing a production architecture. Trigger with: "design a Procore connector", "review Procore architecture", "plan Procore data synchronization".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[systems-data-domains-and-freshness-objectives]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- procore
-- construction
-- project-management
-compatibility: Designed for Claude Code
+  - saas
+  - procore
+  - architecture
+  - data-connector
+compatibility: 'Requires approved system boundaries, Procore app ownership, data classification, and durable queue and state storage.'
 ---
-# Procore Reference Architecture
+
+# Procore Governed Connector Architecture
 
 ## Overview
 
-Implementation patterns for Procore reference architecture using the REST API with OAuth2 authentication.
+Separate identity, tenant routing, ingestion, hydration, reconciliation, mutation approval, and audit evidence. Procore webhooks improve freshness but REST remains the data source, so the architecture must tolerate duplicates, delays, missed notifications, and partial writes.
 
 ## Prerequisites
 
-- Completed `procore-install-auth` setup
+- Source and destination ownership, data domains, classification, and residency constraints
+- Freshness, completeness, recovery, and deletion objectives
+- OAuth grant, DMSA permission map, environment matrix, and endpoint inventory
 
 ## Instructions
 
-### Step 1: API Call Pattern
+### Step 1: Draw trust boundaries
 
-```python
-import os, requests
+Identify token service, ingress, queue, workers, state store, outbound adapters, audit sink, and operator interface. Carry company and project context as immutable job attributes.
 
-token_resp = requests.post("https://login.procore.com/oauth/token", data={
-    "grant_type": "client_credentials",
-    "client_id": os.environ["PROCORE_CLIENT_ID"],
-    "client_secret": os.environ["PROCORE_CLIENT_SECRET"],
-})
-access_token = token_resp.json()["access_token"]
-headers = {"Authorization": f"Bearer {access_token}"}
+### Step 2: Separate adapter contracts
 
-companies = requests.get("https://api.procore.com/rest/v1.0/companies", headers=headers)
-print(f"Companies: {len(companies.json())}")
-```
+Keep endpoint version, request schema, pagination, rate metadata, and errors inside resource adapters. Do not create one fictional global Procore API version.
+
+### Step 3: Design dual ingestion
+
+Accept webhook notifications into a durable queue for freshness. Hydrate current resources through REST and run periodic cursor-based reconciliation for completeness.
+
+### Step 4: Make processing idempotent
+
+Deduplicate events, use origin identifiers or documented sync actions where supported, maintain checkpoints, and reconcile ambiguous mutations before retrying.
+
+### Step 5: Govern writes
+
+Validate scope, render a preview, obtain approval where required, execute once, read after write, and emit a redacted receipt. Keep read and write worker authority separable.
+
+### Step 6: Prove failure behavior
+
+Test token expiry, tenant-routing loss, duplicate and discarded events, rate exhaustion, provider outage, poison records, rollback, and replay from checkpoints.
+
+## Authentication
+
+The token service obtains OAuth 2.0 credentials for the intended user or DMSA boundary and injects Bearer tokens only at dispatch. Every job retains explicit company and project routing without logging tokens.
+
+## Tool Discipline
+
+Use Read and Grep to inspect topology, data contracts, and existing controls. Use Write or Edit only for the approved architecture, adapter contract, test plan, or receipt; no provider mutation is implied by architecture work.
 
 ## Output
 
-- Procore API integration for reference architecture
+- Trust-boundary and data-flow design
+- Endpoint, queue, checkpoint, reconciliation, and permission contracts
+- Failure, rollback, replay, and observability plan
+
+Return decisions, rejected alternatives, assumptions, owners, and measurable acceptance criteria.
+
+## Examples
+
+A webhook receiver queues only event metadata and acknowledges quickly. A tenant-bound worker hydrates the current record through a versioned adapter, deduplicates it, updates downstream state, and advances a checkpoint that a nightly reconciliation can independently verify.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| 401 Unauthorized | Expired token | Re-authenticate |
-| 429 Rate Limited | Too many requests | Implement backoff |
-| 403 Forbidden | Insufficient permissions | Check project role |
+| Failure | Response |
+| --- | --- |
+| Company context is absent | Dead-letter the job and fail closed before dispatch. |
+| Notification was lost | Reconciliation discovers the changed resource and repairs downstream state. |
+| Mutation outcome is ambiguous | Read provider state and compare the intended correlation before retrying. |
+| Adapter version is deprecated | Isolate and migrate that resource contract without changing unrelated domains. |
 
 ## Resources
 
-- [Procore Developers](https://developers.procore.com/)
-- [REST API Reference](https://developers.procore.com/reference/rest)
-
-## Next Steps
-
-See related Procore skills for more workflows.
+- [First-party source notes](references/official-docs.md)
+- [Build a data connector app](https://developers.procore.com/documentation/building-data-connection-apps)
+- [Webhook reliability](https://developers.procore.com/documentation/webhooks)
+- [API usage guidelines](https://developers.procore.com/documentation/api-usage-guidelines)

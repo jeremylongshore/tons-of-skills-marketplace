@@ -13,7 +13,7 @@ description: 'Implement data privacy, PII handling, and compliance patterns for 
 
   '
 allowed-tools: Read, Write, Edit, Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

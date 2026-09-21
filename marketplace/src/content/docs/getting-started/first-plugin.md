@@ -6,9 +6,9 @@ order: 2
 keywords: ["install Claude Code plugin", "Claude Code marketplace", "browse plugins", "ccpi install", "plugin commands", "uninstall plugin"]
 officialLinks:
   - title: "Claude Code Plugins Documentation"
-    url: "https://docs.anthropic.com/en/docs/claude-code/plugins"
+    url: "https://code.claude.com/docs/en/plugins"
   - title: "Claude Code Slash Commands"
-    url: "https://docs.anthropic.com/en/docs/claude-code/slash-commands"
+    url: "https://code.claude.com/docs/en/slash-commands"
 relatedDocs:
   - "getting-started/installation"
   - "getting-started/first-skill"

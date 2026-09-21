@@ -5,7 +5,7 @@ description: "Optimize Anthropic API latency \u2014 streaming, prompt caching, m
   \ and parallel requests.\nTrigger with \"anthropic slow\", \"claude latency\", \"\
   speed up anthropic\",\n\"anthropic performance\", \"claude response time\".\n"
 allowed-tools: Read, Write, Edit
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -155,9 +155,9 @@ See Latency Benchmarks table and six numbered strategy sections above, each with
 
 ## Resources
 
-- [Streaming Docs](https://docs.anthropic.com/en/api/messages-streaming)
-- [Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
-- [Models Comparison](https://docs.anthropic.com/en/docs/about-claude/models)
+- [Streaming Docs](https://platform.claude.com/docs/en/build-with-claude/streaming)
+- [Prompt Caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)
+- [Models Comparison](https://platform.claude.com/docs/en/models/overview)
 
 ## Next Steps
 

@@ -1,173 +1,88 @@
 ---
 name: castai-local-dev-loop
-description: 'Set up a local Kubernetes development loop with CAST AI cost monitoring.
-
-  Use when building cost-aware deployments, testing autoscaler policies,
-
-  or iterating on Terraform CAST AI configurations locally.
-
-  Trigger with phrases like "cast ai dev setup", "cast ai local testing",
-
-  "develop with cast ai", "cast ai terraform dev".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(kubectl:*), Bash(helm:*), Bash(terraform:*),
-  Grep
-version: 1.4.0
+description: 'Build an offline-first local loop for CAST AI Terraform, Helm, policy, and workload configuration before touching a sandbox cluster. Use when developing infrastructure modules, annotations, or CI checks. Trigger with: "develop CAST AI locally", "test CAST AI configuration", "make a CAST AI dev loop".'
+allowed-tools: Read, Grep, Write, Edit, Bash(terraform:*), Bash(helm:*), Bash(kubectl:*), Bash(castctl:*)
+version: 2.0.0
+argument-hint: '[infrastructure-or-manifest-root]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- kubernetes
-- cost-optimization
-- castai
-compatibility: Designed for Claude Code
+  - saas
+  - kubernetes
+  - cast-ai
+  - local-development
+  - testing
+compatibility: 'Requires locally pinned infrastructure tools; optional sandbox checks require an explicitly selected non-production kube context'
 ---
-# CAST AI Local Dev Loop
+
+# CAST AI Offline-First Development Loop
 
 ## Overview
 
-Fast iteration workflow for CAST AI integrations: test autoscaler policies in a dev cluster, validate Terraform modules before applying to production, and use the CAST AI API to measure savings impact during development.
+Make configuration feedback fast without treating a live cluster as a test fixture. Render, validate, diff, and policy-check locally; use a sandbox only for the behavior that cannot be proven offline.
 
 ## Prerequisites
 
-- Completed `castai-install-auth` setup
-- A development Kubernetes cluster (kind, minikube, or cloud dev cluster)
-- `kubectl`, `helm`, and optionally `terraform` installed
+- Repository-owned Terraform, Helm values, policy, or workload manifests
+- Pinned tool and provider versions
+- Sanitized fixtures for cluster identity, policies, and API failures
+- Optional sandbox with a distinct kube context and budget owner
 
 ## Instructions
 
-### Step 1: Project Structure
+### Step 1: Map inputs and ownership
 
-```
-my-castai-infra/
-├── terraform/
-│   ├── environments/
-│   │   ├── dev.tfvars
-│   │   ├── staging.tfvars
-│   │   └── prod.tfvars
-│   ├── modules/
-│   │   └── castai-cluster/
-│   │       ├── main.tf
-│   │       ├── variables.tf
-│   │       └── outputs.tf
-│   └── main.tf
-├── policies/
-│   ├── dev-policy.json
-│   └── prod-policy.json
-├── scripts/
-│   ├── check-savings.sh
-│   └── validate-policies.sh
-├── .env.dev            # Dev API key (git-ignored)
-└── .env.example
-```
+Use Read and Grep to locate provider constraints, chart versions, values, annotations, policy definitions, generated files, and secret references. Identify which files are authoritative and which are derived.
 
-### Step 2: Dev Cluster with Relaxed Policies
+### Step 2: Establish local gates
 
-```bash
-# Connect your dev cluster (read-only first)
-helm upgrade --install castai-agent castai-helm/castai-agent \
-  -n castai-agent --create-namespace \
-  --set apiKey="${CASTAI_API_KEY_DEV}" \
-  --set provider="eks"
+Use Bash(terraform:_) to format and validate without applying. Use Bash(helm:_) to lint and render pinned charts. Use Bash(kubectl:\*) only for client-side schema checks against rendered objects. Add deterministic tests for region, organization, policy bounds, automation state, HPA ownership, and prohibited secrets.
 
-# Apply development-safe autoscaler policy
-curl -X PUT -H "X-API-Key: ${CASTAI_API_KEY_DEV}" \
-  -H "Content-Type: application/json" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/policies" \
-  -d '{
-    "enabled": true,
-    "unschedulablePods": { "enabled": true },
-    "nodeDownscaler": {
-      "enabled": true,
-      "emptyNodes": { "enabled": true, "delaySeconds": 300 }
-    },
-    "clusterLimits": {
-      "enabled": true,
-      "cpu": { "minCores": 2, "maxCores": 16 }
-    }
-  }'
-```
+### Step 3: Model negative paths
 
-### Step 3: Quick Savings Check Script
+Use Write or Edit to add sanitized fixtures for missing identity, wrong region, permission denial, malformed configuration, conflicting controllers, unavailable metrics, PDB denial, and unsatisfied node constraints. Assert fail-closed behavior.
 
-```bash
-#!/bin/bash
-# scripts/check-savings.sh
-set -euo pipefail
+### Step 4: Preview sandbox connection
 
-API_KEY="${CASTAI_API_KEY_DEV}"
-CLUSTER_ID="${CASTAI_CLUSTER_ID}"
+When installation behavior must be checked, use Bash(castctl:\*) with the documented dry-run against the named sandbox context. Compare detected identity and proposed changes to approved fixtures before any connection.
 
-echo "=== CAST AI Dev Cluster Savings ==="
-curl -s -H "X-API-Key: ${API_KEY}" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CLUSTER_ID}/savings" \
-  | jq '{
-    monthlySavings: .monthlySavings,
-    percentage: .savingsPercentage,
-    spotNodes: [.nodes[] | select(.lifecycle == "spot")] | length,
-    totalNodes: [.nodes[]] | length
-  }'
-```
+### Step 5: Run one bounded sandbox experiment
 
-### Step 4: Terraform Plan-Apply Loop
+Use a reviewed plan and one disposable workload or policy assignment. Observe only the intended behavior, never production data. Do not use a personal API key or console edits that bypass the repository source of truth.
 
-```bash
-# Plan with dev variables
-cd terraform/
-terraform plan -var-file=environments/dev.tfvars -out=plan.tfplan
+### Step 6: Capture reproducibility
 
-# Apply and check CAST AI result
-terraform apply plan.tfplan
+Record commit, tool versions, rendered artifact hashes, plan summary, sandbox context, start/end time, cleanup, and remaining untested behavior. Return the sandbox to its declared baseline.
 
-# Verify policies took effect
-curl -s -H "X-API-Key: ${CASTAI_API_KEY_DEV}" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/policies" \
-  | jq .
-```
+## Tool Discipline
 
-### Step 5: Watch Node Changes in Real Time
-
-```bash
-# Terminal 1: Watch CAST AI node operations
-watch -n 15 'curl -s -H "X-API-Key: ${CASTAI_API_KEY_DEV}" \
-  "https://api.cast.ai/v1/kubernetes/external-clusters/${CASTAI_CLUSTER_ID}/nodes" \
-  | jq "[.items[] | {name, instanceType, lifecycle, age: .createdAt}] | length"'
-
-# Terminal 2: Watch kubectl node status
-kubectl get nodes -w
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Dev cluster not found | Wrong cluster ID | List clusters with API first |
-| Policy rejected | Invalid JSON | Validate with `jq . < policy.json` |
-| Terraform drift | Manual console changes | Run `terraform refresh` |
-| Agent offline after restart | Helm release stale | `helm upgrade --install` again |
+Use Read and Grep for source discovery. Use Write and Edit for fixtures and checks. Use Bash(terraform:_), Bash(helm:_), and Bash(kubectl:_) for offline validation; use Bash(castctl:_) only for a documented dry-run or approved sandbox action.
 
 ## Output
 
-The local loop produces a versioned plan, non-production policy result, agent
-health check, and observed node/policy evidence. Keep development credentials
-and cluster identifiers isolated from production; a plan or console result is
-not permission to apply a change to another environment.
+- Reproducible local validation commands
+- Sanitized success and failure fixtures
+- Rendered and planned artifact receipts
+- Optional bounded sandbox result and cleanup evidence
 
 ## Examples
 
-Run `terraform plan` against a disposable development cluster, inspect the
-saved plan for destructive changes, then apply only after a reviewer accepts
-the diff. Confirm policy state and node behavior, and destroy or reset the
-test resources after observation so temporary optimization settings cannot
-quietly persist into a later test.
+A policy change is tested against fixture assertions and a rendered workload annotation before one Deferred-mode sandbox canary. Production credentials and clusters never enter the local loop.
+
+## Error Handling
+
+| Failure                          | Response                                |
+| -------------------------------- | --------------------------------------- |
+| Tool versions float              | Pin them before comparing results       |
+| Render needs a real secret       | Replace it with a reference or sentinel |
+| Sandbox context is ambiguous     | Stop before any cluster command         |
+| Test requires production traffic | Redesign it around sanitized fixtures   |
 
 ## Resources
 
-- [CAST AI Terraform Provider](https://registry.terraform.io/providers/castai/castai/latest/docs)
-- [Autoscaler Policies](https://docs.cast.ai/docs/autoscaler-settings)
-- [Node Configuration](https://docs.cast.ai/docs/node-configuration)
-
-## Next Steps
-
-See `castai-sdk-patterns` for reusable API wrapper patterns.
+- [Development evidence and source notes](references/official-docs.md)
+- [Workload Autoscaler configuration](https://docs.cast.ai/docs/workload-autoscaling-configuration)
+- [Connect with castctl](https://docs.cast.ai/docs/connect-with-castctl)
+- [Autoscaler settings](https://docs.cast.ai/docs/autoscaler-settings)

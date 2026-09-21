@@ -1,139 +1,96 @@
 ---
 name: flyio-security-basics
-description: 'Apply Fly.io security best practices for secrets management, private
-  networking,
-
-  TLS certificates, and deploy token scoping.
-
-  Trigger: "fly.io security", "fly secrets", "fly.io TLS", "fly.io private network".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(fly:*)
-version: 1.7.0
+description: >-
+  Harden Fly.io tokens, deploy authority, App secrets, private networking, images, and operational evidence with least privilege. Use when establishing or reviewing platform security. Trigger with: "secure Fly app", "audit Fly tokens", "harden Fly private network".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[organization-app-and-environment]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- edge-compute
-- flyio
-compatibility: Designed for Claude Code
+  - saas
+  - flyio
+  - security
+  - least-privilege
+  - secrets
+compatibility: 'Requires named security and application owners, a Fly.io organization and app inventory, approved identity policy, and access to redacted configuration evidence.'
 ---
-# Fly.io Security Basics
+
+# Fly.io Identity, Secrets, and Network Baseline
 
 ## Overview
 
-Fly.io deploys applications to edge locations worldwide using Firecracker microVMs. Security concerns center on deploy token scoping (org-wide vs per-app), secrets management (encrypted at rest, injected as env vars), private networking via WireGuard mesh (6PN), and TLS certificate management. A leaked deploy token can push arbitrary code to production machines across all regions.
+Protect the control plane, deployed code, runtime secrets, images, network paths, and support evidence as one system. Scoped tokens reduce control-plane authority, but deploy access remains highly sensitive because new code can read secrets injected into Machines.
 
 ## Prerequisites
 
-- A named security owner, app/organization access inventory, secret-manager integration, and recurring access-review cadence.
-- Approved network, region, TLS, logging, and incident/revocation policies plus synthetic staging fixtures.
+- Human and workload identity inventory with owners and expiry policy
+- Apps, process groups, images, domains, certificates, private peers, and data flows
+- Incident, rotation, vulnerability, and access-review procedures
 
 ## Instructions
 
-1. Use app-scoped deploy tokens and separate identities per environment; never place tokens in code, tickets, terminal captures, or debug bundles.
-2. Restrict private services and secrets to the minimum set of machines and roles, with explicit network boundaries and access review.
-3. Verify incoming signed events before processing, log opaque IDs only, and make downstream actions idempotent.
-4. Monitor for unauthorized deployment, secret, region, or certificate changes and rotate/revoke credentials immediately after suspected exposure.
+### Step 1: Separate identity classes
+
+Distinguish interactive operators, app deploy automation, organization automation, read-only monitoring, SSH, Machine-exec, WireGuard, database, and external-service identities.
+
+### Step 2: Apply least privilege and expiry
+
+Use app deploy tokens for one app, read-only organization tokens for observation, and short-lived command or SSH tokens for bounded access. Review and revoke by token ID.
+
+### Step 3: Protect runtime secrets
+
+Store app values through Fly secrets, inspect only names and digests, stage changes when appropriate, and prevent deployed code, logs, crashes, and support bundles from exfiltrating values.
+
+### Step 4: Control code and images
+
+Require reviewed immutable images, dependency and vulnerability gates, provenance, protected production environments, release approval, and rollback. Treat image registry and build credentials separately.
+
+### Step 5: Protect network paths
+
+Map public services, certificates, 6PN, Flycast, WireGuard peers, outbound destinations, and application authentication. Private reachability does not imply trusted requests.
+
+### Step 6: Prove operations
+
+Exercise token rotation, emergency revocation, secret update, deploy rollback, access review, log redaction, and incident escalation with timestamped receipts.
+
+## Authentication
+
+Current guidance deprecates routine use of the all-powerful `fly auth token` output. Store scoped tokens in an approved secret manager and expose them only to the intended process. Never place tokens, secret values, WireGuard keys, or database URLs in source or evidence.
+
+## Tool Discipline
+
+Use Read and Grep to inspect application configuration, deployment evidence, provider documentation, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for an approved plan, configuration, implementation, test, or redacted receipt. Do not create, deploy, scale, restart, stop, suspend, destroy, rotate, revoke, expose, or migrate live Fly.io resources without explicit operator approval.
 
 ## Output
 
-Maintain a security receipt with identity scope, secret reference, policy version, access-review date, verification/rotation result, owner, and redacted incident state. Never include tokens, configuration secrets, or user data.
+- Identity and authority matrix with scope, owner, expiry, and review date
+- Secret, image, network, logging, and evidence control assessment
+- Prioritized remediation and tested rotation, revocation, rollback, and incident receipts
+
+Return the target organization, app, environment, region set, Machine or database identifiers, source-contract fingerprint, evidence, unresolved risks, rollback state, and final decision without exposing tokens, secrets, connection strings, or customer data.
 
 ## Examples
 
-Create a disposable staging app using a scoped token, attempt an unauthorized app operation, and verify it is denied. Rotate the token, confirm the old credential fails, and retain only the redacted policy and control outcome.
-
-## API Key Management
-
-```typescript
-function validateFlyToken(): void {
-  const token = process.env.FLY_API_TOKEN;
-  if (!token) {
-    throw new Error("Missing FLY_API_TOKEN — use `fly tokens create deploy -a <app>`");
-  }
-  // Never log tokens; log only token type for debugging
-  const isDeployToken = token.startsWith("FlyV1");
-  console.log("Fly.io token loaded, type:", isDeployToken ? "deploy" : "personal");
-}
-```
-
-## Webhook Signature Verification
-
-```typescript
-import crypto from "crypto";
-import { Request, Response, NextFunction } from "express";
-
-function verifyFlyWebhook(req: Request, res: Response, next: NextFunction): void {
-  const signature = req.headers["x-fly-signature"] as string;
-  const secret = process.env.FLY_WEBHOOK_SECRET!;
-  const expected = crypto.createHmac("sha256", secret).update(req.body).digest("hex");
-  if (!signature || !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
-    res.status(401).send("Invalid signature");
-    return;
-  }
-  next();
-}
-```
-
-## Input Validation
-
-```typescript
-import { z } from "zod";
-
-const FlyDeploySchema = z.object({
-  app_name: z.string().regex(/^[a-z0-9-]+$/).max(63),
-  region: z.enum(["iad", "ord", "lax", "sjc", "ams", "lhr", "nrt", "syd", "gru"]),
-  image: z.string().regex(/^registry\..+\/.+:.+$/),
-  vm_size: z.enum(["shared-cpu-1x", "shared-cpu-2x", "performance-1x", "performance-2x"]).optional(),
-  min_machines: z.number().int().min(0).max(20).optional(),
-});
-
-function validateDeployConfig(data: unknown) {
-  return FlyDeploySchema.parse(data);
-}
-```
-
-## Data Protection
-
-```typescript
-const FLY_SENSITIVE_FIELDS = ["fly_api_token", "deploy_token", "db_password", "wireguard_private_key", "tls_private_key"];
-
-function redactFlyLog(record: Record<string, unknown>): Record<string, unknown> {
-  const redacted = { ...record };
-  for (const field of FLY_SENSITIVE_FIELDS) {
-    if (field in redacted) redacted[field] = "[REDACTED]";
-  }
-  return redacted;
-}
-```
-
-## Security Checklist
-
-- [ ] All sensitive values in `fly secrets`, never in `[env]` section of fly.toml
-- [ ] Deploy tokens scoped per-app, not org-wide
-- [ ] `force_https = true` set in fly.toml `[http_service]`
-- [ ] Internal services use `.internal` DNS with no public ports
-- [ ] WireGuard keys rotated and unused tunnels removed
-- [ ] Secrets rotated on schedule (triggers rolling restart)
-- [ ] CI/CD uses deploy-scoped tokens, not personal tokens
-- [ ] Container images scanned before deployment
+A production app has one expiring app deploy token, a separate read-only monitoring token, short-lived Machine-exec access for migrations, protected image promotion, named WireGuard peers, and a quarterly drill that revokes and replaces each automation credential.
 
 ## Error Handling
 
-| Vulnerability | Risk | Mitigation |
-|---|---|---|
-| Leaked deploy token | Arbitrary code deployed to production | Per-app scoped tokens + rotation |
-| Secrets in fly.toml `[env]` | Plaintext credentials in version control | Use `fly secrets set` exclusively |
-| Open internal ports | Services exposed to public internet | `.internal` DNS + NetworkPolicy |
-| Org-wide token in CI | All apps in org compromised via CI breach | Deploy-scoped tokens per pipeline |
-| Expired TLS certificates | MITM attacks on custom domains | Automated Let's Encrypt renewal |
+| Failure | Response |
+| --- | --- |
+| Unknown or ownerless token | Revoke after dependency review or assign owner and expiry immediately; do not leave indefinite authority. |
+| Secret appears in logs or evidence | Contain access, rotate the secret, sanitize retained artifacts, and investigate deployed code and pipeline output. |
+| Private service lacks app authentication | Add workload authentication and authorization; 6PN reachability is not an identity decision. |
 
 ## Resources
 
-- [Fly Secrets](https://fly.io/docs/reference/secrets/)
-- [OWASP API Security Top 10](https://owasp.org/www-project-api-security/)
-
-## Next Steps
-
-See `flyio-prod-checklist`.
+- [First-party source notes](references/official-docs.md)
+- [Machines API setup](https://fly.io/docs/machines/api/working-with-machines-api/)
+- [Automation and tokens](https://fly.io/docs/flyctl/integrating/)
+- [App configuration](https://fly.io/docs/reference/configuration/)
+- [Access tokens](https://fly.io/docs/security/tokens/)
+- [App secrets](https://fly.io/docs/apps/secrets/)
+- [Private networking](https://fly.io/docs/networking/private-networking/)
+- [Health checks](https://fly.io/docs/reference/health-checks/)

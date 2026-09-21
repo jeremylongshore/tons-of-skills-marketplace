@@ -1,205 +1,90 @@
 ---
 name: clari-core-workflow-a
-description: 'Build a Clari forecast export pipeline to your data warehouse.
-
-  Use when exporting forecast calls, quota data, and CRM totals
-
-  from Clari to Snowflake, BigQuery, or a local database.
-
-  Trigger with phrases like "clari forecast export", "clari data pipeline",
-
-  "clari to snowflake", "clari to bigquery", "export clari data".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(python3:*), Bash(curl:*), Grep
-version: 1.6.0
+description: >-
+  Build a Clari forecast-export pipeline with reconciliation, schema controls, and warehouse lineage. Use when loading forecasts, quotas, adjustments, or CRM totals. Trigger with: "export Clari forecasts", "load Clari into the warehouse", "build a forecast pipeline".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[forecast-id-period-scope-and-warehouse]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- revenue-intelligence
-- forecasting
-- clari
-compatibility: Designed for Claude Code
+  - saas
+  - clari
+  - forecast
+  - warehouse
+  - data-pipeline
+compatibility: 'Requires Revenue API export entitlement, an existing Forecast Tab, an approved warehouse target, and governed handling of revenue data.'
 ---
-# Clari Core Workflow: Forecast Export Pipeline
+
+# Clari Forecast Warehouse Pipeline
 
 ## Overview
 
-Primary workflow: build an automated pipeline that exports forecast submissions, quota, adjustments, and CRM data from Clari to your data warehouse. Supports Snowflake, BigQuery, and PostgreSQL as targets.
+Move forecast data through a three-stage pipeline: immutable landing, validated normalization, and reconciled publication. Preserve Clari identifiers and export context so every dashboard value can be traced back to one job and request.
 
 ## Prerequisites
 
-- Completed `clari-install-auth` and `clari-sdk-patterns` setup
-- Target database or data warehouse with write access
-- Python 3.10+ with `requests` and your DB driver
+- Forecast ID, hierarchy scope, fiscal-period convention, and requested data types
+- Landing storage with encryption, retention, and access controls
+- Warehouse schema owner and reconciliation tolerances
 
 ## Instructions
 
-### Step 1: Define Export Configuration
+### Step 1: Define the snapshot key
 
-```python
-# config.py
-from dataclasses import dataclass
+Use forecast ID, requested time period, scope, currency, data types, and export timestamp as the immutable business key.
 
-@dataclass
-class ExportConfig:
-    forecast_name: str          # From Clari forecast list
-    time_periods: list[str]     # e.g., ["2026_Q1", "2025_Q4"]
-    export_types: list[str] = None
-    currency: str = "USD"
-    include_historical: bool = True
+### Step 2: Reserve export capacity
 
-    def __post_init__(self):
-        if self.export_types is None:
-            self.export_types = [
-                "forecast",           # Submitted forecast call
-                "forecast_updated",   # Updated forecast history
-                "quota",              # Quota values
-                "adjustment",         # Manager adjustments
-                "crm_total",          # Total CRM pipeline
-                "crm_closed",         # Closed-won CRM amounts
-            ]
-```
+Read organization limits and ensure the scheduler will not exceed concurrent or rolling quota constraints.
 
-### Step 2: Build the Export Pipeline
+### Step 3: Run the asynchronous export
 
-```python
-# export_pipeline.py
-from clari_client import ClariClient
-from config import ExportConfig
-import json
-from datetime import datetime
+Queue the forecast job, poll boundedly to a terminal state, and retrieve the result only after `DONE`.
 
-def run_export(config: ExportConfig) -> list[dict]:
-    client = ClariClient()
-    all_entries = []
+### Step 4: Land before transforming
 
-    for period in config.time_periods:
-        print(f"Exporting {config.forecast_name} for {period}...")
+Write the original approved result to immutable, access-controlled storage with job ID, content hash, contract fingerprint, and ingestion timestamp.
 
-        data = client.export_and_download(
-            forecast_name=config.forecast_name,
-            time_period=period,
-        )
+### Step 5: Normalize and reconcile
 
-        entries = data.get("entries", [])
-        for entry in entries:
-            entry["_exported_at"] = datetime.utcnow().isoformat()
-            entry["_forecast_name"] = config.forecast_name
+Map fields into versioned tables, preserve raw identifiers, check row counts and totals, and quarantine unknown fields or malformed monetary values.
 
-        all_entries.extend(entries)
-        print(f"  {len(entries)} records exported")
+### Step 6: Publish atomically
 
-    return all_entries
+Expose the new snapshot only after reconciliation passes; otherwise keep the prior known-good snapshot and emit an actionable failure receipt.
 
-def transform_forecast_data(entries: list[dict]) -> dict:
-    total_forecast = sum(e.get("forecastAmount", 0) for e in entries)
-    total_quota = sum(e.get("quotaAmount", 0) for e in entries)
-    total_closed = sum(e.get("crmClosed", 0) for e in entries)
+## Authentication
 
-    return {
-        "total_forecast": total_forecast,
-        "total_quota": total_quota,
-        "total_closed": total_closed,
-        "attainment_percent": (total_closed / total_quota * 100) if total_quota else 0,
-        "coverage_ratio": (total_forecast / total_quota) if total_quota else 0,
-        "rep_count": len(entries),
-        "reps": entries,
-    }
-```
+Use a dedicated Revenue API integration identity and `apikey` header. Warehouse credentials must be separate from the Clari token, and logs must exclude both secrets and raw forecast values.
 
-### Step 3: Load to Snowflake
+## Tool Discipline
 
-```python
-# load_snowflake.py
-import snowflake.connector
-
-def load_to_snowflake(entries: list[dict], table: str = "CLARI_FORECASTS"):
-    conn = snowflake.connector.connect(
-        account=os.environ["SNOWFLAKE_ACCOUNT"],
-        user=os.environ["SNOWFLAKE_USER"],
-        password=os.environ["SNOWFLAKE_PASSWORD"],
-        database="REVENUE_DATA",
-        schema="CLARI",
-    )
-
-    cursor = conn.cursor()
-    cursor.execute(f"""
-        CREATE TABLE IF NOT EXISTS {table} (
-            owner_name VARCHAR,
-            owner_email VARCHAR,
-            forecast_amount FLOAT,
-            quota_amount FLOAT,
-            crm_total FLOAT,
-            crm_closed FLOAT,
-            adjustment_amount FLOAT,
-            time_period VARCHAR,
-            exported_at TIMESTAMP,
-            forecast_name VARCHAR
-        )
-    """)
-
-    for entry in entries:
-        cursor.execute(f"""
-            INSERT INTO {table} VALUES (
-                %(ownerName)s, %(ownerEmail)s, %(forecastAmount)s,
-                %(quotaAmount)s, %(crmTotal)s, %(crmClosed)s,
-                %(adjustmentAmount)s, %(timePeriod)s,
-                %(_exported_at)s, %(_forecast_name)s
-            )
-        """, entry)
-
-    conn.commit()
-    print(f"Loaded {len(entries)} records to {table}")
-```
-
-### Step 4: Schedule with Cron or Airflow
-
-```python
-# Run daily export
-if __name__ == "__main__":
-    config = ExportConfig(
-        forecast_name="company_forecast",
-        time_periods=["2026_Q1"],
-    )
-    entries = run_export(config)
-    summary = transform_forecast_data(entries)
-    print(f"Pipeline complete: {summary['rep_count']} reps, "
-          f"${summary['total_forecast']:,.0f} forecast, "
-          f"{summary['attainment_percent']:.1f}% attainment")
-    load_to_snowflake(entries)
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Empty entries | No submitted forecasts for period | Verify period has data in Clari UI |
-| Job timeout | Large export | Increase `max_poll_attempts` |
-| Snowflake auth error | Wrong credentials | Check env vars |
-| Duplicate records | Re-run without dedup | Add upsert logic with `MERGE` |
+Use Read and Grep to inspect configuration, provider contracts, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not issue, rotate, revoke, create, update, cancel, delete, export, ingest, or publish provider data without explicit operator approval.
 
 ## Output
 
-Produce a redacted export manifest containing forecast name, approved period,
-source job ID, record count, transformation version, warehouse load result,
-and freshness timestamp. Preserve row-level access controls and do not expose
-individual quota, forecast, or owner data in logs or general-purpose reports.
+- Immutable landing manifest tied to the Clari job ID
+- Versioned normalized tables with lineage and schema checks
+- Reconciliation report and atomic publish or rollback decision
+
+Return the exact surface, environment, resource or job identifiers, contract fingerprint, evidence, unresolved risks, and final decision without exposing credentials or sensitive customer data.
 
 ## Examples
 
-Run a daily export for one staging forecast period, validate that the returned
-period and record count match the source, then load through an idempotent
-`MERGE`. If the export has no entries or the load is partial, mark the run
-failed, keep the previous certified dataset unchanged, and notify the data
-owner with the job ID.
+A quarterly forecast export lands as an immutable object, normalizes forecast and quota rows, reconciles counts and totals against the landing file, and advances the dashboard view only after all gates pass.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Export is empty | Verify period, scope, data types, hierarchy access, and Forecast Tab configuration before publishing. |
+| Schema adds an unknown field | Quarantine the snapshot, classify the field, and version the mapping before retrying publication. |
+| Warehouse load partially succeeds | Rollback the staging transaction and retain the prior published snapshot. |
 
 ## Resources
 
-- [Clari Export API](https://developer.clari.com/documentation/external_spec)
-- Snowflake Python Connector
-
-## Next Steps
-
-For pipeline analytics and deal inspection, see `clari-core-workflow-b`.
+- [First-party source notes](references/official-docs.md)
+- [Clari Revenue API reference](https://developer.clari.com/default/documentation/external_spec)

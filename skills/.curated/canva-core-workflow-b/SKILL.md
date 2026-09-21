@@ -1,273 +1,88 @@
 ---
 name: canva-core-workflow-b
-description: 'Execute Canva asset management, brand template autofill, and folder
-  organization.
-
-  Use when uploading assets, autofilling brand templates with dynamic data,
-
-  or organizing designs into folders via the Connect API.
-
-  Trigger with phrases like "canva assets", "canva brand template",
-
-  "canva autofill", "canva folders", "canva upload image".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.5.0
+description: 'Operate Canva assets, brand-template autofill, and folders with explicit rights and asynchronous reconciliation. Use when performing uploads, dataset validation, autofill jobs, or folder changes. Trigger with: "upload Canva asset", "autofill brand template", "manage Canva folder".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[asset-template-or-folder-operation]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - assets
+  - operations
+compatibility: 'Requires operation-specific scopes, resource rights, current feature availability, and an approved asset/data classification.'
 ---
-# Canva Core Workflow B — Assets, Autofill & Folders
+
+# Canva Asset, Autofill, and Folder Workflow
 
 ## Overview
 
-Secondary workflow: upload assets to Canva, autofill brand templates with dynamic data (text, images, charts), and organize content with folders. Autofill requires a Canva Enterprise organization.
+Treat asset upload, dataset discovery, autofill, and folder mutation as separate authorization domains. Re-read schemas and reconcile asynchronous jobs rather than assuming old fields or completion.
 
 ## Prerequisites
 
-- Completed `canva-install-auth` with valid access token
-- Scopes: `asset:read`, `asset:write`, `brandtemplate:meta:read`, `brandtemplate:content:read`, `design:content:write`, `folder:read`, `folder:write`
+- Authorized owner, tenant, operation, and destination
+- Explicit asset, design, brand-template, or folder scopes
+- Approved file rights, data classification, and cleanup policy
 
 ## Instructions
 
-1. Authorize the caller, tenant, template/asset rights, data class, and destination before any upload, autofill, or folder mutation.
-2. Validate input files and template data, use a durable idempotency key, and process one bounded approved job at a time.
-3. Store generated assets in encrypted expiry-controlled storage and reconcile the authorized job before retrying.
+### Step 1: Choose one operation
 
-## Asset Management
+Identify upload, asset metadata change, template dataset read, autofill, or folder mutation. Do not bundle unrelated writes into one approval.
 
-### Upload an Asset (Binary)
+### Step 2: Validate rights and input
 
-```typescript
-// POST https://api.canva.com/rest/v1/asset-uploads
-// Rate limit: 30 req/min per user
-// Scope: asset:write
-// Content-Type: application/octet-stream
+Confirm resource ownership, file type/size against the current endpoint, malware policy, template availability, and every requested explicit scope.
 
-import { readFileSync } from 'fs';
+### Step 3: Submit upload safely
 
-async function uploadAsset(
-  filePath: string,
-  name: string,
-  token: string
-): Promise<{ id: string; status: string }> {
-  // Asset name must be Base64-encoded, max 50 chars unencoded
-  const nameBase64 = Buffer.from(name).toString('base64');
-  const fileData = readFileSync(filePath);
+For binary or URL upload, record the operation and job ID, avoid logging source URLs or content, and poll the corresponding existing job.
 
-  const res = await fetch('https://api.canva.com/rest/v1/asset-uploads', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/octet-stream',
-      'Asset-Upload-Metadata': JSON.stringify({ name_base64: nameBase64 }),
-    },
-    body: fileData,
-  });
+### Step 4: Refresh the dataset
 
-  if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
-  return res.json();
-}
+Read the current template or design dataset immediately before autofill. Reject unknown required fields and disclose that nonexistent field names may be skipped.
 
-// Upload returns a job — poll for asset ID
-const uploadJob = await uploadAsset('./hero-banner.png', 'Hero Banner Q1', token);
-```
+### Step 5: Run autofill deliberately
 
-### Upload an Asset via URL
+Confirm current entitlement and preview status, validate each data value, submit once, and reconcile the job before exposing the resulting design.
 
-```typescript
-// POST https://api.canva.com/rest/v1/url-asset-uploads
-// Rate limit: 30 req/min per user
+### Step 6: Apply folder mutation
 
-const { job } = await canvaAPI('/url-asset-uploads', token, {
-  method: 'POST',
-  body: JSON.stringify({
-    name: 'Product Photo',
-    url: 'https://example.com/images/product-shot.jpg',
-  }),
-});
-// Poll GET /v1/url-asset-uploads/{jobId} for completion
-```
+Validate source/destination authorization and expected current state, make one bounded change, then read back metadata and record rollback.
 
-### Get, Update, Delete Assets
+## Authentication
 
-```typescript
-// GET /v1/assets/{assetId} — scope: asset:read
-const asset = await canvaAPI(`/assets/${assetId}`, token);
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-// PATCH /v1/assets/{assetId} — scope: asset:write
-await canvaAPI(`/assets/${assetId}`, token, {
-  method: 'PATCH',
-  body: JSON.stringify({ name: 'Updated Name', tags: ['brand', 'q1'] }),
-});
+## Tool Discipline
 
-// DELETE /v1/assets/{assetId} — scope: asset:write
-await canvaAPI(`/assets/${assetId}`, token, { method: 'DELETE' });
-```
-
-## Brand Template Autofill
-
-### Step 1: List Available Brand Templates
-
-```typescript
-// GET https://api.canva.com/rest/v1/brand-templates
-// Rate limit: 100 req/min per user
-// Scope: brandtemplate:meta:read
-// Requires: Canva Enterprise organization
-
-const templates = await canvaAPI('/brand-templates', token);
-
-for (const tmpl of templates.items) {
-  console.log(`${tmpl.title} — ID: ${tmpl.id}`);
-}
-```
-
-### Step 2: Get Template Dataset (Autofillable Fields)
-
-```typescript
-// GET https://api.canva.com/rest/v1/brand-templates/{templateId}/dataset
-// Scope: brandtemplate:content:read
-
-const { dataset } = await canvaAPI(
-  `/brand-templates/${templateId}/dataset`, token
-);
-
-// dataset is a map of field_name → { type: 'text' | 'image' }
-for (const [field, config] of Object.entries(dataset)) {
-  console.log(`Field: ${field}, Type: ${config.type}`);
-}
-// Example output:
-// Field: headline, Type: text
-// Field: hero_image, Type: image
-// Field: price, Type: text
-```
-
-### Step 3: Create Design from Template via Autofill
-
-```typescript
-// POST https://api.canva.com/rest/v1/autofills
-// Rate limit: 60 req/min per user
-// Scope: design:content:write
-
-const { job } = await canvaAPI('/autofills', token, {
-  method: 'POST',
-  body: JSON.stringify({
-    brand_template_id: templateId,
-    title: 'March Newsletter — Generated',
-    data: {
-      headline: {
-        type: 'text',
-        text: 'Spring Collection Is Here',
-      },
-      hero_image: {
-        type: 'image',
-        asset_id: uploadedAssetId,  // From asset upload step
-      },
-      price: {
-        type: 'text',
-        text: '$29.99',
-      },
-    },
-  }),
-});
-
-// Poll for completion — GET /v1/autofills/{jobId}
-let autofillJob = job;
-while (autofillJob.status === 'in_progress') {
-  await new Promise(r => setTimeout(r, 2000));
-  const poll = await canvaAPI(`/autofills/${autofillJob.id}`, token);
-  autofillJob = poll.job;
-}
-
-if (autofillJob.status === 'success') {
-  const newDesign = autofillJob.result.design;
-  console.log(`Autofilled design: ${newDesign.id}`);
-  console.log(`Edit: ${newDesign.urls.edit_url}`);
-}
-```
-
-### Autofill with Chart Data
-
-```typescript
-const { job } = await canvaAPI('/autofills', token, {
-  method: 'POST',
-  body: JSON.stringify({
-    brand_template_id: templateId,
-    title: 'Q1 Report',
-    data: {
-      sales_chart: {
-        type: 'chart',
-        chart_data: {
-          rows: [
-            { cells: [{ type: 'string', value: 'Jan' }, { type: 'number', value: 45000 }] },
-            { cells: [{ type: 'string', value: 'Feb' }, { type: 'number', value: 52000 }] },
-            { cells: [{ type: 'string', value: 'Mar' }, { type: 'number', value: 61000 }] },
-          ],
-        },
-      },
-    },
-  }),
-});
-// Chart data: max 100 rows, 20 columns per row
-```
-
-## Folder Management
-
-```typescript
-// Create a folder — POST /v1/folders, scope: folder:write, 20 req/min
-const { folder } = await canvaAPI('/folders', token, {
-  method: 'POST',
-  body: JSON.stringify({
-    name: 'Q1 Campaign Assets',     // 1-255 chars
-    parent_folder_id: 'root',       // "root" | "uploads" | folder ID
-  }),
-});
-console.log(`Folder created: ${folder.id}`);
-
-// List folder contents — GET /v1/folders/{folderId}/items, scope: folder:read
-const items = await canvaAPI(`/folders/${folder.id}/items`, token);
-
-// Move item to folder — PATCH /v1/folders/move, scope: folder:write
-await canvaAPI('/folders/move', token, {
-  method: 'PATCH',
-  body: JSON.stringify({
-    item_id: designId,
-    to_folder_id: folder.id,
-  }),
-});
-```
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-The workflow returns validated asset/autofill/folder references and a redacted operation receipt. It does not log OAuth data, template contents, uploaded files, signed URLs, or user identity data.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-For an approved autofill, use a synthetic or authorized template, validate the input schema and rights, create an idempotent job, and keep the generated design in protected expiry-controlled storage. Stop if entitlement, template scope, output destination, or data classification differs from the approved request.
+An approved campaign asset is uploaded, a current brand-template dataset is fetched, authorized fields are autofilled, and the resulting design is moved only after each job and ownership check succeeds.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| 400 `Design title invalid` | Title empty or > 255 chars | Validate input |
-| 403 Forbidden | Not Enterprise org (autofill) | Requires Canva Enterprise |
-| 404 Not Found | Template ID doesn't exist | Verify template ID |
-| `file_too_big` | Asset exceeds size limit | Compress or resize |
-| `import_failed` | Unsupported file format | Check supported formats |
-| `autofill_error` | Field name mismatch | Check dataset first |
+| Failure | Response |
+| --- | --- |
+| Dataset changed | Stop and revalidate input mapping |
+| Upload job failed | Correct the documented cause before resubmitting |
+| Autofill unavailable | Do not suggest a plan upgrade; report current capability evidence |
+| Folder state diverged | Stop further moves and reconcile ownership |
 
 ## Resources
 
-- [Assets API](https://www.canva.dev/docs/connect/api-reference/assets/)
-- [Brand Templates API](https://www.canva.dev/docs/connect/api-reference/brand-templates/)
-- [Autofill Guide](https://www.canva.dev/docs/connect/autofill-guide/)
-- [Folders API](https://www.canva.dev/docs/connect/api-reference/folders/)
-
-## Next Steps
-
-For common errors, see `canva-common-errors`.
+- [First-party source notes](references/official-docs.md)
+- [Asset APIs](https://www.canva.dev/docs/connect/api-reference/assets/)
+- [Autofill guide](https://www.canva.dev/docs/connect/autofill-guide/)

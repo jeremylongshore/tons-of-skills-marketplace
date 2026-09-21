@@ -1,300 +1,79 @@
 ---
 name: salesforce-sdk-patterns
-description: 'Apply production-ready Salesforce jsforce patterns for TypeScript and
-  Python.
-
-  Use when implementing Salesforce integrations, refactoring SDK usage,
-
-  or establishing team coding standards for Salesforce.
-
-  Trigger with phrases like "salesforce SDK patterns", "jsforce best practices",
-
-  "salesforce code patterns", "idiomatic salesforce", "salesforce typescript".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Build a version-negotiated Salesforce adapter around the customer-selected CLI or client library with typed boundaries and contract tests. Use when standardizing application access. Trigger with "design a Salesforce adapter".'
+argument-hint: "[repository] [adapter-path]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- crm
-- salesforce
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, salesforce, adapter, sdk, typescript]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; dependency changes and live API probes require application owner and Salesforce admin approval
 ---
-# Salesforce SDK Patterns
+# Salesforce Typed Adapter and Client-Library Boundary
 
 ## Overview
 
-Production-ready patterns for jsforce (Node.js) and simple-salesforce (Python) — singleton connections, typed queries, error handling, and token refresh.
+Contain library churn and org-specific schema behind a small adapter whose types, API version, permissions, retries, and evidence are explicit.
 
 ## Prerequisites
 
-- Completed `salesforce-install-auth` setup
-- Familiarity with async/await and TypeScript generics
-- Understanding of Salesforce sObject model
+- Repository, runtime, supported environments, and selected Salesforce library or CLI
+- Current dependency lock, org schema evidence, API support policy, and error samples
+- Application, Salesforce platform, security, and data owners
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect approved repository and evidence files, `WebFetch` to re-check current first-party Salesforce documentation, and `Write` or `Edit` only for secretless plans, fixtures, configuration, and redacted receipts.
+
+## Current Contract
+
+Salesforce publishes versioned API contracts, while third-party client libraries have independent release and support policies. Object and field shapes remain customer-specific, so generated or handwritten types must be tied to dated metadata evidence.
+
+## Authentication
+
+Accept an authenticated client or secret reference from the approved authorization layer. The adapter must not invent a password fallback, persist tokens, broaden scopes, or choose a production org implicitly.
 
 ## Instructions
 
-### Step 1: Singleton Connection with Auto-Refresh
+1. Inventory direct Salesforce calls, library versions, API versions, objects, fields, mutations, retries, and error handling.
+2. Define a narrow adapter interface for identity, metadata discovery, reads, bounded writes, async jobs, and limits.
+3. Bind types to dated object metadata or a governed schema snapshot and label nullable, encrypted, formula, and inaccessible fields.
+4. Centralize pagination, request IDs, timeouts, idempotency keys or external IDs, error normalization, and redaction.
+5. Add contract fixtures for success, partial failure, token expiry, permission denial, schema drift, limits, and timeouts.
+6. Test the adapter without a live org, then run approved read-only and sandbox mutation probes.
+7. Migrate callers incrementally and retain a reversible compatibility boundary until evidence is complete.
 
-```typescript
-// src/salesforce/connection.ts
-import jsforce from 'jsforce';
+## Approval Boundaries
 
-let conn: jsforce.Connection | null = null;
-
-export async function getConnection(): Promise<jsforce.Connection> {
-  if (conn?.accessToken) {
-    // Test if token is still valid
-    try {
-      await conn.identity();
-      return conn;
-    } catch {
-      conn = null; // Token expired, reconnect
-    }
-  }
-
-  conn = new jsforce.Connection({
-    loginUrl: process.env.SF_LOGIN_URL || 'https://login.salesforce.com',
-    version: '59.0', // Pin API version for stability
-  });
-
-  await conn.login(
-    process.env.SF_USERNAME!,
-    process.env.SF_PASSWORD! + process.env.SF_SECURITY_TOKEN!
-  );
-
-  return conn;
-}
-```
-
-### Step 2: Typed sObject Interfaces
-
-```typescript
-// src/salesforce/types.ts
-
-/** Standard Salesforce sObject base fields */
-interface SObjectBase {
-  Id: string;
-  CreatedDate: string;
-  LastModifiedDate: string;
-  SystemModstamp: string;
-  IsDeleted: boolean;
-}
-
-export interface Account extends SObjectBase {
-  Name: string;
-  Industry?: string;
-  AnnualRevenue?: number;
-  NumberOfEmployees?: number;
-  Website?: string;
-  Phone?: string;
-  BillingCity?: string;
-  BillingState?: string;
-  OwnerId: string;
-}
-
-export interface Contact extends SObjectBase {
-  FirstName?: string;
-  LastName: string;
-  Email?: string;
-  Phone?: string;
-  AccountId?: string;
-  Title?: string;
-  Department?: string;
-}
-
-export interface Opportunity extends SObjectBase {
-  Name: string;
-  Amount?: number;
-  StageName: string;
-  CloseDate: string;
-  AccountId?: string;
-  Probability?: number;
-  ForecastCategory?: string;
-}
-
-export interface Lead extends SObjectBase {
-  FirstName?: string;
-  LastName: string;
-  Company: string;
-  Email?: string;
-  Status: string;
-  IsConverted: boolean;
-}
-```
-
-### Step 3: Type-Safe Query Builder
-
-```typescript
-// src/salesforce/queries.ts
-import { getConnection } from './connection';
-import type { Account, Contact, Opportunity } from './types';
-
-export async function queryAccounts(
-  filters?: { industry?: string; minRevenue?: number }
-): Promise<Account[]> {
-  const conn = await getConnection();
-
-  let soql = `
-    SELECT Id, Name, Industry, AnnualRevenue, NumberOfEmployees,
-           Website, Phone, BillingCity, BillingState, OwnerId
-    FROM Account
-  `;
-
-  const conditions: string[] = [];
-  if (filters?.industry) {
-    conditions.push(`Industry = '${filters.industry.replace(/'/g, "\\'")}'`);
-  }
-  if (filters?.minRevenue) {
-    conditions.push(`AnnualRevenue >= ${filters.minRevenue}`);
-  }
-
-  if (conditions.length > 0) {
-    soql += ` WHERE ${conditions.join(' AND ')}`;
-  }
-
-  soql += ' ORDER BY Name ASC LIMIT 200';
-
-  const result = await conn.query<Account>(soql);
-  return result.records;
-}
-
-export async function queryContactsByAccount(
-  accountId: string
-): Promise<Contact[]> {
-  const conn = await getConnection();
-  const result = await conn.query<Contact>(
-    `SELECT Id, FirstName, LastName, Email, Phone, Title, Department
-     FROM Contact
-     WHERE AccountId = '${accountId}'
-     ORDER BY LastName ASC`
-  );
-  return result.records;
-}
-
-export async function queryOpenOpportunities(): Promise<Opportunity[]> {
-  const conn = await getConnection();
-  const result = await conn.query<Opportunity>(
-    `SELECT Id, Name, Amount, StageName, CloseDate, AccountId, Probability
-     FROM Opportunity
-     WHERE IsClosed = false AND CloseDate >= TODAY
-     ORDER BY CloseDate ASC`
-  );
-  return result.records;
-}
-```
-
-### Step 4: Error Handling Wrapper
-
-```typescript
-// src/salesforce/errors.ts
-export class SalesforceError extends Error {
-  constructor(
-    message: string,
-    public readonly errorCode: string,
-    public readonly statusCode?: number,
-    public readonly fields?: string[]
-  ) {
-    super(message);
-    this.name = 'SalesforceError';
-  }
-}
-
-export async function safeSfCall<T>(
-  operation: () => Promise<T>,
-  context?: string
-): Promise<T> {
-  try {
-    return await operation();
-  } catch (err: any) {
-    const errorCode = err.errorCode || err.name || 'UNKNOWN_ERROR';
-    const fields = err.fields || [];
-
-    // Map Salesforce error codes to actionable messages
-    const messages: Record<string, string> = {
-      'INVALID_FIELD': `Invalid field name in query. Fields: ${fields.join(', ')}`,
-      'MALFORMED_QUERY': 'SOQL syntax error — check field names and WHERE clause',
-      'INVALID_TYPE': 'sObject type does not exist — use API names like Account, not Accounts',
-      'INSUFFICIENT_ACCESS_OR_READONLY': 'User lacks permission for this operation',
-      'ENTITY_IS_DELETED': 'Record has been deleted — check Recycle Bin',
-      'DUPLICATE_VALUE': 'Duplicate external ID or unique field value',
-      'FIELD_INTEGRITY_EXCEPTION': 'Field validation rule failed',
-      'STRING_TOO_LONG': 'Field value exceeds max length',
-      'REQUEST_LIMIT_EXCEEDED': 'Daily API limit exhausted — check org limits',
-    };
-
-    throw new SalesforceError(
-      messages[errorCode] || err.message || 'Unknown Salesforce error',
-      errorCode,
-      err.statusCode,
-      fields
-    );
-  }
-}
-```
-
-### Step 5: Retry Logic for Transient Errors
-
-```typescript
-const RETRYABLE_ERRORS = [
-  'REQUEST_LIMIT_EXCEEDED',
-  'SERVER_UNAVAILABLE',
-  'UNABLE_TO_LOCK_ROW',
-];
-
-export async function withRetry<T>(
-  operation: () => Promise<T>,
-  maxRetries = 3,
-  baseDelayMs = 1000
-): Promise<T> {
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      return await operation();
-    } catch (err: any) {
-      const errorCode = err.errorCode || err.name;
-      if (attempt === maxRetries || !RETRYABLE_ERRORS.includes(errorCode)) {
-        throw err;
-      }
-      const delay = baseDelayMs * Math.pow(2, attempt - 1);
-      console.warn(`Retryable error ${errorCode}, attempt ${attempt}/${maxRetries}, waiting ${delay}ms`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error('Unreachable');
-}
-```
+Do not upgrade dependencies, change API versions, regenerate broad schemas, or perform live writes without code owner, platform owner, and data owner approval.
 
 ## Output
 
-- Type-safe jsforce connection singleton with auto-refresh
-- Typed sObject interfaces for Account, Contact, Opportunity, Lead
-- SOQL query builders with parameterized filters
-- Error handling mapped to Salesforce error codes
-- Retry logic for transient failures
+Return the adapter contract, dependency and API matrix, schema provenance, fixture coverage, migration plan, live probe receipt, and rollback boundary.
 
 ## Error Handling
 
-| Pattern | Use Case | Benefit |
-|---------|----------|---------|
-| `safeSfCall()` wrapper | All API calls | Maps error codes to human messages |
-| `withRetry()` | Transient failures (`UNABLE_TO_LOCK_ROW`) | Automatic recovery |
-| Typed queries | All SOQL | Catches field mismatches at compile time |
-| Token refresh | Long-running processes | Prevents session expiration |
+| Condition | Response |
+|---|---|
+| Library behavior differs from Salesforce documentation | Pin the discrepancy, reproduce at the raw API boundary, and escalate upstream before broad rollout. |
+| Schema snapshot is stale | Block generated-type use until metadata is refreshed and reviewed. |
+| Caller bypasses the adapter | Fail the policy check or document a time-bounded exception with an owner. |
 
-## Examples
+## Example
 
-### Query safely with a typed, parameterized filter
+A redacted completion receipt might look like this:
 
-Define the fields required by the workflow, construct the SOQL condition from validated inputs or bind parameters where available, and run the query through a wrapper that maps retryable API errors separately from authorization failures. Test with synthetic values containing quotes and wildcard characters to ensure they cannot alter query structure. Log query timing and result count only, avoiding raw filter values or sObject fields unless an approved redaction rule applies.
+```text
+adapter=SalesforceGateway; api=discovered-supported; schema=dated; fixtures=8; sandbox-write=approved-pass; bypasses=0
+```
 
 ## Resources
 
-- [jsforce API Reference](https://jsforce.github.io/document/)
-- [Salesforce Error Codes](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_calls_concepts_core_data_objects.htm)
-- [SOQL Reference](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql.htm)
+- [Salesforce REST API EOL policy](https://developer.salesforce.com/docs/platform/api-rest/guide/api-rest-eol.html)
+- [REST API resources](https://developer.salesforce.com/docs/platform/api-rest/guide/resources-list.html)
 
 ## Next Steps
 
-Apply patterns in `salesforce-core-workflow-a` for CRUD operations at scale.
+Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.

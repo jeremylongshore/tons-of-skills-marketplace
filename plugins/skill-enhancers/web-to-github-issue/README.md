@@ -3,7 +3,7 @@
 > **Skill Enhancer Plugin**: Converts Claude's web research into actionable GitHub issues
 
 [![Category](https://img.shields.io/badge/category-skill--enhancers-blueviolet)](https://tonsofskills.com)
-[![Enhances](https://img.shields.io/badge/enhances-web__search-blue)](https://docs.anthropic.com/claude/docs/skills)
+[![Enhances](https://img.shields.io/badge/enhances-web__search-blue)](https://code.claude.com/docs/en/skills)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ## ✨ What It Does

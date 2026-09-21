@@ -1,170 +1,76 @@
 ---
 name: brightdata-upgrade-migration
-description: 'Analyze, plan, and execute Bright Data SDK upgrades with breaking change
-  detection.
-
-  Use when upgrading Bright Data SDK versions, detecting deprecations,
-
-  or migrating to new API versions.
-
-  Trigger with phrases like "upgrade brightdata", "brightdata migration",
-
-  "brightdata breaking changes", "update brightdata SDK", "analyze brightdata version".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(git:*)
-version: 1.6.0
+description: 'Migrate Bright Data SDK, API, product, or response-header contracts with fixture evidence and a reversible canary. Use when upgrading the Python SDK, moving dataset endpoints, renaming Scraping Browser to Browser API, or removing legacy headers. Trigger with: "upgrade Bright Data", "migrate x-luminati headers", "change a Bright Data API contract".'
+allowed-tools: Read, Grep, Write, Edit, Bash(python:*)
+version: 2.0.0
+argument-hint: "[current-to-target-contract]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
-- scraping
-- data
-- brightdata
-compatibility: Designed for Claude Code
+- web-data
+- bright-data
+- upgrade-migration
+- operations
+compatibility: 'Requires an approved Bright Data account or offline fixtures, current Bright Data documentation, and an authorized public-data collection purpose'
 ---
-# Bright Data Upgrade & Migration
+# Bright Data Contract Migration
 
 ## Overview
 
-Guide for migrating between Bright Data products, API versions, and zone configurations. Since Bright Data uses proxy protocols and REST APIs (not versioned SDKs), migrations typically involve changing zone types, proxy endpoints, or API payload formats.
+Inventory the exact current behavior before changing dependencies or products. Treat an SDK update, API endpoint change, Browser API rename, and product migration as separate changes with separate rollback boundaries.
 
 ## Prerequisites
 
-- Current Bright Data zone credentials
-- Git for version control
-- Staging environment for testing
+- A pinned current dependency or configuration and documented target contract
+- Golden synthetic fixtures plus representative redacted receipts
+- A dual-read or feature-flag path and rollback owner
 
 ## Instructions
 
-### Step 1: Identify Migration Type
+### Step 1: Build the delta
 
-| Migration | From | To | Effort |
-|----------|------|----|--------|
-| Zone upgrade | Web Unlocker v1 | Web Unlocker v2 | Low |
-| Product switch | Residential Proxy | Web Unlocker | Medium |
-| Browser migration | Puppeteer direct | Scraping Browser | Medium |
-| API migration | Datasets v2 | Datasets v3 | Medium |
-| Full platform | Competitor | Bright Data | High |
+Read the lockfile, adapter, and runbooks; Grep for `x-luminati`, old product names, obsolete endpoints, raw vendor response coupling, and undocumented ports.
 
-### Step 2: Migrate from Direct Proxies to Web Unlocker
+### Step 2: Update one boundary
 
-```typescript
-// BEFORE: Raw residential proxy (manual CAPTCHA handling)
-const oldProxy = {
-  host: 'brd.superproxy.io',
-  port: 22225,  // Old residential port
-  auth: {
-    username: `brd-customer-${CID}-zone-residential_zone`,
-    password: OLD_PASSWORD,
-  },
-};
+Write the target dependency, API, or header mapping. Current diagnostics use `Proxy-Status` and `x-brd-*`; Browser API replaces the former Scraping Browser name. Do not invent version transitions.
 
-// AFTER: Web Unlocker (automatic CAPTCHA, fingerprinting)
-const newProxy = {
-  host: 'brd.superproxy.io',
-  port: 33335,  // Web Unlocker port
-  auth: {
-    username: `brd-customer-${CID}-zone-web_unlocker1`,
-    password: NEW_PASSWORD,
-  },
-};
-// Changes: port 22225 → 33335, zone name, password
-// Web Unlocker handles CAPTCHAs automatically — remove manual solving code
-```
+### Step 3: Verify compatibility
 
-### Step 3: Migrate to Scraping Browser from Puppeteer
+Edit fixture tests for success, authentication, policy, throttle, lifecycle, schema, and delivery states. Use Bash(python:*) for the pinned type and test suite and compare normalized outputs.
 
-```typescript
-// BEFORE: Self-hosted Puppeteer with proxy
-import puppeteer from 'puppeteer';
-const browser = await puppeteer.launch({
-  args: [`--proxy-server=http://brd.superproxy.io:22225`],
-});
+### Step 4: Canary and retire
 
-// AFTER: Bright Data Scraping Browser (managed browser)
-import puppeteer from 'puppeteer-core';
-const AUTH = `brd-customer-${CID}-zone-scraping_browser1:${PASSWORD}`;
-const browser = await puppeteer.connect({
-  browserWSEndpoint: `wss://${AUTH}@brd.superproxy.io:9222`,
-});
-// Changes: launch → connect, local browser → remote WebSocket
-// Remove: browser install, proxy args, CAPTCHA solving libraries
-```
+Run an authorized feature-flag canary, compare data and operational receipts, then remove the old path only after rollback expiry and owner signoff.
 
-### Step 4: Migrate Datasets API v2 to v3
+## Tool Discipline
 
-```typescript
-// BEFORE: Datasets API v2
-const v2Response = await fetch(
-  `https://api.brightdata.com/dca/trigger?collector=${collectorId}`,
-  { method: 'POST', headers: { 'Authorization': `Bearer ${TOKEN}` }, body: JSON.stringify(input) }
-);
-
-// AFTER: Datasets API v3 (current)
-const v3Response = await fetch(
-  `https://api.brightdata.com/datasets/v3/trigger?dataset_id=${datasetId}&format=json`,
-  { method: 'POST', headers: { 'Authorization': `Bearer ${TOKEN}`, 'Content-Type': 'application/json' }, body: JSON.stringify(input) }
-);
-// Changes: /dca/trigger → /datasets/v3/trigger, collector → dataset_id
-// v3 adds: format parameter, webhook delivery, snapshot status polling
-```
-
-### Step 5: Migration Checklist
-
-```bash
-# Create migration branch
-git checkout -b migrate/brightdata-zone-upgrade
-
-# Update environment variables
-# OLD
-BRIGHTDATA_ZONE=residential1
-# NEW
-BRIGHTDATA_ZONE=web_unlocker1
-BRIGHTDATA_ZONE_PASSWORD=new_password
-
-# Test against staging
-BRIGHTDATA_ZONE=web_unlocker1_staging npm test
-
-# Verify scraping still works
-npm run scrape -- --url https://example.com --dry-run
-```
-
-## Rollback Procedure
-
-```bash
-# Keep old zone active during migration window
-# Rollback = switch BRIGHTDATA_ZONE back to old zone name
-export BRIGHTDATA_ZONE=old_zone_name
-export BRIGHTDATA_ZONE_PASSWORD=old_password
-```
+Use Read and Grep for the migration inventory. Use Write and Edit for dependency, adapter, fixture, and runbook changes. Use Bash(python:*) for local tests; it does not authorize live migration traffic or credential changes.
 
 ## Output
 
-- Updated zone configuration
-- Migrated proxy code to new endpoints
-- Passing test suite against new zone
-- Old zone kept active for rollback
+- Current-to-target contract matrix
+- Passing old and new fixture comparison and canary receipt
+- Rollback path plus explicit old-contract retirement decision
 
 ## Examples
 
-Pin the current client/version and reproduce the approved workload against a provider-controlled test target before an upgrade. Compare request policy, response schema, cost/rate behavior, and redacted results behind a feature flag; roll back to the prior artifact on any authorization, compliance, or reconciliation difference.
+First replace parsing of `x-luminati-error` with current `x-brd-error` and `Proxy-Status` fixtures. Keep a short dual-read window for retained historical receipts, but require current fields from new live responses.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| 407 after migration | New zone password not set | Update BRIGHTDATA_ZONE_PASSWORD |
-| Different response format | Zone type changed | Update response parsing |
-| Higher latency | Web Unlocker overhead | Expected; CAPTCHA solving takes time |
-| Missing data fields | API v3 schema change | Update TypeScript interfaces |
+| Failure | Meaning | Response |
+|---------|---------|----------|
+| Migration combines product and SDK changes | Failure attribution is impossible | Split the rollout into independently reversible steps |
+| Golden fixture contains live data | Test evidence is unsafe | Replace it with a synthetic contract fixture |
+| New path changes normalized output | Downstream behavior would drift | Hold promotion and reconcile the schema |
 
 ## Resources
 
-- Web Unlocker Migration
-- [Datasets API v3](https://docs.brightdata.com/scraping-automation/web-data-apis/web-scraper-api/trigger-a-collection)
-- Scraping Browser Setup
-
-## Next Steps
-
-For CI integration during upgrades, see `brightdata-ci-integration`.
+- [Python SDK](https://docs.brightdata.com/api-reference/SDK)
+- [Proxy error catalog](https://docs.brightdata.com/proxy-networks/errorCatalog)
+- [Browser API](https://docs.brightdata.com/products/scraping-browser/introduction)
+- [Web Scraper API asynchronous requests](https://docs.brightdata.com/api-reference/rest-api/scraper/asynchronous-requests)

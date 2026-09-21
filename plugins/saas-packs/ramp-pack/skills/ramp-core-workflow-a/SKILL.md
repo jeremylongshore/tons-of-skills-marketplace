@@ -1,94 +1,97 @@
 ---
 name: ramp-core-workflow-a
-description: "Ramp core workflow a \u2014 corporate card and expense management API\
-  \ integration.\nUse when working with Ramp for card management, expenses, or accounting\
-  \ sync.\nTrigger with phrases like \"ramp core workflow a\", \"ramp-core-workflow-a\"\
-  , \"corporate card API\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.4.0
-license: MIT
+description: >-
+  Build and verify a fund-backed Ramp virtual-card workflow with least-privilege scopes, idempotency, controlled card-detail delivery, and lifecycle evidence. Use when issuing virtual cards or embedding card details. Trigger with "issue Ramp virtual card" or "Ramp embedded card".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[integration-or-environment]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ramp
-- fintech
-- expenses
-- corporate-cards
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Ramp Developer API documentation and approved access for any live financial, card, identity, accounting, application, or configuration change
+tags: [saas, ramp, cards, funds, spend-controls]
 ---
-# Ramp Core Workflow A
+# Ramp Fund-Backed Virtual Card Workflow
 
 ## Overview
 
-Issue and manage virtual cards with spending limits, policies, and lifecycle management.
+Create the spend authority first, then issue or expose the card through the supported delivery surface. Prefer Ramp's embedded iframe when a person needs to see card details; use the Vault API only for an approved server-side payment flow.
 
 ## Prerequisites
 
-- Completed `ramp-hello-world`
+- Identify the Ramp application, environment, business entities, affected data and workflows, accountable owner, and rollback boundary.
+- Read `references/official-docs.md` and re-check endpoint schemas, scopes, limits, and support status before a live operation.
+- Use synthetic fixtures or Ramp sandbox until production access and business effects are explicitly approved.
+- Prepare approved secret storage and a sanitized evidence location.
+
+## Current Contract
+
+- Current virtual cards are backed by Funds and governed by spend controls; legacy Cards management endpoints are being deprecated.
+- Embedded Cards sends card details directly from a Ramp-hosted iframe to the user's browser, keeping the application server out of the card-data plane.
+- The Vault API returns PAN, CVV, and expiration to a backend and requires Ramp production approval plus materially stronger PCI controls.
+- New embedded integrations use the business-specific iframe URL and an exactly matching, verified HTTPS parent origin.
+
+## Authentication
+
+Use a server-side Ramp OAuth bearer token from the selected environment with only the required Funds, Virtual Cards, or Embedded Cards scopes. Never send the bearer token to browser code; the backend mints the short-lived embed token. Vault access also requires its documented scopes and Ramp production approval.
 
 ## Instructions
 
-### Step 1: Issue a Virtual Card
+1. Record the cardholder or service purpose, business entity, owner, amount and interval, eligible spend, expiration, approval path, and termination trigger.
 
-```python
-card = requests.post(f"{BASE}/cards", headers={**headers, "Content-Type": "application/json"}, json={
-    "holder_name": "Jane Smith",
-    "spending_restrictions": {
-        "amount": 50000,        # $500.00 in cents
-        "interval": "monthly",  # monthly, yearly, total
-    },
-    "display_name": "Marketing Software",
-    "fulfillment": { "card_type": "virtual" },
-})
-card.raise_for_status()
-card_id = card.json()["id"]
-print(f"Virtual card issued: {card_id}")
-```
+2. Choose embedded iframe or Vault delivery and document why the lower-exposure option is insufficient if selecting Vault.
 
-### Step 2: Update Card Limit
+3. In sandbox, create the required Fund or spend-control object with a unique idempotency key, then capture the returned card identifier without card details.
 
-```python
-requests.patch(f"{BASE}/cards/{card_id}", headers={**headers, "Content-Type": "application/json"}, json={
-    "spending_restrictions": {
-        "amount": 100000,  # Increase to $1,000
-        "interval": "monthly",
-    },
-})
-```
+4. For embedded delivery, verify the exact parent origin and mint short-lived embed tokens on demand from the backend; never expose the Ramp access token to the browser.
 
-### Step 3: Suspend Card
+5. Exercise suspension or fund termination, reconcile final state through a read, and preserve the approval, object IDs, idempotency keys, and rollback result.
 
-```python
-requests.post(f"{BASE}/cards/{card_id}/suspend", headers=headers)
-print(f"Card {card_id} suspended")
-```
+## Tool Discipline
 
-### Step 4: Terminate Card
+- Use **Glob** to locate candidate code, manifests, fixtures, and evidence without widening scope.
+- Use **Grep** to find relevant endpoints, fields, permissions, identifiers, errors, and stale assumptions.
+- Use **Read** to inspect the smallest required local files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, configuration, or evidence artifact.
+- Use **Edit** only for a bounded approved change with a known rollback.
+- Local file tools do not authorize a Ramp operation or replace owner approval.
 
-```python
-requests.post(f"{BASE}/cards/{card_id}/terminate", headers=headers)
-print(f"Card {card_id} terminated")
-```
+## Approval Boundaries
+
+The budget owner approves spend authority; the application and security owners approve delivery architecture. Vault production access requires Ramp approval and the organization's PCI review.
 
 ## Output
 
-- Virtual card issued with spending limits
-- Card limits updated
-- Card suspended/terminated
+A purpose-and-control record, scope matrix, sandbox creation receipt, safe delivery design, lifecycle verification, and named owner for suspension, termination, and incident response.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `422 Invalid holder` | User not found | Verify holder is a Ramp user |
-| `400 Invalid amount` | Amount not in cents | Multiply dollars by 100 |
-| Card already terminated | Cannot modify | Check card state first |
+| Condition | Response |
+|---|---|
+| Origin verification fails | Confirm exact HTTPS origin, public verification file bytes, timeout, and absence of redirects or wildcard hosts. |
+| A create response is ambiguous | Query by the durable business key or reconcile the deferred task before reusing the idempotency key. |
+| A backend receives card details unexpectedly | Contain the data, stop logging, involve security, and redesign around the embedded iframe unless Vault is explicitly approved. |
+
+## Examples
+
+### Example 1
+
+Issue a monthly software fund and virtual card, render it through a verified staging iframe, then terminate the sandbox fund.
+
+### Example 2
+
+Design an approved backend travel-booking flow using Vault while keeping card data out of general logs, queues, and analytics.
+
+## Validation
+
+- The card is attached to an approved Fund and the controls match the business purpose.
+- Scopes, environment, entity, user, and approval are minimum and recorded.
+- Card details travel only through the selected approved delivery surface.
+- Duplicate submission, suspension, termination, and reconciliation behavior are proven.
 
 ## Resources
 
-- [Virtual Cards API](https://docs.ramp.com/developer-api/v1/virtual-cards)
-- [Cards and Funds](https://docs.ramp.com/developer-api/v1/cards-and-funds)
-
-## Next Steps
-
-Transaction management: `ramp-core-workflow-b`
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract and current OpenAPI schema before any live request.
+- Treat unresolved vendor behavior, authority, or financial state as a stop condition.

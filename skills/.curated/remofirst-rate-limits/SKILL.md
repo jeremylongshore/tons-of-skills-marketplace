@@ -1,58 +1,100 @@
 ---
 name: remofirst-rate-limits
-description: "RemoFirst rate limits \u2014 global HR, EOR, and payroll platform integration.\n\
-  Use when working with RemoFirst for global employment, payroll, or compliance.\n\
-  Trigger with phrases like \"remofirst rate limits\", \"remofirst-rate-limits\",\
-  \ \"global HR API\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.4.0
+description: >-
+  Build RemoFirst operational deadlines and supported connector sync cadence
+  without inventing API quotas. Use when payroll, timesheet, invoice, Workday,
+  or ADP timing affects a workflow. Trigger with "RemoFirst cutoff", "RemoFirst
+  sync timing", or "RemoFirst rate limits".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<workflow> <period-or-connector>"
+version: 2.0.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- remofirst
-- hr
-- eor
-- payroll
-- global-employment
-compatibility: Designed for Claude Code
+tags: [saas, remofirst, deadlines, payroll, connectors]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live RemoFirst access requires an approved client account and explicit operator action
 ---
-# RemoFirst Rate Limits
+# RemoFirst Deadlines and Sync Cadence
 
 ## Overview
 
-Implementation patterns for RemoFirst rate limits — global HR and EOR platform integration.
+Build a timing plan from the documented business cutoffs and supported
+connector behavior. No reviewed public source publishes a general RemoFirst API
+quota, so this skill must not manufacture request-per-minute limits, retry
+headers, endpoints, or backoff rules.
 
 ## Prerequisites
 
-- Completed `remofirst-install-auth` setup
+- Workflow, population, period, country, owners, and timezone.
+- The live RemoFirst calendar or connector status available to an authorized user.
+- A support owner for ambiguities or missed deadlines.
+
+## Current Contract
+
+- Monthly payroll has documented revision, review, approval, and funding stages;
+  live dates and worker-specific schedules remain authoritative.
+- Contractor timesheet approval locks a submitted timesheet; rejection returns it
+  for correction.
+- Workday sync is manually initiated and imports only supported approved records.
+- ADP setup uses a short-lived account ID during connector authorization.
+- No public first-party general API quota or SDK retry contract was found.
 
 ## Instructions
 
-### Step 1: API Pattern
+1. Classify the timing domain: payroll, contractor timesheet, invoice funding,
+   Workday sync, ADP activation, or a provider-issued private integration.
+2. Record every time in one canonical timezone plus the operator's local time.
+   Include source URL, retrieval date, owner, and whether it is a guide or live date.
+3. For payroll, confirm revision, approval, funding, and pay-date milestones from
+   the live period. Do not silently reuse dates from a prior month.
+4. For timesheets, leave review time before approval because approval locks the
+   record. Reject incorrect entries early enough for contractor correction.
+5. For Workday, schedule a human-triggered sync, review imported records, and
+   reconcile unsupported or edited data manually.
+6. For ADP, generate the account ID only when the connector owner is ready to use
+   it; if it expires, repeat the documented setup instead of reusing it.
+7. If a private interface is involved, use only its customer-specific written
+   quota and retry contract. Otherwise escalate rather than guessing.
 
-```python
-client = RemoFirstClient()
-employees = client.get("/employees", params={"page_size": 10})
-print(f"Employees: {len(employees['data'])}")
-```
+## Tool Discipline
+
+Use Read, Glob, and Grep on approved schedules and redacted reconciliation
+artifacts. Use Write/Edit only for timing plans and evidence summaries. Do not
+run sync, approve time/payroll, generate credentials, or fund invoices.
+
+## Approval Boundaries
+
+Payroll approval, timesheet approval/rejection, connector sync, account-ID
+generation, invoice payment, and any retry against a private interface require
+the designated human operator or explicit authority.
 
 ## Output
 
-- RemoFirst integration for rate limits
+Return workflow, timezone-normalized milestones, source and retrieval date,
+owners, safety margin, lock or expiry behavior, reconciliation step, blockers,
+and escalation path. State explicitly when no public API quota applies.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| 401 Unauthorized | Invalid API key | Contact RemoFirst support |
-| 429 Rate Limited | Too many requests | Implement backoff |
-| 422 Validation Error | Missing required field | Check API documentation |
+- Missing live date: block the plan and ask the payroll or provider owner.
+- Missed cutoff: document impact and obtain a revised provider-confirmed date.
+- Sync mismatch: stop repeat syncs until mapping and record state are reconciled.
+- Unknown quota: do not probe; request the private contract from RemoFirst.
+
+## Examples
+
+- A payroll plan labels published day ranges as guidance and records live dates.
+- An expired ADP account ID is regenerated by its authorized connector owner.
+- "Use exponential backoff" is rejected without a private API contract.
+
+## Validation
+
+- Every milestone has timezone, owner, evidence, and current-period confirmation.
+- Locking, expiration, and manual-sync behavior are represented accurately.
+- No invented request limit, endpoint, retry code, or API credential appears.
 
 ## Resources
 
-- [RemoFirst](https://www.remofirst.com)
-
-## Next Steps
-
-See related RemoFirst skills for more workflows.
+See [references/official-docs.md](references/official-docs.md) for the reviewed
+payroll, timesheet, Workday, ADP, invoice, and support sources.

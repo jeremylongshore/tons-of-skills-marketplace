@@ -1,199 +1,75 @@
 ---
 name: exa-prod-checklist
-description: 'Execute Exa production deployment checklist with pre-flight, deploy,
-  and rollback.
-
-  Use when deploying Exa integrations to production, preparing for launch,
-
-  or verifying production readiness.
-
-  Trigger with phrases like "exa production", "deploy exa to prod",
-
-  "exa go-live", "exa launch checklist", "exa production ready".
-
-  '
-allowed-tools: Read, Bash(curl:*), Bash(node:*), Grep
-version: 1.11.0
+description: >-
+  Gate an Exa-backed service on contract, security, cost, reliability, observability, and rollback evidence. Use when operating or reviewing this Exa boundary. Trigger with "Exa prod checklist", "review Exa prod checklist", or "fix Exa prod checklist".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<service> <environment> <release-sha>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- deployment
-- production
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Production Checklist
-
-## Prerequisites
-
-- A named service/policy/data owner, approved model/provider route, production rollback plan, and passing staging evidence.
-
-## Instructions
-
-1. Complete evidence gates for identity/secrets, data handling, policy controls, source/citation requirements, observability, rate limits, and rollback.
-2. Validate an approved non-sensitive canary and verify its expected routing/guardrail behavior.
-3. Block release when any security, policy, data, ownership, or recovery gate is unverified.
-
-## Output
-
-- A production-readiness receipt with evidence, owners, exceptions, canary result, and rollback path.
-
-## Examples
-
-Release an approved staging configuration to a small canary using sanitized queries, verify policy/source/citation and alert behavior, then observe the defined window. Restore the previous configuration if any guardrail or SLO fails; do not widen automation to conceal a failure.
+# Exa Production Readiness Gate
 
 ## Overview
 
-Complete checklist for deploying Exa search integrations to production. Covers API key management, error handling verification, performance baselines, monitoring, and rollback procedures.
+Gate an Exa-backed service on contract, security, cost, reliability, observability, and rollback evidence. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
-## Pre-Deployment Checklist
+## Prerequisites
 
-### Security
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
 
-- [ ] Production API key stored in secret manager (not env file)
-- [ ] Different API keys for dev/staging/production
-- [ ] `.env` files in `.gitignore`
-- [ ] Git history scanned for accidentally committed keys
-- [ ] API key has minimal scopes needed
+## Current Contract
 
-### Code Quality
+Production readiness spans the chosen Exa product, not just connectivity. Search and Contents require content and freshness controls; Agent, Monitors, Websets, and Batch add asynchronous state; webhooks add signature and replay handling; every paid surface needs a budget owner.
 
-- [ ] All tests passing (unit + integration)
-- [ ] No hardcoded API keys or URLs
-- [ ] Error handling covers all Exa HTTP codes (400, 401, 402, 403, 429, 5xx)
-- [ ] `requestId` captured from error responses
-- [ ] Rate limiting/exponential backoff implemented
-- [ ] Content moderation enabled (`moderation: true`) for user-facing search
+## Authentication
 
-### Performance
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
-- [ ] Search type appropriate for latency SLO (`fast`/`auto`/`neural`)
-- [ ] `numResults` minimized per use case (3-5 for most)
-- [ ] `maxCharacters` set on text and highlights
-- [ ] Result caching enabled (LRU or Redis)
-- [ ] Request queue with concurrency limit (respect 10 QPS default)
+## Instructions
 
-### Monitoring
+1. Freeze the release SHA, adapter version, endpoint inventory, and rollback owner.
+2. Verify auth, secret rotation, data classification, domain policy, and moderation.
+3. Exercise documented success, partial, throttle, billing, policy, and overload paths.
+4. Confirm endpoint budgets, cost alerts, queue bounds, timeouts, and retry ceilings.
+5. Verify request IDs, safe metrics, signed-webhook evidence, and deletion procedures.
+6. Canary under explicit limits and promote only after the rollback window passes.
 
-- [ ] Search latency histogram instrumented
-- [ ] Error rate counter by status code
-- [ ] Cache hit/miss rate tracked
-- [ ] Daily search volume tracked (for budget)
-- [ ] Alerts configured for latency > 3s, error rate > 5%
+## Tool Discipline
 
-## Deploy Procedure
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-### Step 1: Pre-Flight Verification
+## Approval Boundaries
 
-```bash
-set -euo pipefail
-echo "=== Exa Pre-Flight ==="
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-# 1. Verify production API key works
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-  -X POST https://api.exa.ai/search \
-  -H "x-api-key: $EXA_API_KEY_PROD" \
-  -H "Content-Type: application/json" \
-  -d '{"query":"pre-flight check","numResults":1}')
-echo "API Status: $HTTP_CODE"
-[ "$HTTP_CODE" = "200" ] || { echo "FAIL: API key invalid"; exit 1; }
+## Failure Modes
 
-# 2. Verify tests pass
-npm test || { echo "FAIL: Tests failing"; exit 1; }
+- A green Search smoke test does not validate asynchronous or webhook paths.
+- Unbounded livecrawl, subpages, summaries, or Agent effort can change latency and cost.
+- Rollback is incomplete if scheduled Monitors or in-flight runs continue producing output.
 
-echo "Pre-flight PASSED"
-```
+## Output
 
-### Step 2: Health Check Endpoint
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-```typescript
-import Exa from "exa-js";
+## Example
 
-const exa = new Exa(process.env.EXA_API_KEY);
+- Release a five-percent canary with fixed Search limits, signed Monitor delivery, cost alarms, and a tested disable switch.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-app.get("/health/exa", async (_req, res) => {
-  const start = performance.now();
-  try {
-    const result = await exa.search("health check", { numResults: 1 });
-    const latencyMs = Math.round(performance.now() - start);
-    res.json({
-      status: "healthy",
-      latencyMs,
-      resultCount: result.results.length,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (err: any) {
-    res.status(503).json({
-      status: "unhealthy",
-      error: err.message,
-      errorCode: err.status,
-      latencyMs: Math.round(performance.now() - start),
-    });
-  }
-});
-```
+## Validation
 
-### Step 3: Gradual Rollout
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-```bash
-set -euo pipefail
-# Deploy canary (10% traffic)
-kubectl apply -f k8s/production.yaml
-kubectl rollout pause deployment/exa-service
+## References
 
-echo "Canary deployed. Monitor for 10 minutes..."
-echo "Check: /health/exa endpoint, error rates, latency"
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-# After monitoring, resume to full rollout
-# kubectl rollout resume deployment/exa-service
-```
-
-## Post-Deployment Verification
-
-```bash
-set -euo pipefail
-# Verify production endpoint
-curl -sf https://your-app.com/health/exa | python3 -m json.tool
-
-# Check error rates (if Prometheus available)
-curl -s "localhost:9090/api/v1/query?query=rate(exa_search_error[5m])" 2>/dev/null
-```
-
-## Rollback Procedure
-
-```bash
-set -euo pipefail
-# Immediate rollback
-kubectl rollout undo deployment/exa-service
-kubectl rollout status deployment/exa-service
-echo "Rollback complete. Verify /health/exa endpoint."
-```
-
-## Alert Thresholds
-
-| Alert | Condition | Severity |
-|-------|-----------|----------|
-| API Down | 5xx errors > 10/min | P1 |
-| Auth Failure | 401/403 errors > 0 | P1 |
-| Rate Limited | 429 errors > 5/min | P2 |
-| High Latency | P95 > 5000ms | P2 |
-| Budget Warning | Daily searches > 80% of limit | P3 |
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Health check fails | API key not set in prod | Verify secret injection |
-| Latency spike after deploy | Missing cache warm-up | Pre-populate cache |
-| Rate limit on launch | Traffic spike | Enable request queue |
-| Rollback needed | Error rate spike | `kubectl rollout undo` |
-
-## Resources
-
-- [Exa API Documentation](https://docs.exa.ai)
-- [Exa Error Codes](https://docs.exa.ai/reference/error-codes)
-
-## Next Steps
-
-For version upgrades, see `exa-upgrade-migration`. For incident response, see `exa-incident-runbook`.
+- [Current first-party evidence map](references/official-docs.md)

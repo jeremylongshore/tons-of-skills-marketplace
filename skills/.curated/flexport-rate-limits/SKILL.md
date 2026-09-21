@@ -1,154 +1,103 @@
 ---
 name: flexport-rate-limits
-description: 'Handle Flexport API rate limits with exponential backoff, queue-based
-  throttling,
-
-  and response header monitoring for logistics API calls.
-
-  Trigger: "flexport rate limit", "flexport 429", "flexport throttling", "flexport
-  backoff".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.6.0
+description: >-
+  Analyze and control Flexport request volume without inventing undocumented global limits or headers. Use when handling throttling, OAuth token budgets, endpoint-specific quotas, pagination pressure, or retry policy. Trigger with: "Flexport rate limit", "throttle Flexport calls", "budget Flexport tokens".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[surface-endpoint-and-observed-evidence]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - reliability
+  - quotas
+compatibility: 'Requires per-operation metrics, bounded queues, and current endpoint documentation or observed provider responses.'
 ---
-# Flexport Rate Limits
+
+# Evidence-Driven Flexport Quota Control
 
 ## Overview
 
-The Flexport API v2 enforces rate limits per API key. When exceeded, you get a `429 Too Many Requests` with `Retry-After` and `X-RateLimit-*` headers. Key limits to know: the API returns headers on every response telling you remaining quota.
+Build controls from documented endpoint constraints and observed responses, not a fictional universal requests-per-minute number. The clearest fixed budget is OAuth token issuance: at most 10 token requests per day per documented credential flow.
 
 ## Prerequisites
 
-- Current account limits confirmed from the provider, with a named concurrency/budget owner and reviewed exception queue.
-- Aggregate telemetry that excludes shipment records, documents, commercial terms, and credentials.
-- Sandbox fixtures that exercise throttling, pause/retry, and duplicate prevention.
-
-## Output
-
-Produce a rate-control receipt with policy version, concurrency, retry bound, throttle count, queue age, idempotency outcome, and manual dispositions. Do not log payloads or headers containing secrets.
-
-## Examples
-
-Run a fictional shipment event under a low concurrency limit, simulate a `429`, and confirm the worker honors its bounded wait and processes the opaque event once after recovery. Repeated failures enter review rather than causing a bulk replay.
-
-## Rate Limit Headers
-
-| Header | Description | Example |
-|--------|-------------|---------|
-| `X-RateLimit-Limit` | Max requests per window | `100` |
-| `X-RateLimit-Remaining` | Remaining in current window | `47` |
-| `X-RateLimit-Reset` | Unix timestamp when window resets | `1711234567` |
-| `Retry-After` | Seconds to wait (only on 429) | `30` |
+- Inventory by OAuth, REST endpoint, and MCP tool
+- Shared token cache and per-workload queues
+- Observed statuses, provider messages, and latency without sensitive payloads
 
 ## Instructions
 
-### Step 1: Monitor Rate Limit Headers
+### Step 1: Separate budgets
 
-```typescript
-class RateLimitTracker {
-  remaining = Infinity;
-  resetAt = 0;
+Track token acquisition, read traffic, mutations, webhook processing, and MCP tool calls independently.
 
-  update(headers: Headers) {
-    this.remaining = parseInt(headers.get('X-RateLimit-Remaining') || '100');
-    this.resetAt = parseInt(headers.get('X-RateLimit-Reset') || '0') * 1000;
-  }
+### Step 2: Eliminate token churn
 
-  async waitIfNeeded() {
-    if (this.remaining <= 2 && Date.now() < this.resetAt) {
-      const wait = this.resetAt - Date.now() + 100;
-      console.log(`Rate limit near. Waiting ${wait}ms`);
-      await new Promise(r => setTimeout(r, wait));
-    }
-  }
-}
+Reuse each 24-hour OAuth JWT through a shared cache and single-flight refresh so business concurrency does not consume the 10/day token-request budget.
+
+### Step 3: Honor explicit evidence
+
+Apply endpoint-specific documented limits and provider retry signals when present. Do not assume rate-limit headers or `Retry-After` exist universally.
+
+### Step 4: Shape reads
+
+Use documented page sizes/cursors or links, avoid expensive expansions on index calls, and stop pagination when the business window is satisfied.
+
+### Step 5: Serialize mutations
+
+Queue bookings and record creation by business key, cap attempts, and reconcile ambiguous outcomes before retry.
+
+### Step 6: Tune from receipts
+
+Change concurrency only from measured latency/error evidence and preserve the before/after decision.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
+
+## Output
+
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
+
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
 ```
 
-### Step 2: Exponential Backoff with Jitter
+## Examples
 
-```typescript
-async function flexportWithRetry<T>(
-  fn: () => Promise<Response>,
-  maxRetries = 4
-): Promise<T> {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    const res = await fn();
-
-    if (res.ok) return res.json();
-
-    if (res.status === 429) {
-      const retryAfter = parseInt(res.headers.get('Retry-After') || '60');
-      const jitter = Math.random() * 2000;
-      const delay = retryAfter * 1000 + jitter;
-      console.log(`429 rate limited. Retry in ${(delay / 1000).toFixed(1)}s`);
-      await new Promise(r => setTimeout(r, delay));
-      continue;
-    }
-
-    if (res.status >= 500 && attempt < maxRetries) {
-      const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
-      await new Promise(r => setTimeout(r, delay));
-      continue;
-    }
-
-    throw new Error(`Flexport ${res.status}: ${await res.text()}`);
-  }
-  throw new Error('Max retries exceeded');
-}
-```
-
-### Step 3: Queue-Based Throttling
-
-```typescript
-import PQueue from 'p-queue';
-
-// Limit to 10 requests per second with max 3 concurrent
-const flexportQueue = new PQueue({
-  concurrency: 3,
-  interval: 1000,
-  intervalCap: 10,
-});
-
-async function throttledRequest(path: string): Promise<any> {
-  return flexportQueue.add(() =>
-    fetch(`https://api.flexport.com${path}`, {
-      headers: {
-        'Authorization': `Bearer ${process.env.FLEXPORT_API_KEY}`,
-        'Flexport-Version': '2',
-      },
-    }).then(r => r.json())
-  );
-}
-
-// Bulk operations stay within limits
-const shipmentIds = ['shp_001', 'shp_002', 'shp_003', /* ... */];
-const results = await Promise.all(
-  shipmentIds.map(id => throttledRequest(`/shipments/${id}`))
-);
-```
+An importer reads freight invoices from `/invoices` in pages of 10 as recommended for performance, caches its OAuth token, limits concurrent reads based on observed behavior, and never claims a global Flexport quota that the docs do not publish.
 
 ## Error Handling
 
-| Scenario | Strategy |
-|----------|----------|
-| Single 429 | Honor `Retry-After` header |
-| Repeated 429s | Increase backoff, reduce concurrency |
-| Bulk import | Use `p-queue` with `intervalCap` |
-| Batch reads | Paginate with `per=100` to minimize calls |
+| Failure | Response |
+| --- | --- |
+| 429 without retry metadata | Pause the affected surface, use bounded backoff with jitter, and seek provider guidance. |
+| Token requests approach 10/day | Stop acquisition and repair cache sharing before tokens expire. |
+| Queue grows after concurrency increase | Roll back the increase and inspect endpoint latency/error evidence. |
+| Mutation throttled | Reconcile existing business references before resubmitting. |
 
 ## Resources
 
-- [Flexport API Reference](https://apidocs.flexport.com/)
-- [p-queue](https://github.com/sindresorhus/p-queue)
-
-## Next Steps
-
-For security configuration, see `flexport-security-basics`.
+- [First-party source notes](references/official-docs.md)
+- [Using API credentials](https://developers.flexport.com/tutorials/using-api-credentials/)
+- [Freight invoices tutorial](https://developers.flexport.com/tutorials/freight-invoices-api-tutorial/)
+- [Flexport API reference](https://apidocs.flexport.com/v3/)

@@ -1,156 +1,93 @@
 ---
 name: vastai-upgrade-migration
-description: 'Upgrade Vast.ai CLI, migrate API versions, and handle breaking changes.
-
-  Use when upgrading vastai CLI, detecting deprecations,
-
-  or migrating between API versions.
-
-  Trigger with phrases like "upgrade vastai", "vastai migration",
-
-  "vastai breaking changes", "update vastai CLI".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(pip:*), Bash(vastai:*)
-version: 1.11.0
+description: >-
+  Upgrade or roll back the Vast.ai CLI, Python SDK import surface, and workload template without speculative API-version changes. Use when changing a client pin, SDK import, or production template. Trigger with: "upgrade Vast.ai CLI", "migrate from vastai_sdk", "roll a Vast.ai template update".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[current-version-target-version-and-workloads]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- api
-- migration
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - upgrade
+  - compatibility
+  - rollback
+compatibility: 'Requires current and target client versions, a test environment, immutable templates, and retained rollback artifacts.'
 ---
-# Vast.ai Upgrade & Migration
 
-## Current State
-
-!`vastai --version 2>/dev/null || echo 'vastai CLI not installed'`
-!`pip show vastai 2>/dev/null | grep -E "^(Name|Version)" || echo 'N/A'`
+# Reversible Vast.ai Client and Template Upgrade
 
 ## Overview
 
-Upgrade the Vast.ai CLI and Python SDK, handle API changes, and migrate between GPU configurations. The CLI is distributed via PyPI as `vastai` and tracks the REST API at `cloud.vast.ai/api/v0`.
+Treat the provider client and workload template as separate compatibility boundaries. Pin and test the managed CLI or PyPI package, preserve the `vastai_sdk` compatibility shim during migration, and canary template changes before a rolling update.
 
 ## Prerequisites
 
-- Current `vastai` CLI installed
-- Active instances inventory documented
-- Backup of any custom scripts using the API
+- Current CLI/SDK version, install channel, import usage, commands, templates, and dependent automation
+- Target version and release evidence plus contract tests for critical commands and response adapters
+- Rollback client version, prior template hash, and an acceptance deadline
 
 ## Instructions
 
-### Step 1: Check Current Version and Upgrade
+### Step 1: Freeze the current contract
 
-```bash
-# Check installed version
-vastai --version
-pip show vastai | grep Version
+Record versions, install location, key precedence, imports, command help, structured outputs, and immutable template/model identities.
 
-# Upgrade to latest
-pip install --upgrade vastai
+### Step 2: Upgrade in isolation
 
-# Verify upgrade
-vastai --version
-vastai show user  # Verify auth still works
-```
+For the managed CLI, use its version-aware update mechanism and retain the prior version. For Python, pin the target `vastai` package in a disposable environment.
 
-### Step 2: Detect Breaking Changes
+### Step 3: Test client compatibility
 
-```python
-# Compare CLI help output before and after upgrade
-import subprocess
+Run auth, offer search, instance read, response normalization, and expected-denial tests without creating paid resources unless the plan requires a canary.
 
-def get_cli_commands():
-    result = subprocess.run(["vastai", "--help"], capture_output=True, text=True)
-    commands = set()
-    for line in result.stdout.split('\n'):
-        stripped = line.strip()
-        if stripped and not stripped.startswith('-') and not stripped.startswith('usage'):
-            cmd = stripped.split()[0] if stripped.split() else ""
-            if cmd.isalpha():
-                commands.add(cmd)
-    return commands
+### Step 4: Migrate SDK imports deliberately
 
-# Run before and after upgrade to detect removed commands
-```
+Move from `vastai_sdk` to `vastai` while the documented compatibility shim remains; test high-level and sync/async client boundaries actually used.
 
-### Step 3: API Version Migration
+### Step 5: Canary workload changes
 
-```python
-# The REST API is at v0 — if Vast.ai introduces v1, update base URL
-OLD_BASE = "https://cloud.vast.ai/api/v0"
-NEW_BASE = "https://console.vast.ai/api/v0"  # Alternative endpoint
+Create a separate endpoint or disposable instance from the target template, prove output and recovery, then trigger a controlled rolling update if Serverless.
 
-# Test both endpoints
-import requests
-for base in [OLD_BASE, NEW_BASE]:
-    try:
-        resp = requests.get(f"{base}/users/current",
-                           headers={"Authorization": f"Bearer {api_key}"})
-        print(f"{base}: {resp.status_code}")
-    except Exception as e:
-        print(f"{base}: {e}")
-```
+### Step 6: Accept or revert
 
-### Step 4: Docker Image Updates
+Compare contract and SLO evidence. Restore the prior client pin or template reference on failure and verify the rollback path.
 
-```bash
-# Update GPU workload images to latest CUDA
-# Old: pytorch/pytorch:1.13-cuda11.7-runtime
-# New: pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime
+## Authentication
 
-# Test new image locally before deploying
-docker pull pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime
-docker run --rm pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime python -c "import torch; print(torch.__version__)"
+Confirm the upgraded client still reads the intended XDG or environment credential and preserves least privilege. Never test upgrades with an unscoped production key by default.
 
-# Verify CUDA compatibility with target GPU hosts
-vastai search offers 'cuda_max_good>=12.1 num_gpus=1' --limit 5
-```
+## Tool Discipline
 
-### Step 5: Post-Upgrade Verification
-
-```bash
-#!/bin/bash
-set -euo pipefail
-echo "Post-upgrade verification..."
-
-vastai show user && echo "  Auth: OK"
-vastai search offers 'num_gpus=1 rentable=true' --limit 1 --raw | python3 -c "import sys,json; offers=json.load(sys.stdin); print(f'  Search: OK ({len(offers)} offers)')"
-vastai show instances && echo "  Instances: OK"
-
-echo "Upgrade verified."
-```
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- CLI upgraded to latest version
-- Breaking changes identified
-- API endpoint compatibility verified
-- Docker images updated to latest CUDA
-- Post-upgrade verification passed
+- Before/after client and template contract inventory
+- Compatibility, canary, SLO, and expected-denial results
+- Acceptance or rollback receipt with retained prior versions
 
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| CLI command removed after upgrade | Breaking change in new version | Pin to previous version: `pip install vastai==0.2.8` |
-| Auth fails after upgrade | API key format changed | Re-run `vastai set api-key YOUR_KEY` |
-| CUDA mismatch after image update | Host CUDA older than image requires | Filter offers by `cuda_max_good>=VERSION` |
-
-## Resources
-
-- [vastai PyPI](https://pypi.org/project/vastai/)
-- [vast-cli GitHub](https://github.com/vast-ai/vast-cli)
-- [Vast.ai Documentation](https://docs.vast.ai)
-
-## Next Steps
-
-For CI/CD integration, see `vastai-ci-integration`.
+Return install channel, old/new versions, import boundary, old/new template hashes, tests, decision, and rollback verification.
 
 ## Examples
 
-**Safe upgrade**: Pin the current version in `requirements.txt`, upgrade in a test environment, run the verification script, then update production.
+A service moves from the `vastai_sdk` shim to `vastai` in staging, pins the package, validates its response adapter, canaries a new template, then performs a monitored Serverless rolling update with the prior hash retained.
 
-**CUDA migration**: Move from CUDA 11.7 to 12.1 by updating Docker images and filtering offers with `cuda_max_good>=12.1`.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Structured output changes | Fail at the adapter contract and keep the previous pin. |
+| Credential source changes | Stop and restore the intended key precedence before any mutation. |
+| Canary output or recovery regresses | Reject the template and retain production on the old hash. |
+| Rollback artifact is unavailable | Issue NO-GO until the prior client and template are recoverable. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [Official CLI README](https://github.com/vast-ai/vast-cli)
+- [Official SDK skill](https://github.com/vast-ai/vast-cli/blob/master/vastai_sdk/SKILL.md)
+- [Zero-downtime worker update](https://docs.vast.ai/guides/serverless/zero-downtime-worker-update)

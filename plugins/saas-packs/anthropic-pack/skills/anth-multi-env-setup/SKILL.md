@@ -10,7 +10,7 @@ description: 'Configure Claude API across dev, staging, and production environme
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -160,7 +160,7 @@ Run a synthetic `fixture-request-001` through development and staging with separ
 
 ## Resources
 
-- [Workspaces](https://docs.anthropic.com/en/docs/administration/workspaces)
+- [Workspaces](https://platform.claude.com/docs/en/manage-claude/workspaces)
 - [Console](https://console.anthropic.com)
 
 ## Next Steps

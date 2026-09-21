@@ -12,7 +12,7 @@ description: 'Production readiness checklist for Clerk deployment.
 
   '
 allowed-tools: Read, Write, Edit, Grep, Bash(npm:*)
-version: 1.14.0
+version: 1.15.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

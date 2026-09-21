@@ -1,169 +1,79 @@
 ---
 name: salesforce-prod-checklist
-description: 'Execute Salesforce production deployment checklist with sandbox testing
-  and rollback.
-
-  Use when deploying Salesforce integrations to production, preparing for launch,
-
-  or implementing go-live procedures.
-
-  Trigger with phrases like "salesforce production", "deploy salesforce",
-
-  "salesforce go-live", "salesforce launch checklist", "salesforce sandbox to prod".
-
-  '
-allowed-tools: Read, Bash(sf:*), Bash(curl:*), Grep
-version: 1.7.0
-license: MIT
+description: 'Gate a Salesforce integration or metadata change for production with contract, security, capacity, validation, canary, reconciliation, and rollback evidence. Use when preparing for go-live. Trigger with "review Salesforce production readiness".'
+argument-hint: "[release-id] [production-org]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- crm
-- salesforce
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, salesforce, production, readiness, change-control]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; production deployments and record changes require formal customer change approval
 ---
-# Salesforce Production Checklist
+# Salesforce Production Readiness Gate
 
 ## Overview
 
-Complete checklist for deploying Salesforce integrations to production, including sandbox validation, API limit planning, and rollback procedures.
+Convert a release candidate into an evidence-backed go or no-go decision with named owners, bounded execution, and tested recovery.
 
 ## Prerequisites
 
-- Staging/sandbox environment tested and verified
-- Production Connected App configured
-- Dedicated integration user in production
-- Monitoring and alerting ready
+- Immutable release candidate, change record, production org, maintenance window, and business owner
+- Validated metadata and integration dependencies, API versions, permissions, limits, data mappings, and test evidence
+- Canary, reconciliation, rollback or compensating action, communications, and Salesforce Support plans
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect approved repository and evidence files, `WebFetch` to re-check current first-party Salesforce documentation, and `Write` or `Edit` only for secretless plans, fixtures, configuration, and redacted receipts.
+
+## Current Contract
+
+Salesforce release behavior depends on org metadata, automation, permissions, seasonal version, API support, entitlements, and shared capacity. Validation in a lower org reduces risk but does not prove production parity.
+
+## Authentication
+
+Use separate named non-production and production authorization with minimum deployment and verification permissions. Production credentials must be protected, short-lived where supported, auditable, and unavailable to fork-origin code.
 
 ## Instructions
 
-### Pre-Deployment Configuration
+1. Freeze the candidate SHA, metadata manifest, adapter artifact, dependency lock, API contract, and generated outputs.
+2. Compare production and validation orgs for edition, features, packages, schema, permissions, sharing, automation, limits, and data assumptions.
+3. Review security, privacy, segregation-of-duties, destructive-change, backfill, event, and support impacts.
+4. Run static checks, unit tests, Apex or Flow tests, deployment validation, contract tests, and synthetic integration checks.
+5. Approve a small canary with explicit users, objects, records, time box, stop signals, and rollback owner.
+6. Execute only in the window, preserve deployment and request IDs, and monitor platform, application, limit, event, and business signals.
+7. Reconcile metadata and data invariants, decide promote or rollback, communicate outcome, and retain the evidence bundle.
 
-- [ ] Production Connected App has minimum OAuth scopes (not `full`)
-- [ ] Dedicated integration user with restricted profile (not admin)
-- [ ] SF_LOGIN_URL set to `https://login.salesforce.com` (not `test.salesforce.com`)
-- [ ] All credentials stored in vault/secrets manager (not env files)
-- [ ] IP restrictions configured on Connected App and user profile
-- [ ] JWT certificate uploaded (if using JWT Bearer flow)
+## Approval Boundaries
 
-### API Limit Planning
+Do not approve, deploy, activate, mutate, backfill, or disable controls without release, Salesforce admin, security, data, and business-owner authorization.
 
-- [ ] Estimated daily API calls documented
-- [ ] API limit headroom > 20% (`GET /services/data/v59.0/limits/`)
-- [ ] Bulk API used for operations > 200 records
-- [ ] Composite API used for multi-object transactions
-- [ ] sObject Collections used for batch CRUD (max 200/call)
-- [ ] Caching implemented for describe/metadata calls
+## Output
 
-### Code Quality
-
-- [ ] All SOQL queries use parameterized filters (no injection)
-- [ ] Error handling covers Salesforce error codes (`INVALID_FIELD`, `REQUEST_LIMIT_EXCEEDED`, etc.)
-- [ ] Retry logic implemented for transient errors (`UNABLE_TO_LOCK_ROW`, `SERVER_UNAVAILABLE`)
-- [ ] No hardcoded Salesforce IDs (use External IDs or SOQL lookups)
-- [ ] Connection auto-refreshes expired tokens
-- [ ] Logging redacts PII and credentials
-
-### Sandbox Validation
-
-```bash
-# Test in Full sandbox first (mirrors production data)
-# 1. Deploy to sandbox
-sf project deploy start --target-org my-sandbox
-
-# 2. Run integration tests against sandbox
-SF_LOGIN_URL=https://test.salesforce.com npm run test:integration
-
-# 3. Verify API limits are within budget
-sf limits api display --target-org my-sandbox --json | jq '.result[] | select(.name == "DailyApiRequests")'
-
-# 4. Check Apex test results
-sf apex run test --target-org my-sandbox --result-format human --code-coverage
-```
-
-### Health Check Endpoint
-
-```typescript
-async function salesforceHealthCheck(): Promise<{
-  status: 'healthy' | 'degraded' | 'unhealthy';
-  details: Record<string, any>;
-}> {
-  const conn = await getConnection();
-  const start = Date.now();
-
-  try {
-    const [identity, limits] = await Promise.all([
-      conn.identity(),
-      conn.request('/services/data/v59.0/limits/'),
-    ]);
-
-    const apiUsagePercent = ((limits.DailyApiRequests.Max - limits.DailyApiRequests.Remaining) / limits.DailyApiRequests.Max) * 100;
-
-    return {
-      status: apiUsagePercent > 90 ? 'degraded' : 'healthy',
-      details: {
-        connected: true,
-        latencyMs: Date.now() - start,
-        instance: conn.instanceUrl,
-        apiRemaining: limits.DailyApiRequests.Remaining,
-        apiUsagePercent: Math.round(apiUsagePercent),
-      },
-    };
-  } catch (error: any) {
-    return {
-      status: 'unhealthy',
-      details: { connected: false, error: error.message, latencyMs: Date.now() - start },
-    };
-  }
-}
-```
-
-### Deployment Steps
-
-```bash
-# 1. Pre-flight: check Salesforce system status
-curl -s https://api.status.salesforce.com/v1/incidents/active | jq 'length'
-
-# 2. Verify production API limits
-sf limits api display --target-org production --json
-
-# 3. Deploy metadata (if applicable)
-sf project deploy start --target-org production --dry-run  # Validate first
-sf project deploy start --target-org production             # Then deploy
-
-# 4. Verify health check
-curl -sf https://yourapp.com/health | jq '.services.salesforce'
-
-# 5. Monitor error rates for 30 minutes after deploy
-```
-
-### Rollback Procedure
-
-```bash
-# Metadata rollback
-sf project deploy start --target-org production --metadata-dir rollback/
-
-# Integration rollback: revert to previous version
-# Feature flag: disable Salesforce integration without redeploying
-SF_INTEGRATION_ENABLED=false
-```
+Return a signed readiness matrix, parity gaps, gate results, canary scope, stop signals, deployment receipt, reconciliation, rollback state, and follow-up owners.
 
 ## Error Handling
 
-| Alert | Condition | Severity |
-|-------|-----------|----------|
-| API Limit Warning | > 80% daily limit used | P3 |
-| API Limit Critical | > 95% daily limit used | P1 |
-| Auth Failure | INVALID_SESSION_ID errors | P1 |
-| SOQL Errors | MALFORMED_QUERY or INVALID_FIELD | P2 |
-| Record Lock | UNABLE_TO_LOCK_ROW spikes | P3 |
+| Condition | Response |
+|---|---|
+| Production parity gap is unresolved | Issue a no-go and assign the gap; do not waive it through a checklist edit. |
+| Canary breaches a stop signal | Pause or rollback according to the approved plan before further rollout. |
+| Rollback cannot restore the invariant | Use the documented compensating action and escalate severity. |
+
+## Example
+
+A redacted completion receipt might look like this:
+
+```text
+release=SF-1.8; candidate=immutable; gates=pass; canary=approved; deployed=yes; reconciled=yes; rollback=ready
+```
 
 ## Resources
 
-- [Salesforce Status Page](https://status.salesforce.com)
-- [Deployment Best Practices](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_develop.htm)
-- [Sandbox Types](https://help.salesforce.com/s/articleView?id=sf.deploy_sandboxes_intro.htm)
+- [Salesforce DX development model](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_develop.htm)
+- [Salesforce release notes](https://help.salesforce.com/s/articleView?id=release-notes.salesforce_release_notes.htm)
 
 ## Next Steps
 
-For version upgrades, see `salesforce-upgrade-migration`.
+Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.

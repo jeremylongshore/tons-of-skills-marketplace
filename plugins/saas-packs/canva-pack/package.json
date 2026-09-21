@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/canva-pack",
-  "version": "1.0.2",
-  "description": "Claude Code skill pack for Canva - 30 skills covering design APIs, brand management, and visual content creation",
+  "version": "2.0.0",
+  "description": "30 governed Canva Connect operator workflows for OAuth, designs, asynchronous jobs, and secure integrations",
   "main": "README.md",
   "type": "module",
   "files": [

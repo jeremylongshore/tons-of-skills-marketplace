@@ -6,13 +6,16 @@ description: 'Clone websites to React/HTML code and customize Anima output with 
 
   or building design-system-aware code from URL screenshots.
 
-  Trigger: "anima website to code", "anima URL clone", "anima AI customization",
+  Trigger with: "anima website to code", "anima URL clone", "anima AI customization",
 
   "website to react", "clone website to code".
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.4.0
+version: 2.0.0
+argument-hint: "[public-url-or-prompt]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -21,18 +24,28 @@ tags:
 - figma
 - anima
 - website-cloning
-compatibility: Designed for Claude Code
+compatibility: Requires Node.js 20+, approved Anima API access, current Anima SDK documentation, and authorized Figma or website source access
 ---
 # Anima Core Workflow B — Website-to-Code & AI Customization
 
 ## Overview
 
-Secondary workflow: use Anima to clone live websites into React/HTML code and customize generated output with AI-powered code modification. Anima supports URL-to-code conversion alongside Figma-to-code.
+Convert an authorized public website with the current backend SDK, then review the
+result against rights, asset, dependency, accessibility, and output-containment
+policies. Use prompt generation only as an explicitly accepted early-preview path.
 
 ## Prerequisites
 
 - Completed `anima-install-auth` setup
-- Understanding of Anima's code generation settings
+- Written authority to reproduce the source site and its assets
+- An allowlisted public URL; private sites require the licensed MHTML path and a
+  separate sensitive-capture handling policy
+
+## Authentication
+
+Instantiate the backend `Anima` client with a managed Anima token. Website and
+prompt requests do not use a browser-exposed credential; reject unauthorized
+callers and non-allowlisted source URLs before calling the SDK.
 
 ## Instructions
 
@@ -40,28 +53,48 @@ Secondary workflow: use Anima to clone live websites into React/HTML code and cu
 
 ```typescript
 // src/workflows/website-to-code.ts
-// Anima can clone any public website and generate React or HTML code
+// Generate from an allowlisted public website you are authorized to reproduce.
 
 import { Anima } from '@animaapp/anima-sdk';
+import crypto from 'node:crypto';
+
+const APPROVED_HOSTS = new Set(['docs.example.com']);
 
 const anima = new Anima({
   auth: { token: process.env.ANIMA_TOKEN! },
 });
 
-// Note: URL-to-code may use a different API endpoint
-// Check docs.animaapp.com for current availability
-async function cloneWebsiteToReact(url: string, outputDir: string) {
-  // Anima's website-to-code feature captures the page and generates code
-  // This is available via the Anima Playground or API (partner access)
+async function cloneWebsiteToReact(url: string) {
+  const source = new URL(url);
+  if (source.protocol !== 'https:' || !APPROVED_HOSTS.has(source.hostname)) {
+    throw new Error('Source URL is not approved');
+  }
+  return anima.generateCodeFromWebsite({
+    url: source.href,
+    settings: {
+      framework: 'react',
+      language: 'typescript',
+      styling: 'tailwind',
+      uiLibrary: 'shadcn',
+    },
+    tracking: { externalId: crypto.randomUUID() },
+  });
+}
 
-  // For Figma-based workflow, use the Figma plugin to import website screenshots
-  // then generate code from the imported frames
-  console.log(`Cloning ${url} to React components...`);
-
-  // Process via Figma intermediary:
-  // 1. Use Anima Figma plugin to capture website layout
-  // 2. Generate code from the captured frames
-  // 3. Customize with AI post-processing
+async function generateFromApprovedPrompt(prompt: string) {
+  if (prompt.length < 20 || prompt.length > 2_000) {
+    throw new Error('Prompt length is outside the approved range');
+  }
+  return anima.generateCodeFromPrompt({
+    prompt,
+    settings: {
+      framework: 'react',
+      language: 'typescript',
+      styling: 'tailwind',
+      uiLibrary: 'shadcn',
+    },
+    tracking: { externalId: crypto.randomUUID() },
+  });
 }
 ```
 
@@ -69,9 +102,6 @@ async function cloneWebsiteToReact(url: string, outputDir: string) {
 
 ```typescript
 // src/workflows/customize-output.ts
-import fs from 'fs';
-import path from 'path';
-
 interface CustomizationRule {
   pattern: RegExp;
   replacement: string;
@@ -80,16 +110,17 @@ interface CustomizationRule {
 
 // Apply project-specific customizations to Anima output
 function customizeGeneratedCode(
-  files: Array<{ fileName: string; content: string }>,
+  files: Record<string, { content: string; isBinary: boolean }>,
   rules: CustomizationRule[],
-): Array<{ fileName: string; content: string }> {
-  return files.map(file => {
+): Record<string, { content: string; isBinary: boolean }> {
+  return Object.fromEntries(Object.entries(files).map(([fileName, file]) => {
+    if (file.isBinary) return [fileName, file];
     let content = file.content;
     for (const rule of rules) {
       content = content.replace(rule.pattern, rule.replacement);
     }
-    return { ...file, content };
-  });
+    return [fileName, { ...file, content }];
+  }));
 }
 
 // Common customization rules
@@ -160,31 +191,33 @@ import fs from 'fs';
 import path from 'path';
 
 function organizeGeneratedFiles(
-  files: Array<{ fileName: string; content: string }>,
+  files: Record<string, { content: string; isBinary: boolean }>,
   baseDir: string,
 ): void {
   // Organize by component type
   const structure: Record<string, string> = {
     '.tsx': 'components',
-    '.vue': 'components',
     '.css': 'styles',
     '.ts': 'types',
     '.html': 'pages',
   };
 
-  for (const file of files) {
-    const ext = path.extname(file.fileName);
+  for (const [fileName, file] of Object.entries(files)) {
+    if (file.isBinary) throw new Error(`Binary asset needs explicit handling: ${fileName}`);
+    const ext = path.extname(fileName);
     const subDir = structure[ext] || 'misc';
     const dir = path.join(baseDir, subDir);
+    const target = path.resolve(dir, fileName);
+    if (!target.startsWith(`${path.resolve(baseDir)}${path.sep}`)) throw new Error('Unsafe output path');
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, file.fileName), file.content);
+    fs.writeFileSync(target, file.content);
   }
 
   // Generate barrel export
-  const components = files.filter(f => f.fileName.endsWith('.tsx'));
+  const components = Object.keys(files).filter(fileName => fileName.endsWith('.tsx'));
   if (components.length > 0) {
-    const exports = components.map(f => {
-      const name = path.basename(f.fileName, '.tsx');
+    const exports = components.map(fileName => {
+      const name = path.basename(fileName, '.tsx');
       return `export { default as ${name} } from './${name}';`;
     });
     fs.writeFileSync(
@@ -195,9 +228,14 @@ function organizeGeneratedFiles(
 }
 ```
 
+## Tool Discipline
+
+Use Read and Grep to inspect the existing integration and generated diff before changing anything. Use Write or Edit only inside the approved generated-code, test, or configuration paths. Use the declared Bash commands only for the explicit install, validation, or diagnostic steps in this workflow; never print tokens, source designs, generated source, or private website captures.
+
 ## Output
 
-- Website cloning to React/HTML via Figma intermediary
+- Website conversion through `generateCodeFromWebsite`
+- Early-preview prompt generation through `generateCodeFromPrompt`
 - Post-generation customization rules engine
 - Design token mapper for project consistency
 - File organizer with barrel exports
@@ -218,7 +256,7 @@ redesign from an original specification instead of bypassing site controls.
 
 | Error | Cause | Solution |
 |-------|-------|----------|
-| URL not accessible | Website blocks scraping | Use Figma plugin to capture manually |
+| URL not accessible | Source blocks capture or is not public | Stop; do not bypass source controls |
 | Output doesn't match design | Complex animations/interactions | Simplify to static layout first |
 | Token mapping misses | New colors/spacing in design | Update token map after each generation |
 
@@ -227,7 +265,3 @@ redesign from an original specification instead of bypassing site controls.
 - [Anima API](https://docs.animaapp.com/docs/anima-api)
 - [Anima Playground](https://www.animaapp.com)
 - [Anima Blog: GenAI Customization](https://www.animaapp.com/blog/genai/genai-figma-to-code-6-examples-of-how-to-use-animas-new-ai-code-customization/)
-
-## Next Steps
-
-For common errors and debugging, see `anima-common-errors`.

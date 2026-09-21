@@ -7,11 +7,14 @@ description: 'Install the Anima SDK and configure authentication for Figma-to-co
 
   or initializing the @animaapp/anima-sdk for server-side code generation.
 
-  Trigger: "install anima", "setup anima", "anima auth", "anima figma token".
+  Trigger with: "install anima", "setup anima", "anima auth", "anima figma token".
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.4.0
+version: 2.0.0
+argument-hint: "[backend-project]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -20,17 +23,19 @@ tags:
 - figma
 - anima
 - code-generation
-compatibility: Designed for Claude Code
+compatibility: Requires Node.js 20+, approved Anima API access, current Anima SDK documentation, and authorized Figma or website source access
 ---
 # Anima Install & Auth
 
 ## Overview
 
-Install `@animaapp/anima-sdk` and configure authentication tokens. Anima converts Figma designs into production-ready React, Vue, or HTML code with Tailwind, MUI, AntD, or shadcn styling. The SDK runs server-side only.
+Install the backend-only `@animaapp/anima-sdk`, bind managed Anima and Figma
+credentials, and prove one authorized React or HTML generation without exposing
+either token.
 
 ## Prerequisites
 
-- Node.js 18+ (SDK is server-side only)
+- Node.js 20+ (SDK is server-side only)
 - Figma account with API access
 - Anima API token (request at [animaapp.com](https://www.animaapp.com))
 - Figma Personal Access Token
@@ -53,14 +58,9 @@ npm install @animaapp/anima-sdk
 #    Request from Anima team (currently limited partner access)
 #    https://docs.animaapp.com/docs/anima-api
 
-# Store securely
-cat > .env << 'EOF'
-ANIMA_TOKEN=your-anima-api-token
-FIGMA_TOKEN=your-figma-personal-access-token
-EOF
-
-echo ".env" >> .gitignore
-chmod 600 .env
+# Bind ANIMA_TOKEN and FIGMA_TOKEN with the runtime secret manager.
+# Check presence without printing values.
+test -n "$ANIMA_TOKEN" && test -n "$FIGMA_TOKEN"
 ```
 
 ### Step 3: Initialize and Verify
@@ -89,13 +89,13 @@ async function verifySetup() {
       },
     });
 
-    console.log(`Generated ${files.length} files`);
-    for (const file of files) {
-      console.log(`  ${file.fileName} (${file.content.length} chars)`);
+    console.log(`Generated ${Object.keys(files).length} files`);
+    for (const [fileName, file] of Object.entries(files)) {
+      console.log(`  ${fileName} (${file.content.length} chars; binary=${file.isBinary})`);
     }
     return true;
-  } catch (error) {
-    console.error('Setup verification failed:', error);
+  } catch {
+    console.error({ failureClass: 'setup-verification-failed' });
     return false;
   }
 }
@@ -113,10 +113,14 @@ File Key: ABC123xyz
 Node ID: 1:2 (from the URL query parameter)
 ```
 
+## Tool Discipline
+
+Use Read and Grep to inspect the existing integration and generated diff before changing anything. Use Write or Edit only inside the approved generated-code, test, or configuration paths. Use the declared Bash commands only for the explicit install, validation, or diagnostic steps in this workflow; never print tokens, source designs, generated source, or private website captures.
+
 ## Output
 
 - `@animaapp/anima-sdk` installed
-- Anima token and Figma token configured in `.env`
+- Anima and Figma tokens bound through the runtime secret manager
 - Verified code generation from a Figma design
 - Understanding of file key and node ID extraction
 
@@ -147,7 +151,3 @@ with broader design access as a workaround.
 - [Anima SDK GitHub](https://github.com/AnimaApp/anima-sdk)
 - [Figma API Auth](https://www.figma.com/developers/api#access-tokens)
 - [Anima npm](https://www.npmjs.com/package/@animaapp/anima-sdk)
-
-## Next Steps
-
-Proceed to `anima-hello-world` for your first design-to-code conversion.

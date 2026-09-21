@@ -12,7 +12,7 @@ description: 'Implement Claude API reference architectures for common use cases.
 
   '
 allowed-tools: Read, Write, Edit, Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -187,9 +187,9 @@ For 100 synthetic asynchronous classification jobs, use a sandbox queue with a b
 
 ## Resources
 
-- [API Overview](https://docs.anthropic.com/en/api/getting-started)
-- [Tool Use](https://docs.anthropic.com/en/docs/build-with-claude/tool-use)
-- [Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
+- [API Overview](https://platform.claude.com/docs/en/api/overview)
+- [Tool Use](https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview)
+- [Prompt Caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)
 
 ## Next Steps
 

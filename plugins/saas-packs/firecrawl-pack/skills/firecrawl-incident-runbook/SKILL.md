@@ -1,229 +1,78 @@
 ---
 name: firecrawl-incident-runbook
-description: 'Execute Firecrawl incident response procedures with triage, mitigation,
-  and postmortem.
-
-  Use when responding to Firecrawl-related outages, investigating scrape/crawl failures,
-
-  or running post-incident reviews for Firecrawl integration issues.
-
-  Trigger with phrases like "firecrawl incident", "firecrawl outage",
-
-  "firecrawl down", "firecrawl on-call", "firecrawl emergency", "firecrawl broken".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*), Bash(kubectl:*)
-version: 1.11.0
+description: >-
+  Analyze and mitigate Firecrawl integration incidents involving outage, credits, throttling, policy denial, job failure, webhook loss, or unsafe content. Use when responding to active production impact. Trigger with "Firecrawl incident", "Firecrawl outage", or "Firecrawl crawl failure".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<incident-id> <severity>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- incident-response
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, incident-response, operations]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Incident Runbook
+# Firecrawl Incident Response
 
 ## Overview
 
-Rapid incident response procedures for Firecrawl integration failures. Covers API outage triage, credential issues, credit exhaustion, crawl job failures, and webhook delivery problems.
+Stabilize the affected workflow, preserve privacy-safe evidence, and restore service through a tested degraded mode or rollback. Separate Firecrawl service health, target-origin behavior, and internal pipeline failures.
 
 ## Prerequisites
 
-- A declared incident commander, communications owner, escalation path, and approved secure evidence location.
-- Current service ownership, target-policy, credential-revocation, and rollback references.
-- A way to collect aggregate health evidence without exposing captured pages or keys.
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
+
+## Current Contract
+
+Firecrawl's error catalog defines retryability; async operations expose job/status/cancellation surfaces; queue status helps distinguish capacity pressure; status polling remains the recovery path when webhooks are delayed or exhausted. A crawl webhook set does not include a crawl.failed event in the current documented event list.
+
+## Authentication
+
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-1. Assign severity and commander, record the start time and opaque incident ID, and stabilize unsafe jobs by disabling or rate-limiting them.
-2. Determine whether the event concerns availability, credentials, policy enforcement, budget exhaustion, or data exposure; preserve redacted evidence only.
-3. Apply the smallest safe mitigation, validate both recovery and a safe failure path, and communicate the user impact through the incident channel.
-4. Rotate or revoke credentials when exposure is possible, and do not resume queues until policy and idempotency checks pass.
-5. Record root cause, corrective actions, owners, and a follow-up review date before resolving the incident.
+1. Declare incident owner, severity, affected operation/environment, start time, customer impact, data risk, approved communication channel, and next update time.
+2. Pause or bound producers before investigating if retries, crawl scope, or pay-as-you-go could amplify cost or target load.
+3. Check internal deployments and dependencies, Firecrawl service evidence, credentials, credits, team restrictions, queue/concurrency, job state, webhook delivery, and target-origin status.
+4. Classify the failure with the official error catalog. Retry only documented retryable classes, honor Retry-After, and cap attempts.
+5. Choose a reversible mitigation: reduce concurrency, narrow limits, switch to polling, serve last known approved content, disable an expensive option, or roll back the application release.
+6. Verify recovery with a synthetic or approved canary and confirm queue drain, error rate, output quality, data integrity, and spend stabilization.
+7. Communicate resolution, retain redacted evidence, and create owned corrective actions for detection, prevention, runbook, and rollback gaps.
+
+## Tool Discipline
+
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
+
+## Approval Boundaries
+
+Require incident-command approval before key rotation, plan or pay-as-you-go changes, traffic failover, target-scope changes, disabling security/retention controls, or vendor disclosure.
 
 ## Output
 
-Produce an incident receipt with severity, opaque ID, timeline, impact, mitigation, recovery verification, rollback/revocation decisions, owner, and follow-ups. Sensitive evidence remains in the approved incident store.
-
-## Examples
-
-During a synthetic provider outage, pause the worker, verify queued jobs do not replay side effects, and send a redacted status update. Restore one canary after health recovers, then reopen normal processing only after the commander records the recovery receipt.
-
-## Severity Levels
-
-| Level | Definition | Response Time | Examples |
-|-------|------------|---------------|----------|
-| P1 | Complete failure | < 15 min | API returns 401/500 on all requests |
-| P2 | Degraded service | < 1 hour | High latency, partial failures, 429s |
-| P3 | Minor impact | < 4 hours | Webhook delays, some empty scrapes |
-| P4 | No user impact | Next business day | Monitoring gaps, credit warnings |
-
-## Quick Triage (Run First)
-
-```bash
-set -euo pipefail
-# 1. Test Firecrawl API directly
-echo "=== API Health ==="
-curl -s -w "\nHTTP %{http_code}\n" https://api.firecrawl.dev/v1/scrape \
-  -H "Authorization: Bearer $FIRECRAWL_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"url":"https://example.com","formats":["markdown"]}' | jq '{success, error}'
-
-# 2. Check credit balance
-echo "=== Credits ==="
-curl -s https://api.firecrawl.dev/v1/team/credits \
-  -H "Authorization: Bearer $FIRECRAWL_API_KEY" | jq .
-
-# 3. Check our app health
-echo "=== App Health ==="
-curl -sf https://api.yourapp.com/health | jq '.services.firecrawl' || echo "App unhealthy"
-```
-
-## Decision Tree
-
-```
-Firecrawl API returning errors?
-├─ 401: API key invalid
-│   → Verify key at firecrawl.dev/app, rotate if needed
-├─ 402: Credits exhausted
-│   → Upgrade plan or wait for monthly reset
-├─ 429: Rate limited
-│   → Reduce concurrency, enable backoff, check Retry-After
-├─ 500/503: Firecrawl outage
-│   → Enable fallback mode, monitor firecrawl.dev status
-└─ API working fine
-    └─ Our integration issue
-        ├─ Empty markdown → Increase waitFor, check target site
-        ├─ Crawl stuck → Check job status, enforce timeout
-        └─ Webhook not firing → Verify endpoint, check signature
-```
-
-## Immediate Actions by Error Type
-
-### 401 — Authentication Failure
-
-```bash
-set -euo pipefail
-# Verify current key
-echo "Key prefix: ${FIRECRAWL_API_KEY:0:5}"
-echo "Key length: ${#FIRECRAWL_API_KEY}"
-
-# Test with explicit key
-curl -s https://api.firecrawl.dev/v1/scrape \
-  -H "Authorization: Bearer $FIRECRAWL_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"url":"https://example.com","formats":["markdown"]}' | jq .success
-
-# If fails: regenerate key at firecrawl.dev/app and update all environments
-```
-
-### 402 — Credits Exhausted
-
-```bash
-set -euo pipefail
-# Check balance
-curl -s https://api.firecrawl.dev/v1/team/credits \
-  -H "Authorization: Bearer $FIRECRAWL_API_KEY" | jq .
-
-# Immediate: disable non-critical scraping
-# Long-term: upgrade plan or implement credit budget
-```
-
-### 429 — Rate Limited
-
-```typescript
-// Enable emergency rate limiting
-const EMERGENCY_DELAY_MS = 5000; // 5s between requests
-
-async function emergencyScrape(url: string) {
-  await new Promise(r => setTimeout(r, EMERGENCY_DELAY_MS));
-  return firecrawl.scrapeUrl(url, { formats: ["markdown"] });
-}
-```
-
-### 500/503 — Firecrawl Outage
-
-```typescript
-// Enable graceful degradation
-async function scrapeWithFallback(url: string) {
-  try {
-    return await firecrawl.scrapeUrl(url, { formats: ["markdown"] });
-  } catch (error: any) {
-    if (error.statusCode >= 500) {
-      console.error("Firecrawl unavailable — using cached content");
-      return getCachedContent(url); // serve stale data
-    }
-    throw error;
-  }
-}
-```
-
-## Communication Templates
-
-### Internal (Slack)
-
-```
-P[1-4] INCIDENT: Firecrawl Integration
-Status: INVESTIGATING
-Impact: [Describe user-facing impact]
-Error: [401/402/429/500] — [brief description]
-Action: [What you're doing right now]
-Next update: [time]
-```
-
-## Post-Incident
-
-### Evidence Collection
-
-```bash
-set -euo pipefail
-# Collect debug bundle
-mkdir -p incident-$(date +%Y%m%d)
-curl -s https://api.firecrawl.dev/v1/team/credits \
-  -H "Authorization: Bearer $FIRECRAWL_API_KEY" > incident-$(date +%Y%m%d)/credits.json
-
-# Application logs
-kubectl logs -l app=my-app --since=1h | grep -i firecrawl > incident-$(date +%Y%m%d)/logs.txt 2>/dev/null || true
-```
-
-### Postmortem Template
-
-```
-## Incident: Firecrawl [Error Type]
-Date: YYYY-MM-DD | Duration: X hours | Severity: P[1-4]
-
-### Summary
-[1-2 sentence description]
-
-### Timeline
-- HH:MM — [First alert]
-- HH:MM — [Investigation started]
-- HH:MM — [Root cause identified]
-- HH:MM — [Resolved]
-
-### Root Cause
-[Technical explanation]
-
-### Action Items
-- [ ] [Preventive measure] — Owner — Due date
-```
+Return the timeline, impact, classification, mitigations, approvals, canary and recovery evidence, residual risk, next update, and post-incident actions.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Can't reach Firecrawl API | Network/DNS issue | Try from different network, check DNS |
-| All scrapes return empty | Target site changed | Verify manually, adjust scrape options |
-| Crawl jobs never complete | Queue backup | Cancel stuck jobs, reduce concurrency |
-| Webhook endpoint unreachable | Deployment issue | Check HTTPS cert, DNS, firewall |
+- Service state is ambiguous: hold producers and collect bounded evidence rather than mass retrying.
+- Mitigation changes data quality or freshness: label degraded output and obtain product-owner acceptance.
+- Potential credential or content exposure: invoke the security incident path and preserve evidence without broad collection.
+
+## Examples
+
+- "Crawls stopped completing" checks deployment, queue, job status, errors, and target status before retrying.
+- "Webhooks stopped" switches to bounded status polling while signature and delivery failures are investigated.
 
 ## Resources
 
-- [Firecrawl Dashboard](https://firecrawl.dev/app)
-- Firecrawl Status
-- [GitHub Issues](https://github.com/mendableai/firecrawl/issues)
-
-## Next Steps
-
-For data handling, see `firecrawl-data-handling`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

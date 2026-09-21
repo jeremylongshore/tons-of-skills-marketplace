@@ -1,73 +1,99 @@
 ---
 name: persona-prod-checklist
-description: 'Production deployment checklist for Persona identity verification.
-
-  Use when working with Persona identity verification.
-
-  Trigger with phrases like "persona prod-checklist", "persona prod-checklist".
-
-  '
-allowed-tools: Read, Bash(curl:*), Grep
-version: 1.4.0
+description: >-
+  Validate a Persona integration for production with evidence across identity flow, privacy, security, reliability, and rollback. Use when preparing a go-live. Trigger with: "launch Persona", "Persona production checklist", "approve Persona go-live".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[release-sha-and-environment]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- persona
-- identity
-- kyc
-- verification
-compatibility: Designed for Claude Code
+  - saas
+  - persona
+  - production
+  - readiness
+  - release
+compatibility: 'Requires an authorized Persona environment, current first-party documentation, a reviewed dated API version, and privacy-safe operational evidence.'
 ---
-# persona prod checklist | sed 's/\b\(.\)/\u\1/g'
+
+# Persona Production Readiness Gate
 
 ## Overview
 
-Production API keys, HTTPS webhooks, compliance review, monitoring, rollback.
+A production key and passing happy path are not enough. The gate must prove environment isolation, template governance, API-version compatibility, authentic replay-safe webhooks, quota behavior, privacy controls, manual review, rollback, and accountable approval.
 
 ## Prerequisites
 
-- Completed `persona-install-auth` setup
-- Valid Persona API key (sandbox or production)
+- Immutable release SHA and production architecture
+- Named security, privacy, compliance, product, and operations approvers
+- Sandbox evidence matching the intended production configuration
 
 ## Instructions
 
-### Step 1: Implementation
+### Step 1: Freeze release inputs
 
-```python
-import os, requests
+Record code SHA, API version, templates and versions, endpoint IDs, domains, environment, feature flags, and migration plan.
 
-HEADERS = {
-    "Authorization": f"Bearer {os.environ['PERSONA_API_KEY']}",
-    "Persona-Version": "2023-01-05",
-}
-BASE = "https://withpersona.com/api/v1"
+### Step 2: Verify access and privacy
 
-# Production deployment checklist for Persona identity verification
-resp = requests.get(f"{BASE}/inquiries?page[size]=10", headers=HEADERS)
-resp.raise_for_status()
-inquiries = resp.json()["data"]
-for inq in inquiries:
-    print(f"  {inq['id']}: {inq['attributes']['status']}")
-```
+Prove least-privilege keys, secret rotation, PII minimization, retention, access logging, customer rights, redaction governance, and incident response.
+
+### Step 3: Exercise identity paths
+
+Run synthetic pass, fail, retry, abandon, resume, unknown-verification, duplicate-customer, and manual-review scenarios.
+
+### Step 4: Prove event reliability
+
+Verify raw-body HMAC, rotation candidates, duplicate delivery, out-of-order delivery, queue recovery, dead-letter replay, and GET reconciliation.
+
+### Step 5: Test limits and failures
+
+Exercise 429 handling, product-quota exhaustion, provider timeout, ambiguous POST, dependency outage, and degraded manual path.
+
+### Step 6: Approve release and rollback
+
+Require named approvals, deploy a narrow cohort, watch defined indicators, and demonstrate rollback without losing authoritative events or decisions.
+
+## Authentication
+
+Production readiness requires production credentials to remain in the production secret boundary. Tests should prove bindings and permissions without exporting their values.
+
+## Tool Discipline
+
+Use Read and Grep to inspect application configuration, provider documentation, fixtures, schemas, tests, and redacted operational evidence before proposing a change. Use Write or Edit only for an approved implementation, configuration, test, runbook, or redacted receipt. Do not create, resume, approve, decline, redact, rotate, revoke, deploy, or otherwise mutate production Persona resources without explicit operator approval.
 
 ## Output
 
-- Production API keys, HTTPS webhooks, compliance review, monitoring, rollback.
+- Pass/fail gate matrix with linked evidence
+- Named exceptions, owners, expiry dates, and residual risk
+- Release, observation, rollback, and final approval receipt
+
+Return the environment, resource and event identifiers, API version, template context, source-contract fingerprint, evidence, unresolved risk, rollback state, and final decision without exposing bearer keys, webhook secrets, inquiry session tokens, raw identity documents, or unnecessary PII.
+
+## Examples
+
+The release stays blocked because the happy path passes but duplicate webhook delivery creates two domain transitions. The team fixes event-ID uniqueness, replays the evidence set, and obtains a new approval for the same release SHA.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| 401 Unauthorized | Invalid API key | Check PERSONA_API_KEY |
-| 429 Rate Limited | Too many requests | Implement backoff |
-| 404 Not Found | Wrong resource ID | Verify ID format |
+| Failure | Response |
+| --- | --- |
+| Evidence belongs to another SHA | Invalidate it and rerun the affected gates against the candidate release. |
+| Production template drift | Stop rollout until the template and expected verification policy are reconciled. |
+| Rollback loses queued events | Keep the release blocked and redesign the compatibility or replay boundary. |
+
+## Validation
+
+Verify the result against the linked first-party evidence, the pinned API version, redacted contract fixtures, an expected failure path, and the documented rollback or manual-disposition path. A successful request is not proof of a successful identity decision.
 
 ## Resources
 
-- [Persona API Reference](https://docs.withpersona.com/reference/introduction)
-- [Persona Documentation](https://docs.withpersona.com)
-
-## Next Steps
-
-See related Persona skills for more workflows.
+- [First-party source notes](references/official-docs.md)
+- [API introduction](https://docs.withpersona.com/api-introduction)
+- [API quickstart](https://docs.withpersona.com/api-quickstart-tutorial)
+- [API keys](https://docs.withpersona.com/api-keys)
+- [Rate limits](https://docs.withpersona.com/rate-limiting)
+- [Webhook best practices](https://docs.withpersona.com/webhooks-best-practices)
+- [Request idempotence](https://docs.withpersona.com/idempotence)

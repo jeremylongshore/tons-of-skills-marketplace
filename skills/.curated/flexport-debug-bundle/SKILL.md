@@ -1,133 +1,103 @@
 ---
 name: flexport-debug-bundle
-description: 'Collect Flexport API debug evidence for support tickets and troubleshooting.
-
-  Use when encountering persistent API issues, preparing support tickets,
-
-  or collecting diagnostic information for Flexport logistics problems.
-
-  Trigger: "flexport debug", "flexport support bundle", "flexport diagnostic".
-
-  '
-allowed-tools: Read, Bash(curl:*), Bash(tar:*), Bash(jq:*), Grep
-version: 1.6.0
+description: >-
+  Assemble a metadata-only Flexport diagnostic package without sweeping environment files, logs, or payloads. Use when escalating an API, MCP, OAuth, or webhook defect. Trigger with: "create Flexport debug bundle", "escalate Flexport issue", "collect Flexport diagnostics".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[incident-id-and-failing-operation]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - debugging
+  - support
+compatibility: 'Requires an incident workspace, approved redaction policy, and a named recipient for the diagnostic manifest.'
 ---
-# Flexport Debug Bundle
+
+# Redacted Flexport Diagnostic Manifest
 
 ## Overview
 
-Collect all necessary diagnostic information for Flexport support tickets. The bundle captures API connectivity, authentication status, recent shipment data, and error logs while automatically redacting secrets.
+Collect the smallest evidence that can distinguish contract, permission, version, transport, and provider failures. Never archive an entire environment, log directory, request body, webhook payload, or credential file.
 
 ## Prerequisites
 
-- An incident owner, secure evidence location, retention date, and redaction rules for logistics and credential data.
-- An opaque correlation ID and a safe sandbox/read-only reproduction path.
-
-## Output
-
-Create a redacted evidence index with runtime versions, configuration references, opaque correlation ID, aggregate diagnostics, access owner, retention date, and next action. Store sensitive originals only in the approved incident location.
-
-## Error Handling
-
-- Stop bundle generation if it contains a key, address, invoice, customs document, or raw shipment payload; rotate credentials if exposure is possible.
-- Record diagnostic gaps explicitly rather than broadening collection.
-- Escalate suspected data exposure before continuing support work.
-
-## Examples
-
-For a synthetic rate-limit failure, retain only the runtime version, opaque request ID, configured policy reference, and aggregate retry count. Review the archive for sensitive data, grant it solely to the incident owner, and delete it at the stated retention date.
+- Incident ID, time window, surface, and failing operation
+- Approved redaction rules and evidence recipient
+- Known credential alias, application release, and expected Flexport version
 
 ## Instructions
 
-### Step 1: Create Debug Bundle Script
+### Step 1: Set an allowlist
 
-```bash
-#!/bin/bash
-# flexport-debug.sh — run with: bash flexport-debug.sh
-set -euo pipefail
+Declare exact metadata fields before collection: timestamps, release SHA, surface, operation, version header, status/code/message, correlation ID, and payload digest.
 
-BUNDLE="flexport-debug-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE"
+### Step 2: Collect configuration shape
 
-echo "=== Flexport Debug Bundle ===" | tee "$BUNDLE/summary.txt"
-echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$BUNDLE/summary.txt"
-echo "Node: $(node --version 2>/dev/null || echo 'not found')" >> "$BUNDLE/summary.txt"
-echo "API Key set: ${FLEXPORT_API_KEY:+YES}" >> "$BUNDLE/summary.txt"
+Record variable names, endpoint hosts, feature flags, and credential aliases—not values, tokens, secret suffixes, or `.env` content.
+
+### Step 3: Summarize attempts
+
+List bounded attempt timestamps and outcomes. Exclude raw request/response bodies, document data, route details, names, emails, and addresses.
+
+### Step 4: Add contract evidence
+
+Include a minimal sanitized fixture or field-name diff only when necessary to reproduce the failure.
+
+### Step 5: Review twice
+
+Run automated secret/sensitive-data scanning, then require a human owner to approve the exact manifest and recipient.
+
+### Step 6: Transfer and expire
+
+Use the approved support channel, record a checksum and expiry, then delete according to incident evidence policy.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
+
+## Output
+
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
+
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
 ```
 
-### Step 2: Test API Connectivity
+## Examples
 
-```bash
-# API health and auth check
-echo -e "\n--- API Connectivity ---" >> "$BUNDLE/summary.txt"
-RESPONSE=$(curl -s -w "\n%{http_code}" \
-  -H "Authorization: Bearer $FLEXPORT_API_KEY" \
-  -H "Flexport-Version: 2" \
-  https://api.flexport.com/shipments?per=1 2>&1)
+A webhook escalation contains the receiver release SHA, event-type string, signature-header presence, body digest, status outcome, and timestamps. It contains neither the webhook body nor the secret.
 
-HTTP_CODE=$(echo "$RESPONSE" | tail -1)
-BODY=$(echo "$RESPONSE" | head -n -1)
+## Error Handling
 
-echo "HTTP Status: $HTTP_CODE" >> "$BUNDLE/summary.txt"
-echo "$BODY" | jq '{total_count: .data.total_count, has_records: (.data.records | length > 0)}' \
-  >> "$BUNDLE/api-test.json" 2>/dev/null || echo "Parse failed" >> "$BUNDLE/api-test.json"
-```
-
-### Step 3: Capture Recent Errors
-
-```bash
-# Collect recent error logs (redacted)
-echo -e "\n--- Recent Errors ---" >> "$BUNDLE/summary.txt"
-grep -i "flexport\|FLEXPORT" /var/log/app/*.log 2>/dev/null | \
-  tail -50 | \
-  sed 's/Bearer [^ ]*/Bearer ***REDACTED***/g' \
-  >> "$BUNDLE/errors.txt" 2>/dev/null || echo "No app logs found" >> "$BUNDLE/errors.txt"
-
-# Capture env config (redacted)
-env | grep -i FLEXPORT | sed 's/=.*/=***REDACTED***/' >> "$BUNDLE/env-redacted.txt"
-```
-
-### Step 4: Check Status Page and Package
-
-```bash
-# Flexport platform status
-echo -e "\n--- Platform Status ---" >> "$BUNDLE/summary.txt"
-curl -s https://status.flexport.com/api/v2/status.json | \
-  jq '{status: .status.description, updated: .page.updated_at}' \
-  >> "$BUNDLE/status.json" 2>/dev/null || echo "Status page unreachable" >> "$BUNDLE/status.json"
-
-# Package and output
-tar -czf "$BUNDLE.tar.gz" "$BUNDLE"
-rm -rf "$BUNDLE"
-echo "Bundle created: $BUNDLE.tar.gz"
-echo "Review contents before sharing: tar -tzf $BUNDLE.tar.gz"
-```
-
-## Checklist Before Submitting
-
-| Item | Included | Sensitive? |
-|------|----------|------------|
-| API connectivity test | Yes | No |
-| HTTP status codes | Yes | No |
-| Platform status | Yes | No |
-| Error logs (redacted) | Yes | Redacted |
-| Environment vars | Yes | Redacted |
-| Request IDs | Include from `X-Request-Id` header | No |
-
-**ALWAYS verify:** No API keys, tokens, passwords, or PII in the bundle before submitting.
+| Failure | Response |
+| --- | --- |
+| Secret scanner fires | Stop transfer, remove the material, rotate if exposure occurred, and rescan. |
+| Payload needed for reproduction | Create a synthetic minimal fixture rather than shipping production content. |
+| Recipient or purpose unclear | Do not build or send the manifest. |
+| Archive tool proposes broad paths | Reject it and use the explicit allowlist only. |
 
 ## Resources
 
-- [Flexport Status](https://status.flexport.com)
-- [Flexport Support](https://support.flexport.com)
-
-## Next Steps
-
-For rate limit issues, see `flexport-rate-limits`.
+- [First-party source notes](references/official-docs.md)
+- [Flexport v3 API reference](https://apidocs.flexport.com/v3/)
+- [Webhook endpoints](https://apidocs.flexport.com/v3/tag/Webhook-Endpoints/)
+- [API credential FAQ](https://developers.flexport.com/faq/api-credentials/)

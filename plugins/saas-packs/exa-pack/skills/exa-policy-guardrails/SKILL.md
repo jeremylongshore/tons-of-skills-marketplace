@@ -1,250 +1,75 @@
 ---
 name: exa-policy-guardrails
-description: 'Implement content policy enforcement, domain filtering, and usage guardrails
-  for Exa.
-
-  Use when setting up content safety rules, restricting search domains,
-
-  or enforcing query and budget policies for Exa integrations.
-
-  Trigger with phrases like "exa policy", "exa content filter",
-
-  "exa guardrails", "exa domain allowlist", "exa content moderation".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npx:*)
-version: 1.11.0
+description: >-
+  Enforce query, domain, moderation, freshness, content, and downstream-use policy before and after Exa retrieval. Use when operating or reviewing this Exa boundary. Trigger with "Exa policy guardrails", "review Exa policy guardrails", or "fix Exa policy guardrails".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<policy-set> <data-class> <allowed-domains>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- policy
-- content-moderation
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Policy Guardrails
-
-## Output
-
-- A versioned policy-control configuration with owner, scope, enforcement/evaluation evidence, exception path, and rollback decision.
-
-## Examples
-
-Test a guardrail using a sanitized query that should be allowed and one that should be blocked, verify the redacted decision/audit record, and review any exception through the designated owner. Do not encode private data or weaken guardrails solely to obtain a desired retrieval result.
+# Exa Query and Content Policy Guardrails
 
 ## Overview
 
-Policy enforcement for Exa neural search integrations. Exa searches the open web, so results may include unreliable sources, competitor content, or inappropriate material. This skill covers domain allowlists/blocklists (via Exa's `includeDomains`/`excludeDomains`), content moderation, query sanitization, freshness policies, and per-user budget enforcement.
+Enforce query, domain, moderation, freshness, content, and downstream-use policy before and after Exa retrieval. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- `exa-js` installed and configured
-- Content policy requirements defined
-- Redis for per-user quota tracking (optional)
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Search supports include and exclude domains, date filters, categories, user location, and moderation, with documented category incompatibilities. These controls reduce scope but do not replace application authorization, content inspection, attribution, or output policy.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Domain Filtering (Built-in Exa Feature)
+1. Translate the business purpose into allowed query classes, domains, dates, and outputs.
+2. Reject secrets, prohibited personal data, and disallowed investigation intent before retrieval.
+3. Apply supported Exa filters and moderation without inventing unsupported combinations.
+4. Inspect returned URLs, content, citations, and generated fields against the same policy.
+5. Quarantine prompt injection, malware, unverifiable claims, and unexpected sensitive data.
+6. Log content-free policy decisions and review exceptions with an accountable owner.
 
-```typescript
-import Exa from "exa-js";
+## Tool Discipline
 
-const exa = new Exa(process.env.EXA_API_KEY);
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-// Exa supports up to 1200 domains in includeDomains/excludeDomains
-const TRUSTED_SOURCES = {
-  medical: [
-    "pubmed.ncbi.nlm.nih.gov", "who.int", "cdc.gov",
-    "nejm.org", "nature.com", "thelancet.com",
-  ],
-  technical: [
-    "github.com", "stackoverflow.com", "developer.mozilla.org",
-    "docs.python.org", "nodejs.org", "arxiv.org",
-  ],
-  news: [
-    "reuters.com", "apnews.com", "bbc.com",
-    "techcrunch.com", "arstechnica.com",
-  ],
-};
+## Approval Boundaries
 
-const BLOCKED_DOMAINS = [
-  "competitor1.com", "competitor2.io",
-  "spam-farm.com", "content-mill.net",
-];
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-async function policySearch(
-  query: string,
-  category: keyof typeof TRUSTED_SOURCES | "general"
-) {
-  const opts: any = {
-    type: "auto",
-    numResults: 10,
-    text: { maxCharacters: 1000 },
-    moderation: true,  // Exa's built-in content moderation
-  };
+## Failure Modes
 
-  if (category !== "general" && TRUSTED_SOURCES[category]) {
-    opts.includeDomains = TRUSTED_SOURCES[category];
-  } else {
-    opts.excludeDomains = BLOCKED_DOMAINS;
-  }
+- Domain allowlists do not guarantee that every page is safe or accurate.
+- Company and people categories do not support every date or exclusion filter.
+- Moderation is not a substitute for tenant authorization or legal review.
 
-  return exa.searchAndContents(query, opts);
-}
-```
+## Output
 
-### Step 2: Query Content Policy
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-```typescript
-const BLOCKED_PATTERNS = [
-  /how to (hack|exploit|attack|ddos)/i,
-  /(buy|purchase|order)\s+(drugs|weapons|firearms)/i,
-  /personal.*(address|phone|ssn|social security)/i,
-  /generate.*(malware|ransomware|virus)/i,
-];
+## Example
 
-function validateQuery(input: string): string {
-  for (const pattern of BLOCKED_PATTERNS) {
-    if (pattern.test(input)) {
-      throw new PolicyViolation("Query blocked by content policy");
-    }
-  }
+- Permit a news query only on approved domains and dates, enable moderation, then re-check every returned URL before downstream use.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-  // Sanitize
-  return input
-    .replace(/[<>{}]/g, "")     // strip HTML/template chars
-    .replace(/\0/g, "")         // remove null bytes
-    .trim()
-    .substring(0, 500);         // cap query length
-}
+## Validation
 
-class PolicyViolation extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "PolicyViolation";
-  }
-}
-```
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-### Step 3: Freshness Policy
+## References
 
-```typescript
-// Enforce minimum recency for time-sensitive use cases
-function applyFreshnessPolicy(
-  opts: any,
-  maxAgeDays: number
-): any {
-  const cutoff = new Date(Date.now() - maxAgeDays * 24 * 60 * 60 * 1000);
-  return {
-    ...opts,
-    startPublishedDate: cutoff.toISOString(),
-  };
-}
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-// Usage: only return results from the last 90 days
-const results = await exa.searchAndContents("AI regulation updates",
-  applyFreshnessPolicy(
-    { type: "neural", numResults: 10, text: true },
-    90  // max 90 days old
-  )
-);
-```
-
-### Step 4: Per-User Budget Enforcement
-
-```typescript
-class ExaUsagePolicy {
-  private usage = new Map<string, { count: number; resetAt: number }>();
-  private limits: Record<string, number>;
-
-  constructor(limits: Record<string, number> = {
-    "free": 10,
-    "pro": 100,
-    "enterprise": 1000,
-  }) {
-    this.limits = limits;
-  }
-
-  checkQuota(userId: string, tier: string): void {
-    const limit = this.limits[tier] || this.limits["free"] || 10;
-    const now = Date.now();
-    const hourKey = `${userId}:${new Date().toISOString().substring(0, 13)}`;
-
-    let entry = this.usage.get(hourKey);
-    if (!entry || entry.resetAt < now) {
-      entry = { count: 0, resetAt: now + 3600 * 1000 };
-    }
-
-    if (entry.count >= limit) {
-      throw new PolicyViolation(
-        `Hourly search quota exceeded: ${entry.count}/${limit}`
-      );
-    }
-
-    entry.count++;
-    this.usage.set(hourKey, entry);
-  }
-}
-
-const usagePolicy = new ExaUsagePolicy();
-```
-
-### Step 5: Combined Policy Enforcement
-
-```typescript
-async function enforcedSearch(
-  userId: string,
-  userTier: string,
-  rawQuery: string,
-  category: keyof typeof TRUSTED_SOURCES | "general" = "general",
-  maxAgeDays?: number
-) {
-  // 1. Check quota
-  usagePolicy.checkQuota(userId, userTier);
-
-  // 2. Validate and sanitize query
-  const query = validateQuery(rawQuery);
-
-  // 3. Build options with domain policy
-  let opts: any = {
-    type: "auto",
-    numResults: 10,
-    text: { maxCharacters: 1000 },
-    moderation: true,
-  };
-
-  if (category !== "general" && TRUSTED_SOURCES[category]) {
-    opts.includeDomains = TRUSTED_SOURCES[category];
-  } else {
-    opts.excludeDomains = BLOCKED_DOMAINS;
-  }
-
-  // 4. Apply freshness policy
-  if (maxAgeDays) {
-    opts = applyFreshnessPolicy(opts, maxAgeDays);
-  }
-
-  // 5. Execute search
-  return exa.searchAndContents(query, opts);
-}
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Competitor content in results | No domain filtering | Apply `excludeDomains` blocklist |
-| Harmful query accepted | No content policy | Validate queries against blocked patterns |
-| Stale results displayed | No freshness check | Apply `startPublishedDate` filter |
-| API cost overrun | No usage limits | Implement per-user/tier quotas |
-| Blocked policy query | False positive | Review and adjust `BLOCKED_PATTERNS` |
-
-## Resources
-
-- [Exa Search Reference](https://docs.exa.ai/reference/search)
-- [Exa Domain Filtering](https://docs.exa.ai/reference/search)
-
-## Next Steps
-
-For architecture decisions, see `exa-architecture-variants`. For cost control, see `exa-cost-tuning`.
+- [Current first-party evidence map](references/official-docs.md)

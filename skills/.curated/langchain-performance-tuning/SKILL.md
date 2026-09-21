@@ -8,7 +8,7 @@ description: "Tune LangChain 1.0 / LangGraph 1.0 Python chains and agents for th
   \ performance\", \"langchain slow batch\",\n\"langchain throughput\", \"langchain\
   \ p95 latency\", \"semantic cache hit rate\".\n"
 allowed-tools: Read, Write, Edit, Bash(python:*), Bash(redis-cli:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

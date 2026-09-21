@@ -1,174 +1,99 @@
 ---
 name: palantir-migration-deep-dive
-description: 'Execute major Palantir Foundry migration strategies including data migration,
-
-  API version upgrades, and platform transitions.
-
-  Use when migrating data into Foundry, upgrading between API versions,
-
-  or re-platforming existing integrations.
-
-  Trigger with phrases like "migrate to palantir", "foundry migration",
-
-  "palantir data migration", "foundry replatform".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(pip:*), Bash(node:*)
-version: 1.5.0
-license: MIT
+description: >-
+  Plan and execute a phased migration of data pipelines, Ontology applications, or external integrations into Foundry. Use when replacing a legacy system or moving workloads across Foundry environments. Trigger with "Palantir migration" or "Foundry cutover".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[source-system-and-target-product]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- migration
-- data-migration
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, migration, cutover]
 ---
-# Palantir Migration Deep Dive
+# Palantir Foundry Migration and Cutover
 
 ## Overview
 
-Comprehensive guide for migrating data into Foundry, migrating from legacy systems to Foundry-backed architectures, and upgrading between Foundry API versions using the strangler fig pattern.
+Migrate contracts and evidence, not just bytes. Inventory data semantics, identities, access controls, pipeline transactions, Ontology entities, applications, and operational dependencies before dual-running a bounded slice.
 
 ## Prerequisites
 
-- Source system access and schema documentation
-- Foundry enrollment with write access
-- Understanding of Foundry data pipeline architecture (`palantir-reference-architecture`)
+- Name source and target owners, business workflows, datasets, schemas, identities, controls, service objectives, retention, and rollback deadline.
+- Choose the target Foundry primitives: connectors, transforms, Ontology resources, OSDK application, DevOps product, or Compute Module.
+- Read `references/official-docs.md` and document features or resources that do not map directly.
+- Establish a frozen baseline and approved non-production landing zone.
+
+## Current Contract
+
+- Foundry applications and resources can be packaged and promoted with DevOps and Marketplace across environment spaces.
+- Developer Console application installation remaps supported parameters, but API-name consistency and dependencies still require explicit handling.
+- Incremental transforms have transaction-history requirements and must reconcile with snapshot behavior.
+- Access control combines project roles, mandatory controls, Ontology policies, and application restrictions.
+
+## Authentication
+
+Inventory source and target identities, OAuth grant types, service users, scopes, and application restrictions as separate migration contracts. Store secrets in approved managers, rotate them through a staged cutover, and never copy source credentials into the target environment.
 
 ## Instructions
 
-### Step 1: Migration Assessment
+1. Inventory source contracts: identifiers, schemas, update/delete semantics, volumes, SLAs, consumers, permissions, audit requirements, and failure modes.
 
-```markdown
-## Migration Checklist
-- [ ] Source system inventory (tables, volumes, refresh rates)
-- [ ] Data classification (PII, confidential, public)
-- [ ] Schema mapping: source columns → Foundry dataset columns
-- [ ] Volume estimate: rows, GB, growth rate
-- [ ] Dependencies: downstream consumers of source data
-- [ ] Timeline: parallel run period, cutover date
-```
+2. Design target datasets, transforms, Ontology entities, Actions, applications, and controls with an explicit mapping for every source contract.
 
-### Step 2: Data Migration — Bulk Import
+3. Load a bounded historical slice, then establish incremental capture or repeatable deltas with reconciliation keys.
 
-```python
-import foundry, pandas as pd
+4. Dual-run representative workflows and compare counts, aggregates, sampled records, actions, permissions, latency, and failure handling.
 
-client = get_foundry_client()
+5. Freeze changes, reconcile final deltas, obtain owner sign-off, cut consumers over in stages, and retain the tested rollback window.
 
-# Read source data (example: PostgreSQL)
-df = pd.read_sql("SELECT * FROM orders WHERE year >= 2024", source_conn)
+## Tool Discipline
 
-# Upload to Foundry dataset
-client.datasets.Dataset.upload(
-    dataset_rid="ri.foundry.main.dataset.xxxxx",
-    branch_id="master",
-    file_path="orders.parquet",
-    data=df.to_parquet(),
-    content_type="application/x-parquet",
-)
-print(f"Uploaded {len(df)} rows to Foundry")
-```
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-### Step 3: Incremental Sync (Ongoing)
+## Approval Boundaries
 
-```python
-from datetime import datetime, timedelta
-
-def incremental_sync(client, source_conn, dataset_rid, last_sync):
-    """Sync only new/changed rows since last sync."""
-    query = f"""
-        SELECT * FROM orders 
-        WHERE updated_at > '{last_sync.isoformat()}'
-        ORDER BY updated_at
-    """
-    df = pd.read_sql(query, source_conn)
-    if df.empty:
-        print("No new rows to sync")
-        return last_sync
-
-    client.datasets.Dataset.upload(
-        dataset_rid=dataset_rid,
-        branch_id="master",
-        file_path=f"sync_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.parquet",
-        data=df.to_parquet(),
-    )
-    print(f"Synced {len(df)} rows")
-    return df["updated_at"].max()
-```
-
-### Step 4: Strangler Fig Pattern for API Migration
-
-```python
-class DualWriteClient:
-    """Write to both legacy and Foundry during migration period."""
-    def __init__(self, legacy_client, foundry_client):
-        self.legacy = legacy_client
-        self.foundry = foundry_client
-        self.foundry_enabled = os.environ.get("FOUNDRY_WRITES_ENABLED", "false") == "true"
-
-    def create_order(self, order_data):
-        # Always write to legacy (source of truth during migration)
-        result = self.legacy.create_order(order_data)
-
-        # Shadow write to Foundry (non-blocking)
-        if self.foundry_enabled:
-            try:
-                self.foundry.ontologies.Action.apply(
-                    ontology="my-company",
-                    action_type="createOrder",
-                    parameters=order_data,
-                )
-            except Exception as e:
-                print(f"Foundry shadow write failed (non-fatal): {e}")
-
-        return result
-```
-
-### Step 5: Validation and Cutover
-
-```python
-def validate_migration(legacy_conn, foundry_client, ontology, object_type):
-    """Compare row counts and checksums between source and Foundry."""
-    # Legacy count
-    legacy_count = pd.read_sql("SELECT COUNT(*) as c FROM orders", legacy_conn).iloc[0]["c"]
-
-    # Foundry count
-    foundry_result = foundry_client.ontologies.OntologyObject.aggregate(
-        ontology=ontology, object_type=object_type,
-        aggregation=[{"type": "count", "name": "total"}],
-    )
-    foundry_count = foundry_result.data[0].metrics["total"]
-
-    match = legacy_count == foundry_count
-    print(f"Legacy: {legacy_count}, Foundry: {foundry_count}, Match: {match}")
-    return match
-```
+Data owners approve semantics and reconciliation; security owners approve target controls; application owners approve consumer cutover; operations owners approve freeze and rollback windows. Destructive source retirement is a separate approval after the rollback period.
 
 ## Output
 
-- Migration assessment checklist completed
-- Bulk data import to Foundry datasets
-- Incremental sync for ongoing changes
-- Dual-write pattern for safe cutover
-- Validation comparing source and Foundry counts
+A migration inventory, source-to-target mapping, control matrix, dependency graph, rehearsal results, reconciliation report, cutover timeline, owner approvals, rollback triggers, and retirement decision.
 
 ## Error Handling
 
-| Migration Risk | Detection | Mitigation |
-|---------------|-----------|------------|
-| Data loss | Row count mismatch | Run validation before cutover |
-| Schema mismatch | Transform errors | Map schemas explicitly |
-| Dual-write divergence | Checksum differences | Reconciliation job |
-| Rollback needed | Production issues | Keep legacy running during parallel period |
+| Condition | Response |
+|---|---|
+| A source field has no target meaning | Stop automatic mapping and obtain domain-owner resolution. |
+| Dual-run results diverge | Keep consumers on the source, isolate the difference, and repeat from a known checkpoint. |
+| Target permissions are broader | Block cutover until negative-access tests and mandatory controls match the approved policy. |
+| Final delta exceeds the window | Abort cutover and rehearse a smaller partition or faster incremental path. |
+
+## Examples
+
+### Example 1
+
+Migrate an operational dataset into transforms and an Ontology object type by baselining history, replaying incremental changes, and reconciling keys, deletes, aggregates, and access before moving readers.
+
+### Example 2
+
+Move an OSDK application to a release-managed environment by packaging its Developer Console application, mapping parameters and dependencies, testing OAuth/resource restrictions, and rehearsing rollback.
+
+## Validation
+
+- Every source contract has an owner-approved target or explicit exception.
+- Historical and incremental reconciliation meet defined tolerances.
+- Positive and negative access tests match policy.
+- Consumers, schedules, and writeback are cut over in observable stages.
+- Rollback remains executable until the approved retirement decision.
 
 ## Resources
 
-- [Foundry Data Integration](https://www.palantir.com/docs/foundry/data-integration/rest-apis/)
-- [Foundry Connectors](https://www.palantir.com/docs/foundry/available-connectors/rest-apis)
-
-## Next Steps
-
-For SDK version upgrades, see `palantir-upgrade-migration`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

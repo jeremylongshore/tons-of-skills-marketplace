@@ -1,225 +1,75 @@
 ---
 name: assemblyai-rate-limits
-description: 'Implement AssemblyAI rate limiting, backoff, and queue-based throttling.
-
-  Use when handling rate limit errors, implementing retry logic,
-
-  or managing concurrent transcription throughput.
-
-  Trigger with phrases like "assemblyai rate limit", "assemblyai throttling",
-
-  "assemblyai 429", "assemblyai retry", "assemblyai backoff".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.5.0
+description: >-
+  Analyze and control AssemblyAI account request limits, concurrency, backoff, and admission queues. Use when handling 429s or planning throughput. Trigger with "AssemblyAI rate limit", "AssemblyAI concurrency", or "AssemblyAI backoff".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<workload-profile> <account-tier>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ai
-- speech-to-text
-- assemblyai
-- transcription
-compatibility: Designed for Claude Code
+tags: [saas, assemblyai]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live AssemblyAI work requires network access"
 ---
-# AssemblyAI Rate Limits
+# AssemblyAI Capacity and Retry Control
 
 ## Overview
 
-Handle AssemblyAI rate limits with exponential backoff, queue-based throttling, and concurrency management. AssemblyAI auto-scales limits for paid users.
+Control capacity with explicit account limits, queues, and retry budgets. Keep data, credentials, spend, and replay decisions separately governed.
 
 ## Prerequisites
 
-- `assemblyai` package installed
-- Understanding of async/await patterns
+- The target repository or integration path and the requested operator outcome.
+- The AssemblyAI project, environment, region, data classification, and accountable owner.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
 
-## Rate Limit Tiers (Actual)
+## Current Contract
 
-### Async Transcription API
+AssemblyAI documents 20,000 API requests per five minutes plus operation-specific concurrency limits. Limits apply at account level; project keys mirror capacity rather than multiply it. Actual concurrency and autoscaling are account-specific, so use current dashboard and documentation evidence.
 
-| Endpoint | Free | Pay-as-you-go |
-|----------|------|---------------|
-| `POST /v2/transcript` | 5/min | Scales with usage |
-| `GET /v2/transcript/:id` | No hard limit | No hard limit |
-| `POST /v2/upload` | 5/min | Scales with usage |
+## Authentication
 
-### Streaming (WebSocket)
-
-| Metric | Free | Pay-as-you-go |
-|--------|------|---------------|
-| New streams/min | 5 | 100 (auto-scales) |
-| Concurrent streams | ~5 | Unlimited (auto-scales 10% every 60s at 70% usage) |
-
-### LeMUR
-
-| Metric | Free | Paid |
-|--------|------|------|
-| Requests/min | Limited | Scales with usage |
-| Max audio input | 100 hours per request | 100 hours per request |
-
-**Note:** AssemblyAI auto-scales paid limits. At 70%+ utilization, the new session rate limit increases by 10% every 60 seconds with no ceiling cap.
+For live work, inject `ASSEMBLYAI_API_KEY` from an approved secret manager and send the raw value only in the AssemblyAI `Authorization` header to the configured first-party host. Never print, commit, place in a URL, or expose it to an untrusted client. Callback secrets and temporary streaming tokens are separate credentials.
 
 ## Instructions
 
-### Step 1: Exponential Backoff with Jitter
+1. Inventory submissions, polls, callbacks, gateway calls, and streaming concurrency.
+2. Record current account limits and observed headers.
+3. Allocate separate bounded pools by operation class.
+4. Prefer callbacks to aggressive polling and use durable admission queues.
+5. Honor `Retry-After` or capped exponential backoff with jitter.
+6. Reconcile transcript IDs before retrying submission and alert on saturation.
 
-```typescript
-import { AssemblyAI, type Transcript } from 'assemblyai';
+## Tool Discipline
 
-const client = new AssemblyAI({
-  apiKey: process.env.ASSEMBLYAI_API_KEY!,
-});
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call AssemblyAI, upload audio, open a streaming session, mint a token, replay a callback, deploy, rotate a key, or delete a transcript merely because this skill was invoked.
 
-async function transcribeWithBackoff(
-  audioUrl: string,
-  options: Record<string, any> = {},
-  config = { maxRetries: 5, baseDelayMs: 1000, maxDelayMs: 30000 }
-): Promise<Transcript> {
-  for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
-    try {
-      return await client.transcripts.transcribe({
-        audio: audioUrl,
-        ...options,
-      });
-    } catch (err: any) {
-      if (attempt === config.maxRetries) throw err;
+## Approval Boundaries
 
-      const status = err.status ?? err.statusCode;
-      // Only retry on 429 (rate limit) and 5xx (server errors)
-      if (status && status !== 429 && (status < 500 || status >= 600)) throw err;
+Require an accountable owner before live audio processing, production credential or endpoint changes, paid model or capacity changes, content retention, callback replay, deployment, or deletion. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-      const exponentialDelay = config.baseDelayMs * Math.pow(2, attempt);
-      const jitter = Math.random() * config.baseDelayMs;
-      const delay = Math.min(exponentialDelay + jitter, config.maxDelayMs);
+## Failure Modes
 
-      console.warn(`[${attempt + 1}/${config.maxRetries}] Retrying in ${delay.toFixed(0)}ms...`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error('Unreachable');
-}
-```
-
-### Step 2: Queue-Based Concurrency Control
-
-```typescript
-import PQueue from 'p-queue';
-
-// Limit to N concurrent transcription jobs
-const transcriptionQueue = new PQueue({
-  concurrency: 5,           // Max 5 concurrent jobs
-  interval: 60_000,         // Per minute window
-  intervalCap: 50,           // Max 50 new jobs per minute
-});
-
-async function queuedTranscribe(audioUrl: string): Promise<Transcript> {
-  return transcriptionQueue.add(() =>
-    transcribeWithBackoff(audioUrl)
-  );
-}
-
-// Process a batch of files
-const audioUrls = [
-  'https://example.com/audio1.mp3',
-  'https://example.com/audio2.mp3',
-  'https://example.com/audio3.mp3',
-];
-
-const results = await Promise.all(
-  audioUrls.map(url => queuedTranscribe(url))
-);
-
-console.log(`Completed ${results.length} transcriptions`);
-console.log(`Queue size: ${transcriptionQueue.size}, pending: ${transcriptionQueue.pending}`);
-```
-
-### Step 3: Batch Processing with Progress
-
-```typescript
-async function batchTranscribe(
-  audioUrls: string[],
-  onProgress?: (completed: number, total: number) => void
-): Promise<Transcript[]> {
-  const queue = new PQueue({ concurrency: 5 });
-  const results: Transcript[] = [];
-  let completed = 0;
-
-  const promises = audioUrls.map(url =>
-    queue.add(async () => {
-      const transcript = await transcribeWithBackoff(url);
-      completed++;
-      onProgress?.(completed, audioUrls.length);
-      return transcript;
-    })
-  );
-
-  return Promise.all(promises);
-}
-
-// Usage
-await batchTranscribe(
-  urls,
-  (done, total) => console.log(`Progress: ${done}/${total}`)
-);
-```
-
-### Step 4: Streaming Rate Limit Handling
-
-```typescript
-async function connectStreamingWithRetry(maxRetries = 3) {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      const transcriber = client.streaming.createService({
-        speech_model: 'nova-3',
-        sample_rate: 16000,
-      });
-
-      transcriber.on('error', (error) => {
-        console.error('Streaming error:', error);
-      });
-
-      await transcriber.connect();
-      return transcriber;
-    } catch (err: any) {
-      if (attempt === maxRetries) throw err;
-
-      // WebSocket code 4008 = session limit
-      const delay = Math.pow(2, attempt) * 2000;
-      console.warn(`Stream connect failed. Retrying in ${delay}ms...`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-}
-```
+- More keys do not create more account capacity.
+- Auth and validation failures are not retryable.
+- Unbounded polling amplifies outages and competes with submissions.
 
 ## Output
 
-- Automatic retry with exponential backoff and jitter
-- Queue-based concurrency control with p-queue
-- Batch transcription with progress reporting
-- Streaming reconnection logic
+Return the operation scope, environment, region, contract surface, authorization class, model and feature decisions, deterministic validation results, content-free identifiers, risks, cleanup or rollback state, and a concise pass/fail receipt. Exclude credentials, signed URLs, audio, transcript text, prompts, and customer-derived content.
 
-## Examples
+## Example
 
-Treat displayed limits as configuration inputs that are verified against the live account and provider documentation before rollout. Begin with a low concurrency ceiling, honor server-provided retry guidance, persist idempotency keys, and alert on sustained throttling rather than retrying a workload indefinitely.
+- Start with the named environment, approved regional host, synthetic fixture identity, and bounded operation budget.
+- Finish with safe IDs, contract and assertion counts, terminal state, cleanup status, and the decision owner; never reproduce speech content.
 
-## Error Handling
+## Validation
 
-| Scenario | Status | Strategy |
-|----------|--------|----------|
-| Rate limited (async) | 429 | Exponential backoff, honor `Retry-After` header |
-| Server error | 500-503 | Retry with backoff |
-| Session limit (streaming) | WS 4008 | Wait and reconnect |
-| Auth error | 401 | Do not retry, fix credentials |
-| Invalid input | 400 | Do not retry, fix request |
+Rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm rollback, termination, or deletion state before reporting success.
 
-## Resources
+## References
 
-- [AssemblyAI Rate Limits](https://www.assemblyai.com/docs/deployment/account-management)
-- [p-queue Documentation](https://github.com/sindresorhus/p-queue)
-- [AssemblyAI Streaming Limits](https://www.assemblyai.com/docs/streaming)
+Review the dated first-party evidence map before relying on any model, parameter, limit, price, region, or lifecycle claim.
 
-## Next Steps
-
-For security configuration, see `assemblyai-security-basics`.
+- [Current first-party evidence map](references/official-docs.md)

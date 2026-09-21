@@ -1,159 +1,95 @@
 ---
 name: palantir-data-handling
-description: 'Implement Palantir Foundry data handling with PII protection, markings,
-  and GDPR compliance.
-
-  Use when handling sensitive data in Foundry, implementing data classifications,
-
-  or ensuring compliance with privacy regulations.
-
-  Trigger with phrases like "palantir data", "foundry PII",
-
-  "palantir GDPR", "foundry data protection", "palantir markings".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.5.0
-license: MIT
+description: >-
+  Design and verify Foundry data handling across projects, roles, mandatory controls, Ontology security, logs, exports, and retention. Use when processing sensitive or regulated data. Trigger with "Foundry data handling" or "Palantir markings".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[dataset-object-type-or-workflow]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- data
-- privacy
-- compliance
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, data-governance, security]
 ---
-# Palantir Data Handling
+# Palantir Data Governance and Handling
 
 ## Overview
 
-Handle sensitive data in Foundry using markings (data classifications), column-level security, PII redaction in transforms, and GDPR/CCPA deletion workflows.
+Map the full data path before editing a permission or transform. Foundry discretionary roles, mandatory controls, Ontology row/property policies, and downstream exports protect different boundaries and must be reviewed separately.
 
 ## Prerequisites
 
-- Foundry enrollment with Markings enabled
-- Understanding of your organization's data classification policy
-- Familiarity with transforms (`palantir-core-workflow-a`)
+- Identify data owner, purpose, classifications, source datasets, derived resources, Ontology objects and properties, logs, exports, and retention obligations.
+- Record the projects, organizations, markings, CBAC policies, groups, and roles governing each stage.
+- Read `references/official-docs.md` and involve the information-security or privacy owner for regulated data.
+- Use synthetic data for policy tests unless a protected test environment is approved.
+
+## Current Contract
+
+- Projects and roles provide discretionary access, while organizations, markings, and CBAC remain mandatory and propagate according to their own rules.
+- Ontology object and property policies can implement row- and column-level read controls; granular controls do not automatically protect downstream exports.
+- Mandatory controls within security policies continue to protect derived data where the documented propagation rules apply.
+- Logs and audit exports may contain sensitive or personal data and require explicit access, marking, retention, and audience decisions.
 
 ## Instructions
 
-### Step 1: Data Classification with Markings
+1. Draw the data-flow and authority map from ingestion through transforms, Ontology, applications, logs, and exports.
 
-Foundry Markings control who can access data at the dataset, column, or row level.
+2. Classify each resource and define the minimum project roles, groups, mandatory controls, and application restrictions.
 
-| Marking | Access | Use Case |
-|---------|--------|----------|
-| `PUBLIC` | All users | Aggregated reports, reference data |
-| `INTERNAL` | Employees only | Business metrics, operational data |
-| `CONFIDENTIAL` | Specific groups | Customer PII, financial data |
-| `RESTRICTED` | Named individuals | Compensation, legal, M&A |
+3. Configure Ontology object/property policies for read-time needs and pair them with mandatory controls when downstream propagation is required.
 
-### Step 2: PII Redaction in Transforms
+4. Define retention, deletion, export, and audit evidence procedures with accountable owners.
 
-```python
-from transforms.api import transform_df, Input, Output
-from pyspark.sql import functions as F
+5. Test authorized, unauthorized, downstream-derived, log-viewing, and export cases before production.
 
-@transform_df(
-    Output("/Company/datasets/customers_safe"),
-    customers=Input("/Company/datasets/raw_customers"),
-)
-def redact_pii(customers):
-    """Create an analytics-safe view with PII removed."""
-    return (
-        customers
-        .withColumn("email", F.sha2(F.col("email"), 256))           # Hash email
-        .withColumn("phone", F.lit("***-***-****"))                   # Mask phone
-        .withColumn("ssn", F.lit(None).cast("string"))                # Remove SSN
-        .withColumn("name", F.concat(
-            F.substring("first_name", 1, 1), F.lit("***")            # First initial only
-        ))
-        .drop("first_name", "last_name", "address", "date_of_birth")
-    )
-```
+## Tool Discipline
 
-### Step 3: GDPR Right to Erasure
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-```python
-def delete_user_data(client, user_id: str):
-    """GDPR Article 17: delete all data for a specific user."""
-    datasets_with_pii = [
-        "/Company/datasets/raw_customers",
-        "/Company/datasets/raw_orders",
-        "/Company/datasets/customer_communications",
-    ]
-    for dataset_path in datasets_with_pii:
-        # Trigger a transform that filters out the user
-        client.ontologies.Action.apply(
-            ontology="my-company",
-            action_type="gdprDeleteUser",
-            parameters={"userId": user_id, "datasetPath": dataset_path},
-        )
-    # Log the deletion for compliance
-    client.ontologies.Action.apply(
-        ontology="my-company",
-        action_type="logDeletionRequest",
-        parameters={
-            "userId": user_id,
-            "requestedAt": datetime.utcnow().isoformat(),
-            "status": "completed",
-        },
-    )
-```
+## Approval Boundaries
 
-### Step 4: Column-Level Security in Ontology
-
-```python
-# Define object type with restricted properties
-# In Ontology Manager:
-# - fullName: marking = CONFIDENTIAL
-# - email: marking = CONFIDENTIAL  
-# - department: marking = INTERNAL
-# - employeeId: marking = INTERNAL
-
-# Users without CONFIDENTIAL marking see:
-# employeeId, department (but NOT fullName, email)
-```
-
-### Step 5: Data Retention Policy
-
-```python
-@transform_df(
-    Output("/Company/datasets/events_retained"),
-    events=Input("/Company/datasets/raw_events"),
-)
-def apply_retention(events):
-    """Keep only last 2 years of data per retention policy."""
-    from pyspark.sql import functions as F
-    from datetime import datetime, timedelta
-
-    cutoff = (datetime.utcnow() - timedelta(days=730)).strftime("%Y-%m-%d")
-    return events.filter(F.col("event_date") >= cutoff)
-```
+The data owner approves purpose and access; the security owner approves markings or CBAC; the privacy owner approves retention and deletion; the platform owner approves exports. Do not unmark, broaden roles, or export protected data without those approvals.
 
 ## Output
 
-- PII-redacted datasets safe for analytics
-- GDPR deletion workflow with audit trail
-- Column-level security via Foundry Markings
-- Automated data retention enforcement
+A data-flow map, classification inventory, control matrix, lineage/propagation analysis, retention and deletion procedure, test evidence, exceptions, and owner attestations.
 
 ## Error Handling
 
-| Compliance Risk | Detection | Mitigation |
-|----------------|-----------|------------|
-| PII in analytics dataset | Column scan | Apply redaction transform |
-| Stale data beyond retention | Date filter | Schedule retention transforms |
-| Missing deletion audit | Log review | Always log GDPR actions |
-| Over-permissive markings | Access audit | Review marking assignments quarterly |
+| Condition | Response |
+|---|---|
+| A user has a role but still lacks access | Check organizations, markings, CBAC, resource dependencies, and application restrictions rather than broadening the role. |
+| A property policy protects reads but not an export | Add an appropriate mandatory control or redesign the export boundary. |
+| Logs expose sensitive values | Stop export or viewing, apply the required markings and audience controls, then review retention. |
+| Deletion cannot be proven downstream | Block closure and trace every derived dataset, Ontology resource, export, cache, and audit exception. |
+
+## Examples
+
+### Example 1
+
+Protect customer contact fields with Ontology property policies while using mandatory markings for derived datasets and exports that must retain the same access requirement.
+
+### Example 2
+
+Design a deletion request workflow that resolves the subject, identifies every governed resource and lawful exception, executes approved deletion or retention actions, and records non-sensitive evidence.
+
+## Validation
+
+- Authorized and unauthorized personas behave as the policy specifies.
+- Lineage demonstrates where mandatory controls propagate and where granular controls stop.
+- Logs and exports have explicit markings, audiences, and retention.
+- Deletion and retention evidence names every in-scope resource and exception.
+- No credential, PII sample, or protected payload appears in the deliverable.
 
 ## Resources
 
-- [Foundry Markings](https://www.palantir.com/docs/foundry)
-- [Transforms Guide](https://www.palantir.com/docs/foundry/transforms-python/transforms)
-
-## Next Steps
-
-For access control, see `palantir-enterprise-rbac`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

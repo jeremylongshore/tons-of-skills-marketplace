@@ -1,179 +1,74 @@
 ---
 name: fireflies-hello-world
-description: 'Create a minimal working Fireflies.ai example that queries transcripts.
-
-  Use when starting a new Fireflies.ai integration, testing your setup,
-
-  or learning the GraphQL API patterns for meeting data.
-
-  Trigger with phrases like "fireflies hello world", "fireflies example",
-
-  "fireflies quick start", "simple fireflies code".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*)
-version: 1.11.0
+description: >-
+  Run the smallest current Fireflies GraphQL query and verify identity, response structure, and data-minimization controls without dumping transcripts. Use when testing a new server-side integration. Trigger with "Fireflies hello world", "first Fireflies query", or "verify Fireflies setup".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <environment>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- fireflies
-- api
-- testing
-compatibility: Designed for Claude Code
+tags: [saas, fireflies, graphql, quickstart]
+model: inherit
+effort: low
+compatibility: "Designed for Claude Code; live Fireflies work requires network access"
 ---
-# Fireflies.ai Hello World
+# Fireflies First Metadata Query
 
 ## Overview
 
-Minimal working examples demonstrating core Fireflies.ai GraphQL queries: list users, fetch transcripts, and read a meeting summary.
-
-## Examples
-
-Start with a synthetic meeting that has invented speakers and a minimal summary. Query only an opaque ID and schema result, verify logs redact headers and content, and delete the test record after confirming retention behavior. Never use a real meeting as a quick-start fixture.
+Prove the GraphQL transport with low-sensitivity metadata. Do not use a real meeting transcript as a quick-start fixture or log user email addresses merely to show that the request worked.
 
 ## Prerequisites
 
-- Completed `fireflies-install-auth` setup
-- `FIREFLIES_API_KEY` environment variable set
-- At least one meeting recorded in Fireflies
+- The target repository or integration path and the requested operator outcome.
+- The Fireflies principal, team, environment, and data classification for the work.
+- Current Fireflies documentation, credentials only when needed, and an accountable approver.
+
+## Current Contract
+
+The public API is GraphQL over POST. A minimal user or users selection is the documented quickstart; clients must examine the top-level errors array even when the HTTP response is 200 and request only fields necessary for the smoke test.
+
+## Authentication
+
+For authenticated operations, inject `FIREFLIES_API_KEY` from an approved secret manager and send it only as `Authorization: Bearer REDACTED_KEY` to `https://api.fireflies.ai/graphql`. Never print, commit, place in a URL, forward to a browser, or include the key in evidence. Webhook signing secrets are separate credentials and must not be reused as API keys.
 
 ## Instructions
 
-### Step 1: List Workspace Users
+1. Confirm the API key owner and test environment are authorized for the request.
+2. Choose the user query and select only an opaque identifier or other approved metadata.
+3. Send one POST request with JSON query and variables from a server-side client.
+4. Assert HTTP success, absence of GraphQL errors, presence of data, and the expected response shape.
+5. Log only timing, operation name, correlation ID, and pass/fail status.
+6. Exercise a synthetic failure without exposing the bearer key.
+7. Keep the smoke test only if its data access and request budget are acceptable.
 
-```bash
-set -euo pipefail
-curl -s -X POST https://api.fireflies.ai/graphql \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $FIREFLIES_API_KEY" \
-  -d '{"query": "{ users { name user_id email } }"}' | jq '.data.users'
-```
+## Tool Discipline
 
-### Step 2: Fetch Recent Transcripts
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use Write/Edit only for approved implementation or documentation changes. Do not query Fireflies, retrieve meeting content, create an AskFred thread, upload media, change account state, replay an event, or deploy merely because this skill was invoked.
 
-```typescript
-const FIREFLIES_API = "https://api.fireflies.ai/graphql";
+## Approval Boundaries
 
-async function firefliesQuery(query: string, variables?: Record<string, any>) {
-  const res = await fetch(FIREFLIES_API, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.FIREFLIES_API_KEY}`,
-    },
-    body: JSON.stringify({ query, variables }),
-  });
-  const json = await res.json();
-  if (json.errors) throw new Error(json.errors[0].message);
-  return json.data;
-}
-
-// List 5 most recent transcripts
-const data = await firefliesQuery(`
-  query RecentMeetings {
-    transcripts(limit: 5) {
-      id
-      title
-      date
-      duration
-      organizer_email
-      participants
-    }
-  }
-`);
-
-for (const t of data.transcripts) {
-  console.log(`${t.title} (${t.duration}min) - ${t.date}`);
-  console.log(`  Organizer: ${t.organizer_email}`);
-  console.log(`  Participants: ${t.participants?.join(", ")}`);
-}
-```
-
-### Step 3: Read a Single Transcript with Summary
-
-```typescript
-async function getTranscriptSummary(id: string) {
-  return firefliesQuery(`
-    query GetTranscript($id: String!) {
-      transcript(id: $id) {
-        id
-        title
-        date
-        duration
-        organizer_email
-        speakers { id name }
-        summary {
-          overview
-          short_summary
-          action_items
-          keywords
-        }
-      }
-    }
-  `, { id });
-}
-
-const { transcript } = await getTranscriptSummary("your-transcript-id");
-console.log(`Title: ${transcript.title}`);
-console.log(`Summary: ${transcript.summary.overview}`);
-console.log(`Action Items: ${transcript.summary.action_items?.join("\n  - ")}`);
-console.log(`Keywords: ${transcript.summary.keywords?.join(", ")}`);
-```
-
-### Step 4: Python Hello World
-
-```python
-import os, requests
-
-API = "https://api.fireflies.ai/graphql"
-HEADERS = {
-    "Content-Type": "application/json",
-    "Authorization": f"Bearer {os.environ['FIREFLIES_API_KEY']}",
-}
-
-def gql(query, variables=None):
-    resp = requests.post(API, json={"query": query, "variables": variables}, headers=HEADERS)
-    data = resp.json()
-    if "errors" in data:
-        raise Exception(data["errors"][0]["message"])
-    return data["data"]
-
-# List recent meetings
-meetings = gql("{ transcripts(limit: 5) { id title date duration } }")
-for m in meetings["transcripts"]:
-    print(f"{m['title']} - {m['duration']}min - {m['date']}")
-```
-
-## Key Queries Reference
-
-| Query | Purpose | Key Fields |
-|-------|---------|------------|
-| `user` | Current user info | `name`, `email`, `is_admin` |
-| `users` | All workspace users | `name`, `user_id`, `email` |
-| `transcripts(limit: N)` | Recent meetings | `id`, `title`, `date`, `duration` |
-| `transcript(id: "...")` | Single meeting | `sentences`, `summary`, `speakers` |
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `auth_failed` | Missing or invalid API key | Verify `FIREFLIES_API_KEY` is set |
-| Empty transcripts array | No meetings recorded yet | Record a meeting or upload audio |
-| `null` summary fields | Transcript still processing | Wait for processing to complete |
-| Network timeout | API unreachable | Check internet connectivity |
+Require approval before selecting emails, integrations, transcripts, sentences, summaries, audio URLs, or any other meeting-derived field.
 
 ## Output
 
-- Working GraphQL queries against `https://api.fireflies.ai/graphql`
-- Transcript listing with metadata
-- Meeting summary with action items and keywords
+Return the exact operation or event surface, environment, authorization class, selected field groups, validation results, content-free metrics, decisions, and a concise pass/fail receipt. Keep secrets and meeting-derived content out of general output.
+
+## Validation
+
+Before reporting success, rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current contract, verify no secret or meeting-derived content entered logs or artifacts, and record unresolved uncertainty explicitly.
+
+## Error Handling
+
+- Empty data: distinguish a valid empty result from an authorization or query error.
+- GraphQL validation error: compare the selected fields with current docs or schema evidence.
+- Rate limit: stop retries and honor the current plan and any retryAfter value.
+
+## Examples
+
+- "Verify the endpoint" selects only user_id and returns a content-free receipt.
+- "Print my five latest meetings" is routed to an approved transcript workflow instead.
 
 ## Resources
 
-- [Fireflies API Docs](https://docs.fireflies.ai/)
-- [Transcript Query Reference](https://docs.fireflies.ai/graphql-api/query/transcript)
-
-## Next Steps
-
-Proceed to `fireflies-core-workflow-a` for transcript retrieval and processing.
+Read [official Fireflies.ai evidence](references/official-docs.md) before relying on a field, filter, event, permission, plan limit, mutation, or processing state.

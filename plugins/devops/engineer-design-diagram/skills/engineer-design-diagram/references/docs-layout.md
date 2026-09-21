@@ -1,6 +1,6 @@
 # Docs-Layout Rules
 
-Widescreen two-column layout for dense architecture diagrams. Mirrors the pattern used by [Anthropic docs](https://docs.anthropic.com/), [Linear docs](https://linear.app/docs), and [Vercel architecture pages](https://vercel.com/docs) — sticky context rail on the left, generous diagram + detail column on the right.
+Widescreen two-column layout for dense architecture diagrams. Mirrors the pattern used by [Anthropic docs](https://platform.claude.com/docs/en/home), [Linear docs](https://linear.app/docs), and [Vercel architecture pages](https://vercel.com/docs) — sticky context rail on the left, generous diagram + detail column on the right.
 
 ## Table of Contents
 

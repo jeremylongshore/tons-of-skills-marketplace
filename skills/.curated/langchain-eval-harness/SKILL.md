@@ -8,7 +8,7 @@ description: "Build reproducible evaluation pipelines for LangChain 1.0 chains a
   Trigger with \"langchain eval\", \"langsmith evaluate\", \"ragas\", \"llm-as-judge\"\
   ,\n\"agent trajectory eval\", \"eval regression gate\".\n"
 allowed-tools: Read, Write, Edit, Bash(python:*), Bash(pip:*), Bash(pytest:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

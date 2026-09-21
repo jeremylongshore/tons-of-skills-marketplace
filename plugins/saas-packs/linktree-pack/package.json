@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/linktree-pack",
-  "version": "1.0.3",
-  "description": "Claude Code skill pack for Linktree - 18 skills covering link-in-bio pages, audience engagement, and social commerce",
+  "version": "1.0.4",
+  "description": "Production-grade Linktree operator workflows grounded in public Help Center guidance; partner automation remains contract-gated (18 skills)",
   "main": "README.md",
   "type": "module",
   "files": [

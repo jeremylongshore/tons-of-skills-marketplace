@@ -1,199 +1,75 @@
 ---
 name: assemblyai-prod-checklist
-description: 'Execute AssemblyAI production deployment checklist and rollback procedures.
-
-  Use when deploying AssemblyAI integrations to production, preparing for launch,
-
-  or implementing go-live procedures for transcription services.
-
-  Trigger with phrases like "assemblyai production", "deploy assemblyai",
-
-  "assemblyai go-live", "assemblyai launch checklist".
-
-  '
-allowed-tools: Read, Bash(kubectl:*), Bash(curl:*), Grep
-version: 1.5.0
+description: >-
+  Analyze and gate an AssemblyAI integration across contracts, security, reliability, cost, observability, retention, and rollback. Use when preparing a launch or material change. Trigger with "AssemblyAI production checklist" or "go live".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<service> <environment> <release-sha>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ai
-- speech-to-text
-- assemblyai
-- transcription
-- production
-compatibility: Designed for Claude Code
+tags: [saas, assemblyai]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live AssemblyAI work requires network access"
 ---
-# AssemblyAI Production Checklist
+# AssemblyAI Production Readiness Gate
 
 ## Overview
 
-Complete checklist for deploying AssemblyAI-powered transcription services to production with health checks, monitoring, and rollback procedures.
+Gate production on evidence across the entire AssemblyAI lifecycle. Treat data, credentials, spend, deployment, rollback, and deletion as separately owned boundaries.
 
 ## Prerequisites
 
-- Staging environment tested and verified
-- Production API key from https://www.assemblyai.com/app/account
-- Deployment pipeline configured
-- Monitoring stack ready
+- The target repository or integration path and the requested operator outcome.
+- The AssemblyAI project, environment, region, data classification, and accountable owner.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Production requires current REST and Streaming v3 contracts, explicit models, protected keys and tokens, authenticated idempotent callbacks, bounded retries, explicit streaming termination, deletion propagation, cost controls, monitoring, and tested rollback. One happy-path transcript is insufficient.
+
+## Authentication
+
+For live work, inject `ASSEMBLYAI_API_KEY` from an approved secret manager and send the raw value only in the AssemblyAI `Authorization` header to the configured first-party host. Never print, commit, place in a URL, or expose it to an untrusted client. Callback secrets and temporary streaming tokens are separate credentials.
 
 ## Instructions
 
-### Pre-Deployment Checklist
+1. Record release, owners, regions, data classes, surfaces, and rollback target.
+2. Verify secrets, consent, token issuance, callbacks, and retention.
+3. Test success, terminal error, 429, duplicate, malformed event, reconnect, and termination offline.
+4. Run one budgeted live synthetic canary in the approved region.
+5. Verify alerts for queue age, failures, throttling, delivery, sessions, and spend.
+6. Exercise rollback and publish an expiring pass or fail receipt.
 
-#### API Key & Auth
+## Tool Discipline
 
-- [ ] Production API key stored in secrets manager (not env files)
-- [ ] Key is separate from dev/staging keys
-- [ ] Temporary token endpoint configured for browser streaming
-- [ ] API key rotation procedure documented
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call AssemblyAI, upload audio, open a streaming session, mint a token, replay a callback, deploy, rotate a key, or delete a transcript merely because this skill was invoked.
 
-#### Code Quality
+## Approval Boundaries
 
-- [ ] All `transcript.status === 'error'` cases handled
-- [ ] Rate limit retry with exponential backoff implemented
-- [ ] No hardcoded API keys or audio URLs
-- [ ] PII redaction enabled for sensitive audio content
-- [ ] Webhook URL uses HTTPS
-- [ ] Audio file upload size validated before submission
+Require an accountable owner before live audio processing, production credential or endpoint changes, paid model or capacity changes, content retention, callback replay, deployment, or deletion. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-#### Error Handling
+## Failure Modes
 
-- [ ] 429 (rate limit) triggers retry with backoff
-- [ ] 5xx (server error) triggers retry with backoff
-- [ ] 401 (auth error) triggers alert, no retry
-- [ ] `transcript.status === 'error'` logged with transcript ID and error message
-- [ ] WebSocket disconnect triggers reconnection for streaming
-- [ ] LeMUR errors handled (invalid transcript ID, context too long)
-
-#### Performance
-
-- [ ] Transcript results cached where appropriate
-- [ ] Concurrent transcription jobs limited via queue (p-queue or similar)
-- [ ] Webhook processing is async (don't block the response)
-- [ ] Long audio files processed with `webhook_url` instead of polling
-
-### Health Check Implementation
-
-```typescript
-import { AssemblyAI } from 'assemblyai';
-
-const client = new AssemblyAI({
-  apiKey: process.env.ASSEMBLYAI_API_KEY!,
-});
-
-export async function healthCheck(): Promise<{
-  status: 'healthy' | 'degraded' | 'down';
-  assemblyai: { connected: boolean; latencyMs: number };
-}> {
-  const start = Date.now();
-  try {
-    // List transcripts as a lightweight connectivity check
-    await client.transcripts.list({ limit: 1 });
-    return {
-      status: 'healthy',
-      assemblyai: { connected: true, latencyMs: Date.now() - start },
-    };
-  } catch (error) {
-    return {
-      status: 'degraded',
-      assemblyai: { connected: false, latencyMs: Date.now() - start },
-    };
-  }
-}
-```
-
-### Webhook-Based Processing (Recommended for Production)
-
-```typescript
-// Instead of polling, use webhooks for transcription completion
-const transcript = await client.transcripts.submit({
-  audio: audioUrl,
-  webhook_url: 'https://your-app.com/webhooks/assemblyai',
-  webhook_auth_header_name: 'X-Webhook-Secret',
-  webhook_auth_header_value: process.env.ASSEMBLYAI_WEBHOOK_SECRET!,
-  speaker_labels: true,
-  sentiment_analysis: true,
-});
-
-console.log('Submitted:', transcript.id, '(webhook will fire on completion)');
-```
-
-```typescript
-// Webhook handler
-import express from 'express';
-
-app.post('/webhooks/assemblyai', express.json(), async (req, res) => {
-  // Verify auth header
-  const secret = req.headers['x-webhook-secret'];
-  if (secret !== process.env.ASSEMBLYAI_WEBHOOK_SECRET) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  const { transcript_id, status } = req.body;
-
-  if (status === 'completed') {
-    // Fetch full transcript
-    const transcript = await client.transcripts.get(transcript_id);
-    await processCompletedTranscript(transcript);
-  } else if (status === 'error') {
-    console.error(`Transcript ${transcript_id} failed:`, req.body.error);
-    await handleFailedTranscript(transcript_id, req.body.error);
-  }
-
-  res.status(200).json({ received: true });
-});
-```
-
-### Monitoring & Alerting
-
-| Alert | Condition | Severity |
-|-------|-----------|----------|
-| API unreachable | Health check fails 3x consecutive | P1 |
-| High error rate | >5% of transcriptions fail | P2 |
-| Rate limited | 429 errors > 5/min | P2 |
-| Auth failure | Any 401 response | P1 |
-| Slow transcription | Queue wait > 5 min | P3 |
-| Webhook delivery failure | Webhook retries exhausted | P2 |
-
-### Gradual Rollout
-
-```bash
-# 1. Pre-flight: verify AssemblyAI API is healthy
-curl -s https://status.assemblyai.com/api/v2/status.json | jq '.status.description'
-
-# 2. Deploy to canary (10% traffic)
-# 3. Monitor error rate and latency for 10 minutes
-# 4. If healthy, roll to 50%, then 100%
-# 5. Keep previous version ready for instant rollback
-```
+- A health endpoint that never submits audio is not integration evidence.
+- Customer audio is not a synthetic production test.
+- An alert without an owner and response action is not ready.
 
 ## Output
 
-- Production-ready deployment with health checks
-- Webhook-based transcription processing
-- Monitoring and alerting configuration
-- Gradual rollout strategy
+Return the operation scope, environment, region, contract surface, authorization class, model and feature decisions, deterministic validation results, content-free identifiers, risks, cleanup or rollback state, and a concise pass/fail receipt. Exclude credentials, signed URLs, audio, transcript text, prompts, and customer-derived content.
 
-## Examples
+## Example
 
-Before release, run mocked tests and one approved integration smoke test with a dedicated low-privilege key, verify webhook authentication and idempotency, and attach a redacted release receipt. If any authorization, retention, budget, or reconciliation check fails, keep traffic disabled and use the documented rollback.
+- Start with the named environment, approved regional host, synthetic fixture identity, and bounded operation budget.
+- Finish with safe IDs, contract and assertion counts, terminal state, cleanup status, and the decision owner; never reproduce speech content.
 
-## Error Handling
+## Validation
 
-| Issue | Detection | Response |
-|-------|-----------|----------|
-| API key invalid in prod | 401 on first call | Rotate key immediately |
-| Transcription backlog | Queue size growing | Scale workers, check rate limits |
-| Webhook endpoint down | Missed completion events | Poll for stuck transcripts |
-| Audio upload timeout | Large file failures | Increase timeout, validate file size |
+Rerun the smallest relevant deterministic check, compare actual state with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm rollback, termination, or deletion state before reporting success.
 
-## Resources
+## References
 
-- [AssemblyAI Webhooks Guide](https://www.assemblyai.com/docs/getting-started/webhooks)
-- [AssemblyAI Status Page](https://status.assemblyai.com)
-- [AssemblyAI Account Management](https://www.assemblyai.com/docs/deployment/account-management)
+Review the dated first-party evidence map before relying on any model, parameter, limit, price, region, or lifecycle claim.
 
-## Next Steps
-
-For version upgrades, see `assemblyai-upgrade-migration`.
+- [Current first-party evidence map](references/official-docs.md)

@@ -1,135 +1,99 @@
 ---
 name: persona-sdk-patterns
-description: 'Production Persona API client wrapper with retry, pagination, typed
-  responses.
-
-  Use when working with Persona identity verification.
-
-  Trigger with phrases like "persona sdk-patterns", "persona sdk-patterns".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.4.0
+description: >-
+  Design a typed Persona REST adapter that preserves JSON:API envelopes, request evidence, and compatible additions. Use when building a reusable client. Trigger with: "wrap Persona API", "type Persona responses", "Persona SDK pattern".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[language-and-endpoints]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- persona
-- identity
-- kyc
-- verification
-compatibility: Designed for Claude Code
+  - saas
+  - persona
+  - sdk
+  - json-api
+  - typing
+compatibility: 'Requires an authorized Persona environment, current first-party documentation, a reviewed dated API version, and privacy-safe operational evidence.'
 ---
-# persona sdk patterns | sed 's/\b\(.\)/\u\1/g'
+
+# Typed Persona REST Adapter and JSON:API Envelope
 
 ## Overview
 
-Singleton API client, typed verification results, pagination through inquiries, error classification.
+Keep transport, Persona resource envelopes, and domain decisions separate. The adapter should preserve raw identifiers and metadata, tolerate new resources and fields, and expose explicit mutation evidence rather than flattening every response into a brittle model.
 
 ## Prerequisites
 
-- Completed `persona-install-auth` setup
-- Valid Persona API key (sandbox or production)
+- Endpoint inventory and approved API version
+- Language runtime with HTTP, JSON, and constant-time comparison support
+- Domain boundary defining what may contain PII
 
 ## Instructions
 
-### Step 1: Typed API Client Wrapper
+### Step 1: Define the transport core
 
-```typescript
-import axios, { AxiosInstance, AxiosError } from 'axios';
+Centralize the API base, bearer header, dated version, timeouts, request IDs, and safe telemetry. Do not retry mutations blindly.
 
-interface PersonaConfig {
-  apiKey: string;
-  version?: string;
-  baseURL?: string;
-}
+### Step 2: Model JSON:API generically
 
-class PersonaClient {
-  private http: AxiosInstance;
+Represent `data`, `type`, `id`, `attributes`, `relationships`, `included`, `meta`, `links`, and structured errors before adding endpoint-specific views.
 
-  constructor(config: PersonaConfig) {
-    this.http = axios.create({
-      baseURL: config.baseURL || 'https://withpersona.com/api/v1',
-      headers: {
-        'Authorization': `Bearer ${config.apiKey}`,
-        'Persona-Version': config.version || '2023-01-05',
-        'Content-Type': 'application/json',
-      },
-    });
-  }
+### Step 3: Preserve compatible additions
 
-  async createInquiry(templateId: string, referenceId: string, fields?: Record<string, any>) {
-    const { data } = await this.http.post('/inquiries', {
-      data: { attributes: { 'inquiry-template-id': templateId, 'reference-id': referenceId, fields } },
-    });
-    return data.data;
-  }
+Treat unknown fields, resource types, event types, and array order changes as data to preserve or ignore safely, not parse failures.
 
-  async getInquiry(inquiryId: string) {
-    const { data } = await this.http.get(`/inquiries/${inquiryId}`);
-    return data.data;
-  }
+### Step 4: Separate command from query
 
-  async listInquiries(params: { referenceId?: string; status?: string; pageSize?: number } = {}) {
-    const { data } = await this.http.get('/inquiries', {
-      params: {
-        'filter[reference-id]': params.referenceId,
-        'filter[status]': params.status,
-        'page[size]': params.pageSize || 25,
-      },
-    });
-    return data.data;
-  }
+Require an operation ID and `Idempotency-Key` for POST commands. Queries may use bounded retries; commands reconcile observed state after ambiguity.
 
-  async getVerification(verificationId: string) {
-    const { data } = await this.http.get(`/verifications/${verificationId}`);
-    return data.data;
-  }
-}
+### Step 5: Normalize evidence, not identity
 
-// Singleton
-let _client: PersonaClient | null = null;
-export function getPersonaClient(): PersonaClient {
-  if (!_client) {
-    _client = new PersonaClient({ apiKey: process.env.PERSONA_API_KEY! });
-  }
-  return _client;
-}
-```
+Return status, request ID, rate and quota headers, resource ID, and a redacted envelope hash. Keep customer attributes behind the domain privacy boundary.
 
-### Step 2: Error Classification
+### Step 6: Test with contract fixtures
 
-```typescript
-function classifyPersonaError(error: AxiosError): { retryable: boolean; message: string } {
-  const status = error.response?.status;
-  if (status === 429) return { retryable: true, message: 'Rate limited' };
-  if (status && status >= 500) return { retryable: true, message: 'Server error' };
-  if (status === 401) return { retryable: false, message: 'Invalid API key' };
-  if (status === 422) return { retryable: false, message: 'Invalid request' };
-  return { retryable: false, message: error.message };
-}
-```
+Cover errors, pagination, unknown fields, multiple verification types, session metadata, throttling, and ambiguous POST outcomes.
+
+## Authentication
+
+Inject the environment-scoped bearer key at the transport boundary and pin `Persona-Version` per request. Callers must never pass raw credentials or select an arbitrary host.
+
+## Tool Discipline
+
+Use Read and Grep to inspect application configuration, provider documentation, fixtures, schemas, tests, and redacted operational evidence before proposing a change. Use Write or Edit only for an approved implementation, configuration, test, runbook, or redacted receipt. Do not create, resume, approve, decline, redact, rotate, revoke, deploy, or otherwise mutate production Persona resources without explicit operator approval.
 
 ## Output
 
-- Typed Persona API client with inquiry and verification methods
-- Singleton pattern for reuse
-- Error classification for retry decisions
-- Paginated inquiry listing
+- Typed transport and JSON:API envelope interfaces
+- Mutation command and read-query contracts
+- Compatibility and redaction test matrix
+
+Return the environment, resource and event identifiers, API version, template context, source-contract fingerprint, evidence, unresolved risk, rollback state, and final decision without exposing bearer keys, webhook secrets, inquiry session tokens, raw identity documents, or unnecessary PII.
+
+## Examples
+
+A TypeScript adapter returns `PersonaEnvelope<Inquiry>` plus a redacted request receipt. An unknown relationship is retained in the raw envelope while the domain mapper continues using the fields it understands.
 
 ## Error Handling
 
-| Pattern | Use Case | Benefit |
-|---------|----------|---------|
-| Singleton | All API calls | One client, consistent headers |
-| Error classifier | Retry decisions | Only retry 429/5xx |
-| Typed responses | Data access | Autocomplete, type safety |
+| Failure | Response |
+| --- | --- |
+| Unknown type or field | Preserve or ignore it safely and surface a compatibility metric; do not reject a compatible API addition. |
+| Timeout after POST | Read the resource or operation evidence before considering a replay with the same parameters. |
+| Malformed error envelope | Return transport status and a redacted body hash while protecting PII. |
+
+## Validation
+
+Verify the result against the linked first-party evidence, the pinned API version, redacted contract fixtures, an expected failure path, and the documented rollback or manual-disposition path. A successful request is not proof of a successful identity decision.
 
 ## Resources
 
-- [Persona API Reference](https://docs.withpersona.com/reference/introduction)
-- [API Introduction](https://docs.withpersona.com/api-introduction)
-
-## Next Steps
-
-Apply in `persona-core-workflow-a` for real KYC flows.
+- [First-party source notes](references/official-docs.md)
+- [API introduction](https://docs.withpersona.com/api-introduction)
+- [API quickstart](https://docs.withpersona.com/api-quickstart-tutorial)
+- [API keys](https://docs.withpersona.com/api-keys)
+- [Rate limits](https://docs.withpersona.com/rate-limiting)
+- [Webhook best practices](https://docs.withpersona.com/webhooks-best-practices)
+- [Request idempotence](https://docs.withpersona.com/idempotence)

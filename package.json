@@ -38,6 +38,7 @@
     "validate:mcp-plaintext-creds": "node --test scripts/check-mcp-plaintext-creds.test.mjs && node scripts/check-mcp-plaintext-creds.mjs",
     "validate:gitleaks-config": "node --test scripts/check-gitleaks-config.test.mjs && node scripts/check-gitleaks-config.mjs",
     "validate:mcp-destructive-policy": "node --test scripts/check-mcp-destructive-policy.test.mjs && node scripts/check-mcp-destructive-policy.mjs",
+    "validate:changed-plugin-deps": "node --test scripts/audit-changed-plugin-dependencies.test.mjs && node scripts/audit-changed-plugin-dependencies.mjs",
     "validate:denylist-degradation": "node --test scripts/check-denylist-degradation.test.mjs && node scripts/check-denylist-degradation.mjs",
     "validate:safety-ratchet": "node --test scripts/check-safety-ratchet.test.mjs && node scripts/check-safety-ratchet.mjs",
     "validate:structural-ratchet": "node --test scripts/check-structural-ratchet.test.mjs && node scripts/check-structural-ratchet.mjs",

@@ -1,230 +1,75 @@
 ---
 name: exa-rate-limits
-description: 'Implement Exa rate limiting, exponential backoff, and request queuing.
-
-  Use when handling 429 errors, implementing retry logic,
-
-  or optimizing API request throughput for Exa.
-
-  Trigger with phrases like "exa rate limit", "exa throttling",
-
-  "exa 429", "exa retry", "exa backoff", "exa QPS".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
+description: >-
+  Budget Exa throughput per endpoint and distinguish caller rate limiting from vendor overload and billing exhaustion. Use when operating or reviewing this Exa boundary. Trigger with "Exa rate limits", "review Exa rate limits", or "fix Exa rate limits".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<endpoint-mix> <target-throughput> <team>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- api
-- rate-limiting
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Rate Limits
-
-## Output
-
-- A rate-aware client/workflow with bounded concurrency, idempotency, backoff, monitoring, and safe recovery decisions.
-- An aggregate throttle receipt that excludes raw queries, result content, and credentials.
+# Exa Endpoint Rate-limit Control
 
 ## Overview
 
-Handle Exa API rate limits gracefully. Default limit is 10 QPS (queries per second) across all endpoints. Rate limit errors return HTTP 429 with a simple `{ "error": "rate limit exceeded" }` response. For higher limits, contact hello@exa.ai for Enterprise plans.
-
-## Rate Limit Structure
-
-| Endpoint | Default QPS | Notes |
-|----------|-------------|-------|
-| `/search` | 10 | Most endpoints share this limit |
-| `/find-similar` | 10 | Same pool as search |
-| `/contents` | 10 | Same pool |
-| `/answer` | 10 | Same pool |
-| Research API | Concurrent task limit | Long-running operations |
+Budget Exa throughput per endpoint and distinguish caller rate limiting from vendor overload and billing exhaustion. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- `exa-js` SDK installed
-- Understanding of async/await patterns
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Published defaults are 10 QPS for /search, 100 QPS for /contents, and 10 QPS for /answer, while enterprise limits may differ. A 429 can reflect API-key, team, or network limits and should honor Retry-After when present. A 503 SERVICE_OVERLOADED is a separate capacity signal.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Exponential Backoff with Jitter
+1. Inventory endpoint mix, team limits, key-specific controls, concurrency, and burst shape.
+2. Set independent token buckets for Search, Contents, Answer, Agent, and administrative traffic.
+3. Bound queues and propagate deadlines instead of allowing hidden backlog growth.
+4. Honor Retry-After and use capped jitter only for retryable classes.
+5. Measure attempts, completions, throttles, overloads, queue age, and cost together.
+6. Request a limit change only with measured demand and an owner-approved capacity plan.
 
-```typescript
-import Exa from "exa-js";
+## Tool Discipline
 
-const exa = new Exa(process.env.EXA_API_KEY);
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-async function withBackoff<T>(
-  operation: () => Promise<T>,
-  config = { maxRetries: 5, baseDelayMs: 1000, maxDelayMs: 32000 }
-): Promise<T> {
-  for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
-    try {
-      return await operation();
-    } catch (err: any) {
-      const status = err.status || err.response?.status;
-      // Only retry on 429 (rate limit) and 5xx (server errors)
-      if (status !== 429 && (status < 500 || status >= 600)) throw err;
-      if (attempt === config.maxRetries) throw err;
+## Approval Boundaries
 
-      // Exponential delay with random jitter to prevent thundering herd
-      const exponentialDelay = config.baseDelayMs * Math.pow(2, attempt);
-      const jitter = Math.random() * 500;
-      const delay = Math.min(exponentialDelay + jitter, config.maxDelayMs);
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-      console.log(`[Exa] ${status} — retry ${attempt + 1}/${config.maxRetries} in ${delay.toFixed(0)}ms`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error("Unreachable");
-}
+## Failure Modes
 
-// Usage
-const results = await withBackoff(() =>
-  exa.searchAndContents("AI research", { numResults: 5, text: true })
-);
-```
+- Adding keys does not prove that team or network capacity increased.
+- Retrying 402 or invalid 400 requests wastes capacity and money.
+- Global throttling can let a high-volume Contents job starve interactive Search.
 
-### Step 2: Request Queue with Concurrency Control
+## Output
 
-```typescript
-import PQueue from "p-queue";
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-// Limit to 8 concurrent requests (under the 10 QPS limit)
-const exaQueue = new PQueue({
-  concurrency: 8,
-  interval: 1000,    // per second
-  intervalCap: 10,   // max 10 per interval (matches Exa's QPS limit)
-});
+## Example
 
-async function queuedSearch(query: string, opts: any = {}) {
-  return exaQueue.add(() => exa.searchAndContents(query, opts));
-}
+- Give interactive Search its own 10-QPS budget and run Contents backfills through a separately bounded queue.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-// Batch many queries safely
-async function batchSearch(queries: string[]) {
-  const results = await Promise.all(
-    queries.map(q => queuedSearch(q, { numResults: 5, text: true }))
-  );
-  return results;
-}
-```
+## Validation
 
-### Step 3: Adaptive Rate Limiter
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-```typescript
-class AdaptiveRateLimiter {
-  private currentDelay = 100; // ms between requests
-  private minDelay = 50;
-  private maxDelay = 5000;
-  private consecutiveSuccesses = 0;
-  private lastRequestTime = 0;
+## References
 
-  async execute<T>(fn: () => Promise<T>): Promise<T> {
-    const now = Date.now();
-    const elapsed = now - this.lastRequestTime;
-    if (elapsed < this.currentDelay) {
-      await new Promise(r => setTimeout(r, this.currentDelay - elapsed));
-    }
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-    try {
-      this.lastRequestTime = Date.now();
-      const result = await fn();
-      this.consecutiveSuccesses++;
-
-      // Speed up after 10 consecutive successes
-      if (this.consecutiveSuccesses >= 10) {
-        this.currentDelay = Math.max(this.minDelay, this.currentDelay * 0.8);
-        this.consecutiveSuccesses = 0;
-      }
-      return result;
-    } catch (err: any) {
-      if (err.status === 429) {
-        // Slow down on rate limit
-        this.currentDelay = Math.min(this.maxDelay, this.currentDelay * 2);
-        this.consecutiveSuccesses = 0;
-        console.log(`[Exa] Rate limited. New delay: ${this.currentDelay}ms`);
-      }
-      throw err;
-    }
-  }
-}
-
-const limiter = new AdaptiveRateLimiter();
-
-// Combine with backoff
-const results = await withBackoff(() =>
-  limiter.execute(() => exa.search("query", { numResults: 5 }))
-);
-```
-
-### Step 4: Batch Processing with Rate Awareness
-
-```typescript
-async function processBatch(
-  queries: string[],
-  batchSize = 5,
-  delayBetweenBatches = 1000
-) {
-  const allResults = [];
-
-  for (let i = 0; i < queries.length; i += batchSize) {
-    const batch = queries.slice(i, i + batchSize);
-
-    // Process batch concurrently
-    const batchResults = await Promise.all(
-      batch.map(q => withBackoff(() =>
-        exa.searchAndContents(q, { numResults: 3, text: true })
-      ))
-    );
-    allResults.push(...batchResults);
-
-    // Pause between batches to stay under rate limit
-    if (i + batchSize < queries.length) {
-      await new Promise(r => setTimeout(r, delayBetweenBatches));
-    }
-
-    console.log(`Processed ${Math.min(i + batchSize, queries.length)}/${queries.length}`);
-  }
-
-  return allResults;
-}
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| 429 errors | Exceeding 10 QPS | Implement backoff + queue |
-| Burst rejected | Too many simultaneous requests | Use `p-queue` with intervalCap |
-| Batch job failures | No delay between batches | Add `delayBetweenBatches` |
-| Inconsistent throttling | No jitter in retry | Add random jitter to prevent thundering herd |
-
-## Examples
-
-### Simple Retry Wrapper
-
-```typescript
-async function retrySearch(query: string, maxRetries = 3) {
-  for (let i = 0; i <= maxRetries; i++) {
-    try {
-      return await exa.search(query, { numResults: 5 });
-    } catch (err: any) {
-      if (err.status !== 429 || i === maxRetries) throw err;
-      await new Promise(r => setTimeout(r, 1000 * Math.pow(2, i)));
-    }
-  }
-}
-```
-
-## Resources
-
-- [Exa Rate Limits](https://docs.exa.ai/reference/rate-limits)
-- [p-queue](https://github.com/sindresorhus/p-queue)
-
-## Next Steps
-
-For security configuration, see `exa-security-basics`.
+- [Current first-party evidence map](references/official-docs.md)

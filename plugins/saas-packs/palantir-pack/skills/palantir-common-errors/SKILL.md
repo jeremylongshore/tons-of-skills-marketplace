@@ -1,205 +1,99 @@
 ---
 name: palantir-common-errors
-description: 'Diagnose and fix Palantir Foundry common errors and API exceptions.
-
-  Use when encountering Foundry errors, debugging failed API calls,
-
-  or troubleshooting transform build failures.
-
-  Trigger with phrases like "palantir error", "fix palantir",
-
-  "foundry not working", "debug foundry", "palantir 401 403".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.5.0
-license: MIT
+description: >-
+  Diagnose Foundry API, Ontology, permission, and transform-build failures from bounded evidence. Use when an operator sees authentication, authorization, throttling, missing-resource, dependency, or build errors. Trigger with "Foundry error" or "Palantir 403".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[error-or-build-id]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- debugging
-- errors
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, troubleshooting, api]
 ---
-# Palantir Common Errors
+# Palantir Foundry Error Triage
 
 ## Overview
 
-Quick reference for the top 10 most common Foundry API and transform errors with copy-paste solutions.
+Triage the failing surface before changing credentials, permissions, code, or compute. Preserve the server request identifier and Foundry build evidence so similar-looking failures are not collapsed into the same cause.
 
 ## Prerequisites
 
-- `foundry-platform-sdk` installed
-- API credentials configured
-- Access to Foundry build logs or application logs
+- Capture the exact status code or Foundry error name, request identifier, timestamp, endpoint or build, and affected principal.
+- Identify whether the call uses a temporary user token, authorization-code token, or client-credentials service user.
+- Read `references/official-docs.md`; use the API reference and in-platform build report as the current contract.
+- Reproduce with a read-only request or sandbox branch whenever possible.
+
+## Current Contract
+
+- A `401` points to missing, malformed, expired, or otherwise unusable authentication; it does not justify broader scope.
+- A `403` can result from the intersection of token scope, application restrictions, user/service-user permissions, project roles, and mandatory controls.
+- Foundry documents global rate and concurrency limits, while individual endpoints may impose stricter limits and return `429` or `503`.
+- Transform preview and full build can differ because preview may use a subset of data; repository checks also evaluate dependencies and declared resources.
+
+## Authentication
+
+All Foundry REST API calls use OAuth 2.0 bearer tokens. Never print or persist a token in the triage report. Record the grant type, requested scopes, Developer Console restrictions, and effective user or service-user permissions without recording credential values.
 
 ## Instructions
 
-### Error 1: 401 Unauthorized — Invalid or Expired Token
+1. Classify the failure as authentication, authorization, limit/concurrency, resource identity, dependency, transform logic, or platform availability.
 
-```
-foundry.ApiError: 401 Unauthorized — The provided token is invalid or expired.
-```
+2. Preserve the smallest complete evidence set: request ID, build ID, branch, commit, principal type, scope names, and affected RIDs or API names.
 
-**Fix:**
+3. For auth failures, evaluate token validity, scope, application restrictions, project role, and mandatory markings in that order.
 
-```python
-# Regenerate token in Developer Console
-# Settings > Tokens > Generate new personal access token
-# Or re-authenticate with OAuth2:
-auth = foundry.ConfidentialClientAuth(
-    client_id=os.environ["FOUNDRY_CLIENT_ID"],
-    client_secret=os.environ["FOUNDRY_CLIENT_SECRET"],
-    hostname=os.environ["FOUNDRY_HOSTNAME"],
-    scopes=["api:read-data"],
-)
-auth.sign_in_as_service_user()  # Gets a fresh token
-```
+4. For `429` or `503`, honor server guidance and apply bounded exponential backoff with jitter; reduce concurrency before retrying.
 
-### Error 2: 403 Forbidden — Insufficient Scopes
+5. For build failures, inspect the detailed report, compare preview and full inputs, and test the minimal failing transform on a sandbox branch.
 
-```
-foundry.ApiError: 403 Forbidden — Missing required scope: api:ontology-read
-```
+## Tool Discipline
 
-**Fix:** Add missing scopes in Developer Console > Your App > Scopes. Common scopes:
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-- `api:read-data` — read datasets
-- `api:write-data` — write datasets
-- `api:ontology-read` — read Ontology objects
-- `api:ontology-write` — apply actions
+## Approval Boundaries
 
-### Error 3: ObjectTypeNotFound
-
-```
-foundry.ApiError: 404 ObjectTypeNotFound — Object type 'employee' not found
-```
-
-**Fix:** Object type names are `camelCase` API names, not display names. Check Ontology Manager:
-
-```python
-# List all object types to find the correct api_name
-for ot in client.ontologies.ObjectType.list(ontology="my-company"):
-    print(f"  {ot.api_name} (display: {ot.display_name})")
-```
-
-### Error 4: DatasetNotFound
-
-```
-foundry.ApiError: 404 DatasetNotFound — Dataset not found or you do not have access
-```
-
-**Fix:** Verify the dataset RID (right-click dataset in Foundry UI > Copy RID). Ensure your service user has Viewer/Editor role on the project.
-
-### Error 5: Transform Build AnalysisException
-
-```
-pyspark.sql.utils.AnalysisException: cannot resolve 'fullname' given columns [fullName, department]
-```
-
-**Fix:** Spark column names are case-sensitive. Print columns to debug:
-
-```python
-@transform_df(Output("/out"), data=Input("/in"))
-def my_transform(data):
-    print(data.columns)  # Check actual column names
-    return data.select("fullName")  # Use exact casing
-```
-
-### Error 6: OutOfMemoryError in Transform Builds
-
-```
-java.lang.OutOfMemoryError: Java heap space
-```
-
-**Fix:** Add `@configure` with a larger memory profile:
-
-```python
-from transforms.api import configure
-@configure(profile=["DRIVER_MEMORY_LARGE"])  # 16GB
-@transform_df(Output("/out"), data=Input("/in"))
-def heavy_transform(data):
-    return data.groupBy("region").agg({"amount": "sum"})
-```
-
-### Error 7: ActionValidationFailed
-
-```
-foundry.ApiError: ActionValidationFailed — Parameter 'salary' must be positive
-```
-
-**Fix:** Read the validation messages for specific constraint violations:
-
-```python
-result = client.ontologies.Action.apply(
-    ontology="my-company",
-    action_type="updateSalary",
-    parameters={"employeeId": "EMP-001", "salary": 150000},
-)
-if result.validation != "VALID":
-    for msg in result.validation_messages:
-        print(f"  Validation error: {msg}")
-```
-
-### Error 8: ConnectionError / SSL Error
-
-```
-requests.exceptions.SSLError: SSL certificate verify failed
-```
-
-**Fix:** Common behind corporate proxies. Set the CA bundle:
-
-```bash
-export REQUESTS_CA_BUNDLE=/path/to/corporate-ca-bundle.crt
-# Or for development only (NOT production):
-export FOUNDRY_SSL_VERIFY=false
-```
-
-### Error 9: Rate Limit 429
-
-```
-foundry.ApiError: 429 Too Many Requests — Rate limit exceeded
-```
-
-**Fix:** See `palantir-rate-limits` for full implementation. Quick fix:
-
-```python
-import time
-time.sleep(int(response.headers.get("Retry-After", 5)))
-```
-
-### Error 10: Circular Dependency in Transforms
-
-```
-Build failed: Circular dependency detected between datasets
-```
-
-**Fix:** Dataset A's transform reads from B, and B reads from A. Break the cycle by introducing an intermediate dataset or restructuring the pipeline DAG.
+Permission grants, application-restriction changes, marking access, token replacement, and production rebuilds require their respective owners. A diagnosis does not authorize any of those mutations.
 
 ## Output
 
-- Identified error from Foundry API response or build logs
-- Applied targeted fix
-- Verified resolution with successful API call or build
+A triage record with classification, evidence, ruled-out causes, confirmed cause, minimum remediation, approval owner, validation request, and rollback. Redact tokens, personal data, and sensitive resource names when the audience does not need them.
 
 ## Error Handling
 
-| HTTP Code | Meaning | Retryable |
-|-----------|---------|-----------|
-| 400 | Bad Request (invalid params) | No — fix request |
-| 401 | Token expired/invalid | No — re-authenticate |
-| 403 | Missing scopes | No — update app scopes |
-| 404 | Resource not found | No — fix identifier |
-| 429 | Rate limited | Yes — wait and retry |
-| 500/502/503 | Server error | Yes — retry with backoff |
+| Condition | Response |
+|---|---|
+| Request ID is missing | Reproduce once with a safe read-only operation and capture response headers; otherwise report the evidence gap. |
+| A new token still gets 403 | Stop rotating credentials and evaluate scopes, app restrictions, project roles, and mandatory controls. |
+| Retries increase throttling | Cancel the retry loop, reduce concurrency, honor server timing, and contact Palantir Support if disruption persists. |
+| Preview passes but build fails | Use the full build report and production input characteristics; do not treat preview as proof of production success. |
+
+## Examples
+
+### Example 1
+
+Triage an Ontology read that changed from `200` to `403` by checking the client-credentials service user, requested scope, Developer Console resource restrictions, project role, and required markings.
+
+### Example 2
+
+Resolve a repeated transform check failure by preserving the build ID, identifying a missing dependency in the repository environment, fixing it on a branch, and rerunning the Foundry check.
+
+## Validation
+
+- The diagnosis cites an exact request or build and an exact principal.
+- Authentication and authorization are analyzed as separate layers.
+- Backoff is bounded and used only for retryable `429` or `503` responses.
+- The proposed remediation is the minimum change that addresses the confirmed cause.
+- The post-fix request or build proves recovery without expanding access.
 
 ## Resources
 
-- [Foundry API Reference](https://www.palantir.com/docs/foundry/api/general/overview/introduction)
-- [Transforms Python API](https://www.palantir.com/docs/foundry/transforms-python/transforms-python-api)
-
-## Next Steps
-
-For deeper debugging, see `palantir-debug-bundle`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

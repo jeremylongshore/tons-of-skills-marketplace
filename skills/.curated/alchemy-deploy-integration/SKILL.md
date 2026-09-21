@@ -1,142 +1,81 @@
 ---
 name: alchemy-deploy-integration
-description: 'Deploy Alchemy-powered Web3 applications to Vercel, Cloud Run, and AWS.
-
-  Use when deploying dApps with server-side Alchemy SDK access,
-
-  configuring API key secrets, or setting up RPC proxy endpoints.
-
-  Trigger: "deploy alchemy", "alchemy Vercel", "alchemy Cloud Run",
-
-  "alchemy production deploy", "dApp deploy".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(gcloud:*), Bash(docker:*)
-version: 1.5.0
+description: >-
+  Deploy an Alchemy-backed service through environment-scoped credentials, chain assertions, canaries, and rollback gates. Use when promoting an integration to hosted environments. Trigger with "deploy Alchemy integration", "Alchemy production deploy", or "promote an Alchemy service".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<platform> <source-env> <target-env>"
+version: 2.0.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- blockchain
-- web3
-- alchemy
-- deployment
-compatibility: Designed for Claude Code
+tags: [saas, alchemy, deployment, reliability]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Alchemy access requires network access, an appropriate credential, account capacity, and explicit approval"
 ---
-# Alchemy Deploy Integration
+# Alchemy Deployment and Promotion Control
 
 ## Overview
 
-Deploy Alchemy-powered dApps with proper API key security. The API key must stay server-side — never ship it to the browser.
+Deploy an Alchemy-backed service through environment-scoped credentials, chain assertions, canaries, and rollback gates. This workflow produces a reviewable artifact and negative-path evidence before any live side effect.
 
 ## Prerequisites
 
-- A server-side deployment target with a managed secret store and a scoped
-  Alchemy key that is distinct from local development credentials.
-- Input validation, rate limiting, and logging rules for any public RPC proxy
-  endpoint so arbitrary callers cannot turn it into an account-exhaustion path.
-- A tested rollback target and authenticated operational health check that does
-  not reveal credentials, internal configuration, or user activity.
+- Current first-party Alchemy documentation for the selected product, chain, feature, client, authentication method, limit, and lifecycle.
+- Named product, application, security, data/privacy, budget, release, and operations owners appropriate to the requested scope.
+- Synthetic or approved non-production fixtures, a credential canary, explicit success criteria, and a tested rollback boundary.
+
+## Current Contract
+
+Deployment artifacts are environment-neutral; credentials, application IDs, chain IDs, allowlists, webhook URLs, and account budgets are injected per environment. A health endpoint proves process health, while readiness must prove the intended chain and endpoint family without exposing credentials or creating a transaction.
+
+## Authentication
+
+Bind separate development, staging, and production Alchemy credentials through the platform secret manager. Deployment identities may reference secrets but may not read their values unless runtime requires it. Wallet signers remain outside the read-service deploy boundary.
 
 ## Instructions
 
-### Step 1: Vercel Deployment
+1. Inventory artifact SHA, target environment, region, Alchemy application/key identifier, chain, endpoint families, limits, callbacks, and owners.
+2. Verify the target chain and feature support and compare the environment manifest against staging; fail on reused credentials or ambiguous chain configuration.
+3. Inject secrets by reference, deploy an immutable artifact, and scan build logs, source maps, configuration exports, and images for credential canaries.
+4. Run a read-only readiness proof that asserts chain ID and endpoint behavior; separately test partial, rate-limited, and unavailable-provider states.
+5. Canary a bounded traffic share while watching latency, error class, completeness, usage, spend, and callback health.
+6. Promote only within approved thresholds; otherwise route back to the prior artifact and preserve the deployment and rollback receipts.
 
-```bash
-# Add Alchemy API key as Vercel secret
-vercel secrets add alchemy_api_key "your-api-key"
-vercel link
-vercel --prod
-```
+## Tool Discipline
 
-```json
-// vercel.json
-{
-  "env": { "ALCHEMY_API_KEY": "@alchemy_api_key" },
-  "functions": { "api/**/*.ts": { "maxDuration": 30 } }
-}
-```
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, wallet addresses, customer data, plan changes, spend, key creation or rotation, webhook changes, deployment, replay, transaction construction, signing, broadcast, or deletion.
 
-```typescript
-// api/balance/[address].ts — Vercel serverless function
-import { Alchemy, Network } from 'alchemy-sdk';
+## Approval Boundaries
 
-const alchemy = new Alchemy({
-  apiKey: process.env.ALCHEMY_API_KEY,
-  network: Network.ETH_MAINNET,
-});
-
-export default async function handler(req: any, res: any) {
-  const { address } = req.query;
-  if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
-    return res.status(400).json({ error: 'Invalid address' });
-  }
-  const balance = await alchemy.core.getBalance(address);
-  res.json({ balance: balance.toString() });
-}
-```
-
-### Step 2: Cloud Run Deployment
-
-```bash
-# Build and deploy
-gcloud builds submit --tag gcr.io/${PROJECT_ID}/alchemy-dapp
-gcloud run deploy alchemy-dapp \
-  --image gcr.io/${PROJECT_ID}/alchemy-dapp \
-  --region us-central1 \
-  --set-secrets=ALCHEMY_API_KEY=alchemy-api-key:latest \
-  --allow-unauthenticated
-```
-
-### Step 3: Health Check
-
-```typescript
-// api/health.ts
-import { Alchemy, Network } from 'alchemy-sdk';
-
-export default async function handler(_req: any, res: any) {
-  try {
-    const alchemy = new Alchemy({ apiKey: process.env.ALCHEMY_API_KEY, network: Network.ETH_MAINNET });
-    const block = await alchemy.core.getBlockNumber();
-    res.json({ status: 'healthy', latestBlock: block });
-  } catch {
-    res.status(503).json({ status: 'unhealthy' });
-  }
-}
-```
-
-## Output
-
-- Vercel deployment with API key in server-side functions
-- Cloud Run with GCP Secret Manager
-- Health check endpoint verifying Alchemy connectivity
-
-## Examples
-
-Deploy a staging serverless balance endpoint with the API key injected only by
-the platform secret binding, then call it with a public test address. Confirm
-that invalid addresses return `400`, valid requests return only the intended
-balance field, and neither response nor build artifact contains key material.
-Record the deployment revision and authenticated health result as the release
-receipt. If the secret binding, server-side boundary, or health check fails,
-roll traffic back to the prior revision and correct the deployment settings;
-never work around the failure by embedding a key in client code or source.
+Release owns promotion; security owns secret and public-origin configuration; product/operations own degraded behavior and traffic thresholds. Production deployment or rollback requires explicit environment approval.
 
 ## Error Handling
 
-| Failure | Response |
-|---------|----------|
-| Secret is unavailable at runtime | Fail closed, verify the managed binding, and do not substitute a plaintext fallback. |
-| Public endpoint receives malformed input | Return a bounded client error before invoking the provider. |
-| Provider health check fails | Mark the service degraded, alert the operator, and preserve the previous healthy revision. |
-| API key appears in output or artifact | Revoke it, remove the exposure, audit logs/builds, and redeploy with a replacement. |
+- Do not treat a generic `200 /health` as proof of correct chain or Alchemy readiness.
+- If a build or log contains a credential canary, stop promotion and rotate when exposure reached an unauthorized boundary.
+- Do not promote when the canary hides partial responses or exceeds the approved account envelope.
+
+## Output
+
+Return the environment manifest, immutable artifact, secret-reference proof, chain-aware readiness results, canary metrics, threshold decision, deployment receipt, and tested rollback receipt. Mark assumptions, observations, source dates, environment-specific behavior, owners, and unresolved gaps explicitly.
+
+## Examples
+
+- Promote the same artifact from staging to production while changing only approved secret references, chain configuration, and environment metadata.
+- Roll back a canary that returns fast HTTP 200 responses but begins surfacing Portfolio `partialErrors` above the completeness threshold.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- credential reused across environments
+- wrong chain ID
+- secret canary in source map
+- provider unavailable
+- partial response threshold
+- rollback to prior artifact
 
 ## Resources
 
-- [Vercel Secrets](https://vercel.com/docs/concepts/projects/environment-variables)
-- [Cloud Run Secrets](https://cloud.google.com/run/docs/configuring/secrets)
-- [Alchemy Docs](https://www.alchemy.com/docs)
-
-## Next Steps
-
-For webhook handling, see `alchemy-webhooks-events`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Alchemy sources before execution.
+- Treat observed account, application, network, indexer, chain, or provider behavior as environment-specific evidence, never a universal guarantee.

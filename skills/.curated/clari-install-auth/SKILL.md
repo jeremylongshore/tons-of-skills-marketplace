@@ -1,141 +1,91 @@
 ---
 name: clari-install-auth
-description: 'Configure Clari API authentication with API key and set up export access.
-
-  Use when connecting to the Clari API, generating API tokens,
-
-  or configuring forecast data exports.
-
-  Trigger with phrases like "install clari", "setup clari api",
-
-  "clari auth", "clari api key", "configure clari".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(pip:*), Grep
-version: 1.6.0
+description: >-
+  Configure a least-privilege Clari identity and validate Revenue API or Copilot credentials without exposing secrets. Use when starting an integration or rotating access. Trigger with: "set up Clari auth", "configure a Clari token", "test Copilot credentials".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[surface-revenue-or-copilot-and-environment]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- revenue-intelligence
-- forecasting
-- clari
-compatibility: Designed for Claude Code
+  - saas
+  - clari
+  - authentication
+  - tokens
+  - integration-user
+compatibility: 'Requires an entitled Clari tenant, an approved integration owner, and access to the relevant Revenue API or conversation-intelligence workspace settings.'
 ---
-# Clari Install & Auth
+
+# Clari Integration Identity and Token Setup
 
 ## Overview
 
-Set up Clari API access for exporting forecast data, pipeline snapshots, and revenue intelligence to your data warehouse. Clari uses API key authentication via the `apikey` header, with the primary API at `api.clari.com/v4/`.
+Establish a dedicated integration identity before building any data flow. Treat Revenue API tokens, ingestion partner keys, and Copilot key/password pairs as separate credentials with separate rotation and revocation paths.
 
 ## Prerequisites
 
-- Clari enterprise account with API access enabled
-- Admin or RevOps role for API key generation
-- Target data warehouse (Snowflake, BigQuery, or Redshift) for exports
+- Named business owner and technical owner for the integration
+- Target surface: Revenue API, v2 ingestion, or Copilot API
+- Approved secret manager and a non-production validation boundary
 
 ## Instructions
 
-### Step 1: Generate API Token
+### Step 1: Choose the surface
 
-1. Log in to Clari at https://app.clari.com
-2. Navigate to **User Settings** > **API Token**
-3. Click **Generate New API Token**
-4. Copy and store the token securely
+Record the exact base URL and authentication contract: Revenue API uses the `apikey` header, v2 ingestion additionally requires `partnerkey`, and Copilot uses both `X-Api-Key` and `X-Api-Password`.
 
-```bash
-# Store securely -- never commit
-export CLARI_API_KEY="your-api-token-here"
+### Step 2: Create a dedicated identity
 
-# Verify the key works
-curl -s -H "apikey: ${CLARI_API_KEY}" \
-  https://api.clari.com/v4/export/forecast/list \
-  | jq '.forecasts | length'
-```
+Use a service or integration user whose hierarchy and forecast access match the intended export scope. Do not reuse a personal administrator credential.
 
-### Step 2: Configure Environment
+### Step 3: Issue and escrow credentials
 
-```bash
-# .env -- NEVER commit this file
-CLARI_API_KEY=your-api-token
-CLARI_BASE_URL=https://api.clari.com/v4
-CLARI_ORG_ID=your-org-id
+Generate the credential in the Clari settings exposed for the entitled product, capture it once into the approved secret manager, and record owner and rotation metadata without copying the value into tickets or logs.
 
-# .gitignore
-.env
-.env.local
-```
+### Step 4: Validate the smallest read
 
-### Step 3: Test API Connectivity
+For Revenue API, call the administrative limits read or another entitled read-only endpoint. For Copilot, list a narrowly scoped resource such as users; do not create or update CRM records during authentication testing.
 
-```python
-import requests
-import os
+### Step 5: Prove effective access
 
-api_key = os.environ["CLARI_API_KEY"]
-headers = {"apikey": api_key, "Content-Type": "application/json"}
+Confirm the identity can see only the expected organization, forecast hierarchy, workspace, and object set. Treat an empty result separately from successful authorization.
 
-# List available forecasts
-response = requests.get(
-    "https://api.clari.com/v4/export/forecast/list",
-    headers=headers,
-)
-response.raise_for_status()
+### Step 6: Document rotation and revocation
 
-forecasts = response.json()["forecasts"]
-for fc in forecasts:
-    print(f"  {fc['forecastName']} (ID: {fc['forecastId']})")
-```
+Define overlap, rollback, dependent-job restart, and emergency revocation procedures before production use.
 
-### Step 4: Copilot API Setup (Optional)
+## Authentication
 
-Clari Copilot (conversation intelligence) has a separate API:
+Send credentials only in the provider-documented headers over HTTPS. Redact all token and password values, never persist them in shell history or fixtures, and remember that revoking a Revenue API token or deactivating its owning user can break active integrations.
 
-```bash
-# Copilot uses OAuth2 -- different from the forecast API
-# Register at https://api-doc.copilot.clari.com
+## Tool Discipline
 
-export CLARI_COPILOT_CLIENT_ID="your-client-id"
-export CLARI_COPILOT_CLIENT_SECRET="your-client-secret"
-
-# Get access token
-curl -X POST https://api.copilot.clari.com/oauth/token \
-  -d "grant_type=client_credentials" \
-  -d "client_id=${CLARI_COPILOT_CLIENT_ID}" \
-  -d "client_secret=${CLARI_COPILOT_CLIENT_SECRET}"
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Invalid or expired token | Regenerate at User Settings > API Token |
-| `403 Forbidden` | Insufficient permissions | Contact Clari admin for API access |
-| `404 Not Found` | Wrong API version or endpoint | Use `/v4/` prefix |
-| Connection refused | IP allowlist | Check with IT for API access from your network |
+Use Read and Grep to inspect configuration, provider contracts, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not issue, rotate, revoke, create, update, cancel, delete, export, ingest, or publish provider data without explicit operator approval.
 
 ## Output
 
-Record the environment, authorized account or service principal, secret-store
-reference, enabled API scope, verification timestamp, and first read-only
-result. Never put an API token, OAuth client secret, raw export, or temporary
-download URL into source control, shell history, or onboarding documentation.
+- Credential inventory containing references, owners, scopes, and rotation dates
+- Redacted read-only validation receipt with endpoint, timestamp, and status
+- Revocation and dependent-job recovery plan
+
+Return the exact surface, environment, resource or job identifiers, contract fingerprint, evidence, unresolved risks, and final decision without exposing credentials or sensitive customer data.
 
 ## Examples
 
-Create a staging service token in the approved secret manager, invoke the
-forecast-list request with the runtime identity, and verify the expected
-forecast names without writing their contents to logs. If the request is 401 or
-403, stop and have the account owner repair scope or rotation rather than
-reusing an individual employee token.
+A forecast warehouse integration receives a dedicated user and token limited by the user’s Clari hierarchy. The operator validates `/admin/limits`, records only the HTTP status and organization context, and schedules a rotation drill before enabling exports.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| 401 or authentication failure | Verify the correct header contract and secret reference; rotate rather than printing the credential. |
+| 403 or missing data | Check product entitlement, hierarchy opt-in, forecast access, partner enablement, and workspace scope. |
+| Credential owner is deactivated | Issue a replacement under an approved integration identity and restart dependents only after read-only validation. |
 
 ## Resources
 
-- [Clari Developer Portal](https://developer.clari.com)
-- [Clari API Reference](https://developer.clari.com/documentation/external_spec)
-- [Clari Copilot API](https://api-doc.copilot.clari.com)
-- [Clari Community - API Guide](https://community.clari.com/product-q-a-6/clari-api-all-you-need-to-know-556)
-
-## Next Steps
-
-Proceed to `clari-hello-world` to export your first forecast.
+- [First-party source notes](references/official-docs.md)
+- [Clari Revenue API reference](https://developer.clari.com/default/documentation/external_spec)
+- [Clari Copilot API reference](https://api-doc.copilot.clari.com/)

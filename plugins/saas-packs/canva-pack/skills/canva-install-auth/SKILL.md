@@ -1,223 +1,92 @@
 ---
 name: canva-install-auth
-description: 'Set up Canva Connect API OAuth 2.0 PKCE authentication and project scaffolding.
-
-  Use when creating a new Canva integration, setting up OAuth credentials,
-
-  or initializing a Canva Connect API project.
-
-  Trigger with phrases like "install canva", "setup canva",
-
-  "canva auth", "configure canva API", "canva OAuth".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pnpm:*), Bash(npx:*), Grep
-version: 1.5.0
+description: 'Implement Canva Connect OAuth 2.0 Authorization Code with SHA-256 PKCE on a backend. Use when creating an integration, adding explicit scopes, handling callback state, or rotating single-use refresh tokens. Trigger with: "set up Canva OAuth", "Canva PKCE", "refresh Canva token".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[redirect-uri-and-required-scopes]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - authentication
+  - operations
+compatibility: 'Requires a Canva Developer Portal integration, controlled redirect URI, backend secret store, and consent design.'
 ---
-# Canva Connect API — Install & Auth
+
+# Canva OAuth Credential Boundary
 
 ## Overview
 
-Set up a Canva Connect API integration with OAuth 2.0 Authorization Code flow with PKCE (SHA-256). The Canva Connect API is a REST API at `https://api.canva.com/rest/v1/*` — there is no SDK package. All calls use `fetch` or `axios` with Bearer tokens.
+Build authorization as a stateful backend protocol, not a copied token snippet. Keep the PKCE verifier and client secret out of the browser and serialize refresh-token replacement per user.
 
 ## Prerequisites
 
-- Node.js 18+ (for native `crypto.subtle` and `fetch`)
-- A Canva account at [canva.com](https://www.canva.com)
-- An integration registered at [canva.dev](https://www.canva.dev/docs/connect/creating-integrations/)
+- Developer Portal integration and saved client secret
+- Controlled redirect URI and exact explicit scopes
+- Backend session, token vault, encryption, and revocation path
 
 ## Instructions
 
-1. Register exact HTTPS redirect URIs, request only approved scopes, and perform PKCE/token exchange on the server.
-2. Store tokens in the approved encrypted secret/data store, bind them to the authorized user/tenant, and exclude them from logs and clients.
-3. Verify a read-only synthetic-tenant call first; use the owner-controlled revocation/reauthorization process on any mismatch.
+### Step 1: Register the integration
 
-## Procedure
+Configure name, minimum scopes, at least one controlled redirect URI, and secret storage. Remove localhost and loopback redirect hosts from production configuration.
 
-### Step 1: Register Your Integration
+### Step 2: Create authorization state
 
-1. Go to **Settings > Integrations** at [canva.com/developers](https://www.canva.com/developers)
-2. Create a new integration — note your **Client ID** and **Client Secret**
-3. Add redirect URI(s): e.g. `http://localhost:3000/auth/canva/callback`
-4. Enable required scopes under **Permissions**
+Generate high-entropy per-request state and a PKCE verifier that meets Canva's documented character/length rules. Store both server-side with short expiry and one-time use.
 
-### Step 2: Store Credentials
+### Step 3: Build the authorization URL
 
-```bash
-# .env (NEVER commit — add to .gitignore)
-CANVA_CLIENT_ID=OCAxxxxxxxxxxxxxxxx
-CANVA_CLIENT_SECRET=xxxxxxxxxxxxxxxx
-CANVA_REDIRECT_URI=http://localhost:3000/auth/canva/callback
-```
+Use Canva's authorization endpoint, S256 challenge method, explicit space-separated scopes, client ID, state, and an exactly registered redirect URI.
 
-```bash
-echo '.env' >> .gitignore
-echo '.env.local' >> .gitignore
-```
+### Step 4: Validate the callback
 
-### Step 3: Implement OAuth 2.0 PKCE Flow
+Reject missing/mismatched/expired state, repeated codes, unexpected redirect context, and errors before token exchange.
 
-```typescript
-// src/canva/auth.ts
-import crypto from 'crypto';
+### Step 5: Exchange on the backend
 
-// 1. Generate PKCE code verifier and challenge
-export function generatePKCE(): { verifier: string; challenge: string } {
-  const verifier = crypto.randomBytes(64).toString('base64url'); // 43-128 chars
-  const challenge = crypto
-    .createHash('sha256')
-    .update(verifier)
-    .digest('base64url');
-  return { verifier, challenge };
-}
+Authenticate the token request using the approved client method, send the verifier and authorization code, validate the response, encrypt access and refresh tokens separately, and discard transient secrets.
 
-// 2. Build the authorization URL
-export function getAuthorizationUrl(opts: {
-  clientId: string;
-  redirectUri: string;
-  scopes: string[];
-  codeChallenge: string;
-  state: string;
-}): string {
-  const params = new URLSearchParams({
-    response_type: 'code',
-    client_id: opts.clientId,
-    redirect_uri: opts.redirectUri,
-    scope: opts.scopes.join(' '),
-    code_challenge: opts.codeChallenge,
-    code_challenge_method: 'S256',
-    state: opts.state,
-  });
-  return `https://www.canva.com/api/oauth/authorize?${params}`;
-}
+### Step 6: Refresh atomically
 
-// 3. Exchange authorization code for access token
-export async function exchangeCodeForToken(opts: {
-  code: string;
-  codeVerifier: string;
-  clientId: string;
-  clientSecret: string;
-  redirectUri: string;
-}): Promise<{ access_token: string; refresh_token: string; expires_in: number }> {
-  const basicAuth = Buffer.from(
-    `${opts.clientId}:${opts.clientSecret}`
-  ).toString('base64');
+Single-flight refresh per user because each refresh token is single-use. Commit the new access token, expiry, and replacement refresh token atomically; reauthorize on unrecoverable failure.
 
-  const res = await fetch('https://api.canva.com/rest/v1/oauth/token', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Basic ${basicAuth}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      grant_type: 'authorization_code',
-      code: opts.code,
-      code_verifier: opts.codeVerifier,
-      redirect_uri: opts.redirectUri,
-    }),
-  });
+### Step 7: Support disconnect
 
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(`Token exchange failed: ${err.error} — ${err.error_description}`);
-  }
-  return res.json();
-}
+Revoke when required, delete application-held tokens and cached authorization, and record a credential-free receipt.
 
-// 4. Refresh an expired access token (access tokens expire in ~4 hours)
-export async function refreshAccessToken(opts: {
-  refreshToken: string;
-  clientId: string;
-  clientSecret: string;
-}): Promise<{ access_token: string; refresh_token: string; expires_in: number }> {
-  const basicAuth = Buffer.from(
-    `${opts.clientId}:${opts.clientSecret}`
-  ).toString('base64');
+## Authentication
 
-  const res = await fetch('https://api.canva.com/rest/v1/oauth/token', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Basic ${basicAuth}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      grant_type: 'refresh_token',
-      refresh_token: opts.refreshToken,
-    }),
-  });
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-  if (!res.ok) throw new Error('Token refresh failed');
-  return res.json();
-}
-```
+## Tool Discipline
 
-### Step 4: Verify Connection
-
-```typescript
-// Verify token works by calling GET /v1/users/me (no scopes required)
-async function verifyConnection(accessToken: string): Promise<void> {
-  const res = await fetch('https://api.canva.com/rest/v1/users/me', {
-    headers: { 'Authorization': `Bearer ${accessToken}` },
-  });
-
-  if (!res.ok) throw new Error(`Verification failed: ${res.status}`);
-
-  const { team_user } = await res.json();
-  console.log(`Connected — user_id: ${team_user.user_id}, team_id: ${team_user.team_id}`);
-}
-```
-
-## Available OAuth Scopes
-
-| Scope | Description |
-|-------|-------------|
-| `design:content:read` | Read design contents, export designs |
-| `design:content:write` | Create designs, autofill brand templates |
-| `design:meta:read` | List designs, get design metadata |
-| `asset:read` | View uploaded asset metadata |
-| `asset:write` | Upload, update, delete assets |
-| `brandtemplate:content:read` | Read brand template content |
-| `brandtemplate:meta:read` | List and view brand template metadata |
-| `folder:read` | View folder contents |
-| `folder:write` | Create, update, delete folders |
-| `folder:permission:write` | Manage folder permissions |
-| `comment:read` | Read design comments |
-| `comment:write` | Create comments and replies |
-| `collaboration:event` | Receive webhook notifications |
-| `profile:read` | Read user profile information |
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-Authentication setup returns a redacted authorization/redirect/scope verification and opaque connection reference. It excludes client secrets, PKCE verifier, tokens, user profile data, and signed URLs.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-Create a dedicated development OAuth client, use a synthetic test user, complete a server-side PKCE callback, and record only the opaque connection ID and scope result. Do not put the client secret or a copied callback token in `.env.example`, browser code, logs, or support tickets.
+A callback consumes a one-time state record and server-held verifier, exchanges the code on the backend, and stores the replacement refresh token in the same transaction that invalidates the prior token.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `invalid_client` | Wrong client_id or secret | Verify credentials in Canva dashboard |
-| `invalid_grant` | Expired or reused auth code | Restart OAuth flow — codes are single-use |
-| `invalid_scope` | Scope not enabled | Enable scope in integration settings |
-| `access_denied` | User rejected consent | Prompt user again |
-| Token expired (401) | Access token > 4 hours old | Call refresh token endpoint |
+| Failure | Response |
+| --- | --- |
+| State mismatch | Stop the flow and create no token record |
+| Verifier missing | Restart authorization; never weaken PKCE |
+| Refresh race detected | Serialize by Canva user and retain one authoritative result |
+| Scope added later | Update portal configuration and obtain fresh user consent |
 
 ## Resources
 
-- [Canva Connect API Docs](https://www.canva.dev/docs/connect/)
-- [Authentication Guide](https://www.canva.dev/docs/connect/authentication/)
-- [Scopes Reference](https://www.canva.dev/docs/connect/appendix/scopes/)
-- [OpenAPI Spec](https://www.canva.dev/sources/connect/api/latest/api.yml)
-
-## Next Steps
-
-After successful auth, proceed to `canva-hello-world` for your first API call.
+- [First-party source notes](references/official-docs.md)
+- [Authentication](https://www.canva.dev/docs/connect/authentication/)
+- [Connect security](https://www.canva.dev/docs/connect/guidelines/security/)

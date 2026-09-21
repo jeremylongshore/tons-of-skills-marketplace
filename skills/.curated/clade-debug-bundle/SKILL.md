@@ -5,7 +5,7 @@ description: "Collect debug evidence for Anthropic API issues \u2014 request IDs
   \ steps for support tickets.\nTrigger with \"anthropic debug\", \"claude support\
   \ ticket\", \"anthropic request id\",\n\"debug claude api call\".\n"
 allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -138,7 +138,7 @@ See Step 1 (request ID extraction), Step 2 (full error logging), Step 3 (curl re
 ## Resources
 
 - [Anthropic Status](https://status.anthropic.com)
-- [Error Types](https://docs.anthropic.com/en/api/errors)
+- [Error Types](https://platform.claude.com/docs/en/api/errors)
 - [Support](https://support.anthropic.com)
 
 ## Next Steps

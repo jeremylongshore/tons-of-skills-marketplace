@@ -1,214 +1,78 @@
 ---
 name: firecrawl-ci-integration
-description: 'Configure Firecrawl CI/CD integration with GitHub Actions and automated
-  scraping tests.
-
-  Use when setting up automated testing of Firecrawl integrations, configuring CI
-  pipelines,
-
-  or validating scraping behavior in pull requests.
-
-  Trigger with phrases like "firecrawl CI", "firecrawl GitHub Actions",
-
-  "firecrawl automated tests", "CI firecrawl", "test firecrawl in CI".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*)
-version: 1.11.0
+description: >-
+  Build deterministic CI gates for a Firecrawl v2 integration using synthetic fixtures, pinned schemas, secret scanning, and an optional protected smoke test. Use when adding regression coverage or release controls. Trigger with "Firecrawl CI", "Firecrawl contract tests", or "test our Firecrawl integration".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> [unit|contract|smoke]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- testing
-- ci-cd
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, ci, testing]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl CI Integration
+# Firecrawl CI Contract
 
 ## Overview
 
-Set up CI/CD pipelines to test Firecrawl integrations automatically. Covers GitHub Actions workflow, API key secrets management, integration tests that validate real scraping, and mock-based unit tests for PRs.
-
-## Output
-
-Publish a CI receipt with commit SHA, test type, synthetic target or fixture version, protected-environment approval, aggregate result, and redacted failure reference. Secrets and scraped content must never appear in pull-request logs.
-
-## Examples
-
-Run unit tests with mocked Firecrawl responses for every pull request. After merge, use a protected job to test one approved synthetic target with a scoped staging key; fail the release step if the target, schema, or budget policy differs from the approved contract.
+Prove request construction, response handling, pagination, redaction, retries, and policy enforcement without spending credits or exposing production targets in routine pull-request CI.
 
 ## Prerequisites
 
-- GitHub repository with Actions enabled
-- Firecrawl API key for testing (separate from production)
-- `@mendable/firecrawl-js` installed
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
+
+## Current Contract
+
+Pin a reviewed Firecrawl v2 OpenAPI or SDK commit for contract tests. Cover SDK direct-data responses separately from REST success/data envelopes. Treat retryability, webhook event names, and pagination cursors as contract assertions rather than loose snapshots.
+
+## Authentication
+
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Configure Secrets
+1. Inspect the repository runtime, package manager, existing test framework, generated-client policy, CI trust model, and secret-scanning controls.
+2. Create synthetic fixtures for scrape documents, captured origin error pages, paginated crawl and batch results, validation failures, 402, 403, 429, and retryable server errors.
+3. Add unit tests for request shaping, explicit crawl limits, URL policy, redaction, cache and retention choices, Retry-After parsing, bounded retries, cancellation, and idempotency.
+4. Pin the v2 contract source and fail on incompatible endpoint, auth, required-field, event, or response-shape drift. Review intentional changes before updating the pin.
+5. Run static analysis, unit tests, contract tests, secret scanning, and artifact inspection on untrusted pull requests with fake credentials only.
+6. If live validation is justified, place one read-only synthetic canary behind a protected environment, disable it for forks, cap its credits and duration, and discard content bodies.
+7. Make required failures fail closed and emit a receipt with the contract pin and exact test result.
 
-```bash
-set -euo pipefail
-# Store test API key in GitHub Actions secrets
-gh secret set FIRECRAWL_API_KEY --body "fc-test-key-here"
-```
+## Tool Discipline
 
-### Step 2: GitHub Actions Workflow
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-```yaml
-# .github/workflows/firecrawl-tests.yml
-name: Firecrawl Integration Tests
+## Approval Boundaries
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+Require approval before adding dependencies, updating the contract pin, enabling networked CI, granting a CI secret, changing required checks, or retaining a live response.
 
-jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-      - run: npm ci
-      - run: npm test -- --coverage
-        # Unit tests use mocked SDK — no API key needed
+## Output
 
-  integration-tests:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'  # Only on merge, not PRs (saves credits)
-    env:
-      FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-      - run: npm ci
-      - run: npm run test:integration
-        timeout-minutes: 5
-```
-
-### Step 3: Integration Tests
-
-```typescript
-// tests/firecrawl.integration.test.ts
-import { describe, it, expect } from "vitest";
-import FirecrawlApp from "@mendable/firecrawl-js";
-
-const SKIP = !process.env.FIRECRAWL_API_KEY;
-
-describe.skipIf(SKIP)("Firecrawl Integration", () => {
-  const firecrawl = new FirecrawlApp({
-    apiKey: process.env.FIRECRAWL_API_KEY!,
-  });
-
-  it("scrapes a page to markdown", async () => {
-    const result = await firecrawl.scrapeUrl("https://example.com", {
-      formats: ["markdown"],
-    });
-    expect(result.success).toBe(true);
-    expect(result.markdown).toBeDefined();
-    expect(result.markdown!.length).toBeGreaterThan(50);
-    expect(result.metadata?.title).toBeDefined();
-  }, 30000);
-
-  it("maps a site for URLs", async () => {
-    const result = await firecrawl.mapUrl("https://docs.firecrawl.dev");
-    expect(result.links).toBeDefined();
-    expect(result.links!.length).toBeGreaterThan(0);
-  }, 30000);
-
-  it("extracts structured data", async () => {
-    const result = await firecrawl.scrapeUrl("https://example.com", {
-      formats: ["extract"],
-      extract: {
-        schema: {
-          type: "object",
-          properties: {
-            title: { type: "string" },
-            description: { type: "string" },
-          },
-        },
-      },
-    });
-    expect(result.extract).toBeDefined();
-    expect(result.extract?.title).toBeDefined();
-  }, 30000);
-});
-```
-
-### Step 4: Mock-Based Unit Tests (No API Key)
-
-```typescript
-// tests/scraper.unit.test.ts
-import { describe, it, expect, vi } from "vitest";
-
-vi.mock("@mendable/firecrawl-js", () => ({
-  default: vi.fn().mockImplementation(() => ({
-    scrapeUrl: vi.fn().mockResolvedValue({
-      success: true,
-      markdown: "# Test Page\n\nContent here",
-      metadata: { title: "Test", sourceURL: "https://example.com" },
-    }),
-    mapUrl: vi.fn().mockResolvedValue({
-      success: true,
-      links: ["https://example.com/a", "https://example.com/b"],
-    }),
-  })),
-}));
-
-import { processPage } from "../src/scraper";
-
-describe("Scraper Unit Tests", () => {
-  it("processes scraped content correctly", async () => {
-    const result = await processPage("https://example.com");
-    expect(result.title).toBe("Test");
-    expect(result.content).toContain("Content here");
-  });
-});
-```
-
-### Step 5: Credit-Aware CI
-
-```yaml
-# Only run expensive crawl tests on release tags
-integration-crawl:
-  runs-on: ubuntu-latest
-  if: startsWith(github.ref, 'refs/tags/v')
-  env:
-    FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
-  steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: "20"
-    - run: npm ci
-    - run: npm run test:crawl
-      timeout-minutes: 10
-```
+Return CI stages, fixture policy, contract source and pin, required checks, fork behavior, optional smoke-test boundary, test results, and any repository-setting changes still awaiting approval.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Secret not found | Missing GitHub secret | `gh secret set FIRECRAWL_API_KEY` |
-| Integration test timeout | Slow scrape response | Increase timeout to 30s+ |
-| Tests pass locally, fail in CI | Missing env var | Use `skipIf(!process.env.FIRECRAWL_API_KEY)` |
-| Credit burn from PRs | Integration tests on every PR | Run integration tests only on merge |
+- Contract changed: stop and present the reviewed diff instead of regenerating silently.
+- Live smoke is unavailable: keep offline gates authoritative and report the smoke as skipped.
+- Secret or captured content reaches an artifact: fail, quarantine, and remove the artifact.
+
+## Examples
+
+- "Test Firecrawl on fork PRs" produces offline synthetic tests with no secrets.
+- "Add a production smoke test" requires a protected, read-only, capped environment and explicit approval.
 
 ## Resources
 
-- GitHub Actions Secrets
-- [Vitest](https://vitest.dev/)
-- [Firecrawl Node SDK](https://docs.firecrawl.dev/sdks/node)
-
-## Next Steps
-
-For deployment patterns, see `firecrawl-deploy-integration`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

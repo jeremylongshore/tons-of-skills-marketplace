@@ -1,108 +1,100 @@
 ---
 name: persona-common-errors
-description: 'Fix top Persona API errors: 401, 422, webhook signature failures, inquiry
-  state issues.
-
-  Use when working with Persona identity verification.
-
-  Trigger with phrases like "persona common-errors", "persona common-errors".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.4.0
+description: >-
+  Triage Persona authentication, JSON:API, inquiry, session, webhook, and throttle failures with redacted evidence. Use when an integration is failing. Trigger with: "debug Persona error", "Persona 401", "Persona inquiry failed".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[request-id-or-inquiry-id]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- persona
-- identity
-- kyc
-- verification
-compatibility: Designed for Claude Code
+  - saas
+  - persona
+  - troubleshooting
+  - errors
+  - inquiries
+compatibility: 'Requires an authorized Persona environment, current first-party documentation, a reviewed dated API version, and privacy-safe operational evidence.'
 ---
-# persona common errors | sed 's/\b\(.\)/\u\1/g'
+
+# Persona API and Inquiry Failure Triage
 
 ## Overview
 
-401 invalid key, 422 invalid template, webhook HMAC mismatch, inquiry already completed, rate limit 429.
+Diagnose from the outer boundary inward: environment and credentials, request contract, resource lifecycle, session state, webhook authenticity, then provider limits. Preserve the original status and request evidence while keeping identity data out of logs.
 
 ## Prerequisites
 
-- Completed `persona-install-auth` setup
-- Valid Persona API key (sandbox or production)
+- Timestamp, environment, endpoint, status, and provider request identifier
+- Redacted request fingerprint and relevant inquiry or event ID
+- Access to current Dashboard configuration and application logs
 
 ## Instructions
 
-### Error 1: 401 Unauthorized
+### Step 1: Freeze the evidence
 
-```
-{"errors":[{"status":"401","title":"Not Authorized"}]}
-```
+Record UTC time, method, canonical host and path, API version, status, request ID, idempotency key hash, and response-body hash.
 
-**Fix:** Verify API key starts with `persona_sandbox_` or `persona_production_`. Check `Authorization: Bearer <key>` header format.
+### Step 2: Check environment and auth
 
-### Error 2: 422 Invalid Inquiry Template
+Confirm `api.withpersona.com`, the target environment, key state, permissions, and explicit version. A 401 is not fixed by printing or widening the key.
 
-```
-{"errors":[{"status":"422","title":"Invalid inquiry-template-id"}]}
-```
+### Step 3: Validate the request envelope
 
-**Fix:** Verify template ID format is `itmpl_*`. Templates are environment-specific (sandbox templates only work with sandbox keys).
+Check JSON:API shape, template selector, content headers, account auto-create metadata, and replay parameters.
 
-### Error 3: Webhook Signature Mismatch
+### Step 4: Reconcile lifecycle state
 
-```
-HMAC verification failed — expected abc123, got def456
-```
+Read the inquiry before retrying a create, resume, or transition. Distinguish pending, terminal, redacted, and unavailable resources.
 
-**Fix:** Ensure you're using the raw request body (not parsed JSON) for HMAC computation. Use `express.raw()` middleware.
+### Step 5: Verify event intake
 
-### Error 4: 429 Rate Limited
+Use raw bytes, timestamp-plus-dot-plus-body HMAC, all `v1` candidates, constant-time compare, event-ID dedupe, and creation-time ordering.
 
-```
-{"errors":[{"status":"429","title":"Rate limit exceeded"}]}
-```
+### Step 6: Respect limit signals
 
-**Fix:** Implement exponential backoff. Check `Retry-After` header. See `persona-rate-limits`.
+Read live `RateLimit-*` and `Quota-*` headers and Dashboard product quotas. On 429, reduce the responsible lane and use bounded backoff.
 
-### Error 5: Inquiry Already Completed
+## Authentication
 
-```
-{"errors":[{"status":"409","title":"Inquiry is already in a terminal state"}]}
-```
+Authenticate REST diagnostics with the correct environment bearer key and webhook diagnostics with the endpoint’s signing secret. Redact both before creating a ticket or debug bundle.
 
-**Fix:** Check inquiry status before attempting operations. Use the resume endpoint only for `created` or `pending` inquiries.
+## Tool Discipline
 
-### Error 6: 404 Inquiry Not Found
-
-```
-{"errors":[{"status":"404","title":"Not Found"}]}
-```
-
-**Fix:** Verify inquiry ID format is `inq_*`. Sandbox inquiries are not accessible with production keys.
+Use Read and Grep to inspect application configuration, provider documentation, fixtures, schemas, tests, and redacted operational evidence before proposing a change. Use Write or Edit only for an approved implementation, configuration, test, runbook, or redacted receipt. Do not create, resume, approve, decline, redact, rotate, revoke, deploy, or otherwise mutate production Persona resources without explicit operator approval.
 
 ## Output
 
-- Error identified from API response
-- Targeted fix applied
-- Verified resolution
+- Ranked root-cause hypothesis with evidence
+- Safe retry, reconciliation, or manual-review action
+- Redacted escalation packet and unresolved risks
+
+Return the environment, resource and event identifiers, API version, template context, source-contract fingerprint, evidence, unresolved risk, rollback state, and final decision without exposing bearer keys, webhook secrets, inquiry session tokens, raw identity documents, or unnecessary PII.
+
+## Examples
+
+A create call times out and its replay returns an unexpected response. The operator compares the stored idempotency key and request fingerprint, queries for the resulting inquiry, and avoids issuing a second customer workflow.
 
 ## Error Handling
 
-| HTTP Code | Meaning | Retryable |
-|-----------|---------|-----------|
-| 400 | Bad request | No |
-| 401 | Invalid API key | No — fix key |
-| 404 | Resource not found | No |
-| 409 | Conflict (terminal state) | No |
-| 422 | Validation error | No — fix request |
-| 429 | Rate limited | Yes |
-| 500+ | Server error | Yes |
+| Failure | Response |
+| --- | --- |
+| 401 or 403 | Verify host, environment, key state, permission, and version without exposing the bearer value. |
+| 400 or 422 | Inspect the JSON:API error pointers and compare the request to the current endpoint contract. |
+| 404 inquiry | Check environment and ID lineage; a redacted or wrong-tenant resource must not trigger blind recreation. |
+| 429 | Honor current headers, apply 5/10/20/40-second bounded delay where appropriate, and reconcile before mutation replay. |
+
+## Validation
+
+Verify the result against the linked first-party evidence, the pinned API version, redacted contract fixtures, an expected failure path, and the documented rollback or manual-disposition path. A successful request is not proof of a successful identity decision.
 
 ## Resources
 
-- [Persona API Reference](https://docs.withpersona.com/reference/introduction)
-
-## Next Steps
-
-For debugging, see `persona-debug-bundle`.
+- [First-party source notes](references/official-docs.md)
+- [API introduction](https://docs.withpersona.com/api-introduction)
+- [API quickstart](https://docs.withpersona.com/api-quickstart-tutorial)
+- [API keys](https://docs.withpersona.com/api-keys)
+- [Rate limits](https://docs.withpersona.com/rate-limiting)
+- [Webhook best practices](https://docs.withpersona.com/webhooks-best-practices)
+- [Request idempotence](https://docs.withpersona.com/idempotence)

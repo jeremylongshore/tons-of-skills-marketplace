@@ -1,185 +1,74 @@
 ---
 name: navan-core-workflow-a
-description: 'Manage the complete Navan travel booking lifecycle via REST API.
-
-  Use when building travel dashboards, automating trip reporting, or syncing booking
-  data to internal systems.
-
-  Trigger with "navan travel workflow", "navan booking management", "navan trip retrieval".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.8.0
+description: >-
+  Implement a governed downstream booking-data workflow from Navan into an approved system. Use when consuming the Booking API or booking-data integration. Trigger with "sync Navan bookings", "ingest travel data", or "reconcile booking export".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<tenant> <destination> <sync-window>"
+version: 1.9.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- navan
-- travel
-compatibility: Designed for Claude Code
+tags: [saas, navan, bookings]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live or external Navan actions require network access and explicit approval"
 ---
-# Navan — Travel Booking & Management
+# Navan Booking Data Ingestion
 
 ## Overview
 
-This skill provides the complete travel booking workflow through the Navan REST API. Navan has no public SDK — all access is via raw HTTP calls using OAuth 2.0 bearer tokens. This skill covers trip retrieval for both user and admin scopes, itinerary PDF downloads, invoice access, and trip filtering by date range and status. Every booking is keyed by a UUID primary key that must be tracked for deduplication and updates.
+Implement a governed downstream booking-data workflow from Navan into an approved system. This workflow produces an auditable decision or artifact before any live action.
 
 ## Prerequisites
 
-- Navan account with API credentials (client_id + client_secret)
-- Credentials created in Admin > Travel admin > Settings > Integrations > Navan API Credentials
-- OAuth 2.0 token obtained via POST `/ta-auth/oauth/token` (see `navan-install-auth`)
-- Node.js 18+ with `node-fetch` or Python 3.8+ with `requests`
-- Environment variables: `NAVAN_CLIENT_ID`, `NAVAN_CLIENT_SECRET`, `NAVAN_BASE_URL`
-- `NAVAN_BASE_URL` should be set to `https://api.navan.com`
+- Access to the selected tenant's current Navan Help Center and contracted integration documentation.
+- A named business owner and data owner for the travel or expense workflow.
+- A non-production evidence set with secrets and traveler data removed.
+
+## Current Contract
+
+Navan publicly describes its Booking API as a way for downstream systems to access booking data. Endpoint shape, booking lifecycle states, pagination, correction behavior, and delivery cadence must come from the tenant documentation.
+
+## Authentication
+
+Use a dedicated read-only integration identity or transfer credential scoped to booking data. Traveler itinerary data is personal information and must remain within the approved destination and retention boundary.
 
 ## Instructions
 
-### Step 1: Authenticate and Obtain Bearer Token
+1. Define the booking fields and business decisions the destination actually needs.
+2. Capture the source schema, identifiers, timestamps, lifecycle states, and correction semantics.
+3. Land immutable raw evidence in an access-controlled staging area.
+4. Normalize time zones, currencies, traveler references, and status without losing source values.
+5. Upsert or append according to documented semantics and quarantine conflicts.
+6. Reconcile counts, sums, late changes, deletions, and destination acknowledgements.
 
-```typescript
-const tokenRes = await fetch(`${process.env.NAVAN_BASE_URL}/ta-auth/oauth/token`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  body: new URLSearchParams({
-    grant_type: 'client_credentials',
-    client_id: process.env.NAVAN_CLIENT_ID!,
-    client_secret: process.env.NAVAN_CLIENT_SECRET!,
-  }),
-});
-const { access_token } = await tokenRes.json();
-const headers = { Authorization: `Bearer ${access_token}` };
-```
+## Tool Discipline
 
-### Step 2: Retrieve Bookings
+Use Read, Glob, and Grep to inspect documentation, schemas, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Invocation alone does not authorize network access, credentials, traveler or expense data, bookings, payments, policy or identity changes, file transfers, deployments, or deletion.
 
-```typescript
-// GET /v1/bookings — returns booking records (paginated via page + size)
-// Response: records in .data array, primary key uuid
-const bookingsRes = await fetch(
-  `${process.env.NAVAN_BASE_URL}/v1/bookings?page=0&size=50`,
-  { headers }
-);
-const { data: bookings } = await bookingsRes.json();
+## Approval Boundaries
 
-bookings.forEach((booking: any) => {
-  console.log(`UUID: ${booking.uuid}`);
-  console.log(`  Route: ${booking.origin} -> ${booking.destination}`);
-  console.log(`  Status: ${booking.status}`);
-  console.log(`  Dates: ${booking.start_date} to ${booking.end_date}`);
-});
-```
-
-### Step 3: Retrieve Bookings with Date Filtering
-
-```typescript
-// GET /v1/bookings with createdFrom/createdTo for incremental pulls
-const filteredRes = await fetch(
-  `${process.env.NAVAN_BASE_URL}/v1/bookings?createdFrom=2026-01-01&createdTo=2026-03-31&page=0&size=50`,
-  { headers }
-);
-const { data: filteredBookings } = await filteredRes.json();
-console.log(`Total bookings in range: ${filteredBookings.length}`);
-```
-
-### Step 4: Paginate Through All Bookings
-
-```typescript
-// Paginate using page + size query params (start from page 0, page_size 50)
-async function getAllBookings(): Promise<any[]> {
-  const allBookings: any[] = [];
-  let page = 0;
-  const size = 50;
-
-  while (true) {
-    const res = await fetch(
-      `${process.env.NAVAN_BASE_URL}/v1/bookings?page=${page}&size=${size}`,
-      { headers }
-    );
-    const { data } = await res.json();
-    if (!data || data.length === 0) break;
-    allBookings.push(...data);
-    if (data.length < size) break; // last page
-    page++;
-  }
-  return allBookings;
-}
-
-const allBookings = await getAllBookings();
-console.log(`Total bookings: ${allBookings.length}`);
-```
-
-### Step 5: Token Refresh
-
-```typescript
-// Re-authenticate by requesting a new token (same client_credentials flow)
-const refreshRes = await fetch(`${process.env.NAVAN_BASE_URL}/ta-auth/oauth/token`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  body: new URLSearchParams({
-    grant_type: 'client_credentials',
-    client_id: process.env.NAVAN_CLIENT_ID!,
-    client_secret: process.env.NAVAN_CLIENT_SECRET!,
-  }),
-});
-const refreshed = await refreshRes.json();
-console.log('Token refreshed successfully');
-```
-
-## Output
-
-Successful execution returns:
-
-- Booking objects in `.data` array with UUID primary keys, origin/destination, dates, and status
-- Paginated results using `page` + `size` query params
-- Incremental filtering via `createdFrom` / `createdTo` params
+Require data-owner approval for itinerary access, new destinations, backfills, retention changes, or any operation that could modify a Navan booking.
 
 ## Error Handling
 
-| Error | HTTP Code | Cause | Solution |
-|-------|-----------|-------|----------|
-| Unauthorized | 401 | Expired or invalid bearer token | Re-authenticate via POST /ta-auth/oauth/token |
-| Forbidden | 403 | Insufficient API scope | Verify credentials have correct permissions |
-| Not Found | 404 | Invalid endpoint or UUID | Confirm endpoint path starts with /v1/ |
-| Rate Limited | 429 | Too many requests | Implement exponential backoff (start at 1s) |
-| Server Error | 500 | Navan platform issue | Retry with backoff; check Navan status page |
+- Never treat a missing page as an empty successful dataset.
+- Quarantine unknown lifecycle states instead of coercing them.
+- Freeze publication when reconciliation exceeds the agreed threshold.
+
+## Output
+
+Return source revision, extraction window, rows read/landed/rejected, reconciliation deltas, sensitive-field handling, and next checkpoint. Identify assumptions, owners, expirations, and evidence gaps explicitly.
 
 ## Examples
 
-**Python — Retrieve trips with date filtering:**
+- Reconcile yesterday's booking changes into a duty-of-care warehouse.
+- Backfill a bounded period after a destination outage.
 
-```python
-import requests
-import os
+## Validation
 
-base_url = os.environ.get('NAVAN_BASE_URL', 'https://api.navan.com')
-
-# Authenticate (form-encoded, not JSON)
-auth = requests.post(f'{base_url}/ta-auth/oauth/token', data={
-    'grant_type': 'client_credentials',
-    'client_id': os.environ['NAVAN_CLIENT_ID'],
-    'client_secret': os.environ['NAVAN_CLIENT_SECRET'],
-})
-token = auth.json()['access_token']
-headers = {'Authorization': f'Bearer {token}'}
-
-# Get bookings for Q1 (records in .data array)
-resp = requests.get(
-    f'{base_url}/v1/bookings',
-    params={'createdFrom': '2026-01-01', 'createdTo': '2026-03-31', 'page': 0, 'size': 50},
-    headers=headers,
-).json()
-
-for booking in resp['data']:
-    print(f"{booking['uuid']}: {booking.get('origin')} -> {booking.get('destination')}")
-```
+Exercise empty windows, duplicate delivery, late correction, cancellation, partial page, currency variance, and destination rollback. Record expected and observed results, including fail-closed behavior.
 
 ## Resources
 
-- [Navan Help Center](https://app.navan.com/app/helpcenter) — Official documentation and support articles
-- [Booking Data Integration](https://app.navan.com/app/helpcenter/articles/travel/admin/other-integrations/booking-data-integration) — Booking data export configuration
-- [Navan Integrations](https://navan.com/integrations) — Available third-party integrations
-
-## Next Steps
-
-After retrieving trip data, proceed to `navan-core-workflow-b` for expense management or `navan-data-handling` for bulk data extraction patterns.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources and the selected tenant's in-account contract before relying on mutable endpoints, fields, entitlements, limits, or delivery behavior.
+- Record tenant observations as environment-specific evidence, never universal Navan guarantees.

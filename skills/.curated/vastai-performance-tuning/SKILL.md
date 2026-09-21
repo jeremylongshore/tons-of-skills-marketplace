@@ -1,178 +1,93 @@
 ---
 name: vastai-performance-tuning
-description: 'Optimize Vast.ai GPU instance selection, startup time, and training
-  throughput.
-
-  Use when optimizing instance selection, reducing startup latency,
-
-  or maximizing GPU utilization on rented hardware.
-
-  Trigger with phrases like "vastai performance", "optimize vastai",
-
-  "vastai slow", "vastai gpu utilization", "vastai throughput".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vastai:*), Bash(ssh:*)
-version: 1.11.0
+description: >-
+  Tune Vast.ai offer selection, startup, data feeding, GPU memory, and scaling from measured useful-work throughput. Use when jobs are slow, GPUs are underutilized, or faster offers cost more. Trigger with: "tune Vast.ai performance", "improve GPU utilization", "compare Vast.ai throughput".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[workload-benchmark-and-slo]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- api
-- performance
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - performance
+  - gpu
+  - benchmarking
+compatibility: 'Requires a representative benchmark, structured offer data, GPU telemetry, immutable images, and a cost objective.'
 ---
-# Vast.ai Performance Tuning
+
+# Vast.ai Useful-Work Performance Tuning
 
 ## Overview
 
-Optimize GPU instance selection, startup time, and training throughput on Vast.ai. Key levers: Docker image caching, GPU selection by dlperf score, data pipeline optimization, and multi-GPU scaling.
+Provider benchmark fields help shortlist offers but do not replace workload measurement. Tune one bottleneck at a time and compare completed-work latency, throughput, reliability, and total cost on immutable workload bytes.
 
 ## Prerequisites
 
-- Vast.ai account with active or planned instances
-- Understanding of GPU compute bottlenecks
-- Profiling tools (nvidia-smi, torch.profiler)
+- Representative input, warm-up, sample count, correctness assertion, and target SLO
+- Pinned code/image/model plus candidate GPU, VRAM, host, network, and disk profiles
+- Baseline throughput, utilization, memory, startup time, and useful-work cost
 
 ## Instructions
 
-### Step 1: Optimize Instance Selection by Performance
+### Step 1: Build the baseline
 
-```bash
-# Sort by dlperf (deep learning performance benchmark) instead of price
-vastai search offers 'num_gpus=1 gpu_ram>=24 reliability>0.95' \
-  --order 'dlperf-' --limit 10
+Measure end-to-end completion, startup, data wait, GPU utilization, memory, errors, and cost on the current profile.
 
-# The dlperf field measures actual GPU compute throughput
-# Higher dlperf = faster training even at same GPU model
-# Variance within same GPU model can be 20-30%
-```
+### Step 2: Shortlist offers
 
-```python
-def select_by_performance_per_dollar(offers):
-    """Select the offer with best performance per dollar."""
-    for o in offers:
-        o["perf_per_dollar"] = o.get("dlperf", 0) / max(o["dph_total"], 0.01)
-    return max(offers, key=lambda o: o["perf_per_dollar"])
-```
+Use verified, rentable, reliability, CUDA, network, `dlperf`, and `dlperf_usd` fields to select comparable candidates without weakening workload constraints.
 
-### Step 2: Reduce Instance Startup Time
+### Step 3: Remove startup waste
 
-```bash
-# Use smaller, pre-cached Docker images
-# FAST: nvidia/cuda:12.1.1-runtime-ubuntu22.04 (~2GB, widely cached)
-# MEDIUM: pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime (~4GB)
-# SLOW: custom-image:latest with pip install at build (~10GB+)
+Pin a smaller prebuilt image, avoid runtime package installs, and measure pull plus readiness separately from execution.
 
-# Pre-install deps in the image, not in onstart
-# BAD (slow startup):
-vastai create instance $ID --image pytorch/pytorch:latest \
-  --onstart-cmd "pip install transformers datasets wandb"
+### Step 4: Tune the data path
 
-# GOOD (fast startup):
-# Build custom image with all deps pre-installed
-```
+Stage hot data on suitable local storage, increase loaders or prefetch only from evidence, and watch bandwidth and disk cost.
 
-### Step 3: Data Pipeline Optimization
+### Step 5: Tune compute and memory
 
-```python
-# Profile GPU utilization on the instance
-# SSH into instance and run:
-"""
-watch -n 1 nvidia-smi  # Check if GPU util is <80% → data bottleneck
+Adjust batch, precision, accumulation, kernel, and multi-GPU strategy one variable at a time while preserving output correctness.
 
-# Common fixes for low GPU utilization:
-# 1. Increase DataLoader num_workers
-# 2. Use pin_memory=True
-# 3. Pre-fetch data to local SSD (not NFS)
-# 4. Use WebDataset or FFCV for streaming datasets
-"""
+### Step 6: Choose by useful work
 
-# Optimize PyTorch DataLoader
-from torch.utils.data import DataLoader
+Select the profile that meets the SLO at the best total cost per accepted unit, then destroy all benchmark instances.
 
-loader = DataLoader(
-    dataset,
-    batch_size=32,
-    num_workers=4,       # Match CPU cores on instance
-    pin_memory=True,     # Faster GPU transfer
-    prefetch_factor=2,   # Pre-load 2 batches per worker
-    persistent_workers=True,  # Don't respawn workers each epoch
-)
-```
+## Authentication
 
-### Step 4: GPU Memory Optimization
+Benchmark automation needs search and instance permissions only. Keep datasets, model tokens, and registry credentials separate and scoped to the benchmark.
 
-```python
-# Check available VRAM before selecting batch size
-import torch
+## Tool Discipline
 
-def optimal_batch_size(model, sample_input, gpu_memory_gb):
-    """Binary search for largest batch size that fits in VRAM."""
-    lo, hi, best = 1, 512, 1
-    while lo <= hi:
-        mid = (lo + hi) // 2
-        try:
-            torch.cuda.empty_cache()
-            batch = sample_input.repeat(mid, *([1] * (sample_input.dim() - 1)))
-            _ = model(batch.cuda())
-            best = mid
-            lo = mid + 1
-        except torch.cuda.OutOfMemoryError:
-            hi = mid - 1
-        torch.cuda.empty_cache()
-    return best
-```
-
-### Step 5: Multi-GPU Scaling
-
-```bash
-# Search for multi-GPU offers (NVLink preferred for training)
-vastai search offers 'num_gpus>=4 gpu_name=A100 total_flops>=100' \
-  --order 'dph_total' --limit 5
-
-# Use torchrun for distributed training
-ssh -p $PORT root@$HOST "torchrun --nproc_per_node=4 train.py --batch-size 128"
-```
-
-## GPU Performance Reference
-
-| GPU | VRAM | FP16 TFLOPS | Typical $/hr | Best For |
-|-----|------|-------------|-------------|----------|
-| RTX 4090 | 24GB | 82.6 | $0.15-0.30 | Fine-tuning, inference |
-| A100 40GB | 40GB | 77.97 | $0.80-1.50 | Training medium models |
-| A100 80GB | 80GB | 77.97 | $1.00-2.00 | Training large models |
-| H100 SXM | 80GB | 267 | $2.50-4.00 | High-throughput training |
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- Performance-per-dollar offer selection
-- Optimized Docker image for fast startup
-- Data pipeline tuning (DataLoader, pin_memory, workers)
-- GPU memory optimization with auto batch sizing
-- Multi-GPU scaling with torchrun
+- Reproducible baseline and candidate benchmark manifest
+- Bottleneck attribution and one-variable experiment results
+- Selected profile with SLO, cost, correctness, and cleanup evidence
 
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Low GPU utilization (<50%) | Data pipeline bottleneck | Increase `num_workers`, use `pin_memory` |
-| OOM during training | Batch size too large | Use `optimal_batch_size()` or gradient accumulation |
-| Slow instance startup | Large Docker image | Pre-install deps in image, not onstart |
-| Poor multi-GPU scaling | Communication bottleneck | Use NVLink-connected GPUs, reduce sync frequency |
-
-## Resources
-
-- [Vast.ai Search Filtering](https://docs.vast.ai/search-and-filter-gpu-offers)
-- [PyTorch Performance Guide](https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html)
-
-## Next Steps
-
-For cost optimization, see `vastai-cost-tuning`.
+Return workload identity, candidates, sample counts, throughput, latency, utilization, cost per accepted unit, decision, and destroyed instance IDs.
 
 ## Examples
 
-**Profile first**: SSH into instance, run `watch nvidia-smi` during training. If GPU-Util < 80%, the bottleneck is data loading, not compute.
+Two RTX 4090 offers with different `dlperf_usd` are tested on the same digest and dataset sample; the faster headline offer is rejected when startup and bandwidth make completed-batch cost worse.
 
-**Best value GPU**: Use `perf_per_dollar` scoring to find hosts where the same GPU model runs faster due to better cooling or fewer co-tenants.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Outputs differ across candidates | Treat the benchmark as invalid until correctness is restored. |
+| Only provider `dlperf` is available | Label the decision provisional and run the workload benchmark. |
+| GPU utilization is low but data wait is high | Fix the input path before buying a faster GPU. |
+| Benchmark instances remain | Stop analysis and close the active cost leak. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [Search offers](https://docs.vast.ai/cli/reference/search-offers)
+- [Instance pricing](https://docs.vast.ai/guides/instances/pricing)
+- [Serverless automated performance testing](https://docs.vast.ai/guides/serverless/automated-performance-testing)

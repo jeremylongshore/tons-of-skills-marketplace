@@ -1,80 +1,78 @@
 ---
 name: mindtickle-install-auth
-description: 'Install and configure MindTickle SDK/API authentication.
-
-  Use when setting up a new MindTickle integration.
-
-  Trigger: "install mindtickle", "setup mindtickle", "mindtickle auth".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.7.0
-license: MIT
+description: 'Select and document the correct Mindtickle access path for a tenant, including browser SSO, user provisioning, managed connectors, or customer-issued API credentials. Use when onboarding or repairing an integration. Trigger with "configure Mindtickle access".'
+argument-hint: "[tenant] [integration-purpose]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mindtickle
-- sales
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, mindtickle, authentication, sso, scim]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; tenant access, identity configuration, connector enablement, and credential issuance require customer and Mindtickle authorization
 ---
-# MindTickle Install & Auth
+# Mindtickle Tenant Access and Integration Onboarding
 
 ## Overview
 
-Set up MindTickle API for sales readiness, training content management, and rep performance analytics.
+Choose the supported access model, establish ownership, and verify the smallest safe capability without inventing a universal endpoint or credential format.
 
 ## Prerequisites
 
-- MindTickle account and API access
-- API key/credentials from MindTickle dashboard
-- Node.js 18+ or Python 3.8+
+- The customer's tenant URL, subscription package, site owner, and integration purpose
+- An identity, security, and data owner for the affected users and records
+- Customer-authorized tenant documentation or a Mindtickle Technical Solutions contact
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect local configuration, `WebFetch` to re-check official public and tenant-authorized contracts, and `Write` or `Edit` only for secretless configuration and redacted evidence.
+
+## Current Contract
+
+Mindtickle documents tenant-specific web URLs, role-based administration, managed integrations, REST-based Content/User/Reporting APIs, and standards including SCIM, SAML, and OpenID. Exact API hosts, routes, schemas, credentials, and entitlements are tenant-controlled and must be obtained from authorized documentation.
+
+## Authentication
+
+Separate interactive SSO, automated provisioning, managed connector authorization, and API credentials. Do not treat an SSO session as API authorization, guess headers, reuse administrator cookies, or place secrets in files, logs, prompts, or receipts.
 
 ## Instructions
 
-### Step 1: Install SDK
+1. Record the tenant, package, data classes, systems of record, intended reads and writes, and accountable owners.
+2. Classify the path as browser SSO, SCIM/user sync, a catalogued managed integration, or a customer-issued API contract.
+3. Re-fetch the applicable public product description and the customer's current tenant documentation.
+4. Build an access matrix covering principal, roles, scopes, environments, expiration, rotation, revocation, and break-glass ownership.
+5. Inspect the repository for guessed hosts, hard-coded secrets, browser-session reuse, and mixed tenant configuration.
+6. Present every tenant setting, consent, connector enablement, and credential request for explicit approval.
+7. After authorized provisioning, perform the smallest documented read-only check and retain only redacted status, principal class, tenant, and request identifiers.
 
-```bash
-npm install @mindtickle/sdk
-# API key from MindTickle Admin > Integrations > API
-```
+## Approval Boundaries
 
-### Step 2: Configure Authentication
+Do not invite users, change SSO or provisioning, enable a connector, issue credentials, broaden access, or test production writes without the relevant owner.
 
-```bash
-export MINDTICKLE_API_KEY="your-api-key-here"
-echo 'MINDTICKLE_API_KEY=your-api-key' >> .env
-```
+## Output
 
-### Step 3: Verify Connection (TypeScript)
-
-```typescript
-import { MindTickleClient } from '@mindtickle/sdk';
-const client = new MindTickleClient({ apiKey: process.env.MINDTICKLE_API_KEY });
-const users = await client.users.list({ limit: 5 });
-console.log(`Found ${users.total} users`);
-```
-
-### Step 4: Verify Connection (Python)
-
-```python
-import mindtickle
-client = mindtickle.Client(api_key=os.environ['MINDTICKLE_API_KEY'])
-users = client.users.list(limit=5)
-print(f'Found {users.total} users')
-```
+Return the selected access path, entitlement evidence, access matrix, secretless configuration, verification receipt, rotation/revocation owner, and unresolved vendor questions.
 
 ## Error Handling
 
-| Error | Code | Solution |
-|-------|------|----------|
-| Invalid API key | 401 | Verify credentials in dashboard |
-| Permission denied | 403 | Check API scopes/permissions |
-| Rate limited | 429 | Implement backoff |
+| Condition | Response |
+|---|---|
+| Tenant documentation is unavailable | Stop at the decision record and request it from the site owner or Mindtickle. |
+| SSO succeeds but an integration fails | Diagnose the integration credential independently; do not reuse the browser session. |
+| Capability is not in the package | Record the entitlement gap and route it to the commercial or site owner. |
+
+## Example
+
+```text
+tenant=customer-specific; path=managed-connector; principal=service-owned; entitlement=confirmed; smoke=read-only-pass; secrets=redacted
+```
 
 ## Resources
 
-- [MindTickle Documentation](https://www.mindtickle.com/platform/integrations/)
+- [Mindtickle integrations](https://www.mindtickle.com/platform/integrations/)
+- [Subscription services](https://www.mindtickle.com/legal/description-of-subscription-services/)
+- [Mindtickle Trust](https://www.mindtickle.com/trust/)
 
 ## Next Steps
 
-After auth, proceed to `mindtickle-hello-world`.
+Test credential rotation or connector reauthorization in a non-production tenant and assign a review date.

@@ -1,114 +1,99 @@
 ---
 name: persona-local-dev-loop
-description: 'Local development with Persona sandbox, ngrok for webhooks, mock verifications.
-
-  Use when working with Persona identity verification.
-
-  Trigger with phrases like "persona local-dev-loop", "persona local-dev-loop".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.4.0
+description: >-
+  Run a deterministic local Persona sandbox loop with synthetic inquiries, raw webhook fixtures, and replay checks. Use when developing without production PII. Trigger with: "develop Persona locally", "test Persona webhook", "mock Persona flow".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[fixture-scenario]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- persona
-- identity
-- kyc
-- verification
-compatibility: Designed for Claude Code
+  - saas
+  - persona
+  - local-development
+  - sandbox
+  - webhooks
+compatibility: 'Requires an authorized Persona environment, current first-party documentation, a reviewed dated API version, and privacy-safe operational evidence.'
 ---
-# persona local dev loop | sed 's/\b\(.\)/\u\1/g'
+
+# Deterministic Persona Sandbox and Webhook Loop
 
 ## Overview
 
-Sandbox testing with test inquiry templates, ngrok tunnel for webhook testing, mock API responses for CI.
+Build the local loop around Persona sandbox behavior and captured contract fixtures, not around calls to production. Sandbox performs no real verification, supports forced pass or fail paths, and incurs no usage charges.
 
 ## Prerequisites
 
-- Completed `persona-install-auth` setup
-- Valid Persona API key (sandbox or production)
+- Sandbox-only API key and template
+- HTTPS-capable webhook tunnel or local fixture runner
+- Synthetic identities and a secret-safe fixture directory
 
 ## Instructions
 
-### Step 1: Set Up Sandbox Environment
+### Step 1: Declare the scenario
 
-```bash
-set -euo pipefail
-# Use sandbox API key for all development
-echo 'PERSONA_API_KEY=persona_sandbox_xxxxxxxx' > .env
-echo 'PERSONA_API_VERSION=2023-01-05' >> .env
-```
+Name the template, forced outcome, inquiry state, expected event type, API version, and cleanup disposition.
 
-### Step 2: Expose Local Webhooks with ngrok
+### Step 2: Create with an operation key
 
-```bash
-# Terminal 1: Start your webhook server
-npm run dev  # localhost:3000
+Create a sandbox inquiry using a unique `Idempotency-Key`. Persist IDs separately from synthetic payloads.
 
-# Terminal 2: Tunnel with ngrok
-ngrok http 3000
-# Copy the HTTPS URL and configure in Persona Dashboard > Webhooks
-```
+### Step 3: Exercise the client path
 
-### Step 3: Create Test Inquiries
+Use the supported sandbox flow to force pass or fail. Do not encode sandbox-only controls into production request code.
 
-```python
-import os, requests
+### Step 4: Capture raw webhook bytes
 
-HEADERS = {
-    "Authorization": f"Bearer {os.environ['PERSONA_API_KEY']}",
-    "Persona-Version": "2023-01-05",
-}
+Save headers and raw body before parsing, redact PII, and preserve duplicate deliveries and deliberately reordered fixtures.
 
-# Create inquiry with sandbox template
-resp = requests.post("https://withpersona.com/api/v1/inquiries", headers=HEADERS, json={
-    "data": {
-        "attributes": {
-            "inquiry-template-id": "itmpl_YOUR_SANDBOX_TEMPLATE",
-            "reference-id": f"test-{int(time.time())}",
-        }
-    }
-})
-print(f"Test inquiry: {resp.json()['data']['id']}")
-```
+### Step 5: Replay deterministically
 
-### Step 4: Mock API Responses for CI
+Verify HMAC against raw bytes, deduplicate by event ID, order business processing by `data.attributes.created-at`, and assert the terminal local state.
 
-```typescript
-import { vi } from 'vitest';
+### Step 6: Reset without hiding drift
 
-const mockPersonaApi = {
-  createInquiry: vi.fn().mockResolvedValue({
-    data: { id: 'inq_test_123', attributes: { status: 'created', 'session-token': 'tok_xxx' } },
-  }),
-  getInquiry: vi.fn().mockResolvedValue({
-    data: { id: 'inq_test_123', attributes: { status: 'completed' } },
-  }),
-};
-```
+Delete only generated local artifacts through the project’s approved cleanup path; retain the contract fingerprint and test receipt.
+
+## Authentication
+
+Use a sandbox bearer key for REST requests and a separate sandbox webhook secret for HMAC verification. Never expose either value in a tunnel URL, fixture, console log, or committed `.env` file.
+
+## Tool Discipline
+
+Use Read and Grep to inspect application configuration, provider documentation, fixtures, schemas, tests, and redacted operational evidence before proposing a change. Use Write or Edit only for an approved implementation, configuration, test, runbook, or redacted receipt. Do not create, resume, approve, decline, redact, rotate, revoke, deploy, or otherwise mutate production Persona resources without explicit operator approval.
 
 ## Output
 
-- Sandbox environment configured for development
-- ngrok tunnel for webhook testing
-- Test inquiry creation workflow
-- Mock API responses for unit tests
+- Named sandbox scenario and synthetic inquiry receipt
+- Redacted raw webhook fixture set
+- Replay, duplicate, ordering, and terminal-state assertions
+
+Return the environment, resource and event identifiers, API version, template context, source-contract fingerprint, evidence, unresolved risk, rollback state, and final decision without exposing bearer keys, webhook secrets, inquiry session tokens, raw identity documents, or unnecessary PII.
+
+## Examples
+
+The `government-id-fail` scenario creates a sandbox inquiry, forces failure, captures two deliveries of the same event, replays them out of order, and proves exactly one transition to the expected failed state.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Webhook not received | ngrok URL not configured | Update webhook URL in Dashboard |
-| Sandbox key rejected | Using production key | Verify key starts with `persona_sandbox_` |
-| Template not found | Wrong environment | Templates are per-environment |
+| Failure | Response |
+| --- | --- |
+| Tunnel receives parsed JSON only | Disable body transformation and retain the exact raw bytes before JSON parsing. |
+| Fixture signature fails after editing | Regenerate the signature from the edited timestamp and raw body; never weaken verification. |
+| Sandbox and production settings diverge | Record the drift and stop promotion until templates, events, and API version are reviewed. |
+
+## Validation
+
+Verify the result against the linked first-party evidence, the pinned API version, redacted contract fixtures, an expected failure path, and the documented rollback or manual-disposition path. A successful request is not proof of a successful identity decision.
 
 ## Resources
 
-- [Persona API Quickstart](https://docs.withpersona.com/api-quickstart-tutorial)
-- [ngrok Documentation](https://ngrok.com/docs)
-
-## Next Steps
-
-Apply SDK patterns: `persona-sdk-patterns`
+- [First-party source notes](references/official-docs.md)
+- [API introduction](https://docs.withpersona.com/api-introduction)
+- [API quickstart](https://docs.withpersona.com/api-quickstart-tutorial)
+- [API keys](https://docs.withpersona.com/api-keys)
+- [Rate limits](https://docs.withpersona.com/rate-limiting)
+- [Webhook best practices](https://docs.withpersona.com/webhooks-best-practices)
+- [Request idempotence](https://docs.withpersona.com/idempotence)

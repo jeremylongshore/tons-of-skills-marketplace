@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/coderabbit-pack",
-  "version": "1.0.2",
-  "description": "Claude Code skill pack for CodeRabbit - 24 skills covering AI code review and pull requests",
+  "version": "2.0.0",
+  "description": "Evidence-backed CodeRabbit operator workflows for reviews, CLI, configuration, security, governance, APIs, and incident response (24 skills)",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -15,7 +15,8 @@
     "coderabbit",
     "code-review",
     "pull-requests",
-    "quality",
+    "governance",
+    "security",
     "ai-skills",
     "saas-pack"
   ],

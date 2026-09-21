@@ -1,104 +1,83 @@
 # Clari Skill Pack
 
-> 18 production-grade Claude Code skills for revenue intelligence and forecast data pipelines with Clari
+> 18 governed Claude Code workflows for Clari Revenue API exports, v2 ingestion, Copilot, and production operations
 
-## What Is Clari?
+## Provider Surfaces
 
-[Clari](https://www.clari.com) is an enterprise revenue orchestration platform that provides AI-powered forecasting, pipeline management, and revenue intelligence. The platform offers:
+This pack keeps Clari's public integration surfaces separate:
 
-- **Export API** (v4) for extracting forecast submissions, quota, adjustments, and CRM data
-- **Copilot API** for conversation intelligence (call transcripts, coaching insights)
-- **Revenue intelligence** with AI-driven deal inspection and pipeline analytics
-- **Forecast submissions** tracking with historical change detection
+- The [Clari Revenue API](https://developer.clari.com/default/documentation/external_spec) uses token authentication in the `apikey` header. Its published contract covers asynchronous forecast, activity, and audit exports; direct audit and opportunity reads; organization export limits; and ingestion operations.
+- Clari's ingestion examples use the v2 base URL and require both `apikey` and `partnerkey`.
+- The [Clari Copilot API](https://api-doc.copilot.clari.com/) uses `X-Api-Key` plus `X-Api-Password` on `rest-api.copilot.clari.com`. It exposes calls, call details, users, topics, scorecards, and account/contact/deal operations.
+- The current public Revenue contract does not define a general webhook subscription endpoint. The preserved `clari-webhooks-events` route therefore implements supported audit polling and asynchronous activity exports.
 
-The Clari Export API at `api.clari.com/v4` uses `apikey` header authentication. Export jobs are asynchronous -- you POST to start an export, poll for completion, then download results. This skill pack provides real API calls and production pipeline patterns for every stage of Clari integration.
+Each skill includes first-party evidence, explicit authentication and tool boundaries, failure handling, and a reviewable output contract. The workflows do not claim provider certification or successful tenant execution without runtime receipts.
 
 ## Installation
 
-```bash
-/plugin install clari-pack@claude-code-plugins-plus
-```
-
-## Skills Included
-
-### Getting Started (S01-S04)
-
-| Skill | Description |
-|-------|-------------|
-| `clari-install-auth` | API token generation, environment config, Copilot OAuth setup |
-| `clari-hello-world` | First API calls: list forecasts, export data, check job status |
-| `clari-local-dev-loop` | Mock forecast data, test pipeline locally, development scripts |
-| `clari-sdk-patterns` | Python and TypeScript API client wrappers with job polling |
-
-### Core Workflows (S05-S08)
-
-| Skill | Description |
-|-------|-------------|
-| `clari-core-workflow-a` | Forecast export pipeline to Snowflake, BigQuery, or PostgreSQL |
-| `clari-core-workflow-b` | Revenue analytics: accuracy tracking, pipeline coverage, change detection |
-| `clari-common-errors` | Auth failures, empty exports, job timeouts, data mismatches |
-| `clari-debug-bundle` | Collect API diagnostics for support cases |
-
-### Operations (S09-S12)
-
-| Skill | Description |
-|-------|-------------|
-| `clari-rate-limits` | Export polling backoff, sequential job scheduling |
-| `clari-security-basics` | Token management, PII handling for exported data |
-| `clari-prod-checklist` | Production readiness for forecast sync pipelines |
-| `clari-upgrade-migration` | API version migration, schema change detection |
-
-### Pro Skills (P13-P18)
-
-| Skill | Description |
-|-------|-------------|
-| `clari-ci-integration` | GitHub Actions for pipeline testing and schema validation |
-| `clari-deploy-integration` | Deploy to Airflow, Lambda, or Cloud Functions |
-| `clari-webhooks-events` | Forecast change detection, Slack alerts, Copilot webhooks |
-| `clari-performance-tuning` | Parallel exports, caching, incremental warehouse loads |
-| `clari-cost-tuning` | Reduce API calls, optimize export frequency and data types |
-| `clari-reference-architecture` | Data platform architecture with warehouse schema and analytics |
-
-## Quick Start
-
-### 1. Install the Pack
+Install the plugin from the marketplace:
 
 ```bash
 /plugin install clari-pack@claude-code-plugins-plus
 ```
 
-### 2. Get Your API Token
+Install an individual skill with the public skills CLI:
 
-Log in to [app.clari.com](https://app.clari.com), go to **User Settings > API Token**, and click **Generate New API Token**.
-
-### 3. Export Your First Forecast
-
-```python
-import requests, os
-
-api_key = os.environ["CLARI_API_KEY"]
-headers = {"apikey": api_key, "Content-Type": "text/plain"}
-
-# List forecasts
-forecasts = requests.get(
-    "https://api.clari.com/v4/export/forecast/list",
-    headers=headers
-).json()
-
-print(f"Found {len(forecasts['forecasts'])} forecasts")
+```bash
+npx skills add jeremylongshore/tons-of-skills-marketplace --skill clari-hello-world
 ```
 
-### 4. Build Your Pipeline
+## Skills
 
-Follow `clari-core-workflow-a` to build a complete export-transform-load pipeline.
+| Skill | Operator outcome |
+| --- | --- |
+| `clari-install-auth` | Create and validate least-privilege Revenue, ingestion, or Copilot credentials |
+| `clari-hello-world` | Complete one forecast request, poll, and result-retrieval lifecycle |
+| `clari-local-dev-loop` | Develop offline with synthetic contracts and deterministic job states |
+| `clari-sdk-patterns` | Build typed local REST wrappers without claiming an official SDK |
+| `clari-core-workflow-a` | Land, normalize, reconcile, and publish forecast data to a warehouse |
+| `clari-core-workflow-b` | Extract governed Copilot call, user, topic, and scorecard datasets |
+| `clari-common-errors` | Triage auth, entitlement, quota, job, schema, and empty-result failures |
+| `clari-debug-bundle` | Produce a minimal, redacted provider support bundle |
+| `clari-rate-limits` | Schedule exports, ingestion, and Copilot reads within separate limits |
+| `clari-security-basics` | Threat-model credentials, revenue data, call content, and mutations |
+| `clari-prod-checklist` | Make a fail-closed production readiness decision |
+| `clari-upgrade-migration` | Dual-read and migrate hosts, versions, clients, or schemas safely |
+| `clari-ci-integration` | Gate clients and pipelines with offline contract tests |
+| `clari-deploy-integration` | Deploy a single-writer scheduler with durable checkpoints |
+| `clari-webhooks-events` | Build supported audit and activity change feeds without fake webhooks |
+| `clari-performance-tuning` | Tune measured latency inside correctness and provider limits |
+| `clari-cost-tuning` | Govern export quota, requests, transfer, storage, and warehouse work |
+| `clari-reference-architecture` | Separate provider adapters, control state, landing, and publication |
 
-## Key Clari Links
+## Asynchronous Export Lifecycle
 
-- [Clari Developer Portal](https://developer.clari.com) -- API documentation
-- [Clari API Reference](https://developer.clari.com/documentation/external_spec) -- endpoint spec
-- [Clari Copilot API](https://api-doc.copilot.clari.com) -- conversation intelligence API
-- [Clari Community](https://community.clari.com) -- community guides and tips
-- [Clari Trust Center](https://www.clari.com/trust) -- security and compliance
+A safe Revenue export flow is explicit:
+
+1. Freeze the forecast or activity request and read applicable capacity.
+2. Queue the export and persist the returned job ID.
+3. Poll the job with bounded backoff through `SCHEDULED` or `STARTED`.
+4. Retrieve results only after `DONE`; diagnose `ABORTED` without blindly re-queuing.
+5. Land immutably, validate and reconcile, then publish atomically.
+6. Retain redacted lineage and remove temporary sensitive data under policy.
+
+## Validation
+
+All 18 skills are held to marketplace Grade A and the static production gate:
+
+```bash
+python3 scripts/validate-skills-schema.py \
+  --marketplace --fail-on-warn --min-grade A \
+  plugins/saas-packs/clari-pack
+python3 -m unittest tests.test_clari_pack_contract
+```
+
+## First-Party References
+
+- [Clari Revenue API reference](https://developer.clari.com/default/documentation/external_spec)
+- [Clari Copilot API reference](https://api-doc.copilot.clari.com/)
+- [Clari public GitHub organization](https://github.com/clari)
+- [Clari service status](https://clari.statuspage.io/)
 
 ## License
 

@@ -6,7 +6,7 @@ description: "Build Claude Code plugins \u2014 skills, agents, MCP servers, hook
   Trigger with \"claude code plugin\", \"build a skill\", \"create mcp server\",\n\
   \"anthropic plugin architecture\", \"claude code hooks\".\n"
 allowed-tools: Read, Write, Edit, Bash(npm:*)
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -220,8 +220,8 @@ See Building a Skill (SKILL.md), Building a Slash Command, Building an Agent, Bu
 
 ## Resources
 
-- [Plugin Docs](https://docs.anthropic.com/en/docs/claude-code/plugins)
-- [SKILL.md Spec](https://docs.anthropic.com/en/docs/claude-code/skills)
+- [Plugin Docs](https://code.claude.com/docs/en/plugins)
+- [SKILL.md Spec](https://code.claude.com/docs/en/skills)
 - [MCP Protocol](https://modelcontextprotocol.io)
 
 ## Next Steps

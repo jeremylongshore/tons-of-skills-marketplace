@@ -1,154 +1,93 @@
 ---
 name: vastai-debug-bundle
-description: 'Collect Vast.ai debug evidence for support tickets and troubleshooting.
-
-  Use when encountering persistent issues, preparing support tickets,
-
-  or collecting diagnostic information for Vast.ai problems.
-
-  Trigger with phrases like "vastai debug", "vastai support bundle",
-
-  "collect vastai logs", "vastai diagnostic".
-
-  '
-allowed-tools: Read, Bash(vastai:*), Bash(curl:*), Bash(ssh:*), Grep
-version: 1.11.0
+description: >-
+  Collect a minimal, redacted Vast.ai diagnostic manifest that support can act on without exposing API keys, SSH material, workload secrets, or unnecessary customer data. Use when escalating a platform or workload fault. Trigger with: "build a Vast.ai debug bundle", "collect Vast.ai support evidence", "redact Vast.ai diagnostics".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[incident-window-and-resource-ids]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- debugging
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - diagnostics
+  - support
+  - redaction
+compatibility: 'Requires read access to affected Vast.ai resources, an approved evidence location, and a defined incident window.'
 ---
-# Vast.ai Debug Bundle
 
-## Current State
-
-!`vastai --version 2>/dev/null || echo 'vastai CLI not installed'`
-!`python3 --version 2>/dev/null || echo 'Python not available'`
+# Redacted Vast.ai Support Manifest
 
 ## Overview
 
-Collect comprehensive diagnostic information for Vast.ai GPU instance issues. Covers account verification, instance inspection, log collection, GPU diagnostics, and network testing.
+A useful bundle binds exact resource IDs, CLI version, timestamps, states, and redacted errors. It does not archive the entire environment, shell history, account profile, or secret-bearing generated curl commands.
 
 ## Prerequisites
 
-- Vast.ai CLI installed and authenticated
-- Access to the problematic instance (if still running)
+- Incident window, affected instance/endpoint/workergroup IDs, and symptom
+- Evidence classification, retention period, support case owner, and approved destination
+- Redaction rules for API keys, URLs, emails, storage credentials, model inputs, and customer data
 
 ## Instructions
 
-### Step 1: Account and Auth Diagnostics
+### Step 1: Freeze the collection plan
 
-```bash
-#!/bin/bash
-set -euo pipefail
-echo "=== Vast.ai Debug Bundle ==="
-echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+List each command, field, time range, and justification before reading data. Exclude environment dumps and home-directory archives.
 
-echo -e "\n--- Account Info ---"
-vastai show user --raw | python3 -c "
-import sys, json
-u = json.load(sys.stdin)
-print(f'Username: {u.get(\"username\", \"?\")}')
-print(f'Balance: \${u.get(\"balance\", 0):.2f}')
-print(f'API Key (first 8): {u.get(\"api_key\", \"?\")[:8]}...')
-"
-```
+### Step 2: Collect control-plane facts
 
-### Step 2: Instance Status Collection
+Record CLI version, redacted `show user`, structured instance or Serverless state, offer/template identity, and timestamps.
 
-```bash
-echo -e "\n--- All Instances ---"
-vastai show instances --raw | python3 -c "
-import sys, json
-instances = json.load(sys.stdin)
-for i in instances:
-    print(f'ID: {i[\"id\"]} | Status: {i.get(\"actual_status\", \"?\")} | '
-          f'GPU: {i.get(\"gpu_name\", \"?\")} | '
-          f'\$/hr: {i.get(\"dph_total\", 0):.3f} | '
-          f'SSH: {i.get(\"ssh_host\", \"?\")}:{i.get(\"ssh_port\", \"?\")}')
-"
-```
+### Step 3: Collect bounded logs
 
-### Step 3: Instance Log Collection
+Retrieve only the relevant container, endpoint, or workergroup log window and filter known credential and payload fields.
 
-```bash
-# Collect logs from a specific instance
-INSTANCE_ID="${1:-}"
-if [ -n "$INSTANCE_ID" ]; then
-    echo -e "\n--- Instance $INSTANCE_ID Logs ---"
-    vastai logs "$INSTANCE_ID" --tail 100 2>/dev/null || echo "No logs available"
+### Step 4: Capture request diagnostics safely
 
-    echo -e "\n--- Instance $INSTANCE_ID Details ---"
-    vastai show instance "$INSTANCE_ID" --raw | python3 -c "
-import sys, json
-i = json.load(sys.stdin)
-for key in ['actual_status', 'status_msg', 'gpu_name', 'gpu_ram',
-            'cuda_max_good', 'disk_space', 'ssh_host', 'ssh_port',
-            'image_uuid', 'onstart', 'reliability2']:
-    print(f'{key}: {i.get(key, \"?\")}')
-"
-fi
-```
+Use `--explain` or equivalent call metadata only when the output is reviewed for bearer tokens and query credentials before storage.
 
-### Step 4: Remote GPU Diagnostics (if SSH accessible)
+### Step 5: Redact and inventory
 
-```bash
-if [ -n "$SSH_HOST" ] && [ -n "$SSH_PORT" ]; then
-    echo -e "\n--- GPU Diagnostics (remote) ---"
-    ssh -p "$SSH_PORT" -o StrictHostKeyChecking=no "root@$SSH_HOST" << 'REMOTE'
-nvidia-smi
-echo "---"
-nvidia-smi --query-gpu=name,memory.total,memory.used,temperature.gpu,utilization.gpu --format=csv
-echo "---"
-python3 -c "import torch; print(f'PyTorch CUDA: {torch.cuda.is_available()}, Device: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else \"N/A\"}')" 2>/dev/null || echo "PyTorch not available"
-echo "---"
-df -h /workspace
-free -h
-REMOTE
-fi
-```
+Replace sensitive values consistently, retain resource IDs needed by support, and create file hashes plus a redaction attestation.
 
-### Step 5: Network Diagnostics
+### Step 6: Validate the bundle
 
-```bash
-echo -e "\n--- API Connectivity ---"
-curl -s -o /dev/null -w "HTTP %{http_code} in %{time_total}s" \
-  -H "Authorization: Bearer $VASTAI_API_KEY" \
-  "https://cloud.vast.ai/api/v0/users/current"
-echo ""
-```
+Have a second pass search for key patterns, private keys, URLs with credentials, emails, and workload secrets before sharing.
+
+## Authentication
+
+Prefer a read-only scoped key. Never store `VAST_API_KEY`, key-file contents, SSH private material, webhook secrets, cloud credentials, or Authorization headers in the bundle.
+
+## Tool Discipline
+
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- Account info (username, balance, key prefix)
-- All instance statuses with GPU details
-- Instance logs (last 100 lines)
-- Remote GPU diagnostics (nvidia-smi, CUDA, disk, memory)
-- API connectivity test
+- Collection scope and command manifest
+- Redacted evidence files with hashes and time bounds
+- Redaction attestation, retention date, and support handoff receipt
 
-## Error Handling
-
-| Issue | Diagnostic | Solution |
-|-------|------------|----------|
-| Instance shows `error` | Check `status_msg` in details | Destroy and reprovision on different host |
-| SSH unreachable | Instance may still be loading | Wait for `running` status |
-| GPU not detected | CUDA driver mismatch | Use image matching host CUDA version |
-| Disk full | Check `df -h /workspace` | Increase disk or clean artifacts |
-
-## Resources
-
-- [Vast.ai CLI Reference](https://docs.vast.ai/cli/get-started)
-- [vast-cli GitHub](https://github.com/vast-ai/vast-cli)
-
-## Next Steps
-
-For rate limit handling, see `vastai-rate-limits`.
+Return incident window, resource IDs, collected fields, excluded classes, file hashes, redaction result, and recipient.
 
 ## Examples
 
-**Quick debug**: Run `vastai show instance ID --raw | jq '{actual_status, status_msg, gpu_name, ssh_host, ssh_port}'` for a one-line status summary.
+A support manifest contains CLI version, one offline instance record, the last 100 redacted log lines, template hash, timestamps, and checksums; it excludes environment variables and generated Authorization headers.
 
-**Support ticket**: Collect the full debug bundle output, include `vastai logs ID`, and attach `nvidia-smi` output from the instance.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| A secret detector fires | Quarantine the bundle, rotate exposed credentials if necessary, and rebuild from source. |
+| Requested data exceeds the incident window | Exclude it unless the case owner documents a need. |
+| Resource has already been destroyed | Use retained external receipts; do not fabricate live state. |
+| Support asks for raw credentials | Refuse and provide a redacted reproduction instead. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [Official CLI global flags](https://github.com/vast-ai/vast-cli/blob/master/vastai/SKILL.md#global-flags)
+- [Instance logs command](https://docs.vast.ai/cli/reference/logs)
+- [Serverless logging](https://docs.vast.ai/guides/serverless/logging)

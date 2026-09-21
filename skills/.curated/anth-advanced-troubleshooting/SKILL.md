@@ -10,7 +10,7 @@ description: 'Debug complex Claude API issues including context window overflow,
 
   '
 allowed-tools: Read, Bash(curl:*), Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -192,9 +192,9 @@ Use a synthetic tool `lookup_fixture` whose only permitted input is `fixture_id=
 
 ## Resources
 
-- [Error Reference](https://docs.anthropic.com/en/api/errors)
-- [Token Counting](https://docs.anthropic.com/en/docs/build-with-claude/token-counting)
-- [Tool Use Guide](https://docs.anthropic.com/en/docs/build-with-claude/tool-use)
+- [Error Reference](https://platform.claude.com/docs/en/api/errors)
+- [Token Counting](https://platform.claude.com/docs/en/build-with-claude/token-counting)
+- [Tool Use Guide](https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview)
 
 ## Next Steps
 

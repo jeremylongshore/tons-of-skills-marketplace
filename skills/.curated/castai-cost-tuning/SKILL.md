@@ -1,210 +1,87 @@
 ---
 name: castai-cost-tuning
-description: 'Maximize Kubernetes cost savings with CAST AI spot strategies and right-sizing.
-
-  Use when analyzing cloud spend, optimizing spot-to-on-demand ratios,
-
-  or configuring CAST AI for maximum savings.
-
-  Trigger with phrases like "cast ai cost", "cast ai savings",
-
-  "cast ai spot strategy", "reduce kubernetes cost", "cast ai budget".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Grep
-version: 1.4.0
+description: 'Analyze CAST AI cost, available-savings, and realized-savings reports into a defensible optimization plan. Use when investigating spend, validating savings claims, applying private-price adjustments, or prioritizing workloads and clusters. Trigger with: "tune CAST AI costs", "verify CAST AI savings", "reduce Kubernetes spend with CAST AI".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[cluster-or-organization-report]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- kubernetes
-- cost-optimization
-- castai
-compatibility: Designed for Claude Code
+  - saas
+  - kubernetes
+  - cast-ai
+  - finops
+  - cost-optimization
+compatibility: 'Requires CAST AI Cost Monitoring data and access to the organization pricing and workload context needed to interpret it'
 ---
-# CAST AI Cost Tuning
+
+# CAST AI Cost Evidence Review
 
 ## Overview
 
-Maximize Kubernetes cost savings through CAST AI: spot instance strategies, workload right-sizing, cluster hibernation, and savings tracking. Typical savings: 50-70% on cloud compute costs.
+Turn reporting into a prioritized plan without treating modeled savings as invoices. Separate actual spend, available opportunity, realized savings, workload rightsizing, adoption, pricing, and baseline assumptions.
 
 ## Prerequisites
 
-- CAST AI Phase 2 enabled with full automation
-- Savings report available (requires 24h+ of data)
-- Understanding of workload criticality tiers
+- The organization and cluster reports for a declared time range
+- Cloud billing or internal allocation evidence for reconciliation
+- Current automation adoption, workload SLOs, and pricing-adjustment ownership
 
 ## Instructions
 
-### Step 1: Analyze Current Savings
+### Step 1: Normalize the question
 
-```bash
-# Get savings breakdown
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/savings" \
-  | jq '{
-    currentMonthlyCost: .currentMonthlyCost,
-    optimizedMonthlyCost: .optimizedMonthlyCost,
-    monthlySavings: .monthlySavings,
-    savingsPercentage: .savingsPercentage,
-    spotSavings: .spotSavings,
-    rightSizingSavings: .rightSizingSavings
-  }'
-```
+Use Read to identify whether the request concerns actual spend, a forecast, available savings, realized savings, or workload autoscaler savings. Record cluster scope, currency, time range, and comparison period.
 
-### Step 2: Maximize Spot Usage
+### Step 2: Validate the reporting basis
 
-```bash
-# Enable aggressive spot with diversity and fallbacks
-curl -X PUT -H "X-API-Key: ${CASTAI_API_KEY}" \
-  -H "Content-Type: application/json" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/policies" \
-  -d '{
-    "enabled": true,
-    "spotInstances": {
-      "enabled": true,
-      "clouds": ["aws"],
-      "spotDiversityEnabled": true,
-      "spotDiversityPriceIncreaseLimitPercent": 20,
-      "spotBackups": {
-        "enabled": true,
-        "spotBackupRestoreRateSeconds": 600
-      }
-    }
-  }'
-```
+Use Grep across exported reports and runbooks to find baseline source, public versus adjusted prices, data gaps, and adoption thresholds. Cost comparison needs sufficient history; new clusters and low automation adoption can legitimately show incomplete or zero savings.
 
-**Spot allocation strategy by workload tier:**
+### Step 3: Reconcile cost layers
 
-| Workload Type | Spot % | Rationale |
-|---------------|--------|-----------|
-| Batch jobs, CI runners | 100% spot | Interruptible, restartable |
-| Stateless APIs (behind LB) | 80% spot | Can handle brief interruptions |
-| Stateful services, databases | 0% spot | Use on-demand or reserved |
-| ML training | 80-100% spot | Checkpointing handles interrupts |
+Compare provisioned resources, requested resources, utilization, lifecycle mix, price per resource, actual cost, and modeled baseline. When private discounts or commitments matter, require reviewed Price adjustments instead of assuming public list prices match the bill.
 
-### Step 3: Workload Right-Sizing
+### Step 4: Rank opportunities by constraint
 
-```bash
-# Get resource waste analysis
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  "https://api.cast.ai/v1/workload-autoscaling/clusters/${CASTAI_CLUSTER_ID}/workloads" \
-  | jq '[.items[] | select(.estimatedSavingsPercent > 20) | {
-    name: .workloadName,
-    namespace: .namespace,
-    wastedCpu: (.currentCpuRequest - .recommendedCpuRequest),
-    wastedMemory: (.currentMemoryRequest - .recommendedMemoryRequest),
-    savingsPercent: .estimatedSavingsPercent
-  }] | sort_by(-.savingsPercent) | .[0:10]'
-```
+Group opportunities into workload rightsizing, node bin-packing, spot or fallback strategy, architecture choice, idle capacity, and allocation hygiene. For each, include savings confidence, SLO risk, prerequisite, owner, and evidence window.
 
-### Step 4: Cluster Hibernation (Dev/Staging)
+### Step 5: Design a measured experiment
 
-```bash
-# Hibernate non-production clusters during off-hours
-# Scales nodes to zero, resume on demand
+Use Write or Edit to create a canary hypothesis with a single policy change, expected capacity effect, performance guardrail, measurement window, and rollback. Do not combine node, vertical, horizontal, and pricing changes in one experiment.
 
-# Enable hibernation
-curl -X POST -H "X-API-Key: ${CASTAI_API_KEY}" \
-  -H "Content-Type: application/json" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/hibernate" \
-  -d '{
-    "schedule": {
-      "enabled": true,
-      "hibernateAt": "20:00",
-      "wakeUpAt": "08:00",
-      "timezone": "America/New_York",
-      "weekdaysOnly": true
-    }
-  }'
-```
+### Step 6: Produce the decision record
 
-### Step 5: Cost Tracking Dashboard
+State what CAST AI reports, what billing evidence confirms, what remains modeled, and which action is authorized. Preserve before-and-after snapshots without exporting sensitive workload names beyond their approved audience.
 
-```typescript
-interface CostReport {
-  cluster: string;
-  period: string;
-  currentCost: number;
-  optimizedCost: number;
-  savings: number;
-  spotPercent: number;
-}
+## Tool Discipline
 
-async function generateMonthlyCostReport(
-  clusterIds: string[]
-): Promise<CostReport[]> {
-  const reports: CostReport[] = [];
-
-  for (const clusterId of clusterIds) {
-    const [cluster, savings, nodes] = await Promise.all([
-      castaiGet(`/v1/kubernetes/external-clusters/${clusterId}`),
-      castaiGet(`/v1/kubernetes/clusters/${clusterId}/savings`),
-      castaiGet(`/v1/kubernetes/external-clusters/${clusterId}/nodes`),
-    ]);
-
-    const spotNodes = nodes.items.filter(
-      (n: { lifecycle: string }) => n.lifecycle === "spot"
-    ).length;
-
-    reports.push({
-      cluster: cluster.name,
-      period: new Date().toISOString().slice(0, 7),
-      currentCost: savings.currentMonthlyCost,
-      optimizedCost: savings.optimizedMonthlyCost,
-      savings: savings.monthlySavings,
-      spotPercent:
-        nodes.items.length > 0
-          ? (spotNodes / nodes.items.length) * 100
-          : 0,
-    });
-  }
-
-  return reports;
-}
-```
-
-## Cost Optimization Checklist
-
-- [ ] Spot instances enabled with diversity
-- [ ] Workload autoscaler right-sizing resources
-- [ ] Dev/staging clusters hibernated off-hours
-- [ ] Empty node downscaler enabled
-- [ ] Instance families include latest generation (cheaper)
-- [ ] Reserved/savings plan for baseline on-demand nodes
-- [ ] Weekly savings report review
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Savings lower than expected | Too many on-demand constraints | Relax node template constraints |
-| Spot interruptions too frequent | Single instance type | Enable spot diversity |
-| Hibernation not triggering | Schedule timezone wrong | Use IANA timezone format |
-| Right-sizing too aggressive | Low headroom | Increase memory headroom to 20% |
+Use Read for reports, billing extracts, and policy context. Use Grep to reconcile repeated cluster, workload, baseline, and pricing facts. Use Write and Edit only for the analysis, experiment, and decision record; this skill does not enable automation.
 
 ## Output
 
-Produce a cost-tuning proposal with the current baseline, forecast range,
-workload availability constraints, owner approval, staged rollout window, and
-rollback threshold. Savings are a secondary objective: do not trade away
-availability, latency SLOs, data durability, or supported instance capacity
-without an explicit risk decision.
+- Scope and reporting-basis statement
+- Reconciled spend and savings table
+- Ranked opportunities with confidence and risk
+- One controlled experiment and rollback threshold
 
 ## Examples
 
-Start by increasing spot diversity for a staging node pool while keeping a
-documented on-demand floor. Review interruption rate, pod evictions, p95
-latency, and weekly spend against baseline; stop or restore the former policy
-if disruption exceeds the service’s agreed budget even when projected savings
-increase.
+A report shows high available savings but no realized savings because the cluster remains read-only. Another cluster shows modeled workload savings, but private prices are absent, so the team configures reviewed adjustments before using the number for a commitment.
+
+## Error Handling
+
+| Failure                            | Response                                                |
+| ---------------------------------- | ------------------------------------------------------- |
+| Baseline source is unknown         | Label savings unverified and obtain the report basis    |
+| CAST AI and invoice periods differ | Normalize the window before comparison                  |
+| Private pricing is missing         | Use Price adjustments or disclose list-price limitation |
+| Optimization conflicts with an SLO | Reject the action regardless of modeled savings         |
 
 ## Resources
 
-- [CAST AI Savings Report](https://docs.cast.ai/docs/getting-started)
-- [Spot Instance Best Practices](https://docs.cast.ai/docs/autoscaler-settings)
-- [Cluster Hibernation](https://docs.cast.ai/docs/autoscaling-cluster-hibernation)
-
-## Next Steps
-
-For architecture patterns, see `castai-reference-architecture`.
+- [Cost evidence and source notes](references/official-docs.md)
+- [Realized savings](https://docs.cast.ai/docs/savings-report)
+- [Savings calculations](https://docs.cast.ai/docs/savings-baseline)
+- [Price adjustments](https://docs.cast.ai/docs/discount-engine-overview)

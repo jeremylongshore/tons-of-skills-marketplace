@@ -242,7 +242,7 @@ await rateLimiter.executeAgentTask('coordinator', async () => {
 
 - **Ollama Setup:** See [ollama-local-ai plugin](../ollama-local-ai/) for complete installation and hardware sizing guide
 - **OpenAI Rate Limits:** [platform.openai.com/docs/guides/rate-limits](https://platform.openai.com/docs/guides/rate-limits)
-- **Anthropic Rate Limits:** [docs.anthropic.com/en/api/rate-limits](https://docs.anthropic.com/en/api/rate-limits)
+- **Anthropic Rate Limits:** [platform.claude.com/docs/en/api/rate-limits](https://platform.claude.com/docs/en/api/rate-limits)
 - **Google Gemini Limits:** [ai.google.dev/pricing](https://ai.google.dev/pricing)
 
 ---

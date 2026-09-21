@@ -9,7 +9,7 @@ description: "A reference layered architecture for production LangChain 1.0 / La
   \ chain registry\", \"langchain dependency injection\",\n\"langchain project structure\"\
   .\n"
 allowed-tools: Read, Write, Edit
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

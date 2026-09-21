@@ -1,226 +1,74 @@
 ---
 name: navan-rate-limits
-description: 'Implement adaptive rate-limiting for the Navan REST API with exponential
-  backoff and request queuing.
-
-  Use when building bulk data operations or encountering 429 errors from Navan.
-
-  Trigger with "navan rate limits", "navan throttling", "navan 429".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.8.0
+description: >-
+  Configure Navan integration concurrency and retry controls from the tenant contract and observed responses. Use when controlling throughput or throttling. Trigger with "Navan rate limit", "throttle Navan sync", or "Navan backpressure".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<surface> <workload> <deadline>"
+version: 1.9.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- navan
-- travel
-compatibility: Designed for Claude Code
+tags: [saas, navan, capacity]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live or external Navan actions require network access and explicit approval"
 ---
-# Navan Rate Limits
+# Navan Capacity and Backpressure Control
 
 ## Overview
 
-Navan does not publicly document its API rate limits. Developers typically discover thresholds empirically when bulk data pulls or batch operations begin returning HTTP 429 responses. This skill implements defensive rate-limiting patterns that adapt to server responses rather than relying on fixed quotas — inspecting response headers, applying exponential backoff with jitter, and queuing requests to prevent flooding.
+Configure Navan integration concurrency and retry controls from the tenant contract and observed responses. This workflow produces an auditable decision or artifact before any live action.
 
 ## Prerequisites
 
-- Active Navan OAuth 2.0 credentials (see `navan-install-auth`)
-- Node.js 18+ (examples use native fetch)
-- Understanding of HTTP 429 status code and Retry-After header semantics
+- Access to the selected tenant's current Navan Help Center and contracted integration documentation.
+- A named business owner and data owner for the travel or expense workflow.
+- A non-production evidence set with secrets and traveler data removed.
+
+## Current Contract
+
+No universal public numeric quota should be frozen into code. Treat account limits, file windows, vendor responses, destination capacity, and business deadlines as dated evidence with independent bounds.
+
+## Authentication
+
+Capacity testing uses the least-privilege non-production identity. Never discover limits by flooding a production travel or expense tenant.
 
 ## Instructions
 
-### Step 1: Build an Adaptive Retry Wrapper
+1. Capture documented limits and escalation contacts for the enabled surface.
+2. Classify reads, writes, transfers, and reconciliation work by side-effect risk.
+3. Set application concurrency below the narrowest vendor or destination bound.
+4. Honor documented retry signals with capped delay, jitter, and deadlines.
+5. Checkpoint pages or files durably and reconcile after ambiguous outcomes.
+6. Alert on queue age, throttle rate, deadline risk, and sustained capacity loss.
 
-```typescript
-interface RetryOptions {
-  maxRetries: number;
-  baseDelayMs: number;
-  maxDelayMs: number;
-}
+## Tool Discipline
 
-async function navanFetch(
-  url: string,
-  options: RequestInit,
-  retry: RetryOptions = { maxRetries: 5, baseDelayMs: 1000, maxDelayMs: 30000 }
-): Promise<Response> {
-  let lastError: Error | null = null;
+Use Read, Glob, and Grep to inspect documentation, schemas, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Invocation alone does not authorize network access, credentials, traveler or expense data, bookings, payments, policy or identity changes, file transfers, deployments, or deletion.
 
-  for (let attempt = 0; attempt <= retry.maxRetries; attempt++) {
-    const response = await fetch(url, options);
+## Approval Boundaries
 
-    // Log rate limit headers when present (undocumented but sometimes returned)
-    const remaining = response.headers.get('X-RateLimit-Remaining');
-    const limit = response.headers.get('X-RateLimit-Limit');
-    if (remaining !== null) {
-      console.log(`Rate limit: ${remaining}/${limit} remaining`);
-    }
-
-    if (response.status !== 429) return response;
-
-    // Extract delay from Retry-After header or calculate exponential backoff
-    const retryAfter = response.headers.get('Retry-After');
-    let delayMs: number;
-
-    if (retryAfter) {
-      delayMs = parseInt(retryAfter, 10) * 1000;
-      console.log(`429 received — Retry-After: ${retryAfter}s`);
-    } else {
-      // Exponential backoff with jitter
-      delayMs = Math.min(
-        retry.baseDelayMs * Math.pow(2, attempt) + Math.random() * 1000,
-        retry.maxDelayMs
-      );
-      console.log(`429 received — backoff: ${Math.round(delayMs)}ms (attempt ${attempt + 1})`);
-    }
-
-    await new Promise(resolve => setTimeout(resolve, delayMs));
-    lastError = new Error(`Rate limited after ${attempt + 1} attempts`);
-  }
-
-  throw lastError ?? new Error('Max retries exceeded');
-}
-```
-
-### Step 2: Implement a Request Queue for Bulk Operations
-
-```typescript
-class NavanRequestQueue {
-  private queue: Array<() => Promise<void>> = [];
-  private running = 0;
-  private readonly concurrency: number;
-  private readonly delayBetweenMs: number;
-
-  constructor(concurrency = 3, delayBetweenMs = 500) {
-    this.concurrency = concurrency;
-    this.delayBetweenMs = delayBetweenMs;
-  }
-
-  async add<T>(fn: () => Promise<T>): Promise<T> {
-    while (this.running >= this.concurrency) {
-      await new Promise(r => setTimeout(r, 100));
-    }
-    this.running++;
-    try {
-      const result = await fn();
-      await new Promise(r => setTimeout(r, this.delayBetweenMs));
-      return result;
-    } finally {
-      this.running--;
-    }
-  }
-
-  async drain(): Promise<void> {
-    while (this.running > 0) {
-      await new Promise(r => setTimeout(r, 100));
-    }
-  }
-}
-```
-
-### Step 3: Use the Queue for Batch Data Pulls
-
-```typescript
-const queue = new NavanRequestQueue(3, 500); // 3 concurrent, 500ms gap
-const accessToken = process.env.NAVAN_ACCESS_TOKEN!;
-
-async function fetchAllExpenses(startDate: string, endDate: string) {
-  let page = 1;
-  let hasMore = true;
-  const allExpenses: any[] = [];
-
-  while (hasMore) {
-    const currentPage = page;
-    const result = await queue.add(async () => {
-      const res = await navanFetch(
-        `https://api.navan.com/v1/expenses?page=${currentPage}&start_date=${startDate}&end_date=${endDate}`,
-        { headers: { 'Authorization': `Bearer ${accessToken}` } }
-      );
-      if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);
-      return res.json();
-    });
-
-    allExpenses.push(...result.data);
-    hasMore = result.has_more;
-    page++;
-  }
-
-  return allExpenses;
-}
-```
-
-### Step 4: Log and Monitor Rate Limit Signals
-
-```typescript
-function logRateLimitHeaders(response: Response, endpoint: string): void {
-  const headers = [
-    'X-RateLimit-Limit',
-    'X-RateLimit-Remaining',
-    'X-RateLimit-Reset',
-    'Retry-After'
-  ];
-
-  const found: Record<string, string> = {};
-  for (const h of headers) {
-    const val = response.headers.get(h);
-    if (val) found[h] = val;
-  }
-
-  if (Object.keys(found).length > 0) {
-    console.log(`[${endpoint}] Rate limit headers:`, found);
-  }
-}
-```
-
-## Output
-
-A resilient API client that handles Navan's undocumented rate limits through adaptive retry logic and controlled concurrency. The queue prevents bulk operations from triggering 429 responses, and the retry wrapper recovers gracefully when limits are hit.
+Load tests, quota-change requests, deadline overrides, write retries, and production concurrency increases require explicit approval.
 
 ## Error Handling
 
-| Error | Code | Solution |
-|-------|------|----------|
-| Too Many Requests | 429 | Retry with exponential backoff; inspect Retry-After header |
-| Gateway Timeout | 504 | Reduce concurrency in queue; retry after 5-10 seconds |
-| Service Unavailable | 503 | Navan maintenance window; retry with longer backoff (30-60s) |
-| Unauthorized | 401 | Token expired during long batch operation; refresh OAuth token and retry |
-| Bad Gateway | 502 | Transient upstream error; retry once after 2 seconds |
+- A numeric limit copied from another tenant is not evidence.
+- Do not retry authentication or contract failures as throttling.
+- A timed-out write remains unknown until reconciled.
+
+## Output
+
+Return documented limits, chosen concurrency, retry classes, queue/deadline model, reconciliation plan, and escalation threshold. Identify assumptions, owners, expirations, and evidence gaps explicitly.
 
 ## Examples
 
-**Quick test for rate limit headers:**
+- Throttle a backfill behind daily production extraction.
+- Pause when destination latency would exhaust the source window.
 
-```bash
-curl -s -D - -o /dev/null \
-  -H "Authorization: Bearer $NAVAN_ACCESS_TOKEN" \
-  https://api.navan.com/v1/users?limit=1 2>&1 | grep -i 'rate\|retry'
-```
+## Validation
 
-**Bulk export with throttling (Python):**
-
-```python
-import time
-import requests
-
-def navan_get(url, token, max_retries=5):
-    for attempt in range(max_retries):
-        resp = requests.get(url, headers={'Authorization': f'Bearer {token}'})
-        if resp.status_code != 429:
-            return resp
-        delay = int(resp.headers.get('Retry-After', 2 ** attempt))
-        print(f'Rate limited — waiting {delay}s (attempt {attempt + 1})')
-        time.sleep(delay)
-    raise Exception('Max retries exceeded')
-```
+Simulate throttling, long delay, destination slowdown, process restart, deadline exhaustion, and unknown write outcome. Record expected and observed results, including fail-closed behavior.
 
 ## Resources
 
-- [Navan Help Center](https://app.navan.com/app/helpcenter) — Official documentation and support articles
-- [Navan Integrations](https://navan.com/integrations) — Integration partner ecosystem
-- [HTTP 429 Specification (RFC 6585)](https://datatracker.ietf.org/doc/html/rfc6585#section-4) — Standard for rate limiting responses
-
-## Next Steps
-
-After implementing rate limiting, see `navan-security-basics` for credential rotation and token management, or `navan-data-sync` for building paginated data export pipelines.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources and the selected tenant's in-account contract before relying on mutable endpoints, fields, entitlements, limits, or delivery behavior.
+- Record tenant observations as environment-specific evidence, never universal Navan guarantees.

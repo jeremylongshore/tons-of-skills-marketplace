@@ -1,194 +1,76 @@
 ---
 name: brightdata-cost-tuning
-description: 'Optimize Bright Data costs through tier selection, sampling, and usage
-  monitoring.
-
-  Use when analyzing Bright Data billing, reducing API costs,
-
-  or implementing usage monitoring and budget alerts.
-
-  Trigger with phrases like "brightdata cost", "brightdata billing",
-
-  "reduce brightdata costs", "brightdata pricing", "brightdata expensive", "brightdata
-  budget".
-
-  '
-allowed-tools: Read, Grep
-version: 1.6.0
+description: 'Govern Bright Data usage with product-aware units, workload attribution, budgets, and abort thresholds without hard-coded prices. Use when forecasting or reducing collection spend. Trigger with: "estimate Bright Data cost", "add a Bright Data budget", "reduce Bright Data usage".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: "[workload-or-usage-export]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
-- scraping
-- data
-- brightdata
-compatibility: Designed for Claude Code
+- web-data
+- bright-data
+- cost-tuning
+- operations
+compatibility: 'Requires current account usage data, approved workload ownership, and finance-defined budget thresholds'
 ---
-# Bright Data Cost Tuning
+# Bright Data Cost and Usage Governance
 
 ## Overview
 
-Optimize Bright Data costs through product selection, caching, and usage monitoring. Bright Data charges per request (Web Unlocker, SERP API), per GB (Residential Proxy), or per page (Datasets). Choosing the right product and avoiding redundant requests is the primary cost lever.
+Translate an approved workload into measurable provider and internal units, attribute them to an owner, and stop work before cost or scope escapes. Read current account and contract data at decision time; do not encode volatile prices in source.
 
 ## Prerequisites
 
-- Access to Bright Data billing dashboard
-- Understanding of current scraping volumes
-- Usage monitoring configured (optional)
-
-## Pricing Model
-
-| Product | Pricing | Typical Cost | Best For |
-|---------|---------|-------------|----------|
-| Residential Proxy | Per GB transferred | $8-15/GB | High-volume, simple pages |
-| Web Unlocker | Per successful request | $1-3/1000 req | Anti-bot protected sites |
-| Scraping Browser | Per browser session | $5-10/1000 sessions | JS-heavy SPAs |
-| SERP API | Per search | $2-5/1000 searches | Search engine results |
-| Datasets (pre-built) | Per record | $0.001-0.01/record | Bulk data (Amazon, LinkedIn) |
-| Web Scraper API | Per page | Varies by dataset | Custom async scraping |
+- A workload manifest with owner, purpose, target, fields, product, and schedule
+- Current Bright Data usage or billing export and contract terms
+- Finance-approved forecast, alert, and abort thresholds
 
 ## Instructions
 
-### Step 1: Product Selection Cost Matrix
+### Step 1: Map cost-driving units
 
-```typescript
-function estimateMonthlyCost(config: {
-  product: 'residential' | 'web_unlocker' | 'scraping_browser' | 'serp_api';
-  requestsPerMonth: number;
-  avgPageSizeKB?: number;
-}) {
-  switch (config.product) {
-    case 'residential':
-      const gbTransferred = (config.requestsPerMonth * (config.avgPageSizeKB || 200)) / 1_000_000;
-      return { cost: gbTransferred * 10, unit: 'GB', quantity: gbTransferred };
-    case 'web_unlocker':
-      return { cost: config.requestsPerMonth * 0.002, unit: 'requests', quantity: config.requestsPerMonth };
-    case 'scraping_browser':
-      return { cost: config.requestsPerMonth * 0.008, unit: 'sessions', quantity: config.requestsPerMonth };
-    case 'serp_api':
-      return { cost: config.requestsPerMonth * 0.003, unit: 'searches', quantity: config.requestsPerMonth };
-  }
-}
+Read usage evidence and Grep the implementation for product choice, attempts, retries, concurrency, bytes, browser time, snapshot records, downloads, delivery, storage, and downstream processing. Label provider-reported units separately from local estimates.
 
-// Example: 50,000 product pages/month
-console.log(estimateMonthlyCost({ product: 'web_unlocker', requestsPerMonth: 50000 }));
-// { cost: 100, unit: 'requests', quantity: 50000 }
-console.log(estimateMonthlyCost({ product: 'residential', requestsPerMonth: 50000, avgPageSizeKB: 300 }));
-// { cost: 150, unit: 'GB', quantity: 15 }
-```
+### Step 2: Attribute every operation
 
-### Step 2: Reduce Costs with Caching
+Write or Edit a usage envelope containing workload ID, owner, environment, product, target class, maximum attempts, maximum bytes or records, schedule, retention, and approved destination. Reject unattributed operations.
 
-```typescript
-// Response caching is the single biggest cost saver
-// Cache policy by data freshness requirements
-const CACHE_TTLS = {
-  product_price: 3600000,     // 1 hour — prices change frequently
-  product_details: 86400000,  // 24 hours — descriptions rarely change
-  search_results: 1800000,    // 30 minutes — SERPs change often
-  static_page: 604800000,     // 7 days — about/contact pages
-};
+### Step 3: Forecast scenarios
 
-// Track cache savings
-let cacheSavings = 0;
-function trackCacheHit(product: string) {
-  const costPerRequest = { web_unlocker: 0.002, scraping_browser: 0.008, serp_api: 0.003 };
-  cacheSavings += costPerRequest[product] || 0.002;
-  console.log(`Cache savings this session: $${cacheSavings.toFixed(4)}`);
-}
-```
+Calculate baseline, expected, and worst-authorized cases from current contract inputs. Model retries and duplicate processing explicitly, but do not assume a global provider request limit or a universal price.
 
-### Step 3: Use Bulk APIs for Volume Jobs
+### Step 4: Enforce and reconcile
 
-```typescript
-// Individual requests: 50,000 requests * $0.002 = $100
-// Web Scraper API: 1 trigger with 50,000 URLs = typically cheaper (volume discounts)
+Add preflight budgets, in-run alerts, hard abort thresholds, and post-run reconciliation against provider evidence. Investigate variance by product, target, failure class, byte volume, and duplicate work before raising a budget.
 
-async function bulkScrapeForCost(urls: string[]) {
-  // Batch into single trigger — one API call, lower cost
-  const response = await fetch(
-    `https://api.brightdata.com/datasets/v3/trigger?dataset_id=${DATASET_ID}&format=json`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.BRIGHTDATA_API_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(urls.map(url => ({ url }))),
-    }
-  );
-  return response.json();
-}
-```
+## Tool Discipline
 
-### Step 4: Usage Monitoring
-
-```typescript
-class BrightDataUsageTracker {
-  private dailyRequests = 0;
-  private dailyCost = 0;
-  private readonly budgetAlert: number;
-
-  constructor(dailyBudgetUSD: number) {
-    this.budgetAlert = dailyBudgetUSD * 0.8;
-  }
-
-  track(product: string) {
-    this.dailyRequests++;
-    const costs = { web_unlocker: 0.002, scraping_browser: 0.008, serp_api: 0.003, residential: 0.0001 };
-    this.dailyCost += costs[product] || 0.002;
-
-    if (this.dailyCost > this.budgetAlert) {
-      console.warn(`BUDGET ALERT: Daily cost $${this.dailyCost.toFixed(2)} exceeds 80% of budget`);
-    }
-  }
-
-  report() {
-    return {
-      requests: this.dailyRequests,
-      estimatedCost: `$${this.dailyCost.toFixed(2)}`,
-      projectedMonthly: `$${(this.dailyCost * 30).toFixed(2)}`,
-    };
-  }
-}
-```
-
-### Step 5: Cost Reduction Checklist
-
-- [ ] Cache responses to avoid re-scraping same URLs
-- [ ] Use Residential Proxy for simple pages (cheaper per request)
-- [ ] Use Web Scraper API for 100+ URL bulk jobs
-- [ ] Use Datasets API for common targets (Amazon, LinkedIn) — pre-built scrapers
-- [ ] Set budget alerts in Bright Data CP > Billing
-- [ ] Monitor daily usage with tracker class above
-- [ ] Avoid Scraping Browser for pages that don't need JavaScript
+Use Read and Grep for usage, billing, and implementation inspection. Use Write and Edit for the usage envelope, forecast, alerts, tests, and reconciliation record. This skill does not change a plan, purchase capacity, or run collection traffic.
 
 ## Output
 
-- Product selection matching cost requirements
-- Response caching reducing redundant requests
-- Budget monitoring and alerting
-- Projected monthly cost estimates
+- Product-aware unit and ownership map
+- Three-scenario forecast with sourced inputs
+- Alert, abort, reconciliation, and variance controls
 
 ## Examples
 
-Verify current product pricing and account limits with Bright Data before using any estimate, model a small approved pilot, and set spend/egress alerts below the hard budget. Report aggregate workload metrics only and require owner approval before changing target coverage, zone type, or collection frequency.
+A batch has a maximum snapshot-record count, transfer-byte ceiling, retry budget, storage retention, and owner tag. The run stops at its authorized boundary and reconciles provider usage before the next schedule is approved.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Unexpected charges | Using expensive product for simple pages | Switch to Residential Proxy |
-| Budget exceeded | No monitoring | Implement usage tracker |
-| Overpaying for data | Scraping what Datasets API provides | Check pre-built datasets first |
-| High per-request cost | No caching | Add response cache (biggest lever) |
+| Failure | Meaning | Response |
+|---------|---------|----------|
+| Current contract inputs are unavailable | Forecast lacks an authority | Mark cost unknown and block expansion |
+| Usage has no workload owner | Spend is unattributed | Quarantine the schedule until ownership is assigned |
+| Variance comes from duplicate delivery | Processing is not idempotent | Fix deduplication before increasing the budget |
 
 ## Resources
 
-- [Bright Data Pricing](https://brightdata.com/pricing)
-- [Billing Dashboard](https://brightdata.com/cp/billing)
-- [Pre-built Datasets](https://brightdata.com/products/datasets)
-
-## Next Steps
-
-For architecture patterns, see `brightdata-reference-architecture`.
+- [REST API authentication](https://docs.brightdata.com/api-reference/authentication)
+- [Asynchronous scraper workflow](https://docs.brightdata.com/products/scrapers/scrapers-library/async-requests)
+- [Download snapshot](https://docs.brightdata.com/api-reference/scrapers/delivery-apis/download-snapshot)
+- [Users management](https://docs.brightdata.com/general/account/users-management)

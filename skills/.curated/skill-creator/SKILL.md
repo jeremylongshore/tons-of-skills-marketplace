@@ -17,7 +17,7 @@ description: 'Create production-grade agent skills aligned with the 2026 AgentSk
   '
 argument-hint: "<create|validate|optimize> [skill-path]"
 allowed-tools: Read,Write,Edit,Glob,Grep,Bash(mkdir:*),Bash(chmod:*),Bash(python:*),Bash(claude:*),Agent,AskUserQuestion
-version: 5.22.0
+version: 5.23.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

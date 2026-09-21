@@ -1,157 +1,83 @@
 ---
 name: castai-ci-integration
-description: 'Integrate CAST AI policy validation and cost checks into CI/CD pipelines.
-
-  Use when adding CAST AI savings verification to GitHub Actions,
-
-  validating Terraform plans, or gating deployments on cost thresholds.
-
-  Trigger with phrases like "cast ai CI", "cast ai github actions",
-
-  "cast ai terraform CI", "cast ai pipeline".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*)
-version: 1.4.0
+description: 'Build a fail-closed CI lane for CAST AI configuration without exposing production credentials to untrusted changes. Use when validating CAST AI Terraform, Helm values, workload annotations, or an authorized read-only API smoke test. Trigger with: "test CAST AI in CI", "gate CAST AI changes", "add a CAST AI contract job".'
+allowed-tools: Read, Grep, Write, Edit, Bash(terraform:*), Bash(helm:*), Bash(kubectl:*), Bash(castctl:*)
+version: 2.0.0
+argument-hint: '[workflow-or-infrastructure-path]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- kubernetes
-- cost-optimization
-- castai
-compatibility: Designed for Claude Code
+  - saas
+  - kubernetes
+  - cast-ai
+  - ci-integration
+  - operations
+compatibility: 'Requires a repository with CAST AI infrastructure definitions; any live probe requires a protected environment and a dedicated read-only identity'
 ---
-# CAST AI CI Integration
+
+# CAST AI CI Contract Lane
 
 ## Overview
 
-Add CAST AI cost validation to CI/CD pipelines: verify savings thresholds, validate Terraform plans before apply, and gate deployments on autoscaler health.
+Keep pull-request checks local and credential-free. Validate syntax, rendered Kubernetes objects, policy invariants, and destructive change boundaries before allowing a separately protected job to inspect a real CAST AI environment.
 
 ## Prerequisites
 
-- GitHub Actions enabled
-- CAST AI API key stored as repository secret
-- Terraform state accessible from CI (if using Terraform)
+- The workflow, Terraform, Helm values, and workload manifest paths in scope
+- An explicit source of truth for each CAST AI setting
+- Maintainer approval for any protected live probe
 
 ## Instructions
 
-### Step 1: GitHub Actions -- Savings Gate
+### Step 1: Map the trust boundary
 
-```yaml
-# .github/workflows/castai-check.yml
-name: CAST AI Cost Check
+Use Read and Grep to identify fork execution, secret references, Terraform backends, generated plans, Helm values, kubeconfig use, and direct CAST AI calls. Classify each check as offline, protected read-only, or prohibited.
 
-on:
-  pull_request:
-    paths: ["terraform/**", "k8s/**"]
-  schedule:
-    - cron: "0 8 * * 1"  # Weekly Monday report
+### Step 2: Build the required offline lane
 
-jobs:
-  cost-check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+Use Bash(terraform:_) for formatting, initialization without applying, validation, and a saved plan. Use Bash(helm:_) to lint or template the pinned chart and Bash(kubectl:\*) only for client-side schema validation against rendered manifests. Treat unexpected resource deletion, provider replacement, cluster disconnect, automation enablement, or HPA ownership transfer as review-blocking changes.
 
-      - name: Check CAST AI Savings
-        env:
-          CASTAI_API_KEY: ${{ secrets.CASTAI_API_KEY }}
-          CASTAI_CLUSTER_ID: ${{ secrets.CASTAI_CLUSTER_ID }}
-        run: |
-          SAVINGS=$(curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-            "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/savings")
+### Step 3: Validate CAST AI policy invariants
 
-          PERCENT=$(echo "$SAVINGS" | jq -r '.savingsPercentage')
-          MONTHLY=$(echo "$SAVINGS" | jq -r '.monthlySavings')
+Use Write or Edit to add deterministic checks for approved regions, cluster identifiers, policy names, node-template bounds, workload automation modes, protected namespaces, disruption budgets, and maximum CPU limits. Reject deprecated cluster minimum CPU settings and unreviewed wildcard scope.
 
-          echo "### CAST AI Savings Report" >> $GITHUB_STEP_SUMMARY
-          echo "- Monthly savings: \$${MONTHLY}" >> $GITHUB_STEP_SUMMARY
-          echo "- Savings percentage: ${PERCENT}%" >> $GITHUB_STEP_SUMMARY
+### Step 4: Isolate the optional live lane
 
-          # Fail if savings drop below threshold
-          if (( $(echo "$PERCENT < 10" | bc -l) )); then
-            echo "WARNING: Savings below 10% threshold"
-            exit 1
-          fi
+If live evidence is required, place it in an independent protected-environment job that cannot run for forks. Use a dedicated read-only organization-scoped identity, a pinned CAST AI region, a fixed cluster allowlist, a short timeout, and redacted output. Prefer a documented status read; never enable automation or apply infrastructure from the probe.
 
-      - name: Verify Agent Health
-        env:
-          CASTAI_API_KEY: ${{ secrets.CASTAI_API_KEY }}
-          CASTAI_CLUSTER_ID: ${{ secrets.CASTAI_CLUSTER_ID }}
-        run: |
-          STATUS=$(curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-            "https://api.cast.ai/v1/kubernetes/external-clusters/${CASTAI_CLUSTER_ID}" \
-            | jq -r '.agentStatus')
+### Step 5: Prove negative behavior
 
-          if [ "$STATUS" != "online" ]; then
-            echo "CAST AI agent is ${STATUS}, expected online"
-            exit 1
-          fi
-```
+Run the workflow with missing and sentinel credentials. Confirm the offline lane stays green, the live lane skips safely, logs contain no key or raw cluster inventory, and plan artifacts have restricted retention.
 
-### Step 2: Terraform Plan Validation
+## Tool Discipline
 
-```yaml
-  terraform-plan:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform Init & Plan
-        working-directory: terraform/
-        env:
-          CASTAI_API_TOKEN: ${{ secrets.CASTAI_API_KEY }}
-        run: |
-          terraform init
-          terraform plan -var-file=environments/prod.tfvars \
-            -out=plan.tfplan -no-color | tee plan-output.txt
-
-      - name: Check for Destructive Changes
-        run: |
-          if grep -q "will be destroyed" terraform/plan-output.txt; then
-            echo "DESTRUCTIVE CHANGES DETECTED in CAST AI resources"
-            exit 1
-          fi
-```
-
-### Step 3: Store Secrets
-
-```bash
-gh secret set CASTAI_API_KEY --body "your-api-key"
-gh secret set CASTAI_CLUSTER_ID --body "your-cluster-id"
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Secret not found | Missing `gh secret set` | Add secrets to repo |
-| Savings check fails | Cluster not onboarded | Verify cluster ID is correct |
-| Terraform init fails | State backend misconfigured | Check backend config |
-| Agent offline in CI | Key scope mismatch | Use production API key |
+Use Read and Grep for workflow and configuration inspection. Use Write and Edit for checks and workflow changes. Use Bash(terraform:_), Bash(helm:_), Bash(kubectl:_), and Bash(castctl:_) only for their documented validation or dry-run operations; do not apply, connect, disconnect, or mutate a live cluster without a separate approved change window.
 
 ## Output
 
-The CI run publishes a redacted plan summary, agent-health decision,
-destructive-change result, immutable run URL, and named approver for any
-production promotion. Secrets remain in the CI secret store, are masked in
-logs, and are unavailable to untrusted pull-request code or forked workflows.
+- A required credential-free validation job
+- A separately protected read-only smoke test, if justified
+- Policy, deletion, and secret-handling assertions
+- Negative-path and redaction receipts
 
 ## Examples
 
-On a protected branch, run the plan with a scoped staging credential and fail
-when the parsed plan contains destructive changes or the agent is offline.
-Upload only the redacted plan artifact; require an environment approval before
-any apply job, and cancel the deployment when the approval or freshness window
-expires.
+A pull request renders the pinned CAST AI chart, validates Terraform, and rejects a new HPA ownership transfer. A release job may inspect one approved cluster only after environment approval and records status classes rather than raw API payloads.
+
+## Error Handling
+
+| Failure                                   | Meaning                           | Response                                              |
+| ----------------------------------------- | --------------------------------- | ----------------------------------------------------- |
+| A fork can read a CAST AI key             | CI trust boundary failed          | Disable the live job and rotate the exposed identity  |
+| A plan enables automation unexpectedly    | Change exceeds reviewed intent    | Block and require an explicit policy review           |
+| Offline checks need the network           | Required lane is nondeterministic | Pin fixtures and local schemas                        |
+| A rendered object transfers HPA ownership | Workload control may change       | Require workload-owner approval and rollback evidence |
 
 ## Resources
 
-- [GitHub Actions Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
-- [CAST AI API Reference](https://api.cast.ai/v1/spec/openapi.json)
-
-## Next Steps
-
-For deployment patterns, see `castai-deploy-integration`.
+- [CI evidence and source notes](references/official-docs.md)
+- [CAST AI API access](https://docs.cast.ai/docs/api-access)
+- [Connect with castctl](https://docs.cast.ai/docs/connect-with-castctl)
+- [Autoscaler settings](https://docs.cast.ai/docs/autoscaler-settings)

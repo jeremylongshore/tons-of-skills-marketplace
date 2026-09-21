@@ -6,9 +6,9 @@ order: 1
 keywords: ["install Claude Code plugins", "ccpi CLI", "Claude Code setup", "Tons of Skills marketplace", "plugin installation", "Claude Code extensions"]
 officialLinks:
   - title: "Claude Code Overview"
-    url: "https://docs.anthropic.com/en/docs/claude-code/overview"
+    url: "https://code.claude.com/docs/en/overview"
   - title: "Claude Code CLI Installation"
-    url: "https://docs.anthropic.com/en/docs/claude-code/getting-started"
+    url: "https://code.claude.com/docs/en/getting-started"
   - title: "ccpi on npm"
     url: "https://www.npmjs.com/package/@intentsolutionsio/ccpi"
 relatedDocs:
@@ -75,7 +75,7 @@ Claude Code requires authentication. You can use either:
 - **Anthropic API key** -- set `ANTHROPIC_API_KEY` in your environment or pass it during first launch.
 - **Claude Pro, Team, or Enterprise subscription** -- authenticate through the interactive login flow when you first run `claude`.
 
-Refer to the [Claude Code getting-started guide](https://docs.anthropic.com/en/docs/claude-code/getting-started) for detailed authentication instructions.
+Refer to the [Claude Code getting-started guide](https://code.claude.com/docs/en/getting-started) for detailed authentication instructions.
 
 ## Step 1: Install the ccpi CLI
 

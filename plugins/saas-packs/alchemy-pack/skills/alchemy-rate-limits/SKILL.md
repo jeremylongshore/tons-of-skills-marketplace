@@ -1,201 +1,81 @@
 ---
 name: alchemy-rate-limits
-description: 'Implement Alchemy Compute Unit (CU) rate limiting and request throttling.
-
-  Use when handling 429 errors, optimizing CU usage, or managing
-
-  concurrent blockchain queries within plan limits.
-
-  Trigger: "alchemy rate limit", "alchemy 429", "alchemy compute units",
-
-  "alchemy throttling", "alchemy CU budget".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*)
-version: 1.5.0
+description: >-
+  Design account-aware Alchemy throttling, bounded retries, and admission control from observed throughput rather than stale plan constants. Use when preventing or handling rate limits. Trigger with "Alchemy rate limit", "Alchemy throughput", or "fix Alchemy 429s".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<traffic-class> <account> <slo>"
+version: 2.0.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- blockchain
-- web3
-- alchemy
-- rate-limiting
-compatibility: Designed for Claude Code
+tags: [saas, alchemy, rate-limits, reliability]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Alchemy access requires network access, an appropriate credential, account capacity, and explicit approval"
 ---
-# Alchemy Rate Limits
+# Alchemy Throughput and Backpressure Control
 
 ## Overview
 
-Alchemy uses Compute Units (CU) to measure API usage. Different methods cost different CU amounts. Rate limits are per-second, and exceeding them returns 429 errors.
-
-## Compute Unit Costs
-
-| Method | CU Cost | Category |
-|--------|---------|----------|
-| `eth_blockNumber` | 10 | Core |
-| `eth_getBalance` | 19 | Core |
-| `eth_call` | 26 | Core |
-| `eth_getTransactionReceipt` | 15 | Core |
-| `getTokenBalances` | 50 | Enhanced |
-| `getTokenMetadata` | 50 | Enhanced |
-| `getAssetTransfers` | 150 | Enhanced |
-| `getNftsForOwner` | 50 | NFT |
-| `getNftMetadataBatch` | 50 | NFT |
-| `getContractMetadata` | 50 | NFT |
-
-## Plan Limits
-
-| Plan | CU/sec | Monthly CU | Price |
-|------|--------|------------|-------|
-| Free | 330 | 300M | $0 |
-| Growth | 660 | 1.2B | $49/mo |
-| Scale | Custom | Custom | Custom |
+Design account-aware Alchemy throttling, bounded retries, and admission control from observed throughput rather than stale plan constants. This workflow produces a reviewable artifact and negative-path evidence before any live side effect.
 
 ## Prerequisites
 
-- Confirm actual plan limits and method costs in the organization’s current
-  account; the reference tables are illustrative and commercial terms change.
-- Instrument aggregate request count, latency, queue depth, retry outcome, and
-  dropped-work signals without logging API keys or user-sensitive payloads.
-- Define a bounded retry budget and an application-level response for requests
-  that cannot be served within the budget.
+- Current first-party Alchemy documentation for the selected product, chain, feature, client, authentication method, limit, and lifecycle.
+- Named product, application, security, data/privacy, budget, release, and operations owners appropriate to the requested scope.
+- Synthetic or approved non-production fixtures, a credential canary, explicit success criteria, and a tested rollback boundary.
+
+## Current Contract
+
+Alchemy throughput is measured in compute units at the account level using a rolling ten-second token-bucket model. Method costs, plan allowances, and elastic behavior can change. A per-process requests-per-second limiter is therefore insufficient: control must use current account terms, method mix, shared consumers, response signals, and measured demand.
+
+## Authentication
+
+Usage inspection requires the authorized dashboard owner or an Admin access key for the documented Admin API; an application key is not an Admin credential. Never export account usage or credential material into public logs.
 
 ## Instructions
 
-### Step 1: CU-Aware Request Throttler
+1. Inventory every workload sharing the account by method family, estimated current compute-unit cost, burst shape, priority, idempotency, and SLO.
+2. Recheck current method costs, account throughput, plan terms, and elastic-demand behavior; record source date and observed tenant settings.
+3. Create a shared admission budget across processes, reserve capacity for critical reads, and shed or defer background work before saturation.
+4. Use concurrency limits plus bounded exponential backoff with jitter, honoring provider guidance and retrying only idempotent operations automatically.
+5. Emit attempt count, queue time, response class, observed usage, and final disposition without logging credentials or full user payloads.
+6. Load-test below, at, and above the approved envelope; prove recovery, exhausted-budget behavior, and rollback before changing production limits.
 
-```typescript
-// src/alchemy/throttler.ts
-import Bottleneck from 'bottleneck';
+## Tool Discipline
 
-const CU_COSTS: Record<string, number> = {
-  'eth_blockNumber': 10,
-  'eth_getBalance': 19,
-  'eth_call': 26,
-  'getTokenBalances': 50,
-  'getAssetTransfers': 150,
-  'getNftsForOwner': 50,
-};
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, wallet addresses, customer data, plan changes, spend, key creation or rotation, webhook changes, deployment, replay, transaction construction, signing, broadcast, or deletion.
 
-// Free tier: 330 CU/sec = ~16 getBalance calls/sec
-const limiter = new Bottleneck({
-  reservoir: 330,                    // CU budget per interval
-  reservoirRefreshInterval: 1000,    // Refresh every second
-  reservoirRefreshAmount: 330,       // Reset to max CU/sec
-  maxConcurrent: 10,                 // Max parallel requests
-  minTime: 50,                       // Min 50ms between requests
-});
+## Approval Boundaries
 
-limiter.on('depleted', () => {
-  console.warn('CU budget depleted — queueing requests');
-});
-
-async function throttledAlchemyCall<T>(
-  method: string,
-  operation: () => Promise<T>,
-): Promise<T> {
-  const cost = CU_COSTS[method] || 26; // Default to eth_call cost
-  return limiter.schedule({ weight: cost }, operation);
-}
-
-export { throttledAlchemyCall, limiter };
-```
-
-### Step 2: Batch Optimizer
-
-```typescript
-// src/alchemy/batch-optimizer.ts
-import { Alchemy } from 'alchemy-sdk';
-
-// Instead of N individual calls, batch when possible
-async function batchGetBalances(
-  alchemy: Alchemy,
-  addresses: string[],
-): Promise<Map<string, string>> {
-  const results = new Map<string, string>();
-
-  // Process in chunks to stay under rate limit
-  const CHUNK_SIZE = 10;
-  for (let i = 0; i < addresses.length; i += CHUNK_SIZE) {
-    const chunk = addresses.slice(i, i + CHUNK_SIZE);
-    const balances = await Promise.all(
-      chunk.map(addr => alchemy.core.getBalance(addr))
-    );
-    chunk.forEach((addr, idx) => {
-      results.set(addr, (parseInt(balances[idx].toString()) / 1e18).toFixed(6));
-    });
-
-    // Pause between chunks to stay under CU limit
-    if (i + CHUNK_SIZE < addresses.length) {
-      await new Promise(r => setTimeout(r, 200));
-    }
-  }
-
-  return results;
-}
-
-export { batchGetBalances };
-```
-
-### Step 3: 429 Retry Handler
-
-```typescript
-// src/alchemy/retry.ts
-async function withAlchemyRetry<T>(
-  operation: () => Promise<T>,
-  maxRetries: number = 5,
-): Promise<T> {
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      return await operation();
-    } catch (err: any) {
-      if (err.response?.status !== 429 || attempt === maxRetries) throw err;
-
-      const retryAfter = parseInt(err.response.headers?.['retry-after'] || '1');
-      const jitter = Math.random() * 500;
-      const delay = retryAfter * 1000 + jitter;
-
-      console.log(`Rate limited — retry ${attempt}/${maxRetries} in ${delay.toFixed(0)}ms`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error('Unreachable');
-}
-```
-
-## Output
-
-- CU-aware Bottleneck throttler matching plan limits
-- Batch optimizer reducing total CU consumption
-- 429 retry handler with Retry-After header support
-
-## Examples
-
-In a test environment, configure the limiter below the account’s documented
-per-second CU allowance and issue enough public-chain balance queries to create
-a queue. Confirm that work executes in order, a simulated `429` honors
-`Retry-After`, and aggregate telemetry shows the queue depth and final outcome.
-When the retry budget is exhausted, return a controlled unavailable result and
-let the caller decide whether to retry later; do not spin indefinitely or hide
-the failed request. If observed limits differ from the configuration, pause the
-load test and update the limiter from the verified account data.
+Operations approves admission and retry policy; product approves degraded behavior. Purchasing capacity, enabling elastic spend, or changing account limits requires budget-owner approval.
 
 ## Error Handling
 
-| Failure | Response |
-|---------|----------|
-| Limiter queue grows beyond the service threshold | Shed noncritical work, alert the operator, and preserve interactive request fairness. |
-| `429` persists after bounded retries | Surface unavailable state and defer work instead of retrying indefinitely. |
-| Batch request is partially unsuccessful | Keep valid results, retry eligible failures only, and report unavailable items explicitly. |
-| Account limit changes | Reconfigure from verified account information and rerun the capacity check before production use. |
+- Do not hardcode remembered free-plan throughput or method costs as a permanent limiter.
+- Do not retry deterministic JSON-RPC errors or non-idempotent writes automatically.
+- If independent processes cannot share a budget, set conservative partitions and document the risk of account-level contention.
+
+## Output
+
+Return the workload/CU inventory, dated account assumptions, shared admission design, retry matrix, telemetry, load evidence, spend boundary, degraded behavior, and rollback threshold. Mark assumptions, observations, source dates, environment-specific behavior, owners, and unresolved gaps explicitly.
+
+## Examples
+
+- Reserve throughput for customer reads while deferring a metadata backfill when the shared rolling window approaches its approved envelope.
+- Demonstrate that a repeated `429` stops after the retry budget and returns an explicit degraded result rather than an infinite wait.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- short burst
+- sustained saturation
+- shared-worker contention
+- 429 with retry guidance
+- non-idempotent request
+- retry budget exhausted
 
 ## Resources
 
-- Alchemy Rate Limits
-- [Alchemy Compute Units](https://www.alchemy.com/docs/reference/compute-unit-costs)
-- [Bottleneck npm](https://www.npmjs.com/package/bottleneck)
-
-## Next Steps
-
-For security best practices, see `alchemy-security-basics`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Alchemy sources before execution.
+- Treat observed account, application, network, indexer, chain, or provider behavior as environment-specific evidence, never a universal guarantee.

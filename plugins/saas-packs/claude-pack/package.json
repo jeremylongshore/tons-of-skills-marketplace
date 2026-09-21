@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/claude-pack",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Claude Code skill pack for building with the Claude API and Anthropic SDK — 32 hand-written skills",
   "main": "README.md",
   "type": "module",

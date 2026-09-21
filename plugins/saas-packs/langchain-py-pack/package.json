@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/langchain-py-pack",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Claude Code skill pack for LangChain 1.0 + LangGraph 1.0 (Python) - 33 skills covering chains, agents, RAG, middleware, checkpointing, HITL, streaming, and production patterns",
   "main": "README.md",
   "type": "module",

@@ -1,140 +1,103 @@
 ---
 name: flexport-security-basics
-description: 'Apply Flexport API security best practices including webhook signature
-  verification,
-
-  API key rotation, and least-privilege access patterns.
-
-  Trigger: "flexport security", "flexport webhook signature", "secure flexport API
-  key".
-
-  '
-allowed-tools: Read, Write, Grep
-version: 1.6.0
+description: >-
+  Analyze and harden Flexport credentials, tokens, webhook verification, data exposure, and mutation controls. Use when performing threat modeling, security review, credential rotation, or receiver implementation. Trigger with: "secure Flexport integration", "review Flexport secrets", "Flexport webhook security".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[integration-and-threat-model]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - security
+  - hardening
+compatibility: 'Requires an approved secret store, TLS egress/ingress, access review, and incident response.'
 ---
-# Flexport Security Basics
+
+# Flexport Integration Security Baseline
 
 ## Overview
 
-Flexport manages global freight logistics containing shipping manifests, customs declarations, commercial invoices, and supply chain partner data. A breach exposes trade routes, commodity values, importer/exporter identities, and customs brokerage details. Secure API credentials, webhook endpoints, and any pipeline that processes shipment tracking or purchase order data.
+Protect four high-value boundaries: OAuth/API credentials, cached tokens, webhook secrets/raw bodies, and business mutations that can create freight or trade records.
 
 ## Prerequisites
 
-- A named security owner, scoped secret-manager integration, access-review cadence, and approved destinations for logistics data.
-- Synthetic shipment fixtures and a defined incident/revocation path.
+- Threat model with account, workload, and data boundaries
+- Endpoint-scoped credential plan and broad-key exception register
+- Secret scanning, redacted telemetry, rotation, and incident procedures
 
 ## Instructions
 
-1. Issue least-privilege credentials per environment and integration; never put keys or secrets in source, tickets, shell history, or support bundles.
-2. Verify webhook signatures using raw bodies, record opaque event identifiers only, and enforce idempotency before downstream processing.
-3. Restrict access to shipping, customs, invoice, and partner data; review connected systems and remove access when the business need ends.
-4. Redact diagnostics, encrypt approved exports, and rotate/revoke credentials immediately after suspected exposure.
+### Step 1: Minimize credentials
+
+Prefer distinct endpoint-scoped OAuth clients. Treat API keys as broad-access exceptions and never record secret values or suffixes.
+
+### Step 2: Protect tokens
+
+Request with the documented audience/grant, cache encrypted 24-hour JWTs, single-flight refresh, and never pass tokens through browser state or logs.
+
+### Step 3: Authenticate webhooks first
+
+Verify raw-body HMAC-SHA256 from `X-Hub-Signature-256`, reject malformed/length-mismatched values, then parse and enqueue.
+
+### Step 4: Constrain egress and input
+
+Allow documented Flexport hosts, validate schemas and sizes, preserve opaque IDs, and reject unexpected mutation intent.
+
+### Step 5: Guard mutations
+
+Require business authorization, durable operation keys, one writer, and reconciliation before retrying bookings or record creation.
+
+### Step 6: Exercise response
+
+Test credential revocation, webhook secret rotation, log leakage, provider outage, and rollback with metadata-only evidence.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
 
 ## Output
 
-Maintain a security receipt with access owner, secret reference, approved integration, review date, rotation/revocation outcome, and redacted incident status. Never include data, documents, or keys.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
+
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
+```
 
 ## Examples
 
-Use a fictional booking event and scoped staging credential to verify that an invalid signature is rejected, a duplicate is suppressed, and revoking the credential blocks future requests. Keep only the opaque event ID and control outcome in the evidence.
-
-## API Key Management
-
-```typescript
-function createFlexportClient(): { apiKey: string; baseUrl: string } {
-  const apiKey = process.env.FLEXPORT_API_KEY;
-  if (!apiKey) {
-    throw new Error("Missing FLEXPORT_API_KEY — store in secrets manager, never in .env in production");
-  }
-  // Never log the key; log only a hash suffix for debugging
-  console.log("Flexport client initialized (key suffix:", apiKey.slice(-4), ")");
-  return { apiKey, baseUrl: "https://api.flexport.com/v2" };
-}
-```
-
-## Webhook Signature Verification
-
-```typescript
-import crypto from "crypto";
-import { Request, Response, NextFunction } from "express";
-
-function verifyFlexportWebhook(req: Request, res: Response, next: NextFunction): void {
-  const signature = req.headers["x-hub-signature"] as string;
-  const secret = process.env.FLEXPORT_WEBHOOK_SECRET!;
-  const expected = "sha256=" + crypto.createHmac("sha256", secret).update(req.body).digest("hex");
-  if (!signature || !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
-    res.status(401).send("Invalid signature");
-    return;
-  }
-  next();
-}
-```
-
-## Input Validation
-
-```typescript
-import { z } from "zod";
-
-const ShipmentQuerySchema = z.object({
-  shipment_id: z.string().regex(/^FLEX-\d+$/),
-  container_number: z.string().regex(/^[A-Z]{4}\d{7}$/).optional(),
-  origin_port: z.string().length(5).optional(),
-  destination_port: z.string().length(5).optional(),
-  hs_code: z.string().regex(/^\d{6,10}$/).optional(),
-});
-
-function validateShipmentQuery(data: unknown) {
-  return ShipmentQuerySchema.parse(data);
-}
-```
-
-## Data Protection
-
-```typescript
-const FLEXPORT_SENSITIVE_FIELDS = ["customs_value", "commercial_invoice", "importer_tax_id", "broker_credentials", "hs_code"];
-
-function redactFlexportLog(record: Record<string, unknown>): Record<string, unknown> {
-  const redacted = { ...record };
-  for (const field of FLEXPORT_SENSITIVE_FIELDS) {
-    if (field in redacted) redacted[field] = "[REDACTED]";
-  }
-  return redacted;
-}
-```
-
-## Security Checklist
-
-- [ ] API keys stored in secrets manager, `.env` files in `.gitignore`
-- [ ] Webhook signatures verified on every inbound request
-- [ ] Different keys for dev/staging/prod environments
-- [ ] Key rotation scheduled quarterly with dual-key transition
-- [ ] Git history scanned for leaked keys
-- [ ] HTTPS enforced for all API calls
-- [ ] Request/response logging redacts auth headers and customs values
-- [ ] Least-privilege access: read-only tokens for dashboards, run tokens for operations
+A shipment reader and invoice importer use different scoped OAuth clients. A leaked client triggers revocation and replacement of only that workload, while webhook processing remains isolated behind its own secret.
 
 ## Error Handling
 
-| Vulnerability | Risk | Mitigation |
-|---|---|---|
-| Leaked API key | Full shipment and customs data exposure | Secrets manager + quarterly rotation |
-| Unverified webhooks | Spoofed shipment status updates | HMAC-SHA256 signature verification |
-| Customs data in logs | Trade compliance violation | Field-level redaction pipeline |
-| Overly broad API scope | Access to unrelated shipment data | Role-scoped tokens per team |
-| Unencrypted commercial invoices | Financial data breach | TLS 1.2+ in transit, AES at rest |
+| Failure | Response |
+| --- | --- |
+| Credential committed or logged | Revoke/rotate, contain the artifact, and repair injection/redaction. |
+| Signature checked after JSON parsing | Reject the implementation and restore raw-body verification. |
+| Broad key used by many workloads | Segment and migrate to scoped clients. |
+| Uncertain booking retry requested | Block it until provider state is reconciled. |
 
 ## Resources
 
-- [Flexport Webhooks](https://apidocs.flexport.com/v2/tag/Webhook-Endpoints/)
-- [OWASP API Security Top 10](https://owasp.org/www-project-api-security/)
-
-## Next Steps
-
-See `flexport-prod-checklist`.
+- [First-party source notes](references/official-docs.md)
+- [Using API credentials](https://developers.flexport.com/tutorials/using-api-credentials/)
+- [API credential FAQ](https://developers.flexport.com/faq/api-credentials/)
+- [Webhook endpoints](https://apidocs.flexport.com/v3/tag/Webhook-Endpoints/)
