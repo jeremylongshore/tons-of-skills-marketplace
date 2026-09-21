@@ -25,9 +25,17 @@ if ! git fetch -q origin main 2>/dev/null; then
   exit 0
 fi
 
+# This hook is advisory. husky runs it under `sh -e`, so any git command that
+# can fail must be guarded or it aborts the push. In a shallow or single-branch
+# clone `git fetch origin main` does not create origin/main, and the ancestry
+# commands below then exit 128. No origin/main means nothing to compare: allow.
+if ! git rev-parse --verify --quiet origin/main >/dev/null 2>&1; then
+  exit 0
+fi
+
 # Check whether origin/main has commits this branch doesn't have
 if ! git merge-base --is-ancestor origin/main HEAD 2>/dev/null; then
-  BEHIND=$(git rev-list --count HEAD..origin/main 2>/dev/null)
+  BEHIND=$(git rev-list --count HEAD..origin/main 2>/dev/null || echo 0)
   if [ "$BEHIND" -gt 0 ] 2>/dev/null; then
     printf '\n'
     printf '\033[33m⚠  Branch %s is %s commit(s) behind origin/main.\033[0m\n' "$LOCAL_BRANCH" "$BEHIND"

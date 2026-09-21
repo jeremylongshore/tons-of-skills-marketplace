@@ -5286,7 +5286,7 @@
       "slug": "changelog-orchestrator",
       "name": "changelog-orchestrator",
       "description": "Draft changelog PRs by collecting GitHub/Slack/Git changes, formatting with templates, running quality gates, and preparing a branch/PR. Use when generating weekly/monthly release notes or when the user asks to create a changelog from recent merges. Trigger with \"changelog weekly\", \"generate release notes\", \"draft changelog\", \"create changelog PR\".",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "category": "devops",
       "parentPlugin": "mattyp-changelog",
       "requires_env": [],
@@ -34804,7 +34804,7 @@
     }
   ],
   "count": 2900,
-  "generatedAt": "2026-09-14T01:05:51.734Z",
+  "generatedAt": "2026-09-20T05:19:33.928Z",
   "categories": [
     "ai-agency",
     "ai-ml",
