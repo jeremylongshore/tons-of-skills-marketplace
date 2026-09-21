@@ -564,6 +564,46 @@ jobs:
           done
           echo "✅ Dependency scan complete"
 
+      # Non-workspace plugin packages are installed and tested in isolation by
+      # the widened loop below, so the root lock cannot attest their dependency
+      # graph. Audit only package roots changed by this PR/push: a missing or
+      # stale package-local lock blocks immediately, while high/critical audit
+      # findings remain loud report-only signals under the existing deadline.
+      # REPORT-ONLY-UNTIL: 2026-09-30 (standalone package audit policy; claude-4l09.6)
+      - name: Test changed standalone plugin dependency audit
+        run: node --test scripts/audit-changed-plugin-dependencies.test.mjs
+
+      - name: Audit changed standalone plugin dependencies
+        env:
+          AUDIT_BASE_REF: ${{ github.base_ref }}
+          AUDIT_BEFORE: ${{ github.event.before }}
+          AUDIT_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          AUDIT_EVENT: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          # This job checks out with fetch-depth: 0. Never pass --depth here: a
+          # depth-limited fetch re-shallows the complete clone at the fetched
+          # tip, and when the base branch has advanced since the pull-request
+          # event that tip has no known ancestors, so the three-dot range dies
+          # with "no merge base".
+          if [ "$AUDIT_EVENT" = "pull_request" ]; then
+            git fetch --no-tags origin "$AUDIT_BASE_REF"
+            audit_base="origin/$AUDIT_BASE_REF"
+            audit_diff_mode="three-dot"
+          elif [ -n "$AUDIT_BEFORE" ] && [ "$AUDIT_BEFORE" != "0000000000000000000000000000000000000000" ]; then
+            git fetch --no-tags origin "$AUDIT_BEFORE"
+            audit_base="$AUDIT_BEFORE"
+            audit_diff_mode="two-dot"
+          elif [ "$AUDIT_EVENT" = "workflow_dispatch" ]; then
+            git fetch --no-tags --unshallow origin "$AUDIT_DEFAULT_BRANCH"
+            audit_base="origin/$AUDIT_DEFAULT_BRANCH"
+            audit_diff_mode="three-dot"
+          else
+            echo "::error::Unsupported audit event without a complete comparison range: $AUDIT_EVENT"
+            exit 1
+          fi
+          node scripts/audit-changed-plugin-dependencies.mjs --base="$audit_base" --diff-mode="$audit_diff_mode"
+
   # Blueprint 727 E6.4/E6.7: R1 plus the post-observation R2/R4 monotone metric
   # checks need an independently visible, always-reporting blocking job.  It
   # is listed in ci-required below rather than folded into `validate`, so a
@@ -778,8 +818,18 @@ jobs:
               # "ReferenceError: __vite_ssr_exportName__ is not defined".
               # Install the plugin's own declared deps in isolation first.
               if [ "$category" != "mcp" ] && [[ "$plugin_name" != *-pack ]]; then
-                echo "  ↳ non-workspace plugin — installing its own deps (--ignore-workspace)"
-                pnpm install --ignore-workspace
+                echo "  ↳ non-workspace plugin — installing its locked deps with lifecycle scripts disabled"
+                if [ -f pnpm-lock.yaml ]; then
+                  pnpm install --ignore-workspace --frozen-lockfile --ignore-scripts --ignore-pnpmfile
+                elif [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then
+                  npm ci --ignore-scripts --no-audit --registry=https://registry.npmjs.org/
+                else
+                  echo "::error::$category/$plugin_name has no supported package-local lockfile"
+                  fail=1
+                  failed_plugins+=("$category/$plugin_name")
+                  cd - > /dev/null
+                  continue
+                fi
               fi
 
               if grep -q '"test:ci":' package.json; then
