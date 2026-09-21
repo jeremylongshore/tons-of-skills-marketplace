@@ -581,12 +581,17 @@ jobs:
           AUDIT_EVENT: ${{ github.event_name }}
         run: |
           set -euo pipefail
+          # This job checks out with fetch-depth: 0. Never pass --depth here: a
+          # depth-limited fetch re-shallows the complete clone at the fetched
+          # tip, and when the base branch has advanced since the pull-request
+          # event that tip has no known ancestors, so the three-dot range dies
+          # with "no merge base".
           if [ "$AUDIT_EVENT" = "pull_request" ]; then
-            git fetch --no-tags --depth=1 origin "$AUDIT_BASE_REF"
+            git fetch --no-tags origin "$AUDIT_BASE_REF"
             audit_base="origin/$AUDIT_BASE_REF"
             audit_diff_mode="three-dot"
           elif [ -n "$AUDIT_BEFORE" ] && [ "$AUDIT_BEFORE" != "0000000000000000000000000000000000000000" ]; then
-            git fetch --no-tags --depth=1 origin "$AUDIT_BEFORE"
+            git fetch --no-tags origin "$AUDIT_BEFORE"
             audit_base="$AUDIT_BEFORE"
             audit_diff_mode="two-dot"
           elif [ "$AUDIT_EVENT" = "workflow_dispatch" ]; then

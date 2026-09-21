@@ -102,6 +102,11 @@ test('CI uses a complete manual-run range and disables standalone lifecycle scri
     'utf8',
   );
   assert.match(workflow, /git fetch --no-tags --unshallow origin "\$AUDIT_DEFAULT_BRANCH"/);
+  // A depth-limited fetch re-shallows the full clone and breaks the three-dot
+  // range with "no merge base" whenever the base branch moved after the event.
+  assert.match(workflow, /git fetch --no-tags origin "\$AUDIT_BASE_REF"/);
+  assert.match(workflow, /git fetch --no-tags origin "\$AUDIT_BEFORE"/);
+  assert.doesNotMatch(workflow, /git fetch --no-tags --depth=\d+ origin "\$AUDIT_/);
   assert.match(workflow, /audit_base="origin\/\$AUDIT_DEFAULT_BRANCH"/);
   assert.doesNotMatch(workflow, /audit_base="HEAD\^"/);
   assert.match(
