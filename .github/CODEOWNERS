@@ -22,75 +22,75 @@
 # ---------------------------------------------------------------------------
 # Default: the Lead owns everything not explicitly delegated below.
 # ---------------------------------------------------------------------------
-*                                   @jeremylongshore @blueandyellow44
+*                                   @jeremylongshore @blueandyellow44 @rfisch
 
 # ---------------------------------------------------------------------------
 # area: ci-infra  — HIGH TRUST. A workflow edit can bypass every validator gate.
 # ---------------------------------------------------------------------------
-/.github/                           @jeremylongshore @blueandyellow44
-/.github/workflows/                 @jeremylongshore @blueandyellow44
-/.github/workflows/deploy-vps.yml   @jeremylongshore @blueandyellow44
+/.github/                           @jeremylongshore @blueandyellow44 @rfisch
+/.github/workflows/                 @jeremylongshore @blueandyellow44 @rfisch
+/.github/workflows/deploy-vps.yml   @jeremylongshore @blueandyellow44 @rfisch
 
 # ---------------------------------------------------------------------------
 # area: validator-schema  — HIGH TRUST. The quality bar itself. Changes are
 # approval-gated per 000-docs/SCHEMA_CHANGELOG.md NON-NEGOTIABLES. Lead-owned.
 # ---------------------------------------------------------------------------
-/scripts/validate-skills-schema.py  @jeremylongshore @blueandyellow44
-/scripts/.marketplace-compliance-baseline.json @jeremylongshore @blueandyellow44
-/scripts/validate-unicode-hygiene.py  @jeremylongshore @blueandyellow44
-/scripts/run-verification-pipeline.mjs  @jeremylongshore @blueandyellow44
-/scripts/check-package-manager.mjs  @jeremylongshore @blueandyellow44
-/scripts/kernel-shadow-validation.mjs  @jeremylongshore @blueandyellow44
-/scripts/kernel-vendor-hash.mjs     @jeremylongshore @blueandyellow44
-/000-docs/SCHEMA_CHANGELOG.md       @jeremylongshore @blueandyellow44
+/scripts/validate-skills-schema.py  @jeremylongshore @blueandyellow44 @rfisch
+/scripts/.marketplace-compliance-baseline.json @jeremylongshore @blueandyellow44 @rfisch
+/scripts/validate-unicode-hygiene.py  @jeremylongshore @blueandyellow44 @rfisch
+/scripts/run-verification-pipeline.mjs  @jeremylongshore @blueandyellow44 @rfisch
+/scripts/check-package-manager.mjs  @jeremylongshore @blueandyellow44 @rfisch
+/scripts/kernel-shadow-validation.mjs  @jeremylongshore @blueandyellow44 @rfisch
+/scripts/kernel-vendor-hash.mjs     @jeremylongshore @blueandyellow44 @rfisch
+/000-docs/SCHEMA_CHANGELOG.md       @jeremylongshore @blueandyellow44 @rfisch
 
 # ---------------------------------------------------------------------------
 # area: deps  — HIGH TRUST. A single bad upgrade is a supply-chain incident.
 # ---------------------------------------------------------------------------
-/package.json                       @jeremylongshore @blueandyellow44
-/pnpm-lock.yaml                     @jeremylongshore @blueandyellow44
-/pnpm-workspace.yaml                @jeremylongshore @blueandyellow44
+/package.json                       @jeremylongshore @blueandyellow44 @rfisch
+/pnpm-lock.yaml                     @jeremylongshore @blueandyellow44 @rfisch
+/pnpm-workspace.yaml                @jeremylongshore @blueandyellow44 @rfisch
 
 # ---------------------------------------------------------------------------
 # area: external-sync  — supply-chain-sensitive mirror pipeline.
 # ---------------------------------------------------------------------------
-/sources.yaml                       @jeremylongshore @blueandyellow44
-/sources.lock.json                  @jeremylongshore @blueandyellow44
-/scripts/sync-external.mjs          @jeremylongshore @blueandyellow44
-/scripts/scan-synced-content.mjs    @jeremylongshore @blueandyellow44
-/scripts/scan-allowlist.txt         @jeremylongshore @blueandyellow44
+/sources.yaml                       @jeremylongshore @blueandyellow44 @rfisch
+/sources.lock.json                  @jeremylongshore @blueandyellow44 @rfisch
+/scripts/sync-external.mjs          @jeremylongshore @blueandyellow44 @rfisch
+/scripts/scan-synced-content.mjs    @jeremylongshore @blueandyellow44 @rfisch
+/scripts/scan-allowlist.txt         @jeremylongshore @blueandyellow44 @rfisch
 
 # ---------------------------------------------------------------------------
 # area: marketplace-site  — the Astro site, design system, build pipeline.
 # ---------------------------------------------------------------------------
-/marketplace/                       @jeremylongshore @blueandyellow44
+/marketplace/                       @jeremylongshore @blueandyellow44 @rfisch
 
 # ---------------------------------------------------------------------------
 # area: freshie  — the inventory CMDB, Dolt sync, grading.
 # ---------------------------------------------------------------------------
-/freshie/                           @jeremylongshore @blueandyellow44
+/freshie/                           @jeremylongshore @blueandyellow44 @rfisch
 
 # ---------------------------------------------------------------------------
 # area: docs-governance  — contributor-facing standards and the ladder itself.
 # ---------------------------------------------------------------------------
-/000-docs/                          @jeremylongshore @blueandyellow44
-/GOVERNANCE.md                      @jeremylongshore @blueandyellow44
-/MAINTAINERS.md                     @jeremylongshore @blueandyellow44
-/CONTRIBUTING.md                    @jeremylongshore @blueandyellow44
-/.github/CONTRIBUTING.md            @jeremylongshore @blueandyellow44
-/SECURITY.md                        @jeremylongshore @blueandyellow44
-/CODE_OF_CONDUCT.md                 @jeremylongshore @blueandyellow44
+/000-docs/                          @jeremylongshore @blueandyellow44 @rfisch
+/GOVERNANCE.md                      @jeremylongshore @blueandyellow44 @rfisch
+/MAINTAINERS.md                     @jeremylongshore @blueandyellow44 @rfisch
+/CONTRIBUTING.md                    @jeremylongshore @blueandyellow44 @rfisch
+/.github/CONTRIBUTING.md            @jeremylongshore @blueandyellow44 @rfisch
+/SECURITY.md                        @jeremylongshore @blueandyellow44 @rfisch
+/CODE_OF_CONDUCT.md                 @jeremylongshore @blueandyellow44 @rfisch
 
 # ---------------------------------------------------------------------------
 # area: catalog + root policy  — source-of-truth catalog and repo policy.
 # ---------------------------------------------------------------------------
-/.claude-plugin/                    @jeremylongshore @blueandyellow44
-/.gemini/                           @jeremylongshore @blueandyellow44
-/.greptile/                         @jeremylongshore @blueandyellow44
-/CLAUDE.md                          @jeremylongshore @blueandyellow44
-/AGENTS.md                          @jeremylongshore @blueandyellow44
-/LICENSE                            @jeremylongshore @blueandyellow44
-/LICENSE-TEMPLATE-PROPRIETARY.txt   @jeremylongshore @blueandyellow44
+/.claude-plugin/                    @jeremylongshore @blueandyellow44 @rfisch
+/.gemini/                           @jeremylongshore @blueandyellow44 @rfisch
+/.greptile/                         @jeremylongshore @blueandyellow44 @rfisch
+/CLAUDE.md                          @jeremylongshore @blueandyellow44 @rfisch
+/AGENTS.md                          @jeremylongshore @blueandyellow44 @rfisch
+/LICENSE                            @jeremylongshore @blueandyellow44 @rfisch
+/LICENSE-TEMPLATE-PROPRIETARY.txt   @jeremylongshore @blueandyellow44 @rfisch
 
 # ---------------------------------------------------------------------------
 # Per-plugin owners (Home-Assistant style). AUTO-GENERATED — do not hand-edit

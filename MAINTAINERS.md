@@ -21,6 +21,7 @@ quality signal but does not yet satisfy that gate.
 | ---------------------------------------------------------------- | -------------- | ------------------------------ | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | [@jeremylongshore](https://github.com/jeremylongshore)           | **Lead**       | all                            | —                | Owns the repo, releases, and all high-trust paths (validators, schema, CI, deps, root policy).                                         |
 | [@blueandyellow44](https://github.com/blueandyellow44)           | **Maintainer** | all                            | @jeremylongshore | Co-maintainer at the top tier — code-owner on every area (paired with the Lead), sets direction, can sponsor others up.                |
+| [@rfisch](https://github.com/rfisch)                             | **Maintainer** | all                            | @jeremylongshore | Co-maintainer at the top tier — code-owner on every area, sets direction, and can sponsor others up the ladder.                        |
 | [@opeyemiariyo-netizen](https://github.com/opeyemiariyo-netizen) | **Approver**   | `ci-infra`, `marketplace-site` | @jeremylongshore | Code-owner on CI/deploy + the marketplace site. Promoted by the Lead 2026-07-16 (pipeline quiz waived for learn-on-the-job mentoring). |
 
 ### Invitation pending
@@ -51,6 +52,7 @@ Editorial pick, rotated so it is not always the Lead. The picker for the week ru
 | ------------------ | ---------------- |
 | Default / fallback | @jeremylongshore |
 | Rotation           | @blueandyellow44 |
+| Rotation           | @rfisch          |
 
 _(Rotation expands as Reviewers/Approvers are added — add a row per picker.)_
 
