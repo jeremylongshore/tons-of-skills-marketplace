@@ -1,116 +1,90 @@
 ---
 name: openevidence-security-basics
-description: 'Security Basics for OpenEvidence.
-
-  Trigger: "openevidence security basics".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.13.0
-license: MIT
+description: >-
+  Assess OpenEvidence security claims and institution-specific controls using current first-party evidence and accountable review. Use when working with OpenEvidence in a healthcare organization. Trigger with "openevidence security basics", "OpenEvidence security", or a matching workflow request.
+argument-hint: "[assessment-path] [workflow]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.14.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - openevidence
-- healthcare
-compatibility: Designed for Claude Code
+- security
+- due-diligence
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; requires authorized OpenEvidence access and qualified clinical review for patient-care use
 ---
-# OpenEvidence Security Basics
+# OpenEvidence Security and Contract Due Diligence
 
 ## Overview
 
-OpenEvidence provides AI-powered clinical evidence synthesis that processes protected health information (PHI), patient queries, and medical literature references. Integrations must comply with HIPAA requirements for PHI handling, audit logging, and access controls. A breach exposes patient health questions, clinical recommendations, and potentially identifiable medical conditions. Every API interaction must be treated as a HIPAA-regulated transaction.
+Separate public vendor assertions from the controls and commitments actually governing the institution’s use. Keep inputs minimal, separate observed facts from assumptions, and leave consequential decisions with the named accountable owner.
 
-## API Key Management
+## Prerequisites
 
-```typescript
-function createOpenEvidenceClient(): { apiKey: string; baseUrl: string } {
-  const apiKey = process.env.OPENEVIDENCE_API_KEY;
-  if (!apiKey) {
-    throw new Error("Missing OPENEVIDENCE_API_KEY — store in HIPAA-compliant secrets manager");
-  }
-  // PHI-adjacent access — enforce audit logging on every request
-  console.log("OpenEvidence client initialized (key suffix:", apiKey.slice(-4), ")");
-  return { apiKey, baseUrl: "https://api.openevidence.com/v1" };
-}
-```
+- A clearly bounded workflow, accountable clinical owner, and organizational policy
+- Current first-party OpenEvidence documentation and applicable institution agreements
+- Synthetic or properly authorized minimum-necessary data
 
-## Webhook Signature Verification
+## Tool Discipline
 
-```typescript
-import crypto from "crypto";
-import { Request, Response, NextFunction } from "express";
+Use `Read`, `Glob`, and `Grep` to inspect supplied policies, plans, and evidence. Use `WebFetch` only for current first-party OpenEvidence documentation. Use `Write` or `Edit` only when the user requests a named deliverable with an approved destination. Never expose credentials, PHI, recordings, or unrestricted environment output.
 
-function verifyOpenEvidenceWebhook(req: Request, res: Response, next: NextFunction): void {
-  const signature = req.headers["x-openevidence-signature"] as string;
-  const secret = process.env.OPENEVIDENCE_WEBHOOK_SECRET!;
-  const expected = crypto.createHmac("sha256", secret).update(req.body).digest("hex");
-  if (!signature || !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
-    res.status(401).send("Invalid signature");
-    return;
-  }
-  next();
-}
-```
+## Current Contract
 
-## Input Validation
+- The public security page states HIPAA handling, SOC 2 Type II, encryption in transit and at rest, annual penetration testing, and a disclosure contact.
+- The Trust Center provides current security-program evidence, while access to detailed artifacts may be controlled.
+- Institution commitments are governed by applicable MSA, BAA, SLA, and other written agreements.
 
-```typescript
-import { z } from "zod";
+## Authentication
 
-const ClinicalQuerySchema = z.object({
-  query_id: z.string().uuid(),
-  clinical_question: z.string().min(10).max(2000),
-  specialty: z.enum(["oncology", "cardiology", "neurology", "general", "pediatrics", "emergency"]).optional(),
-  evidence_level: z.enum(["systematic_review", "rct", "cohort", "case_report", "expert_opinion"]).optional(),
-  include_guidelines: z.boolean().default(true),
-});
+Use only the official OpenEvidence web/mobile sign-in or an institution-approved access path. Do not invent API keys, OAuth clients, SDK credentials, service accounts, or private endpoints. Never ask a user to reveal a password, session token, cookie, or recovery code.
 
-function validateClinicalQuery(data: unknown) {
-  return ClinicalQuerySchema.parse(data);
-}
-```
+## Instructions
 
-## Data Protection
+1. Scope workflow, users, data classes, recording, communications, devices, exports, and downstream systems.
+2. Collect the dated security page, Trust Center evidence, terms/privacy, and current institution agreements.
+3. Map vendor claims and contract commitments separately to required controls; mark absent evidence unknown.
+4. Review identity lifecycle, minimum necessary data, encryption boundaries, retention/deletion, subprocessors, incident notice, availability, and exit.
+5. Route gaps to security, privacy, legal, clinical, procurement, and vendor owners.
+6. Issue approve, conditional, or reject with evidence dates, exceptions, compensating controls, and reassessment trigger.
 
-```typescript
-const OPENEVIDENCE_PHI_FIELDS = ["patient_name", "date_of_birth", "mrn", "clinical_question", "diagnosis", "medication_list"];
+## Approval Boundaries
 
-function redactOpenEvidenceLog(record: Record<string, unknown>): Record<string, unknown> {
-  const redacted = { ...record };
-  for (const field of OPENEVIDENCE_PHI_FIELDS) {
-    if (field in redacted) redacted[field] = "[REDACTED_PHI]";
-  }
-  return redacted;
-}
-```
+Do not create or share accounts; change access, roles, agreements, consent, retention, or security settings; enter PHI; record a conversation; copy content into another system; contact a patient; make a diagnosis or treatment decision; submit billing; transmit a support packet; run a production pilot; or represent vendor capabilities without explicit approval from the accountable owner. A qualified professional remains responsible for clinical decisions.
 
-## Security Checklist
+## Output
 
-- [ ] API keys stored in HIPAA-compliant secrets manager
-- [ ] Separate keys per environment (dev/staging/prod)
-- [ ] Key rotation scheduled quarterly
-- [ ] HIPAA audit logging enabled on every API call
-- [ ] PHI never logged in application logs (field-level redaction)
-- [ ] BAA (Business Associate Agreement) on file with OpenEvidence
-- [ ] Clinical query data encrypted at rest and in transit (TLS 1.2+)
-- [ ] Access controls enforce minimum necessary PHI exposure
+Return scope, current first-party evidence and date, data classification, workflow or findings, citations reviewed, assumptions rejected, clinical and governance owners, approval state, unresolved risk, and the exact next action. Redact patient and credential data.
 
 ## Error Handling
 
-| Vulnerability | Risk | Mitigation |
-|---|---|---|
-| Leaked API key | Unauthorized access to clinical evidence queries | HIPAA-compliant secrets manager + rotation |
-| PHI in application logs | HIPAA violation and patient data exposure | Mandatory PHI field redaction |
-| Missing BAA | Regulatory non-compliance penalty | BAA signed before integration goes live |
-| Unencrypted clinical data | PHI breach during transit or storage | TLS 1.2+ in transit, AES-256 at rest |
-| Missing audit trail | HIPAA audit failure | Immutable audit logs for all API interactions |
+| Condition | Response |
+|---|---|
+| Public claim lacks artifact | Treat it as a vendor assertion, not independently verified control. |
+| Contract conflicts with webpage | Escalate to legal/procurement; do not choose silently. |
+| Vulnerability discovered | Use responsible disclosure and the organization’s incident process. |
+
+## Examples
+
+This compact example shows the minimum reviewable handoff; adapt fields to the approved workflow without adding sensitive data.
+
+Input:
+
+```text
+workflow=Visits with PHI; evidence=security-page+BAA; artifacts=Trust-Center
+```
+
+Expected handoff:
+
+```text
+decision=conditional; verified-claims=5; contract-gaps=2; owners=assigned
+```
 
 ## Resources
 
-- [OpenEvidence](https://www.openevidence.com)
-- [OWASP API Security Top 10](https://owasp.org/www-project-api-security/)
-
-## Next Steps
-
-See `openevidence-prod-checklist`.
+- [OpenEvidence official evidence register](references/official-docs.md)
+- [OpenEvidence User Guide](https://www.openevidence.com/user-guide)
+- [OpenEvidence Terms of Use](https://www.openevidence.com/policies/terms)

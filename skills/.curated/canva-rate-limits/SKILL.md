@@ -1,208 +1,92 @@
 ---
 name: canva-rate-limits
-description: 'Handle Canva Connect API rate limits with backoff, queuing, and monitoring.
-
-  Use when hitting 429 errors, implementing retry logic,
-
-  or optimizing API request throughput for Canva integrations.
-
-  Trigger with phrases like "canva rate limit", "canva throttling",
-
-  "canva 429", "canva retry", "canva backoff".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.5.0
+description: 'Implement endpoint- and user-scoped Canva throttling with bounded backoff and reconciliation. Use when handling HTTP 429, sizing concurrency, or preventing duplicate asynchronous jobs. Trigger with: "Canva rate limit", "Canva 429", "throttle Canva requests".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[endpoint-and-traffic-profile]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - ratelimit
+  - operations
+compatibility: 'Requires current endpoint rate metadata, observed response evidence, and an application operation ledger.'
 ---
-# Canva Rate Limits
+
+# Canva Endpoint Throttling Control
 
 ## Overview
 
-The Canva Connect API enforces per-user, per-endpoint rate limits. Each endpoint has different thresholds. A 429 response means you must wait before retrying.
+Canva limits vary by endpoint and are represented in current endpoint/OpenAPI metadata. Do not invent daily export quotas or assume universal headroom/reset headers.
 
 ## Prerequisites
 
-- Current account/endpoint limits verified against Canva's authoritative documentation and the integration owner.
-- A durable idempotency store, bounded queue, and named owner for budget/rate policy.
+- Normalized endpoint, user/tenant class, traffic profile, and current metadata
+- Operation idempotency/reconciliation behavior and local retry budget
+- Queue ownership, observability, and abort/rollback thresholds
 
 ## Instructions
 
-1. Start each approved workload below the current documented/account limit and apply per-user, endpoint, and job-class concurrency ceilings.
-2. Persist an idempotency key before dispatch, honor `Retry-After`, and retry only explicitly transient operations within a bounded budget.
-3. Pause and reconcile on sustained throttling; never add accounts or clients to evade a limit.
+### Step 1: Load current metadata
 
-## Canva Connect API Rate Limits
+Use Read and Grep to identify the exact operation and its current endpoint rate annotation. Keep the contract version with the limiter configuration.
 
-| Endpoint | Method | Limit |
-|----------|--------|-------|
-| `/v1/users/me` | GET | 10 req/min |
-| `/v1/users/me/profile` | GET | 10 req/min |
-| `/v1/designs` | GET | 100 req/min |
-| `/v1/designs` | POST | 20 req/min |
-| `/v1/designs/{id}` | GET | 100 req/min |
-| `/v1/exports` | POST | 75 req/5min, 500/24hr per user |
-| `/v1/exports` (integration) | POST | 750 req/5min, 5000/24hr |
-| `/v1/exports` (per document) | POST | 75 req/5min |
-| `/v1/asset-uploads` | POST | 30 req/min |
-| `/v1/autofills` | POST | 60 req/min |
-| `/v1/folders` | POST | 20 req/min |
-| `/v1/brand-templates` | GET | 100 req/min |
+### Step 2: Classify the request
 
-All limits are **per user** of your integration unless noted otherwise.
+Separate safe reads, async status polls, mutating submissions, token exchange, and public key reads. Never share one undifferentiated global bucket.
 
-## Exponential Backoff with Jitter
+### Step 3: Persist mutation identity
 
-```typescript
-async function canvaRequestWithBackoff<T>(
-  fn: () => Promise<T>,
-  config = { maxRetries: 5, baseDelayMs: 1000, maxDelayMs: 60000 }
-): Promise<T> {
-  for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
-    try {
-      return await fn();
-    } catch (error: any) {
-      if (attempt === config.maxRetries) throw error;
+Record application operation identity and any returned job ID before considering retry. Reconcile existing state after ambiguous transport failure.
 
-      // Only retry on 429 or 5xx
-      const status = error.status || error.response?.status;
-      if (status !== 429 && (status < 500 || status >= 600)) throw error;
+### Step 4: Respond to throttling
 
-      // Honor Retry-After header if present
-      const retryAfter = error.headers?.get?.('Retry-After');
-      const delay = retryAfter
-        ? parseInt(retryAfter) * 1000
-        : Math.min(
-            config.baseDelayMs * Math.pow(2, attempt) + Math.random() * 1000,
-            config.maxDelayMs
-          );
+Pause the affected endpoint/user queue. Honor documented response instructions when present; otherwise apply bounded exponential backoff with jitter under a deadline.
 
-      console.warn(`Rate limited (attempt ${attempt + 1}/${config.maxRetries}). Waiting ${(delay / 1000).toFixed(1)}s`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error('Unreachable');
-}
-```
+### Step 5: Control concurrency
 
-## Queue-Based Rate Limiting
+Use Write or Edit to enforce admission, concurrency, queue age, retry count, and circuit/abort limits below the current known ceiling and measured application capacity.
 
-```typescript
-import PQueue from 'p-queue';
+### Step 6: Detect drift
 
-// Match per-user endpoint limits
-const canvaQueues = {
-  designs: new PQueue({ concurrency: 1, interval: 3000, intervalCap: 1 }),     // ~20/min
-  exports: new PQueue({ concurrency: 1, interval: 4000, intervalCap: 1 }),     // ~15/min (conservative)
-  assets:  new PQueue({ concurrency: 1, interval: 2000, intervalCap: 1 }),     // ~30/min
-  reads:   new PQueue({ concurrency: 3, interval: 1000, intervalCap: 3 }),     // ~100/min (shared reads)
-};
+Alert on sustained 429s, changed endpoint metadata, queue starvation, or new operation shapes; require review rather than automatically increasing throughput.
 
-// Usage — automatically queued to stay under limits
-const design = await canvaQueues.designs.add(() =>
-  client.createDesign({ design_type: { type: 'custom', width: 1080, height: 1080 }, title: 'Queued' })
-);
+### Step 7: Prove recovery
 
-// Batch export with rate control
-const designIds = ['DAV1', 'DAV2', 'DAV3', 'DAV4', 'DAV5'];
-const exports = await Promise.all(
-  designIds.map(id =>
-    canvaQueues.exports.add(() =>
-      client.createExport({ design_id: id, format: { type: 'pdf' } })
-    )
-  )
-);
-```
+Record contract version, scoped limiter state, observed responses, reconciliation result, and whether traffic returned without duplicates.
 
-## Rate Limit Monitor
+## Authentication
 
-```typescript
-class CanvaRateLimitTracker {
-  private windows: Map<string, { count: number; resetAt: number }> = new Map();
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-  track(endpoint: string, response: Response): void {
-    const remaining = response.headers.get('X-RateLimit-Remaining');
-    const reset = response.headers.get('X-RateLimit-Reset');
+## Tool Discipline
 
-    if (remaining !== null) {
-      this.windows.set(endpoint, {
-        count: parseInt(remaining),
-        resetAt: reset ? parseInt(reset) * 1000 : Date.now() + 60000,
-      });
-    }
-  }
-
-  shouldThrottle(endpoint: string): boolean {
-    const window = this.windows.get(endpoint);
-    if (!window) return false;
-    return window.count < 3 && Date.now() < window.resetAt;
-  }
-
-  getWaitMs(endpoint: string): number {
-    const window = this.windows.get(endpoint);
-    if (!window) return 0;
-    return Math.max(0, window.resetAt - Date.now());
-  }
-
-  report(): Record<string, { remaining: number; resetsIn: string }> {
-    const report: Record<string, any> = {};
-    for (const [ep, w] of this.windows) {
-      report[ep] = {
-        remaining: w.count,
-        resetsIn: `${Math.max(0, (w.resetAt - Date.now()) / 1000).toFixed(0)}s`,
-      };
-    }
-    return report;
-  }
-}
-```
-
-## Proactive Throttling
-
-```typescript
-// Wrap the client to throttle before hitting limits
-async function throttledCanvaRequest<T>(
-  tracker: CanvaRateLimitTracker,
-  endpoint: string,
-  fn: () => Promise<T>
-): Promise<T> {
-  if (tracker.shouldThrottle(endpoint)) {
-    const waitMs = tracker.getWaitMs(endpoint);
-    console.log(`Proactively waiting ${waitMs}ms for ${endpoint}`);
-    await new Promise(r => setTimeout(r, waitMs));
-  }
-  return fn();
-}
-```
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-Rate control produces redacted queue state, aggregate headroom, retry decision, and reconciliation result. It excludes tokens, design content, asset URLs, and user-identifying request details.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-For a batch export, enqueue one approved job per configured concurrency slot, retain its idempotency key, and pause when the provider returns 429. Resume only after the specified wait and a check that the original export did not already complete.
+Export submissions and export-status polls use separate controls. After an ambiguous timeout, the service checks the existing job instead of consuming capacity by submitting another export.
 
 ## Error Handling
 
-| Scenario | Detection | Action |
-|----------|-----------|--------|
-| Single 429 | HTTP status | Wait `Retry-After` seconds, retry |
-| Sustained 429s | Multiple retries fail | Reduce request rate, increase backoff |
-| Export quota hit | 500/24hr per user | Queue exports, spread across hours |
-| Integration quota | 5000/24hr exports | Distribute across users |
+| Failure | Response |
+| --- | --- |
+| Endpoint metadata is absent | Use a conservative local policy and measure; do not invent a provider limit |
+| 429 lacks retry instructions | Apply bounded local backoff and reduce concurrency |
+| Queue mixes users or tenants | Partition it before resuming |
+| Mutation outcome is ambiguous | Reconcile existing state before retry |
 
 ## Resources
 
-- [API Requests & Responses](https://www.canva.dev/docs/connect/api-requests-responses/)
-- [p-queue](https://github.com/sindresorhus/p-queue)
-
-## Next Steps
-
-For security configuration, see `canva-security-basics`.
+- [First-party source notes](references/official-docs.md)
+- [API request model](https://www.canva.dev/docs/connect/api-requests-responses/)
+- [Latest OpenAPI](https://www.canva.dev/sources/connect/api/latest/api.yml)

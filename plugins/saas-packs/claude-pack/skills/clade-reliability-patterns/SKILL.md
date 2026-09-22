@@ -5,7 +5,7 @@ description: "Build fault-tolerant Claude integrations \u2014 retries, circuit b
   \ degradation.\nTrigger with \"anthropic reliability\", \"claude fault tolerance\"\
   ,\n\"anthropic circuit breaker\", \"claude fallback\".\n"
 allowed-tools: Read, Write, Edit
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -134,7 +134,7 @@ See Built-In SDK Retries, Model Fallback Chain, Circuit Breaker class, Graceful 
 
 ## Resources
 
-- [Error Types](https://docs.anthropic.com/en/api/errors)
+- [Error Types](https://platform.claude.com/docs/en/api/errors)
 - SDK Retries
 
 ## Next Steps

@@ -12,7 +12,7 @@ description: 'Collect Anthropic Claude API debug evidence for support and troubl
 
   '
 allowed-tools: Read, Bash(grep:*), Bash(curl:*), Bash(tar:*), Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -161,8 +161,8 @@ that reproduces the behavior.
 ## Resources
 
 - [API Status](https://status.anthropic.com)
-- [Error Types](https://docs.anthropic.com/en/api/errors)
-- [Rate Limits](https://docs.anthropic.com/en/api/rate-limits)
+- [Error Types](https://platform.claude.com/docs/en/api/errors)
+- [Rate Limits](https://platform.claude.com/docs/en/api/rate-limits)
 
 ## Next Steps
 

@@ -1,300 +1,92 @@
 ---
 name: linear-performance-tuning
-description: 'Optimize Linear API queries, caching, and batching for performance.
-
-  Use when improving response times, reducing API calls,
-
-  or implementing caching strategies for Linear data.
-
-  Trigger: "linear performance", "optimize linear", "linear caching",
-
-  "linear slow queries", "speed up linear", "linear N+1".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.12.0
-license: MIT
+description: >-
+  Improve Linear GraphQL latency and throughput by reducing field, connection, pagination, and polling cost. Use when queries are slow, complex, or exhausting shared budgets. Trigger with "optimize Linear GraphQL", "reduce Linear query complexity", or "speed up Linear sync".
+argument-hint: "[repository-path] [operation-name]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.13.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linear
-- api
 - performance
-compatibility: Designed for Claude Code
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Linear workspace credential
 ---
-# Linear Performance Tuning
+# Linear Query Performance Tuning
 
 ## Overview
 
-Optimize Linear API usage for minimal latency and efficient resource consumption. The three main levers are: (1) query flattening to avoid N+1 and reduce complexity, (2) caching static data with webhook-driven invalidation, and (3) batching mutations into single GraphQL requests.
-
-**Key numbers:**
-
-- Query complexity budget: 250,000 pts/hour, max 10,000 per query
-- Each property: 0.1 pt, each object: 1 pt, connections: multiply by `first`
-- Best practice: sort by `updatedAt` to get fresh data first
+Tune the measured operation rather than applying guessed delays, and preserve correctness with bounded pagination and reconciliation.
 
 ## Prerequisites
 
-- Working Linear integration with `@linear/sdk`
-- Understanding of GraphQL query structure
-- Optional: Redis for distributed caching
+- The target repository, Linear workspace, environment, and accountable owner
+- Current security, privacy, compliance, capacity, and change-control requirements
+- An approved Linear credential only when a bounded live verification is necessary
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current first-party Linear documentation and package metadata. Use `Write` or `Edit` only for requested implementation with known target files. Never write credentials, customer content, unrestricted environment output, or unredacted GraphQL variables.
+
+## Current Contract
+
+- Each property costs 0.1 complexity point, each object 1 point, and connections multiply child cost by the requested page size or default 50, rounded up.
+- A single query cannot exceed 10,000 complexity points; hourly complexity and request limits are shared by user or app actor.
+- Filtering server-side, requesting explicit page sizes, ordering by updated time, and using webhooks reduce unnecessary work.
+
+## Authentication
+
+Use a personal API key only for owner-controlled scripts, OAuth with PKCE for user-delegated applications, or an enabled client-credentials grant for approved automation. Personal keys use `Authorization: <API_KEY>`; OAuth tokens use `Authorization: Bearer <ACCESS_TOKEN>`. Store credentials server-side in an approved secret manager.
+
+Treat app approval, team access, scope changes, credential creation, rotation, revocation, and production access as owner-approved actions.
 
 ## Instructions
 
-### Step 1: Eliminate N+1 Queries
+1. Measure operation latency, requested fields, connection fan-out, page sizes, complexity header, payload bytes, and cache hit rate.
+2. Replace broad SDK model walks with a purpose-built GraphQL query when only a narrow projection is needed.
+3. Filter at the server, request the smallest explicit page, and paginate until `hasNextPage` is false.
+4. Eliminate N+1 reads and uncoordinated polling; use webhooks plus a bounded reconciliation window.
+5. Load-test below the applicable shared request/complexity budgets and verify tail latency and correctness.
+6. Document before/after evidence and rollback the query change if semantics or visibility differ.
 
-The SDK lazy-loads relations. Accessing `.assignee` on 50 issues makes 50 separate API calls.
+## Approval Boundaries
 
-```typescript
-import { LinearClient } from "@linear/sdk";
+Do not create, reveal, rotate, or revoke credentials; authorize an OAuth app; change scopes or team access; create, mutate, archive, or delete workspace data; configure or re-enable webhooks; import or export data; change roles, SCIM, or audit streaming; transmit diagnostics; change paid entitlements; or perform another production mutation without explicit approval from the accountable owner. Keep diagnosis read-only unless implementation was requested.
 
-const client = new LinearClient({ apiKey: process.env.LINEAR_API_KEY! });
+## Output
 
-// BAD: N+1 — 1 query for issues + 50 for assignees + 50 for states = 101 requests
-const issues = await client.issues({ first: 50 });
-for (const i of issues.nodes) {
-  const assignee = await i.assignee;  // API call!
-  const state = await i.state;        // API call!
-  console.log(`${i.identifier}: ${assignee?.name} [${state?.name}]`);
-}
-
-// GOOD: 1 request — use rawRequest with exact field selection
-const response = await client.client.rawRequest(`
-  query TeamDashboard($teamId: String!) {
-    team(id: $teamId) {
-      issues(first: 50, orderBy: updatedAt) {
-        nodes {
-          id identifier title priority estimate updatedAt
-          assignee { name email }
-          state { name type }
-          labels { nodes { name color } }
-          project { name }
-        }
-        pageInfo { hasNextPage endCursor }
-      }
-    }
-  }
-`, { teamId: "team-uuid" });
-// Complexity: ~50 * (10 fields * 0.1 + 4 objects) = ~275 pts
-```
-
-### Step 2: Cache Static Data
-
-Teams, workflow states, and labels change rarely. Cache them with appropriate TTLs.
-
-```typescript
-interface CacheEntry<T> {
-  data: T;
-  expiresAt: number;
-}
-
-class LinearCache {
-  private store = new Map<string, CacheEntry<any>>();
-
-  get<T>(key: string): T | null {
-    const entry = this.store.get(key);
-    if (!entry || Date.now() > entry.expiresAt) {
-      this.store.delete(key);
-      return null;
-    }
-    return entry.data;
-  }
-
-  set<T>(key: string, data: T, ttlSeconds: number): void {
-    this.store.set(key, { data, expiresAt: Date.now() + ttlSeconds * 1000 });
-  }
-
-  invalidate(key: string): void {
-    this.store.delete(key);
-  }
-}
-
-const cache = new LinearCache();
-
-// Teams: 10 minute TTL (almost never change)
-async function getTeams(client: LinearClient) {
-  const cached = cache.get<any[]>("teams");
-  if (cached) return cached;
-  const teams = await client.teams();
-  cache.set("teams", teams.nodes, 600);
-  return teams.nodes;
-}
-
-// Workflow states: 30 minute TTL (rarely change)
-async function getStates(client: LinearClient, teamId: string) {
-  const key = `states:${teamId}`;
-  const cached = cache.get<any[]>(key);
-  if (cached) return cached;
-  const team = await client.team(teamId);
-  const states = await team.states();
-  cache.set(key, states.nodes, 1800);
-  return states.nodes;
-}
-
-// Labels: 10 minute TTL
-async function getLabels(client: LinearClient) {
-  const cached = cache.get<any[]>("labels");
-  if (cached) return cached;
-  const labels = await client.issueLabels();
-  cache.set("labels", labels.nodes, 600);
-  return labels.nodes;
-}
-```
-
-### Step 3: Webhook-Driven Cache Invalidation
-
-Replace polling with webhooks. Invalidate cache when relevant entities change.
-
-```typescript
-function handleCacheInvalidation(event: { type: string; action: string; data: any }) {
-  switch (event.type) {
-    case "Issue":
-      cache.invalidate(`issue:${event.data.id}`);
-      break;
-    case "WorkflowState":
-      cache.invalidate(`states:${event.data.teamId}`);
-      break;
-    case "IssueLabel":
-      cache.invalidate("labels");
-      break;
-    case "Team":
-      cache.invalidate("teams");
-      break;
-  }
-}
-```
-
-### Step 4: Batch Mutations
-
-Combine multiple mutations into one GraphQL request.
-
-```typescript
-// Instead of 100 separate updateIssue calls:
-async function batchUpdatePriority(
-  client: LinearClient,
-  issueUpdates: Array<{ id: string; priority: number }>
-) {
-  const chunkSize = 20; // Keep complexity manageable
-  for (let i = 0; i < issueUpdates.length; i += chunkSize) {
-    const chunk = issueUpdates.slice(i, i + chunkSize);
-    const mutations = chunk.map((u, j) =>
-      `u${j}: issueUpdate(id: "${u.id}", input: { priority: ${u.priority} }) { success }`
-    ).join("\n");
-
-    await client.client.rawRequest(`mutation { ${mutations} }`);
-  }
-}
-
-// Batch issue creation
-async function batchCreate(
-  client: LinearClient,
-  teamId: string,
-  issues: Array<{ title: string; priority?: number }>
-) {
-  const mutations = issues.map((issue, i) =>
-    `c${i}: issueCreate(input: {
-      teamId: "${teamId}",
-      title: "${issue.title.replace(/"/g, '\\"')}",
-      priority: ${issue.priority ?? 3}
-    }) { success issue { id identifier } }`
-  ).join("\n");
-
-  return client.client.rawRequest(`mutation { ${mutations} }`);
-}
-```
-
-### Step 5: Efficient Pagination
-
-```typescript
-// Stream all issues without loading everything into memory
-async function* paginateIssues(
-  client: LinearClient,
-  teamId: string,
-  pageSize = 50
-) {
-  let cursor: string | undefined;
-  let hasNext = true;
-
-  while (hasNext) {
-    const result = await client.issues({
-      first: pageSize,
-      after: cursor,
-      filter: { team: { id: { eq: teamId } } },
-      orderBy: "updatedAt", // Fresh data first
-    });
-
-    yield result.nodes;
-    hasNext = result.pageInfo.hasNextPage;
-    cursor = result.pageInfo.endCursor;
-  }
-}
-
-// Process in batches
-for await (const batch of paginateIssues(client, "team-uuid")) {
-  console.log(`Processing ${batch.length} issues`);
-}
-
-// Incremental sync: only fetch issues updated since last sync
-const lastSync = "2026-03-20T00:00:00Z";
-const updated = await client.issues({
-  first: 100,
-  filter: { updatedAt: { gte: lastSync } },
-  orderBy: "updatedAt",
-});
-```
-
-### Step 6: Request Coalescing
-
-Deduplicate concurrent identical requests.
-
-```typescript
-const inflight = new Map<string, Promise<any>>();
-
-async function coalesce<T>(key: string, fn: () => Promise<T>): Promise<T> {
-  if (inflight.has(key)) return inflight.get(key)!;
-  const promise = fn().finally(() => inflight.delete(key));
-  inflight.set(key, promise);
-  return promise;
-}
-
-// Multiple components requesting same team data simultaneously = 1 API call
-const team = await coalesce("team:ENG", () =>
-  client.teams({ filter: { key: { eq: "ENG" } } }).then(r => r.nodes[0])
-);
-```
+Return the workspace and team scope, auth mode without credential value, files and contracts inspected, exact operation names, evidence collected, validation result, sensitive fields redacted, remaining risk, accountable owner, approval state, and rollback or next action.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Query complexity too high` | Deep nesting + large `first` | Use `rawRequest()` with flat fields, `first: 50` |
-| HTTP 429 | Burst exceeding rate budget | Add request queue with 100ms spacing |
-| Stale cache | TTL too long | Shorten TTL or use webhook invalidation |
-| Timeout | Query spanning too many records | Paginate with `first: 50` + cursor |
+| Condition | Response |
+|---|---|
+| Complexity above 10,000 | Shrink connections, fields, or page size before sending the query. |
+| Budget exhausted | Coordinate producers and wait for reset metadata; do not spin retries. |
+| Pagination misses data | Use stable cursors and explicit updated-time reconciliation. |
+| Cache leaks visibility | Scope keys by workspace/team/access context or disable the cache. |
 
 ## Examples
 
-### Performance Benchmark
+Use a compact handoff that makes scope, mutation authority, and verification evidence reviewable.
 
-```typescript
-async function benchmark(label: string, fn: () => Promise<any>) {
-  const start = Date.now();
-  await fn();
-  console.log(`${label}: ${Date.now() - start}ms`);
-}
+Input:
 
-await benchmark("Cold teams", () => client.teams());
-await benchmark("Cached teams", () => getTeams(client));
-await benchmark("50 issues (SDK)", () => client.issues({ first: 50 }));
-await benchmark("50 issues (raw)", () => client.client.rawRequest(
-  `query { issues(first: 50) { nodes { id identifier title priority } } }`
-));
+```text
+operation=IssueSync; first=50; nested-connections=3; complexity=measured
+```
+
+Expected handoff:
+
+```text
+query=narrowed; pagination=cursor; polling=replaced; correctness=verified
 ```
 
 ## Resources
 
-- [Linear Best Practices](https://linear.app/developers/graphql)
-- [Rate Limiting](https://linear.app/developers/rate-limiting)
-- [Pagination](https://linear.app/developers/pagination)
-- [Filtering](https://linear.app/developers/filtering)
+- [Skill-specific official documentation](references/official-docs.md)
+- [Linear developer documentation index](https://linear.app/llms.txt)
+- [Linear GraphQL API](https://linear.app/developers/graphql.md)

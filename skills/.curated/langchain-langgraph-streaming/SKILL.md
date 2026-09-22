@@ -19,7 +19,7 @@ description: 'Pick the correct LangGraph 1.0 stream_mode ("messages" vs "updates
 
   '
 allowed-tools: Read, Write, Edit, Bash(python:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

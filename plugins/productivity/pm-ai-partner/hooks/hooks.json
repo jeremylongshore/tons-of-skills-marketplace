@@ -1,4 +1,7 @@
 {
+  "description": "Advisory quality, draft-state, and pre-commit reminders for PM AI Partner workflows.",
+  "version": "1.10.0",
+  "lastUpdated": "2026-09-09",
   "hooks": {
     "PostToolUse": [
       {
@@ -6,13 +9,19 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash plugin/hooks/quality-gate.sh",
-            "timeout": 5
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/quality-gate.sh",
+            "description": "Remind the operator to verify evidence and audience fit for product-catalog deliverables.",
+            "enabled": true,
+            "timeout": 5,
+            "blocking": false
           },
           {
             "type": "command",
-            "command": "bash plugin/hooks/draft-status.sh",
-            "timeout": 5
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/draft-status.sh",
+            "description": "Remind the operator to mark sandbox Markdown documents with an explicit draft state.",
+            "enabled": true,
+            "timeout": 5,
+            "blocking": false
           }
         ]
       }
@@ -20,12 +29,14 @@
     "PreToolUse": [
       {
         "matcher": "Bash",
-        "if": "Bash(git commit*)|Bash(git push*)",
         "hooks": [
           {
             "type": "command",
-            "command": "bash plugin/hooks/pre-commit-reminder.sh",
-            "timeout": 5
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/pre-commit-reminder.sh",
+            "description": "Surface the PM handoff checklist before a git commit; all other Bash calls exit silently.",
+            "enabled": true,
+            "timeout": 5,
+            "blocking": false
           }
         ]
       }

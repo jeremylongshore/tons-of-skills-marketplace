@@ -8,7 +8,7 @@ description: >-
   p99 latency spikes. Trigger with "langchain deploy", "langchain cloud run",
   "langchain vercel python", "langchain langserve", or "langchain docker".
 allowed-tools: Read, Write, Edit, Bash(docker:*), Bash(gcloud:*), Bash(vercel:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

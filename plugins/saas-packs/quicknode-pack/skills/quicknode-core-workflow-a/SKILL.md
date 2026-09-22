@@ -1,104 +1,86 @@
 ---
 name: quicknode-core-workflow-a
-description: "QuickNode core workflow a \u2014 blockchain RPC and Web3 infrastructure\
-  \ integration.\nUse when working with QuickNode for blockchain development.\nTrigger\
-  \ with phrases like \"quicknode core workflow a\", \"quicknode-core-workflow-a\"\
-  , \"blockchain RPC\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.5.0
+description: 'Design a safe EVM transaction-submission path over QuickNode with simulation, fee and nonce policy, signer isolation, broadcast identity, and confirmation rules. Use when moving a read-only integration into transaction writes. Trigger with: "send transactions through QuickNode", "build an EVM write path", "harden QuickNode transaction submission".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[chain-network-and-write-operation]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- quicknode
-- blockchain
-- web3
-- rpc
-- ethereum
-compatibility: Designed for Claude Code
+  - saas
+  - quicknode
+  - ethereum
+  - transactions
+  - reliability
+compatibility: 'EVM method availability, fee fields, and finality rules vary by chain and network'
 ---
-# QuickNode Core Workflow A
+
+# QuickNode EVM Transaction Safety
 
 ## Overview
 
-Build EVM transaction workflows: send ETH, interact with contracts, listen for events, and handle gas estimation.
+Build a write path that treats signing, submission, and confirmation as separate state transitions. QuickNode transports the signed transaction; the application remains responsible for intent, signer custody, nonce coordination, chain identity, and reorganization policy.
 
 ## Prerequisites
 
-- Completed `quicknode-hello-world`
-- A funded wallet (use testnet for development)
+- A verified QuickNode endpoint and expected EVM chain ID
+- A testnet signer held outside source code
+- Contract ABI, write intent, value ceiling, and confirmation policy
 
 ## Instructions
 
-### Step 1: Send ETH Transaction
+### Step 1: Inspect the existing path
 
-```typescript
-import { ethers } from 'ethers';
+Use Read and Grep to find signers, private-key variables, nonce overrides, fee logic, retries, and receipt assumptions. Stop if secrets or signed raw transactions are logged.
 
-const provider = new ethers.JsonRpcProvider(process.env.QUICKNODE_ENDPOINT);
-const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
+### Step 2: Define transaction intent
 
-const tx = await wallet.sendTransaction({
-  to: '0xRecipientAddress',
-  value: ethers.parseEther('0.01'),
-});
-console.log(`TX sent: ${tx.hash}`);
-const receipt = await tx.wait();
-console.log(`Confirmed in block ${receipt!.blockNumber}, gas used: ${receipt!.gasUsed}`);
-```
+Use Write or Edit to express destination, calldata, value, chain ID, and caller policy as validated inputs. Reject unexpected networks and unbounded value before reaching the signer.
 
-### Step 2: Call Contract Write Function
+### Step 3: Simulate and estimate
 
-```typescript
-const contractAddress = '0xYourContract';
-const abi = ['function transfer(address to, uint256 amount) returns (bool)'];
-const contract = new ethers.Contract(contractAddress, abi, wallet);
+Run the equivalent read call and gas estimate at an explicit block tag when supported. Treat a revert as an application or chain-state result, not a transient provider failure.
 
-const tx = await contract.transfer('0xRecipient', ethers.parseUnits('100', 18));
-const receipt = await tx.wait();
-console.log(`Transfer confirmed: ${receipt!.hash}`);
-```
+### Step 4: Coordinate nonce and fees
 
-### Step 3: Listen for Events (WebSocket)
+Assign one nonce owner per signer. Read pending nonce state, define replacement rules, and use chain-appropriate fee fields. Do not blindly overwrite a nonce or double fees on each timeout.
 
-```typescript
-const wsProvider = new ethers.WebSocketProvider(process.env.QUICKNODE_WSS);
-const contract = new ethers.Contract(contractAddress, ['event Transfer(address indexed from, address indexed to, uint256 value)'], wsProvider);
+### Step 5: Sign and broadcast once
 
-contract.on('Transfer', (from, to, value, event) => {
-  console.log(`Transfer: ${from} -> ${to}: ${ethers.formatUnits(value, 18)}`);
-});
-```
+Keep signing in a wallet, HSM, or approved remote signer. Persist the signed transaction hash before submission. On an ambiguous timeout, query by hash before broadcasting again.
 
-### Step 4: Gas Estimation
+### Step 6: Confirm by policy
 
-```typescript
-const gasEstimate = await contract.transfer.estimateGas('0xRecipient', ethers.parseUnits('100', 18));
-const feeData = await provider.getFeeData();
-const totalCost = gasEstimate * (feeData.gasPrice || 0n);
-console.log(`Estimated gas: ${gasEstimate}, cost: ${ethers.formatEther(totalCost)} ETH`);
-```
+Track inclusion, receipt status, block hash, and the required chain-specific confirmation depth. Reconcile dropped or reorganized receipts and expose a durable business-operation idempotency key.
+
+## Tool Discipline
+
+Use Read and Grep for transaction-path discovery and Write/Edit for validation, state-machine, and tests. This skill never asks the agent to hold a private key or execute a funded transaction.
 
 ## Output
 
-- ETH transfer with receipt confirmation
-- Smart contract interaction
-- Real-time event listening via WebSocket
-- Gas estimation before transactions
+- Validated transaction-intent schema
+- Signer, nonce, fee, and broadcast ownership contract
+- Ambiguous-submission reconciliation path
+- Chain-specific confirmation and reorg policy
+
+## Examples
+
+A payment request is recorded before signing. If broadcast times out, the worker searches for the known transaction hash and never manufactures a second payment from the same business request.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `insufficient funds` | Wallet balance too low | Fund wallet or reduce amount |
-| `nonce too low` | Nonce conflict | Get latest nonce: `provider.getTransactionCount(address)` |
-| `gas required exceeds allowance` | Contract revert | Check contract requirements |
+| Failure | Response |
+| --- | --- |
+| Simulation reverts | Decode against ABI and state; do not retry automatically |
+| Nonce too low | Reconcile pending and mined transactions for the signer |
+| Broadcast timeout | Query the persisted hash before deciding whether to resubmit |
+| Receipt disappears | Return to pending and apply the documented reorg policy |
 
 ## Resources
 
-- [QuickNode Ethereum API](https://www.quicknode.com/docs/ethereum)
-- [ethers.js Documentation](https://docs.ethers.org/)
-
-## Next Steps
-
-NFT and token APIs: `quicknode-core-workflow-b`
+- [Transaction-safety evidence and source notes](references/official-docs.md)
+- [Ethereum API overview](https://www.quicknode.com/docs/ethereum/api-overview)
+- [QuickNode Ethereum methods](https://www.quicknode.com/docs/ethereum)

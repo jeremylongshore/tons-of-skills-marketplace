@@ -1,155 +1,92 @@
 ---
 name: clari-deploy-integration
-description: 'Deploy Clari export pipelines to production with Airflow, Cloud Functions,
-  or Lambda.
-
-  Use when scheduling automated exports, deploying to cloud platforms,
-
-  or setting up serverless Clari sync.
-
-  Trigger with phrases like "deploy clari", "clari airflow",
-
-  "clari lambda", "clari cloud function", "clari scheduled export".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gcloud:*), Bash(aws:*)
-version: 1.6.0
+description: >-
+  Deploy a single-writer Clari scheduler with durable job state, atomic publication, observability, and rollback. Use when productionizing recurring Revenue or Copilot extraction. Trigger with: "deploy a Clari pipeline", "schedule Clari exports", "ship Clari integration".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[orchestrator-cadence-and-destination]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- revenue-intelligence
-- forecasting
-- clari
-compatibility: Designed for Claude Code
+  - saas
+  - clari
+  - deployment
+  - scheduler
+  - data-pipeline
+compatibility: 'Requires an approved orchestrator, secret manager, durable state store, destination, capacity plan, and rollback environment.'
 ---
-# Clari Deploy Integration
+
+# Deploy a Clari Scheduled Data Pipeline
 
 ## Overview
 
-Deploy Clari export pipelines to production environments: Airflow DAGs, AWS Lambda, or Google Cloud Functions for scheduled, serverless execution.
+Deploy orchestration rather than embedding long-running polling in ephemeral request handlers. Ensure one logical scheduler owns each workload, persists provider job IDs or cursors before waiting, and separates landing from publication.
 
 ## Prerequisites
 
-- Environment-specific cloud project/account and least-privilege runtime role
-- Secret-manager reference for the Clari token, never a literal deployment value
-- A reviewed export schedule, retry policy, and dead-letter/incident route
-- Separate non-production validation and production approval gates
+- Versioned container or runtime artifact and infrastructure manifest
+- Per-surface credential references and least-privilege identity
+- Durable checkpoint store, encrypted landing zone, and atomic publish mechanism
 
 ## Instructions
 
-### Airflow DAG
+### Step 1: Package the worker
 
-```python
-# dags/clari_export_dag.py
-from airflow import DAG
-from airflow.operators.python import PythonOperator
-from airflow.models import Variable
-from datetime import datetime, timedelta
+Pin dependencies and contract fingerprints, run as a non-root identity, and expose no inbound endpoint unless operationally required.
 
-def export_clari_forecast(**context):
-    from clari_client import ClariClient, ClariConfig
+### Step 2: Inject configuration
 
-    client = ClariClient(ClariConfig(
-        api_key=Variable.get("clari_api_key"),
-    ))
+Supply base URLs, credential references, forecast or workspace scope, cadence, limits, destination, and retention through managed configuration.
 
-    period = context["params"].get("period", "2026_Q1")
-    data = client.export_and_download("company_forecast", period)
+### Step 3: Enforce single-writer scheduling
 
-    entries = data.get("entries", [])
-    context["ti"].xcom_push(key="entry_count", value=len(entries))
-    # Load to warehouse here
+Use a lease or platform concurrency rule so overlapping invocations cannot queue duplicate exports or replay mutations.
 
-dag = DAG(
-    "clari_daily_export",
-    schedule_interval="0 6 * * *",
-    start_date=datetime(2026, 1, 1),
-    catchup=False,
-    default_args={"retries": 2, "retry_delay": timedelta(minutes=5)},
-)
+### Step 4: Persist before polling
 
-export_task = PythonOperator(
-    task_id="export_forecast",
-    python_callable=export_clari_forecast,
-    dag=dag,
-)
-```
+Write the request fingerprint and returned job ID or Copilot cursor durably before any wait, retry, or process exit.
 
-### AWS Lambda
+### Step 5: Publish through gates
 
-```python
-# lambda_handler.py
-import json
-import boto3
-from clari_client import ClariClient, ClariConfig
+Land, validate, reconcile, and atomically advance the destination only after the provider operation and local checks succeed.
 
-def handler(event, context):
-    ssm = boto3.client("ssm")
-    api_key = ssm.get_parameter(
-        Name="/clari/api-key", WithDecryption=True
-    )["Parameter"]["Value"]
+### Step 6: Roll out and roll back
 
-    client = ClariClient(ClariConfig(api_key=api_key))
-    data = client.export_and_download(
-        event.get("forecast_name", "company_forecast"),
-        event.get("period", "2026_Q1"),
-    )
+Canary one bounded workload, compare service levels and data, then promote; retain the prior artifact and checkpoint reader for reversal.
 
-    return {
-        "statusCode": 200,
-        "body": json.dumps({"entries": len(data.get("entries", []))}),
-    }
-```
+## Authentication
 
-### Google Cloud Function
+Mount only the credentials needed by the selected surface and environment. Prevent secret values and provider payloads from entering process arguments, deployment diffs, health endpoints, or logs.
 
-```python
-# main.py
-import functions_framework
-from google.cloud import secretmanager
-from clari_client import ClariClient, ClariConfig
+## Tool Discipline
 
-@functions_framework.http
-def clari_export(request):
-    sm = secretmanager.SecretManagerServiceClient()
-    secret = sm.access_secret_version(name="projects/my-proj/secrets/clari-api-key/versions/latest")
-    api_key = secret.payload.data.decode()
-
-    client = ClariClient(ClariConfig(api_key=api_key))
-    data = client.export_and_download("company_forecast", "2026_Q1")
-
-    return {"entries": len(data.get("entries", []))}
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Lambda timeout | Export takes > 15min | Use Step Functions for long jobs |
-| Secret not found | Wrong parameter path | Verify SSM/Secret Manager path |
-| Airflow task fails | Rate limited | Add retries with backoff |
+Use Read and Grep to inspect configuration, provider contracts, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not issue, rotate, revoke, create, update, cancel, delete, export, ingest, or publish provider data without explicit operator approval.
 
 ## Output
 
-Produce a deployment receipt with runtime version, environment, secret
-reference, scheduled scope, release identifier, health check, and rollback
-decision. Return only aggregate job status to callers; preserve forecast data,
-tokens, and provider download URLs inside the authorized processing boundary.
+- Immutable deployment artifact and configuration manifest
+- Scheduler ownership, lease, checkpoint, and retry policy
+- Canary comparison and production promote or rollback receipt
+
+Return the exact surface, environment, resource or job identifiers, contract fingerprint, evidence, unresolved risks, and final decision without exposing credentials or sensitive customer data.
 
 ## Examples
 
-Deploy a staging worker using a dedicated service role, run a read-only export,
-and verify that the emitted record count and job status match the approved
-manifest. Promote through an environment gate only after health and retry tests
-pass; on timeout or missing secret, roll back the release and investigate
-without widening permissions.
+An orchestrator runs one quarterly forecast export at a time, persists the Clari job ID, resumes polling after a restart, validates the landing file, and atomically advances the warehouse snapshot.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Two schedulers overlap | Acquire a distributed lease before provider calls and stop the losing worker. |
+| Worker dies after queuing | Resume from the persisted job ID instead of submitting another export. |
+| Canary data regresses | Keep the prior deployment and published snapshot, disable the candidate, and preserve evidence. |
 
 ## Resources
 
-- [Airflow Documentation](https://airflow.apache.org/docs/)
-- [AWS Lambda](https://docs.aws.amazon.com/lambda/)
-
-## Next Steps
-
-For webhook setup, see `clari-webhooks-events`.
+- [First-party source notes](references/official-docs.md)
+- [Clari Revenue API reference](https://developer.clari.com/default/documentation/external_spec)
+- [Clari Copilot API reference](https://api-doc.copilot.clari.com/)
+- [Clari service status](https://clari.statuspage.io/)

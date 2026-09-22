@@ -1,118 +1,85 @@
 ---
 name: together-core-workflow-b
-description: 'Together AI core workflow b for inference, fine-tuning, and model deployment.
-
-  Use when working with Together AI''s OpenAI-compatible API.
-
-  Trigger: "together core workflow b".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(pip:*), Grep
-version: 1.7.0
-license: MIT
+description: >-
+  Run Together AI asynchronous batch inference from validated JSONL through upload, job polling, output/error download, and custom-id reconciliation. Use when bulk work can trade latency for lower cost. Trigger with "Together batch inference", "bulk Together requests", or "Together Batch API".
+argument-hint: "[input-jsonl] [endpoint] [output-directory]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ai
-- inference
-- together
-compatibility: Designed for Claude Code
+- together-ai
+- batch-inference
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; job submission requires network access, a project key, and funded Together AI usage
 ---
-# Together AI — Fine-Tuning & Model Management
+# Together AI Batch Inference
 
 ## Overview
 
-Create fine-tuning jobs, monitor training runs, and deploy custom models on Together AI's
-infrastructure. Use this workflow when you need to customize an open-source model on your
-own data, track training metrics, manage model versions, or set up dedicated inference
-endpoints for production. This is the secondary workflow — for basic inference and chat
-completions, see `together-core-workflow-a`.
+This skill converts independent offline requests into a recoverable Batch API job and reconciles every success and failure without relying on output order.
+
+## Prerequisites
+
+- Independent request records suitable for asynchronous processing
+- A currently batch-eligible model and supported endpoint
+- Stable unique `custom_id` values and an approved output location
+- A request/token budget, retention policy, and job owner
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect input generation, schemas, and reconciliation code. Use `WebFetch` for current batch eligibility and SDK response shapes. Use `Write` or `Edit` only for approved JSONL, manifests, or reconciliation logic; avoid placing sensitive prompts in diagnostic output.
+
+## Current Contract
+
+- Each JSONL line contains a unique `custom_id` and a request `body`.
+- Upload with `purpose="batch-api"`; create with `client.batches.create()` and the target endpoint.
+- Results can arrive in arbitrary order. Join by `custom_id`.
+- A `COMPLETED` batch can still have per-request failures in `error_file_id`; inspect both files.
+
+## Authentication
+
+File and batch APIs use the project-scoped `TOGETHER_API_KEY` as a Bearer credential. Keep remote file IDs and batch IDs as operational references, but redact the credential and sensitive request bodies.
 
 ## Instructions
 
-### Step 1: Upload Training Data and Create a Fine-Tune Job
+1. Confirm requests are independent and the chosen model is currently batch eligible.
+2. Validate JSONL syntax, endpoint body schema, unique IDs, request count, and token bounds locally.
+3. Upload the file with batch purpose and record its hash and returned file ID.
+4. Create the job with the uploaded ID and exact API endpoint; persist the returned batch ID.
+5. Poll status with bounded backoff until terminal, without assuming the usual completion time.
+6. Download output and error files, reconcile all IDs, verify counts, and apply retention cleanup.
 
-```typescript
-import Together from 'together-ai';
-const client = new Together({ apiKey: process.env.TOGETHER_API_KEY });
+## Approval Boundaries
 
-const file = await client.files.upload({
-  file: fs.createReadStream('training.jsonl'),
-  purpose: 'fine-tune',
-});
-
-const job = await client.fineTuning.create({
-  training_file: file.id,
-  model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
-  n_epochs: 3,
-  learning_rate: 1e-5,
-  batch_size: 4,
-  suffix: 'support-agent-v2',
-});
-console.log(`Fine-tune job ${job.id} — status: ${job.status}`);
-```
-
-### Step 2: Monitor Training Progress
-
-```typescript
-let status = await client.fineTuning.retrieve(job.id);
-while (!['completed', 'failed', 'cancelled'].includes(status.status)) {
-  console.log(`Status: ${status.status} — ${status.training_steps_completed}/${status.total_steps} steps`);
-  if (status.metrics) console.log(`  Loss: ${status.metrics.training_loss.toFixed(4)}`);
-  await new Promise(r => setTimeout(r, 30_000));
-  status = await client.fineTuning.retrieve(job.id);
-}
-console.log(`Final model: ${status.fine_tuned_model}`);
-```
-
-### Step 3: List and Manage Model Versions
-
-```typescript
-const models = await client.models.list({ owned_by: 'me' });
-models.data.forEach(m =>
-  console.log(`${m.id} — created ${m.created_at}, type: ${m.type}`)
-);
-
-// Delete an old model version
-await client.models.delete('my-org/support-agent-v1');
-console.log('Deleted old model version');
-```
-
-### Step 4: Deploy to a Dedicated Endpoint
-
-```typescript
-const endpoint = await client.endpoints.create({
-  model: status.fine_tuned_model,
-  instance_type: 'gpu-a100-80gb',
-  min_replicas: 1,
-  max_replicas: 3,
-  autoscale_target_utilization: 0.7,
-});
-console.log(`Endpoint ${endpoint.id} — URL: ${endpoint.url}`);
-console.log(`Status: ${endpoint.status}, replicas: ${endpoint.current_replicas}`);
-```
-
-## Error Handling
-
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| `401 Unauthorized` | Invalid or expired API key | Regenerate at api.together.xyz/settings |
-| `400 Invalid JSONL` | Malformed training file | Each line must be valid JSON with `messages` array |
-| `422 Model not fine-tunable` | Model does not support fine-tuning | Check supported models at docs.together.ai |
-| `429 Rate limited` | Too many requests per minute | Implement exponential backoff with 1s base |
-| Training job failed | Data quality or OOM error | Reduce `batch_size` or check file format |
+Do not upload regulated or customer data without approval. Do not resubmit an ambiguous job: first reconcile the prior batch ID to avoid duplicate spend.
 
 ## Output
 
-A successful workflow uploads training data, monitors a fine-tuning job to completion,
-and deploys the custom model to an autoscaling dedicated endpoint for production.
+Return input hash/count, endpoint, model, file and batch references, terminal state, success/error counts, reconciliation result, cost evidence, and cleanup disposition.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| JSONL validation fails | Stop before upload and report offending line numbers. |
+| Model is not batch eligible | Choose another model explicitly or use synchronous inference. |
+| Polling deadline expires | Preserve the batch ID and hand off; do not create a duplicate. |
+| IDs do not reconcile | Quarantine outputs and identify missing, duplicate, and unknown IDs. |
+
+## Examples
+
+The example below shows the minimum redacted evidence expected from a successful invocation of this operator workflow.
+
+```text
+input=10000; uploaded=10000; terminal=COMPLETED; success=9974; error=26; reconciled=10000
+```
 
 ## Resources
 
-- [Together AI Docs](https://docs.together.ai/)
-- [Fine-Tuning Guide](https://docs.together.ai/docs/fine-tuning-quickstart)
-- [API Reference](https://docs.together.ai/reference/chat-completions-1)
-
-## Next Steps
-
-See `together-sdk-patterns` for client initialization and batch inference helpers.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Batch overview](https://docs.together.ai/docs/inference/batch/overview)
+- [Batch tutorial](https://docs.together.ai/docs/inference/batch/tutorial)
+- [Official batch skill](https://github.com/togethercomputer/skills/tree/main/skills/together-batch-inference)

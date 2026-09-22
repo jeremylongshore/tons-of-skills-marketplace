@@ -1,80 +1,91 @@
 ---
 name: linktree-install-auth
-description: 'Install and configure Linktree SDK/API authentication.
-
-  Use when setting up a new Linktree integration.
-
-  Trigger: "install linktree", "setup linktree", "linktree auth".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.7.0
-license: MIT
+description: 'Establish Linktree account, workspace, role, MFA, and recovery readiness without fabricating developer credentials. Use when onboarding an operator or integration owner. Trigger with "set up Linktree access".'
+argument-hint: "[workspace] [operator-role]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linktree
-- social
-compatibility: Designed for Claude Code
+- access
+- mfa
+- workspaces
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; live work requires an authorized Linktree account and approval from the profile, Workspace, data, or partner-integration owner
 ---
-# Linktree Install & Auth
+# Linktree Account and Access Readiness
 
 ## Overview
 
-Set up Linktree API for programmatic link-in-bio management with 25M+ creators.
+Create an evidence-backed access plan for a Linktree profile or Workspace, keeping human Admin access separate from any approved partner integration credentials.
 
 ## Prerequisites
 
-- Linktree account and API access
-- API key/credentials from Linktree dashboard
-- Node.js 18+ or Python 3.8+
+- An authorized Linktree account or a clearly bounded design-only task
+- The profile, Workspace, destination, campaign, data, or integration owner appropriate to the requested change
+- Current account evidence for plan-dependent features and user-supplied approved partner documentation for every private interface
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect repository specifications, sanitized fixtures, policies, tests, and prior receipts.
+
+Use `WebFetch` only for current official Linktree documentation or explicitly approved partner documentation.
+
+Use `Write` or `Edit` only after confirming scope, target, owners, data classification, and approval state. These tools do not confer Linktree access, account authority, or permission to process visitor data. Return exact operator steps or an approval-gated handoff when a live action is not authorized.
+
+## Current Contract
+
+- Linktree documents MFA through SMS in listed regions or an authenticator application.
+- Workspaces are the documented surface for managing Linktrees and team access; available controls can vary by plan.
+- Developer access is program-gated, so a Linktree login is not evidence of an automation credential or API grant.
+
+## Authentication
+
+For Admin work, use only the operator's individually provisioned Linktree account, documented Workspace role, and enabled MFA. Never request passwords, one-time codes, browser cookies, recovery codes, or session material. For partner automation, use only the authentication method, environment, scope, storage, rotation, and revocation process in the user-supplied approved partner contract. Public help pages do not establish a general API credential.
 
 ## Instructions
 
-### Step 1: Install SDK
+1. Identify the profile owner, Workspace, requested duties, approver, recovery contact, and offboarding owner.
+2. Use Read, Glob, and Grep to inspect local access policy, role matrix, and existing integration inventory without opening secrets.
+3. Choose the least-privileged documented Workspace role that satisfies the duties; avoid shared accounts.
+4. Enable and verify an available MFA method, record recovery ownership, and confirm new-login notifications reach the accountable owner.
+5. If partner automation is requested, require the approved partner agreement, credential issuance record, environment, scopes, rotation path, and revocation test before design work.
+6. Use Write or Edit to record the access decision and a redacted joiner/mover/leaver receipt.
+7. Use WebFetch only to verify current official Linktree account, Workspace, MFA, or developer-program guidance.
 
-```bash
-npm install @linktree/sdk
-# or: pip install linktree-sdk
-```
+## Approval Boundaries
 
-### Step 2: Configure Authentication
+Do not invite a user, change ownership, weaken MFA, or issue partner credentials until the named account or Workspace owner approves the role and recovery plan.
 
-```bash
-export LINKTREE_API_KEY="your-api-key-here"
-echo 'LINKTREE_API_KEY=your-api-key' >> .env
-```
+## Output
 
-### Step 3: Verify Connection (TypeScript)
-
-```typescript
-import { LinktreeClient } from '@linktree/sdk';
-const client = new LinktreeClient({ apiKey: process.env.LINKTREE_API_KEY });
-const profile = await client.profiles.get('myprofile');
-console.log(`Profile: ${profile.username} — ${profile.links.length} links`);
-```
-
-### Step 4: Verify Connection (Python)
-
-```python
-import linktree
-client = linktree.Client(api_key=os.environ['LINKTREE_API_KEY'])
-profile = client.profiles.get('myprofile')
-print(f'Profile: {profile.username} — {len(profile.links)} links')
-```
+Return account class, Workspace, role, MFA state, recovery owner, partner-contract state, revocation test, unresolved access gaps, and approval decision.
 
 ## Error Handling
 
-| Error | Code | Solution |
-|-------|------|----------|
-| Invalid API key | 401 | Verify credentials in dashboard |
-| Permission denied | 403 | Check API scopes/permissions |
-| Rate limited | 429 | Implement backoff |
+| Condition | Response |
+|---|---|
+| MFA cannot be enabled | Do not treat password-only access as production-ready; escalate with the account owner. |
+| Requested role is broader than duties | Reduce the role or document an explicit, time-bounded exception. |
+| API access is assumed from an Admin login | Reject the assumption and obtain partner-program evidence. |
+
+## Example
+
+The example is a synthetic, redacted operator receipt, not proof of Linktree access or a live account change.
+
+```text
+workspace=brand-main; role=editor; mfa=authenticator-verified; recovery=security-owner; partner-contract=none; revocation=tested; decision=ready
+```
 
 ## Resources
 
-- [Linktree Documentation](https://linktr.ee/marketplace/developer)
+- [Official documentation map](references/official-docs.md) — dated evidence and limits for this workflow.
+
+Read the map before acting. Recheck current account and partner-specific evidence for plan-dependent or private behavior.
 
 ## Next Steps
 
-After auth, proceed to `linktree-hello-world`.
+Revalidate source dates, owner approval, target profile, and rollback readiness before repeating the workflow in another account, Workspace, campaign, region, plan, or integration.

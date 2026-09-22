@@ -1,177 +1,93 @@
 ---
 name: vastai-ci-integration
-description: 'Configure Vast.ai CI/CD integration with GitHub Actions and automated
-  GPU testing.
-
-  Use when setting up automated testing on GPU instances,
-
-  or integrating Vast.ai provisioning into CI/CD pipelines.
-
-  Trigger with phrases like "vastai CI", "vastai github actions",
-
-  "vastai automated testing", "vastai pipeline".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vastai:*), Grep
-version: 1.11.0
+description: >-
+  Run a credential-safe disposable Vast.ai GPU CI job with a scoped key, immutable image, cost ceiling, terminal-state deadline, and guaranteed destruction. Use when GPU-only acceptance must run in CI. Trigger with: "run GPU tests in CI", "add Vast.ai to GitHub Actions", "make Vast.ai CI clean up".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[ci-provider-test-command-and-gpu-policy]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- ci-cd
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - ci
+  - gpu-testing
+  - cleanup
+compatibility: 'Requires a CI secret store, current Vast.ai CLI, immutable test image, registered SSH key, and a disposable test budget.'
 ---
-# Vast.ai CI Integration
+
+# Disposable Vast.ai GPU CI
 
 ## Overview
 
-Integrate Vast.ai GPU provisioning into CI/CD pipelines. Run GPU-accelerated tests, model validation, and benchmarks as part of your automated workflow using GitHub Actions with the Vast.ai CLI.
+Use ordinary CPU CI for deterministic tests and reserve Vast.ai for a small GPU acceptance slice. The cloud step must publish its resource ID immediately and make cleanup independent of test success.
 
 ## Prerequisites
 
-- GitHub repository with Actions enabled
-- `VASTAI_API_KEY` stored as GitHub Actions secret
-- Docker image for GPU workload published to a registry
+- GPU-only acceptance command and expected machine-readable result
+- Scoped CI key, dedicated SSH public key, immutable image digest, and masked logs
+- Offer constraints, maximum price, readiness deadline, job timeout, and cleanup escalation
 
 ## Instructions
 
-### Step 1: GitHub Actions Workflow
+### Step 1: Gate before provisioning
 
-```yaml
-# .github/workflows/gpu-test.yml
-name: GPU Tests
-on:
-  push:
-    branches: [main]
-  pull_request:
+Run lint, unit, CPU, and image tests first. Skip the GPU job when those fail or when the change does not require hardware acceptance.
 
-jobs:
-  gpu-test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
+### Step 2: Create a scoped run manifest
 
-      - name: Install Vast.ai CLI
-        run: |
-          pip install vastai
-          vastai set api-key ${{ secrets.VASTAI_API_KEY }}
+Record commit, image digest, test command, GPU policy, maximum spend, external artifact target, and unique CI run label.
 
-      - name: Provision GPU Instance
-        id: provision
-        run: |
-          # Search for cheapest reliable GPU
-          OFFER_ID=$(vastai search offers \
-            'num_gpus=1 gpu_ram>=8 reliability>0.95 dph_total<=0.25' \
-            --order dph_total --raw --limit 1 \
-            | python3 -c "import sys,json; print(json.load(sys.stdin)[0]['id'])")
+### Step 3: Provision one resource
 
-          # Create instance
-          INSTANCE_ID=$(vastai create instance $OFFER_ID \
-            --image ghcr.io/${{ github.repository }}/gpu-test:latest \
-            --disk 20 --raw \
-            | python3 -c "import sys,json; print(json.load(sys.stdin)['new_contract'])")
+Search compliant verified offers and create exactly one instance. Write the returned instance ID to CI state before any polling or test step.
 
-          echo "instance_id=$INSTANCE_ID" >> $GITHUB_OUTPUT
+### Step 4: Wait and test
 
-          # Wait for running
-          for i in $(seq 1 30); do
-            STATUS=$(vastai show instance $INSTANCE_ID --raw \
-              | python3 -c "import sys,json; print(json.load(sys.stdin).get('actual_status','loading'))")
-            echo "Status: $STATUS"
-            [ "$STATUS" = "running" ] && break
-            sleep 10
-          done
+Use structured status, bounded polling, terminal failure branches, and a non-interactive GPU test. Keep command output and logs free of secrets.
 
-      - name: Run GPU Tests
-        run: |
-          INSTANCE_ID=${{ steps.provision.outputs.instance_id }}
-          SSH_INFO=$(vastai show instance $INSTANCE_ID --raw \
-            | python3 -c "import sys,json; i=json.load(sys.stdin); print(f'{i[\"ssh_host\"]} {i[\"ssh_port\"]}')")
-          SSH_HOST=$(echo $SSH_INFO | cut -d' ' -f1)
-          SSH_PORT=$(echo $SSH_INFO | cut -d' ' -f2)
+### Step 5: Publish evidence
 
-          ssh -p $SSH_PORT -o StrictHostKeyChecking=no root@$SSH_HOST \
-            "cd /workspace && python -m pytest tests/gpu/ -v --tb=short"
+Copy the test result, relevant redacted logs, image identity, timings, and cost estimate to durable CI artifacts.
 
-      - name: Cleanup
-        if: always()
-        run: |
-          vastai destroy instance ${{ steps.provision.outputs.instance_id }} || true
-```
+### Step 6: Destroy unconditionally
 
-### Step 2: Cost-Controlled CI
+Run destruction in the CI finalizer for success, failure, cancellation, and timeout; confirm removal and alert on cleanup failure.
 
-```python
-# scripts/ci_gpu_test.py — wrapper with budget controls
-import subprocess, json, time, sys, os
+## Authentication
 
-MAX_COST = float(os.environ.get("CI_GPU_BUDGET", "1.00"))  # $1 max per run
-MAX_DURATION = int(os.environ.get("CI_GPU_TIMEOUT", "1800"))  # 30 min
+Inject `VAST_API_KEY` from the CI secret store into the control step only. Use a scoped key without billing-write or team-write and prevent forked or untrusted PRs from receiving it.
 
-def ci_gpu_test(test_command):
-    # Search for cheapest offer
-    offers = json.loads(subprocess.run(
-        ["vastai", "search", "offers",
-         "num_gpus=1 gpu_ram>=8 reliability>0.90 dph_total<=0.20",
-         "--order", "dph_total", "--raw", "--limit", "1"],
-        capture_output=True, text=True, check=True).stdout)
+## Tool Discipline
 
-    if not offers:
-        print("No GPU offers available — skipping GPU tests")
-        return 0
-
-    cost_per_hour = offers[0]["dph_total"]
-    max_hours = MAX_COST / cost_per_hour
-    print(f"GPU: {offers[0]['gpu_name']} at ${cost_per_hour:.3f}/hr "
-          f"(budget allows {max_hours:.1f}hrs)")
-
-    # Provision, run, destroy (with timeout)
-    # ... (use managed_instance pattern from sdk-patterns)
-```
-
-### Step 3: Mock Mode for Non-GPU CI
-
-```python
-# conftest.py — skip GPU tests when no API key available
-import pytest, os
-
-def pytest_collection_modifyitems(config, items):
-    if not os.environ.get("VASTAI_API_KEY"):
-        skip_gpu = pytest.mark.skip(reason="VASTAI_API_KEY not set")
-        for item in items:
-            if "gpu" in item.keywords:
-                item.add_marker(skip_gpu)
-```
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- GitHub Actions workflow with GPU instance lifecycle
-- Cost-controlled CI with budget limits
-- Automatic cleanup on success or failure
-- Mock mode for non-GPU CI runs
+- CI run and immutable workload manifest
+- Provisioning, state, GPU assertion, timing, and cost artifacts
+- Unconditional cleanup result and escalation receipt
 
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| No offers in CI | All cheap GPUs rented | Increase `dph_total` limit or retry later |
-| Instance timeout in CI | Slow Docker pull | Use pre-cached images or smaller base images |
-| SSH fails in CI | GitHub runner IP blocked | Use Vast.ai API for remote execution instead |
-| Cleanup skipped | Job cancelled | Use `if: always()` on cleanup step |
-
-## Resources
-
-- [Vast.ai CLI](https://docs.vast.ai/cli/get-started)
-- [GitHub Actions Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
-
-## Next Steps
-
-For deployment patterns, see `vastai-deploy-integration`.
+Return CI run, commit, image digest, offer/instance IDs, test result, elapsed time, estimate, and confirmed destruction.
 
 ## Examples
 
-**PR validation**: Run GPU tests on every PR with a $0.50 budget cap. Skip GPU tests on draft PRs.
+A protected-branch workflow runs CPU tests first, rents one verified GPU under a fixed ceiling, executes a five-minute CUDA acceptance test, uploads JSON evidence, and destroys the instance in `always()` cleanup.
 
-**Nightly benchmarks**: Schedule a nightly workflow that provisions an A100, runs benchmarks, saves results as artifacts, and posts a cost report.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Secret-bearing event is untrusted | Skip the GPU job; never expose repository secrets to fork code. |
+| Create result lacks an instance ID | Reconcile by run label before retrying to prevent duplicate rentals. |
+| Job is cancelled | The independent cleanup job destroys the persisted instance ID. |
+| Destroy cannot be confirmed | Fail the workflow and alert the billing owner with the resource ID. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [CLI authentication for CI](https://docs.vast.ai/cli/authentication#environment-variable-cicd)
+- [CLI hello world](https://docs.vast.ai/cli/hello-world)
+- [Official CLI skill](https://github.com/vast-ai/vast-cli/blob/master/vastai/SKILL.md)

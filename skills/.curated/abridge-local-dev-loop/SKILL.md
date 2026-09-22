@@ -1,207 +1,86 @@
 ---
 name: abridge-local-dev-loop
-description: 'Configure Abridge local development with FHIR server, synthetic data,
-  and hot reload.
-
-  Use when setting up a development environment for clinical AI integration,
-
-  testing encounter workflows locally, or iterating on EHR integration code.
-
-  Trigger: "abridge local dev", "abridge dev setup", "abridge test locally".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(docker:*), Grep
-version: 1.4.0
-license: MIT
+description: "Build a local synthetic rehearsal for customer-owned Abridge workflow adapters and failure states. Use when developing integration code without access to patient data or a documented public Abridge sandbox. Trigger with \"create an Abridge dev loop\"."
+argument-hint: "[repository] [workflow-boundary]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- healthcare
-- ai
 - abridge
-- development
-compatibility: Designed for Claude Code
+- local-development
+- synthetic-data
+- fixtures
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live work requires an authorized Abridge tenant, approved test data, and health-system change authority
 ---
-# Abridge Local Dev Loop
+# Abridge Synthetic Workflow Rehearsal
 
 ## Overview
 
-Local development workflow for Abridge clinical AI integrations. Uses a local HAPI FHIR server for EHR simulation, synthetic patient data from Synthea, and Abridge sandbox APIs. Never use real PHI in development.
+Model the approved interface control document locally with synthetic fixtures, deterministic state transitions, and zero vendor calls. Keep the harness useful even when tenant-specific schemas change by pinning each fixture to its authority revision.
 
 ## Prerequisites
 
-- Completed `abridge-install-auth` setup
-- Docker installed (for local FHIR server)
-- Node.js 18+ with TypeScript
-- Abridge sandbox credentials
+- The authorized Abridge environment, clinical owner, and health-system policy set
+- Current tenant-specific implementation evidence for every private interface in scope
+- Synthetic data or the organization's formally approved test-record procedure
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect repository configuration, adapters, tests, policies, and existing evidence. Use `WebFetch` only for current official Abridge, HHS, or named EHR documentation. Use `Write` or `Edit` only after confirming scope, environment, owners, patient-data boundary, and approval state. These tools do not confer access to Abridge, an EHR, or a clinical record; return exact operator steps or an approval-gated handoff for live actions.
+
+## Current Contract
+
+- Abridge public support materials describe the human workflow but do not promise a universal public developer sandbox.
+- A local EHR simulator or mock adapter tests customer code only; it does not reproduce Abridge, Epic, or clinical behavior.
+- Synthetic dialogue must avoid copied patient phrases and realistic identifiers.
+
+## Authentication
+
+Use only the health system's provisioned Abridge application access, SSO, administrative role, or tenant-specific partner authentication documented for the approved environment. Do not infer public API credentials, reuse production secrets in tests, or expose tokens and session material. Verify identity owner, least privilege, environment binding, storage, rotation, and revocation before any authenticated action.
 
 ## Instructions
 
-### Step 1: Start Local FHIR Server
+1. Freeze the customer-owned boundary, private contract revision, permitted fields, and expected state transitions.
+2. Use `Read`, `Glob`, and `Grep` to inspect adapters and tests, then identify every external call that must be mocked.
+3. Create obviously synthetic fixtures for consent state, encounter selection, draft metadata, review state, and handoff result.
+4. Add deterministic failures for timeout, duplicate delivery, stale revision, wrong tenant, unreviewed draft, and redaction rejection.
+5. Use `Write` or `Edit` to implement the harness and record its non-equivalence to live systems.
+6. Use `WebFetch` only to keep the modeled user journey aligned with official Abridge guidance.
 
-```bash
-# Run HAPI FHIR R4 server locally
-docker run -d --name hapi-fhir \
-  -p 8080:8080 \
-  -e hapi.fhir.default_encoding=json \
-  hapiproject/hapi:latest
+## Approval Boundaries
 
-# Verify
-curl -s http://localhost:8080/fhir/metadata | jq '.fhirVersion'
-# → "4.0.1"
-
-# Seed synthetic patient
-curl -X POST http://localhost:8080/fhir/Patient \
-  -H "Content-Type: application/fhir+json" \
-  -d '{"resourceType":"Patient","name":[{"given":["Jane"],"family":"Doe"}],"birthDate":"1985-03-15","gender":"female"}'
-```
-
-### Step 2: Create Dev Environment Configuration
-
-```typescript
-// src/config/dev.ts
-interface DevConfig {
-  abridge: { baseUrl: string; clientSecret: string; orgId: string };
-  fhir: { baseUrl: string };
-  fixtures: { transcriptsDir: string };
-}
-
-const devConfig: DevConfig = {
-  abridge: {
-    baseUrl: process.env.ABRIDGE_SANDBOX_URL || 'https://sandbox.api.abridge.com/v1',
-    clientSecret: process.env.ABRIDGE_CLIENT_SECRET!,
-    orgId: process.env.ABRIDGE_ORG_ID!,
-  },
-  fhir: { baseUrl: 'http://localhost:8080/fhir' },
-  fixtures: { transcriptsDir: './fixtures/transcripts' },
-};
-
-export default devConfig;
-```
-
-### Step 3: Build Transcript Fixtures
-
-```typescript
-// fixtures/transcripts/index.ts
-export const CARDIOLOGY_VISIT = {
-  specialty: 'cardiology',
-  segments: [
-    { speaker: 'provider', text: 'I see you are here for a blood pressure follow-up.', timestamp_ms: 0 },
-    { speaker: 'patient', text: 'Yes, I have been taking the lisinopril like you prescribed.', timestamp_ms: 3500 },
-    { speaker: 'provider', text: 'Your BP today is 138 over 85. Better, but still elevated. Let us increase lisinopril from 10 to 20mg.', timestamp_ms: 7200 },
-    { speaker: 'patient', text: 'Okay. Should I be worried?', timestamp_ms: 15000 },
-    { speaker: 'provider', text: 'Not at all. Come back in four weeks.', timestamp_ms: 18000 },
-  ],
-};
-
-export const DERMATOLOGY_VISIT = {
-  specialty: 'dermatology',
-  segments: [
-    { speaker: 'provider', text: 'What brings you in today?', timestamp_ms: 0 },
-    { speaker: 'patient', text: 'I have this mole on my back that has been changing color.', timestamp_ms: 2500 },
-    { speaker: 'provider', text: 'How long has it been changing? Any itching or bleeding?', timestamp_ms: 5000 },
-    { speaker: 'patient', text: 'About three months. It itches sometimes.', timestamp_ms: 8000 },
-    { speaker: 'provider', text: 'The borders look irregular. I want to do a biopsy today.', timestamp_ms: 12000 },
-  ],
-};
-```
-
-### Step 4: Dev Test Runner with Watch Mode
-
-```typescript
-// src/dev/test-encounter.ts
-import devConfig from '../config/dev';
-import { CARDIOLOGY_VISIT } from '../../fixtures/transcripts';
-import axios from 'axios';
-
-async function runDevEncounter() {
-  const api = axios.create({
-    baseURL: devConfig.abridge.baseUrl,
-    headers: {
-      'Authorization': `Bearer ${devConfig.abridge.clientSecret}`,
-      'X-Org-Id': devConfig.abridge.orgId,
-    },
-  });
-
-  const { data: session } = await api.post('/encounters/sessions', {
-    patient_id: 'demo-patient-001',
-    provider_id: 'demo-provider-001',
-    encounter_type: 'outpatient',
-    specialty: CARDIOLOGY_VISIT.specialty,
-    sandbox: true,
-  });
-
-  for (const seg of CARDIOLOGY_VISIT.segments) {
-    await api.post(`/encounters/sessions/${session.session_id}/transcript`, seg);
-  }
-
-  await api.post(`/encounters/sessions/${session.session_id}/finalize`);
-
-  // Poll for note
-  for (let i = 0; i < 30; i++) {
-    const { data } = await api.get(`/encounters/sessions/${session.session_id}/note`);
-    if (data.status === 'completed') {
-      console.log(JSON.stringify(data.note.sections, null, 2));
-      // Push to local FHIR
-      await axios.post(`${devConfig.fhir.baseUrl}/DocumentReference`, {
-        resourceType: 'DocumentReference',
-        status: 'current',
-        content: [{ attachment: { contentType: 'text/plain', data: Buffer.from(JSON.stringify(data.note.sections)).toString('base64') } }],
-      });
-      console.log('Note pushed to local FHIR server');
-      return;
-    }
-    await new Promise(r => setTimeout(r, 2000));
-  }
-}
-
-runDevEncounter().catch(console.error);
-```
-
-### Step 5: Package Scripts
-
-```json
-{
-  "scripts": {
-    "dev:fhir": "docker start hapi-fhir 2>/dev/null || docker run -d --name hapi-fhir -p 8080:8080 hapiproject/hapi:latest",
-    "dev:encounter": "tsx watch src/dev/test-encounter.ts",
-    "dev:all": "npm run dev:fhir && npm run dev:encounter",
-    "test:fixtures": "vitest run --grep 'fixture'"
-  }
-}
-```
+Do not proxy a live tenant, download production payloads, or label a local mock as vendor certification.
 
 ## Output
 
-- Local HAPI FHIR R4 server on port 8080
-- Synthetic patient data seeded
-- Specialty-specific transcript fixtures
-- Watch-mode dev loop with live note generation
-
-## Examples
-
-Start the local HAPI server, seed only the fictional patient fixture, and run
-the cardiology encounter against Abridge's sandbox. The successful local loop
-creates a sandbox session, emits completed note sections, and stores a
-`DocumentReference` in the local FHIR server. Inspect the resource through the
-local endpoint before changing application code. If Docker cannot bind port
-8080 or the FHIR write fails validation, stop the watcher, correct the local
-configuration or resource shape, and rerun with the same synthetic fixture;
-do not connect a developer machine to production EHR data.
+Return modeled boundary, fixture classes, authority revision, state coverage, failure coverage, live-call count, and known simulation gaps. Separate verified facts, tenant-specific evidence, assumptions, and actions still awaiting approval.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Docker port conflict | Port 8080 in use | `docker stop hapi-fhir && docker rm hapi-fhir` |
-| Sandbox rate limit | Too many test sessions | Wait 60s between test runs |
-| FHIR validation error | Malformed resource | Validate against FHIR R4 schema |
+| Condition | Response |
+|---|---|
+| Fixture provenance is unknown | Delete and recreate it from synthetic requirements. |
+| Test performs a network call | Fail closed and replace it with a mock. |
+| Private schema changed | Version the new fixture and retain migration coverage. |
+
+## Example
+
+The example is a redacted operational receipt, not patient data or proof of vendor certification.
+
+```text
+boundary=review-state-adapter; fixtures=7-synthetic; failures=6; network-calls=0; authority=ICD-r12; certification-claim=none
+```
 
 ## Resources
 
-- [HAPI FHIR Server](https://hapifhir.io/)
-- [Synthea Patient Generator](https://synthetichealth.github.io/synthea/)
+- [Official documentation map](references/official-docs.md) — dated public evidence and the limits of what those sources establish.
+
+Read the source map before changing a workflow. Recheck tenant-specific implementation evidence for every interface or capability that public documentation does not define.
 
 ## Next Steps
 
-For reusable SDK patterns, see `abridge-sdk-patterns`.
+Revalidate the evidence date and tenant-specific authority before repeating this workflow in another environment, cohort, care setting, or integration mode.

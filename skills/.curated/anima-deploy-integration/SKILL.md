@@ -6,11 +6,14 @@ description: 'Deploy Anima design-to-code service as a backend API endpoint.
 
   as a serverless function, or creating an internal design tool API.
 
-  Trigger: "deploy anima", "anima service deploy", "anima serverless".
+  Trigger with: "deploy anima", "anima service deploy", "anima serverless".
 
   '
 allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(gcloud:*), Bash(docker:*)
-version: 1.4.0
+version: 2.0.0
+argument-hint: "[deployment-target]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -19,7 +22,7 @@ tags:
 - figma
 - anima
 - deployment
-compatibility: Designed for Claude Code
+compatibility: Requires Node.js 20+, approved Anima API access, current Anima SDK documentation, and authorized Figma or website source access
 ---
 # Anima Deploy Integration
 
@@ -66,9 +69,9 @@ app.post('/api/generate', async (req, res) => {
       nodesId,
       settings: settings || { language: 'typescript', framework: 'react', styling: 'tailwind' },
     });
-    res.json({ files, count: files.length });
+    res.json({ files, count: Object.keys(files).length });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    res.status(502).json({ error: 'Generation failed', requestId: req.id });
   }
 });
 
@@ -108,8 +111,12 @@ vercel --prod
 gcloud run deploy anima-service \
   --source . \
   --set-secrets=ANIMA_TOKEN=anima-token:latest,FIGMA_TOKEN=figma-token:latest \
-  --region us-central1 --allow-unauthenticated
+  --region us-central1 --no-allow-unauthenticated
 ```
+
+## Tool Discipline
+
+Use Read and Grep to inspect the existing integration and generated diff before changing anything. Use Write or Edit only inside the approved generated-code, test, or configuration paths. Use the declared Bash commands only for the explicit install, validation, or diagnostic steps in this workflow; never print tokens, source designs, generated source, or private website captures.
 
 ## Output
 
@@ -141,7 +148,3 @@ opening broad access or embedding credentials in the client.
 
 - [Anima API](https://docs.animaapp.com/docs/anima-api)
 - [Anima SDK Example Server](https://github.com/AnimaApp/anima-sdk)
-
-## Next Steps
-
-For webhook integration, see `anima-webhooks-events`.

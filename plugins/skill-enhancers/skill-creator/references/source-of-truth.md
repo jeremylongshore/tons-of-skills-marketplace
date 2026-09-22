@@ -27,11 +27,14 @@ Canonical reference synthesizing all authoritative sources:
 | `license` | string | License name (SPDX) or bundled file reference |
 | `compatibility` | string | 1-500 chars, environment requirements (OS, runtime, tools needed) |
 | `metadata` | object | Arbitrary key-value map for custom data (category, maintainer, etc.) |
-| `allowed-tools` | string | Space or comma-delimited pre-approved tools (experimental) |
+| `allowed-tools` | string\|array | Space/comma-delimited or YAML-list pre-approved tools |
+
+### Tons of Skills marketplace overlay
+
+| Field | Type | Constraints |
+|-------|------|-------------|
 | `version` | string | Semver (X.Y.Z), top-level field |
 | `author` | string | Author name + email (`Name <email>`), top-level field |
-| `license` | string | SPDX identifier (MIT, Apache-2.0), top-level field |
-| `compatible-with` | string | Comma-separated platform list (claude-code, codex, openclaw, aider, continue, cursor, windsurf) |
 | `tags` | array | Discovery tags as list of strings |
 
 ### Claude Code Extensions (platform-specific, not in open standard)
@@ -39,24 +42,29 @@ Canonical reference synthesizing all authoritative sources:
 | Field | Type | Purpose |
 |-------|------|---------|
 | `argument-hint` | string | Autocomplete hint shown after `/name`, e.g. `[issue-number]` |
+| `arguments` | string\|array | Named positional arguments for `$name` substitution |
+| `when_to_use` | string | Additional activation context appended to description |
 | `disable-model-invocation` | boolean | Prevent auto-loading; require explicit `/name` invocation |
 | `user-invocable` | boolean | `false` = hide from `/` menu (background knowledge only) |
-| `model` | string | Model override: `inherit`, `sonnet`, `haiku`, `opus`, or model ID |
-| `effort` | string | Model reasoning effort override: `low`, `medium`, `high`, `max` (v2.1.80+) |
+| `disallowed-tools` | string\|array | Remove tools while the skill is active |
+| `model` | string | Model override: `inherit`, `sonnet`, `haiku`, `opus`, `fable`, or a supported full model ID |
+| `effort` | string | Model reasoning effort override: `low`, `medium`, `high`, `xhigh`, `max` |
 | `context` | string | `fork` = execute in subagent (isolated context) |
 | `agent` | string | Subagent type when `context: fork`: `Explore`, `Plan`, `general-purpose`, or custom agent name |
-| `skills` | array | List of skill names to preload into subagent context (v2.1.78+) |
+| `background` | boolean | With `context: fork`, `false` waits for the result; default `true` |
 | `hooks` | object | Skill-scoped lifecycle hooks (PreToolUse, PostToolUse, etc.) |
+| `paths` | string\|array | Restrict automatic activation to matching paths |
+| `shell` | string | `bash` or `powershell` for dynamic shell commands |
 
 ### Field Relationships
 
 - `context: fork` + `agent` work together (agent requires fork context)
 - `disable-model-invocation: true` + `user-invocable: false` are contradictory (use one)
 - `allowed-tools` is experimental; scoped Bash like `Bash(git:*)` is best practice but not enforced by runtime
-- `author`, `version`, `license`, `tags`, `compatible-with` are TOP-LEVEL fields (marketplace validator scores them at top-level)
+- `author`, `version`, and `tags` are top-level marketplace tracking fields;
+  `license`, `compatibility`, and `metadata` are portable Agent Skills fields
 - `metadata` is for custom data not covered by the spec (category, maintainer, etc.)
-- `effort` overrides model reasoning effort (v2.1.80+, works independently of other fields)
-- `skills` field in agent definitions preloads named skills into subagent context
+- `effort` overrides model reasoning effort; available levels depend on the model
 
 ---
 

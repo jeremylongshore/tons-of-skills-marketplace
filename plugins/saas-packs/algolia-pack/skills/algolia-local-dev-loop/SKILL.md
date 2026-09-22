@@ -1,222 +1,93 @@
 ---
 name: algolia-local-dev-loop
-description: 'Configure Algolia local development with separate dev index, mocking,
-  and testing.
-
-  Use when setting up a development environment, configuring test workflows,
-
-  or establishing a fast iteration cycle with Algolia.
-
-  Trigger: "algolia dev setup", "algolia local development", "algolia dev environment",
-  "test algolia locally".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pnpm:*), Bash(npx:*), Grep
-version: 1.7.0
-license: MIT
+description: >-
+  Create a fast local development loop for Algolia record transforms and search behavior without contaminating shared indices. Use when iterating on search code, fixtures, or client wrappers. Trigger with "Algolia local development", "mock Algolia", or "test search locally".
+argument-hint: "[repository-path] [test-mode]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- search
 - algolia
+- development
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Algolia Local Dev Loop
+# Algolia Local Development Loop
 
 ## Overview
 
-Set up a fast, reproducible local development workflow for Algolia. Use separate dev indices, mock the client in tests, and iterate without touching production data.
+This skill combines deterministic offline tests with an optional disposable-index integration test. It makes the local loop useful without pretending a mock reproduces provider ranking, task timing, or authorization.
 
 ## Prerequisites
 
-- Completed `algolia-install-auth` setup
-- Node.js 18+ with npm/pnpm
-- Vitest or Jest for testing
+- A named repository, environment, and Algolia application or index in scope
+- The local lockfile and installed client types as implementation authority
+- A safe read-only query or explicitly disposable test target
+- Current first-party documentation for any provider behavior that affects the change
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect local code, configuration names, tests, and dependency versions. Use `WebFetch` only for current official Algolia documentation. Use `Write` or `Edit` only after identifying the target files, constraints, and verification plan.
+
+## Current Contract
+
+- Keep record transformation and query construction in pure functions that can be tested offline.
+- Mock only the application-owned client boundary, not internal SDK implementation details.
+- Use unique disposable index names for live checks and never reuse production credentials.
+- Wait for write tasks and clean up live fixtures explicitly.
+
+## Authentication
+
+Offline tests need no credential. Optional live tests use a custom key restricted to the disposable prefix and are disabled when credentials are absent.
 
 ## Instructions
 
-### Step 1: Environment-Based Index Names
+1. Inspect the current client wrapper, package scripts, fixtures, and test framework.
+2. Extract pure record-shaping and query-building functions with focused unit tests.
+3. Create a typed adapter and mock its application-level responses and failures.
+4. Add an opt-in live test that validates a generated disposable index name.
+5. Write known records, wait, query, assert, and clean up while retaining task receipts.
+6. Document how developers select offline versus live mode and how stale test indices are reported.
 
-```typescript
-// src/algolia/config.ts
-import { algoliasearch } from 'algoliasearch';
+## Approval Boundaries
 
-const ENV = process.env.NODE_ENV || 'development';
-
-// Each environment gets its own index prefix
-export function indexName(base: string): string {
-  if (ENV === 'production') return base;
-  return `${ENV}_${base}`; // e.g., "development_products"
-}
-
-export const client = algoliasearch(
-  process.env.ALGOLIA_APP_ID!,
-  process.env.ALGOLIA_ADMIN_KEY!
-);
-```
-
-### Step 2: Seed Script for Dev Data
-
-```typescript
-// scripts/seed-algolia.ts
-import { client, indexName } from '../src/algolia/config';
-
-const SEED_DATA = [
-  { objectID: 'prod-1', name: 'Widget A', category: 'tools', price: 29.99 },
-  { objectID: 'prod-2', name: 'Widget B', category: 'tools', price: 49.99 },
-  { objectID: 'prod-3', name: 'Gadget C', category: 'electronics', price: 199.99 },
-];
-
-async function seed() {
-  const idx = indexName('products');
-
-  // replaceAllObjects atomically swaps index content
-  const { taskID } = await client.replaceAllObjects({
-    indexName: idx,
-    objects: SEED_DATA,
-  });
-  await client.waitForTask({ indexName: idx, taskID });
-
-  // Configure settings for the dev index
-  await client.setSettings({
-    indexName: idx,
-    indexSettings: {
-      searchableAttributes: ['name', 'category'],
-      attributesForFaceting: ['category', 'filterOnly(price)'],
-      customRanking: ['asc(price)'],
-    },
-  });
-
-  console.log(`Seeded ${SEED_DATA.length} records into ${idx}`);
-}
-
-seed().catch(console.error);
-```
-
-```json
-{
-  "scripts": {
-    "seed:algolia": "npx tsx scripts/seed-algolia.ts",
-    "dev": "tsx watch src/index.ts",
-    "test": "vitest",
-    "test:watch": "vitest --watch"
-  }
-}
-```
-
-### Step 3: Mock Algolia in Unit Tests
-
-```typescript
-// tests/algolia.test.ts
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-
-// Mock the entire algoliasearch module
-vi.mock('algoliasearch', () => ({
-  algoliasearch: vi.fn(() => ({
-    searchSingleIndex: vi.fn().mockResolvedValue({
-      hits: [
-        { objectID: '1', name: 'Widget A', _highlightResult: {} },
-      ],
-      nbHits: 1,
-      page: 0,
-      nbPages: 1,
-    }),
-    saveObjects: vi.fn().mockResolvedValue({ taskID: 123 }),
-    waitForTask: vi.fn().mockResolvedValue({}),
-  })),
-}));
-
-import { algoliasearch } from 'algoliasearch';
-
-describe('Product Search', () => {
-  const client = algoliasearch('test-app-id', 'test-api-key');
-
-  it('returns matching products', async () => {
-    const { hits } = await client.searchSingleIndex({
-      indexName: 'development_products',
-      searchParams: { query: 'widget' },
-    });
-    expect(hits).toHaveLength(1);
-    expect(hits[0].name).toBe('Widget A');
-  });
-});
-```
-
-### Step 4: Integration Test with Real API
-
-```typescript
-// tests/integration/algolia.integration.test.ts
-import { describe, it, expect } from 'vitest';
-import { algoliasearch } from 'algoliasearch';
-
-describe.skipIf(!process.env.ALGOLIA_APP_ID)('Algolia Integration', () => {
-  const client = algoliasearch(
-    process.env.ALGOLIA_APP_ID!,
-    process.env.ALGOLIA_ADMIN_KEY!
-  );
-  const testIndex = `test_${Date.now()}_products`;
-
-  it('indexes and searches records', async () => {
-    // Index
-    const { taskID } = await client.saveObjects({
-      indexName: testIndex,
-      objects: [{ objectID: '1', name: 'Test Product' }],
-    });
-    await client.waitForTask({ indexName: testIndex, taskID });
-
-    // Search
-    const { hits } = await client.searchSingleIndex({
-      indexName: testIndex,
-      searchParams: { query: 'test' },
-    });
-    expect(hits.length).toBeGreaterThan(0);
-
-    // Cleanup
-    await client.deleteIndex({ indexName: testIndex });
-  });
-});
-```
+Do not require live credentials for the default test command, share a personal Admin key, or clean up any index outside the validated disposable prefix.
 
 ## Output
 
-The local loop provides an isolated development index, repeatable seed data, and a fast verification path for search and indexing changes. Production data and credentials remain outside the local development workflow.
+Return the local scripts, test boundary, fixtures, live-test guard, cleanup behavior, and evidence for both credential-free and optional integration modes.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Index does not exist` | Dev index not seeded | Run `npm run seed:algolia` |
-| Test pollution | Shared index between tests | Use unique timestamped index names |
-| Stale search results | Indexing not waited | Always `await client.waitForTask()` after writes |
-| Mock not applied | Wrong import order | Ensure `vi.mock()` is before imports |
+| Condition | Response |
+|---|---|
+| Credential absent | Run offline tests and report the live test as skipped. |
+| Mock diverges from adapter | Update the adapter contract and its typed fixture together. |
+| Disposable prefix invalid | Fail before any network write. |
+| Cleanup fails | Report the exact retained index for manual review. |
 
 ## Examples
 
-### Clean Dev Index on Start
+Use this compact input and expected handoff to calibrate scope and evidence quality.
 
-```typescript
-// scripts/reset-dev-algolia.ts
-import { client, indexName } from '../src/algolia/config';
+Input:
 
-async function reset() {
-  const idx = indexName('products');
-  try {
-    await client.deleteIndex({ indexName: idx });
-    console.log(`Deleted ${idx}`);
-  } catch (e) {
-    // Index may not exist yet — that's fine
-  }
-}
+```text
+mode=offline-default; integration=ALGOLIA_LIVE_TEST=1; prefix=dev-$USER-$RUN
+```
 
-reset().catch(console.error);
+Expected handoff:
+
+```text
+unit=pass; live=skipped; production-index-access=none
 ```
 
 ## Resources
 
-- [Algolia JavaScript v5 Client](https://www.algolia.com/doc/libraries/javascript/v5/methods/search/)
-- [Vitest Documentation](https://vitest.dev/)
-- [tsx (TypeScript execute)](https://github.com/privatenumber/tsx)
-
-## Next Steps
-
-See `algolia-sdk-patterns` for production-ready code patterns.
+- [Skill-specific official documentation](references/official-docs.md)
+- [JavaScript API client](https://www.algolia.com/doc/libraries/javascript)
+- [JavaScript v5 upgrade](https://www.algolia.com/doc/libraries/sdk/upgrade/javascript)
+- [API keys](https://www.algolia.com/doc/guides/security/api-keys)

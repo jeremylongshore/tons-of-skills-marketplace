@@ -12,7 +12,7 @@ description: "Generate production-grade engineering design diagrams (architectur
   /design:trace\", \"/design:watch\", \"draw the\narchitecture\", \"diagram this PR\"\
   , \"engineer design diagram\", or \"architecture diagram\".\n"
 allowed-tools: Read,Write,Glob,Grep,Bash(git:*),Bash(ls:*),Bash(cat:*),Bash(jq:*),Bash(docker:*),Bash(kubectl:*),Bash(terraform:*),Bash(python3:*),Bash(xdg-open:*),Bash(open:*),Bash(wslview:*),AskUserQuestion
-version: 0.5.0
+version: 0.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

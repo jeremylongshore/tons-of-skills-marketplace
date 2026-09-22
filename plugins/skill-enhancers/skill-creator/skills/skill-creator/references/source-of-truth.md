@@ -1,6 +1,6 @@
 # Claude Agent Skills: Source of Truth Specification
 
-Canonical reference from [Anthropic docs](https://code.claude.com/docs/en/skills). Last synced: 2026-03-21.
+Canonical reference from [Anthropic docs](https://code.claude.com/docs/en/skills). Last synced: 2026-09-09.
 
 Additional references:
 
@@ -12,32 +12,39 @@ Additional references:
 
 ## 1. Frontmatter Fields
 
-### Anthropic Standard (11 fields)
+### Claude Code and Agent Skills fields
 
 | Field | Type | Required | Constraints |
 |-------|------|----------|-------------|
 | `name` | string | Yes | 1-64 chars, kebab-case, must match directory name, no XML tags (`<`, `>`) |
 | `description` | string | Yes | 1-1024 chars, what + when to use, third person, no XML tags |
-| `allowed-tools` | string | No | Comma-separated tool names |
-| `model` | string | No | `sonnet`, `haiku`, `opus`, `inherit`, or full model ID |
-| `effort` | string | No | `low`, `medium`, `high`, `max` |
+| `when_to_use` | string | No | Additional activation context; combined with description must remain within 1536 chars |
+| `allowed-tools` | string\|array | No | Tool allowlist |
+| `disallowed-tools` | string\|array | No | Tool denylist while the skill is active |
+| `model` | string | No | `sonnet`, `haiku`, `opus`, `fable`, `inherit`, or a supported full model ID |
+| `effort` | string | No | `low`, `medium`, `high`, `xhigh`, `max` |
 | `argument-hint` | string | No | Autocomplete hint for `/skill-name` |
+| `arguments` | string\|array | No | Accepted arguments |
 | `context` | string | No | `fork` only |
 | `agent` | string | No | Subagent type (requires `context: fork`) |
+| `background` | boolean | No | With `context: fork`, `false` waits for the result; default `true` |
 | `user-invocable` | boolean | No | Default: `true` |
 | `disable-model-invocation` | boolean | No | Default: `false` |
-| `hooks` | object | No | Lifecycle hooks (PreToolUse, PostToolUse, Stop, SubagentStop, SessionStart, SessionEnd) |
+| `hooks` | object | No | Skill-scoped lifecycle hooks |
+| `paths` | string\|array | No | Path activation filters |
+| `shell` | string | No | `bash` or `powershell` |
+| `license` | string | No | Agent Skills license name or bundled-file reference |
+| `compatibility` | string | No | Environment requirements, maximum 500 chars |
+| `metadata` | object | No | Arbitrary Agent Skills metadata |
 
-### Enterprise Additions (5 fields)
+### Marketplace tracking fields
 
-These are not part of the Anthropic core spec but are used by the Tons of Skills marketplace and enterprise validators.
+These top-level fields are required by the Tons of Skills marketplace overlay.
 
 | Field | Type | Constraints |
 |-------|------|-------------|
 | `version` | string | Semver (`X.Y.Z`) |
 | `author` | string | `Name <email>` |
-| `license` | string | SPDX identifier (MIT, Apache-2.0, etc.) |
-| `compatible-with` | string | Comma-separated platforms (`claude-code`, `codex`, `openclaw`, `aider`, `continue`, `cursor`, `windsurf`) |
 | `tags` | array | Discovery tags as list of strings |
 
 ### Field Relationships
@@ -45,21 +52,20 @@ These are not part of the Anthropic core spec but are used by the Tons of Skills
 - `context: fork` + `agent` work together (agent requires fork context)
 - `disable-model-invocation: true` + `user-invocable: false` are contradictory (use one)
 - `allowed-tools` scoped Bash like `Bash(git:*)` is best practice but not enforced by runtime
-- `author`, `version`, `license`, `tags`, `compatible-with` are TOP-LEVEL fields (marketplace validator scores them at top-level)
+- `author`, `version`, and `tags` are top-level marketplace tracking fields;
+  `license`, `compatibility`, and `metadata` are Agent Skills fields
 - `effort` overrides model reasoning effort (works independently of other fields)
-- `max` effort is only available with Opus 4.6
+- available effort levels depend on the selected model
 
-### Fields NOT in Anthropic Spec (ERROR if found)
+### Invalid or deprecated fields
 
 | Field | Origin | Migration |
 |-------|--------|-----------|
 | `capabilities` | Invented | Remove — describe capabilities in `description` |
 | `expertise_level` | Invented | Remove — no replacement |
 | `activation_priority` | Invented | Remove — no replacement |
-| `compatibility` | AgentSkills.io | Remove — note requirements in SKILL.md body or description |
-| `metadata` | AgentSkills.io | Remove — use top-level fields instead |
-| `when_to_use` | Deprecated | Move content to `description` |
 | `mode` | Deprecated | Use `disable-model-invocation` instead |
+| `compatible-with` | Deprecated IS extension | Replace with Agent Skills `compatibility` prose |
 
 ### Recommended Field Order
 
@@ -74,10 +80,12 @@ description: |
 # Tools
 allowed-tools: "Read,Write,Glob,Grep"
 
-# Enterprise identity (top-level)
+# Marketplace tracking (top-level)
 version: 1.0.0
 author: Name <email>
 license: MIT
+tags: [devops, automation]
+compatibility: Requires Python 3.11+ and Git.
 
 # Anthropic extensions (as needed)
 model: inherit
@@ -88,15 +96,18 @@ agent: general-purpose
 disable-model-invocation: false
 user-invocable: true
 
-# Enterprise discovery (optional)
-compatible-with: claude-code, codex, openclaw
-tags: [devops, automation]
+# Optional Agent Skills metadata
+metadata:
+  category: development
 ---
 ```
 
 ### Valid Tools for `allowed-tools`
 
-`Read`, `Write`, `Edit`, `Bash`, `Glob`, `Grep`, `WebFetch`, `WebSearch`, `Task`, `TodoWrite`, `NotebookEdit`, `AskUserQuestion`, `Skill`
+Common built-ins include `Read`, `Write`, `Edit`, `Bash`, `Glob`, `Grep`,
+`WebFetch`, `WebSearch`, `Agent`, `TodoWrite`, `NotebookEdit`,
+`AskUserQuestion`, and `Skill`. The validator's `VALID_TOOLS` registry is the
+current complete set.
 
 MCP tools use `ServerName:tool_name` format.
 
@@ -111,7 +122,7 @@ Bash(mkdir:*)     # Directory creation
 
 ---
 
-## 2. Agent Frontmatter (14 Anthropic fields)
+## 2. Agent Frontmatter (17 Anthropic fields)
 
 Agents live in `agents/*.md` and use a different frontmatter schema than skills.
 
@@ -120,25 +131,29 @@ Agents live in `agents/*.md` and use a different frontmatter schema than skills.
 | Field | Type | Required | Constraints |
 |-------|------|----------|-------------|
 | `name` | string | Yes | Agent identifier |
-| `description` | string | Yes | 20-200 chars, agent's specialty |
-| `model` | string | No | `sonnet`, `haiku`, `opus`, `inherit`, or full model ID |
-| `effort` | string | No | `low`, `medium`, `high`, `max` |
+| `description` | string | Yes | 20-1536 chars under the IS contract; keep the specialty concise |
+| `model` | string | No | `sonnet`, `haiku`, `opus`, `fable`, `inherit`, or full Claude model ID |
+| `effort` | string | No | `low`, `medium`, `high`, `xhigh`, `max` |
 | `maxTurns` | integer | No | Max agentic loop iterations |
-| `tools` | string | No | Comma-separated allowed tools |
-| `disallowedTools` | string | No | Comma-separated denied tools (denylist) |
+| `tools` | string\|array | No | Allowed tools; the IS template prefers an array |
+| `disallowedTools` | array | No | Denied tools; the IS overlay requires an array |
 | `skills` | array | No | Skill names to preload into subagent context |
-| `mcpServers` | object\|array | No | MCP server configuration |
+| `mcpServers` | object\|array | No | MCP server references or inline definitions; array is the current upstream form |
 | `hooks` | object | No | Lifecycle hooks |
 | `memory` | string | No | `user`, `project`, or `local` |
 | `background` | boolean | No | Run in background |
 | `isolation` | string | No | `worktree` only |
-| `permissionMode` | string | No | `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan` |
+| `permissionMode` | string | No | `default`, `manual`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, `plan` |
+| `color` | string | No | `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan` |
+| `initialPrompt` | string | No | First turn when launched as the main agent |
+| `experimental` | object | No | Current key: `cacheTtl` (`5m` or `1h`) |
 
 ### Key Differences from Skills
 
 - Agents use camelCase `disallowedTools` (denylist); skills use `allowed-tools` (allowlist) plus optional kebab-case `disallowed-tools` (schema 3.7.0+) — the validator rejects either casing mismatch
 - `effort` and `maxTurns` control autonomous iteration behavior (agent-only semantics)
-- Agents support `mcpServers`, `memory`, `background`, `isolation`, and `permissionMode`
+- Agents support `mcpServers`, `memory`, `background`, `isolation`, `permissionMode`,
+  `initialPrompt`, and `experimental`
 
 ### Plugin Agent Restrictions
 

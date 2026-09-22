@@ -54,7 +54,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 22
 
       # fetch-npm-stats imports the repository-pinned Prettier dependency to
       # keep its JSON and README outputs consistent. The generator fails closed

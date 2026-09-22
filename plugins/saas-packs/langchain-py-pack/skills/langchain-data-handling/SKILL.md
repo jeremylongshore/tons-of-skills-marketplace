@@ -8,7 +8,7 @@ description: "Load and chunk documents for LangChain 1.0 RAG pipelines correctly
   , \"text splitter\", \"chunking strategy\", \"pdf loader\",\n\"markdown splitter\"\
   , \"webbaseloader\".\n"
 allowed-tools: Read, Write, Edit, Bash(python:*), Bash(pip:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

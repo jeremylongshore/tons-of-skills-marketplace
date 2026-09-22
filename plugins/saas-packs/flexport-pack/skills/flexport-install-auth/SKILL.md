@@ -1,166 +1,103 @@
 ---
 name: flexport-install-auth
-description: 'Install and configure Flexport API authentication with API keys or OAuth
-  credentials.
-
-  Use when setting up a new Flexport logistics integration, configuring bearer tokens,
-
-  or initializing the Flexport REST API client for shipment and supply chain operations.
-
-  Trigger: "install flexport", "setup flexport", "flexport auth", "flexport API key".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.6.0
+description: >-
+  Configure Flexport OAuth 2.0 client credentials or a deliberately accepted API key. Use when selecting endpoint scopes, creating credentials, caching access tokens, or rotating a compromised integration. Trigger with: "set up Flexport auth", "scope Flexport credentials", "cache Flexport token".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[workload-and-required-endpoints]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - authentication
+  - oauth
+compatibility: 'Requires a Flexport administrator, an approved secret store, and network access to api.flexport.com.'
 ---
-# Flexport Install & Auth
+
+# Flexport Credential and Token Boundary
 
 ## Overview
 
-Configure Flexport API authentication for logistics and supply chain integration. Flexport offers two auth methods: **API Keys** (simple bearer tokens that never expire) and **API Credentials** (client ID/secret pairs that issue JWTs valid for 24 hours). The v2 REST API base URL is `https://api.flexport.com` and speaks JSON.
-
-## Output
-
-Record only the authentication method, approved scope, secret-manager reference, validation time, owner, and revocation/rotation procedure. Do not include an API key, token, client secret, or any logistics response data.
+Prefer a distinct endpoint-scoped OAuth client for each workload. Treat broad API keys as an explicit exception, and budget token acquisition because client-credential tokens last 24 hours while token requests are limited to 10 per day.
 
 ## Prerequisites
 
-- Flexport account at [flexport.com](https://www.flexport.com)
-- API key or credentials from Flexport Portal > Settings > Developer > API Credentials
-- Node.js 18+ or Python 3.9+
+- Named workload owner and exact endpoint inventory
+- Flexport administrator access to API Credentials
+- Secret store, redacted audit sink, and rotation procedure
 
 ## Instructions
 
-### Step 1: Obtain API Credentials
+### Step 1: Choose the credential type
 
-Navigate to Flexport Portal > Settings > Developer. Two options:
+Use OAuth client credentials for new integrations so endpoint resources can be selected. Accept an API key only after documenting why its broad access is necessary.
 
-| Auth Method | Format | Lifetime | Use Case |
-|-------------|--------|----------|----------|
-| API Key | Bearer token string | Permanent | Simple integrations, scripts |
-| API Credentials | Client ID + Secret | JWT, 24h | Production apps, rotating tokens |
+### Step 2: Create one credential per system
 
-### Step 2: Configure Environment Variables
+Separate production, non-production, and independent workloads. Flexport does not let operators add endpoints to an existing credential, so create a replacement when scope must expand.
 
-```bash
-# .env (NEVER commit — add to .gitignore)
-FLEXPORT_API_KEY=your_api_key_here
+### Step 3: Request a token once
 
-# OR for OAuth credentials flow:
-FLEXPORT_CLIENT_ID=your_client_id
-FLEXPORT_CLIENT_SECRET=your_client_secret
-FLEXPORT_API_URL=https://api.flexport.com
+POST to `/oauth/token` with `client_id`, `client_secret`, audience `https://api.flexport.com`, and grant type `client_credentials`. Never expose the secret in a browser, shell history, or receipt.
+
+### Step 4: Cache by credential
+
+Store the JWT and expiry in a concurrency-safe cache. Refresh before expiry with jitter and a single-flight lock; do not spend the 10-request daily token budget per business request.
+
+### Step 5: Prove least privilege
+
+Run one approved read against every required endpoint and one negative test against an endpoint outside the credential resource set.
+
+### Step 6: Rotate without ambiguity
+
+Create and validate a replacement, switch one workload, observe it, then revoke the old credential. Record only credential aliases, timestamps, and outcome.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
+
+## Output
+
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
+
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
 ```
-
-### Step 3: Authenticate with API Key
-
-```typescript
-// src/flexport/client.ts
-const FLEXPORT_BASE = 'https://api.flexport.com';
-
-async function flexportRequest(path: string, options: RequestInit = {}) {
-  const res = await fetch(`${FLEXPORT_BASE}${path}`, {
-    ...options,
-    headers: {
-      'Authorization': `Bearer ${process.env.FLEXPORT_API_KEY}`,
-      'Content-Type': 'application/json',
-      'Flexport-Version': '2',
-      ...options.headers,
-    },
-  });
-  if (!res.ok) throw new Error(`Flexport ${res.status}: ${await res.text()}`);
-  return res.json();
-}
-```
-
-### Step 4: OAuth Credentials Flow (Production)
-
-```typescript
-let tokenCache: { token: string; expiresAt: number } | null = null;
-
-async function getAccessToken(): Promise<string> {
-  if (tokenCache && Date.now() < tokenCache.expiresAt) return tokenCache.token;
-
-  const res = await fetch('https://api.flexport.com/oauth/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      client_id: process.env.FLEXPORT_CLIENT_ID,
-      client_secret: process.env.FLEXPORT_CLIENT_SECRET,
-      grant_type: 'client_credentials',
-    }),
-  });
-  const { access_token, expires_in } = await res.json();
-  tokenCache = { token: access_token, expiresAt: Date.now() + (expires_in - 60) * 1000 };
-  return access_token;
-}
-```
-
-### Step 5: Verify Connection
-
-```typescript
-async function verifyFlexport() {
-  const data = await flexportRequest('/shipments?per=1&page=1');
-  console.log(`Connected. Shipments found: ${data.data?.records?.length ?? 0}`);
-}
-await verifyFlexport();
-```
-
-## Error Handling
-
-| Error | Code | Cause | Solution |
-|-------|------|-------|----------|
-| `Unauthorized` | 401 | Invalid or expired key | Regenerate in Portal > Developer |
-| `Forbidden` | 403 | Insufficient scope | Check key permissions |
-| `Token expired` | 401 | JWT past 24h | Re-fetch via client credentials |
-| `Rate limit exceeded` | 429 | Too many requests | Exponential backoff |
 
 ## Examples
 
-### Python Client
+A shipment reader gets its own OAuth client for shipment endpoints. All workers share one encrypted cached token, while a separate invoice importer receives a different client rather than reusing the shipment credential.
 
-```python
-import os, requests
+## Error Handling
 
-class FlexportClient:
-    BASE = 'https://api.flexport.com'
-
-    def __init__(self):
-        self.session = requests.Session()
-        self.session.headers.update({
-            'Authorization': f'Bearer {os.environ["FLEXPORT_API_KEY"]}',
-            'Content-Type': 'application/json',
-            'Flexport-Version': '2',
-        })
-
-    def get(self, path, params=None):
-        r = self.session.get(f'{self.BASE}{path}', params=params)
-        r.raise_for_status()
-        return r.json()
-```
-
-### cURL Verification
-
-```bash
-curl -s -H "Authorization: Bearer $FLEXPORT_API_KEY" \
-     -H "Flexport-Version: 2" \
-     https://api.flexport.com/shipments?per=1 | jq '.data.records | length'
-```
+| Failure | Response |
+| --- | --- |
+| Token request rejected | Check audience, grant type, client identity, and secret source; do not loop. |
+| Daily token budget threatened | Stop per-request acquisition and repair shared caching/single-flight behavior. |
+| Required endpoint missing | Create a new scoped credential; do not silently substitute a broad key. |
+| Secret disclosed | Revoke or rotate immediately and scrub derived logs or artifacts. |
 
 ## Resources
 
-- [Flexport Developer Portal](https://developers.flexport.com/)
-- [API Credentials Tutorial](https://developers.flexport.com/tutorials/using-api-credentials/)
-- [Flexport API Reference](https://apidocs.flexport.com/)
-- [Logistics API Docs](https://docs.logistics-api.flexport.com/)
-
-## Next Steps
-
-After successful auth, proceed to `flexport-hello-world` for your first shipment query.
+- [First-party source notes](references/official-docs.md)
+- [Using API credentials](https://developers.flexport.com/tutorials/using-api-credentials/)
+- [API credential FAQ](https://developers.flexport.com/faq/api-credentials/)
+- [Flexport API reference](https://apidocs.flexport.com/v3/)

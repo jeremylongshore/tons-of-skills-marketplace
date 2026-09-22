@@ -4,7 +4,10 @@
  * Validates commands and agents markdown files for proper frontmatter formatting.
  */
 
-/** @deprecated Use scripts/validate-skills-schema.py (universal validator v5.0) instead. This file is kept for ccpi backward compatibility only. */
+/**
+ * Compatibility validator used by `ccpi validate`. The repository's universal
+ * Python validator remains authoritative for marketplace grading.
+ */
 
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
@@ -29,15 +32,43 @@ const VALID_CATEGORIES = [
 ];
 
 const VALID_DIFFICULTIES = ['beginner', 'intermediate', 'advanced', 'expert'];
-const VALID_EXPERTISE = ['intermediate', 'advanced', 'expert'];
-const VALID_PRIORITIES = ['low', 'medium', 'high', 'critical'];
-const VALID_EFFORT_LEVELS = ['low', 'medium', 'high'];
+const VALID_EFFORT_LEVELS = ['low', 'medium', 'high', 'xhigh', 'max'];
+const VALID_MODELS = ['sonnet', 'opus', 'haiku', 'fable', 'inherit'];
+const VALID_PERMISSION_MODES = [
+  'default',
+  'manual',
+  'acceptEdits',
+  'auto',
+  'dontAsk',
+  'bypassPermissions',
+  'plan',
+];
+const VALID_MEMORY_SCOPES = ['user', 'project', 'local'];
+const VALID_COLORS = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan'];
+const INVALID_AGENT_FIELDS = ['capabilities', 'expertise_level', 'activation_priority'];
 
 /**
  * Type-safe check that an unknown value is a string contained in a string array.
  */
 function isStringIn(value: unknown, allowed: string[]): boolean {
   return typeof value === 'string' && allowed.includes(value);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function hasPathSegment(filePath: string, segment: string): boolean {
+  return filePath.replaceAll('\\', '/').split('/').includes(segment);
+}
+
+function validateStringArray(value: unknown, field: string): string[] {
+  if (!Array.isArray(value)) {
+    return [`Field '${field}' must be an array`];
+  }
+  return value.flatMap((item, index) =>
+    typeof item === 'string' ? [] : [`Field '${field}[${index}]' must be a string`],
+  );
 }
 
 export interface FrontmatterValidationResult {
@@ -150,7 +181,7 @@ function validateCommandFrontmatter(
  */
 function validateAgentFrontmatter(
   frontmatter: Record<string, unknown>,
-  filePath: string,
+  _filePath: string,
 ): string[] {
   const errors: string[] = [];
 
@@ -165,7 +196,7 @@ function validateAgentFrontmatter(
     }
   }
 
-  // 20-200 chars per Intent Solutions standard
+  // 20-1536 chars per the current Intent Solutions disclosure-marker cap.
   if (!('description' in frontmatter)) {
     errors.push('Missing required field: description');
   } else if (typeof frontmatter.description !== 'string') {
@@ -174,49 +205,45 @@ function validateAgentFrontmatter(
     if (frontmatter.description.length < 20) {
       errors.push("Field 'description' must be at least 20 characters");
     }
-    if (frontmatter.description.length > 200) {
-      errors.push("Field 'description' must be 200 characters or less");
+    if (frontmatter.description.length > 1536) {
+      errors.push("Field 'description' must be 1536 characters or less");
     }
   }
 
-  if (!('capabilities' in frontmatter)) {
-    errors.push('Missing required field: capabilities');
-  } else if (!Array.isArray(frontmatter.capabilities)) {
-    errors.push("Field 'capabilities' must be an array");
-  } else {
-    if (frontmatter.capabilities.length < 2) {
-      errors.push("Field 'capabilities' must have at least 2 items");
-    }
-    if (frontmatter.capabilities.length > 10) {
-      errors.push("Field 'capabilities' must have 10 or fewer items");
-    }
-    for (let i = 0; i < frontmatter.capabilities.length; i++) {
-      if (typeof frontmatter.capabilities[i] !== 'string') {
-        errors.push(`Field 'capabilities[${i}]' must be a string`);
-      }
+  for (const field of INVALID_AGENT_FIELDS) {
+    if (field in frontmatter) {
+      errors.push(`Invalid agent field: ${field}`);
     }
   }
 
-  if ('expertise_level' in frontmatter) {
-    if (!isStringIn(frontmatter.expertise_level, VALID_EXPERTISE)) {
-      errors.push(`Invalid expertise_level. Must be one of: ${VALID_EXPERTISE.join(', ')}`);
+  if ('tools' in frontmatter && typeof frontmatter.tools !== 'string') {
+    errors.push(...validateStringArray(frontmatter.tools, 'tools'));
+  }
+
+  if ('disallowedTools' in frontmatter) {
+    errors.push(...validateStringArray(frontmatter.disallowedTools, 'disallowedTools'));
+  }
+
+  if ('skills' in frontmatter) {
+    errors.push(...validateStringArray(frontmatter.skills, 'skills'));
+  }
+
+  if ('model' in frontmatter) {
+    const model = frontmatter.model;
+    const isFullModelId = typeof model === 'string' && /^claude-[a-z0-9][a-z0-9.-]*$/.test(model);
+    if (!isStringIn(model, VALID_MODELS) && !isFullModelId) {
+      errors.push(
+        `Invalid model. Must be one of: ${VALID_MODELS.join(', ')}, or a full Claude model ID`,
+      );
     }
   }
 
-  if ('activation_priority' in frontmatter) {
-    if (!isStringIn(frontmatter.activation_priority, VALID_PRIORITIES)) {
-      errors.push(`Invalid activation_priority. Must be one of: ${VALID_PRIORITIES.join(', ')}`);
-    }
-  }
-
-  // v2.1.78+: model reasoning effort per turn
   if ('effort' in frontmatter) {
     if (!isStringIn(frontmatter.effort, VALID_EFFORT_LEVELS)) {
       errors.push(`Invalid effort. Must be one of: ${VALID_EFFORT_LEVELS.join(', ')}`);
     }
   }
 
-  // v2.1.78+: caps agentic loop iterations
   if ('maxTurns' in frontmatter) {
     if (
       typeof frontmatter.maxTurns !== 'number' ||
@@ -227,16 +254,62 @@ function validateAgentFrontmatter(
     }
   }
 
-  // v2.1.78+: tool denylist (opposite of skills' allowed-tools)
-  if ('disallowedTools' in frontmatter) {
-    if (!Array.isArray(frontmatter.disallowedTools)) {
-      errors.push("Field 'disallowedTools' must be an array");
-    } else {
-      for (let i = 0; i < frontmatter.disallowedTools.length; i++) {
-        if (typeof frontmatter.disallowedTools[i] !== 'string') {
-          errors.push(`Field 'disallowedTools[${i}]' must be a string`);
+  if (
+    'permissionMode' in frontmatter &&
+    !isStringIn(frontmatter.permissionMode, VALID_PERMISSION_MODES)
+  ) {
+    errors.push(`Invalid permissionMode. Must be one of: ${VALID_PERMISSION_MODES.join(', ')}`);
+  }
+
+  if ('memory' in frontmatter && !isStringIn(frontmatter.memory, VALID_MEMORY_SCOPES)) {
+    errors.push(`Invalid memory. Must be one of: ${VALID_MEMORY_SCOPES.join(', ')}`);
+  }
+
+  if ('background' in frontmatter && typeof frontmatter.background !== 'boolean') {
+    errors.push("Field 'background' must be a boolean");
+  }
+
+  if ('hooks' in frontmatter && !isRecord(frontmatter.hooks)) {
+    errors.push("Field 'hooks' must be an object");
+  }
+
+  if ('mcpServers' in frontmatter) {
+    const servers = frontmatter.mcpServers;
+    if (Array.isArray(servers)) {
+      for (let index = 0; index < servers.length; index++) {
+        const server = servers[index];
+        if (typeof server !== 'string' && (!isRecord(server) || Object.keys(server).length !== 1)) {
+          errors.push(
+            `Field 'mcpServers[${index}]' must be a server-name string or one-key inline definition`,
+          );
         }
       }
+    } else if (!isRecord(servers)) {
+      errors.push("Field 'mcpServers' must be an array or object");
+    }
+  }
+
+  if ('isolation' in frontmatter && frontmatter.isolation !== 'worktree') {
+    errors.push("Field 'isolation' must be 'worktree'");
+  }
+
+  if ('color' in frontmatter && !isStringIn(frontmatter.color, VALID_COLORS)) {
+    errors.push(`Invalid color. Must be one of: ${VALID_COLORS.join(', ')}`);
+  }
+
+  if ('initialPrompt' in frontmatter && typeof frontmatter.initialPrompt !== 'string') {
+    errors.push("Field 'initialPrompt' must be a string");
+  }
+
+  if ('experimental' in frontmatter) {
+    const experimental = frontmatter.experimental;
+    if (!isRecord(experimental)) {
+      errors.push("Field 'experimental' must be an object");
+    } else if (
+      'cacheTtl' in experimental &&
+      !['5m', '1h'].includes(String(experimental.cacheTtl))
+    ) {
+      errors.push("Field 'experimental.cacheTtl' must be one of: 5m, 1h");
     }
   }
 
@@ -255,9 +328,9 @@ export async function validateFrontmatterFile(
     errors: [],
   };
 
-  if (filePath.includes('/commands/')) {
+  if (hasPathSegment(filePath, 'commands')) {
     result.fileType = 'command';
-  } else if (filePath.includes('/agents/')) {
+  } else if (hasPathSegment(filePath, 'agents')) {
     result.fileType = 'agent';
   }
 
@@ -304,7 +377,7 @@ export async function findFrontmatterFiles(baseDir: string): Promise<string[]> {
         if (entry.isDirectory()) {
           await walkDir(fullPath);
         } else if (entry.name.endsWith('.md')) {
-          if (fullPath.includes('/commands/') || fullPath.includes('/agents/')) {
+          if (hasPathSegment(fullPath, 'commands') || hasPathSegment(fullPath, 'agents')) {
             files.push(fullPath);
           }
         }

@@ -1,216 +1,88 @@
 ---
 name: canva-core-workflow-a
-description: 'Execute the Canva design creation and export pipeline via the Connect
-  API.
-
-  Use when building design creation workflows, exporting designs programmatically,
-
-  or integrating Canva''s design tools into your application.
-
-  Trigger with phrases like "canva create design", "canva export",
-
-  "canva design pipeline", "canva generate content".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.5.0
+description: 'Create an authorized Canva design and export it through a reconciled asynchronous job. Use when performing design creation, supported-format selection, export polling, and safe result handling. Trigger with: "create Canva design", "export Canva design", "poll Canva export".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[design-intent-and-export-format]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - design
+  - operations
+compatibility: 'Requires an authorized test or production user, explicit design scopes, and approved content/retention policy.'
 ---
-# Canva Core Workflow A — Design Creation & Export
+
+# Canva Design and Export Workflow
 
 ## Overview
 
-The primary Canva integration workflow: create designs via the REST API, let users edit them in Canva's editor, then export finished designs as PDF/PNG/JPG for downstream use (email campaigns, social posts, print orders).
+Keep design creation, user editing, export submission, job reconciliation, and result delivery as separate recorded operations. Query current supported export formats instead of hard-coding a universal list.
 
 ## Prerequisites
 
-- Completed `canva-install-auth` setup with valid access token
-- Scopes: `design:content:write`, `design:content:read`, `design:meta:read`
+- Approved design purpose, owner, input rights, and destination
+- Explicit design scopes and resource authorization
+- Pinned endpoint contract and result-data retention decision
 
 ## Instructions
 
-### Step 1: Create a Design
+### Step 1: Authorize the request
 
-```typescript
-// POST https://api.canva.com/rest/v1/designs
-// Rate limit: 20 req/min per user
-// Scope: design:content:write
+Resolve tenant, user, design purpose, required explicit scopes, content rights, and whether a new design is permitted.
 
-interface CreateDesignRequest {
-  design_type:
-    | { type: 'preset'; name: 'doc' | 'whiteboard' | 'presentation' }
-    | { type: 'custom'; width: number; height: number }; // 40-8000 px
-  title?: string;     // 1-255 characters
-  asset_id?: string;  // Image asset to insert
-}
+### Step 2: Create once
 
-// Create a social media post (custom dimensions)
-const { design } = await canvaAPI('/designs', token, {
-  method: 'POST',
-  body: JSON.stringify({
-    design_type: { type: 'custom', width: 1080, height: 1080 },
-    title: 'Instagram Post — Q1 Campaign',
-  }),
-});
+Persist an application operation key before submitting the design request. Store only the returned opaque design reference and approved URLs under policy.
 
-// design.id — unique identifier for all future operations
-// design.urls.edit_url — redirect user here to edit (expires 30 days)
-// design.urls.view_url — read-only link (expires 30 days)
-// design.thumbnail.url — preview image (expires 15 minutes)
-```
+### Step 3: Confirm user handoff
 
-**Note:** Blank designs are auto-deleted after 7 days if never edited.
+Present the correct view or edit surface only to the authorized user. Do not treat creation as evidence that downstream export is allowed.
 
-### Step 2: Redirect User to Edit
+### Step 4: Discover formats
 
-```typescript
-// Redirect the user to Canva's editor
-// The edit_url is user-specific and expires after 30 days
-res.redirect(design.urls.edit_url);
-```
+Query the design export-formats endpoint when available and validate the requested format/options against that response and current OpenAPI.
 
-### Step 3: Get Design Metadata
+### Step 5: Submit and poll export
 
-```typescript
-// GET https://api.canva.com/rest/v1/designs/{designId}
-// Rate limit: 100 req/min per user
-// Scope: design:meta:read
+Persist the export job ID, poll the existing job with bounded exponential backoff, and stop on success, failed, or the local timeout budget.
 
-const { design: meta } = await canvaAPI(`/designs/${designId}`, token);
+### Step 6: Deliver and expire
 
-console.log(`Title: ${meta.title}`);
-console.log(`Pages: ${meta.page_count}`);
-console.log(`Created: ${new Date(meta.created_at * 1000).toISOString()}`);
-console.log(`Updated: ${new Date(meta.updated_at * 1000).toISOString()}`);
-console.log(`Owner: user=${meta.owner.user_id}, team=${meta.owner.team_id}`);
-```
+Validate content type and destination, keep result URLs out of logs, honor response/provider expiry evidence, and record cleanup or retention.
 
-### Step 4: Export the Finished Design
+## Authentication
 
-```typescript
-// POST https://api.canva.com/rest/v1/exports
-// Rate limits:
-//   Per user: 75 exports/5min, 500/24hr
-//   Per integration: 750 exports/5min, 5000/24hr
-//   Per document: 75 exports/5min
-// Scope: design:content:read
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-// Export as high-quality PDF
-const { job } = await canvaAPI('/exports', token, {
-  method: 'POST',
-  body: JSON.stringify({
-    design_id: designId,
-    format: {
-      type: 'pdf',
-      size: 'a4',          // a4 | a3 | letter | legal (Docs only)
-      export_quality: 'pro', // regular | pro
-    },
-  }),
-});
+## Tool Discipline
 
-// Export as PNG with transparent background
-const { job: pngJob } = await canvaAPI('/exports', token, {
-  method: 'POST',
-  body: JSON.stringify({
-    design_id: designId,
-    format: {
-      type: 'png',
-      width: 1200,                // 40-25000 px
-      transparent_background: true,
-      lossless: true,
-      as_single_image: false,     // true = merge all pages into one image
-    },
-  }),
-});
-
-// Export specific pages as JPG
-const { job: jpgJob } = await canvaAPI('/exports', token, {
-  method: 'POST',
-  body: JSON.stringify({
-    design_id: designId,
-    format: {
-      type: 'jpg',
-      quality: 85,               // 1-100
-      pages: [1, 2],             // specific page numbers
-    },
-  }),
-});
-```
-
-### Step 5: Poll for Export Completion
-
-```typescript
-// GET https://api.canva.com/rest/v1/exports/{exportId}
-async function waitForExport(
-  exportId: string,
-  token: string,
-  maxWaitMs = 60000
-): Promise<string[]> {
-  const start = Date.now();
-
-  while (Date.now() - start < maxWaitMs) {
-    const { job } = await canvaAPI(`/exports/${exportId}`, token);
-
-    if (job.status === 'success') {
-      return job.urls; // Array of download URLs, valid 24 hours
-    }
-
-    if (job.status === 'failed') {
-      // Error codes: license_required | approval_required | internal_failure
-      throw new Error(`Export failed: ${job.error.code} — ${job.error.message}`);
-    }
-
-    await new Promise(r => setTimeout(r, 2000)); // Poll every 2 seconds
-  }
-
-  throw new Error('Export timed out');
-}
-
-const downloadUrls = await waitForExport(job.id, token);
-```
-
-## Supported Export Formats
-
-| Format | Type | Key Options |
-|--------|------|-------------|
-| PDF | `pdf` | `size`, `export_quality`, `pages` |
-| PNG | `png` | `width`, `height`, `transparent_background`, `lossless`, `as_single_image` |
-| JPG | `jpg` | `quality` (1-100), `width`, `height` |
-| PPTX | `pptx` | `pages` |
-| GIF | `gif` | `width`, `height`, `export_quality` |
-| MP4 | `mp4` | `quality` (horizontal_480p, 720p, 1080p, 4k) |
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-The workflow returns validated design/export job references and a redacted status receipt. It keeps OAuth material, edit/download URLs, design content, and tenant identity out of ordinary logs.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-For an approved campaign asset, authorize the caller and source design, create an idempotent export job, poll only to the configured timeout, and store the result in encrypted expiry-controlled storage. Stop if asset rights, destination, or policy scope differs from the approved request.
+A user creates an approved presentation, edits it in Canva, then requests PDF export. The service checks available formats, submits one job, reconciles its ID, and delivers the result through an access-controlled application route.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| 400 Bad Request | Invalid dimensions or format | Check min/max values |
-| 401 Unauthorized | Token expired | Refresh via OAuth |
-| 403 Forbidden | Missing scope | Enable `design:content:write` |
-| 404 Not Found | Design deleted or not owned | Verify design ID |
-| 429 Rate Limited | Too many exports | Respect `Retry-After` header |
-| `license_required` | Design uses premium elements | User needs Canva Pro |
+| Failure | Response |
+| --- | --- |
+| Format unavailable | Return the current supported choices without submitting |
+| Export remains in progress | Stop at the local budget and continue reconciliation asynchronously |
+| Design ownership changed | Fail closed and require a new authorization decision |
+| Result URL reaches logs | Revoke access where possible and remediate redaction |
 
 ## Resources
 
-- [Create Design API](https://www.canva.dev/docs/connect/api-reference/designs/create-design/)
-- [Export API](https://www.canva.dev/docs/connect/api-reference/exports/create-design-export-job/)
-- [Design Types](https://www.canva.dev/docs/connect/api-reference/designs/)
-
-## Next Steps
-
-For asset management and brand template autofill, see `canva-core-workflow-b`.
+- [First-party source notes](references/official-docs.md)
+- [Design APIs](https://www.canva.dev/docs/connect/api-reference/designs/)
+- [Export APIs](https://www.canva.dev/docs/connect/api-reference/exports/)

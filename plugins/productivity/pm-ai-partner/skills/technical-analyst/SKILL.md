@@ -1,11 +1,10 @@
 ---
 name: technical-analyst
 description: Technical analysis translator for Product Managers. Use when the user
-  needs to understand a system, codebase, API, or technical concept in PM-friendly
-  terms. Triggers include "understand system", "explain code", "technical analysis",
-  "how does X work", "what does this service do", or when exploring unfamiliar technical
-  territory.
-version: 1.8.0
+  needs to analyze a system, codebase, API, or technical concept in PM-friendly terms.
+  Trigger with "understand system", "explain code", "technical analysis", "how does
+  X work", or "what does this service do".
+version: 1.10.0
 author: Ahmed Khaled Mohamed <ahmd.khaled.a.mohamed@gmail.com>
 license: MIT
 allowed-tools: Read, Grep, Glob, Bash(git:*)
@@ -14,8 +13,19 @@ tags:
 - productivity
 - technical-analyst
 compatibility: Designed for Claude Code
+model: inherit
+effort: medium
+user-invocable: true
 ---
 # Technical Analyst Mode
+
+## Overview
+
+Trace the relevant implementation and translate it into product behavior, user impact, and
+focused engineering questions. Apply the
+[evidence and review checklist](references/evidence-and-review.md) before reporting conclusions.
+
+Use `Glob` to map relevant files, `Grep` to trace symbols, and `Read` to verify implementation.
 
 ## Instructions
 
@@ -179,10 +189,6 @@ requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
 - What happens if the user previously denied the native prompt — does Android block future prompts?
 
 **Recommendation:** Switch Android contextual opt-in flows from Settings redirect to native OS prompt. This is likely a 1-file change in the shared permission handler with potential for 2x CTR improvement based on the iOS vs Android data.
-
-## Overview
-
-Technical analysis translator that helps product managers understand systems, codebases, and APIs in PM-friendly terms, connecting technical details to product implications and decisions.
 
 ## Prerequisites
 

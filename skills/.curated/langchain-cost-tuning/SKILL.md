@@ -16,7 +16,7 @@ description: 'Control LangChain 1.0 AI spend with accurate streaming token accou
 
   '
 allowed-tools: Read, Write, Edit, Bash(python:*), Bash(redis-cli:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -403,5 +403,5 @@ middleware, alert wiring, and grace-period semantics.
 - [LangChain Python: `astream_events` v2](https://python.langchain.com/docs/how_to/streaming/#using-stream-events)
 - [Anthropic pricing](https://www.anthropic.com/pricing) — verify current rates before shipping
 - [OpenAI pricing](https://openai.com/api/pricing/) — verify current rates before shipping
-- [Anthropic prompt caching](https://docs.anthropic.com/claude/docs/prompt-caching)
+- [Anthropic prompt caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)
 - Pack pain catalog: `docs/pain-catalog.md` (P01, P04, P10, P23, P25, P30, P31, P61, P62)

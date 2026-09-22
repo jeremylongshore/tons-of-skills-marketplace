@@ -10,7 +10,7 @@ description: 'Implement reliability patterns for Claude API: circuit breakers,
 
   '
 allowed-tools: Read, Write, Edit, Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -196,8 +196,8 @@ In a sandbox, inject five synthetic 529 responses, confirm the breaker opens, th
 
 ## Resources
 
-- [API Error Types](https://docs.anthropic.com/en/api/errors)
-- [Rate Limits](https://docs.anthropic.com/en/api/rate-limits)
+- [API Error Types](https://platform.claude.com/docs/en/api/errors)
+- [Rate Limits](https://platform.claude.com/docs/en/api/rate-limits)
 
 ## Next Steps
 

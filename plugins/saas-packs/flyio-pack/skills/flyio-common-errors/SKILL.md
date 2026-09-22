@@ -1,185 +1,96 @@
 ---
 name: flyio-common-errors
-description: 'Diagnose and fix common Fly.io errors including deployment failures,
-  health check
-
-  failures, machine issues, and networking problems.
-
-  Trigger: "fly.io error", "fly deploy failed", "fly.io not working", "fly health
-  check".
-
-  '
-allowed-tools: Read, Bash(fly:*), Bash(curl:*), Grep
-version: 1.7.0
+description: >-
+  Diagnose Fly.io deployment, routing, health, Machine, volume, and private-network failures with evidence-first triage. Use when an app is unhealthy or a release stalls. Trigger with: "debug Fly deploy", "why is my Fly app down", "triage Fly Machine".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[app-environment-and-symptom]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- edge-compute
-- flyio
-compatibility: Designed for Claude Code
+  - saas
+  - flyio
+  - troubleshooting
+  - health-checks
+  - machines
+compatibility: 'Requires read access to the affected app, the relevant release identifier, and permission to inspect redacted configuration, health, Machine, and log evidence.'
 ---
-# Fly.io Common Errors
+
+# Fly.io Failure Triage
 
 ## Overview
 
-Quick reference for the most common Fly.io deployment and runtime errors with solutions.
+Classify the failing layer before changing anything. Separate local build failures, release orchestration, Machine lifecycle, Fly Proxy routing, private DNS, volume placement, and application behavior so remediation does not destroy the evidence.
 
 ## Prerequisites
 
-- An authorized operator, opaque correlation ID, redacted logs/metrics, and a known service owner.
-- A safe staging/read-only reproduction path; do not use destructive lifecycle actions to diagnose a production issue.
+- App and environment identifiers plus incident start time
+- Last known healthy release, image, configuration, and region placement
+- Read-only access to health, Machine, release, volume, and log evidence
 
 ## Instructions
 
-1. Classify the failure as build, deploy, health, networking, storage, access, rate-limit, or platform availability.
-2. Reproduce with the smallest safe probe, then inspect configuration, secret scope, release state, machine health, and region policy.
-3. Apply the least disruptive reversible correction and verify recovery plus a safe failure path.
-4. Escalate possible secret exposure, data loss, or cross-region integrity issues immediately.
+### Step 1: Freeze the incident window
+
+Record the symptom, first observation, affected regions, recent release or secret changes, and the last known healthy revision.
+
+### Step 2: Validate configuration and release identity
+
+Compare the deployed image and rendered configuration with the intended release. Check process groups, ports, services, health paths, signals, and timeouts.
+
+### Step 3: Inspect health and Machine lifecycle
+
+Distinguish a failed health check from a Machine that is stopped, suspended, replacing, or repeatedly restarting. Preserve instance-version information.
+
+### Step 4: Check routing and networking
+
+Verify public allocation, Fly Proxy service configuration, listening address, target port, and private `.internal` DNS semantics. Remember that stopped Machines are absent from AAAA responses.
+
+### Step 5: Check regional storage dependencies
+
+Confirm that any attached volume exists in the same region and is mounted at the expected path. Treat a single volume as a single-host durability boundary.
+
+### Step 6: Choose the smallest recovery
+
+Prefer rollback, configuration correction, or one bounded Machine action over fleet-wide restart. Reconcile health and image state after recovery.
+
+## Authentication
+
+Use a read-only organization token for observation where possible. A deploy-capable identity can change code and therefore reach runtime secrets; keep diagnostic access separate from mutation authority and never paste tokens into incident records.
+
+## Tool Discipline
+
+Use Read and Grep to inspect application configuration, deployment evidence, provider documentation, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for an approved plan, configuration, implementation, test, or redacted receipt. Do not create, deploy, scale, restart, stop, suspend, destroy, rotate, revoke, expose, or migrate live Fly.io resources without explicit operator approval.
 
 ## Output
 
-Return a diagnostic receipt with category, opaque correlation ID, reproduction result, corrective action, verification, owner, and follow-up. Exclude tokens, log bodies, configuration secrets, and user data.
+- Layered incident timeline and affected-resource map
+- Redacted evidence matrix for config, release, health, Machine, network, and volume state
+- Bounded recovery or escalation plan with rollback and verification criteria
 
-## Error Handling
-
-- Do not solve permission problems with broader tokens; route them to the authorized owner.
-- Quarantine failed deployment or storage operations for review and use bounded retry/backoff.
-- Roll back before replaying stateful work after an integrity or health failure.
+Return the target organization, app, environment, region set, Machine or database identifiers, source-contract fingerprint, evidence, unresolved risks, rollback state, and final decision without exposing tokens, secrets, connection strings, or customer data.
 
 ## Examples
 
-Use a synthetic health failure, inspect only redacted release/machine status, restore the prior configuration, and verify readiness. If the issue is a token mismatch, pause automation until the scoped credential is corrected and a read-only check succeeds.
+After a release, one region returns errors. The operator verifies the new image, finds the Machine started but failing its HTTP health path, confirms the process listens on the wrong port, rolls back that release, and records the configuration mismatch without restarting healthy regions.
 
-## Error Reference
+## Error Handling
 
-### Health Check Failed
-
-```
-Error: health checks for machine e784... failed
-```
-
-**Causes:** App not listening on correct port, slow startup, missing dependencies.
-
-**Fix:**
-
-```bash
-# Check logs for startup errors
-fly logs -a my-app
-
-# Verify internal_port matches your app
-grep internal_port fly.toml
-
-# SSH in and test manually
-fly ssh console -C "curl localhost:3000/health"
-
-# Increase health check grace period
-```
-
-```toml
-# fly.toml — give app more time to start
-[http_service.checks]
-  grace_period = "30s"
-  interval = "15s"
-  timeout = "5s"
-```
-
-### Deployment Failed — Image Build
-
-```
-Error: failed to build: exit code 1
-```
-
-**Fix:**
-
-```bash
-# Test Docker build locally first
-docker build -t test .
-docker run -p 3000:3000 test
-
-# Check Dockerfile — common issues:
-# - Missing EXPOSE directive
-# - Wrong WORKDIR
-# - npm install before COPY (layer caching)
-```
-
-### Machine Won't Start
-
-```
-Error: machine e784... failed to start
-```
-
-**Fix:**
-
-```bash
-# Check machine events
-fly machine status e784...
-
-# Common cause: OOM — increase memory
-fly scale vm shared-cpu-1x --memory 512
-
-# Or check for crash loops in logs
-fly logs --instance e784...
-```
-
-### Connection Refused on .internal
-
-```
-Error: connection refused my-api.internal:3000
-```
-
-**Fix:**
-
-```bash
-# Verify target app is running
-fly status -a my-api
-
-# Check the app listens on correct port
-fly ssh console -a my-api -C "ss -tlnp"
-
-# Ensure apps are in same organization
-fly orgs list
-```
-
-### Volume Mount Failures
-
-```
-Error: volume vol_xxx not found in region iad
-```
-
-**Fix:**
-
-```bash
-# Volume must be in same region as machine
-fly volumes list -a my-app  # Check region
-fly volumes create data --size 10 --region iad  # Match region
-```
-
-### Rate Limited by Machines API
-
-```
-HTTP 429 Too Many Requests
-```
-
-**Fix:** Implement backoff. See `flyio-rate-limits`.
-
-## Quick Diagnostic Commands
-
-```bash
-fly status -a my-app              # App and machine status
-fly logs -a my-app                # Recent logs
-fly machine list -a my-app        # All machines
-fly ssh console -a my-app         # Shell access
-fly doctor                        # Check flyctl health
-fly platform status               # Fly.io platform status
-```
+| Failure | Response |
+| --- | --- |
+| Evidence is incomplete | Do not guess; identify the missing read surface, owner, and safe collection step. |
+| Machine state oscillates | Capture current and version state, logs, exit information, and health before attempting another restart. |
+| Volume is unavailable | Stop destructive deployment actions and verify region, attachment, snapshot, and restore options. |
 
 ## Resources
 
-- [Fly.io Status](https://status.flyio.net/)
-- [Fly.io Community](https://community.fly.io/)
-- [Fly Docs](https://fly.io/docs/)
-
-## Next Steps
-
-For comprehensive debugging, see `flyio-debug-bundle`.
+- [First-party source notes](references/official-docs.md)
+- [Machines API setup](https://fly.io/docs/machines/api/working-with-machines-api/)
+- [Automation and tokens](https://fly.io/docs/flyctl/integrating/)
+- [App configuration](https://fly.io/docs/reference/configuration/)
+- [Health checks](https://fly.io/docs/reference/health-checks/)
+- [Machine states](https://fly.io/docs/machines/machine-states/)
+- [Private networking](https://fly.io/docs/networking/private-networking/)
+- [Fly Volumes](https://fly.io/docs/volumes/)

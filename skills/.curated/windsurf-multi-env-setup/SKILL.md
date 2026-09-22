@@ -1,6 +1,6 @@
 ---
 name: windsurf-multi-env-setup
-description: 'Configure Windsurf IDE and Cascade AI across team members and project
+description: 'Configure Devin Desktop (formerly Windsurf) IDE and Cascade AI across team members and project
   environments.
 
   Use when onboarding teams to Windsurf, setting up per-project Cascade configuration,
@@ -13,7 +13,8 @@ description: 'Configure Windsurf IDE and Cascade AI across team members and proj
 
   '
 allowed-tools: Read, Write, Edit
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -35,12 +36,18 @@ Configure Windsurf consistently across team members, projects, and deployment co
 - Shared git repository
 - Team agreement on coding standards per service
 
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Write` only for a new artifact the user requested; never write credentials or unreviewed production configuration.
+- Use `Edit` for bounded, reviewable changes and preserve unrelated user work.
+
 ## Instructions
 
 ### Step 1: Per-Project Cascade Rules
 
 ```markdown
-<!-- .windsurfrules - committed to each service repo -->
+<!-- .devin/rules/project.md - committed to each service repo -->
 
 # Project: PaymentService
 
@@ -86,13 +93,13 @@ Configure Windsurf consistently across team members, projects, and deployment co
 monorepo/
   services/
     auth/
-      .windsurfrules        # Auth context: JWT, OAuth, session management
+      .devin/rules/project.md        # Auth context: JWT, OAuth, session management
       .codeiumignore         # Exclude auth secrets directory
     payments/
-      .windsurfrules        # Payments context: Stripe, PCI compliance
+      .devin/rules/project.md        # Payments context: Stripe, PCI compliance
       .codeiumignore         # Exclude PCI data directories
     notifications/
-      .windsurfrules        # Notifications: queues, email templates
+      .devin/rules/project.md        # Notifications: queues, email templates
       .codeiumignore
   .windsurf/
     settings.json            # Shared IDE settings
@@ -107,7 +114,7 @@ monorepo/
 ### Step 4: Environment-Specific Workflow Rules
 
 ```markdown
-<!-- .windsurf/rules/deployment-context.md -->
+<!-- .devin/rules/deployment-context.md -->
 ---
 trigger: glob
 globs: deploy/**, scripts/deploy-*, .github/workflows/deploy-*
@@ -142,7 +149,7 @@ windsurf --disable-extension github.copilot 2>/dev/null || true
 windsurf --disable-extension tabnine.tabnine-vscode 2>/dev/null || true
 
 # Verify configuration
-[ -f ".windsurfrules" ] || echo "WARNING: .windsurfrules not found"
+[ -f ".devin/rules/project.md" ] || echo "WARNING: .devin/rules/project.md not found"
 [ -f ".codeiumignore" ] || echo "WARNING: .codeiumignore not found"
 
 echo ""
@@ -176,11 +183,15 @@ echo "Example: windsurf services/payments/"
 }
 ```
 
+## Output
+
+Return an environment matrix showing shared versus local settings, repository Rules and `AGENTS.md`, excluded paths, identity ownership, test commands, and drift checks. Keep production credentials and environment endpoints outside version-controlled examples.
+
 ## Error Handling
 
 | Issue | Cause | Solution |
 |-------|-------|----------|
-| Cascade lacks project context | .windsurfrules missing or empty | Add stack + patterns to rules file |
+| Cascade lacks project context | .devin/rules/project.md missing or empty | Add stack + patterns to rules file |
 | Slow indexing | Monorepo root open with no ignore rules | Open service subdirectory |
 | Inconsistent team suggestions | No shared settings | Commit `.windsurf/settings.json` |
 | Cascade touches wrong files | Too broad workspace scope | Open specific service directory |
@@ -191,7 +202,7 @@ echo "Example: windsurf services/payments/"
 ### Quick Health Check
 
 ```bash
-ls -la .windsurfrules .codeiumignore .windsurf/settings.json 2>/dev/null
+ls -la .devin/rules/project.md .codeiumignore .windsurf/settings.json 2>/dev/null
 ```
 
 ### Per-Environment Cascade Workflows
@@ -209,10 +220,11 @@ name: deploy-staging
 
 ## Resources
 
-- [Windsurf Rules Documentation](https://docs.windsurf.com/windsurf/cascade/memories)
-- [Windsurf Admin Guide](https://docs.windsurf.com/windsurf/guide-for-admins)
-- [Context Awareness](https://docs.windsurf.com/context-awareness/overview)
+- [Focused first-party references](references/official-docs.md)
+- [Windsurf Rules Documentation](https://docs.devin.ai/desktop/cascade/memories)
+- [Windsurf Admin Guide](https://docs.devin.ai/desktop/guide-for-admins)
+- [Context Awareness](https://docs.devin.ai/desktop/context-awareness/overview)
 
-## Next Steps
+## Related Skill
 
-For architecture best practices, see `windsurf-reference-architecture`.
+Continue with `windsurf-reference-architecture` to connect environment-specific controls to the repository-wide configuration, ownership, validation, and governance model.

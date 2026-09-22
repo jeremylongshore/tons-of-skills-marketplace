@@ -1,124 +1,96 @@
 ---
 name: flyio-prod-checklist
-description: 'Execute Fly.io production deployment checklist with health checks,
-
-  auto-scaling, monitoring, and rollback procedures.
-
-  Trigger: "fly.io production", "fly.io go-live", "fly.io prod checklist".
-
-  '
-allowed-tools: Read, Bash(fly:*), Bash(curl:*), Grep
-version: 1.7.0
+description: >-
+  Gate a Fly.io production release across ownership, configuration, identity, health, capacity, data, observability, cost, and rollback. Use when reviewing a first launch or material change. Trigger with: "review Fly production readiness", "approve Fly launch", "run Fly go-live checklist".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[app-environment-and-release]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- edge-compute
-- flyio
-compatibility: Designed for Claude Code
+  - saas
+  - flyio
+  - production-readiness
+  - reliability
+  - go-live
+compatibility: 'Requires an approved production app, accountable owners, service objectives, a scoped deploy identity, and evidence from a representative non-production release.'
 ---
-# Fly.io Production Checklist
+
+# Fly.io Production Readiness Gate
 
 ## Overview
 
-Fly.io runs applications on edge infrastructure across 30+ regions with Machines, Volumes, and managed Postgres. A production deployment requires multi-region redundancy, proper secret management, health checks, and rollback procedures. Misconfigured auto-scaling means cold starts; missing volume backups mean data loss. This checklist ensures your Fly.io app is production-hardened.
+Make go-live a signed evidence boundary. The gate must cover the actual workload: stateless Machines, region-bound volumes, Managed Postgres, release commands, health semantics, autostart, networking, observability, billing, and tested rollback.
 
 ## Prerequisites
 
-- A launch owner, approver, on-call contact, recovery owner, and completed staging evidence using synthetic traffic.
-- Documented data locality, backup/restore, access, retention, and escalation requirements.
+- Business, technical, security, data, support, and rollback owners
+- Immutable candidate image and reviewed configuration
+- Load, failure, restore, deployment, and rollback evidence from a representative environment
 
 ## Instructions
 
-1. Complete every applicable checklist item with evidence or an explicit owner decision.
-2. Confirm secrets, identities, health checks, backup/restore, monitoring, region policy, and rollback before launch.
-3. Run a canary, observe aggregate health/cost/error signals, and stop promotion when any defined threshold is breached.
-4. Record approval, exceptions, and recovery verification in the release receipt.
+### Step 1: Confirm ownership and scope
+
+Record app, organization, environment, domains, regions, process groups, data stores, objectives, on-call route, and accepted risks.
+
+### Step 2: Review identity and secrets
+
+Use scoped expiring tokens, protect production environments, inspect secret names and digests without values, and prove rotation and revocation.
+
+### Step 3: Review runtime and deployment
+
+Validate image, architecture, ports, processes, signals, release command, health checks, strategy, unavailable capacity, and volume compatibility.
+
+### Step 4: Review resilience and data
+
+Confirm Machine redundancy where required, regional placement, dependency failure behavior, Managed Postgres or volume backup boundaries, restore tests, and reconciliation.
+
+### Step 5: Review observability and cost
+
+Prove logs, metrics, health, alerts, provider-status escalation, resource inventory, cost owner, and cleanup of obsolete billable resources.
+
+### Step 6: Exercise launch and rollback
+
+Run the approved release path, observe acceptance gates, restore the prior image or config in a drill, and close only after actual fleet reconciliation.
+
+## Authentication
+
+Production deploy uses the narrowest app or organization token in a protected environment. Read-only monitoring should not share deploy authority. Remember that anyone with deploy access can deploy code that reads runtime App secrets.
+
+## Tool Discipline
+
+Use Read and Grep to inspect application configuration, deployment evidence, provider documentation, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for an approved plan, configuration, implementation, test, or redacted receipt. Do not create, deploy, scale, restart, stop, suspend, destroy, rotate, revoke, expose, or migrate live Fly.io resources without explicit operator approval.
 
 ## Output
 
-Produce a go-live receipt with controls completed, evidence references, canary metrics, regions, approver, rollback owner, exceptions, and follow-up date. Do not include secrets or user data.
+- Signed production readiness decision with owners and exceptions
+- Evidence index for identity, config, health, load, data recovery, observability, cost, and support
+- Launch, rollback, and post-launch verification plan
+
+Return the target organization, app, environment, region set, Machine or database identifiers, source-contract fingerprint, evidence, unresolved risks, rollback state, and final decision without exposing tokens, secrets, connection strings, or customer data.
 
 ## Examples
 
-Deploy a synthetic workload to one staging region, revoke a test deployment token, and simulate a health failure. Promote only after the rollback succeeds and the designated approver records the canary evidence.
-
-## Authentication & Secrets
-
-- [ ] `FLY_API_TOKEN` stored in CI secrets (never in fly.toml or source)
-- [ ] All app secrets set via `fly secrets` (not `[env]` block)
-- [ ] Deploy tokens scoped per app (not org-wide personal tokens)
-- [ ] Key rotation scheduled (quarterly, or after team changes)
-- [ ] No hardcoded secrets in Dockerfile or codebase
-
-## API Integration
-
-- [ ] Production base URL: app deployed to `https://<app>.fly.dev`
-- [ ] `force_https = true` in fly.toml http_service
-- [ ] Custom domain with TLS certificate active and auto-renewing
-- [ ] `min_machines_running = 1` to avoid cold starts
-- [ ] Machines deployed in 2+ regions for redundancy
-- [ ] Concurrency limits tuned (`soft_limit`/`hard_limit` per workload)
-- [ ] Volumes backed up if using persistent storage
-
-## Error Handling & Resilience
-
-- [ ] Health check endpoint configured with appropriate grace period
-- [ ] Graceful shutdown handles SIGTERM within 10s window
-- [ ] Auto-stop/auto-start configured for cost optimization
-- [ ] Postgres standby replica provisioned for database apps
-- [ ] Rollback procedure tested: `fly releases rollback <N>`
-- [ ] Dockerfile builds and runs identically local vs deployed
-
-## Monitoring & Alerting
-
-- [ ] `fly logs` streaming configured for centralized logging
-- [ ] Machine health monitored via `fly machine status`
-- [ ] Platform status checked: `https://status.flyio.net`
-- [ ] Alert on health check failures across any region
-- [ ] VM resource utilization tracked (`fly scale show`)
-
-## Validation Script
-
-```typescript
-async function checkFlyioReadiness(): Promise<void> {
-  const checks: { name: string; pass: boolean; detail: string }[] = [];
-  // Fly.io API connectivity
-  try {
-    const res = await fetch('https://api.machines.dev/v1/apps', {
-      headers: { Authorization: `Bearer ${process.env.FLY_API_TOKEN}` },
-    });
-    checks.push({ name: 'Fly API', pass: res.ok, detail: res.ok ? 'Connected' : `HTTP ${res.status}` });
-  } catch (e: any) { checks.push({ name: 'Fly API', pass: false, detail: e.message }); }
-  // Token present
-  checks.push({ name: 'API Token Set', pass: !!process.env.FLY_API_TOKEN, detail: process.env.FLY_API_TOKEN ? 'Present' : 'MISSING' });
-  // Platform status
-  try {
-    const res = await fetch('https://status.flyio.net/api/v2/status.json');
-    const data = await res.json();
-    const status = data?.status?.indicator || 'unknown';
-    checks.push({ name: 'Platform Status', pass: status === 'none', detail: status === 'none' ? 'Operational' : status });
-  } catch (e: any) { checks.push({ name: 'Platform Status', pass: false, detail: e.message }); }
-  for (const c of checks) console.log(`[${c.pass ? 'PASS' : 'FAIL'}] ${c.name}: ${c.detail}`);
-}
-checkFlyioReadiness();
-```
+A web app with Managed Postgres passes only after the team proves two healthy Machines, scoped deploy and read-only tokens, a rolling deploy, database restore and reconnect, region-aware alerts, current cost ownership, and rollback to the previous image.
 
 ## Error Handling
 
-| Check | Risk if Skipped | Priority |
-|-------|----------------|----------|
-| Multi-region deployment | Single region outage = full downtime | P1 |
-| Volume backups | Data loss on machine replacement | P1 |
-| Health check config | Dead machines receive traffic | P2 |
-| SIGTERM handling | Dropped requests during deploys | P2 |
-| Rollback procedure | Stuck on broken release | P3 |
+| Failure | Response |
+| --- | --- |
+| Required evidence is missing | Keep the gate open and assign the exact proof, owner, and deadline. |
+| Exception has no expiry | Reject it or add a compensating control, approver, review date, and rollback trigger. |
+| Rollback drill fails | Do not approve go-live until image, config, secret, and data recovery paths are corrected. |
 
 ## Resources
 
-- [Fly.io Production Checklist](https://fly.io/docs/getting-started/essentials/)
-- [Fly.io Status](https://status.flyio.net)
-
-## Next Steps
-
-See `flyio-security-basics` for network policies and secret management.
+- [First-party source notes](references/official-docs.md)
+- [Machines API setup](https://fly.io/docs/machines/api/working-with-machines-api/)
+- [Automation and tokens](https://fly.io/docs/flyctl/integrating/)
+- [App configuration](https://fly.io/docs/reference/configuration/)
+- [Health checks](https://fly.io/docs/reference/health-checks/)
+- [Deploy an app](https://fly.io/docs/launch/deploy/)
+- [Monitoring](https://fly.io/docs/monitoring/)
+- [Managed Postgres](https://fly.io/docs/mpg/)

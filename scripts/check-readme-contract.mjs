@@ -20,6 +20,9 @@
  *   R5  — no harness other than Claude Code is named as supported while the
  *         adapter registry does not exist (Epic 3 replaces this list with a
  *         generated adapters[] cross-check).
+ *   R10 — the retired README spotlight cannot be restored by prose or by the
+ *         former KILLER-SKILL generated-block sentinels. Website editorial
+ *         spotlights are a separate surface and remain supported.
  */
 
 import { readFileSync } from 'node:fs';
@@ -30,7 +33,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '..');
 
 const GENERATED_BLOCKS = [
-  ['<!-- KILLER-SKILL:START', '<!-- KILLER-SKILL:END -->'],
   ['<!-- SCALE:START', '<!-- SCALE:END -->'],
   ['<!-- NPM-STATS:START', '<!-- NPM-STATS:END -->'],
   ['<!-- AUTO-TOC:START', '<!-- AUTO-TOC:END -->'],
@@ -62,6 +64,17 @@ export function bareIntegers(prose) {
 
 export function checkContract(readme) {
   const violations = [];
+
+  // R10 — the oversized README spotlight is retired permanently. Keep this
+  // check scoped to README bytes so the website editorial spotlight remains.
+  if (
+    /killer skill of the week/i.test(readme) ||
+    /<!--\s*KILLER-SKILL:(?:START|END)\s*-->/i.test(readme)
+  ) {
+    violations.push(
+      'R10: retired README Killer Skill spotlight or generated-block sentinel reintroduced',
+    );
+  }
 
   // R6 — frozen slug, verbatim, and never "corrected" to the canonical name.
   if (!readme.includes(INSTALL_SLUG)) {
@@ -128,5 +141,5 @@ if (isMain) {
     );
     process.exit(1);
   }
-  console.log('readme-contract: OK (R4/R5/R6/R8/R9 hold; R1/R2 enforced by the generator)');
+  console.log('readme-contract: OK (R4/R5/R6/R8/R9/R10 hold; R1/R2 enforced by the generator)');
 }

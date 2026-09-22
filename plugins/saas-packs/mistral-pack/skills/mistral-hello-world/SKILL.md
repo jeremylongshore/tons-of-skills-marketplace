@@ -1,226 +1,74 @@
 ---
 name: mistral-hello-world
-description: 'Create a minimal working Mistral AI chat completion example.
-
-  Use when starting a new Mistral integration, testing your setup,
-
-  or learning basic Mistral API patterns.
-
-  Trigger with phrases like "mistral hello world", "mistral example",
-
-  "mistral quick start", "simple mistral code", "mistral chat".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.13.0
+description: >-
+  Validate one minimal Mistral chat request with pinned inputs, usage evidence, and zero sensitive data. Use when proving a new integration path. Trigger with "Mistral hello world", "test my Mistral setup", or "make a first Mistral request".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<runtime> <environment> <model-alias>"
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mistral
-- api
-- testing
-compatibility: Designed for Claude Code
+tags: [saas, mistral, quickstart]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live or external Mistral actions require network access and explicit approval"
 ---
-# Mistral AI Hello World
+# Mistral Bounded First Request
 
 ## Overview
 
-Minimal working examples demonstrating Mistral AI chat completions, streaming, multi-turn conversation, and JSON mode. Uses the official `@mistralai/mistralai` TypeScript SDK and `mistralai` Python SDK.
+Prove the smallest useful chat path without turning a quickstart into production authority. Build offline, use synthetic text, capture content-free evidence, and stop after one approved response.
 
 ## Prerequisites
 
-- Completed `mistral-install-auth` setup
-- Valid `MISTRAL_API_KEY` environment variable set
-- Node.js 18+ or Python 3.9+
+- A configured server-side `MISTRAL_API_KEY` reference.
+- A current model identifier selected from account-visible evidence.
+- Approval for one billable request and a non-sensitive synthetic prompt.
+
+## Current Contract
+
+The current chat surface is `POST /v1/chat/completions`. A request includes a model and messages; response and usage shapes come from the current endpoint schema. Model aliases and availability are mutable.
+
+## Authentication
+
+Resolve the key only at runtime through the trusted client boundary. Do not print the key, headers, prompt, or response content in the receipt.
 
 ## Instructions
 
-### Step 1: Basic Chat Completion
+1. Inspect runtime and dependency lock before selecting the official client.
+2. Resolve an allowed model dynamically; do not rely on an old price or context table.
+3. Construct one deterministic message containing no secrets, personal data, or customer content.
+4. Review parameters and maximum output before authorizing the live call.
+5. Execute once after approval; record status, latency, returned model, finish reason, and usage.
+6. Dispose of response content unless the approved plan explicitly retains the synthetic sample.
 
-**TypeScript (hello-mistral.ts)**
+## Tool Discipline
 
-```typescript
-import { Mistral } from '@mistralai/mistralai';
+Use Read, Glob, and Grep to inspect code, locks, configuration, tests, and evidence. Use Write and Edit only for approved repository changes. Invocation alone does not authorize network calls, paid usage, uploads, stateful resources, admin mutations, deployments, or deletion.
 
-const client = new Mistral({ apiKey: process.env.MISTRAL_API_KEY });
+## Approval Boundaries
 
-async function main() {
-  const response = await client.chat.complete({
-    model: 'mistral-small-latest',
-    messages: [
-      { role: 'user', content: 'Say "Hello, World!" in a creative way.' },
-    ],
-  });
-
-  console.log(response.choices?.[0]?.message?.content);
-  console.log('Tokens used:', response.usage);
-}
-
-main().catch(console.error);
-```
-
-**Python (hello_mistral.py)**
-
-```python
-import os
-from mistralai import Mistral
-
-client = Mistral(api_key=os.environ["MISTRAL_API_KEY"])
-
-response = client.chat.complete(
-    model="mistral-small-latest",
-    messages=[
-        {"role": "user", "content": "Say 'Hello, World!' in a creative way."}
-    ],
-)
-
-print(response.choices[0].message.content)
-print(f"Tokens: {response.usage}")
-```
-
-### Step 2: Run the Example
-
-```bash
-# TypeScript
-npx tsx hello-mistral.ts
-
-# Python
-python hello_mistral.py
-```
-
-### Step 3: Streaming Response
-
-Streaming delivers the first token in ~200ms instead of waiting 1-2s for the full response.
-
-**TypeScript**
-
-```typescript
-import { Mistral } from '@mistralai/mistralai';
-
-const client = new Mistral({ apiKey: process.env.MISTRAL_API_KEY });
-
-async function streamChat() {
-  const stream = await client.chat.stream({
-    model: 'mistral-small-latest',
-    messages: [
-      { role: 'user', content: 'Tell me a short story about AI.' },
-    ],
-  });
-
-  for await (const event of stream) {
-    const content = event.data?.choices?.[0]?.delta?.content;
-    if (content) process.stdout.write(content);
-  }
-  console.log(); // newline
-}
-
-streamChat().catch(console.error);
-```
-
-**Python**
-
-```python
-stream = client.chat.stream(
-    model="mistral-small-latest",
-    messages=[{"role": "user", "content": "Tell me a short story about AI."}],
-)
-
-for event in stream:
-    content = event.data.choices[0].delta.content
-    if content:
-        print(content, end="", flush=True)
-print()
-```
-
-### Step 4: Multi-Turn Conversation
-
-```typescript
-const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
-  { role: 'system', content: 'You are a helpful coding assistant.' },
-  { role: 'user', content: 'What is the capital of France?' },
-];
-
-const r1 = await client.chat.complete({
-  model: 'mistral-small-latest', messages,
-});
-const answer = r1.choices?.[0]?.message?.content ?? '';
-console.log('A1:', answer);
-
-// Continue the conversation
-messages.push({ role: 'assistant', content: answer });
-messages.push({ role: 'user', content: 'What about Germany?' });
-
-const r2 = await client.chat.complete({
-  model: 'mistral-small-latest', messages,
-});
-console.log('A2:', r2.choices?.[0]?.message?.content);
-```
-
-### Step 5: JSON Mode (Structured Output)
-
-```typescript
-const response = await client.chat.complete({
-  model: 'mistral-small-latest',
-  messages: [
-    { role: 'user', content: 'List 3 programming languages with their year of creation as JSON.' },
-  ],
-  responseFormat: { type: 'json_object' },
-});
-
-const data = JSON.parse(response.choices?.[0]?.message?.content ?? '{}');
-console.log(data);
-```
-
-### Step 6: With Temperature and Token Limits
-
-```typescript
-const response = await client.chat.complete({
-  model: 'mistral-small-latest',
-  messages: [{ role: 'user', content: 'Write a haiku about coding.' }],
-  temperature: 0.7,   // 0-1, higher = more creative
-  maxTokens: 100,     // cap output length
-  topP: 0.9,          // nucleus sampling
-});
-```
-
-## Output
-
-- Working code file with Mistral client initialization
-- Successful API response with generated text
-- Console output showing response and token usage
+Require approval for the live call, model, output bound, and retained response. Do not add retries, tools, files, or stateful resources.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Import Error` | SDK not installed | Run `npm install @mistralai/mistralai` |
-| `401 Unauthorized` | Invalid API key | Check `MISTRAL_API_KEY` is set |
-| `ERR_REQUIRE_ESM` | CommonJS project | Use `import` syntax or dynamic `await import()` |
-| `429 Rate Limited` | Too many requests | Wait and retry with backoff |
+- `401` is a configuration problem, not a reason to reveal a credential.
+- `429` requires current workspace evidence, not immediate repeated calls.
+- Model-not-found requires fresh discovery; never silently fall back to a costlier model.
 
-## Model Quick Reference
+## Output
 
-| Model ID | Best For | Context |
-|----------|----------|---------|
-| `mistral-small-latest` | Fast, cost-effective tasks | 256k |
-| `mistral-large-latest` | Complex reasoning, analysis | 256k |
-| `codestral-latest` | Code generation, FIM | 256k |
-| `mistral-embed` | Text/code embeddings | 8k |
-| `pixtral-large-latest` | Vision + text (multimodal) | 128k |
+Return endpoint, requested/returned model, result class, latency, finish reason, usage, retention decision, and rollback. Redact content and credentials.
 
 ## Examples
 
-### Verify a new local API key
+- Prove staging with the prompt `Reply with the word ready`.
+- Report `request_count=1; content_retained=no; usage_recorded=yes`.
 
-Set `MISTRAL_API_KEY` in a local, uncommitted environment file, run the first chat-completion example with a low token cap, and confirm the response is non-empty. If it returns 401, stop and correct the secret rather than retrying the request with a hard-coded key.
+## Validation
+
+Assert exactly one request, recognized shape, bounded output, usage capture, no sensitive data, no logging, and no fallback.
 
 ## Resources
 
-- [Mistral AI Quickstart](https://docs.mistral.ai/getting-started/quickstart/)
-- [Chat Completions API](https://docs.mistral.ai/api/endpoint/chat/)
-- [Models Overview](https://docs.mistral.ai/getting-started/models/)
-
-## Next Steps
-
-Proceed to `mistral-core-workflow-a` for production chat patterns or `mistral-local-dev-loop` for dev workflow setup.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable endpoints, models, limits, prices, preview status, or retention.
+- Record live account observations as environment-specific evidence, not universal Mistral guarantees.

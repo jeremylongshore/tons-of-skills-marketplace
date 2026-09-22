@@ -1,7 +1,7 @@
 {
   "name": "lucidchart-pack",
-  "version": "1.7.0",
-  "description": "Claude Code skill pack for Lucidchart (18 skills)",
+  "version": "1.8.0",
+  "description": "Governed Lucid integration workflows for REST, Standard Import, editor extensions, and data connectors (18 skills)",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,9 @@
   "license": "MIT",
   "keywords": [
     "lucidchart",
-    "lucidchart",
     "saas",
-    "sdk",
-    "integration"
+    "standard-import",
+    "extension-api",
+    "data-connectors"
   ]
 }

@@ -7,7 +7,7 @@ description: "Triage LangChain 1.0 / LangGraph 1.0 production incidents \u2014 L
   , \"langchain slo\",\n\"langchain outage\", \"langchain cost spike\", \"langchain\
   \ agent loop\".\n"
 allowed-tools: Read
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

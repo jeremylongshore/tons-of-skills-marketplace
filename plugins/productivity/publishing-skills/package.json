@@ -1,8 +1,8 @@
 {
   "name": "@intentsolutionsio/publishing-skills",
   "private": true,
-  "version": "0.1.0",
-  "description": "Four composable skills that turn an AI agent into a platform-agnostic long-tail SEO publishing pipeline: topic research, drafting, SVG figures, and an editorial calendar. Ships Ghost, WordPress, and static-site adapters.",
+  "version": "0.2.0",
+  "description": "Governed editorial workflows for evidence-backed topic research, content scheduling, accessible SVG figures, source-grounded drafting, and approved CMS handoff. Use when planning, researching, illustrating, drafting, or handing off a publication-ready article.",
   "keywords": [
     "ghost",
     "blogging",
@@ -16,18 +16,15 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jeremylongshore/claude-code-plugins-plus-skills.git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/productivity/publishing-skills"
   },
   "homepage": "https://automatelab.tech/products/skills-and-plugins/publishing-skills/",
-  "bugs": "https://github.com/jeremylongshore/claude-code-plugins-plus-skills/issues",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
   "license": "MIT-0",
   "author": {
     "name": "AutomateLab",
     "url": "https://github.com/AutomateLab-tech"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "files": [
     "README.md",

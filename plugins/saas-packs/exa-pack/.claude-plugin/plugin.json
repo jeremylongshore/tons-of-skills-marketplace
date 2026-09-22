@@ -1,7 +1,7 @@
 {
   "name": "exa-pack",
-  "version": "1.11.0",
-  "description": "Claude Code skill pack for Exa (30 skills)",
+  "version": "1.12.0",
+  "description": "Claude Code skill pack for governed Exa search, contents, Agent, Monitor, and enterprise operations (30 skills)",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"

@@ -1,7 +1,7 @@
 {
   "name": "stackblitz-pack",
-  "version": "1.6.0",
-  "description": "Claude Code skill pack for StackBlitz (10 skills)",
+  "version": "1.7.0",
+  "description": "Production StackBlitz workflows for WebContainer lifecycle, embeds, testing, diagnostics, capacity, and security (10 skills)",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"

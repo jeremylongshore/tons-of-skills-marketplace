@@ -7,7 +7,7 @@ description: "Wire LangSmith tracing and custom metric callbacks into a LangChai
   per-tenant cost breakdowns. Trigger with \"langchain observability\",\n\"langsmith\
   \ tracing\", \"langchain callbacks\", \"langchain metrics\".\n"
 allowed-tools: Read, Write, Edit, Bash(python:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

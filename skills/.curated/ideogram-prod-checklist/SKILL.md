@@ -1,212 +1,77 @@
 ---
 name: ideogram-prod-checklist
-description: 'Execute Ideogram production deployment checklist and rollback procedures.
-
-  Use when deploying Ideogram integrations to production, preparing for launch,
-
-  or implementing go-live procedures.
-
-  Trigger with phrases like "ideogram production", "deploy ideogram",
-
-  "ideogram go-live", "ideogram launch checklist", "ideogram production ready".
-
-  '
-allowed-tools: Read, Bash(curl:*), Bash(kubectl:*), Grep
-version: 1.10.0
+description: >-
+  Gate an Ideogram production release across billing, auth, safety, async completion, asset persistence, observability, and rollback. Use when approving a launch or reviewing release readiness. Trigger with "ship Ideogram to production", "run Ideogram preflight", or "audit an Ideogram release".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<release-sha> <environment> <owner>"
+version: 1.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ideogram
-- deployment
-- production
-compatibility: Designed for Claude Code
+tags: [saas, ideogram, release]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; production mutation requires explicit release approval"
 ---
-# Ideogram Production Checklist
+# Ideogram Production Readiness Gate
 
 ## Overview
 
-Complete pre-flight checklist for deploying Ideogram image generation to production. Covers API key management, timeout configuration, image persistence, error handling, monitoring, and rollback procedures.
+Produce a fail-closed release decision for an Ideogram integration. A visually successful test is only one signal; production readiness also requires owned billing, secure credentials, bounded capacity, moderation, durable assets, async reconciliation, telemetry, and a tested rollback.
 
 ## Prerequisites
 
-- Staging environment tested
-- Production API key created (separate from dev)
-- Image storage configured (S3, GCS, or R2)
-- Monitoring stack ready
+- Immutable release SHA, target environment, change owner, approver, and deployment window.
+- Current architecture, endpoint inventory, tests, SLOs, budgets, retention, and incident runbook.
+- Staging parity and a synthetic canary that contains no customer-derived content.
 
-## Pre-Deployment Checklist
+## Current Contract
 
-### API Configuration
+Live API calls require accepted terms, payment method, positive prepaid credit, and a valid `Api-Key`. Generation routes differ by endpoint and sync or async lifecycle. Safety is item-level, image URLs expire, and default capacity is documented as 10 in-flight requests.
 
-- [ ] Production API key stored in secret manager (not `.env` file)
-- [ ] Key is separate from dev/staging keys
-- [ ] Auto top-up billing configured with appropriate limits
-- [ ] Base URL is `https://api.ideogram.ai` (no trailing slash)
+## Authentication
 
-### Request Handling
-
-- [ ] `Api-Key` header used (not `Authorization: Bearer`)
-- [ ] Request timeout set to 60s+ (generation takes 5-15s, complex prompts longer)
-- [ ] Retry logic with exponential backoff on 429 and 5xx
-- [ ] Concurrency limited to 8 (below the 10 in-flight limit)
-- [ ] Prompt length validated (max 10,000 chars)
-
-### Image Persistence
-
-- [ ] Images downloaded immediately after generation (URLs expire ~1 hour)
-- [ ] Downloaded to durable storage (S3/GCS/R2), not local filesystem
-- [ ] Filenames include seed for reproducibility tracking
-- [ ] Generation metadata (prompt, seed, model, style) stored in database
-
-### Error Handling
-
-- [ ] 401 triggers key rotation alert
-- [ ] 422 (safety filter) logged with sanitized prompt for review
-- [ ] 429 handled with retry, not user-facing error
-- [ ] 402 (no credits) triggers billing alert and graceful degradation
-- [ ] Circuit breaker prevents cascading failures
-
-### Content Safety
-
-- [ ] Prompt sanitization removes PII before API call
-- [ ] User-submitted prompts validated server-side
-- [ ] `is_image_safe` response field checked before displaying to users
-- [ ] Content moderation layer for user-facing applications
-
-## Production Health Check
-
-```typescript
-async function ideogramHealthCheck(): Promise<{
-  status: "healthy" | "degraded" | "down";
-  latencyMs: number;
-  details: string;
-}> {
-  const start = Date.now();
-  try {
-    const response = await fetch("https://api.ideogram.ai/generate", {
-      method: "POST",
-      headers: {
-        "Api-Key": process.env.IDEOGRAM_API_KEY!,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        image_request: {
-          prompt: "health check: simple blue dot",
-          model: "V_2_TURBO",
-          magic_prompt_option: "OFF",
-        },
-      }),
-      signal: AbortSignal.timeout(30000),
-    });
-
-    const latencyMs = Date.now() - start;
-
-    if (response.ok) {
-      return { status: "healthy", latencyMs, details: "Generation succeeded" };
-    }
-    if (response.status === 429) {
-      return { status: "degraded", latencyMs, details: "Rate limited" };
-    }
-    return { status: "down", latencyMs, details: `HTTP ${response.status}` };
-  } catch (err: any) {
-    return { status: "down", latencyMs: Date.now() - start, details: err.message };
-  }
-}
-```
-
-## Deployment Script
-
-```bash
-set -euo pipefail
-echo "=== Ideogram Pre-Flight Checks ==="
-
-# 1. Verify production key
-STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-  -X POST https://api.ideogram.ai/generate \
-  -H "Api-Key: $IDEOGRAM_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"image_request":{"prompt":"deploy check","model":"V_2_TURBO","magic_prompt_option":"OFF"}}')
-
-if [ "$STATUS" != "200" ]; then
-  echo "FAIL: API returned $STATUS"
-  exit 1
-fi
-echo "PASS: API key valid (HTTP $STATUS)"
-
-# 2. Verify image download
-IMAGE_URL=$(curl -s -X POST https://api.ideogram.ai/generate \
-  -H "Api-Key: $IDEOGRAM_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"image_request":{"prompt":"deploy check","model":"V_2_TURBO","magic_prompt_option":"OFF"}}' \
-  | jq -r '.data[0].url')
-
-DL_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$IMAGE_URL")
-echo "PASS: Image download works (HTTP $DL_STATUS)"
-
-echo "=== All pre-flight checks passed ==="
-```
-
-## Alerting Rules
-
-| Alert | Condition | Severity |
-|-------|-----------|----------|
-| API Unreachable | Health check returns `down` | P1 |
-| Auth Failure | Any 401 response | P1 |
-| Rate Limited | >5 consecutive 429 responses | P2 |
-| Slow Generation | P95 latency > 30 seconds | P2 |
-| Credits Low | Balance below $10 | P2 |
-| Safety Rejections | >10% of prompts rejected | P3 |
-
-## Rollback Procedure
-
-```bash
-set -euo pipefail
-# If Ideogram is down or producing bad results
-# 1. Enable fallback mode (disable image generation, show placeholders)
-kubectl set env deployment/app IDEOGRAM_ENABLED=false
-kubectl rollout restart deployment/app
-
-# 2. Verify fallback is active
-curl -s https://app.example.com/health | jq '.services.ideogram'
-
-# 3. Re-enable when resolved
-kubectl set env deployment/app IDEOGRAM_ENABLED=true
-kubectl rollout restart deployment/app
-```
-
-## Error Handling
-
-| Alert | Condition | Action |
-|-------|-----------|--------|
-| API Down | 5xx or timeout | Enable fallback, notify on-call |
-| Key Revoked | 401 | Rotate key, update secrets |
-| Credits Empty | 402 | Top up billing, pause batch jobs |
-| Rate Flood | 429 sustained | Reduce concurrency, queue jobs |
-
-## Output
-
-- All checklist items verified
-- Health check endpoint configured
-- Alerting rules deployed
-- Rollback procedure tested
+Confirm a target-environment secret reference, server-only injection, correct `Api-Key` header, scoped application authorization, and exercised revocation. Never place a real key in the release artifact or checklist evidence.
 
 ## Instructions
 
-1. Confirm environment, secret reference, source/right-to-use record, destination, artifact revision, and owner approval before generation.
-2. Run a bounded synthetic canary and verify health, content-policy, destination, and output-retention assertions.
-3. Monitor aggregate metrics through the observation window; halt on scope, rights, destination, or retention drift.
-4. Promote in stages or disable/revert to the prior revision and record the verified rollback.
+1. Freeze the SHA and compare implemented endpoints, multipart fields, and schemas to current first-party docs.
+2. Verify terms, positive credit, billing owner, alert thresholds, and a response to exhausted balance.
+3. Prove secret handling, tenant authorization, media validation, safety and copyright policy, and retention controls.
+4. Test sync and async success, unsafe output, every handled error class, webhook verification, polling fallback, duplicates, and terminal-state closure.
+5. Confirm account-level concurrency, queue bounds, deadlines, storage download, expiring-URL removal, and object deletion.
+6. Review dashboards, alerts, on-call ownership, support escalation, and content-free evidence.
+7. Run a staging canary, execute rollback rehearsal, obtain explicit approval, then deploy a bounded production canary.
+8. Reconcile final state and stop or roll back on any failed gate.
+
+## Tool Discipline
+
+Use Read, Glob, and Grep to inspect release evidence. Use Write and Edit only for approved fixes or release documentation. Do not deploy, add credit, rotate keys, alter policy, or run production generation by invocation alone.
+
+## Approval Boundaries
+
+The named approver owns live spend, production traffic, policy settings, and rollback acceptance. Missing evidence, unknown asset retention, unverified webhook signatures, or an untested rollback yields a no-go decision.
+
+## Error Handling
+
+- Stop on schema drift, secret exposure, unsafe-publication paths, unbounded queueing, or inability to persist output.
+- Never waive a failed gate because the canary image looks correct.
+- Roll back traffic before debugging a release that creates duplicate paid work or loses async state.
+
+## Output
+
+Return SHA, environment, gate-by-gate pass or fail, evidence identifiers, canary metrics, known risks, approver, deployment state, and rollback receipt. Exclude keys, prompts, images, and URLs.
 
 ## Examples
 
-`revision=r44; canary=sandbox-gallery; health=pass; rights=test-owned; destination=approved; output_retention=none; outcome=promote` is a complete canary decision.
+- Mark no-go when generation succeeds but the application retains only expiring vendor URLs.
+- Mark go after verified signatures, polling fallback, safety handling, storage deletion, and rollback all pass.
+
+## Validation
+
+Rerun the exact release test set against the frozen SHA, verify evidence timestamps and owners, and compare deployed digest to approved digest. Confirm canary termination and rollback remain available after launch.
 
 ## Resources
 
-- [Ideogram API Overview](https://developer.ideogram.ai/ideogram-api/api-overview)
-- [API Setup](https://developer.ideogram.ai/ideogram-api/api-setup)
-
-## Next Steps
-
-For version upgrades, see `ideogram-upgrade-migration`.
+- [Current first-party evidence map](references/official-docs.md) — use the dated endpoint, webhook, billing, team, and training links as the contract index for this workflow.
+- Recheck the endpoint-specific page and current OpenAPI description before relying on an enum, limit, beta feature, or lifecycle claim.
+- Record live observations as environment-specific evidence, not as universal vendor guarantees.

@@ -1,130 +1,90 @@
 ---
 name: quicknode-core-workflow-b
-description: 'Work with NFT and token APIs via QuickNode: metadata, balances, transfer
-  history.
-
-  Use when building NFT or token features, checking balances, or tracking transfers.
-
-  Trigger with phrases like "quicknode NFT", "token balance", "NFT metadata", "ERC-20
-  balance".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.5.0
+description: 'Analyze and specify a chain-data contract for QuickNode across network identity, API family, historical retention, archive access, pagination, and add-ons. Use when a workload needs historical state, traces, tokens, NFTs, or chain-specific APIs. Trigger with: "analyze QuickNode data requirements", "audit archive access", "design a QuickNode read workload".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[chain-network-and-data-requirement]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- quicknode
-- blockchain
-- nft
-- tokens
-- web3
-compatibility: Designed for Claude Code
+  - saas
+  - quicknode
+  - blockchain
+  - archive
+  - data-contract
+compatibility: 'Supported APIs, archive availability, pruning, and add-ons vary by chain and network'
 ---
-# QuickNode Core Workflow B — NFT & Token APIs
+
+# QuickNode Chain-Data Contract
 
 ## Overview
 
-Use QuickNode's NFT and Token APIs to fetch metadata, check balances, and track transfer history. These are QuickNode-specific add-on APIs beyond standard EVM RPC.
+Select an endpoint from required data semantics, not from a generic “Web3 RPC” label. Current state, historical block data, historical state, traces, token/NFT indexes, REST, gRPC, and WebSocket subscriptions have different availability and retention.
 
 ## Prerequisites
 
-- Completed `quicknode-core-workflow-a`
-- Token and NFT add-ons enabled on your QuickNode endpoint
+- Chain, network, and protocol requirements
+- Oldest required block, state, or epoch
+- Required methods, consistency, pagination, latency, and recovery behavior
+
+## Authentication
+
+Use an endpoint token for data-plane RPC, passed through the documented endpoint URL or `x-token` header. Use a separate account API key in `x-api-key` only for Admin API capability inspection. Never place either credential in the written data contract or its tests.
 
 ## Instructions
 
-### Step 1: Get Token Balances (QuickNode SDK)
+### Step 1: Inventory queries
 
-```typescript
-import { Core } from '@quicknode/sdk';
+Use Read and Grep to extract every RPC, REST, gRPC, subscription, and add-on method. Record block tags, pagination assumptions, expected response shapes, and historical lookback.
 
-const core = new Core({ endpointUrl: process.env.QUICKNODE_ENDPOINT });
+### Step 2: Classify historical semantics
 
-// Get all ERC-20 token balances for a wallet
-const balances = await core.client.request({
-  method: 'qn_getWalletTokenBalance',
-  params: [{ wallet: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' }],
-});
-for (const token of balances.result) {
-  console.log(`${token.name} (${token.symbol}): ${token.quantity}`);
-}
-```
+Distinguish historical block retrieval from historical state queries. Determine whether the chain exposes archive mode, a pruning window, or a specialized endpoint path. Never infer “archive” from an Ethereum-centric example.
 
-### Step 2: Get NFT Metadata
+### Step 3: Verify the chain reference
 
-```typescript
-const nfts = await core.client.request({
-  method: 'qn_fetchNFTs',
-  params: [{
-    wallet: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
-    contracts: ['0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D'],  // BAYC
-    page: 1,
-    perPage: 10,
-  }],
-});
-for (const nft of nfts.result.assets) {
-  console.log(`${nft.name} — Token ID: ${nft.tokenId}`);
-  console.log(`  Image: ${nft.imageUrl}`);
-}
-```
+Consult the current QuickNode API overview for the exact chain and network. Confirm supported APIs, protocols, chain ID, archive status, pruning policy, and product availability.
 
-### Step 3: Track ERC-20 Transfers
+### Step 4: Separate standard and enhanced APIs
 
-```typescript
-const transfers = await core.client.request({
-  method: 'qn_getWalletTokenTransactions',
-  params: [{
-    address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
-    contract: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',  // USDC
-    page: 1,
-    perPage: 10,
-  }],
-});
-for (const tx of transfers.result.transfers) {
-  console.log(`${tx.from} -> ${tx.to}: ${tx.value} at block ${tx.blockNumber}`);
-}
-```
+Identify standard chain methods versus QuickNode add-ons or indexed Token/NFT APIs. Record entitlement and method contract explicitly; a `qn_*` name does not guarantee it is enabled on every endpoint.
 
-### Step 4: Standard ERC-20 Balance (No Add-on Required)
+### Step 5: Design bounded reads
 
-```typescript
-import { ethers } from 'ethers';
+Use Write or Edit to add pagination, maximum range, explicit block tags, response-size controls, and checkpointing. Treat a missing next-page token or pruned-state response as a contract event.
 
-const provider = new ethers.JsonRpcProvider(process.env.QUICKNODE_ENDPOINT);
-const erc20Abi = ['function balanceOf(address) view returns (uint256)', 'function decimals() view returns (uint8)', 'function symbol() view returns (string)'];
-const token = new ethers.Contract('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', erc20Abi, provider);
+### Step 6: Prove representative history
 
-const [balance, decimals, symbol] = await Promise.all([
-  token.balanceOf('0xWalletAddress'),
-  token.decimals(),
-  token.symbol(),
-]);
-console.log(`${symbol} balance: ${ethers.formatUnits(balance, decimals)}`);
-```
+Test current, boundary-age, and oldest-required records in a non-destructive acceptance suite. Pin expected chain identity and response invariants without snapshotting volatile tip values.
+
+## Tool Discipline
+
+Use Read and Grep for query discovery and Write/Edit for the data contract and tests. This design skill does not enable add-ons, provision endpoints, or execute production queries.
 
 ## Output
 
-- ERC-20 token balances for any wallet
-- NFT metadata with images and attributes
-- Transfer history for token tracking
-- Direct contract reads for standard operations
+- Chain/network/API capability matrix
+- Historical retention and archive decision
+- Pagination and checkpoint contract
+- Representative acceptance cases and plan dependencies
+
+## Examples
+
+An analytics service needs historical contract state, not merely old block bodies. Its architecture selects an archive-capable network endpoint and tests a block older than the ordinary pruning boundary.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Method not found: qn_*` | Add-on not enabled | Enable in QuickNode Dashboard |
-| Empty results | No tokens at address | Verify address is correct |
-| `call revert` on balanceOf | Wrong contract address | Verify ERC-20 contract |
+| Failure | Response |
+| --- | --- |
+| Historical state unavailable | Recheck archive support and chain pruning policy |
+| Method not found | Verify API family, add-on, chain, and endpoint entitlement |
+| Page silently truncates | Require and persist the documented continuation token |
+| Chain ID differs | Stop and correct the endpoint before consuming data |
 
 ## Resources
 
-- [QuickNode Token API](https://www.quicknode.com/docs/ethereum)
-- [QuickNode NFT API](https://www.quicknode.com/docs/ethereum)
-- [ERC-20 Token Guide](https://www.quicknode.com/guides/ethereum-development/transactions/how-to-send-erc20-tokens-using-qn-sdk)
-
-## Next Steps
-
-Handle errors: `quicknode-common-errors`
+- [Chain-data evidence and source notes](references/official-docs.md)
+- [Supported chains and pruning](https://www.quicknode.com/docs/platform/supported-chains-node-types)
+- [Ethereum API overview](https://www.quicknode.com/docs/ethereum/api-overview)

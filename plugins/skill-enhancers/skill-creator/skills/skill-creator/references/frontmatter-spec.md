@@ -73,13 +73,23 @@ description: "Generates PDF reports"
 description: "A helpful tool for documents"
 ```
 
+### when_to_use
+
+- **Type**: string
+- **Purpose**: Additional activation context appended to `description`
+- **Limit**: Combined listing text is capped at 1536 characters
+
+```yaml
+when_to_use: Use after changing an agent definition or its validator.
+```
+
 **System prompt injection warning**: The `description` field is loaded into Claude's system prompt at startup for skill discovery. It must describe *what* and *when* only. Never include behavioral instructions ("Always respond in JSON", "Never use profanity"), persona definitions ("You are an expert..."), or override patterns ("Ignore previous instructions"). These belong in the SKILL.md body, not the description.
 
 ### allowed-tools
 
 - **Type**: string (comma or space-delimited)
 - **Purpose**: Pre-approved tools the skill can use without user confirmation
-- **Valid tools**: `Read`, `Write`, `Edit`, `Bash`, `Glob`, `Grep`, `WebFetch`, `WebSearch`, `Task`, `TodoWrite`, `NotebookEdit`, `AskUserQuestion`, `Skill`
+- **Common built-ins**: `Read`, `Write`, `Edit`, `Bash`, `Glob`, `Grep`, `WebFetch`, `WebSearch`, `Agent`, `TodoWrite`, `NotebookEdit`, `AskUserQuestion`, `Skill`. Consult the official tools reference or the validator's `VALID_TOOLS` registry for the current complete set.
 - **MCP tools**: `ServerName:tool_name` format
 
 ```yaml
@@ -127,7 +137,7 @@ disallowed-tools: [Bash(rm:*), Bash(curl:*), Edit(.env), Edit(.env.*), Write(.en
 
 - **Type**: string
 - **Default**: inherit (uses parent/caller model)
-- **Values**: `sonnet`, `haiku`, `opus`, `inherit`, or full model ID
+- **Values**: `sonnet`, `haiku`, `opus`, `fable`, `inherit`, or a supported full model ID
 - **Purpose**: Override the LLM model used when this skill runs
 
 ```yaml
@@ -143,9 +153,9 @@ model: sonnet                     # Use Sonnet for balanced tasks
 
 - **Type**: string
 - **Default**: (inherits from caller)
-- **Values**: `low`, `medium`, `high`, `max`
+- **Values**: `low`, `medium`, `high`, `xhigh`, `max`
 - **Purpose**: Override model reasoning effort level
-- **Note**: `max` is only available with Opus 4.6
+- **Note**: Available levels depend on the selected model
 
 ```yaml
 effort: high                         # More reasoning for complex tasks
@@ -163,6 +173,15 @@ argument-hint: "[issue-number]"
 argument-hint: "[file-path]"
 argument-hint: "[search-query]"
 argument-hint: "<component-name>"
+```
+
+### arguments
+
+- **Type**: string or array
+- **Purpose**: Names positional arguments for `$name` substitution
+
+```yaml
+arguments: [file, mode]
 ```
 
 ### context
@@ -186,6 +205,17 @@ context: fork  # Run in subagent
 ```yaml
 context: fork
 agent: Explore          # Fast codebase exploration
+```
+
+### background
+
+- **Type**: boolean
+- **Default**: true when `context: fork`
+- **Purpose**: Set `false` to wait for a forked skill's result in the invoking turn
+
+```yaml
+context: fork
+background: false
 ```
 
 ### user-invocable
@@ -227,11 +257,31 @@ hooks:
       event: PostToolUse
 ```
 
+### paths
+
+- **Type**: string or array
+- **Purpose**: Restrict automatic activation to matching repository paths
+
+```yaml
+paths: ["packages/cli/**", "scripts/**"]
+```
+
+### shell
+
+- **Type**: string
+- **Values**: `bash`, `powershell`
+- **Purpose**: Select the shell for dynamic `!` commands
+
+```yaml
+shell: bash
+```
+
 ---
 
-## Enterprise Additions (5 fields, marketplace-required)
+## Marketplace and Agent Skills fields
 
-These fields are NOT part of the Anthropic runtime spec but are required by the Tons of Skills marketplace validator for published plugins. The 100-point enterprise grading system scores these at the top level.
+The marketplace requires the tracking fields below and also requires the
+Agent Skills `license` and `compatibility` fields for publication.
 
 ### version
 
@@ -266,15 +316,13 @@ license: Apache-2.0
 license: Complete terms in LICENSE.txt
 ```
 
-### compatible-with
+### compatibility
 
-- **Type**: string (comma-separated)
-- **Purpose**: Platforms this skill is compatible with
-- **Valid values**: `claude-code`, `codex`, `openclaw`, `aider`, `continue`, `cursor`, `windsurf`
+- **Type**: string, maximum 500 characters
+- **Purpose**: State environment or product requirements in prose
 
 ```yaml
-compatible-with: claude-code, codex, openclaw
-compatible-with: claude-code
+compatibility: Requires Claude Code 2.1.248+ and Python 3.11+.
 ```
 
 ### tags
@@ -287,11 +335,22 @@ tags: [devops, ci, automation]
 tags: [security, python, code-review]
 ```
 
-**Total skill frontmatter**: 17 fields (12 Anthropic + 5 enterprise)
+### metadata
+
+- **Type**: object
+- **Purpose**: Free-form Agent Skills metadata for external tooling
+
+```yaml
+metadata:
+  category: development
+```
+
+`compatible-with` is a deprecated IS extension. Replace it with
+`compatibility` prose.
 
 ---
 
-## Agent Frontmatter — Anthropic Standard (14 fields)
+## Agent Frontmatter — Anthropic Standard (17 fields)
 
 Agent files live in `agents/*.md`. Field-naming warning: agents use camelCase `disallowedTools` (canonical sub-agents spec); skills use `allowed-tools` (allowlist) plus optional kebab-case `disallowed-tools` (schema 3.7.0+). The validator rejects either mismatch — never copy-paste between agent and skill frontmatter without renaming.
 
@@ -309,7 +368,7 @@ name: code-reviewer
 
 - **Type**: string
 - **Required**: Yes
-- **Length**: 20-200 characters
+- **Length**: 20-1536 characters under the IS contract; keep it concise enough for agent selection
 - **Purpose**: Agent's specialty — shown in agent selection UI
 
 ```yaml
@@ -319,7 +378,7 @@ description: "Reviews code for bugs, performance issues, and style violations"
 ### model
 
 - **Type**: string
-- **Values**: `sonnet`, `haiku`, `opus`, `inherit`
+- **Values**: `sonnet`, `haiku`, `opus`, `fable`, `inherit`, or a full Claude model ID
 - **Purpose**: Override LLM model for this agent
 
 ```yaml
@@ -329,7 +388,7 @@ model: opus
 ### effort
 
 - **Type**: string
-- **Values**: `low`, `medium`, `high`, `max`
+- **Values**: `low`, `medium`, `high`, `xhigh`, `max` (model-dependent)
 - **Purpose**: Override reasoning effort for agent turns
 
 ```yaml
@@ -340,7 +399,6 @@ effort: high
 
 - **Type**: integer
 - **Purpose**: Max agentic loop iterations before stopping
-- **Added**: v2.1.78
 
 ```yaml
 maxTurns: 10
@@ -349,7 +407,7 @@ maxTurns: 25
 
 ### tools
 
-- **Type**: string (comma-separated)
+- **Type**: string or array
 - **Purpose**: Tool allowlist (same format as skill `allowed-tools`)
 
 ```yaml
@@ -358,11 +416,11 @@ tools: "Read,Glob,Grep,Bash(git:*)"
 
 ### disallowedTools
 
-- **Type**: string (comma-separated)
+- **Type**: array under the IS contract
 - **Purpose**: Tool denylist — block specific tools (opposite of allowlist)
 
 ```yaml
-disallowedTools: "mcp__dangerous_server,Write"
+disallowedTools: [mcp__dangerous_server, Write]
 ```
 
 ### skills
@@ -376,15 +434,16 @@ skills: [code-review, test-generator]
 
 ### mcpServers
 
-- **Type**: object or array
-- **Purpose**: MCP server configurations available to the agent
+- **Type**: array upstream; the compatibility validator also accepts an object
+- **Purpose**: Configured server-name strings or one-key inline definitions
 - **Plugin restriction**: NOT supported in plugin agents (ignored silently by runtime)
 
 ```yaml
 mcpServers:
-  myserver:
-    command: "node"
-    args: ["server.js"]
+  - slack
+  - myserver:
+      command: "node"
+      args: ["server.js"]
 ```
 
 ### hooks
@@ -431,12 +490,33 @@ isolation: worktree
 ### permissionMode
 
 - **Type**: string
-- **Values**: `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan`
+- **Values**: `default`, `manual`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, `plan`
 - **Purpose**: Permission behavior for the agent
 - **Plugin restriction**: NOT supported in plugin agents (ignored silently by runtime)
 
 ```yaml
 permissionMode: acceptEdits
+```
+
+### color
+
+- **Type**: string
+- **Values**: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`
+- **Purpose**: Display color in the task list and transcript
+
+### initialPrompt
+
+- **Type**: string
+- **Purpose**: First user turn when the agent runs as the main session agent
+
+### experimental
+
+- **Type**: object
+- **Current setting**: `cacheTtl` accepts `5m` or `1h` in Claude Code v2.1.248+
+
+```yaml
+experimental:
+  cacheTtl: 5m
 ```
 
 ---
@@ -474,10 +554,8 @@ The `.claude-plugin/plugin.json` manifest defines plugin identity. CI rejects an
 
 | Field | Status | Notes |
 |-------|--------|-------|
-| `when_to_use` | Deprecated | Move content to `description` |
 | `mode` | Deprecated | Use `disable-model-invocation` instead |
-| `compatibility` | Invalid | AgentSkills.io field, not in Anthropic spec. Document requirements in skill body instead. |
-| `metadata` | Invalid | AgentSkills.io field, not in Anthropic spec. Use top-level fields (`author`, `version`, `license`, `tags`). |
+| `compatible-with` | Deprecated | Replace with Agent Skills `compatibility` prose |
 | `capabilities` | Invalid | Invented field, never part of any spec |
 | `expertise_level` | Invalid | Invented field, never part of any spec |
 | `activation_priority` | Invalid | Invented field, never part of any spec |
@@ -511,7 +589,7 @@ disable-model-invocation: false
 version: 1.0.0
 author: Name <email>
 license: MIT
-compatible-with: claude-code, codex, openclaw
+compatibility: Requires Claude Code 2.1.248+.
 tags: [devops, automation]
 ---
 ```
@@ -522,7 +600,7 @@ tags: [devops, automation]
 ---
 # Required
 name: agent-name
-description: "20-200 char description of the agent's specialty"
+description: "Concise 20-1536 char description of the agent's specialty"
 
 # Model control
 model: opus
@@ -530,8 +608,8 @@ effort: high
 maxTurns: 15
 
 # Tool access
-tools: "Read,Write,Glob,Grep,Bash(git:*)"
-# disallowedTools: "mcp__dangerous_server"
+tools: [Read, Write, Glob, Grep]
+# disallowedTools: [mcp__dangerous_server]
 
 # Preloaded skills
 # skills: [code-review, test-generator]
@@ -540,10 +618,14 @@ tools: "Read,Write,Glob,Grep,Bash(git:*)"
 # background: false
 # isolation: worktree
 # memory: project
+# color: blue
+# initialPrompt: "Start with the intake."
+# experimental:
+#   cacheTtl: 5m
 
 # NOT supported in plugin agents (ignored by runtime):
 # hooks: {}
-# mcpServers: {}
+# mcpServers: []
 # permissionMode: default
 ---
 ```

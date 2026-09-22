@@ -1,6 +1,6 @@
 ---
 name: windsurf-advanced-troubleshooting
-description: 'Advanced Windsurf debugging for hard-to-diagnose IDE, Cascade, and indexing
+description: 'Advanced Devin Desktop (formerly Windsurf) debugging for hard-to-diagnose IDE, Cascade, and indexing
   issues.
 
   Use when standard troubleshooting fails, Cascade produces consistently wrong output,
@@ -13,7 +13,8 @@ description: 'Advanced Windsurf debugging for hard-to-diagnose IDE, Cascade, and
 
   '
 allowed-tools: Read, Grep, Bash(ls:*), Bash(curl:*), Bash(find:*)
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -34,27 +35,33 @@ Deep debugging techniques for Windsurf issues that resist standard troubleshooti
 
 - Standard troubleshooting attempted (see `windsurf-common-errors`)
 - Terminal access
-- Understanding of Windsurf's architecture (VS Code base + Codeium AI layer)
+- Understanding of Devin Desktop's editor, Cascade, indexing, extension, and MCP layers
+
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Grep` to locate relevant settings, rules, logs, or code without broad collection.
+- Use only the command-scoped `Bash` entries declared in frontmatter, with non-destructive checks before mutations.
 
 ## Instructions
 
 ### Step 1: Isolate Windsurf Layer vs VS Code Layer
 
 ```
-Windsurf = VS Code + Codeium AI Layer
+Devin Desktop = editor shell + Cascade + indexing/context + extension/MCP layers
 
 If the issue is:
 - Editor crashes, rendering, file system → VS Code layer
-- AI suggestions wrong, Cascade fails, indexing stuck → Codeium layer
+- AI suggestions wrong, Cascade fails, indexing stuck → Cascade or context/indexing layer
 - Extension not working → Extension compatibility layer
 
 Test VS Code layer:
   windsurf --disable-extensions  # Run without extensions
   # If issue persists → VS Code layer problem
 
-Test Codeium layer:
-  # Disable Codeium: Extensions > search "codeium" > Disable
-  # If issue resolves → Codeium layer problem
+Test AI and extension layers:
+  # Start with extensions disabled using the documented troubleshooting flow.
+  # If the issue resolves, re-enable extensions incrementally to isolate the conflict.
 ```
 
 ### Step 2: Debug Cascade Context Issues
@@ -64,13 +71,15 @@ When Cascade consistently gives wrong or irrelevant suggestions:
 ```bash
 set -euo pipefail
 echo "=== Cascade Context Debug ==="
+readonly WORKSPACE_RULE_LIMIT=12000 # Current documented maximum for one workspace rule.
+readonly GLOBAL_RULE_LIMIT=6000 # Current documented maximum for the global rule.
 
 # 1. Check rules file
-echo "--- .windsurfrules ---"
-if [ -f .windsurfrules ]; then
-  CHARS=$(wc -c < .windsurfrules)
-  echo "Size: $CHARS chars (limit: 6000)"
-  [ "$CHARS" -gt 6000 ] && echo "WARNING: Over limit — content truncated!"
+echo "--- .devin/rules/project.md ---"
+if [ -f .devin/rules/project.md ]; then
+  CHARS=$(wc -c < .devin/rules/project.md)
+  echo "Size: $CHARS chars (workspace rule limit: $WORKSPACE_RULE_LIMIT)"
+  [ "$CHARS" -gt "$WORKSPACE_RULE_LIMIT" ] && echo "WARNING: Workspace rule exceeds its limit"
 else
   echo "MISSING — Cascade has no project context"
 fi
@@ -78,8 +87,8 @@ fi
 # 2. Check workspace rules
 echo "--- Workspace Rules ---"
 TOTAL_RULE_CHARS=0
-if [ -d .windsurf/rules ]; then
-  for rule in .windsurf/rules/*.md; do
+if [ -d .devin/rules ]; then
+  for rule in .devin/rules/*.md; do
     [ -f "$rule" ] || continue
     CHARS=$(wc -c < "$rule")
     TOTAL_RULE_CHARS=$((TOTAL_RULE_CHARS + CHARS))
@@ -88,16 +97,16 @@ if [ -d .windsurf/rules ]; then
   done
   echo "Total: $TOTAL_RULE_CHARS chars"
 else
-  echo "No .windsurf/rules/ directory"
+  echo "No .devin/rules/ directory"
 fi
 
-# 3. Check total rules budget
-RULES_CHARS=$(wc -c < .windsurfrules 2>/dev/null || echo 0)
-GLOBAL_CHARS=$(wc -c < ~/.windsurf/global_rules.md 2>/dev/null || echo 0)
-TOTAL=$((RULES_CHARS + GLOBAL_CHARS))
-echo "--- Total Rules Budget ---"
-echo "Project rules: $RULES_CHARS + Global rules: $GLOBAL_CHARS = $TOTAL chars (limit: 12000)"
-[ "$TOTAL" -gt 12000 ] && echo "WARNING: Over 12000 total — rules will be truncated!"
+# 3. Check independent rule limits
+RULES_CHARS=$(wc -c < .devin/rules/project.md 2>/dev/null || echo 0)
+GLOBAL_CHARS=$(wc -c < ~/.codeium/windsurf/memories/global_rules.md 2>/dev/null || echo 0)
+echo "--- Rule Limits ---"
+echo "Workspace rule: $RULES_CHARS/$WORKSPACE_RULE_LIMIT chars; global rule: $GLOBAL_CHARS/$GLOBAL_RULE_LIMIT chars"
+[ "$RULES_CHARS" -gt "$WORKSPACE_RULE_LIMIT" ] && echo "WARNING: Workspace rule exceeds its limit"
+[ "$GLOBAL_CHARS" -gt "$GLOBAL_RULE_LIMIT" ] && echo "WARNING: Global rule exceeds its limit"
 
 # 4. Check memories
 echo "--- Memories ---"
@@ -118,6 +127,7 @@ set -euo pipefail
 echo "=== Indexing Debug ==="
 
 # Count files that would be indexed
+readonly LARGE_WORKSPACE_HEURISTIC=10000 # Diagnostic threshold, not a vendor limit.
 TOTAL_FILES=$(find . -type f -not -path '*/node_modules/*' -not -path '*/.git/*' | wc -l)
 echo "Total files (excluding node_modules, .git): $TOTAL_FILES"
 
@@ -135,7 +145,7 @@ else
 fi
 
 # Recommendations
-if [ "$TOTAL_FILES" -gt 10000 ]; then
+if [ "$TOTAL_FILES" -gt "$LARGE_WORKSPACE_HEURISTIC" ]; then
   echo ""
   echo "RECOMMENDATION: >10K files. Open a subdirectory instead of root."
   echo "RECOMMENDATION: Add more patterns to .codeiumignore"
@@ -205,26 +215,24 @@ When nothing else works:
    Command Palette > "Cascade: Restart"
 
 2. Reset Indexing
-   Command Palette > "Codeium: Reset Indexing"
+   Download diagnostics, then use the current indexing control in Settings.
 
 3. Reload Window
    Cmd/Ctrl+Shift+P > "Developer: Reload Window"
 
-4. Clear Memories
-   Delete contents of ~/.codeium/windsurf/memories/
+4. Review Memories and Rules
+   Export or record needed customizations, then remove only the confirmed bad item through the UI.
 
-5. Reset All Codeium State
-   Close Windsurf
-   rm -rf ~/.codeium/windsurf/cache/
-   Reopen Windsurf (re-indexes, re-authenticates)
+5. Re-authenticate
+   Sign out and back in only after preserving diagnostics and confirming the organization.
 
 6. Clean Install
-   Uninstall Windsurf
-   rm -rf ~/.codeium/
-   rm -rf ~/.config/Windsurf/  # Linux
-   # or: rm -rf ~/Library/Application Support/Windsurf/  # macOS
-   Reinstall from windsurf.com/download
+   Follow the current support instructions for the operating system. Back up settings first; do not recursively delete the entire Codeium/Devin state tree from a generic runbook.
 ```
+
+## Output
+
+Return a diagnostic report with the isolated failing layer, commands and evidence collected, the least-destructive corrective action, validation results, and any remaining escalation data. Redact credentials, tokens, repository content, and personal paths before sharing the report.
 
 ## Error Handling
 
@@ -242,7 +250,7 @@ When nothing else works:
 ### Quick Diagnostic One-Liner
 
 ```bash
-echo "WS files: $(find . -not -path '*/node_modules/*' -not -path '*/.git/*' -type f | wc -l) | Rules: $(wc -c < .windsurfrules 2>/dev/null || echo 0)c | Ignore: $(wc -l < .codeiumignore 2>/dev/null || echo 0) patterns | Exts: $(windsurf --list-extensions 2>/dev/null | wc -l)"
+echo "WS files: $(find . -not -path '*/node_modules/*' -not -path '*/.git/*' -type f | wc -l) | Rules: $(wc -c < .devin/rules/project.md 2>/dev/null || echo 0)c | Ignore: $(wc -l < .codeiumignore 2>/dev/null || echo 0) patterns | Exts: $(windsurf --list-extensions 2>/dev/null | wc -l)"
 ```
 
 ### Submit Support Ticket
@@ -257,9 +265,10 @@ Attach:
 
 ## Resources
 
-- [Windsurf GitHub Issues](https://github.com/Exafunction/codeium/issues)
+- [Focused first-party references](references/official-docs.md)
+- [Windsurf GitHub Issues](https://windsurf.com/support)
 - [Windsurf Status Page](https://status.windsurf.com)
 
-## Next Steps
+## Related Skill
 
-For load and scale patterns, see `windsurf-load-scale`.
+Continue with `windsurf-load-scale` when the diagnosis shows workspace size, indexing scope, or organization rollout is the limiting factor.

@@ -15,7 +15,7 @@ description: 'Invoke Claude, GPT-4o, and Gemini through LangChain 1.0 without tr
 
   '
 allowed-tools: Read, Write, Edit, Bash(python:*), Bash(pip:*), Grep
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

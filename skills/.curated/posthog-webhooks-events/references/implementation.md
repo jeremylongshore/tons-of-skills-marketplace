@@ -37,8 +37,8 @@ app.post('/webhooks/posthog', (req, res) => {
 ```typescript
 import PostHog from 'posthog-node';
 
-const ph = new PostHog(process.env.POSTHOG_API_KEY!, {
-  host: 'https://app.posthog.com',
+const ph = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
+  host: 'https://us.i.posthog.com',
 });
 
 // Track event
@@ -60,10 +60,10 @@ await ph.shutdown();
 ## Batch Ingest via API
 
 ```bash
-curl -X POST "https://app.posthog.com/capture/" \
+curl -X POST "$POSTHOG_PUBLIC_HOST/batch/" \
   -H "Content-Type: application/json" \
   -d '{
-    "api_key": "'"$POSTHOG_API_KEY"'",
+    "api_key": "'"$NEXT_PUBLIC_POSTHOG_KEY"'",
     "batch": [
       {"event":"page_view","distinct_id":"user_1","properties":{"path":"/dashboard"}},
       {"event":"button_click","distinct_id":"user_1","properties":{"button":"upgrade"}}

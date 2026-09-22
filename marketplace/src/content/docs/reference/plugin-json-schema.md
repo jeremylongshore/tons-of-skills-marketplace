@@ -6,9 +6,9 @@ order: 2
 keywords: ["plugin.json", "schema", "manifest", "plugin structure", "validation", "CI", "metadata"]
 officialLinks:
   - title: "Claude Code Plugins Documentation"
-    url: "https://docs.anthropic.com/en/docs/claude-code/plugins"
+    url: "https://code.claude.com/docs/en/plugins"
   - title: "Claude Code Plugin Structure"
-    url: "https://docs.anthropic.com/en/docs/claude-code/plugins#plugin-structure"
+    url: "https://code.claude.com/docs/en/plugins#plugin-structure"
 relatedDocs:
   - "concepts/plugins"
   - "guides/build-a-plugin"

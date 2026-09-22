@@ -1,6 +1,6 @@
 ---
 name: windsurf-policy-guardrails
-description: 'Implement team-wide Windsurf usage policies, code quality gates, and
+description: 'Implement team-wide Devin Desktop (formerly Windsurf) usage policies, code quality gates, and
   Cascade guardrails.
 
   Use when setting up code review policies for AI-generated code, configuring Turbo
@@ -14,7 +14,8 @@ description: 'Implement team-wide Windsurf usage policies, code quality gates, a
 
   '
 allowed-tools: Read, Write, Edit, Bash(npx:*)
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -37,6 +38,13 @@ Policy guardrails for team Windsurf usage: controlling what Cascade can do, enfo
 - Git workflow established
 - CI/CD pipeline in place
 - Team agreement on AI usage standards
+
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Write` only for a new artifact the user requested; never write credentials or unreviewed production configuration.
+- Use `Edit` for bounded, reviewable changes and preserve unrelated user work.
+- Use only the command-scoped `Bash` entries declared in frontmatter, with non-destructive checks before mutations.
 
 ## Instructions
 
@@ -95,7 +103,7 @@ exports/
 ```
 
 ```markdown
-<!-- .windsurf/rules/protected-files.md -->
+<!-- .devin/rules/protected-files.md -->
 ---
 trigger: always_on
 ---
@@ -220,6 +228,10 @@ description: Pre-flight checks before Cascade work
 5. Ask: "What would you like Cascade to do?"
 ```
 
+## Output
+
+Deliver a version-controlled policy package covering Rules or `AGENTS.md`, Hooks, MCP allowlists, protected paths, review gates, exception ownership, audit evidence, and rollout communication. Product prompts supplement—not replace—repository permissions and CI enforcement.
+
 ## Error Handling
 
 | Issue | Cause | Solution |
@@ -245,10 +257,11 @@ echo "Extension control: $([ -f .vscode/extensions.json ] && echo 'EXISTS' || ec
 
 ## Resources
 
-- [Windsurf Terminal Docs](https://docs.windsurf.com/windsurf/terminal)
-- [Windsurf Rules](https://docs.windsurf.com/windsurf/cascade/memories)
-- [Windsurf Admin Guide](https://docs.windsurf.com/windsurf/guide-for-admins)
+- [Focused first-party references](references/official-docs.md)
+- [Windsurf Terminal Docs](https://docs.devin.ai/desktop/terminal)
+- [Windsurf Rules](https://docs.devin.ai/desktop/cascade/memories)
+- [Windsurf Admin Guide](https://docs.devin.ai/desktop/guide-for-admins)
 
-## Next Steps
+## Related Skill
 
-For architecture strategies, see `windsurf-architecture-variants`.
+Continue with `windsurf-architecture-variants` to place these controls at the correct repository, service, language, and organization boundaries.

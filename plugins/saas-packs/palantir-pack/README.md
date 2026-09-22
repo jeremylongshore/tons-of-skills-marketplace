@@ -1,12 +1,19 @@
-# Palantir Foundry Skill Pack
+# Palantir Foundry Operator Skill Pack
 
-> Claude Code skill pack for Palantir Foundry — Ontology SDK, data pipelines, transforms, and enterprise data integration (24 skills)
+Evidence-backed Claude Code workflows for designing, building, securing, releasing, and operating Palantir Foundry systems.
 
-## What This Covers
+## What this pack covers
 
-Palantir Foundry is an enterprise data platform with an Ontology layer that models real-world objects, actions, and relationships. This pack covers the **Foundry Platform SDK** (Python) for direct API access, the **OSDK** (TypeScript/Python) for Ontology-driven applications, and **transforms-python** for Spark-based data pipelines.
+The 24 skills separate the major Foundry operating surfaces instead of treating Palantir as one generic REST API:
 
-**Key APIs:** Ontology Objects (CRUD, search, aggregation), Actions (mutations with validation), Datasets (read/write/upload), Transforms (`@transform_df`, `@incremental`, `@configure`), OAuth2 authentication (client credentials + bearer tokens).
+- Python transforms, incremental transaction semantics, compute-engine selection, build checks, and metrics.
+- Ontology modeling and generated OSDK applications, including bounded queries, Functions, validated Actions, and subscriptions.
+- Platform SDK clients and Developer Console OAuth grants, scopes, resource restrictions, service users, and secret handling.
+- Compute Modules, Developer Console applications, DevOps products, Marketplace installations, spaces, release channels, and rollback.
+- Projects, group roles, mandatory controls, Ontology object/property security, log access, audit exports, and data governance.
+- Production readiness, observability, incident response, migrations, limits, performance, and upgrade discipline.
+
+Every skill includes a dated `references/official-docs.md` evidence map. Re-check those first-party sources and target-enrollment behavior before any live change.
 
 ## Installation
 
@@ -14,63 +21,59 @@ Palantir Foundry is an enterprise data platform with an Ontology layer that mode
 /plugin install palantir-pack@claude-code-plugins-plus
 ```
 
-## Skills Included
+Or install one workflow from the public catalog:
 
-### Standard Skills (S01-S12)
+```bash
+npx skills add https://github.com/jeremylongshore/tons-of-skills-marketplace --skill palantir-install-auth
+```
 
-| Skill | Description |
-|-------|-------------|
-| `palantir-install-auth` | Install `foundry-platform-sdk` or `@osdk/client`, configure OAuth2 or bearer token auth |
-| `palantir-hello-world` | First Ontology query — list objects, get by primary key, apply an action |
-| `palantir-local-dev-loop` | Local PySpark testing, mocked API clients, pytest fixtures |
-| `palantir-sdk-patterns` | Singleton clients, typed error handling, pagination helpers, retry logic |
-| `palantir-core-workflow-a` | Build data pipelines with `@transform_df`, `@incremental`, multi-input joins |
-| `palantir-core-workflow-b` | Query Ontology objects, follow links, apply actions, aggregate data |
-| `palantir-common-errors` | Fix top 10 Foundry errors: 401, 403, ObjectTypeNotFound, OOM, AnalysisException |
-| `palantir-debug-bundle` | Collect SDK versions, API connectivity, error logs into redacted tarball |
-| `palantir-rate-limits` | Exponential backoff, token bucket rate limiter, batch processing |
-| `palantir-security-basics` | Credential storage, scope management, secret rotation, pre-commit hooks |
-| `palantir-prod-checklist` | Go-live checklist: health checks, monitoring, alerting, rollback |
-| `palantir-upgrade-migration` | Upgrade `foundry-platform-sdk` versions, handle breaking changes |
+## Skills
 
-### Pro Skills (P13-P18)
+| Skill | Operator job |
+|---|---|
+| `palantir-install-auth` | Choose generated OSDK or Platform SDK and configure least-privilege OAuth. |
+| `palantir-hello-world` | Prove one bounded OSDK read and optional validation-only Action. |
+| `palantir-local-dev-loop` | Combine synthetic unit tests, VS Code preview/debug, checks, and Foundry builds. |
+| `palantir-sdk-patterns` | Implement pinned, bounded OSDK or Platform SDK client boundaries. |
+| `palantir-core-workflow-a` | Build a Python transform pipeline with explicit incremental and compute contracts. |
+| `palantir-core-workflow-b` | Build an Ontology application with queries, links, Functions, and Actions. |
+| `palantir-common-errors` | Triage API, permission, throttling, resource, and transform failures. |
+| `palantir-debug-bundle` | Produce minimal redacted API/build/module evidence for support. |
+| `palantir-rate-limits` | Bound principal-level request rates, concurrency, queues, and retries. |
+| `palantir-security-basics` | Establish least privilege across roles, controls, applications, logs, and exports. |
+| `palantir-prod-checklist` | Run an exact-artifact, target-environment production gate. |
+| `palantir-upgrade-migration` | Upgrade generated OSDKs, Platform SDKs, or products reversibly. |
+| `palantir-ci-integration` | Use Foundry Code Repository checks, tests, pull requests, and dataset-impact review. |
+| `palantir-deploy-integration` | Deploy through Developer Console/Marketplace, DevOps, or Compute Modules. |
+| `palantir-webhooks-events` | Choose OSDK/WebSocket subscriptions or supported monitoring webhooks. |
+| `palantir-performance-tuning` | Tune builds, queries, and modules from platform telemetry. |
+| `palantir-cost-tuning` | Optimize transform and Compute Module usage without invented size bands. |
+| `palantir-reference-architecture` | Design governed pipeline, Ontology, SDK, deployment, and operations layers. |
+| `palantir-multi-env-setup` | Separate environments with spaces and promote DevOps products safely. |
+| `palantir-observability` | Combine metrics, governed logs, monitoring, and audit evidence. |
+| `palantir-incident-runbook` | Stabilize API, build, application, module, data, or release incidents. |
+| `palantir-data-handling` | Govern sensitive data, propagation, Ontology policies, logs, exports, and retention. |
+| `palantir-enterprise-rbac` | Design group/project roles plus mandatory and application controls. |
+| `palantir-migration-deep-dive` | Migrate data and applications through dual-run, reconciliation, and cutover. |
 
-| Skill | Description |
-|-------|-------------|
-| `palantir-ci-integration` | GitHub Actions with PySpark tests, Foundry linting, integration smoke tests |
-| `palantir-deploy-integration` | Deploy to Cloud Run/Docker with secrets management and health checks |
-| `palantir-webhooks-events` | Handle Ontology change events, dataset updates, signature verification |
-| `palantir-performance-tuning` | Pagination optimization, TTL caching, batch retrieval, Spark tuning |
-| `palantir-cost-tuning` | Incremental transforms, right-sized profiles, webhook vs polling |
-| `palantir-reference-architecture` | 3-layer pipeline (raw/clean/model), Ontology design, security layers |
+## Non-negotiable boundaries
 
-### Flagship Skills (F19-F24)
+- Use the generated OSDK for the exact Developer Console application; do not invent Ontology entity names.
+- Treat OAuth scopes, Developer Console restrictions, principal permissions, project roles, and mandatory controls as separate evidence.
+- Treat preview, checks, full builds, metrics, logs, and audit logs as different surfaces.
+- Never log, commit, or package bearer tokens, client secrets, protected object values, or raw datasets.
+- Require explicit owner approval for production builds, Actions, access changes, exports, deployments, and rollback.
+- Do not present external Cloud Run, generic webhook registration, fixed data-size bands, or handwritten SDK migrations as Palantir contracts.
 
-| Skill | Description |
-|-------|-------------|
-| `palantir-multi-env-setup` | Dev/staging/prod with separate hostnames, credentials, and scopes |
-| `palantir-observability` | Prometheus metrics, structured logging, Grafana dashboards, alert rules |
-| `palantir-incident-runbook` | Triage playbooks for auth failures, rate limits, transform build errors |
-| `palantir-data-handling` | PII redaction, Foundry Markings, GDPR deletion, data retention |
-| `palantir-enterprise-rbac` | Project roles, service users, group-based access, scope matrices |
-| `palantir-migration-deep-dive` | Bulk import, incremental sync, strangler fig pattern, validation |
+## Primary documentation
 
-## Usage
-
-Skills trigger automatically when you discuss Palantir Foundry topics:
-
-- "Set up Palantir SDK" -- triggers `palantir-install-auth`
-- "Query Ontology objects" -- triggers `palantir-core-workflow-b`
-- "Build a data pipeline" -- triggers `palantir-core-workflow-a`
-- "Fix Foundry 403 error" -- triggers `palantir-common-errors`
-- "Deploy Foundry integration" -- triggers `palantir-deploy-integration`
-
-## Key Documentation
-
-- [Foundry API Reference](https://www.palantir.com/docs/foundry/api/general/overview/introduction)
-- [Python SDK](https://github.com/palantir/foundry-platform-python)
-- [OSDK Overview](https://www.palantir.com/docs/foundry/ontology-sdk/overview)
-- [Transforms Guide](https://www.palantir.com/docs/foundry/transforms-python/transforms)
+- [Foundry developer documentation](https://www.palantir.com/docs/foundry/developers)
+- [Developer API reference](https://www.palantir.com/docs/foundry/api-reference)
+- [Ontology SDK](https://www.palantir.com/docs/foundry/ontology-sdk/overview)
+- [Python transforms](https://www.palantir.com/docs/foundry/transforms-python/overview)
+- [DevOps release management](https://www.palantir.com/docs/foundry/devops-release-management/overview)
+- [Compute Modules](https://www.palantir.com/docs/foundry/compute-modules/overview)
+- [Projects and roles](https://www.palantir.com/docs/foundry/security/projects-and-roles)
 
 ## License
 

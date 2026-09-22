@@ -1,192 +1,88 @@
 ---
 name: canva-hello-world
-description: 'Create a minimal working Canva Connect API example.
-
-  Use when starting a new Canva integration, testing your setup,
-
-  or learning basic Canva REST API patterns.
-
-  Trigger with phrases like "canva hello world", "canva example",
-
-  "canva quick start", "simple canva code".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.5.0
+description: 'Verify a Canva Connect integration with a minimal read-only identity request and a redacted receipt. Use when proving OAuth, endpoint reachability, and response shape before any design or asset mutation. Trigger with: "test Canva connection", "Canva hello world", "verify Canva auth".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[approved-test-user]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - quickstart
+  - operations
+compatibility: 'Requires a backend-held access token for a dedicated authorized test user.'
 ---
-# Canva Hello World
+
+# Canva Read-Only Connection Proof
 
 ## Overview
 
-Minimal working example: authenticate, get user profile, create a design, and export it as PNG. All via the Canva Connect REST API at `api.canva.com/rest/v1/*`.
+Prove the smallest safe path first. A successful identity or profile read confirms connectivity and authorization shape but does not authorize design creation, export, assets, or other scopes.
 
 ## Prerequisites
 
-- Completed `canva-install-auth` — valid OAuth access token
-- Scopes enabled: `design:meta:read`, `design:content:write`, `design:content:read`
+- Configured Canva integration and exact redirect URI
+- Approved test user with the minimum identity/profile scope
+- Backend secret storage and redacted evidence destination
 
 ## Instructions
 
-### Step 1: Create a Reusable API Helper
+### Step 1: Confirm backend boundary
 
-```typescript
-// src/canva/client.ts
-const CANVA_BASE = 'https://api.canva.com/rest/v1';
+Use Read and Grep to verify token exchange and storage stay server-side, the target base URL is exact, and no credential appears in client code.
 
-export async function canvaAPI(
-  path: string,
-  accessToken: string,
-  options: RequestInit = {}
-): Promise<any> {
-  const res = await fetch(`${CANVA_BASE}${path}`, {
-    ...options,
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
+### Step 2: Select the read
 
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Canva API ${res.status}: ${body}`);
-  }
+Choose the minimum users/me or profile request supported by the granted explicit scope. Do not add design-write scopes for this proof.
 
-  return res.status === 204 ? null : res.json();
-}
-```
+### Step 3: Send one request
 
-### Step 2: Get Your User Profile
+Use the existing reviewed HTTP adapter and a bounded timeout. Do not print the Authorization header, response body, email, profile, or token metadata.
 
-```typescript
-// GET /v1/users/me — no scopes required, rate limit: 10 req/min
-const me = await canvaAPI('/users/me', accessToken);
-console.log(`User ID: ${me.team_user.user_id}`);
-console.log(`Team ID: ${me.team_user.team_id}`);
-```
+### Step 4: Validate shape
 
-### Step 3: Create a Design
+Check status, content type, required response envelope, and only the minimum opaque identity field needed for correlation.
 
-```typescript
-// POST /v1/designs — scope: design:content:write, rate limit: 20 req/min
-const design = await canvaAPI('/designs', accessToken, {
-  method: 'POST',
-  body: JSON.stringify({
-    design_type: { type: 'preset', name: 'presentation' },
-    title: 'Hello Canva API',
-  }),
-});
+### Step 5: Classify failure
 
-console.log(`Design created: ${design.design.id}`);
-console.log(`Edit URL: ${design.design.urls.edit_url}`);   // expires in 30 days
-console.log(`View URL: ${design.design.urls.view_url}`);   // expires in 30 days
-```
+Separate transport, invalid token, missing explicit scope, revoked consent, malformed response, and provider error using the redacted envelope.
 
-### Step 4: Export the Design as PNG
+### Step 6: Record success
 
-```typescript
-// POST /v1/exports — scope: design:content:read, rate limit: 20 req/min
-const exportJob = await canvaAPI('/exports', accessToken, {
-  method: 'POST',
-  body: JSON.stringify({
-    design_id: design.design.id,
-    format: { type: 'png', transparent_background: false },
-  }),
-});
+Use Write or Edit to save integration/config version, endpoint pattern, status category, schema result, latency bucket, and redaction check.
 
-// Poll for completion — GET /v1/exports/{jobId}
-let job = exportJob.job;
-while (job.status === 'in_progress') {
-  await new Promise(r => setTimeout(r, 2000));
-  const poll = await canvaAPI(`/exports/${job.id}`, accessToken);
-  job = poll.job;
-}
+## Authentication
 
-if (job.status === 'success') {
-  console.log('Download URLs (valid 24 hours):');
-  job.urls.forEach((url: string, i: number) => console.log(`  Page ${i + 1}: ${url}`));
-} else {
-  console.error('Export failed:', job.error);
-}
-```
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-### Step 5: List Your Designs
+## Tool Discipline
 
-```typescript
-// GET /v1/designs — scope: design:meta:read, rate limit: 100 req/min
-const designs = await canvaAPI('/designs?ownership=owned&limit=5', accessToken);
-
-for (const d of designs.items) {
-  console.log(`${d.title} (${d.id}) — ${d.page_count} pages`);
-}
-```
-
-## Complete Example
-
-```typescript
-import { canvaAPI } from './canva/client';
-
-async function main() {
-  const token = process.env.CANVA_ACCESS_TOKEN!;
-
-  // 1. Verify connection
-  const me = await canvaAPI('/users/me', token);
-  console.log(`Connected as user ${me.team_user.user_id}`);
-
-  // 2. Create a design
-  const { design } = await canvaAPI('/designs', token, {
-    method: 'POST',
-    body: JSON.stringify({
-      design_type: { type: 'custom', width: 1080, height: 1080 },
-      title: 'My First API Design',
-    }),
-  });
-  console.log(`Created: ${design.id} — edit at ${design.urls.edit_url}`);
-
-  // 3. Export as PDF
-  const { job } = await canvaAPI('/exports', token, {
-    method: 'POST',
-    body: JSON.stringify({
-      design_id: design.id,
-      format: { type: 'pdf' },
-    }),
-  });
-  console.log(`Export job ${job.id} started — status: ${job.status}`);
-}
-
-main().catch(console.error);
-```
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-The example returns a validated authorization status and opaque design/export job references. It must not print OAuth tokens, user profiles, edit URLs, signed download URLs, or design content in shared logs.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-Use a dedicated OAuth test tenant and synthetic design template. First run the read-only profile check, then create/export only the controlled test design; store the returned IDs in a protected test ledger and delete the artifact under the test retention policy. Do not use a customer design or a browser-held token as a quickstart fixture.
+A new staging integration performs one users/me request for its dedicated test user and records only HTTP success, schema version, and an opaque internal connection reference.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| 401 Unauthorized | Expired or invalid token | Refresh token via `/v1/oauth/token` |
-| 403 Forbidden | Missing required scope | Enable scope in integration settings |
-| 404 Not Found | Design doesn't exist or no access | Verify design ID and ownership |
-| 429 Too Many Requests | Rate limit exceeded | Respect `Retry-After` header |
+| Failure | Response |
+| --- | --- |
+| Token is client-visible | Stop and move the flow to a backend |
+| Read returns forbidden | Compare the exact scope and consent; do not add broad scopes blindly |
+| Response contains unexpected fields | Reject or ignore according to the pinned schema |
+| Proof requires a write | Redesign it around a supported non-mutating request |
 
 ## Resources
 
-- Canva Connect API Reference
-- [Designs API](https://www.canva.dev/docs/connect/api-reference/designs/)
-- [Exports API](https://www.canva.dev/docs/connect/api-reference/exports/)
-
-## Next Steps
-
-Proceed to `canva-local-dev-loop` for development workflow setup.
+- [First-party source notes](references/official-docs.md)
+- [Quickstart](https://www.canva.dev/docs/connect/quickstart/)
+- [Users APIs](https://www.canva.dev/docs/connect/api-reference/users/)

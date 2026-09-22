@@ -181,6 +181,6 @@ thinking from all prior turns, only the most recent.
 
 ## References
 
-- Anthropic extended thinking: <https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking>
+- Anthropic extended thinking: <https://platform.claude.com/docs/en/build-with-claude/extended-thinking>
 - `langchain-anthropic` release notes: <>
 - `messages_to_dict` / `messages_from_dict`: <https://python.langchain.com/api_reference/core/messages/langchain_core.messages.utils.messages_to_dict.html>

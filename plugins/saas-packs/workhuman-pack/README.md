@@ -1,10 +1,6 @@
 # Workhuman Skill Pack
 
-> 18 production-ready Claude Code skills for Workhuman -- real Social Recognition API code for nominations, rewards, and HRIS integration.
-
-## What This Is
-
-A complete skill pack for integrating Workhuman Social Recognition. Every skill contains real API code: OAuth authentication, recognition nominations, reward catalog, employee sync, and HRIS integration patterns. Built for HR tech teams building recognition workflows.
+Eighteen contract-first operator skills for Workhuman recognition, rewards, Workday integration, security, and production operations.
 
 ## Installation
 
@@ -12,44 +8,49 @@ A complete skill pack for integrating Workhuman Social Recognition. Every skill 
 /plugin install workhuman-pack@claude-code-plugins-plus
 ```
 
+## Safety and Contract Boundary
+
+Workhuman publicly describes Social Recognition, a points-based Store, administrator controls, an open API, and managed integrations. It does not publish the universal host, OAuth exchange, `/api/v1/*` routes, payloads, quotas, webhook scheme, or SDK that appeared in the former pack. These skills require current customer-authorized tenant documentation before making any request or configuration change.
+
+Every workflow defaults to inspection, synthetic fixtures, a mutation preview, named approval, bounded execution, reconciliation, and redacted evidence. Production worker, recognition, award, payroll, identity, connector, communication, and spend changes remain with their accountable owners.
+
 ## Skills
 
-### Standard Skills (S01-S12)
+| Skill | Operator outcome |
+|---|---|
+| `workhuman-install-auth` | Select SSO, managed-connector, or API access without guessing credentials |
+| `workhuman-hello-world` | Prove entitlement through one bounded read-only check |
+| `workhuman-local-dev-loop` | Develop with sanitized contract fixtures and a gated live lane |
+| `workhuman-sdk-patterns` | Build a typed customer-contract adapter without assuming a public SDK |
+| `workhuman-core-workflow-a` | Govern recognition nominations, approvals, awards, and spend |
+| `workhuman-core-workflow-b` | Reconcile certified Workday worker and award-data flows |
+| `workhuman-common-errors` | Diagnose identity, eligibility, approval, spend, and integration failures |
+| `workhuman-debug-bundle` | Produce a privacy-safe customer or vendor support bundle |
+| `workhuman-rate-limits` | Discover and enforce tenant-specific capacity and retry rules |
+| `workhuman-security-basics` | Review identity, workforce, recognition, reward, and integration controls |
+| `workhuman-prod-checklist` | Issue an evidence-backed, fail-closed production decision |
+| `workhuman-upgrade-migration` | Migrate API, connector, schema, identity, or program contracts safely |
+| `workhuman-ci-integration` | Build fork-safe fixture and contract gates |
+| `workhuman-deploy-integration` | Deploy an adapter or managed integration by canary and reconciliation |
+| `workhuman-webhooks-events` | Choose a documented connector, event, poll, report, or export mode |
+| `workhuman-performance-tuning` | Tune measured workflows without weakening correctness or privacy |
+| `workhuman-cost-tuning` | Govern contract, award, redemption, service, and operating cost |
+| `workhuman-reference-architecture` | Define HCM, Workhuman, workplace, analytics, and trust boundaries |
 
-| # | Skill | What It Does |
-|---|-------|-------------|
-| S01 | `workhuman-install-auth` | OAuth 2.0 client credentials, token management, connection test |
-| S02 | `workhuman-hello-world` | Create recognition, list recent, check status, browse rewards |
-| S03 | `workhuman-local-dev-loop` | Mock API responses, test fixtures, environment separation |
-| S04 | `workhuman-sdk-patterns` | Typed client wrapper, token refresh, error normalization |
-| S05 | `workhuman-core-workflow-a` | Recognition nominations, approval workflows, bulk creation |
-| S06 | `workhuman-core-workflow-b` | Reward redemption, catalog browsing, points management |
-| S07 | `workhuman-common-errors` | Auth failures, validation errors, budget limits |
-| S08 | `workhuman-debug-bundle` | API diagnostics, token validation, endpoint health |
-| S09 | `workhuman-rate-limits` | Request throttling, bulk operation limits |
-| S10 | `workhuman-security-basics` | OAuth token security, HRIS data protection |
-| S11 | `workhuman-prod-checklist` | HRIS sync validation, recognition flow testing |
-| S12 | `workhuman-upgrade-migration` | API version changes, OAuth flow updates |
+## First-Party References
 
-### Pro Skills (P13-P18)
+- [Social Recognition](https://www.workhuman.com/platform/social-recognition/)
+- [Integrations and open API](https://www.workhuman.com/capabilities/integrations/)
+- [Microsoft Teams integration](https://www.workhuman.com/capabilities/integrations/microsoft-teams/)
+- [Workhuman Store](https://www.workhuman.com/capabilities/rewards/)
+- [Security and privacy](https://www.workhuman.com/why-workhuman/security-and-privacy/)
 
-| # | Skill | What It Does |
-|---|-------|-------------|
-| P13 | `workhuman-ci-integration` | Automated API tests, recognition flow validation |
-| P14 | `workhuman-deploy-integration` | Deploy recognition bots to Teams/Slack |
-| P15 | `workhuman-webhooks-events` | Recognition events, approval notifications |
-| P16 | `workhuman-performance-tuning` | Bulk nominations, caching employee data |
-| P17 | `workhuman-cost-tuning` | Points budget management, award level optimization |
-| P18 | `workhuman-reference-architecture` | Recognition service, HRIS sync, notification pipeline |
+## Validation
 
-## Key Concepts
-
-- **Auth**: OAuth 2.0 client credentials
-- **Recognition**: Peer-to-peer nominations with points and company values
-- **Awards**: Bronze, Silver, Gold, Platinum levels
-- **Rewards**: Points-based catalog (gift cards, merchandise, experiences)
-- **HRIS**: Bidirectional sync with Workday, SAP, ADP
-- **Integrations**: Microsoft Teams, Slack, Outlook
+```bash
+python3 scripts/validate-skills-schema.py --marketplace --min-grade A --verbose plugins/saas-packs/workhuman-pack
+python3 -m unittest tests.test_workhuman_pack_contract
+```
 
 ## License
 

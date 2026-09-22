@@ -1,223 +1,88 @@
 ---
 name: canva-ci-integration
-description: 'Configure CI/CD pipelines for Canva Connect API integrations with GitHub
-  Actions.
-
-  Use when setting up automated testing, configuring CI pipelines,
-
-  or integrating Canva API tests into your build process.
-
-  Trigger with phrases like "canva CI", "canva GitHub Actions",
-
-  "canva automated tests", "CI canva", "canva pipeline".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*)
-version: 1.5.0
+description: 'Build credential-free Canva contract tests with a separately protected live read. Use when testing adapters, OAuth boundaries, OpenAPI drift, fork behavior, or deployment readiness. Trigger with: "test Canva in CI", "add Canva contract tests", "secure Canva GitHub Actions".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[test-command-and-protected-environment]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - ci
+  - operations
+compatibility: 'The live lane requires a protected environment and dedicated low-privilege test user; forked code must never receive secrets.'
 ---
-# Canva CI Integration
+
+# Canva Fork-Safe CI Contract Lane
 
 ## Overview
 
-Set up CI/CD pipelines for Canva Connect API integrations. Uses MSW mock server for unit tests and real API calls for integration tests.
+Keep pull-request validation offline and deterministic. Reserve one minimal live read for trusted commits after environment protection, without rotating production tokens inside CI.
 
 ## Prerequisites
 
-- Mocked test coverage, a protected integration environment, dedicated low-privilege OAuth credentials, and synthetic assets.
-- Branch/environment rules that prevent secrets and live integration tests from running on untrusted pull requests.
+- Existing test framework and repository-defined command
+- Pinned Canva OpenAPI snapshot or validated fixtures
+- Protected environment with dedicated test integration and cleanup owner
 
 ## Instructions
 
-### Step 1: GitHub Actions Workflow
+### Step 1: Inventory workflow trust
 
-```yaml
-# .github/workflows/canva-integration.yml
-name: Canva Integration Tests
+Use Read and Grep to map pull-request events, fork execution, secret references, generated clients, artifact uploads, and any code path that creates Canva resources.
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+### Step 2: Define offline contracts
 
-jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm test -- --coverage
-        # Unit tests use MSW mocks — no real API calls
+Use Write or Edit to test request construction, error parsing, explicit-scope checks, async job states, redaction, and unknown response fields against fixtures.
 
-  integration-tests:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: unit-tests
-    env:
-      CANVA_CLIENT_ID: ${{ secrets.CANVA_CLIENT_ID }}
-      CANVA_CLIENT_SECRET: ${{ secrets.CANVA_CLIENT_SECRET }}
-      CANVA_ACCESS_TOKEN: ${{ secrets.CANVA_ACCESS_TOKEN }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
+### Step 3: Pin provider inputs
 
-      - name: Verify Canva API connectivity
-        run: |
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "Authorization: Bearer $CANVA_ACCESS_TOKEN" \
-            "https://api.canva.com/rest/v1/users/me")
-          if [ "$HTTP_CODE" != "200" ]; then
-            echo "Canva API check failed: HTTP $HTTP_CODE"
-            exit 1
-          fi
+Version the OpenAPI snapshot or its checksum and make drift visible. Do not silently regenerate clients during an unrelated test run.
 
-      - name: Run integration tests
-        run: npm run test:integration
-```
+### Step 4: Add a protected live read
 
-### Step 2: Configure Secrets
+Use an approved test user to call a non-mutating identity or metadata endpoint. Assert authorization and response shape, not volatile content.
 
-```bash
-# Store OAuth credentials as GitHub secrets
-gh secret set CANVA_CLIENT_ID --body "OCAxxxxxxxxxxxxxxxx"
-gh secret set CANVA_CLIENT_SECRET --body "xxxxxxxxxxxxxxxx"
+### Step 5: Close secret boundaries
 
-# For integration tests, store a long-lived access token
-# (refresh it periodically via a separate workflow or manually)
-gh secret set CANVA_ACCESS_TOKEN --body "cnvat_xxxxxxxxxxxxxxxx"
-```
+Do not use privileged pull-request events to run untrusted code. Keep client secrets and refresh tokens outside job logs, artifacts, caches, and fork contexts.
 
-### Step 3: Unit Tests with MSW Mocks
+### Step 6: Emit exact-head evidence
 
-```typescript
-// tests/unit/designs.test.ts
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { canvaMockServer } from '../mocks/canva-server';
+Record commit, commands, fixture version, live endpoint pattern, protected environment, redaction result, and cleanup status.
 
-beforeAll(() => canvaMockServer.listen());
-afterAll(() => canvaMockServer.close());
+## Authentication
 
-describe('Design CRUD', () => {
-  it('should create a design', async () => {
-    const res = await fetch('https://api.canva.com/rest/v1/designs', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer mock-token', 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        design_type: { type: 'custom', width: 1080, height: 1080 },
-        title: 'CI Test Design',
-      }),
-    });
-    expect(res.ok).toBe(true);
-    const data = await res.json();
-    expect(data.design.id).toBeDefined();
-  });
-});
-```
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-### Step 4: Integration Tests
+## Tool Discipline
 
-```typescript
-// tests/integration/canva-api.test.ts
-import { describe, it, expect } from 'vitest';
-
-const TOKEN = process.env.CANVA_ACCESS_TOKEN;
-
-describe.skipIf(!TOKEN)('Canva Connect API', () => {
-  it('should authenticate and return user identity', async () => {
-    const res = await fetch('https://api.canva.com/rest/v1/users/me', {
-      headers: { 'Authorization': `Bearer ${TOKEN}` },
-    });
-    expect(res.status).toBe(200);
-    const data = await res.json();
-    expect(data.team_user.user_id).toBeDefined();
-  });
-
-  it('should list designs', async () => {
-    const res = await fetch('https://api.canva.com/rest/v1/designs?limit=1', {
-      headers: { 'Authorization': `Bearer ${TOKEN}` },
-    });
-    expect(res.status).toBe(200);
-    const data = await res.json();
-    expect(data.items).toBeInstanceOf(Array);
-  });
-});
-```
-
-### Step 5: Token Refresh Workflow
-
-```yaml
-# .github/workflows/refresh-canva-token.yml
-name: Refresh Canva Token
-
-on:
-  schedule:
-    - cron: '0 */3 * * *'  # Every 3 hours (tokens expire in ~4 hours)
-
-jobs:
-  refresh:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Refresh Canva access token
-        run: |
-          BASIC_AUTH=$(echo -n "${{ secrets.CANVA_CLIENT_ID }}:${{ secrets.CANVA_CLIENT_SECRET }}" | base64)
-          RESPONSE=$(curl -s -X POST "https://api.canva.com/rest/v1/oauth/token" \
-            -H "Authorization: Basic $BASIC_AUTH" \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            -d "grant_type=refresh_token&refresh_token=${{ secrets.CANVA_REFRESH_TOKEN }}")
-
-          NEW_ACCESS=$(echo "$RESPONSE" | jq -r '.access_token')
-          NEW_REFRESH=$(echo "$RESPONSE" | jq -r '.refresh_token')
-
-          if [ "$NEW_ACCESS" != "null" ]; then
-            gh secret set CANVA_ACCESS_TOKEN --body "$NEW_ACCESS"
-            gh secret set CANVA_REFRESH_TOKEN --body "$NEW_REFRESH"
-            echo "Token refreshed successfully"
-          else
-            echo "Token refresh failed: $RESPONSE"
-            exit 1
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-```
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-CI reports mocked-test status, approved live-test mode, redacted request outcome, and cleanup/reconciliation result. It must not emit OAuth values, design content, signed URLs, or customer assets in logs or artifacts.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-Run MSW tests for every pull request. Run one approved synthetic-asset integration test only from a protected branch or environment, use a dedicated test OAuth client, delete/expire resulting artifacts, and fail closed if authorization, scope, or test cleanup evidence is missing.
+Every fork runs mocked OAuth and response fixtures. A protected main-branch job performs one user-identity read and fails closed when its expected credential is absent.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Integration test 401 | Token expired | Run refresh workflow or re-authorize |
-| Secret not found | Missing `gh secret set` | Add secret via CLI |
-| Mock not matching | URL mismatch | Verify full `api.canva.com/rest/v1` prefix |
-| Rate limited in CI | Parallel test runs | Serialize integration tests |
+| Failure | Response |
+| --- | --- |
+| Fork can reach secrets | Disable the job and correct the event/environment boundary |
+| CI rotates refresh tokens | Move rotation to the application credential service |
+| Fixture accepts unknown breakage | Update the pinned contract and review the diff |
+| Live test creates content | Replace it with a non-mutating identity or metadata read |
 
 ## Resources
 
-- [GitHub Actions](https://docs.github.com/en/actions)
-- Canva API Reference
-- [MSW for API Mocking](https://mswjs.io/)
-
-## Next Steps
-
-For deployment patterns, see `canva-deploy-integration`.
+- [First-party source notes](references/official-docs.md)
+- [Connect security](https://www.canva.dev/docs/connect/guidelines/security/)
+- [Latest OpenAPI](https://www.canva.dev/sources/connect/api/latest/api.yml)

@@ -1,126 +1,91 @@
 ---
 name: clari-upgrade-migration
-description: 'Handle Clari API version changes and export schema migrations.
-
-  Use when Clari updates their API, export format changes,
-
-  or migrating from v3 to v4 API.
-
-  Trigger with phrases like "upgrade clari", "clari api migration",
-
-  "clari schema change", "clari v4 migration".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Grep
-version: 1.6.0
+description: >-
+  Migrate a Clari integration across hosts, versions, endpoint contracts, or export schemas with dual-read comparison and rollback. Use when retiring legacy clients or mappings. Trigger with: "upgrade Clari API", "migrate a Clari client", "handle Clari schema drift".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[current-contract-target-contract-and-dataset]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- revenue-intelligence
-- forecasting
-- clari
-compatibility: Designed for Claude Code
+  - saas
+  - clari
+  - migration
+  - api-versioning
+  - schema-evolution
+compatibility: 'Requires current and target contract fingerprints, representative non-production data, a compatibility mapping, and a retained rollback path.'
 ---
-# Clari Upgrade & Migration
+
+# Clari API and Schema Migration
 
 ## Overview
 
-Handle Clari API changes: version migrations, export schema updates, and Copilot API adoption.
+Treat provider URL, authentication, request schema, job behavior, response schema, and destination mapping as one versioned contract. Prove the target alongside the current path before moving production traffic or published data.
 
 ## Prerequisites
 
-- Current and target API/schema versions recorded in change control
-- Representative non-production exports and an approved compatibility baseline
-- Version-pinned client, warehouse migration, and rollback paths
-- Data-owner approval for any field, retention, or analytics semantic change
+- Current and target hosts, versions, operations, schemas, and credential types
+- Representative requests and expected reconciliations
+- Dual-run environment, migration owner, and rollback deadline
 
 ## Instructions
 
-### Step 1: Check Current API Version
+### Step 1: Inventory the delta
 
-```bash
-# v4 is the current version
-curl -s -H "apikey: ${CLARI_API_KEY}" \
-  https://api.clari.com/v4/export/forecast/list | jq .
+Diff hosts, base paths, auth headers, methods, fields, enum values, errors, limits, pagination, and mutation semantics.
 
-# If using v3 (deprecated), migrate to v4
-```
+### Step 2: Build an explicit mapping
 
-### Step 2: Schema Change Detection
+Classify every used field and behavior as unchanged, renamed, transformed, added, removed, or unsupported.
 
-```python
-def detect_schema_changes(
-    current_export: dict, expected_fields: set[str]
-) -> dict:
-    if not current_export.get("entries"):
-        return {"status": "empty", "changes": []}
+### Step 3: Update clients and fixtures
 
-    actual_fields = set(current_export["entries"][0].keys())
-    new_fields = actual_fields - expected_fields
-    removed_fields = expected_fields - actual_fields
+Pin the target contract, add target adapters and schemas, and retain current fixtures for regression and rollback testing.
 
-    return {
-        "status": "changed" if new_fields or removed_fields else "compatible",
-        "new_fields": list(new_fields),
-        "removed_fields": list(removed_fields),
-    }
+### Step 4: Dual-read safely
 
-# Track expected schema
-EXPECTED_FIELDS = {
-    "ownerName", "ownerEmail", "forecastAmount", "quotaAmount",
-    "crmTotal", "crmClosed", "adjustmentAmount", "timePeriod"
-}
-```
+Run bounded non-production or approved parallel reads for identical windows and compare identifiers, counts, values, states, and latency.
 
-### Step 3: Database Schema Migration
+### Step 5: Cut over atomically
 
-```sql
--- Add new columns when Clari adds export fields
-ALTER TABLE clari_forecasts ADD COLUMN IF NOT EXISTS new_field_name VARCHAR;
+Move one workload or consumer at a time, retain the prior client and published snapshot, and stop on unexplained divergence.
 
--- Backfill historical data
-UPDATE clari_forecasts SET new_field_name = 'default' WHERE new_field_name IS NULL;
-```
+### Step 6: Retire with evidence
 
-### Rollback
+After the rollback window, remove legacy credentials and routes, update runbooks, and retain the comparison and revocation receipts.
 
-Keep the previous client version alongside the new one until migration is verified:
+## Authentication
 
-```python
-# Pin client to specific behavior
-client_v4 = ClariClient(ClariConfig(api_key=api_key, base_url="https://api.clari.com/v4"))
-```
+Do not reuse headers merely because two surfaces belong to Clari. Revenue, v2 ingestion, and Copilot each require their documented host and credentials; rotate or revoke legacy credentials only after rollback is no longer needed.
 
-## Error Handling
+## Tool Discipline
 
-| Condition | Response |
-|---|---|
-| Source removes or renames a field | Block promotion, update the compatibility contract, and revalidate transformations. |
-| Backfill produces unexpected values | Stop the migration, preserve the prior certified table, and investigate with redacted samples. |
-| New client or endpoint fails | Restore the pinned prior client and record the provider/job evidence. |
-| Schema is empty or ambiguous | Do not infer compatibility; obtain an approved source contract or defer the change. |
+Use Read and Grep to inspect configuration, provider contracts, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not issue, rotate, revoke, create, update, cancel, delete, export, ingest, or publish provider data without explicit operator approval.
 
 ## Output
 
-Create a migration receipt with source/target versions, detected fields,
-compatibility decision, tested transform, backfill counts, validation evidence,
-rollback result, and named approver. Keep live credentials and raw forecast
-values out of the receipt.
+- Contract delta and field-level compatibility map
+- Dual-read reconciliation and performance report
+- Cutover, rollback-window, legacy revocation, and retirement receipt
+
+Return the exact surface, environment, resource or job identifiers, contract fingerprint, evidence, unresolved risks, and final decision without exposing credentials or sensitive customer data.
 
 ## Examples
 
-Detect a new export field in staging, add it behind a nullable warehouse
-migration, compare redacted records with the prior client, and verify the
-analytics contract before promotion. If a mandatory field disappears, retain
-the previous client and certified dataset while the data owner decides the new
-semantic mapping.
+A client moves from an old Copilot host to `rest-api.copilot.clari.com`, validates the two-header authentication contract, dual-reads one approved week, reconciles call IDs, then revokes the legacy credential after the rollback window.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Target omits a required field | Stop cutover and define a supported replacement or consumer change. |
+| Dual-read values diverge | Classify window, scope, schema, and timing differences before accepting the target. |
+| Legacy credential is revoked early | Restore from the approved overlap credential or pause until a safe rollback path exists. |
 
 ## Resources
 
-- [Clari Developer Portal](https://developer.clari.com)
-- [Clari Community](https://community.clari.com)
-
-## Next Steps
-
-For CI integration, see `clari-ci-integration`.
+- [First-party source notes](references/official-docs.md)
+- [Clari Revenue API reference](https://developer.clari.com/default/documentation/external_spec)
+- [Clari Copilot API reference](https://api-doc.copilot.clari.com/)

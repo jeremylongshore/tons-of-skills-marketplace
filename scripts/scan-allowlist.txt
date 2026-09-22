@@ -28,7 +28,6 @@ plugins/ai-ml/jeremy-vertex-engine/README.md:pipe-to-shell  documented official 
 plugins/ai-ml/jeremy-vertex-validator/README.md:pipe-to-shell  documented official Google Cloud SDK installer (https://sdk.cloud.google.com) as the gcloud setup step
 plugins/devops/jeremy-adk-terraform/README.md:pipe-to-shell  documented official Google Cloud SDK installer (https://sdk.cloud.google.com) as the gcloud setup step
 plugins/devops/jeremy-vertex-terraform/README.md:pipe-to-shell  documented official Google Cloud SDK installer (https://sdk.cloud.google.com) as the gcloud setup step
-plugins/business-tools/promptbook/README.md:pipe-to-shell  upstream's own documented setup script (promptbook.gg/setup.sh) in the mirrored README
 plugins/community/mnemos/README.md:pipe-to-shell  upstream's own install.sh (raw.githubusercontent.com/polyxmedia/mnemos) documented as the install step
 plugins/community/portaljs/README.md:pipe-to-shell  upstream's own install script (raw.githubusercontent.com/datopian/portaljs) documented as the install step
 plugins/ai-ml/ollama-local-ai/**:pipe-to-shell  official Ollama installer is the documented setup path for this skill
@@ -77,6 +76,8 @@ plugins/mcp/a2a-client/dist/index.js:long-base64-blob  bundled dependency WASM p
 plugins/skill-enhancers/agent-systems-toolkit/skills/production-upgrade/scripts/audit_evidence.py:outbound-network  imports urllib.parse.urlsplit solely for offline HTTPS URL validation; contains no request client, socket use, or command execution — reviewed 2026-09-05
 
 # ── sources-change-unscanned is a ONE-SHOT waiver (enforced in code by
+sources.yaml:sources-change-unscanned  claude-2957 HOL Guard registration-only review: verified five exact upstream files at 8e8d190fdef125d7d09e7da499338cc35bdad08f against locked SHA256 values; explicit five-file includes, pinned optional CLI installs with user approval, verified:false; no mirror, package, or publication in this PR
+sources.lock.json:sources-change-unscanned  claude-2957 HOL Guard registration-only review: all five SHA256 values reverified against hashgraph-online/hol-guard-plugin at 8e8d190fdef125d7d09e7da499338cc35bdad08f; no executable implementation admitted; later upstream drift remains quarantined
 # honoredWaivers, blocker 62ye.3 / #985 defect 3): a line is honored ONLY in the
 # PR whose diff adds it, so it can never persistently waive future source-list
 # changes. Do NOT leave a standing line here — after its PR merges it is inert
@@ -87,6 +88,7 @@ plugins/skill-enhancers/agent-systems-toolkit/skills/production-upgrade/scripts/
 # in git history and the intake PRs #1020/#1030 that added them.)
 sources.yaml:sources-change-unscanned  reviewed quarantine/delist of walkie-talkie: removes the active registry and matching lock approval without introducing any mirrored content
 sources.lock.json:sources-change-unscanned  reviewed quarantine/delist of walkie-talkie: removes the matching lock approval after the active registry was removed, without introducing any mirrored content
+sources.yaml:sources-change-unscanned  reviewed UIZZE source-selection repair: narrows source_path to upstream plugins/claude-directory and selects the complete anti-ui-slop package while preserving verified:false; no mirror or lock bytes change, and sync remains quarantined until a separate exact-SHA review and relock
 
 # ── hyperflow orchestrator skill: upstream web-research feature. ──
 plugins/ai-agency/hyperflow/skills/hyperflow/SKILL.md:allowed-tools-network  upstream v5.8.x added WebFetch/WebSearch to the orchestrator skill for its web-research feature (skills/hyperflow/web-research.md); mirror content hand-reviewed 2026-07-10 (evidence gate on #1008 + the be6ae2d3->eae6e34c5 delta review) — external mirror, upstream's design, no credential surface
@@ -102,6 +104,13 @@ plugins/productivity/youtube-strategy/skills/yt-outline/SKILL.md:allowed-tools-n
 plugins/productivity/youtube-strategy/skills/yt-packaging/SKILL.md:allowed-tools-network  E1.13 changes only the author contact; the pre-existing WebSearch capability is unchanged — reviewed 2026-08-16
 plugins/productivity/youtube-strategy/skills/yt-research/SKILL.md:allowed-tools-network  E1.13 changes only the author contact; the pre-existing WebSearch capability is unchanged — reviewed 2026-08-16
 plugins/security/security-headers-analyzer/skills/analyzing-security-headers/SKILL.md:allowed-tools-network  E1.13 changes only the example target domain; the pre-existing WebFetch/WebSearch capability is unchanged — reviewed 2026-08-16
+
+# ── Publishing skill: public research plus operator-authorized CMS adapters. ──
+plugins/productivity/publishing-skills/skills/seo-blog-writer/SKILL.md:allowed-tools-network  WebSearch/WebFetch gather public editorial sources only; publishing uses separately invoked local adapters and never passes CMS credentials to research hosts — reviewed 2026-09-11
+plugins/productivity/publishing-skills/skills/seo-blog-writer/SKILL.md:secret-exfil-cooccur  Ghost and WordPress credentials are consumed only by their bundled adapter and sent to the operator-configured matching CMS origin; the preflight does not transmit or print credentials — reviewed 2026-09-11
+plugins/productivity/publishing-skills/skills/blog-editorial-calendar/SKILL.md:allowed-tools-network  WebSearch/WebFetch perform read-only evidence checks or authorized CMS inventory reconciliation; credentials are excluded and every CMS mutation requires separate owner approval — reviewed 2026-09-11
+plugins/productivity/publishing-skills/skills/blog-figure-svg/SKILL.md:allowed-tools-bash  Bash is command-scoped to local renderer discovery, SVG rasterization, image inspection, and Python validation; it cannot fetch content and installs are prohibited — reviewed 2026-09-11
+plugins/productivity/publishing-skills/skills/blog-topic-research/SKILL.md:allowed-tools-network  WebSearch/WebFetch read public demand evidence and authoritative sources only; backlog writes require explicit editorial approval and no authentication material is used — reviewed 2026-09-11
 
 # ── UIZZE free catalogue workflow — vetted 2026-07-22 @ upstream c95111fd1517. ──
 plugins/design/uizze/skills/anti-ui-slop/SKILL.md:allowed-tools-network  WebFetch is limited to gathering structural UI evidence from the documented public https://uizze.com catalogue; the complete free workflow requires no account, token, MCP, script, or executable, and the skill forbids copying proprietary assets
@@ -130,6 +139,32 @@ plugins/saas-packs/grammarly-pack/skills/grammarly-document-evaluator/scripts/gr
 plugins/saas-packs/grammarly-pack/skills/grammarly-document-evaluator/scripts/grammarly_api.py:outbound-network  bundled standalone evaluator runtime: documented Grammarly control-plane calls plus origin-approved S3 upload with public-address validation, address pinning, and hostname-verified TLS
 plugins/saas-packs/grammarly-pack/skills/grammarly-data-safety-guardian/scripts/audit_submission_manifest.py:outbound-network  false positive: urllib.parse.urlsplit validates an origin string offline; the script contains no socket or request operation
 plugins/saas-packs/grammarly-pack/skills/grammarly-document-evaluator/scripts/audit_submission_manifest.py:outbound-network  bundled standalone evaluator runtime; false positive: urllib.parse.urlsplit validates an origin string offline and performs no network I/O
+
+# ── PostHog operator pack — reviewed first-party API-client examples. ──
+# Project tokens are public ingestion identifiers and personal or secure keys are
+# server-only. Each example sends a credential only to its matching PostHog SDK,
+# fixed PostHog Cloud origin, or an operator-selected matching PostHog regional
+# host. The destination examples use their own provider credential and endpoint.
+# No example sends a PostHog credential to a third-party sink. Reviewed 2026-09-10.
+plugins/saas-packs/posthog-pack/skills/posthog-ci-integration/SKILL.md:secret-exfil-cooccur  test project token goes only to the PostHog SDK/flags endpoint and the personal key only to fixed us.posthog.com annotations
+plugins/saas-packs/posthog-pack/skills/posthog-common-errors/SKILL.md:secret-exfil-cooccur  diagnostic project and personal keys go only to fixed or operator-selected matching PostHog regional endpoints
+plugins/saas-packs/posthog-pack/skills/posthog-core-workflow-a/SKILL.md:secret-exfil-cooccur  project token goes only to the PostHog SDK and the personal key only to fixed us.posthog.com annotations
+plugins/saas-packs/posthog-pack/skills/posthog-core-workflow-b/SKILL.md:secret-exfil-cooccur  project and feature-flags secure keys go only to the PostHog SDK; personal key calls use fixed us.posthog.com APIs
+plugins/saas-packs/posthog-pack/skills/posthog-cost-tuning/SKILL.md:secret-exfil-cooccur  project token goes only to PostHog ingestion and personal-key HogQL calls use fixed us.posthog.com
+plugins/saas-packs/posthog-pack/skills/posthog-data-handling/SKILL.md:secret-exfil-cooccur  project token goes only to PostHog ingestion and personal-key privacy operations use fixed us.posthog.com
+plugins/saas-packs/posthog-pack/skills/posthog-deploy-integration/SKILL.md:secret-exfil-cooccur  deployment stores named PostHog secrets without printing them; runtime tokens go only to PostHog SDK/proxy/API endpoints
+plugins/saas-packs/posthog-pack/skills/posthog-hello-world/SKILL.md:secret-exfil-cooccur  public project token is used only by PostHog SDKs and fixed PostHog ingestion endpoints
+plugins/saas-packs/posthog-pack/skills/posthog-incident-runbook/SKILL.md:secret-exfil-cooccur  incident credentials go only to operator-selected matching PostHog regional hosts and the PostHog SDK
+plugins/saas-packs/posthog-pack/skills/posthog-migration-deep-dive/SKILL.md:secret-exfil-cooccur  migration project token goes only to PostHog ingestion and personal-key reconciliation uses fixed us.posthog.com
+plugins/saas-packs/posthog-pack/skills/posthog-multi-env-setup/SKILL.md:secret-exfil-cooccur  per-environment keys stay in their PostHog SDK/project boundary; administrative calls use fixed us.posthog.com
+plugins/saas-packs/posthog-pack/skills/posthog-observability/SKILL.md:secret-exfil-cooccur  project and secure keys go only to the PostHog SDK; personal-key telemetry queries use fixed us.posthog.com
+plugins/saas-packs/posthog-pack/skills/posthog-performance-tuning/SKILL.md:secret-exfil-cooccur  project and secure keys go only to PostHog SDKs; personal-key performance queries use fixed us.posthog.com
+plugins/saas-packs/posthog-pack/skills/posthog-prod-checklist/SKILL.md:secret-exfil-cooccur  release checks send project/personal credentials only to matching PostHog SDK and regional endpoints
+plugins/saas-packs/posthog-pack/skills/posthog-rate-limits/SKILL.md:secret-exfil-cooccur  queue examples attach the PostHog personal key only to fixed us.posthog.com private API calls
+plugins/saas-packs/posthog-pack/skills/posthog-security-basics/SKILL.md:secret-exfil-cooccur  rotation and audit examples send the personal or secure key only to fixed PostHog Cloud APIs/SDK
+plugins/saas-packs/posthog-pack/skills/posthog-webhooks-events/SKILL.md:secret-exfil-cooccur  PostHog personal key uses fixed us.posthog.com; HubSpot and Slack examples use only their own provider credential and endpoint
+plugins/saas-packs/posthog-pack/skills/posthog-webhooks-events/references/implementation-guide.md:secret-exfil-cooccur  personal key is sent only to the operator-selected matching PostHog private regional host
+plugins/saas-packs/posthog-pack/skills/posthog-webhooks-events/references/implementation.md:secret-exfil-cooccur  public project token is sent only to the fixed PostHog ingestion SDK/endpoint
 
 # ── databricks-streaming-guardian: the PreToolUse guard IS the skill's purpose. ──
 # The pack's only blocking hook. It intercepts Bash and BLOCKS a DROP/CREATE-OR-
@@ -174,8 +209,20 @@ plugins/productivity/content-multiplier/docs/ADR.md:allowed-tools-network  false
 # Surfaced 2026-07-13 when PR #1043 edited the files (changed-file scan covers
 # the whole file, so pre-existing example blocks graded too).
 plugins/skill-enhancers/skill-creator/skills/agent-creator/SKILL.md:hook-definition  fenced example of standalone-agent frontmatter fields (hooks: {} placeholder) in creator documentation
+plugins/skill-enhancers/skill-creator/references/frontmatter-spec.md:hook-definition  fenced schema example documenting the supported skill hooks field; reference content only, not an executable plugin hook
 plugins/skill-enhancers/skill-creator/skills/skill-creator/references/frontmatter-spec.md:hook-definition  fenced example of the skill hooks: field shape in the frontmatter reference
 plugins/skill-enhancers/skill-creator/skills/skill-creator/references/validation-rules.md:hook-definition  fenced example of a valid hooks: object in the validation-rules reference
+
+# ── Google ADK lifecycle research, reviewed 2026-09-09. ──
+plugins/productivity/004-jeremy-google-cloud-agent-sdk/skills/google-cloud-agent-sdk-master/SKILL.md:allowed-tools-network  WebFetch/WebSearch are intentionally limited by the skill instructions to current official Google documentation; the skill handles no credentials or secret-bearing network requests
+
+# ── PM AI Partner advisory hooks, reviewed 2026-09-09. ──
+# The two PostToolUse handlers emit local quality/draft reminders after Write/Edit.
+# The PreToolUse handler reads the Bash command and emits a checklist only for git
+# commit. All three are fixed plugin-root scripts, non-blocking, fail closed on
+# malformed input without printing it, and perform no network, credential, or
+# dynamic execution.
+plugins/productivity/pm-ai-partner/hooks/hooks.json:hook-definition  three fixed-path advisory reminder handlers; non-blocking, no network/credentials/dynamic-exec, and no untrusted command execution — reviewed 2026-09-09
 
 # ── ops-review docs-truth pass (claude-k0h2, 2026-07-14): sources.yaml HEADER COMMENTS only. ──
 plugins/saas-packs/hubspot-pack/skills/hubspot-warehouse-sync/SKILL.md:secret-exfil-cooccur  documented backfill example reads HUBSPOT_ACCESS_TOKEN from env and sends it only to api.hubapi.com (the credential's own service); BigQuery sink uses GCP client creds, not the HubSpot token — reviewed 2026-07-16
@@ -192,26 +239,8 @@ plugins/saas-packs/notion-pack/skills/notion-common-errors/references/examples.m
 plugins/saas-packs/notion-pack/skills/notion-debug-bundle/references/implementation.md:secret-exfil-cooccur  documented SaaS API-client example: reads own-service credential from env and sends it only to its own service (NOTION_TOKEN→Notion API); no third-party sink (foreign-host scan empty) — reviewed 2026-07-17
 plugins/saas-packs/notion-pack/skills/notion-deploy-integration/references/examples.md:secret-exfil-cooccur  documented SaaS API-client example: reads own-service credential from env and sends it only to its own service (NOTION_TOKEN→Notion API); no third-party sink (foreign-host scan empty) — reviewed 2026-07-17
 
-# ── Miro internal pack remediation (2026-08-23). ──
-# Each reviewed example sends a Miro OAuth credential only as an Authorization
-# header to Miro's own documented API endpoints; no example forwards that
-# credential to a third-party host or logs it.
-plugins/saas-packs/miro-pack/skills/miro-ci-integration/SKILL.md:secret-exfil-cooccur  documented Miro CI example sends its Miro test token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-core-workflow-a/SKILL.md:secret-exfil-cooccur  documented Miro board-client example sends its Miro token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-deploy-integration/SKILL.md:secret-exfil-cooccur  documented deployment example sends its Miro credential only to Miro's API
-plugins/saas-packs/miro-pack/skills/miro-hello-world/SKILL.md:secret-exfil-cooccur  documented starter API request sends its Miro token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-install-auth/SKILL.md:secret-exfil-cooccur  documented OAuth example sends Miro credentials only to Miro's token endpoint
 plugins/saas-packs/langfuse-pack/skills/langfuse-common-errors/SKILL.md:secret-exfil-cooccur  diagnostic curl uses Langfuse project credentials only with the configured Langfuse base URL; output redacts credentials and no foreign sink is present — reviewed 2026-08-27
 plugins/saas-packs/langfuse-pack/skills/langfuse-incident-runbook/SKILL.md:secret-exfil-cooccur  post-incident trace verification sends Langfuse project credentials only to the configured LANGFUSE_BASE_URL; output reports a count and does not print credentials or payloads — reviewed 2026-08-28
-plugins/saas-packs/miro-pack/skills/miro-local-dev-loop/SKILL.md:secret-exfil-cooccur  documented local development example sends its Miro token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-multi-env-setup/SKILL.md:secret-exfil-cooccur  documented environment example sends its Miro credential only to Miro's API
-plugins/saas-packs/miro-pack/skills/miro-observability/SKILL.md:secret-exfil-cooccur  documented telemetry example sends its Miro token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-performance-tuning/SKILL.md:secret-exfil-cooccur  documented performance request sends its Miro token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-rate-limits/SKILL.md:secret-exfil-cooccur  documented rate-limit request sends its Miro token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-reference-architecture/SKILL.md:secret-exfil-cooccur  documented architecture client sends its Miro token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-sdk-patterns/SKILL.md:secret-exfil-cooccur  documented SDK example sends its Miro token only to api.miro.com
-plugins/saas-packs/miro-pack/skills/miro-security-basics/SKILL.md:secret-exfil-cooccur  documented security example sends its Miro token only to Miro's API
-plugins/saas-packs/miro-pack/skills/miro-webhooks-events/SKILL.md:secret-exfil-cooccur  documented webhook management example sends its Miro token only to api.miro.com
 plugins/saas-packs/notion-pack/skills/notion-enterprise-rbac/references/implementation.md:secret-exfil-cooccur  documented SaaS API-client example: reads own-service credential from env and sends it only to its own service (NOTION_TOKEN→Notion API); no third-party sink (foreign-host scan empty) — reviewed 2026-07-17
 plugins/saas-packs/notion-pack/skills/notion-incident-runbook/SKILL.md:secret-exfil-cooccur  documented SaaS API-client example: reads own-service credential from env and sends it only to its own service (NOTION_TOKEN→Notion API); no third-party sink (foreign-host scan empty) — reviewed 2026-07-17
 plugins/saas-packs/notion-pack/skills/notion-load-scale/references/implementation.md:secret-exfil-cooccur  documented SaaS API-client example: reads own-service credential from env and sends it only to its own service (NOTION_TOKEN→Notion API); no third-party sink (foreign-host scan empty) — reviewed 2026-07-17
@@ -374,18 +403,27 @@ plugins/saas-packs/adobe-pack/skills/adobe-sdk-patterns/SKILL.md:secret-exfil-co
 plugins/saas-packs/adobe-pack/skills/adobe-upgrade-migration/SKILL.md:secret-exfil-cooccur  documented upgrade example sends Adobe credential only to Adobe's API
 plugins/saas-packs/adobe-pack/skills/adobe-webhooks-events/SKILL.md:secret-exfil-cooccur  documented webhook example sends Adobe credential only to Adobe's API
 
-# ── Attio internal pack remediation (2026-08-23). ──
-# Each reviewed example sends an Attio API credential only to Attio's documented
-# API endpoints; no example forwards that credential to a third-party host or logs it.
-plugins/saas-packs/attio-pack/skills/attio-ci-integration/SKILL.md:secret-exfil-cooccur  documented Attio CI example sends its Attio test credential only to api.attio.com
-plugins/saas-packs/attio-pack/skills/attio-debug-bundle/SKILL.md:secret-exfil-cooccur  documented Attio diagnostic request sends its Attio credential only to api.attio.com
-plugins/saas-packs/attio-pack/skills/attio-deploy-integration/SKILL.md:secret-exfil-cooccur  documented deployment example sends its Attio credential only to Attio's API
-plugins/saas-packs/attio-pack/skills/attio-install-auth/SKILL.md:secret-exfil-cooccur  documented authentication example sends Attio credentials only to Attio's API
-plugins/saas-packs/attio-pack/skills/attio-prod-checklist/SKILL.md:secret-exfil-cooccur  documented production verification sends its Attio credential only to api.attio.com
-plugins/saas-packs/attio-pack/skills/attio-sdk-patterns/SKILL.md:secret-exfil-cooccur  documented SDK example sends its Attio credential only to api.attio.com
-plugins/saas-packs/attio-pack/skills/attio-security-basics/SKILL.md:secret-exfil-cooccur  documented security example sends its Attio credential only to Attio's API
-plugins/saas-packs/attio-pack/skills/attio-upgrade-migration/SKILL.md:secret-exfil-cooccur  documented upgrade request sends its Attio credential only to api.attio.com
-plugins/saas-packs/attio-pack/skills/attio-webhooks-events/SKILL.md:secret-exfil-cooccur  documented webhook management example sends its Attio credential only to api.attio.com
+# ── Attio operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult the current official Attio documentation
+# named in its checked reference file; it grants no shell or general HTTP client.
+plugins/saas-packs/attio-pack/skills/attio-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
+plugins/saas-packs/attio-pack/skills/attio-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Attio documentation
 plugins/saas-packs/langfuse-pack/skills/langfuse-webhooks-events/SKILL.md:secret-exfil-cooccur  reviewed webhook tutorial: the Langfuse signing secret is used only for local HMAC verification; separately configured Slack and GitHub credentials are sent only to their respective notification and dispatch APIs, never forwarded with the Langfuse secret
 plugins/saas-packs/lindy-pack/skills/lindy-ci-integration/SKILL.md:secret-exfil-cooccur  reviewed CI documentation: the Lindy API key is sent only to public.lindy.ai, and the configured webhook secret is sent only to the configured Lindy webhook endpoint; the local test secret is not forwarded
 plugins/saas-packs/lindy-pack/skills/lindy-deploy-integration/SKILL.md:secret-exfil-cooccur  reviewed deployment documentation: LINDY_CALLBACK_SECRET is sent only to the operator's configured callback endpoint, while LINDY_TRIGGER_SECRET is sent only to public.lindy.ai; the two credentials are intentionally distinct and never forwarded to a third-party host
@@ -393,4 +431,493 @@ plugins/saas-packs/lindy-pack/skills/lindy-local-dev-loop/SKILL.md:secret-exfil-
 plugins/saas-packs/lindy-pack/skills/lindy-webhooks-events/references/implementation-guide.md:secret-exfil-cooccur  reviewed webhook reference: LINDY_TRIGGER_SECRET is loaded only after exact HTTPS public.lindy.ai webhook URL validation and sent only to that Lindy endpoint; the distinct LINDY_CALLBACK_SECRET is receiver-owned and used only for constant-time inbound callback authentication, never attached to the outbound fetch
 plugins/saas-packs/hootsuite-pack/skills/hootsuite-security-basics/SKILL.md:secret-exfil-cooccur  reviewed OAuth refresh example: HOOTSUITE_CLIENT_ID and HOOTSUITE_CLIENT_SECRET are combined only for Basic authentication to Hootsuite's own exact HTTPS token endpoint at platform.hootsuite.com/oauth2/token; no third-party or caller-controlled sink
 plugins/saas-packs/mistral-pack/skills/mistral-common-errors/SKILL.md:secret-exfil-cooccur  reviewed diagnostic examples send MISTRAL_API_KEY only to the fixed HTTPS host api.mistral.ai; status, documentation, and Discord links never receive the credential, and the behavioral probe tests suppress error bodies
+
+# ── Anima v2 operator pack — reviewed first-party API-client examples. ──
+# Anima tokens are passed only to the official @animaapp/anima-sdk backend
+# client. Figma tokens are sent only to fixed https://api.figma.com endpoints;
+# generated output, exception payloads, design contents, and credentials are
+# excluded from logs. Reviewed 2026-09-12 against Anima SDK 0.27.0 at upstream
+# commit 95b66d7e56514908d2017b6d9da03699e6ee0e00 and current Figma REST docs.
+plugins/saas-packs/anima-pack/skills/anima-core-workflow-a/SKILL.md:secret-exfil-cooccur  Figma token is sent only to fixed api.figma.com discovery and the official Anima SDK receives only its matching Anima/Figma credentials; output is path-contained and errors are redacted
+plugins/saas-packs/anima-pack/skills/anima-debug-bundle/SKILL.md:secret-exfil-cooccur  scoped Figma token is sent only to fixed api.figma.com identity verification; Anima token stays inside the official backend SDK and the private mode-0600 bundle stores only redacted presence/status fields
+plugins/saas-packs/anima-pack/skills/anima-performance-tuning/SKILL.md:secret-exfil-cooccur  scoped Figma token is sent only to fixed api.figma.com node metadata lookup; no credential is written into the source-version cache, output receipt, or third-party request
+plugins/saas-packs/anima-pack/skills/anima-prod-checklist/SKILL.md:secret-exfil-cooccur  production preflight sends the Figma token only to fixed api.figma.com identity verification and records only HTTP status; Anima credentials are presence-checked without transmission or disclosure
+plugins/saas-packs/anima-pack/skills/anima-webhooks-events/SKILL.md:secret-exfil-cooccur  Figma token and configured webhook passcode are sent only to Figma's fixed api.figma.com Webhooks v2 registration endpoint; the receiver verifies the echoed passcode locally and queues no credential
 sources.yaml:sources-change-unscanned  E8.4 changes only fail-closed publication dispositions for existing Skyvern and Hyperflow mirrors; both remain pinned by exact resolved_ref and per-file sha256 entries in sources.lock.json, with no mirrored content changed
+
+# ── Webflow operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult the current official Webflow developer
+# documentation named in its checked reference file; it grants no shell or HTTP client.
+plugins/saas-packs/webflow-pack/skills/webflow-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-data-handling/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-enterprise-rbac/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-incident-runbook/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-migration-deep-dive/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-multi-env-setup/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-observability/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+plugins/saas-packs/webflow-pack/skills/webflow-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Webflow developer documentation
+
+# ── StackBlitz operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult current first-party StackBlitz and
+# WebContainers documentation; no shell or general HTTP client is granted.
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+plugins/saas-packs/stackblitz-pack/skills/stackblitz-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official StackBlitz and WebContainers documentation
+
+# ── Algolia operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult current first-party Algolia
+# documentation; no shell or general HTTP client is granted.
+plugins/saas-packs/algolia-pack/skills/algolia-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-data-handling/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-enterprise-rbac/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-incident-runbook/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-migration-deep-dive/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-multi-env-setup/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-observability/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+plugins/saas-packs/algolia-pack/skills/algolia-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Algolia documentation
+
+# ── Salesloft operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult current first-party Salesloft
+# documentation; no shell or general HTTP client is granted.
+plugins/saas-packs/salesloft-pack/skills/salesloft-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+plugins/saas-packs/salesloft-pack/skills/salesloft-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Salesloft documentation
+
+# ── TechSmith operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult current first-party TechSmith
+# documentation; no shell or general HTTP client is granted.
+plugins/saas-packs/techsmith-pack/skills/techsmith-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+plugins/saas-packs/techsmith-pack/skills/techsmith-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official TechSmith documentation
+
+# ── Together AI operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult current first-party Together AI
+# documentation; no shell or general HTTP client is granted.
+plugins/saas-packs/together-pack/skills/together-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+plugins/saas-packs/together-pack/skills/together-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Together AI documentation
+
+# ── ClickUp operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult current first-party ClickUp
+# documentation; no shell or general HTTP client is granted.
+plugins/saas-packs/clickup-pack/skills/clickup-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-data-handling/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-enterprise-rbac/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-incident-runbook/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-migration-deep-dive/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-multi-env-setup/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-observability/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+plugins/saas-packs/clickup-pack/skills/clickup-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official ClickUp documentation
+
+# ── Miro operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult current first-party Miro
+# documentation; no shell or general HTTP client is granted.
+plugins/saas-packs/miro-pack/skills/miro-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-data-handling/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-enterprise-rbac/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-incident-runbook/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-migration-deep-dive/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-multi-env-setup/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-observability/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+plugins/saas-packs/miro-pack/skills/miro-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted by the skill to current official Miro documentation
+
+# ── Abridge operator pack remediation (2026-09-10). ──
+# Each skill grants WebFetch only to consult current first-party Abridge, HHS,
+# or named EHR documentation; no shell or general HTTP client is granted.
+plugins/saas-packs/abridge-pack/skills/abridge-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+plugins/saas-packs/abridge-pack/skills/abridge-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Abridge, HHS, or named EHR documentation
+
+# ── Linktree operator pack remediation (2026-09-11). ──
+# Each skill grants WebFetch only for current official Linktree or explicitly
+# approved partner documentation; no shell or general HTTP client is granted.
+plugins/saas-packs/linktree-pack/skills/linktree-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+plugins/saas-packs/linktree-pack/skills/linktree-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+plugins/saas-packs/linktree-pack/skills/linktree-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+plugins/saas-packs/linktree-pack/skills/linktree-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+plugins/saas-packs/linktree-pack/skills/linktree-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+plugins/saas-packs/linktree-pack/skills/linktree-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+plugins/saas-packs/linktree-pack/skills/linktree-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+plugins/saas-packs/linktree-pack/skills/linktree-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+plugins/saas-packs/linktree-pack/skills/linktree-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+plugins/saas-packs/linktree-pack/skills/linktree-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+plugins/saas-packs/linktree-pack/skills/linktree-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+plugins/saas-packs/linktree-pack/skills/linktree-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+plugins/saas-packs/linktree-pack/skills/linktree-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+plugins/saas-packs/linktree-pack/skills/linktree-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+plugins/saas-packs/linktree-pack/skills/linktree-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+plugins/saas-packs/linktree-pack/skills/linktree-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+plugins/saas-packs/linktree-pack/skills/linktree-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+plugins/saas-packs/linktree-pack/skills/linktree-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linktree or explicitly approved partner documentation
+
+# ── Lucid operator pack remediation (2026-09-11). ──
+# Each skill grants WebFetch only for current official Lucid documentation;
+# no shell or general HTTP client is granted.
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+plugins/saas-packs/lucidchart-pack/skills/lucidchart-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Lucid documentation
+
+# ── Mindtickle operator pack remediation (2026-09-11). ──
+# Each skill grants WebFetch only for current official Mindtickle or
+# customer-authorized tenant documentation; no shell or general HTTP client is granted.
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+plugins/saas-packs/mindtickle-pack/skills/mindtickle-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Mindtickle or customer-authorized tenant documentation
+
+# ── SerpAPI operator pack remediation (2026-09-11). ──
+# Each skill grants WebFetch only for current official SerpAPI documentation.
+# The install/auth credential is sent only to SerpAPI through official clients or
+# the documented HTTPS Account/Search APIs; examples never print or persist it.
+plugins/saas-packs/serpapi-pack/skills/serpapi-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-install-auth/SKILL.md:secret-exfil-cooccur  SERPAPI_API_KEY is sent only to https://serpapi.com through official clients or the documented Account/Search APIs; examples never print or persist it
+plugins/saas-packs/serpapi-pack/skills/serpapi-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+plugins/saas-packs/serpapi-pack/skills/serpapi-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official SerpAPI documentation
+
+# ── Workhuman operator pack remediation (2026-09-11). ──
+# Each skill grants WebFetch only to re-check current first-party Workhuman or
+# customer-authorized tenant documentation; it never authorizes a mutation.
+plugins/saas-packs/workhuman-pack/skills/workhuman-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+plugins/saas-packs/workhuman-pack/skills/workhuman-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+plugins/saas-packs/workhuman-pack/skills/workhuman-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+plugins/saas-packs/workhuman-pack/skills/workhuman-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+plugins/saas-packs/workhuman-pack/skills/workhuman-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+plugins/saas-packs/workhuman-pack/skills/workhuman-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+plugins/saas-packs/workhuman-pack/skills/workhuman-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+plugins/saas-packs/workhuman-pack/skills/workhuman-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+plugins/saas-packs/workhuman-pack/skills/workhuman-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+plugins/saas-packs/workhuman-pack/skills/workhuman-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+plugins/saas-packs/workhuman-pack/skills/workhuman-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+plugins/saas-packs/workhuman-pack/skills/workhuman-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+plugins/saas-packs/workhuman-pack/skills/workhuman-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+plugins/saas-packs/workhuman-pack/skills/workhuman-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+plugins/saas-packs/workhuman-pack/skills/workhuman-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+plugins/saas-packs/workhuman-pack/skills/workhuman-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+plugins/saas-packs/workhuman-pack/skills/workhuman-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+plugins/saas-packs/workhuman-pack/skills/workhuman-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Workhuman or customer-authorized tenant documentation
+
+# ── Salesforce operator pack remediation (2026-09-11). ──
+# Each skill grants WebFetch only to re-check current first-party Salesforce or
+# customer-authorized org documentation; it never authorizes an org mutation.
+plugins/saas-packs/salesforce-pack/skills/salesforce-advanced-troubleshooting/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-architecture-variants/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-data-handling/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-enterprise-rbac/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-incident-runbook/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-known-pitfalls/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-load-scale/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-migration-deep-dive/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-multi-env-setup/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-observability/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-policy-guardrails/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-reliability-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+plugins/saas-packs/salesforce-pack/skills/salesforce-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Salesforce or customer-authorized org documentation
+
+# ── Cohere operator pack remediation (2026-09-11). ──
+# Each skill grants WebFetch only to re-check current first-party Cohere
+# documentation; it never authorizes a Cohere API or account mutation.
+plugins/saas-packs/cohere-pack/skills/cohere-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-data-handling/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-enterprise-rbac/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-incident-runbook/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-migration-deep-dive/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-multi-env-setup/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-observability/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+plugins/saas-packs/cohere-pack/skills/cohere-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Cohere documentation
+
+# ── Instantly operator pack remediation (2026-09-11). ──
+# Each skill grants WebFetch only to re-check current first-party Instantly
+# documentation or official package metadata; it never authorizes an API mutation.
+plugins/saas-packs/instantly-pack/skills/instantly-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-data-handling/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-enterprise-rbac/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-incident-runbook/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-migration-deep-dive/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-multi-env-setup/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-observability/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+plugins/saas-packs/instantly-pack/skills/instantly-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Instantly documentation or package metadata
+
+# ── Linear operator pack remediation (2026-09-11). ──
+# Each skill grants WebFetch only for current first-party Linear documentation
+# and official package metadata; no shell or general HTTP client is granted.
+plugins/saas-packs/linear-pack/skills/linear-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-data-handling/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-enterprise-rbac/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-incident-runbook/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-migration-deep-dive/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-multi-env-setup/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-observability/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+plugins/saas-packs/linear-pack/skills/linear-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current official Linear documentation or package metadata
+# ── OpenEvidence operator pack remediation (2026-09-11). ──
+# Each skill grants WebFetch only for current first-party OpenEvidence documentation;
+# no Bash, general HTTP client, credential access, private endpoint, or automation interface is granted.
+plugins/saas-packs/openevidence-pack/skills/openevidence-ci-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-common-errors/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-core-workflow-a/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-core-workflow-b/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-cost-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-data-handling/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-debug-bundle/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-deploy-integration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-enterprise-rbac/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-hello-world/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-incident-runbook/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-install-auth/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-local-dev-loop/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-migration-deep-dive/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-multi-env-setup/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-observability/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-performance-tuning/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-prod-checklist/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-rate-limits/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-reference-architecture/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-sdk-patterns/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-security-basics/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-upgrade-migration/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+plugins/saas-packs/openevidence-pack/skills/openevidence-webhooks-events/SKILL.md:allowed-tools-network  reviewed least-privilege documentation lookup; WebFetch is restricted to current first-party OpenEvidence documentation
+
+# ── Anthropic retired documentation host migration (#1146). ──
+# The complete contents of these three first-party documentation surfaces were
+# reviewed while replacing deprecated Anthropic documentation links. The reported
+# dual-use patterns are unchanged and remain constrained to examples.
+plugins/ai-ml/ai-sdk-agents/README.md:secret-exfil-cooccur  documented model-provider configuration example; environment selection never transmits a credential and the file contains no credential-bearing network request
+plugins/saas-packs/claude-pack/skills/clade-reference-architecture/SKILL.md:hook-definition  inert JSON documentation for fixed pre-tool and post-tool echo hooks; no network, credentials, dynamic command construction, or untrusted input
+plugins/saas-packs/vendors/anthropic.yaml:outbound-network  documented Anthropic API smoke-test curl sends ANTHROPIC_API_KEY only to the fixed HTTPS api.anthropic.com origin and prints only the API response

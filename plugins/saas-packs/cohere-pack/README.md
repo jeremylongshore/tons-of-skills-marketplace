@@ -1,10 +1,20 @@
-# Cohere Skill Pack
+# Cohere v2 Operator Skill Pack
 
-> 24 production-ready Claude Code skills for Cohere API v2 — Chat, Embed, Rerank, Classify, RAG, and tool-use agents.
+> 24 source-grounded Claude Code skills for Cohere application and model operations.
 
-## What This Covers
+## What This Is
 
-Every skill uses **real Cohere API v2 code**: `CohereClientV2` from `cohere-ai`, actual model IDs (`command-a-03-2025`, `embed-v4.0`, `rerank-v3.5`), real streaming events (`content-delta`, `citation-start`, `tool-call-start`), real error types (`CohereError`, `CohereTimeoutError`), and real rate limits (trial: 20 calls/min, production: 1000 calls/min).
+This pack covers current Cohere v2 clients, Chat, Embed, Rerank, retrieval-augmented generation, tool use, streaming, testing, security, privacy, access control, migrations, deployment, incidents, observability, and cost control.
+
+The pack deliberately avoids stale shortcuts:
+
+- Model IDs are resolved from the live catalog; `command-a-plus-05-2026`, `embed-v4.0`, and Rerank v4 are dated reference candidates, not permanent aliases.
+- API v2 requires explicit models, a `messages` history for Chat, embedding types for Embed, JSON Schema tools, and tool-call correlation.
+- Limits are endpoint-, model-, key-, and account-aware rather than a blanket `1,000 requests/minute` claim.
+- Managed v1 connectors and other retired surfaces are replaced with application-owned v2 tools.
+- Team Owner/User roles are distinguished from fine-grained application authorization.
+- Privacy, retention, residency, and training claims are tied to the governing enterprise agreement.
+- Provider response streams are not mislabeled as signed inbound webhooks.
 
 ## Installation
 
@@ -12,67 +22,43 @@ Every skill uses **real Cohere API v2 code**: `CohereClientV2` from `cohere-ai`,
 /plugin install cohere-pack@claude-code-plugins-plus
 ```
 
-## Skills Included
+## Skills
 
-### Standard Skills (S01-S12)
+| Skill | Operator outcome |
+|---|---|
+| `cohere-install-auth` | Install a v2 SDK, protect the key, and run a read-only access probe |
+| `cohere-hello-world` | Prove one bounded Chat, Embed, or Rerank request |
+| `cohere-local-dev-loop` | Keep normal tests offline with an opt-in live smoke lane |
+| `cohere-sdk-patterns` | Build a typed adapter with timeouts, bounded retries, and streaming |
+| `cohere-core-workflow-a` | Run asymmetric Embed, retrieval, Rerank v4, Chat, and citation validation |
+| `cohere-core-workflow-b` | Execute a bounded, authorized, correlated tool-use loop |
+| `cohere-common-errors` | Classify authentication, validation, model, limit, and provider failures |
+| `cohere-debug-bundle` | Produce a minimal redacted support evidence bundle |
+| `cohere-rate-limits` | Control endpoint-aware capacity, queues, backoff, and headroom |
+| `cohere-security-basics` | Enforce key, tenant, input, output, tool, and safety controls |
+| `cohere-prod-checklist` | Issue an evidence-backed production go/no-go decision |
+| `cohere-upgrade-migration` | Migrate API v1, old SDKs, models, and legacy features to v2 |
+| `cohere-ci-integration` | Split required offline CI from a protected live verification lane |
+| `cohere-deploy-integration` | Deploy server-side, streaming-safe, canaried services |
+| `cohere-webhooks-events` | Handle typed streams and application-owned durable events correctly |
+| `cohere-performance-tuning` | Tune measured latency, throughput, retrieval quality, and batching |
+| `cohere-cost-tuning` | Forecast and control cost from live prices and measured usage |
+| `cohere-reference-architecture` | Design governed Chat, RAG, tool, evaluation, and operations boundaries |
+| `cohere-multi-env-setup` | Isolate keys and promote model configuration across environments |
+| `cohere-observability` | Instrument safe, low-cardinality operations and quality telemetry |
+| `cohere-incident-runbook` | Triage and mitigate provider, model, capacity, and application incidents |
+| `cohere-data-handling` | Bind data minimization and retention controls to approved terms |
+| `cohere-enterprise-rbac` | Map Team roles to workload keys and application authorization |
+| `cohere-migration-deep-dive` | Migrate providers with parallel indexes, evaluation, canarying, and rollback |
 
-| Skill | What It Does |
-|-------|-------------|
-| `cohere-install-auth` | Install `cohere-ai` SDK, configure `CO_API_KEY`, verify connection |
-| `cohere-hello-world` | Chat, Embed, Rerank, and streaming examples in 4 copy-paste snippets |
-| `cohere-local-dev-loop` | Project structure, vitest mocks, integration tests, hot reload |
-| `cohere-sdk-patterns` | Singleton client, retry with backoff, streaming generator, batch embed, JSON output |
-| `cohere-core-workflow-a` | Full RAG pipeline: Embed docs, search with cosine similarity, Rerank, Chat with citations |
-| `cohere-core-workflow-b` | Tool-use agents: define tools, single-step calling, multi-step agent loop, streaming tools |
-| `cohere-common-errors` | Every real error (400/401/429/5xx) with exact messages and fixes |
-| `cohere-debug-bundle` | Diagnostic script: SDK version, endpoint connectivity, request logging |
-| `cohere-rate-limits` | Trial vs production limits, exponential backoff, p-queue, proactive throttling |
-| `cohere-security-basics` | Key management, PII scrubbing, safety modes, logging safety, pre-commit hooks |
-| `cohere-prod-checklist` | Go-live checklist, health check endpoint, circuit breaker, canary deploy |
-| `cohere-upgrade-migration` | API v1 to v2 migration: every breaking change with before/after code |
+## Primary Sources
 
-### Pro Skills (P13-P18)
-
-| Skill | What It Does |
-|-------|-------------|
-| `cohere-ci-integration` | GitHub Actions with mocked unit tests + gated integration tests |
-| `cohere-deploy-integration` | Deploy to Vercel (streaming SSE), Fly.io, Cloud Run with secrets |
-| `cohere-webhooks-events` | SSE event types, RAG streaming with citations, connector registration |
-| `cohere-performance-tuning` | Model tiering by latency, batch embed (96/call), int8 vectors, embedding cache |
-| `cohere-cost-tuning` | Token-based pricing, model routing, budget tracking, rerank-before-embed |
-| `cohere-reference-architecture` | Layered project layout with RAG service, agent service, tool registry |
-
-### Flagship Skills (F19-F24)
-
-| Skill | What It Does |
-|-------|-------------|
-| `cohere-multi-env-setup` | Per-env model selection, secret management (AWS/GCP/Vault), env guards |
-| `cohere-observability` | Prometheus metrics, OpenTelemetry traces, token tracking, alert rules |
-| `cohere-incident-runbook` | Triage commands, decision tree, per-error-code remediation, postmortem template |
-| `cohere-data-handling` | PII detection/redaction before API calls, safe embedding, audit logging |
-| `cohere-enterprise-rbac` | Multi-team API keys, model access enforcement, per-team budget limits |
-| `cohere-migration-deep-dive` | Migrate from OpenAI/Anthropic: adapter pattern, embedding re-vectorization, A/B testing |
-
-## Key Models Referenced
-
-| Model | ID | Use Case |
-|-------|----|----------|
-| Command A | `command-a-03-2025` | Best chat/generation (256K context) |
-| Command R+ | `command-r-plus-08-2024` | Complex RAG (128K context) |
-| Command R | `command-r-08-2024` | Cost-effective RAG (128K context) |
-| Command R7B | `command-r7b-12-2024` | Fast/cheap (128K context) |
-| Embed v4 | `embed-v4.0` | Latest embeddings (128K context) |
-| Rerank v3.5 | `rerank-v3.5` | Search reranking (100+ languages) |
-
-## Usage
-
-Skills trigger automatically when you discuss Cohere topics:
-
-- "Set up Cohere in my project" -> `cohere-install-auth`
-- "Build a RAG pipeline with Cohere" -> `cohere-core-workflow-a`
-- "Create a Cohere agent with tools" -> `cohere-core-workflow-b`
-- "Fix this Cohere error" -> `cohere-common-errors`
-- "Migrate from OpenAI to Cohere" -> `cohere-migration-deep-dive`
+- [Create a Cohere v2 client](https://docs.cohere.com/docs/create-client)
+- [Live model catalog](https://docs.cohere.com/docs/models)
+- [API key types and rate limits](https://docs.cohere.com/docs/rate-limits)
+- [API v1 to v2 migration](https://docs.cohere.com/docs/migrating-v1-to-v2)
+- [Deprecations](https://docs.cohere.com/docs/deprecations)
+- [Teams and roles](https://docs.cohere.com/reference/teams-and-roles)
 
 ## License
 

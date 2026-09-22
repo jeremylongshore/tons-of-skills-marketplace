@@ -1,143 +1,84 @@
 ---
 name: salesloft-hello-world
-description: "Create a minimal working SalesLoft example \u2014 list people and create\
-  \ a person.\nUse when starting a new SalesLoft integration, testing your setup,\n\
-  or learning the People and Cadences API patterns.\nTrigger: \"salesloft hello world\"\
-  , \"salesloft example\", \"salesloft quick start\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(node:*)
+description: >-
+  Prove a Salesloft credential and team boundary with one bounded read-only request and response-envelope check. Use when testing a new integration without creating CRM data. Trigger with "Salesloft hello world", "first Salesloft request", or "test Salesloft connection".
+argument-hint: "[repository-path] [team-alias]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.6.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- sales
-- outreach
 - salesloft
+- getting-started
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# SalesLoft Hello World
+# Salesloft Verified First Read
 
 ## Overview
 
-List people and create a new person — the two fundamental SalesLoft API operations. Uses the REST API v2 at `https://api.salesloft.com/v2/`. All endpoints return JSON with a `data` wrapper and support pagination via `page` and `per_page` params.
+This skill proves credential injection, team identity, HTTPS handling, and the Salesloft response envelope. It deliberately avoids creating a person or enrolling anyone in a cadence.
 
 ## Prerequisites
 
-- Valid OAuth token or API key (see `salesloft-install-auth`)
-- `SALESLOFT_API_KEY` environment variable set
+- A named repository and non-production or explicitly approved team
+- A scoped OAuth access token or customer API key
+- A runtime with HTTPS, JSON parsing, and a bounded timeout
+- Permission to read the authenticated identity
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect the local HTTP wrapper, environment-variable names, and tests. Use `WebFetch` only for current official Salesloft documentation. Use `Write` or `Edit` after confirming the target implementation file.
+
+## Current Contract
+
+- Base URL: `https://api.salesloft.com/v2`.
+- Send the credential as a Bearer value; do not put it in a query parameter.
+- Use the documented path without assuming every endpoint requires a `.json` suffix.
+- Successful response bodies place returned data under `data`; list responses can also include `metadata`.
+
+## Authentication
+
+Use a partner OAuth access token, approved private-app token, or customer API key appropriate to the integration. The proof must not request or exercise write scopes.
 
 ## Instructions
 
-### Step 1: List People
+1. Confirm repository, team alias, auth flow, secret source, and expected identity.
+2. Configure an explicit base URL, Bearer injection, Accept header, and timeout.
+3. Request `GET /v2/me` once without retries that could hide an auth failure.
+4. Validate status, JSON content type, and the `data` envelope.
+5. Compare only a safe team or user identifier with the expected target.
+6. Add fixtures for success, 401, 403, and non-JSON responses.
 
-```typescript
-import axios from 'axios';
+## Approval Boundaries
 
-const api = axios.create({
-  baseURL: 'https://api.salesloft.com/v2',
-  headers: { Authorization: `Bearer ${process.env.SALESLOFT_API_KEY}` },
-});
-
-// List people — returns paginated results
-const { data } = await api.get('/people.json', {
-  params: { per_page: 25, page: 1 },
-});
-
-console.log(`Total people: ${data.metadata.paging.total_count}`);
-data.data.forEach((person: any) => {
-  console.log(`  ${person.display_name} <${person.email_address}>`);
-});
-```
-
-### Step 2: Create a Person
-
-```typescript
-// Create a new person record
-const { data: created } = await api.post('/people.json', {
-  email_address: 'prospect@example.com',
-  first_name: 'Alex',
-  last_name: 'Johnson',
-  title: 'VP Engineering',
-  company_name: 'Acme Corp',
-  phone: '+1-555-0100',
-  city: 'Austin',
-  state: 'TX',
-  custom_fields: {
-    lead_source: 'website',
-  },
-});
-
-console.log(`Created person: ${created.data.id} — ${created.data.display_name}`);
-```
-
-### Step 3: Add Person to a Cadence
-
-```typescript
-// First, list available cadences
-const { data: cadences } = await api.get('/cadences.json', {
-  params: { per_page: 10 },
-});
-const cadenceId = cadences.data[0].id;
-
-// Add person to cadence
-const { data: membership } = await api.post('/cadence_memberships.json', {
-  person_id: created.data.id,
-  cadence_id: cadenceId,
-});
-console.log(`Added to cadence: ${membership.data.cadence.name}`);
-```
+Do not create a demonstration person, change a cadence, or print the credential or raw identity payload. Stop if the returned team is not the approved target.
 
 ## Output
 
-```
-Total people: 1,247
-  Alex Johnson <prospect@example.com>
-Created person: 98765 — Alex Johnson
-Added to cadence: Q1 Outbound Sequence
-```
+Return redacted configuration, status, envelope assertion, expected-target match, fixture results, and the next authorized workflow.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `422 Unprocessable Entity` | Missing required field (email) | Ensure `email_address` is provided |
-| `409 Conflict` | Duplicate email address | Search existing people first with `?email_addresses[]=` |
-| `401 Unauthorized` | Invalid/expired token | Refresh OAuth token |
-| `429 Too Many Requests` | Rate limit exceeded (600 cost/min) | Back off and retry after `Retry-After` header |
+| Condition | Response |
+|---|---|
+| 401 | Check credential type, expiry, and Bearer injection. |
+| 403 | Confirm identity-read scope and acting-user permissions. |
+| Non-JSON response | Preserve status and content type, then stop parsing. |
+| Wrong team | Stop all work and correct the credential mapping. |
 
 ## Examples
 
-### Search People by Email
+The example below shows the minimum redacted evidence expected from a successful invocation of this operator workflow.
 
-```typescript
-const { data } = await api.get('/people.json', {
-  params: { email_addresses: ['prospect@example.com'] },
-});
-```
-
-### Update a Person
-
-```typescript
-await api.put(`/people/${personId}.json`, {
-  title: 'CTO',
-  company_name: 'New Corp',
-});
-```
-
-### List Activities for a Person
-
-```typescript
-const { data: activities } = await api.get('/activities/emails.json', {
-  params: { person_id: personId, per_page: 50 },
-});
+```text
+team=staging; request=GET /v2/me; envelope=pass; writes=0
 ```
 
 ## Resources
 
-- [List People Endpoint](https://developers.salesloft.com/docs/api/people-index/)
-- SalesLoft API Reference
-- [Retrieving Actions, Cadences, Steps](https://developers.salesloft.com/docs/platform/api-basics/retrieving-actions-cadences-steps/)
-
-## Next Steps
-
-Proceed to `salesloft-local-dev-loop` for development workflow setup.
+- [Skill-specific official documentation](references/official-docs.md)
+- [API basics](https://developers.salesloft.com/docs/platform/api-basics/)
+- [Request and response format](https://developers.salesloft.com/docs/platform/api-basics/request-response-format/)

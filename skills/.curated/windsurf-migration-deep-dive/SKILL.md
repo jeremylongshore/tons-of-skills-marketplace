@@ -1,6 +1,6 @@
 ---
 name: windsurf-migration-deep-dive
-description: 'Migrate to Windsurf from VS Code, Cursor, or other AI IDEs with full
+description: 'Migrate to Devin Desktop (formerly Windsurf) from VS Code, Cursor, or other AI IDEs with full
   configuration transfer.
 
   Use when migrating a team to Windsurf, transferring Cursor rules,
@@ -12,8 +12,9 @@ description: 'Migrate to Windsurf from VS Code, Cursor, or other AI IDEs with fu
   "windsurf from cursor", "windsurf from copilot", "windsurf evaluation".
 
   '
+argument-hint: "[source editor and migration scope]"
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(node:*)
-version: 1.11.0
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -28,9 +29,7 @@ compatibility: Designed for Claude Code
 
 ## Current State
 
-!`windsurf --version 2>/dev/null || echo 'Not installed'`
-!`code --version 2>/dev/null | head -1 || echo 'VS Code not installed'`
-!`cursor --version 2>/dev/null | head -1 || echo 'Cursor not installed'`
+Collect source and target editor versions during the inventory step; do not execute shell substitutions while loading this skill.
 
 ## Overview
 
@@ -42,6 +41,13 @@ Comprehensive guide for migrating teams to Windsurf from VS Code + Copilot, Curs
 - Target repositories identified
 - Team buy-in for evaluation period
 
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Write` only for a new artifact the user requested; never write credentials or unreviewed production configuration.
+- Use `Edit` for bounded, reviewable changes and preserve unrelated user work.
+- Use only the command-scoped `Bash` entries declared in frontmatter, with non-destructive checks before mutations.
+
 ## Instructions
 
 ### Step 1: Feature Comparison Matrix
@@ -52,16 +58,16 @@ Comprehensive guide for migrating teams to Windsurf from VS Code + Copilot, Curs
 | Agentic AI chat | N/A | Composer | Cascade Write |
 | AI Q&A | Copilot Chat | Chat | Cascade Chat |
 | Inline edit | Copilot Edit | Cmd+K | Cmd+I (Command) |
-| Project rules | N/A | .cursorrules | .windsurfrules |
+| Project rules | N/A | .cursorrules | .devin/rules/project.md |
 | AI ignore file | N/A | .cursorignore | .codeiumignore |
-| Workspace rules | N/A | .cursor/rules/ | .windsurf/rules/ |
+| Workspace rules | N/A | .cursor/rules/ | .devin/rules/ |
 | Reusable workflows | N/A | N/A | .windsurf/workflows/ |
 | Persistent memories | N/A | Notepad | Memories |
 | MCP support | Via extension | Built-in | Built-in |
 | In-IDE preview | N/A | N/A | Previews |
 | Terminal AI | N/A | Limited | Full (Turbo mode) |
 | Deploy from IDE | N/A | N/A | Netlify native |
-| Pricing (individual) | $10/mo | $20/mo | $15/mo |
+| Pricing | Verify current vendor plan | Verify current vendor plan | Verify current Devin plan |
 
 ### Step 2: Migrate from Cursor
 
@@ -72,8 +78,9 @@ echo "=== Migrating Cursor → Windsurf ==="
 
 # 1. Convert rules files
 if [ -f .cursorrules ]; then
-  cp .cursorrules .windsurfrules
-  echo "Converted .cursorrules → .windsurfrules"
+  mkdir -p .devin/rules
+  cp .cursorrules .devin/rules/project.md
+  echo "Converted .cursorrules → .devin/rules/project.md"
 fi
 
 # 2. Convert ignore file
@@ -84,15 +91,15 @@ fi
 
 # 3. Convert workspace rules
 if [ -d .cursor/rules ]; then
-  mkdir -p .windsurf/rules
+  mkdir -p .devin/rules
   for rule in .cursor/rules/*.md; do
     [ -f "$rule" ] || continue
     BASENAME=$(basename "$rule")
-    cp "$rule" ".windsurf/rules/$BASENAME"
+    cp "$rule" ".devin/rules/$BASENAME"
     echo "Copied rule: $BASENAME"
   done
   echo ""
-  echo "NOTE: Review .windsurf/rules/ files."
+  echo "NOTE: Review .devin/rules/ files."
   echo "Windsurf uses frontmatter with 'trigger:' field:"
   echo "  trigger: always_on | glob | model_decision | manual"
   echo "  globs: **/*.test.ts (for glob trigger)"
@@ -109,7 +116,7 @@ if command -v cursor &>/dev/null; then
 fi
 
 echo ""
-echo "Migration complete. Remove Cursor-specific references from .windsurfrules"
+echo "Migration complete. Remove Cursor-specific references from .devin/rules/project.md"
 ```
 
 ### Step 3: Migrate from VS Code + Copilot
@@ -139,9 +146,9 @@ DST_KB="$HOME/.config/Windsurf/User/keybindings.json"
 # 4. Create new Windsurf-specific config (no equivalent in VS Code)
 echo ""
 echo "NEW: Create these files for Windsurf AI features:"
-echo "  .windsurfrules   — project context for Cascade AI"
+echo "  .devin/rules/project.md   — project context for Cascade AI"
 echo "  .codeiumignore   — exclude files from AI indexing"
-echo "  .windsurf/rules/ — triggered workspace rules"
+echo "  .devin/rules/ — triggered workspace rules"
 ```
 
 ### Step 4: Team Rollout Plan
@@ -153,7 +160,7 @@ migration_plan:
     participants: "2-3 senior developers"
     goals:
       - "Install Windsurf, import VS Code settings"
-      - "Create .windsurfrules for 1-2 main repos"
+      - "Create .devin/rules/project.md for 1-2 main repos"
       - "Use Cascade for real tasks, document experience"
     success_criteria: "Pilot devs productive in Windsurf"
 
@@ -168,7 +175,7 @@ migration_plan:
   week_3_optimize:
     participants: "Full team"
     goals:
-      - "Refine .windsurfrules based on team feedback"
+      - "Refine .devin/rules/project.md based on team feedback"
       - "Create team workflows for common tasks"
       - "Configure Turbo mode allow/deny lists"
     success_criteria: "Acceptance rate >25%, team satisfied"
@@ -189,11 +196,15 @@ rollback:
   trigger: "Team productivity drops or critical issues discovered"
   steps:
     1. "Keep old editor installed during evaluation (don't uninstall)"
-    2. "Git config files (.windsurfrules, .codeiumignore) don't affect other editors"
+    2. "Git config files (.devin/rules/project.md, .codeiumignore) don't affect other editors"
     3. "VS Code settings already backed up during migration"
     4. "Cancel Windsurf subscription within trial period"
   note: "Windsurf config files are safe to leave in repo — they're ignored by other editors"
 ```
+
+## Output
+
+Deliver a migration inventory, feature mapping, converted configuration, unsupported-item list, validation evidence, user communication, and rollback path. Preserve the source editor configuration until the target cohort signs off on the migrated workflow.
 
 ## Error Handling
 
@@ -202,7 +213,7 @@ rollback:
 | Extension doesn't work in Windsurf | VS Code API incompatibility | Check Windsurf marketplace for alternative |
 | Settings cause errors | Windsurf-specific settings format | Remove Cursor/Copilot-specific settings |
 | Team resistance | Unfamiliar with Cascade | Demo session with real project tasks |
-| .cursorrules not working | Wrong filename | Must be `.windsurfrules` in Windsurf |
+| .cursorrules not working | Wrong filename | Must be `.devin/rules/project.md` in Windsurf |
 | Missing features | Specific Cursor/Copilot feature | Check if Windsurf has equivalent (often different name) |
 
 ## Examples
@@ -226,19 +237,20 @@ cursor /path/to/project  # or: code /path/to/project
 ```
 Copilot → Supercomplete (Tab completions)
 Copilot Chat → Cascade Chat (Cmd+L, Chat mode)
-Copilot Edit → Cascade Write (Cmd+L, Write mode)
+Copilot Edit → Cascade Write (Cmd+L, Code mode)
 Composer (Cursor) → Cascade Write
 Cmd+K (Cursor) → Cmd+I (Windsurf Command)
-.cursorrules → .windsurfrules
+.cursorrules → .devin/rules/project.md
 .cursorignore → .codeiumignore
 ```
 
 ## Resources
 
+- [Focused first-party references](references/official-docs.md)
 - [Windsurf Download](https://windsurf.com/download)
 - [Windsurf vs Cursor Comparison](https://windsurf.com/compare/windsurf-vs-cursor)
 - [Windsurf Changelog](https://windsurf.com/changelog)
 
-## Next Steps
+## Related Skill
 
-For advanced troubleshooting, see `windsurf-advanced-troubleshooting`.
+Continue with `windsurf-advanced-troubleshooting` when migration validation exposes indexing, extension, MCP, authentication, persistent workspace-state, or editor-runtime failures.

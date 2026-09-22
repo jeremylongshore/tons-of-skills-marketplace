@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/ideogram-pack",
-  "version": "1.0.1",
-  "description": "Claude Code skill pack for Ideogram - 24 skills covering AI image generation with text rendering",
+  "version": "1.11.0",
+  "description": "Operator-grade Ideogram skill pack with 24 current V4, async, security, storage, governance, and migration workflows",
   "main": "README.md",
   "type": "module",
   "files": [

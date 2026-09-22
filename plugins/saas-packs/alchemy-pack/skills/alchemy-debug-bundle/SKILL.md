@@ -1,184 +1,81 @@
 ---
 name: alchemy-debug-bundle
-description: 'Collect Alchemy SDK debug evidence for troubleshooting and support tickets.
-
-  Use when encountering persistent issues, preparing support tickets,
-
-  or debugging blockchain query failures.
-
-  Trigger: "alchemy debug bundle", "alchemy support ticket", "alchemy diagnostics".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(node:*), Grep
-version: 1.5.0
+description: >-
+  Collect a deterministic, secret-safe Alchemy diagnostic bundle for triage and escalation. Use when a provider issue needs reproducible evidence. Trigger with "Alchemy debug bundle", "collect Alchemy diagnostics", or "prepare an Alchemy support case".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<incident-id> <time-window> <endpoint-class>"
+version: 2.0.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- blockchain
-- web3
-- alchemy
-- debugging
-compatibility: Designed for Claude Code
+tags: [saas, alchemy, diagnostics, support]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Alchemy access requires network access, an appropriate credential, account capacity, and explicit approval"
 ---
-# Alchemy Debug Bundle
+# Alchemy Redacted Diagnostic Bundle
 
 ## Overview
 
-Collect diagnostic data for Alchemy support tickets: connectivity tests, SDK version, network status, CU usage, and recent error logs.
+Collect a deterministic, secret-safe Alchemy diagnostic bundle for triage and escalation. This workflow produces a reviewable artifact and negative-path evidence before any live side effect.
 
 ## Prerequisites
 
-- A scoped development or sandbox key supplied through a secret store; never
-  pass the key as a command-line argument or include it in a captured bundle.
-- A reproducible issue with the expected network, method, time window, and
-  sanitized request/correlation ID.
-- A review path that checks the bundle for credentials, wallet-address privacy
-  concerns, or proprietary application data before it leaves the organization.
+- Current first-party Alchemy documentation for the selected product, chain, feature, client, authentication method, limit, and lifecycle.
+- Named product, application, security, data/privacy, budget, release, and operations owners appropriate to the requested scope.
+- Synthetic or approved non-production fixtures, a credential canary, explicit success criteria, and a tested rollback boundary.
+
+## Current Contract
+
+A useful diagnostic bundle captures configuration identity, endpoint class, chain, dependency locks, sanitized request and response envelopes, request IDs, timing, retry history, and status observations. It never contains API keys, Admin keys, Notify tokens, signing keys, private keys, raw customer payloads, or credential-bearing URLs.
+
+## Authentication
+
+Use a redaction allowlist, not a blacklist. Replace embedded endpoint credentials with a stable one-way fingerprint only when policy permits correlation. Keep the unredacted source in its existing protected system rather than copying it into the bundle.
 
 ## Instructions
 
-### Step 1: Debug Bundle Generator
+1. Define the incident window, affected endpoint family, chain, environment, expected behavior, and authorized evidence recipients.
+2. Inventory runtime, package lock, adapter version, configured chain ID, feature, deployment SHA, and key identifier without reading or exporting secret values.
+3. Collect sanitized request/response shapes, HTTP and JSON-RPC status, selected safe headers, request IDs, duration, attempt count, and partial-error fields.
+4. Add current Alchemy status, supported-chain/feature evidence, and account-usage observation from the authorized owner; distinguish observation from inference.
+5. Scan the complete bundle for secret and personal-data canaries, manually review it, then hash the immutable artifact.
+6. Reproduce once with a synthetic fixture where safe, attach the positive or failed receipt, and specify retention and deletion dates.
 
-```typescript
-// src/debug/alchemy-debug.ts
-import { Alchemy, Network } from 'alchemy-sdk';
+## Tool Discipline
 
-interface DebugBundle {
-  timestamp: string;
-  sdkVersion: string;
-  environment: Record<string, string>;
-  connectivity: Record<string, any>;
-  networkStatus: Record<string, any>;
-}
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, wallet addresses, customer data, plan changes, spend, key creation or rotation, webhook changes, deployment, replay, transaction construction, signing, broadcast, or deletion.
 
-async function generateDebugBundle(): Promise<DebugBundle> {
-  const alchemy = new Alchemy({
-    apiKey: process.env.ALCHEMY_API_KEY,
-    network: Network.ETH_MAINNET,
-  });
+## Approval Boundaries
 
-  const bundle: DebugBundle = {
-    timestamp: new Date().toISOString(),
-    sdkVersion: require('alchemy-sdk/package.json').version,
-    environment: {
-      nodeVersion: process.version,
-      platform: process.platform,
-      apiKeySet: process.env.ALCHEMY_API_KEY ? 'yes (redacted)' : 'NO — missing',
-      network: process.env.ALCHEMY_NETWORK || 'ETH_MAINNET',
-    },
-    connectivity: {},
-    networkStatus: {},
-  };
-
-  // Test core connectivity
-  try {
-    const start = Date.now();
-    const blockNumber = await alchemy.core.getBlockNumber();
-    bundle.connectivity.core = {
-      status: 'ok',
-      latencyMs: Date.now() - start,
-      latestBlock: blockNumber,
-    };
-  } catch (err: any) {
-    bundle.connectivity.core = { status: 'failed', error: err.message };
-  }
-
-  // Test Enhanced API
-  try {
-    const start = Date.now();
-    await alchemy.core.getTokenBalances('0x0000000000000000000000000000000000000000');
-    bundle.connectivity.enhancedApi = { status: 'ok', latencyMs: Date.now() - start };
-  } catch (err: any) {
-    bundle.connectivity.enhancedApi = { status: 'failed', error: err.message };
-  }
-
-  // Test NFT API
-  try {
-    const start = Date.now();
-    await alchemy.nft.getContractMetadata('0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D');
-    bundle.connectivity.nftApi = { status: 'ok', latencyMs: Date.now() - start };
-  } catch (err: any) {
-    bundle.connectivity.nftApi = { status: 'failed', error: err.message };
-  }
-
-  // Multi-network status
-  for (const [name, network] of Object.entries({
-    ethereum: Network.ETH_MAINNET,
-    polygon: Network.MATIC_MAINNET,
-    arbitrum: Network.ARB_MAINNET,
-  })) {
-    try {
-      const client = new Alchemy({ apiKey: process.env.ALCHEMY_API_KEY, network });
-      const block = await client.core.getBlockNumber();
-      bundle.networkStatus[name] = { status: 'ok', block };
-    } catch (err: any) {
-      bundle.networkStatus[name] = { status: 'failed', error: err.message };
-    }
-  }
-
-  const filename = `alchemy-debug-${Date.now()}.json`;
-  require('fs').writeFileSync(filename, JSON.stringify(bundle, null, 2));
-  console.log(`Debug bundle saved: ${filename}`);
-  return bundle;
-}
-
-generateDebugBundle().catch(console.error);
-```
-
-### Step 2: Bash Quick Diagnostic
-
-```bash
-#!/bin/bash
-echo "=== Alchemy Quick Diagnostics ==="
-echo "API Key: ${ALCHEMY_API_KEY:+SET (redacted)}"
-
-echo -n "ETH Mainnet: "
-curl -s "https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}" \
-  -X POST -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":0}' \
-  | jq -r '.result // .error.message'
-
-echo -n "Polygon: "
-curl -s "https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}" \
-  -X POST -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":0}' \
-  | jq -r '.result // .error.message'
-
-echo "=== Done ==="
-```
-
-## Output
-
-- JSON debug bundle with connectivity, latency, and network status
-- SDK version and environment configuration
-- Multi-network health check results
-
-## Examples
-
-When a testnet application reports intermittent RPC failures, run the generator
-with a scoped development key and inspect the JSON locally. Confirm it reports
-SDK version, network status, aggregate latency, and only redacted key state;
-remove wallet addresses or application payloads if any were added by local
-instrumentation. Attach the sanitized bundle and relevant request ID to a
-support ticket. If a bundle exposes a credential or sensitive application
-data, do not upload it—revoke the exposed credential if necessary, correct the
-redaction logic, and regenerate the evidence.
+The incident owner approves scope and recipients; security/privacy approve any potentially identifying evidence. Sending a bundle to Alchemy or another external party requires explicit disclosure approval.
 
 ## Error Handling
 
-| Failure | Response |
-|---------|----------|
-| Diagnostic call is unauthorized | Stop the run and verify the scoped key without printing it. |
-| A network check times out | Record the network and timeout only, then compare against the provider status page. |
-| Bundle contains sensitive data | Quarantine it, rotate any exposed credential, improve redaction, and regenerate. |
-| Support needs more context | Provide sanitized request IDs, timestamps, and SDK version—not application secrets or private keys. |
+- If redaction cannot be proven, do not export the bundle.
+- Do not install or report the archived `alchemy-sdk` merely to populate an SDK-version field.
+- A service-status screenshot without request IDs and environment facts is context, not root-cause evidence.
+
+## Output
+
+Return the incident manifest, sanitized environment and request facts, status/feature evidence, reproduction receipt, redaction scan, artifact hash, recipients, retention date, and gaps. Mark assumptions, observations, source dates, environment-specific behavior, owners, and unresolved gaps explicitly.
+
+## Examples
+
+- Build a bundle for intermittent Ethereum RPC timeouts containing request IDs and timings but no endpoint URL or address payload.
+- Reject a draft bundle when its command transcript contains the application key in a URL, then rotate if exposure crossed the approved boundary.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- secret canary detected
+- customer-address canary detected
+- missing request ID
+- partial error preserved
+- artifact hash reproducible
+- recipient authorization absent
 
 ## Resources
 
-- [Alchemy Status Page](https://status.alchemy.com)
-- [Alchemy Support](https://www.alchemy.com/support)
-
-## Next Steps
-
-For rate limit handling, see `alchemy-rate-limits`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Alchemy sources before execution.
+- Treat observed account, application, network, indexer, chain, or provider behavior as environment-specific evidence, never a universal guarantee.

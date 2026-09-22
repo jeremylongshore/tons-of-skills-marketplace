@@ -1,122 +1,95 @@
 ---
 name: flyio-cost-tuning
-description: 'Optimize Fly.io costs with auto-stop/suspend, right-sizing VMs,
-
-  volume management, and monitoring spend across apps and regions.
-
-  Trigger: "fly.io costs", "fly.io pricing", "fly.io billing", "reduce fly.io spend".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(fly:*)
-version: 1.7.0
+description: >-
+  Analyze Fly.io Machine, volume, network, IP, and Managed Postgres cost drivers without freezing volatile prices. Use when reducing spend or forecasting capacity. Trigger with: "audit Fly bill", "right-size Fly Machines", "reduce Fly idle cost".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[organization-app-and-billing-window]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- edge-compute
-- flyio
-compatibility: Designed for Claude Code
+  - saas
+  - flyio
+  - cost-management
+  - right-sizing
+  - autostop
+compatibility: 'Requires current billing exports or invoices, app and database inventory, utilization evidence, service objectives, and an approved optimization window.'
 ---
-# Fly.io Cost Tuning
+
+# Fly.io Cost and Capacity Review
 
 ## Overview
 
-Fly.io charges per-second for running machines plus storage. Key levers: auto-stop idle machines, suspend instead of stop, right-size VMs, and clean up unused volumes.
+Optimize from measured usage and the current pricing page, not copied monthly constants. Separate running and stopped Machine charges, persistent volume and snapshot charges, network and IP costs, and Managed Postgres resources that live outside application deletion.
 
 ## Prerequisites
 
-- Current contract/billing data reviewed by the account owner, aggregate resource usage, and a named cost owner.
-- Availability, latency, durability, and retention requirements that constrain autoscaling and volume decisions.
-- Synthetic staging load and a rollback plan for each cost-control change.
-
-## Output
-
-Produce a cost-control receipt with measurement window, aggregate usage, approved setting change, expected effect, owner, verification date, and rollback result. Never include tokens, customer data, or internal billing details.
-
-## Error Handling
-
-- Do not remove volumes or capacity without confirmed retention, backup, and recovery requirements.
-- Revert a cost change that breaches availability, latency, or data-durability thresholds.
-- Quarantine unexpected resource changes for review rather than applying bulk cleanup.
-
-## Examples
-
-Apply a suspend policy to a fictional staging app, compare aggregate idle cost and cold-start health, and roll back when a synthetic health check breaches the agreed latency threshold. Do not delete any volume as part of an exploratory test.
-
-## Pricing Quick Reference
-
-| Resource | Free Tier | Cost |
-|----------|-----------|------|
-| shared-cpu-1x (256mb) | 3 VMs free | ~$1.94/month each |
-| shared-cpu-1x (512mb) | included | ~$3.88/month |
-| shared-cpu-2x (1gb) | - | ~$11.62/month |
-| Volumes | 3GB free | $0.15/GB/month |
-| Bandwidth | 100GB free | $0.02/GB after |
-| IPv4 | 1 free per org | $2/month each |
+- Billing window, currency, organization, apps, and cost owner
+- Machine state and resource history plus traffic, latency, and availability objectives
+- Inventory of volumes, snapshots, IPs, transfer, builders, and Managed Postgres clusters
 
 ## Instructions
 
-### Strategy 1: Auto-Stop Idle Machines
+### Step 1: Reconcile the bill to resources
 
-```toml
-# fly.toml — stop machines when no traffic
-[http_service]
-  auto_stop_machines = "stop"     # Full stop (cheapest, ~5s cold start)
-  auto_start_machines = true
-  min_machines_running = 0        # Allow all machines to stop
-  # Use min_machines_running = 1 only for production apps
-```
+Map each charge class to current Machines, volumes, snapshots, addresses, transfer, builders, and databases. Include unattached and stopped-resource dependencies.
 
-### Strategy 2: Suspend for Faster Resume
+### Step 2: Measure utilization and state
 
-```toml
-# Suspend keeps memory state — resumes in ~100ms but costs ~$0.50/month
-[http_service]
-  auto_stop_machines = "suspend"
-```
+Compare CPU, memory, concurrency, request, latency, restart, and running-time signals with the selected VM size and Machine count.
 
-### Strategy 3: Audit and Clean Up
+### Step 3: Evaluate autostop safely
 
-```bash
-# List all apps and their machine counts
-fly apps list
+For eligible service apps, model `auto_stop_machines` as `stop` or `suspend` with `auto_start_machines` and a deliberate minimum-running setting. Include cold-start and state-safety costs.
 
-# Find idle/stopped machines
-fly machine list -a my-app --json | jq '.[] | select(.state != "started") | {id, state, region}'
+### Step 4: Right-size and place
 
-# Destroy unused apps
-fly apps destroy old-app --yes
+Change one dimension at a time: VM preset, additional memory, count, region placement, or database plan. Preserve capacity and recovery headroom.
 
-# List and delete orphaned volumes
-fly volumes list -a my-app
-fly volumes destroy vol_xxx
-```
+### Step 5: Remove orphaned cost with approval
 
-### Strategy 4: Right-Size VMs
+Identify unattached volumes, obsolete snapshots beyond policy, unused addresses, old builders, and databases no longer referenced. Deletion requires owner confirmation and recovery evidence.
 
-```bash
-# Check memory usage to see if oversized
-fly ssh console -a my-app -C "cat /proc/meminfo | head -3"
+### Step 6: Verify savings and service health
 
-# Downgrade if using <50% of allocated memory
-fly scale vm shared-cpu-1x --memory 256 -a my-app
-```
+Compare the next billing interval and performance signals with the baseline; reverse changes that violate latency, availability, or recovery objectives.
 
-### Cost Monitoring
+## Authentication
 
-```bash
-# Check current month's usage
-fly billing  # Shows org-level billing
+Prefer read-only organization tokens for inventory and billing analysis. Cost review does not authorize deleting Machines, volumes, addresses, snapshots, or Managed Postgres clusters; obtain resource-owner approval and preserve recovery evidence first.
 
-# Estimate per-app cost
-fly scale show -a my-app  # See VM count and size
-```
+## Tool Discipline
+
+Use Read and Grep to inspect application configuration, deployment evidence, provider documentation, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for an approved plan, configuration, implementation, test, or redacted receipt. Do not create, deploy, scale, restart, stop, suspend, destroy, rotate, revoke, expose, or migrate live Fly.io resources without explicit operator approval.
+
+## Output
+
+- Cost allocation by resource class and owner
+- Ranked optimization plan with forecast, risk, and rollback
+- Post-change cost and service-objective comparison
+
+Return the target organization, app, environment, region set, Machine or database identifiers, source-contract fingerprint, evidence, unresolved risks, rollback state, and final decision without exposing tokens, secrets, connection strings, or customer data.
+
+## Examples
+
+An internal HTTP app has predictable idle nights. The operator confirms it has no unsafe local state, models suspend and autostart with one minimum Machine during business hours, preserves volume charges in the forecast, and validates cold-start latency before rollout.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Bill and inventory do not reconcile | Check deleted apps, stopped Machines, orphaned volumes, addresses, builders, transfer, and Managed Postgres outside app scope. |
+| Autostop harms availability | Raise minimum capacity or revert the setting; do not optimize through an unmeasured outage. |
+| Pricing changed | Re-fetch the official pricing page and recompute; never preserve a stale copied rate. |
 
 ## Resources
 
-- [Fly.io Pricing](https://fly.io/docs/about/pricing/)
-- [Auto Stop/Start](https://fly.io/docs/launch/autostop-autostart/)
-
-## Next Steps
-
-For architecture design, see `flyio-reference-architecture`.
+- [First-party source notes](references/official-docs.md)
+- [Machines API setup](https://fly.io/docs/machines/api/working-with-machines-api/)
+- [Automation and tokens](https://fly.io/docs/flyctl/integrating/)
+- [App configuration](https://fly.io/docs/reference/configuration/)
+- [Resource pricing](https://fly.io/docs/about/pricing/)
+- [Autostop and autostart](https://fly.io/docs/reference/fly-proxy-autostop-autostart/)
+- [Managed Postgres](https://fly.io/docs/mpg/)

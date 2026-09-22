@@ -1,181 +1,93 @@
 ---
 name: vastai-multi-env-setup
-description: 'Configure Vast.ai GPU cloud across dev, staging, and production environments.
-
-  Use when isolating GPU pools per team, managing API key separation by env,
-
-  or implementing spending controls per deployment tier.
-
-  Trigger with phrases like "vastai environments", "vastai staging",
-
-  "vastai dev prod", "vastai multi-env".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vastai:*), Grep
-version: 1.11.0
+description: >-
+  Separate development, staging, and production Vast.ai identities, templates, labels, budgets, data, and evidence so one environment cannot mutate another. Use when establishing or auditing environment isolation. Trigger with: "set up Vast.ai environments", "separate Vast.ai prod and dev", "govern Vast.ai templates by environment".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[environments-teams-and-promotion-policy]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- deployment
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - environments
+  - isolation
+  - promotion
+compatibility: 'Requires named environments, Teams or account contexts, scoped keys, immutable templates, secret stores, and cost ownership.'
 ---
-# Vast.ai Multi-Environment Setup
+
+# Vast.ai Environment Isolation
 
 ## Overview
 
-Configure separate Vast.ai environments for development, staging, and production by using different API keys, GPU profiles, and spending limits. Vast.ai does not have built-in environment isolation, so you implement it through configuration.
+Vast.ai does not turn naming conventions into isolation automatically. Build the boundary from team/account context, scoped keys, immutable template hashes, labels, data prefixes, budgets, and promotion evidence.
 
 ## Prerequisites
 
-- Vast.ai accounts or API keys per environment
-- Secrets manager for key storage
-- Understanding of GPU profile requirements per tier
+- Environment owners, sensitivity, workloads, regions, budgets, and approved accounts or teams
+- Separate keys, SSH identities, storage prefixes, templates, registries, and alert routes
+- Promotion, break-glass, rollback, and access-review procedures
 
 ## Instructions
 
-### Step 1: Environment Configuration
+### Step 1: Define environment identity
 
-```python
-# config.py — environment-specific Vast.ai settings
-import os
-from dataclasses import dataclass
+Assign each environment an explicit team/account context, key IDs, labels, data prefix, budget, and owner. Reject implicit current context.
 
-@dataclass
-class VastEnvConfig:
-    name: str
-    api_key: str
-    max_dph: float           # Maximum $/hr per instance
-    max_instances: int       # Concurrent instance limit
-    max_daily_spend: float   # Daily budget cap
-    gpu_whitelist: list      # Allowed GPU types
-    reliability_min: float   # Minimum reliability score
-    auto_destroy_hours: int  # Auto-destroy timeout
+### Step 2: Separate credentials
 
-ENVIRONMENTS = {
-    "development": VastEnvConfig(
-        name="development",
-        api_key=os.environ.get("VASTAI_DEV_KEY", ""),
-        max_dph=0.25,
-        max_instances=2,
-        max_daily_spend=5.00,
-        gpu_whitelist=["RTX_3090", "RTX_4090"],
-        reliability_min=0.90,
-        auto_destroy_hours=2,
-    ),
-    "staging": VastEnvConfig(
-        name="staging",
-        api_key=os.environ.get("VASTAI_STAGING_KEY", ""),
-        max_dph=2.00,
-        max_instances=4,
-        max_daily_spend=50.00,
-        gpu_whitelist=["RTX_4090", "A100"],
-        reliability_min=0.95,
-        auto_destroy_hours=12,
-    ),
-    "production": VastEnvConfig(
-        name="production",
-        api_key=os.environ.get("VASTAI_PROD_KEY", ""),
-        max_dph=4.00,
-        max_instances=16,
-        max_daily_spend=500.00,
-        gpu_whitelist=["A100", "H100_SXM"],
-        reliability_min=0.98,
-        auto_destroy_hours=48,
-    ),
-}
+Create environment-specific scoped keys and dedicated SSH access. Production credentials must never be available to development jobs or forked CI.
 
-def get_config(env=None):
-    env = env or os.environ.get("VASTAI_ENV", "development")
-    return ENVIRONMENTS[env]
-```
+### Step 3: Version templates and images
 
-### Step 2: Environment-Aware Client
+Use immutable image digests and template hashes. Promote the same bytes by recorded identity rather than rebuilding for each environment.
 
-```python
-class EnvAwareVastClient:
-    def __init__(self, env="development"):
-        self.config = get_config(env)
-        self.client = VastClient(api_key=self.config.api_key)
+### Step 4: Constrain data and resources
 
-    def search_offers(self, **overrides):
-        query = {
-            "rentable": {"eq": True},
-            "reliability2": {"gte": self.config.reliability_min},
-            "dph_total": {"lte": overrides.get("max_dph", self.config.max_dph)},
-        }
-        gpu = overrides.get("gpu_name", self.config.gpu_whitelist[0])
-        query["gpu_name"] = {"eq": gpu}
-        return self.client.search_offers(query)
+Use distinct checkpoint/storage prefixes, resource labels, Serverless IDs, and notifications. Validate that a dev key cannot read or mutate production.
 
-    def create_instance(self, offer_id, image, disk_gb=20):
-        # Enforce instance limit
-        current = len([i for i in self.client.show_instances()
-                      if i.get("actual_status") == "running"])
-        if current >= self.config.max_instances:
-            raise RuntimeError(
-                f"{self.config.name}: Instance limit reached ({current}/{self.config.max_instances})")
-        return self.client.create_instance(offer_id, image, disk_gb)
-```
+### Step 5: Promote through evidence
 
-### Step 3: Environment Variables
+Require dev tests, staging canary, recovery, cost, and security receipts before a production role references the candidate identity.
 
-```bash
-# .env.development
-VASTAI_ENV=development
-VASTAI_DEV_KEY=dev-api-key-here
+### Step 6: Audit drift
 
-# .env.staging
-VASTAI_ENV=staging
-VASTAI_STAGING_KEY=staging-api-key-here
+Regularly compare members, roles, keys, templates, active resources, labels, budgets, and stale environment variables across contexts.
 
-# .env.production (in secrets manager, never in files)
-VASTAI_ENV=production
-VASTAI_PROD_KEY=prod-api-key-here
-```
+## Authentication
 
-### Step 4: Docker Image Tagging by Environment
+Environment isolation depends on distinct scoped credentials and explicit team/account context. Never infer environment only from a filename, branch, or mutable image tag.
 
-```bash
-# Dev: use latest for quick iteration
-docker tag training:latest ghcr.io/org/training:dev
+## Tool Discipline
 
-# Staging: use specific commit hash
-docker tag training:latest ghcr.io/org/training:stg-$(git rev-parse --short HEAD)
-
-# Production: use semantic version
-docker tag training:latest ghcr.io/org/training:v1.2.3
-```
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- Environment-specific configuration (dev, staging, production)
-- Instance limits and budget caps per environment
-- GPU whitelist enforcement
-- Docker image tagging strategy
-- Environment-aware client wrapper
+- Environment authority and resource map
+- Cross-environment positive/negative access tests
+- Promotion, drift, exception, and rollback receipt
 
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Wrong environment selected | `VASTAI_ENV` not set | Default to `development` for safety |
-| Instance limit exceeded | Too many concurrent instances | Destroy idle instances or increase limit |
-| Daily budget exceeded | Expensive GPUs running too long | Implement auto-destroy timeout |
-| Dev key used in prod | Environment variable misconfigured | Validate key matches expected account |
-
-## Resources
-
-- [Vast.ai CLI](https://docs.vast.ai/cli/get-started)
-- [REST API](https://vast.ai/developers/api)
-
-## Next Steps
-
-For observability and monitoring, see `vastai-observability`.
+Return environment contexts, role/key IDs, immutable release identity, data prefixes, access tests, budget owners, and promotion state.
 
 ## Examples
 
-**Dev workflow**: `VASTAI_ENV=development python deploy.py --gpu RTX_4090` — enforces $0.25/hr max, 2 instance limit, auto-destroy after 2 hours.
+Staging and production use different team contexts and keys but promote the identical template hash; a staging key's attempted production instance read is retained as an expected denial.
 
-**Prod deployment**: `VASTAI_ENV=production python deploy.py --gpu H100_SXM --gpus 4` — allows up to 16 instances at $4/hr with 48-hour timeout.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Current context is unknown | Stop before search or mutation and resolve the account/team explicitly. |
+| One key spans unrelated environments | Replace it with scoped environment-specific identities. |
+| Promotion rebuilds mutable bytes | Reject the release and promote an immutable digest/hash. |
+| Cross-environment denial fails | Contain access, review audit logs, and repair roles before proceeding. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [Teams overview](https://docs.vast.ai/guides/teams/teams-overview)
+- [CLI permissions](https://docs.vast.ai/cli/permissions)
+- [Managing templates](https://docs.vast.ai/guides/templates/managing-templates)

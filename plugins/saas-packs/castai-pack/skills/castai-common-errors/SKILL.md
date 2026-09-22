@@ -1,226 +1,89 @@
 ---
 name: castai-common-errors
-description: 'Diagnose and fix CAST AI agent, API, and autoscaler errors.
-
-  Use when the CAST AI agent is offline, nodes are not scaling,
-
-  or API calls return errors.
-
-  Trigger with phrases like "cast ai error", "cast ai not working",
-
-  "cast ai agent offline", "cast ai debug", "fix cast ai".
-
-  '
-allowed-tools: Read, Bash(kubectl:*), Bash(curl:*), Grep
-version: 1.4.0
+description: 'Diagnose CAST AI connection, agent, node autoscaling, and workload autoscaling failures without making speculative changes. Use when a cluster is disconnected, recommendations are absent, pods are not optimized, or capacity does not scale as expected. Trigger with: "debug CAST AI", "CAST AI is not scaling", "why is CAST AI disconnected".'
+allowed-tools: Read, Grep, Bash(kubectl:*), Bash(helm:*), Bash(castctl:*)
+version: 2.0.0
+argument-hint: '[cluster-context-or-symptom]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- kubernetes
-- cost-optimization
-- castai
-compatibility: Designed for Claude Code
+  - saas
+  - kubernetes
+  - cast-ai
+  - diagnostics
+  - operations
+compatibility: 'Requires read access to the target kube context; console or API evidence may require an appropriately scoped CAST AI identity'
 ---
-# CAST AI Common Errors
+
+# CAST AI Failure Triage
 
 ## Overview
 
-Diagnostic guide for the 10 most common CAST AI issues, covering agent connectivity, API errors, autoscaler failures, and node provisioning problems.
+Separate observation, connectivity, policy, capacity, and disruption failures before proposing a change. Preserve the failing state, use current component topology, and stop when the evidence requires cloud-provider or CAST AI support access.
 
 ## Prerequisites
 
-- `kubectl` access to the cluster
-- `CASTAI_API_KEY` configured
-- Access to CAST AI console for log correlation
+- The exact kube context, cluster, region, time window, and observed symptom
+- Read-only access to the `castai-agent` namespace
+- The declared installation owner: castctl, Terraform, GitOps, or console
 
 ## Instructions
 
-Identify the affected cluster and environment first, collect the minimum
-redacted evidence needed to classify the symptom, then use the matching
-runbook below. Change one control at a time, observe health and workload impact
-over the defined window, and keep production changes behind the approved
-change process. Escalate rather than guessing when the issue involves
-credentials, unexpected node termination, data loss risk, or an unclear
-provider-side failure.
+### Step 1: Freeze the symptom
 
-## Error Handling
+Record expected versus actual behavior, timestamps, workload identity, pending-pod reason, and recent configuration changes. Use Read and Grep on runbooks and IaC to determine whether Cost Monitoring, Node Autoscaling, or Workload Autoscaling is actually enabled.
 
-| Failure class | Safe first action |
-|---|---|
-| Authentication or authorization | Stop retries, verify the scoped secret reference, and rotate through the owner if compromise is possible. |
-| Autoscaler or evictor disruption | Disable the affected automation path and stabilize the workload before tuning. |
-| Terraform drift or unsafe plan | Do not apply; reconcile through the declared state and review process. |
-| Provider outage or unknown behavior | Preserve redacted timestamps and correlation details, then use the escalation path. |
+### Step 2: Check installation health
 
-## Error Reference
+Use Bash(castctl:_) for version or non-mutating status commands supported by the installed client. Use Bash(helm:_) to inspect releases and values, then Bash(kubectl:\*) to inspect workloads, readiness, events, and bounded logs in `castai-agent`. Do not restart components before collecting evidence.
 
-### 1. Agent Pod CrashLoopBackOff
+### Step 3: Classify the failure plane
 
-```bash
-kubectl get pods -n castai-agent
-kubectl logs -n castai-agent deployment/castai-agent --tail=50
-```
+| Plane            | Evidence                                               | Likely boundary                                             |
+| ---------------- | ------------------------------------------------------ | ----------------------------------------------------------- |
+| Connection       | Agent readiness, outbound failures, console disconnect | Identity, network, or cloud permissions                     |
+| Node scaling     | Pending pods, policy bounds, node-template fit         | Unsatisfied constraints or maximum CPU boundary             |
+| Workload scaling | Missing recommendations, policy assignment, metrics    | Metrics server, confidence, policy, or unsupported workload |
+| Disruption       | Eviction denial, PDB events, deferred changes          | PDB or selected apply mode                                  |
+| Reporting        | Missing cost or savings window                         | Ingestion, baseline, adoption, or pricing configuration     |
 
-**Causes and fixes:**
+### Step 4: Test one hypothesis
 
-- **Invalid API key**: Regenerate at console.cast.ai > API
-- **Wrong provider**: Set `--set provider=eks|gke|aks` correctly in Helm
-- **RBAC missing**: Apply the required ClusterRole and ClusterRoleBinding
-- **Network blocked**: Ensure outbound HTTPS to `api.cast.ai` is allowed
+Choose the smallest reversible check. Confirm regional endpoint alignment, effective scaling-policy assignment, metrics availability, supported workload type, node-template constraints, and cloud quota. Treat the deprecated cluster minimum CPU setting as migration debt, not a current control to add.
 
-### 2. Agent Shows "Disconnected" in Console
+### Step 5: Decide the owner and remedy
 
-```bash
-# Check agent heartbeat
-kubectl logs -n castai-agent deployment/castai-agent | grep -i "heartbeat\|connect\|error"
+Map the evidence to the owning layer. Change repository-managed values only through their source of truth; do not mix console edits into Terraform or GitOps ownership. Escalate with a redacted bundle when the failure is inside the hosted control plane or an undocumented provider response.
 
-# Verify network connectivity from inside the cluster
-kubectl run castai-debug --image=curlimages/curl --rm -it --restart=Never -- \
-  curl -s -o /dev/null -w "%{http_code}" https://api.cast.ai/v1/kubernetes/external-clusters
-```
+## Tool Discipline
 
-**Fix**: Restart the agent pod: `kubectl rollout restart deployment/castai-agent -n castai-agent`
-
-### 3. API Returns 401 Unauthorized
-
-```bash
-# Test API key
-curl -s -o /dev/null -w "%{http_code}" \
-  -H "X-API-Key: ${CASTAI_API_KEY}" \
-  https://api.cast.ai/v1/kubernetes/external-clusters
-# Should return 200, not 401
-```
-
-**Fix**: Generate a new API key at console.cast.ai > API > API Access Keys.
-
-### 4. Nodes Not Scaling Up (Unschedulable Pods)
-
-```bash
-# Check for pending pods
-kubectl get pods --all-namespaces --field-selector=status.phase=Pending
-
-# Verify unschedulable pods policy is enabled
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/policies" \
-  | jq '.unschedulablePods'
-```
-
-**Causes:**
-
-- `unschedulablePods.enabled` is `false` -- enable it
-- Cluster limits reached -- increase `clusterLimits.cpu.maxCores`
-- No matching node template -- check constraints match pod requirements
-
-### 5. Nodes Not Scaling Down (Empty Nodes)
-
-```bash
-# Check node downscaler configuration
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/policies" \
-  | jq '.nodeDownscaler'
-```
-
-**Causes:**
-
-- `nodeDownscaler.enabled` is `false`
-- Pods with `PodDisruptionBudget` blocking eviction
-- DaemonSet-only nodes with system pods preventing drain
-- Delay too high -- reduce `emptyNodes.delaySeconds`
-
-### 6. Spot Instance Fallback Not Working
-
-```bash
-# Check spot configuration
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/policies" \
-  | jq '.spotInstances'
-```
-
-**Fix**: Enable `spotDiversityEnabled: true` and set `spotDiversityPriceIncreaseLimitPercent` to 20-30 for better availability.
-
-### 7. Evictor Too Aggressive
-
-Symptoms: Pods being evicted too frequently, service disruption.
-
-```bash
-kubectl get events --field-selector reason=Evicted -A --sort-by=.lastTimestamp | tail -20
-```
-
-**Fix**: Increase evictor cycle interval or switch to non-aggressive mode:
-
-```bash
-helm upgrade castai-evictor castai-helm/castai-evictor \
-  -n castai-agent \
-  --set castai.apiKey="${CASTAI_API_KEY}" \
-  --set castai.clusterID="${CASTAI_CLUSTER_ID}" \
-  --set evictor.aggressiveMode=false \
-  --set evictor.cycleInterval=600
-```
-
-### 8. Terraform State Drift
-
-```bash
-terraform plan -var-file=environments/prod.tfvars
-# If drift detected:
-terraform refresh -var-file=environments/prod.tfvars
-```
-
-**Fix**: Avoid mixing Terraform and console-based policy changes. Pick one source of truth.
-
-### 9. Helm Chart Version Mismatch
-
-```bash
-# Check installed versions
-helm list -n castai-agent
-helm search repo castai-helm --versions | head -10
-
-# Update to latest
-helm repo update
-helm upgrade castai-agent castai-helm/castai-agent -n castai-agent \
-  --reuse-values
-```
-
-### 10. Workload Autoscaler Not Recommending
-
-```bash
-kubectl logs -n castai-agent deployment/castai-workload-autoscaler --tail=50
-```
-
-**Causes:**
-
-- Insufficient metrics data (wait 24h)
-- Missing annotation `autoscaling.cast.ai/enabled: "true"`
-- Workload autoscaler pod not running
-
-## Escalation Path
-
-1. Collect debug info: Helm releases, agent logs, cluster events
-2. Check https://status.cast.ai for platform issues
-3. Contact support with cluster ID and screenshots
+Use Read and Grep for configuration and runbook evidence. Use Bash(kubectl:_), Bash(helm:_), and Bash(castctl:\*) only for bounded inspection commands. Do not apply, upgrade, restart, connect, disconnect, or expose Secret objects during diagnosis.
 
 ## Output
 
-Produce a redacted incident record containing the affected cluster, symptom,
-time window, observed evidence, containment action, selected runbook branch,
-and escalation owner. Do not include API keys, raw secret values, or complete
-customer workload logs; retain enough correlation information for support to
-reproduce the provider-side investigation.
+- A timestamped symptom and environment summary
+- Evidence grouped by failure plane
+- One supported root-cause hypothesis with confidence
+- A reversible remedy, rollback condition, and escalation owner
 
 ## Examples
 
-For repeated evictions, capture the relevant event count and PDB state, disable
-the aggressive evictor setting through the approved change path, and confirm
-workload recovery before changing another variable. If the behavior persists,
-attach the sanitized debug bundle and UTC incident window to the support case
-instead of repeatedly restarting production components.
+Recommendations are absent because metrics-server is missing, so the remedy belongs to cluster observability. A node remains pending because every approved node template conflicts with its constraints; increasing a global limit without reviewing the workload is not the remedy.
+
+## Error Handling
+
+| Failure                               | Response                                                            |
+| ------------------------------------- | ------------------------------------------------------------------- |
+| Kube context is ambiguous             | Stop before any cluster command and resolve it                      |
+| Logs include credentials or inventory | Redact locally and do not attach raw output                         |
+| A PDB blocks Immediate mode           | Preserve the PDB and evaluate Deferred mode with the workload owner |
+| Evidence points to cloud quota        | Escalate to the cloud owner with the exact denied dimension         |
 
 ## Resources
 
-- [CAST AI Troubleshooting](https://docs.cast.ai/docs/casti-ai-components)
-- [CAST AI Status](https://status.cast.ai)
-- [Autoscaler Checklist](https://docs.cast.ai/docs/autoscaler-checklist)
-
-## Next Steps
-
-For comprehensive diagnostics, see `castai-debug-bundle`.
+- [Triage evidence and source notes](references/official-docs.md)
+- [Node autoscaling overview](https://docs.cast.ai/docs/autoscaler)
+- [Workload Autoscaler overview](https://docs.cast.ai/docs/workload-autoscaling-overview)
+- [Connecting your cluster](https://docs.cast.ai/docs/connecting-your-cluster)

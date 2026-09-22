@@ -1,6 +1,6 @@
 {
   "name": "clerk-pack",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "description": "Claude Code skill pack for Clerk authentication (24 skills)",
   "author": {
     "name": "Jeremy Longshore",

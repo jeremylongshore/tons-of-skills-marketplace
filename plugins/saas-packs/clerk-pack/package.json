@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/clerk-pack",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Claude Code skill pack for Clerk - 24 skills covering authentication, user management, and identity",
   "main": "README.md",
   "type": "module",

@@ -1,118 +1,82 @@
-# CAST AI Skill Pack
+# CAST AI Operator Skill Pack
 
-> 18 production-grade Claude Code skills for Kubernetes cost optimization with CAST AI
+> 18 Grade-A Claude Code workflows for governed Kubernetes cost monitoring and autoscaling with CAST AI
 
-## What Is CAST AI?
+This pack helps platform, SRE, FinOps, and security teams operate CAST AI without guessing API paths, chart topology, quota values, or savings claims. Every skill is a distinct decision or operating workflow, includes dated first-party source notes, and defaults to observation, planning, and bounded canaries before mutation.
 
-[CAST AI](https://cast.ai) is an all-in-one Kubernetes cost optimization, autoscaling, and security platform. It connects to EKS, GKE, and AKS clusters to:
-
-- **Autoscale nodes** by adding right-sized instances and removing underutilized ones
-- **Use spot instances** with automatic diversity and fallback to on-demand
-- **Right-size workloads** via pod-level resource recommendations (Workload Autoscaler)
-- **Hibernate clusters** on schedule for dev/staging environments
-- **Scan for security issues** with the Kvisor runtime agent
-
-Typical savings: 50-70% on cloud compute costs. The platform uses a REST API at `api.cast.ai` with `X-API-Key` header authentication and provides a Terraform provider for infrastructure-as-code management.
-
-This skill pack provides real API calls, Helm commands, and Terraform configurations for every stage of CAST AI adoption.
-
-## Installation
+## Install
 
 ```bash
 /plugin install castai-pack@claude-code-plugins-plus
 ```
 
-## Skills Included
+The public skills can also be discovered through the official Skills CLI from `jeremylongshore/tons-of-skills-marketplace`.
 
-### Getting Started (S01-S04)
+## Current Product Boundaries
 
-| Skill | Description |
-|-------|-------------|
-| `castai-install-auth` | Helm agent install, API key setup, Terraform provider config |
-| `castai-hello-world` | First API calls: list clusters, savings report, node inventory |
-| `castai-local-dev-loop` | Dev cluster policies, Terraform plan-apply loop, savings scripts |
-| `castai-sdk-patterns` | TypeScript/Python REST API client wrappers with retry and types |
+- `castctl` is the recommended connection path for supported Kubernetes clusters.
+- New connections use the unified `castai` umbrella Helm chart; legacy standalone releases can be consolidated with the documented migration workflow.
+- Cost Monitoring is always enabled. Node Autoscaling and Workload Autoscaling are separate automation decisions.
+- REST authentication uses `X-API-Key` and the regional US, EU, or India base. Enterprise child-organization calls also need `X-CastAI-Organization-Id`.
+- Workload policies can control vertical recommendations and native `autoscaling/v2` HPAs. HPA ownership transfer is explicit and reviewable.
+- Savings reports depend on baseline, adoption, time window, and pricing assumptions. They are reconciled rather than treated as billing truth.
 
-### Core Workflows (S05-S08)
+## Skills
 
-| Skill | Description |
-|-------|-------------|
-| `castai-core-workflow-a` | Configure autoscaler policies, spot instances, node templates |
-| `castai-core-workflow-b` | Workload Autoscaler: pod right-sizing, annotations, scaling policies |
-| `castai-common-errors` | Agent CrashLoop, nodes not scaling, spot fallback, evictor issues |
-| `castai-debug-bundle` | Collect agent logs, Helm releases, policies, and events for support |
+### Onboarding and Integration
 
-### Operations (S09-S12)
+| Skill | Operator outcome |
+|-------|------------------|
+| `castai-hello-world` | Prove one observation-only sandbox connection |
+| `castai-install-auth` | Separate human, API, enterprise, region, and secret boundaries |
+| `castai-core-workflow-a` | Onboard a cluster observation-first and establish a baseline |
+| `castai-deploy-integration` | Deliver pinned CAST AI infrastructure through GitOps or Terraform |
+| `castai-local-dev-loop` | Validate configuration offline before one sandbox experiment |
+| `castai-ci-integration` | Build credential-free required checks and an isolated live probe |
 
-| Skill | Description |
-|-------|-------------|
-| `castai-rate-limits` | API rate limit detection, exponential backoff, request queuing |
-| `castai-security-basics` | API key rotation, RBAC audit, Kvisor agent, network policies |
-| `castai-prod-checklist` | Phase 1 to Phase 2 go-live checklist with validation commands |
-| `castai-upgrade-migration` | Helm chart upgrades, Terraform provider updates, rollback procedures |
+### Autoscaling and Cost
 
-### Pro Skills (P13-P18)
+| Skill | Operator outcome |
+|-------|------------------|
+| `castai-core-workflow-b` | Roll out node and workload automation through a canary |
+| `castai-performance-tuning` | Tune vertical, horizontal, and node controls against SLOs |
+| `castai-cost-tuning` | Reconcile spend, available savings, realized savings, and pricing |
+| `castai-rate-limits` | Bound endpoint-specific concurrency, retries, polling, and deadlines |
 
-| Skill | Description |
-|-------|-------------|
-| `castai-ci-integration` | GitHub Actions savings gate, Terraform plan validation in CI |
-| `castai-deploy-integration` | Multi-cloud Terraform modules for EKS, GKE, and AKS onboarding |
-| `castai-webhooks-events` | Event notifications, Slack integration, audit log API, CronJob summaries |
-| `castai-performance-tuning` | Headroom config, instance family selection, API caching for dashboards |
-| `castai-cost-tuning` | Spot strategies, right-sizing analysis, cluster hibernation, cost tracking |
-| `castai-reference-architecture` | Multi-cluster Terraform module structure with per-environment policies |
+### Reliability and Governance
 
-## Quick Start
+| Skill | Operator outcome |
+|-------|------------------|
+| `castai-common-errors` | Triage failures by connection, node, workload, disruption, or reporting plane |
+| `castai-debug-bundle` | Produce a bounded and redacted escalation bundle |
+| `castai-prod-checklist` | Make an evidence-linked production PASS or HOLD decision |
+| `castai-security-basics` | Review API, RBAC, cloud IAM, Kvisor, network, and data permissions |
+| `castai-upgrade-migration` | Upgrade the umbrella chart or migrate standalone releases safely |
+| `castai-webhooks-events` | Operate hardened notifications with Audit-log reconciliation |
+| `castai-reference-architecture` | Map real trust zones, components, controls, and failure paths |
+| `castai-sdk-patterns` | Build a narrow contract-first REST adapter or choose Terraform instead |
 
-### 1. Install the Pack
+## Recommended Sequence
 
-```bash
-/plugin install castai-pack@claude-code-plugins-plus
-```
+1. Use `castai-reference-architecture` and `castai-security-basics` to establish ownership and permissions.
+2. Use `castai-install-auth`, then `castai-hello-world` or `castai-core-workflow-a` for observation-first onboarding.
+3. Use `castai-core-workflow-b` for a measured automation canary.
+4. Use the cost, performance, CI, readiness, and upgrade skills for ongoing operations.
 
-### 2. Get Your API Key
+## Source Policy
 
-Sign up at [console.cast.ai](https://console.cast.ai), navigate to **API > API Access Keys**, and create a Full Access key.
+The skills cite current first-party CAST AI documentation and the live API specification. Exact versions, endpoints, policy thresholds, cloud permissions, and release commands must still be derived from the target environment and pinned repository configuration.
 
-### 3. Connect Your First Cluster
+## Links
 
-```bash
-export CASTAI_API_KEY="your-key"
-
-# Add Helm repo
-helm repo add castai-helm https://castai.github.io/helm-charts
-helm repo update
-
-# Install monitoring agent
-helm upgrade --install castai-agent castai-helm/castai-agent \
-  -n castai-agent --create-namespace \
-  --set apiKey="${CASTAI_API_KEY}" \
-  --set provider="eks"
-```
-
-### 4. Check Your Savings
-
-```bash
-export CASTAI_CLUSTER_ID="your-cluster-id"
-
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/savings" \
-  | jq '{monthly: .monthlySavings, percent: .savingsPercentage}'
-```
-
-### 5. Enable Autoscaling
-
-Follow `castai-core-workflow-a` to configure autoscaler policies and start saving.
-
-## Key CAST AI Links
-
-- [CAST AI Console](https://console.cast.ai) -- cluster management dashboard
-- [CAST AI Docs](https://docs.cast.ai/docs/getting-started) -- getting started guide
-- [API Reference](https://api.cast.ai/v1/spec/openapi.json) -- OpenAPI spec
-- [Terraform Provider](https://registry.terraform.io/providers/castai/castai/latest/docs) -- IaC modules
-- [Helm Charts](https://docs.cast.ai/docs/helm-charts) -- agent and component charts
-- [GitHub](https://github.com/castai) -- open-source components
-- [CAST AI Status](https://status.cast.ai) -- platform status page
+- [CAST AI documentation](https://docs.cast.ai/docs/getting-started)
+- [Connect with castctl](https://docs.cast.ai/docs/connect-with-castctl)
+- [Hosted components](https://docs.cast.ai/docs/hosted-components)
+- [API access](https://docs.cast.ai/docs/api-access)
+- [API specification](https://api.cast.ai/spec/)
+- [Terraform provider](https://registry.terraform.io/providers/castai/castai/latest/docs)
+- [CAST AI GitHub organization](https://github.com/castai)
+- [CAST AI status](https://status.cast.ai)
 
 ## License
 

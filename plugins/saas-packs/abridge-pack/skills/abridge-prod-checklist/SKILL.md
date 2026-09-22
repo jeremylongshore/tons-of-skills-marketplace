@@ -1,220 +1,86 @@
 ---
 name: abridge-prod-checklist
-description: 'Execute Abridge production readiness checklist for clinical AI deployment.
-
-  Use when launching Abridge in a healthcare org, preparing for go-live,
-
-  or validating HIPAA compliance before production deployment.
-
-  Trigger: "abridge production checklist", "abridge go-live",
-
-  "abridge launch readiness", "abridge prod deploy".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Grep
-version: 1.4.0
-license: MIT
+description: "Run an evidence-backed Abridge production readiness decision across clinical, privacy, security, EHR, training, support, and rollback owners. Use when preparing a pilot or cohort expansion. Trigger with \"review Abridge go-live\"."
+argument-hint: "[environment] [cohort] [go-live-date]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.5.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- healthcare
-- ai
 - abridge
-- production
-compatibility: Designed for Claude Code
+- production-readiness
+- go-live
+- governance
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live work requires an authorized Abridge tenant, approved test data, and health-system change authority
 ---
-# Abridge Production Checklist
+# Abridge Production Go-Live Checklist
 
 ## Overview
 
-Production readiness checklist for deploying Abridge clinical AI in a healthcare organization. Clinical documentation systems are safety-critical — this checklist covers HIPAA compliance, EHR integration validation, provider onboarding, and rollback procedures.
+Convert the implementation plan into a fail-closed go/no-go record. A green technical test is insufficient without consent, clinical review, EHR mapping, access, privacy, training, support, monitoring, and rollback evidence.
 
 ## Prerequisites
 
-- A named clinical, security, privacy, EHR, and operations owner empowered to
-  make the go/no-go decision.
-- A BAA-covered production environment, approved change window, and a tested
-  manual-documentation fallback.
-- Completed sandbox validation using synthetic data, with no unresolved
-  high-severity privacy, safety, or interoperability findings.
+- The authorized Abridge environment, clinical owner, and health-system policy set
+- Current tenant-specific implementation evidence for every private interface in scope
+- Synthetic data or the organization's formally approved test-record procedure
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect repository configuration, adapters, tests, policies, and existing evidence. Use `WebFetch` only for current official Abridge, HHS, or named EHR documentation. Use `Write` or `Edit` only after confirming scope, environment, owners, patient-data boundary, and approval state. These tools do not confer access to Abridge, an EHR, or a clinical record; return exact operator steps or an approval-gated handoff for live actions.
+
+## Current Contract
+
+- Abridge is used through clinical and EHR-integrated workflows that retain clinician review.
+- Abridge publicly describes enterprise security and governance, while tenant-specific control evidence may require Trust Center access or implementation records.
+- Care-setting features and downstream behavior must be verified for the licensed tenant and cohort.
+
+## Authentication
+
+Use only the health system's provisioned Abridge application access, SSO, administrative role, or tenant-specific partner authentication documented for the approved environment. Do not infer public API credentials, reuse production secrets in tests, or expose tokens and session material. Verify identity owner, least privilege, environment binding, storage, rotation, and revocation before any authenticated action.
 
 ## Instructions
 
-Work through the pre-launch checklist with the responsible owner for each
-control, then run the readiness script in the target environment. Treat every
-`fail` result as a launch blocker. Record the decision, evidence locations,
-and rollback owner before enabling the integration; do not use warning-only
-results to override a failed security, EHR, or patient-safety control.
+1. Freeze environment, cohort, care setting, note types, capabilities, owners, date, and change ticket.
+2. Use `Read`, `Glob`, and `Grep` to gather signed evidence for consent, access, EHR mapping, test results, privacy, security, training, and support.
+3. Verify the clinician review and wrong-patient controls, test-record procedure, audit evidence, downtime path, and rollback.
+4. Confirm monitoring includes safety, workflow completion, adoption, support, and integration health without PHI.
+5. Use `WebFetch` only to check current official product and security context; do not substitute public claims for tenant evidence.
+6. Use `Write` or `Edit` to publish the decision with explicit owners, expiries, exceptions, and stop triggers.
 
-## Pre-Launch Checklist
+## Approval Boundaries
 
-### Legal & Compliance
-
-- [ ] **BAA signed** — Business Associate Agreement executed with Abridge
-- [ ] **HIPAA risk assessment** — Completed and documented
-- [ ] **Data flow diagram** — PHI flow mapped: microphone → Abridge → EHR
-- [ ] **Breach notification plan** — 60-day notification procedure documented
-- [ ] **Patient consent** — State-specific recording consent requirements met
-- [ ] **Medical staff approval** — Clinical AI usage approved by medical staff committee
-
-### Infrastructure
-
-- [ ] **TLS 1.3** — Enforced on all Abridge API connections
-- [ ] **Secrets management** — Credentials in secret manager (not env files)
-- [ ] **Audit logging** — All PHI access logged with 6-year retention
-- [ ] **Monitoring** — Health checks, latency alerts, error rate dashboards
-- [ ] **Backup connectivity** — Fallback for Abridge outages (manual documentation)
-
-### EHR Integration
-
-- [ ] **FHIR R4 endpoint** — Verified DocumentReference POST works
-- [ ] **Epic SmartPhrases** — Mapped to Abridge note templates
-- [ ] **Provider enrollment** — All go-live providers registered in Abridge
-- [ ] **Specialty configuration** — Licensed specialties configured per contract
-- [ ] **Note templates** — SOAP/H&P/Progress templates validated with clinical leads
-
-### Validation Script
-
-```typescript
-// src/prod/readiness-check.ts
-interface ReadinessResult {
-  check: string;
-  status: 'pass' | 'fail' | 'warn';
-  detail: string;
-}
-
-async function runReadinessChecks(): Promise<ReadinessResult[]> {
-  const results: ReadinessResult[] = [];
-
-  // 1. API connectivity
-  try {
-    const res = await fetch(`${process.env.ABRIDGE_BASE_URL}/health`, {
-      headers: { 'Authorization': `Bearer ${process.env.ABRIDGE_CLIENT_SECRET}` },
-    });
-    results.push({ check: 'API Health', status: res.ok ? 'pass' : 'fail', detail: `HTTP ${res.status}` });
-  } catch (err) {
-    results.push({ check: 'API Health', status: 'fail', detail: (err as Error).message });
-  }
-
-  // 2. FHIR endpoint
-  try {
-    const res = await fetch(`${process.env.EPIC_FHIR_BASE_URL}/metadata`);
-    results.push({ check: 'FHIR Server', status: res.ok ? 'pass' : 'fail', detail: `HTTP ${res.status}` });
-  } catch (err) {
-    results.push({ check: 'FHIR Server', status: 'fail', detail: (err as Error).message });
-  }
-
-  // 3. TLS version
-  results.push({
-    check: 'TLS Version',
-    status: process.env.NODE_TLS_MIN_VERSION === 'TLSv1.3' ? 'pass' : 'warn',
-    detail: `Min TLS: ${process.env.NODE_TLS_MIN_VERSION || 'not set'}`,
-  });
-
-  // 4. Secrets not in env file
-  const envFiles = ['.env', '.env.local', '.env.production'];
-  for (const f of envFiles) {
-    try {
-      const content = await import('fs').then(fs => fs.readFileSync(f, 'utf8'));
-      if (content.includes('ABRIDGE_CLIENT_SECRET')) {
-        results.push({ check: `Secrets in ${f}`, status: 'fail', detail: 'Credentials in file — use secret manager' });
-      }
-    } catch { /* file doesn't exist — good */ }
-  }
-
-  // 5. Audit logging
-  results.push({
-    check: 'Audit Logging',
-    status: process.env.AUDIT_LOG_ENABLED === 'true' ? 'pass' : 'fail',
-    detail: 'HIPAA requires audit trail for all PHI access',
-  });
-
-  return results;
-}
-
-// Run and display
-runReadinessChecks().then(results => {
-  console.log('\n=== Abridge Production Readiness ===\n');
-  for (const r of results) {
-    const icon = r.status === 'pass' ? 'PASS' : r.status === 'warn' ? 'WARN' : 'FAIL';
-    console.log(`[${icon}] ${r.check}: ${r.detail}`);
-  }
-  const failures = results.filter(r => r.status === 'fail');
-  console.log(`\n${failures.length === 0 ? 'READY FOR PRODUCTION' : `${failures.length} BLOCKING ISSUES`}`);
-});
-```
-
-### Rollback Plan
-
-```bash
-#!/bin/bash
-# scripts/abridge-rollback.sh
-# Rollback Abridge integration — revert to manual documentation
-
-echo "=== Abridge Rollback Procedure ==="
-
-# 1. Disable Abridge in EHR
-echo "Step 1: Disable Abridge module in Epic App Orchard"
-echo "  - Navigate to Epic > Admin > App Orchard > Abridge"
-echo "  - Set status: DISABLED"
-
-# 2. Notify providers
-echo "Step 2: Send notification to enrolled providers"
-echo "  - Subject: Abridge temporarily offline — use manual documentation"
-
-# 3. Verify EHR still accepts manual notes
-echo "Step 3: Verify manual note creation in Epic works"
-curl -X POST "${EPIC_FHIR_BASE_URL}/DocumentReference" \
-  -H "Authorization: Bearer $EPIC_TOKEN" \
-  -H "Content-Type: application/fhir+json" \
-  -d '{"resourceType":"DocumentReference","status":"current","content":[{"attachment":{"contentType":"text/plain","data":"'"$(echo 'Manual note test' | base64)"'"}}]}'
-
-echo "=== Rollback Complete ==="
-```
-
-## Post-Launch Monitoring
-
-| Metric | Target | Alert Threshold |
-|--------|--------|-----------------|
-| Note generation latency | < 30s | > 60s |
-| API error rate | < 1% | > 5% |
-| Provider adoption | > 80% in 30 days | < 50% |
-| Note acceptance rate | > 90% | < 70% |
-| Patient summary delivery | < 5s | > 15s |
+Only the named change, clinical, privacy, security, and EHR authorities may accept their risks. Missing evidence is a no-go, not an assumed pass.
 
 ## Output
 
-- Readiness check script with pass/fail results
-- Rollback procedure documented and tested
-- Post-launch monitoring thresholds configured
-- Go/no-go decision evidence collected
-
-## Examples
-
-During a scheduled production rehearsal, have each control owner complete the
-checklist against the BAA-covered target environment and run the readiness
-script using its managed identity. A clean result contains no `fail` entries,
-an authenticated FHIR metadata response, confirmed audit logging, and a named
-rollback operator. Capture the redacted results and change approval with the
-release record. If a control fails, declare a no-go, keep the integration
-disabled, and use the documented manual workflow until the owner corrects and
-re-verifies the failure.
+Return gate-by-gate evidence, exceptions, owners, expiry dates, rollback trigger, monitoring window, and final go/no-go decision. Separate verified facts, tenant-specific evidence, assumptions, and actions still awaiting approval.
 
 ## Error Handling
 
-| Failure | Required response |
-|---------|-------------------|
-| Readiness check reports `fail` | Stop the launch and assign remediation to the control owner. |
-| FHIR validation or authorization fails | Keep automated note delivery disabled and use the manual fallback. |
-| Monitoring cannot prove audit coverage | Treat the deployment as non-compliant and do not enable PHI processing. |
-| Rollback drill is incomplete | Schedule and pass the drill before the next go-live decision. |
+| Condition | Response |
+|---|---|
+| Required owner has not signed | Record no-go. |
+| Evidence applies to another environment | Reject it and test the target environment. |
+| Rollback was not rehearsed | Delay launch. |
+
+## Example
+
+The example is a redacted operational receipt, not patient data or proof of vendor certification.
+
+```text
+environment=prod; cohort=40; gates=12/12; exceptions=0; rollback=rehearsed; owners=5/5; decision=go-bounded-pilot
+```
 
 ## Resources
 
-- [Abridge Platform](https://www.abridge.com/product)
-- [HIPAA Security Rule Checklist](https://www.hhs.gov/hipaa/for-professionals/security/)
-- [Epic Go-Live Best Practices](https://www.epic.com/)
+- [Official documentation map](references/official-docs.md) — dated public evidence and the limits of what those sources establish.
+
+Read the source map before changing a workflow. Recheck tenant-specific implementation evidence for every interface or capability that public documentation does not define.
 
 ## Next Steps
 
-For version upgrades, see `abridge-upgrade-migration`.
+Revalidate the evidence date and tenant-specific authority before repeating this workflow in another environment, cohort, care setting, or integration mode.

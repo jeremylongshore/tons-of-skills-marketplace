@@ -1,193 +1,81 @@
 ---
 name: alchemy-cost-tuning
-description: 'Optimize Alchemy API costs through CU budgeting, caching, and plan selection.
-
-  Use when analyzing Alchemy billing, reducing Compute Unit consumption,
-
-  or choosing the right plan for your dApp traffic.
-
-  Trigger: "alchemy cost", "alchemy pricing", "alchemy CU budget",
-
-  "alchemy billing optimization", "alchemy free tier limits".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*)
-version: 1.5.0
+description: >-
+  Govern Alchemy compute usage and spend with current account evidence, workload attribution, budgets, and reversible optimizations. Use when forecasting or reducing Alchemy cost. Trigger with "Alchemy cost", "Alchemy compute units", or "reduce Alchemy spend".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<account> <billing-window> <budget>"
+version: 2.0.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- blockchain
-- web3
-- alchemy
-- cost-optimization
-compatibility: Designed for Claude Code
+tags: [saas, alchemy, cost, governance]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Alchemy access requires network access, an appropriate credential, account capacity, and explicit approval"
 ---
-# Alchemy Cost Tuning
+# Alchemy Usage and Cost Governance
 
 ## Overview
 
-Alchemy pricing is based on Compute Units (CU). Different API methods have different CU costs. Optimize by caching, batching, choosing cheaper methods, and right-sizing your plan.
-
-## Plan Comparison
-
-| Plan | CU/sec | Monthly CU | Price | Best For |
-|------|--------|------------|-------|----------|
-| Free | 330 | 300M | $0 | Dev/prototyping |
-| Growth | 660 | 1.2B | $49/mo | Small dApps |
-| Scale | Custom | Custom | Custom | High-traffic apps |
-
-## CU Cost Reference (Top Methods)
-
-| Method | CU | Optimization |
-|--------|-----|-------------|
-| `eth_blockNumber` | 10 | Cache 12s (1 block) |
-| `eth_getBalance` | 19 | Cache 30s |
-| `eth_call` | 26 | Cache based on use case |
-| `getTokenBalances` | 50 | Cache 60s; batch addresses |
-| `getNftsForOwner` | 50 | Cache 5 min |
-| `getTokenMetadata` | 50 | Cache 24h (rarely changes) |
-| `getAssetTransfers` | 150 | Cache aggressively; paginate |
-| `getNftMetadataBatch` | 50 | Use batch over individual calls |
+Govern Alchemy compute usage and spend with current account evidence, workload attribution, budgets, and reversible optimizations. This workflow produces a reviewable artifact and negative-path evidence before any live side effect.
 
 ## Prerequisites
 
-- An approved observation window with aggregate method counts and latency; do
-  not record end-user wallet data merely to estimate API usage.
-- Current plan and compute-unit limits confirmed in the organization’s Alchemy
-  account, since commercial terms and method costs may change.
-- A cache-invalidation policy that distinguishes safe metadata caching from
-  time-sensitive balance, block, and transaction data.
+- Current first-party Alchemy documentation for the selected product, chain, feature, client, authentication method, limit, and lifecycle.
+- Named product, application, security, data/privacy, budget, release, and operations owners appropriate to the requested scope.
+- Synthetic or approved non-production fixtures, a credential canary, explicit success criteria, and a tested rollback boundary.
+
+## Current Contract
+
+Alchemy pricing plans, included capacity, compute-unit costs, and elastic-demand terms are mutable. Cost decisions use the current account contract, current method-cost documentation, and observed usage—not embedded plan tables. Admin usage access requires an authorized Admin access key or dashboard owner.
+
+## Authentication
+
+Treat billing, application attribution, and usage data as restricted operational data. Keep Admin access keys separate from application keys and never place usage exports or credentials in public repositories.
 
 ## Instructions
 
-### Step 1: CU Usage Monitor
+1. Record the account, billing window, plan, approved budget, elastic-demand state, currency, owner, and dated source evidence.
+2. Attribute observed usage by application, environment, method family, chain, traffic class, and release using the authorized dashboard or Admin usage interface.
+3. Reconcile observed compute units and charges to the current contract; label estimates and unattributed usage explicitly.
+4. Rank optimizations by correctness risk: remove duplicate calls, cache immutable data, bound pages, batch where documented, schedule background work, and reserve capacity for critical traffic.
+5. Forecast base, burst, and failure/retry scenarios with ranges rather than a false point estimate; set budget alerts and an approved response owner.
+6. Canary one change, compare cost and SLO deltas, preserve completeness, and roll back if savings depend on hidden errors or stale data.
 
-```typescript
-// src/cost/cu-monitor.ts
-const CU_COSTS: Record<string, number> = {
-  'eth_blockNumber': 10, 'eth_getBalance': 19, 'eth_call': 26,
-  'getTokenBalances': 50, 'getNftsForOwner': 50, 'getTokenMetadata': 50,
-  'getAssetTransfers': 150, 'getNftMetadataBatch': 50,
-};
+## Tool Discipline
 
-class CuMonitor {
-  private usage: Array<{ method: string; cu: number; timestamp: number }> = [];
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, wallet addresses, customer data, plan changes, spend, key creation or rotation, webhook changes, deployment, replay, transaction construction, signing, broadcast, or deletion.
 
-  record(method: string): void {
-    this.usage.push({ method, cu: CU_COSTS[method] || 26, timestamp: Date.now() });
-  }
+## Approval Boundaries
 
-  getHourlyReport(): { totalCu: number; byMethod: Record<string, number> } {
-    const cutoff = Date.now() - 3600000;
-    const recent = this.usage.filter(u => u.timestamp > cutoff);
-    const byMethod: Record<string, number> = {};
-    let totalCu = 0;
-
-    for (const u of recent) {
-      byMethod[u.method] = (byMethod[u.method] || 0) + u.cu;
-      totalCu += u.cu;
-    }
-
-    return { totalCu, byMethod };
-  }
-
-  getMonthlyProjection(): { projectedMonthly: number; planRecommendation: string } {
-    const hourly = this.getHourlyReport();
-    const projectedMonthly = hourly.totalCu * 24 * 30;
-
-    let recommendation = 'Free';
-    if (projectedMonthly > 300_000_000) recommendation = 'Growth';
-    if (projectedMonthly > 1_200_000_000) recommendation = 'Scale';
-
-    return { projectedMonthly, planRecommendation: recommendation };
-  }
-}
-
-export { CuMonitor };
-```
-
-### Step 2: Cost-Optimized Client Wrapper
-
-```typescript
-// src/cost/optimized-client.ts
-import { Alchemy, Network } from 'alchemy-sdk';
-
-const cache = new Map<string, { data: any; expiry: number }>();
-
-// Cache token metadata aggressively (rarely changes)
-async function getTokenMetadataCached(alchemy: Alchemy, contract: string) {
-  const key = `metadata:${contract}`;
-  const cached = cache.get(key);
-  if (cached && cached.expiry > Date.now()) return cached.data;
-
-  const data = await alchemy.core.getTokenMetadata(contract);
-  cache.set(key, { data, expiry: Date.now() + 86400000 }); // 24h cache
-  return data;
-}
-
-// Use batch instead of individual NFT metadata calls
-// 1 batch call (50 CU) vs 100 individual calls (5000 CU)
-async function getNftMetadataOptimized(
-  alchemy: Alchemy,
-  tokens: Array<{ contractAddress: string; tokenId: string }>
-) {
-  const BATCH_SIZE = 100;
-  const results = [];
-  for (let i = 0; i < tokens.length; i += BATCH_SIZE) {
-    const batch = tokens.slice(i, i + BATCH_SIZE);
-    const batchResults = await alchemy.nft.getNftMetadataBatch(batch);
-    results.push(...batchResults);
-  }
-  return results;
-}
-```
-
-### Step 3: Free Tier Optimization Checklist
-
-```typescript
-// For staying within Free tier (330 CU/sec, 300M CU/month):
-// 1. Cache eth_blockNumber (saves 10 CU per redundant call)
-// 2. Cache token metadata (saves 50 CU per redundant call)
-// 3. Use getNftMetadataBatch instead of getNftMetadata (100x savings)
-// 4. Avoid getAssetTransfers loops (150 CU each — cache results)
-// 5. Use WebSockets instead of polling (one connection vs repeated calls)
-// 6. Rate-limit user-facing endpoints to prevent CU bursts
-```
-
-## Output
-
-- CU usage monitor with hourly reports and plan projections
-- Cost-optimized client with aggressive caching
-- Batch operations reducing CU consumption by 100x
-- Free tier optimization checklist
-
-## Examples
-
-Collect one hour of aggregate development traffic, feed the counts into
-`CuMonitor`, and identify the three methods responsible for the highest CU
-projection. Add a 24-hour metadata cache and batched NFT metadata requests in
-the test environment, then compare request counts and response correctness
-against uncached fixtures. Promote only after cache hits never serve stale
-time-sensitive balance or transfer data. If observed use approaches the
-account limit or the monitor’s input is incomplete, throttle the noncritical
-feature and obtain an updated account-limit report rather than guessing a
-budget or silently dropping user-facing requests.
+Finance/budget owner approves plan, capacity, and elastic spend. Product approves freshness or degraded-mode tradeoffs. Security approves Admin API credential use.
 
 ## Error Handling
 
-| Failure | Response |
-|---------|----------|
-| Usage projection lacks complete observation data | Mark the estimate incomplete and collect a representative window before plan decisions. |
-| Cache returns stale chain state | Invalidate the affected key and narrow its TTL or caching scope. |
-| Account limit is approached | Apply bounded rate limiting and notify the account owner before service degradation. |
-| Batch operation is partially rejected | Preserve successful items, retry only failed items within limits, and expose their unavailable state. |
+- Do not quote remembered plan allowances or method costs as current facts.
+- Do not reduce cost by hiding partial errors, skipping pagination, or silently serving stale data.
+- If usage cannot be attributed, surface the gap before recommending a plan change.
+
+## Output
+
+Return the dated account contract, usage attribution, reconciliation, forecast ranges, optimization register, budget alerts, canary evidence, SLO impact, and approval/rollback decision. Mark assumptions, observations, source dates, environment-specific behavior, owners, and unresolved gaps explicitly.
+
+## Examples
+
+- Attribute a backfill spike to its application and method family, then schedule and cap it without consuming the critical-read reserve.
+- Reject a cache proposal whose apparent savings come from labeling partial Portfolio results complete.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- unattributed usage
+- changed method cost
+- burst forecast
+- retry amplification
+- budget threshold
+- optimization rollback
 
 ## Resources
 
-- [Alchemy Pricing](https://www.alchemy.com/pricing)
-- [Alchemy Compute Units](https://www.alchemy.com/docs/reference/compute-unit-costs)
-
-## Next Steps
-
-For architecture design, see `alchemy-reference-architecture`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Alchemy sources before execution.
+- Treat observed account, application, network, indexer, chain, or provider behavior as environment-specific evidence, never a universal guarantee.

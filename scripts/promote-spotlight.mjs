@@ -17,7 +17,6 @@
  *        d. Sets `week` to today's ISO week (YYYY-Wnn).
  *        e. Sets `meta.lastUpdated` to today's date.
  *        f. Bumps `meta.version` minor.
- *        g. Regenerates the README block via render-spotlight.mjs (in-process).
  *
  * Usage:
  *   node scripts/promote-spotlight.mjs new-spotlight.json
@@ -37,13 +36,11 @@
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SPOTLIGHTS = join(ROOT, 'marketplace', 'src', 'data', 'spotlights.json');
-const RENDERER = join(ROOT, 'scripts', 'render-spotlight.mjs');
 
 const REQUIRED = ['pluginSlug', 'headline', 'author', 'authorGithub', 'grade', 'category', 'link'];
 
@@ -157,16 +154,8 @@ function main() {
   writeFileSync(SPOTLIGHTS, JSON.stringify(next, null, 2) + '\n');
   console.log(`\n✓ Wrote ${SPOTLIGHTS}`);
 
-  // Regenerate the README block via the renderer (run as a subprocess so
-  // the renderer's own error handling kicks in cleanly).
-  const r = spawnSync('node', [RENDERER], { stdio: 'inherit', shell: false });
-  if (r.status !== 0) {
-    console.error('✗ render-spotlight.mjs failed; check README sentinels');
-    process.exit(1);
-  }
-
   console.log('\nNext steps:');
-  console.log(`  git add marketplace/src/data/spotlights.json README.md`);
+  console.log(`  git add marketplace/src/data/spotlights.json`);
   console.log(`  git commit -m "feat(spotlight): ${newSpotlight.pluginSlug} (${next.week})"`);
   console.log(`  git push && gh pr create --fill`);
 }

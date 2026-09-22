@@ -1,141 +1,93 @@
 ---
 name: vastai-security-basics
-description: 'Apply Vast.ai security best practices for API keys and instance access.
-
-  Use when securing API keys, hardening SSH access to GPU instances,
-
-  or auditing Vast.ai security configuration.
-
-  Trigger with phrases like "vastai security", "vastai secrets",
-
-  "secure vastai", "vastai API key security", "vastai ssh security".
-
-  '
-allowed-tools: Read, Write, Grep
-version: 1.11.0
+description: >-
+  Harden Vast.ai renter access across scoped API keys, SSH, images, hosts, data, and teardown. Use when reviewing security before placing workloads on marketplace hardware. Trigger with: "secure Vast.ai", "review Vast.ai credentials", "protect data on a rented GPU".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[workload-sensitivity-and-required-resources]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- api
-- security
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - security
+  - least-privilege
+  - data-protection
+compatibility: 'Requires a classified workload, approved secrets and image registries, SSH key management, and a verified-datacenter policy.'
 ---
-# Vast.ai Security Basics
+
+# Vast.ai Renter Security Boundary
 
 ## Overview
 
-Security best practices for Vast.ai API keys, SSH access to GPU instances, data protection on rented hardware, and credential management. Vast.ai instances run as root on shared hardware, requiring careful attention to data lifecycle.
+A Vast.ai renter controls credentials and workload configuration but does not own the physical host. Apply least privilege, prefer verified datacenters for sensitive data, encrypt critical material, and assume destroyed local storage is not a substitute for external recovery.
 
 ## Prerequisites
 
-- Vast.ai account with API key
-- Understanding of SSH key management
-- Secrets manager available (optional but recommended)
+- Data classification and decision on whether shared marketplace hardware is permitted
+- Scoped API-key and dedicated SSH-key owners
+- Approved image provenance, secret injection, network exposure, and checkpoint controls
 
 ## Instructions
 
-### Step 1: API Key Management
+### Step 1: Constrain the control plane
 
-```bash
-# Never commit API keys to git
-echo '.vast_api_key' >> .gitignore
-echo '.env' >> .gitignore
+Create named scoped keys with only needed permission categories and endpoint constraints. Separate human, CI, monitoring, and deployment identities.
 
-# Use environment variables, not files in repos
-export VASTAI_API_KEY="$(vault kv get -field=api_key secret/vastai)"
+### Step 2: Establish SSH trust
 
-# Rotate keys periodically at cloud.vast.ai > Account > API Keys
-```
+Register a dedicated public key before creation, protect the private key, resolve the current connection endpoint, and validate host identity according to policy.
 
-```python
-# Fail fast on missing credentials
-import os
+### Step 3: Verify workload provenance
 
-def get_api_key():
-    key = os.environ.get("VASTAI_API_KEY")
-    if not key:
-        key_file = os.path.expanduser("~/.vast_api_key")
-        if os.path.exists(key_file):
-            key = open(key_file).read().strip()
-    if not key:
-        raise ValueError("VASTAI_API_KEY not set and ~/.vast_api_key not found")
-    return key
-```
+Use an immutable image digest, scan it, document its entrypoint, and keep registry, model, and storage credentials out of image layers and startup text.
 
-### Step 2: SSH Key Security
+### Step 4: Limit host and network exposure
 
-```bash
-# Generate a dedicated key pair for Vast.ai instances
-ssh-keygen -t ed25519 -f ~/.ssh/vastai_key -C "vastai-instances" -N ""
+Prefer verified datacenters for sensitive workloads, expose only required ports, and avoid placing secrets or regulated plaintext on untrusted hosts.
 
-# Upload public key at cloud.vast.ai > Account > SSH Keys
+### Step 5: Protect recoverability
 
-# Use the dedicated key for connections
-ssh -i ~/.ssh/vastai_key -p PORT root@HOST
-```
+Encrypt critical data, scope storage credentials to a run prefix, and checkpoint externally before stop, expiry, host failure, or destroy.
 
-### Step 3: Data Protection on Shared Hardware
+### Step 6: Rotate and close
 
-```python
-def secure_cleanup(instance_id, ssh_host, ssh_port):
-    """Securely wipe data before destroying an instance."""
-    import subprocess
-    # Overwrite sensitive files before instance destruction
-    subprocess.run([
-        "ssh", "-p", str(ssh_port), "-o", "StrictHostKeyChecking=no",
-        f"root@{ssh_host}",
-        "rm -rf /workspace/data /workspace/checkpoints /root/.ssh/authorized_keys; "
-        "history -c"
-    ], check=True)
-    # Then destroy
-    subprocess.run(["vastai", "destroy", "instance", str(instance_id)], check=True)
-```
+Revoke temporary keys, remove obsolete SSH keys and environment variables, verify resource destruction, and retain a redacted audit receipt.
 
-### Step 4: Network Security
+## Authentication
 
-- Use SSH tunnels for any services exposed on instances
-- Never expose ports with sensitive data to the public internet
-- Transfer data over SCP/SFTP, not unencrypted HTTP
-- Encrypt training data before upload; decrypt on-instance
+API keys are password-equivalent and do not expire by default. Environment injection is appropriate for CI, but logs, shell traces, generated curl commands, and debug bundles must remain secret-free.
 
-### Step 5: Credential Rotation Checklist
+## Tool Discipline
 
-- [ ] API key rotated every 90 days
-- [ ] SSH keys dedicated to Vast.ai (not shared with production)
-- [ ] Old SSH keys removed from cloud.vast.ai after rotation
-- [ ] `.vast_api_key` file permissions set to `600`
-- [ ] No API keys in shell history (`export` from a sourced file, not typed)
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- API key loaded from environment or secrets manager
-- Dedicated SSH key pair for Vast.ai instances
-- Secure cleanup before instance destruction
-- Network security guidelines
-- Credential rotation checklist
+- Threat and data-placement decision
+- Credential, SSH, image, host, network, and storage controls
+- Positive/negative access tests plus teardown receipt
 
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| API key leaked in git | Committed `.env` or key file | Rotate key immediately; add to `.gitignore` |
-| SSH key rejected | Wrong key or not uploaded | Verify key is at cloud.vast.ai > SSH Keys |
-| Data left on destroyed instance | Forgot to clean up | Use `secure_cleanup()` before destroy |
-| Key file world-readable | Wrong permissions | `chmod 600 ~/.vast_api_key ~/.ssh/vastai_key` |
-
-## Resources
-
-- [Vast.ai CLI Security](https://docs.vast.ai/cli/get-started)
-- [SSH Key Management](https://docs.vast.ai/api-reference/introduction)
-
-## Next Steps
-
-For production deployment checklist, see `vastai-prod-checklist`.
+Return workload class, selected host trust tier, key IDs/scopes, image digest, exposed ports, checkpoint destination, and cleanup outcome.
 
 ## Examples
 
-**Vault integration**: Load API key from HashiCorp Vault at runtime, never write to disk, and use SSH agent forwarding for key management.
+A sensitive training canary uses a verified datacenter, immutable image digest, constrained instance key, dedicated SSH key, encrypted dataset, prefix-scoped checkpoint credential, and confirmed credential revocation after teardown.
 
-**Ephemeral instances**: Treat every Vast.ai instance as throwaway. Never store persistent state on instances; always upload data, process, download results, and destroy.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Workload is not allowed on shared hardware | Stop before provisioning and choose an approved environment. |
+| Image identity is mutable | Pin a digest and repeat security review. |
+| Secret appears in a trace or image | Revoke it, scrub artifacts, rebuild the image, and investigate exposure. |
+| External checkpoint is missing | Do not destroy until recovery evidence exists, unless incident containment requires it. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [Manage API keys](https://docs.vast.ai/guides/reference/api-keys)
+- [CLI permissions](https://docs.vast.ai/cli/permissions)
+- [Manage instances security notes](https://docs.vast.ai/guides/instances/manage-instances)

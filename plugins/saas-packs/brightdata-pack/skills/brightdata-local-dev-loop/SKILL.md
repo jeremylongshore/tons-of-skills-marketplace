@@ -1,204 +1,85 @@
 ---
 name: brightdata-local-dev-loop
-description: 'Configure Bright Data local development with hot reload and testing.
-
-  Use when setting up a development environment, configuring test workflows,
-
-  or establishing a fast iteration cycle with Bright Data.
-
-  Trigger with phrases like "brightdata dev setup", "brightdata local development",
-
-  "brightdata dev environment", "develop with brightdata".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pnpm:*), Grep
-version: 1.6.0
+description: 'Build a local Bright Data development loop that defaults to synthetic fixtures and makes live traffic explicit. Use when implementing parsers, retry classification, or snapshot handling without spending credits or collecting data. Trigger with: "mock Bright Data locally", "test a Bright Data adapter offline", "add a safe live-test switch".'
+allowed-tools: Read, Grep, Write, Edit, Bash(npm:*)
+version: 2.0.0
+argument-hint: "[adapter-path]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
-- scraping
-- data
-- brightdata
-compatibility: Designed for Claude Code
+- web-data
+- bright-data
+- local-dev-loop
+- operations
+compatibility: 'Requires an approved Bright Data account or offline fixtures, current Bright Data documentation, and an authorized public-data collection purpose'
 ---
-# Bright Data Local Dev Loop
+# Bright Data Local Fixture Loop
 
 ## Overview
 
-Set up a fast, reproducible local development workflow for Bright Data scraping projects with mocked proxy responses, cached results, and vitest integration.
+Separate transport from parsing so ordinary development is deterministic and credential-free. The live lane is opt-in, target-allowlisted, budgeted, and incapable of silently replacing fixtures.
 
 ## Prerequisites
 
-- Completed `brightdata-install-auth` setup
-- Node.js 18+ with npm/pnpm
-- brd-ca.crt SSL certificate downloaded
+- A repository-owned Bright Data adapter boundary
+- Synthetic or approved redacted fixtures with expected schemas
+- A test runner and a protected live-test environment
 
 ## Instructions
 
-### Step 1: Create Project Structure
+### Step 1: Map the boundary
 
-```
-my-scraper/
-├── src/
-│   ├── brightdata/
-│   │   ├── proxy.ts         # Proxy configuration helper
-│   │   ├── scraper.ts       # Scraping functions
-│   │   └── cache.ts         # Response caching for dev
-│   └── index.ts
-├── tests/
-│   ├── fixtures/            # Cached HTML responses
-│   │   └── example.html
-│   └── scraper.test.ts
-├── .env.local               # Local credentials (git-ignored)
-├── .env.example             # Template for team
-├── brd-ca.crt               # Bright Data SSL cert (git-ignored)
-└── package.json
+Read the adapter and Grep for direct proxy/API calls in business logic. Move transport behind a narrow interface before recording fixtures.
+
+### Step 2: Create explicit modes
+
+Write configuration with `fixture` as the default and `live` requiring three independent gates.
+
+```yaml
+brightdata:
+  mode: fixture
+  live_requires:
+    - BRIGHTDATA_LIVE_TEST=1
+    - approved_target_manifest
+    - bounded_cost_budget
 ```
 
-### Step 2: Build Proxy Configuration Module
+### Step 3: Test contract behavior
 
-```typescript
-// src/brightdata/proxy.ts
-import 'dotenv/config';
+Add fixtures for success, 407, policy 403, 429, building, ready, failed, empty, and expired states. Test parsers against provider fields rather than copied HTML.
 
-export interface BrightDataProxy {
-  host: string;
-  port: number;
-  auth: { username: string; password: string };
-}
+### Step 4: Run the loop
 
-export function getProxy(options?: {
-  country?: string;
-  city?: string;
-  session?: string;
-}): BrightDataProxy {
-  const { BRIGHTDATA_CUSTOMER_ID, BRIGHTDATA_ZONE, BRIGHTDATA_ZONE_PASSWORD } = process.env;
-  if (!BRIGHTDATA_CUSTOMER_ID || !BRIGHTDATA_ZONE || !BRIGHTDATA_ZONE_PASSWORD) {
-    throw new Error('Missing BRIGHTDATA_* environment variables');
-  }
+Use Bash(npm:*) for unit and contract tests. Permit the live suite only in a protected environment, against an approved target, with a one-job ceiling and redacted receipt.
 
-  let username = `brd-customer-${BRIGHTDATA_CUSTOMER_ID}-zone-${BRIGHTDATA_ZONE}`;
-  if (options?.country) username += `-country-${options.country}`;
-  if (options?.city) username += `-city-${options.city}`;
-  if (options?.session) username += `-session-${options.session}`;
+## Tool Discipline
 
-  return {
-    host: 'brd.superproxy.io',
-    port: 33335,
-    auth: { username, password: BRIGHTDATA_ZONE_PASSWORD },
-  };
-}
-```
-
-### Step 3: Add Response Cache for Development
-
-```typescript
-// src/brightdata/cache.ts — cache scraped pages to avoid burning proxy credits
-import { createHash } from 'crypto';
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
-import { join } from 'path';
-
-const CACHE_DIR = join(process.cwd(), '.scrape-cache');
-
-export function getCachedResponse(url: string): string | null {
-  const key = createHash('md5').update(url).digest('hex');
-  const path = join(CACHE_DIR, `${key}.html`);
-  return existsSync(path) ? readFileSync(path, 'utf-8') : null;
-}
-
-export function setCachedResponse(url: string, html: string): void {
-  mkdirSync(CACHE_DIR, { recursive: true });
-  const key = createHash('md5').update(url).digest('hex');
-  writeFileSync(join(CACHE_DIR, `${key}.html`), html);
-}
-```
-
-### Step 4: Configure Testing with Mocked Responses
-
-```typescript
-// tests/scraper.test.ts
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import axios from 'axios';
-
-vi.mock('axios');
-const mockedAxios = vi.mocked(axios);
-
-describe('Bright Data Scraper', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('should scrape through proxy and return HTML', async () => {
-    mockedAxios.get.mockResolvedValueOnce({
-      status: 200,
-      data: '<html><head><title>Test</title></head></html>',
-    });
-
-    const { scrape } = await import('../src/brightdata/scraper');
-    const html = await scrape('https://example.com');
-    expect(html).toContain('<title>Test</title>');
-
-    // Verify proxy was configured
-    expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://example.com',
-      expect.objectContaining({
-        proxy: expect.objectContaining({ host: 'brd.superproxy.io' }),
-      }),
-    );
-  });
-
-  it('should retry on 502 proxy errors', async () => {
-    mockedAxios.get
-      .mockRejectedValueOnce({ response: { status: 502 } })
-      .mockResolvedValueOnce({ status: 200, data: '<html>OK</html>' });
-
-    const { scrapeWithRetry } = await import('../src/brightdata/scraper');
-    const html = await scrapeWithRetry('https://example.com');
-    expect(html).toContain('OK');
-    expect(mockedAxios.get).toHaveBeenCalledTimes(2);
-  });
-});
-```
-
-### Step 5: Package Scripts
-
-```json
-{
-  "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "scrape": "tsx src/index.ts",
-    "test": "vitest",
-    "test:watch": "vitest --watch",
-    "test:live": "BRIGHTDATA_LIVE=1 vitest --testPathPattern=integration"
-  }
-}
-```
+Use Read and Grep for discovery. Use Write and Edit only for the adapter, fixtures, tests, and documented configuration. Use Bash(npm:*) for the named local suites; never let a default test command send live Bright Data traffic.
 
 ## Output
 
-- Proxy config module with geo-targeting support
-- Response cache to avoid burning credits during development
-- Mocked test suite that doesn't require live proxy access
-- Live integration test flag (`BRIGHTDATA_LIVE=1`)
+- A fixture-first transport adapter
+- Deterministic success and failure fixtures
+- A separately gated live-test receipt and explicit budget
 
 ## Examples
 
-Use mocked responses and provider-approved test endpoints while iterating locally. Keep zone credentials out of source control and terminal output, set a local request ceiling, and store only synthetic/redacted fixtures in the development cache. A live probe must be explicitly approved and scoped to a controlled target.
+A parser change should pass against a synthetic snapshot and recorded provider-error metadata with no credentials present. A maintainer may later enable one protected live job; its output updates no fixture automatically and is reviewed before adoption.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Missing BRIGHTDATA_* vars` | No `.env.local` | Copy from `.env.example` |
-| Cache stale | Old cached HTML | Delete `.scrape-cache/` directory |
-| Mock not working | Import order | Use `vi.mock()` before dynamic imports |
-| SSL errors in tests | CA cert path | Tests use mocks, not live proxy |
+| Failure | Meaning | Response |
+|---------|---------|----------|
+| Unit tests attempt network access | Transport leaked into parsing code | Block network and refactor through the adapter |
+| Fixture contains target data | Captured live content was committed | Remove it and replace it with synthetic minimal data |
+| Live gate has only one switch | Accidental execution remains possible | Require environment, target manifest, and budget gates |
 
 ## Resources
 
-- Bright Data Proxy Docs
-- [Vitest Documentation](https://vitest.dev/)
-- [tsx Documentation](https://github.com/esbuild-kit/tsx)
-
-## Next Steps
-
-See `brightdata-sdk-patterns` for production-ready code patterns.
+- [Web Scraper API asynchronous requests](https://docs.brightdata.com/api-reference/rest-api/scraper/asynchronous-requests)
+- [Download snapshot](https://docs.brightdata.com/api-reference/scrapers/delivery-apis/download-snapshot)
+- [Proxy error catalog](https://docs.brightdata.com/proxy-networks/errorCatalog)
+- [Acceptable use policy](https://docs.brightdata.com/general/policy/acceptable-use-policy)

@@ -1,183 +1,93 @@
 ---
 name: vastai-incident-runbook
-description: 'Execute Vast.ai incident response for GPU instance failures and outages.
-
-  Use when responding to instance failures, investigating training crashes,
-
-  or handling spot preemption emergencies.
-
-  Trigger with phrases like "vastai incident", "vastai outage",
-
-  "vastai down", "vastai emergency", "vastai instance failed".
-
-  '
-allowed-tools: Read, Grep, Bash(vastai:*), Bash(curl:*), Bash(ssh:*)
-version: 1.11.0
+description: >-
+  Analyze, diagnose, and recover a Vast.ai renter workload from outbid, exited, offline, scheduling, low-credit, or data-risk incidents while controlling billing and destructive actions. Use when a Vast.ai workload or account enters an incident state. Trigger with: "Vast.ai incident", "recover an offline Vast.ai job", "stop emergency Vast.ai spend".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[severity-resource-ids-and-last-good-checkpoint]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- incident-response
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - incident-response
+  - recovery
+  - billing
+compatibility: 'Requires affected resource IDs, read access, external checkpoints, incident authority, and a named billing owner.'
 ---
-# Vast.ai Incident Runbook
+
+# Vast.ai Workload Recovery Runbook
 
 ## Overview
 
-Rapid incident response procedures for Vast.ai GPU instance failures. Covers triage, mitigation, recovery, and postmortem for common incident types: spot preemption, instance crashes, GPU failures, and billing issues.
+Protect people and credentials first, then preserve recoverable data, stop uncontrolled spend, and restore service from an external checkpoint or last-known-good template. Provider states imply different actions and must not be collapsed into retry.
 
 ## Prerequisites
 
-- Vast.ai CLI access
-- SSH access to instances (if still running)
-- Checkpoint storage accessible (S3/GCS)
+- Severity, start time, affected instances/endpoints, release, and user impact
+- Last verified external checkpoint or Serverless template
+- Incident commander, data owner, billing owner, and authority for stop/destroy/rollback
 
 ## Instructions
 
-### Triage: Assess Impact (< 2 minutes)
+### Step 1: Stabilize identity and scope
 
-```bash
-#!/bin/bash
-set -euo pipefail
-echo "=== INCIDENT TRIAGE ==="
-echo "Time: $(date -u)"
+Confirm account/team context, affected IDs, current state, balance, and whether a credential or data exposure is involved.
 
-# 1. Check all instances
-echo -e "\n--- Instance Status ---"
-vastai show instances --raw | python3 -c "
-import sys, json
-for inst in json.load(sys.stdin):
-    status = inst.get('actual_status', '?')
-    flag = 'ALERT' if status in ('error', 'exited', 'offline') else 'OK'
-    print(f'  [{flag}] ID:{inst[\"id\"]} Status:{status} '
-          f'GPU:{inst.get(\"gpu_name\",\"?\")} \${inst.get(\"dph_total\",0):.3f}/hr')
-"
+### Step 2: Classify the provider state
 
-# 2. Check if affected instance has recent logs
-echo -e "\n--- Recent Logs (last 20 lines) ---"
-vastai logs ${INSTANCE_ID:-0} --tail 20 2>/dev/null || echo "No logs available"
+Outbid/stopped may retain disk and storage charges; exited is workload failure; scheduling may await a reclaimed GPU; unknown/offline is host heartbeat loss; low credit threatens availability and data.
 
-# 3. Check account balance
-echo -e "\n--- Account ---"
-vastai show user --raw | python3 -c "import sys,json; u=json.load(sys.stdin); print(f'Balance: \${u.get(\"balance\",0):.2f}')"
-```
+### Step 3: Preserve recovery evidence
 
-### Incident Type 1: Spot Preemption
+Copy reachable artifacts and logs, record template/image identity, and verify the newest external checkpoint before any destroy.
 
-**Symptoms**: Instance status changes from `running` to `exited` or `offline` without user action.
+### Step 4: Contain cost or exposure
 
-```bash
-# 1. Verify preemption (not user error)
-vastai show instance $ID --raw | python3 -c "
-import sys, json; i=json.load(sys.stdin)
-print(f'Status: {i.get(\"actual_status\")}')
-print(f'Status msg: {i.get(\"status_msg\", \"none\")}')
-"
+Stop new creates, revoke compromised keys, and use stop or destroy only under the incident's data-versus-cost decision.
 
-# 2. Check if checkpoint was saved
-# (depends on your checkpoint storage — S3, GCS, etc.)
-aws s3 ls s3://bucket/checkpoints/ --recursive | tail -5
+### Step 5: Restore on a clean target
 
-# 3. Provision replacement instance
-vastai search offers "gpu_name=${GPU_NAME} reliability>0.98 rentable=true" \
-  --order dph_total --limit 3
+Resume from the verified checkpoint on a compliant different offer, or roll Serverless back to the last-known-good template.
 
-# 4. Create replacement and resume from checkpoint
-vastai create instance $NEW_OFFER_ID --image $IMAGE --disk 50
-```
+### Step 6: Reconcile and close
 
-### Incident Type 2: Training Job Crash
+Confirm service and output, destroy superseded resources, audit charges, rotate temporary access, and document the gap and prevention action.
 
-**Symptoms**: Instance running but training process exited with error.
+## Authentication
 
-```bash
-# 1. SSH in and check logs
-ssh -p $PORT root@$HOST "tail -100 /workspace/train.log 2>/dev/null || echo 'No log file'"
+Use an incident key with the minimum temporary permissions and a short revocation deadline. Keep billing-write, team administration, workload storage, and control-plane authority separated.
 
-# 2. Common causes
-ssh -p $PORT root@$HOST << 'CHECK'
-# GPU memory issue?
-nvidia-smi | grep -i "out of memory" && echo "OOM detected"
-# Disk full?
-df -h /workspace | tail -1
-# Process still running?
-ps aux | grep python | grep -v grep
-CHECK
+## Tool Discipline
 
-# 3. Restart training from checkpoint
-ssh -p $PORT root@$HOST "cd /workspace && python train.py --resume-from latest"
-```
-
-### Incident Type 3: GPU Hardware Failure
-
-**Symptoms**: `nvidia-smi` fails, CUDA errors, or ECC memory errors.
-
-```bash
-# 1. Check GPU health
-ssh -p $PORT root@$HOST "nvidia-smi" || echo "GPU not responding"
-
-# 2. This is a host-level failure — you cannot fix it
-# Destroy the instance and provision on a different host
-vastai destroy instance $ID
-
-# 3. Report the host to Vast.ai support
-echo "Report host ID to Vast.ai support for investigation"
-```
-
-### Incident Type 4: Billing Emergency
-
-```bash
-# Stop all billing immediately
-echo "EMERGENCY: Destroying all instances"
-vastai show instances --raw | python3 -c "
-import sys, json, subprocess
-for inst in json.load(sys.stdin):
-    if inst.get('actual_status') in ('running', 'loading'):
-        subprocess.run(['vastai', 'destroy', 'instance', str(inst['id'])])
-        print(f'Destroyed instance {inst[\"id\"]}')
-"
-```
-
-### Postmortem Template
-
-```markdown
-## Incident Report
-- **Date**: YYYY-MM-DD
-- **Duration**: X hours
-- **Impact**: N instances affected, $X cost
-- **Root cause**: [spot preemption / OOM / disk full / GPU failure]
-- **Resolution**: [replaced instance / increased VRAM / expanded disk]
-- **Prevention**: [higher reliability filter / checkpoints / auto-recovery]
-```
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- Triage script with instant status assessment
-- Recovery procedures for 4 incident types
-- Emergency billing stop command
-- Postmortem template
+- State-based incident timeline and containment decision
+- Checkpoint/template recovery and service-validation evidence
+- Resource cleanup, charge reconciliation, access rotation, and postmortem receipt
 
-## Error Handling
-
-| Incident | MTTR Target | Recovery |
-|----------|-------------|----------|
-| Spot preemption | < 10 min | Auto-provision replacement, resume from checkpoint |
-| Training crash | < 5 min | SSH in, diagnose, restart from checkpoint |
-| GPU failure | < 15 min | Destroy instance, provision on different host |
-| Billing emergency | < 1 min | Destroy all instances immediately |
-
-## Resources
-
-- [Vast.ai Status](https://status.vast.ai)
-- [Vast.ai CLI](https://docs.vast.ai/cli/get-started)
-
-## Next Steps
-
-For data handling and security, see `vastai-data-handling`.
+Return severity, IDs, state class, last good checkpoint/template, containment, restored target, data gap, spend impact, and closed resources.
 
 ## Examples
 
-**Auto-recovery script**: Run the event poller from `vastai-webhooks-events` with an auto-recovery handler that provisions a replacement within 5 minutes of preemption.
+After a host goes offline, the team avoids blind restarts, restores the last external checkpoint on a different verified offer, validates output, and retains the original instance ID for support and billing reconciliation.
 
-**Kill switch**: Keep `vastai show instances && vastai destroy instance ALL` aliased for emergency billing stops.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| No external checkpoint exists | State the recovery gap explicitly and attempt data salvage only if the host becomes reachable. |
+| Balance is zero or negative | Escalate immediately; instances stop and resources may be at risk of deletion. |
+| Destruction would erase the only data | Require the incident commander and data owner to make the containment decision. |
+| Replacement also fails | Stop churn, compare common image/data/config factors, and escalate with redacted evidence. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [Troubleshooting](https://docs.vast.ai/guides/reference/troubleshooting)
+- [Billing and negative balances](https://docs.vast.ai/guides/reference/billing#negative-balances)
+- [Manage instances](https://docs.vast.ai/guides/instances/manage-instances)

@@ -1,6 +1,6 @@
 ---
 name: windsurf-architecture-variants
-description: 'Choose workspace architectures for different project scales in Windsurf.
+description: 'Choose workspace architectures for different project scales in Devin Desktop (formerly Windsurf).
 
   Use when deciding how to structure Windsurf workspaces for monorepos,
 
@@ -12,7 +12,8 @@ description: 'Choose workspace architectures for different project scales in Win
 
   '
 allowed-tools: Read, Grep
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -27,7 +28,7 @@ compatibility: Designed for Claude Code
 
 ## Overview
 
-How you structure your Windsurf workspace directly impacts Cascade's effectiveness. Large monorepos, multi-service setups, polyglot codebases, and different team sizes each require different approaches. This skill covers workspace strategies from solo projects to 100+ developer organizations.
+Workspace structure directly affects Cascade context and indexing behavior. Select and verify an architecture for single projects, monorepos, multi-service systems, polyglot codebases, or large organizations.
 
 ## Prerequisites
 
@@ -35,15 +36,26 @@ How you structure your Windsurf workspace directly impacts Cascade's effectivene
 - Understanding of Cascade's workspace indexing model
 - Git workflow established
 
+Confirm the target repository size, ownership boundaries, and developer workflow before selecting a workspace layout.
+
+## Authentication
+
+Public documentation checks require no authentication. Any editor, organization, remote-indexing, or MCP operation uses the operator's existing Devin Desktop session and the target provider's approved credentials; never copy those credentials into repository files.
+
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Grep` to locate relevant settings, rules, logs, or code without broad collection.
+
 ## Instructions
 
-### Variant 1: Single Project (Solo / Small Team)
+### Step 1: Select the Single-Project Variant (Solo / Small Team)
 
 **Best for:** 1-3 developers, single service, <10K files.
 
 ```
 my-project/
-├── .windsurfrules          # Full project context
+├── .devin/rules/project.md          # Full project context
 ├── .codeiumignore          # Exclude build artifacts
 ├── src/
 ├── tests/
@@ -55,25 +67,25 @@ my-project/
 
 - Open entire project as workspace
 - Cascade indexes everything — no partitioning needed
-- `.windsurfrules` contains complete stack and architecture details
+- `.devin/rules/project.md` contains complete stack and architecture details
 
-### Variant 2: Focused Monorepo Windows (Medium Team)
+### Step 2: Select Focused Monorepo Windows (Medium Team)
 
 **Best for:** 3-15 developers, monorepo with 2-10 packages.
 
 ```
 monorepo/
-├── .windsurfrules          # Brief shared conventions
+├── .devin/rules/project.md          # Brief shared conventions
 ├── .codeiumignore          # Aggressive exclusions at root
 ├── packages/
 │   ├── api/
-│   │   ├── .windsurfrules  # API-specific rules
+│   │   ├── .devin/rules/project.md  # API-specific rules
 │   │   └── .codeiumignore
 │   ├── web/
-│   │   ├── .windsurfrules  # Frontend-specific rules
+│   │   ├── .devin/rules/project.md  # Frontend-specific rules
 │   │   └── .codeiumignore
 │   └── shared/
-│       ├── .windsurfrules  # Library conventions
+│       ├── .devin/rules/project.md  # Library conventions
 │       └── .codeiumignore
 └── .windsurf/
     └── workflows/          # Shared workflows
@@ -90,7 +102,7 @@ windsurf packages/shared/     # Library maintainer
 # NOT: windsurf monorepo/     # Too broad!
 ```
 
-### Variant 3: Multi-Window Team Workflow (Large Team)
+### Step 3: Select a Multi-Window Team Workflow (Large Team)
 
 **Best for:** 15+ developers, microservices, 50K+ total files.
 
@@ -107,30 +119,30 @@ Each developer gets focused Cascade context per workspace window.
 
 ```markdown
 1. One Windsurf window per service/package
-2. Every service has its own .windsurfrules and .codeiumignore
+2. Every service has its own .devin/rules/project.md and .codeiumignore
 3. Cascade tasks scoped to current workspace only
 4. Cross-service changes: open both workspaces side by side
 5. Tag cascade commits: git commit -m "[cascade] description"
 6. Use shared workflows from central config repo
 ```
 
-### Variant 4: Polyglot / Multi-Language
+### Step 4: Add Polyglot and Language-Specific Boundaries
 
 **Best for:** Projects with multiple languages (TypeScript + Python + Go).
 
 ```
-# Each language has different .windsurfrules
+# Each language has different .devin/rules/project.md
 services/
 ├── ts-api/
-│   └── .windsurfrules     # TypeScript patterns, Fastify, Vitest
+│   └── .devin/rules/project.md     # TypeScript patterns, Fastify, Vitest
 ├── python-ml/
-│   └── .windsurfrules     # Python patterns, FastAPI, pytest
+│   └── .devin/rules/project.md     # Python patterns, FastAPI, pytest
 └── go-gateway/
-    └── .windsurfrules     # Go patterns, chi router, go test
+    └── .devin/rules/project.md     # Go patterns, chi router, go test
 ```
 
 ```markdown
-<!-- .windsurfrules for Python service -->
+<!-- .devin/rules/project.md for Python service -->
 # Project: ML Pipeline
 
 ## Stack
@@ -147,12 +159,12 @@ services/
 - No print() — use logging module
 ```
 
-### Variant 5: Frontend-Heavy (Design System)
+### Step 5: Add Frontend and Design-System Context
 
 **Best for:** UI-heavy projects with design system, Storybook, component library.
 
 ```markdown
-<!-- .windsurfrules for design system -->
+<!-- .devin/rules/project.md for design system -->
 # Project: Design System
 
 ## Stack
@@ -193,6 +205,10 @@ Click elements in Preview → send to Cascade for refinement
 | Setup Effort | Minimal | .codeiumignore + rules | Per-service config | Per-language rules |
 | Context Quality | Excellent | Good | Good | Good (per lang) |
 
+## Output
+
+Deliver a workspace topology recommendation naming the selected variant, indexing boundaries, rule and `AGENTS.md` locations, ignore strategy, tradeoffs, and a staged migration plan. Include explicit assumptions for repository size, languages, ownership, and team concurrency.
+
 ## Error Handling
 
 | Issue | Cause | Solution |
@@ -200,8 +216,8 @@ Click elements in Preview → send to Cascade for refinement
 | Cascade is slow | Too many files indexed | Open smaller workspace, add .codeiumignore |
 | Wrong file context | Monorepo root open | Open specific service directory |
 | Conflicting edits | Multiple devs, same files | Feature branches per Cascade session |
-| Wrong language patterns | Multi-language workspace | Separate .windsurfrules per language directory |
-| Stale suggestions | Index out of date | Command Palette > "Codeium: Reset Indexing" |
+| Wrong language patterns | Multi-language workspace | Separate .devin/rules/project.md per language directory |
+| Stale suggestions | Index out of date | Preserve diagnostics, then use the current indexing reset control |
 
 ## Examples
 
@@ -230,15 +246,16 @@ set -euo pipefail
 FILE_COUNT=$(find . -type f -not -path '*/node_modules/*' -not -path '*/.git/*' | wc -l)
 echo "Indexed files: ~$FILE_COUNT"
 [ "$FILE_COUNT" -gt 10000 ] && echo "WARNING: Consider opening a subdirectory"
-[ -f .windsurfrules ] && echo "Rules: $(wc -c < .windsurfrules) chars" || echo "Rules: MISSING"
+[ -f .devin/rules/project.md ] && echo "Rules: $(wc -c < .devin/rules/project.md) chars" || echo "Rules: MISSING"
 [ -f .codeiumignore ] && echo "Ignore: $(wc -l < .codeiumignore) patterns" || echo "Ignore: MISSING"
 ```
 
 ## Resources
 
-- [Windsurf Context Awareness](https://docs.windsurf.com/context-awareness/overview)
-- [Windsurf Ignore](https://docs.windsurf.com/context-awareness/windsurf-ignore)
+- [Focused first-party references](references/official-docs.md)
+- [Windsurf Context Awareness](https://docs.devin.ai/desktop/context-awareness/overview)
+- [Windsurf Ignore](https://docs.devin.ai/desktop/context-awareness/windsurf-ignore)
 
-## Next Steps
+## Related Skill
 
-For known pitfalls and anti-patterns, see `windsurf-known-pitfalls`.
+Continue with `windsurf-known-pitfalls` to test the selected architecture against indexing, context, configuration, and team-workflow failure modes.

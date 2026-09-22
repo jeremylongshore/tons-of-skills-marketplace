@@ -1,259 +1,81 @@
 ---
 name: onenote-security-basics
-description: 'Implement secure authentication, token management, and permission scoping
-  for OneNote Graph API.
-
-  Use when hardening OneNote integrations, implementing least-privilege permissions,
-  or managing token lifecycle.
-
-  Trigger with "onenote security", "onenote permissions", "onenote token management",
-  "onenote least privilege".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.6.0
+description: >-
+  Establish a security baseline for delegated identity, consent, token caches, notebook content, logs, writes, and tenant isolation. Use when designing or hardening a OneNote integration. Trigger with "secure OneNote integration", "audit OneNote permissions", or "review OneNote token handling".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<application> <tenant> <data-classification>"
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- onenote
-- microsoft
-compatibility: Designed for Claude Code
+tags: [saas, onenote, security]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live OneNote actions require network access, delegated authentication, and explicit approval"
 ---
-# OneNote Security Basics
+# OneNote Security Baseline
 
 ## Overview
 
-OneNote Graph API security changed fundamentally on March 31, 2025, when Microsoft deprecated app-only authentication for OneNote endpoints. Every integration must now use delegated authentication through MSAL, which means real users must sign in — no more background service accounts with client secrets. This skill covers the full security surface: permission scoping, token lifecycle management, MSAL cache serialization, credential storage, and multi-tenant hardening. Get any of these wrong and your integration either breaks silently (expired tokens returning 401s) or over-provisions access (Notes.ReadWrite.All when Notes.Read suffices).
+Establish a security baseline for delegated identity, consent, token caches, notebook content, logs, writes, and tenant isolation.. This workflow produces an auditable decision or artifact before any live action.
 
 ## Prerequisites
 
-- Azure AD app registration with redirect URI configured at https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps
-- Microsoft 365 license (E3/E5/Business) with OneNote enabled
-- Python: `pip install msgraph-sdk azure-identity msal` or Node: `npm install @microsoft/microsoft-graph-client @azure/identity @azure/msal-node`
-- Understanding of OAuth 2.0 authorization code flow and delegated permissions
+- Current first-party Microsoft Graph OneNote documentation and the selected integration's tested contract.
+- Named identity, content, workload, security, and operations owners appropriate to the requested scope.
+- Synthetic or approved non-production fixtures with secrets and real notebook content removed.
+
+## Current Contract
+
+OneNote access is user-bound and content-rich. Effective authority depends on the delegated scope, signed-in user, target location, notebook sharing, application policy, and operation; generic application permission rows do not override the OneNote service's app-only prohibition. Recheck the dated evidence map before relying on mutable permissions, limits, SDK behavior, supported resources, or cloud availability.
+
+## Authentication
+
+Use the minimum delegated Notes scope, encrypted token-cache storage, verified redirect URIs, tenant and user binding, redacted telemetry, revocation handling, and short retention for diagnostic evidence.
 
 ## Instructions
 
-### Permission Scope Matrix
+1. Inventory app registrations, redirect URIs, tenants, account types, users, scopes, caches, roots, operations, logs, and destinations.
+2. Calculate effective access for every read, create, update, binary, copy, and export operation.
+3. Remove app-only paths, default-scope assumptions, token logging, shared caches, and production fallbacks.
+4. Add fail-closed tenant and user assertions plus content classification and minimization.
+5. Test consent denial, revocation, cache theft, cross-user swaps, unauthorized roots, and log canaries.
+6. Assign rotation, reauthentication, incident, retention, access-review, and exception owners.
 
-Choose the minimum scope required for your use case:
+## Tool Discipline
 
-| Scope | Read notebooks | Read pages | Create pages | Create notebooks | Admin consent? |
-|-------|:-:|:-:|:-:|:-:|:-:|
-| `Notes.Read` | Yes | Yes | No | No | No |
-| `Notes.ReadWrite` | Yes | Yes | Yes | Yes | No |
-| `Notes.ReadWrite.All` | Yes | Yes | Yes | Yes | **Yes** |
-| `Notes.Create` | No | No | Yes | Yes | No |
+Use Read, Glob, and Grep to inspect documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Invocation alone does not authorize network access, delegated credentials, tenant or notebook content, consent, file transfer, deployment, writes, spend, sharing changes, or deletion.
 
-**Least-privilege recommendations:**
+## Approval Boundaries
 
-- Read-only dashboards: `Notes.Read` (user consent only)
-- Personal note creation: `Notes.ReadWrite` (user consent only)
-- Cross-user/organizational access: `Notes.ReadWrite.All` (requires tenant admin approval)
-- Write-only ingestion: `Notes.Create` (cannot read back what was written)
-
-### Delegated Authentication Setup (Post-2025 Mandatory)
-
-**CRITICAL:** App-only authentication (ClientSecretCredential) was deprecated for OneNote endpoints on March 31, 2025. All code below uses delegated auth exclusively.
-
-**Python — Device Code Flow (headless/CLI environments):**
-
-```python
-from azure.identity import DeviceCodeCredential
-from msgraph import GraphServiceClient
-import os
-
-CLIENT_ID = os.environ["AZURE_CLIENT_ID"]
-TENANT_ID = os.environ["AZURE_TENANT_ID"]
-
-# Minimal scopes — only request what you need
-scopes = ["Notes.ReadWrite"]
-
-credential = DeviceCodeCredential(
-    client_id=CLIENT_ID,
-    tenant_id=TENANT_ID,
-    # cache_persistence_options enables silent token renewal
-)
-client = GraphServiceClient(credentials=credential, scopes=scopes)
-```
-
-**TypeScript — Interactive Browser Flow (web apps):**
-
-```typescript
-import { DeviceCodeCredential } from "@azure/identity";
-import { Client } from "@microsoft/microsoft-graph-client";
-import { TokenCredentialAuthenticationProvider }
-  from "@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials";
-
-const credential = new DeviceCodeCredential({
-  clientId: process.env.AZURE_CLIENT_ID!,
-  tenantId: process.env.AZURE_TENANT_ID!,
-});
-
-const scopes = ["Notes.ReadWrite"];
-const authProvider = new TokenCredentialAuthenticationProvider(credential, { scopes });
-const client = Client.initWithMiddleware({ authProvider });
-```
-
-### Token Lifecycle Management
-
-Access tokens expire after **1 hour**. Refresh tokens last **90 days** but can be revoked by admin policy. Your code must handle silent renewal:
-
-```python
-# Python: MSAL token cache serialization for persistent sessions
-import msal
-import json
-import os
-
-CACHE_FILE = os.path.expanduser("~/.onenote-token-cache.json")
-
-def get_msal_app():
-    cache = msal.SerializableTokenCache()
-    if os.path.exists(CACHE_FILE):
-        cache.deserialize(open(CACHE_FILE).read())
-
-    app = msal.PublicClientApplication(
-        client_id=os.environ["AZURE_CLIENT_ID"],
-        authority=f"https://login.microsoftonline.com/{os.environ['AZURE_TENANT_ID']}",
-        token_cache=cache,
-    )
-    return app, cache
-
-def acquire_token(app, cache):
-    accounts = app.get_accounts()
-    if accounts:
-        # Silent renewal — no user interaction needed if refresh token valid
-        result = app.acquire_token_silent(
-            scopes=["https://graph.microsoft.com/Notes.ReadWrite"],
-            account=accounts[0],
-        )
-        if result and "access_token" in result:
-            save_cache(cache)
-            return result["access_token"]
-
-    # Fallback: device code flow requires user interaction
-    flow = app.initiate_device_flow(
-        scopes=["https://graph.microsoft.com/Notes.ReadWrite"]
-    )
-    print(flow["message"])  # "Go to https://microsoft.com/devicelogin..."
-    result = app.acquire_token_by_device_flow(flow)
-    save_cache(cache)
-    return result.get("access_token")
-
-def save_cache(cache):
-    if cache.has_state_changed:
-        with open(CACHE_FILE, "w") as f:
-            f.write(cache.serialize())
-        os.chmod(CACHE_FILE, 0o600)  # Owner-only read/write
-```
-
-### Secure Credential Storage
-
-Never store client IDs or tenant IDs in source code. Use environment variables at minimum, Azure Key Vault for production:
-
-```bash
-# Development: .env file (add to .gitignore FIRST)
-echo ".env" >> .gitignore
-cat > .env << 'EOF'
-AZURE_CLIENT_ID=your-app-registration-client-id
-AZURE_TENANT_ID=your-directory-tenant-id
-EOF
-chmod 600 .env
-```
-
-```python
-# Production: Azure Key Vault integration
-from azure.keyvault.secrets import SecretClient
-from azure.identity import DefaultAzureCredential
-
-vault_url = "https://your-vault.vault.azure.net"
-kv_client = SecretClient(vault_url=vault_url, credential=DefaultAzureCredential())
-
-client_id = kv_client.get_secret("onenote-client-id").value
-tenant_id = kv_client.get_secret("onenote-tenant-id").value
-```
-
-### Multi-Tenant Security Considerations
-
-For apps serving multiple organizations:
-
-- Register as a multi-tenant app (set `supportedAccountTypes` to `AzureADMultipleOrgs`)
-- Validate the `tid` (tenant ID) claim in every token — reject tokens from unexpected tenants
-- Store per-tenant token caches separately (never mix tenant tokens)
-- Handle Conditional Access policies: catch `claims` challenge in 401 responses and re-authenticate with the required claims
-
-### Security Checklist for Production
-
-- [ ] Using delegated auth (NOT app-only/ClientSecretCredential — deprecated March 2025)
-- [ ] Minimum required scopes (Notes.Read unless writes needed)
-- [ ] Token cache file has 0600 permissions (owner-only)
-- [ ] MSAL cache serialized to disk for silent renewal
-- [ ] Client ID and tenant ID sourced from environment or Key Vault
-- [ ] .env file in .gitignore
-- [ ] Token claims validated (aud, tid, exp)
-- [ ] Refresh token rotation monitored (90-day expiry alert)
-- [ ] Admin consent obtained for Notes.ReadWrite.All (if needed)
-- [ ] Conditional Access error handling implemented
-
-## Output
-
-After applying this skill, your OneNote integration will have: least-privilege permission scoping matched to actual usage, persistent MSAL token cache with silent renewal, secure credential storage using environment variables or Key Vault, and a verified security checklist. Authentication failures will produce actionable error messages instead of silent 401 loops.
+Require security and identity approval for registrations, consent, redirects, caches, or multitenant distribution. Content owners approve roots, exports, writes, and retention.
 
 ## Error Handling
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `AADSTS65001: user needs to consent` | Scope not yet granted by user | Redirect to consent URL or use admin consent endpoint |
-| `AADSTS700016: app not found` | Wrong client ID or wrong tenant | Verify AZURE_CLIENT_ID matches portal registration |
-| `AADSTS50076: MFA required` | Conditional Access policy | Use InteractiveBrowserCredential (device code cannot handle MFA prompts) |
-| `403 Forbidden` on OneNote calls | Missing Notes.* permission or using app-only auth | Check scope in token; switch to delegated auth |
-| `401 Unauthorized` after working | Access token expired, silent renewal failed | Check refresh token validity; re-serialize cache |
-| Token cache file empty after restart | Cache not serialized on shutdown | Call `save_cache()` in atexit handler |
+- Never decode an unverified token as proof of authorization.
+- Stop on tenant, user, or root mismatch.
+- Do not broaden from Notes.Read to write scopes merely to resolve an access error.
+
+## Output
+
+Return the threat model, effective-access matrix, control evidence, findings, corrective owners, exceptions, and recertification date. Identify assumptions, owners, expirations, and evidence gaps explicitly.
 
 ## Examples
 
-**Verify your current token scopes:**
+- Prove one user's cached session cannot access another user's job partition.
+- Revoke consent and verify queued work pauses without token fallback.
 
-```python
-import requests
+## Validation
 
-def check_token_scopes(access_token: str) -> list[str]:
-    """Decode token to inspect granted scopes (without validation)."""
-    import base64, json
-    payload = access_token.split(".")[1]
-    payload += "=" * (4 - len(payload) % 4)  # pad base64
-    claims = json.loads(base64.urlsafe_b64decode(payload))
-    return claims.get("scp", "").split(" ")
+Exercise and record these paths with expected and observed results:
 
-# Usage
-scopes = check_token_scopes(token)
-if "Notes.ReadWrite" not in scopes:
-    raise PermissionError(f"Token only has: {scopes}. Need Notes.ReadWrite.")
-```
-
-**Rotate to new credentials without downtime:**
-
-```bash
-# 1. Register new app in Azure portal
-# 2. Update Key Vault with new credentials
-az keyvault secret set --vault-name your-vault --name onenote-client-id --value NEW_CLIENT_ID
-# 3. Clear MSAL cache to force re-auth with new app
-rm ~/.onenote-token-cache.json
-# 4. First request will trigger device code flow with new app
-```
+- least privilege
+- redirect integrity
+- cache theft
+- cross-user swap
+- revocation
+- content leak
 
 ## Resources
 
-- [OneNote API Overview](https://learn.microsoft.com/en-us/graph/api/resources/onenote-api-overview)
-- [MSAL Python Documentation](https://learn.microsoft.com/en-us/entra/msal/python/)
-- [Azure App Registration](https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps)
-- [OneNote Error Codes](https://learn.microsoft.com/en-us/graph/onenote-error-codes)
-- [Graph API Reference](https://learn.microsoft.com/en-us/graph/api/overview)
-- [Known Issues](https://learn.microsoft.com/en-us/graph/known-issues)
-
-## Next Steps
-
-- Apply `onenote-prod-checklist` for full production readiness review
-- Use `onenote-reference-architecture` to understand API path differences across notebook locations
-- See `onenote-rate-limits` for throttling and Retry-After handling
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable behavior.
+- Treat observed tenant behavior as environment-specific evidence, never a universal OneNote guarantee.

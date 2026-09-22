@@ -10,7 +10,7 @@ description: 'Configure SAML 2.0 and OIDC SSO for Cursor with Okta, Microsoft En
 
   '
 allowed-tools: Read, Write, Edit, Bash(cmd:*)
-version: 1.18.0
+version: 1.19.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

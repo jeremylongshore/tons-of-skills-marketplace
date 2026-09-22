@@ -1,155 +1,92 @@
 ---
 name: quicknode-sdk-patterns
-description: 'Production-ready QuickNode SDK and ethers.js patterns for blockchain
-  applications.
-
-  Use when building production dApps, implementing retry logic, or establishing patterns.
-
-  Trigger with phrases like "quicknode patterns", "ethers best practices", "web3 patterns".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.5.0
+description: 'Adopt the current unified QuickNode SDK with explicit product clients, timeouts, environment configuration, and platform checks. Use when coordinating Admin API, RPC, Streams, Webhooks, KV Store, or SQL Explorer from one service. Trigger with: "use the QuickNode SDK", "build a QuickNode client", "standardize QuickNode API access".'
+allowed-tools: Read, Grep, Write, Edit, Bash(npm:*)
+version: 2.0.0
+argument-hint: '[language-and-product-clients]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- quicknode
-- blockchain
-- web3
-- patterns
-compatibility: Designed for Claude Code
+  - saas
+  - quicknode
+  - sdk
+  - typescript
+  - architecture
+compatibility: 'Unified SDK supports documented native targets; Node.js package supports TypeScript, CommonJS, ES modules, and Bun'
 ---
-# QuickNode SDK Patterns
+
+# QuickNode Unified SDK Pattern
 
 ## Overview
 
-Production-ready patterns for blockchain development with QuickNode: provider singletons, retry logic, batch RPC calls, and multi-chain support.
+Use one configured `QuicknodeSdk` instance and its named product clients. Do not confuse this control-plane SDK with a chain-specific ethers or viem provider, and do not retain old `Core`-only examples as the architecture for new multi-product services.
 
 ## Prerequisites
 
-- Completed `quicknode-install-auth`
-- ethers.js or @quicknode/sdk installed
+- Required product clients and account role
+- A secret reference for `QN_SDK__API_KEY`
+- A deployment target supported by the SDK native binaries
 
 ## Instructions
 
-### Step 1: Provider Singleton
+### Step 1: Audit existing clients
+
+Use Read and Grep to find `@quicknode/sdk`, `Core`, direct `api.quicknode.com` calls, timeouts, retries, and duplicate API-key configuration. Classify chain RPC providers separately from QuickNode product clients.
+
+### Step 2: Confirm platform support
+
+Check the current SDK platform matrix before installing. Browser and unsupported native targets require a server-side boundary or direct documented APIs; do not assume a package that installs on one developer machine will load in every runtime.
+
+### Step 3: Install deliberately
+
+Use Bash(npm:*) to add a reviewed, pinned `@quicknode/sdk` version and capture the lockfile change. Do not use an unbounded latest version in production automation.
+
+### Step 4: Build one client boundary
+
+Use Write or Edit to construct `QuicknodeSdk.fromEnv()` once, inject it into application modules, and set a finite HTTP timeout. Keep base URL overrides limited to local tests or approved staging proxies.
 
 ```typescript
-import { ethers } from 'ethers';
+import { QuicknodeSdk } from '@quicknode/sdk';
 
-let _provider: ethers.JsonRpcProvider | null = null;
-
-export function getProvider(): ethers.JsonRpcProvider {
-  if (!_provider) {
-    _provider = new ethers.JsonRpcProvider(process.env.QUICKNODE_ENDPOINT, undefined, {
-      staticNetwork: true,  // Skip chainId lookup on every call
-      batchMaxCount: 10,    // Enable batch RPC
-    });
-  }
-  return _provider;
-}
+export const quicknode = QuicknodeSdk.fromEnv();
 ```
 
-### Step 2: Retry Wrapper with Backoff
+### Step 5: Select explicit product clients
 
-```typescript
-async function withRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      return await fn();
-    } catch (err: any) {
-      const isRetryable = err.code === 'SERVER_ERROR' || err.code === 'TIMEOUT' || err.status === 429;
-      if (!isRetryable || attempt === maxRetries) throw err;
-      const delay = Math.min(1000 * Math.pow(2, attempt), 10000);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error('Unreachable');
-}
+Route account resources through `admin`, Tooling Access RPC through `rpc`, data pipelines through `streams`, template subscriptions through `webhooks`, cursor state through `kvstore`, and indexed queries through `sql`. Keep chain-specific endpoint RPC behind its own adapter.
 
-// Usage
-const balance = await withRetry(() => getProvider().getBalance(address));
-```
+### Step 6: Test the boundary
 
-### Step 3: Multi-Chain Client Factory
+Mock the SDK at the adapter edge. Add one authorized read-only integration test in a protected environment, validate typed error handling, and reject logs containing API keys or full endpoint URLs.
 
-```typescript
-const ENDPOINTS: Record<string, string> = {
-  ethereum: process.env.QUICKNODE_ETH_ENDPOINT!,
-  polygon: process.env.QUICKNODE_POLYGON_ENDPOINT!,
-  arbitrum: process.env.QUICKNODE_ARB_ENDPOINT!,
-};
+## Tool Discipline
 
-const providers = new Map<string, ethers.JsonRpcProvider>();
-
-export function getChainProvider(chain: string): ethers.JsonRpcProvider {
-  if (!providers.has(chain)) {
-    const url = ENDPOINTS[chain];
-    if (!url) throw new Error(`No endpoint for chain: ${chain}`);
-    providers.set(chain, new ethers.JsonRpcProvider(url, undefined, { staticNetwork: true }));
-  }
-  return providers.get(chain)!;
-}
-```
-
-### Step 4: Batch RPC Calls
-
-```typescript
-async function batchGetBalances(addresses: string[]): Promise<Map<string, bigint>> {
-  const provider = getProvider();
-  const results = new Map<string, bigint>();
-
-  // ethers.js batches these automatically when batchMaxCount > 1
-  const promises = addresses.map(async (addr) => {
-    const balance = await provider.getBalance(addr);
-    results.set(addr, balance);
-  });
-
-  await Promise.all(promises);
-  return results;
-}
-```
-
-### Step 5: Contract Wrapper with Caching
-
-```typescript
-import { LRUCache } from 'lru-cache';
-
-const contractCache = new LRUCache<string, any>({ max: 100, ttl: 60000 });
-
-async function cachedContractCall(contract: ethers.Contract, method: string, ...args: any[]) {
-  const key = `${contract.target}:${method}:${JSON.stringify(args)}`;
-  const cached = contractCache.get(key);
-  if (cached) return cached;
-
-  const result = await contractmethod;
-  contractCache.set(key, result);
-  return result;
-}
-```
+Use Read and Grep for migration discovery, Bash(npm:*) only for package operations, and Write/Edit for the adapter and tests. Never execute destructive Admin, Stream, or Webhook methods without an explicit operator checkpoint.
 
 ## Output
 
-- Thread-safe provider singleton with batch support
-- Retry logic for transient RPC failures
-- Multi-chain client factory
-- Cached contract calls reducing RPC usage
+- Product-client ownership map
+- One reusable configured SDK boundary
+- Platform and version compatibility receipt
+- Unit and protected integration tests
+
+## Examples
+
+A release auditor uses `quicknode.admin` for endpoint inventory and `quicknode.streams` for paused-stream checks. Application chain reads remain in a separate RPC adapter with a distinct endpoint token.
 
 ## Error Handling
 
-| Pattern | Use Case | Benefit |
-|---------|----------|---------|
-| Singleton | All RPC calls | One connection, reused |
-| Retry wrapper | Transient failures | Automatic recovery |
-| Multi-chain factory | Cross-chain dApps | Clean chain switching |
-| Contract cache | Repeated reads | Fewer RPC calls |
+| Failure | Response |
+| --- | --- |
+| Native module fails to load | Recheck the published platform matrix and deployment target |
+| SDK returns 401 | Verify `QN_SDK__API_KEY` and account role |
+| Wrong product base URL | Remove accidental production override and retest |
+| Old `Core` API conflicts | Isolate legacy chain calls and migrate behind an adapter |
 
 ## Resources
 
-- [QuickNode SDK](https://www.quicknode.com/docs/quicknode-sdk/getting-started)
-- [ethers.js Documentation](https://docs.ethers.org/)
-
-## Next Steps
-
-Build transaction workflows: `quicknode-core-workflow-a`
+- [SDK evidence and source notes](references/official-docs.md)
+- [Unified SDK](https://www.quicknode.com/docs/sdk)
+- [SDK quickstart](https://www.quicknode.com/docs/sdk/quick-start)

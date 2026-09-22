@@ -1,144 +1,81 @@
 ---
 name: alchemy-ci-integration
-description: 'Configure CI/CD pipeline for Alchemy-powered Web3 applications.
-
-  Use when setting up automated testing with Hardhat forks,
-
-  smart contract verification, or testnet deployment pipelines.
-
-  Trigger: "alchemy CI", "alchemy GitHub Actions", "web3 CI/CD pipeline".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.5.0
+description: >-
+  Gate Alchemy integration changes with deterministic unit, contract, fork, secret, and negative-path checks. Use when adding Alchemy to CI or hardening an existing pipeline. Trigger with "Alchemy CI", "Alchemy GitHub Actions", or "test Alchemy in CI".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<ci-provider> <test-layers> <deployment-boundary>"
+version: 2.0.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- blockchain
-- web3
-- alchemy
-- ci-cd
-compatibility: Designed for Claude Code
+tags: [saas, alchemy, ci-cd, testing]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Alchemy access requires network access, an appropriate credential, account capacity, and explicit approval"
 ---
-# Alchemy CI Integration
+# Alchemy Continuous Integration Gate
 
 ## Overview
 
-CI/CD pipeline for Alchemy-powered dApps with Hardhat mainnet fork testing, Sepolia deployment, and contract verification.
+Gate Alchemy integration changes with deterministic unit, contract, fork, secret, and negative-path checks. This workflow produces a reviewable artifact and negative-path evidence before any live side effect.
 
 ## Prerequisites
 
-- A repository secret store containing a least-privilege Alchemy test key and,
-  where deployment is authorized, a testnet-only deployer credential.
-- A pinned Hardhat, Solidity, and fork block configuration that has passed
-  locally with synthetic or public-chain fixtures.
-- Branch protection that limits testnet deployment to an approved protected
-  branch and preserves the workflow run as a release receipt.
+- Current first-party Alchemy documentation for the selected product, chain, feature, client, authentication method, limit, and lifecycle.
+- Named product, application, security, data/privacy, budget, release, and operations owners appropriate to the requested scope.
+- Synthetic or approved non-production fixtures, a credential canary, explicit success criteria, and a tested rollback boundary.
+
+## Current Contract
+
+CI should keep most provider behavior deterministic through fixtures and contract tests. A live read or pinned-chain fork is a separately labeled integration gate with a scoped non-production key, bounded usage, and an unavailable-provider policy. Pull-request testing never implies authorization to deploy or transact.
+
+## Authentication
+
+Use a least-privilege CI environment secret with no write or wallet-signing authority. Prevent fork-origin workflows from receiving repository secrets and scan logs, artifacts, bundles, source maps, and built assets for canaries.
 
 ## Instructions
 
-### Step 1: GitHub Actions Workflow
+1. Inventory unit, adapter-contract, fixture, fork, live-read, deployment, and transaction tests and assign each to a trust boundary.
+2. Pin runtime and dependencies; validate fixtures against current documented schemas without requiring live credentials for ordinary pull requests.
+3. Run secret and deprecated-import gates, including a ban on new `alchemy-sdk` imports and credential-bearing endpoint literals.
+4. Run a scoped live read or pinned-block fork only in an approved trusted context, assert chain identity, cap duration/usage, and retain a redacted receipt.
+5. Keep testnet deployment or transaction simulation in a separate protected job with environment approval and no automatic production promotion.
+6. Prove invalid-key, wrong-chain, provider-unavailable, rate-limited, partial-response, and secret-canary failures before making the gate required.
 
-```yaml
-# .github/workflows/web3-ci.yml
-name: Web3 CI
+## Tool Discipline
 
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, wallet addresses, customer data, plan changes, spend, key creation or rotation, webhook changes, deployment, replay, transaction construction, signing, broadcast, or deletion.
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20' }
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run typecheck
-      - name: Run Hardhat tests with Alchemy fork
-        env:
-          ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
-        run: npx hardhat test
-      - name: Check API key not in build
-        run: |
-          npm run build
-          if grep -r "${{ secrets.ALCHEMY_API_KEY }}" dist/ 2>/dev/null; then
-            echo "FAIL: API key found in build output!"
-            exit 1
-          fi
+## Approval Boundaries
 
-  deploy-testnet:
-    needs: test
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20' }
-      - run: npm ci
-      - name: Deploy to Sepolia
-        env:
-          ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
-          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
-        run: npx hardhat run scripts/deploy.ts --network sepolia
-```
-
-### Step 2: Fork Test Configuration
-
-```typescript
-// hardhat.config.ts — CI-optimized
-const config = {
-  solidity: '0.8.24',
-  networks: {
-    hardhat: {
-      forking: {
-        url: `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
-        blockNumber: 19000000,  // Pinned for reproducible CI
-        enabled: !!process.env.ALCHEMY_API_KEY,
-      },
-    },
-  },
-  mocha: {
-    timeout: 60000,  // Fork tests are slower
-  },
-};
-```
-
-## Output
-
-- GitHub Actions with fork-based tests and testnet deployment
-- API key exposure scanning in build output
-- Pinned block number for reproducible CI results
-
-## Examples
-
-Open a pull request that changes a contract test and let the test job run with
-the fork key supplied only through the CI secret context. The expected result
-is a passing pinned-block fork test, type check, and build scan with no key
-material in artifacts or logs. On merge to the protected branch, require the
-separate testnet deployment job to use the scoped testnet credential and save
-the transaction hash as the receipt. If a fork test cannot authenticate, a
-secret scan detects a value, or the deploy step is not explicitly authorized,
-stop the pipeline and rotate or correct the configuration before retrying.
+Repository/security owners approve secret-bearing CI contexts. Release owners approve protected deployment jobs. External fork pull requests never gain secrets solely because a maintainer runs tests.
 
 ## Error Handling
 
-| Failure | Response |
-|---------|----------|
-| Fork request is rate-limited or unauthorized | Fail the job without exposing the key; verify the secret and account limits. |
-| Test diverges from pinned fork state | Update the fixture deliberately and record the new approved block number. |
-| Build scan finds secret material | Revoke the affected credential, remove it from outputs, and rerun from a clean artifact. |
-| Testnet deployment fails | Preserve the transaction/error receipt and do not promote the change to a production deployment. |
+- A provider outage must produce the documented gate result; do not silently skip a required live contract.
+- Do not expose secret values in command lines, process dumps, cache keys, or build scans.
+- Do not combine a read-only CI gate with testnet deployment in the same implicit authority boundary.
+
+## Output
+
+Return the test-layer map, workflow/config change, secret and fork policy, deterministic fixtures, live-gate budget, negative-path receipts, required/advisory decision, and rollback. Mark assumptions, observations, source dates, environment-specific behavior, owners, and unresolved gaps explicitly.
+
+## Examples
+
+- Run fixture-backed adapter tests on every fork PR and a single chain-ID-asserted live read only after the trusted environment gate.
+- Fail a build that reintroduces `alchemy-sdk` or embeds an Alchemy endpoint credential in a source map.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- fork PR without secrets
+- invalid key
+- wrong chain
+- provider unavailable
+- HTTP 200 partial error
+- secret canary in artifact
 
 ## Resources
 
-- [Alchemy Docs](https://www.alchemy.com/docs)
-- [Hardhat Testing](https://hardhat.org/hardhat-runner/docs/guides/test-contracts)
-
-## Next Steps
-
-For deployment procedures, see `alchemy-deploy-integration`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Alchemy sources before execution.
+- Treat observed account, application, network, indexer, chain, or provider behavior as environment-specific evidence, never a universal guarantee.

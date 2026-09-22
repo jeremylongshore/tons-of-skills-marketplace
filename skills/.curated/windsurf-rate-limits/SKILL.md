@@ -1,171 +1,106 @@
 ---
 name: windsurf-rate-limits
-description: 'Understand and manage Windsurf credit system, usage limits, and model
-  selection.
-
-  Use when running out of credits, optimizing AI usage costs,
-
-  or understanding the credit-per-model pricing structure.
-
-  Trigger with phrases like "windsurf credits", "windsurf rate limit",
-
-  "windsurf usage", "windsurf out of credits", "windsurf model costs".
-
-  '
+description: 'Analyze Devin Desktop (formerly Windsurf) quota limits, extra usage,
+  and model-cost tradeoffs. Use when usage is blocked, a reset is unclear, or a team
+  needs a current consumption plan. Trigger with phrases like "windsurf quota",
+  "windsurf rate limit", "out of usage", "extra usage", or "windsurf model cost".'
+argument-hint: "[plan and usage symptom]"
 allowed-tools: Read, Grep
-version: 1.11.0
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
 - windsurf
-- credits
-- pricing
+- quota
+- billing
 - usage
 compatibility: Designed for Claude Code
 ---
-# Windsurf Rate Limits & Credits
+
+# Devin Desktop Quota and Usage
 
 ## Overview
 
-Windsurf uses a credit-based system for AI features. Each prompt to Cascade consumes credits, with different models costing different amounts. Understanding the credit system prevents mid-session interruptions and optimizes your AI budget.
+Devin Desktop is the current name for Windsurf. Its current usage system uses daily and weekly quota; optional extra usage can continue work after included quota is exhausted.
 
 ## Prerequisites
 
-- Windsurf account (Free, Pro, or Teams)
-- Access to account dashboard at windsurf.com/account
+- The user's current plan and reset time from the in-product usage meter
+- Permission to view billing only when account-level diagnosis is requested
+- A task or session sample representative of the reported consumption
+
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Grep` to locate relevant settings, rules, logs, or code without broad collection.
 
 ## Instructions
 
-### Step 1: Understand Credit Allocation by Plan
+### Step 1: Identify the applicable plan
 
-| Plan | Monthly Credits | Unlimited Features | Price |
-|------|----------------|-------------------|-------|
-| Free | 25 | Supercomplete (SWE-1 Lite), Tab completions | $0 |
-| Pro | 500 | Supercomplete, Tab, Commands, Previews | $15/mo |
-| Teams | 500/user | All Pro features + admin controls | $30/user/mo |
-| Enterprise | Custom | All features + SSO, RBAC, audit | Custom |
+Read the plan page instead of assuming a legacy tier or price. Record whether the account is Free, Pro, Max, Teams, Enterprise, or a grandfathered plan.
 
-### Step 2: Credit Cost per Model
+### Step 2: Read the usage meter
 
-Different models consume different credit amounts per prompt:
+Capture without credentials:
 
-| Model | Credits/Prompt (approx) | Best For |
-|-------|------------------------|----------|
-| SWE-1 Lite | 0 (unlimited) | Quick questions, simple tasks |
-| SWE-1 | 1 | Standard coding tasks |
-| SWE-1.5 | 2 | Complex multi-file tasks |
-| Claude Sonnet | 2 | Nuanced reasoning, architecture |
-| GPT-4o | 2 | General purpose |
-| Gemini Pro | 2 | Large context windows |
+- remaining daily quota and reset time, when present;
+- remaining weekly quota and reset time;
+- whether extra usage is enabled and its configured limit;
+- the model and speed option used when the issue occurred.
 
-### Step 3: Monitor Credit Usage
+Paid plans and full seats can have included allowances. Free accounts wait for reset; eligible paid accounts can use configured extra usage after quota.
 
-**In-IDE:** Click the Windsurf widget (status bar) > shows remaining credits
+### Step 3: Explain what consumes quota
 
-**Dashboard:** windsurf.com/account > Usage tab shows:
+Usage is token-based and varies by model. Long shared timelines, large context, tool calls, output, and fast or priority variants can increase consumption. Free models do not count against quota. Do not publish a fixed per-prompt conversion table.
 
-- Credits consumed today/this month
-- Credits remaining
-- Per-model breakdown
-- Usage trend over time
+### Step 4: Choose the least-cost correction
 
-### Step 4: Credit Conservation Strategies
+1. Start a focused conversation when old context is no longer needed.
+2. Scope repository context and attachments to the task.
+3. Use a lower-cost SWE-family model, such as a currently available SWE model, for routine work.
+4. Keep frontier or fast variants for tasks that justify their higher consumption.
+5. Configure extra-usage limits only with the billing owner's approval.
 
-```markdown
-1. Use SWE-1 Lite for simple tasks (free, unlimited):
-   - Quick questions about syntax
-   - Simple completions
-   - Code explanations
+### Step 5: Handle legacy credit language
 
-2. Use premium models for complex tasks:
-   - Multi-file refactoring
-   - Architecture decisions
-   - Debugging complex issues
+Treat "prompt credits" as the retired built-in system. Historical add-on credits were converted to extra-usage balance under the migration rules. Current self-serve Devin billing also uses on-demand credits outside included quota; do not confuse those billing credits with the retired per-prompt Windsurf allocation.
 
-3. Write better prompts to reduce back-and-forth:
-   - Include file paths, constraints, and expected output
-   - Reference files with @ mentions instead of describing them
-   - One well-structured prompt > five vague ones
+### Step 6: Verify
 
-4. Use Workflows for repetitive tasks:
-   - Workflows consume credits but eliminate wasted retry prompts
-   - A 5-step workflow costs less than 5 separate conversations
+Run one representative, non-destructive request and confirm the meter behaves as expected. If usage remains unavailable, preserve the displayed error and reset time and route it to account support.
 
-5. Leverage free features:
-   - Supercomplete (Tab) is unlimited on all plans
-   - Command mode (Cmd+I) is unlimited on Pro
-   - Only Cascade Write/Chat consumes credits
-```
+## Output
 
-### Step 5: Handle Credit Exhaustion
-
-When credits run out mid-session:
-
-```
-1. Switch to SWE-1 Lite (unlimited) for basic tasks
-2. Use Supercomplete (Tab) for inline coding -- always free
-3. Buy additional credits: windsurf.com/account > Buy Credits
-4. Wait for monthly reset (credits renew on billing date)
-5. Upgrade plan if consistently running out
-```
-
-### Step 6: Team Credit Management (Teams/Enterprise)
-
-```yaml
-# Admin Dashboard > Analytics > Credit Usage
-team_monitoring:
-  total_credits: 5000  # 10 users x 500
-  consumed_this_month: 3200
-  top_consumers:
-    - dev_a: 800 credits (power user)
-    - dev_b: 600 credits (heavy Cascade use)
-    - dev_c: 50 credits (underutilizing)
-
-  actions:
-    - Offer training to dev_c (low usage = not getting value)
-    - Review dev_a's usage (is it productive or wasteful?)
-    - Consider upgrading if team consistently hits limit
-```
+Provide a current usage diagnosis naming the plan, daily or weekly quota state, extra-usage or on-demand balance state, affected surface, displayed reset timing, and least-cost next action. Label any amount copied from the product with its observation date.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| "No credits remaining" | Monthly allocation exhausted | Switch to SWE-1 Lite or buy more |
-| "Model not available" | Not on required plan tier | Upgrade from Free to Pro |
-| Unexpected credit drain | Complex prompts using premium models | Check per-model credit costs |
-| Team budget exceeded | No usage monitoring | Enable admin analytics alerts |
+| Symptom | Response |
+|---|---|
+| Usage meter unavailable | Re-authenticate, confirm organization, and use the plan page |
+| Quota exhausted | Wait for reset or use approved extra usage on an eligible plan |
+| Unexpected drain | Compare model, speed, context size, and tool-heavy steps |
+| Billing terms conflict | Prefer the current quota page and plan page; note grandfathered terms |
+
+Never infer a user's balance from a public pricing page, and never request screenshots containing payment details or session tokens.
 
 ## Examples
 
-### Check Credits Quickly
+**Diagnosis:** "Pro plan; daily quota exhausted, weekly quota remains; reset shown at midnight local time. Extra usage is disabled. Use a lower-cost SWE model after reset and split the repository-wide request into bounded tasks."
 
-```
-Click the Windsurf widget in the bottom-right status bar.
-It shows: model name, credits remaining, and authentication status.
-```
-
-### Cost-Effective Prompt Strategy
-
-```
-Instead of:
-1. "What does this function do?" (1 credit)
-2. "Can you add error handling?" (1 credit)
-3. "Also add tests" (1 credit)
-Total: 3 credits
-
-Do this:
-1. "Explain this function, add error handling, and write unit tests
-   for both success and error paths" (1 credit)
-Total: 1 credit
-```
+**Team control:** "Full-seat quota is included; on-demand usage needs billing-owner approval. Set an account spending limit before enabling it."
 
 ## Resources
 
-- [Windsurf Pricing](https://windsurf.com/pricing)
-- [Credit Documentation](https://docs.windsurf.com/windsurf/models)
+- [Focused first-party references](references/official-docs.md)
+- [Quota-based usage](https://docs.devin.ai/desktop/accounts/quota)
+- [Current self-serve plans](https://docs.devin.ai/admin/billing/self-serve)
+- [Usage accounting](https://docs.devin.ai/admin/billing/usage)
+- [Manage plan](https://windsurf.com/subscription/manage-plan)
 
-## Next Steps
+## Related Skill
 
-For security configuration, see `windsurf-security-basics`.
+Continue with `windsurf-cost-tuning` to convert quota evidence into reviewed team seat allocation, extra-usage policy, and recurring budget analysis.

@@ -1,185 +1,81 @@
 ---
 name: alchemy-upgrade-migration
-description: 'Migrate from alchemy-sdk v2 to v3 and handle breaking changes.
-
-  Use when upgrading Alchemy SDK versions, migrating from deprecated
-
-  alchemy-web3, or adapting to new API patterns.
-
-  Trigger: "alchemy upgrade", "alchemy migration", "alchemy-sdk v3",
-
-  "migrate alchemy-web3", "alchemy breaking changes".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.5.0
+description: >-
+  Migrate archived Alchemy JavaScript SDK integrations to current capability-specific clients with parity, canary, and rollback evidence. Use when removing alchemy-sdk or upgrading Wallet APIs. Trigger with "migrate alchemy-sdk", "replace alchemy-web3", or "upgrade Wallet APIs to v5".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<source-client> <capability-set> <release-scope>"
+version: 2.0.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- blockchain
-- web3
-- alchemy
-- migration
-compatibility: Designed for Claude Code
+tags: [saas, alchemy, migration, viem]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Alchemy access requires network access, an appropriate credential, account capacity, and explicit approval"
 ---
-# Alchemy Upgrade & Migration
+# Alchemy Archived SDK Migration
 
 ## Overview
 
-Migration guide for Alchemy SDK upgrades and deprecated package transitions. The `alchemy-web3` package is deprecated — migrate to `alchemy-sdk`.
-
-## Migration Paths
-
-| From | To | Complexity |
-|------|----|-----------|
-| `alchemy-web3` | `alchemy-sdk` | High (different API surface) |
-| `alchemy-sdk` v2 → v3 | `alchemy-sdk` v3 | Medium (some breaking changes) |
-| Direct JSON-RPC | `alchemy-sdk` | Low (SDK wraps same methods) |
+Migrate archived Alchemy JavaScript SDK integrations to current capability-specific clients with parity, canary, and rollback evidence. This workflow produces a reviewable artifact and negative-path evidence before any live side effect.
 
 ## Prerequisites
 
-- A version-pinned dependency baseline, lockfile, and inventory of every
-  current provider, WebSocket, NFT, and notification call.
-- A testnet or public-chain fixture suite that proves the existing behavior
-  without exposing production keys or user data.
-- A reversible deployment plan that can route traffic to the prior artifact if
-  namespace, type, or provider behavior changes unexpectedly.
+- Current first-party Alchemy documentation for the selected product, chain, feature, client, authentication method, limit, and lifecycle.
+- Named product, application, security, data/privacy, budget, release, and operations owners appropriate to the requested scope.
+- Synthetic or approved non-production fixtures, a credential canary, explicit success criteria, and a tested rollback boundary.
+
+## Current Contract
+
+`alchemy-sdk` is deprecated and its repository is archived. Current migration targets are capability-specific: `viem` for JavaScript EVM RPC, direct documented Data API adapters, `@alchemy/wallet-apis` for transacting apps and Portfolio support, and Solana Web3.js for Solana. Wallet APIs v5 has a separate first-party migration guide.
+
+## Authentication
+
+Inventory every credential the old client could access and grant each replacement adapter only its needed class. Do not let migration move secrets from a server boundary to browser code or merge read and signing authority.
 
 ## Instructions
 
-### Step 1: Migrate from alchemy-web3 to alchemy-sdk
+1. Freeze dependency locks and inventory every `alchemy-sdk`, `alchemy-web3`, endpoint, namespace, WebSocket, Notify, Data API, Wallet, and signer use by capability and side effect.
+2. Route EVM RPC to viem, product HTTP calls to typed adapters, transacting/Portfolio use to Wallet APIs v5 where applicable, and Solana use to Solana Web3.js.
+3. Define normalized parity contracts for values, pagination, partial errors, retryability, chain identity, subscriptions, and transaction intent; preserve raw evidence for differences.
+4. Build fixtures and dual-read comparison for read-only paths; use simulation/testnet and explicit authorization for transaction paths.
+5. Canary one capability at a time with stop thresholds and the old artifact still deployable; remove deprecated imports only after parity and negative paths pass.
+6. Update runbooks, CI bans, lockfiles, observability, owners, and rollback; separately follow the current Wallet APIs v5 guide for v4 consumers.
 
-```typescript
-// BEFORE: alchemy-web3 (DEPRECATED)
-// import { createAlchemyWeb3 } from '@alch/alchemy-web3';
-// const web3 = createAlchemyWeb3(`https://eth-mainnet.g.alchemy.com/v2/${apiKey}`);
-// const balance = await web3.eth.getBalance(address);
-// const nfts = await web3.alchemy.getNfts({ owner });
+## Tool Discipline
 
-// AFTER: alchemy-sdk
-import { Alchemy, Network } from 'alchemy-sdk';
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, wallet addresses, customer data, plan changes, spend, key creation or rotation, webhook changes, deployment, replay, transaction construction, signing, broadcast, or deletion.
 
-const alchemy = new Alchemy({
-  apiKey: process.env.ALCHEMY_API_KEY,
-  network: Network.ETH_MAINNET,
-});
+## Approval Boundaries
 
-// Core methods — same JSON-RPC, different API
-const balance = await alchemy.core.getBalance(address);
-
-// Enhanced APIs — reorganized under namespaces
-const nfts = await alchemy.nft.getNftsForOwner(owner);
-
-// WebSockets — now under alchemy.ws
-alchemy.ws.on({ method: 'eth_subscribe', params: ['newHeads'] }, (block) => {
-  console.log('New block:', block);
-});
-```
-
-### Step 2: API Surface Changes
-
-```typescript
-// Key namespace changes in alchemy-sdk:
-
-// Core (JSON-RPC wrapper)
-alchemy.core.getBlockNumber();
-alchemy.core.getBalance(address);
-alchemy.core.getTokenBalances(address);
-alchemy.core.getTokenMetadata(contractAddress);
-alchemy.core.getAssetTransfers({ fromAddress, category });
-
-// NFT (dedicated namespace)
-alchemy.nft.getNftsForOwner(owner);
-alchemy.nft.getNftsForContract(contract);
-alchemy.nft.getContractMetadata(contract);
-alchemy.nft.getNftMetadataBatch(tokens);
-alchemy.nft.getOwnersForNft(contract, tokenId);
-
-// WebSocket (real-time)
-alchemy.ws.on(filter, callback);
-alchemy.ws.once(filter, callback);
-alchemy.ws.removeAllListeners();
-
-// Notify (webhooks — requires authToken)
-alchemy.notify.getAllWebhooks();
-alchemy.notify.createWebhook(config);
-```
-
-### Step 3: Dependency Cleanup
-
-```bash
-# Remove deprecated packages
-npm uninstall @alch/alchemy-web3 alchemy-web3
-
-# Install current SDK
-npm install alchemy-sdk
-
-# Check for leftover imports
-grep -rn "alchemy-web3\|@alch/alchemy" src/ --include='*.ts' --include='*.js'
-
-# Update ethers if needed (alchemy-sdk works with ethers v5 and v6)
-npm install ethers@6
-```
-
-### Step 4: Test Migration
-
-```typescript
-// tests/migration.test.ts
-import { describe, it, expect } from 'vitest';
-import { Alchemy, Network } from 'alchemy-sdk';
-
-describe('Alchemy SDK Migration', () => {
-  const alchemy = new Alchemy({
-    apiKey: process.env.ALCHEMY_API_KEY,
-    network: Network.ETH_SEPOLIA,
-  });
-
-  it('should get block number via core namespace', async () => {
-    const block = await alchemy.core.getBlockNumber();
-    expect(block).toBeGreaterThan(0);
-  });
-
-  it('should get NFTs via nft namespace', async () => {
-    const nfts = await alchemy.nft.getNftsForOwner('0x0000000000000000000000000000000000000000');
-    expect(nfts.totalCount).toBeDefined();
-  });
-});
-```
-
-## Output
-
-- Migrated from `alchemy-web3` to `alchemy-sdk`
-- All namespace changes applied (core, nft, ws, notify)
-- Deprecated packages removed
-- Migration tests passing
-
-## Examples
-
-Create a migration branch, pin the target SDK version, and replace one
-read-only Sepolia block-number call with its `alchemy.core` equivalent. Run the
-existing fixture suite plus a negative test for an invalid address, then compare
-the normalized output and sanitized error classification with the prior
-implementation. Remove deprecated imports only after the replacement tests
-pass. If a namespace change, type mismatch, or provider response differs from
-the approved behavior, keep the old release artifact available, revert the
-canary, and document the incompatibility before attempting a wider migration.
+Architecture approves target routing; security approves changed credential and signing boundaries; release/product approve canary and normalized differences. Production transaction migration requires explicit wallet-policy approval.
 
 ## Error Handling
 
-| Failure | Response |
-|---------|----------|
-| Dependency install or lockfile changes unexpectedly | Stop the upgrade, inspect the resolved graph, and restore the approved lockfile. |
-| Replacement call differs from the baseline | Keep traffic on the prior artifact and correct the adapter or fixture expectation. |
-| Deprecated import remains after migration | Treat it as incomplete, remove or replace it, and rerun the repository scan. |
-| Testnet/provider validation fails | Do not promote the version; retain sanitized evidence and investigate before retrying. |
+- Do not replace the archived SDK with one universal wrapper that hides product-specific contracts.
+- Do not treat different pagination, partial-error, finality, or numeric semantics as cosmetic parity.
+- If a canary breaches correctness, completeness, latency, error, or spend thresholds, route back to the prior artifact.
+
+## Output
+
+Return the legacy call inventory, target routing, credential delta, parity schema, fixture/dual-read evidence, canary thresholds, deprecated-import gate, rollout sequence, unresolved differences, and rollback receipt. Mark assumptions, observations, source dates, environment-specific behavior, owners, and unresolved gaps explicitly.
+
+## Examples
+
+- Migrate an `alchemy.core.getBalance` call to a viem public client and compare normalized values and chain IDs before switching traffic.
+- Migrate Portfolio behavior only after proving the replacement preserves top-level `partialErrors` and fresh retry of failed networks.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- archived import scan
+- numeric parity
+- pagination parity
+- partial-error parity
+- wrong credential boundary
+- canary rollback
 
 ## Resources
 
-- [Alchemy SDK Migration Guide](https://www.alchemy.com/docs)
-- [alchemy-sdk npm](https://www.npmjs.com/package/alchemy-sdk)
-- [alchemy-sdk GitHub](https://github.com/alchemyplatform/alchemy-sdk-js)
-
-## Next Steps
-
-For CI/CD setup, see `alchemy-ci-integration`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Alchemy sources before execution.
+- Treat observed account, application, network, indexer, chain, or provider behavior as environment-specific evidence, never a universal guarantee.

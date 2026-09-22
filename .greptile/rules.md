@@ -11,7 +11,7 @@ This repo is the **Tons of Skills** marketplace for Claude Code plugins and skil
 - **Two-catalog system.** `.claude-plugin/marketplace.extended.json` is the **source of truth** (edit this). `.claude-plugin/marketplace.json` is **auto-generated** by `pnpm run sync-marketplace` — never hand-edit it; CI's drift gate rejects divergence. The same step generates plugin `package.json`s and the README AUTO-TOC block.
 - **The prose-spec validator is authoritative.** `scripts/validate-skills-schema.py` is the canonical gate. The `@intentsolutions/core` kernel is the SSoT being migrated to, currently in an **advisory soak**. Keep its pin exact and current, but do not treat a pin bump as an authority flip or promote the kernel CI lanes from advisory to blocking before the documented cutover gates pass.
 - **External-sync pipeline.** `sources.yaml` + `scripts/sync-external.mjs` mirror external plugin repos into `plugins/`; synced plugins carry a `.source.json` marker.
-- **Package managers:** pnpm everywhere **except `marketplace/` (npm)**, CI-enforced. Node >= 20 (Node 18 breaks workspace resolution).
+- **Package managers:** pnpm everywhere **except `marketplace/` (npm)**, CI-enforced. Node >= 22 (Node 20 is end-of-life and `better-sqlite3`, pulled in by the root `@intentsolutions/jrig-cli` dev dependency, ships no Node 20 binary; Node 18 breaks workspace resolution).
 
 ## Prioritize (in order)
 

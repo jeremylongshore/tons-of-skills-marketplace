@@ -1,156 +1,99 @@
 ---
 name: palantir-security-basics
-description: 'Apply Palantir Foundry security best practices for credentials, scopes,
-  and access control.
-
-  Use when securing API tokens, implementing least privilege access,
-
-  or auditing Foundry security configuration.
-
-  Trigger with phrases like "palantir security", "foundry secrets",
-
-  "secure palantir", "palantir API key security", "foundry scopes".
-
-  '
-allowed-tools: Read, Write, Grep
-version: 1.5.0
-license: MIT
+description: >-
+  Establish a Foundry security baseline for users, service applications, data resources, Ontology policies, logs, and exports. Use when onboarding, reviewing architecture, or hardening a release. Trigger with "Palantir security".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[project-application-or-workflow]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- security
-- oauth
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, security, least-privilege]
 ---
-# Palantir Security Basics
+# Palantir Foundry Security Baseline
 
 ## Overview
 
-Security best practices for Foundry API tokens, OAuth2 credentials, scope management, and secret rotation. Covers both personal access tokens (dev) and service user credentials (production).
+Apply least privilege across discretionary roles, mandatory controls, OAuth clients, Ontology policies, logs, and exports. Test both intended access and denial because each control plane covers a different boundary.
 
 ## Prerequisites
 
-- Foundry Developer Console access
-- Understanding of OAuth2 scopes
+- Identify owners, users/groups, service users, projects, organizations, markings/CBAC, datasets, Ontology resources, applications, logs, exports, and incident contacts.
+- Classify the maximum data sensitivity and writeback impact for the workflow.
+- Read `references/official-docs.md` and the target enrollment's policies.
+- Begin with a read-only inventory and approved synthetic test personas.
+
+## Current Contract
+
+- Projects and roles govern discretionary access; organizations, markings, and CBAC remain mandatory.
+- Developer Console application restrictions and OAuth scopes constrain API clients alongside user/service-user permissions.
+- Ontology object/property policies support granular read controls, but mandatory controls are needed where downstream propagation matters.
+- Logs and audit exports may contain sensitive values and require explicit access, marking, audience, and retention decisions.
+
+## Authentication
+
+Prefer the grant designed for the architecture, keep secrets in an approved manager, restrict resources and operations, request minimum scopes, and assign rotation/revocation owners. Never use personal tokens for unattended production workloads.
 
 ## Instructions
 
-### Step 1: Secure Credential Storage
+1. Inventory every principal and control plane, then map each permission to a business purpose, resource, owner, and expiry.
 
-```bash
-# .env — NEVER commit to git
-FOUNDRY_HOSTNAME=mycompany.palantirfoundry.com
-FOUNDRY_CLIENT_ID=your-client-id
-FOUNDRY_CLIENT_SECRET=your-client-secret
+2. Move routine access to groups and reduce project roles to the minimum capability.
 
-# .gitignore — ensure .env files are excluded
-echo '.env' >> .gitignore
-echo '.env.local' >> .gitignore
-echo '.env.*.local' >> .gitignore
-```
+3. Restrict Developer Console clients to required Ontology entities or Platform operations and verify the acting principal separately.
 
-For production, use a secrets manager:
+4. Apply object/property policies and mandatory controls according to read and propagation requirements.
 
-```bash
-# AWS Secrets Manager
-aws secretsmanager create-secret --name foundry/prod \
-  --secret-string '{"client_id":"xxx","client_secret":"yyy","hostname":"zzz"}'
+5. Govern logs and exports, run positive/negative tests, scan artifacts for secrets, and schedule access recertification.
 
-# Google Cloud Secret Manager
-echo -n "your-client-secret" | gcloud secrets create foundry-client-secret --data-file=-
+## Tool Discipline
 
-# HashiCorp Vault
-vault kv put secret/foundry client_id=xxx client_secret=yyy
-```
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-### Step 2: Apply Least Privilege Scopes
+## Approval Boundaries
 
-| Environment | Recommended Scopes | Rationale |
-|-------------|-------------------|-----------|
-| Development | `api:read-data` | Read-only prevents accidental mutations |
-| Staging | `api:read-data`, `api:write-data` | Test writes in safe environment |
-| Production | Only scopes your app actually needs | Minimize blast radius |
-
-```python
-# Production app that only reads Ontology objects:
-auth = foundry.ConfidentialClientAuth(
-    client_id=os.environ["FOUNDRY_CLIENT_ID"],
-    client_secret=os.environ["FOUNDRY_CLIENT_SECRET"],
-    hostname=os.environ["FOUNDRY_HOSTNAME"],
-    scopes=["api:ontology-read"],  # Minimum viable scope
-)
-```
-
-### Step 3: Rotate Credentials
-
-```bash
-# 1. Generate new credentials in Developer Console
-# 2. Deploy new credentials alongside old ones
-# 3. Verify new credentials work
-python -c "
-import os, foundry
-auth = foundry.ConfidentialClientAuth(
-    client_id=os.environ['NEW_CLIENT_ID'],
-    client_secret=os.environ['NEW_CLIENT_SECRET'],
-    hostname=os.environ['FOUNDRY_HOSTNAME'],
-    scopes=['api:read-data'],
-)
-auth.sign_in_as_service_user()
-print('New credentials verified')
-"
-# 4. Remove old credentials from Developer Console
-# 5. Update environment variables to use new credentials only
-```
-
-### Step 4: Validate Tokens Are Not Exposed
-
-```bash
-# Scan for leaked credentials in git history
-git log --all -p | grep -i "foundry_token\|foundry_client_secret" | head -5
-# If found: rotate immediately, then use git-filter-repo to remove
-
-# Pre-commit hook to prevent committing secrets
-# .pre-commit-config.yaml
-# - repo: https://github.com/Yelp/detect-secrets
-#   hooks:
-#   - id: detect-secrets
-```
-
-### Step 5: Security Checklist
-
-- [ ] Credentials in environment variables or secrets manager (never in code)
-- [ ] `.env` files listed in `.gitignore`
-- [ ] Separate credentials per environment (dev/staging/prod)
-- [ ] Minimum scopes per application
-- [ ] Personal access tokens used only for development
-- [ ] OAuth2 client credentials for all production workloads
-- [ ] Credential rotation schedule (every 90 days)
-- [ ] Pre-commit hooks to detect leaked secrets
+Project, data, security, application, and organization owners approve their respective controls. Credential rotation, permission grants, unmarking, log enablement, and exports are independent live actions.
 
 ## Output
 
-- Securely stored credentials using secrets manager
-- Least-privilege scopes per environment
-- Rotation procedure documented and tested
-- Pre-commit hooks preventing secret commits
+A security inventory, threat and data-flow summary, entitlement/control matrix, OAuth restrictions, object/property policy, log/export controls, test evidence, secret-rotation plan, exceptions, and recertification.
 
 ## Error Handling
 
-| Security Issue | Detection | Mitigation |
-|----------------|-----------|------------|
-| Exposed token in git | `detect-secrets` scan | Rotate immediately, scrub history |
-| Overly broad scopes | Audit app permissions | Reduce to minimum needed |
-| Stale credentials | Age > 90 days | Rotate on schedule |
-| Shared credentials | Multiple users same token | Create per-user service users |
+| Condition | Response |
+|---|---|
+| A token is exposed | Revoke and rotate it, remove it from artifacts/history, assess access, and document the incident. |
+| A negative persona can read data | Block release, identify the permitting control plane, and correct the minimum policy. |
+| A role appears correct but access fails | Check mandatory controls, dependencies, and application restrictions without broadening everything. |
+| A log/export contains unexpected values | Stop access or export, correct logging and markings, and assess exposure. |
+
+## Examples
+
+### Example 1
+
+Harden a backend OSDK service by restricting its service user, OAuth scopes, Developer Console resources, returned properties, log contents, secret storage, and rotation procedure.
+
+### Example 2
+
+Review an Ontology workflow by testing row/property policies for approved personas and applying mandatory controls to derived datasets or exports that require continued protection.
+
+## Validation
+
+- Every principal and permission has a purpose, owner, and review date.
+- Positive and negative access tests cover projects, mandatory controls, and application restrictions.
+- Secrets are absent from repositories, images, logs, and deliverables.
+- Downstream propagation and export controls are explicitly tested.
+- Exceptions are time-bounded and monitored.
 
 ## Resources
 
-- [Foundry Authentication](https://www.palantir.com/docs/foundry/api/general/overview/authentication)
-- [Developer Console](https://www.palantir.com/docs/foundry/ontology-sdk/create-a-new-osdk)
-- [detect-secrets](https://github.com/Yelp/detect-secrets)
-
-## Next Steps
-
-For production deployment, see `palantir-prod-checklist`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

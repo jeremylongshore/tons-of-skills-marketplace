@@ -1,276 +1,78 @@
 ---
 name: firecrawl-reference-architecture
-description: 'Implement Firecrawl reference architecture with scrape/crawl/map/extract
-  pipelines.
-
-  Use when designing new Firecrawl integrations, reviewing project structure,
-
-  or building content ingestion pipelines for AI/RAG applications.
-
-  Trigger with phrases like "firecrawl architecture", "firecrawl project structure",
-
-  "firecrawl pipeline", "firecrawl RAG", "firecrawl knowledge base".
-
-  '
-allowed-tools: Read, Grep
-version: 1.11.0
+description: >-
+  Design a production Firecrawl v2 ingestion system with policy gateway, bounded acquisition, validation, provenance, storage, indexing, observability, and deletion. Use when building a reusable platform. Trigger with "Firecrawl reference architecture", "Firecrawl ingestion system", or "Firecrawl RAG pipeline".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <workload-profile>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- firecrawl-reference
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, architecture, ingestion]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Reference Architecture
+# Firecrawl Governed Ingestion Architecture
 
 ## Overview
 
-Production architecture for web scraping and content ingestion with Firecrawl. Covers three tiers: on-demand scraping, scheduled crawl pipelines, and real-time RAG ingestion. Uses all four Firecrawl endpoints: scrape, crawl, map, and extract.
+Create explicit trust boundaries from request intake through deletion. Keep source discovery, content retrieval, validation, and downstream publication independently retryable and auditable.
 
 ## Prerequisites
 
-- A decision owner, approved target policy, retention classification, budget, and documented consumer access boundaries.
-- Separate environments and scoped identities for requester, worker, storage, and downstream index.
-- Synthetic fixtures, redacted telemetry, and a tested disable/rollback path for ingestion.
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
 
-## Output
+## Current Contract
 
-Maintain an architecture record naming the selected pipeline, trust boundaries, data destinations, target and budget controls, retention rule, owner, and rollback switch. Captured pages and credentials are not architecture evidence.
+Firecrawl v2 provides scrape, crawl, map, search, batch scrape, parse, JSON extraction, agentic, and browser surfaces with different async, credit, retention, and availability contracts. The SDK can auto-wait and paginate, while explicit start/status methods support durable orchestration. Provider webhooks supplement but do not replace reconciliation.
 
-## Architecture Diagram
+## Authentication
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                   Firecrawl Pipeline                     │
-│                                                          │
-│  ┌──────────┐  ┌──────────┐  ┌──────┐  ┌───────────┐   │
-│  │ scrapeUrl│  │ crawlUrl │  │mapUrl│  │ extract   │   │
-│  │ (1 page) │  │ (N pages)│  │(URLs)│  │ (LLM+JSON)│   │
-│  └────┬─────┘  └────┬─────┘  └──┬───┘  └─────┬─────┘   │
-│       │              │            │            │          │
-│       ▼              ▼            ▼            ▼          │
-│  ┌───────────────────────────────────────────────────┐   │
-│  │            Content Processing Layer                │   │
-│  │  Clean MD │ Validate │ Deduplicate │ Chunk        │   │
-│  └─────────────────────┬─────────────────────────────┘   │
-│                         │                                 │
-│  ┌─────────────────────┴─────────────────────────────┐   │
-│  │              Storage & Output                      │   │
-│  │  Files │ Database │ Vector Store │ Search Index    │   │
-│  └───────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────┘
-```
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Firecrawl Service Layer
+1. Define tenants, source authorization, freshness, scale, formats, data classification, SLO/RPO/RTO, retention, deletion, and cost constraints.
+2. Place authentication, tenant isolation, URL canonicalization, policy versioning, endpoint/format allowlists, budgets, and idempotency at the intake gateway.
+3. Separate discovery into map/search, retrieval into scrape/batch/crawl/parse, and model extraction into a validated stage. Use durable job records for asynchronous work.
+4. Persist normalized provenance and job/page state before downstream writes. Complete pagination and deduplicate by tenant, canonical source, version, and content hash.
+5. Run schema, origin-status, content-quality, malware/active-content, and prompt-injection gates before storage or agent context.
+6. Use an outbox or equivalent for indexing and publication; make retries idempotent and support tombstones across raw, normalized, embedding, cache, and search stores.
+7. Observe queue, job, origin, validation, freshness, spend, webhook, and deletion SLIs; test restore, reconciliation, cancellation, and regional/provider failure.
 
-```typescript
-// src/firecrawl/service.ts
-import FirecrawlApp from "@mendable/firecrawl-js";
+## Tool Discipline
 
-const firecrawl = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY!,
-});
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-// Single page scrape
-export async function scrapePage(url: string) {
-  return firecrawl.scrapeUrl(url, {
-    formats: ["markdown"],
-    onlyMainContent: true,
-    waitFor: 2000,
-  });
-}
+## Approval Boundaries
 
-// Site-wide crawl with safety limits
-export async function crawlSite(baseUrl: string, opts?: {
-  maxPages?: number;
-  paths?: string[];
-  excludePaths?: string[];
-}) {
-  return firecrawl.crawlUrl(baseUrl, {
-    limit: opts?.maxPages || 50,
-    maxDepth: 3,
-    includePaths: opts?.paths,
-    excludePaths: opts?.excludePaths || ["/blog/*", "/news/*"],
-    scrapeOptions: { formats: ["markdown"], onlyMainContent: true },
-  });
-}
+Require architecture and security/data approval before adding a new endpoint class, authenticated source, model extraction, long-term store, cross-region flow, or self-hosted provider.
 
-// Fast URL discovery
-export async function discoverUrls(baseUrl: string) {
-  const map = await firecrawl.mapUrl(baseUrl);
-  return map.links || [];
-}
+## Output
 
-// Structured data extraction
-export async function extractData(url: string, schema: object) {
-  return firecrawl.scrapeUrl(url, {
-    formats: ["extract"],
-    extract: { schema },
-  });
-}
-```
-
-### Step 2: Content Processing Pipeline
-
-```typescript
-// src/pipeline/processor.ts
-import { createHash } from "crypto";
-
-interface ProcessedPage {
-  url: string;
-  title: string;
-  markdown: string;
-  contentHash: string;
-  wordCount: number;
-  chunks: string[];
-}
-
-export function processPage(page: any): ProcessedPage | null {
-  const markdown = cleanMarkdown(page.markdown || "");
-  if (markdown.length < 100) return null; // skip thin content
-
-  return {
-    url: page.metadata?.sourceURL || "",
-    title: page.metadata?.title || "",
-    markdown,
-    contentHash: createHash("sha256").update(markdown).digest("hex"),
-    wordCount: markdown.split(/\s+/).length,
-    chunks: chunkMarkdown(markdown, 1000),
-  };
-}
-
-function cleanMarkdown(md: string): string {
-  return md
-    .replace(/\n{3,}/g, "\n\n")
-    .replace(/\[.*?\]\(javascript:.*?\)/g, "")
-    .replace(/<!--[\s\S]*?-->/g, "")
-    .trim();
-}
-
-function chunkMarkdown(md: string, maxWords: number): string[] {
-  const sections = md.split(/\n##\s/);
-  const chunks: string[] = [];
-  let current = "";
-
-  for (const section of sections) {
-    if (current.split(/\s+/).length + section.split(/\s+/).length > maxWords) {
-      if (current) chunks.push(current.trim());
-      current = section;
-    } else {
-      current += "\n## " + section;
-    }
-  }
-  if (current) chunks.push(current.trim());
-  return chunks;
-}
-```
-
-### Step 3: Map + Selective Scrape Pipeline
-
-```typescript
-// src/pipeline/intelligent-scrape.ts
-export async function intelligentScrape(siteUrl: string, opts: {
-  pathFilter: string;
-  maxPages: number;
-}) {
-  // 1. Map site structure (1 credit)
-  const allUrls = await discoverUrls(siteUrl);
-  const relevant = allUrls.filter(url => url.includes(opts.pathFilter));
-
-  console.log(`Map: ${allUrls.length} total, ${relevant.length} match "${opts.pathFilter}"`);
-
-  // 2. Batch scrape relevant URLs (N credits)
-  const targets = relevant.slice(0, opts.maxPages);
-  const result = await firecrawl.batchScrapeUrls(targets, {
-    formats: ["markdown"],
-    onlyMainContent: true,
-  });
-
-  // 3. Process and deduplicate
-  const seen = new Set<string>();
-  const processed = (result.data || [])
-    .map(processPage)
-    .filter((p): p is ProcessedPage => {
-      if (!p || seen.has(p.contentHash)) return false;
-      seen.add(p.contentHash);
-      return true;
-    });
-
-  return { total: allUrls.length, scraped: targets.length, processed: processed.length, pages: processed };
-}
-```
-
-### Step 4: Async Crawl with Storage
-
-```typescript
-// src/pipeline/crawl-pipeline.ts
-import { writeFileSync, mkdirSync } from "fs";
-
-export async function crawlAndStore(baseUrl: string, outputDir: string) {
-  mkdirSync(outputDir, { recursive: true });
-
-  const crawl = await firecrawl.crawlUrl(baseUrl, {
-    limit: 100,
-    scrapeOptions: { formats: ["markdown"], onlyMainContent: true },
-  });
-
-  const manifest = (crawl.data || [])
-    .map(processPage)
-    .filter((p): p is ProcessedPage => p !== null)
-    .map(page => {
-      const slug = new URL(page.url).pathname
-        .replace(/\//g, "_").replace(/^_|_$/g, "") || "index";
-      writeFileSync(`${outputDir}/${slug}.md`, page.markdown);
-      return { url: page.url, file: `${slug}.md`, words: page.wordCount, chunks: page.chunks.length };
-    });
-
-  writeFileSync(`${outputDir}/manifest.json`, JSON.stringify(manifest, null, 2));
-  return manifest;
-}
-```
+Return components and trust boundaries, sequence and state model, contracts, capacity and cost assumptions, security/privacy controls, failure and reconciliation paths, SLOs, tests, and phased rollout.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Timeout on scrape | JS-heavy page | Increase `waitFor` or use `actions` |
-| Empty markdown | Content behind paywall | Try different URL or authenticated scrape |
-| Crawl incomplete | Hit page limit | Increase `limit` or use `includePaths` |
-| Duplicate content | URL aliases or redirects | Hash content for deduplication |
-| Map returns few URLs | Site has no sitemap | Use `crawlUrl` for thorough discovery |
+- A stage lacks durable identity or idempotency: block asynchronous rollout.
+- Provider completion and stored counts diverge: reconcile pagination and downstream receipts before publication.
+- Deletion cannot propagate to derived stores: fail the data architecture review.
 
 ## Examples
 
-### Documentation Scraper
-
-```typescript
-const docs = await intelligentScrape("https://docs.firecrawl.dev", {
-  pathFilter: "/features/",
-  maxPages: 20,
-});
-console.log(`Scraped ${docs.processed} unique pages from ${docs.total} discovered`);
-```
-
-### RAG Knowledge Base Builder
-
-```typescript
-const pages = await crawlAndStore("https://docs.example.com", "./knowledge-base");
-// Feed chunks to vector store for RAG
-for (const page of pages) {
-  // Each page has pre-chunked content ready for embedding
-}
-```
+- "Build a docs RAG pipeline" produces policy, acquisition, validation, outbox, index, and deletion stages.
+- "Call crawl directly from the browser" is replaced with a server-side governed gateway.
 
 ## Resources
 
-- [Firecrawl API Reference](https://docs.firecrawl.dev/api-reference/introduction)
-- [Scrape Endpoint](https://docs.firecrawl.dev/features/scrape)
-- [Crawl Endpoint](https://docs.firecrawl.dev/features/crawl)
-- [Map Endpoint](https://docs.firecrawl.dev/features/map)
-
-## Next Steps
-
-For multi-environment setup, see `firecrawl-multi-env-setup`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

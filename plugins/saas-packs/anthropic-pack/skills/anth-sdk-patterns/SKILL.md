@@ -12,7 +12,7 @@ description: 'Apply production-ready Anthropic SDK patterns for TypeScript and P
 
   '
 allowed-tools: Read, Write, Edit
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -221,9 +221,9 @@ usage state cannot be confused with another's.
 
 ## Resources
 
-- [Client SDKs](https://docs.anthropic.com/en/api/client-sdks)
-- [Token Counting API](https://docs.anthropic.com/en/docs/build-with-claude/token-counting)
-- [Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
+- [Client SDKs](https://platform.claude.com/docs/en/cli-sdks-libraries/overview)
+- [Token Counting API](https://platform.claude.com/docs/en/build-with-claude/token-counting)
+- [Prompt Caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)
 
 ## Next Steps
 

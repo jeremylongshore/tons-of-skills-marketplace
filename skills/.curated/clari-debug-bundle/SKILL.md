@@ -1,117 +1,92 @@
 ---
 name: clari-debug-bundle
-description: 'Collect Clari API diagnostic info for support cases.
-
-  Use when preparing a support ticket, collecting API response samples,
-
-  or documenting integration issues.
-
-  Trigger with phrases like "clari debug", "clari support bundle",
-
-  "collect clari diagnostics", "clari troubleshoot".
-
-  '
-allowed-tools: Read, Bash(curl:*), Bash(python3:*), Grep
-version: 1.6.0
+description: >-
+  Analyze a Clari incident and collect a minimal support bundle with job timelines, contract fingerprints, and secret-safe evidence. Use when escalating a provider or pipeline failure. Trigger with: "collect Clari diagnostics", "build a Clari support bundle", "redact a Clari incident".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[surface-incident-id-and-time-window]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- revenue-intelligence
-- forecasting
-- clari
-compatibility: Designed for Claude Code
+  - saas
+  - clari
+  - diagnostics
+  - support
+  - redaction
+compatibility: 'Requires an incident identifier, authorized time window, redaction policy, and an encrypted evidence destination.'
 ---
-# Clari Debug Bundle
+
+# Clari Redacted Support Bundle
 
 ## Overview
 
-Collect Clari API diagnostic information for support: API connectivity, forecast list, job history, and error responses. All secrets are redacted.
+A useful support bundle explains what happened without copying credentials or customer payloads. Collect identifiers, timing, states, hashes, schema summaries, and controlled samples under a manifest that is reviewable before sharing.
 
 ## Prerequisites
 
-- Authorized diagnostic access to the affected environment
-- `CLARI_API_KEY` injected by an approved secret mechanism
-- A secure local workspace with enough storage for the bundle
-- A support/incident record that defines what metadata may be shared
+- Incident ID, owner, environment, surface, and affected window
+- Exact endpoint and method inventory plus provider job IDs or cursors
+- Approved redaction rules, retention, and sharing destination
 
 ## Instructions
 
-### Debug Bundle Script
+### Step 1: Create the manifest
 
-```bash
-#!/bin/bash
-# clari-debug-bundle.sh
-set -euo pipefail
+Record collector version, contract fingerprint, host, endpoint names, request fingerprints, timestamps, and system versions.
 
-BUNDLE_DIR="clari-debug-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE_DIR"
+### Step 2: Collect control-plane evidence
 
-echo "=== Clari Debug Bundle ===" | tee "$BUNDLE_DIR/summary.txt"
-echo "Generated: $(date -u)" | tee -a "$BUNDLE_DIR/summary.txt"
+Capture HTTP statuses, redacted response headers, error codes or IDs, job state transitions, attempts, waits, and scheduler ownership.
 
-# 1. API connectivity
-echo "--- API Connectivity ---" >> "$BUNDLE_DIR/summary.txt"
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-  -H "apikey: ${CLARI_API_KEY}" \
-  https://api.clari.com/v4/export/forecast/list)
-echo "API Status: HTTP ${HTTP_CODE}" >> "$BUNDLE_DIR/summary.txt"
+### Step 3: Collect data-plane summaries
 
-# 2. Forecast list (no sensitive data)
-curl -s -H "apikey: ${CLARI_API_KEY}" \
-  https://api.clari.com/v4/export/forecast/list \
-  | jq '.forecasts[] | {forecastName, forecastId}' \
-  > "$BUNDLE_DIR/forecasts.json" 2>&1
+Record content type, byte and row counts, field names, schema hash, and reconciliation deltas without raw revenue, identity, transcript, or recording data.
 
-# 3. Recent export jobs
-curl -s -H "apikey: ${CLARI_API_KEY}" \
-  https://api.clari.com/v4/export/jobs \
-  | jq '.jobs[] | {jobId, status, createdAt, forecastName}' \
-  > "$BUNDLE_DIR/jobs.json" 2>&1
+### Step 4: Collect local health
 
-# 4. Environment info (redacted)
-echo "--- Environment ---" >> "$BUNDLE_DIR/summary.txt"
-echo "CLARI_API_KEY: ${CLARI_API_KEY:+[SET]}" >> "$BUNDLE_DIR/summary.txt"
-python3 --version >> "$BUNDLE_DIR/summary.txt" 2>&1
-pip3 show requests 2>/dev/null | grep Version >> "$BUNDLE_DIR/summary.txt" || true
+Include deployment version, checkpoint state, queue depth, destination health, and relevant redacted logs.
 
-# 5. Package
-tar -czf "$BUNDLE_DIR.tar.gz" "$BUNDLE_DIR"
-rm -rf "$BUNDLE_DIR"
-echo "Bundle: $BUNDLE_DIR.tar.gz"
-```
+### Step 5: Scan and review
 
-**Safe to share**: Forecast names, job IDs, HTTP status codes, library versions.
-**Never share**: API key, forecast amounts, rep names, email addresses.
+Search for all credential header names, token patterns, emails, names, deal values, transcript text, and signed URLs; require human review before sharing.
 
-## Error Handling
+### Step 6: Seal and expire
 
-| Condition | Response |
-|---|---|
-| API request fails or times out | Keep the HTTP status and timestamp, then stop rather than repeatedly retrying. |
-| Bundle contains unexpected sensitive data | Quarantine it, redact or regenerate it, and do not attach it externally. |
-| Archive creation fails | Preserve the unarchived directory locally, diagnose storage/permissions, then clean it under retention policy. |
-| Support needs additional fields | Obtain data-owner approval before collecting or sharing them. |
+Hash the bundle, encrypt it, record recipients and expiry, and delete working copies according to incident policy.
+
+## Authentication
+
+Never collect values for `apikey`, `partnerkey`, `X-Api-Key`, or `X-Api-Password`. If a credential may have entered any artifact, stop distribution and rotate it before continuing.
+
+## Tool Discipline
+
+Use Read and Grep to inspect configuration, provider contracts, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not issue, rotate, revoke, create, update, cancel, delete, export, ingest, or publish provider data without explicit operator approval.
 
 ## Output
 
-Generate a timestamped, redacted archive and a summary with environment,
-sanitized connectivity status, job IDs, collection failures, and integrity
-review decision. The archive is support evidence, not a data-export mechanism;
-it must exclude live credentials and individual forecast records.
+- Redacted manifest and evidence inventory
+- Job or cursor timeline plus schema and reconciliation summaries
+- Bundle hash, reviewer, recipients, expiry, and deletion receipt
+
+Return the exact surface, environment, resource or job identifiers, contract fingerprint, evidence, unresolved risks, and final decision without exposing credentials or sensitive customer data.
 
 ## Examples
 
-During a failed scheduled export, generate the bundle, inspect `summary.txt`
-and JSON files locally, and remove any unapproved identifiers before attaching
-the archive to the named support case. If the provider is returning 429, include
-the redacted timestamps and job state rather than continuing to poll it.
+A stuck forecast incident bundle includes the job ID, `STARTED` timeline, provider error ID, contract hash, scheduler version, and empty-result schema—but no token, forecast rows, or user email addresses.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Scanner finds a credential or sensitive value | Quarantine the bundle, rotate if necessary, redact, and restart review. |
+| Evidence lacks a job ID or cursor | Correlate through request fingerprint and timestamps; state the uncertainty explicitly. |
+| Bundle is too large | Replace payloads with hashes, schemas, counts, and the smallest approved redacted sample. |
 
 ## Resources
 
-- [Clari Community](https://community.clari.com)
-- [Clari Developer Portal](https://developer.clari.com)
-
-## Next Steps
-
-For rate limit handling, see `clari-rate-limits`.
+- [First-party source notes](references/official-docs.md)
+- [Clari Revenue API reference](https://developer.clari.com/default/documentation/external_spec)
+- [Clari Copilot API reference](https://api-doc.copilot.clari.com/)
+- [Clari service status](https://clari.statuspage.io/)

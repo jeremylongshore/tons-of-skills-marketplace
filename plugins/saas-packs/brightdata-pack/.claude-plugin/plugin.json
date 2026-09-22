@@ -1,17 +1,19 @@
 {
   "name": "brightdata-pack",
-  "version": "1.6.0",
-  "description": "Claude Code skill pack for Bright Data (18 skills)",
+  "version": "2.0.0",
+  "description": "18 Grade-A skills for governed Bright Data proxy, Browser API, and snapshot operations",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
   },
   "license": "MIT",
   "keywords": [
-    "brightdata",
-    "bright data",
+    "bright-data",
+    "web-data",
+    "proxy-network",
+    "browser-api",
+    "snapshots",
     "saas",
-    "sdk",
-    "integration"
+    "sdk"
   ]
 }

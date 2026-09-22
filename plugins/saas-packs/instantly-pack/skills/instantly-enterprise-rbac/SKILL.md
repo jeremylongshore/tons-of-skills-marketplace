@@ -1,315 +1,90 @@
 ---
 name: instantly-enterprise-rbac
-description: 'Configure Instantly.ai workspace access control, team management, and
-  API key governance.
-
-  Use when managing workspace members, setting up team permissions,
-
-  or implementing API key governance for multi-user Instantly workspaces.
-
-  Trigger with phrases like "instantly team", "instantly permissions",
-
-  "instantly workspace members", "instantly access control", "instantly rbac".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.12.0
-license: MIT
+description: >-
+  Govern Instantly workspace members, API-key scopes, audit logs, and workspace-group delegation. Use when reviewing access or preparing an owner-approved membership, role, or delegated-workspace change. Trigger with "audit Instantly access", "review Instantly API scopes", or "delegate an Instantly workspace".
+argument-hint: "[workspace-id] [review|change]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.13.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - instantly
-- enterprise
-- access-control
-- team-management
-compatibility: Designed for Claude Code
+- enterprise-rbac
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Instantly workspace and API v2 key
 ---
-# Instantly Enterprise RBAC
+# Instantly Workspace Access Governance
 
 ## Overview
 
-Manage workspace access control in Instantly API v2. Covers workspace member management, API key governance with scoped permissions, workspace group management (for agencies), custom tag-based resource isolation, and audit logging. Instantly uses workspace-level isolation — each workspace is a separate tenant with its own data and API keys.
+Review and change access with least privilege, explicit ownership, and tenant-boundary evidence. Record assumptions, evidence, approval state, and rollback ownership so another operator can reproduce the result.
 
 ## Prerequisites
 
-- Instantly Hypergrowth plan or higher
-- Workspace admin access
-- API key with `all:all` scope (for admin operations)
+- The target repository, Instantly workspace, environment, and accountable owner
+- Current security, privacy, compliance, capacity, and change-control requirements
+- An approved API v2 key only when a bounded live verification is necessary
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current first-party Instantly documentation and package metadata. Use `Write` or `Edit` only when implementation was requested and exact target files are known; never write credentials, lead data, email content, or unrestricted environment output.
+
+## Current Contract
+
+- API v2 keys support granular resource/action scopes and can be revoked.
+- Workspace groups let an admin key act for a sub-workspace through x-as-workspace.
+- Only owners/admins can manage group membership, and only owners can leave a group.
+
+## Authentication
+
+Use an API v2 key as `Authorization: Bearer <key>` against `https://api.instantly.ai/api/v2`. Grant only the endpoint-specific scopes needed, inject the key from an approved server-side secret manager, and never print, persist, commit, or place it in a URL. Treat key creation, rotation, revocation, member changes, workspace delegation, and production access as owner-approved actions.
 
 ## Instructions
 
-### Step 1: Workspace Member Management
+1. Inventory members, roles, API keys, scopes, service owners, and last-use evidence.
+2. Map each automation to the narrowest read/create/update/delete scope set.
+3. Review audit logs and flag orphaned, broad, shared, or cross-workspace credentials.
+4. For sub-workspace actions, validate the target ID and x-as-workspace header before execution.
+5. Prepare member/key/group changes as a reviewed change set.
+6. Apply only approved changes and verify both intended access and denied cross-tenant access.
 
-```typescript
-import { InstantlyClient } from "./src/instantly/client";
-const client = new InstantlyClient();
+## Approval Boundaries
 
-// List workspace members
-async function listMembers() {
-  const members = await client.request<Array<{
-    id: string;
-    email: string;
-    role: string;
-    timestamp_created: string;
-  }>>("/workspace-members");
-
-  console.log("Workspace Members:");
-  for (const m of members) {
-    console.log(`  ${m.email} — role: ${m.role} (joined: ${m.timestamp_created})`);
-  }
-  return members;
-}
-
-// Invite new member
-async function inviteMember(email: string) {
-  const member = await client.request<{ id: string; email: string }>("/workspace-members", {
-    method: "POST",
-    body: JSON.stringify({ email }),
-  });
-  console.log(`Invited: ${member.email} (${member.id})`);
-  return member;
-}
-
-// Update member role
-async function updateMemberRole(memberId: string, role: string) {
-  await client.request(`/workspace-members/${memberId}`, {
-    method: "PATCH",
-    body: JSON.stringify({ role }),
-  });
-}
-
-// Remove member
-async function removeMember(memberId: string) {
-  await client.request(`/workspace-members/${memberId}`, { method: "DELETE" });
-  console.log(`Removed member: ${memberId}`);
-}
-```
-
-### Step 2: API Key Governance
-
-```typescript
-// Create scoped API keys for different team roles
-async function createScopedKeys() {
-  // Analytics-only key for the marketing team
-  const analyticsKey = await client.request<{ id: string; key: string; name: string }>(
-    "/api-keys",
-    {
-      method: "POST",
-      body: JSON.stringify({
-        name: "Marketing — Analytics Read Only",
-        scopes: ["campaigns:read", "accounts:read"],
-      }),
-    }
-  );
-  console.log(`Analytics key: ${analyticsKey.name} (${analyticsKey.id})`);
-
-  // Campaign management key for SDR team
-  const sdrKey = await client.request<{ id: string; key: string; name: string }>(
-    "/api-keys",
-    {
-      method: "POST",
-      body: JSON.stringify({
-        name: "SDR — Campaign Management",
-        scopes: ["campaigns:all", "leads:all"],
-      }),
-    }
-  );
-  console.log(`SDR key: ${sdrKey.name} (${sdrKey.id})`);
-
-  // Webhook-only key for integration service
-  const webhookKey = await client.request<{ id: string; key: string; name: string }>(
-    "/api-keys",
-    {
-      method: "POST",
-      body: JSON.stringify({
-        name: "Integration Service — Webhook Handler",
-        scopes: ["leads:read"],
-      }),
-    }
-  );
-  console.log(`Webhook key: ${webhookKey.name} (${webhookKey.id})`);
-}
-
-// List all API keys
-async function auditApiKeys() {
-  const keys = await client.request<Array<{
-    id: string; name: string; scopes: string[]; timestamp_created: string;
-  }>>("/api-keys");
-
-  console.log("API Keys:");
-  for (const key of keys) {
-    console.log(`  ${key.name} (${key.id})`);
-    console.log(`    Scopes: ${key.scopes.join(", ")}`);
-    console.log(`    Created: ${key.timestamp_created}`);
-  }
-
-  // Flag overprivileged keys
-  const overprivileged = keys.filter((k) =>
-    k.scopes.includes("all:all") || k.scopes.includes("all:update")
-  );
-  if (overprivileged.length > 0) {
-    console.log(`\nWARNING: ${overprivileged.length} key(s) with all:all scope:`);
-    overprivileged.forEach((k) => console.log(`  ${k.name} — consider reducing scope`));
-  }
-}
-
-// Revoke a key
-async function revokeApiKey(keyId: string) {
-  await client.request(`/api-keys/${keyId}`, { method: "DELETE" });
-  console.log(`Revoked API key: ${keyId}`);
-}
-```
-
-### Step 3: Workspace Group Management (Agency Pattern)
-
-```typescript
-// For agencies managing multiple client workspaces
-async function manageWorkspaceGroups() {
-  // List workspace group members
-  const groupMembers = await client.request<Array<{
-    id: string; email: string;
-  }>>("/workspace-group-members");
-
-  console.log("Workspace Group Members:");
-  for (const m of groupMembers) {
-    console.log(`  ${m.email} (${m.id})`);
-  }
-
-  // Add member to workspace group
-  await client.request("/workspace-group-members", {
-    method: "POST",
-    body: JSON.stringify({ email: "team@agency.com" }),
-  });
-
-  // Get admin users
-  const admins = await client.request<Array<{
-    id: string; email: string;
-  }>>("/workspace-group-members/admin");
-  console.log("Admins:", admins.map((a) => a.email).join(", "));
-}
-```
-
-### Step 4: Custom Tags for Resource Isolation
-
-```typescript
-// Use custom tags to organize campaigns and accounts by team/client
-async function setupTeamTags() {
-  // Create tags for each team
-  const teams = ["SDR-West", "SDR-East", "Marketing", "Enterprise"];
-
-  for (const team of teams) {
-    const tag = await client.request<{ id: string; label: string }>("/custom-tags", {
-      method: "POST",
-      body: JSON.stringify({
-        label: team,
-        description: `Resources owned by ${team} team`,
-      }),
-    });
-    console.log(`Created tag: ${tag.label} (${tag.id})`);
-  }
-}
-
-// Assign tag to campaign or account
-async function tagResource(tagId: string, resourceId: string) {
-  await client.request("/custom-tags/toggle-resource", {
-    method: "POST",
-    body: JSON.stringify({
-      tag_id: tagId,
-      resource_id: resourceId,
-    }),
-  });
-}
-
-// Filter campaigns by tag
-async function getCampaignsByTeam(tagId: string) {
-  return client.request<Campaign[]>(`/campaigns?tag_ids=${tagId}&limit=100`);
-}
-
-// Filter accounts by tag
-async function getAccountsByTeam(tagId: string) {
-  return client.request<Account[]>(`/accounts?tag_ids=${tagId}&limit=100`);
-}
-```
-
-### Step 5: Audit Logging
-
-```typescript
-// Review workspace audit logs
-async function reviewAuditLogs() {
-  const logs = await client.request<Array<{
-    id: string;
-    action: string;
-    resource: string;
-    user: string;
-    timestamp_created: string;
-  }>>("/audit-logs?limit=50");
-
-  console.log("Recent Audit Events:");
-  for (const log of logs) {
-    console.log(`  ${log.timestamp_created} | ${log.user} | ${log.action} | ${log.resource}`);
-  }
-
-  return logs;
-}
-
-// Workspace ownership transfer
-async function changeWorkspaceOwner(newOwnerUserId: string) {
-  await client.request("/workspaces/current/change-owner", {
-    method: "POST",
-    body: JSON.stringify({ new_owner_id: newOwnerUserId }),
-  });
-  console.log("Workspace ownership transferred");
-}
-```
-
-## Access Control Matrix
-
-| Role | Campaigns | Leads | Accounts | Webhooks | API Keys | Members |
-|------|-----------|-------|----------|----------|----------|---------|
-| Admin | Full | Full | Full | Full | Full | Full |
-| Manager | Create/Edit | Create/Edit | View | Create | View | View |
-| SDR | Launch/Pause | Import | View | - | - | - |
-| Viewer | View only | View only | View only | - | - | - |
-
-## Key API Endpoints
-
-| Method | Path | Purpose |
-|--------|------|---------|
-| `POST` | `/workspace-members` | Invite member |
-| `GET` | `/workspace-members` | List members |
-| `PATCH` | `/workspace-members/{id}` | Update role |
-| `DELETE` | `/workspace-members/{id}` | Remove member |
-| `POST` | `/api-keys` | Create scoped key |
-| `GET` | `/api-keys` | List keys |
-| `DELETE` | `/api-keys/{id}` | Revoke key |
-| `POST` | `/custom-tags` | Create tag |
-| `POST` | `/custom-tags/toggle-resource` | Tag a resource |
-| `GET` | `/audit-logs` | View audit trail |
-| `POST` | `/workspaces/current/change-owner` | Transfer ownership |
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `403` on member operations | Not workspace admin | Use admin API key |
-| Can't revoke own key | Self-revocation blocked | Use another key or dashboard |
-| Tags not filtering | Wrong tag_id format | Ensure UUID format |
-| Audit logs empty | Feature not available on plan | Upgrade to higher tier |
+Do not create, rotate, reveal, or revoke keys; invite or remove members; delegate across workspaces; connect sending accounts; create or activate campaigns; import or delete leads; change suppression or retention; register, patch, resume, or delete webhooks; alter plans or paid capacity; transmit diagnostics; or perform another production mutation without explicit approval from the accountable owner. Keep diagnosis read-only unless implementation was requested.
 
 ## Output
 
-Produce an RBAC receipt with campaign/sender scope, prior/new mapping revisions, approving owner, staged/production status, consent/suppression checks, authorized/denied outcomes, and rollback reference. Use opaque IDs only; never attach recipient lists or copy.
+Return the workspace-safe scope, files and contracts inspected, exact API v2 routes and required scopes, evidence collected, validation result, sensitive fields redacted, remaining risk, accountable owner, approval state, and rollback or next action.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| `401` | Stop and verify that the bearer key exists, is current, and was not revoked. |
+| `403` | Stop and compare the operation with its exact required scope; do not broaden to `all:all` by default. |
+| `429` | Coordinate the workspace-wide budget, honor endpoint overrides, and bound retries. |
+| Schema or tenant mismatch | Fail closed, preserve redacted evidence, and do not retry a mutation. |
 
 ## Examples
 
-`scope=staging-campaigns; mapping_rev=42; owner=outreach-ops; allow_probe=pass; deny_probe=pass; consent=pass; suppression=pass; sends=0; rollback=rev41` proves the boundary.
+Use a compact handoff that makes scope, mutation authority, and evidence reviewable.
+
+Input:
+
+```text
+mode=review; workspace=opaque-id; include-secrets=false
+```
+
+Expected handoff:
+
+```text
+broad-keys=2; orphaned-members=1; changes=awaiting-owner
+```
 
 ## Resources
 
-- Instantly API Key Management
-- [Workspace Members API](https://developer.instantly.ai/)
-- [Custom Tags API](https://developer.instantly.ai/api/v2/schemas)
-
-## Next Steps
-
-For migration strategies, see `instantly-migration-deep-dive`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Instantly API v2 documentation](https://developer.instantly.ai/)
+- [Instantly API v2 OpenAPI document](https://api.instantly.ai/openapi/api_v2.json)

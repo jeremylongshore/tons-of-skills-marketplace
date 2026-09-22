@@ -5,7 +5,7 @@ description: "Monitor Claude API calls \u2014 log tokens, latency, costs, errors
   \ Claude integrations.\nTrigger with \"anthropic monitoring\", \"claude observability\"\
   ,\n\"track claude usage\", \"anthropic logging\".\n"
 allowed-tools: Read, Write, Edit
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -110,7 +110,7 @@ See Logging Wrapper with `trackedCreate()`, `estimateCost()` function, Key Metri
 ## Resources
 
 - [Usage Dashboard](https://console.anthropic.com/settings/usage)
-- [Rate Limits](https://docs.anthropic.com/en/api/rate-limits)
+- [Rate Limits](https://platform.claude.com/docs/en/api/rate-limits)
 
 ## Next Steps
 

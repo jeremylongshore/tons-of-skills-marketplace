@@ -12,7 +12,7 @@ description: 'Implement monitoring, logging, and observability for Clerk authent
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.14.0
+version: 1.15.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

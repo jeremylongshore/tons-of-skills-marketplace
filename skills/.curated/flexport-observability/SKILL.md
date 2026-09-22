@@ -1,161 +1,103 @@
 ---
 name: flexport-observability
-description: 'Set up observability for Flexport logistics integrations with metrics,
-
-  structured logging, distributed tracing, and alerting dashboards.
-
-  Trigger: "flexport monitoring", "flexport observability", "flexport metrics", "flexport
-  alerts".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*)
-version: 1.6.0
+description: >-
+  Instrument Flexport REST, MCP, OAuth, and webhook outcomes without logging logistics payloads or credentials. Use when defining metrics, traces, dashboards, or alerts. Trigger with: "monitor Flexport integration", "Flexport metrics", "trace Flexport webhooks".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[surface-and-service-objectives]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - observability
+  - security
+compatibility: 'Requires an approved telemetry platform, redaction policy, and business service objectives.'
 ---
-# Flexport Observability
+
+# Identifier-Safe Flexport Observability
 
 ## Overview
 
-Full observability stack for Flexport integrations: Prometheus metrics for API health, pino structured logging for debugging, OpenTelemetry tracing for latency analysis, and Grafana dashboards for monitoring.
+Observe operations and reconciliation, not shipment contents. Build low-cardinality telemetry around surface, operation class, outcome, version, and queue health while keeping identifiers and payloads out.
 
 ## Prerequisites
 
-- An approved telemetry schema using aggregate measurements and opaque correlation IDs.
-- Named alert owners, escalation thresholds, secure dashboard access, retention rules, and synthetic alert fixtures.
-
-## Output
-
-Publish an observability receipt with metric definitions, dashboard/alert references, threshold tests, owner, and review date. Metrics, traces, and logs must exclude shipment payloads, addresses, invoices, documents, and credentials.
-
-## Error Handling
-
-- Reject telemetry fields that contain sensitive logistics data or headers.
-- Alert on unexpected destination, queue, access, or integrity anomalies and route them to the incident owner.
-- Suppress noise only through a documented time-bound rule that preserves incident visibility.
-
-## Examples
-
-Send one successful and one rejected fictional event. Confirm dashboards report only aggregate outcomes and opaque IDs, an alert fires at the agreed threshold, and no payload or secret appears in the alert message.
+- Approved metric labels and redaction rules
+- Operation taxonomy across OAuth, REST, MCP, webhook, and local processing
+- Business-defined service objectives and incident ownership
 
 ## Instructions
 
-### Step 1: Prometheus Metrics
+### Step 1: Define safe dimensions
 
-```typescript
-import { Counter, Histogram, Gauge, register } from 'prom-client';
+Use environment, surface, operation class, status family, error class, version selection, and release. Exclude URLs with IDs, names, emails, routes, tags, documents, tokens, and raw messages.
 
-const flexportRequests = new Counter({
-  name: 'flexport_api_requests_total',
-  help: 'Total Flexport API requests',
-  labelNames: ['method', 'endpoint', 'status'],
-});
+### Step 2: Measure auth health
 
-const flexportLatency = new Histogram({
-  name: 'flexport_api_latency_seconds',
-  help: 'Flexport API response time',
-  labelNames: ['endpoint'],
-  buckets: [0.1, 0.25, 0.5, 1, 2.5, 5, 10],
-});
+Track cache hit, refresh success, token-request count, and credential alias as a controlled internal dimension; never log tokens or secret fragments.
 
-const flexportRateLimit = new Gauge({
-  name: 'flexport_rate_limit_remaining',
-  help: 'Remaining API calls in current window',
-});
+### Step 3: Measure reads and mutations separately
 
-// Instrumented fetch wrapper
-async function instrumentedFlexport(path: string, options: RequestInit = {}) {
-  const endpoint = path.split('?')[0];
-  const timer = flexportLatency.startTimer({ endpoint });
-  try {
-    const res = await fetch(`https://api.flexport.com${path}`, { ...options, headers: { ...headers, ...options.headers } });
-    flexportRequests.inc({ method: options.method || 'GET', endpoint, status: res.status.toString() });
-    const remaining = res.headers.get('X-RateLimit-Remaining');
-    if (remaining) flexportRateLimit.set(parseInt(remaining));
-    timer();
-    return res;
-  } catch (err) {
-    flexportRequests.inc({ method: options.method || 'GET', endpoint, status: 'error' });
-    timer();
-    throw err;
-  }
-}
-```
+Record latency, attempts, pages, queue age, reconciliation lag, and ambiguous outcomes by operation class.
 
-### Step 2: Structured Logging
+### Step 4: Measure webhooks in stages
 
-```typescript
-import pino from 'pino';
+Distinguish received, signature-valid, durably queued, deduplicated, processed, and reconciled counts.
 
-const logger = pino({
-  name: 'flexport-integration',
-  level: process.env.LOG_LEVEL || 'info',
-  redact: ['headers.Authorization', 'apiKey'],
-});
+### Step 5: Alert on objectives
 
-// Log every API call with context
-async function loggedFlexport(path: string, options: RequestInit = {}) {
-  const start = Date.now();
-  const res = await instrumentedFlexport(path, options);
-  logger.info({
-    service: 'flexport',
-    path,
-    method: options.method || 'GET',
-    status: res.status,
-    latencyMs: Date.now() - start,
-    rateRemaining: res.headers.get('X-RateLimit-Remaining'),
-  }, 'Flexport API call');
-  return res;
-}
-```
+Derive thresholds from approved freshness, queue, and error objectives—not arbitrary fixed seconds or undocumented rate headers.
 
-### Step 3: Alert Rules
+### Step 6: Audit telemetry
+
+Sample schemas and label cardinality for sensitive leakage and regressions before expanding collection.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
+
+## Output
+
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
 
 ```yaml
-# prometheus-alerts.yml
-groups:
-  - name: flexport
-    rules:
-      - alert: FlexportAPIErrors
-        expr: rate(flexport_api_requests_total{status=~"5.."}[5m]) > 0.1
-        for: 5m
-        labels: { severity: critical }
-        annotations:
-          summary: "Flexport API error rate elevated"
-
-      - alert: FlexportRateLimitLow
-        expr: flexport_rate_limit_remaining < 10
-        for: 1m
-        labels: { severity: warning }
-        annotations:
-          summary: "Flexport rate limit nearly exhausted"
-
-      - alert: FlexportHighLatency
-        expr: histogram_quantile(0.99, flexport_api_latency_seconds_bucket) > 5
-        for: 5m
-        labels: { severity: warning }
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
 ```
 
-### Grafana Dashboard Panels
+## Examples
 
-| Panel | Query | Purpose |
-|-------|-------|---------|
-| Request rate | `rate(flexport_api_requests_total[5m])` | Throughput |
-| Error rate | `rate(flexport_api_requests_total{status=~"4..\|5.."}[5m])` | Reliability |
-| p99 latency | `histogram_quantile(0.99, rate(flexport_api_latency_seconds_bucket[5m]))` | Performance |
-| Rate limit headroom | `flexport_rate_limit_remaining` | Quota |
+A dashboard shows `surface=mcp`, `operation=shipment-read`, outcome, latency, and reconciliation lag. It never labels a series with FLEX-ID, route, company, email, or tool arguments.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Identifier appears in labels | Drop or hash only under approved policy, then control cardinality. |
+| Raw provider message contains data | Map to a safe error class and protect restricted details separately. |
+| Alert has no business objective | Disable it until an owner defines the decision it drives. |
+| Webhook counts diverge | Bound the window and run authenticated reconciliation. |
 
 ## Resources
 
-- [prom-client](https://github.com/siimon/prom-client)
-- [pino](https://github.com/pinojs/pino)
-- [Flexport Status](https://status.flexport.com)
-
-## Next Steps
-
-For incident response, see `flexport-incident-runbook`.
+- [First-party source notes](references/official-docs.md)
+- [Flexport v3 API reference](https://apidocs.flexport.com/v3/)
+- [MCP tools](https://apidocs.flexport.com/v3/tag/MCP-Tools/)
+- [Webhook endpoints](https://apidocs.flexport.com/v3/tag/Webhook-Endpoints/)

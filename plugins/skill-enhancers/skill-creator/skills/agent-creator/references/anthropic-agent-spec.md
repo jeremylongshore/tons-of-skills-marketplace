@@ -1,8 +1,8 @@
 # Anthropic Agent Spec — Official Reference
 
-Source: https://code.claude.com/docs/en/sub-agents (fetched 2026-04-05)
+Source: https://code.claude.com/docs/en/sub-agents (fetched 2026-09-09)
 
-## Supported Frontmatter Fields
+## Documented Frontmatter Fields
 
 Only `name` and `description` are required.
 
@@ -12,20 +12,28 @@ Only `name` and `description` are required.
 | `description` | Yes | When Claude should delegate to this subagent |
 | `tools` | No | Tools the subagent can use (allowlist). Inherits all tools if omitted |
 | `disallowedTools` | No | Tools to deny, removed from inherited or specified list |
-| `model` | No | `sonnet`, `opus`, `haiku`, a full model ID, or `inherit`. Defaults to `inherit` |
-| `permissionMode` | No | `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, or `plan` |
+| `model` | No | `sonnet`, `opus`, `haiku`, `fable`, a full model ID, or `inherit` |
+| `permissionMode` | No | `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, `plan`, or `manual` (`default` alias) |
 | `maxTurns` | No | Maximum number of agentic turns before the subagent stops |
-| `skills` | No | Skills to load into the subagent's context at startup (full content injected) |
-| `mcpServers` | No | MCP servers available to this subagent (inline definition or string reference) |
+| `skills` | No | Skills to preload at startup; unlisted skills remain invocable through the Skill tool |
+| `mcpServers` | No | List of MCP servers; each entry is a configured-name string or one-key inline definition |
 | `hooks` | No | Lifecycle hooks scoped to this subagent |
 | `memory` | No | Persistent memory scope: `user`, `project`, or `local` |
 | `background` | No | Set to `true` to always run as background task. Default: `false` |
-| `effort` | No | `low`, `medium`, `high`, `max` (Opus 4.6 only). Default: inherits from session |
+| `effort` | No | `low`, `medium`, `high`, `xhigh`, or `max`; availability depends on the model |
 | `isolation` | No | `worktree` — run in temporary git worktree |
 | `color` | No | Display color: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan` |
 | `initialPrompt` | No | Auto-submitted as first user turn when running as main agent via `--agent` |
 
-Total: 16 official fields.
+Total: 16 fields in Anthropic's public supported-frontmatter table.
+
+## Runtime Experimental Extension
+
+Claude Code v2.1.248+ also recognizes an `experimental` object whose current
+`cacheTtl` value accepts `5m` or `1h`. This runtime extension is intentionally
+kept separate from the 16 fields in the public documentation table because
+experimental options can change or disappear without the stability expected of
+documented frontmatter.
 
 ## Key Facts
 
@@ -34,12 +42,15 @@ Total: 16 official fields.
 - `tools` is an **allowlist** (like skills' `allowed-tools`)
 - `disallowedTools` is a **denylist** — if both set, disallowed applied first, then tools resolved
 - Naming parallel (marketplace note): agents use camelCase `disallowedTools`; skills use kebab-case `disallowed-tools` (schema 3.7.0+). The validator rejects either mismatch — never copy-paste between agent and skill frontmatter without renaming
-- Subagents **cannot spawn other subagents** (no nesting)
-- Subagents **don't inherit skills** from parent conversation — must list explicitly via `skills` field
+- Subagents can spawn nested subagents when `Agent` is available, up to three
+  layers below the main conversation by default. `CLAUDE_CODE_MAX_AGENT_SPAWN_DEPTH`
+  can set the depth from 1 through 3; omit or deny `Agent` to prevent delegation.
+- The `skills` field preloads full skill content, but subagents can still invoke
+  unlisted project, user, and plugin skills through the Skill tool
 
 ## Plugin Agent Restrictions
 
-Plugin agents (`plugins/*/agents/*.md`) do NOT support:
+Claude Code ignores these fields on plugin agents (`plugins/*/agents/*.md`):
 
 - `hooks` — ignored when loading from plugin
 - `mcpServers` — ignored when loading from plugin
@@ -49,7 +60,9 @@ These are standalone-only features. If needed, copy the agent to `.claude/agents
 
 ## Tool Scoping
 
-Subagents can use `Agent(type)` syntax to restrict which subagents they can spawn (only for main-thread agents via `--agent`).
+Main-thread agents launched with `--agent` can use `Agent(type)` syntax to restrict
+which subagents they spawn. Inside a subagent, including `Agent` enables nested
+delegation while the depth limit allows it, but a parenthesized type list is ignored.
 
 ## Skills Preloading
 

@@ -14,11 +14,11 @@ keywords:
   - "Claude Code plugin skills"
 officialLinks:
   - title: "Claude Code Skills Documentation"
-    url: "https://docs.anthropic.com/en/docs/claude-code/skills"
+    url: "https://code.claude.com/docs/en/skills"
   - title: "AgentSkills.io Specification"
     url: "https://agentskills.io"
   - title: "Claude Code Plugins Overview"
-    url: "https://docs.anthropic.com/en/docs/claude-code/plugins"
+    url: "https://code.claude.com/docs/en/plugins"
 relatedDocs:
   - "concepts/plugins"
   - "concepts/agents"

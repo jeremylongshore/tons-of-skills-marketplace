@@ -1,7 +1,7 @@
 {
   "name": "notion-pack",
-  "version": "1.39.0",
-  "description": "Claude Code skill pack for Notion (32 skills)",
+  "version": "1.40.0",
+  "description": "Operator-grade Notion pack with 32 current access, data-source, content, webhook, security, reliability, and migration workflows",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,12 @@
   "license": "MIT",
   "keywords": [
     "notion",
-    "notion",
     "saas",
-    "sdk",
-    "integration"
+    "data-source",
+    "content",
+    "webhooks",
+    "security",
+    "integration",
+    "governance"
   ]
 }

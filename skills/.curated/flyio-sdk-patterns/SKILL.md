@@ -1,156 +1,95 @@
 ---
 name: flyio-sdk-patterns
-description: 'Apply production-ready Fly.io Machines API patterns for TypeScript with
-  typed
-
-  clients, machine lifecycle management, and multi-region orchestration.
-
-  Trigger: "fly.io Machines API", "fly.io SDK patterns", "fly.io API client".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
+description: >-
+  Build a typed local adapter for the Fly.io Machines REST API with scoped auth, state waits, limits, reconciliation, and contract tests. Use when code must manage Machines or volumes. Trigger with: "wrap Machines API", "build Fly API client", "type Fly Machine states".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[language-app-and-operation-set]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- edge-compute
-- flyio
-compatibility: Designed for Claude Code
+  - saas
+  - flyio
+  - machines-api
+  - typed-client
+  - contract-testing
+compatibility: 'Requires the current Machines OpenAPI contract, a supported runtime, a scoped test identity, fixtures, and a non-production integration boundary.'
 ---
-# Fly.io SDK Patterns
+
+# Typed Fly.io Machines API Adapter
 
 ## Overview
 
-Production-ready patterns for the Fly.io Machines REST API at `https://api.machines.dev`. Fly.io exposes both GraphQL (organization queries) and REST (machine lifecycle) APIs. The Machines REST API is the primary integration surface for creating, starting, stopping, and destroying VMs across 30+ global regions. A structured client ensures consistent auth, typed machine states, and reliable wait-for-state polling.
+Fly.io publishes a REST API and OpenAPI reference; this workflow does not claim a provider-maintained JavaScript SDK. Generate or handwrite only a thin local adapter, keep provider fields visible, and centralize authentication, timeouts, limits, state waits, and redaction.
 
 ## Prerequisites
 
-- An app-scoped token held in a secret manager, approved app/region policy, and synthetic staging app.
-- Idempotent lifecycle design, rate controls, redacted diagnostics, and a rollback owner.
+- Chosen operations and current OpenAPI or endpoint documentation
+- Runtime and HTTP client policy, schema generator decision, and error model
+- Synthetic fixtures plus an authorized non-production app for contract verification
 
 ## Instructions
 
-1. Validate app, region, operation, and request schema before a lifecycle call.
-2. Track opaque operation IDs, use bounded retries, and protect create/stop/delete from duplicate execution.
-3. Route unexpected state, permission, or target results to reviewed handling and preserve the prior configuration.
+### Step 1: Freeze the contract
+
+Record base URL, operation paths, request and response schemas, state enums, response codes, and retrieval fingerprint. Preserve unknown fields for forward compatibility.
+
+### Step 2: Define a thin transport
+
+Centralize bearer auth, content type, request ID, timeout, retry eligibility, response parsing, and error redaction. Do not hide target app or Machine identifiers.
+
+### Step 3: Model desired and observed state
+
+Represent Machine ID, instance version, configuration, lifecycle state, and target state separately. Require callers to reconcile before replay.
+
+### Step 4: Use the provider wait operation
+
+After a mutation, wait for `started`, `stopped`, `suspended`, or `destroyed` with a bounded timeout and the required instance version where applicable.
+
+### Step 5: Apply rate and conflict policy
+
+Serialize conflicting actions per identifier, use documented per-action limits, retry only eligible failures, and refresh after 409, 408, or ambiguous transport results.
+
+### Step 6: Test the adapter
+
+Use fixture tests for every response and error class, then run an authorized read and one reversible non-production lifecycle operation with cleanup.
+
+## Authentication
+
+Inject `FLY_API_TOKEN` from a secret manager and send it only as the bearer header to the documented Machines API host. Keep token scope outside the client configuration file and scrub headers and Machine config secrets from exceptions.
+
+## Tool Discipline
+
+Use Read and Grep to inspect application configuration, deployment evidence, provider documentation, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for an approved plan, configuration, implementation, test, or redacted receipt. Do not create, deploy, scale, restart, stop, suspend, destroy, rotate, revoke, expose, or migrate live Fly.io resources without explicit operator approval.
 
 ## Output
 
-Produce a client-validation receipt with API/contract version, fixture result, operation ID, idempotency outcome, owner, and redacted failure reference. Never log tokens, machine config secrets, or user data.
+- Contract fingerprint and supported-operation matrix
+- Typed adapter with transport, state, rate, conflict, and redaction policies
+- Fixture and non-production contract-test receipt with cleanup state
+
+Return the target organization, app, environment, region set, Machine or database identifiers, source-contract fingerprint, evidence, unresolved risks, rollback state, and final decision without exposing tokens, secrets, connection strings, or customer data.
 
 ## Examples
 
-Create a disposable staging machine from a synthetic configuration, retry the request under the same operation ID, and verify only one machine results. Simulate an invalid region and ensure the client rejects it before a provider call.
-
-## Singleton Client
-
-```typescript
-const FLY_API = 'https://api.machines.dev';
-let _client: FlyClient | null = null;
-export function getClient(appName: string): FlyClient {
-  if (!_client) {
-    const token = process.env.FLY_API_TOKEN;
-    if (!token) throw new Error('FLY_API_TOKEN must be set');
-    _client = new FlyClient(appName, token);
-  }
-  return _client;
-}
-class FlyClient {
-  private h: Record<string, string>;
-  constructor(private app: string, token: string) {
-    this.h = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
-  }
-  async listMachines(): Promise<FlyMachine[]> {
-    const r = await fetch(`${FLY_API}/v1/apps/${this.app}/machines`, { headers: this.h });
-    if (!r.ok) throw new FlyError(r.status, await r.text()); return r.json();
-  }
-  async createMachine(config: MachineConfig, region: string): Promise<FlyMachine> {
-    const r = await fetch(`${FLY_API}/v1/apps/${this.app}/machines`, {
-      method: 'POST', headers: this.h, body: JSON.stringify({ region, config }) });
-    if (!r.ok) throw new FlyError(r.status, await r.text()); return r.json();
-  }
-  async waitForState(id: string, state: string, timeout = 30): Promise<void> {
-    const r = await fetch(`${FLY_API}/v1/apps/${this.app}/machines/${id}/wait?state=${state}&timeout=${timeout}`,
-      { headers: this.h });
-    if (!r.ok) throw new FlyError(r.status, `Wait for ${state} timed out`);
-  }
-}
-```
-
-## Error Wrapper
-
-```typescript
-export class FlyError extends Error {
-  constructor(public status: number, message: string) { super(message); this.name = 'FlyError'; }
-}
-export async function safeCall<T>(operation: string, fn: () => Promise<T>): Promise<T> {
-  try { return await fn(); }
-  catch (err: any) {
-    if (err instanceof FlyError && err.status === 429) { await new Promise(r => setTimeout(r, 2000)); return fn(); }
-    if (err instanceof FlyError && err.status === 401) throw new FlyError(401, 'Invalid FLY_API_TOKEN');
-    throw new FlyError(err.status ?? 0, `${operation} failed: ${err.message}`);
-  }
-}
-```
-
-## Request Builder
-
-```typescript
-class DeployBuilder {
-  private regions: string[] = []; private config: Partial<MachineConfig> = {};
-  toRegions(...r: string[]) { this.regions = r; return this; }
-  withImage(img: string) { this.config.image = img; return this; }
-  withGuest(cpus: number, mem: number) { this.config.guest = { cpu_kind: 'shared', cpus, memory_mb: mem }; return this; }
-  async execute(client: FlyClient): Promise<FlyMachine[]> {
-    return Promise.all(this.regions.map(async r => {
-      const m = await client.createMachine(this.config as MachineConfig, r);
-      await client.waitForState(m.id, 'started'); return m;
-    }));
-  }
-}
-// Usage: await new DeployBuilder().toRegions('iad','lhr','nrt').withImage('app:latest').withGuest(1,256).execute(client);
-```
-
-## Response Types
-
-```typescript
-type MachineState = 'created' | 'starting' | 'started' | 'stopping' | 'stopped' | 'destroying' | 'destroyed';
-interface FlyMachine {
-  id: string; name: string; state: MachineState; region: string;
-  config: MachineConfig; created_at: string; updated_at: string;
-}
-interface MachineConfig {
-  image: string; guest: { cpu_kind: string; cpus: number; memory_mb: number };
-  services: Array<{ ports: Array<{ port: number; handlers: string[] }>; internal_port: number }>;
-  env: Record<string, string>;
-}
-interface FlyVolume { id: string; name: string; region: string; size_gb: number; attached_machine_id: string | null; }
-```
-
-## Testing Utilities
-
-```typescript
-export function mockMachine(overrides: Partial<FlyMachine> = {}): FlyMachine {
-  return { id: 'mach-001', name: 'test-machine', state: 'started', region: 'iad',
-    config: { image: 'app:latest', guest: { cpu_kind: 'shared', cpus: 1, memory_mb: 256 }, services: [], env: {} },
-    created_at: '2025-01-01T00:00:00Z', updated_at: '2025-01-01T00:00:00Z', ...overrides };
-}
-```
+A TypeScript service wraps get, update, start, stop, and wait without inventing an official SDK. It records the active instance version, waits for the documented target states, serializes actions per Machine, and preserves unknown response properties.
 
 ## Error Handling
 
-| Pattern | When to Use | Example |
-|---------|-------------|---------|
-| `safeCall` wrapper | All Machines API calls | Catches network + API errors uniformly |
-| Retry on 429 | Bulk machine creation | 2s delay before retry |
-| `waitForState` timeout | After create/start/stop | Prevents hanging deploys |
-| Region fallback | Multi-region deploy failure | Skip failed region, continue others |
+| Failure | Response |
+| --- | --- |
+| Response schema changes | Quarantine the unknown shape, preserve raw redacted evidence, update fixtures and types, and re-run contract tests. |
+| Wait returns 408 | Read current Machine and instance state; do not assume the preceding mutation failed. |
+| Adapter receives 401 | Stop, verify the secret reference and token scope, and never print the bearer value. |
 
 ## Resources
 
-- [Machines API Reference](https://fly.io/docs/machines/api/machines-resource/)
-
-## Next Steps
-
-Apply patterns in `flyio-core-workflow-a`.
+- [First-party source notes](references/official-docs.md)
+- [Machines API setup](https://fly.io/docs/machines/api/working-with-machines-api/)
+- [Automation and tokens](https://fly.io/docs/flyctl/integrating/)
+- [App configuration](https://fly.io/docs/reference/configuration/)
+- [Machines resource](https://fly.io/docs/machines/api/machines-resource/)
+- [Machines API OpenAPI](https://docs.machines.dev/+external)
+- [Machine states](https://fly.io/docs/machines/machine-states/)

@@ -1,152 +1,96 @@
 ---
 name: flyio-reference-architecture
-description: 'Implement Fly.io reference architecture with multi-region apps, Postgres,
-
-  Redis, background workers, and private networking.
-
-  Trigger: "fly.io architecture", "fly.io system design", "fly.io multi-region".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
+description: >-
+  Design a Fly.io multi-region architecture with explicit routing, Machine, data, private-network, observability, and recovery boundaries. Use when reviewing a production topology. Trigger with: "architect app on Fly", "design multi-region Fly service", "review Fly platform topology".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[workload-regions-and-data-contract]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- edge-compute
-- flyio
-compatibility: Designed for Claude Code
+  - saas
+  - flyio
+  - architecture
+  - multi-region
+  - resilience
+compatibility: 'Requires workload and data requirements, service objectives, approved regions, dependency ownership, and a cost and recovery model.'
 ---
-# Fly.io Reference Architecture
+
+# Fly.io Multi-Region Application Architecture
 
 ## Overview
 
-Production architecture for Fly.io: multi-region web tier, Postgres with read replicas, Redis for caching, background workers, and private networking.
+Compose Fly.io primitives without implying global state that the platform does not provide. Anycast and Fly Proxy route toward Machines, 6PN connects services inside an organization, Machines and volumes are regional, and Managed Postgres has its own supported-region and recovery contract.
 
 ## Prerequisites
 
-- A documented data-flow inventory, trust boundaries, ownership, region/retention choices, and disaster-recovery objectives.
-- Separate scoped identities for deployment, runtime, database, worker, and observability systems.
+- Users, traffic, latency, availability, residency, recovery, and consistency requirements
+- Service and process-group boundaries plus external dependencies
+- Current provider regions, capacity, pricing, and Managed Postgres availability
 
 ## Instructions
 
-1. Place public ingress, private services, storage, workers, and observability behind explicit network and identity boundaries.
-2. Define data locality, replication, backup, access, and recovery behavior before creating additional regions or consumers.
-3. Use staged deployment, health checks, redacted telemetry, and an independently tested rollback per service.
-4. Validate architecture changes with synthetic traffic and ensure a failure in one region cannot leak secrets or corrupt cross-region state.
+### Step 1: Partition stateless and stateful work
+
+Separate request-serving, workers, scheduled tasks, caches, durable databases, and region-local files. Name the system of record for every data class.
+
+### Step 2: Design routing and placement
+
+Choose primary and secondary regions from observed users, dependency location, residency, and capacity. Document Fly Proxy, public IP, Flycast, or dynamic routing behavior.
+
+### Step 3: Design the Machine fleet
+
+Set process groups, VM resources, Machine counts, health checks, deployment strategy, autostart, shutdown, and failure-domain expectations per region.
+
+### Step 4: Design data explicitly
+
+Use Managed Postgres where its service contract fits. Use volumes only with software-managed replication and recovery or for disposable regional state; never present one volume as multi-region storage.
+
+### Step 5: Design private and external connectivity
+
+Map 6PN names, organization boundaries, WireGuard peers, outbound requirements, certificates, DNS, and third-party trust zones.
+
+### Step 6: Prove resilience and operations
+
+Exercise regional and dependency failure, deploy rollback, database restore, volume restore, secret rotation, monitoring, cost controls, and ownership handoff.
+
+## Authentication
+
+Use separate scoped identities for deployment, observation, database access, and external integrations. Protect 6PN and WireGuard credentials, App secrets, and database URLs; private networking narrows reachability but does not replace application authentication.
+
+## Tool Discipline
+
+Use Read and Grep to inspect application configuration, deployment evidence, provider documentation, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for an approved plan, configuration, implementation, test, or redacted receipt. Do not create, deploy, scale, restart, stop, suspend, destroy, rotate, revoke, expose, or migrate live Fly.io resources without explicit operator approval.
 
 ## Output
 
-Maintain an architecture decision record with components, trust boundaries, data locations, identities, health/rollback controls, owners, and recovery evidence. Do not include secrets or customer data.
+- Architecture diagram and authority map
+- Region, routing, Machine, data, identity, observability, cost, and recovery decisions
+- Failure-mode exercises with measured recovery and unresolved risks
 
-## Error Handling
-
-- Isolate an unhealthy region or consumer and preserve a safe primary path while recovery proceeds.
-- Quarantine unexpected cross-region writes or permission failures for review.
-- Restore the previous routing/configuration before replaying queued work.
+Return the target organization, app, environment, region set, Machine or database identifiers, source-contract fingerprint, evidence, unresolved risks, rollback state, and final decision without exposing tokens, secrets, connection strings, or customer data.
 
 ## Examples
 
-Deploy a fictional workload to a staging primary and replica region, deny the worker access to public ingress secrets, and simulate a regional health failure. Verify traffic stays on the healthy route and rollback does not replay writes.
+A global API runs stateless Machines in three evidence-selected regions while writes stay close to Managed Postgres in a supported primary region. Fly Proxy routing, read behavior, failure fallback, and database recovery are explicit; a cache volume is treated as disposable regional state.
 
-## Architecture
+## Error Handling
 
-```
-           ┌─────────── Fly.io Anycast DNS ──────────┐
-           │                                          │
-    ┌──────▼──────┐  ┌──────────────┐  ┌─────────────▼───┐
-    │  Web (iad)  │  │  Web (lhr)   │  │   Web (nrt)     │
-    │  shared-1x  │  │  shared-1x   │  │   shared-1x     │
-    └──────┬──────┘  └──────┬───────┘  └────────┬────────┘
-           │                │                    │
-    ───────┴────────────────┴────────────────────┴─── .internal DNS
-           │                │                    │
-    ┌──────▼──────┐  ┌──────▼───────┐  ┌────────▼────────┐
-    │ Postgres    │  │ Postgres     │  │   Redis          │
-    │ Primary     │  │ Replica      │  │   (upstash.io)   │
-    │ (iad)       │  │ (lhr)        │  │                  │
-    └─────────────┘  └──────────────┘  └──────────────────┘
-           │
-    ┌──────▼──────┐
-    │  Worker     │
-    │  (iad)      │
-    │  shared-1x  │
-    └─────────────┘
-```
-
-## Setup Commands
-
-```bash
-# 1. Web app — multi-region
-fly launch --name my-web --region iad
-fly scale count 1 --region lhr
-fly scale count 1 --region nrt
-
-# 2. Postgres with replica
-fly postgres create --name my-db --region iad
-fly postgres attach my-db -a my-web
-# Add read replica in Europe
-fly machine clone <primary-machine-id> --region lhr -a my-db
-
-# 3. Background worker (same codebase, different process)
-fly launch --name my-worker --region iad --no-deploy
-# fly.toml for worker: no [http_service], use [processes]
-
-# 4. All communicate via .internal DNS
-# my-db.internal:5432 (Postgres)
-# my-web.internal:3000 (internal API)
-```
-
-## fly.toml Configurations
-
-### Web App
-
-```toml
-app = "my-web"
-primary_region = "iad"
-
-[http_service]
-  internal_port = 3000
-  force_https = true
-  auto_stop_machines = "suspend"
-  min_machines_running = 1
-
-[[vm]]
-  cpu_kind = "shared"
-  cpus = 1
-  memory = "512mb"
-```
-
-### Background Worker
-
-```toml
-app = "my-worker"
-primary_region = "iad"
-
-[processes]
-  worker = "node dist/worker.js"
-
-# No [http_service] — worker doesn't serve HTTP
-
-[[vm]]
-  cpu_kind = "shared"
-  cpus = 1
-  memory = "512mb"
-```
-
-## Key Design Decisions
-
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Web tier | 3 regions | Low latency for global users |
-| Database | Fly Postgres + replica | Read replicas near users |
-| Cache | Upstash Redis (or Fly Redis) | Managed, multi-region |
-| Workers | Separate Fly app | Independent scaling |
-| Networking | 6PN (.internal DNS) | Zero-trust, no public exposure |
-| Storage | Fly Volumes (NVMe) | Fast, region-local |
+| Failure | Response |
+| --- | --- |
+| Topology assumes global volume storage | Replace the assumption with Managed Postgres, an external replicated store, or application-managed replication. |
+| Region lacks required service or capacity | Choose from current provider data and revisit latency, residency, and recovery tradeoffs. |
+| Private path crosses organizations | Use an explicitly approved inter-network mechanism and application authentication; same-organization 6PN assumptions do not apply. |
 
 ## Resources
 
-- [Fly.io Docs](https://fly.io/docs/)
-- [Multi-Region Postgres](https://fly.io/docs/postgres/high-availability-and-global-replication/)
-- [Private Networking](https://fly.io/docs/networking/private-networking/)
+- [First-party source notes](references/official-docs.md)
+- [Machines API setup](https://fly.io/docs/machines/api/working-with-machines-api/)
+- [Automation and tokens](https://fly.io/docs/flyctl/integrating/)
+- [App configuration](https://fly.io/docs/reference/configuration/)
+- [Regions](https://fly.io/docs/reference/regions/)
+- [Private networking](https://fly.io/docs/networking/private-networking/)
+- [Managed Postgres](https://fly.io/docs/mpg/)
+- [Fly Volumes](https://fly.io/docs/volumes/)

@@ -1,217 +1,84 @@
 ---
 name: clickup-ci-integration
-description: 'Set up CI/CD pipelines for ClickUp API integrations with GitHub Actions,
-
-  automated testing, and task status sync.
-
-  Trigger: "clickup CI", "clickup GitHub Actions", "clickup automated tests",
-
-  "CI clickup integration", "clickup pipeline", "clickup CI/CD".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*)
-version: 1.6.0
-license: MIT
+description: >-
+  Gate ClickUp adapters with offline OpenAPI contracts and a protected read-only live probe. Use when adding CI for a ClickUp-backed repository. Trigger with "ClickUp CI", "test ClickUp integration", or "ClickUp contract tests".
+argument-hint: "[repository-path] [live-test-environment]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- productivity
 - clickup
-compatibility: Designed for Claude Code
+- ci
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; a live lane requires a protected non-production ClickUp credential
 ---
-# ClickUp CI Integration
+# ClickUp Continuous Integration
 
 ## Overview
 
-Automate ClickUp integration testing in CI and sync task statuses from your pipeline. Uses GitHub Actions with live API testing against ClickUp API v2.
+Keep ordinary pull-request checks deterministic and secretless while retaining a separately protected probe for provider-contract drift.
 
 ## Prerequisites
 
-- Protected CI environment with a scoped, masked ClickUp secret
-- Mock fixtures for pull requests and an isolated task/list for live tests
-- A bounded cleanup strategy and environment approval for any status update
-- Artifact/log retention policy that excludes task content and credentials
+- The repository's test runner, ClickUp transport boundary, and CI platform
+- Sanitized fixtures for v2 and any selected v3 response shapes
+- A protected non-production credential and strict request ceiling for the optional live lane
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect the repository, adapters, configuration names, tests, and evidence. Use `WebFetch` only for current official ClickUp documentation. Use `Write` or `Edit` after confirming the target file, Workspace boundary, and requested mode.
+
+## Current Contract
+
+- Pin the official v2 and v3 OpenAPI inputs separately; do not model v3 as a complete replacement.
+- Offline tests cover authentication, plan denial, pagination, rate headers, webhook typing, and redaction.
+- The live lane uses `GET /api/v2/user` or `GET /api/v2/team`; it does not create or update work.
+- Fork code never receives ClickUp credentials.
+
+## Authentication
+
+Use a personal token only for accountable individual/testing work or OAuth Authorization Code for a user-facing integration. Inject the token server-side through a governed secret reference, send it in `Authorization`, verify authorized Workspace IDs, and never print the token, OAuth client secret, or webhook secret.
 
 ## Instructions
 
-Run mocks and schema checks on every change, reserve live API tests for the
-protected integration environment, and create only identifiable disposable
-tasks. Verify cleanup and status transitions after each run; a failed cleanup,
-permission mismatch, or rate-limit response fails the workflow rather than
-being ignored or retried with a broader token.
+1. Inventory every endpoint, version, fixture, secret reference, and network-bearing test.
+2. Generate or validate transport types against pinned official OpenAPI inputs.
+3. Add fixtures for success, common OAuth errors, 429 responses, null webhook fields, and page boundaries.
+4. Test redaction, retry eligibility, version routing, and workspace allow-list enforcement.
+5. Place the bounded live probe behind a trusted event and protected environment.
+6. Publish status, schema versions, request count, and redacted drift evidence.
 
-## GitHub Actions Workflow
+## Approval Boundaries
 
-```yaml
-# .github/workflows/clickup-integration.yml
-name: ClickUp Integration Tests
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm test -- --coverage
-
-  integration-tests:
-    runs-on: ubuntu-latest
-    needs: unit-tests
-    env:
-      CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
-      CLICKUP_TEST_LIST_ID: ${{ secrets.CLICKUP_TEST_LIST_ID }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - name: ClickUp API health check
-        run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            https://api.clickup.com/api/v2/user \
-            -H "Authorization: $CLICKUP_API_TOKEN")
-          if [ "$STATUS" != "200" ]; then
-            echo "::warning::ClickUp API returned $STATUS, skipping integration tests"
-            exit 0
-          fi
-      - name: Run integration tests
-        run: CLICKUP_LIVE=1 npm run test:integration
-```
-
-## Configure Secrets
-
-```bash
-# Store ClickUp token in GitHub Secrets
-gh secret set CLICKUP_API_TOKEN --body "pk_12345678_YOUR_TOKEN"
-
-# Store test list ID (for integration tests to create/delete test tasks)
-gh secret set CLICKUP_TEST_LIST_ID --body "900100200300"
-```
-
-## Integration Test Suite
-
-```typescript
-// tests/integration/clickup-ci.test.ts
-import { describe, it, expect, afterAll } from 'vitest';
-
-const TOKEN = process.env.CLICKUP_API_TOKEN!;
-const TEST_LIST = process.env.CLICKUP_TEST_LIST_ID!;
-const BASE = 'https://api.clickup.com/api/v2';
-const createdTaskIds: string[] = [];
-
-async function api(path: string, options?: RequestInit) {
-  const res = await fetch(`${BASE}${path}`, {
-    ...options,
-    headers: { 'Authorization': TOKEN, 'Content-Type': 'application/json', ...options?.headers },
-  });
-  return { status: res.status, data: await res.json() };
-}
-
-describe('ClickUp API Integration', () => {
-  it('authenticates successfully', async () => {
-    const { status, data } = await api('/user');
-    expect(status).toBe(200);
-    expect(data.user.id).toBeDefined();
-  });
-
-  it('creates a task in test list', async () => {
-    const { status, data } = await api(`/list/${TEST_LIST}/task`, {
-      method: 'POST',
-      body: JSON.stringify({
-        name: `CI Test Task - ${new Date().toISOString()}`,
-        description: 'Created by CI pipeline, safe to delete',
-        priority: 4,
-      }),
-    });
-    expect(status).toBe(200);
-    expect(data.id).toBeDefined();
-    createdTaskIds.push(data.id);
-  });
-
-  it('reads the created task', async () => {
-    const { status, data } = await api(`/task/${createdTaskIds[0]}`);
-    expect(status).toBe(200);
-    expect(data.name).toContain('CI Test Task');
-  });
-
-  afterAll(async () => {
-    // Cleanup: delete test tasks
-    for (const id of createdTaskIds) {
-      await api(`/task/${id}`, { method: 'DELETE' });
-    }
-  });
-});
-```
-
-## Sync CI Status to ClickUp Task
-
-```typescript
-// scripts/update-clickup-task.ts
-// Run after deploy: npx tsx scripts/update-clickup-task.ts TASK_ID "deployed"
-async function updateTaskFromCI(taskId: string, newStatus: string) {
-  const response = await fetch(
-    `https://api.clickup.com/api/v2/task/${taskId}`,
-    {
-      method: 'PUT',
-      headers: {
-        'Authorization': process.env.CLICKUP_API_TOKEN!,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ status: newStatus }),
-    }
-  );
-
-  if (!response.ok) {
-    console.error(`Failed to update task ${taskId}:`, await response.text());
-    process.exit(1);
-  }
-  console.log(`Task ${taskId} status updated to "${newStatus}"`);
-}
-
-const [taskId, status] = process.argv.slice(2);
-updateTaskFromCI(taskId, status);
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Secret not found | Missing GitHub secret | `gh secret set CLICKUP_API_TOKEN` |
-| 401 in CI | Token expired/rotated | Update secret value |
-| Rate limited in CI | Too many test runs | Add pre-flight rate check |
-| Integration test cleanup fails | Task already deleted | Ignore 404 on cleanup |
+Do not expose credentials to fork code or let CI create tasks, webhooks, members, ACLs, or hierarchy objects without a separate environment approval and cleanup plan.
 
 ## Output
 
-Publish a redacted CI receipt containing fixture/API test result, disposable
-task IDs, cleanup result, rate-limit state, workflow URL, and promotion
-decision. Keep tokens, task descriptions, private comments, and member data out
-of logs and artifacts.
+Return offline coverage, pinned schema digests, live-lane eligibility/result, workspace boundary, request count, and any provider drift.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| No approved live credential | Skip the live probe and keep offline contracts authoritative. |
+| Fork event requests secrets | Refuse the secret-bearing job. |
+| OpenAPI version drifts | Fail visibly and review the endpoint-specific delta. |
+| Credential appears in logs | Cancel the run, rotate or revoke it, and scrub artifacts. |
 
 ## Examples
 
-On a protected branch, create one labeled test task in an isolated list, verify
-the expected status update, then delete it and prove it is absent. If cleanup
-does not complete or the secret is unavailable, fail the run and notify the
-integration owner instead of leaving production-like tasks behind.
+The example below is a redacted operator receipt; it contains no task text, member data, credential, or webhook secret.
+
+```text
+offline=pass; v2_schema=pinned; v3_schema=pinned; live=skipped(untrusted-event); writes=0
+```
 
 ## Resources
 
-- [GitHub Actions Secrets](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions)
-- [ClickUp API Reference](https://developer.clickup.com/)
-
-## Next Steps
-
-For deployment patterns, see `clickup-deploy-integration`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [OpenAPI specifications](https://developer.clickup.com/docs/open-api-spec)
+- [Authentication](https://developer.clickup.com/docs/authentication)
+- [Rate limits](https://developer.clickup.com/docs/rate-limits)

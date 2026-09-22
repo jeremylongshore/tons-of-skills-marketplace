@@ -1,115 +1,90 @@
 ---
 name: openevidence-multi-env-setup
-description: 'Multi Env Setup for OpenEvidence.
-
-  Trigger: "openevidence multi env setup".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.13.0
-license: MIT
+description: >-
+  Verify a governed OpenEvidence workflow across supported web and mobile surfaces without fictitious dev or staging hosts. Use when working with OpenEvidence in a healthcare organization. Trigger with "openevidence multi env setup", "OpenEvidence web", or a matching workflow request.
+argument-hint: "[workflow] [web|mobile|both]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.14.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - openevidence
-- healthcare
-compatibility: Designed for Claude Code
+- web
+- mobile
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; requires authorized OpenEvidence access and qualified clinical review for patient-care use
 ---
-# OpenEvidence Multi-Environment Setup
+# OpenEvidence Web and Mobile Workflow Parity
 
 ## Overview
 
-OpenEvidence clinical AI requires strict environment separation to maintain HIPAA compliance across the data lifecycle. Development uses only synthetic patient data with no PHI access, staging operates on de-identified datasets for clinical validation, and production handles full PHI under BAA-covered infrastructure. Each environment enforces its own audit logging, encryption, and access control policies. Misconfigured environments risk PHI exposure and regulatory violations, making environment validation a hard requirement at startup.
+Define which surface supports each step and test handoff, device, consent, and export behavior. Keep inputs minimal, separate observed facts from assumptions, and leave consequential decisions with the named accountable owner.
 
-## Environment Configuration
+## Prerequisites
 
-```typescript
-const openEvidenceConfig = (env: string) => ({
-  development: {
-    apiKey: process.env.OPENEVIDENCE_API_KEY_DEV!, baseUrl: "https://api.dev.openevidence.com/v1",
-    dataClassification: "synthetic", phiEnabled: false, auditLevel: "basic", encryptionRequired: false,
-  },
-  staging: {
-    apiKey: process.env.OPENEVIDENCE_API_KEY_STG!, baseUrl: "https://api.staging.openevidence.com/v1",
-    dataClassification: "de-identified", phiEnabled: false, auditLevel: "full", encryptionRequired: true,
-  },
-  production: {
-    apiKey: process.env.OPENEVIDENCE_API_KEY_PROD!, baseUrl: "https://api.openevidence.com/v1",
-    dataClassification: "phi", phiEnabled: true, auditLevel: "full", encryptionRequired: true,
-  },
-}[env]);
-```
+- A clearly bounded workflow, accountable clinical owner, and organizational policy
+- Current first-party OpenEvidence documentation and applicable institution agreements
+- Synthetic or properly authorized minimum-necessary data
 
-## Environment Files
+## Tool Discipline
 
-```text
-# Per-env files: .env.development, .env.staging, .env.production
-OPENEVIDENCE_API_KEY_{DEV|STG|PROD}=<api-key>
-OPENEVIDENCE_BASE_URL=https://api.{dev.|staging.|""}openevidence.com/v1
-OPENEVIDENCE_DATA_CLASS={synthetic|de-identified|phi}
-OPENEVIDENCE_PHI_ENABLED={false|false|true}
-OPENEVIDENCE_AUDIT_LEVEL={basic|full|full}
-OPENEVIDENCE_BAA_ID=<baa-id>          # production only
-```
+Use `Read`, `Glob`, and `Grep` to inspect supplied policies, plans, and evidence. Use `WebFetch` only for current first-party OpenEvidence documentation. Use `Write` or `Edit` only when the user requests a named deliverable with an approved destination. Never expose credentials, PHI, recordings, or unrestricted environment output.
 
-## Environment Validation
+## Current Contract
 
-```typescript
-function validateOpenEvidenceEnv(env: string): void {
-  const suffix = { development: "_DEV", staging: "_STG", production: "_PROD" }[env];
-  const required = [`OPENEVIDENCE_API_KEY${suffix}`, "OPENEVIDENCE_BASE_URL", "OPENEVIDENCE_DATA_CLASS"];
-  if (env === "production") required.push("OPENEVIDENCE_BAA_ID");
-  if (env !== "development") required.push("OPENEVIDENCE_AUDIT_LEVEL");
-  const missing = required.filter((k) => !process.env[k]);
-  if (missing.length) throw new Error(`Missing OpenEvidence vars for ${env}: ${missing.join(", ")}`);
-  if (env === "production" && process.env.OPENEVIDENCE_PHI_ENABLED !== "true")
-    throw new Error("HIPAA violation: PHI must be enabled in production");
-}
-```
+- The official guide documents web and mobile experiences for Ask and Visits workflows.
+- No public dev or staging domains are documented; environment separation belongs to the institution’s test-data and rollout process.
+- Browser-specific capabilities, such as some recording inputs, must be checked against current guidance.
 
-## Promotion Workflow
+## Authentication
 
-```bash
-# 1. Run clinical queries against synthetic data in dev
-curl -X POST "$OPENEVIDENCE_BASE_URL/query" \
-  -H "Authorization: Bearer $OPENEVIDENCE_API_KEY_DEV" -d @synthetic-query.json
+Use only the official OpenEvidence web/mobile sign-in or an institution-approved access path. Do not invent API keys, OAuth clients, SDK credentials, service accounts, or private endpoints. Never ask a user to reveal a password, session token, cookie, or recovery code.
 
-# 2. Validate with de-identified data in staging (audit logs required)
-curl -X POST "$OPENEVIDENCE_BASE_URL/query" \
-  -H "Authorization: Bearer $OPENEVIDENCE_API_KEY_STG" -d @staging-query.json
+## Instructions
 
-# 3. Verify HIPAA audit trail exists for all staging queries
-curl "$OPENEVIDENCE_BASE_URL/audit/logs?env=staging" \
-  -H "Authorization: Bearer $OPENEVIDENCE_API_KEY_STG" | jq '.totalEntries'
+1. Map the workflow steps, user role, device, browser/app, data class, and expected handoffs.
+2. Read the current feature page for web/mobile differences and supported-browser notes.
+3. Test with synthetic data on each authorized surface; record unavailable or divergent behavior.
+4. Verify that copied notes, citations, recordings, and notifications stay within approved systems.
+5. Define the supported surface, fallback, training note, and re-test trigger for each step.
+6. Return a parity matrix with evidence date, owners, gaps, and rollout impact.
 
-# 4. Deploy to production (requires BAA verification)
-OPENEVIDENCE_BAA_ID=baa-2026-001 npm run deploy -- --env production --hipaa-check
-```
+## Approval Boundaries
 
-## Environment Matrix
+Do not create or share accounts; change access, roles, agreements, consent, retention, or security settings; enter PHI; record a conversation; copy content into another system; contact a patient; make a diagnosis or treatment decision; submit billing; transmit a support packet; run a production pilot; or represent vendor capabilities without explicit approval from the accountable owner. A qualified professional remains responsible for clinical decisions.
 
-| Setting | Dev | Staging | Prod |
-|---------|-----|---------|------|
-| Data Type | Synthetic only | De-identified | Full PHI |
-| PHI Access | No | No | Yes (BAA required) |
-| Audit Logging | Basic | Full | Full + HIPAA trail |
-| Encryption at Rest | Optional | Required | Required (AES-256) |
-| Access Control | Developer only | Clinical QA team | Authorized clinicians |
-| BAA Required | No | No | Yes |
+## Output
+
+Return scope, current first-party evidence and date, data classification, workflow or findings, citations reviewed, assumptions rejected, clinical and governance owners, approval state, unresolved risk, and the exact next action. Redact patient and credential data.
 
 ## Error Handling
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| HIPAA validation failed at startup | `PHI_ENABLED` not set in production | Set `OPENEVIDENCE_PHI_ENABLED=true` in prod env file |
-| BAA ID missing | Production deploy without BAA reference | Add `OPENEVIDENCE_BAA_ID` from compliance team |
-| 403 on PHI endpoint | Dev/staging key used against prod API | Use environment-specific API key with correct scope |
-| Audit log gap detected | Staging queries not logged | Verify `OPENEVIDENCE_AUDIT_LEVEL=full` in staging env |
+| Condition | Response |
+|---|---|
+| Feature absent on one surface | Document the supported route; do not invent parity. |
+| Recording input unsupported | Use a documented supported browser/device or stop that test. |
+| Cross-device data surprise | Pause and route the data flow to privacy/security review. |
+
+## Examples
+
+This compact example shows the minimum reviewable handoff; adapt fields to the approved workflow without adding sensitive data.
+
+Input:
+
+```text
+workflow=Visits note; surfaces=Chrome+iOS; data=synthetic
+```
+
+Expected handoff:
+
+```text
+parity=partial; recording=web-supported; editing=both; gaps=1
+```
 
 ## Resources
 
-- [OpenEvidence Docs](https://www.openevidence.com)
-
-## Next Steps
-
-See `openevidence-deploy-integration`.
+- [OpenEvidence official evidence register](references/official-docs.md)
+- [OpenEvidence User Guide](https://www.openevidence.com/user-guide)
+- [OpenEvidence Terms of Use](https://www.openevidence.com/policies/terms)

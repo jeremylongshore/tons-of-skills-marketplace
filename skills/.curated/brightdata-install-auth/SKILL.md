@@ -1,165 +1,83 @@
 ---
 name: brightdata-install-auth
-description: 'Install and configure Bright Data SDK/CLI authentication.
-
-  Use when setting up a new Bright Data integration, configuring API keys,
-
-  or initializing Bright Data in your project.
-
-  Trigger with phrases like "install brightdata", "setup brightdata",
-
-  "brightdata auth", "configure brightdata API key".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Bash(curl:*), Grep
-version: 1.6.0
+description: 'Bootstrap Bright Data access without mixing proxy-zone credentials and REST API keys. Use when onboarding an integration, changing credential ownership, or proving least-privilege access. Trigger with: "set up Bright Data access", "configure a Bright Data zone", "separate proxy and API credentials".'
+allowed-tools: Read, Grep, Write, Edit, Bash(python:*)
+version: 2.0.0
+argument-hint: "[integration-root]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
-- scraping
-- data
-- brightdata
-compatibility: Designed for Claude Code
+- web-data
+- bright-data
+- install-auth
+- operations
+compatibility: 'Requires an approved Bright Data account or offline fixtures, current Bright Data documentation, and an authorized public-data collection purpose'
 ---
-# Bright Data Install & Auth
+# Bright Data Access Bootstrap
 
 ## Overview
 
-Configure Bright Data proxy credentials, API tokens, and SSL certificates for web scraping. Bright Data uses HTTP proxy protocols and REST APIs — you authenticate via zone credentials from the control panel, not a dedicated npm SDK.
+Establish the product, identity, zone, target, and secret boundaries before any live collection. Native proxy clients use a zone username/password, while REST API clients use a named-user API key; treat them as different credentials with different blast radii.
 
 ## Prerequisites
 
-- Node.js 18+ or Python 3.10+
-- Bright Data account at https://brightdata.com
-- A configured zone (Web Unlocker, Scraping Browser, SERP API, or Residential)
-- Zone credentials from the Bright Data control panel
+- An approved public-data purpose and target allowlist
+- A Bright Data account owner who can grant only the required product and zone
+- A secret manager and a non-production validation environment
 
 ## Instructions
 
-### Step 1: Gather Credentials from Control Panel
+### Step 1: Inventory the access path
 
-Log into https://brightdata.com/cp and navigate to your zone's overview tab:
+Read the integration and Grep for existing Bright Data hosts, environment names, and secret references. Classify each call as native proxy, Browser API, or REST API before choosing credentials.
 
-| Credential | Location | Example |
-|-----------|----------|---------|
-| Customer ID | Settings > Account | `c_abc123` |
-| Zone Name | Zone overview tab | `web_unlocker1` |
-| Zone Password | Zone overview tab | `z_pass_xyz` |
-| API Token | Settings > API tokens | `abc123def456` |
+### Step 2: Define the secret contract
 
-### Step 2: Configure Environment Variables
+Write an example-only configuration that declares names but contains no values.
 
-```bash
-# .env (NEVER commit to git)
-BRIGHTDATA_CUSTOMER_ID=c_abc123
-BRIGHTDATA_ZONE=web_unlocker1
-BRIGHTDATA_ZONE_PASSWORD=z_pass_xyz
-BRIGHTDATA_API_TOKEN=abc123def456
-
-# .gitignore — add these
-echo '.env' >> .gitignore
-echo '.env.local' >> .gitignore
+```dotenv
+BRIGHTDATA_API_KEY=
+BRIGHTDATA_PROXY_USERNAME=
+BRIGHTDATA_PROXY_PASSWORD=
+BRIGHTDATA_ZONE=
 ```
 
-### Step 3: Download Bright Data SSL Certificate
+### Step 3: Bind ownership
 
-Required for HTTPS proxy connections through the super proxy:
+Record the named owner, permitted zone, approved target classes, expiry or review condition, and revocation path. Do not reuse an account-wide API key when a zone credential is sufficient.
 
-```bash
-curl -sO https://brightdata.com/ssl/brd-ca.crt
+### Step 4: Validate without disclosure
 
-# Node.js — set environment variable
-export NODE_EXTRA_CA_CERTS=./brd-ca.crt
-```
+Use Bash(python:*) only to check that required names are present and mutually consistent; never print values. Run one separately approved smoke test through the product-specific workflow.
 
-### Step 4: Install HTTP Libraries
+## Tool Discipline
 
-```bash
-# Node.js
-npm install axios dotenv
-
-# Python
-pip install requests python-dotenv
-```
-
-### Step 5: Verify Connection
-
-```typescript
-// verify-brightdata.ts
-import axios from 'axios';
-import https from 'https';
-import 'dotenv/config';
-
-const { BRIGHTDATA_CUSTOMER_ID, BRIGHTDATA_ZONE, BRIGHTDATA_ZONE_PASSWORD } = process.env;
-
-const proxy = {
-  host: 'brd.superproxy.io',
-  port: 33335,
-  auth: {
-    username: `brd-customer-${BRIGHTDATA_CUSTOMER_ID}-zone-${BRIGHTDATA_ZONE}`,
-    password: BRIGHTDATA_ZONE_PASSWORD!,
-  },
-};
-
-async function verify() {
-  const res = await axios.get('https://lumtest.com/myip.json', {
-    proxy,
-    httpsAgent: new https.Agent({ rejectUnauthorized: false }),
-  });
-  console.log('Proxy IP:', res.data.ip);
-  console.log('Country:', res.data.country);
-  console.log('Connection verified.');
-}
-
-verify().catch(console.error);
-```
-
-```python
-# verify_brightdata.py
-import os, requests
-from dotenv import load_dotenv
-
-load_dotenv()
-proxy_url = (
-    f"http://brd-customer-{os.environ['BRIGHTDATA_CUSTOMER_ID']}"
-    f"-zone-{os.environ['BRIGHTDATA_ZONE']}"
-    f":{os.environ['BRIGHTDATA_ZONE_PASSWORD']}"
-    f"@brd.superproxy.io:33335"
-)
-resp = requests.get(
-    'https://lumtest.com/myip.json',
-    proxies={'https': proxy_url},
-    verify='./brd-ca.crt',
-)
-print(f"Proxy IP: {resp.json()['ip']}, Country: {resp.json()['country']}")
-```
+Use Read and Grep to inventory existing access. Use Write and Edit only for approved example, configuration, and runbook paths. Use Bash(python:*) for local presence/schema checks that never print secret values; this skill does not authorize a live request.
 
 ## Output
 
-- `.env` file with zone credentials (git-ignored)
-- `brd-ca.crt` SSL certificate for HTTPS proxying
-- Successful proxy connection showing rotated IP and country
+- Credential-mode decision: native proxy or REST API
+- Named secret bindings, owner, scope, and revocation receipt
+- An approved smoke-test handoff with no credential material
 
 ## Examples
 
-Create a separate least-privilege zone for a defined approved workload, keep its credential in the secret manager, and run one controlled authorization probe without emitting the proxy URL or credentials. Do not reuse personal or broad administrator credentials; record zone owner, target class, and rotation/revocation process before deployment.
+For a Web Scraper API worker, bind one named-user API key in the deployment secret manager and keep proxy username/password variables absent. For a Playwright proxy client, bind only the approved zone credentials. Stop if the product or target authorization is ambiguous.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `407 Proxy Authentication Required` | Wrong username format | Use `brd-customer-{ID}-zone-{ZONE}` |
-| `SSL: CERTIFICATE_VERIFY_FAILED` | Missing CA cert | Download `brd-ca.crt` |
-| `ECONNREFUSED` on port 33335 | Firewall blocking | Allow outbound TCP to `brd.superproxy.io:33335` |
-| `403 Forbidden` | Zone not active | Activate zone in control panel |
+| Failure | Meaning | Response |
+|---------|---------|----------|
+| Both credential modes are populated | Integration boundaries are mixed | Split the clients and remove unused secrets |
+| Zone is inactive or missing | Wrong account, spelling, or entitlement | Have the account owner verify the zone; do not broaden access |
+| Secret appears in logs | Unsafe diagnostics or command construction | Revoke it, scrub retained output, and correct the logging path |
 
 ## Resources
 
-- [Bright Data Control Panel](https://brightdata.com/cp)
-- Proxy Setup Docs
-- [SSL Certificate](https://docs.brightdata.com/general/account/ssl-certificate)
-
-## Next Steps
-
-After successful auth, proceed to `brightdata-hello-world` for your first scraping request.
+- [Authentication and API keys](https://docs.brightdata.com/api-reference/authentication)
+- [Proxy API authentication](https://docs.brightdata.com/api-reference/proxy/proxy_api_auth)
+- [Users management](https://docs.brightdata.com/general/account/users-management)
+- [Acceptable use policy](https://docs.brightdata.com/general/policy/acceptable-use-policy)

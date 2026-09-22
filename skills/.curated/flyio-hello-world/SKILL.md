@@ -1,151 +1,95 @@
 ---
 name: flyio-hello-world
-description: 'Deploy your first app to Fly.io with flyctl launch and the Machines
-  API.
-
-  Use when starting a new Fly.io project, deploying a container globally,
-
-  or testing edge compute deployment.
-
-  Trigger: "fly.io hello world", "fly launch", "deploy to fly.io", "first fly app".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(fly:*), Bash(curl:*), Bash(docker:*)
-version: 1.7.0
+description: >-
+  Prepare and verify a minimal Fly.io application launch with reviewable configuration and a safe first deployment. Use when onboarding a new service. Trigger with: "launch first Fly app", "deploy hello world to Fly", "create Fly launch plan".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[source-directory-app-and-region]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- edge-compute
-- flyio
-compatibility: Designed for Claude Code
+  - saas
+  - flyio
+  - onboarding
+  - fly-launch
+  - deployment
+compatibility: 'Requires a Fly.io account and organization, a containerizable application, an available app name, and approval to create billable resources.'
 ---
-# Fly.io Hello World
+
+# First Fly.io App Launch
 
 ## Overview
 
-Deploy a minimal app to Fly.io using `fly launch`. Fly.io runs Docker containers on Firecracker microVMs across 30+ regions worldwide. Two paths: `flyctl` CLI (simple) or Machines API (programmatic).
+Create the smallest useful first deployment while keeping generated configuration reviewable. Start with one environment, one explicit region, a health endpoint, and no persistent data; add global placement or storage only after the base release is observable and repeatable.
 
 ## Prerequisites
 
-- A disposable staging app name, app-scoped token from the secret manager, Docker, and a known teardown owner.
-
-## Examples
-
-Deploy the example to a disposable staging app using a scoped token, send only a synthetic health request, verify the response contains no secrets, and destroy or stop the test app through the approved cleanup path after validating rollback behavior.
+- Application source, runtime port, startup command, and local health proof
+- Organization, app naming policy, region choice, and cost owner
+- Interactive identity for setup or a scoped token for approved automation
 
 ## Instructions
 
-### Step 1: Launch with flyctl
+### Step 1: Inspect the application
 
-```bash
-# Create a new directory with a Dockerfile
-mkdir fly-hello && cd fly-hello
+Identify build method, Dockerfile status, process command, listening address, internal port, health route, environment, and secret inputs.
 
-cat > Dockerfile << 'EOF'
-FROM node:20-alpine
-WORKDIR /app
-COPY server.js .
-EXPOSE 3000
-CMD ["node", "server.js"]
-EOF
+### Step 2: Generate without deploying
 
-cat > server.js << 'EOF'
-const http = require('http');
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({
-    message: 'Hello from Fly.io!',
-    region: process.env.FLY_REGION,
-    app: process.env.FLY_APP_NAME,
-  }));
-});
-server.listen(3000, () => console.log('Listening on :3000'));
-EOF
+Use the provider launch flow with deployment disabled so `fly.toml` and any Dockerfile changes can be reviewed before resource creation.
 
-# Launch — creates app, generates fly.toml, deploys
-fly launch --name hello-fly --region iad --now
-```
+### Step 3: Review the config
 
-### Step 2: Verify Deployment
+Confirm app name, primary region, build source, process groups, service ports, health checks, VM size, autostart or autostop, and shutdown behavior.
 
-```bash
-# Check status
-fly status
+### Step 4: Set secrets safely
 
-# Open in browser
-fly open
+Store runtime credentials through Fly App secrets. Leave non-sensitive configuration in reviewed environment fields and exclude local secret files from source control.
 
-# View logs
-fly logs
+### Step 5: Perform the approved first deploy
 
-# Test with cURL
-curl https://hello-fly.fly.dev/
-# {"message":"Hello from Fly.io!","region":"iad","app":"hello-fly"}
-```
+Bind the source revision and image, use rolling behavior, and observe build, Machine creation, and health rather than assuming the public URL proves complete success.
 
-### Step 3: Deploy via Machines API
+### Step 6: Verify and document
 
-```typescript
-const FLY_API = 'https://api.machines.dev';
-const headers = {
-  'Authorization': `Bearer ${process.env.FLY_API_TOKEN}`,
-  'Content-Type': 'application/json',
-};
+Check the endpoint, health status, Machine image and region, logs, restart behavior, and billable resources. Record teardown or ownership before handoff.
 
-// Create an app
-const app = await fetch(`${FLY_API}/v1/apps`, {
-  method: 'POST',
-  headers,
-  body: JSON.stringify({
-    app_name: 'hello-api',
-    org_slug: 'personal',
-  }),
-}).then(r => r.json());
+## Authentication
 
-// Create a machine in the app
-const machine = await fetch(`${FLY_API}/v1/apps/hello-api/machines`, {
-  method: 'POST',
-  headers,
-  body: JSON.stringify({
-    region: 'iad',
-    config: {
-      image: 'nginx:alpine',
-      services: [{
-        ports: [{ port: 443, handlers: ['tls', 'http'] }],
-        protocol: 'tcp',
-        internal_port: 80,
-      }],
-      guest: { cpu_kind: 'shared', cpus: 1, memory_mb: 256 },
-    },
-  }),
-}).then(r => r.json());
+Interactive onboarding can use `fly auth login`. Automation should use the narrowest expiring token exposed as `FLY_API_TOKEN` or `FLY_ACCESS_TOKEN`. Never copy the personal login token into CI.
 
-console.log(`Machine ${machine.id} created in ${machine.region}`);
-```
+## Tool Discipline
+
+Use Read and Grep to inspect application configuration, deployment evidence, provider documentation, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for an approved plan, configuration, implementation, test, or redacted receipt. Do not create, deploy, scale, restart, stop, suspend, destroy, rotate, revoke, expose, or migrate live Fly.io resources without explicit operator approval.
 
 ## Output
 
-```
-Machine e784079f004d86 created in iad
-App URL: https://hello-api.fly.dev
-```
+- Reviewed Docker and `fly.toml` changes
+- First-release plan with app, region, image, health, cost, and teardown boundaries
+- Post-deploy receipt or clean rollback and resource-removal plan
+
+Return the target organization, app, environment, region set, Machine or database identifiers, source-contract fingerprint, evidence, unresolved risks, rollback state, and final decision without exposing tokens, secrets, connection strings, or customer data.
+
+## Examples
+
+A small HTTP service listens on the configured internal port and exposes `/health`. The operator generates `fly.toml` without deploying, reviews one region and a modest VM size, sets one secret, deploys, verifies health and image identity, and assigns an owner.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `No machines in group` | App exists but no machines | Run `fly deploy` or create via API |
-| `Could not find image` | Docker build failed | Check Dockerfile, run `docker build .` locally |
-| `Region not available` | Invalid region code | Use `fly platform regions` to list valid codes |
-| `Insufficient resources` | Org quota reached | Check `fly orgs show` or upgrade plan |
+| Failure | Response |
+| --- | --- |
+| Generated config is surprising | Stop before deploy, compare with app runtime requirements, and edit only reviewed fields. |
+| App name or region is unavailable | Choose from current provider responses and update the plan; do not assume global capacity. |
+| First Machine is unhealthy | Preserve build and health evidence, correct the port or startup contract, and avoid repeated blind deploys. |
 
 ## Resources
 
-- [Fly Launch](https://fly.io/docs/reference/fly-launch/)
-- [Deploy an App](https://fly.io/docs/launch/deploy/)
-- [Machines API](https://fly.io/docs/machines/api/machines-resource/)
-
-## Next Steps
-
-Proceed to `flyio-local-dev-loop` for development workflow setup.
+- [First-party source notes](references/official-docs.md)
+- [Machines API setup](https://fly.io/docs/machines/api/working-with-machines-api/)
+- [Automation and tokens](https://fly.io/docs/flyctl/integrating/)
+- [App configuration](https://fly.io/docs/reference/configuration/)
+- [fly launch](https://fly.io/docs/flyctl/launch/)
+- [Deploy an app](https://fly.io/docs/launch/deploy/)
+- [Health checks](https://fly.io/docs/reference/health-checks/)

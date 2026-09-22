@@ -1709,7 +1709,7 @@ export function buildExtendedScorecardRows({
   const dependabot = reader.paths.filter((path) => /^\.github\/dependabot\.ya?ml$/.test(path));
   output[37] = baseRow(37, 'measured', 'tracked .github Dependabot configuration', dependabot, {
     present: dependabot.length === 1,
-    target_present: true,
+    target_present: false,
   });
   const epic9EvidencePath = '000-docs/810-RA-DATA-epic-9-boundary-evidence.json';
   const epic9Evidence = reader.json(epic9EvidencePath);

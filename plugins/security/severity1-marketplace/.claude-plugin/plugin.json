@@ -1,6 +1,6 @@
 {
   "name": "severity1-marketplace",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Severity level classification and prompt improvement for marketplace plugins. Assigns severity ratings (S1-Critical through S4-Low) and enhances plugin prompts for clarity, safety, and effectiveness.",
   "author": {
     "name": "severity1",

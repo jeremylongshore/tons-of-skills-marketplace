@@ -1,181 +1,93 @@
 ---
 name: vastai-data-handling
-description: 'Manage training data and model artifacts securely on Vast.ai GPU instances.
-
-  Use when transferring data to instances, managing checkpoints,
-
-  or implementing secure data lifecycle on rented hardware.
-
-  Trigger with phrases like "vastai data", "vastai upload data",
-
-  "vastai checkpoints", "vastai data security", "vastai artifacts".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vastai:*), Bash(ssh:*), Bash(scp:*)
-version: 1.11.0
+description: >-
+  Manage datasets, checkpoints, models, and artifacts through Vast.ai instances, volumes, and cloud connections with integrity and teardown controls. Use when data must move to, from, or between Vast.ai resources. Trigger with: "copy data to Vast.ai", "protect Vast.ai checkpoints", "recover data before destroying an instance".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[source-destination-data-class-and-recovery-objective]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- compliance
-- data
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - data
+  - checkpoints
+  - integrity
+compatibility: 'Requires approved storage endpoints, Vast.ai copy or cloud-copy access, integrity manifests, and a data-retention policy.'
 ---
-# Vast.ai Data Handling
+
+# Recoverable Vast.ai Data Movement
 
 ## Overview
 
-Manage training data and model artifacts securely on Vast.ai GPU instances. Covers data transfer, encryption, checkpoint management, and cleanup. Critical consideration: Vast.ai instances run on shared hardware operated by third-party hosts.
+Disposable instance storage is a working tier, not the system of record. Choose the supported location syntax, verify checksums, use trusted datacenters for sensitive cloud sync, and externalize recovery artifacts before stop, expiry, or destroy.
 
 ## Prerequisites
 
-- Vast.ai instance with SSH access
-- Cloud storage (S3, GCS) for persistent artifacts
-- Understanding of data sensitivity classification
+- Classified source, destination, size, checksum, encryption, and retention requirements
+- Approved local, instance, volume, or saved cloud-connection identifiers
+- Recovery point objective and owner for copy verification and cleanup
 
 ## Instructions
 
-### Step 1: Data Transfer Patterns
+### Step 1: Plan the route
 
-```bash
-# Small datasets (<5GB): Direct SCP
-scp -P $PORT -r ./data/ root@$HOST:/workspace/data/
+Choose `local:`, `C.instance:path`, `V.volume:path`, or saved cloud connection syntax based on the documented supported directions. Do not assume volumes can copy directly to local.
 
-# Large datasets (5-50GB): Compressed transfer
-tar czf - ./data/ | ssh -p $PORT root@$HOST "tar xzf - -C /workspace/"
+### Step 2: Prepare least privilege
 
-# Very large datasets (>50GB): Cloud storage staging
-# Upload to S3/GCS first, then download on instance
-ssh -p $PORT root@$HOST "aws s3 sync s3://bucket/dataset/ /workspace/data/"
-```
+Scope the Vast.ai control key and cloud credential to the required operation and prefix. Prefer a trusted datacenter for sensitive Cloud Sync.
 
-### Step 2: Encrypted Data Transfer
+### Step 3: Transfer into a staging path
 
-```python
-import subprocess, os
+Copy to a versioned temporary destination with enough disk and bandwidth budget. Never target `/root` or `/`, which can break SSH permissions and future copies.
 
-def encrypt_and_upload(local_path, host, port, remote_path, passphrase):
-    """Encrypt data before transferring to Vast.ai instance."""
-    encrypted = f"{local_path}.enc"
-    # Encrypt with AES-256
-    subprocess.run([
-        "openssl", "enc", "-aes-256-cbc", "-salt", "-pbkdf2",
-        "-in", local_path, "-out", encrypted,
-        "-pass", f"pass:{passphrase}",
-    ], check=True)
+### Step 4: Verify before promotion
 
-    # Transfer encrypted file
-    subprocess.run([
-        "scp", "-P", str(port), encrypted,
-        f"root@{host}:{remote_path}.enc",
-    ], check=True)
+Compare size, count, cryptographic checksums, and a workload-level sample before renaming or consuming the staged data.
 
-    # Decrypt on instance
-    subprocess.run([
-        "ssh", "-p", str(port), f"root@{host}",
-        f"openssl enc -aes-256-cbc -d -pbkdf2 "
-        f"-in {remote_path}.enc -out {remote_path} "
-        f"-pass pass:{passphrase} && rm {remote_path}.enc"
-    ], check=True)
+### Step 5: Checkpoint externally
 
-    os.remove(encrypted)
-```
+Write checkpoints and final artifacts to a recoverable volume or cloud target at a cadence inside the recovery objective.
 
-### Step 3: Checkpoint to Cloud Storage
+### Step 6: Close retention
 
-```python
-import torch, boto3, os
+Verify the external copy, remove temporary credentials, and destroy or retain instance/volume data according to policy; record ongoing storage cost.
 
-class CloudCheckpointManager:
-    def __init__(self, s3_bucket, prefix, save_every=500):
-        self.s3 = boto3.client("s3")
-        self.bucket = s3_bucket
-        self.prefix = prefix
-        self.save_every = save_every
+## Authentication
 
-    def save(self, model, optimizer, step, loss):
-        if step % self.save_every != 0:
-            return
-        local_path = f"/tmp/ckpt-{step}.pt"
-        torch.save({
-            "step": step, "loss": loss,
-            "model": model.state_dict(),
-            "optimizer": optimizer.state_dict(),
-        }, local_path)
-        self.s3.upload_file(local_path, self.bucket,
-                           f"{self.prefix}/ckpt-{step}.pt")
-        os.remove(local_path)
-        print(f"Checkpoint saved: step {step}, loss {loss:.4f}")
+Keep storage credentials distinct from `VAST_API_KEY`, prefix-scoped, and short-lived. Never place either credential in copy logs, image layers, or evidence manifests.
 
-    def load_latest(self):
-        resp = self.s3.list_objects_v2(Bucket=self.bucket, Prefix=self.prefix)
-        if not resp.get("Contents"):
-            return None
-        latest = sorted(resp["Contents"], key=lambda o: o["Key"])[-1]
-        self.s3.download_file(self.bucket, latest["Key"], "/tmp/latest.pt")
-        return torch.load("/tmp/latest.pt")
-```
+## Tool Discipline
 
-### Step 4: Secure Cleanup Before Destroy
-
-```bash
-# ALWAYS clean sensitive data before destroying an instance
-ssh -p $PORT root@$HOST << 'CLEANUP'
-# Remove training data and checkpoints
-rm -rf /workspace/data /workspace/checkpoints /workspace/*.pt
-
-# Clear command history
-history -c && rm -f ~/.bash_history
-
-# Overwrite sensitive files (optional, for high-security)
-find /workspace -name "*.env" -exec shred -u {} \;
-
-echo "Cleanup complete"
-CLEANUP
-
-# Then destroy
-vastai destroy instance $INSTANCE_ID
-```
-
-### Step 5: Data Lifecycle Policy
-
-| Data Type | On Instance | After Job | Retention |
-|-----------|-------------|-----------|-----------|
-| Training data | Decrypt on use | Delete before destroy | Source system only |
-| Checkpoints | Local + cloud sync | Keep in cloud storage | 30 days |
-| Final model | Local | Upload to model registry | Permanent |
-| Logs | Local | Upload to logging service | 90 days |
-| Temp files | /tmp | Auto-deleted on destroy | None |
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- Data transfer patterns (SCP, compressed, cloud-staged)
-- Encrypted transfer for sensitive datasets
-- Cloud checkpoint manager with S3 integration
-- Secure cleanup script before instance destruction
-- Data lifecycle policy
+- Source/destination route and data-class decision
+- Transfer, checksum, checkpoint, and recovery evidence
+- Retention, credential revocation, and residual-storage receipt
 
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| SCP timeout | Large file or slow network | Use compressed transfer or cloud staging |
-| Checkpoint upload fails | S3 credentials not on instance | Pass AWS creds via env vars at instance creation |
-| Disk full during training | Insufficient disk allocation | Increase `--disk` or clean old checkpoints |
-| Data left after destroy | Skipped cleanup | Always run cleanup script before `vastai destroy` |
-
-## Resources
-
-- [Vast.ai Instance Management](https://docs.vast.ai/api-reference/instances/create-instance)
-- [AWS S3 CLI](https://docs.aws.amazon.com/cli/latest/reference/s3/)
-
-## Next Steps
-
-For enterprise access control, see `vastai-enterprise-rbac`.
+Return location types and IDs, byte/file counts, checksums, checkpoint age, verification result, and remaining storage owner.
 
 ## Examples
 
-**Sensitive data workflow**: Encrypt dataset locally, SCP encrypted file to instance, decrypt on-instance, train, save checkpoints to S3, clean and destroy.
+A training dataset moves from a saved cloud connection to `C.123:/workspace/data`, is verified in a staging directory, and checkpoints return to a run-specific cloud prefix before the instance is destroyed.
 
-**Resume after preemption**: Load latest checkpoint from S3 on new instance, continue training from last saved step.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Requested route is unsupported | Choose a documented intermediate instance, volume, or cloud path. |
+| Checksum differs | Quarantine the destination and repeat from a known source; do not train on it. |
+| Instance is nearing expiry or failure | Prioritize external checkpoint recovery and record any unrecoverable window. |
+| Credential is broader than the prefix | Stop the transfer and issue a narrower credential. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [Official CLI file copy](https://github.com/vast-ai/vast-cli/blob/master/vastai/SKILL.md#file-copy)
+- [Manage instances data notes](https://docs.vast.ai/guides/instances/manage-instances)
+- [Billing and storage charges](https://docs.vast.ai/guides/reference/billing)

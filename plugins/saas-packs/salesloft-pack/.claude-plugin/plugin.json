@@ -1,14 +1,13 @@
 {
   "name": "salesloft-pack",
   "version": "1.6.0",
-  "description": "Claude Code skill pack for Salesloft (18 skills)",
+  "description": "Production Salesloft operator workflows for authentication, cadences, synchronization, rate control, webhooks, security, deployment, and incident evidence",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
   },
   "license": "MIT",
   "keywords": [
-    "salesloft",
     "salesloft",
     "saas",
     "sdk",

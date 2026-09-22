@@ -76,7 +76,7 @@ export const GENERATED_ARTIFACT_REGISTRY = [
     pattern: /^marketplace\/src\/data\/spotlights\.json$/,
     canonical: 'marketplace/src/data/spotlights.json',
     regenerate: null,
-    why: 'editorial selection mutated intentionally by promote-spotlight.mjs and rendered into README by a separate drift gate',
+    why: 'editorial selection mutated intentionally by promote-spotlight.mjs and rendered by marketplace routes',
   },
   {
     id: 'marketplace-canonical-data',

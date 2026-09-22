@@ -1,252 +1,91 @@
 ---
 name: cohere-local-dev-loop
-description: 'Configure Cohere local development with mocking, testing, and hot reload.
-
-  Use when setting up a development environment, configuring test workflows,
-
-  or establishing a fast iteration cycle with Cohere API v2.
-
-  Trigger with phrases like "cohere dev setup", "cohere local development",
-
-  "cohere dev environment", "develop with cohere", "mock cohere".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pnpm:*), Grep
-version: 1.5.0
-license: MIT
+description: >-
+  Build a deterministic local Cohere development loop with a provider adapter, fixtures, and an opt-in live smoke test. Use when developing or testing Cohere features locally. Trigger with "Cohere local dev", "mock Cohere", or "Cohere test loop".
+argument-hint: "[repository-path] [test-command]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ai
-- nlp
 - cohere
-compatibility: Designed for Claude Code
+- development
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Cohere API key
 ---
-# Cohere Local Dev Loop
+# Cohere Local Development Loop
 
 ## Overview
 
-Set up a fast, reproducible local development workflow with Cohere API v2 mocking, vitest testing, and hot reload.
+Keep normal development offline and deterministic while preserving one tightly bounded path that proves the real v2 contract.
 
 ## Prerequisites
 
-- Completed `cohere-install-auth` setup
-- Node.js 18+ with npm/pnpm
-- TypeScript project with `tsx` or `ts-node`
+- The target repository, runtime, environment, and accountable owner
+- An approved Cohere team and key for any live verification
+- Current quality, security, privacy, capacity, and change-control requirements
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current Cohere primary documentation. Use `Write` or `Edit` only when the user requested implementation and the exact target files are known; never write credentials or customer content.
+
+## Current Contract
+
+- Mock the application-owned provider interface, not generated SDK internals.
+- Store representative v2 Chat, Embed, Rerank, stream, error, and tool-call fixtures with secrets removed.
+- Gate real calls behind an explicit environment switch and a protected evaluation key.
+- Treat model IDs and SDK response types as external contracts covered by adapter tests.
+
+## Authentication
+
+Use an environment-specific key injected from an approved secret manager. Never print, persist, commit, or place `CO_API_KEY` in an example. Confirm access with the least costly bounded operation appropriate to the task, and treat key creation, rotation, revocation, role changes, and production-capacity requests as owner-approved actions.
 
 ## Instructions
 
-### Step 1: Project Structure
+1. Locate the provider boundary and existing test framework before adding files.
+2. Define a narrow Cohere port for the operations the application actually needs.
+3. Add sanitized fixtures for success, rate limit, timeout, and malformed response paths.
+4. Write offline contract tests for request mapping, response parsing, and redaction.
+5. Add one opt-in live smoke test with a single request and hard timeout.
+6. Document the exact offline and live commands and ensure the default test command makes no network call.
 
-```
-my-cohere-project/
-├── src/
-│   ├── cohere/
-│   │   ├── client.ts       # CohereClientV2 wrapper
-│   │   ├── chat.ts         # Chat completions
-│   │   ├── embed.ts        # Embedding operations
-│   │   └── rerank.ts       # Reranking operations
-│   └── index.ts
-├── tests/
-│   ├── chat.test.ts
-│   ├── embed.test.ts
-│   └── fixtures/
-│       └── responses.ts    # Mock API responses
-├── .env.local              # Local secrets (git-ignored)
-├── .env.example            # Template for team
-└── package.json
-```
+## Approval Boundaries
 
-### Step 2: Package Setup
-
-```json
-{
-  "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "test": "vitest",
-    "test:watch": "vitest --watch",
-    "test:integration": "COHERE_INTEGRATION=1 vitest --run"
-  },
-  "dependencies": {
-    "cohere-ai": "^7.0.0"
-  },
-  "devDependencies": {
-    "tsx": "^4.0.0",
-    "vitest": "^2.0.0",
-    "typescript": "^5.5.0"
-  }
-}
-```
-
-### Step 3: Client Wrapper
-
-```typescript
-// src/cohere/client.ts
-import { CohereClientV2 } from 'cohere-ai';
-
-let instance: CohereClientV2 | null = null;
-
-export function getCohere(): CohereClientV2 {
-  if (!instance) {
-    instance = new CohereClientV2({
-      token: process.env.CO_API_KEY,
-    });
-  }
-  return instance;
-}
-
-// Reset for testing
-export function resetClient(): void {
-  instance = null;
-}
-```
-
-### Step 4: Mock Fixtures
-
-```typescript
-// tests/fixtures/responses.ts
-export const mockChatResponse = {
-  id: 'test-chat-id',
-  message: {
-    role: 'assistant' as const,
-    content: [{ type: 'text' as const, text: 'Mocked response' }],
-  },
-  finishReason: 'COMPLETE' as const,
-  usage: { billedUnits: { inputTokens: 10, outputTokens: 5 } },
-};
-
-export const mockEmbedResponse = {
-  id: 'test-embed-id',
-  embeddings: {
-    float: [[0.1, 0.2, 0.3, 0.4]], // truncated for dev
-  },
-  meta: { billedUnits: { inputTokens: 4 } },
-};
-
-export const mockRerankResponse = {
-  id: 'test-rerank-id',
-  results: [
-    { index: 0, relevanceScore: 0.95 },
-    { index: 2, relevanceScore: 0.72 },
-  ],
-  meta: { billedUnits: { searchUnits: 1 } },
-};
-```
-
-### Step 5: Test with Mocks
-
-```typescript
-// tests/chat.test.ts
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { mockChatResponse } from './fixtures/responses';
-
-vi.mock('cohere-ai', () => ({
-  CohereClientV2: vi.fn().mockImplementation(() => ({
-    chat: vi.fn().mockResolvedValue(mockChatResponse),
-    chatStream: vi.fn().mockReturnValue({
-      [Symbol.asyncIterator]: async function* () {
-        yield { type: 'content-delta', delta: { message: { content: { text: 'Hi' } } } };
-      },
-    }),
-    embed: vi.fn().mockResolvedValue({ embeddings: { float: [[0.1, 0.2]] } }),
-    rerank: vi.fn().mockResolvedValue({
-      results: [{ index: 0, relevanceScore: 0.9 }],
-    }),
-  })),
-}));
-
-describe('Cohere Chat', () => {
-  it('should return a chat completion', async () => {
-    const { CohereClientV2 } = await import('cohere-ai');
-    const cohere = new CohereClientV2();
-
-    const result = await cohere.chat({
-      model: 'command-a-03-2025',
-      messages: [{ role: 'user', content: 'test' }],
-    });
-
-    expect(result.message?.content?.[0]?.text).toBe('Mocked response');
-    expect(result.finishReason).toBe('COMPLETE');
-  });
-});
-```
-
-### Step 6: Integration Tests (Optional, Hits Real API)
-
-```typescript
-// tests/integration.test.ts
-import { describe, it, expect } from 'vitest';
-import { CohereClientV2 } from 'cohere-ai';
-
-const shouldRun = process.env.COHERE_INTEGRATION === '1';
-
-describe.skipIf(!shouldRun)('Cohere Integration', () => {
-  const cohere = new CohereClientV2();
-
-  it('chat endpoint responds', async () => {
-    const res = await cohere.chat({
-      model: 'command-r7b-12-2024', // cheapest model for tests
-      messages: [{ role: 'user', content: 'Say OK' }],
-      maxTokens: 5,
-    });
-    expect(res.message?.content?.[0]?.text).toBeTruthy();
-  }, 15_000);
-
-  it('embed endpoint responds', async () => {
-    const res = await cohere.embed({
-      model: 'embed-v4.0',
-      texts: ['test'],
-      inputType: 'search_document',
-      embeddingTypes: ['float'],
-    });
-    expect(res.embeddings.float[0].length).toBeGreaterThan(0);
-  }, 15_000);
-});
-```
-
-## Environment Management
-
-```bash
-# .env.example (commit this)
-CO_API_KEY=your-trial-key-here
-
-# .env.local (git-ignored, used by tsx/vitest)
-CO_API_KEY=actual-key
-
-# .gitignore entries
-.env.local
-.env.*.local
-```
+Do not expose or rotate keys, change Cohere Team roles, accept commercial terms, enable sensitive production data, increase spend or capacity, switch production models, send a support bundle, or execute model-proposed side effects without the accountable owner's approval. Keep diagnosis read-only unless implementation was requested.
 
 ## Output
 
-- Working dev environment with hot reload via `tsx watch`
-- Unit tests with mocked Cohere responses (no API calls)
-- Optional integration tests gated by `COHERE_INTEGRATION=1`
-- Mock fixtures matching real API v2 response shapes
+Return the resolved API and model contract, files or settings inspected, evidence collected, validation result, remaining risk, owner, and rollback or next action. Redact keys, authorization headers, prompts, retrieved documents, embeddings, customer identifiers, and unrestricted environment output.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `vi.mock not working` | Wrong import order | Mock before importing modules |
-| `CO_API_KEY undefined` | .env not loaded | Use `dotenv/config` or tsx env support |
-| Integration test timeout | Slow network | Increase timeout to 15s+ |
-| Type mismatch on mock | API shape changed | Update fixtures to match SDK types |
+| Condition | Response |
+|---|---|
+| Fixture drift | Refresh from a redacted live response and review the diff. |
+| Accidental spend | Fail closed unless the explicit live-test switch is set. |
+| Flaky test | Replace SDK/network dependence with the local provider port. |
+| Secret in snapshot | Revoke if real, scrub history, and add a regression assertion. |
 
 ## Examples
 
-Run unit tests with a mocked v2 chat response and assert that no credential or
-network call is needed, then enable one integration test only in the isolated
-staging environment. If fixture and SDK shapes diverge, update the sanitized
-fixture and contract assertion before allowing application changes to merge.
+Use this compact handoff shape to keep the selected scope, validation evidence, and operational result reviewable.
+
+Input:
+
+```text
+framework=vitest; default=offline; live-switch=COHERE_LIVE_TESTS
+```
+
+Expected handoff:
+
+```text
+offline=pass; network-calls=0; live-smoke=opt-in; fixtures=sanitized
+```
 
 ## Resources
 
-- [Vitest Documentation](https://vitest.dev/)
-- [tsx (TypeScript Execute)](https://github.com/privatenumber/tsx)
-- [Cohere TypeScript SDK](https://github.com/cohere-ai/cohere-typescript)
-
-## Next Steps
-
-See `cohere-sdk-patterns` for production-ready code patterns.
+- [Skill-specific official documentation](references/official-docs.md)
+- [TypeScript SDK](https://github.com/cohere-ai/cohere-typescript)
+- [API v2 migration](https://docs.cohere.com/docs/migrating-v1-to-v2)

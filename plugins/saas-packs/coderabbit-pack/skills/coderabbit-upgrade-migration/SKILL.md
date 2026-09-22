@@ -1,288 +1,97 @@
 ---
 name: coderabbit-upgrade-migration
-description: 'Update CodeRabbit configuration for new features, migrate between plans,
-  and adopt new capabilities.
-
-  Use when CodeRabbit releases new features, upgrading from Free to Pro plan,
-
-  or updating .coderabbit.yaml schema for new options.
-
-  Trigger with phrases like "upgrade coderabbit", "coderabbit new features",
-
-  "update coderabbit config", "coderabbit plan upgrade", "coderabbit changelog".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*), Bash(git:*)
-version: 1.11.0
-license: MIT
+description: >-
+  Analyze and upgrade configuration, plan-enabled features, tools, or platform integration through schema validation and reversible rollout. Use when this operator task needs a current, evidence-backed
+  CodeRabbit workflow. Trigger with "upgrade CodeRabbit configuration".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[target] [evidence-or-scope]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- coderabbit
-- migration
-- upgrade
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current CodeRabbit documentation and approved access for any live organization, repository, billing, or API change
+tags: [saas, coderabbit, upgrade, configuration, change-management]
 ---
-# CodeRabbit Upgrade & Migration
+# CodeRabbit Configuration Upgrade
 
 ## Overview
 
-CodeRabbit is a managed SaaS service -- there is no SDK to upgrade. Configuration changes happen by updating `.coderabbit.yaml` in your repository. This skill covers adopting new CodeRabbit features, upgrading between plans, migrating configuration formats, and staying current with CodeRabbit capabilities.
+Treat managed-SaaS upgrades as configuration and entitlement changes, not SDK versions. Revalidate docs because contracts evolve.
 
 ## Prerequisites
 
-- CodeRabbit installed on repository
-- `.coderabbit.yaml` in repository root
-- Access to CodeRabbit dashboard at app.coderabbit.ai
+- Identify the CodeRabbit organization, Git provider, repository, plan, and accountable owner.
+- Read `references/official-docs.md` and re-check any time-sensitive contract before execution.
+- Use synthetic or read-only evidence until the approval boundary is satisfied.
+- Preserve the repository's independent CI, security, and human-review requirements.
 
-## Upgrade Paths
+## Current Contract
 
-| From | To | What Changes |
-|------|----|-------------|
-| Free | Pro | Private repos, more concurrent reviews, all features |
-| Pro | Enterprise | SSO, dedicated support, SLA, custom limits |
-| Old config format | New format | Updated YAML schema fields |
-| Basic config | Advanced config | Path instructions, learnings, finishing touches |
+- The current schema URL is `https://coderabbit.ai/integrations/schema.v2.json`.
+- The configuration reference is generated from that schema.
+- The YAML validator checks proposed configuration.
+- Plan, provider, early-access, and self-hosted changes are separate.
+
+## Authentication
+
+Treat Git-provider sessions, CodeRabbit web sessions, CLI credentials, and CodeRabbit API keys as separate credentials. Use only an already-approved session or secret-manager reference, never print a secret, and do not place credentials in `.coderabbit.yaml`, source files, logs, or deliverables.
 
 ## Instructions
 
-### Step 1: Check Current Configuration vs Latest Schema
+1. Capture resolved config, schema validity, plan, provider, features, metrics, and rollback.
 
-```markdown
-# On any open PR, post this comment:
-@coderabbitai configuration
+2. Identify added, removed, renamed, defaulted, or gated behavior.
 
-# CodeRabbit replies with the active config as YAML.
-# Compare with the latest schema documentation to find:
-# 1. Deprecated fields you're still using
-# 2. New fields available that you're not using
-# 3. Fields with changed default values
-```
+3. Apply the smallest feature-branch change and test eligible and excluded cases.
 
-### Step 2: Upgrade Free to Pro Plan
+4. Canary, compare evidence, then promote or revert.
 
-```markdown
-# What you gain with Pro:
-1. Private repository support (Free = public only)
-2. More concurrent reviews (Free = 1, Pro = 5)
-3. Learnings (CodeRabbit remembers your feedback preferences)
-4. Finishing Touches (auto-generate docstrings, custom recipes)
-5. Full path instructions and review customization
-6. Priority review processing
+## Tool Discipline
 
-# Steps:
-1. Go to app.coderabbit.ai > Organization > Subscription
-2. Select Pro plan
-3. Set seat assignment policy (active committers recommended)
-4. Add payment method
-5. Seats activate immediately for all configured repos
-```
+- Use **Glob** to locate candidate configuration and evidence files without widening scope.
+- Use **Grep** to find relevant fields, commands, identifiers, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use these file tools as a substitute for authenticated CodeRabbit or provider operations.
 
-### Step 3: Adopt New Configuration Features
+## Approval Boundaries
 
-```yaml
-# .coderabbit.yaml - Modern configuration with latest features
-
-language: "en-US"
-early_access: false              # Set true to try beta features
-
-reviews:
-  profile: "assertive"
-  request_changes_workflow: true
-  high_level_summary: true
-  high_level_summary_in_walkthrough: true   # Summary inside walkthrough comment
-  review_status: true
-  collapse_walkthrough: false
-  sequence_diagrams: true                    # Visual control flow diagrams
-  poem: false
-
-  auto_review:
-    enabled: true
-    drafts: false
-    base_branches:
-      - main
-      - develop
-    ignore_title_keywords:
-      - "WIP"
-      - "DO NOT MERGE"
-      - "chore: bump"
-
-  path_filters:
-    - "!**/*.lock"
-    - "!**/*.snap"
-    - "!**/generated/**"
-    - "!dist/**"
-    - "!vendor/**"
-
-  path_instructions:
-    - path: "src/api/**"
-      instructions: "Review for input validation, auth middleware, error handling."
-    - path: "src/db/**"
-      instructions: "Review for parameterized queries, transactions, N+1 patterns."
-    - path: "**/*.test.*"
-      instructions: "Review for edge cases. Skip style comments."
-    - path: ".github/workflows/**"
-      instructions: "Pin action versions to SHA. No secrets in logs."
-
-  # Finishing Touches (Pro+)
-  finishing_touches:
-    docstrings:
-      enabled: true              # @coderabbitai generate-docstrings command
-
-  # Tool integrations
-  tools:
-    eslint:
-      enabled: true              # Lint with ESLint rules
-    biome:
-      enabled: true              # Biome linter
-    shellcheck:
-      enabled: true              # Shell script linting
-    markdownlint:
-      enabled: true              # Markdown linting
-
-# Tone customization (Pro+)
-tone_instructions: |
-  Be concise and direct. Use bullet points for multiple suggestions.
-  Include code examples for non-obvious fixes.
-  Rate severity: Critical > Warning > Suggestion > Nitpick.
-
-chat:
-  auto_reply: true
-```
-
-### Step 4: Enable Finishing Touch Recipes
-
-```yaml
-# .coderabbit.yaml - Custom finishing touch recipes (Pro+)
-finishing_touches:
-  docstrings:
-    enabled: true
-
-  recipes:
-    - name: "fix-imports"
-      description: "Sort and organize imports"
-      instructions: |
-        Sort all imports alphabetically. Group: external packages first,
-        then internal modules, then relative imports. Remove unused imports.
-
-    - name: "tighten-types"
-      description: "Replace any with proper types"
-      instructions: |
-        Replace all `any` types with proper TypeScript types.
-        Use `unknown` for truly unknown values. Add type guards where needed.
-
-    - name: "add-error-handling"
-      description: "Add missing error handling"
-      instructions: |
-        Add try/catch blocks to async operations that are missing error handling.
-        Include meaningful error messages and proper error propagation.
-```
-
-```markdown
-# Use recipes on a PR:
-@coderabbitai run fix-imports
-@coderabbitai run tighten-types
-@coderabbitai generate-docstrings
-
-# Or check the boxes in the Finishing Touches section of the walkthrough comment
-```
-
-### Step 5: Enable Early Access Features
-
-```yaml
-# .coderabbit.yaml - Opt into beta features
-early_access: true    # Enables experimental features as they ship
-
-# Early access features are documented at:
-# https://docs.coderabbit.ai/early-access
-#
-# Recent early access features have included:
-# - Finishing touch recipes (now GA)
-# - Tool integrations (eslint, biome, shellcheck)
-# - Sequence diagrams in walkthroughs
-# - Knowledge base / code guidelines auto-detection
-```
-
-### Step 6: Validate After Upgrade
-
-```bash
-set -euo pipefail
-
-echo "=== Post-Upgrade Validation ==="
-
-# 1. Validate YAML syntax
-echo "--- YAML Validation ---"
-python3 -c "
-import yaml
-config = yaml.safe_load(open('.coderabbit.yaml'))
-print(f'YAML: VALID ({len(str(config))} chars)')
-
-# Check for new features
-reviews = config.get('reviews', {})
-ft = reviews.get('finishing_touches', {})
-tools = reviews.get('tools', {})
-tone = config.get('tone_instructions', '')
-early = config.get('early_access', False)
-
-print(f'Finishing touches: {\"enabled\" if ft else \"not configured\"}')
-print(f'Tool integrations: {len(tools)} tools configured')
-print(f'Tone instructions: {\"set\" if tone else \"default\"}')
-print(f'Early access: {early}')
-" 2>&1
-
-# 2. Verify config is active
-echo ""
-echo "--- Verify on PR ---"
-echo "Post '@coderabbitai configuration' on any open PR to verify"
-echo "the new configuration is active."
-```
-
-### Step 7: Migration Checklist
-
-```markdown
-# When updating configuration:
-- [ ] YAML syntax validated before committing
-- [ ] Config committed to main branch (CodeRabbit reads from base branch)
-- [ ] @coderabbitai configuration verified on a test PR
-- [ ] Team notified of any behavior changes
-- [ ] Old deprecated fields removed
-- [ ] New features tested on a non-critical PR first
-```
+Require owners before plan, early-access, self-hosted, override, or production changes. Keep analysis and drafts local until approval is explicit, and record who approved the action and its scope.
 
 ## Output
 
-- Configuration updated to latest CodeRabbit schema
-- New features (finishing touches, tool integrations, tone) enabled
-- Plan upgrade completed (if applicable)
-- Post-upgrade validation passed
-- Migration checklist completed
+A contract diff, validated patch, entitlement check, canary evidence, rollback, and record. Include source dates, unknowns, and the exact boundary between observed fact and recommendation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| New field ignored | Not on Pro/Enterprise plan | Upgrade plan for full feature access |
-| Config not applied after update | Committed to wrong branch | Merge config changes to the base branch |
-| YAML parse error | Invalid syntax | Validate YAML before committing |
-| Feature not available | Requires `early_access: true` | Enable early access in config |
-| Finishing touches not working | Not on Pro plan | Upgrade to Pro for finishing touches |
+| Condition | Response |
+|---|---|
+| Current contract is unclear or docs disagree | Stop mutation, cite both sources, and request owner resolution. |
+| Required access or approval is missing | Produce a draft and evidence plan only. |
+| Validation or pilot behavior differs from expectation | Restore the prior state and retain the failed evidence. |
+| Output contains secrets or private code | Stop, quarantine the artifact, redact it, and notify the data owner. |
 
 ## Examples
 
-Pin the current configuration in a pilot repository, apply one schema change on
-a non-critical pull request, validate YAML and the active configuration, then
-compare review behavior to the prior baseline. If a feature or field is ignored
-or changes blocking behavior, restore the pinned configuration and defer the
-upgrade until the plan/schema requirement is verified.
+### Example 1
+
+Adopt an auto-review option after schema validation.
+
+### Example 2
+
+Remove an obsolete field and prove resolved behavior.
+
+## Validation
+
+- Confirm every claim against the dated sources in `references/official-docs.md`.
+- Verify the requested scope, owner, approval, happy path, failure path, and rollback.
+- Re-read the effective configuration or provider state after any approved change.
+- Report unsupported fields, undocumented endpoints, and unverified assumptions as failures.
 
 ## Resources
 
-- [CodeRabbit Changelog](https://docs.coderabbit.ai/changelog)
-- [CodeRabbit Configuration Reference](https://docs.coderabbit.ai/reference/configuration)
-- [CodeRabbit Pricing](https://coderabbit.ai/pricing)
-- [CodeRabbit Early Access](https://docs.coderabbit.ai/early-access)
-- [Finishing Touches](https://docs.coderabbit.ai/finishing-touches)
-
-## Next Steps
-
-For CI integration after upgrade, see `coderabbit-ci-integration`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

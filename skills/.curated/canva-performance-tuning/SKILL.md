@@ -1,261 +1,88 @@
 ---
 name: canva-performance-tuning
-description: 'Optimize Canva Connect API performance with caching, pagination, and
-  connection pooling.
-
-  Use when experiencing slow API responses, implementing caching strategies,
-
-  or optimizing request throughput for Canva integrations.
-
-  Trigger with phrases like "canva performance", "optimize canva",
-
-  "canva latency", "canva caching", "canva slow", "canva pagination".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.5.0
+description: 'Optimize Canva Connect latency and throughput from measured application evidence. Use when tuning metadata caches, pagination, connection reuse, async-job polling, or endpoint concurrency under explicit freshness and safety budgets. Trigger with: "speed up Canva", "tune Canva polling", "optimize Canva performance".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[endpoint-and-baseline-window]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - performance
+  - operations
+compatibility: 'Requires a protected benchmark workload, current endpoint contract, and approved latency, freshness, data, and rollback budgets.'
 ---
-# Canva Performance Tuning
+
+# Canva Measured Performance Tuning
 
 ## Overview
 
-Optimize Canva Connect API performance. The REST API at `api.canva.com/rest/v1/*` has per-user rate limits and async operations (exports, uploads, autofills) that require polling.
+Change one controlled variable at a time and compare logical-operation outcomes, not just raw request latency. Never cache credentials or assume fixed Canva URL lifetimes and performance guarantees.
 
 ## Prerequisites
 
-- A protected non-production benchmark workload, current account-limit evidence, and defined latency/freshness/reconciliation budgets.
-- A feature flag and rollback plan for every cache, polling, batch, or concurrency change.
+- Baseline window, normalized endpoint, workload, and local SLO
+- Current OpenAPI/response contract and endpoint rate metadata
+- Cache data class, freshness/invalidation policy, feature flag, and rollback
 
 ## Instructions
 
-1. Measure a bounded synthetic workload before changing one performance variable.
-2. Minimize requested/persisted fields, encrypt and expire caches, and never cache OAuth values, signed URLs, or unapproved asset data.
-3. Respect provider limits, preserve idempotency/reconciliation state, and roll back on policy, freshness, or completion regression.
+### Step 1: Establish a baseline
 
-## Caching Strategy
+Use Read and Grep to measure logical operations, provider calls, latency distribution, job completion, retries, cache hits, errors, and queue depth with synthetic or approved data.
 
-### Design Metadata Cache
+### Step 2: Identify the bottleneck
 
-```typescript
-import { LRUCache } from 'lru-cache';
+Separate network/connection latency, unnecessary fields, pagination, duplicate reads, write retries, polling cadence, token locks, worker capacity, and local storage.
 
-// Design metadata changes infrequently — cache aggressively
-const designCache = new LRUCache<string, any>({
-  max: 500,
-  ttl: 5 * 60 * 1000,  // 5 minutes
-});
+### Step 3: Design one experiment
 
-async function getDesignCached(designId: string, token: string) {
-  const cached = designCache.get(designId);
-  if (cached) return cached;
+Use Write or Edit to change one cache, pagination, connection, queue, or poll control behind a feature flag with explicit success and rollback thresholds.
 
-  const data = await canvaAPI(`/designs/${designId}`, token);
-  designCache.set(designId, data);
-  return data;
-}
+### Step 4: Protect caches
 
-// IMPORTANT: Do NOT cache these — they expire quickly:
-// - Thumbnail URLs: expire in 15 minutes
-// - Edit/view URLs: expire in 30 days
-// - Export download URLs: expire in 24 hours
-```
+Cache only approved metadata, key by authorization boundary, encrypt where policy requires, and invalidate on writes, consent/ownership changes, or freshness expiry.
 
-### Redis Cache for Distributed Systems
+### Step 5: Tune asynchronous polling
 
-```typescript
-import Redis from 'ioredis';
+Persist job ID, begin with a short local interval, apply bounded exponential backoff, and stop at the application budget while reconciliation continues asynchronously.
 
-const redis = new Redis(process.env.REDIS_URL);
+### Step 6: Validate and roll out
 
-async function cachedCanvaCall<T>(
-  key: string,
-  fetcher: () => Promise<T>,
-  ttlSeconds = 300
-): Promise<T> {
-  const cached = await redis.get(key);
-  if (cached) return JSON.parse(cached);
+Compare correctness, freshness, duplicate prevention, resource use, and latency. Roll back on stale authorization, missed completion, increased errors, or throttling.
 
-  const result = await fetcher();
-  await redis.setex(key, ttlSeconds, JSON.stringify(result));
-  return result;
-}
+## Authentication
 
-// Cache brand template list — rarely changes
-const templates = await cachedCanvaCall(
-  'canva:brand-templates:list',
-  () => canvaAPI('/brand-templates', token),
-  3600 // 1 hour
-);
-```
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-## Pagination Optimization
+## Tool Discipline
 
-```typescript
-// Canva uses continuation-based pagination
-async function* paginateDesigns(
-  token: string,
-  opts: { ownership?: string; limit?: number } = {}
-): AsyncGenerator<any> {
-  let continuation: string | undefined;
-
-  do {
-    const params = new URLSearchParams({
-      limit: String(opts.limit || 100),  // Max 100 per page
-      ...(opts.ownership && { ownership: opts.ownership }),
-      ...(continuation && { continuation }),
-    });
-
-    const data = await canvaAPI(`/designs?${params}`, token);
-
-    for (const design of data.items) {
-      yield design;
-    }
-
-    continuation = data.continuation; // undefined = last page
-  } while (continuation);
-}
-
-// Usage — processes designs as they arrive
-for await (const design of paginateDesigns(token, { ownership: 'owned' })) {
-  console.log(`${design.title} (${design.id})`);
-}
-```
-
-## Export Polling Optimization
-
-```typescript
-// Smart polling with progressive backoff
-async function pollExport(exportId: string, token: string): Promise<string[]> {
-  const delays = [500, 1000, 2000, 3000, 5000, 5000, 10000]; // Progressive backoff
-  let attempt = 0;
-
-  while (attempt < 20) { // Max ~60s total
-    const { job } = await canvaAPI(`/exports/${exportId}`, token);
-
-    if (job.status === 'success') return job.urls;
-    if (job.status === 'failed') throw new Error(`Export failed: ${job.error?.message}`);
-
-    const delay = delays[Math.min(attempt, delays.length - 1)];
-    await new Promise(r => setTimeout(r, delay));
-    attempt++;
-  }
-
-  throw new Error('Export polling timeout');
-}
-
-// Batch exports with concurrency control
-import PQueue from 'p-queue';
-
-const exportQueue = new PQueue({ concurrency: 3 });
-
-async function batchExport(
-  designIds: string[],
-  format: object,
-  token: string
-): Promise<Map<string, string[]>> {
-  const results = new Map<string, string[]>();
-
-  await Promise.all(
-    designIds.map(id =>
-      exportQueue.add(async () => {
-        const { job } = await canvaAPI('/exports', token, {
-          method: 'POST',
-          body: JSON.stringify({ design_id: id, format }),
-        });
-        const urls = await pollExport(job.id, token);
-        results.set(id, urls);
-      })
-    )
-  );
-
-  return results;
-}
-```
-
-## Connection Optimization
-
-```typescript
-import { Agent } from 'https';
-
-// Keep-alive for connection reuse
-const agent = new Agent({
-  keepAlive: true,
-  maxSockets: 10,
-  maxFreeSockets: 5,
-  timeout: 30000,
-});
-
-// Use with Node.js fetch or undici
-const res = await fetch('https://api.canva.com/rest/v1/designs', {
-  headers: { 'Authorization': `Bearer ${token}` },
-  // @ts-expect-error — Node.js specific
-  agent,
-});
-```
-
-## Performance Monitoring
-
-```typescript
-async function measuredCanvaCall<T>(
-  operation: string,
-  fn: () => Promise<T>
-): Promise<T> {
-  const start = performance.now();
-  try {
-    const result = await fn();
-    const ms = (performance.now() - start).toFixed(0);
-    console.log(`[canva] ${operation}: ${ms}ms OK`);
-    return result;
-  } catch (error) {
-    const ms = (performance.now() - start).toFixed(0);
-    console.error(`[canva] ${operation}: ${ms}ms FAIL`, error);
-    throw error;
-  }
-}
-```
-
-## Performance Benchmarks
-
-| Operation | Typical Latency | Rate Limit |
-|-----------|----------------|------------|
-| GET /users/me | 50-150ms | 10/min |
-| POST /designs | 200-500ms | 20/min |
-| GET /designs (list) | 100-300ms | 100/min |
-| POST /exports | 100-300ms (job start) | 75/5min |
-| Export completion | 2-15s (depending on size) | N/A |
-| POST /asset-uploads | 300-2000ms | 30/min |
-| POST /autofills | 500-3000ms (job start) | 60/min |
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-Performance work produces a baseline, bounded aggregate latency/rate result, cache data classification, rollout decision, and rollback result. It excludes customer content, tokens, asset URLs, and user-identifying values.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-Benchmark metadata-only reads against synthetic designs, enable one TTL-limited encrypted cache behind a feature flag, then compare p95 latency and reconciliation correctness. Disable the change if it causes stale authorization, missed completion, or a rate-limit regression.
+A service reduces design-list calls with a tenant- and user-authorized metadata cache. The experiment proves freshness and invalidation before rollout and never stores thumbnail or export URLs durably.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Stale cache | Long TTL | Reduce TTL or invalidate on write |
-| Export timeout | Large/complex design | Increase poll timeout |
-| Memory pressure | Cache too large | Set LRU max entries |
-| Connection refused | Pool exhausted | Increase maxSockets |
+| Failure | Response |
+| --- | --- |
+| No baseline exists | Instrument before optimizing |
+| Cache serves stale authorization | Disable it and fix ownership/consent invalidation |
+| Polling increases 429s | Lower scoped concurrency and widen bounded intervals |
+| Latency improves but correctness regresses | Roll back the experiment |
 
 ## Resources
 
-- Canva API Reference
-- [LRU Cache](https://github.com/isaacs/node-lru-cache)
-- [p-queue](https://github.com/sindresorhus/p-queue)
-
-## Next Steps
-
-For cost optimization, see `canva-cost-tuning`.
+- [First-party source notes](references/official-docs.md)
+- [API request model](https://www.canva.dev/docs/connect/api-requests-responses/)
+- [Latest OpenAPI](https://www.canva.dev/sources/connect/api/latest/api.yml)

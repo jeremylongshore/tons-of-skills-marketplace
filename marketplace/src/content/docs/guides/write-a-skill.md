@@ -14,9 +14,9 @@ keywords:
   - "Claude Code plugin development"
 officialLinks:
   - title: "Anthropic Claude Code Documentation"
-    url: "https://docs.anthropic.com/en/docs/claude-code/"
+    url: "https://code.claude.com/docs/en/"
   - title: "Anthropic Skills Reference"
-    url: "https://docs.anthropic.com/en/docs/claude-code/skills"
+    url: "https://code.claude.com/docs/en/skills"
 relatedDocs:
   - "concepts/skills"
   - "reference/skill-frontmatter"

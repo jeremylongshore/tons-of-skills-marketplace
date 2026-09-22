@@ -1,210 +1,87 @@
 ---
 name: castai-performance-tuning
-description: 'Optimize CAST AI autoscaler performance, node provisioning speed, and
-  API efficiency.
-
-  Use when nodes take too long to provision, autoscaler is not reacting fast enough,
-
-  or optimizing API call patterns for multi-cluster dashboards.
-
-  Trigger with phrases like "cast ai performance", "cast ai slow",
-
-  "cast ai node provisioning", "cast ai autoscaler speed".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(kubectl:*)
-version: 1.4.0
+description: 'Tune CAST AI node and workload autoscaling against application SLOs, scheduling constraints, and recommendation confidence. Use when optimization causes latency, disruption, slow provisioning, or unstable replica and resource behavior. Trigger with: "tune CAST AI performance", "stabilize CAST AI autoscaling", "fix CAST AI scaling latency".'
+allowed-tools: Read, Grep, Write, Edit, Bash(kubectl:*)
+version: 2.0.0
+argument-hint: '[cluster-and-workload]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- kubernetes
-- cost-optimization
-- castai
-compatibility: Designed for Claude Code
+  - saas
+  - kubernetes
+  - cast-ai
+  - performance
+  - autoscaling
+compatibility: 'Requires workload telemetry, SLOs, and read access to effective CAST AI and Kubernetes scaling configuration'
 ---
-# CAST AI Performance Tuning
+
+# CAST AI Performance Guardrail Tuning
 
 ## Overview
 
-Tune CAST AI for faster node provisioning, more responsive autoscaling, and efficient API usage. Covers headroom configuration, instance family selection, and API caching for multi-cluster dashboards.
+Tune from evidence across workload demand, requests, replicas, scheduling, and nodes. Keep vertical, horizontal, and node changes separate so a lower bill never hides degraded service.
 
 ## Prerequisites
 
-- CAST AI Phase 2 (full automation) enabled
-- Understanding of workload scheduling patterns
-- Access to autoscaler policy configuration
+- Workload SLOs, error budget, traffic profile, and representative observation window
+- Effective scaling policy, annotations, HPA, PDB, node templates, and cluster limits
+- Metrics-server and healthy CAST AI components
 
 ## Instructions
 
-### Step 1: Optimize Node Provisioning Speed
+### Step 1: Build the timeline
 
-```bash
-# Configure headroom for proactive scaling (avoids waiting for pending pods)
-curl -X PUT -H "X-API-Key: ${CASTAI_API_KEY}" \
-  -H "Content-Type: application/json" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/policies" \
-  -d '{
-    "enabled": true,
-    "unschedulablePods": {
-      "enabled": true,
-      "headroom": {
-        "enabled": true,
-        "cpuPercentage": 15,
-        "memoryPercentage": 15
-      }
-    }
-  }'
-```
+Use Read and Grep to align request rate, latency, errors, pod requests, replicas, pending time, evictions, node provisioning, and policy changes. Identify whether the symptom precedes or follows CAST AI action.
 
-Headroom pre-provisions spare capacity so pods schedule immediately instead of waiting 2-5 minutes for new nodes.
+### Step 2: Inspect effective workload policy
 
-### Step 2: Instance Family Optimization
+Check policy assignment, recommendation percentile, overhead, optimization threshold, minimum and maximum resources, confidence, and automation state. Invalid annotation YAML is ignored; an invalid policy name can fall back to a system policy, so verify effective state rather than intended text.
 
-```hcl
-# Terraform: Prefer instance families with fast launch times
-resource "castai_node_template" "fast_launch" {
-  cluster_id = castai_eks_cluster.this.id
-  name       = "fast-launch-workers"
+### Step 3: Choose application mode
 
-  constraints {
-    spot                  = true
-    use_spot_fallbacks    = true
-    fallback_restore_rate_seconds = 300
+Use Immediate mode only when evictions are acceptable and PDB behavior is proven. Use Deferred mode when recommendations should apply at natural recreation. Account for recommendation confidence and gradual behavior on newly onboarded clusters.
 
-    # Newer instance types launch faster and have better availability
-    instance_families {
-      include = ["m6i", "m7i", "c6i", "c7i", "r6i", "r7i"]
-    }
+### Step 4: Reconcile horizontal scaling
 
-    # Enable spot diversity for faster provisioning
-    spot_diversity_price_increase_limit_percent = 25
+Inspect the native `autoscaling/v2` HPA, metric targets, replica bounds, stabilization, and ownership. Avoid competing HPA controllers. When CAST AI takes ownership, treat that as a configuration migration with explicit rollback.
 
-    architectures = ["amd64"]
-  }
-}
-```
+### Step 5: Reconcile node capacity
 
-### Step 3: Evictor Tuning for Faster Consolidation
+Use Bash(kubectl:\*) to examine pending reasons, affinities, topology, taints, resource shape, and scheduling events. Review node templates and maximum CPU limits. More permissive capacity is not automatically safer or cheaper.
 
-```bash
-# Reduce empty node delay for dev/staging (faster downscale)
-helm upgrade castai-evictor castai-helm/castai-evictor \
-  -n castai-agent \
-  --reuse-values \
-  --set evictor.aggressiveMode=true \
-  --set evictor.cycleInterval=120
+### Step 6: Change one variable
 
-# For production, use non-aggressive with longer intervals
-# --set evictor.aggressiveMode=false
-# --set evictor.cycleInterval=600
-```
+Use Write or Edit to record one hypothesis, one configuration change, performance and cost guardrails, observation window, and rollback. Compare the same traffic class and retain SLO evidence before expanding.
 
-### Step 4: API Performance for Multi-Cluster Dashboards
+## Tool Discipline
 
-```typescript
-import { LRUCache } from "lru-cache";
-
-const cache = new LRUCache<string, unknown>({ max: 100, ttl: 60_000 });
-
-interface ClusterSummary {
-  id: string;
-  name: string;
-  savings: number;
-  savingsPercent: number;
-  nodeCount: number;
-  spotPercent: number;
-}
-
-async function getClusterSummary(clusterId: string): Promise<ClusterSummary> {
-  const cacheKey = `summary:${clusterId}`;
-  const cached = cache.get(cacheKey) as ClusterSummary | undefined;
-  if (cached) return cached;
-
-  const [cluster, savings, nodes] = await Promise.all([
-    castaiGet(`/v1/kubernetes/external-clusters/${clusterId}`),
-    castaiGet(`/v1/kubernetes/clusters/${clusterId}/savings`),
-    castaiGet(`/v1/kubernetes/external-clusters/${clusterId}/nodes`),
-  ]);
-
-  const spotNodes = nodes.items.filter(
-    (n: { lifecycle: string }) => n.lifecycle === "spot"
-  ).length;
-
-  const summary: ClusterSummary = {
-    id: clusterId,
-    name: cluster.name,
-    savings: savings.monthlySavings,
-    savingsPercent: savings.savingsPercentage,
-    nodeCount: nodes.items.length,
-    spotPercent: nodes.items.length > 0
-      ? (spotNodes / nodes.items.length) * 100
-      : 0,
-  };
-
-  cache.set(cacheKey, summary);
-  return summary;
-}
-
-// Aggregate across all clusters
-async function getDashboardData(
-  clusterIds: string[]
-): Promise<ClusterSummary[]> {
-  return Promise.all(clusterIds.map(getClusterSummary));
-}
-```
-
-### Step 5: Workload Autoscaler Tuning
-
-```yaml
-# Faster resource adjustment with shorter cooldown
-# (use with caution in production)
-metadata:
-  annotations:
-    autoscaling.cast.ai/cpu-headroom: "10"     # Lower headroom = tighter fit
-    autoscaling.cast.ai/memory-headroom: "15"
-    autoscaling.cast.ai/apply-type: "immediate" # Apply without waiting
-```
-
-## Performance Benchmarks
-
-| Metric | Default | Tuned |
-|--------|---------|-------|
-| Node provision time | 3-5 min | 1-3 min (with headroom) |
-| Empty node removal | 5 min | 2 min (aggressive evictor) |
-| Workload resize | 5 min cooldown | Immediate |
-| API response (cached) | 200ms | <5ms |
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Headroom over-provisioning | Percentage too high | Reduce to 5-10% |
-| Aggressive evictor causing disruptions | PDB not set | Add PodDisruptionBudgets |
-| Cache stale data | TTL too long | Reduce cache TTL to 30s |
-| Instance type unavailable | Too narrow constraints | Add more instance families |
+Use Read and Grep for metrics, policy, and configuration evidence. Use Write and Edit for the tuning experiment and decision. Use Bash(kubectl:\*) for bounded, non-secret inspection of workloads, HPAs, PDBs, events, and nodes.
 
 ## Output
 
-Publish a bounded tuning record containing the measured baseline, target SLO,
-proposed setting, expected cost and disruption impact, rollout scope, and
-rollback trigger. Treat estimates as hypotheses: production success requires
-observed node, workload, and cost telemetry over an agreed window.
+- Joined performance and scaling timeline
+- Effective vertical, horizontal, and node control map
+- One-variable experiment with SLO and cost guardrails
+- Expand, hold, or rollback decision
 
 ## Examples
 
-In staging, shorten a workload-autoscaler cooldown for one non-critical
-service, with a PodDisruptionBudget and alerting already in place. Compare
-provision time, eviction count, p95 latency, and spend against the saved
-baseline; if disruption or error rates rise, restore the prior setting before
-testing another variable.
+A workload oscillates because replica stabilization and vertical requests changed together. The team freezes vertical automation, tunes the managed HPA in a canary, and restores rightsizing only after replica behavior is stable.
+
+## Error Handling
+
+| Failure                                  | Response                                                 |
+| ---------------------------------------- | -------------------------------------------------------- |
+| Metrics are missing or misaligned        | Stop tuning and repair observability                     |
+| Effective policy differs from annotation | Correct YAML or policy assignment before experimentation |
+| PDB blocks needed replacement            | Prefer Deferred mode or review disruption with the owner |
+| SLO regresses                            | Roll back immediately even if cost improves              |
 
 ## Resources
 
-- [Autoscaler Settings](https://docs.cast.ai/docs/autoscaler-settings)
-- [Workload Autoscaler Annotations](https://docs.cast.ai/docs/workload-autoscaler-annotations-reference)
-- [Node Configuration](https://docs.cast.ai/docs/node-configuration)
-
-## Next Steps
-
-For cost optimization strategies, see `castai-cost-tuning`.
+- [Performance evidence and source notes](references/official-docs.md)
+- [Workload Autoscaler overview](https://docs.cast.ai/docs/workload-autoscaling-overview)
+- [Scaling policies](https://docs.cast.ai/docs/woop-scaling-policies)
+- [Horizontal Pod Autoscaling](https://docs.cast.ai/docs/horizontal-pod-autoscaling)

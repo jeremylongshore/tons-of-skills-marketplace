@@ -11,7 +11,7 @@ description: 'Common mistakes when building with the Anthropic API and how to av
 
   '
 allowed-tools: Read, Write, Edit
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -157,8 +157,8 @@ See ten numbered pitfall sections above, each with BAD/GOOD code comparisons. Qu
 
 ## Resources
 
-- [API Reference](https://docs.anthropic.com/en/api/messages)
-- [Best Practices](https://docs.anthropic.com/en/docs/build-with-claude)
+- [API Reference](https://platform.claude.com/docs/en/api/messages)
+- [Best Practices](https://platform.claude.com/docs/en/build-with-claude/overview)
 
 ## Prerequisites
 

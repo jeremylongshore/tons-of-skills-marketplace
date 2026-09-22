@@ -1,152 +1,99 @@
 ---
 name: palantir-reference-architecture
-description: 'Implement Palantir Foundry reference architecture with best-practice
-  project layout.
-
-  Use when designing new Foundry integrations, planning data pipeline architecture,
-
-  or establishing patterns for Ontology-driven applications.
-
-  Trigger with phrases like "palantir architecture", "foundry best practices",
-
-  "foundry project structure", "how to organize palantir".
-
-  '
-allowed-tools: Read, Grep
-version: 1.5.0
-license: MIT
+description: >-
+  Design a production Foundry architecture spanning data pipelines, Ontology, OSDK or Platform APIs, deployment, governance, and operations. Use when defining a new platform integration or reviewing an existing one. Trigger with "Palantir architecture".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[system-or-workflow]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- architecture
-- patterns
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, architecture, integration]
 ---
-# Palantir Reference Architecture
+# Palantir Foundry Integration Architecture
 
 ## Overview
 
-Production-ready architecture for Foundry-integrated applications. Covers the standard data pipeline pattern (ingest > clean > model > serve), Ontology design, external API integration, and multi-repo project layout.
+Start from business decisions and data authority, then map each responsibility to a Foundry primitive. Keep ingestion, transformation, Ontology semantics, application access, deployment, and telemetry independently governable.
 
 ## Prerequisites
 
-- Foundry enrollment with project access
-- Understanding of Ontology concepts (object types, link types, actions)
-- Familiarity with `palantir-core-workflow-a` (transforms) and `palantir-core-workflow-b` (Ontology)
+- Identify users, decisions, source systems, data owners, update/writeback semantics, service objectives, compliance boundaries, and recovery needs.
+- Inventory current and proposed Foundry projects, datasets, transforms, Ontology entities, applications, products, modules, and external integrations.
+- Read `references/official-docs.md` and resolve target-enrollment feature availability with platform owners.
+- Declare trust boundaries and authoritative systems before drawing components.
+
+## Current Contract
+
+- Python transforms provide batch/incremental pipelines with multiple compute engines and data expectations.
+- The Ontology represents domain objects, links, Actions, and Functions; OSDK applications receive a generated subset of it.
+- Platform SDKs expose broader Foundry/AIP REST APIs, while OSDKs provide application-specific Ontology contracts.
+- DevOps/Marketplace and Compute Modules cover different release-managed and interactive-container deployment needs.
+
+## Authentication
+
+Define user-delegated and service authentication at each application boundary. Record OAuth grants, principals, scopes, Developer Console restrictions, secret storage, rotation, and revocation without placing credential values in the architecture artifact.
 
 ## Instructions
 
-### Step 1: Data Pipeline Architecture
+1. Define capabilities, owners, authoritative data, side effects, latency/freshness objectives, and failure domains.
 
-```
-┌─────────────┐     ┌──────────────┐     ┌─────────────┐     ┌───────────┐
-│  Raw Layer   │────>│  Clean Layer │────>│ Model Layer │────>│ Ontology  │
-│ (ingested)   │     │  (validated) │     │ (enriched)  │     │ (objects) │
-└─────────────┘     └──────────────┘     └─────────────┘     └───────────┘
-  ↑ Connectors        @transform_df       @transform_df       Object types
-  ↑ REST sync          null checks         joins, aggs         Link types
-  ↑ File upload        type casting        ML features         Actions
-```
+2. Place ingestion and transformations into projects with explicit inputs, outputs, lineage, expectations, and compute choices.
 
-### Step 2: Project Layout (Foundry)
+3. Model domain semantics and writeback in the Ontology, including object/property security and Action validation.
 
-```
-Foundry Project: "Customer Analytics"
-├── Datasets/
-│   ├── raw/                    # Ingested from sources
-│   │   ├── raw_orders          # REST connector → CRM
-│   │   ├── raw_customers       # JDBC connector → DB
-│   │   └── raw_products        # File upload (CSV/Parquet)
-│   ├── clean/                  # Validated, typed
-│   │   ├── clean_orders        # Nulls removed, dates parsed
-│   │   ├── clean_customers     # Deduped, normalized
-│   │   └── clean_products      # Schema enforced
-│   └── model/                  # Enriched, analytics-ready
-│       ├── order_enriched      # Joined with customer + product
-│       ├── customer_360        # Aggregated customer view
-│       └── daily_summary       # Time-series aggregation
-├── Code Repositories/
-│   ├── pipeline-ingestion/     # Connectors and raw → clean
-│   ├── pipeline-analytics/     # Clean → model transforms
-│   └── ontology-actions/       # Action implementations
-└── Ontology/
-    ├── Object Types: Customer, Order, Product
-    ├── Link Types: Customer→Orders, Order→Products
-    └── Actions: createOrder, updateCustomerSegment
-```
+4. Choose generated OSDK or Platform SDK per application boundary and constrain OAuth scopes, restrictions, and principal permissions.
 
-### Step 3: External API Integration Pattern
+5. Choose DevOps product, Developer Console application, or Compute Module deployment, then add metrics, governed logs, audit evidence, and rollback.
 
-```text
-# External app consuming Foundry Ontology via Platform SDK
-my-external-app/
-├── src/
-│   ├── foundry/
-│   │   ├── client.py           # Singleton FoundryClient
-│   │   ├── objects.py          # Object query helpers
-│   │   ├── actions.py          # Action wrappers
-│   │   └── cache.py            # TTL cache layer
-│   ├── api/
-│   │   ├── routes.py           # REST endpoints
-│   │   └── webhooks.py         # Foundry event handlers
-│   └── main.py
-├── tests/
-│   ├── conftest.py             # Mocked FoundryClient
-│   ├── test_objects.py
-│   └── test_actions.py
-├── .env                        # FOUNDRY_HOSTNAME, credentials
-└── requirements.txt
-```
+## Tool Discipline
 
-### Step 4: Ontology Design Patterns
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-| Pattern | When to Use | Example |
-|---------|-------------|---------|
-| Hub-and-spoke | Central entity with many relationships | Customer → Orders, Tickets, Payments |
-| Event sourcing | Audit trail needed | OrderEvent (created, shipped, delivered) |
-| Computed properties | Derived values | `totalRevenue` on Customer (sum of orders) |
-| Composite actions | Multi-step mutations | `processReturn`: update order + create credit + notify |
+## Approval Boundaries
 
-### Step 5: Security Layers
-
-```
-┌──────────────────────────────────────────┐
-│ Layer 1: Network (VPN/private link)       │
-├──────────────────────────────────────────┤
-│ Layer 2: OAuth2 (service user per app)    │
-├──────────────────────────────────────────┤
-│ Layer 3: Scopes (minimum per app)         │
-├──────────────────────────────────────────┤
-│ Layer 4: Project roles (Viewer/Editor)    │
-├──────────────────────────────────────────┤
-│ Layer 5: Marking (data classification)    │
-└──────────────────────────────────────────┘
-```
+Domain and data owners approve semantics and writeback; security owners approve boundaries and controls; platform owners approve deployment primitives; operations owners approve service objectives and recovery.
 
 ## Output
 
-- Standard 3-layer data pipeline (raw > clean > model)
-- Ontology design with typed objects, links, and actions
-- External app architecture with caching and webhooks
-- Security model with 5 defense layers
+A decision record, context/component/data-flow diagrams, responsibility and authority matrix, data contracts, access model, API/SDK choice, deployment topology, failure analysis, observability design, and staged rollout.
 
 ## Error Handling
 
-| Architecture Issue | Symptom | Fix |
-|--------------------|---------|-----|
-| Circular dependencies | Builds fail | Restructure pipeline DAG |
-| Missing clean layer | Bad data in model | Always validate between raw and model |
-| Monolithic transforms | Slow builds | Split into focused transforms |
-| No caching | API rate limits | Add TTL cache layer |
+| Condition | Response |
+|---|---|
+| One service owns ingestion, policy, writeback, and release | Separate responsibilities and failure domains before scaling the design. |
+| The architecture depends on handwritten Ontology API names | Anchor it to generated OSDK/application metadata. |
+| Granular security is assumed to propagate downstream | Add mandatory controls or redesign downstream handling. |
+| No rollback exists for schema or Ontology changes | Stage compatibility and dual-read/write behavior before promotion. |
+
+## Examples
+
+### Example 1
+
+Design a supplier-risk workflow with connector ingestion, incremental transforms, governed datasets, supplier Ontology objects, validated Actions, a generated OSDK application, and release-managed environments.
+
+### Example 2
+
+Review a container integration by deciding whether it belongs in a Compute Module, mapping OAuth/resource restrictions, data flows, replica behavior, logs, and prior-image rollback.
+
+## Validation
+
+- Every component has one responsibility, owner, authority, and failure behavior.
+- Data lineage and writeback semantics are explicit.
+- SDK and deployment choices match current Foundry contracts.
+- Positive/negative access and downstream control propagation are testable.
+- Service objectives, alerts, recovery, and version rollback are complete.
 
 ## Resources
 
-- [Foundry Documentation](https://www.palantir.com/docs/foundry)
-- [Ontology SDK Overview](https://www.palantir.com/docs/foundry/ontology-sdk/overview)
-- [Transforms Guide](https://www.palantir.com/docs/foundry/transforms-python/transforms)
-
-## Next Steps
-
-For data handling and compliance, see `palantir-data-handling`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

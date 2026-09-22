@@ -1,224 +1,81 @@
 ---
 name: adobe-deploy-integration
-description: 'Deploy Adobe-powered applications to Vercel, Cloud Run, and Adobe App
-  Builder
-
-  with proper credential injection and health monitoring.
-
-  Use when deploying Adobe API integrations to production platforms.
-
-  Trigger with phrases like "deploy adobe", "adobe Vercel",
-
-  "adobe Cloud Run", "adobe App Builder deploy", "adobe production deploy".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(gcloud:*), Bash(aio:*)
-version: 1.7.0
+description: >-
+  Deploy an Adobe-backed service or App Builder application with isolated environments, immutable artifacts, canaries, observability, and rollback. Use when the task requires adobe integration deployment. Trigger with "deploy Adobe integration", "aio app deploy", or "promote Adobe app".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<artifact> <target-environment> <rollout-scope>"
+version: 1.8.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- design
-- adobe
-compatibility: Designed for Claude Code
+tags: [saas, adobe, deployment]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Adobe actions require network access, appropriate entitlement and authentication, and explicit approval"
 ---
-# Adobe Deploy Integration
+# Adobe Integration Deployment
 
 ## Overview
 
-Deploy Adobe-powered applications to three platforms: Vercel (serverless), Google Cloud Run (containers), and Adobe App Builder (native Adobe Runtime). Each with proper OAuth credential management.
+Deploy an Adobe-backed service or App Builder application with isolated environments, immutable artifacts, canaries, observability, and rollback. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 
-- Adobe OAuth Server-to-Server credentials for production
-- Platform CLI installed (`vercel`, `gcloud`, or `aio`)
-- Application tested in staging environment
+- Current first-party Adobe documentation for every selected service, API version, auth flow, limit, and lifecycle.
+- Named product, identity, security, data, budget, release, and operations owners appropriate to the scope.
+- Synthetic or approved non-production fixtures with secret and content canaries.
+
+## Current Contract
+
+AIO CLI v11 and later require Adobe IMS authentication for App Builder deploys: interactive aio login locally or OAuth Server-to-Server in CI. Runtime namespace auth is not a current deploy mechanism. Stage and Production workspaces are isolated. Recheck the dated evidence map before relying on mutable product behavior.
+
+## Authentication
+
+Bind deploy credentials and product credentials to the target environment. app.config.yaml is reviewed source; .env and .aio are local state and must not be committed.
 
 ## Instructions
 
-### Option A: Adobe App Builder (Native Adobe Hosting)
+1. Verify the artifact digest, dependency locks, configuration schema, tests, migration, and rollback artifact.
+2. Resolve organization, project, workspace, service credentials, product profiles, storage, and event registrations.
+3. Confirm the AIO CLI/auth path or external platform identity and fail closed on environment mismatch.
+4. Deploy dark, verify configuration and logs, then run one approved read-only or synthetic smoke path.
+5. Canary bounded traffic while watching auth, 429, jobs, queue age, spend, activations, and content-safe errors.
+6. Promote or roll back from declared thresholds and preserve deployment, activity-log, cleanup, and owner receipts.
 
-App Builder deploys serverless Runtime actions directly to Adobe infrastructure:
+## Tool Discipline
 
-```text
-# Login to Adobe I/O CLI (requires IMS auth since AIO CLI v11)
-aio login
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, Adobe content, consent, uploads, generation, spend, deployment, registration changes, replay, cancellation, or deletion.
 
-# Select your project and workspace
-aio console project select
-aio console workspace select Production
+## Approval Boundaries
 
-# Deploy all actions, static assets, and event registrations
-aio app deploy
-
-# Check deployed actions
-aio runtime action list
-
-# View action logs
-aio runtime activation list --limit 10
-aio runtime activation logs <activationId>
-```
-
-```yaml
-// app.config.yaml — App Builder configuration
-application:
-  actions: actions
-  web: web-src
-  runtimeManifest:
-    packages:
-      my-adobe-app:
-        actions:
-          process-image:
-            function: actions/process-image/index.js
-            runtime: nodejs:20
-            inputs:
-              ADOBE_CLIENT_ID: $ADOBE_CLIENT_ID
-              ADOBE_CLIENT_SECRET: $ADOBE_CLIENT_SECRET
-            annotations:
-              require-adobe-auth: true
-              final: true
-```
-
-### Option B: Vercel Deployment
-
-```bash
-# Set Adobe credentials as Vercel environment variables
-vercel env add ADOBE_CLIENT_ID production
-vercel env add ADOBE_CLIENT_SECRET production
-vercel env add ADOBE_SCOPES production
-
-# Deploy
-vercel --prod
-```
-
-```json
-// vercel.json
-{
-  "functions": {
-    "api/**/*.ts": {
-      "maxDuration": 60
-    }
-  },
-  "env": {
-    "ADOBE_CLIENT_ID": "@adobe_client_id",
-    "ADOBE_CLIENT_SECRET": "@adobe_client_secret",
-    "ADOBE_SCOPES": "@adobe_scopes"
-  }
-}
-```
-
-```typescript
-// api/firefly/generate.ts — Vercel serverless function
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getAccessToken } from '../../src/adobe/client';
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') return res.status(405).end();
-
-  try {
-    const token = await getAccessToken();
-    const fireflyResponse = await fetch(
-      'https://firefly-api.adobe.io/v3/images/generate',
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'x-api-key': process.env.ADOBE_CLIENT_ID!,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(req.body),
-      }
-    );
-
-    const result = await fireflyResponse.json();
-    return res.status(fireflyResponse.status).json(result);
-  } catch (error: any) {
-    return res.status(500).json({ error: error.message });
-  }
-}
-```
-
-### Option C: Google Cloud Run
-
-```bash
-# Store credentials in Secret Manager
-echo -n "${ADOBE_CLIENT_ID}" | gcloud secrets create adobe-client-id --data-file=-
-echo -n "${ADOBE_CLIENT_SECRET}" | gcloud secrets create adobe-client-secret --data-file=-
-
-# Build and deploy
-gcloud builds submit --tag gcr.io/${PROJECT_ID}/adobe-service
-
-gcloud run deploy adobe-service \
-  --image gcr.io/${PROJECT_ID}/adobe-service \
-  --region us-central1 \
-  --platform managed \
-  --set-secrets="ADOBE_CLIENT_ID=adobe-client-id:latest,ADOBE_CLIENT_SECRET=adobe-client-secret:latest" \
-  --set-env-vars="ADOBE_SCOPES=openid,AdobeID,firefly_api" \
-  --min-instances=1 \
-  --timeout=60s
-```
-
-### Health Check Endpoint (All Platforms)
-
-```typescript
-// api/health.ts
-export async function GET() {
-  const checks: Record<string, any> = {};
-
-  // Test Adobe IMS token generation
-  try {
-    const start = Date.now();
-    const token = await getAccessToken();
-    checks.adobe = {
-      status: 'healthy',
-      latencyMs: Date.now() - start,
-      tokenLength: token.length,
-    };
-  } catch (error: any) {
-    checks.adobe = {
-      status: 'unhealthy',
-      error: error.message,
-    };
-  }
-
-  const overall = Object.values(checks).every(
-    (c: any) => c.status === 'healthy'
-  ) ? 'healthy' : 'degraded';
-
-  return Response.json({
-    status: overall,
-    services: checks,
-    timestamp: new Date().toISOString(),
-  });
-}
-```
-
-## Output
-
-- Application deployed to chosen platform
-- Adobe credentials injected via platform secret management
-- Health check endpoint validates IMS connectivity
-- Serverless function timeout configured for Adobe API latency
+Release owner approves production deployment; security approves credentials; data/budget owners approve live product calls; webhook or asset deletion needs separate approval.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `aio app deploy` auth error | Not logged in to AIO CLI | Run `aio login` |
-| Vercel function timeout | Adobe API takes > 10s | Increase `maxDuration` in vercel.json |
-| Cloud Run cold start timeout | Token generation on cold start | Set `min-instances=1` |
-| Secret not found | Wrong secret name | Verify with `gcloud secrets list` or `vercel env ls` |
+- Stop if the selected workspace differs from the review target.
+- Do not commit .env or .aio.
+- Rollback if artifact, auth, entitlement, storage, or observability evidence is missing.
+
+## Output
+
+Return artifact and environment identity, auth path, preflight, smoke/canary metrics, decision, rollback, cleanup, and owners. Mark assumptions, observed environment behavior, owners, evidence dates, and unresolved gaps explicitly.
 
 ## Examples
 
-Start with the smallest applicable command or code example already provided in this guide, using a non-production Adobe environment and credentials. Confirm the documented response or validation result before applying the pattern to production.
+- Deploy to Stage and prove Production is unchanged.
+- Exercise rollback after a synthetic entitlement failure.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- artifact mismatch
+- workspace mismatch
+- missing entitlement
+- 429
+- rollback
+- cleanup
 
 ## Resources
 
-- [Adobe App Builder Deployment](https://developer.adobe.com/app-builder/docs/guides/app_builder_guides/deployment/deployment)
-- [Vercel Environment Variables](https://vercel.com/docs/environment-variables)
-- [Cloud Run Secrets](https://cloud.google.com/run/docs/configuring/services/secrets)
-
-## Next Steps
-
-For webhook handling, see `adobe-webhooks-events`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Adobe sources before execution.
+- Treat observed tenant or product behavior as environment-specific evidence, never a universal Adobe guarantee.

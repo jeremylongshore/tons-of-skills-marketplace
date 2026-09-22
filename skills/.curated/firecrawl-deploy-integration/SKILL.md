@@ -1,238 +1,78 @@
 ---
 name: firecrawl-deploy-integration
-description: 'Deploy Firecrawl integrations to Vercel, Cloud Run, and Docker platforms.
-
-  Use when deploying Firecrawl-powered applications to production,
-
-  configuring platform-specific secrets, or setting up self-hosted Firecrawl.
-
-  Trigger with phrases like "deploy firecrawl", "firecrawl Vercel",
-
-  "firecrawl production deploy", "firecrawl Cloud Run", "firecrawl Docker".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(docker:*), Bash(gcloud:*)
-version: 1.11.0
+description: >-
+  Deploy a Firecrawl v2 client integration or a reviewed self-hosted stack with secrets, canaries, health evidence, and rollback controls. Use when releasing Firecrawl-backed services. Trigger with "deploy Firecrawl", "Firecrawl production rollout", or "self-host Firecrawl".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <environment>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- deployment
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, deployment, operations]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Deploy Integration
+# Firecrawl Production Deployment
 
 ## Overview
 
-Deploy applications using Firecrawl's web scraping API to production. Covers Vercel serverless, Cloud Run containers, self-hosted Firecrawl via Docker, and webhook endpoint deployment for async crawl results.
-
-## Output
-
-Keep a deployment receipt with the image or release identifier, environment, secret-manager references, approved domain policy, canary outcome, aggregate health metrics, and rollback decision. Never place API keys, response bodies, or scraped content in deployment logs.
-
-## Examples
-
-Deploy one staging route with a scoped credential injected by the platform. Confirm it rejects an unapproved target before making a provider call, then simulate upstream failure and verify it returns a generic error without leaking headers or content. Roll back the canary before broad release if either check fails.
+Deploy the application client and the Firecrawl service as separate responsibilities. Cloud integrations need a protected key and egress policy; self-hosting adds databases, queues, browsers, storage, authentication, upgrades, and recovery.
 
 ## Prerequisites
 
-- Firecrawl API key (`FIRECRAWL_API_KEY`)
-- Application using `@mendable/firecrawl-js`
-- Platform CLI (vercel, docker, or gcloud)
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
+
+## Current Contract
+
+Cloud clients use the v2 API and secret-managed FIRECRAWL_API_KEY. The official self-host guide's Compose example is an evaluation baseline with authentication disabled and without durable storage, TLS, high availability, or every Cloud capability. Pin the reviewed release and its own Compose contract; do not copy a floating main configuration into production.
+
+## Authentication
+
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Configure Platform Secrets
+1. Inventory the application release, Firecrawl Cloud or self-host decision, required features, environments, domains, data flows, SLOs, and rollback owner.
+2. For Cloud, inject the key from the platform secret manager, restrict outbound destinations, choose retention/cache policy, and prevent request or response bodies from application logs.
+3. For self-hosting, pin a verified release and review its Compose, SELF_HOST, and feature-support documentation. Map every optional provider and outbound flow.
+4. Before exposure, add supported authentication, network controls, TLS, durable PostgreSQL/Redis/RabbitMQ storage where required, backups, restore tests, monitoring, capacity limits, and upgrade rollback.
+5. Deploy a no-traffic revision, verify process readiness separately from one approved functional v2 scrape, then run a bounded content-free canary.
+6. Observe errors, queue pressure, latency, credit or capacity use, and output-quality metrics. Promote gradually with explicit stop thresholds.
+7. Record the release/image digest, configuration hashes, canary evidence, approvals, and rollback result.
 
-```bash
-set -euo pipefail
-# Vercel
-vercel env add FIRECRAWL_API_KEY production
+## Tool Discipline
 
-# Cloud Run
-echo -n "$FIRECRAWL_API_KEY" | gcloud secrets create firecrawl-api-key --data-file=-
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-# Docker
-# Use --env-file or docker secrets
-```
+## Approval Boundaries
 
-### Step 2: Vercel Serverless API Route
+Require approval before exposing a self-hosted API, disabling authentication, adding external AI/proxy providers, granting production secrets, changing retention, or increasing rollout traffic.
 
-```typescript
-// app/api/scrape/route.ts (Next.js App Router)
-import FirecrawlApp from "@mendable/firecrawl-js";
-import { NextRequest, NextResponse } from "next/server";
+## Output
 
-const firecrawl = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY!,
-});
-
-export async function POST(req: NextRequest) {
-  const { url, formats = ["markdown"] } = await req.json();
-
-  if (!url) {
-    return NextResponse.json({ error: "URL required" }, { status: 400 });
-  }
-
-  try {
-    const result = await firecrawl.scrapeUrl(url, {
-      formats,
-      onlyMainContent: true,
-      waitFor: 3000,
-    });
-
-    return NextResponse.json({
-      success: result.success,
-      markdown: result.markdown,
-      title: result.metadata?.title,
-      sourceURL: result.metadata?.sourceURL,
-    });
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message, status: error.statusCode },
-      { status: error.statusCode || 500 }
-    );
-  }
-}
-```
-
-### Step 3: Self-Hosted Firecrawl (Docker Compose)
-
-```yaml
-# docker-compose.yml
-services:
-  firecrawl:
-    image: mendableai/firecrawl:latest
-    ports:
-      - "3002:3002"
-    environment:
-      - PORT=3002
-      - USE_DB_AUTHENTICATION=false
-      - REDIS_URL=redis://redis:6379
-      - REDIS_RATE_LIMIT_URL=redis://redis:6379
-      - NUM_WORKERS_PER_QUEUE=2
-      - BULL_AUTH_KEY=${BULL_AUTH_KEY:-changeme}
-    depends_on:
-      redis:
-        condition: service_healthy
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - FIRECRAWL_API_KEY=fc-self-hosted
-      - FIRECRAWL_API_URL=http://firecrawl:3002
-    depends_on:
-      - firecrawl
-```
-
-```typescript
-// Point app to self-hosted Firecrawl
-const firecrawl = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY!,
-  apiUrl: process.env.FIRECRAWL_API_URL || "https://api.firecrawl.dev",
-});
-```
-
-### Step 4: Cloud Run Deployment
-
-```bash
-set -euo pipefail
-# Build and deploy
-gcloud run deploy firecrawl-app \
-  --source . \
-  --region us-central1 \
-  --set-secrets "FIRECRAWL_API_KEY=firecrawl-api-key:latest" \
-  --memory 512Mi \
-  --timeout 300 \
-  --allow-unauthenticated
-```
-
-### Step 5: Webhook Endpoint for Async Crawls
-
-```typescript
-// app/api/webhooks/firecrawl/route.ts
-import crypto from "crypto";
-import { NextRequest, NextResponse } from "next/server";
-
-export async function POST(req: NextRequest) {
-  const body = await req.text();
-
-  // Verify webhook signature
-  const signature = req.headers.get("x-firecrawl-signature");
-  if (signature && process.env.FIRECRAWL_WEBHOOK_SECRET) {
-    const expected = crypto
-      .createHmac("sha256", process.env.FIRECRAWL_WEBHOOK_SECRET)
-      .update(body)
-      .digest("hex");
-    if (signature !== expected) {
-      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
-    }
-  }
-
-  const { type, id, data } = JSON.parse(body);
-
-  switch (type) {
-    case "crawl.completed":
-      console.log(`Crawl ${id} complete: ${data.length} pages`);
-      await processPages(data);
-      break;
-    case "crawl.page":
-      console.log(`Page scraped: ${data[0]?.metadata?.sourceURL}`);
-      break;
-    case "crawl.started":
-      console.log(`Crawl ${id} started`);
-      break;
-  }
-
-  return NextResponse.json({ received: true });
-}
-```
-
-### Step 6: Health Check
-
-```typescript
-export async function GET() {
-  try {
-    const result = await firecrawl.scrapeUrl("https://example.com", {
-      formats: ["markdown"],
-    });
-    return NextResponse.json({
-      status: result.success ? "healthy" : "degraded",
-    });
-  } catch {
-    return NextResponse.json({ status: "unhealthy" }, { status: 503 });
-  }
-}
-```
+Return deployment topology, immutable versions, secret and network controls, storage/recovery posture, capability gaps, readiness and functional canary results, rollout state, and tested rollback command or procedure.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Vercel timeout | Scrape takes > 10s | Use background functions or async crawl |
-| Self-hosted OOM | Playwright browser memory | Increase container memory to 2GB+ |
-| Cloud Run cold start | First request slow | Set min instances to 1 |
-| Webhook not received | URL not publicly accessible | Use ngrok in dev, verify HTTPS in prod |
+- Readiness passes but scrape fails: inspect API and browser-service evidence; do not declare the deployment healthy.
+- Self-hosted capability is absent: stop and choose Cloud or validate its external dependency.
+- Rollback cannot restore data/configuration: block production promotion.
+
+## Examples
+
+- "Deploy our Firecrawl client" produces a secret-managed canary rollout and rollback receipt.
+- "Expose the quickstart Compose file publicly" is blocked until production authentication, TLS, storage, and recovery exist.
 
 ## Resources
 
-- [Firecrawl Self-Hosting](https://docs.firecrawl.dev/contributing/self-host)
-- [Firecrawl Webhooks](https://docs.firecrawl.dev/webhooks/overview)
-- [Firecrawl Node SDK](https://docs.firecrawl.dev/sdks/node)
-
-## Next Steps
-
-For webhook handling, see `firecrawl-webhooks-events`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

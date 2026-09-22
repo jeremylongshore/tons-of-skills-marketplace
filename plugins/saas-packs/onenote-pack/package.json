@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/onenote-pack",
-  "version": "1.0.2",
-  "description": "Claude Code skill pack for OneNote - 18 skills covering notebook management, content organization, and Microsoft 365 integration",
+  "version": "1.7.0",
+  "description": "Operator-grade OneNote pack for delegated access, hierarchy inventory, controlled HTML content, polling reconciliation, security, reliability, and migration",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -10,14 +10,14 @@
     "skills/"
   ],
   "keywords": [
-    "claude-code",
-    "claude-code-plugin",
     "onenote",
-    "notebook-management",
-    "content-organization",
-    "microsoft-365",
-    "ai-skills",
-    "saas-pack"
+    "microsoft-graph",
+    "delegated-auth",
+    "notebooks",
+    "html-content",
+    "reconciliation",
+    "security",
+    "integration"
   ],
   "author": {
     "name": "Jeremy Longshore",

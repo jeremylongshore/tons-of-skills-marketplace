@@ -56,3 +56,15 @@ test('R5 red run — naming an adapterless harness as supported fails', () => {
   assert.ok(violations.some((v) => v.includes('Codex')));
   assert.ok(violations.some((v) => v.includes('OpenClaw')));
 });
+
+test('R10 red run — README spotlight prose and sentinels cannot return', () => {
+  for (const planted of [
+    `${LIVE}\n\n## Killer Skill of the Week\n\nA promoted skill.\n`,
+    `${LIVE}\n\n<!-- KILLER-SKILL:START -->\nA generated spotlight.\n<!-- KILLER-SKILL:END -->\n`,
+  ]) {
+    assert.ok(
+      checkContract(planted).some((v) => v.startsWith('R10:')),
+      'retired README spotlight shape must be a red run',
+    );
+  }
+});

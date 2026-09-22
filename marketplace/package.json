@@ -3,7 +3,8 @@
   "type": "module",
   "version": "4.19.0",
   "scripts": {
-    "predev": "node scripts/extract-readme-sections.mjs && node scripts/copy-public-data.mjs",
+    "prebuild": "node ../scripts/check-node-version.mjs",
+    "predev": "node ../scripts/check-node-version.mjs && node scripts/extract-readme-sections.mjs && node scripts/copy-public-data.mjs",
     "dev": "astro dev",
     "build": "node scripts/build.mjs",
     "preview": "node scripts/preview.mjs",
@@ -21,7 +22,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",
-    "astro": "^6.4.2",
+    "astro": "7.3.2",
     "fuse.js": "^7.3.0",
     "tailwindcss": "^4.3.0"
   },
@@ -30,5 +31,11 @@
     "@playwright/test": "^1.60.0",
     "archiver": "^7.0.1",
     "axe-core": "^4.11.4"
+  },
+  "overrides": {
+    "svgo": "4.1.0"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

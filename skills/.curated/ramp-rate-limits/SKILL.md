@@ -1,68 +1,93 @@
 ---
 name: ramp-rate-limits
-description: "Ramp rate limits \u2014 corporate card and expense management API integration.\n\
-  Use when working with Ramp for card management, expenses, or accounting sync.\n\
-  Trigger with phrases like \"ramp rate limits\", \"ramp-rate-limits\", \"corporate\
-  \ card API\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.4.0
-license: MIT
+description: >-
+  Implement a shared Ramp request budget with rolling-window throttling, bounded retries, pagination, and 504 recovery. Use when clients receive 429 or 504 responses or share one outbound IP. Trigger with "Ramp rate limit" or "Ramp 429".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[integration-or-environment]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ramp
-- fintech
-- expenses
-- corporate-cards
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Ramp Developer API documentation and approved access for any live financial, card, identity, accounting, application, or configuration change
+tags: [saas, ramp, rate-limits, retries, resilience]
 ---
-# Ramp Rate Limits
+# Ramp Rate-Limit and Timeout Control
 
 ## Overview
 
-Implementation patterns for Ramp rate limits using the Developer API with OAuth2 authentication.
+Coordinate all workers that share an egress IP, because independent per-process retries can amplify a rolling-window breach. Preserve idempotency and reconcile ambiguous writes before retry.
 
 ## Prerequisites
 
-- Completed `ramp-install-auth` setup
+- Identify the Ramp application, environment, business entities, affected data and workflows, accountable owner, and rollback boundary.
+- Read `references/official-docs.md` and re-check endpoint schemas, scopes, limits, and support status before a live operation.
+- Use synthetic fixtures or Ramp sandbox until production access and business effects are explicitly approved.
+- Prepare approved secret storage and a sanitized evidence location.
+
+## Current Contract
+
+- Ramp currently documents a default limit of 200 requests per rolling 10-second window per source IP.
+- A 429 means pause and back off; immediate retries worsen contention.
+- Requests taking longer than 60 seconds terminate with 504, so large reads should be paginated and work units reduced.
+- Ramp recommends exponential backoff; actual throughput is lower than theoretical throughput and endpoint constraints still apply.
 
 ## Instructions
 
-### Step 1: API Call Pattern
+1. Inventory all services, jobs, tenants, endpoints, and retry layers sharing each source IP; measure arrival rate, burst, latency, 429/504, and business priority.
 
-```python
-import os, requests
+2. Implement one shared rolling-window limiter below the documented ceiling, with reserved capacity for interactive or recovery traffic.
 
-# Obtain token
-token_resp = requests.post(f"{os.environ['RAMP_BASE_URL'].replace('/v1','')}/v1/token", data={
-    "grant_type": "client_credentials",
-    "client_id": os.environ["RAMP_CLIENT_ID"],
-    "client_secret": os.environ["RAMP_CLIENT_SECRET"],
-})
-access_token = token_resp.json()["access_token"]
-headers = {"Authorization": f"Bearer {access_token}"}
+3. Use bounded exponential backoff with full jitter for 429, 5xx, and safe 504 cases; cap attempts and total elapsed time.
 
-cards = requests.get(f"{os.environ['RAMP_BASE_URL']}/cards", headers=headers)
-print(f"Cards: {len(cards.json()['data'])}")
-```
+4. Retry reads freely within budget, but retry writes only with an endpoint-supported idempotency key and post-timeout reconciliation.
+
+5. Reduce pages or query scope for 504s, canary concurrency changes, and request a vendor increase only with measured demand and completeness evidence.
+
+## Tool Discipline
+
+- Use **Glob** to locate candidate code, manifests, fixtures, and evidence without widening scope.
+- Use **Grep** to find relevant endpoints, fields, permissions, identifiers, errors, and stale assumptions.
+- Use **Read** to inspect the smallest required local files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, configuration, or evidence artifact.
+- Use **Edit** only for a bounded approved change with a known rollback.
+- Local file tools do not authorize a Ramp operation or replace owner approval.
+
+## Approval Boundaries
+
+Platform owners approve budgets and retry policy; business/finance owners approve write replay; Ramp must approve any limit increase.
 
 ## Output
 
-- Ramp API integration for rate limits
+A shared-egress inventory, limiter design, retry matrix, idempotency policy, benchmark, canary outcome, dashboards, and vendor increase evidence if needed.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| 401 Unauthorized | Expired token | Re-authenticate |
-| 429 Rate Limited | Too many requests | Implement backoff |
-| 403 Forbidden | Insufficient permissions | Check API app permissions |
+| Condition | Response |
+|---|---|
+| 429s continue below the local budget | Find other workloads sharing the egress IP and centralize their accounting. |
+| A write returns 504 | Reconcile resource/task state before reuse of the original idempotency key. |
+| Backoff grows queue lag | Prioritize by business criticality, shed nonessential polling, and preserve durable checkpoints. |
+
+## Examples
+
+### Example 1
+
+Coordinate three sync workers behind one NAT with a shared rolling limiter and jittered retries.
+
+### Example 2
+
+Recover a 504-prone historical seed by reducing page scope and committing each page before cursor advance.
+
+## Validation
+
+- Aggregate egress stays below the re-verified current limit during load tests.
+- Retry budgets are bounded and observable.
+- Ambiguous writes cannot create duplicate financial effects.
+- 429/504 reduction does not hide missing pages, stalled queues, or reconciliation gaps.
 
 ## Resources
 
-- [Ramp API Documentation](https://docs.ramp.com/)
-- [Authorization](https://docs.ramp.com/developer-api/v1/authorization)
-
-## Next Steps
-
-See related Ramp skills for more workflows.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract and current OpenAPI schema before any live request.
+- Treat unresolved vendor behavior, authority, or financial state as a stop condition.

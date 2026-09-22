@@ -1,170 +1,103 @@
 ---
 name: flexport-core-workflow-b
-description: 'Execute Flexport secondary workflow: commercial invoices, products catalog,
-  and freight invoices.
-
-  Use when managing commercial invoices for customs, maintaining product catalogs,
-
-  or handling freight billing through the Flexport API.
-
-  Trigger: "flexport invoice", "flexport products", "flexport customs documents".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.6.0
+description: >-
+  Create and reconcile Flexport purchase orders, commercial invoices, and shipment documents without inventing update semantics. Use when moving approved trade data into Flexport or attaching documents. Trigger with: "create Flexport purchase order", "upload Flexport document", "submit commercial invoice".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[document-type-and-approved-record]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - documents
+  - trade
+compatibility: 'Requires endpoint-scoped Flexport credentials, approved trade data, and any account enablement required for commercial invoices.'
 ---
-# Flexport Core Workflow B: Invoices & Products
+
+# Flexport Trade Document Workflow
 
 ## Overview
 
-Manage Flexport commercial invoices for customs clearance, maintain the product catalog for landed cost calculations, and handle freight billing. These APIs complement the booking/shipment workflow in `flexport-core-workflow-a`.
-
-## Output
-
-Maintain an approved workflow receipt with opaque invoice/product identifiers, authorized owner, source-validation status, approved destination, idempotency outcome, and next action. Keep commercial terms, invoice contents, tariff data, and documents in the authorized system of record.
+Treat structured trade records and uploaded files as separate governed operations. Validate referenced network entities first, apply only documented create/update behavior, and never assume an uploaded document can be updated in place.
 
 ## Prerequisites
 
-- Completed `flexport-install-auth` setup
-- Existing shipments or bookings (from workflow A)
-- Product SKUs defined in your system
+- Approved source record and data owner
+- Resolved Flexport entity, location, shipment, and product references
+- Document malware scan, MIME policy, and retention decision
 
 ## Instructions
 
-### Step 1: Manage Product Catalog
+### Step 1: Select the resource
 
-```typescript
-const BASE = 'https://api.flexport.com';
-const headers = {
-  'Authorization': `Bearer ${process.env.FLEXPORT_API_KEY}`,
-  'Flexport-Version': '2',
-  'Content-Type': 'application/json',
-};
+Choose purchase order, commercial invoice, or document from the business outcome; do not overload one endpoint with another resource's fields.
 
-// POST /products — add products to the Flexport Product Library
-const product = await fetch(`${BASE}/products`, {
-  method: 'POST',
-  headers,
-  body: JSON.stringify({
-    name: 'Industrial Widget Type A',
-    sku: 'WIDGET-A',
-    hs_code: '8479.89',              // Harmonized System code for customs
-    country_of_origin: 'CN',
-    unit_cost: { amount: 12.50, currency: 'USD' },
-    weight: { value: 2.5, unit: 'kg' },
-    dimensions: { length: 30, width: 20, height: 15, unit: 'cm' },
-  }),
-}).then(r => r.json());
+### Step 2: Resolve references
 
-console.log(`Product: ${product.data.id} | SKU: ${product.data.sku}`);
+Verify network entity, location, shipment, and product identifiers with read-only lookups before mutation.
+
+### Step 3: Validate permissions
+
+Confirm the OAuth credential includes the required endpoint resource. Commercial invoice create/update also requires Flexport-side enablement and permission.
+
+### Step 4: Submit once
+
+Persist an operation digest, then use the documented endpoint: `/purchase_orders`, `/commercial_invoices`, or `/documents`. Base64 document content must remain within the documented 10 MB pre-encoding limit.
+
+### Step 5: Reconcile the result
+
+Store opaque returned IDs and retrieve the resource. For documents, replace through an approved new upload rather than inventing an update call.
+
+### Step 6: Record lineage
+
+Link the Flexport resource to the approved source revision, actor, version header, and redacted outcome.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
+
+## Output
+
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
+
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
 ```
-
-### Step 2: Create Commercial Invoices
-
-```typescript
-// POST /commercial_invoices — required for customs clearance
-const invoice = await fetch(`${BASE}/commercial_invoices`, {
-  method: 'POST',
-  headers,
-  body: JSON.stringify({
-    shipment_id: 'shp_abc123',
-    invoice_number: 'CI-2025-001',
-    seller: { name: 'Shanghai Supplier Co.' },
-    buyer: { name: 'Acme Corp' },
-    line_items: [
-      {
-        product_id: product.data.id,
-        quantity: 500,
-        unit_price: { amount: 12.50, currency: 'USD' },
-        total_price: { amount: 6250.00, currency: 'USD' },
-      },
-    ],
-    total_value: { amount: 6250.00, currency: 'USD' },
-    currency: 'USD',
-    incoterm: 'FOB',
-  }),
-}).then(r => r.json());
-
-console.log(`Invoice: ${invoice.data.id} | Total: $${invoice.data.total_value.amount}`);
-```
-
-### Step 3: Retrieve Freight Invoices
-
-```typescript
-// GET /freight_invoices — Flexport billing for freight services
-const freightInvoices = await fetch(
-  `${BASE}/freight_invoices?status=outstanding&per=10`, { headers }
-).then(r => r.json());
-
-freightInvoices.data.records.forEach((inv: any) => {
-  console.log(`${inv.invoice_number} | ${inv.status} | $${inv.total.amount}`);
-  inv.line_items?.forEach((li: any) => {
-    console.log(`  ${li.description}: $${li.amount.amount}`);
-  });
-});
-```
-
-### Step 4: Search Products by SKU
-
-```typescript
-// GET /products — search and filter product catalog
-const products = await fetch(
-  `${BASE}/products?sku=WIDGET&per=25`, { headers }
-).then(r => r.json());
-
-products.data.records.forEach((p: any) => {
-  console.log(`${p.sku} | ${p.name} | HS: ${p.hs_code} | Origin: ${p.country_of_origin}`);
-});
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `422 invalid HS code` | Malformed Harmonized System code | Use 6-10 digit HS codes (e.g., `8479.89`) |
-| `404 shipment not found` | Wrong shipment ID on invoice | Verify shipment exists first |
-| `400 missing line items` | Invoice has no products | Add at least one line item |
-| `409 duplicate invoice` | Invoice number reused | Use unique invoice numbers per shipment |
 
 ## Examples
 
-### Update Product HS Code
+A validated commercial invoice is enabled for the client, submitted once, read back by its opaque ID, and linked to the source revision. A corrected file becomes a separately approved document rather than an undocumented in-place edit.
 
-```typescript
-await fetch(`${BASE}/products/${productId}`, {
-  method: 'PATCH',
-  headers,
-  body: JSON.stringify({ hs_code: '8479.89.9599' }),  // More specific code
-});
-```
+## Error Handling
 
-### Bulk Product Import
-
-```typescript
-const products = csvData.map(row => ({
-  name: row.name, sku: row.sku, hs_code: row.hsCode,
-  country_of_origin: row.origin,
-  unit_cost: { amount: parseFloat(row.cost), currency: 'USD' },
-}));
-
-for (const product of products) {
-  await fetch(`${BASE}/products`, { method: 'POST', headers, body: JSON.stringify(product) });
-}
-```
+| Failure | Response |
+| --- | --- |
+| 422 response | Correct the source payload; do not retry unchanged validation failures. |
+| Commercial invoice disabled | Stop and request Flexport enablement/permission. |
+| Document too large | Reject before base64 encoding and route to an approved alternative. |
+| Ambiguous create | Retrieve or reconcile by known business references before resubmission. |
 
 ## Resources
 
-- [Products API Tutorial](https://developers.flexport.com/tutorials/products-api-tutorial/)
-- [Commercial Invoices Tutorial](https://developers.flexport.com/tutorials/commercial-invoices-api-tutorial/)
-- [Freight Invoices Tutorial](https://developers.flexport.com/tutorials/freight-invoices-api-tutorial/)
-
-## Next Steps
-
-For common errors, see `flexport-common-errors`.
+- [First-party source notes](references/official-docs.md)
+- [Purchase order tutorial](https://developers.flexport.com/tutorials/purchase-order-api-tutorial/)
+- [Commercial invoice tutorial](https://developers.flexport.com/tutorials/commercial-invoices-api-tutorial/)
+- [Documents tutorial](https://developers.flexport.com/tutorials/documents-api-tutorial/)

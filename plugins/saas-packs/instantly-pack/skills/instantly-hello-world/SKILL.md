@@ -1,179 +1,90 @@
 ---
 name: instantly-hello-world
-description: 'Create a minimal working Instantly.ai example with real API calls.
-
-  Use when starting a new Instantly integration, testing your setup,
-
-  or learning basic Instantly API v2 patterns.
-
-  Trigger with phrases like "instantly hello world", "instantly example",
-
-  "instantly quick start", "simple instantly code", "test instantly api".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*)
-version: 1.12.0
-license: MIT
+description: >-
+  Run one bounded read-only Instantly API v2 request with explicit authentication and response validation. Use when verifying a new API key, workspace, or HTTP client before deeper integration work. Trigger with "test my Instantly API key", "make a first Instantly request", or "list Instantly campaigns safely".
+argument-hint: "[accounts|campaigns] [limit]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.13.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - instantly
-- api
-- getting-started
-compatibility: Designed for Claude Code
+- hello-world
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Instantly workspace and API v2 key
 ---
-# Instantly Hello World
+# Instantly Bounded First Request
 
 ## Overview
 
-Minimal working example that lists your campaigns, checks email account health, and pulls campaign analytics — all using real Instantly API v2 endpoints.
+Prove a new Instantly integration with the smallest safe request and a redacted evidence handoff. Record assumptions, evidence, approval state, and rollback ownership so another operator can reproduce the result.
 
 ## Prerequisites
 
-- Completed `instantly-install-auth` setup
-- At least one email account connected in Instantly
-- `INSTANTLY_API_KEY` environment variable set
+- The target repository, Instantly workspace, environment, and accountable owner
+- Current security, privacy, compliance, capacity, and change-control requirements
+- An approved API v2 key only when a bounded live verification is necessary
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current first-party Instantly documentation and package metadata. Use `Write` or `Edit` only when implementation was requested and exact target files are known; never write credentials, lead data, email content, or unrestricted environment output.
+
+## Current Contract
+
+- The API v2 base URL is https://api.instantly.ai/api/v2.
+- Authorization uses an API v2 key as a Bearer token.
+- A 401, 403, or 429 must fail the smoke test rather than trigger mutation or broad retries.
+
+## Authentication
+
+Use an API v2 key as `Authorization: Bearer <key>` against `https://api.instantly.ai/api/v2`. Grant only the endpoint-specific scopes needed, inject the key from an approved server-side secret manager, and never print, persist, commit, or place it in a URL. Treat key creation, rotation, revocation, member changes, workspace delegation, and production access as owner-approved actions.
 
 ## Instructions
 
-### Step 1: List Your Campaigns
+1. Confirm the target workspace and create a read-only key with accounts:read or campaigns:read.
+2. Store the key in a server-side environment variable and never print it.
+3. Send one list request with a limit no greater than five.
+4. Validate HTTP status and expected collection/pagination fields.
+5. Capture latency, status, route template, and redacted item count.
+6. Stop after the proof; do not create, patch, activate, or delete resources.
 
-```typescript
-import { instantly } from "./src/instantly";
+## Approval Boundaries
 
-interface Campaign {
-  id: string;
-  name: string;
-  status: number; // 0=Draft, 1=Active, 2=Paused, 3=Completed
-}
-
-const STATUS_LABELS: Record<number, string> = {
-  0: "Draft", 1: "Active", 2: "Paused", 3: "Completed",
-  4: "Running Subsequences", [-99]: "Suspended",
-  [-1]: "Accounts Unhealthy", [-2]: "Bounce Protect",
-};
-
-async function listCampaigns() {
-  const campaigns = await instantly<Campaign[]>("/campaigns?limit=10");
-
-  console.log(`Found ${campaigns.length} campaigns:\n`);
-  for (const c of campaigns) {
-    console.log(`  ${c.name} [${STATUS_LABELS[c.status] ?? c.status}] — ${c.id}`);
-  }
-  return campaigns;
-}
-```
-
-### Step 2: Check Email Account Health
-
-```typescript
-interface Account {
-  email: string;
-  status: number;
-  warmup_status: string;
-  daily_limit: number | null;
-}
-
-async function checkAccounts() {
-  const accounts = await instantly<Account[]>("/accounts?limit=5");
-
-  console.log(`\nEmail Accounts (${accounts.length}):`);
-  for (const a of accounts) {
-    console.log(`  ${a.email} — status: ${a.status}, warmup: ${a.warmup_status}, daily_limit: ${a.daily_limit}`);
-  }
-
-  // Test vitals for the first account
-  if (accounts.length > 0) {
-    const vitals = await instantly("/accounts/test/vitals", {
-      method: "POST",
-      body: JSON.stringify({ accounts: [accounts[0].email] }),
-    });
-    console.log(`\nVitals for ${accounts[0].email}:`, JSON.stringify(vitals, null, 2));
-  }
-}
-```
-
-### Step 3: Pull Campaign Analytics
-
-```typescript
-async function getAnalytics(campaignId: string) {
-  const stats = await instantly<{
-    campaign_id: string;
-    total_leads: number;
-    leads_contacted: number;
-    emails_sent: number;
-    emails_opened: number;
-    emails_replied: number;
-    emails_bounced: number;
-  }>(`/campaigns/analytics?id=${campaignId}`);
-
-  console.log(`\nCampaign Analytics:`);
-  console.log(`  Leads: ${stats.total_leads} total, ${stats.leads_contacted} contacted`);
-  console.log(`  Sent: ${stats.emails_sent}`);
-  console.log(`  Opened: ${stats.emails_opened} (${((stats.emails_opened / stats.emails_sent) * 100).toFixed(1)}%)`);
-  console.log(`  Replied: ${stats.emails_replied} (${((stats.emails_replied / stats.emails_sent) * 100).toFixed(1)}%)`);
-  console.log(`  Bounced: ${stats.emails_bounced}`);
-}
-```
-
-### Step 4: Run It All
-
-```typescript
-async function main() {
-  console.log("=== Instantly API v2 Hello World ===\n");
-
-  const campaigns = await listCampaigns();
-  await checkAccounts();
-
-  if (campaigns.length > 0) {
-    await getAnalytics(campaigns[0].id);
-  }
-
-  console.log("\nDone! Your Instantly connection is working.");
-}
-
-main().catch(console.error);
-```
-
-### Quick Test with curl
-
-```bash
-set -euo pipefail
-# List campaigns
-curl -s https://api.instantly.ai/api/v2/campaigns?limit=3 \
-  -H "Authorization: Bearer $INSTANTLY_API_KEY" | jq '.[] | {name, status, id}'
-
-# List email accounts
-curl -s https://api.instantly.ai/api/v2/accounts?limit=3 \
-  -H "Authorization: Bearer $INSTANTLY_API_KEY" | jq '.[] | {email, status}'
-```
+Do not create, rotate, reveal, or revoke keys; invite or remove members; delegate across workspaces; connect sending accounts; create or activate campaigns; import or delete leads; change suppression or retention; register, patch, resume, or delete webhooks; alter plans or paid capacity; transmit diagnostics; or perform another production mutation without explicit approval from the accountable owner. Keep diagnosis read-only unless implementation was requested.
 
 ## Output
 
-- List of campaigns with names and statuses
-- Email account health overview
-- Campaign analytics summary (open rate, reply rate, bounce count)
-- Confirmation that Instantly API v2 is reachable
+Return the workspace-safe scope, files and contracts inspected, exact API v2 routes and required scopes, evidence collected, validation result, sensitive fields redacted, remaining risk, accountable owner, approval state, and rollback or next action.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Bad API key | Regenerate in Settings > Integrations |
-| `403 Forbidden` | Missing `campaigns:read` scope | Edit API key scopes |
-| Empty campaign list | No campaigns created yet | Create one in the Instantly dashboard first |
-| `429 Too Many Requests` | Rate limited | Wait and retry with backoff |
+| Condition | Response |
+|---|---|
+| `401` | Stop and verify that the bearer key exists, is current, and was not revoked. |
+| `403` | Stop and compare the operation with its exact required scope; do not broaden to `all:all` by default. |
+| `429` | Coordinate the workspace-wide budget, honor endpoint overrides, and bound retries. |
+| Schema or tenant mismatch | Fail closed, preserve redacted evidence, and do not retry a mutation. |
 
 ## Examples
 
-Create a draft with a fictional recipient fixture and record `campaign=hello-sandbox; recipients=synthetic-only; consent=pass; suppression=pass; sends=0; cleanup=complete`.
+Use a compact handoff that makes scope, mutation authority, and evidence reviewable.
+
+Input:
+
+```text
+resource=accounts; limit=5; workspace=staging
+```
+
+Expected handoff:
+
+```text
+status=200; items=bounded; auth=redacted; mutation=none
+```
 
 ## Resources
 
-- [Instantly API v2 Docs](https://developer.instantly.ai/)
-- Campaign Endpoints
-- Account Endpoints
-
-## Next Steps
-
-Proceed to `instantly-core-workflow-a` to build a full campaign launch workflow.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Instantly API v2 documentation](https://developer.instantly.ai/)
+- [Instantly API v2 OpenAPI document](https://api.instantly.ai/openapi/api_v2.json)

@@ -14,7 +14,7 @@ description: 'Apply Anthropic Claude API security best practices for key managem
 
   '
 allowed-tools: Read, Write, Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -193,7 +193,7 @@ In staging, submit a synthetic prompt containing `FAKE_SECRET=not-a-credential` 
 
 - Anthropic Security Practices
 - [Console Key Management](https://console.anthropic.com/settings/keys)
-- [Prompt Engineering Safety](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering)
+- [Prompt Engineering Safety](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview)
 
 ## Next Steps
 

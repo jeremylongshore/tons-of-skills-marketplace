@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/anthropic-pack",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Claude Code skill pack for Anthropic - 30 skills covering Claude API, prompt engineering, and AI model integration",
   "main": "README.md",
   "type": "module",

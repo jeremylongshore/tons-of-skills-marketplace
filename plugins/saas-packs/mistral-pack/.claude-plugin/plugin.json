@@ -1,7 +1,7 @@
 {
   "name": "mistral-pack",
-  "version": "1.13.0",
-  "description": "Claude Code skill pack for Mistral AI (24 skills)",
+  "version": "1.14.0",
+  "description": "Operator-grade Mistral skill pack with 24 current API, security, reliability, governance, and migration workflows",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -13,6 +13,8 @@
     "saas",
     "sdk",
     "integration",
-    "llm"
+    "llm",
+    "workflows",
+    "governance"
   ]
 }

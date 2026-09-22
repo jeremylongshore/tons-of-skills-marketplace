@@ -34,7 +34,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: '20'
+          # Release verification follows the full-repository Node contract.
+          node-version: '22'
+
+      - name: Check repository Node.js runtime
+        run: node scripts/check-node-version.mjs
 
       - name: Setup Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6

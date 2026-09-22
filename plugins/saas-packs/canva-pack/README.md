@@ -1,10 +1,9 @@
-# Canva Skill Pack
+# Canva Operator Pack
 
-> Claude Code skill pack for the Canva Connect REST API — 30 skills covering OAuth 2.0 PKCE authentication, design creation, export, asset management, brand template autofill, webhooks, and enterprise patterns.
-
-## What It Does
-
-Gives Claude Code deep knowledge of the Canva Connect API at `api.canva.com/rest/v1/*` — real endpoints, real OAuth flows, real rate limits, real error codes. Every skill uses actual API calls with `fetch`, not a fictitious SDK.
+Thirty governed workflows for building and operating a Canva Connect backend.
+The pack covers OAuth, explicit authorization, designs and asynchronous jobs,
+assets and autofill, environment isolation, observability, incident response,
+and safe release controls.
 
 ## Installation
 
@@ -12,92 +11,74 @@ Gives Claude Code deep knowledge of the Canva Connect API at `api.canva.com/rest
 /plugin install canva-pack@claude-code-plugins-plus
 ```
 
-## API Coverage
+## Operating Boundary
 
-| Canva API | Endpoints Covered | Key Skills |
-|-----------|------------------|------------|
-| **OAuth 2.0 PKCE** | `/oauth/authorize`, `/oauth/token`, `/oauth/revoke` | `canva-install-auth` |
-| **Designs** | `POST/GET /designs`, `GET /designs/{id}` | `canva-core-workflow-a` |
-| **Exports** | `POST /exports`, `GET /exports/{id}` | `canva-core-workflow-a` |
-| **Assets** | `POST /asset-uploads`, `POST /url-asset-uploads`, `GET/PATCH/DELETE /assets` | `canva-core-workflow-b` |
-| **Brand Templates** | `GET /brand-templates`, `GET /brand-templates/{id}/dataset` | `canva-core-workflow-b` |
-| **Autofill** | `POST /autofills`, `GET /autofills/{id}` | `canva-core-workflow-b` |
-| **Folders** | `POST/GET/PATCH/DELETE /folders` | `canva-core-workflow-b` |
-| **Comments** | `POST /comment_threads`, `POST /replies` | `canva-webhooks-events` |
-| **Users** | `GET /users/me`, `GET /users/me/profile`, `GET /users/me/capabilities` | `canva-hello-world` |
-| **Webhooks** | JWK signature verification via `/connect/keys` | `canva-webhooks-events` |
+- Canva Connect uses OAuth 2.0 Authorization Code with SHA-256 PKCE.
+- The current REST operation base is `https://api.canva.com/rest/v1/`.
+- Token exchange stays on a backend; refresh tokens are single-use and rotate.
+- Scopes are explicit and non-implied.
+- Mutating and asynchronous operations require durable identity and reconciliation.
+- Webhooks and the public `connect/keys` endpoint are preview surfaces; Canva
+  says public integrations using preview features cannot pass review.
+- Endpoint behavior and limits come from the current first-party OpenAPI and
+  endpoint references, not hard-coded folklore.
 
-## Skills Included
+## Workflows
 
-### Standard Skills (S01-S12)
+### Build and Integrate
 
-| Skill | Description |
-|-------|-------------|
-| `canva-install-auth` | OAuth 2.0 PKCE setup, token exchange, refresh, scopes |
-| `canva-hello-world` | First API call — create design, export, list |
-| `canva-local-dev-loop` | Dev server, OAuth callback, MSW mocks, hot reload |
-| `canva-sdk-patterns` | Type-safe REST client, auto-refresh, multi-tenant factory |
-| `canva-core-workflow-a` | Design creation, export (PDF/PNG/JPG/PPTX/GIF/MP4) |
-| `canva-core-workflow-b` | Asset upload, brand template autofill, folder management |
-| `canva-common-errors` | HTTP 401/403/429/400/404 diagnosis with real error codes |
-| `canva-debug-bundle` | Diagnostic script — connectivity, token, rate limits |
-| `canva-rate-limits` | Per-endpoint limits, backoff, queue-based throttling |
-| `canva-security-basics` | Token security, JWK webhook verification, scope policy |
-| `canva-prod-checklist` | Production readiness checklist, health checks |
-| `canva-upgrade-migration` | API changelog tracking, brand template ID migration |
+- `canva-install-auth` — backend PKCE, callback state, token rotation, disconnect
+- `canva-hello-world` — minimal read-only connection proof
+- `canva-local-dev-loop` — mock-first local development
+- `canva-sdk-patterns` — typed application-owned REST adapter
+- `canva-core-workflow-a` — design creation and export reconciliation
+- `canva-core-workflow-b` — assets, datasets, autofill, and folders
 
-### Pro Skills (P13-P18)
+### Diagnose and Recover
 
-| Skill | Description |
-|-------|-------------|
-| `canva-ci-integration` | GitHub Actions, MSW mocks, token refresh workflow |
-| `canva-deploy-integration` | Vercel, Fly.io, Cloud Run deployment patterns |
-| `canva-webhooks-events` | JWK verification, 11 event types, idempotency |
-| `canva-performance-tuning` | Caching, pagination, export polling optimization |
-| `canva-cost-tuning` | Canva tier comparison, API call reduction strategies |
-| `canva-reference-architecture` | Layered project structure, service patterns |
+- `canva-common-errors` — status/provider-code classification
+- `canva-debug-bundle` — minimal redacted evidence
+- `canva-rate-limits` — endpoint- and user-scoped throttling
+- `canva-advanced-troubleshooting` — layered hard-failure isolation
+- `canva-incident-runbook` — containment, mitigation, and recovery
+- `canva-reliability-patterns` — operation identity, reconciliation, dead letters
+- `canva-known-pitfalls` — preventive integration review
 
-### Flagship Skills (F19-F24)
+### Secure and Govern
 
-| Skill | Description |
-|-------|-------------|
-| `canva-multi-env-setup` | Per-environment OAuth integrations, secret management |
-| `canva-observability` | Prometheus metrics, OpenTelemetry traces, alert rules |
-| `canva-incident-runbook` | Triage script, decision tree, postmortem template |
-| `canva-data-handling` | Token redaction, URL expiry tracking, GDPR compliance |
-| `canva-enterprise-rbac` | Scope-based access control, capabilities API |
-| `canva-migration-deep-dive` | Strangler fig pattern, asset migration, feature flags |
+- `canva-security-basics` — OAuth, secrets, tenants, and webhook authenticity
+- `canva-data-handling` — collection-through-deletion lifecycle controls
+- `canva-enterprise-rbac` — capability-aware application authorization
+- `canva-policy-guardrails` — repository and runtime enforcement
+- `canva-prod-checklist` — evidence-backed production approval
 
-### Flagship+ Skills (X25-X30)
+### Deploy and Scale
 
-| Skill | Description |
-|-------|-------------|
-| `canva-advanced-troubleshooting` | Layer diagnostics, export debugging, token lifecycle |
-| `canva-load-scale` | k6 load tests, capacity planning, HPA config |
-| `canva-reliability-patterns` | Circuit breaker, graceful degradation, dead letter queue |
-| `canva-policy-guardrails` | ESLint rules, pre-commit hooks, CI policy checks |
-| `canva-architecture-variants` | Monolith / Service Layer / Microservice blueprints |
-| `canva-known-pitfalls` | 10 anti-patterns with real API fixes |
+- `canva-ci-integration` — fork-safe offline and protected-live CI
+- `canva-deploy-integration` — immutable release and callback gate
+- `canva-multi-env-setup` — environment and credential isolation
+- `canva-observability` — privacy-safe metrics, traces, logs, and alerts
+- `canva-performance-tuning` — measured cache, pagination, and polling changes
+- `canva-load-scale` — mock-first capacity testing
+- `canva-cost-tuning` — request and entitlement evidence
 
-## Usage
+### Architect and Migrate
 
-Skills trigger automatically when you discuss Canva topics:
+- `canva-reference-architecture` — production backend blueprint
+- `canva-architecture-variants` — topology decision from explicit constraints
+- `canva-migration-deep-dive` — staged provider/application migration
+- `canva-upgrade-migration` — pinned OpenAPI and changelog upgrade
+- `canva-webhooks-events` — preview webhook verification and routing
 
-- "Help me set up Canva OAuth" triggers `canva-install-auth`
-- "Export this design as PDF" triggers `canva-core-workflow-a`
-- "Autofill a brand template" triggers `canva-core-workflow-b`
-- "Debug this Canva 429 error" triggers `canva-rate-limits`
-- "Deploy my Canva integration" triggers `canva-deploy-integration`
+## First-Party Sources
 
-## Key Facts
+- [Canva Connect documentation](https://www.canva.dev/docs/connect/)
+- [Authentication](https://www.canva.dev/docs/connect/authentication/)
+- [Security recommendations](https://www.canva.dev/docs/connect/guidelines/security/)
+- [Latest OpenAPI contract](https://www.canva.dev/sources/connect/api/latest/api.yml)
+- [API versions](https://www.canva.dev/docs/connect/versions/)
 
-- **Base URL:** `https://api.canva.com/rest/v1`
-- **Auth:** OAuth 2.0 Authorization Code with PKCE (SHA-256)
-- **Token lifetime:** ~4 hours (refresh tokens are single-use)
-- **No SDK:** All calls use `fetch` against the REST API
-- **Autofill:** Requires Canva Enterprise organization membership
-- **Docs:** [canva.dev/docs/connect](https://www.canva.dev/docs/connect/)
-- **OpenAPI:** [canva.dev/sources/connect/api/latest/api.yml](https://www.canva.dev/sources/connect/api/latest/api.yml)
+Every skill also includes a dated `references/official-docs.md` evidence file.
 
 ## License
 

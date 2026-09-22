@@ -1,243 +1,87 @@
 ---
 name: brightdata-sdk-patterns
-description: 'Apply production-ready Bright Data SDK patterns for TypeScript and Python.
-
-  Use when implementing Bright Data integrations, refactoring SDK usage,
-
-  or establishing team coding standards for Bright Data.
-
-  Trigger with phrases like "brightdata SDK patterns", "brightdata best practices",
-
-  "brightdata code patterns", "idiomatic brightdata".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.6.0
+description: 'Wrap the official Bright Data Python SDK and REST contracts behind a typed, testable client boundary. Use when adding SDK calls, isolating provider upgrades, or normalizing scraper and Browser API results. Trigger with: "wrap the Bright Data SDK", "design a Bright Data client", "pin Bright Data Python dependencies".'
+allowed-tools: Read, Grep, Write, Edit, Bash(python:*)
+version: 2.0.0
+argument-hint: "[client-module]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
-- scraping
-- data
-- brightdata
-compatibility: Designed for Claude Code
+- web-data
+- bright-data
+- sdk-patterns
+- operations
+compatibility: 'Requires an approved Bright Data account or offline fixtures, current Bright Data documentation, and an authorized public-data collection purpose'
 ---
-# Bright Data SDK Patterns
+# Bright Data Typed Client Boundary
 
 ## Overview
 
-Production-ready patterns for Bright Data proxy integrations. Since Bright Data uses HTTP proxy protocols (not a dedicated SDK), these patterns wrap proxy configuration, retry logic, session management, and response parsing into reusable modules.
+Use the official Python SDK where it matches the workload, but keep product choice, authorization, retry policy, and domain schemas outside vendor objects. Pin the dependency and expose a small application-owned interface.
 
 ## Prerequisites
 
-- Completed `brightdata-install-auth` setup
-- Familiarity with async/await and HTTP proxy protocols
-- axios or node-fetch installed
+- A Python project with a lockfile and supported runtime
+- An approved Bright Data product and credential mode
+- Synthetic contract fixtures for every exposed operation
 
 ## Instructions
 
-### Step 1: Proxy Client Singleton
+### Step 1: Pin and inspect
 
-```typescript
-// src/brightdata/client.ts
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import https from 'https';
-import 'dotenv/config';
+Read the lockfile and Grep for direct Bright Data imports. Pin the reviewed SDK release through the repository dependency workflow rather than embedding a version in this skill.
 
-let instance: AxiosInstance | null = null;
+### Step 2: Define the port
 
-export function getBrightDataClient(options?: {
-  country?: string;
-  session?: string;
-  zone?: string;
-}): AxiosInstance {
-  const { BRIGHTDATA_CUSTOMER_ID, BRIGHTDATA_ZONE, BRIGHTDATA_ZONE_PASSWORD } = process.env;
-  const zone = options?.zone || BRIGHTDATA_ZONE!;
-
-  let username = `brd-customer-${BRIGHTDATA_CUSTOMER_ID}-zone-${zone}`;
-  if (options?.country) username += `-country-${options.country}`;
-  if (options?.session) username += `-session-${options.session}`;
-
-  if (!instance || options) {
-    instance = axios.create({
-      proxy: {
-        host: 'brd.superproxy.io',
-        port: 33335,
-        auth: { username, password: BRIGHTDATA_ZONE_PASSWORD! },
-      },
-      httpsAgent: new https.Agent({ rejectUnauthorized: false }),
-      timeout: 60000,
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Scraper/1.0)' },
-    });
-  }
-  return instance;
-}
-```
-
-### Step 2: Retry Wrapper with Proxy Error Handling
-
-```typescript
-// src/brightdata/retry.ts
-export async function scrapeWithRetry<T>(
-  url: string,
-  parser: (html: string) => T,
-  config = { maxRetries: 3, baseDelayMs: 2000, maxDelayMs: 30000 }
-): Promise<T> {
-  const client = getBrightDataClient();
-
-  for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
-    try {
-      const response = await client.get(url);
-      return parser(response.data);
-    } catch (error: any) {
-      const status = error.response?.status;
-      // Bright Data proxy errors that warrant retry
-      const retryable = [502, 503, 407, 429].includes(status) || error.code === 'ETIMEDOUT';
-
-      if (attempt === config.maxRetries || !retryable) throw error;
-
-      const delay = Math.min(
-        config.baseDelayMs * Math.pow(2, attempt) + Math.random() * 1000,
-        config.maxDelayMs
-      );
-      console.log(`Attempt ${attempt + 1} failed (${status || error.code}), retrying in ${delay.toFixed(0)}ms`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error('Unreachable');
-}
-```
-
-### Step 3: Session Management for Sticky IPs
-
-```typescript
-// src/brightdata/sessions.ts — maintain same IP across requests
-import { v4 as uuidv4 } from 'uuid';
-
-export class StickySession {
-  private sessionId: string;
-  private client: AxiosInstance;
-
-  constructor(country?: string) {
-    this.sessionId = uuidv4();
-    this.client = getBrightDataClient({
-      country,
-      session: this.sessionId, // Same session = same exit IP
-    });
-  }
-
-  async get(url: string) {
-    return this.client.get(url);
-  }
-
-  // Create new session (rotates IP)
-  rotate(): void {
-    this.sessionId = uuidv4();
-    this.client = getBrightDataClient({ session: this.sessionId });
-  }
-}
-
-// Usage: login flow that needs consistent IP
-const session = new StickySession('us');
-await session.get('https://example.com/login'); // IP: 1.2.3.4
-await session.get('https://example.com/dashboard'); // IP: 1.2.3.4 (same)
-session.rotate();
-await session.get('https://example.com/other'); // IP: 5.6.7.8 (new)
-```
-
-### Step 4: HTML Response Parser with Cheerio
-
-```typescript
-// src/brightdata/parser.ts
-import * as cheerio from 'cheerio';
-
-export function parseProductPage(html: string) {
-  const $ = cheerio.load(html);
-  return {
-    title: $('h1').first().text().trim(),
-    price: $('[data-price], .price').first().text().trim(),
-    description: $('meta[name="description"]').attr('content') || '',
-    images: $('img[src]').map((_, el) => $(el).attr('src')).get().slice(0, 10),
-    inStock: !$('.out-of-stock').length,
-  };
-}
-
-export function parseSearchResults(html: string) {
-  const $ = cheerio.load(html);
-  return $('div.g, [data-result]').map((i, el) => ({
-    rank: i + 1,
-    title: $(el).find('h3').text().trim(),
-    link: $(el).find('a').attr('href') || '',
-    snippet: $(el).find('.VwiC3b, .st').text().trim(),
-  })).get();
-}
-```
-
-### Step 5: Python Context Manager
+Write an application interface that returns normalized records and provider receipts, not raw SDK response objects.
 
 ```python
-# brightdata/client.py
-import os, requests
-from contextlib import contextmanager
-from dotenv import load_dotenv
+from dataclasses import dataclass
 
-load_dotenv()
-
-@contextmanager
-def brightdata_session(country=None, city=None):
-    """Context manager for Bright Data proxy sessions."""
-    cid = os.environ['BRIGHTDATA_CUSTOMER_ID']
-    zone = os.environ['BRIGHTDATA_ZONE']
-    pwd = os.environ['BRIGHTDATA_ZONE_PASSWORD']
-
-    username = f'brd-customer-{cid}-zone-{zone}'
-    if country: username += f'-country-{country}'
-    if city: username += f'-city-{city}'
-
-    proxy_url = f'http://{username}:{pwd}@brd.superproxy.io:33335'
-    session = requests.Session()
-    session.proxies = {'http': proxy_url, 'https': proxy_url}
-    session.verify = './brd-ca.crt'
-    session.headers['User-Agent'] = 'Mozilla/5.0'
-
-    try:
-        yield session
-    finally:
-        session.close()
-
-# Usage
-with brightdata_session(country='us') as s:
-    resp = s.get('https://example.com')
-    print(resp.status_code)
+@dataclass(frozen=True)
+class CollectionReceipt:
+    operation_id: str
+    state: str
+    records: int | None
+    provider_code: str | None
 ```
+
+### Step 3: Implement adapters
+
+Keep API-key, proxy-zone, and Browser API adapters separate. Map documented terminal states and current `x-brd-*` errors into stable application failure classes.
+
+### Step 4: Verify the seam
+
+Use Bash(python:*) to run type checks and fixture tests. Compare the locked SDK behavior with the current official SDK docs before any upgrade.
+
+## Tool Discipline
+
+Use Read and Grep to locate dependency and transport boundaries. Use Write and Edit for the typed port, provider adapters, and tests. Use Bash(python:*) only for local type/test commands; live SDK calls require a separate authorized workflow.
 
 ## Output
 
-- Reusable proxy client singleton with geo-targeting
-- Retry wrapper handling 502, 503, 407, 429, and timeouts
-- Sticky session management for multi-step scraping flows
-- HTML parsing utilities with cheerio
-- Python context manager pattern
+- Pinned SDK dependency and application-owned port
+- Separate credential/product adapters
+- Normalized receipts and fixture-backed failure mapping
 
 ## Examples
 
-Resolve zone and target policy from reviewed configuration, pass request data through a validated adapter, and return a redacted result object with an opaque request ID. Reject arbitrary URLs, unapproved zones, unsupported methods, and responses outside the allowed schema before they can be persisted or forwarded.
+Expose `trigger_collection`, `get_progress`, and `download_snapshot` through your own protocol. Keep a vendor response fixture at the boundary, map it once, and let downstream code depend only on `CollectionReceipt`.
 
 ## Error Handling
 
-| Pattern | Use Case | Benefit |
-|---------|----------|---------|
-| Singleton client | All proxy requests | Consistent config, connection reuse |
-| Retry wrapper | Transient proxy errors | Auto-recovery from 502/503 |
-| Sticky sessions | Login flows, pagination | Same IP across requests |
-| Response cache | Development | Avoids burning proxy credits |
+| Failure | Meaning | Response |
+|---------|---------|----------|
+| SDK object escapes the adapter | Provider coupling reaches domain code | Normalize the response at the boundary |
+| Upgrade changes a field or state | Lockfile moved without contract review | Hold the upgrade and refresh fixtures from documentation |
+| Client selects a product implicitly | Policy and cost behavior become hidden | Require an explicit product configuration |
 
 ## Resources
 
-- Bright Data Proxy Docs
-- Session Management
-- [Cheerio Documentation](https://cheerio.js.org/)
-
-## Next Steps
-
-Apply patterns in `brightdata-core-workflow-a` for real-world browser scraping.
+- [Python SDK](https://docs.brightdata.com/api-reference/SDK)
+- [Authentication and API keys](https://docs.brightdata.com/api-reference/authentication)
+- [Web Scraper API asynchronous requests](https://docs.brightdata.com/api-reference/rest-api/scraper/asynchronous-requests)
+- [Browser API](https://docs.brightdata.com/products/scraping-browser/introduction)

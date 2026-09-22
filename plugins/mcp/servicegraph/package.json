@@ -26,19 +26,16 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jeremylongshore/claude-code-plugins-plus-skills.git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/mcp/servicegraph"
   },
   "homepage": "https://tonsofskills.com/plugins/servicegraph",
-  "bugs": "https://github.com/jeremylongshore/claude-code-plugins-plus-skills/issues",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
   "license": "MIT",
   "author": {
     "name": "Artur Briugeman",
     "email": "artur@nostr.band",
     "url": "https://servicegraph.co"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "files": [
     "README.md",

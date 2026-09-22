@@ -1,224 +1,77 @@
 ---
 name: lucidchart-performance-tuning
-description: 'Optimize Lucidchart API integration performance with caching, batch
-  shape operations, and pagination strategies.
-
-  Use when diagram exports are slow, shape updates hit rate limits, or document list
-  queries time out.
-
-  Trigger with "lucidchart performance tuning".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.7.0
-license: MIT
+description: 'Measure and improve Lucid Standard Import, export, editor extension, or data connector performance without weakening correctness. Use when Lucid workflows are slow or resource-heavy. Trigger with "optimize Lucid performance".'
+argument-hint: "[project-path] [scenario]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- lucidchart
-- diagramming
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, lucidchart, performance, standard-import, extensions]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; production profiling or live load tests require service, data, and account-owner approval
 ---
-# Lucidchart Performance Tuning
+# Evidence-Driven Lucid Performance Tuning
 
 ## Overview
 
-Lucidchart documents can contain thousands of shapes and connectors — a single enterprise diagram may hold 500+ elements across multiple pages, making bulk reads and exports the primary API bottleneck. This skill covers caching document metadata, batching shape operations, and managing Lucid's rate limits to keep integrations responsive.
-
-## Instructions
-
-1. Implement Redis caching (or in-memory Map for development) with document-appropriate TTLs
-2. Use cursor-based pagination for all document list operations to avoid incomplete results
-3. Wrap API calls with the rate limit handler, especially for bulk shape updates and exports
-4. Configure connection pooling with extended timeouts for export endpoints
+Tune one measured workflow at a time while preserving document fidelity, data reconciliation, authorization, and documented limits.
 
 ## Prerequisites
 
-- Lucid OAuth2 client credentials with `lucidchart.document` scope
-- Redis instance for document/shape metadata caching
-- Node.js 18+ with native fetch
-- Understanding of Lucid document structure (documents, pages, shapes, lines)
+- A reproducible scenario, representative sanitized fixture, baseline, and service objective
+- Component classification: import, export, REST operation, editor extension, or connector
+- Owners for data correctness and any live environment
 
-## Caching Strategy
+## Tool Discipline
 
-```typescript
-import Redis from "ioredis";
+Use `Read`, `Glob`, and `Grep` for code, fixtures, and receipts, `WebFetch` for current limits/contracts, and `Write` or `Edit` only for local benchmarks, scoped improvements, and reports.
 
-const redis = new Redis(process.env.REDIS_URL);
+## Current Contract
 
-// Document metadata is stable — cache 15 minutes
-// Shape data changes during active editing — cache 1 minute
-const TTL = { docList: 900, docMeta: 600, shapes: 60, exports: 300 } as const;
+Each Lucid surface has different constraints. Standard Import performance depends on archive structure, uncompressed assets, pages, objects, and data; extension/connector performance depends on the installed SDK, transforms, network behavior, and UI work. Rate limits are endpoint-specific.
 
-async function getCachedDocument(docId: string): Promise<LucidDocument> {
-  const key = `lucid:doc:${docId}`;
-  const cached = await redis.get(key);
-  if (cached) return JSON.parse(cached);
+## Authentication
 
-  const doc = await lucidApi.getDocument(docId);
-  await redis.setex(key, TTL.docMeta, JSON.stringify(doc));
-  return doc;
-}
+Benchmark offline first. Use dedicated test credentials and synthetic data for live measurements. Never log tokens or expose restricted document data in traces.
 
-async function getCachedShapes(docId: string, pageId: string): Promise<LucidShape[]> {
-  const key = `lucid:shapes:${docId}:${pageId}`;
-  const cached = await redis.get(key);
-  if (cached) return JSON.parse(cached);
+## Instructions
 
-  const shapes = await lucidApi.getShapes(docId, pageId);
-  await redis.setex(key, TTL.shapes, JSON.stringify(shapes));
-  return shapes;
-}
-```
+1. Define the user-visible objective and correctness invariants before measuring.
+2. Record versions, fixture digest, cold/warm state, network assumptions, concurrency, and timing method.
+3. Establish at least three comparable baseline samples with latency distribution and resource counts.
+4. Profile the dominant phase: archive generation/upload/render, export polling/download, extension transform/UI, or connector fetch/reconcile.
+5. Propose one reversible change such as bounded batching, deduplication, incremental reconciliation, asset reduction, caching with invalidation, or deferred UI work.
+6. Run the same samples and compare latency, memory, requests, payload, rejects, document fidelity, and reconciliation.
+7. Present any live load increase or concurrency change for approval; honor endpoint-specific limits and backpressure.
+8. Keep only improvements that meet both performance and correctness thresholds.
 
-## Batch Operations
+## Approval Boundaries
 
-```typescript
-import pLimit from "p-limit";
-
-const limit = pLimit(4); // Lucid API concurrency — keep conservative
-
-// Paginate through all documents in a workspace
-async function fetchAllDocuments(folderId: string): Promise<LucidDocument[]> {
-  const docs: LucidDocument[] = [];
-  let cursor: string | undefined;
-
-  do {
-    const page = await lucidApi.listDocuments(folderId, { cursor, limit: 100 });
-    docs.push(...page.documents);
-    cursor = page.nextCursor;
-  } while (cursor);
-
-  return docs;
-}
-
-// Batch shape updates — group by page to minimize API round trips
-async function batchUpdateShapes(
-  docId: string,
-  updates: ShapeUpdate[]
-): Promise<void> {
-  const byPage = groupBy(updates, (u) => u.pageId);
-  for (const [pageId, pageUpdates] of Object.entries(byPage)) {
-    const chunks = chunkArray(pageUpdates, 25); // 25 shapes per batch
-    for (const chunk of chunks) {
-      await Promise.all(chunk.map((u) => limit(() => lucidApi.updateShape(docId, pageId, u))));
-    }
-  }
-}
-```
-
-## Connection Pooling
-
-```typescript
-import { Agent } from "undici";
-
-const lucidAgent = new Agent({
-  connect: { timeout: 10_000 }, // Lucid exports can be slow
-  keepAliveTimeout: 30_000,
-  keepAliveMaxTimeout: 60_000,
-  pipelining: 1,
-  connections: 8, // Persistent pool for Lucid API
-});
-
-async function lucidFetch(path: string, init?: RequestInit): Promise<Response> {
-  return fetch(`https://api.lucid.co/v1${path}`, {
-    ...init,
-    // @ts-expect-error undici dispatcher
-    dispatcher: lucidAgent,
-    headers: { Authorization: `Bearer ${process.env.LUCID_ACCESS_TOKEN}`, ...init?.headers },
-  });
-}
-```
-
-## Rate Limit Management
-
-```typescript
-async function withRateLimit<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      return await fn();
-    } catch (err: any) {
-      if (err.status === 429) {
-        const retryAfter = parseInt(err.headers?.["x-ratelimit-reset"] ?? "10", 10);
-        const backoff = retryAfter * 1000 * Math.pow(2, attempt);
-        console.warn(`Lucid rate limited. Retrying in ${backoff}ms (attempt ${attempt + 1})`);
-        await new Promise((r) => setTimeout(r, backoff));
-        continue;
-      }
-      throw err;
-    }
-  }
-  throw new Error("Lucid API: max retries exceeded");
-}
-```
-
-## Monitoring & Metrics
-
-```typescript
-import { Counter, Histogram } from "prom-client";
-
-const lucidApiLatency = new Histogram({
-  name: "lucidchart_api_duration_seconds",
-  help: "Lucid API call latency",
-  labelNames: ["endpoint", "status"],
-  buckets: [0.1, 0.5, 1, 2, 5, 10], // Exports can take 5-10s
-});
-
-const lucidCacheHits = new Counter({
-  name: "lucidchart_cache_hits_total",
-  help: "Cache hits for Lucid document and shape data",
-  labelNames: ["cache_type"], // docList | docMeta | shapes | exports
-});
-
-const lucidRateLimits = new Counter({
-  name: "lucidchart_rate_limits_total",
-  help: "Number of 429 responses from Lucid API",
-});
-```
-
-## Performance Checklist
-
-- [ ] Cache TTLs set: doc list 15min, doc metadata 10min, shapes 1min, exports 5min
-- [ ] Batch size optimized (25 shapes per request, 4 concurrent calls)
-- [ ] Cursor-based pagination for document lists (100 per page)
-- [ ] Connection pooling via undici Agent with 10s timeout for exports
-- [ ] Rate limit retry with exponential backoff and x-ratelimit-reset parsing
-- [ ] Monitoring dashboards tracking latency, cache hits, and 429s
-
-## Error Handling
-
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| Timeouts on large diagram exports | PDF/PNG export of 500+ shape documents | Increase timeout to 30s, use async export with polling |
-| Stale shape positions after edits | Shape cache served during collaborative editing | Lower shape TTL to 30s or invalidate on webhook |
-| Pagination loops never complete | Missing cursor termination check | Always check `nextCursor` is defined before continuing |
-| Slow document list in large workspaces | Fetching all docs without folder scoping | Filter by folder ID and use pagination with limit=100 |
-| 429 during bulk diagram migration | Parallel shape creates exceed rate limit | Reduce p-limit concurrency to 2 and add 200ms delay between batches |
+Do not load-test Lucid or a source system, increase concurrency, reduce validation, or alter production documents without approval.
 
 ## Output
 
-After applying these optimizations, expect:
+Return scenario, versions, baseline and candidate distributions, bottleneck evidence, correctness checks, limits consulted, decision, and rollback.
 
-- Document metadata reads under 100ms (cached) vs 400ms+ (uncached)
-- Shape batch updates completing 5x faster than sequential calls
-- Export operations handled gracefully with async polling instead of timeout failures
+## Error Handling
 
-## Examples
+| Condition | Response |
+|---|---|
+| Results are noisy | Control the environment and increase samples; do not declare a win. |
+| Faster result changes document/data | Reject the optimization and preserve the failing fixture. |
+| 429 or service degradation appears | Stop load, honor server guidance, and reduce pressure. |
 
-```typescript
-// Full optimized document read — cache + rate limit + pooling
-const doc = await withRateLimit(() => getCachedDocument("doc-abc123"));
-const shapes = await withRateLimit(() => getCachedShapes(doc.id, doc.pages[0].id));
+## Example
 
-// Alternative: use async export polling for large diagrams instead of synchronous fetch
-const exportJob = await lucidApi.startExport(docId, { format: "png" });
-const result = await pollUntilComplete(exportJob.id, { maxWait: 30_000 });
+```text
+scenario=fixture-import; n=5; p50-before=4.8s; p50-after=3.6s; fidelity=pass; requests-delta=0
 ```
 
 ## Resources
 
-- [Lucid Developer Documentation](https://developer.lucid.co/reference/overview)
+- [Official documentation map](references/official-docs.md)
 
 ## Next Steps
 
-See `lucidchart-reference-architecture`.
+Add the representative benchmark and correctness assertions to the release regression suite.

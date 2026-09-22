@@ -1,168 +1,76 @@
 ---
 name: brightdata-security-basics
-description: 'Apply Bright Data security best practices for secrets and access control.
-
-  Use when securing API keys, implementing least privilege access,
-
-  or auditing Bright Data security configuration.
-
-  Trigger with phrases like "brightdata security", "brightdata secrets",
-
-  "secure brightdata", "brightdata API key security".
-
-  '
-allowed-tools: Read, Write, Grep
-version: 1.6.0
+description: 'Review a Bright Data integration for least privilege, public-data authorization, secret containment, and controlled use. Use when approving a target, adding a zone, rotating access, or preparing a security review. Trigger with: "security review Bright Data", "approve a Bright Data target", "audit Bright Data credentials".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: "[integration-inventory]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
-- scraping
-- data
-- brightdata
-compatibility: Designed for Claude Code
+- web-data
+- bright-data
+- security-basics
+- operations
+compatibility: 'Requires an approved Bright Data account or offline fixtures, current Bright Data documentation, and an authorized public-data collection purpose'
 ---
-# Bright Data Security Basics
+# Bright Data Security and Use Review
 
 ## Overview
 
-Security best practices for Bright Data zone credentials, API tokens, and webhook delivery. Bright Data credentials include Customer ID, zone passwords, and API tokens — all must be protected.
+Treat legal purpose, public-data scope, account roles, zone isolation, and application controls as one authorization chain. Provider access does not replace the customer's duty to restrict targets, fields, retention, and downstream use.
 
 ## Prerequisites
 
-- Bright Data zones configured
-- Understanding of environment variables
-- Access to Bright Data control panel
+- An integration inventory and named business and data owner
+- The Bright Data acceptable-use and account-role documentation
+- Secret-manager, egress, retention, and incident-response controls
 
 ## Instructions
 
-### Step 1: Credential Inventory
+### Step 1: Approve purpose and targets
 
-| Credential | Scope | Rotation | Storage |
-|-----------|-------|----------|---------|
-| Customer ID | Account-wide | Never changes | Can be in config |
-| Zone Password | Per-zone | Rotate quarterly | Secrets vault only |
-| API Token | Account-wide | Rotate quarterly | Secrets vault only |
-| SSL Cert (`brd-ca.crt`) | Public | Auto-renewed | Can be in repo |
+Read the use case and Grep manifests for authenticated pages, personal or sensitive fields, messaging, purchases, account creation, or other prohibited activity. Refuse nonpublic information behind login.
 
-### Step 2: Environment Variable Security
+### Step 2: Minimize identity
 
-```bash
-# .env (NEVER commit)
-BRIGHTDATA_CUSTOMER_ID=c_abc123
-BRIGHTDATA_ZONE=web_unlocker1
-BRIGHTDATA_ZONE_PASSWORD=z_pass_xyz
-BRIGHTDATA_API_TOKEN=abc123def456
+Choose named-user API keys or product-specific zone credentials, apply the least account role, isolate environments, and document revocation. Never encode secret values in configuration examples.
 
-# .gitignore
-.env
-.env.local
-.env.*.local
+### Step 3: Enforce in the application
 
-# .env.example (safe to commit — no real values)
-BRIGHTDATA_CUSTOMER_ID=
-BRIGHTDATA_ZONE=
-BRIGHTDATA_ZONE_PASSWORD=
-BRIGHTDATA_API_TOKEN=
-```
+Write target and field allowlists, maximum records and bytes, retention, rate and cost ceilings, redirect rules, and fail-closed policy handling. Provider denial cannot trigger automatic evasion.
 
-### Step 3: Zone Isolation by Environment
+### Step 4: Test and review
 
-Create separate zones per environment so staging credentials cannot access production proxy bandwidth:
+Edit tests to cover disallowed hosts, login redirects, secret redaction, oversized results, policy errors, and revoked access. Record owner approval and the next review condition.
 
-```typescript
-// config/brightdata.ts
-const ZONE_MAP = {
-  development: 'web_unlocker_dev',
-  staging: 'web_unlocker_staging',
-  production: 'web_unlocker_prod',
-} as const;
+## Tool Discipline
 
-export function getZone(): string {
-  const env = process.env.NODE_ENV || 'development';
-  return process.env.BRIGHTDATA_ZONE || ZONE_MAP[env] || ZONE_MAP.development;
-}
-```
-
-### Step 4: Credential Rotation
-
-```bash
-# 1. Create new API token in Bright Data CP > Settings > API tokens
-# 2. Update secrets in your deployment platform
-# Vercel
-vercel env rm BRIGHTDATA_API_TOKEN production
-vercel env add BRIGHTDATA_API_TOKEN production
-
-# AWS
-aws secretsmanager update-secret --secret-id brightdata/api-token --secret-string "new_token"
-
-# 3. Test new credentials
-curl -H "Authorization: Bearer ${NEW_TOKEN}" \
-  https://api.brightdata.com/zone/get_active_zones
-
-# 4. Revoke old token in Bright Data CP
-```
-
-### Step 5: Git Secret Scanning
-
-```bash
-# Pre-commit hook to catch leaked credentials
-# .git/hooks/pre-commit
-#!/bin/bash
-if git diff --cached | grep -iE '(BRIGHTDATA_ZONE_PASSWORD|BRIGHTDATA_API_TOKEN)=.{5,}'; then
-  echo "ERROR: Bright Data credentials detected in staged changes"
-  exit 1
-fi
-```
-
-### Step 6: Webhook Delivery Security
-
-When using webhook delivery for Web Scraper API results:
-
-```typescript
-// Validate webhook came from Bright Data
-function validateWebhookSource(req: Request): boolean {
-  // Bright Data sends from known IPs — check docs for current list
-  // Also validate the Authorization header you configured
-  const authHeader = req.headers.get('Authorization');
-  return authHeader === `Bearer ${process.env.BRIGHTDATA_WEBHOOK_SECRET}`;
-}
-```
-
-## Security Checklist
-
-- [ ] Zone passwords in environment variables, never hardcoded
-- [ ] `.env` files in `.gitignore`
-- [ ] Separate zones per environment (dev/staging/prod)
-- [ ] API tokens rotated quarterly
-- [ ] Pre-commit hook blocks credential leaks
-- [ ] Webhook endpoints validate Authorization header
-- [ ] HTTPS-only for all proxy connections
-- [ ] `brd-ca.crt` downloaded (public cert, safe in repo)
+Use Read and Grep to inspect policy, roles, configuration, and tests. Use Write and Edit only for approved manifests, controls, tests, and the security receipt. This skill grants no live collection or account-administration authority.
 
 ## Output
 
-The security review records zone ownership, credential storage decision, allowed targets/data classes, retention, and revocation owner. It must not include proxy usernames/passwords, full collection URLs, or response data.
+- Purpose, target, and data authorization matrix
+- Least-privilege identity and revocation plan
+- Application guardrails, negative tests, and review receipt
 
 ## Examples
 
-Create a dedicated zone for one approved workload, store its credential in the secret manager, enforce egress and target allowlists in the application, and rotate immediately through the owner-controlled process if exposure is suspected. Verify that audit logs retain only an opaque request identifier and policy decision.
+Authorize a public product-price dataset with named fields and short retention. Deny login redirects and free-form URLs, bind one production zone to one worker role, and make every policy 403 a hard stop.
 
 ## Error Handling
 
-| Issue | Detection | Mitigation |
-|-------|-----------|------------|
-| Leaked zone password | Git scanning, log monitoring | Rotate immediately in CP |
-| Leaked API token | Secret scanning | Revoke in CP, create new token |
-| Unauthorized zone usage | Billing alerts | Check zone activity logs |
-| Proxy abuse | Unusual bandwidth spikes | Review zone usage in CP |
+| Failure | Meaning | Response |
+|---------|---------|----------|
+| Target ownership or purpose is missing | Authorization chain is incomplete | Stop before provisioning credentials |
+| Account-wide key is shared broadly | Blast radius is excessive | Issue named-user access or a narrower zone credential |
+| Collected fields exceed the manifest | Application guardrail failed | Quarantine output and open an incident |
 
 ## Resources
 
-- Bright Data Security
-- [API Token Management](https://brightdata.com/cp/setting)
-- [Zone Management](https://brightdata.com/cp/zones)
-
-## Next Steps
-
-For production deployment, see `brightdata-prod-checklist`.
+- [Acceptable use policy](https://docs.brightdata.com/general/policy/acceptable-use-policy)
+- [Users management](https://docs.brightdata.com/general/account/users-management)
+- [Authentication and API keys](https://docs.brightdata.com/api-reference/authentication)
+- [Proxy error catalog](https://docs.brightdata.com/proxy-networks/errorCatalog)

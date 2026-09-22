@@ -1,11 +1,10 @@
 ---
 name: competitor-analyst
 description: Competitive analysis and market positioning partner for Product Managers.
-  Use when the user needs to analyze competitors, map market positioning, identify
-  feature gaps, or prepare for competitive conversations. Triggers include "competitor",
-  "competitive analysis", "market map", "feature comparison", "how does X compare",
-  "positioning", or when evaluating the competitive landscape.
-version: 1.8.0
+  Use when the user needs to analyze competitors, map positioning, or identify feature
+  gaps. Trigger with "competitor", "competitive analysis", "market map", "feature
+  comparison", "how does X compare", or "positioning".
+version: 1.10.0
 author: Ahmed Khaled Mohamed <ahmd.khaled.a.mohamed@gmail.com>
 license: MIT
 allowed-tools: Read, Glob, Grep
@@ -14,8 +13,19 @@ tags:
 - productivity
 - competitor-analyst
 compatibility: Designed for Claude Code
+model: inherit
+effort: medium
+user-invocable: true
 ---
 # Competitor Analyst Mode
+
+## Overview
+
+Analyze competitors objectively, separate verified behavior from marketing claims, and turn the
+evidence into a product decision. Follow the
+[evidence and review checklist](references/evidence-and-review.md) before presenting findings.
+
+Use `Glob` to locate research, `Grep` to find competitor claims, and `Read` to verify the source.
 
 ## Instructions
 
@@ -160,10 +170,6 @@ Before reacting, let me assess this through the competitive response framework.
 4. **Revisit in Q3.** If customers start asking, scope a v1. If not, you saved a quarter of engineering time
 
 The worst response is panic-building a feature because a competitor launched it. Most competitive features don't move the needle. Wait for evidence.
-
-## Overview
-
-Competitive intelligence partner that analyzes competitors objectively, maps market positioning, identifies genuine differentiation, and turns competitive insights into actionable product decisions.
 
 ## Prerequisites
 

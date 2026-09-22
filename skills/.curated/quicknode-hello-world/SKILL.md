@@ -1,93 +1,93 @@
 ---
 name: quicknode-hello-world
-description: "QuickNode hello world \u2014 blockchain RPC and Web3 infrastructure\
-  \ integration.\nUse when working with QuickNode for blockchain development.\nTrigger\
-  \ with phrases like \"quicknode hello world\", \"quicknode-hello-world\", \"blockchain\
-  \ RPC\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.5.0
+description: 'Prove a new QuickNode RPC endpoint with a minimal, read-only JSON-RPC contract before application integration. Use when onboarding a chain endpoint or separating provider failures from client-library failures. Trigger with: "test my QuickNode endpoint", "make the first QuickNode request", "verify QuickNode RPC".'
+allowed-tools: Read, Grep, Write, Edit, Bash(curl:*)
+version: 2.0.0
+argument-hint: '[chain-and-network]'
+model: inherit
+effort: medium
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- quicknode
-- blockchain
-- web3
-- rpc
-- ethereum
-compatibility: Designed for Claude Code
+  - saas
+  - quicknode
+  - blockchain
+  - json-rpc
+  - verification
+compatibility: 'Requires a QuickNode HTTP endpoint and a documented read method for the selected chain'
 ---
-# QuickNode Hello World
+
+# QuickNode Read-Only Endpoint Proof
 
 ## Overview
 
-Make your first blockchain queries: get block number, check ETH balance, read a smart contract.
+Establish transport, authentication, chain identity, response shape, and tip movement with raw JSON-RPC before adding an SDK. This keeps the first proof deterministic and prevents a client-library configuration error from looking like an endpoint outage.
 
 ## Prerequisites
 
-- Completed `quicknode-install-auth` with endpoint URL
+- A secret reference for the QuickNode endpoint and token
+- The expected chain, network, protocol, and chain identifier
+- A non-sensitive read method supported by that chain
 
 ## Instructions
 
-### Step 1: Get Block Number
+### Step 1: Inspect the integration
 
-```typescript
-import { ethers } from 'ethers';
-const provider = new ethers.JsonRpcProvider(process.env.QUICKNODE_ENDPOINT);
+Use Read and Grep to find the endpoint variable, expected chain ID, timeout, and current client wrapper. Stop if source or logs contain a literal QuickNode token.
 
-const blockNumber = await provider.getBlockNumber();
-console.log(`Current block: ${blockNumber}`);
+### Step 2: Define the probe
+
+Use Write or Edit to create a small fixture containing only JSON-RPC version, a read method, empty parameters when valid, and a stable request ID. For EVM, pair `eth_chainId` with `eth_blockNumber`; do not submit a transaction.
+
+### Step 3: Call through the secret boundary
+
+Use Bash(curl:*) with a timeout, JSON content type, and the endpoint injected by the runtime. Suppress verbose output because the URL may contain a token.
+
+```bash
+curl --silent --show-error --max-time 10 \
+  --header 'content-type: application/json' \
+  --data '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}' \
+  "$QUICKNODE_ENDPOINT"
 ```
 
-### Step 2: Check ETH Balance
+### Step 4: Validate semantics
 
-```typescript
-const address = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'; // vitalik.eth
-const balance = await provider.getBalance(address);
-console.log(`Balance: ${ethers.formatEther(balance)} ETH`);
-```
+Require HTTP success, matching JSON-RPC `id`, exactly one of `result` or `error`, and the expected chain ID. Parse hexadecimal block numbers explicitly rather than comparing their strings.
 
-### Step 3: Read Smart Contract (ERC-20 Token)
+### Step 5: Prove liveness
 
-```typescript
-const usdcAddress = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
-const abi = ['function balanceOf(address) view returns (uint256)', 'function decimals() view returns (uint8)'];
-const usdc = new ethers.Contract(usdcAddress, abi, provider);
+Read the latest block twice with a chain-appropriate interval. Tip movement is useful evidence but is not universal during quiet or halted networks, so compare against the chain status before declaring failure.
 
-const decimals = await usdc.decimals();
-const balance = await usdc.balanceOf(address);
-console.log(`USDC balance: ${ethers.formatUnits(balance, decimals)}`);
-```
+### Step 6: Capture a safe receipt
 
-### Step 4: Get Transaction Receipt
+Record timestamp, chain, network, method, latency, HTTP status, JSON-RPC error code if any, and redacted endpoint identity. Never retain the endpoint URL.
 
-```typescript
-const txHash = '0xabc...'; // Any transaction hash
-const receipt = await provider.getTransactionReceipt(txHash);
-console.log(`Status: ${receipt?.status === 1 ? 'Success' : 'Failed'}`);
-console.log(`Gas used: ${receipt?.gasUsed.toString()}`);
-```
+## Tool Discipline
+
+Use Read and Grep for configuration discovery, Write and Edit for a non-secret probe fixture, and Bash(curl:*) for bounded reads. Do not use this workflow for writes, signing, or funded keys.
 
 ## Output
 
-- Block number retrieved
-- ETH balance checked
-- ERC-20 contract read
-- Transaction receipt fetched
+- Endpoint contract and expected chain identity
+- Redacted transport and JSON-RPC receipt
+- Liveness result with chain-status context
+- Clear owner for any failed layer
+
+## Examples
+
+An Ethereum mainnet endpoint returns chain ID `0x1` and a valid block number. A response from a testnet is rejected even though transport and authentication succeeded.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `null` receipt | TX pending or invalid hash | Wait for confirmation or verify hash |
-| `call revert exception` | Wrong ABI or address | Verify contract address and ABI |
-| Balance is 0n | Address has no ETH | Try a known address like vitalik.eth |
+| Failure | Response |
+| --- | --- |
+| HTTP 401 or 403 | Check token type, security filters, and secret injection |
+| JSON-RPC error | Preserve code and message after redaction; do not flatten it to HTTP |
+| Wrong chain ID | Stop deployment and correct endpoint selection |
+| Timeout | Compare provider status and a second bounded read before escalation |
 
 ## Resources
 
-- [QuickNode Ethereum API](https://www.quicknode.com/docs/ethereum)
-- [ethers.js Documentation](https://docs.ethers.org/)
-
-## Next Steps
-
-Build transaction workflows: `quicknode-core-workflow-a`
+- [Endpoint-proof evidence and source notes](references/official-docs.md)
+- [Ethereum quickstart](https://www.quicknode.com/docs/ethereum/quickstart)
+- [QuickNode APIs](https://www.quicknode.com/docs/build-with-ai/quicknode-apis)

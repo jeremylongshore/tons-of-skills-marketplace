@@ -1,104 +1,102 @@
 ---
 name: remofirst-core-workflow-b
-description: "RemoFirst core workflow b \u2014 global HR, EOR, and payroll platform\
-  \ integration.\nUse when working with RemoFirst for global employment, payroll,\
-  \ or compliance.\nTrigger with phrases like \"remofirst core workflow b\", \"remofirst-core-workflow-b\"\
-  , \"global HR API\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.4.0
+description: >-
+  Manage RemoFirst contractor onboarding from engagement choice through
+  agreement, identity, tax, bank, timesheet, invoice, and first-payout readiness.
+  Use when engaging or paying an international contractor. Trigger with
+  "onboard RemoFirst contractor", "contractor payout readiness", or "RemoFirst
+  contractor payment".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<contractor-country> <rate-type> <first-payment-period>"
+version: 2.0.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- remofirst
-- hr
-- eor
-- payroll
-- global-employment
-compatibility: Designed for Claude Code
+tags: [saas, remofirst, contractors, payments, compliance]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live RemoFirst access requires an approved client account and explicit operator action
 ---
-# RemoFirst Core Workflow B
+# RemoFirst Contractor Onboarding and First Payout
 
 ## Overview
 
-Payroll workflow: process payroll runs, manage benefits, handle multi-currency payments, and generate invoices.
+Prepare a contractor engagement and first-payment control record while treating
+contractor and EOR engagements as different classification, benefit, control,
+and compliance decisions. RemoFirst's documented contractor path is dashboard-operated and
+requires agreement, tax, identity, bank, invoice, and payment checkpoints.
 
 ## Prerequisites
 
-- Completed `remofirst-core-workflow-a` (employee onboarding)
+- Approved engagement model, country, work scope, term, rate, and currency.
+- Authorized signatory, line manager, and payment owner.
+- A classification review and approved personal-data handling path.
+
+## Current Contract
+
+- Rate types include monthly, daily, hourly, and milestone; available currencies
+  and payment frequency belong to the live engagement context.
+- The client may generate an agreement in RemoFirst or upload a pre-signed one.
+- Contract signing enables timesheet submission; first payout also depends on tax
+  forms, identity verification, bank details, and compliant invoicing.
+- Approved hours link to an invoice, and payments are processed only after the
+  client funds the required payment. A status is not a bank-settlement guarantee.
 
 ## Instructions
 
-### Step 1: Get Payroll Summary
+1. Record why contractor—not EOR—is approved, plus country, scope, term, rate
+   type, amount, currency, frequency, manager, signatory, and payment owner.
+2. Choose generated or pre-signed agreement handling. Record that RemoFirst does
+   not accept legal responsibility for a client-uploaded pre-signed agreement.
+3. Reconcile contractor, job, compensation, IP, confidentiality, and signatory
+   fields before sending an invitation. Require two-person review for money.
+4. Track agreement signature, tax form, identity verification, bank details, and
+   invoice readiness as separate gates. Do not mark payout-ready from one gate.
+5. For hourly work, review or reject the submitted timesheet. Approval locks the
+   entry for payment; rejection must carry a clear correction reason.
+6. Match the approved period and hours to the invoice and correct Payment Request
+   ID. Confirm client funding without recording bank data in the artifact.
+7. Close only when the contractor can see the expected status and the payment
+   owner has a documented exception/escalation path.
 
-```python
-payroll = client.get("/payroll", params={
-    "month": "2026-03",
-    "country_code": "GB",
-})
-print(f"Payroll for {payroll['period']}:")
-print(f"  Employees: {payroll['employee_count']}")
-print(f"  Total gross: {payroll['currency']} {payroll['total_gross']}")
-print(f"  Total employer cost: {payroll['currency']} {payroll['total_employer_cost']}")
-```
+## Tool Discipline
 
-### Step 2: Review Employee Payslip
+Use Read, Glob, and Grep for approved scope, classification, and payment records.
+Use Write/Edit only for redacted checklists and reconciliation artifacts. This
+skill does not invite, sign, approve, reject, fund, or deactivate live records.
 
-```python
-payslip = client.get(f"/employees/{employee_id}/payslips", params={"month": "2026-03"})
-print(f"Gross: {payslip['gross_salary']}")
-print(f"Deductions: {payslip['total_deductions']}")
-print(f"  Tax: {payslip['income_tax']}")
-print(f"  National Insurance: {payslip['social_security']}")
-print(f"Net pay: {payslip['net_salary']}")
-```
+## Approval Boundaries
 
-### Step 3: Manage Benefits
-
-```python
-benefits = client.get(f"/employees/{employee_id}/benefits")
-for benefit in benefits:
-    print(f"  {benefit['type']}: {benefit['provider']} — {benefit['status']}")
-    # Types: health_insurance, pension, dental, vision
-
-# Add benefit
-client.post(f"/employees/{employee_id}/benefits", {
-    "type": "health_insurance",
-    "plan": "premium",
-    "start_date": "2026-04-01",
-})
-```
-
-### Step 4: Generate Invoice
-
-```python
-invoice = client.get("/invoices/current")
-print(f"Invoice #{invoice['number']}")
-print(f"  Period: {invoice['period']}")
-print(f"  Total: {invoice['currency']} {invoice['total']}")
-print(f"  Due date: {invoice['due_date']}")
-```
+Require approval for engagement classification, agreement path, invitation,
+rate/currency/frequency, timesheet decision, invoice payment, refund, direct
+payment, conversion to employee, and offboarding. Do not make legal conclusions.
 
 ## Output
 
-- Payroll summary with gross/net calculations
-- Employee payslips with tax breakdowns
-- Benefits enrollment and management
-- Invoice generation and tracking
+Return engagement decision, commercial terms, gate matrix, timesheet/invoice
+reconciliation, PRID verification state, funding owner, blockers, approvals,
+and the exact next human-operated action.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Payroll not ready | Missing employee data | Complete onboarding first |
-| Currency mismatch | Wrong country payroll | Check country_code filter |
-| Benefits unavailable | Country not supported | Check country benefit options |
+- Classification uncertain: stop and route to qualified legal/provider review.
+- Unsigned agreement: block timesheet and payout readiness.
+- Missing tax/identity/bank/invoice gate: keep payout BLOCKED.
+- Amount or PRID mismatch: do not pay; use the correction/escalation workflow.
+
+## Examples
+
+- "Ready this hourly contractor for first payment" produces a six-gate checklist
+  and invoice reconciliation, not a payment instruction.
+- "Skip identity verification because the contract is signed" is rejected.
+- "Convert them to employee" routes to a separately approved transition workflow.
+
+## Validation
+
+- Classification and all commercial terms have named approvers.
+- Agreement, tax, identity, bank, invoice, and funding gates are independent.
+- No bank detail, identity document, credential, or invented API appears in output.
 
 ## Resources
 
-- [RemoFirst Payroll](https://www.remofirst.com/solutions/finance)
-- [Global Payroll Guide](https://www.remofirst.com/post/beginners-guide-to-global-payroll)
-
-## Next Steps
-
-Error handling: `remofirst-common-errors`
+See [references/official-docs.md](references/official-docs.md) for the reviewed
+contractor onboarding, agreement, timesheet, payment, and troubleshooting sources.

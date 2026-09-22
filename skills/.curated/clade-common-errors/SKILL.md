@@ -5,7 +5,7 @@ description: "Diagnose and fix Anthropic API errors \u2014 authentication, rate 
   \ policy issues.\nTrigger with \"anthropic error\", \"claude 429\", \"claude overloaded\"\
   ,\n\"anthropic not working\", \"debug claude api\".\n"
 allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -218,8 +218,8 @@ Each error section above includes the exact JSON error response, cause analysis,
 
 ## Resources
 
-- [Error Types Reference](https://docs.anthropic.com/en/api/errors)
-- [Rate Limits](https://docs.anthropic.com/en/api/rate-limits)
+- [Error Types Reference](https://platform.claude.com/docs/en/api/errors)
+- [Rate Limits](https://platform.claude.com/docs/en/api/rate-limits)
 - [Anthropic Status](https://status.anthropic.com)
 
 ## Next Steps

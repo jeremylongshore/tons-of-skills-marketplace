@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/cursor-pack",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Claude Code skill pack for Cursor - 30 skills covering AI code editor, completions, chat, and composer",
   "main": "README.md",
   "type": "module",

@@ -1,222 +1,76 @@
 ---
 name: brightdata-common-errors
-description: 'Diagnose and fix Bright Data common errors and exceptions.
-
-  Use when encountering Bright Data errors, debugging failed requests,
-
-  or troubleshooting integration issues.
-
-  Trigger with phrases like "brightdata error", "fix brightdata",
-
-  "brightdata not working", "debug brightdata".
-
-  '
+description: 'Analyze Bright Data proxy and dataset failures using current provider codes without bypassing policy controls. Use when diagnosing 407, 403, 429, 502, snapshot, or delivery failures. Trigger with: "diagnose a Bright Data error", "what does this x-brd code mean", "triage a failed snapshot".'
 allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.6.0
+version: 2.0.0
+argument-hint: "[redacted-response]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
-- scraping
-- data
-- brightdata
-compatibility: Designed for Claude Code
+- web-data
+- bright-data
+- common-errors
+- operations
+compatibility: 'Requires an approved Bright Data account or offline fixtures, current Bright Data documentation, and an authorized public-data collection purpose'
 ---
-# Bright Data Common Errors
+# Bright Data Failure Triage
 
 ## Overview
 
-Diagnostic reference for the most common Bright Data proxy and API errors with real solutions and fix commands.
+Separate provider, target, client, and policy failures using HTTP status, `Proxy-Status`, and current `x-brd-*` fields. Never treat an access or compliance denial as a cue to rotate products, regions, or identities.
 
 ## Prerequisites
 
-- Bright Data zone configured
-- Proxy credentials available
-- Access to error logs
+- A redacted response or snapshot receipt
+- The zone, product, operation ID, and approved target class
+- Access to the current Bright Data error catalog and network-status page
 
 ## Instructions
 
-### Step 1: Identify the Error
+### Step 1: Collect minimal evidence
 
-Check your proxy response status code or error message against the table below.
+Read the receipt and Grep for status, `Proxy-Status`, `x-brd-err-code`, `x-brd-error`, `x-brd-err-msg`, snapshot state, and request time. Exclude credentials, full URLs, and bodies.
 
-### Step 2: Apply the Fix
+### Step 2: Identify the layer
 
-Follow the specific solution for your error code.
+Classify authentication (407/client), policy (403/policy), throttling (429), peer/target (408/502), provider incident, or dataset lifecycle failure.
 
-## Error Reference
+### Step 3: Reproduce safely
 
-### 407 Proxy Authentication Required
+Use Bash(curl:*) only for one authorized provider test endpoint or a read-only status check. Do not reproduce against a sensitive target or change network type to defeat a denial.
 
-```
-HTTP/1.1 407 Proxy Authentication Required
-```
+### Step 4: Choose the response
 
-**Cause:** Username format is wrong or credentials are invalid.
+Fix deterministic client/auth errors; back off transient/provider errors within budget; pause policy, target-data, account, empty, or persistent errors for owner review.
 
-**Fix:**
+## Tool Discipline
 
-```bash
-# Verify credential format — must be exactly:
-# brd-customer-{CUSTOMER_ID}-zone-{ZONE_NAME}
-echo "Username: brd-customer-${BRIGHTDATA_CUSTOMER_ID}-zone-${BRIGHTDATA_ZONE}"
-
-# Test with curl
-curl -x "http://brd-customer-${BRIGHTDATA_CUSTOMER_ID}-zone-${BRIGHTDATA_ZONE}:${BRIGHTDATA_ZONE_PASSWORD}@brd.superproxy.io:33335" \
-  https://lumtest.com/myip.json
-```
-
----
-
-### 502 Bad Gateway
-
-```
-HTTP/1.1 502 Bad Gateway
-X-Luminati-Error: target_site_blocked
-```
-
-**Cause:** Target site blocked the request despite Web Unlocker retries.
-
-**Fix:**
-
-- Increase timeout to 120s (Web Unlocker needs time to solve CAPTCHAs)
-- Switch to Scraping Browser zone for JS-heavy sites
-- Add `-country-us` to username for geo-specific content
-
----
-
-### SSL Certificate Errors
-
-```
-Error: SSL: CERTIFICATE_VERIFY_FAILED
-```
-
-**Cause:** Missing Bright Data CA certificate for HTTPS proxying.
-
-**Fix:**
-
-```bash
-# Download the Bright Data CA certificate
-curl -sO https://brightdata.com/ssl/brd-ca.crt
-
-# Node.js
-export NODE_EXTRA_CA_CERTS=./brd-ca.crt
-
-# Python requests
-# requests.get(url, proxies=proxies, verify='./brd-ca.crt')
-```
-
----
-
-### ETIMEDOUT / Connection Timeout
-
-```
-Error: connect ETIMEDOUT brd.superproxy.io:33335
-```
-
-**Cause:** Firewall blocking outbound connections to Bright Data.
-
-**Fix:**
-
-```bash
-# Test connectivity
-nc -zv brd.superproxy.io 33335
-# If blocked, allow outbound TCP to brd.superproxy.io:33335
-
-# For Scraping Browser, also allow port 9222
-nc -zv brd.superproxy.io 9222
-```
-
----
-
-### 403 Forbidden (Zone Inactive)
-
-**Cause:** Zone is not active or has been paused.
-
-**Fix:** Go to https://brightdata.com/cp, navigate to the zone, and click "Activate".
-
----
-
-### 429 Too Many Requests
-
-**Cause:** Exceeded concurrent request limit for your zone.
-
-**Fix:**
-
-```typescript
-// Implement request queuing
-import PQueue from 'p-queue';
-const queue = new PQueue({ concurrency: 10, interval: 1000, intervalCap: 20 });
-const result = await queue.add(() => client.get(url));
-```
-
----
-
-### Empty Response Body
-
-**Cause:** Target returned a CAPTCHA page that Web Unlocker couldn't solve, or wrong zone type for the target.
-
-**Fix:**
-
-- Check zone type matches target (Web Unlocker for static, Scraping Browser for JS)
-- Verify target URL is accessible in a regular browser
-- Try adding `&brd_json=1` for SERP API requests
-
----
-
-### X-Luminati-Error Headers
-
-Bright Data returns error details in response headers:
-
-| Header Value | Meaning | Action |
-|-------------|---------|--------|
-| `target_site_blocked` | Site anti-bot blocked request | Use Scraping Browser |
-| `ip_banned` | IP was banned by target | Retry (auto-rotates IP) |
-| `captcha` | CAPTCHA challenge failed | Increase timeout |
-| `connection_failed` | Could not reach target | Verify target URL |
-| `auth_failed` | Credential error | Check username/password |
-
-## Quick Diagnostic Commands
-
-```bash
-# Check Bright Data status
-curl -s api/v2/status.json | python3 -m json.tool
-
-# Test proxy connectivity
-curl -x "http://brd-customer-${BRIGHTDATA_CUSTOMER_ID}-zone-${BRIGHTDATA_ZONE}:${BRIGHTDATA_ZONE_PASSWORD}@brd.superproxy.io:33335" \
-  -o /dev/null -s -w "HTTP %{http_code} in %{time_total}s\n" \
-  https://lumtest.com/myip.json
-
-# Check zone credentials
-curl -H "Authorization: Bearer ${BRIGHTDATA_API_TOKEN}" \
-  https://api.brightdata.com/zone/get_active_zones
-```
-
-## Escalation Path
-
-1. Collect request/response headers (including `X-Luminati-*` headers)
-2. Run `brightdata-debug-bundle` to create diagnostic package
-3. Check  for outages
-4. Contact support with zone name, error headers, and timestamps
+Use Read and Grep to analyze redacted evidence. Use Bash(curl:*) only for a bounded provider-controlled test. This workflow never writes raw response data, prints credentials, or authorizes product or identity switching.
 
 ## Output
 
-Troubleshooting produces a redacted error category, request identifier, policy/authorization state, retry decision, and escalation owner. It excludes proxy credentials, full URLs with parameters, raw response bodies, and target data.
-
-## Error Handling
-
-Retry only explicitly transient, idempotent operations within the approved rate and cost budget. Pause on authorization, compliance, unexpected-data, or persistent block failures; preserve a redacted receipt and escalate to the designated owner rather than rotating proxies or changing collection behavior to evade controls.
+- Failure layer and documented provider code
+- Retry, repair, pause, or escalate decision
+- Redacted evidence bundle identifier and owner
 
 ## Examples
 
-For a timeout, retry one idempotent test request after bounded backoff and record the request identifier. For a 401/403 or policy block, stop, verify the authorized zone/credential and target scope, and obtain approval before resuming—do not treat an access denial as a signal to bypass controls.
+For `429` with a per-IP code, reduce pressure and review distribution; do not automatically rotate to more identities. For a policy 403, stop. For a provider-wide incident, preserve the receipt and wait for recovery.
+
+## Error Handling
+
+| Failure | Meaning | Response |
+|---------|---------|----------|
+| Only an HTTP status is available | Provider detail was discarded | Capture current redacted headers on the next approved attempt |
+| Legacy header is the only parser path | `x-luminati-*` support is stale | Migrate to `Proxy-Status` and `x-brd-*` |
+| Failure repeats after bounded retry | Classification or provider state is unresolved | Open support escalation with sanitized identifiers |
 
 ## Resources
 
-- Bright Data Error Reference
-- Status Page
-- [Support Portal](https://brightdata.com/cp/support)
-
-## Next Steps
-
-For comprehensive debugging, see `brightdata-debug-bundle`.
+- [Proxy error catalog](https://docs.brightdata.com/proxy-networks/errorCatalog)
+- [Network status](https://brightdata.com/network-status)
+- [Download snapshot](https://docs.brightdata.com/api-reference/scrapers/delivery-apis/download-snapshot)
+- [Acceptable use policy](https://docs.brightdata.com/general/policy/acceptable-use-policy)

@@ -6,7 +6,7 @@ description: "Handle sensitive data with Claude \u2014 PII redaction, conversati
   \ pii\", \"anthropic context window\",\n\"manage claude conversations\", \"anthropic\
   \ data retention\".\n"
 allowed-tools: Read, Write, Edit
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -103,8 +103,8 @@ See Context Window Management (token counting + budget), Conversation Trimming f
 ## Resources
 
 - Anthropic Privacy Policy
-- [Token Counting](https://docs.anthropic.com/en/api/counting-tokens)
-- [Context Window](https://docs.anthropic.com/en/docs/about-claude/models)
+- [Token Counting](https://platform.claude.com/docs/en/api/messages/count_tokens)
+- [Context Window](https://platform.claude.com/docs/en/models/overview)
 
 ## Next Steps
 

@@ -1,134 +1,81 @@
 ---
 name: notion-architecture-variants
-description: |
-  Use when you are choosing or scaffolding how an app talks to Notion via the
-  API — deciding between a headless CMS (blog/content site), a task tracker
-  (project management), a knowledge base (wiki), a form-submission handler, or a
-  data-pipeline source, and wiring the database schema plus integration code.
-  Trigger with phrases like "notion cms", "notion headless blog",
-  "notion task tracker", "notion wiki", "notion form handler", "notion data pipeline".
-allowed-tools: Read, Write, Edit, Bash(node:*)
-version: 1.39.0
+description: >-
+  Choose a Notion integration architecture from explicit consistency, latency, security, and recovery requirements. Use when comparing synchronous, queued, scheduled, or webhook-driven designs. Trigger with "design Notion architecture", "choose Notion sync pattern", or "review Notion topology".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<workload> <consistency-objective> <environment>"
+version: 1.40.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- productivity
-- notion
-compatibility: Designed for Claude Code
+tags: [saas, notion, architecture]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Notion actions require network access and explicit approval"
 ---
-# Notion Architecture Variants
+# Notion Integration Architecture Decision
 
 ## Overview
 
-Five validated architecture patterns for using Notion as a backend via the API, each with database schema design, integration code, and deployment tradeoffs. The full copy-ready code for every variant lives in [references/implementation.md](references/implementation.md); this page gives the decision framework, the shared skeleton, and one worked example so you can pick the right pattern and drill into depth on demand.
-
-The five variants:
-
-| Variant | Use case | Core operation |
-| --------- | ---------- | ---------------- |
-| Headless CMS | Blog / content site | Query `Status = Published`, render blocks to HTML |
-| Task Tracker | Project management | Group by status for a board, `pages.update` on move |
-| Knowledge Base | Wiki / internal docs | Workspace `search` filtered to the wiki database |
-| Form Handler | Contact / lead capture | One `pages.create` per submission |
-| Data Pipeline | Analytics / ETL source | Paginate on a `last_edited_time` watermark |
+Choose a Notion integration architecture from explicit consistency, latency, security, and recovery requirements.. This workflow produces an auditable decision or artifact before any live action.
 
 ## Prerequisites
 
-- `@notionhq/client` v2.x installed (`npm install @notionhq/client`)
-- Python: `notion-client` installed (`pip install notion-client`)
-- `NOTION_TOKEN` environment variable set
-- Notion databases created and shared with your integration
+- Current first-party Notion documentation and the selected integration's tested API-version contract.
+- A named workspace owner, content or data owner, and operation owner.
+- Synthetic or approved non-production fixtures with secrets and workspace content removed.
+
+## Current Contract
+
+Notion exposes versioned REST resources, paginated reads, connection webhooks, and mutable limits. Architecture must tolerate additive response fields, out-of-order signals, partial pagination, and changing quotas. Recheck the dated evidence map before relying on mutable fields, endpoints, versions, limits, or delivery behavior.
 
 ## Authentication
 
-All variants authenticate the same way: an internal integration token in the
-`NOTION_TOKEN` environment variable, passed as `auth` when constructing the
-client (`new Client({ auth: process.env.NOTION_TOKEN })` / `Client(auth=...)`).
-Create the integration at notion.so/my-integrations, then **share each database
-with the integration** from its Notion page — an unshared database returns
-`object_not_found` even with a valid token. Never hard-code the token; read it
-from the environment.
+Map each component to a distinct connection or token boundary. Keep inbound webhook verification material, Notion access, queue administration, and destination credentials separated.
 
 ## Instructions
 
-1. **Pick the variant** that matches your workload using the decision helper in
-   [references/examples.md](references/examples.md) — content authoring vs.
-   real-time status vs. high read volume each point to a different pattern.
-2. **Model the database schema** in Notion for that variant (property names and
-   types are documented inline with each variant's code). Share the database
-   with your integration.
-3. **Read** any existing integration module, then **Write** the client setup:
-   construct one `Client` with `auth: process.env.NOTION_TOKEN` and reference
-   each database by its own `NOTION_*_DB` env var.
-4. **Implement the variant's operations** from
-   [references/implementation.md](references/implementation.md) — copy the
-   TypeScript (or Python equivalent) for CMS fetch/render, task board grouping,
-   wiki search, form intake, or pipeline extraction.
-5. **Handle the edge cases** in the table below (empty rich_text, unshared
-   databases, expiring image URLs, rate limits) before shipping.
+1. State the business operation, source of truth, consistency objective, recovery point, and recovery time.
+2. Inventory reads, writes, webhook signals, scheduled reconciliation, files, and downstream processors.
+3. Compare direct request, queued worker, scheduled batch, and webhook-plus-reconciliation variants.
+4. Model pagination, retry, idempotency, backpressure, dead letters, and replay for each candidate.
+5. Threat-model credentials, workspace content, tenant isolation, logs, and operator privileges.
+6. Choose one variant with rejected alternatives, capacity assumptions, rollout gates, and rollback.
 
-The shared client skeleton every variant builds on:
+## Tool Discipline
 
-```typescript
-import { Client } from '@notionhq/client';
+Use Read, Glob, and Grep to inspect documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Invocation alone does not authorize network access, credentials, workspace content, user data, file transfer, deployment, capability or sharing changes, writes, spend, or deletion.
 
-const notion = new Client({ auth: process.env.NOTION_TOKEN });
-const CONTENT_DB = process.env.NOTION_CONTENT_DB!; // one env var per database
+## Approval Boundaries
 
-// Query published rows (CMS index example — full code in references/implementation.md)
-const response = await notion.databases.query({
-  database_id: CONTENT_DB,
-  filter: { property: 'Status', select: { equals: 'Published' } },
-  sorts: [{ property: 'Published Date', direction: 'descending' }],
-  page_size: 100,
-});
-```
-
-See [references/implementation.md](references/implementation.md) for the complete
-implementation of all five variants (TypeScript + Python).
-
-## Output
-
-- Headless CMS with post fetching, block rendering, and slug routing
-- Task tracker with sprint board view, status updates, and task creation
-- Knowledge base with full-text search and table of contents generation
-- Form submission handler with validation and status tracking
-- Data pipeline extractor with property flattening for analytics
+Require security and data-owner approval for new connections, external processors, production queues, workspace-wide access, or cross-tenant data movement.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-| ------- | ------- | ---------- |
-| Empty `rich_text` array | Property has no content | Always check `?.[0]?.plain_text ?? ''` |
-| `object_not_found` on query | Database not shared with integration | Share database in Notion UI |
-| Image URLs expire | Notion-hosted files have temporary URLs | Cache or proxy images |
-| Search returns unrelated pages | `search` is workspace-wide | Filter by `parent.database_id` |
-| Form message too long | `rich_text` max 2000 chars | Truncate with `.substring(0, 2000)` |
-| Pipeline duplicates | Re-processing same records | Track `last_edited_time` watermark |
+- A webhook is a change signal, not a complete or ordered event log.
+- Do not multiply tokens to evade connection limits.
+- Reject a design without reconciliation and replay boundaries.
+
+## Output
+
+Return a decision record, context diagram, trust boundaries, capacity model, failure modes, rollout stages, and rollback triggers. Identify assumptions, owners, expirations, and evidence gaps explicitly.
 
 ## Examples
 
-Pick a variant with the `recommendArchitecture` decision helper, which maps
-author type, update frequency, and read volume onto the right pattern (CMS vs.
-task tracker vs. data pipeline). The full helper plus an at-a-glance selection
-table are in [references/examples.md](references/examples.md).
+- Choose webhook plus reconciliation for freshness without treating delivery as a ledger.
+- Choose a bounded scheduled export when latency is secondary to auditability.
 
-```typescript
-recommendArchitecture({ contentAuthors: 'non-technical', updateFrequency: 'daily', readVolume: 'low' });
-// → "CMS: Non-technical authors + infrequent updates = perfect Notion CMS fit"
-```
+## Validation
+
+Exercise and record these paths with expected and observed results:
+
+- failure injection
+- pagination completeness
+- duplicate safety
+- out-of-order handling
+- tenant isolation
+- rollback rehearsal
 
 ## Resources
 
-- [references/implementation.md](references/implementation.md) — full code for all five variants (TypeScript + Python)
-- [references/examples.md](references/examples.md) — architecture decision helper + selection table
-- [Notion API Introduction](https://developers.notion.com/reference/intro)
-- [Notion Database Properties](https://developers.notion.com/reference/property-object)
-- [Notion Block Types](https://developers.notion.com/reference/block)
-- [Notion Search](https://developers.notion.com/reference/post-search)
-
-## Next Steps
-
-For common mistakes across all architectures, see `notion-known-pitfalls`.
-For scaling any architecture, see `notion-load-scale`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable behavior.
+- Treat observed tenant behavior as environment-specific evidence, never a universal Notion guarantee.

@@ -18,18 +18,15 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jeremylongshore/claude-code-plugins-plus-skills.git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/mcp/governed-second-brain"
   },
   "homepage": "https://tonsofskills.com/plugins/governed-second-brain",
-  "bugs": "https://github.com/jeremylongshore/claude-code-plugins-plus-skills/issues",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
   "license": "Apache-2.0",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "files": [
     "README.md",

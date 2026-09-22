@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/severity1-marketplace",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Severity level classification and prompt improvement for marketplace plugins. Assigns severity ratings (S1-Critical through S4-Low) and enhances plugin prompts for clarity, safety, and effectiveness.",
   "keywords": [
     "severity",

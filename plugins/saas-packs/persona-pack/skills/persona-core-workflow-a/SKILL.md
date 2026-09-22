@@ -1,202 +1,99 @@
 ---
 name: persona-core-workflow-a
-description: 'Build a complete KYC verification flow with Persona inquiries and embedded
-  UI.
-
-  Use when implementing identity verification, building KYC onboarding,
-
-  or integrating Persona''s hosted flow into your application.
-
-  Trigger with phrases like "persona KYC flow", "identity verification",
-
-  "persona inquiry workflow", "onboarding verification".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.4.0
+description: >-
+  Operate the account-linked Persona inquiry and session lifecycle from creation through safe resume. Use when implementing a customer verification journey. Trigger with: "create Persona inquiry", "resume Persona inquiry", "link Persona account".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[account-reference-and-template]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- persona
-- kyc
-- verification
-- onboarding
-compatibility: Designed for Claude Code
+  - saas
+  - persona
+  - inquiries
+  - accounts
+  - sessions
+compatibility: 'Requires an authorized Persona environment, current first-party documentation, a reviewed dated API version, and privacy-safe operational evidence.'
 ---
-# Persona Core Workflow A — KYC Inquiry Flow
+
+# Account-Linked Persona Inquiry and Session Lifecycle
 
 ## Overview
 
-Build a complete KYC onboarding flow: create an inquiry from a template, embed the Persona verification UI in your web app, handle completion callbacks, and store verification results.
+Model the inquiry as a durable server-side workflow. Link the customer reference during supported account auto-creation, issue sessions only when a client needs one, and never assume resuming is harmless or unlimited.
 
 ## Prerequisites
 
-- Completed `persona-install-auth` setup
-- Inquiry Template configured in Persona Dashboard
-- Web application with a frontend (React, HTML, etc.)
+- Approved inquiry template and account-linkage policy
+- Durable mapping from internal subject to Persona account and inquiry IDs
+- Session-token delivery and expiration controls
 
 ## Instructions
 
-### Step 1: Backend — Create Inquiry Endpoint
+### Step 1: Resolve the subject
 
-```typescript
-// server.ts — Express endpoint to create inquiries
-import express from 'express';
-import axios from 'axios';
+Look up the internal subject and existing Persona account or active inquiry. Prevent concurrent duplicate creates with a subject-scoped operation lock.
 
-const app = express();
-app.use(express.json());
+### Step 2: Create the inquiry
 
-const persona = axios.create({
-  baseURL: 'https://withpersona.com/api/v1',
-  headers: {
-    'Authorization': `Bearer ${process.env.PERSONA_API_KEY}`,
-    'Persona-Version': '2023-01-05',
-  },
-});
+POST with one template selector, `meta.auto-create-account-reference-id` when needed, and a durable idempotency key. Optionally request an initial inquiry session.
 
-app.post('/api/verify', async (req, res) => {
-  const { userId, email } = req.body;
+### Step 3: Deliver the session safely
 
-  const { data } = await persona.post('/inquiries', {
-    data: {
-      attributes: {
-        'inquiry-template-id': process.env.PERSONA_TEMPLATE_ID,
-        'reference-id': userId,
-        'fields': {
-          'email-address': { type: 'string', value: email },
-        },
-      },
-    },
-  });
+Read `meta['session-token']`, bind it to the intended subject and client, redact it from logs, and apply an application-side expiration and single-delivery policy.
 
-  res.json({
-    inquiryId: data.data.id,
-    sessionToken: data.data.attributes['session-token'],
-  });
-});
-```
+### Step 4: Observe lifecycle events
 
-### Step 2: Frontend — Embed Persona Flow
+Use verified webhooks as the primary signal and GET reconciliation as a recovery path. Persist Persona event IDs and creation times.
 
-```html
-<!-- Include Persona's JavaScript SDK -->
-<script src="https://cdn.withpersona.com/dist/persona-v5.0.0.js"></script>
+### Step 5: Resume only on demand
 
-<button id="verify-btn">Verify Identity</button>
+For an eligible pending inquiry, call `/inquiries/:id/resume` and read `meta.session-token`. Avoid eager resume because an inquiry has a default maximum of 25 sessions.
 
-<script>
-document.getElementById('verify-btn').addEventListener('click', async () => {
-  // Get inquiry from your backend
-  const resp = await fetch('/api/verify', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId: 'user-123', email: 'alice@example.com' }),
-  });
-  const { inquiryId, sessionToken } = await resp.json();
+### Step 6: Close the domain decision
 
-  // Launch Persona embedded flow
-  const client = new Persona.Client({
-    inquiryId,
-    sessionToken,
-    onComplete: ({ inquiryId, status }) => {
-      console.log(`Verification ${status} for inquiry ${inquiryId}`);
-      // Notify your backend
-      fetch(`/api/verify/${inquiryId}/complete`, { method: 'POST' });
-    },
-    onCancel: ({ inquiryId }) => {
-      console.log('User cancelled verification');
-    },
-    onError: (error) => {
-      console.error('Persona error:', error);
-    },
-  });
+Map observed inquiry and verification evidence into a separately reviewed business decision. Keep retry, manual review, and terminal states explicit.
 
-  client.open();
-});
-</script>
-```
+## Authentication
 
-### Step 3: Backend — Handle Completion
+Server-side lifecycle calls use the environment bearer key and dated API version. Inquiry session tokens are short-lived client capabilities and must not be treated as API keys or logged.
 
-```typescript
-app.post('/api/verify/:inquiryId/complete', async (req, res) => {
-  const { inquiryId } = req.params;
+## Tool Discipline
 
-  // Fetch the completed inquiry from Persona
-  const { data } = await persona.get(`/inquiries/${inquiryId}`);
-  const attrs = data.data.attributes;
-
-  const result = {
-    inquiryId,
-    status: attrs.status,                    // completed, approved, declined
-    referenceId: attrs['reference-id'],      // your user ID
-    createdAt: attrs['created-at'],
-    completedAt: attrs['completed-at'],
-  };
-
-  // Store in your database
-  await db.users.update(result.referenceId, {
-    kycStatus: result.status,
-    kycInquiryId: result.inquiryId,
-    kycCompletedAt: result.completedAt,
-  });
-
-  res.json({ status: result.status });
-});
-```
-
-### Step 4: Resume Incomplete Inquiries
-
-```typescript
-app.get('/api/verify/resume/:userId', async (req, res) => {
-  // Find existing incomplete inquiry for this user
-  const { data } = await persona.get('/inquiries', {
-    params: {
-      'filter[reference-id]': req.params.userId,
-      'filter[status]': 'created',
-      'page[size]': 1,
-    },
-  });
-
-  if (data.data.length > 0) {
-    const inquiry = data.data[0];
-    // Resume the existing inquiry instead of creating a new one
-    const resumeResp = await persona.post(`/inquiries/${inquiry.id}/resume`);
-    res.json({
-      inquiryId: inquiry.id,
-      sessionToken: resumeResp.data.data.attributes['session-token'],
-    });
-  } else {
-    res.json({ message: 'No pending inquiry' });
-  }
-});
-```
+Use Read and Grep to inspect application configuration, provider documentation, fixtures, schemas, tests, and redacted operational evidence before proposing a change. Use Write or Edit only for an approved implementation, configuration, test, runbook, or redacted receipt. Do not create, resume, approve, decline, redact, rotate, revoke, deploy, or otherwise mutate production Persona resources without explicit operator approval.
 
 ## Output
 
-- Backend endpoint creating inquiries from templates
-- Embedded Persona verification UI in web app
-- Completion callback storing verification results
-- Resume flow for incomplete verifications
+- Subject-to-account-to-inquiry lineage
+- Session issuance and resume ledger
+- Observed lifecycle and domain-decision receipt
+
+Return the environment, resource and event identifiers, API version, template context, source-contract fingerprint, evidence, unresolved risk, rollback state, and final decision without exposing bearer keys, webhook secrets, inquiry session tokens, raw identity documents, or unnecessary PII.
+
+## Examples
+
+A returning customer with a pending inquiry requests continuation. The service verifies subject ownership, sees no usable active session, resumes once, stores only a token hash and issuance time, and delivers the token to that authenticated client.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `422 Invalid template` | Wrong template ID | Verify `itmpl_*` in Dashboard |
-| SDK not loading | CSP blocking CDN | Add `cdn.withpersona.com` to CSP |
-| `onComplete` not firing | User abandoned flow | Use `onCancel` handler |
-| Stale session token | Token expired | Create new inquiry or resume |
+| Failure | Response |
+| --- | --- |
+| Duplicate active inquiries | Stop creation, reconcile by internal subject and account, and select the authoritative inquiry. |
+| Resume rejected | Read current inquiry status and session history; do not loop or create a replacement automatically. |
+| Session limit risk | Escalate before the default 25-session ceiling and investigate client churn or repeated resume calls. |
+
+## Validation
+
+Verify the result against the linked first-party evidence, the pinned API version, redacted contract fixtures, an expected failure path, and the documented rollback or manual-disposition path. A successful request is not proof of a successful identity decision.
 
 ## Resources
 
-- [Inquiries Overview](https://docs.withpersona.com/inquiries)
-- [Embedded Flow Integration](https://docs.withpersona.com/api-quickstart-tutorial)
-- [Resume Inquiry](https://docs.withpersona.com/accessing-inquiry-status)
-
-## Next Steps
-
-- Add verification checks: `persona-core-workflow-b`
-- Set up webhooks: `persona-webhooks-events`
+- [First-party source notes](references/official-docs.md)
+- [API introduction](https://docs.withpersona.com/api-introduction)
+- [API quickstart](https://docs.withpersona.com/api-quickstart-tutorial)
+- [API keys](https://docs.withpersona.com/api-keys)
+- [Rate limits](https://docs.withpersona.com/rate-limiting)
+- [Webhook best practices](https://docs.withpersona.com/webhooks-best-practices)
+- [Request idempotence](https://docs.withpersona.com/idempotence)

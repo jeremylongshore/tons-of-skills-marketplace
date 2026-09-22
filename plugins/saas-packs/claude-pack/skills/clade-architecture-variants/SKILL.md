@@ -6,7 +6,7 @@ description: "Build different types of Claude-powered applications \u2014 chatbo
   anthropic rag\", \"build with claude\",\n\"claude agent pattern\", \"anthropic app\
   \ design\".\n"
 allowed-tools: Read, Write, Edit
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -176,8 +176,8 @@ See five numbered pattern sections with complete TypeScript code, and the Choosi
 
 ## Resources
 
-- [Tool Use Guide](https://docs.anthropic.com/en/docs/build-with-claude/tool-use)
-- [Prompt Engineering](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering)
+- [Tool Use Guide](https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview)
+- [Prompt Engineering](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview)
 
 ## Next Steps
 

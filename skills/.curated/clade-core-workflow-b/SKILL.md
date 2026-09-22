@@ -10,7 +10,7 @@ description: 'Redirect to claude-embeddings-search for tool use (function callin
 
   '
 allowed-tools: Read
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -79,8 +79,8 @@ const response = await client.messages.create({
 
 ## Resources
 
-- [Tool Use Guide](https://docs.anthropic.com/en/docs/build-with-claude/tool-use)
-- [Tool Use API](https://docs.anthropic.com/en/api/messages)
+- [Tool Use Guide](https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview)
+- [Tool Use API](https://platform.claude.com/docs/en/api/messages)
 
 ## Next Steps
 

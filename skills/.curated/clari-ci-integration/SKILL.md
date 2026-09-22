@@ -1,120 +1,91 @@
 ---
 name: clari-ci-integration
-description: 'Integrate Clari export pipeline testing and validation into CI/CD.
-
-  Use when adding automated tests for Clari integrations,
-
-  validating export schemas in CI, or testing pipeline reliability.
-
-  Trigger with phrases like "clari CI", "clari github actions",
-
-  "clari automated tests", "test clari pipeline".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*)
-version: 1.6.0
+description: >-
+  Validate a Clari integration in CI with offline OpenAPI-derived contracts, synthetic job lifecycles, schema drift checks, and secret scanning. Use when adding release gates. Trigger with: "add Clari CI", "test the Clari contract", "gate a Clari release".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[client-package-and-contract-snapshot]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- revenue-intelligence
-- forecasting
-- clari
-compatibility: Designed for Claude Code
+  - saas
+  - clari
+  - ci
+  - contract-testing
+  - quality-gates
+compatibility: 'Requires a CI runner, synthetic fixtures, a pinned first-party contract fingerprint, and a separately gated non-production credential for optional smoke tests.'
 ---
-# Clari CI Integration
+
+# Clari Contract Validation in CI
 
 ## Overview
 
-Add Clari export validation to CI: test API connectivity, validate export schemas, and run pipeline integration tests.
+Keep the required CI lane deterministic and credential-free. Test only owned endpoints and transformations offline, while running any provider-connected smoke test as an explicit, non-blocking or separately authorized environment gate.
 
 ## Prerequisites
 
-- Protected CI environment with scoped, masked secrets
-- Mock fixtures for pull-request tests and an approved integration test account
-- A repository environment gate for any production-targeted job
-- Retention policy for generated logs and artifacts
+- Pinned endpoint and schema manifest for each used surface
+- Synthetic fixtures for success, empty, throttled, aborted, malformed, and drifted responses
+- Secret scanner and artifact-retention policy
 
 ## Instructions
 
-### GitHub Actions Workflow
+### Step 1: Pin the contract evidence
 
-```yaml
-name: Clari Pipeline Tests
+Record provider URL, contract version, content fingerprint, extraction date, and the subset of operations the integration owns.
 
-on:
-  push:
-    paths: ["src/clari/**", "tests/clari/**"]
-  schedule:
-    - cron: "0 6 * * 1"  # Weekly Monday check
+### Step 2: Test request construction
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+Assert exact hosts, methods, paths, headers by name, payload schemas, timeouts, and prohibited mutation defaults.
 
-      - run: pip install -r requirements.txt
+### Step 3: Test lifecycle behavior
 
-      - name: Unit tests (mock data)
-        run: pytest tests/ -v -k "not integration"
+Simulate queue, poll, terminal result, cancellation, pagination, 429, timeout, and restart from durable state.
 
-      - name: Integration test (real API)
-        if: github.ref == 'refs/heads/main'
-        env:
-          CLARI_API_KEY: ${{ secrets.CLARI_API_KEY }}
-        run: |
-          python -c "
-          from clari_client import ClariClient
-          client = ClariClient()
-          forecasts = client.list_forecasts()
-          assert len(forecasts) > 0, 'No forecasts found'
-          print(f'Connected: {len(forecasts)} forecasts available')
-          "
+### Step 4: Test data gates
 
-      - name: Schema validation
-        env:
-          CLARI_API_KEY: ${{ secrets.CLARI_API_KEY }}
-        run: |
-          python scripts/validate_schema.py
-```
+Assert schema validation, reconciliation, unknown-field quarantine, redaction, and atomic publication behavior.
 
-### Store Secrets
+### Step 5: Scan outputs
 
-```bash
-gh secret set CLARI_API_KEY --body "your-api-token"
-```
+Fail on credential patterns, real customer fixtures, unredacted headers, or sensitive payloads in logs and snapshots.
 
-## Error Handling
+### Step 6: Separate live smoke testing
 
-| Condition | Response |
-|---|---|
-| Unit fixture or schema test fails | Fail the run before any external request and attach a redacted report. |
-| Integration account cannot authenticate | Stop retries, verify the secret reference and account scope, then notify its owner. |
-| Export shape changes | Quarantine the release and require a reviewed schema migration. |
-| Secret appears in logs or artifacts | Revoke it, purge according to policy, and investigate exposure. |
+If authorized, run one minimal non-production read with a short timeout and store only a redacted receipt outside the deterministic required lane.
+
+## Authentication
+
+Required CI must use dummy credentials and no provider network access. Any live smoke credential comes from protected environment secrets, is restricted to non-production reads, and is never available to forked or untrusted jobs.
+
+## Tool Discipline
+
+Use Read and Grep to inspect configuration, provider contracts, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not issue, rotate, revoke, create, update, cancel, delete, export, ingest, or publish provider data without explicit operator approval.
 
 ## Output
 
-Publish a redacted run summary with fixture/integration status, schema version,
-external job IDs, artifact retention location, and promotion decision. Secrets,
-forecast payloads, and download URLs must remain masked and unavailable to
-untrusted pull-request code.
+- Deterministic contract-test and schema-diff reports
+- Secret and test-data hygiene results
+- Optional live-smoke receipt clearly separated from required CI
+
+Return the exact surface, environment, resource or job identifiers, contract fingerprint, evidence, unresolved risks, and final decision without exposing credentials or sensitive customer data.
 
 ## Examples
 
-Run mock tests on every pull request, then run one read-only integration export
-only from a protected branch using a scoped environment secret. Fail closed if
-the schema changes or the credential is unavailable; a successful read does not
-authorize a data load or production deployment.
+A pull request proves forecast job-state handling and warehouse rollback entirely from synthetic fixtures. A protected post-merge job performs one `/admin/limits` read and publishes only status and timestamp.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Contract fingerprint changes | Fail the drift gate until a human reviews endpoints, schemas, limits, and migration impact. |
+| A secret-like value is detected | Block artifacts and rotate the credential if it could be real. |
+| Live smoke is unavailable | Keep deterministic CI authoritative and report the environment check separately. |
 
 ## Resources
 
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-
-## Next Steps
-
-For deployment patterns, see `clari-deploy-integration`.
+- [First-party source notes](references/official-docs.md)
+- [Clari Revenue API reference](https://developer.clari.com/default/documentation/external_spec)
+- [Clari Copilot API reference](https://api-doc.copilot.clari.com/)

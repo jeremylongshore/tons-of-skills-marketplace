@@ -1,180 +1,84 @@
 ---
 name: clickup-prod-checklist
-description: 'Production readiness checklist for ClickUp API v2 integrations covering
-
-  auth, rate limits, error handling, monitoring, and rollback.
-
-  Trigger: "clickup production", "clickup go-live", "clickup launch checklist",
-
-  "clickup prod ready", "deploy clickup to production".
-
-  '
-allowed-tools: Read, Bash(curl:*), Grep
-version: 1.6.0
-license: MIT
+description: >-
+  Issue an evidence-backed go or no-go decision for a ClickUp integration across auth, versions, plans, data, limits, webhooks, recovery, and ownership. Use when reviewing a production launch or major change. Trigger with "ClickUp production checklist", "ClickUp go-live", or "review ClickUp release".
+argument-hint: "[release-ref] [environment]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- productivity
 - clickup
-compatibility: Designed for Claude Code
+- production-readiness
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; approval requires service, Workspace, security, and data owners
 ---
-# ClickUp Production Checklist
+# ClickUp Production Readiness Review
 
 ## Overview
 
-Complete checklist for deploying ClickUp API v2 integrations to production.
+Turn launch readiness into verifiable controls and named blockers rather than a generic checkbox list.
 
 ## Prerequisites
 
-- Approved production owner, scope, change record, and recovery window
-- Dedicated production identity and secret-store reference
-- Certified staging run covering authorization, rate limit, and cleanup paths
-- Monitoring, data-handling, escalation, and feature-disable procedures
+- A release candidate, endpoint/version inventory, Workspace/environment matrix, and rollback artifact
+- Current plan/feature facts, auth ownership, data policy, SLOs, and incident runbook
+- Offline and bounded live test receipts
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect the repository, adapters, configuration names, tests, and evidence. Use `WebFetch` only for current official ClickUp documentation. Use `Write` or `Edit` after confirming the target file, Workspace boundary, and requested mode.
+
+## Current Contract
+
+- v2/v3 routes are reviewed individually; auth and plan success in one endpoint does not prove another.
+- Rate behavior is tested using per-token headers and bounded retry policy.
+- Webhook readiness includes HTTPS, raw-body HMAC, idempotency, queue durability, health monitoring, and reconciliation.
+- No launch is approved with unresolved cross-Workspace writes or secret/content leakage.
+
+## Authentication
+
+Use a personal token only for accountable individual/testing work or OAuth Authorization Code for a user-facing integration. Inject the token server-side through a governed secret reference, send it in `Authorization`, verify authorized Workspace IDs, and never print the token, OAuth client secret, or webhook secret.
 
 ## Instructions
 
-Complete the checklist in order: verify secret and workspace identity, run a
-bounded health/read test, confirm idempotent mutation and alerting behavior,
-then obtain the recorded approval before enabling scheduled work. Capture
-evidence for each control; a reachable API is not acceptance if task routing,
-permissions, or rollback has not been tested.
+1. Verify artifact provenance, dependency locks, endpoint versions, schema fixtures, and rollback.
+2. Verify personal/OAuth ownership, redirect/state controls, secret injection, rotation, and Workspace guards.
+3. Review data minimization, logging, retention, deletion, backup, and incident access.
+4. Exercise rate, pagination, timeout, 5xx, webhook retry/suspension, queue replay, and partial-write paths.
+5. Run a bounded read-only live probe and any separately approved synthetic canary.
+6. Record PASS/FAIL/NA evidence, owners, expiry dates, blockers, and final decision.
 
-## Pre-Launch Checklist
+## Approval Boundaries
 
-### Authentication & Secrets
-
-- [ ] Production API token stored in secrets manager (not env files)
-- [ ] Token uses a service account, not a personal user account
-- [ ] `.env` files in `.gitignore`; pre-commit hook catches `pk_*` patterns
-- [ ] Token rotation procedure documented and tested
-- [ ] OAuth client secret server-side only (never in client bundle)
-
-### Error Handling
-
-- [ ] All API calls handle 401 (re-auth), 429 (backoff), 500 (retry)
-- [ ] Exponential backoff with jitter on rate limits
-- [ ] ClickUp-specific error codes parsed (`ECODE` field in responses)
-- [ ] Circuit breaker pattern prevents cascade failures
-- [ ] Graceful degradation when ClickUp API is down
-
-### Rate Limits
-
-- [ ] Know your plan's limit (100/1K/10K req/min)
-- [ ] Rate limit headers monitored (`X-RateLimit-Remaining`)
-- [ ] Request queuing prevents burst overruns
-- [ ] Caching reduces unnecessary API calls
-- [ ] Webhooks replace polling where possible
-
-### Monitoring
-
-- [ ] Health check endpoint verifies ClickUp connectivity
-- [ ] API latency tracked per endpoint
-- [ ] Error rate alerting (>5% triggers P2)
-- [ ] Rate limit remaining alerting (<10% triggers warning)
-- [ ] Structured logging with request/response metadata
-
-### Webhooks (if applicable)
-
-- [ ] Endpoint uses HTTPS
-- [ ] Responds with 200 within 30 seconds
-- [ ] Idempotent processing (tracks `history_items[].id`)
-- [ ] Async processing after immediate 200 response
-- [ ] Handles ClickUp auto-disable (re-register if needed)
-
-## Production Health Verification
-
-```bash
-#!/bin/bash
-# run-prod-checks.sh
-
-echo "=== ClickUp Production Checks ==="
-
-# 1. Auth works
-echo -n "Auth: "
-STATUS=$(curl -sf -o /dev/null -w "%{http_code}" \
-  https://api.clickup.com/api/v2/user \
-  -H "Authorization: $CLICKUP_API_TOKEN")
-[ "$STATUS" = "200" ] && echo "PASS" || echo "FAIL ($STATUS)"
-
-# 2. Rate limit headroom
-echo -n "Rate limit: "
-REMAINING=$(curl -sD - -o /dev/null \
-  https://api.clickup.com/api/v2/user \
-  -H "Authorization: $CLICKUP_API_TOKEN" 2>&1 | \
-  grep -i "X-RateLimit-Remaining" | awk '{print $2}' | tr -d '\r')
-echo "${REMAINING} remaining"
-
-# 3. API latency
-echo -n "Latency: "
-LATENCY=$(curl -sf -o /dev/null -w "%{time_total}" \
-  https://api.clickup.com/api/v2/user \
-  -H "Authorization: $CLICKUP_API_TOKEN")
-echo "${LATENCY}s"
-[ "$(echo "$LATENCY > 2" | bc -l)" = "1" ] && echo "  WARNING: latency > 2s"
-
-# 4. Workspace accessible
-echo -n "Workspaces: "
-TEAMS=$(curl -sf https://api.clickup.com/api/v2/team \
-  -H "Authorization: $CLICKUP_API_TOKEN" | \
-  python3 -c "import sys,json; print(len(json.load(sys.stdin)['teams']))" 2>/dev/null)
-echo "${TEAMS} accessible"
-
-# 5. ClickUp platform status
-echo -n "Platform: "
-curl -sf https://status.clickup.com/api/v2/summary.json | \
-  python3 -c "import sys,json; print(json.load(sys.stdin)['status']['description'])" 2>/dev/null || echo "Unknown"
-
-echo "=== Checks Complete ==="
-```
-
-## Rollback Procedure
-
-```bash
-# 1. If ClickUp token is compromised
-# - Regenerate token in ClickUp Settings > Apps
-# - Update secret in deployment platform
-# - Redeploy
-
-# 2. If integration is causing issues
-# - Feature flag: disable ClickUp integration
-# - Or: set CLICKUP_ENABLED=false and redeploy
-
-# 3. If version upgrade broke things
-# - Revert deployment to previous version
-# - Pin API calls to specific behavior (no v3 endpoints)
-```
-
-## Error Handling
-
-| Alert | Condition | Severity |
-|-------|-----------|----------|
-| API unreachable | 0 successful requests in 5min | P1 |
-| Auth failures | Any 401 response | P1 |
-| Rate limited | X-RateLimit-Remaining = 0 | P2 |
-| High latency | P95 > 3 seconds | P2 |
-| Webhook failures | 3+ consecutive 5xx | P3 |
+The skill may recommend but not self-approve launch, paid plan changes, production writes, ACL changes, or acceptance of a security/data exception.
 
 ## Output
 
-Create a production-readiness receipt linking each control to owner, redacted
-evidence, validation time, approval, currently certified integration state, and
-tested rollback decision. Exclude tokens, task details, comments, attachments,
-and unnecessary user data.
+Return go/no-go, control results with evidence, blocker owners/dates, canary result, rollback target, and approval record.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Required owner is absent | Return no-go. |
+| Evidence is stale or environment-mismatched | Re-run the control; do not reuse it. |
+| Rollback is untested | Return no-go for write-bearing release. |
+| Live probe leaks content | Stop launch and remediate. |
 
 ## Examples
 
-Before enabling production automation, use the protected identity to perform a
-read check and one idempotent test operation in the approved scope, validate
-alerts and the feature-disable path, then attach the results to the change
-record. If any check fails, keep automation off and restore the last certified
-configuration.
+The example below is a redacted operator receipt; it contains no task text, member data, credential, or webhook secret.
+
+```text
+release=2026.09.10; controls=31-pass/2-fail/3-na; live-read=pass; writes=0; decision=no-go
+```
 
 ## Resources
 
-- [ClickUp Status Page](https://status.clickup.com)
-- [ClickUp Rate Limits](https://developer.clickup.com/docs/rate-limits)
-
-## Next Steps
-
-For version upgrades, see `clickup-upgrade-migration`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Get started](https://developer.clickup.com/docs/Getting%20Started)
+- [Authentication](https://developer.clickup.com/docs/authentication)
+- [Rate limits](https://developer.clickup.com/docs/rate-limits)

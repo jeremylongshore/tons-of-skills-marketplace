@@ -1,193 +1,75 @@
 ---
 name: exa-debug-bundle
-description: 'Collect Exa debug evidence for support tickets and troubleshooting.
-
-  Use when encountering persistent issues, preparing support tickets,
-
-  or collecting diagnostic information for Exa problems.
-
-  Trigger with phrases like "exa debug", "exa support bundle",
-
-  "collect exa logs", "exa diagnostic".
-
-  '
-allowed-tools: Read, Bash(grep:*), Bash(curl:*), Bash(tar:*), Bash(node:*), Grep
-version: 1.11.0
+description: >-
+  Produce a minimal Exa diagnostic bundle that preserves reproducibility without exposing credentials, queries, retrieved content, or customer data. Use when operating or reviewing this Exa boundary. Trigger with "Exa debug bundle", "review Exa debug bundle", or "fix Exa debug bundle".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<incident-window> <request-ids>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- debugging
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Debug Bundle
-
-## Prerequisites
-
-- An issue owner, affected environment, approved support/incident destination, and redaction rules.
-- Permission to collect only the minimum diagnostic metadata; no raw tokens, secrets, customer queries, or full result content.
-
-## Examples
-
-For an unexpected search result, collect opaque correlation ID, environment, API/SDK version, query category (not text), request options, status class, latency, and timestamp. Reproduce with a sanitized query, review the bundle for tokens or private content, then share only through the approved channel.
-
-## Current State
-
-!`node --version 2>/dev/null || echo 'N/A'`
-!`npm list exa-js 2>/dev/null | grep exa-js || echo 'exa-js not installed'`
-!`echo "EXA_API_KEY: ${EXA_API_KEY:+SET (${#EXA_API_KEY} chars)}"`
+# Exa Privacy-safe Debug Bundle
 
 ## Overview
 
-Collect all necessary diagnostic information for Exa support tickets. Exa error responses include a `requestId` field — always include it when contacting support at hello@exa.ai.
+Produce a minimal Exa diagnostic bundle that preserves reproducibility without exposing credentials, queries, retrieved content, or customer data. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
+
+## Prerequisites
+
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Useful Exa evidence includes endpoint family, SDK version, request ID, status, error tag, timing, result and status counts, cost, freshness mode, and retry history. Sensitive values and web content are unnecessary for most first-line diagnosis.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Quick Connectivity Test
+1. Set the incident window, environment, data classification, and evidence owner.
+2. Collect configuration names and hashes rather than secret values.
+3. Record request IDs, statuses, tags, timing, counts, and retry decisions.
+4. Replace queries, URLs, prompts, schemas, and content with approved fingerprints or categories.
+5. Scan the candidate bundle for keys, bearer headers, presigned URLs, and customer text.
+6. Encrypt, time-bound, and delete the bundle according to the incident policy.
 
-```bash
-set -euo pipefail
+## Tool Discipline
 
-echo "=== Exa Connectivity Test ==="
-echo "API Key: ${EXA_API_KEY:+SET (${#EXA_API_KEY} chars)}"
-echo ""
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-# Test basic search endpoint
-HTTP_CODE=$(curl -s -o /tmp/exa-debug.json -w "%{http_code}" \
-  -X POST https://api.exa.ai/search \
-  -H "x-api-key: $EXA_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"query":"debug connectivity test","numResults":1}')
+## Approval Boundaries
 
-echo "HTTP Status: $HTTP_CODE"
-if [ "$HTTP_CODE" = "200" ]; then
-  echo "Status: HEALTHY"
-  python3 -c "import json; d=json.load(open('/tmp/exa-debug.json')); print(f'Results: {len(d.get(\"results\",[]))}')" 2>/dev/null
-else
-  echo "Status: UNHEALTHY"
-  echo "Response:"
-  cat /tmp/exa-debug.json | python3 -m json.tool 2>/dev/null || cat /tmp/exa-debug.json
-fi
-```
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-### Step 2: Capture Request/Response Details
+## Failure Modes
 
-```typescript
-import Exa from "exa-js";
-
-const exa = new Exa(process.env.EXA_API_KEY);
-
-async function debugSearch(query: string) {
-  const startTime = performance.now();
-  try {
-    const result = await exa.searchAndContents(query, {
-      numResults: 3,
-      text: { maxCharacters: 500 },
-    });
-
-    const duration = performance.now() - startTime;
-    console.log("=== Debug Info ===");
-    console.log(`Query: "${query}"`);
-    console.log(`Duration: ${duration.toFixed(0)}ms`);
-    console.log(`Results: ${result.results.length}`);
-    console.log(`Has autoprompt: ${!!result.autopromptString}`);
-    for (const r of result.results) {
-      console.log(`  [${r.score.toFixed(3)}] ${r.title} (${r.url})`);
-      console.log(`    Text: ${r.text ? `${r.text.length} chars` : "none"}`);
-    }
-  } catch (err: any) {
-    const duration = performance.now() - startTime;
-    console.error("=== Error Debug ===");
-    console.error(`Query: "${query}"`);
-    console.error(`Duration: ${duration.toFixed(0)}ms`);
-    console.error(`Status: ${err.status || "unknown"}`);
-    console.error(`Message: ${err.message}`);
-    console.error(`RequestId: ${err.requestId || err.request_id || "none"}`);
-    console.error(`Error tag: ${err.error_tag || err.tag || "none"}`);
-  }
-}
-```
-
-### Step 3: Create Debug Bundle Script
-
-```bash
-#!/bin/bash
-set -euo pipefail
-# exa-debug-bundle.sh
-
-BUNDLE_DIR="exa-debug-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE_DIR"
-
-echo "=== Exa Debug Bundle ===" > "$BUNDLE_DIR/summary.txt"
-echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$BUNDLE_DIR/summary.txt"
-
-# Environment info
-echo "" >> "$BUNDLE_DIR/summary.txt"
-echo "--- Environment ---" >> "$BUNDLE_DIR/summary.txt"
-echo "Node: $(node --version 2>/dev/null || echo 'N/A')" >> "$BUNDLE_DIR/summary.txt"
-echo "npm: $(npm --version 2>/dev/null || echo 'N/A')" >> "$BUNDLE_DIR/summary.txt"
-echo "OS: $(uname -a)" >> "$BUNDLE_DIR/summary.txt"
-echo "EXA_API_KEY: ${EXA_API_KEY:+SET}" >> "$BUNDLE_DIR/summary.txt"
-
-# SDK version
-echo "" >> "$BUNDLE_DIR/summary.txt"
-echo "--- SDK ---" >> "$BUNDLE_DIR/summary.txt"
-npm list exa-js 2>/dev/null >> "$BUNDLE_DIR/summary.txt" || echo "exa-js not found" >> "$BUNDLE_DIR/summary.txt"
-
-# API connectivity test
-echo "" >> "$BUNDLE_DIR/summary.txt"
-echo "--- API Test ---" >> "$BUNDLE_DIR/summary.txt"
-HTTP_CODE=$(curl -s -o "$BUNDLE_DIR/api-response.json" -w "%{http_code}" \
-  -X POST https://api.exa.ai/search \
-  -H "x-api-key: ${EXA_API_KEY:-missing}" \
-  -H "Content-Type: application/json" \
-  -d '{"query":"debug test","numResults":1}' 2>/dev/null)
-echo "HTTP Status: $HTTP_CODE" >> "$BUNDLE_DIR/summary.txt"
-
-# Package bundle
-tar -czf "$BUNDLE_DIR.tar.gz" "$BUNDLE_DIR"
-echo "Bundle created: $BUNDLE_DIR.tar.gz"
-echo ""
-echo "IMPORTANT: Review $BUNDLE_DIR/summary.txt before sharing."
-echo "Include the requestId from any error responses when contacting hello@exa.ai"
-```
+- Environment dumps commonly expose EXA_API_KEY and unrelated secrets.
+- Returned highlights, summaries, and Agent output may contain sensitive third-party text.
+- A support bundle without request IDs or timestamps is difficult to correlate.
 
 ## Output
 
-- `exa-debug-YYYYMMDD-HHMMSS.tar.gz` archive containing:
-  - `summary.txt` — environment, SDK version, API connectivity
-  - `api-response.json` — raw API response from test query
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-## Sensitive Data Handling
+## Example
 
-**Always redact before sharing:**
+- Share two request IDs, error tags, latency percentiles, SDK version, and a hashed config snapshot instead of raw payloads.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-- API keys and tokens
-- Query content containing PII
-- Internal URLs or domain names
+## Validation
 
-**Safe to include:**
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-- HTTP status codes and error tags
-- `requestId` from error responses
-- SDK and runtime versions
-- Latency measurements
+## References
 
-## Error Handling
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `curl: command not found` | curl not installed | Install curl or use node script |
-| Empty API response | Network firewall | Check outbound HTTPS to api.exa.ai |
-| 401 in connectivity test | Bad API key | Regenerate at dashboard.exa.ai |
-| Bundle script fails | Missing permissions | Run with `bash` not `sh` |
-
-## Resources
-
-- [Exa Error Codes](https://docs.exa.ai/reference/error-codes)
-- [Exa Support](mailto:hello@exa.ai)
-
-## Next Steps
-
-For rate limit issues, see `exa-rate-limits`. For common error solutions, see `exa-common-errors`.
+- [Current first-party evidence map](references/official-docs.md)

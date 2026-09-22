@@ -5,7 +5,7 @@ description: "Migrate from OpenAI/GPT to Anthropic/Claude \u2014 API differences
   \ and feature mapping.\nTrigger with \"migrate to claude\", \"openai to anthropic\"\
   ,\n\"switch from gpt to claude\", \"replace openai with anthropic\".\n"
 allowed-tools: Read, Write, Edit, Grep
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -122,8 +122,8 @@ See API Mapping table, Before/After SDK code, Key Differences list, Tool Use Mig
 
 ## Resources
 
-- [Anthropic Messages API](https://docs.anthropic.com/en/api/messages)
-- [Migration Guide](https://docs.anthropic.com/en/docs/about-claude/models)
+- [Anthropic Messages API](https://platform.claude.com/docs/en/api/messages)
+- [Migration Guide](https://platform.claude.com/docs/en/models/overview)
 
 ## Next Steps
 

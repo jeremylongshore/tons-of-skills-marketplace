@@ -1,269 +1,88 @@
 ---
 name: canva-load-scale
-description: 'Implement Canva Connect API load testing, auto-scaling, and capacity
-  planning.
-
-  Use when running performance tests, planning capacity around Canva rate limits,
-
-  or scaling Canva integrations for production workloads.
-
-  Trigger with phrases like "canva load test", "canva scale",
-
-  "canva performance test", "canva capacity", "canva k6", "canva benchmark".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(k6:*), Bash(kubectl:*)
-version: 1.5.0
+description: 'Design a mock-first Canva capacity test and a tightly authorized provider probe. Use when sizing queues, workers, token-refresh serialization, or endpoint concurrency without inventing universal quotas. Trigger with: "load test Canva", "size Canva workers", "Canva capacity plan".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[approved-load-profile-and-environment]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - scale
+  - operations
+compatibility: 'Provider load testing requires explicit authorization, dedicated non-production users, synthetic data, and an abort owner.'
 ---
-# Canva Load & Scale
+
+# Canva Bounded Capacity Test
 
 ## Overview
 
-Load test and scale Canva Connect API integrations. Since Canva enforces per-user rate limits, scaling means distributing load across users, not increasing per-user throughput.
+Measure your application under a declared workload while honoring endpoint-specific Canva metadata and actual responses. Default to mocks; a live probe must be small, reversible, and isolated.
 
 ## Prerequisites
 
-- Written authorization for load testing, a protected non-production tenant/assets, and current provider/account limits.
-- A fixed budget, concurrency ceiling, abort threshold, and incident owner.
+- Approved workload model, test target, user count, and abort thresholds
+- Mock contract plus current endpoint rate metadata
+- Synthetic assets, dedicated users, cleanup plan, and provider-test authorization
 
 ## Instructions
 
-1. Use synthetic assets and least-privilege test identities; never spread load across users or integrations to circumvent provider limits.
-2. Start below the account limit, increase one dimension at a time, and stop automatically at error/rate/cost thresholds.
-3. Record aggregate results and reconcile all created jobs/artifacts before ending the test.
+### Step 1: Model operations
 
-## Canva Rate Limit Constraints
+Define logical reads, writes, async submissions, polling, refresh, and webhook processing separately. Include bursts, retries, and job completion distribution.
 
-| Operation | Per-User Limit | Implication |
-|-----------|---------------|-------------|
-| Create design | 20/min | Max 1,200 designs/hr per user |
-| List designs | 100/min | Generous for reads |
-| Create export | 75/5min (500/24hr) | Max 500 exports/day per user |
-| Integration export | 750/5min (5,000/24hr) | Shared across all users |
-| Upload asset | 30/min | Max 1,800/hr per user |
-| Autofill | 60/min | Max 3,600/hr per user |
+### Step 2: Exercise mocks first
 
-**Key insight:** The integration-wide export limit of 5,000/day across ALL users is the most constraining for high-volume scenarios.
+Use Write or Edit to implement contract-faithful responses for success, throttling, auth failure, in-progress, terminal failure, and schema drift.
 
-## k6 Load Test
+### Step 3: Size application limits
 
-```javascript
-// canva-load-test.js
-import http from 'k6/http';
-import { check, sleep } from 'k6';
-import { Rate, Trend } from 'k6/metrics';
+Measure queue depth, worker utilization, latency, memory, refresh lock contention, and database pressure; set local admission and concurrency below measured safe points.
 
-const errorRate = new Rate('canva_error_rate');
-const exportDuration = new Trend('canva_export_duration');
+### Step 4: Authorize a provider probe
 
-export const options = {
-  scenarios: {
-    design_operations: {
-      executor: 'ramping-vus',
-      startVUs: 1,
-      stages: [
-        { duration: '1m', target: 5 },    // Ramp up slowly
-        { duration: '3m', target: 5 },    // Steady state
-        { duration: '1m', target: 10 },   // Test rate limits
-        { duration: '3m', target: 10 },   // Sustained load
-        { duration: '1m', target: 0 },    // Ramp down
-      ],
-    },
-  },
-  thresholds: {
-    http_req_duration: ['p(95)<2000'],       // P95 < 2s
-    canva_error_rate: ['rate<0.05'],          // < 5% errors
-    canva_export_duration: ['p(95)<30000'],   // Exports < 30s
-  },
-};
+Limit it to named endpoint/user, request count, duration, and synthetic data. Avoid mutating operations unless their cleanup and duplicate impact are approved.
 
-const BASE = 'https://api.canva.com/rest/v1';
-const TOKEN = __ENV.CANVA_ACCESS_TOKEN;
-const headers = {
-  'Authorization': `Bearer ${TOKEN}`,
-  'Content-Type': 'application/json',
-};
+### Step 5: Abort aggressively
 
-export default function () {
-  // 1. List designs (high rate limit — safe to call frequently)
-  const listRes = http.get(`${BASE}/designs?limit=5`, { headers });
-  check(listRes, { 'list 200': (r) => r.status === 200 });
-  errorRate.add(listRes.status !== 200);
+Stop on unexpected authorization, data, sustained throttling, provider error, cleanup failure, or impact outside the named test.
 
-  if (listRes.status === 429) {
-    const retryAfter = parseInt(listRes.headers['Retry-After'] || '60');
-    sleep(retryAfter);
-    return;
-  }
+### Step 6: Produce capacity evidence
 
-  // 2. Create a design (20/min limit)
-  const createRes = http.post(`${BASE}/designs`, JSON.stringify({
-    design_type: { type: 'custom', width: 100, height: 100 },
-    title: `k6 test ${Date.now()}`,
-  }), { headers });
+Use Write or Edit to record workload, environment, contract version, aggregate results, observed provider responses, chosen headroom, and rollback.
 
-  check(createRes, { 'create 200': (r) => r.status === 200 });
-  errorRate.add(createRes.status !== 200);
+## Authentication
 
-  if (createRes.status === 200) {
-    const designId = createRes.json('design.id');
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-    // 3. Export (75/5min limit — most constrained)
-    const exportStart = Date.now();
-    const exportRes = http.post(`${BASE}/exports`, JSON.stringify({
-      design_id: designId,
-      format: { type: 'png' },
-    }), { headers });
+## Tool Discipline
 
-    if (exportRes.status === 200) {
-      const jobId = exportRes.json('job.id');
-
-      // Poll for completion
-      let status = 'in_progress';
-      while (status === 'in_progress') {
-        sleep(2);
-        const pollRes = http.get(`${BASE}/exports/${jobId}`, { headers });
-        status = pollRes.json('job.status');
-      }
-
-      exportDuration.add(Date.now() - exportStart);
-    }
-  }
-
-  sleep(3); // Stay under rate limits
-}
-```
-
-### Run Load Test
-
-```bash
-k6 run --env CANVA_ACCESS_TOKEN="${CANVA_ACCESS_TOKEN}" canva-load-test.js
-
-# With Grafana/InfluxDB output
-k6 run --out influxdb=http://localhost:8086/k6 canva-load-test.js
-```
-
-## Scaling Architecture
-
-```
-Users requesting designs
-       │
-       ▼
-┌─────────────┐
-│   Load      │
-│   Balancer  │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐     ┌─────────────┐
-│  App Pod 1  │     │  App Pod N  │
-│  (per-user  │ ... │  (per-user  │
-│   tokens)   │     │   tokens)   │
-└──────┬──────┘     └──────┬──────┘
-       │                    │
-       ▼                    ▼
-┌─────────────────────────────────┐
-│        Rate Limiter Queue       │
-│   (respects per-user + global   │
-│    Canva rate limits)           │
-└──────────────┬──────────────────┘
-               │
-               ▼
-        api.canva.com
-         /rest/v1/*
-```
-
-## Capacity Planning
-
-```typescript
-function estimateCanvaCapacity(users: number): {
-  designsPerDay: number;
-  exportsPerDay: number;
-  constrainingFactor: string;
-} {
-  const perUserExportDaily = 500;
-  const integrationExportDaily = 5000;
-
-  const totalUserExports = users * perUserExportDaily;
-  const effectiveExports = Math.min(totalUserExports, integrationExportDaily);
-
-  return {
-    designsPerDay: users * 1200 * 8,  // 20/min * 60 * 8 work hours
-    exportsPerDay: effectiveExports,
-    constrainingFactor: effectiveExports === integrationExportDaily
-      ? `Integration-wide limit: ${integrationExportDaily}/day (hit at ${Math.ceil(integrationExportDaily / perUserExportDaily)} users)`
-      : `Per-user limit: ${perUserExportDaily}/day per user`,
-  };
-}
-
-// Example
-const cap = estimateCanvaCapacity(20);
-console.log(`Exports/day: ${cap.exportsPerDay}`);
-console.log(`Constraint: ${cap.constrainingFactor}`);
-// Exports/day: 5000 (integration limit)
-// Constraint: Integration-wide limit: 5000/day (hit at 10 users)
-```
-
-## HPA Configuration
-
-```yaml
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: canva-integration-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: canva-integration
-  minReplicas: 2
-  maxReplicas: 10
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 70
-    - type: Pods
-      pods:
-        metric:
-          name: canva_export_queue_depth
-        target:
-          type: AverageValue
-          averageValue: 50
-```
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-Load testing produces a redacted test plan, aggregate throughput/latency/error/rate metrics, abort decision, and cleanup/reconciliation receipt. It excludes production assets, OAuth data, design contents, and user identifiers.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-Run a short k6 test against a synthetic design workflow with a fixed low virtual-user cap and an automatic abort on 429s. Use the result to size queues within the documented limits; do not add accounts or distribute requests across identities to create artificial throughput.
+A mock workload proves the export ledger and polling workers at expected burst. A small authorized live read then validates only endpoint behavior; it does not attempt to discover Canva's limits by saturation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| k6 all 429s | Rate limit hit | Increase sleep between iterations |
-| Integration quota hit | > 5000 exports/day | Contact Canva for limit increase |
-| Export timeouts | Complex designs | Increase poll timeout |
-| Inconsistent results | Cold start | Add warm-up phase |
+| Failure | Response |
+| --- | --- |
+| No provider-test authorization | Run mocks only |
+| Throttle response appears | Stop the live probe and lower the scoped rate |
+| Refresh lock contention grows | Serialize per user and resize from measured evidence |
+| Cleanup cannot be verified | Do not run mutating load cases |
 
 ## Resources
 
-- [Canva API Rate Limits](https://www.canva.dev/docs/connect/api-requests-responses/)
-- [k6 Documentation](https://k6.io/docs/)
-- [Kubernetes HPA](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)
-
-## Next Steps
-
-For reliability patterns, see `canva-reliability-patterns`.
+- [First-party source notes](references/official-docs.md)
+- [API request model](https://www.canva.dev/docs/connect/api-requests-responses/)
+- [Latest OpenAPI](https://www.canva.dev/sources/connect/api/latest/api.yml)

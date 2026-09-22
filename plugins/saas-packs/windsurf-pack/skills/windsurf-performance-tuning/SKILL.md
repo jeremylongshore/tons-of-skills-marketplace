@@ -1,6 +1,6 @@
 ---
 name: windsurf-performance-tuning
-description: 'Optimize Windsurf IDE performance: indexing speed, Cascade responsiveness,
+description: 'Optimize Devin Desktop (formerly Windsurf) IDE performance: indexing speed, Cascade responsiveness,
   and memory usage.
 
   Use when Windsurf is slow, indexing takes too long, Cascade times out,
@@ -13,7 +13,8 @@ description: 'Optimize Windsurf IDE performance: indexing speed, Cascade respons
 
   '
 allowed-tools: Read, Write, Edit, Grep
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -35,6 +36,15 @@ Optimize Windsurf's indexing engine, Cascade context building, Supercomplete lat
 - Windsurf IDE installed
 - Understanding of workspace indexing
 - Access to Windsurf settings
+
+Capture a repeatable latency or indexing symptom before changing exclusions, extensions, workspace scope, or editor settings.
+
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Grep` to locate relevant settings, rules, logs, or code without broad collection.
+- Use `Write` only for a new artifact the user requested; never write credentials or unreviewed production configuration.
+- Use `Edit` for bounded, reviewable changes and preserve unrelated user work.
 
 ## Instructions
 
@@ -168,12 +178,12 @@ windsurf ~/monorepo/packages/api/    # Only indexes API
    - BAD: "Refactor the authentication system"
    - GOOD: "Extract JWT validation from src/middleware/auth.ts into src/services/jwt.ts"
 
-4. Use Chat mode for questions, Write mode for edits
+4. Use Chat mode for questions, Code mode for edits
    - Chat mode is lighter — doesn't build full edit context
    - Switch modes based on intent
 
 5. Choose the right model for the task
-   - SWE-1 Lite: fast, lightweight questions (no credits)
+   - A currently available SWE-family model: routine work at lower or no quota cost when labeled free
    - SWE-1: standard coding tasks
    - SWE-1.5 / Claude: complex multi-file tasks (worth the wait)
 ```
@@ -226,6 +236,10 @@ if [ "$IGNORE_LINES" -lt 5 ]; then
 fi
 ```
 
+## Output
+
+Return a before-and-after performance record with workspace size, indexing boundaries, memory and CPU observations, configuration changes, measured improvement, and rollback instructions. Label conclusions as measured, inferred, or still unverified.
+
 ## Error Handling
 
 | Issue | Cause | Solution |
@@ -257,15 +271,16 @@ EOF
 
 ```
 Command Palette (Cmd/Ctrl+Shift+P):
-"Codeium: Reset Indexing"
+Use the current indexing reset control in Devin Desktop Settings after downloading diagnostics.
 ```
 
 ## Resources
 
-- [Windsurf Context Awareness](https://docs.windsurf.com/context-awareness/overview)
-- [Windsurf Ignore](https://docs.windsurf.com/context-awareness/windsurf-ignore)
-- [Autocomplete Tips](https://docs.windsurf.com/autocomplete/tips)
+- [Focused first-party references](references/official-docs.md)
+- [Windsurf Context Awareness](https://docs.devin.ai/desktop/context-awareness/overview)
+- [Windsurf Ignore](https://docs.devin.ai/desktop/context-awareness/windsurf-ignore)
+- [Autocomplete Tips](https://docs.devin.ai/desktop/autocomplete/tips)
 
-## Next Steps
+## Related Skill
 
-For cost optimization, see `windsurf-cost-tuning`.
+Continue with `windsurf-cost-tuning` to connect performance findings with seat allocation, quota consumption, and approved extra-usage budgets.

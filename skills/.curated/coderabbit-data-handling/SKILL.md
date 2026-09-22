@@ -1,201 +1,97 @@
 ---
 name: coderabbit-data-handling
-description: 'Implement CodeRabbit PII handling, data retention, and GDPR/CCPA compliance
-  patterns.
-
-  Use when handling sensitive data, implementing data redaction, configuring retention
-  policies,
-
-  or ensuring compliance with privacy regulations for CodeRabbit integrations.
-
-  Trigger with phrases like "coderabbit data", "coderabbit PII",
-
-  "coderabbit GDPR", "coderabbit data retention", "coderabbit privacy", "coderabbit
-  CCPA".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
-license: MIT
+description: >-
+  Define code, cache, retention, export, and sensitive-path controls for a repository or organization. Use when this operator task needs a current, evidence-backed
+  CodeRabbit workflow. Trigger with "audit CodeRabbit data handling".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[target] [evidence-or-scope]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- coderabbit
-- compliance
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current CodeRabbit documentation and approved access for any live organization, repository, billing, or API change
+tags: [saas, coderabbit, privacy, retention, data-governance]
 ---
 # CodeRabbit Data Handling
 
 ## Overview
 
-Manage code review data and sensitive patterns with CodeRabbit. Covers secret detection in PRs, sensitive file exclusion from AI review, review comment data retention, and configuring what code context gets sent to the AI engine.
+Map what CodeRabbit may read, retain, cache, and export before changing controls. Exclusions do not replace source-control secret prevention.
 
 ## Prerequisites
 
-- CodeRabbit installed on repository
-- Understanding of sensitive file patterns
-- Repository admin access for configuration
-- Secret scanning tools awareness
+- Identify the CodeRabbit organization, Git provider, repository, plan, and accountable owner.
+- Read `references/official-docs.md` and re-check any time-sensitive contract before execution.
+- Use synthetic or read-only evidence until the approval boundary is satisfied.
+- Preserve the repository's independent CI, security, and human-review requirements.
+
+## Current Contract
+
+- Cached data is documented as never used for training and expiring within one week.
+- Cached data is encrypted except for open-source projects.
+- Organizations can disable cache or data retention.
+- Path filters change review surfaces, not Git history or provider access.
+
+## Authentication
+
+Treat Git-provider sessions, CodeRabbit web sessions, CLI credentials, and CodeRabbit API keys as separate credentials. Use only an already-approved session or secret-manager reference, never print a secret, and do not place credentials in `.coderabbit.yaml`, source files, logs, or deliverables.
 
 ## Instructions
 
-### Step 1: Exclude Sensitive Files from Review
+1. Classify repositories and paths by sensitivity and contractual requirements.
 
-```yaml
-# .coderabbit.yaml - Data handling configuration
-reviews:
-  path_filters:
-    # Never send these to AI review
-    - "!**/.env*"
-    - "!**/credentials*"
-    - "!**/secrets*"
-    - "!**/*.pem"
-    - "!**/*.key"
-    - "!**/*.p12"
-    - "!**/serviceAccountKey*"
-    - "!**/terraform.tfstate*"
-    - "!**/*.tfvars"
+2. Record installation scope, filters, cache, retention, exports, and reports.
 
-    # Exclude large generated files
-    - "!**/package-lock.json"
-    - "!**/pnpm-lock.yaml"
-    - "!**/yarn.lock"
-    - "!**/*.generated.*"
-    - "!**/dist/**"
-    - "!**/coverage/**"
-```
+3. Design access minimization, secret prevention, exclusions, retention, and custody.
 
-### Step 2: Secret Detection Instructions
+4. Pilot on synthetic data and confirm coverage and incident ownership.
 
-```yaml
-# .coderabbit.yaml - Instruct AI to flag secrets
-reviews:
-  path_instructions:
-    - path: "**"
-      instructions: |
-        CRITICAL: Flag any of these patterns as HIGH SEVERITY:
-        - Hardcoded API keys, tokens, or passwords
-        - AWS access keys (AKIA...)
-        - Private keys or certificates
-        - Database connection strings with credentials
-        - JWT secrets or signing keys
-        - Webhook URLs with tokens in query params
+## Tool Discipline
 
-        If you find any secrets, add a comment:
-        "SECURITY: Hardcoded secret detected. Move to environment variable."
+- Use **Glob** to locate candidate configuration and evidence files without widening scope.
+- Use **Grep** to find relevant fields, commands, identifiers, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use these file tools as a substitute for authenticated CodeRabbit or provider operations.
 
-    - path: "**/*.{yml,yaml}"
-      instructions: |
-        Check CI/CD files for:
-        - Secrets logged in step names or echo statements
-        - Unpinned GitHub Actions (use SHA, not tags)
-        - Missing secret masking in outputs
-```
+## Approval Boundaries
 
-### Step 3: Review Data Scope Management
-
-```yaml
-# Control what context CodeRabbit accesses
-reviews:
-  auto_review:
-    enabled: true
-    drafts: false   # Don't review draft PRs (may contain WIP secrets)
-    base_branches:
-      - "main"
-      - "develop"
-    ignore_title_keywords:
-      - "WIP"
-      - "DO NOT REVIEW"
-      - "DRAFT"
-
-  # Limit file types reviewed
-  path_filters:
-    # Only review source code, not data
-    - "+src/**"
-    - "+lib/**"
-    - "+app/**"
-    - "+tests/**"
-    - "+.github/**"
-    - "!**/*.csv"
-    - "!**/*.json"      # Exclude data files
-    - "!**/fixtures/**"  # Exclude test fixtures with sample data
-    - "!**/seeds/**"     # Exclude database seeds
-```
-
-### Step 4: Sensitive Code Pattern Detection
-
-```yaml
-# .coderabbit.yaml - Custom pattern detection
-reviews:
-  path_instructions:
-    - path: "src/db/**"
-      instructions: |
-        Review database code for:
-        - SQL injection vulnerabilities (string concatenation in queries)
-        - Unparameterized queries
-        - PII logged in error messages
-        - Missing data sanitization on inputs
-
-    - path: "src/api/**"
-      instructions: |
-        Review API endpoints for:
-        - User input not validated before processing
-        - Sensitive data in response bodies (passwords, tokens)
-        - Missing authentication checks
-        - Overly permissive CORS configuration
-        - PII in URL parameters (should be POST body instead)
-
-    - path: "src/auth/**"
-      instructions: |
-        SECURITY-CRITICAL PATH. Review for:
-        - Token expiry configuration
-        - Password hashing (must use bcrypt/argon2, never MD5/SHA)
-        - Session fixation vulnerabilities
-        - CSRF protection
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Secret in reviewed PR | Not in exclusion list | Add pattern to path_filters |
-| Large diff reviewed | Generated code included | Exclude generated file paths |
-| Sensitive fixture data | Test data has real PII | Exclude fixtures directory |
-| Review on draft PR | drafts setting enabled | Set `drafts: false` |
-
-## Examples
-
-### Minimal Secure Configuration
-
-```yaml
-# .coderabbit.yaml - Security-focused setup
-reviews:
-  auto_review:
-    enabled: true
-    drafts: false
-  path_filters:
-    - "!**/.env*"
-    - "!**/*.key"
-    - "!**/*.pem"
-    - "!**/secrets/**"
-  path_instructions:
-    - path: "**"
-      instructions: "Flag any hardcoded secrets, API keys, or credentials."
-```
+Require security and privacy approval before changing retention, exporting data, or expanding access. Keep analysis and drafts local until approval is explicit, and record who approved the action and its scope.
 
 ## Output
 
-- Sensitive files excluded from AI review via path_filters
-- Secret detection instructions configured for all code paths
-- Review scope limited to source code only (not data files)
-- Security-focused path_instructions for database, API, and auth code
+A data-flow register, classification map, control matrix, patch, and residual-risk statement. Include source dates, unknowns, and the exact boundary between observed fact and recommendation.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Current contract is unclear or docs disagree | Stop mutation, cite both sources, and request owner resolution. |
+| Required access or approval is missing | Produce a draft and evidence plan only. |
+| Validation or pilot behavior differs from expectation | Restore the prior state and retain the failed evidence. |
+| Output contains secrets or private code | Stop, quarantine the artifact, redact it, and notify the data owner. |
+
+## Examples
+
+### Example 1
+
+Disable cache for a regulated repository and verify effective settings.
+
+### Example 2
+
+Prove a fixture exclusion does not replace provider secret scanning.
+
+## Validation
+
+- Confirm every claim against the dated sources in `references/official-docs.md`.
+- Verify the requested scope, owner, approval, happy path, failure path, and rollback.
+- Re-read the effective configuration or provider state after any approved change.
+- Report unsupported fields, undocumented endpoints, and unverified assumptions as failures.
 
 ## Resources
 
-- [CodeRabbit Configuration](https://docs.coderabbit.ai/reference/configuration)
-- [CodeRabbit Path Filters](https://docs.coderabbit.ai/guides/review-instructions)
-- CodeRabbit Security
-
-## Next Steps
-
-For security hardening, see `coderabbit-security-basics`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

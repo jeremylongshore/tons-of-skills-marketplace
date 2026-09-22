@@ -1,221 +1,88 @@
 ---
 name: canva-common-errors
-description: 'Diagnose and fix Canva Connect API errors and HTTP status codes.
-
-  Use when encountering Canva errors, debugging failed requests,
-
-  or troubleshooting integration issues.
-
-  Trigger with phrases like "canva error", "fix canva",
-
-  "canva not working", "debug canva", "canva 401", "canva 429".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.5.0
+description: 'Analyze and classify Canva Connect failures by HTTP status, provider error code, operation, and authorization state. Use when deciding whether to refresh, reauthorize, wait, reconcile, correct input, or escalate. Trigger with: "Canva API error", "Canva 401", "Canva 403 or 429".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[status-code-and-redacted-error]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - errors
+  - operations
+compatibility: 'Diagnosis may use redacted production evidence; any live reproduction requires an approved test user and operation.'
 ---
-# Canva Common Errors
+
+# Canva Error Classification
 
 ## Overview
 
-Quick reference for the most common Canva Connect API errors at `api.canva.com/rest/v1/*` with real HTTP status codes, error payloads, and fixes.
+Treat HTTP status alone as insufficient. Use the current endpoint reference and redacted provider error code to separate caller defects, authorization failures, throttling, preview drift, and provider incidents.
 
 ## Prerequisites
 
-- Redacted application telemetry, an opaque request/operation identifier, and a named integration owner.
-- A protected test tenant/asset for any reproduction; do not reproduce against customer designs.
+- HTTP status, provider error code, endpoint pattern, and UTC window
+- Opaque request, resource, or job reference without payload content
+- Pinned OpenAPI or endpoint documentation version
 
 ## Instructions
 
-1. Classify the error by authorization, scope, rate, provider, callback, or validated response contract.
-2. Capture only redacted status/category and trace references; never print OAuth values, design IDs, signed URLs, or payload bodies.
-3. Retry only bounded idempotent transient operations after reconciliation; route authorization and policy errors to the owner.
+### Step 1: Capture a minimal envelope
 
-## Error Reference
+Record method, endpoint pattern, status, provider code, terminal job state, retry metadata if actually present, and deployment version. Exclude tokens, bodies, signed URLs, and customer identifiers.
 
-### 401 Unauthorized — Token Expired or Invalid
+### Step 2: Handle authentication failures
 
-```json
-{ "error": "invalid_token", "message": "The access token is invalid or expired" }
-```
+For an invalid or expired access token, serialize the authorized refresh flow and atomically store the replacement refresh token. Reauthorize after revocation or unrecoverable refresh failure.
 
-**Cause:** Access tokens expire after ~4 hours. Token may be malformed or revoked.
+### Step 3: Handle authorization failures
 
-**Fix:**
+Compare the operation with explicit granted scopes, resource ownership, capabilities, tenant policy, and preview availability. Never assume a write scope grants its read counterpart.
 
-```typescript
-// Refresh the token
-const res = await fetch('https://api.canva.com/rest/v1/oauth/token', {
-  method: 'POST',
-  headers: {
-    'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
-    'Content-Type': 'application/x-www-form-urlencoded',
-  },
-  body: new URLSearchParams({
-    grant_type: 'refresh_token',
-    refresh_token: storedRefreshToken,
-  }),
-});
-const { access_token, refresh_token } = await res.json();
-// IMPORTANT: Each refresh token is single-use — store the new one
-```
+### Step 4: Handle throttling
 
----
+Pause only the affected endpoint/user queue. Use documented endpoint metadata and response instructions; otherwise apply bounded exponential backoff with jitter rather than a guessed fixed delay.
 
-### 403 Forbidden — Missing Scope or Insufficient Permissions
+### Step 5: Handle async failures
 
-```json
-{ "error": "insufficient_scope", "message": "Required scope: design:content:write" }
-```
+Poll the existing job to a documented terminal state. Correct validation or entitlement errors before any new submission.
 
-**Cause:** Your integration doesn't have the required OAuth scope enabled, or the user isn't authorized for the resource.
+### Step 6: Escalate provider failures
 
-**Fix:**
+Correlate repeated server errors with Canva status/changelog and provide a redacted support receipt after bounded retry is exhausted.
 
-1. Check required scope in the [Scopes Reference](https://www.canva.dev/docs/connect/appendix/scopes/)
-2. Enable the scope in your integration settings at [canva.dev](https://www.canva.dev)
-3. Re-authorize the user — existing tokens don't gain new scopes retroactively
+## Authentication
 
----
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-### 429 Too Many Requests — Rate Limited
+## Tool Discipline
 
-```json
-{ "error": "rate_limit_exceeded", "message": "Rate limit exceeded" }
-```
-
-**Cause:** Exceeded per-endpoint rate limits. Key limits:
-
-| Endpoint | Limit |
-|----------|-------|
-| `GET /v1/users/me` | 10 req/min |
-| `POST /v1/designs` | 20 req/min |
-| `GET /v1/designs` | 100 req/min |
-| `POST /v1/exports` | 75 req/5min, 500/24hr (per user) |
-| `POST /v1/asset-uploads` | 30 req/min |
-| `POST /v1/autofills` | 60 req/min |
-| `POST /v1/folders` | 20 req/min |
-
-**Fix:**
-
-```typescript
-async function canvaAPIWithRetry(path: string, token: string, opts: RequestInit = {}) {
-  const res = await fetch(`https://api.canva.com/rest/v1${path}`, {
-    ...opts,
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...opts.headers },
-  });
-
-  if (res.status === 429) {
-    const retryAfter = parseInt(res.headers.get('Retry-After') || '60');
-    console.warn(`Rate limited — waiting ${retryAfter}s`);
-    await new Promise(r => setTimeout(r, retryAfter * 1000));
-    return canvaAPIWithRetry(path, token, opts); // Retry once
-  }
-
-  if (!res.ok) throw new Error(`Canva ${res.status}: ${await res.text()}`);
-  return res.json();
-}
-```
-
----
-
-### 404 Not Found — Resource Missing
-
-**Cause:** Design, asset, template, or folder ID doesn't exist, was deleted, or the user doesn't have access.
-
-**Fix:**
-
-```bash
-# Verify the resource exists — check design ID
-curl -s -H "Authorization: Bearer $TOKEN" \
-  https://api.canva.com/rest/v1/designs/$DESIGN_ID | jq '.design.id'
-```
-
----
-
-### 400 Bad Request — Validation Error
-
-**Common cases:**
-
-```json
-{ "error": "validation_error", "message": "Design title invalid" }
-```
-
-| Field | Constraint |
-|-------|-----------|
-| `title` | 1-255 characters |
-| `design_type.width` | 40-8000 pixels |
-| `design_type.height` | 40-8000 pixels |
-| `format.quality` (JPG) | 1-100 |
-| `format.width/height` (export) | 40-25000 pixels |
-| Chart data | Max 100 rows, 20 columns |
-
----
-
-### Export Error Codes
-
-| Code | Meaning | Solution |
-|------|---------|----------|
-| `license_required` | Design uses premium elements | User needs Canva Pro subscription |
-| `approval_required` | Design pending approval | User must approve in Canva |
-| `internal_failure` | Canva server error | Retry after delay |
-
----
-
-### OAuth Error Codes
-
-| Code | Meaning | Solution |
-|------|---------|----------|
-| `invalid_client` | Wrong client_id or secret | Check credentials |
-| `invalid_grant` | Auth code expired/reused | Restart OAuth flow |
-| `invalid_scope` | Scope not enabled | Enable in integration settings |
-| `unsupported_grant_type` | Wrong grant_type | Use `authorization_code` or `refresh_token` |
-
-## Quick Diagnostic Commands
-
-```bash
-# Check your token
-curl -s -H "Authorization: Bearer $TOKEN" \
-  https://api.canva.com/rest/v1/users/me | jq
-
-# Check API connectivity
-curl -sI https://api.canva.com/rest/v1/users/me \
-  -H "Authorization: Bearer $TOKEN" 2>&1 | head -5
-
-# Verify environment variables
-echo "Client ID: ${CANVA_CLIENT_ID:+[SET]}"
-echo "Access Token: ${CANVA_ACCESS_TOKEN:+[SET]}"
-```
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-Diagnosis returns a redacted failure category, opaque request reference, retry decision, and next owner action. It excludes credentials, design content, asset URLs, and user data.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-For a 429, retain the idempotency key, honor the configured wait, then query the existing job before retrying. For a 401/403, stop calls and use the approved reauthorization or scope-review process; do not log a token to test it.
+An autofill returns HTTP 403. The operator checks explicit scopes, current capability and Enterprise availability, template ownership, preview status, and the provider error before deciding whether reauthorization is relevant.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `ENOTFOUND` | DNS failure | Check network connectivity |
-| `ETIMEDOUT` | Network timeout | Increase timeout, check firewall |
-| `invalid_token` | Expired access token | Refresh via OAuth endpoint |
-| `insufficient_scope` | Missing permission | Enable scope, re-authorize |
+| Failure | Response |
+| --- | --- |
+| Only HTTP status is available | Collect the redacted provider envelope before acting |
+| Refresh repeats 401 | Stop and require reauthorization instead of looping |
+| 429 has no retry metadata | Use the local bounded backoff policy and lower concurrency |
+| Job failed validation | Correct the request; do not retry unchanged input |
 
 ## Resources
 
-- [API Requests & Responses](https://www.canva.dev/docs/connect/api-requests-responses/)
-- [Scopes Reference](https://www.canva.dev/docs/connect/appendix/scopes/)
-
-## Next Steps
-
-For comprehensive debugging, see `canva-debug-bundle`.
+- [First-party source notes](references/official-docs.md)
+- [Error responses](https://www.canva.dev/docs/connect/error-responses/)
+- [OAuth scopes](https://www.canva.dev/docs/connect/appendix/scopes/)

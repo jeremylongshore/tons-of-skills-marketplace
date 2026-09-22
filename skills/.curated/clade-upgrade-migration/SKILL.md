@@ -10,7 +10,7 @@ description: 'Upgrade Anthropic SDK versions and migrate between Claude model ge
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -101,7 +101,7 @@ See SDK Upgrade commands, grep patterns for finding model references, environmen
 
 - SDK Releases (TS)
 - SDK Releases (Python)
-- [Model Deprecation Policy](https://docs.anthropic.com/en/docs/about-claude/models)
+- [Model Deprecation Policy](https://platform.claude.com/docs/en/models/overview)
 
 ## Next Steps
 

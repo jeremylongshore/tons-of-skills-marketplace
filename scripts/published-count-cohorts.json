@@ -991,34 +991,6 @@
           "call": "Astro"
         },
         {
-          "path": "marketplace/src/pages/learn/replit/index.astro",
-          "expression": "vendor.skillCount",
-          "classification": "vendor-pack-local",
-          "owner": "E1.6 follow-up",
-          "reason": "The vendor page reports the skills in one vendor-specific learning pack.",
-          "label": "vendor-pack-local skills",
-          "provenance": "data-count-provenance=\"vendor-pack-local\"",
-          "command": "node scripts/check-published-count-cohorts.mjs --json",
-          "contract": "data-count-provenance=\"vendor-pack-local\">{vendor.tier.replace('+', '+')} - {vendor.skillCount} vendor-pack-local skills",
-          "sink": "rendered",
-          "function": "Astro",
-          "call": "Astro"
-        },
-        {
-          "path": "marketplace/src/pages/learn/replit/index.astro",
-          "expression": "category.skills.length",
-          "classification": "vendor-pack-local",
-          "owner": "E1.6 follow-up",
-          "reason": "The category badge reports the skills in one category of one vendor-specific learning pack.",
-          "label": "vendor-pack-local skills",
-          "provenance": "data-count-provenance=\"vendor-pack-local\"",
-          "command": "node scripts/check-published-count-cohorts.mjs --json",
-          "contract": "data-count-provenance=\"vendor-pack-local\">{category.skills.length} vendor-pack-local skills",
-          "sink": "rendered",
-          "function": "Astro",
-          "call": "Astro"
-        },
-        {
           "path": "marketplace/src/pages/learn/retellai/index.astro",
           "expression": "vendor.skillCount",
           "classification": "vendor-pack-local",

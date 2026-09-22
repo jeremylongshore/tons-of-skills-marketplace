@@ -1,214 +1,88 @@
 ---
 name: canva-deploy-integration
-description: 'Deploy Canva Connect API integrations to Vercel, Fly.io, and Cloud Run.
-
-  Use when deploying Canva-powered applications to production,
-
-  configuring platform-specific secrets, or setting up deployment pipelines.
-
-  Trigger with phrases like "deploy canva", "canva Vercel",
-
-  "canva production deploy", "canva Cloud Run", "canva Fly.io".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(fly:*), Bash(gcloud:*)
-version: 1.5.0
+description: 'Deploy a Canva Connect backend with exact redirect URIs, runtime-only secrets, protected migrations, and verified rollback. Use when promoting to staging or production. Trigger with: "deploy Canva integration", "configure Canva callback", "release Canva backend".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[target-environment-and-release-id]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - deployment
+  - operations
+compatibility: 'Requires control of the HTTPS callback domain, approved environment credentials, and a tested rollback artifact.'
 ---
-# Canva Deploy Integration
+
+# Canva Deployment and Callback Gate
 
 ## Overview
 
-Deploy Canva Connect API integrations to popular platforms with secure OAuth credential management. The Canva API requires server-side token exchange — client secrets and refresh tokens must never reach the browser.
+Promote one immutable application artifact while keeping OAuth configuration and credentials environment-specific. Validate callbacks and a non-mutating Canva read before enabling user traffic.
 
 ## Prerequisites
 
-- Canva OAuth credentials (client ID + secret)
-- Platform CLI installed (vercel, fly, or gcloud)
-- HTTPS domain for OAuth redirect URIs
-- Application code ready for deployment
+- Reviewed artifact digest and target environment
+- Exact registered redirect URI and controlled HTTPS domain
+- Secret backend, migration plan, health contract, and rollback version
 
 ## Instructions
 
-1. Deploy an immutable, reviewed artifact with OAuth credentials injected only at runtime and redirect URIs exactly matching approved configuration.
-2. Verify a read-only health path and synthetic-asset flow before enabling exports, writes, or publication actions.
-3. Promote gradually under rate/cost limits with a tested rollback path; keep deployment receipts redacted.
+### Step 1: Compare configuration
 
-## Vercel
+Use Read and Grep to diff redirect URI, scopes, preview features, callback/webhook routes, secret references, and data stores against the approved release.
 
-### Secrets
+### Step 2: Stage runtime secrets
 
-```bash
-# Add Canva OAuth credentials
-vercel env add CANVA_CLIENT_ID production
-vercel env add CANVA_CLIENT_SECRET production
-vercel env add CANVA_REDIRECT_URI production  # e.g. https://your-app.vercel.app/auth/canva/callback
-```
+Inject environment-specific credentials from the approved backend. Never bake secrets or refresh tokens into images, frontend bundles, logs, or deployment output.
 
-### vercel.json
+### Step 3: Deploy traffic-disabled
 
-```json
-{
-  "functions": {
-    "api/**/*.ts": {
-      "maxDuration": 30
-    }
-  },
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store" }
-      ]
-    }
-  ]
-}
-```
+Use Write or Edit for reviewed platform configuration, deploy the immutable artifact, run migrations with a rollback plan, and keep external traffic disabled.
 
-### API Route (Next.js / Vercel Functions)
+### Step 4: Verify callback safety
 
-```typescript
-// api/canva/callback.ts — OAuth callback
-export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const code = url.searchParams.get('code');
-  const state = url.searchParams.get('state');
+Confirm exact redirect matching, state validation, PKCE verifier handling, backend-only token exchange, cookie/session controls, and rejection of unexpected hosts.
 
-  // Exchange code for tokens (server-side only)
-  const tokens = await exchangeCodeForToken({
-    code: code!,
-    codeVerifier: await getVerifierFromSession(state!),
-    clientId: process.env.CANVA_CLIENT_ID!,
-    clientSecret: process.env.CANVA_CLIENT_SECRET!,
-    redirectUri: process.env.CANVA_REDIRECT_URI!,
-  });
+### Step 5: Run bounded readiness
 
-  // Store tokens in your database
-  await saveTokens(userId, tokens);
-  return Response.redirect('/dashboard');
-}
-```
+Use a dedicated test user for a non-mutating identity/metadata read and verify redaction, dependency health, and version. Do not create content in a generic health endpoint.
 
-## Fly.io
+### Step 6: Promote or roll back
 
-### fly.toml
+Enable traffic gradually under local SLOs. Restore the prior artifact/config and pause OAuth entry if authorization, data, or readiness evidence diverges.
 
-```toml
-app = "my-canva-app"
-primary_region = "iad"
+## Authentication
 
-[env]
-  NODE_ENV = "production"
-  CANVA_REDIRECT_URI = "https://my-canva-app.fly.dev/auth/canva/callback"
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-[http_service]
-  internal_port = 3000
-  force_https = true
-  auto_stop_machines = true
-  auto_start_machines = true
-```
+## Tool Discipline
 
-### Secrets
-
-```bash
-fly secrets set CANVA_CLIENT_ID=OCAxxxxxxxxxxxxxxxx
-fly secrets set CANVA_CLIENT_SECRET=xxxxxxxxxxxxxxxx
-fly deploy
-```
-
-## Google Cloud Run
-
-### Deploy Script
-
-```bash
-#!/bin/bash
-PROJECT_ID="${GOOGLE_CLOUD_PROJECT}"
-SERVICE_NAME="canva-integration"
-REGION="us-central1"
-
-# Store secrets in Secret Manager
-echo -n "OCAxxxxxxxxxxxxxxxx" | gcloud secrets create canva-client-id --data-file=-
-echo -n "xxxxxxxxxxxxxxxx" | gcloud secrets create canva-client-secret --data-file=-
-
-# Build and deploy
-gcloud builds submit --tag gcr.io/$PROJECT_ID/$SERVICE_NAME
-
-gcloud run deploy $SERVICE_NAME \
-  --image gcr.io/$PROJECT_ID/$SERVICE_NAME \
-  --region $REGION \
-  --platform managed \
-  --allow-unauthenticated \
-  --set-secrets="CANVA_CLIENT_ID=canva-client-id:latest,CANVA_CLIENT_SECRET=canva-client-secret:latest" \
-  --set-env-vars="CANVA_REDIRECT_URI=https://$SERVICE_NAME-xxxxx.run.app/auth/canva/callback"
-```
-
-## Health Check
-
-```typescript
-// api/health.ts — confirms Canva API connectivity
-export async function GET() {
-  const start = Date.now();
-  let canvaStatus: string;
-
-  try {
-    const res = await fetch('https://api.canva.com/rest/v1/users/me', {
-      headers: { 'Authorization': `Bearer ${await getServiceToken()}` },
-      signal: AbortSignal.timeout(5000),
-    });
-    canvaStatus = res.ok ? 'healthy' : `error:${res.status}`;
-  } catch {
-    canvaStatus = 'unreachable';
-  }
-
-  return Response.json({
-    status: canvaStatus === 'healthy' ? 'healthy' : 'degraded',
-    services: { canva: { status: canvaStatus, latencyMs: Date.now() - start } },
-    timestamp: new Date().toISOString(),
-  });
-}
-```
-
-## Redirect URI Configuration
-
-After deploying, update your Canva integration settings with the production redirect URI:
-
-| Platform | Redirect URI Pattern |
-|----------|---------------------|
-| Vercel | `https://your-app.vercel.app/auth/canva/callback` |
-| Fly.io | `https://your-app.fly.dev/auth/canva/callback` |
-| Cloud Run | `https://your-service-xxxxx.run.app/auth/canva/callback` |
-| Custom Domain | `https://app.yourdomain.com/auth/canva/callback` |
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-Deployment produces a redacted receipt containing artifact/config versions, redirect-URI validation, health result, approved scope, rollout state, and rollback version. It excludes secrets, tokens, design content, and asset URLs.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-Deploy to staging with a dedicated OAuth client and synthetic asset, validate the callback and read-only health check, then promote the same immutable artifact. If the redirect URI, scope policy, or webhook verification differs from the approved configuration, keep traffic disabled and roll back.
+The same artifact moves from staging to production while each environment retains separate Canva credentials and redirect URIs. Traffic is enabled only after callback and read-only test evidence passes.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| OAuth callback fails | Redirect URI mismatch | Update URI in Canva dashboard |
-| Secret not found | Missing env var | Add via platform CLI |
-| Cold start timeout | OAuth exchange slow | Set min instances to 1 |
-| HTTPS required | HTTP redirect URI | All platforms default to HTTPS |
+| Failure | Response |
+| --- | --- |
+| Redirect URI mismatch | Keep traffic disabled and correct the registered/configured value |
+| Secret appears in build output | Contain and rotate it before redeployment |
+| Migration is not reversible | Stop promotion until recovery is proven |
+| Readiness check mutates Canva | Replace it with a safe identity or metadata read |
 
 ## Resources
 
-- [Canva Creating Integrations](https://www.canva.dev/docs/connect/creating-integrations/)
-- [Vercel Docs](https://vercel.com/docs)
-- [Fly.io Docs](https://fly.io/docs)
-- [Cloud Run Docs](https://cloud.google.com/run/docs)
-
-## Next Steps
-
-For webhook handling, see `canva-webhooks-events`.
+- [First-party source notes](references/official-docs.md)
+- [Creating integrations](https://www.canva.dev/docs/connect/creating-integrations/)
+- [Connect security](https://www.canva.dev/docs/connect/guidelines/security/)

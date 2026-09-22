@@ -1,10 +1,10 @@
 # Algolia Skill Pack
 
-> 24 production-ready Claude Code skills for Algolia search — real `algoliasearch` v5 API code, not templates.
+> 24 Claude Code skills for building, releasing, and operating Algolia search safely.
 
 ## What This Is
 
-A complete skill pack for building, deploying, and operating Algolia-powered search. Every skill contains real Algolia v5 JavaScript client code: `saveObjects`, `searchSingleIndex`, `setSettings`, `replaceAllObjects`, `generateSecuredApiKey`, and more. No placeholder imports, no fake API patterns.
+A production operator pack grounded in the Algolia JavaScript v5 contract and current first-party documentation. The skills cover search, indexing, credentials, events, migration, deployment, observability, incidents, privacy, cost, and performance without hard-coded pricing, invented quotas, or universal latency claims.
 
 ## Installation
 
@@ -14,63 +14,46 @@ A complete skill pack for building, deploying, and operating Algolia-powered sea
 
 ## Skills
 
-### Standard Skills (S01-S12)
+| Skill | Operator outcome |
+|---|---|
+| `algolia-install-auth` | Install the v5 client and separate browser search from trusted write credentials |
+| `algolia-hello-world` | Prove a write, task wait, search, and cleanup cycle on a disposable index |
+| `algolia-local-dev-loop` | Combine deterministic offline tests with an optional disposable-index check |
+| `algolia-sdk-patterns` | Centralize typed v5 client, task, error, timeout, and index-name policy |
+| `algolia-core-workflow-a` | Build a bounded single-index search contract with filters, facets, and pagination |
+| `algolia-core-workflow-b` | Publish deterministic records and configuration with task and rollback evidence |
+| `algolia-common-errors` | Diagnose failures from status, message, request ID, operation, and client version |
+| `algolia-debug-bundle` | Produce a redacted, size-bounded support or incident evidence bundle |
+| `algolia-rate-limits` | Control measured request pressure with bounded queues and retry budgets |
+| `algolia-security-basics` | Audit credentials, record exposure, restrictions, rotation, and tenant controls |
+| `algolia-prod-checklist` | Make a release-bound go/no-go decision with required evidence and rollback |
+| `algolia-upgrade-migration` | Migrate JavaScript v4 integrations to the client-level v5 API |
+| `algolia-ci-integration` | Gate search changes with offline tests and protected disposable-index smoke tests |
+| `algolia-deploy-integration` | Coordinate code, index, credential, and event release surfaces |
+| `algolia-webhooks-events` | Separate Insights interaction events from source-to-index synchronization |
+| `algolia-performance-tuning` | Improve an observed search path against an owned baseline and relevance suite |
+| `algolia-cost-tuning` | Trace current invoice and usage drivers without embedding stale commercial terms |
+| `algolia-reference-architecture` | Design repo-grounded data, trust, query, event, and failure boundaries |
+| `algolia-multi-env-setup` | Isolate environment targets, credentials, data, promotion, and cleanup |
+| `algolia-observability` | Instrument availability, latency, freshness, relevance, and event health |
+| `algolia-incident-runbook` | Triage and recover search incidents without assuming provider causality |
+| `algolia-data-handling` | Map record and event data lifecycle, minimization, correction, and deletion |
+| `algolia-enterprise-rbac` | Map people and services to current team, ACL, SSO, and secured-key controls |
+| `algolia-migration-deep-dive` | Execute a measured, reversible migration from another search system |
 
-| # | Skill | What It Does |
-|---|-------|-------------|
-| S01 | `algolia-install-auth` | Install `algoliasearch` v5, configure App ID + API keys, verify connection |
-| S02 | `algolia-hello-world` | Index records with `saveObjects`, search with `searchSingleIndex`, configure settings |
-| S03 | `algolia-local-dev-loop` | Dev index prefixing, seed scripts, Vitest mocking, integration tests |
-| S04 | `algolia-sdk-patterns` | Singleton client, typed search results, `ApiError` handling, batch operations |
-| S05 | `algolia-core-workflow-a` | Search with filters, facets, highlighting, pagination, `optionalFilters` |
-| S06 | `algolia-core-workflow-b` | Indexing pipeline: `replaceAllObjects`, `partialUpdateObject`, synonyms, query rules |
-| S07 | `algolia-common-errors` | Fix 403, 404, 429, `RetryError`, record-too-big, invalid filter syntax |
-| S08 | `algolia-debug-bundle` | Collect index stats, API key ACLs, query logs, network diagnostics |
-| S09 | `algolia-rate-limits` | Per-key limits, indexing queue limits, backoff strategies, `p-queue` throttling |
-| S10 | `algolia-security-basics` | Key scoping, Secured API Keys, referer restrictions, key rotation |
-| S11 | `algolia-prod-checklist` | Index settings audit, replica config, health checks, graceful degradation |
-| S12 | `algolia-upgrade-migration` | v4 to v5 migration: `initIndex` removal, import changes, method renames |
+## Current Contract
 
-### Pro Skills (P13-P18)
+- JavaScript v5 operations live on the client and receive `indexName`; the removed `initIndex` pattern is not used.
+- Browser code receives only a search-only or backend-generated secured key.
+- Interaction events use `search-insights` or a supported framework integration; source synchronization remains an application-owned indexing pipeline.
+- Prices, plan entitlements, quotas, regions, and support behavior must be verified from the current account and first-party sources.
+- Production changes require explicit target validation, task receipts, representative queries, and rollback evidence.
 
-| # | Skill | What It Does |
-|---|-------|-------------|
-| P13 | `algolia-ci-integration` | GitHub Actions workflows, settings validation, integration tests, deploy-triggered reindex |
-| P14 | `algolia-deploy-integration` | Vercel/Fly.io/Cloud Run deployment, InstantSearch.js + React InstantSearch frontend |
-| P15 | `algolia-webhooks-events` | Insights API (click/conversion tracking), Analytics API, DB-to-Algolia sync pipelines |
-| P16 | `algolia-performance-tuning` | Record optimization, `filterOnly()` faceting, caching, virtual replicas, query tuning |
-| P17 | `algolia-cost-tuning` | Pricing breakdown, virtual replicas, multi-query batching, usage monitoring |
-| P18 | `algolia-reference-architecture` | Index design, record transforms, settings-as-code, search service layer |
+Each skill includes a dated `references/official-docs.md` and declares only the file and documentation tools it uses.
 
-### Flagship Skills (F19-F24)
+## Quality
 
-| # | Skill | What It Does |
-|---|-------|-------------|
-| F19 | `algolia-multi-env-setup` | Index prefixing, scoped keys per environment, settings-as-code, isolation guards |
-| F20 | `algolia-observability` | Prometheus metrics, OpenTelemetry tracing, pino structured logging, Grafana dashboards |
-| F21 | `algolia-incident-runbook` | Triage script, decision tree, circuit breaker fallback, postmortem template |
-| F22 | `algolia-data-handling` | PII filtering, Secured API Keys for RBAC, GDPR deletion, data retention |
-| F23 | `algolia-enterprise-rbac` | ACL-scoped keys, multi-tenant Secured API Keys, key audit, dashboard team roles |
-| F24 | `algolia-migration-deep-dive` | Elasticsearch/Typesense migration, query translation, strangler fig cutover |
-
-## Usage
-
-Skills trigger automatically when you discuss Algolia topics:
-
-- "Help me set up Algolia" -> `algolia-install-auth`
-- "Search not returning results" -> `algolia-common-errors`
-- "Migrate from Elasticsearch" -> `algolia-migration-deep-dive`
-- "Optimize Algolia costs" -> `algolia-cost-tuning`
-
-## Key Algolia Concepts Covered
-
-- **Client initialization**: `algoliasearch(appId, apiKey)` — no more `initIndex` in v5
-- **Indexing**: `saveObjects`, `partialUpdateObject`, `replaceAllObjects`, `deleteBy`
-- **Search**: `searchSingleIndex`, `search` (multi-index), `browse` (export)
-- **Configuration**: `setSettings`, `saveSynonyms`, `saveRule`
-- **Security**: Secured API Keys, ACL-scoped keys, `referers`, `maxQueriesPerIPPerHour`
-- **Analytics**: Insights API (clicks/conversions), Analytics API (top searches, no-results)
-- **Frontend**: InstantSearch.js, React InstantSearch, `liteClient`
+All 24 skills pass the marketplace validator at Grade A and the five-check Tier-2 production gate. Regression coverage prevents stale pricing, fabricated latency targets, unsafe Admin-key shortcuts, and the old embedded-Insights claim from returning.
 
 ## License
 

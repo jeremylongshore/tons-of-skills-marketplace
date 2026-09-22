@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/vastai-pack",
-  "version": "1.0.2",
-  "description": "Claude Code skill pack for Vast.ai - 24 skills covering GPU cloud marketplace and ML training",
+  "version": "2.0.0",
+  "description": "Evidence-gated Vast.ai operator pack for GPU rentals, Serverless, governance, recovery, and cost control (24 skills)",
   "main": "README.md",
   "type": "module",
   "files": [

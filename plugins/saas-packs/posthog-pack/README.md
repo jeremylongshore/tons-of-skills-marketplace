@@ -1,12 +1,12 @@
 # PostHog Skill Pack
 
-> Claude Code skill pack for PostHog product analytics — event capture, feature flags, experiments, session recordings, and HogQL queries (24 skills)
+> Verified PostHog operator workflows for event capture, flags, privacy, cost control, incident response, migrations, and safe releases (24 skills)
 
 ## What This Covers
 
-PostHog is an open-source product analytics platform. This pack provides production-ready patterns for `posthog-js` (browser), `posthog-node` (server), and the PostHog REST/HogQL API. Every skill uses real PostHog endpoints, actual SDK methods, and working code — not placeholders.
+This pack provides evidence-driven workflows for `posthog-js`, `posthog-node`, and PostHog's public and private APIs. Each skill identifies credential and region boundaries, links to official documentation checked on 2026-09-09, and requires live verification for changing facts such as pricing, entitlements, SDK defaults, and availability.
 
-**Key PostHog concepts covered:** event capture (`posthog.capture`), user identification (`posthog.identify`), group analytics (`posthog.group`), feature flags (`getFeatureFlag`, `isFeatureEnabled`, `getAllFlags`), A/B experiments, cohorts, session recordings, autocapture configuration, HogQL queries, CDP webhook destinations, and the `/capture/`, `/batch/`, `/decide/` API endpoints.
+**Key PostHog concepts covered:** event capture (`posthog.capture`), user identification (`posthog.identify`), group analytics (`posthog.group`), feature flags (`getFeatureFlag`, `isFeatureEnabled`, `getAllFlags`), experiments, cohorts, session recordings, autocapture, HogQL, CDP destinations, and the current `/i/v0/e`, `/batch`, and `/flags` public endpoints.
 
 ## Installation
 
@@ -20,7 +20,7 @@ PostHog is an open-source product analytics platform. This pack provides product
 
 | Skill | What It Does |
 |-------|-------------|
-| `posthog-install-auth` | Install posthog-js/posthog-node, configure `phc_` and `phx_` API keys |
+| `posthog-install-auth` | Install SDKs and separate public project, private API, and secure flag credentials |
 | `posthog-hello-world` | First event capture, identify, and feature flag check (Node + browser + Python + curl) |
 | `posthog-local-dev-loop` | Debug mode, mocked PostHog for vitest, integration tests against dev project |
 | `posthog-sdk-patterns` | Singleton client, typed events, React hooks, Next.js App Router provider, reverse proxy |
@@ -32,25 +32,25 @@ PostHog is an open-source product analytics platform. This pack provides product
 | `posthog-core-workflow-a` | Event taxonomy design, `posthog.capture`, `identify`, `group`, server-side capture, annotations API |
 | `posthog-core-workflow-b` | Feature flags (boolean + multivariate), `getAllFlags`, experiments, cohorts API |
 | `posthog-common-errors` | Fix events not appearing, flags returning undefined, 401/429 errors, identity fragmentation |
-| `posthog-debug-bundle` | Diagnostic script: SDK versions, API connectivity, event capture test, flag evaluation test |
+| `posthog-debug-bundle` | Redacted diagnostics with read-only defaults and an approval-gated synthetic write probe |
 
 ### Operations (S09-S12)
 
 | Skill | What It Does |
 |-------|-------------|
-| `posthog-rate-limits` | PostHog rate limit tiers (240/min analytics, unlimited capture), backoff, request queue |
+| `posthog-rate-limits` | Current team-wide private endpoint budgets, backoff, queues, and export alternatives |
 | `posthog-security-basics` | `phc_` vs `phx_` key security, scoped API keys, rotation procedure, git leak prevention |
 | `posthog-prod-checklist` | Production SDK config, graceful degradation wrappers, health check endpoint, serverless pattern |
-| `posthog-upgrade-migration` | posthog-node v5 breaking changes (sendFeatureFlags), before_send, upgrade procedure |
+| `posthog-upgrade-migration` | Exact-version release-note delta, focused tests, canary, and rollback evidence |
 
 ### Pro Skills (P13-P18)
 
 | Skill | What It Does |
 |-------|-------------|
 | `posthog-ci-integration` | GitHub Actions with mocked unit tests, integration tests, deployment annotations |
-| `posthog-deploy-integration` | Next.js + Vercel reverse proxy, edge function capture, self-hosted Docker, Cloud Run |
+| `posthog-deploy-integration` | Deploy the application integration through Vercel, Fly, or Cloud Run with proxy and rollback checks |
 | `posthog-webhooks-events` | CDP webhook destinations, event handler routing, Events API, HogQL queries |
-| `posthog-performance-tuning` | Local flag evaluation (<1ms), batching config, event sampling, efficient HogQL |
+| `posthog-performance-tuning` | Measured local flag evaluation, batching, sampling, and query tuning |
 | `posthog-cost-tuning` | Autocapture tuning, `before_send` sampling, bot filtering, session recording sampling, billing monitoring |
 | `posthog-reference-architecture` | File structure, event taxonomy, flag constants, analytics module, data pipeline integration |
 
@@ -59,7 +59,7 @@ PostHog is an open-source product analytics platform. This pack provides product
 | Skill | What It Does |
 |-------|-------------|
 | `posthog-multi-env-setup` | Separate projects per env, environment-aware SDK config, flag rollout per env |
-| `posthog-observability` | Flag evaluation latency instrumentation, event volume monitoring, Prometheus alerts, HogQL dashboards |
+| `posthog-observability` | Application-owned delivery signals, ingestion warnings, live limits, and status evidence |
 | `posthog-incident-runbook` | Triage decision tree, immediate actions for 401/429/500, graceful degradation, evidence collection |
 | `posthog-data-handling` | GDPR `sanitize_properties`, consent opt-in/opt-out, data deletion API, PII-safe exports |
 | `posthog-enterprise-rbac` | Org/project hierarchy, member roles, scoped API keys, SSO/SAML, activity audit log |
@@ -82,7 +82,8 @@ PostHog is an open-source product analytics platform. This pack provides product
 | Key | Prefix | Purpose | Client-safe? |
 |-----|--------|---------|-------------|
 | Project API Key | `phc_` | Event capture, flag evaluation | Yes |
-| Personal API Key | `phx_` | Admin API, local flag eval, HogQL | Never |
+| Personal API Key | `phx_` | Scoped private API and HogQL access | Never |
+| Feature Flags Secure API Key | project-specific secret | Server-side local flag evaluation through the SDK's historical key option | Never |
 
 ## License
 

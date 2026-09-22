@@ -5,7 +5,7 @@ description: "Respond to Anthropic API incidents \u2014 outages, degraded perfor
   \ in production.\nTrigger with \"anthropic down\", \"claude outage\", \"anthropic\
   \ incident\",\n\"claude not responding\", \"anthropic 529\".\n"
 allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

@@ -1,167 +1,81 @@
 ---
 name: adobe-prod-checklist
-description: 'Execute Adobe production deployment checklist covering credential management,
-
-  API health checks, rate limit configuration, and rollback procedures
-
-  for Firefly Services, PDF Services, and I/O Events integrations.
-
-  Trigger with phrases like "adobe production", "deploy adobe",
-
-  "adobe go-live", "adobe launch checklist".
-
-  '
-allowed-tools: Read, Bash(kubectl:*), Bash(curl:*), Grep
-version: 1.7.0
+description: >-
+  Issue an evidence-backed production decision across Adobe auth, entitlements, API versions, data custody, async reliability, spend, observability, and rollback. Use before launch or a material integration change. Use when the task requires adobe production readiness decision. Trigger with "Adobe production checklist", "approve Adobe launch", or "Adobe go-live review".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<release> <environment> <change-scope>"
+version: 1.8.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- design
-- adobe
-compatibility: Designed for Claude Code
+tags: [saas, adobe, readiness]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Adobe actions require network access, appropriate entitlement and authentication, and explicit approval"
 ---
-# Adobe Production Checklist
+# Adobe Production Readiness Decision
 
 ## Overview
 
-Complete checklist for deploying Adobe API integrations to production, covering credential security, health monitoring, graceful degradation, and rollback procedures.
+Issue an evidence-backed production decision across Adobe auth, entitlements, API versions, data custody, async reliability, spend, observability, and rollback. This workflow produces a reviewable artifact and evidence before any live side effect.
 
 ## Prerequisites
 
-- Staging environment tested and verified
-- Production OAuth credentials created in Developer Console
-- Deployment pipeline with secret injection
-- Monitoring and alerting infrastructure ready
+- Current first-party Adobe documentation for every selected service, API version, auth flow, limit, and lifecycle.
+- Named product, identity, security, data, budget, release, and operations owners appropriate to the scope.
+- Synthetic or approved non-production fixtures with secret and content canaries.
+
+## Current Contract
+
+A launch is ready only when the deployed artifact and actual organization/project/workspace, credentials, product profiles, service versions, storage, queues, events, monitoring, support, and rollback are evidenced together. Passing a token call or happy path is insufficient. Recheck the dated evidence map before relying on mutable product behavior.
+
+## Authentication
+
+Verify secret lifecycle, user consent if applicable, least privilege, entitlement, rotation, revocation, and environment isolation. JWT, Photoshop v1, and retired Lightroom Firefly Services references are launch blockers.
 
 ## Instructions
 
-### Pre-Deployment: Credentials & Configuration
+1. Verify immutable artifact, dependencies, configuration, generated assets, tests, migrations, and rollback target.
+2. Confirm organization/project/workspace, auth flow, scopes, profiles, entitlement, storage, and owner matrices.
+3. Review every service version, async job, retry/idempotency, rate/spend, event authenticity, and EOL guard.
+4. Review data classification, signed URLs, logs, retention, deletion, incident response, and vendor support custody.
+5. Exercise canary, denial, 429, unknown status, rollback, reconciliation, and cleanup paths.
+6. Issue GO, CONDITIONAL GO, or NO-GO with evidence, owners, expirations, and rollback authority.
 
-- [ ] Production OAuth Server-to-Server credentials created (separate from staging)
-- [ ] `ADOBE_CLIENT_ID` and `ADOBE_CLIENT_SECRET` stored in secret manager (not env files)
-- [ ] Scopes are minimal: only APIs actually used in production
-- [ ] Token caching implemented (avoid re-generating per request)
-- [ ] I/O Events webhook endpoints use HTTPS with valid TLS cert
-- [ ] Webhook challenge response handler implemented (for registration)
+## Tool Discipline
 
-### Pre-Deployment: Code Quality
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, Adobe content, consent, uploads, generation, spend, deployment, registration changes, replay, cancellation, or deletion.
 
-- [ ] All tests passing (`npm test`)
-- [ ] No hardcoded credentials (grep for `p8_` prefix patterns)
-- [ ] Error handling covers: `401`, `403`, `429`, `500`, `503`
-- [ ] Rate limiting/backoff with `Retry-After` header support
-- [ ] Webhook signature verification using RSA-SHA256
-- [ ] Logging redacts credentials and PII
-- [ ] API response validation (Zod or equivalent)
+## Approval Boundaries
 
-### Pre-Deployment: Infrastructure
-
-- [ ] Health check endpoint verifies Adobe IMS token generation:
-
-```typescript
-// api/health.ts
-export async function adobeHealthCheck() {
-  const start = Date.now();
-  try {
-    // Test token generation (validates credentials are still valid)
-    const token = await getAccessToken();
-    return {
-      status: 'healthy',
-      latencyMs: Date.now() - start,
-      tokenValid: !!token,
-    };
-  } catch (error: any) {
-    return {
-      status: 'unhealthy',
-      latencyMs: Date.now() - start,
-      error: error.message,
-    };
-  }
-}
-```
-
-- [ ] Circuit breaker configured for Adobe API calls
-- [ ] Graceful degradation: app works (degraded) if Adobe is down
-- [ ] PDF Services monthly quota tracking (if on free tier)
-
-### Deploy: Gradual Rollout
-
-```bash
-# 1. Pre-flight checks
-curl -sf https://staging.example.com/health | jq '.services.adobe'
-curl -s https://status.adobe.com | head -5
-
-# 2. Verify production credentials work
-curl -s -o /dev/null -w "%{http_code}" -X POST \
-  'https://ims-na1.adobelogin.com/ims/token/v3' \
-  -d "client_id=${ADOBE_CLIENT_ID}&client_secret=${ADOBE_CLIENT_SECRET}&grant_type=client_credentials&scope=${ADOBE_SCOPES}"
-# Expected: 200
-
-# 3. Deploy canary (10%)
-kubectl set image deployment/app app=image:new-version
-kubectl rollout pause deployment/app
-
-# 4. Monitor for 10 minutes — check error rates
-# Watch for 401 (credential issues), 429 (rate limits), 500 (server errors)
-
-# 5. If healthy, complete rollout
-kubectl rollout resume deployment/app
-kubectl rollout status deployment/app
-```
-
-### Post-Deployment Verification
-
-- [ ] Health check endpoint returns `healthy` for Adobe
-- [ ] Test a real API call (e.g., Firefly image generation, PDF extraction)
-- [ ] Webhook delivery confirmed (check I/O Events dashboard)
-- [ ] Error rate baseline established in monitoring
-- [ ] On-call team has `adobe-incident-runbook` accessible
-
-### Rollback Procedure
-
-```bash
-# Immediate rollback
-kubectl rollout undo deployment/app
-kubectl rollout status deployment/app
-
-# Verify old version is healthy
-curl -sf https://production.example.com/health | jq '.services.adobe'
-```
-
-## Alert Configuration
-
-| Alert | Condition | Severity |
-|-------|-----------|----------|
-| Adobe Auth Failure | Any `401` errors | P1 — credential issue |
-| Adobe Rate Limited | `429` errors > 5/min | P2 — reduce throughput |
-| Adobe API Down | `503` errors > 10/min | P2 — enable fallback |
-| Adobe High Latency | p99 > 10s | P3 — investigate |
-| PDF Quota Low | < 50 transactions remaining | P3 — upgrade or throttle |
+Named release, security, data, budget, and operations owners approve their controls. Deploy, generation, upload, webhook replacement, secret deletion, and asset deletion remain separate actions.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| 401 after deploy | Wrong credentials for environment | Verify secret manager path |
-| 429 spike | Traffic increase from new feature | Add rate limiting queue |
-| Health check flapping | Token caching not working | Check cache TTL logic |
-| Webhook delivery stopped | Challenge response broken | Test webhook registration |
+- NO-GO on obsolete endpoints, missing entitlement, unbounded polling/retries, or unverified rollback.
+- A skipped negative test remains an open condition.
+- Do not waive content or signed-URL leakage as observability detail.
 
 ## Output
 
-Following this guide produces the Adobe integration outcome for its topic—configuration, validation evidence, operational recovery, or a documented migration result. Record command output and relevant identifiers so a failed step is traceable.
+Return the signed control matrix, evidence links, failed gates, decision, conditions, owners, expiry, and rollback triggers. Mark assumptions, observed environment behavior, owners, evidence dates, and unresolved gaps explicitly.
 
 ## Examples
 
-Start with the smallest applicable command or code example already provided in this guide, using a non-production Adobe environment and credentials. Confirm the documented response or validation result before applying the pattern to production.
+- Reject a release containing /sensei/cutout.
+- Approve a canary only after unknown-job and credential-revocation paths pass.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- obsolete API
+- entitlement
+- 429
+- unknown job
+- secret revocation
+- rollback
 
 ## Resources
 
-- [Adobe Status Page](https://status.adobe.com)
-- [Adobe Developer Console](https://developer.adobe.com/console)
-- [Adobe Developer Support](https://developer.adobe.com/support)
-
-## Next Steps
-
-For version upgrades, see `adobe-upgrade-migration`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Adobe sources before execution.
+- Treat observed tenant or product behavior as environment-specific evidence, never a universal Adobe guarantee.

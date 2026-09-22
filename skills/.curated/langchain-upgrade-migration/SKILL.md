@@ -8,7 +8,7 @@ description: "Migrate a LangChain 0.3.x Python codebase to LangChain 1.0 / LangG
   \ removed\",\n\"initialize_agent removed\", \"ConversationBufferMemory removed\"\
   , \"astream_log deprecated\",\n\"langchain-anthropic 1.0\".\n"
 allowed-tools: Read, Write, Edit, Grep, Bash(python:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

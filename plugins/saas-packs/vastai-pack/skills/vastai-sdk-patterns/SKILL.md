@@ -1,164 +1,93 @@
 ---
 name: vastai-sdk-patterns
-description: 'Apply production-ready Vast.ai SDK patterns for Python and REST API.
-
-  Use when implementing Vast.ai integrations, refactoring SDK usage,
-
-  or establishing coding standards for GPU cloud operations.
-
-  Trigger with phrases like "vastai SDK patterns", "vastai best practices",
-
-  "vastai code patterns", "idiomatic vastai".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.11.0
+description: >-
+  Choose the correct Vast.ai Python client and implement typed, bounded, ownership-safe GPU lifecycles. Use when integrating the high-level SDK, SyncClient, AsyncClient, or Serverless client. Trigger with: "use the Vast.ai SDK", "wrap a Vast.ai instance lifecycle", "choose SyncClient or AsyncClient".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[client-mode-resource-and-lifecycle-owner]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- python
-- patterns
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - python
+  - sdk
+  - lifecycle
+compatibility: 'Requires Python 3.9+, the current Vast.ai package, a scoped API key, and tests that can replace network calls.'
 ---
-# Vast.ai SDK Patterns
+
+# Owned Vast.ai Python SDK Lifecycles
 
 ## Overview
 
-Production-ready patterns for the Vast.ai CLI, Python SDK, and REST API at `cloud.vast.ai/api/v0`. Covers typed search queries, instance lifecycle management, offer scoring, and error handling.
+Use the highest-level client that preserves the required control. Keep resource identity and cleanup ownership explicit, normalize provider response variants at one boundary, and never hide a billable instance behind an unbounded retry.
 
 ## Prerequisites
 
-- Completed `vastai-install-auth` setup
-- Python 3.8+ with `requests`
-- Familiarity with the Vast.ai marketplace model
+- Chosen high-level, synchronous, asynchronous, or Serverless client surface
+- Typed internal model for offers, instances, terminal states, and provider errors
+- Idempotency, timeout, test-double, and cleanup design
 
 ## Instructions
 
-### Pattern 1: Typed Search Query Builder
+### Step 1: Select one client boundary
 
-```python
-from dataclasses import dataclass
-from typing import Optional
+Use `VastAI` for broad CLI-equivalent operations, `SyncClient` for typed synchronous instance control, `AsyncClient` inside an async context, or `Serverless` for endpoint inference.
 
-@dataclass
-class GPUQuery:
-    num_gpus: int = 1
-    gpu_name: Optional[str] = None
-    gpu_ram_min: Optional[float] = None
-    reliability_min: float = 0.95
-    max_dph: Optional[float] = None
+### Step 2: Normalize responses once
 
-    def to_filter(self) -> dict:
-        f = {"rentable": {"eq": True}, "num_gpus": {"eq": self.num_gpus},
-             "reliability2": {"gte": self.reliability_min}}
-        if self.gpu_name:
-            f["gpu_name"] = {"eq": self.gpu_name}
-        if self.gpu_ram_min:
-            f["gpu_ram"] = {"gte": self.gpu_ram_min}
-        if self.max_dph:
-            f["dph_total"] = {"lte": self.max_dph}
-        return f
-```
+Map provider dictionaries and error shapes into a small internal result type. Preserve offer ID, contract ID, status, price, and raw error code for diagnosis.
 
-### Pattern 2: Context-Managed Instance Lifecycle
+### Step 3: Separate plan from mutation
 
-```python
-from contextlib import contextmanager
+Search and score offers without creating resources. Require an approved plan object before calling create, update, destroy, or credit operations.
 
-@contextmanager
-def managed_instance(client, offer_id, image, disk_gb=20, timeout=300):
-    """Auto-destroy instance on exit or exception."""
-    inst = client.create_instance(offer_id, image, disk_gb)
-    instance_id = inst["new_contract"]
-    try:
-        info = client.poll_until_running(instance_id, timeout)
-        yield info
-    finally:
-        client.destroy_instance(instance_id)
+### Step 4: Own the lifecycle
 
-# Usage
-with managed_instance(client, offer["id"], "pytorch/pytorch:latest") as inst:
-    ssh_exec(inst["ssh_host"], inst["ssh_port"], "python train.py")
-```
+Persist the returned instance ID immediately, apply a monotonic deadline, classify terminal failure states, and place destroy or handoff in an explicit finalizer.
 
-### Pattern 3: Offer Scoring
+### Step 5: Test failure boundaries
 
-```python
-def score_offer(offer, weights=None):
-    w = weights or {"cost": 0.4, "reliability": 0.3, "perf": 0.3}
-    return (w["cost"] * (1.0 / max(offer["dph_total"], 0.01)) +
-            w["reliability"] * offer.get("reliability2", 0) * 100 +
-            w["perf"] * offer.get("dlperf", 0))
+Cover 401, 403, 429, malformed responses, create-without-ID, readiness timeout, and cleanup failure using local fakes.
 
-best = max(offers, key=score_offer)
-```
+### Step 6: Expose a redacted receipt
 
-### Pattern 4: Retry with Backoff
+Return normalized decisions and state transitions; never return the API key or full environment.
 
-```python
-import time
-from functools import wraps
+## Authentication
 
-def retry(max_attempts=3, backoff=2):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            for i in range(max_attempts):
-                try:
-                    return func(*args, **kwargs)
-                except Exception as e:
-                    if i == max_attempts - 1: raise
-                    time.sleep(backoff ** i)
-        return wrapper
-    return decorator
-```
+Construct clients from `VAST_API_KEY` or the approved local configuration. Do not pass keys as literals, serialize client objects, or let provider credentials cross into workload payloads.
 
-### Pattern 5: SSH Command Executor
+## Tool Discipline
 
-```python
-import subprocess
-
-def ssh_exec(host, port, cmd, timeout=300):
-    r = subprocess.run(
-        ["ssh", "-p", str(port), "-o", "StrictHostKeyChecking=no",
-         f"root@{host}", cmd],
-        capture_output=True, text=True, timeout=timeout)
-    if r.returncode != 0:
-        raise RuntimeError(f"SSH failed: {r.stderr}")
-    return r.stdout
-```
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- Typed `GPUQuery` builder for search filters
-- Context-managed instance lifecycle with auto-destroy
-- Offer scoring algorithm (cost, reliability, performance)
-- Retry decorator with exponential backoff
-- SSH command executor for remote jobs
+- Client-selection decision and typed adapter contract
+- Bounded lifecycle implementation with local failure tests
+- Redacted mutation and cleanup receipt
 
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Offer unavailable | Already rented | Re-search and pick next best |
-| SSH key rejected | Key not uploaded | Upload at cloud.vast.ai > SSH Keys |
-| Instance destroyed unexpectedly | Spot preemption | Use `managed_instance` with checkpoints |
-| API timeout | Network or server issue | Apply retry decorator |
-
-## Resources
-
-- [REST API Reference](https://vast.ai/developers/api)
-- [Search Filtering](https://docs.vast.ai/search-and-filter-gpu-offers)
-- [vast-cli GitHub](https://github.com/vast-ai/vast-cli)
-
-## Next Steps
-
-See `vastai-core-workflow-a` for the complete provisioning workflow.
+Return client type, package version, plan identity, provider resource IDs, terminal outcome, and cleanup owner.
 
 ## Examples
 
-**Cost-optimized scoring**: Use weights `{"cost": 0.7, "reliability": 0.2, "perf": 0.1}` for batch jobs where price dominates. Use `{"cost": 0.1, "reliability": 0.6, "perf": 0.3}` for long training runs where uptime matters.
+An async job runner uses `AsyncClient` as a context manager, records `instance.id` before waiting, cancels on its deadline, and destroys the instance in a tested finalizer.
 
-**Auto-cleanup**: Wrap any GPU job in `managed_instance` to guarantee destruction even on crash.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Create succeeds without a usable ID | Stop follow-on work, reconcile instances from the account, and avoid a blind second create. |
+| Response shape changes | Fail at the adapter boundary and retain the redacted raw response for review. |
+| 429 occurs | Use bounded client retry and reduce polling; do not multiply retries at every layer. |
+| Finalizer cannot destroy | Persist the resource ID and page the billing owner. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [Official SDK skill](https://github.com/vast-ai/vast-cli/blob/master/vastai_sdk/SKILL.md)
+- [Python SDK reference](https://docs.vast.ai/sdk/python)
+- [API rate limits and errors](https://docs.vast.ai/api-reference/rate-limits-and-errors)

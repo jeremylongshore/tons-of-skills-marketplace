@@ -1,137 +1,103 @@
 ---
 name: flexport-hello-world
-description: "Create a minimal working Flexport example \u2014 list shipments and\
-  \ track containers.\nUse when starting a new Flexport integration, testing your\
-  \ setup,\nor learning the Flexport REST API v2 patterns.\nTrigger: \"flexport hello\
-  \ world\", \"flexport example\", \"flexport quick start\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*)
-version: 1.6.0
+description: >-
+  Prove a Flexport integration with one read-only shipment request and a defensively parsed receipt. Use when validating new credentials, network access, version selection, or response handling. Trigger with: "test Flexport API", "Flexport hello world", "verify shipment access".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[credential-alias-and-test-scope]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - validation
+  - shipments
+compatibility: 'Requires approved Flexport credentials and access to a tenant with a non-sensitive testable shipment or empty-list response.'
 ---
-# Flexport Hello World
+
+# Read-Only Flexport v3 Proof
 
 ## Overview
 
-List shipments and retrieve tracking milestones using the Flexport REST API v2. Flexport has no npm SDK -- you call `https://api.flexport.com` directly with bearer token auth and a `Flexport-Version: 2` header.
+Establish connectivity without creating freight, documents, or bookings. Pin the intended API version, accept documented response wrappers, and preserve only a redacted proof.
 
 ## Prerequisites
 
-- `FLEXPORT_API_KEY` environment variable set
-- Completed `flexport-install-auth` setup
-- Node.js 18+ (uses native `fetch`)
+- Approved read-only credential and credential alias
+- Known account API version or explicit `Flexport-Version` choice
+- A test policy that permits either one shipment reference or an empty list
 
 ## Instructions
 
-### Step 1: List Your Shipments
+### Step 1: Define the proof
 
-```typescript
-// src/flexport/hello.ts
-const BASE = 'https://api.flexport.com';
-const headers = {
-  'Authorization': `Bearer ${process.env.FLEXPORT_API_KEY}`,
-  'Flexport-Version': '2',
-  'Content-Type': 'application/json',
-};
+Set the expected account, endpoint, version, and allowed evidence before making a call.
 
-// List shipments with pagination
-const res = await fetch(`${BASE}/shipments?per=5&page=1`, { headers });
-const { data } = await res.json();
+### Step 2: Acquire authentication
 
-data.records.forEach((shipment: any) => {
-  console.log(`${shipment.id} | ${shipment.status} | ${shipment.freight_type}`);
-  console.log(`  Origin: ${shipment.origin_port?.name ?? 'N/A'}`);
-  console.log(`  Dest:   ${shipment.destination_port?.name ?? 'N/A'}`);
-});
-```
+Reuse a cached OAuth client-credentials token, or use an explicitly approved API key. Keep the credential out of command text and logs.
 
-### Step 2: Get Shipment Details with Milestones
+### Step 3: Request shipments
 
-```typescript
-// Retrieve a single shipment with tracking milestones
-const shipmentId = data.records[0].id;
-const detail = await fetch(`${BASE}/shipments/${shipmentId}`, { headers }).then(r => r.json());
+Send `GET https://api.flexport.com/shipments` with Bearer authorization, JSON acceptance, and `Flexport-Version: 3` when an explicit v3 override is intended.
 
-console.log(`\nShipment ${detail.data.id}:`);
-console.log(`  Status: ${detail.data.status}`);
-console.log(`  Cargo ready: ${detail.data.cargo_ready_date}`);
-console.log(`  Containers: ${detail.data.containers?.length ?? 0}`);
-```
+### Step 4: Parse defensively
 
-### Step 3: List Containers on a Shipment
+Read the documented response envelope and pagination links without assuming invented ID prefixes, undocumented nested records, or a fixed set of additive fields.
 
-```typescript
-// Get container details for ocean freight shipments
-const containers = await fetch(
-  `${BASE}/shipments/${shipmentId}/containers`, { headers }
-).then(r => r.json());
+### Step 5: Validate tenant safety
 
-containers.data.records.forEach((c: any) => {
-  console.log(`Container ${c.container_number} | ${c.container_type} | ${c.status}`);
-});
-```
+Confirm the response belongs to the intended account and emit only count, HTTP status, selected version, and a hashed operation identifier.
+
+### Step 6: Fail closed
+
+Do not progress from a successful read to document creation, booking, or mutation. Make the next action a separate approved workflow.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
 
 ## Output
 
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
+
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
 ```
-shp_abc123 | in_transit | ocean
-  Origin: Shanghai Port
-  Dest:   Los Angeles Port
-
-Shipment shp_abc123:
-  Status: in_transit
-  Cargo ready: 2025-03-01
-  Containers: 2
-
-Container MSKU1234567 | 40ft_hc | in_transit
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| 401 Unauthorized | Invalid API key | Check `FLEXPORT_API_KEY` env var |
-| 404 Not Found | Wrong shipment ID | Verify ID from `/shipments` list |
-| 422 Unprocessable | Bad query params | Check `per`/`page` are integers |
-| Empty records array | No shipments yet | Create a booking first or use sandbox |
 
 ## Examples
 
-### Python Quick Start
+A deployment probe requests the first shipment page with a cached OAuth token, confirms HTTP 200 and the intended version, records `count=0` or a redacted count, then exits without following pagination.
 
-```python
-import os, requests
+## Error Handling
 
-BASE = 'https://api.flexport.com'
-headers = {
-    'Authorization': f'Bearer {os.environ["FLEXPORT_API_KEY"]}',
-    'Flexport-Version': '2',
-}
-
-shipments = requests.get(f'{BASE}/shipments', headers=headers, params={'per': 5}).json()
-for s in shipments['data']['records']:
-    print(f"{s['id']} | {s['status']} | {s['freight_type']}")
-```
-
-### cURL One-Liner
-
-```bash
-curl -s -H "Authorization: Bearer $FLEXPORT_API_KEY" \
-     -H "Flexport-Version: 2" \
-     https://api.flexport.com/shipments?per=3 | jq '.data.records[] | {id, status, freight_type}'
-```
+| Failure | Response |
+| --- | --- |
+| 401 response | Refresh once through the shared cache, then inspect credential state instead of retrying. |
+| 403 response | Check endpoint resources and account access; do not switch to a broad key automatically. |
+| Unexpected schema | Capture field names and version only, then compare with current v3 documentation. |
+| Non-empty sensitive payload | Discard payload content and keep a metadata-only receipt. |
 
 ## Resources
 
-- [Shipment API Tutorial](https://developers.flexport.com/tutorials/shipment-api-tutorial/)
-- [Flexport API Reference](https://apidocs.flexport.com/)
-- [Developer Portal](https://developers.flexport.com/)
-
-## Next Steps
-
-Proceed to `flexport-local-dev-loop` for development workflow setup.
+- [First-party source notes](references/official-docs.md)
+- [Shipment API tutorial](https://developers.flexport.com/tutorials/shipment-api-tutorial/)
+- [Versioning](https://apidocs.flexport.com/v3/tag/Versioning/)
+- [Flexport API reference](https://apidocs.flexport.com/v3/)

@@ -1,275 +1,97 @@
 ---
 name: coderabbit-enterprise-rbac
-description: 'Configure CodeRabbit enterprise access control, seat management, and
-  organization policies.
-
-  Use when managing who gets AI reviews, configuring organization-level defaults,
-
-  or implementing access policies for CodeRabbit across teams.
-
-  Trigger with phrases like "coderabbit SSO", "coderabbit RBAC",
-
-  "coderabbit enterprise", "coderabbit roles", "coderabbit permissions", "coderabbit
-  seats".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*)
-version: 1.11.0
-license: MIT
+description: >-
+  Design and audit roles, seats, API access, and administrative separation for an enterprise organization. Use when this operator task needs a current, evidence-backed
+  CodeRabbit workflow. Trigger with "audit CodeRabbit RBAC".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[target] [evidence-or-scope]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- coderabbit
-- enterprise
-- rbac
-- access-control
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current CodeRabbit documentation and approved access for any live organization, repository, billing, or API change
+tags: [saas, coderabbit, enterprise, rbac, access-control]
 ---
 # CodeRabbit Enterprise RBAC
 
 ## Overview
 
-Manage CodeRabbit AI code review access across an enterprise organization. CodeRabbit inherits repository permissions from your Git provider -- if a developer has write access to a repo and opens a PR, CodeRabbit reviews it. Enterprise controls focus on seat management, repository scoping, organization-level configuration, and review policy enforcement.
+Use CodeRabbit native administrative roles instead of inferring all access from the Git provider. Map developer seats and administrative authority separately.
 
 ## Prerequisites
 
-- CodeRabbit Pro or Enterprise plan
-- GitHub Organization admin or GitLab Group owner role
-- CodeRabbit GitHub App installed on the organization
-- Access to CodeRabbit dashboard at app.coderabbit.ai
+- Identify the CodeRabbit organization, Git provider, repository, plan, and accountable owner.
+- Read `references/official-docs.md` and re-check any time-sensitive contract before execution.
+- Use synthetic or read-only evidence until the approval boundary is satisfied.
+- Preserve the repository's independent CI, security, and human-review requirements.
 
-## Access Control Model
+## Current Contract
 
-```
-GitHub/GitLab Org Permissions
-         │
-         ▼
-┌─────────────────────────┐
-│ CodeRabbit GitHub App   │
-│ Repository Access:      │
-│  ├── All repositories   │ ← Reviews every PR in the org
-│  └── Select repos only  │ ← Reviews only selected repos
-└─────────┬───────────────┘
-          │
-          ▼
-┌─────────────────────────┐
-│ Seat Assignment         │
-│  ├── Active committers  │ ← Auto-assigns seats to PR authors
-│  └── Manual assignment  │ ← Admin picks who gets seats
-└─────────┬───────────────┘
-          │
-          ▼
-┌─────────────────────────┐
-│ .coderabbit.yaml        │
-│  ├── Org-level defaults │ ← .github repo
-│  └── Repo-level overrides│ ← Per-repo customization
-└─────────────────────────┘
-```
+- Built-in roles are Admin, Member, and Billing Admin.
+- CodeRabbit roles are independent of Git roles after initial assignment.
+- Billing Admin does not consume a seat and cannot edit role matrices.
+- Enterprise custom roles expose granular permissions.
+
+## Authentication
+
+Treat Git-provider sessions, CodeRabbit web sessions, CLI credentials, and CodeRabbit API keys as separate credentials. Use only an already-approved session or secret-manager reference, never print a secret, and do not place credentials in `.coderabbit.yaml`, source files, logs, or deliverables.
 
 ## Instructions
 
-### Step 1: Control Repository Access
+1. Inventory users, provider roles, CodeRabbit roles, seats, keys, and repo access.
 
-```markdown
-# In GitHub > Organization > Settings > Installed Apps > CodeRabbit:
+2. Map job functions to least privilege across settings, billing, reports, API, and logs.
 
-Option A: "All repositories" (org-wide)
-- Every repo gets AI reviews automatically
-- New repos are covered immediately
-- Higher seat count (every PR author = seat)
+3. Find toxic combinations, stale admins, unused seats, and unmanaged keys.
 
-Option B: "Only select repositories" (targeted)
-- Choose which repos get AI reviews
-- Lower seat count
-- New repos must be manually added
+4. Draft changes with partial-success handling, rollback, and recertification.
 
-# Recommended: Start with Option B (select repos)
-# Add repos in tiers based on risk/value
-```
+## Tool Discipline
 
-### Step 2: Configure Seat Management
+- Use **Glob** to locate candidate configuration and evidence files without widening scope.
+- Use **Grep** to find relevant fields, commands, identifiers, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use these file tools as a substitute for authenticated CodeRabbit or provider operations.
 
-```markdown
-# In CodeRabbit Dashboard > Organization > Subscription:
+## Approval Boundaries
 
-1. Seat Policy Options:
-   - "Active committers" → Auto-assign to anyone who opens a PR
-   - "Manual assignment" → Admin explicitly assigns seats
-
-2. Exclude Bot Accounts:
-   - dependabot[bot]
-   - renovate[bot]
-   - github-actions[bot]
-   - Any CI service accounts
-
-3. Monitor Seat Usage:
-   - Active seats: developers who opened PRs in last 30 days
-   - Idle seats: no PR activity in 30+ days → candidates for removal
-
-# Billing: ~$15/seat/month (Pro), custom (Enterprise)
-# Only PR authors consume seats, not reviewers or commenters
-```
-
-### Step 3: Set Organization-Level Defaults
-
-```yaml
-# .github/.coderabbit.yaml (in the .github repo)
-# Applied to ALL repos unless overridden by repo-level config
-
-language: "en-US"
-reviews:
-  profile: "assertive"
-  request_changes_workflow: false
-  high_level_summary: true
-  review_status: true
-  poem: false
-  sequence_diagrams: true
-
-  auto_review:
-    enabled: true
-    drafts: false
-    ignore_title_keywords:
-      - "WIP"
-      - "DO NOT MERGE"
-      - "chore: bump"
-
-  path_filters:
-    - "!**/*.lock"
-    - "!**/*.snap"
-    - "!**/generated/**"
-    - "!dist/**"
-    - "!vendor/**"
-
-  # Organization-wide coding standards
-  path_instructions:
-    - path: "**"
-      instructions: |
-        Org-wide rules:
-        1. Flag hardcoded secrets, API keys, or credentials
-        2. Check for proper error handling (no empty catch blocks)
-        3. Verify input validation on API endpoints
-
-chat:
-  auto_reply: true
-```
-
-### Step 4: Team-Specific Repository Overrides
-
-```yaml
-# .coderabbit.yaml in a specific repo (overrides org defaults)
-reviews:
-  profile: "assertive"      # Can override org default
-  request_changes_workflow: true   # This repo requires CR approval
-
-  auto_review:
-    enabled: true
-    base_branches:
-      - main                 # Only review PRs targeting main
-    drafts: false
-
-  path_instructions:
-    - path: "src/auth/**"
-      instructions: |
-        SECURITY-CRITICAL path. Check for:
-        - Auth bypass vulnerabilities
-        - Injection attacks
-        - Improper session handling
-        - Token validation gaps
-    - path: "src/payments/**"
-      instructions: |
-        PCI-SENSITIVE path. Check for:
-        - Credit card data handling
-        - Proper encryption usage
-        - Audit logging of financial operations
-    - path: "migrations/**"
-      instructions: |
-        Verify: backward compatibility, rollback safety,
-        no data loss on down migration.
-```
-
-### Step 5: Audit Review Activity
-
-```bash
-set -euo pipefail
-ORG="${1:-your-org}"
-
-echo "=== CodeRabbit Org-Wide Review Audit ==="
-echo "Organization: $ORG"
-echo ""
-
-# List repos with CodeRabbit installed
-echo "--- Repos with CodeRabbit ---"
-for REPO in $(gh repo list "$ORG" --limit 50 --json name --jq '.[].name'); do
-  INSTALLED=$(gh api "repos/$ORG/$REPO/installation" --jq '.app_slug' 2>/dev/null || echo "none")
-  if [ "$INSTALLED" = "coderabbitai" ]; then
-    # Count recent reviews
-    REVIEWS=$(gh api "repos/$ORG/$REPO/pulls?state=closed&per_page=10" --jq '.[].number' 2>/dev/null | \
-      head -5 | xargs -I{} gh api "repos/$ORG/$REPO/pulls/{}/reviews" \
-        --jq '[.[] | select(.user.login=="coderabbitai[bot]")] | length' 2>/dev/null | \
-      awk '{sum+=$1} END {print sum+0}')
-    echo "  $REPO: $REVIEWS reviews (last 5 PRs)"
-  fi
-done
-```
-
-### Step 6: Enterprise SSO and Compliance
-
-```markdown
-# CodeRabbit Enterprise plan includes:
-
-1. SSO Integration:
-   - GitHub Enterprise Cloud SSO (SAML)
-   - GitLab SAML SSO
-   - Automatic seat provisioning via SCIM
-
-2. Data Residency:
-   - Code is processed and not stored (ephemeral analysis)
-   - Review comments stored in your Git provider (GitHub/GitLab)
-   - CodeRabbit learnings stored on CodeRabbit servers
-   - SOC 2 Type II certified
-
-3. Compliance Features:
-   - Audit logs available in enterprise dashboard
-   - Data processing agreement (DPA) available
-   - Custom data retention policies
-   - IP allowlisting for self-hosted GitLab
-
-# Contact: enterprise@coderabbit.ai for custom plans
-```
+Require an authorized CodeRabbit Admin and security owner before role, seat, default-role, or key changes. Keep analysis and drafts local until approval is explicit, and record who approved the action and its scope.
 
 ## Output
 
-- Repository access scoped to appropriate repos
-- Seat management configured with bot exclusions
-- Organization-level defaults deployed
-- Team-specific review policies applied
-- Audit script for review activity monitoring
+An access matrix, least-privilege target, exceptions, approved change set, and recertification schedule. Include source dates, unknowns, and the exact boundary between observed fact and recommendation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| CodeRabbit not reviewing PRs | App not installed on repo | Add repo in GitHub App settings |
-| Seat limit exceeded | Too many active committers | Remove inactive users or upgrade plan |
-| Org config not applying | No `.github` repo in org | Create `.github` repo with `.coderabbit.yaml` |
-| Repo config ignored | YAML syntax error | Validate YAML, check with `@coderabbitai configuration` |
-| Bot consuming seats | Bot opens PRs | Exclude bot usernames in seat management |
+| Condition | Response |
+|---|---|
+| Current contract is unclear or docs disagree | Stop mutation, cite both sources, and request owner resolution. |
+| Required access or approval is missing | Produce a draft and evidence plan only. |
+| Validation or pilot behavior differs from expectation | Restore the prior state and retain the failed evidence. |
+| Output contains secrets or private code | Stop, quarantine the artifact, redact it, and notify the data owner. |
 
 ## Examples
 
-Run a quarterly access review for a pilot organization: verify the app has only
-approved repositories, remove an inactive user, exclude bot accounts from seat
-allocation, and validate the resulting review coverage. If a team needs an
-exceptional repository or role, document its owner and expiry rather than
-granting organization-wide access permanently.
+### Example 1
+
+Separate billing duties using Billing Admin.
+
+### Example 2
+
+Create an Enterprise read-only audit custom role.
+
+## Validation
+
+- Confirm every claim against the dated sources in `references/official-docs.md`.
+- Verify the requested scope, owner, approval, happy path, failure path, and rollback.
+- Re-read the effective configuration or provider state after any approved change.
+- Report unsupported fields, undocumented endpoints, and unverified assumptions as failures.
 
 ## Resources
 
-- [CodeRabbit Enterprise](https://coderabbit.ai/pricing)
-- Organization Config
-- Seat Management
-- SOC 2 Compliance
-
-## Next Steps
-
-For cost optimization, see `coderabbit-cost-tuning`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

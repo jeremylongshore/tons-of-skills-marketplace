@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/lucidchart-pack",
-  "version": "1.0.3",
-  "description": "Claude Code skill pack for Lucidchart - 18 skills covering diagramming, flowcharts, and visual collaboration",
+  "version": "1.0.4",
+  "description": "Governed Lucid integration workflows for REST, Standard Import, editor extensions, and data connectors (18 skills)",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -13,9 +13,9 @@
     "claude-code",
     "claude-code-plugin",
     "lucidchart",
-    "diagramming",
-    "flowcharts",
-    "visual-collaboration",
+    "standard-import",
+    "extension-api",
+    "data-connectors",
     "ai-skills",
     "saas-pack"
   ],

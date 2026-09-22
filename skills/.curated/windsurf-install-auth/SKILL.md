@@ -1,153 +1,99 @@
 ---
 name: windsurf-install-auth
-description: 'Install Windsurf IDE and configure Codeium authentication.
-
-  Use when setting up Windsurf for the first time, logging in to Codeium,
-
-  or configuring API keys for team/enterprise deployments.
-
-  Trigger with phrases like "install windsurf", "setup windsurf",
-
-  "windsurf auth", "codeium login", "windsurf API key".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(brew:*), Bash(curl:*), Grep
-version: 1.11.0
+description: 'Install and authenticate Devin Desktop, the current name for Windsurf.
+  Use when performing first-time setup, the Windsurf-to-Devin Desktop update, organization
+  selection, or sign-in repair. Trigger with "install windsurf", "install Devin
+  Desktop", "windsurf auth", "sign in", or "choose organization".'
+argument-hint: "[operating system and account type]"
+allowed-tools: Read
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
 - windsurf
-- codeium
+- devin-desktop
 - authentication
 - ide-setup
 compatibility: Designed for Claude Code
 ---
-# Windsurf Install & Auth
+
+# Install and Authenticate Devin Desktop
 
 ## Overview
 
-Windsurf is an AI-powered code editor by Codeium (now Cognition AI), built on VS Code. It features Cascade (agentic AI assistant), Supercomplete (intent-aware autocomplete), and deep codebase indexing. Authentication is handled through Codeium accounts, not raw API keys.
+Devin Desktop is the new name for Windsurf. Existing Windsurf installations receive it as a standard over-the-air update, with plans, settings, extensions, workflows, and in-progress work carried forward.
 
 ## Prerequisites
 
-- macOS, Windows, or Linux (64-bit)
-- 8GB RAM minimum (16GB recommended for large codebases)
-- Internet connection for AI features
+- A supported desktop operating system shown on the current download page
+- A Devin/Windsurf account or organization invitation
+- Browser access for the interactive sign-in flow
+- Organization approval before installing on a managed device
+
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
 
 ## Instructions
 
-### Step 1: Install Windsurf
+### Step 1: Choose update or fresh install
 
-**macOS:**
+If Windsurf is already installed, use its normal update flow and preserve the existing profile. For a fresh install, download the signed installer from the official product page; do not use an unverified curl-to-shell command or third-party package.
 
-```bash
-brew install --cask windsurf
-```
+### Step 2: Preserve the current profile
 
-**Linux (Debian/Ubuntu):**
+Before a major update, record the editor version and export any profile the product exposes. Commit repository Rules, `AGENTS.md`, Workflows, and Skills separately so team customizations do not depend on one workstation.
 
-```bash
-curl -fsSL https://windsurf.com/install.sh | bash
-# Or download .deb from https://windsurf.com/download
-```
+### Step 3: Sign in interactively
 
-**Windows:** Download installer from https://windsurf.com/download
+1. Launch Devin Desktop.
+2. Select the visible sign-in option.
+3. Complete the browser-based account or enterprise identity-provider flow.
+4. Return to the editor and select the intended organization.
+5. Confirm that the account identity and plan shown in the product are expected.
 
-### Step 2: Authenticate with Codeium
+Do not ask users to paste session tokens, cookies, SAML assertions, recovery codes, or API keys into chat or repository files.
 
-On first launch, Windsurf prompts for Codeium authentication:
+### Step 4: Apply enterprise controls
 
-1. Click "Sign In" in the welcome tab or Windsurf widget (bottom-right status bar)
-2. Browser opens to Codeium auth page
-3. Sign in with Google, GitHub, or email
-4. Authorization token is stored locally at `~/.codeium/`
+For managed organizations, verify repository access, identity-provider policy, seat assignment, MCP policy, system Rules, network allowlists, and data controls through the current admin documentation. Do not invent private server URLs or undocumented settings keys.
 
-**Verify authentication:**
+### Step 5: Verify non-destructively
 
-- Check the Windsurf widget in the status bar -- it should show a checkmark
-- Open Cascade (Cmd/Ctrl+L) and send a test message
+Open a disposable or clean version-controlled project. Confirm:
 
-### Step 3: Configure for Enterprise / Team
+- Cascade opens and identifies Code and Chat modes;
+- a read-only codebase question returns relevant context;
+- Supercomplete is available where the plan and policy permit it;
+- no unexpected organization or repository is connected.
 
-For team deployments with centralized auth:
+## Output
 
-```json
-// Settings > Windsurf Settings (or ~/.codeium/config.json)
-{
-  "codeium.apiServer": "https://codeium.yourcompany.com",
-  "codeium.portal.url": "https://portal.yourcompany.com",
-  "codeium.enterpriseMode": true
-}
-```
-
-Enterprise API key (headless / CI environments):
-
-```bash
-# Set via environment variable for non-interactive use
-export CODEIUM_API_KEY="your-enterprise-api-key"
-```
-
-### Step 4: Verify AI Features Are Working
-
-```
-1. Open any project folder in Windsurf
-2. Type in a code file -- Supercomplete suggestions should appear
-3. Press Cmd/Ctrl+L to open Cascade chat
-4. Type "explain this project" -- Cascade should respond with codebase analysis
-5. Check status bar widget shows model name (e.g., SWE-1, Claude, GPT)
-```
-
-### Step 5: Select Your AI Model
-
-Cascade supports multiple models. Configure via the model selector dropdown in the Cascade panel:
-
-| Model | Plan Required | Best For |
-|-------|--------------|----------|
-| SWE-1 Lite | Free | Basic coding tasks |
-| SWE-1 | Pro ($15/mo) | Complex multi-file edits |
-| SWE-1.5 | Pro | Frontier-level performance |
-| Claude Sonnet | Pro | Nuanced reasoning |
-| GPT-4o | Pro | General-purpose coding |
-| Gemini Pro | Pro | Large context tasks |
+Report the installed Devin Desktop version, operating system, update or fresh-install path, sign-in method, selected organization, profile migration result, and successful non-destructive Cascade check. Redact all account identifiers not needed for verification.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| "Sign in required" | Auth token expired | Click Windsurf widget > Sign In |
-| Cascade not responding | Not authenticated | Check status bar for auth status |
-| No completions appearing | Supercomplete disabled | Click status bar widget > enable autocomplete |
-| Enterprise auth fails | Wrong API server URL | Verify `codeium.apiServer` setting |
-| "Indexing failed" | Workspace too large | Add `.codeiumignore` to exclude large dirs |
+| Issue | Response |
+|---|---|
+| Installer is blocked or damaged | Stop and use the current OS-specific troubleshooting instructions |
+| Browser sign-in does not return | Restart the interactive flow and check proxy or deep-link policy |
+| Wrong organization selected | Sign out, preserve diagnostics, and choose the authorized organization |
+| Features are unavailable | Verify plan, seat, organization policy, and quota state |
+| Update changed behavior | Check release notes and use the preserved profile for rollback evidence |
 
 ## Examples
 
-### Migrate Settings from VS Code
-
-```bash
-# Windsurf inherits VS Code extensions and settings
-# Import on first launch or manually:
-# Windsurf > Command Palette > "Import VS Code Settings"
-```
-
-### Verify Installation
-
-```bash
-# Check Windsurf CLI is available
-windsurf --version
-
-# Open project in Windsurf from terminal
-windsurf /path/to/project
-```
+**Successful handoff:** "Devin Desktop installed on macOS through the official signed download; browser SSO completed; Engineering organization selected; Cascade Chat read-only smoke test passed; no secrets collected."
 
 ## Resources
 
-- [Windsurf Download](https://windsurf.com/download)
-- [Windsurf Documentation](https://docs.windsurf.com)
-- [Codeium Account Portal](https://windsurf.com/account)
-- [Windsurf Pricing](https://windsurf.com/pricing)
+- [Focused first-party references](references/official-docs.md)
+- [Devin Desktop / Windsurf product page](https://windsurf.com/editor)
+- [Official download](https://windsurf.com/download)
+- [Common Devin Desktop issues](https://docs.devin.ai/desktop/troubleshooting/windsurf-common-issues)
+- [Enterprise administration](https://docs.devin.ai/desktop/guide-for-admins)
 
-## Next Steps
+## Related Skill
 
-After authentication, proceed to `windsurf-hello-world` for your first Cascade interaction.
+Continue with `windsurf-hello-world` to verify the installation through a disposable, guarded Code and Chat workflow before opening sensitive repositories.

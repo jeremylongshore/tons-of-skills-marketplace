@@ -4,7 +4,7 @@
 
 Official sources:
 
-- Anthropic: https://docs.anthropic.com/en/api/rate-limits
+- Anthropic: https://platform.claude.com/docs/en/api/rate-limits
 - OpenAI: https://platform.openai.com/docs/guides/rate-limits
 - Google Gemini: https://ai.google.dev/gemini-api/docs/rate-limits
 

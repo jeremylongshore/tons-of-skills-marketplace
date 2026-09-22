@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/engineer-design-diagram",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Generate production-grade engineering design diagrams (architecture, sequence, delta, drift) as self-contained dark-themed HTML files with accessible inline SVG. Grounds every diagram in real repo top",
   "keywords": [
     "architecture",

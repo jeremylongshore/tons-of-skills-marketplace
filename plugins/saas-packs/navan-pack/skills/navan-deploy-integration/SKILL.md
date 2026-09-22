@@ -1,175 +1,74 @@
 ---
 name: navan-deploy-integration
-description: 'Use when deploying Navan integrations with ERP systems (NetSuite, Sage
-  Intacct, Xero), HRIS platforms (Workday, BambooHR), or identity providers (Okta,
-  Azure AD).
-
-  Trigger with "navan deploy integration" or "navan erp setup" or "navan sso deployment".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Grep, Glob
-version: 1.8.0
+description: >-
+  Deploy a Navan integration with tenant isolation, canary controls, and reversible data flow. Use when releasing an API, file, identity, or finance connector. Trigger with "deploy Navan integration", "release Navan connector", or "canary Navan sync".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<surface> <target> <canary-scope>"
+version: 1.9.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- navan
-- travel
-compatibility: Designed for Claude Code
+tags: [saas, navan, deployment]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live or external Navan actions require network access and explicit approval"
 ---
-# Navan Deploy Integration
+# Navan Integration Deployment
 
 ## Overview
 
-Navan connects to enterprise systems through multiple integration methods: direct REST API with OAuth 2.0, SCIM for user provisioning, SFTP for batch file exchange, SAML/OIDC for SSO, and webhooks for real-time events. There is no SDK — all integrations use Navan's REST endpoints or admin console configuration. This skill provides deployment checklists for the three most common integration categories: ERP expense sync, HRIS user provisioning, and identity provider SSO.
+Deploy a Navan integration with tenant isolation, canary controls, and reversible data flow. This workflow produces an auditable decision or artifact before any live action.
 
 ## Prerequisites
 
-- **Navan Admin** account with integration management permissions
-- **OAuth 2.0 credentials** — `client_id` and `client_secret` from Admin > API Settings
-- **Target system admin access** — NetSuite/Sage Intacct/Xero admin, Workday/BambooHR admin, or Okta/Azure AD admin
-- API base URL: `https://api.navan.com/v1`
+- Access to the selected tenant's current Navan Help Center and contracted integration documentation.
+- A named business owner and data owner for the travel or expense workflow.
+- A non-production evidence set with secrets and traveler data removed.
+
+## Current Contract
+
+Deployment binds the application adapter to a documented Navan surface and an approved destination. Separate ingestion, normalization, publication, and write-back so each can stop without losing evidence.
+
+## Authentication
+
+Inject a production secret by reference at runtime; bind tenant, host, scope, destination, and environment. Verify revocation and break-glass procedures before traffic.
 
 ## Instructions
 
-### Category A — ERP Expense Sync (NetSuite, Sage Intacct, Xero, QuickBooks)
+1. Pin the reviewed artifact, contract revision, and configuration manifest.
+2. Deploy dark with network or scheduling disabled.
+3. Verify secret binding, egress allowlist, storage, redaction, and alert routing.
+4. Enable a bounded tenant/window canary and collect reconciliation evidence.
+5. Increase scope only after thresholds and owner review pass.
+6. Keep rollback, replay protection, checkpoints, and raw evidence until acceptance.
 
-**Deployment Checklist:**
+## Tool Discipline
 
-1. **Create OAuth credentials** in Navan Admin > API Settings
-2. **Configure GL code mappings** — Map Navan expense categories to your chart of accounts
-3. **Set cost center mappings** — Align Navan departments with ERP cost centers
-4. **Enable expense export** via REST API:
+Use Read, Glob, and Grep to inspect documentation, schemas, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Invocation alone does not authorize network access, credentials, traveler or expense data, bookings, payments, policy or identity changes, file transfers, deployments, or deletion.
 
-```bash
-# Fetch approved expenses ready for ERP sync
-curl -s -X GET "https://api.navan.com/v1/expenses?status=approved&limit=50" \
-  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-  -H "Content-Type: application/json"
+## Approval Boundaries
 
-# Response includes fields for ERP mapping:
-# {
-#   "uuid": "exp_abc123",
-#   "amount": 245.50,
-#   "currency": "USD",
-#   "category": "meals_entertainment",
-#   "cost_center": "engineering",
-#   "gl_code": "6200",
-#   "receipt_url": "https://api.navan.com/v1/receipts/exp_abc123",
-#   "approved_at": "2026-03-20T14:30:00Z"
-# }
-```
-
-1. **Set up sync schedule** — Navan supports daily or real-time export via webhooks
-2. **Validate with test expenses** — Submit 3-5 test expenses through the full approval flow
-3. **Enable in production** — Switch from sandbox to production OAuth credentials
-
-### Category B — HRIS User Provisioning (Workday, BambooHR, ADP)
-
-**SCIM Provisioning Setup:**
-
-1. **Enable SCIM** in Navan Admin > Integrations > User Provisioning
-2. **Configure SCIM endpoint** in your HRIS:
-   - SCIM Base URL: `https://api.navan.com/scim/v2`
-   - Authentication: OAuth 2.0 Bearer Token
-3. **Map user attributes:**
-
-| HRIS Field | Navan SCIM Attribute | Required |
-|------------|---------------------|----------|
-| Email | `userName` | Yes |
-| First Name | `name.givenName` | Yes |
-| Last Name | `name.familyName` | Yes |
-| Department | `urn:navan:department` | Recommended |
-| Manager | `urn:navan:manager_email` | Recommended |
-| Cost Center | `urn:navan:cost_center` | Optional |
-
-1. **Test provisioning** — Create a test user in HRIS and verify they appear in Navan within 15 minutes
-2. **Test deprovisioning** — Deactivate the test user and confirm Navan access is revoked
-3. **Verify via API:**
-
-```bash
-# Check provisioned users
-curl -s "https://api.navan.com/v1/users?provisioning_source=scim&limit=10" \
-  -H "Authorization: Bearer ${ACCESS_TOKEN}" | jq '.[] | {email, status, provisioned_at}'
-```
-
-### Category C — SSO Deployment (Okta, Azure AD)
-
-**SAML Configuration:**
-
-1. **Create SAML application** in your IdP (Okta or Azure AD)
-2. **Configure Navan SAML settings** in Admin > Security > SSO:
-   - Entity ID: `https://app.navan.com/saml/metadata`
-   - ACS URL: `https://app.navan.com/saml/acs`
-   - Name ID Format: `emailAddress`
-3. **Map SAML attributes:**
-
-```
-email       → user.email        (Required)
-firstName   → user.firstName    (Required)
-lastName    → user.lastName     (Required)
-department  → user.department   (Optional — enables policy routing)
-```
-
-1. **Upload IdP metadata XML** to Navan Admin console
-2. **Enable JIT provisioning** (optional) — Auto-create Navan accounts on first SSO login
-3. **Test with a pilot group** — Assign 5-10 users before org-wide rollout
-4. **Enforce SSO** — After pilot validation, enable "SSO Required" to disable password login
-
-## Output
-
-Each integration deployment produces:
-
-- **Connection validation** confirming data flows between systems
-- **Field mapping documentation** for ongoing maintenance
-- **Test results** from pilot user group
-- **Rollback instructions** if issues arise post-deployment
+Production enablement, egress, data movement, scheduling, scope expansion, and write-back require explicit service and data-owner approval.
 
 ## Error Handling
 
-| HTTP Code | Meaning | Resolution |
-|-----------|---------|------------|
-| `400` | Invalid field mapping or malformed request | Review GL code / attribute mappings |
-| `401` | OAuth token expired or invalid | Rotate credentials in Navan Admin |
-| `403` | Integration not enabled for your plan | Verify Navan plan includes this integration (Enterprise required for some) |
-| `409` | Duplicate user in SCIM provisioning | Check for existing user with same email |
-| `422` | Validation error on expense export | Verify required fields (amount, currency, category) are present |
-| `429` | Rate limited | Reduce sync frequency or implement exponential backoff |
+- Stop on tenant or destination mismatch.
+- Do not roll forward through unexplained count or total drift.
+- Rollback must preserve the ability to reconcile ambiguous deliveries.
+
+## Output
+
+Return artifact and contract IDs, canary scope, controls, metrics, reconciliation, approvals, and rollback receipt. Identify assumptions, owners, expirations, and evidence gaps explicitly.
 
 ## Examples
 
-**Automated daily expense export to NetSuite:**
+- Dark-deploy a booking ingestion worker before scheduling it.
+- Canary one legal entity for an expense export.
 
-```bash
-#!/usr/bin/env bash
-# scripts/navan-netsuite-sync.sh
-set -euo pipefail
+## Validation
 
-# Authenticate
-TOKEN=$(curl -sf -X POST https://api.navan.com/ta-auth/oauth/token \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "grant_type=client_credentials&client_id=${NAVAN_CLIENT_ID}&client_secret=${NAVAN_CLIENT_SECRET}" \
-  | jq -r '.access_token')
-
-# Fetch yesterday's approved expenses
-YESTERDAY=$(date -d "yesterday" +%Y-%m-%d)
-curl -s "https://api.navan.com/v1/expenses?status=approved&approved_after=${YESTERDAY}T00:00:00Z" \
-  -H "Authorization: Bearer $TOKEN" \
-  -o /tmp/navan-expenses.json
-
-EXPENSE_COUNT=$(jq length /tmp/navan-expenses.json)
-echo "Exporting $EXPENSE_COUNT expenses to NetSuite"
-```
+Exercise disabled mode, revoked secret, egress denial, partial delivery, process restart, and rollback. Record expected and observed results, including fail-closed behavior.
 
 ## Resources
 
-- [Navan Help Center](https://app.navan.com/app/helpcenter) — Integration setup guides
-- [Navan Integrations Directory](https://navan.com/integrations) — Full list of supported connectors
-- [SCIM Protocol Spec (RFC 7644)](https://datatracker.ietf.org/doc/html/rfc7644) — SCIM provisioning standard
-- [Navan Pricing](https://navan.com/pricing) — Plan comparison for integration availability
-
-## Next Steps
-
-- Add `navan-observability` to monitor integration health post-deployment
-- Add `navan-webhooks-events` for real-time event-driven sync instead of polling
-- See `navan-security-basics` for credential rotation and access control
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources and the selected tenant's in-account contract before relying on mutable endpoints, fields, entitlements, limits, or delivery behavior.
+- Record tenant observations as environment-specific evidence, never universal Navan guarantees.

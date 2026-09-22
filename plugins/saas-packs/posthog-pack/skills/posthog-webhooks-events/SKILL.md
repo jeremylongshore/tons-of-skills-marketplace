@@ -1,16 +1,10 @@
 ---
 name: posthog-webhooks-events
-description: 'Implement PostHog webhook destinations, Action-triggered notifications,
-
-  and event querying via the Events API and HogQL.
-
-  Trigger: "posthog webhook", "posthog events API", "posthog actions",
-
-  "posthog notifications", "posthog event query", "posthog HogQL".
-
-  '
+description: |
+  Build and verify PostHog realtime webhook destinations and bounded private-API or HogQL event queries. Use when delivering selected events to another system or investigating event data. Trigger with "PostHog webhook", "PostHog destination", or "PostHog HogQL query".
+argument-hint: "[project] [destination-or-query]"
 allowed-tools: Read, Write, Edit, Bash(curl:*)
-version: 1.12.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -33,12 +27,16 @@ PostHog sends webhooks via its CDP (Customer Data Platform) Destinations feature
 
 ## Instructions
 
+### Tool discipline
+
+Use `Read` to inspect the relevant configuration and implementation before proposing changes. Use `Write` only for a new, explicitly requested artifact inside the target project. Use `Edit` for minimal changes to existing project files after the evidence pass.
+
 ### Step 1: Create a Webhook Destination via API
 
 ```bash
 set -euo pipefail
 # Create a webhook destination that fires on specific events
-curl -X POST "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/pipeline_destinations/" \
+curl -X POST "https://us.posthog.com/api/projects/$POSTHOG_PROJECT_ID/pipeline_destinations/" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -162,7 +160,7 @@ async function onSubscriptionCanceled(payload: PostHogWebhookPayload) {
 ```bash
 set -euo pipefail
 # List recent events by type
-curl "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/events/?event=user_signed_up&limit=10&orderBy=-timestamp" \
+curl "https://us.posthog.com/api/projects/$POSTHOG_PROJECT_ID/events/?event=user_signed_up&limit=10&orderBy=-timestamp" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" | \
   jq '.results[] | {
     distinct_id,
@@ -172,7 +170,7 @@ curl "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/events/?event=use
   }'
 
 # Get events for a specific person
-curl "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/events/?distinct_id=user-123&limit=20" \
+curl "https://us.posthog.com/api/projects/$POSTHOG_PROJECT_ID/events/?distinct_id=user-123&limit=20" \
   -H "Authorization: Bearer $POSTHOG_PERSONAL_API_KEY" | \
   jq '.results[] | {event, timestamp}'
 ```
@@ -183,7 +181,7 @@ curl "https://app.posthog.com/api/projects/$POSTHOG_PROJECT_ID/events/?distinct_
 // Complex event analysis with HogQL (PostHog's SQL dialect)
 async function queryPostHog(hogql: string) {
   const response = await fetch(
-    `https://app.posthog.com/api/projects/${process.env.POSTHOG_PROJECT_ID}/query/`,
+    `https://us.posthog.com/api/projects/${process.env.POSTHOG_PROJECT_ID}/query/`,
     {
       method: 'POST',
       headers: {
@@ -255,7 +253,13 @@ PostHog has built-in Slack integration via Data Pipelines > Destinations:
 - Event queries via REST API and HogQL
 - Slack/CRM integration on user lifecycle events
 
+## Examples
+
+For a webhook destination, define the filtered event set, minimal payload, receiver authentication, idempotency key, retry behavior, and response logging; then use the built-in test flow before enabling it. For queries, use the regional private API with a scoped credential and a bounded time range.
+
 ## Resources
+
+See [official PostHog references](references/official-docs.md) for current authority and verification boundaries.
 
 - [PostHog CDP Destinations](https://posthog.com/docs/cdp/destinations)
 - [PostHog Webhook Destination](https://posthog.com/docs/cdp/destinations/webhook)

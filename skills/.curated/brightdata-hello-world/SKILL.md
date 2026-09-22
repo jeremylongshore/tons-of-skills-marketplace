@@ -1,161 +1,84 @@
 ---
 name: brightdata-hello-world
-description: 'Create a minimal working Bright Data example.
-
-  Use when starting a new Bright Data integration, testing your setup,
-
-  or learning basic Bright Data API patterns.
-
-  Trigger with phrases like "brightdata hello world", "brightdata example",
-
-  "brightdata quick start", "simple brightdata code".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(node:*)
-version: 1.6.0
+description: 'Prove one authorized Bright Data proxy request and capture a redacted connectivity receipt. Use when validating a new zone, testing egress, or separating proxy failures from target failures. Trigger with: "test my Bright Data proxy", "verify this zone", "run a safe Bright Data smoke test".'
+allowed-tools: Read, Grep, Bash(curl:*)
+version: 2.0.0
+argument-hint: "[approved-test-target]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
-- scraping
-- data
-- brightdata
-compatibility: Designed for Claude Code
+- web-data
+- bright-data
+- hello-world
+- operations
+compatibility: 'Requires an approved Bright Data account or offline fixtures, current Bright Data documentation, and an authorized public-data collection purpose'
 ---
-# Bright Data Hello World
+# Bright Data Authorized First Request
 
 ## Overview
 
-Scrape a real webpage through Bright Data's Web Unlocker proxy. Web Unlocker handles CAPTCHAs, fingerprinting, and retries automatically — you send a normal HTTP request through the proxy endpoint at `brd.superproxy.io:33335`.
+Run the smallest possible request against Bright Data's test endpoint. Keep proxy credentials out of the URL and process output, inspect current `x-brd-*` and `Proxy-Status` headers, and stop after one bounded proof.
 
 ## Prerequisites
 
-- Completed `brightdata-install-auth` setup
-- Web Unlocker zone active in Bright Data control panel
-- `brd-ca.crt` SSL certificate downloaded
+- An active non-production proxy zone and zone username/password
+- Authorization to reach `geo.brdtest.com` from the test environment
+- A log sink configured to redact authorization and proxy credentials
 
 ## Instructions
 
-### Step 1: Scrape via Web Unlocker Proxy (Node.js)
+### Step 1: Confirm the target
 
-```typescript
-// hello-brightdata.ts
-import axios from 'axios';
-import https from 'https';
-import 'dotenv/config';
+Read the runbook and Grep the allowlist for `geo.brdtest.com`. Refuse arbitrary or authenticated targets for this proof.
 
-const { BRIGHTDATA_CUSTOMER_ID, BRIGHTDATA_ZONE, BRIGHTDATA_ZONE_PASSWORD } = process.env;
+### Step 2: Run one request
 
-const proxy = {
-  host: 'brd.superproxy.io',
-  port: 33335,
-  auth: {
-    username: `brd-customer-${BRIGHTDATA_CUSTOMER_ID}-zone-${BRIGHTDATA_ZONE}`,
-    password: BRIGHTDATA_ZONE_PASSWORD!,
-  },
-};
+Pass proxy authentication separately from the proxy host so the credential does not appear in the URL.
 
-async function scrape(url: string) {
-  const response = await axios.get(url, {
-    proxy,
-    httpsAgent: new https.Agent({ rejectUnauthorized: false }),
-    timeout: 60000,
-  });
-  console.log(`Status: ${response.status}`);
-  console.log(`Content length: ${response.data.length} chars`);
-  console.log(response.data.substring(0, 500));
-  return response.data;
-}
-
-scrape('https://example.com').catch(console.error);
+```bash
+# 33335 is Bright Data's documented proxy gateway port.
+curl --silent --show-error --include \
+  --proxy http://brd.superproxy.io:33335 \
+  --proxy-user "$BRIGHTDATA_PROXY_USERNAME:$BRIGHTDATA_PROXY_PASSWORD" \
+  https://geo.brdtest.com/welcome.txt
 ```
 
-### Step 2: Scrape via REST API
+### Step 3: Classify the response
 
-```typescript
-// hello-brightdata-api.ts
-import 'dotenv/config';
+Record the HTTP status plus redacted `Proxy-Status`, `x-brd-err-code`, `x-brd-error`, and `x-brd-err-msg` values. Never retain the proxy authorization header or full username.
 
-async function scrapeViaAPI(url: string) {
-  const response = await fetch('https://api.brightdata.com/request', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${process.env.BRIGHTDATA_API_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      zone: process.env.BRIGHTDATA_ZONE,
-      url,
-      format: 'raw',
-    }),
-  });
-  const html = await response.text();
-  console.log(`Status: ${response.status}, Length: ${html.length}`);
-  return html;
-}
+### Step 4: Close the proof
 
-scrapeViaAPI('https://example.com').catch(console.error);
-```
+Store the timestamp, zone alias, target, result class, and owner decision. A successful test proves connectivity only; it does not authorize production collection.
 
-### Step 3: Python Version
+## Tool Discipline
 
-```python
-# hello_brightdata.py
-import os, requests
-from dotenv import load_dotenv
-
-load_dotenv()
-proxy_url = (
-    f"http://brd-customer-{os.environ['BRIGHTDATA_CUSTOMER_ID']}"
-    f"-zone-{os.environ['BRIGHTDATA_ZONE']}"
-    f":{os.environ['BRIGHTDATA_ZONE_PASSWORD']}"
-    f"@brd.superproxy.io:33335"
-)
-response = requests.get(
-    'https://example.com',
-    proxies={'http': proxy_url, 'https': proxy_url},
-    verify='./brd-ca.crt',
-    timeout=60,
-)
-print(f"Status: {response.status_code}, Length: {len(response.text)}")
-```
-
-## Geo-Targeting
-
-Add country or city targeting to the proxy username:
-
-```typescript
-// Country-level
-const username = `brd-customer-${ID}-zone-${ZONE}-country-us`;
-// City-level
-const username2 = `brd-customer-${ID}-zone-${ZONE}-country-us-city-newyork`;
-```
+Use Read and Grep to confirm the approved target and redaction policy. Use Bash(curl:*) for exactly the bounded Bright Data test request shown here. Do not write target content, rotate identities, or retry policy denials.
 
 ## Output
 
-- Successful HTTP response through Bright Data proxy
-- HTML content of the target page
-- Rotated IP address per request
+- One connectivity result tied to a zone alias and approved target
+- Redacted provider error metadata when the request fails
+- A clear pass, retry-later, or owner-escalation decision
 
 ## Examples
 
-Use a provider-approved test target or a domain you control, constrain the request to the minimum path and geography needed, and retain only the status and request identifier in shared logs. Verify that collection is permitted by applicable law, the target's terms, and the organization's policy before moving beyond a synthetic demonstration.
+Use a dedicated development zone and run one request to `geo.brdtest.com`. A 200 with expected provider metadata is a connectivity pass. A 407 is an access failure; a policy 403 is a stop condition, not a reason to switch networks.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `407 Proxy Auth Required` | Bad credentials | Check `brd-customer-{ID}-zone-{ZONE}` format |
-| `502 Bad Gateway` | Target site blocked | Web Unlocker retries; increase timeout |
-| `ETIMEDOUT` | CAPTCHA solving delay | Set timeout to 60-120s |
-| Empty response | Zone inactive | Verify zone in control panel |
+| Failure | Meaning | Response |
+|---------|---------|----------|
+| 407 with `client_10000` or related code | Invalid or missing zone credentials | Verify the zone binding without printing credentials |
+| Policy 403 | Target or network is not permitted | Stop and escalate to the authorization owner |
+| 429 | Account, target, or per-IP throttling | Stop the smoke test and follow the rate-control workflow |
 
 ## Resources
 
-- [Web Unlocker Docs](https://docs.brightdata.com/scraping-automation/web-unlocker/send-your-first-request)
-- Web Unlocker API
-- Geo-Targeting
-
-## Next Steps
-
-Proceed to `brightdata-local-dev-loop` for development workflow setup.
+- [Proxy API authentication](https://docs.brightdata.com/api-reference/proxy/proxy_api_auth)
+- [Proxy error catalog](https://docs.brightdata.com/proxy-networks/errorCatalog)
+- [Proxy configuration options](https://docs.brightdata.com/proxy-networks/config-options)
+- [Acceptable use policy](https://docs.brightdata.com/general/policy/acceptable-use-policy)

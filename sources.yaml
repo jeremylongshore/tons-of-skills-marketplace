@@ -1213,7 +1213,7 @@ sources:
   - name: uizze
     description: STOP UI SLOP. Ground Claude Code in 800,000+ real web and iOS screens, a product-specific design contract, required states, and a hard finish gate.
     repo: uizze/uizze
-    source_path: .
+    source_path: plugins/claude-directory
     target_path: plugins/design/uizze
     author:
       name: UIZZE
@@ -1230,10 +1230,10 @@ sources:
       - anti-slop
     include:
       - '/.claude-plugin/plugin.json'
-      - '/.claude-plugin/marketplace.json'
-      - '/skills/anti-ui-slop/SKILL.md'
+      - '/skills/anti-ui-slop/**'
       - '/README.md'
       - '/LICENSE'
+      - '/SECURITY.md'
     exclude:
       - '/.git/**'
       - '**/node_modules/**'

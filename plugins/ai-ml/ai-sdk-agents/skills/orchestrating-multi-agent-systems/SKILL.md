@@ -11,7 +11,7 @@ description: 'Execute orchestrate multi-agent systems with handoffs, routing, an
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(npm:*)
-version: 1.36.0
+version: 1.37.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

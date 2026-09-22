@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/salesloft-pack",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Claude Code skill pack for Salesloft - 18 skills covering sales engagement, cadence management, and pipeline analytics",
   "main": "README.md",
   "type": "module",

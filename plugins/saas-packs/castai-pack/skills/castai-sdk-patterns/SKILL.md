@@ -1,271 +1,88 @@
 ---
 name: castai-sdk-patterns
-description: 'Production-ready CAST AI REST API wrapper patterns in TypeScript and
-  Python.
-
-  Use when building reusable CAST AI clients, implementing retry logic,
-
-  or wrapping the CAST AI API for team use.
-
-  Trigger with phrases like "cast ai API patterns", "cast ai client wrapper",
-
-  "cast ai TypeScript", "cast ai Python client".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.4.0
+description: 'Build a production REST adapter for CAST AI from the current OpenAPI contract without inventing an unofficial SDK surface. Use when wrapping CAST AI operations in TypeScript, Python, or another service. Trigger with: "build a CAST AI client", "wrap the CAST AI API", "integrate CAST AI in code".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[adapter-or-client-root]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- kubernetes
-- cost-optimization
-- castai
-compatibility: Designed for Claude Code
+  - saas
+  - kubernetes
+  - cast-ai
+  - api-client
+  - integration
+compatibility: 'Requires the current CAST AI API specification; declarative infrastructure should use the supported Terraform provider where appropriate'
 ---
-# CAST AI SDK Patterns
+
+# CAST AI Contract-First API Adapter
 
 ## Overview
 
-CAST AI uses a REST API with `X-API-Key` header authentication. There is no official SDK -- build typed wrappers around `fetch` or `requests`. These patterns cover singleton clients, typed responses, retry with backoff, and multi-cluster management.
+Create a narrow adapter around approved CAST AI operations. Treat the OpenAPI description, regional base URL, organization scope, response schemas, and endpoint-specific rate behavior as explicit dependencies.
 
 ## Prerequisites
 
-- Completed `castai-install-auth` setup
-- TypeScript 5+ or Python 3.10+
-- Familiarity with async/await patterns
+- Named operations and business purpose
+- CAST AI region, organization boundary, and least-privilege service identity
+- Current OpenAPI contract pinned or checksummed for generation
+- Error, retry, telemetry, and secret-handling policy
 
 ## Instructions
 
-### Step 1: TypeScript API Client
+### Step 1: Choose API versus Terraform
 
-```typescript
-// src/castai/client.ts
-interface CastAIConfig {
-  apiKey: string;
-  baseUrl?: string;
-  timeoutMs?: number;
-}
+Use Read and Grep to determine whether the work is declarative infrastructure or runtime integration. Prefer the supported Terraform provider for owned desired state; use REST for bounded runtime reads or operations that the chosen provider does not own.
 
-interface CastAICluster {
-  id: string;
-  name: string;
-  status: string;
-  providerType: "eks" | "gke" | "aks";
-  agentStatus: string;
-  createdAt: string;
-}
+### Step 2: Pin the contract
 
-interface CastAISavings {
-  monthlySavings: number;
-  savingsPercentage: number;
-  currentMonthlyCost: number;
-  optimizedMonthlyCost: number;
-}
+Record the current API specification origin, retrieval time, checksum, selected operation IDs, and generated-client tool version. Do not copy guessed paths from examples or expose the entire generated surface to application code.
 
-interface CastAINode {
-  name: string;
-  instanceType: string;
-  lifecycle: "on-demand" | "spot";
-  allocatableCpu: string;
-  allocatableMemory: string;
-  zone: string;
-}
+### Step 3: Build the transport boundary
 
-class CastAIClient {
-  private apiKey: string;
-  private baseUrl: string;
-  private timeoutMs: number;
+Use Write or Edit to implement injected regional base URL, `X-API-Key` header handling, optional enterprise organization header, request timeout, cancellation, bounded response size, structured redaction, and correlation metadata. Never place keys in URLs or exception messages.
 
-  constructor(config: CastAIConfig) {
-    this.apiKey = config.apiKey;
-    this.baseUrl = config.baseUrl ?? "https://api.cast.ai";
-    this.timeoutMs = config.timeoutMs ?? 30000;
-  }
+### Step 4: Normalize domain operations
 
-  private async request<T>(path: string, options?: RequestInit): Promise<T> {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
+Expose small intent-oriented methods with validated identifiers and typed results. Keep raw provider payloads behind the adapter, retain unknown fields safely, and distinguish absent data from zero values.
 
-    try {
-      const response = await fetch(`${this.baseUrl}${path}`, {
-        ...options,
-        headers: {
-          "X-API-Key": this.apiKey,
-          "Content-Type": "application/json",
-          ...options?.headers,
-        },
-        signal: controller.signal,
-      });
+### Step 5: Classify failures
 
-      if (!response.ok) {
-        const body = await response.text();
-        throw new CastAIError(response.status, body, path);
-      }
+Map transport failures, 401, 403, 404, 409, endpoint-specific 429, 5xx, schema mismatch, deadline exhaustion, and uncertain mutation outcome. Retry only proven idempotent operations within a shared request budget.
 
-      return response.json();
-    } finally {
-      clearTimeout(timeout);
-    }
-  }
+### Step 6: Test without CAST AI
 
-  async listClusters(): Promise<CastAICluster[]> {
-    const data = await this.request<{ items: CastAICluster[] }>(
-      "/v1/kubernetes/external-clusters"
-    );
-    return data.items;
-  }
+Add fixtures for every status class, regional mismatch, enterprise header omission, pagination, unknown fields, redaction, timeout, cancellation, and throttling. Keep an optional live smoke test read-only and separately protected.
 
-  async getSavings(clusterId: string): Promise<CastAISavings> {
-    return this.request(`/v1/kubernetes/clusters/${clusterId}/savings`);
-  }
+## Tool Discipline
 
-  async listNodes(clusterId: string): Promise<CastAINode[]> {
-    const data = await this.request<{ items: CastAINode[] }>(
-      `/v1/kubernetes/external-clusters/${clusterId}/nodes`
-    );
-    return data.items;
-  }
-
-  async updatePolicies(clusterId: string, policies: Record<string, unknown>): Promise<void> {
-    await this.request(`/v1/kubernetes/clusters/${clusterId}/policies`, {
-      method: "PUT",
-      body: JSON.stringify(policies),
-    });
-  }
-}
-
-class CastAIError extends Error {
-  constructor(
-    public readonly status: number,
-    public readonly body: string,
-    public readonly path: string
-  ) {
-    super(`CAST AI ${status} on ${path}: ${body}`);
-    this.name = "CastAIError";
-  }
-
-  get retryable(): boolean {
-    return this.status === 429 || this.status >= 500;
-  }
-}
-```
-
-### Step 2: Singleton with Retry
-
-```typescript
-// src/castai/index.ts
-let instance: CastAIClient | null = null;
-
-export function getCastAIClient(): CastAIClient {
-  if (!instance) {
-    if (!process.env.CASTAI_API_KEY) {
-      throw new Error("CASTAI_API_KEY environment variable required");
-    }
-    instance = new CastAIClient({ apiKey: process.env.CASTAI_API_KEY });
-  }
-  return instance;
-}
-
-export async function withRetry<T>(
-  fn: () => Promise<T>,
-  maxRetries = 3
-): Promise<T> {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      return await fn();
-    } catch (err) {
-      if (attempt === maxRetries) throw err;
-      if (err instanceof CastAIError && !err.retryable) throw err;
-      const delay = 1000 * Math.pow(2, attempt) + Math.random() * 500;
-      await new Promise((r) => setTimeout(r, delay));
-    }
-  }
-  throw new Error("Unreachable");
-}
-```
-
-### Step 3: Python Client
-
-```python
-# castai_client.py
-import os
-import time
-import requests
-from dataclasses import dataclass
-from typing import Optional
-
-@dataclass
-class CastAIConfig:
-    api_key: str
-    base_url: str = "https://api.cast.ai"
-    timeout: int = 30
-
-class CastAIClient:
-    def __init__(self, config: Optional[CastAIConfig] = None):
-        self.config = config or CastAIConfig(
-            api_key=os.environ["CASTAI_API_KEY"]
-        )
-        self.session = requests.Session()
-        self.session.headers.update({
-            "X-API-Key": self.config.api_key,
-            "Content-Type": "application/json",
-        })
-
-    def _get(self, path: str) -> dict:
-        resp = self.session.get(
-            f"{self.config.base_url}{path}",
-            timeout=self.config.timeout,
-        )
-        resp.raise_for_status()
-        return resp.json()
-
-    def list_clusters(self) -> list[dict]:
-        return self._get("/v1/kubernetes/external-clusters")["items"]
-
-    def get_savings(self, cluster_id: str) -> dict:
-        return self._get(f"/v1/kubernetes/clusters/{cluster_id}/savings")
-
-    def list_nodes(self, cluster_id: str) -> list[dict]:
-        return self._get(
-            f"/v1/kubernetes/external-clusters/{cluster_id}/nodes"
-        )["items"]
-
-    def get_policies(self, cluster_id: str) -> dict:
-        return self._get(f"/v1/kubernetes/clusters/{cluster_id}/policies")
-```
-
-## Error Handling
-
-| Status | Meaning | Action |
-|--------|---------|--------|
-| 401 | Invalid API key | Rotate key at console.cast.ai |
-| 403 | Insufficient permissions | Use Full Access key |
-| 404 | Cluster not found | Verify cluster ID |
-| 429 | Rate limited | Backoff and retry |
-| 5xx | Server error | Retry with exponential backoff |
+Use Read and Grep for contract and repository discovery. Use Write and Edit for the adapter, fixtures, tests, and contract receipt. This skill does not fetch credentials, call production, or claim an unofficial library is vendor-supported.
 
 ## Output
 
-Provide a small client boundary that returns typed, redacted domain data or a
-classified failure with request correlation information. The boundary must not
-log API keys, full authorization headers, or unfiltered provider responses;
-callers need an explicit retry policy and a safe error category rather than a
-raw exception string.
+- API-versus-Terraform ownership decision
+- Pinned contract receipt and selected operations
+- Narrow authenticated adapter with normalized failures
+- Offline contract suite and protected smoke-test boundary
 
 ## Examples
 
-Call `list_clusters()` with a read-only development key and expose only the
-cluster ID and agent status to the caller. When the provider returns 429,
-capture the response category and retry according to the bounded backoff
-policy; on 401, stop retries and route the request to the secret-owner
-rotation process.
+A reporting service wraps two read operations and hides generated types behind its own domain model. The same repository leaves cluster policy desired state in Terraform to avoid competing authorities.
+
+## Error Handling
+
+| Failure                            | Response                                            |
+| ---------------------------------- | --------------------------------------------------- |
+| OpenAPI operation changes          | Fail generation or contract tests for review        |
+| Region and identity disagree       | Stop before sending the request                     |
+| Mutation result is uncertain       | Reconcile state before retry                        |
+| Response contains an unknown field | Preserve compatibility and log only its schema path |
 
 ## Resources
 
-- [CAST AI OpenAPI Spec](https://api.cast.ai/v1/spec/openapi.json)
-- [CAST AI Terraform Provider Source](https://github.com/castai/terraform-provider-castai)
-
-## Next Steps
-
-Apply these patterns in `castai-core-workflow-a` to manage cluster optimization.
+- [Adapter evidence and source notes](references/official-docs.md)
+- [API access](https://docs.cast.ai/docs/api-access)
+- [CAST AI API specification](https://api.cast.ai/spec/)
+- [CAST AI API FAQ](https://docs.cast.ai/docs/api)

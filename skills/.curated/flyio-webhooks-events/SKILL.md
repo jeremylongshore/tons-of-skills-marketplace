@@ -1,139 +1,97 @@
 ---
 name: flyio-webhooks-events
-description: 'Implement Fly.io machine events, health check monitoring, and log-based
-
-  event processing for deployment automation and alerting.
-
-  Trigger: "fly.io events", "fly.io machine status", "fly.io health monitoring".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(fly:*), Bash(curl:*)
-version: 1.7.0
+description: >-
+  Detect Fly.io Machine, health, release, and log changes through supported reads, waits, and log export without claiming general app webhooks. Use when building operational event automation. Trigger with: "monitor Fly Machine changes", "replace Fly webhook", "stream Fly health events".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[app-signal-and-observation-window]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- edge-compute
-- flyio
-compatibility: Designed for Claude Code
+  - saas
+  - flyio
+  - change-detection
+  - machine-states
+  - observability
+compatibility: 'Requires read access to the selected app signals, durable checkpoint state, a bounded observation window, and an approved downstream alert or event sink.'
 ---
-# Fly.io Events & Monitoring
+
+# Fly.io Machine and Health Change Feed
 
 ## Overview
 
-Fly.io does not have traditional webhooks. Instead, monitor machine state changes via the Machines API, process structured logs via `fly logs`, and use health check endpoints for automated responses.
+The general app platform does not document a customer-configurable webhook subscription and signing surface, so this route uses supported change detection through Machines reads and state waits, health status, deployment evidence, and documented log shipping. Extension-provider machine-event webhooks are a separate partner-specific contract and are not assumed here.
 
 ## Prerequisites
 
-- A scoped monitoring identity, approved app/region policy, event ledger, and an incident owner.
-- Redaction controls for logs and synthetic fixtures for state-change, health, and duplicate-event testing.
-
-## Output
-
-Return an event-processing receipt with opaque machine/event ID, monitor version, idempotency result, aggregate health state, notification destination, and redacted error category. Do not include tokens, log bodies, or user data.
-
-## Error Handling
-
-- Reject unknown app/region events and quarantine unexpected schemas or notification destinations.
-- Bound polling/retry, deduplicate state transitions, and pause automated actions on access or health anomalies.
-- Preserve only redacted incident evidence and use the rollback path before replaying actions.
-
-## Examples
-
-Send a synthetic machine state transition twice. The monitor records the first once, marks the second duplicate, and rejects an event from an unapproved app without sending its body to any notification channel.
+- Selected signal types, apps, regions, process groups, and service objectives
+- Durable last-seen state, deduplication key, overlap policy, and sink acknowledgement
+- Read-only token and redaction rules for Machine, health, release, and log fields
 
 ## Instructions
 
-### Step 1: Poll Machine State Changes
+### Step 1: Choose supported signals
 
-```typescript
-// Monitor machine state transitions via Machines API
-async function watchMachines(appName: string, callback: (event: MachineEvent) => void) {
-  const client = new FlyClient(appName, process.env.FLY_API_TOKEN!);
-  const stateCache = new Map<string, string>();
+Use Machine list or get for inventory, the Machine wait endpoint for a known transition, health-check status for routing readiness, release evidence for deployments, and documented log shipping for application events.
 
-  setInterval(async () => {
-    const machines = await client.listMachines();
-    for (const m of machines) {
-      const prev = stateCache.get(m.id);
-      if (prev && prev !== m.state) {
-        callback({
-          machineId: m.id,
-          region: m.region,
-          previousState: prev,
-          currentState: m.state,
-          timestamp: new Date(),
-        });
-      }
-      stateCache.set(m.id, m.state);
-    }
-  }, 10_000);  // Check every 10 seconds
-}
+### Step 2: Snapshot the starting boundary
 
-interface MachineEvent {
-  machineId: string;
-  region: string;
-  previousState: string;
-  currentState: string;
-  timestamp: Date;
-}
-```
+Record active Machine ID and instance version, lifecycle state, image, checks, regions, and the observation-window checkpoint before polling.
 
-### Step 2: Health Check Event Handler
+### Step 3: Normalize change identity
 
-```typescript
-// Implement health check that reports machine health
-// Fly.io uses this to auto-restart unhealthy machines
+Create a deterministic key from app, Machine, instance version, signal type, observed transition, and source timestamp. Preserve provider request or release lineage.
 
-import express from 'express';
-const app = express();
+### Step 4: Deduplicate before publishing
 
-app.get('/health', async (req, res) => {
-  const checks = {
-    database: await checkPostgres(),
-    redis: await checkRedis(),
-    memory: process.memoryUsage().heapUsed < 500 * 1024 * 1024,  // < 500MB
-  };
+Compare with last-seen state and the sink acknowledgement store. Publish only changed, validated, redacted records and advance the checkpoint after acknowledgement.
 
-  const healthy = Object.values(checks).every(Boolean);
-  res.status(healthy ? 200 : 503).json({
-    status: healthy ? 'healthy' : 'unhealthy',
-    region: process.env.FLY_REGION,
-    machine: process.env.FLY_MACHINE_ID,
-    checks,
-  });
-});
-```
+### Step 5: Detect gaps and stale monitors
 
-### Step 3: Structured Log Processing
+Alert on missed polls, wait timeouts, health age, log-export lag, state discontinuities, and unknown instance replacement. Re-read authoritative state before replay.
 
-```bash
-# Stream logs and process with jq
-fly logs -a my-app --json | jq -c 'select(.level == "error")' | while read -r line; do
-  echo "$line" >> errors.jsonl
-  # Send to Slack, PagerDuty, etc.
-done
+### Step 6: Reconcile downstream action
 
-# Search recent logs for specific patterns
-fly logs -a my-app --no-tail | grep -i "error\|crash\|oom"
-```
+Operational events may recommend but must not automatically restart, scale, or delete resources without a separately approved control policy.
 
-### Step 4: Deployment Event Notifications
+## Authentication
 
-```bash
-# Post-deploy notification in CI
-fly deploy -a my-app && \
-curl -X POST "$SLACK_WEBHOOK_URL" \
-  -H "Content-Type: application/json" \
-  -d "{\"text\": \"Deployed my-app to Fly.io. Status: $(fly status -a my-app --json | jq -r '.Status')\"}"
-```
+Use a read-only organization token for monitoring where possible and send bearer credentials only to documented Fly.io endpoints. Keep log-export credentials separate. Do not invent a shared webhook secret or signature header for general Fly Apps.
+
+## Tool Discipline
+
+Use Read and Grep to inspect application configuration, deployment evidence, provider documentation, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for an approved plan, configuration, implementation, test, or redacted receipt. Do not create, deploy, scale, restart, stop, suspend, destroy, rotate, revoke, expose, or migrate live Fly.io resources without explicit operator approval.
+
+## Output
+
+- Signal catalog and checkpoint policy
+- Normalized redacted changes with deterministic IDs and source lineage
+- Lag, gap, deduplication, acknowledgement, and reconciliation receipt
+
+Return the target organization, app, environment, region set, Machine or database identifiers, source-contract fingerprint, evidence, unresolved risks, rollback state, and final decision without exposing tokens, secrets, connection strings, or customer data.
+
+## Examples
+
+A monitor records each Machine ID, active instance version, image, state, and health. After a deploy, it emits one change per replacement, waits for sink acknowledgement, advances state, and never claims that Fly.io delivered a signed webhook.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Wait endpoint times out | Read the current Machine and instance version, record an unknown or delayed transition, and avoid duplicate action. |
+| Health timestamp is misunderstood | Treat last-updated as the last status change, not the most recent check execution. |
+| Downstream acknowledgement is unknown | Replay the same deterministic record and let sink deduplication prevent duplicate effects. |
 
 ## Resources
 
-- [Machines API](https://fly.io/docs/machines/api/machines-resource/)
-- [Health Checks](https://fly.io/docs/reference/configuration/#http_service-checks)
-- [Fly Logs](https://fly.io/docs/flyctl/logs/)
-
-## Next Steps
-
-For performance optimization, see `flyio-performance-tuning`.
+- [First-party source notes](references/official-docs.md)
+- [Machines API setup](https://fly.io/docs/machines/api/working-with-machines-api/)
+- [Automation and tokens](https://fly.io/docs/flyctl/integrating/)
+- [App configuration](https://fly.io/docs/reference/configuration/)
+- [Machines resource](https://fly.io/docs/machines/api/machines-resource/)
+- [Machine states](https://fly.io/docs/machines/machine-states/)
+- [Health checks](https://fly.io/docs/reference/health-checks/)
+- [Monitoring](https://fly.io/docs/monitoring/)
+- [Export logs](https://fly.io/docs/monitoring/exporting-logs/)

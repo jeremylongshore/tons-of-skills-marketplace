@@ -6,7 +6,10 @@
  * - Intent Solutions Enterprise Standards
  */
 
-/** @deprecated Use scripts/validate-skills-schema.py (universal validator v5.0) instead. This file is kept for ccpi backward compatibility only. */
+/**
+ * Compatibility validator used by `ccpi validate`. The repository's universal
+ * Python validator remains authoritative for marketplace grading.
+ */
 
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
@@ -20,9 +23,40 @@ const VALID_TOOLS = new Set([
   'Bash',
   'Glob',
   'Grep',
+  'Agent',
+  'Artifact',
+  'CronCreate',
+  'CronDelete',
+  'CronList',
+  'EndConversation',
+  'EnterPlanMode',
+  'EnterWorktree',
+  'ExitPlanMode',
+  'ExitWorktree',
+  'LSP',
+  'ListMcpResourcesTool',
+  'Monitor',
+  'PowerShell',
+  'PushNotification',
+  'ReadMcpResourceTool',
+  'RemoteTrigger',
+  'ReportFindings',
+  'ScheduleWakeup',
+  'SendMessage',
+  'SendUserFile',
+  'ShareOnboardingGuide',
+  'TaskCreate',
+  'TaskGet',
+  'TaskList',
+  'TaskOutput',
+  'TaskStop',
+  'TaskUpdate',
+  'Task', // Legacy alias retained for compatibility; new skills should use Agent.
+  'ToolSearch',
+  'WaitForMcpServers',
+  'Workflow',
   'WebFetch',
   'WebSearch',
-  'Task',
   'TodoWrite',
   'NotebookEdit',
   'AskUserQuestion',
@@ -33,25 +67,38 @@ const VALID_TOOLS = new Set([
 const REQUIRED_FIELDS = new Set(['name', 'description']);
 
 // Enterprise standard fields (Intent Solutions)
-const ENTERPRISE_REQUIRED = new Set(['allowed-tools', 'version', 'author', 'license']);
+const ENTERPRISE_REQUIRED = new Set([
+  'allowed-tools',
+  'version',
+  'author',
+  'license',
+  'compatibility',
+  'tags',
+]);
 
 // Optional fields per Anthropic spec + AgentSkills.io
 const OPTIONAL_FIELDS = new Set([
   'model',
+  'effort',
+  'background',
+  'when_to_use',
+  'arguments',
+  'disallowed-tools',
   'disable-model-invocation',
-  'mode',
   'tags',
   'metadata',
-  'compatible-with',
   'argument-hint',
   'context',
   'agent',
   'user-invocable',
   'hooks',
   'compatibility',
+  'paths',
+  'shell',
 ]);
 
-const DEPRECATED_FIELDS = new Set(['when_to_use']);
+const DEPRECATED_FIELDS = new Set(['mode', 'compatible-with']);
+const VALID_EFFORT_LEVELS = new Set(['low', 'medium', 'high', 'xhigh', 'max']);
 
 export interface SkillValidationResult {
   file: string;
@@ -89,13 +136,27 @@ function parseYamlFrontmatter(content: string): Record<string, unknown> | null {
 
 /**
  * Parse allowed-tools which can be string or list
- * Uses simple comma split per Intent Solutions standard
+ * Split on commas or whitespace outside a parenthesized tool scope.
  */
 function parseAllowedTools(toolsValue: unknown): string[] {
   if (Array.isArray(toolsValue)) {
     return toolsValue.map(String);
   } else if (typeof toolsValue === 'string') {
-    return toolsValue.split(',').map((t) => t.trim());
+    const tools: string[] = [];
+    let current = '';
+    let depth = 0;
+    for (const character of toolsValue) {
+      if (character === '(') depth += 1;
+      if (character === ')') depth -= 1;
+      if ((character === ',' || /\s/.test(character)) && depth === 0) {
+        if (current.trim()) tools.push(current.trim());
+        current = '';
+      } else {
+        current += character;
+      }
+    }
+    if (current.trim()) tools.push(current.trim());
+    return tools;
   }
   return [];
 }
@@ -107,18 +168,18 @@ function validateToolPermission(tool: string): { valid: boolean; message: string
   // Extract base tool name (before parentheses)
   const baseTool = tool.split('(')[0].trim();
 
-  if (!VALID_TOOLS.has(baseTool)) {
+  if (!VALID_TOOLS.has(baseTool) && !baseTool.startsWith('mcp__')) {
     return { valid: false, message: `Unknown tool: ${baseTool}` };
   }
 
   // Validate wildcard syntax if present
   if (tool.includes('(')) {
-    if (!tool.endsWith(')')) {
+    if (!tool.endsWith(')') || tool.indexOf('(') !== tool.lastIndexOf('(')) {
       return { valid: false, message: `Invalid wildcard syntax: ${tool}` };
     }
     const inner = tool.slice(tool.indexOf('(') + 1, -1);
-    if (!inner.includes(':')) {
-      return { valid: false, message: `Wildcard missing colon: ${tool}` };
+    if (!inner.trim()) {
+      return { valid: false, message: `Empty tool scope: ${tool}` };
     }
   }
 
@@ -300,8 +361,31 @@ export async function validateSkillFile(filePath: string): Promise<SkillValidati
 
   if ('model' in frontmatter) {
     const modelStr = String(frontmatter.model);
-    if (!['inherit', 'sonnet', 'haiku'].includes(modelStr) && !modelStr.startsWith('claude-')) {
+    if (
+      !['inherit', 'sonnet', 'haiku', 'opus', 'fable'].includes(modelStr) &&
+      !/^claude-[a-z0-9][a-z0-9.-]*$/.test(modelStr)
+    ) {
       result.warnings.push(`Unknown model value: ${modelStr}`);
+    }
+  }
+
+  if ('effort' in frontmatter && !VALID_EFFORT_LEVELS.has(String(frontmatter.effort))) {
+    result.errors.push(`Invalid effort. Must be one of: ${[...VALID_EFFORT_LEVELS].join(', ')}`);
+  }
+
+  if ('background' in frontmatter && typeof frontmatter.background !== 'boolean') {
+    result.errors.push("Field 'background' must be a boolean");
+  }
+
+  if ('shell' in frontmatter && !['bash', 'powershell'].includes(String(frontmatter.shell))) {
+    result.errors.push("Field 'shell' must be 'bash' or 'powershell'");
+  }
+
+  if ('disallowed-tools' in frontmatter) {
+    const tools = parseAllowedTools(frontmatter['disallowed-tools']);
+    for (const tool of tools) {
+      const { valid, message } = validateToolPermission(tool);
+      if (!valid) result.errors.push(message);
     }
   }
 

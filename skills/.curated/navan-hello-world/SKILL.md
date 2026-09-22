@@ -1,213 +1,74 @@
 ---
 name: navan-hello-world
-description: 'Make your first Navan API call to retrieve trip and user data.
-
-  Use when verifying a new Navan integration works end-to-end after auth setup.
-
-  Trigger with "navan hello world", "navan example", "test navan api", "first navan
-  call".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.8.0
+description: >-
+  Prove one contracted Navan integration can authenticate and return a bounded read-only response without inventing a universal API. Use when completing access intake. Trigger with "test Navan access", "first Navan read", or "Navan connectivity proof".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<tenant> <surface> <approved-read>"
+version: 1.9.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- navan
-- travel
-compatibility: Designed for Claude Code
+tags: [saas, navan, connectivity]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live or external Navan actions require network access and explicit approval"
 ---
-# Navan Hello World
+# Navan Read-Only Connectivity Proof
 
 ## Overview
 
-Execute a first API call against the Navan REST API to retrieve trip data. All examples use raw REST calls — Navan has **no public SDK**.
-
-**Purpose:** Confirm end-to-end integration by retrieving real trip data and parsing `uuid` primary keys.
+Prove one contracted Navan integration can authenticate and return a bounded read-only response without inventing a universal API. This workflow produces an auditable decision or artifact before any live action.
 
 ## Prerequisites
 
-- Completed `navan-install-auth` with working OAuth 2.0 credentials
-- `.env` file with `NAVAN_CLIENT_ID`, `NAVAN_CLIENT_SECRET`, and `NAVAN_BASE_URL`
-- Node.js 18+ (for TypeScript) or Python 3.8+ (for Python)
-- At least one trip or user in your Navan organization
+- Access to the selected tenant's current Navan Help Center and contracted integration documentation.
+- A named business owner and data owner for the travel or expense workflow.
+- A non-production evidence set with secrets and traveler data removed.
+
+## Current Contract
+
+The public site confirms downstream Booking API access and an Expense API for custom ERP integrations, but it does not publish a universal route or response schema. The selected tenant's current contract is the only execution authority.
+
+## Authentication
+
+Resolve the approved non-production credential at runtime and bind it only to the documented host. Redact headers, query values, traveler identities, booking details, and expense data from evidence.
 
 ## Instructions
 
-### Step 1: Acquire a Bearer Token
+1. Select the smallest documented read operation for the enabled surface.
+2. Copy its method, host, path, parameters, and response schema into a dated local contract fixture.
+3. Set a short timeout, response-size bound, and zero automatic retries.
+4. Run only after network and data-access approval is explicit.
+5. Validate status, content type, required fields, pagination envelope, and redaction.
+6. Store a content-free receipt and revoke temporary credentials when required.
 
-Reuse the token exchange from `navan-install-auth`:
+## Tool Discipline
 
-```typescript
-import 'dotenv/config';
+Use Read, Glob, and Grep to inspect documentation, schemas, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Invocation alone does not authorize network access, credentials, traveler or expense data, bookings, payments, policy or identity changes, file transfers, deployments, or deletion.
 
-async function getNavanToken(): Promise<string> {
-  const response = await fetch(`${process.env.NAVAN_BASE_URL}/ta-auth/oauth/token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'client_credentials',
-      client_id: process.env.NAVAN_CLIENT_ID!,
-      client_secret: process.env.NAVAN_CLIENT_SECRET!,
-    }),
-  });
-  if (!response.ok) throw new Error(`Auth failed: ${response.status}`);
-  const data = await response.json();
-  return data.access_token;
-}
-```
+## Approval Boundaries
 
-### Step 2: Retrieve Bookings (TypeScript)
-
-Call `GET /v1/bookings` to fetch booking records (paginated with `page` + `size`):
-
-```typescript
-interface NavanBooking {
-  uuid: string;           // Primary key for all booking records
-  traveler_name: string;
-  origin: string;
-  destination: string;
-  departure_date: string;
-  return_date: string;
-  booking_status: string;
-  booking_type: string;   // "flight", "hotel", "car"
-}
-
-async function getBookings(token: string): Promise<NavanBooking[]> {
-  const response = await fetch(
-    `${process.env.NAVAN_BASE_URL}/v1/bookings?page=0&size=50`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error(`GET /v1/bookings failed: ${response.status} ${response.statusText}`);
-  }
-
-  const { data } = await response.json(); // records in .data array
-  return data ?? [];
-}
-
-// Execute
-const token = await getNavanToken();
-const bookings = await getBookings(token);
-console.log(`Retrieved ${bookings.length} bookings:`);
-bookings.forEach((b) =>
-  console.log(`  [${b.uuid}] ${b.origin} -> ${b.destination} (${b.booking_status})`)
-);
-```
-
-### Step 3: Retrieve Bookings (Python)
-
-```python
-import os
-import requests
-from dotenv import load_dotenv
-
-load_dotenv()
-
-def get_navan_token() -> str:
-    resp = requests.post(
-        f"{os.environ.get('NAVAN_BASE_URL', 'https://api.navan.com')}/ta-auth/oauth/token",
-        data={
-            "grant_type": "client_credentials",
-            "client_id": os.environ["NAVAN_CLIENT_ID"],
-            "client_secret": os.environ["NAVAN_CLIENT_SECRET"],
-        },
-    )
-    resp.raise_for_status()
-    return resp.json()["access_token"]
-
-def get_bookings(token: str) -> list[dict]:
-    base_url = os.environ.get('NAVAN_BASE_URL', 'https://api.navan.com')
-    resp = requests.get(
-        f"{base_url}/v1/bookings",
-        params={"page": 0, "size": 50},
-        headers={"Authorization": f"Bearer {token}"},
-    )
-    resp.raise_for_status()
-    return resp.json()["data"]  # records in .data array
-
-token = get_navan_token()
-bookings = get_bookings(token)
-print(f"Retrieved {len(bookings)} bookings:")
-for b in bookings:
-    print(f"  [{b['uuid']}] {b.get('origin')} -> {b.get('destination')}")
-```
-
-### Step 4: Paginate and Filter Bookings
-
-Once the basic call works, use pagination and date filtering:
-
-```typescript
-// Paginate: page starts at 0, size controls page size
-const page2 = await fetch(
-  `${process.env.NAVAN_BASE_URL}/v1/bookings?page=1&size=50`,
-  { headers: { Authorization: `Bearer ${token}` } }
-);
-
-// Filter by creation date range (incremental params)
-const filtered = await fetch(
-  `${process.env.NAVAN_BASE_URL}/v1/bookings?createdFrom=2026-01-01&createdTo=2026-03-31&page=0&size=50`,
-  { headers: { Authorization: `Bearer ${token}` } }
-);
-```
-
-### Step 5: Understand the Response Shape
-
-Navan API responses use `uuid` as the primary key for booking records. Key fields to expect:
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `uuid` | string | Unique booking identifier (primary key) |
-| `traveler_name` | string | Full name of the traveler |
-| `booking_type` | string | "flight", "hotel", or "car" |
-| `booking_status` | string | Current status of the booking |
-| `origin` / `destination` | string | Airport codes or city names |
-
-## Output
-
-Successful completion produces:
-
-- A working API call retrieving real booking data from the Navan organization
-- Parsed response structure with records in `.data` array and `uuid` primary key
-- Tested pagination (`page` + `size`) and date filtering (`createdFrom` / `createdTo`)
+Network access, a real credential, and any response containing traveler or expense information require explicit approval; no write or booking action belongs in this proof.
 
 ## Error Handling
 
-| Error | Code | Cause | Solution |
-|-------|------|-------|----------|
-| Unauthorized | 401 | Expired or invalid OAuth token | Re-run token exchange; check credentials |
-| Forbidden | 403 | Insufficient permissions or wrong tier | Verify admin role; contact Navan support |
-| Not found | 404 | Invalid endpoint path | Check spelling; use exact paths from this guide |
-| Rate limited | 429 | Too many requests | Wait and retry with exponential backoff |
-| Server error | 500 | Navan service issue | Retry after 30s; check Navan status |
-| Maintenance | 503 | Scheduled or unscheduled downtime | Wait and retry; check for maintenance windows |
+- Treat redirects or HTML as contract mismatch, not success.
+- Do not print response bodies on authentication or schema failure.
+- Stop on an undocumented host, method, pagination rule, or write effect.
+
+## Output
+
+Return the contract revision, operation identifier, bounded result metadata, redaction result, elapsed time, and rollback or revocation status. Identify assumptions, owners, expirations, and evidence gaps explicitly.
 
 ## Examples
 
-**Quick curl test from terminal:**
+- Validate a one-record Booking API read defined in the tenant docs.
+- Confirm an Expense API metadata response without downloading receipts.
 
-```bash
-# Get token and fetch bookings in one pipeline
-TOKEN=$(curl -s -X POST https://api.navan.com/ta-auth/oauth/token \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "grant_type=client_credentials&client_id=$NAVAN_CLIENT_ID&client_secret=$NAVAN_CLIENT_SECRET" \
-  | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
+## Validation
 
-curl -s "https://api.navan.com/v1/bookings?page=0&size=5" \
-  -H "Authorization: Bearer $TOKEN" | python3 -m json.tool
-```
+Re-run with a missing secret, wrong tenant, timeout, oversized response, schema drift, and denied network approval. Record expected and observed results, including fail-closed behavior.
 
 ## Resources
 
-- [Navan Help Center](https://app.navan.com/app/helpcenter) — primary documentation hub
-- [Booking Data Integration](https://app.navan.com/app/helpcenter/articles/travel/admin/other-integrations/booking-data-integration) — booking data export guide
-- [Navan TMC API Docs](https://app.navan.com/app/helpcenter/articles/travel/admin/other-integrations/navan-tmc-api-integration-documentation) — API integration reference
-- [Navan Security](https://navan.com/security) — compliance certifications (SOC 2, ISO 27001)
-
-## Next Steps
-
-Now that your first API call works, proceed to `navan-sdk-patterns` to build a typed wrapper class, or see `navan-local-dev-loop` for a structured development environment.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources and the selected tenant's in-account contract before relying on mutable endpoints, fields, entitlements, limits, or delivery behavior.
+- Record tenant observations as environment-specific evidence, never universal Navan guarantees.

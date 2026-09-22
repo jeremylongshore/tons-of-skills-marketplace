@@ -1,119 +1,90 @@
 ---
 name: openevidence-performance-tuning
-description: 'Performance Tuning for OpenEvidence.
-
-  Trigger: "openevidence performance tuning".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.13.0
-license: MIT
+description: >-
+  Improve OpenEvidence question quality and reviewer efficiency through controlled prompt refinement. Use when working with OpenEvidence in a healthcare organization. Trigger with "openevidence performance tuning", "OpenEvidence prompting", or a matching workflow request.
+argument-hint: "[redacted-question] [desired-decision]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.14.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - openevidence
-- healthcare
-compatibility: Designed for Claude Code
+- prompting
+- quality
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; requires authorized OpenEvidence access and qualified clinical review for patient-care use
 ---
-# OpenEvidence Performance Tuning
+# OpenEvidence Prompt Refinement
 
 ## Overview
 
-OpenEvidence's clinical API handles evidence query response times, citation batch retrieval, and complex multi-condition query optimization. Clinical evidence queries can take 2-5 seconds as the system searches across thousands of medical studies and synthesizes responses. Citation batch retrieval for systematic reviews generates heavy load when fetching 50-200 references per query. Caching evidence responses, batching citation fetches, and optimizing query specificity reduces clinician wait times by 50-70% and keeps complex queries within acceptable latency bounds.
+Tune context and question structure while holding clinical accountability and source review constant. Keep inputs minimal, separate observed facts from assumptions, and leave consequential decisions with the named accountable owner.
 
-## Caching Strategy
+## Prerequisites
 
-```typescript
-const cache = new Map<string, { data: any; expiry: number }>();
-const TTL = { evidence: 1_800_000, citations: 3_600_000, queries: 300_000 };
+- A clearly bounded workflow, accountable clinical owner, and organizational policy
+- Current first-party OpenEvidence documentation and applicable institution agreements
+- Synthetic or properly authorized minimum-necessary data
 
-async function cached(key: string, ttlKey: keyof typeof TTL, fn: () => Promise<any>) {
-  const entry = cache.get(key);
-  if (entry && entry.expiry > Date.now()) return entry.data;
-  const data = await fn();
-  cache.set(key, { data, expiry: Date.now() + TTL[ttlKey] });
-  return data;
-}
-// Citations are stable (1hr). Evidence summaries update with new studies (30 min).
-```
+## Tool Discipline
 
-## Batch Operations
+Use `Read`, `Glob`, and `Grep` to inspect supplied policies, plans, and evidence. Use `WebFetch` only for current first-party OpenEvidence documentation. Use `Write` or `Edit` only when the user requests a named deliverable with an approved destination. Never expose credentials, PHI, recordings, or unrestricted environment output.
 
-```typescript
-async function fetchCitationsBatch(client: any, citationIds: string[], batchSize = 25) {
-  const results = [];
-  for (let i = 0; i < citationIds.length; i += batchSize) {
-    const batch = citationIds.slice(i, i + batchSize);
-    const res = await Promise.all(batch.map(id => client.getCitation(id)));
-    results.push(...res);
-    if (i + batchSize < citationIds.length) await new Promise(r => setTimeout(r, 500));
-  }
-  return results;
-}
-```
+## Current Contract
 
-## Connection Pooling
+- The official guide publishes prompt guidance and dedicated workflows for complex cases and Snow.
+- More detail is not always safer; include only relevant, authorized context.
+- Performance means decision usefulness and evidence traceability, not fastest answer or longest response.
 
-```typescript
-import { Agent } from 'https';
-const agent = new Agent({ keepAlive: true, maxSockets: 6, maxFreeSockets: 3, timeout: 30_000 });
-// Moderate socket count — evidence queries are sequential, citations parallel
-```
+## Authentication
 
-## Rate Limit Management
+Use only the official OpenEvidence web/mobile sign-in or an institution-approved access path. Do not invent API keys, OAuth clients, SDK credentials, service accounts, or private endpoints. Never ask a user to reveal a password, session token, cookie, or recovery code.
 
-```typescript
-async function withRateLimit(fn: () => Promise<any>): Promise<any> {
-  try { return await fn(); }
-  catch (err: any) {
-    if (err.status === 429) {
-      const retryMs = parseInt(err.headers?.['retry-after'] || '10') * 1000;
-      await new Promise(r => setTimeout(r, retryMs));
-      return fn();
-    }
-    throw err;
-  }
-}
-```
+## Instructions
 
-## Monitoring
+1. State the decision, intended user, population, outcome, constraints, and what uncertainty must remain visible.
+2. Remove identifiers and irrelevant narrative; separate known facts from assumptions.
+3. Run a baseline synthetic or authorized de-identified question and score relevance, citations, applicability, and reviewer effort.
+4. Change one prompt element at a time: specificity, timeframe, comparator, output structure, or request for conflicting evidence.
+5. Open citations and have a qualified clinician compare versions using the same rubric.
+6. Save a reusable pattern only if it improves the defined outcome across multiple representative cases.
 
-```typescript
-const metrics = { queries: 0, citationFetches: 0, cacheHits: 0, avgLatencyMs: 0, errors: 0 };
-function track(op: 'query' | 'citation', startMs: number, cached: boolean) {
-  metrics[op === 'query' ? 'queries' : 'citationFetches']++;
-  const lat = Date.now() - startMs;
-  metrics.avgLatencyMs = (metrics.avgLatencyMs * (metrics.queries - 1) + lat) / metrics.queries;
-  if (cached) metrics.cacheHits++;
-}
-```
+## Approval Boundaries
 
-## Performance Checklist
+Do not create or share accounts; change access, roles, agreements, consent, retention, or security settings; enter PHI; record a conversation; copy content into another system; contact a patient; make a diagnosis or treatment decision; submit billing; transmit a support packet; run a production pilot; or represent vendor capabilities without explicit approval from the accountable owner. A qualified professional remains responsible for clinical decisions.
 
-- [ ] Cache evidence responses with 30-min TTL (studies update periodically)
-- [ ] Cache citation metadata with 1-hour TTL (stable once published)
-- [ ] Batch citation retrieval in groups of 25 with 500ms pauses
-- [ ] Use specific condition + intervention queries instead of broad searches
-- [ ] Prefetch commonly queried drug interaction evidence
-- [ ] Enable HTTP keep-alive for persistent API connections
-- [ ] Monitor average query latency (target < 3s for simple queries)
-- [ ] Set client timeout to 30s for complex multi-condition queries
+## Output
+
+Return scope, current first-party evidence and date, data classification, workflow or findings, citations reviewed, assumptions rejected, clinical and governance owners, approval state, unresolved risk, and the exact next action. Redact patient and credential data.
 
 ## Error Handling
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| Slow evidence query (> 5s) | Broad multi-condition search | Narrow query to specific condition + intervention |
-| 429 on citation batch | Too many parallel citation fetches | Batch to 25, add 500ms delay between groups |
-| Stale evidence summary | Cache too long for rapidly evolving topic | Reduce TTL for high-churn topics (e.g., COVID) |
-| Timeout on complex query | Multi-study synthesis exceeding limit | Increase timeout to 30s, simplify query scope |
-| Missing citations | Study not yet indexed | Retry after 24h, check study publication date |
+| Condition | Response |
+|---|---|
+| Prompt becomes leading | Restore neutral framing and request alternatives or conflicting evidence. |
+| Answer gets longer, not better | Optimize for reviewable claims and cited evidence. |
+| Case is urgent | Use the clinical emergency workflow, not prompt iteration. |
+
+## Examples
+
+This compact example shows the minimum reviewable handoff; adapt fields to the approved workflow without adding sensitive data.
+
+Input:
+
+```text
+decision=diagnostic workup; context=de-identified; variants=3; reviewer=clinician
+```
+
+Expected handoff:
+
+```text
+best-variant=2; traceability=improved; uncertainty=preserved; template=approved
+```
 
 ## Resources
 
-- [OpenEvidence Platform](https://www.openevidence.com)
-- OpenEvidence API Docs
-
-## Next Steps
-
-See `openevidence-reference-architecture`.
+- [OpenEvidence official evidence register](references/official-docs.md)
+- [OpenEvidence User Guide](https://www.openevidence.com/user-guide)
+- [OpenEvidence Terms of Use](https://www.openevidence.com/policies/terms)

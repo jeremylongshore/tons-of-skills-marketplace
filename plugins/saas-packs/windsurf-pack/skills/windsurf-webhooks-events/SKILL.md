@@ -1,6 +1,6 @@
 ---
 name: windsurf-webhooks-events
-description: 'Build Windsurf extensions and integrate with VS Code extension API events.
+description: 'Build Devin Desktop (formerly Windsurf) extensions and integrate with VS Code extension API events.
 
   Use when building custom Windsurf extensions, tracking editor events,
 
@@ -12,7 +12,8 @@ description: 'Build Windsurf extensions and integrate with VS Code extension API
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(npx:*)
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -27,7 +28,7 @@ compatibility: Designed for Claude Code
 
 ## Overview
 
-Windsurf is built on VS Code and supports the full VS Code Extension API. Build custom extensions to track workspace events, integrate with external tools, and extend Cascade's capabilities. This skill covers extension development specific to the Windsurf environment.
+Build compatible extensions on Devin Desktop's VS Code foundation to observe workspace events and integrate external tools. Keep telemetry, credential, network, and user-consent boundaries explicit instead of assuming every VS Code behavior is product-guaranteed.
 
 ## Prerequisites
 
@@ -35,6 +36,13 @@ Windsurf is built on VS Code and supports the full VS Code Extension API. Build 
 - VS Code Extension API familiarity
 - `yo` and `generator-code` for scaffolding
 - Windsurf IDE for testing
+
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Write` only for a new artifact the user requested; never write credentials or unreviewed production configuration.
+- Use `Edit` for bounded, reviewable changes and preserve unrelated user work.
+- Use only the command-scoped `Bash` entries declared in frontmatter, with non-destructive checks before mutations.
 
 ## Instructions
 
@@ -212,6 +220,10 @@ npx vsce publish
 5. Verify webhook delivery (use https://webhook.site for testing)
 ```
 
+## Output
+
+Produce a reviewed VS Code-compatible extension change with event subscriptions, disposal lifecycle, authentication and secret storage, payload schema, retry behavior, local test evidence, package metadata, and marketplace compatibility notes. Do not log raw credentials or proprietary source.
+
 ## Error Handling
 
 | Issue | Cause | Solution |
@@ -250,10 +262,11 @@ npx -y webhook-relay -p 3456
 
 ## Resources
 
+- [Focused first-party references](references/official-docs.md)
 - [VS Code Extension API](https://code.visualstudio.com/api)
 - [VS Code Extension Publishing](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
 - [Windsurf Marketplace](https://marketplace.windsurf.com)
 
-## Next Steps
+## Related Skill
 
-For multi-environment setup, see `windsurf-multi-env-setup`.
+Continue with `windsurf-multi-env-setup` to package extension settings, event destinations, and environment-specific policies for repeatable team rollout.

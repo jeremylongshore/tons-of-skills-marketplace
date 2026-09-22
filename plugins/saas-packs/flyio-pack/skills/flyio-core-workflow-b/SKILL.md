@@ -1,140 +1,96 @@
 ---
 name: flyio-core-workflow-b
-description: 'Execute Fly.io secondary workflow: Postgres clusters, persistent volumes,
-  and private networking.
-
-  Use when adding databases, persistent storage, or internal service communication.
-
-  Trigger: "fly postgres", "fly volumes", "fly.io database", "fly.io persistent storage".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(fly:*), Bash(psql:*), Grep
-version: 1.7.0
+description: >-
+  Design Fly.io Managed Postgres, Fly Volumes, and private 6PN connectivity with explicit durability boundaries. Use when an app needs persistent data or private service access. Trigger with: "add Fly Managed Postgres", "plan Fly volume storage", "connect Fly apps privately".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[app-database-storage-and-region-plan]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- edge-compute
-- flyio
-compatibility: Designed for Claude Code
+  - saas
+  - flyio
+  - managed-postgres
+  - volumes
+  - private-networking
+compatibility: 'Requires a Fly.io organization, approved data classification and regions, a backup objective, and access to the relevant app and Managed Postgres controls.'
 ---
-# Fly.io Core Workflow B: Postgres, Volumes & Networking
+
+# Fly.io Managed Data and Private Networking
 
 ## Overview
 
-Set up Fly Postgres, persistent Fly Volumes, and private networking between apps. Fly Postgres runs as a regular Fly app with automated replication. Volumes provide persistent NVMe storage attached to specific machines.
+Choose the data service before writing commands: Managed Postgres is a separate fully managed service, while Fly Volumes are region-bound local NVMe storage attached to Machines. Private 6PN networking connects apps in the same organization but does not make either storage model globally consistent.
 
 ## Prerequisites
 
-- A data owner, documented locality/retention/backup/recovery requirements, and a staging environment with synthetic data.
-- Scoped database and deployment identities, private-network policy, and a tested restore/rollback procedure.
-
-## Output
-
-Maintain a storage/network receipt with resource references, region, encryption/access controls, backup/restore verification, owner, and recovery result. Do not include connection strings, records, or keys.
-
-## Examples
-
-Create a disposable staging database and volume with fictional data, confirm an unauthorized app cannot reach it, and test a backup/restore without copying credentials to logs. Tear down only the validated disposable resources through the approved process.
+- Workload, data classification, residency, availability, recovery, and latency requirements
+- Approved regions and network boundary
+- Restore-test owner and application cutover plan
 
 ## Instructions
 
-### Step 1: Create Fly Postgres
+### Step 1: Select the persistence model
 
-```bash
-# Create a Postgres cluster
-fly postgres create --name my-db --region iad --vm-size shared-cpu-1x --volume-size 10
+Use Managed Postgres when the workload needs the provider-managed database service. Use a Fly Volume only for software that owns replication and recovery or for region-local state.
 
-# Attach to your app (sets DATABASE_URL secret automatically)
-fly postgres attach my-db -a my-app
+### Step 2: Place data intentionally
 
-# Connect directly
-fly postgres connect -a my-db
-# psql> SELECT version();
+Choose a supported Managed Postgres region close to the app or create volumes in the same region as their Machines. Query current region availability instead of hardcoding a global count.
 
-# Proxy to local machine for dev tools
-fly proxy 5432 -a my-db
-# Now connect with the secret-bearing URL supplied by the local proxy
-psql "$DATABASE_URL"
-```
+### Step 3: Define private connectivity
 
-### Step 2: Create Persistent Volumes
+Use organization 6PN addresses and the documented `.internal` DNS name appropriate to the service, region, process group, or Machine. Document cross-organization exceptions separately.
 
-```bash
-# Create a volume (same region as your machine)
-fly volumes create data --size 10 --region iad -a my-app
+### Step 4: Protect the data
 
-# List volumes
-fly volumes list -a my-app
+For Managed Postgres, capture plan, backup, failover, pooling, and support boundaries. For volumes, set snapshot retention and add independent backup or replication when recovery objectives exceed snapshot coverage.
 
-# Mount in fly.toml
-```
+### Step 5: Test failure and restore
 
-```toml
-# fly.toml
-[mounts]
-  source = "data"
-  destination = "/data"
-```
+Prove application reconnect behavior, credential rotation, snapshot or managed restore procedure, regional loss response, and data reconciliation in a non-production target.
 
-```bash
-# Deploy to pick up mount
-fly deploy
+### Step 6: Cut over with rollback
 
-# Verify mount inside machine
-fly ssh console -C "df -h /data"
-```
+Freeze writes if required, migrate through an approved method, validate counts and application behavior, then retain the old data path until rollback expiry.
 
-### Step 3: Private Networking (6PN)
+## Authentication
 
-```bash
-# Apps in the same org can reach each other via .internal DNS
-# my-app can reach my-db at: my-db.internal:5432
+Keep database credentials in Fly App secrets or an approved external secret manager, not in `fly.toml` or receipts. Use a scoped Fly.io identity for resource operations and a separate least-privilege database role for application access.
 
-# Internal DNS format: <app-name>.internal
-# Machine-specific: <machine-id>.vm.<app-name>.internal
+## Tool Discipline
 
-# Example: connect from app code
-DATABASE_URL=${FLY_DATABASE_URL}
-```
+Use Read and Grep to inspect application configuration, deployment evidence, provider documentation, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for an approved plan, configuration, implementation, test, or redacted receipt. Do not create, deploy, scale, restart, stop, suspend, destroy, rotate, revoke, expose, or migrate live Fly.io resources without explicit operator approval.
 
-```typescript
-// Access internal services (no public internet)
-const dbUrl = process.env.DATABASE_URL;
-const apiUrl = `http://my-api.internal:3000/health`;  // Internal HTTP
-```
+## Output
 
-### Step 4: Postgres Backups and Failover
+- Persistence decision record distinguishing Managed Postgres from Machine volumes
+- Region, network, backup, restore, and cutover plan
+- Recovery exercise and post-cutover reconciliation receipt
 
-```bash
-# List backups
-fly postgres barman list-backups -a my-db
+Return the target organization, app, environment, region set, Machine or database identifiers, source-contract fingerprint, evidence, unresolved risks, rollback state, and final decision without exposing tokens, secrets, connection strings, or customer data.
 
-# Create manual backup
-fly postgres barman backup -a my-db
+## Examples
 
-# Check replication status
-fly postgres barman check -a my-db
-
-# Failover to standby (if primary fails)
-fly postgres failover -a my-db
-```
+A customer API uses Managed Postgres in a supported region and connects over its organization 6PN. A separate cache uses a disposable volume. The operator validates pooling and restore procedures and never describes the cache volume as a replicated database.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `volume not found` | Volume in different region | Create volume in same region as machine |
-| `connection refused on .internal` | App not running | Check `fly status -a target-app` |
-| `database does not exist` | Not yet created | Run `CREATE DATABASE mydb;` via `fly postgres connect` |
-| `disk full` | Volume full | Extend: `fly volumes extend vol_xxx --size 20` |
+| Failure | Response |
+| --- | --- |
+| Region is unsupported or capacity constrained | Select from the current provider region listing and re-evaluate latency and residency; do not assume placement. |
+| Private DNS returns no address | Check organization, service name, and Machine state; stopped Machines are omitted from AAAA responses. |
+| Restore cannot meet the objective | Stop production cutover and revise retention, replication, export, or managed-service plan. |
 
 ## Resources
 
-- [Fly Postgres](https://fly.io/docs/postgres/)
+- [First-party source notes](references/official-docs.md)
+- [Machines API setup](https://fly.io/docs/machines/api/working-with-machines-api/)
+- [Automation and tokens](https://fly.io/docs/flyctl/integrating/)
+- [App configuration](https://fly.io/docs/reference/configuration/)
+- [Managed Postgres](https://fly.io/docs/mpg/)
 - [Fly Volumes](https://fly.io/docs/volumes/)
-- [Private Networking](https://fly.io/docs/networking/private-networking/)
-
-## Next Steps
-
-For common errors, see `flyio-common-errors`.
+- [Volume snapshots](https://fly.io/docs/volumes/snapshots/)
+- [Private networking](https://fly.io/docs/networking/private-networking/)

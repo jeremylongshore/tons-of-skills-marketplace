@@ -5,7 +5,7 @@ description: "Secure your Anthropic integration \u2014 API key management, input
   \ privacy.\nTrigger with \"anthropic security\", \"claude api key security\",\n\"\
   anthropic prompt injection\", \"secure claude integration\".\n"
 allowed-tools: Read, Write, Edit
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -148,7 +148,7 @@ See API Key Security (client-side vs server-side), Input Validation function, Pr
 ## Resources
 
 - [API Key Management](https://console.anthropic.com/settings/keys)
-- [Security Best Practices](https://docs.anthropic.com/en/docs/build-with-claude/security)
+- [Security Best Practices](https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks)
 - Data Privacy
 
 ## Next Steps

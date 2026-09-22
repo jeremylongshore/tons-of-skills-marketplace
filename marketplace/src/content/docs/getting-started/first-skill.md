@@ -6,9 +6,9 @@ order: 3
 keywords: ["Claude Code skills", "SKILL.md", "agent skills", "write a skill", "Claude Code skill tutorial", "skill frontmatter", "auto-activating skills"]
 officialLinks:
   - title: "Claude Code Skills Documentation"
-    url: "https://docs.anthropic.com/en/docs/claude-code/skills"
+    url: "https://code.claude.com/docs/en/skills"
   - title: "Claude Code Plugin Structure"
-    url: "https://docs.anthropic.com/en/docs/claude-code/plugins"
+    url: "https://code.claude.com/docs/en/plugins"
 relatedDocs:
   - "getting-started/first-plugin"
   - "concepts/skills"

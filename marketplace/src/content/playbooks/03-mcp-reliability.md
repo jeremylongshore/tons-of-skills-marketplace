@@ -1006,7 +1006,7 @@ await breaker.execute(() =&gt; fallback());
 <ul>
 <li><a href="">MCP Specification</a></li>
 <li><a href="">SDK Documentation</a></li>
-<li><a href="https://docs.anthropic.com/claude/docs/model-context-protocol">Claude Code MCP Guide</a></li>
+<li><a href="https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro">Claude Code MCP Guide</a></li>
 </ul>
 
 <h3>Analytics & Monitoring</h3>

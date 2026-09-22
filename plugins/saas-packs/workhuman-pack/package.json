@@ -1,36 +1,37 @@
 {
   "name": "@intentsolutionsio/workhuman-pack",
-  "version": "1.0.0",
-  "description": "Claude Code skill pack for Workhuman - 18 skills covering employee recognition, rewards, and workplace culture",
-  "main": "README.md",
-  "type": "module",
-  "files": [
-    "README.md",
-    ".claude-plugin/",
-    "skills/"
-  ],
+  "version": "1.4.0",
+  "description": "Governed Workhuman operator workflows for recognition, rewards, Workday integration, security, and production operations",
   "keywords": [
-    "claude-code",
-    "claude-code-plugin",
     "workhuman",
-    "employee-recognition",
-    "rewards",
-    "workplace-culture",
-    "ai-skills",
-    "saas-pack"
+    "saas",
+    "recognition",
+    "integration",
+    "claude-code",
+    "claude-plugin",
+    "tonsofskills"
   ],
-  "author": {
-    "name": "Jeremy Longshore",
-    "email": "jeremy@intentsolutions.io"
-  },
-  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/saas-packs/workhuman-pack"
   },
-  "homepage": "https://tonsofskills.com/learn/workhuman/",
+  "homepage": "https://tonsofskills.com/plugins/workhuman-pack",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
+  "license": "MIT",
+  "author": {
+    "name": "Jeremy Longshore",
+    "email": "jeremy@intentsolutions.io"
+  },
   "publishConfig": {
     "access": "public"
+  },
+  "files": [
+    "README.md",
+    ".claude-plugin",
+    "skills"
+  ],
+  "scripts": {
+    "postinstall": "node -e \"console.log(\\\"\\\\n→ This npm package is a tracking/proof artifact. Install the plugin via:\\\\n  ccpi install workhuman-pack\\\\n  or /plugin install workhuman-pack@claude-code-plugins-plus in Claude Code\\\\n\\\")\""
   }
 }

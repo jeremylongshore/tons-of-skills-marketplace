@@ -6,11 +6,14 @@ description: 'Diagnose and fix common Anima SDK design-to-code errors.
 
   node not found issues, or output quality problems.
 
-  Trigger: "anima error", "anima not working", "anima debug", "figma to code error".
+  Trigger with: "anima error", "anima not working", "anima debug", "figma to code error".
 
   '
 allowed-tools: Read, Write, Edit, Bash(curl:*), Grep
-version: 1.4.0
+version: 2.0.0
+argument-hint: "[error-or-symptom]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -19,7 +22,7 @@ tags:
 - figma
 - anima
 - troubleshooting
-compatibility: Designed for Claude Code
+compatibility: Requires Node.js 20+, approved Anima API access, current Anima SDK documentation, and authorized Figma or website source access
 ---
 # Anima Common Errors
 
@@ -66,25 +69,27 @@ and use a least-privilege development credential for all verification.
 | `File not found` | Wrong file key | Extract from Figma URL: `figma.com/file/{KEY}/...` |
 | `Node not found` | Invalid node ID | Copy node link from Figma: right-click > Copy link |
 | `No renderable content` | Selected a page or group | Select a frame, component, or component set |
-| Empty `files` array | Node is empty or hidden | Unhide layers; ensure node has visible content |
+| Empty `files` record | Node is empty or hidden | Unhide layers; ensure node has visible content |
 
 ### Code Generation Errors
 
 ```typescript
-// Common generation error handler
-async function safeGenerate(anima: Anima, params: any) {
+// Classify without printing provider messages, which can contain source details.
+async function safeGenerate(anima: Anima, params: Parameters<Anima['generateCode']>[0]) {
   try {
     return await anima.generateCode(params);
-  } catch (err: any) {
-    if (err.message?.includes('rate limit')) {
-      console.error('Rate limited — wait 60s before retrying');
-    } else if (err.message?.includes('timeout')) {
-      console.error('Generation timed out — simplify the Figma node');
-    } else if (err.message?.includes('Invalid settings')) {
-      console.error('Invalid settings combo — check framework/styling/uiLibrary compatibility');
-    } else {
-      console.error('Generation error:', err.message);
-    }
+  } catch (error: unknown) {
+    const status = typeof error === 'object' && error !== null && 'status' in error
+      ? Number(error.status)
+      : undefined;
+    const failureClass = status === 401 || status === 403
+      ? 'authentication-or-permission'
+      : status === 429
+        ? 'rate-limited'
+        : status !== undefined && status >= 500
+          ? 'provider-transient'
+          : 'generation-failed';
+    console.error({ failureClass, status });
     return null;
   }
 }
@@ -104,9 +109,8 @@ async function safeGenerate(anima: Anima, params: any) {
 
 | Framework | Language | Styling | UI Library |
 |-----------|----------|---------|------------|
-| `react` | `typescript`, `javascript` | `tailwind`, `css`, `styled-components` | `none`, `mui`, `antd`, `shadcn` |
-| `vue` | `typescript`, `javascript` | `tailwind`, `css` | `none` |
-| `html` | `javascript` | `css`, `tailwind` | `none` |
+| `react` | `typescript`, `javascript` | `plain_css`, `tailwind`, `inline_styles` | omit, `mui`, `antd`, `radix`, `shadcn`, `clean_react`, `custom_design_system` |
+| `html` | `typescript`, `javascript` | `plain_css`, `tailwind`, `inline_styles` | omit |
 
 ## Diagnostic Script
 
@@ -119,6 +123,10 @@ curl -s "https://api.figma.com/v1/me" \
 curl -s "https://api.figma.com/v1/files/${FIGMA_FILE_KEY}" \
   -H "X-Figma-Token: ${FIGMA_TOKEN}" | jq '.name // .err'
 ```
+
+## Tool Discipline
+
+Use Read and Grep to inspect the existing integration and generated diff before changing anything. Use Write or Edit only inside the approved generated-code, test, or configuration paths. Use the declared Bash commands only for the explicit install, validation, or diagnostic steps in this workflow; never print tokens, source designs, generated source, or private website captures.
 
 ## Output
 
@@ -149,7 +157,3 @@ scope or substitute a personal token to get past the error.
 
 - [Anima API Docs](https://docs.animaapp.com/docs/anima-api)
 - [Figma API Reference](https://www.figma.com/developers/api)
-
-## Next Steps
-
-For collecting debug data, see `anima-debug-bundle`.

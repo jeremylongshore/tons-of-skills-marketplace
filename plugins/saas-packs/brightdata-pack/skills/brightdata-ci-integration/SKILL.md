@@ -1,187 +1,76 @@
 ---
 name: brightdata-ci-integration
-description: 'Configure Bright Data CI/CD integration with GitHub Actions and testing.
-
-  Use when setting up automated testing, configuring CI pipelines,
-
-  or integrating Bright Data tests into your build process.
-
-  Trigger with phrases like "brightdata CI", "brightdata GitHub Actions",
-
-  "brightdata automated tests", "CI brightdata".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*)
-version: 1.6.0
+description: 'Build an offline-default CI contract lane for Bright Data and isolate any authorized live probe behind protected controls. Use when adding provider checks to pull requests or release workflows. Trigger with: "test Bright Data in CI", "add a Bright Data contract job", "secure the live CI probe".'
+allowed-tools: Read, Grep, Write, Edit, Bash(npm:*)
+version: 2.0.0
+argument-hint: "[workflow-or-test-path]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
-- scraping
-- data
-- brightdata
-compatibility: Designed for Claude Code
+- web-data
+- bright-data
+- ci-integration
+- operations
+compatibility: 'Requires offline Bright Data fixtures; an optional live lane requires protected CI secrets and an explicitly approved target'
 ---
-# Bright Data CI Integration
+# Bright Data CI Contract Lane
 
 ## Overview
 
-Set up CI/CD pipelines for Bright Data scraping projects with GitHub Actions. Includes mocked unit tests that run without proxy access and optional live integration tests that verify actual proxy connectivity.
+Keep pull-request verification credential-free and deterministic. Test the Bright Data adapter against fixtures by default, then place any necessary live probe in an independent protected job with a dedicated credential, approved target, and one-operation budget.
 
 ## Prerequisites
 
-- GitHub repository with Actions enabled
-- Bright Data test zone credentials
-- npm/pnpm project configured
+- A repository test command and representative sanitized success and failure fixtures
+- The CI workflow and Bright Data adapter paths
+- Maintainer approval before creating an optional live lane
 
 ## Instructions
 
-### Step 1: GitHub Actions Workflow
+### Step 1: Audit the workflow boundary
 
-```yaml
-# .github/workflows/scraper-tests.yml
-name: Scraper Tests
+Read the workflow and Grep for secrets, direct provider calls, artifact uploads, and execution from untrusted forks. Map every test to either the offline contract lane or the protected live lane.
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+### Step 2: Add the required offline lane
 
-jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm test -- --coverage
-        # Unit tests use mocked proxy responses — no credentials needed
+Write or Edit the workflow so the required job runs `npm ci` and `npm run test:brightdata:contract` with `BRIGHTDATA_MODE=fixture`. Cover success, authentication denial, policy denial, 429, provider 5xx, malformed output, and redaction without network access.
 
-  integration-tests:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    env:
-      BRIGHTDATA_CUSTOMER_ID: ${{ secrets.BRIGHTDATA_CUSTOMER_ID }}
-      BRIGHTDATA_ZONE: ${{ secrets.BRIGHTDATA_ZONE }}
-      BRIGHTDATA_ZONE_PASSWORD: ${{ secrets.BRIGHTDATA_ZONE_PASSWORD }}
-      BRIGHTDATA_API_TOKEN: ${{ secrets.BRIGHTDATA_API_TOKEN }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - name: Download Bright Data CA cert
-        run: curl -sO https://brightdata.com/ssl/brd-ca.crt
-      - name: Verify proxy connectivity
-        run: |
-          curl -x "http://brd-customer-${BRIGHTDATA_CUSTOMER_ID}-zone-${BRIGHTDATA_ZONE}:${BRIGHTDATA_ZONE_PASSWORD}@brd.superproxy.io:33335" \
-            -s https://lumtest.com/myip.json | python3 -m json.tool
-      - run: npm run test:integration
-```
+### Step 3: Isolate the optional live lane
 
-### Step 2: Configure GitHub Secrets
+Make the live job independent of fork and pull-request execution. Require a protected environment, maintainer authorization, an approved public target, a dedicated least-privilege secret, a single-operation ceiling, a timeout, and redacted logs.
 
-```bash
-gh secret set BRIGHTDATA_CUSTOMER_ID --body "c_abc123"
-gh secret set BRIGHTDATA_ZONE --body "web_unlocker_test"
-gh secret set BRIGHTDATA_ZONE_PASSWORD --body "z_test_password"
-gh secret set BRIGHTDATA_API_TOKEN --body "test_api_token"
-```
+### Step 4: Prove negative behavior
 
-### Step 3: Write Mocked Unit Tests
+Use Bash(npm:*) to run contract tests with missing and sentinel credentials. Confirm the offline job remains green without secrets and that failure artifacts contain neither credentials nor collected payloads.
 
-```typescript
-// tests/unit/scraper.test.ts — runs without Bright Data credentials
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import axios from 'axios';
+## Tool Discipline
 
-vi.mock('axios');
-
-describe('Scraper', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('should configure proxy correctly', async () => {
-    vi.mocked(axios.create).mockReturnValue({
-      get: vi.fn().mockResolvedValue({ status: 200, data: '<html>OK</html>' }),
-    } as any);
-
-    const { getBrightDataClient } = await import('../../src/brightdata/client');
-    const client = getBrightDataClient();
-
-    expect(axios.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        proxy: expect.objectContaining({ host: 'brd.superproxy.io', port: 33335 }),
-      })
-    );
-  });
-
-  it('should parse HTML response into structured data', async () => {
-    const { parseProductPage } = await import('../../src/brightdata/parser');
-    const result = parseProductPage('<html><h1>Product</h1><span class="price">$29.99</span></html>');
-    expect(result.title).toBe('Product');
-    expect(result.price).toBe('$29.99');
-  });
-});
-```
-
-### Step 4: Write Live Integration Tests
-
-```typescript
-// tests/integration/proxy.test.ts
-import { describe, it, expect } from 'vitest';
-
-const LIVE = process.env.BRIGHTDATA_CUSTOMER_ID && process.env.BRIGHTDATA_ZONE;
-
-describe.skipIf(!LIVE)('Bright Data Live Integration', () => {
-  it('should connect through proxy', async () => {
-    const { getBrightDataClient } = await import('../../src/brightdata/client');
-    const client = getBrightDataClient();
-    const res = await client.get('https://lumtest.com/myip.json');
-    expect(res.status).toBe(200);
-    expect(res.data).toHaveProperty('ip');
-    expect(res.data).toHaveProperty('country');
-  }, 30000);
-
-  it('should scrape through Web Unlocker', async () => {
-    const { getBrightDataClient } = await import('../../src/brightdata/client');
-    const client = getBrightDataClient();
-    const res = await client.get('https://example.com');
-    expect(res.status).toBe(200);
-    expect(res.data).toContain('Example Domain');
-  }, 60000);
-});
-```
+Use Read and Grep to inspect workflows, adapters, and secret references. Use Write and Edit for the workflow, fixtures, tests, and runbook. Use Bash(npm:*) only for dependency installation and repository test commands; do not use it to make live Bright Data requests.
 
 ## Output
 
-- Unit tests run on every PR without proxy credentials
-- Integration tests run on main push with live proxy
-- GitHub secrets configured securely
-- CA certificate downloaded in CI
+- A required credential-free offline contract job
+- An optional, independent protected live-probe job
+- Negative-test and redaction receipts
 
 ## Examples
 
-Run mocked client tests on every pull request. Restrict any live request to an approved, non-production target from a protected environment with a low-quota test credential, rate ceiling, and redacted receipt; fail closed when authorization or policy evidence is missing.
+A forked pull request runs synthetic proxy and snapshot fixtures only. A maintainer-triggered release workflow may perform one approved provider operation through a protected environment and records only status, latency, and redacted error class.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Integration tests fail | Missing secrets | Add via `gh secret set` |
-| Proxy timeout in CI | Slow CAPTCHA | Increase test timeout to 60s |
-| Flaky tests | IP rotation variability | Use `lumtest.com` for stable verification |
+| Failure | Meaning | Response |
+|---------|---------|----------|
+| A fork can access a provider secret | Trust boundary is broken | Disable the live job and remove the secret exposure |
+| Offline tests require the network | Contract lane is nondeterministic | Replace provider traffic with sanitized fixtures |
+| A live artifact contains raw output | Data boundary is broken | Delete the artifact and retain only redacted metrics |
 
 ## Resources
 
-- [GitHub Actions Docs](https://docs.github.com/en/actions)
-- Bright Data Status API
-
-## Next Steps
-
-For deployment patterns, see `brightdata-deploy-integration`.
+- [Proxy error catalog](https://docs.brightdata.com/proxy-networks/errorCatalog)
+- [Acceptable use policy](https://docs.brightdata.com/general/policy/acceptable-use-policy)
+- [Proxy API authentication](https://docs.brightdata.com/api-reference/proxy/proxy_api_auth)
+- [Asynchronous scraper requests](https://docs.brightdata.com/api-reference/rest-api/scraper/asynchronous-requests)

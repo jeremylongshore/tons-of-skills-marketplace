@@ -1,198 +1,79 @@
 ---
 name: salesforce-local-dev-loop
-description: 'Configure Salesforce local development with scratch orgs, SFDX, and
-  testing.
-
-  Use when setting up a development environment, configuring test workflows,
-
-  or establishing a fast iteration cycle with Salesforce.
-
-  Trigger with phrases like "salesforce dev setup", "salesforce local development",
-
-  "salesforce scratch org", "sfdx project", "develop with salesforce".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pnpm:*), Bash(sf:*), Grep
-version: 1.7.0
-license: MIT
+description: 'Build a repeatable Salesforce DX development loop using source format, synthetic tests, and an authorized scratch org or sandbox. Use when changing metadata or integration code. Trigger with "build a Salesforce dev loop".'
+argument-hint: "[project-path] [org-alias]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- crm
-- salesforce
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, salesforce, salesforce-dx, scratch-org, testing]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; org creation, metadata deployment, and test-data loading require Dev Hub and administrator authorization
 ---
-# Salesforce Local Dev Loop
+# Salesforce DX Local Development Loop
 
 ## Overview
 
-Set up a fast, reproducible local development workflow using Salesforce CLI (sf), scratch orgs, and jsforce with hot reload.
+Create a source-driven loop that separates static and synthetic checks from explicitly authorized org validation and leaves no unmanaged test data.
 
 ## Prerequisites
 
-- Completed `salesforce-install-auth` setup
-- Salesforce CLI installed (`npm install -g @salesforce/cli`)
-- Dev Hub enabled in your production org (Setup > Dev Hub)
-- Node.js 18+ with npm/pnpm
+- A Salesforce DX project or an approved migration plan to source format
+- An authorized Dev Hub and scratch-org definition, or a dedicated development sandbox
+- Synthetic fixtures, test owner, cleanup policy, and current Salesforce CLI contract
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect approved repository and evidence files, `WebFetch` to re-check current first-party Salesforce documentation, and `Write` or `Edit` only for secretless plans, fixtures, configuration, and redacted receipts.
+
+## Current Contract
+
+Salesforce DX supports source-driven development and scratch orgs configured through project definitions; org availability, features, limits, duration, namespaces, and sandbox alternatives depend on the customer environment.
+
+## Authentication
+
+Use a named CLI alias backed by the approved OAuth path. Never commit authorization files, access tokens, private keys, usernames, org IDs, or generated user passwords.
 
 ## Instructions
 
-### Step 1: Create SFDX Project Structure
+1. Inspect project configuration, package directories, metadata ownership, API versions, hooks, and current CLI pin.
+2. Choose a scratch org or development sandbox based on feature fidelity, data need, namespace, and lifecycle constraints.
+3. Create synthetic fixtures and local contract tests that require no live org or secret.
+4. Run formatting, static analysis, unit tests, schema checks, and metadata dependency checks locally.
+5. With approval, create or authenticate the development org and deploy only the bounded source set.
+6. Run Apex, Flow, Lightning, and integration tests applicable to the change; capture aggregate results and IDs only.
+7. Delete synthetic data, close or expire temporary orgs, revoke temporary access, and record reproducible commands.
 
-```bash
-# Initialize a new SFDX project
-sf project generate --name my-sf-project --template standard
+## Approval Boundaries
 
-# Project structure created:
-# my-sf-project/
-# ├── config/
-# │   └── project-scratch-def.json   # Scratch org definition
-# ├── force-app/
-# │   └── main/default/              # Metadata source (Apex, LWC, etc.)
-# ├── scripts/
-# │   └── apex/                      # Anonymous Apex scripts
-# ├── sfdx-project.json              # Project config
-# └── .sf/                           # Local CLI state
-```
-
-### Step 2: Create a Scratch Org
-
-```bash
-# Authenticate to your Dev Hub first
-sf org login web --set-default-dev-hub --alias DevHub
-
-# Create a scratch org (expires in 7 days by default)
-sf org create scratch \
-  --definition-file config/project-scratch-def.json \
-  --alias my-scratch \
-  --duration-days 7 \
-  --set-default
-
-# Open scratch org in browser
-sf org open --target-org my-scratch
-```
-
-### Step 3: Configure scratch-def for development
-
-```json
-{
-  "orgName": "My Dev Org",
-  "edition": "Developer",
-  "features": ["EnableSetPasswordInApi", "MultiCurrency"],
-  "settings": {
-    "lightningExperienceSettings": {
-      "enableS1DesktopEnabled": true
-    },
-    "securitySettings": {
-      "passwordPolicies": {
-        "enableSetPasswordInApi": true
-      }
-    }
-  }
-}
-```
-
-### Step 4: Node.js Integration Dev Loop
-
-```
-my-integration/
-├── src/
-│   ├── salesforce/
-│   │   ├── connection.ts     # jsforce connection wrapper
-│   │   ├── accounts.ts       # Account operations
-│   │   ├── contacts.ts       # Contact operations
-│   │   └── queries.ts        # SOQL query builders
-│   └── index.ts
-├── tests/
-│   ├── unit/
-│   │   └── queries.test.ts   # Mock-based tests
-│   └── integration/
-│       └── accounts.test.ts  # Live org tests
-├── .env.local                # Local secrets (git-ignored)
-├── .env.example              # Template for team
-└── package.json
-```
-
-### Step 5: Configure Hot Reload
-
-```json
-{
-  "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "test": "vitest",
-    "test:watch": "vitest --watch",
-    "test:integration": "SF_ENV=scratch vitest run tests/integration/",
-    "push": "sf project deploy start --target-org my-scratch",
-    "pull": "sf project retrieve start --target-org my-scratch"
-  }
-}
-```
-
-### Step 6: Configure Testing with Mocked Connections
-
-```typescript
-import { describe, it, expect, vi } from 'vitest';
-
-// Mock jsforce for unit tests — no live org needed
-vi.mock('jsforce', () => ({
-  default: {
-    Connection: vi.fn().mockImplementation(() => ({
-      login: vi.fn().mockResolvedValue({ id: '005xx', organizationId: '00Dxx' }),
-      query: vi.fn().mockResolvedValue({
-        totalSize: 1,
-        done: true,
-        records: [{ Id: '001xx', Name: 'Test Account', Industry: 'Tech' }],
-      }),
-      sobject: vi.fn().mockReturnValue({
-        create: vi.fn().mockResolvedValue({ id: '001xx', success: true }),
-        update: vi.fn().mockResolvedValue({ id: '001xx', success: true }),
-        destroy: vi.fn().mockResolvedValue({ id: '001xx', success: true }),
-      }),
-    })),
-  },
-}));
-
-describe('Account Service', () => {
-  it('should query accounts with SOQL', async () => {
-    const conn = new (await import('jsforce')).default.Connection({});
-    const result = await conn.query("SELECT Id, Name FROM Account LIMIT 5");
-    expect(result.totalSize).toBe(1);
-    expect(result.records[0].Name).toBe('Test Account');
-  });
-});
-```
+Do not create orgs, enable features, deploy metadata, load data, or change remote configuration without Dev Hub, admin, and component-owner approval.
 
 ## Output
 
-- SFDX project with scratch org configured
-- Hot reload development server running
-- Unit tests with mocked jsforce connections
-- Integration tests against scratch org
-- Fast iteration cycle: edit, auto-reload, test
+Return the environment decision, pinned toolchain, source and fixture map, local and org test results, cleanup receipt, and remaining fidelity gaps.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `ERROR: No default dev hub` | Dev Hub not set | Run `sf org login web --set-default-dev-hub` |
-| `INVALID_OPERATION: scratch org limit` | Hit scratch org limit (6 active) | Delete old orgs: `sf org delete scratch --target-org old-alias` |
-| `SourceConflictError` | Local/remote metadata conflicts | Run `sf project retrieve start` to sync |
-| `MODULE_NOT_FOUND: jsforce` | Not installed | Run `npm install jsforce` |
-| `sf: command not found` | CLI not installed | Run `npm install -g @salesforce/cli` |
+| Condition | Response |
+|---|---|
+| Scratch-org feature does not match production | Use an approved sandbox or revise the definition; do not weaken production metadata. |
+| Deployment reports missing dependencies | Add the dependency explicitly or reduce the source set before retrying. |
+| Test data cannot be proven synthetic | Stop and replace it before local export or CI use. |
 
-## Examples
+## Example
 
-### Use a disposable scratch org for a focused change
+A redacted completion receipt might look like this:
 
-Create a scratch org from a versioned definition, push only the metadata needed for the feature, and seed test data through a reproducible script with no customer identifiers. Run unit tests and a minimal integration path, then delete the scratch org when the branch closes or its time-to-live expires. Keep Dev Hub credentials in the approved developer secret store and never treat a scratch-org success as evidence for a production deployment.
+```text
+project=sfdx; target=scratch-org; fixtures=synthetic; static=pass; deploy=validated; apex=pass; cleanup=complete
+```
 
 ## Resources
 
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/)
-- [Scratch Org Definition File](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_scratch_orgs_def_file.htm)
-- [jsforce Documentation](https://jsforce.github.io/document/)
-- [Vitest Documentation](https://vitest.dev/)
+- [Salesforce DX development model](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_develop.htm)
+- [Scratch org definition file](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_scratch_orgs_def_file.htm)
 
 ## Next Steps
 
-See `salesforce-sdk-patterns` for production-ready code patterns.
+Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.

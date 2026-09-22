@@ -1,171 +1,84 @@
 ---
 name: salesloft-local-dev-loop
-description: 'Configure SalesLoft local development with API mocking and sandbox testing.
-
-  Use when setting up a development environment, building integration tests,
-
-  or creating mock SalesLoft API responses for offline development.
-
-  Trigger: "salesloft dev setup", "salesloft local", "test salesloft locally".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(npx:*), Grep
+description: >-
+  Build a Salesloft integration locally with sanitized contract fixtures, deterministic failure cases, and an optional guarded read-only smoke test. Use when iterating without touching real sales records. Trigger with "Salesloft local dev", "mock Salesloft", or "Salesloft contract fixtures".
+argument-hint: "[repository-path] [runtime]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.6.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- sales
-- outreach
 - salesloft
+- testing
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# SalesLoft Local Dev Loop
+# Salesloft Local Contract Loop
 
 ## Overview
 
-Set up a local development workflow for SalesLoft integrations with API mocking, environment separation, and fast iteration. SalesLoft has no official sandbox -- use test data tagging and request recording for safe development.
+This skill creates a fast local loop around realistic Salesloft envelopes, pagination, errors, and webhook signatures. Live CRM mutation is outside the default loop.
 
 ## Prerequisites
 
-- Completed `salesloft-install-auth` setup
-- Node.js 18+ with Vitest
-- Separate SalesLoft test workspace (recommended)
+- A named repository and test framework
+- Sanitized fixtures containing no customer or prospect data
+- A replaceable HTTP transport boundary
+- Optional non-production read credential stored outside source
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to map the client, adapters, fixtures, and test commands. Use `WebFetch` only to recheck official Salesloft contracts. Use `Write` or `Edit` only inside the confirmed repository.
+
+## Current Contract
+
+- Model successful responses with `data` and list `metadata`.
+- Model 403/404 as a singular `error`, 422 as field-keyed `errors`, and 429 with current rate headers.
+- Pagination begins at page 1; supported endpoints generally allow `per_page` from 1 through 100.
+- Webhook fixtures must preserve exact raw bytes for SHA-1 HMAC verification.
+
+## Authentication
+
+Tests inject a fake Bearer value and assert redaction. An optional live lane may use a read-only credential only when the target team is explicitly named.
 
 ## Instructions
 
-### Step 1: Create API Client Wrapper
+1. Identify the smallest HTTP adapter and every response shape the application consumes.
+2. Add sanitized success fixtures for identity, paged lists, and empty pages.
+3. Add deterministic 401, 403, 404, 422, 429, timeout, and non-JSON cases.
+4. Add webhook fixtures with raw body bytes, event header, signature, and callback token.
+5. Run unit and contract tests offline on every change.
+6. Keep any live smoke lane opt-in, read-only, bounded, and disabled for untrusted forks.
 
-```typescript
-// src/salesloft/client.ts
-import axios, { AxiosInstance } from 'axios';
+## Approval Boundaries
 
-export function createClient(token?: string): AxiosInstance {
-  return axios.create({
-    baseURL: process.env.SALESLOFT_BASE_URL || 'https://api.salesloft.com/v2',
-    headers: {
-      Authorization: `Bearer ${token || process.env.SALESLOFT_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-  });
-}
-```
-
-### Step 2: Create Fixtures from Real API Shape
-
-```typescript
-// tests/fixtures/salesloft.ts
-export const mockPerson = {
-  data: {
-    id: 1001, display_name: 'Test User', email_address: 'test@example.com',
-    first_name: 'Test', last_name: 'User', title: 'Engineer',
-    phone: '+1-555-0100', company_name: 'Acme Corp',
-    tags: ['dev_test'], created_at: '2025-01-15T10:00:00Z',
-  },
-};
-
-export const mockPeopleList = {
-  data: [mockPerson.data],
-  metadata: { paging: { per_page: 25, current_page: 1, total_pages: 1, total_count: 1 } },
-};
-
-export const mockCadence = {
-  data: {
-    id: 500, name: 'Test Outbound', team_cadence: false,
-    current_state: 'active', added_stage: 'prospecting',
-    cadence_framework_id: null, counts: { people_count: 10 },
-  },
-};
-
-export const mockActivity = {
-  data: {
-    id: 2001, action_type: 'email', person_id: 1001,
-    cadence_id: 500, step_id: 100, due_at: '2025-02-01T09:00:00Z',
-  },
-};
-```
-
-### Step 3: Write Tests Against Real API Shape
-
-```typescript
-// tests/salesloft.test.ts
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createClient } from '../src/salesloft/client';
-import { mockPeopleList, mockCadence } from './fixtures/salesloft';
-
-vi.mock('axios', () => ({
-  default: { create: vi.fn(() => ({
-    get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn(),
-  }))},
-}));
-
-describe('SalesLoft People API', () => {
-  it('lists people with pagination metadata', async () => {
-    const client = createClient('test-token');
-    vi.mocked(client.get).mockResolvedValue({ data: mockPeopleList });
-
-    const { data } = await client.get('/people.json', { params: { per_page: 25 } });
-    expect(data.metadata.paging.total_count).toBe(1);
-    expect(data.data[0].email_address).toBe('test@example.com');
-  });
-
-  it('filters people by cadence membership', async () => {
-    const client = createClient('test-token');
-    vi.mocked(client.get).mockResolvedValue({ data: mockPeopleList });
-
-    const { data } = await client.get('/people.json', {
-      params: { cadence_id: 500, per_page: 25 },
-    });
-    expect(data.data.length).toBeGreaterThan(0);
-  });
-});
-```
-
-### Step 4: Environment Separation
-
-```bash
-# .env.development
-SALESLOFT_BASE_URL=https://api.salesloft.com/v2
-SALESLOFT_API_KEY=dev-token-here
-SALESLOFT_TAG_PREFIX=dev_test_
-
-# .env.test
-SALESLOFT_BASE_URL=http://localhost:3001/mock
-SALESLOFT_API_KEY=mock-token
-```
-
-```json
-{
-  "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "test": "vitest",
-    "test:integration": "dotenv -e .env.development vitest run --config vitest.integration.ts"
-  }
-}
-```
+Never copy production responses into fixtures or use real tokens as placeholders. Do not enable live writes from a local test command.
 
 ## Output
 
-```
- PASS  tests/salesloft.test.ts
-  SalesLoft People API
-    ✓ lists people with pagination metadata (2ms)
-    ✓ filters people by cadence membership (1ms)
-```
+Return fixture inventory, contract assertions, commands run, pass/fail results, live-lane state, and any unsupported response shape.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `ECONNREFUSED` | Mock server not running | Use `vi.mock` instead of live mock server |
-| `401` in integration tests | Token expired | Refresh dev token from SalesLoft portal |
-| Stale mock data | API response shape changed | Record fresh responses with interceptor |
+| Condition | Response |
+|---|---|
+| Fixture contains PII | Remove it, rotate if necessary, and replace with synthetic data. |
+| Test bypasses adapter | Move the call behind the transport seam before mocking. |
+| Live lane lacks team guard | Disable it until target identity is asserted. |
+| Contract drift | Update the fixture and consumer together with an official-source receipt. |
+
+## Examples
+
+The example below shows the minimum redacted evidence expected from a successful invocation of this operator workflow.
+
+```text
+offline=pass; fixtures=8; live-smoke=disabled; customer-records=0
+```
 
 ## Resources
 
-- [SalesLoft API Logs](https://developers.salesloft.com/docs/platform/guides/api-logs/)
-- [Vitest Mocking Guide](https://vitest.dev/guide/mocking.html)
-
-## Next Steps
-
-Proceed to `salesloft-sdk-patterns` for production client patterns.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Request and response format](https://developers.salesloft.com/docs/platform/api-basics/request-response-format/)
+- [Webhook delivery headers](https://developers.salesloft.com/docs/platform/webhooks/delivery-headers/)

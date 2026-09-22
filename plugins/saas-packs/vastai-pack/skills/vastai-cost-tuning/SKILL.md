@@ -1,165 +1,93 @@
 ---
 name: vastai-cost-tuning
-description: 'Optimize Vast.ai GPU cloud costs through smart instance selection and
-  lifecycle management.
-
-  Use when analyzing GPU spending, reducing training costs,
-
-  or implementing budget controls for Vast.ai workloads.
-
-  Trigger with phrases like "vastai cost", "vastai billing",
-
-  "reduce vastai costs", "vastai pricing", "vastai budget".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vastai:*), Grep
-version: 1.11.0
+description: >-
+  Reduce Vast.ai GPU, storage, and bandwidth spend without weakening workload requirements or leaving stopped resources billable. Use when selecting offers, setting spot policy, cleaning idle resources, or reconciling invoices. Trigger with: "optimize Vast.ai cost", "find Vast.ai cost leaks", "compare Vast.ai offers".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[workload-profile-budget-and-time-window]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- api
-- cost-optimization
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - cost
+  - billing
+  - offers
+compatibility: 'Requires workload performance requirements, Vast.ai offer and instance data, billing-read access, and a cleanup owner.'
 ---
-# Vast.ai Cost Tuning
+
+# Vast.ai GPU Cost and Leakage Control
 
 ## Overview
 
-Minimize Vast.ai GPU cloud costs by choosing the right GPU for your workload, leveraging interruptible (spot) instances, eliminating idle compute, and implementing auto-destroy safeguards. Vast.ai pricing is dynamic and varies significantly: RTX 4090 ($0.15-0.30/hr), A100 80GB ($1.00-2.00/hr), H100 SXM ($2.50-4.00/hr).
+Optimize total useful-work cost, not headline GPU price. Account for performance, reliability, storage, bandwidth, loading behavior, stopped-instance charges, interruptible semantics, and recovery overhead.
 
 ## Prerequisites
 
-- Vast.ai account with billing history
-- Understanding of your workload's GPU requirements
-- `vastai` CLI installed
+- GPU/VRAM, throughput, reliability, geography, disk, and completion-time requirements
+- Hourly and total budget plus checkpoint/restart cost assumptions
+- Instance, volume, charge, and invoice inventory for the analysis window
 
 ## Instructions
 
-### Step 1: GPU Selection by Cost-Efficiency
+### Step 1: Build a normalized offer set
 
-```python
-# Compare cost-per-TFLOP across GPU types
-GPU_SPECS = {
-    "RTX_4090":  {"fp16_tflops": 82.6,  "vram": 24},
-    "A100":      {"fp16_tflops": 77.97, "vram": 80},
-    "H100_SXM":  {"fp16_tflops": 267,   "vram": 80},
-    "RTX_3090":  {"fp16_tflops": 35.6,  "vram": 24},
-    "A6000":     {"fp16_tflops": 38.7,  "vram": 48},
-}
+Search verified rentable offers and retain GPU price, storage, bandwidth, reliability, `dlperf`, `dlperf_usd`, network, and host constraints.
 
-def cost_per_tflop(gpu_name, dph):
-    specs = GPU_SPECS.get(gpu_name, {"fp16_tflops": 1})
-    return dph / specs["fp16_tflops"]
+### Step 2: Model useful-work cost
 
-# Often RTX 4090 is the best value for inference
-# A100 is best for training large models needing >24GB VRAM
-# H100 is best only when wall-clock time justifies 10x price premium
-```
+Estimate runtime from measured throughput, then add storage, data transfer, startup, checkpoint, failure, and operator recovery costs.
 
-### Step 2: Spot vs On-Demand Analysis
+### Step 3: Choose rental semantics
 
-```bash
-# Interruptible (spot) instances are 30-60% cheaper
-vastai search offers 'num_gpus=1 gpu_name=RTX_4090 rentable=true' \
-  --order dph_total --limit 5
-# Compare interruptible vs on-demand pricing
-# Use interruptible for: batch inference, checkpointed training
-# Use on-demand for: final training epochs, production inference
-```
+Use on-demand when completion certainty dominates. Use bid pricing only for checkpointed work and pass an explicit bid; a bid search alone does not create an interruptible rental.
 
-### Step 3: Auto-Destroy Safeguards
+### Step 4: Find leakage
 
-```python
-import time, subprocess, json
+Identify stopped instances still paying storage, idle active GPUs, abandoned volumes, oversized disks, duplicate canaries, and failed jobs without teardown.
 
-def auto_destroy_after(instance_id, max_hours=4):
-    """Destroy instance after max_hours to prevent cost overruns."""
-    max_seconds = max_hours * 3600
-    time.sleep(max_seconds)
-    subprocess.run(["vastai", "destroy", "instance", str(instance_id)], check=True)
-    print(f"Instance {instance_id} auto-destroyed after {max_hours}h")
+### Step 5: Apply bounded changes
 
-# Run in background thread when provisioning
-import threading
-watchdog = threading.Thread(target=auto_destroy_after, args=(inst_id, 4), daemon=True)
-watchdog.start()
-```
+Destroy confirmed abandoned resources, resize only through a tested replacement path, and preserve external artifacts before irreversible actions.
 
-### Step 4: Idle Instance Detection
+### Step 6: Reconcile savings
 
-```bash
-#!/bin/bash
-# Find and destroy idle instances (GPU util < 10% for >10 min)
-vastai show instances --raw | python3 -c "
-import sys, json
-for inst in json.load(sys.stdin):
-    if inst.get('actual_status') == 'running':
-        gpu_util = inst.get('gpu_util', 0)
-        if gpu_util < 10:
-            print(f'IDLE: Instance {inst[\"id\"]} GPU util={gpu_util}% '
-                  f'(\${inst.get(\"dph_total\", 0):.3f}/hr)')
-"
-```
+Compare charges and invoices before and after using completed-work units, not just hourly rate, and record any service or reliability regression.
 
-### Step 5: Cost Reporting
+## Authentication
 
-```python
-def daily_cost_report():
-    """Calculate current daily burn rate from running instances."""
-    result = subprocess.run(
-        ["vastai", "show", "instances", "--raw"],
-        capture_output=True, text=True)
-    instances = json.loads(result.stdout)
+Use billing-read for analysis and separate instance-write authority for approved cleanup. Never grant billing-write or credit-transfer permission to an optimizer.
 
-    total_hourly = 0
-    for inst in instances:
-        if inst.get("actual_status") == "running":
-            dph = inst.get("dph_total", 0)
-            total_hourly += dph
-            print(f"  {inst['id']}: {inst.get('gpu_name')} ${dph:.3f}/hr")
+## Tool Discipline
 
-    print(f"\nTotal: ${total_hourly:.3f}/hr = ${total_hourly * 24:.2f}/day")
-```
-
-## Cost Optimization Checklist
-
-- [ ] Always search with `--order dph_total` to find cheapest offers
-- [ ] Use interruptible instances for checkpointed workloads
-- [ ] Implement auto-destroy timeout on all instances
-- [ ] Monitor GPU utilization; destroy idle instances
-- [ ] Use RTX 4090 for workloads that fit in 24GB VRAM
-- [ ] Only use H100 when wall-clock time savings justify cost premium
-- [ ] Pre-install dependencies in Docker images (avoid paying for pip install)
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- GPU cost-efficiency analysis by model
-- Spot vs on-demand comparison
-- Auto-destroy watchdog for cost protection
-- Idle instance detection script
-- Daily cost burn rate report
+- Normalized offer and useful-work cost model
+- Leak inventory with owner and safe disposition
+- Verified savings, performance delta, and cleanup receipt
 
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Unexpected $50+ bill | Forgot to destroy instances | Implement auto-destroy watchdog |
-| GPU idle at $2/hr | Waiting for data download | Pre-stage data before provisioning GPU |
-| Spot preemption mid-job | Cheapest instance reclaimed | Checkpoint frequently; auto-recover |
-
-## Resources
-
-- [Vast.ai Pricing](https://vast.ai/)
-- [Search & Filter](https://docs.vast.ai/search-and-filter-gpu-offers)
-
-## Next Steps
-
-For reference architecture, see `vastai-reference-architecture`.
+Return window, workload unit, selected offer policy, resource IDs, modeled/actual cost, savings, and unresolved billing risk.
 
 ## Examples
 
-**Budget cap**: Set `dph_total<=0.25` in search queries and `auto_destroy_after(inst_id, 4)` to cap any single job at $1.00.
+A checkpointed batch job selects a high `dlperf_usd` bid offer with an explicit bid, while an idle stopped instance and orphaned volume are destroyed after artifact verification; savings are measured per completed batch.
 
-**GPU comparison**: Run the same workload on RTX 4090 ($0.20/hr) vs A100 ($1.50/hr). If the A100 finishes in less than 1/7th the time, it's cheaper overall.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Required pricing field is absent | Mark the offer incomparable rather than assuming zero cost. |
+| Spot work lacks external checkpoints | Use on-demand or add recovery before selecting bid pricing. |
+| Stopped instance is called free | Correct the model because storage charges continue until destruction. |
+| Cleanup ownership is unclear | Do not destroy; assign an owner and preserve the leak in the report. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [Vast.ai pricing](https://docs.vast.ai/guides/pricing)
+- [Billing](https://docs.vast.ai/guides/reference/billing)
+- [Official CLI interruptible guidance](https://github.com/vast-ai/vast-cli/blob/master/vastai/SKILL.md#interruptible-spot-rentals)

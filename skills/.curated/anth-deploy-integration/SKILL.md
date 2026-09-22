@@ -12,7 +12,7 @@ description: 'Deploy Claude API integrations to production cloud environments.
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -136,7 +136,7 @@ Deploy `artifact=sha256:fixture` to a staging workspace, run synthetic `fixture-
 
 ## Resources
 
-- [API Getting Started](https://docs.anthropic.com/en/api/getting-started)
+- [API Getting Started](https://platform.claude.com/docs/en/api/overview)
 - [API Status](https://status.anthropic.com)
 
 ## Next Steps

@@ -1,85 +1,90 @@
 ---
 name: openevidence-install-auth
-description: 'Install and configure OpenEvidence SDK/API authentication.
-
-  Use when setting up a new OpenEvidence integration.
-
-  Trigger: "install openevidence", "setup openevidence", "openevidence auth".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.13.0
-license: MIT
+description: >-
+  Establish authorized OpenEvidence account access through official registration and institutional pathways. Use when working with OpenEvidence in a healthcare organization. Trigger with "openevidence install auth", "OpenEvidence authentication", or a matching workflow request.
+argument-hint: "[web|mobile] [individual|institution]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.14.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - openevidence
-- healthcare
-compatibility: Designed for Claude Code
+- authentication
+- account
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; requires authorized OpenEvidence access and qualified clinical review for patient-care use
 ---
-# OpenEvidence Install & Auth
+# OpenEvidence Account Verification and Access
 
 ## Overview
 
-Set up OpenEvidence Medical AI API for clinical decision support and evidence-based queries.
+Choose the supported user access path and verify it without packages, tokens, shared accounts, or private endpoints. Keep inputs minimal, separate observed facts from assumptions, and leave consequential decisions with the named accountable owner.
 
 ## Prerequisites
 
-- OpenEvidence account and API access
-- API key/credentials from OpenEvidence dashboard
-- Node.js 18+ or Python 3.8+
+- A clearly bounded workflow, accountable clinical owner, and organizational policy
+- Current first-party OpenEvidence documentation and applicable institution agreements
+- Synthetic or properly authorized minimum-necessary data
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect supplied policies, plans, and evidence. Use `WebFetch` only for current first-party OpenEvidence documentation. Use `Write` or `Edit` only when the user requests a named deliverable with an approved destination. Never expose credentials, PHI, recordings, or unrestricted environment output.
+
+## Current Contract
+
+- OpenEvidence terms require account registration for full service access and make users responsible for account confidentiality.
+- The product is intended for healthcare professionals and may verify registration information.
+- No public OpenEvidence SDK package, API token, OAuth, or service-account contract was found.
+
+## Authentication
+
+Use only the official OpenEvidence web/mobile sign-in or an institution-approved access path. Do not invent API keys, OAuth clients, SDK credentials, service accounts, or private endpoints. Never ask a user to reveal a password, session token, cookie, or recovery code.
 
 ## Instructions
 
-### Step 1: Install SDK
+1. Identify individual versus institution-managed access, professional role, approved email/device, and accountable access owner.
+2. Read current registration, terms, privacy, security, and institution-specific access instructions.
+3. Complete only the official sign-up, sign-in, or administrator-issued path; do not install similarly named packages.
+4. Enable organization-required device and account protections and keep credentials in approved user-controlled storage.
+5. Verify access with a synthetic Ask workflow and record only non-secret evidence.
+6. Document recovery, termination, role-change, and suspected-compromise contacts.
 
-```bash
-npm install @openevidence/sdk
-# API key from OpenEvidence developer portal
-```
+## Approval Boundaries
 
-### Step 2: Configure Authentication
+Do not create or share accounts; change access, roles, agreements, consent, retention, or security settings; enter PHI; record a conversation; copy content into another system; contact a patient; make a diagnosis or treatment decision; submit billing; transmit a support packet; run a production pilot; or represent vendor capabilities without explicit approval from the accountable owner. A qualified professional remains responsible for clinical decisions.
 
-```bash
-export OPENEVIDENCE_API_KEY="your-api-key-here"
-echo 'OPENEVIDENCE_API_KEY=your-api-key' >> .env
-```
+## Output
 
-### Step 3: Verify Connection (TypeScript)
-
-```typescript
-import { OpenEvidenceClient } from '@openevidence/sdk';
-const client = new OpenEvidenceClient({
-  apiKey: process.env.OPENEVIDENCE_API_KEY,
-  organization: process.env.OPENEVIDENCE_ORG_ID
-});
-const result = await client.query({ question: 'What are first-line treatments for Type 2 diabetes?' });
-console.log(`Answer: ${result.answer.substring(0, 100)}...`);
-console.log(`Citations: ${result.citations.length} references`);
-```
-
-### Step 4: Verify Connection (Python)
-
-```python
-import openevidence
-client = openevidence.Client(api_key=os.environ['OPENEVIDENCE_API_KEY'])
-result = client.query(question='What are first-line treatments for Type 2 diabetes?')
-print(f'Answer: {result.answer[:100]}...')
-print(f'Citations: {len(result.citations)} references')
-```
+Return scope, current first-party evidence and date, data classification, workflow or findings, citations reviewed, assumptions rejected, clinical and governance owners, approval state, unresolved risk, and the exact next action. Redact patient and credential data.
 
 ## Error Handling
 
-| Error | Code | Solution |
-|-------|------|----------|
-| Invalid API key | 401 | Verify credentials in dashboard |
-| Permission denied | 403 | Check API scopes/permissions |
-| Rate limited | 429 | Implement backoff |
+| Condition | Response |
+|---|---|
+| Package suggested | Reject it unless current first-party documentation explicitly names and authenticates it. |
+| Shared credential proposed | Require separate authorized accounts. |
+| Account compromised | Change credentials through official controls and notify the security owner. |
+
+## Examples
+
+This compact example shows the minimum reviewable handoff; adapt fields to the approved workflow without adding sensitive data.
+
+Input:
+
+```text
+access=institution-managed; role=physician; surface=mobile; patient-data=none
+```
+
+Expected handoff:
+
+```text
+registration=verified; auth=official-ui; shared-secret=no; recovery-owner=known
+```
 
 ## Resources
 
-- [OpenEvidence Documentation](https://www.openevidence.com)
-
-## Next Steps
-
-After auth, proceed to `openevidence-hello-world`.
+- [OpenEvidence official evidence register](references/official-docs.md)
+- [OpenEvidence User Guide](https://www.openevidence.com/user-guide)
+- [OpenEvidence Terms of Use](https://www.openevidence.com/policies/terms)

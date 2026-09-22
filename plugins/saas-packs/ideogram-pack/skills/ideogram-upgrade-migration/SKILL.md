@@ -1,231 +1,76 @@
 ---
 name: ideogram-upgrade-migration
-description: 'Migrate between Ideogram API versions (V_1 to V_2 to V3) with breaking
-  change detection.
-
-  Use when upgrading from legacy to V3 endpoints, updating model versions,
-
-  or handling deprecated API parameters.
-
-  Trigger with phrases like "upgrade ideogram", "ideogram migration",
-
-  "ideogram v2 to v3", "ideogram breaking changes", "migrate ideogram API".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.10.0
+description: >-
+  Upgrade an Ideogram adapter against current OpenAPI and endpoint contracts while preserving rollback. Use when moving versions, fields, or transport behavior without redesigning the product workflow. Trigger with "upgrade Ideogram API", "check Ideogram schema drift", or "migrate an Ideogram endpoint".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<current-contract> <target-contract> <traffic-slice>"
+version: 1.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- ideogram
-- api
-- migration
-compatibility: Designed for Claude Code
+tags: [saas, ideogram, migration]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live cutover requires change approval and paid canaries"
 ---
-# Ideogram Upgrade & Migration
-
-## Current State
-
-!`npm list 2>/dev/null | head -10`
+# Ideogram Contract Upgrade
 
 ## Overview
 
-Guide for migrating between Ideogram API versions. The primary migration path is from the legacy `/generate` endpoint (JSON body, V_1/V_2 models) to the V3 endpoints (multipart form data, new parameters). This covers breaking changes in request format, model names, aspect ratio syntax, style types, and new capabilities.
-
-## Breaking Changes: Legacy to V3
-
-| Aspect | Legacy (`/generate`) | V3 (`/v1/ideogram-v3/generate`) |
-|--------|---------------------|--------------------------------|
-| Content-Type | `application/json` | `multipart/form-data` |
-| Body format | `{ "image_request": { ... } }` | FormData fields |
-| Models | `V_1`, `V_1_TURBO`, `V_2`, `V_2_TURBO`, `V_2A` | Implicit V3 (no model field) |
-| Aspect ratio | `ASPECT_16_9` | `16x9` |
-| Style types | `AUTO`, `GENERAL`, `REALISTIC`, `DESIGN`, `RENDER_3D`, `ANIME` | `AUTO`, `GENERAL`, `REALISTIC`, `DESIGN`, `FICTION` |
-| Magic prompt | `magic_prompt_option` | `magic_prompt` |
-| New in V3 | -- | `rendering_speed`, `style_preset`, `style_codes`, `character_reference_images` |
-| Color palette | Preset name or hex array | Same, with weight support |
-
-## Instructions
-
-### Step 1: Audit Current API Usage
-
-```bash
-set -euo pipefail
-# Find all Ideogram API calls in your codebase
-grep -rn "api.ideogram.ai" --include="*.ts" --include="*.js" --include="*.py" .
-grep -rn "ASPECT_" --include="*.ts" --include="*.js" .
-grep -rn "image_request" --include="*.ts" --include="*.js" .
-grep -rn "magic_prompt_option" --include="*.ts" --include="*.js" .
-```
-
-### Step 2: Create Adapter for Both Versions
-
-```typescript
-// src/ideogram/adapter.ts
-interface GenerateOptions {
-  prompt: string;
-  style?: string;
-  aspectRatio?: string;
-  negativePrompt?: string;
-  seed?: number;
-  renderingSpeed?: string; // V3 only
-  stylePreset?: string;    // V3 only
-}
-
-const API_KEY = process.env.IDEOGRAM_API_KEY!;
-const USE_V3 = process.env.IDEOGRAM_API_VERSION === "v3";
-
-async function generateImage(options: GenerateOptions) {
-  return USE_V3 ? generateV3(options) : generateLegacy(options);
-}
-
-// Legacy endpoint -- JSON body
-async function generateLegacy(options: GenerateOptions) {
-  const response = await fetch("https://api.ideogram.ai/generate", {
-    method: "POST",
-    headers: { "Api-Key": API_KEY, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      image_request: {
-        prompt: options.prompt,
-        model: "V_2",
-        style_type: options.style ?? "AUTO",
-        aspect_ratio: options.aspectRatio ?? "ASPECT_1_1",
-        magic_prompt_option: "AUTO",
-        negative_prompt: options.negativePrompt,
-        seed: options.seed,
-      },
-    }),
-  });
-  if (!response.ok) throw new Error(`Legacy generate: ${response.status}`);
-  return response.json();
-}
-
-// V3 endpoint -- multipart form data
-async function generateV3(options: GenerateOptions) {
-  const form = new FormData();
-  form.append("prompt", options.prompt);
-  form.append("style_type", mapStyleToV3(options.style ?? "AUTO"));
-  form.append("aspect_ratio", mapAspectRatioToV3(options.aspectRatio ?? "ASPECT_1_1"));
-  form.append("magic_prompt", "AUTO");
-  form.append("rendering_speed", options.renderingSpeed ?? "DEFAULT");
-  if (options.negativePrompt) form.append("negative_prompt", options.negativePrompt);
-  if (options.seed) form.append("seed", String(options.seed));
-  if (options.stylePreset) form.append("style_preset", options.stylePreset);
-
-  const response = await fetch("https://api.ideogram.ai/v1/ideogram-v3/generate", {
-    method: "POST",
-    headers: { "Api-Key": API_KEY },
-    body: form,
-  });
-  if (!response.ok) throw new Error(`V3 generate: ${response.status}`);
-  return response.json();
-}
-```
-
-### Step 3: Map Legacy Enums to V3
-
-```typescript
-function mapAspectRatioToV3(legacy: string): string {
-  const map: Record<string, string> = {
-    "ASPECT_1_1": "1x1",    "ASPECT_16_9": "16x9",  "ASPECT_9_16": "9x16",
-    "ASPECT_3_2": "3x2",    "ASPECT_2_3": "2x3",    "ASPECT_4_3": "4x3",
-    "ASPECT_3_4": "3x4",    "ASPECT_10_16": "10x16", "ASPECT_16_10": "16x10",
-    "ASPECT_1_3": "1x3",    "ASPECT_3_1": "3x1",
-  };
-  return map[legacy] ?? legacy; // Pass through if already V3 format
-}
-
-function mapStyleToV3(legacy: string): string {
-  const map: Record<string, string> = {
-    "AUTO": "AUTO",
-    "GENERAL": "GENERAL",
-    "REALISTIC": "REALISTIC",
-    "DESIGN": "DESIGN",
-    "RENDER_3D": "GENERAL",  // No V3 equivalent -- use GENERAL
-    "ANIME": "FICTION",      // V3 renamed to FICTION
-  };
-  return map[legacy] ?? "GENERAL";
-}
-```
-
-### Step 4: Feature Flag Rollout
-
-```typescript
-// Gradual migration with feature flag
-function shouldUseV3(userId?: string): boolean {
-  // Phase 1: Internal testing
-  if (process.env.IDEOGRAM_FORCE_V3 === "true") return true;
-
-  // Phase 2: Percentage rollout
-  if (userId) {
-    const hash = Array.from(userId).reduce((h, c) => h * 31 + c.charCodeAt(0), 0);
-    const percentage = parseInt(process.env.IDEOGRAM_V3_PERCENTAGE ?? "0");
-    return (Math.abs(hash) % 100) < percentage;
-  }
-
-  return false;
-}
-```
-
-### Step 5: Validate Migration
-
-```typescript
-// Run both endpoints and compare results
-async function validateMigration(prompt: string) {
-  const [legacy, v3] = await Promise.all([
-    generateLegacy({ prompt, style: "REALISTIC", aspectRatio: "ASPECT_16_9" }),
-    generateV3({ prompt, style: "REALISTIC", aspectRatio: "ASPECT_16_9" }),
-  ]);
-
-  console.log("Legacy:", { resolution: legacy.data[0].resolution, seed: legacy.data[0].seed });
-  console.log("V3:", { resolution: v3.data[0].resolution, seed: v3.data[0].seed });
-  console.log("Both returned images:", legacy.data.length > 0 && v3.data.length > 0);
-}
-```
-
-## V3 Exclusive Features
-
-After migration, you gain access to:
-
-- **Rendering speed**: `FLASH`, `TURBO`, `DEFAULT`, `QUALITY`
-- **50+ style presets**: `OIL_PAINTING`, `WATERCOLOR`, `POP_ART`, `JAPANDI_FUSION`, etc.
-- **Style codes**: 8-char hex codes for precise style matching
-- **Character reference images**: Consistent character faces across generations
-- **Style reference images**: Upload style examples
-- **Color palettes with weights**: Fine-grained color control
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `RENDER_3D` fails in V3 | Removed from V3 style types | Map to `GENERAL` |
-| `ANIME` fails in V3 | Renamed to `FICTION` | Update enum mapping |
-| JSON body rejected by V3 | V3 requires multipart form | Switch to FormData |
-| `magic_prompt_option` ignored | V3 uses `magic_prompt` | Update field name |
-| `model` field in V3 | V3 has no model field | Remove from V3 requests |
-
-## Output
-
-- Adapter supporting both legacy and V3 endpoints
-- Enum mapping functions for breaking changes
-- Feature flag for gradual rollout
-- Validation script comparing both endpoints
+Move a bounded adapter contract to a current Ideogram route without mixing the change with a broad product migration. Diff OpenAPI and endpoint documentation, update owned types and fixtures, run shadow comparisons, and preserve an explicit traffic rollback.
 
 ## Prerequisites
 
-- Pinned current/target versions, compatibility assessment, synthetic prompt fixtures, and owner for changed content, output, or destination contracts.
+- Current adapter SHA, endpoint inventory, target contract, consumers, and accountable owner.
+- Captured sanitized fixtures and compatibility requirements.
+- Canary budget, traffic control, storage parity, and rollback deadline.
+
+## Current Contract
+
+The current surface spans V4, P-Image, V3, outcome-focused tools, custom training, and routes labeled Legacy Endpoints. V4 generation uses endpoint-specific multipart forms; `text_prompt` and `json_prompt` are mutually exclusive, and current V4 `FLASH` support must not be inferred from V3 examples.
+
+## Authentication
+
+Keep the same server-side `Api-Key` boundary unless a documented first-party auth change is part of the reviewed diff. Never copy production credentials or payloads into migration fixtures.
+
+## Instructions
+
+1. Inventory current routes, methods, fields, enums, errors, async states, safety fields, and downstream storage assumptions.
+2. Retrieve current OpenAPI and endpoint docs, then classify additive, changed, deprecated, legacy, and undocumented differences.
+3. Update owned types and route adapters while preserving unknown fields needed for drift detection.
+4. Build sanitized before-and-after fixtures for success, unsafe output, validation, throttling, capacity, webhook, polling, and URL expiry.
+5. Run offline contract tests and a staging shadow that does not double-publish or overwrite assets.
+6. Canary a bounded live slice within an approved credit ceiling and compare status, latency, safety, output count, and storage outcomes.
+7. Promote only after convergence; retain the prior route and state reconciliation until the rollback window closes.
+
+## Tool Discipline
+
+Use Read, Glob, and Grep for routes, schemas, consumers, and fixtures. Use Write and Edit for approved adapter, test, and migration documentation changes. Do not change live traffic or run parallel paid generation without approval.
+
+## Approval Boundaries
+
+Require owners for endpoint choice, compatibility exceptions, model or rendering changes, extra spend, safety differences, and production cutover. Removing a legacy route requires proof that no consumer or in-flight generation depends on it.
+
+## Error Handling
+
+- Stop when the target schema is undocumented or response safety fields cannot be reconciled.
+- Do not coerce a V3 enum into V4 merely because names look similar.
+- On canary divergence, halt target traffic, preserve identifiers, and reconcile stored assets before rollback.
+
+## Output
+
+Return source and target contracts, diff classes, changed files, test matrix, shadow and canary metrics, spend, unresolved drift, traffic state, and rollback receipt. Exclude content, credentials, and URLs.
 
 ## Examples
 
-`from=client-r12; to=client-r13; sandbox=pass; staging=pass; rights=test-owned; destination=approved; output_retention=none; rollback=r12` is a defensible upgrade record.
+- Replace a legacy `/generate` adapter with V4 multipart behind a feature flag.
+- Reject a migration that blindly carries `FLASH` into the current V4 request.
+
+## Validation
+
+Re-run contract, consumer, storage, and rollback tests against immutable SHAs. Verify the deployed traffic split and confirm no duplicate objects, orphaned generations, or retained temporary URLs remain.
 
 ## Resources
 
-- [Legacy Generate API](https://developer.ideogram.ai/api-reference/api-reference/generate)
-- [V3 Generate API](https://developer.ideogram.ai/api-reference/api-reference/generate-v3)
-- [Ideogram 3.0 Features](https://ideogram.ai/features/3.0)
-
-## Next Steps
-
-For CI integration during upgrades, see `ideogram-ci-integration`.
+- [Current first-party evidence map](references/official-docs.md) — use the dated endpoint, webhook, billing, team, and training links as the contract index for this workflow.
+- Recheck the endpoint-specific page and current OpenAPI description before relying on an enum, limit, beta feature, or lifecycle claim.
+- Record live observations as environment-specific evidence, not as universal vendor guarantees.

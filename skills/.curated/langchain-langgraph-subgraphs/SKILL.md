@@ -8,7 +8,7 @@ description: "Compose LangGraph 1.0 subgraphs correctly \u2014 shared state key 
   , \"langgraph state propagation\", \"Command(graph=...)\",\n\"langgraph subgraph\
   \ callbacks\".\n"
 allowed-tools: Read, Write, Edit, Bash(python:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

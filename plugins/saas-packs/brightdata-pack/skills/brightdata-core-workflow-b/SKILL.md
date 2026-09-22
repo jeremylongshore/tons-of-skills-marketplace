@@ -1,197 +1,84 @@
 ---
 name: brightdata-core-workflow-b
-description: 'Execute Bright Data secondary workflow: Core Workflow B.
-
-  Use when implementing secondary use case,
-
-  or complementing primary workflow.
-
-  Trigger with phrases like "brightdata secondary workflow",
-
-  "secondary task with brightdata".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(curl:*), Grep
-version: 1.6.0
+description: 'Analyze and operate the Bright Data Web Scraper API async snapshot lifecycle with terminal-state and delivery controls. Use when collecting an approved batch, polling a snapshot, or downloading large structured results. Trigger with: "run a Bright Data dataset job", "poll a Bright Data snapshot", "download Web Scraper API results".'
+allowed-tools: Read, Grep, Write, Edit, Bash(curl:*)
+version: 2.0.0
+argument-hint: "[dataset-run-manifest]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - saas
-- scraping
-- data
-- brightdata
-compatibility: Designed for Claude Code
+- web-data
+- bright-data
+- core-workflow-b
+- operations
+compatibility: 'Requires an approved Bright Data account or offline fixtures, current Bright Data documentation, and an authorized public-data collection purpose'
 ---
-# Bright Data SERP API & Web Scraper API
+# Bright Data Async Snapshot Pipeline
 
 ## Overview
 
-Collect search engine results and trigger large-scale data collections using Bright Data's SERP API and Web Scraper API. SERP API returns structured JSON from Google, Bing, Yahoo, and other search engines. Web Scraper API triggers asynchronous collections with webhook delivery.
+Implement the documented trigger, progress, and download lifecycle as a state machine. Keep dataset identifiers and approved inputs separate from the API key; cap polling, validate terminal states, and stream results rather than loading arbitrary payloads into memory.
 
 ## Prerequisites
 
-- Completed `brightdata-install-auth` setup
-- SERP API zone or Web Scraper API dataset configured
-- API token from Settings > API tokens
+- A reviewed dataset ID and approved public input manifest
+- A named-user Bright Data API key in the runtime secret manager
+- A retention, schema, maximum-record, and maximum-byte policy
 
 ## Instructions
 
-### Step 1: SERP API — Synchronous Google Search
+### Step 1: Validate the manifest
 
-```typescript
-// serp-api.ts
-import 'dotenv/config';
+Read the requested dataset/inputs and Grep for disallowed target classes or fields. Hash the approved input manifest before submission.
 
-const { BRIGHTDATA_CUSTOMER_ID, BRIGHTDATA_ZONE, BRIGHTDATA_ZONE_PASSWORD } = process.env;
+### Step 2: Trigger once
 
-async function searchGoogle(query: string, country = 'us') {
-  // SERP API uses the proxy protocol with JSON response
-  const username = `brd-customer-${BRIGHTDATA_CUSTOMER_ID}-zone-${BRIGHTDATA_ZONE}-country-${country}`;
+Use Bash(curl:*) only against the fixed Bright Data API origin with the API key as a Bearer header.
 
-  const response = await fetch(
-    `https://www.google.com/search?q=${encodeURIComponent(query)}&brd_json=1`,
-    {
-      headers: {
-        'Proxy-Authorization': `Basic ${Buffer.from(`${username}:${BRIGHTDATA_ZONE_PASSWORD}`).toString('base64')}`,
-      },
-    }
-  );
-
-  const results = await response.json();
-  console.log(`Query: "${query}"`);
-  console.log(`Results: ${results.organic?.length || 0} organic`);
-
-  for (const r of results.organic?.slice(0, 5) || []) {
-    console.log(`  ${r.rank}. ${r.title} — ${r.link}`);
-  }
-  return results;
-}
-
-searchGoogle('bright data web scraping').catch(console.error);
+```bash
+curl --fail-with-body --request POST \
+  'https://api.brightdata.com/datasets/v3/trigger?dataset_id=DATASET_ID' \
+  --header "Authorization: Bearer $BRIGHTDATA_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data-binary @approved-inputs.json
 ```
 
-### Step 2: SERP API — Structured JSON Response
+### Step 3: Poll deliberately
 
-The SERP API returns structured data when you append `&brd_json=1`:
+Persist the returned `snapshot_id`; poll `GET /datasets/v3/progress/SNAPSHOT_ID` with bounded attempts and provider-directed delay. Handle `ready`, `failed`, empty, expired, and still-building states explicitly.
 
-```typescript
-interface SERPResponse {
-  organic: Array<{
-    rank: number;
-    title: string;
-    link: string;
-    description: string;
-    displayed_link: string;
-  }>;
-  paid?: Array<{ title: string; link: string; description: string }>;
-  knowledge_graph?: { title: string; description: string };
-  related_searches?: string[];
-  total_results?: number;
-}
-```
+### Step 4: Download and verify
 
-### Step 3: Web Scraper API — Async Collection with Webhook
+Stream `GET /datasets/v3/snapshot/SNAPSHOT_ID` in the approved format. Use parts for large results, hold format/compression parameters constant, enforce byte/record ceilings, and validate the schema before promotion.
 
-```typescript
-// web-scraper-api.ts — trigger large-scale collections
-import 'dotenv/config';
+## Tool Discipline
 
-const API_TOKEN = process.env.BRIGHTDATA_API_TOKEN!;
-
-async function triggerCollection(
-  datasetId: string,
-  urls: string[],
-  webhookUrl?: string
-) {
-  const params = new URLSearchParams({
-    dataset_id: datasetId,
-    format: 'json',
-    uncompressed_webhook: 'true',
-  });
-  if (webhookUrl) params.set('endpoint', webhookUrl);
-
-  const response = await fetch(
-    `https://api.brightdata.com/datasets/v3/trigger?${params}`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${API_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(urls.map(url => ({ url }))),
-    }
-  );
-
-  const result = await response.json();
-  console.log('Collection triggered:', result.snapshot_id);
-  return result;
-}
-
-// Check collection status
-async function getCollectionStatus(snapshotId: string) {
-  const response = await fetch(
-    `https://api.brightdata.com/datasets/v3/snapshot/${snapshotId}?format=json`,
-    { headers: { 'Authorization': `Bearer ${API_TOKEN}` } },
-  );
-
-  if (response.status === 200) {
-    const data = await response.json();
-    console.log('Collection complete:', data.length, 'records');
-    return data;
-  } else if (response.status === 202) {
-    console.log('Collection still running...');
-    return null;
-  }
-}
-```
-
-### Step 4: Python SERP API
-
-```python
-# serp_api.py
-import os, requests
-from dotenv import load_dotenv
-
-load_dotenv()
-API_TOKEN = os.environ['BRIGHTDATA_API_TOKEN']
-
-def search_google(query: str, country: str = 'us'):
-    """Trigger a SERP API collection via REST."""
-    resp = requests.post(
-        'https://api.brightdata.com/datasets/v3/trigger',
-        params={'dataset_id': 'gd_lwdb4vjm1ehb499uxs', 'format': 'json'},
-        headers={'Authorization': f'Bearer {API_TOKEN}', 'Content-Type': 'application/json'},
-        json=[{'keyword': query, 'country': country, 'engine': 'google'}],
-    )
-    print(f"Snapshot ID: {resp.json().get('snapshot_id')}")
-    return resp.json()
-```
+Use Read and Grep for policy and schema checks. Use Write and Edit only for the manifest, state machine, tests, and redacted receipt. Use Bash(curl:*) for fixed-origin Bright Data API calls after authorization; never print the Bearer value or raw result data.
 
 ## Output
 
-- Structured SERP results in JSON with organic, paid, and knowledge graph data
-- Async collection snapshot IDs for large-scale scraping
-- Webhook delivery of completed datasets
+- Input-manifest hash and snapshot identifier
+- Bounded state-transition log without target data or credentials
+- Schema/size validation and a promoted-or-quarantined result
 
 ## Examples
 
-For a dataset or browser workflow, approve the target and fields first, execute a bounded pilot with a low rate/cost ceiling, and validate returned data against the allowed schema. Encrypt controlled artifacts, retain only the necessary result, and stop on unexpected personal, sensitive, or disallowed content.
+Submit a small approved URL batch, record the returned snapshot ID, poll until `ready`, and stream JSON to quarantine. Reject a response whose schema, record count, or byte count exceeds the manifest even if the provider marks it ready.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Invalid API token | Regenerate at Settings > API tokens |
-| `400 Bad Request` | Invalid dataset_id | Check dataset ID in control panel |
-| `202 Accepted` polling | Collection in progress | Poll every 10s until 200 |
-| Rate limited | Too many triggers | Max 20 triggers/min per dataset |
+| Failure | Meaning | Response |
+|---------|---------|----------|
+| 400 validation response | Dataset ID or input shape is invalid | Correct the manifest; do not retry unchanged input |
+| 429 or too many jobs | Tenant or dataset concurrency is exhausted | Pause new triggers and wait for owned jobs |
+| Snapshot expired or empty | Result cannot be promoted | Trigger a newly approved run or investigate inputs |
 
 ## Resources
 
-- SERP API Docs
-- [Web Scraper API Trigger](https://docs.brightdata.com/scraping-automation/web-data-apis/web-scraper-api/trigger-a-collection)
-- [SERP API GitHub](https://github.com/luminati-io/serp-api)
-
-## Next Steps
-
-For common errors, see `brightdata-common-errors`.
+- [Web Scraper API asynchronous requests](https://docs.brightdata.com/api-reference/rest-api/scraper/asynchronous-requests)
+- [Download snapshot](https://docs.brightdata.com/api-reference/scrapers/delivery-apis/download-snapshot)
+- [Scraper async requests guide](https://docs.brightdata.com/products/scrapers/scrapers-library/async-requests)
+- [Authentication and API keys](https://docs.brightdata.com/api-reference/authentication)

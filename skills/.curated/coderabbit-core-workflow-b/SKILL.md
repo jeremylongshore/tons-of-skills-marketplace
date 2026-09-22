@@ -1,224 +1,97 @@
 ---
 name: coderabbit-core-workflow-b
-description: 'Tune CodeRabbit review configuration: learnings, code guidelines, and
-  noise reduction.
-
-  Use when fine-tuning review quality, training CodeRabbit with team preferences,
-
-  adding code guidelines, or reducing false positives.
-
-  Trigger with phrases like "coderabbit tune reviews", "coderabbit learnings",
-
-  "coderabbit guidelines", "reduce coderabbit noise", "coderabbit false positives".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*), Grep
-version: 1.11.0
-license: MIT
+description: >-
+  Tune review signal with current learnings, detected guideline files, path instructions, and measured feedback. Use when this operator task needs a current, evidence-backed
+  CodeRabbit workflow. Trigger with "tune CodeRabbit reviews".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[target] [evidence-or-scope]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- coderabbit
-- workflow
-- tuning
-- learnings
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current CodeRabbit documentation and approved access for any live organization, repository, billing, or API change
+tags: [saas, coderabbit, learnings, guidelines, review-quality]
 ---
-# CodeRabbit Core Workflow B: Learnings & Tuning
+# CodeRabbit Learnings and Guidelines
 
 ## Overview
 
-After initial CodeRabbit setup (Workflow A), this skill covers tuning review quality through learnings, code guidelines, tone customization, and noise reduction. CodeRabbit improves over time by learning from your team's feedback patterns and custom rules.
+Improve relevance using supported knowledge layers. Avoid invented configuration keys and judge changes against labeled real findings.
 
 ## Prerequisites
 
-- CodeRabbit installed and producing reviews (see `coderabbit-core-workflow-a`)
-- Several PRs worth of review history
-- Understanding of team coding standards
+- Identify the CodeRabbit organization, Git provider, repository, plan, and accountable owner.
+- Read `references/official-docs.md` and re-check any time-sensitive contract before execution.
+- Use synthetic or read-only evidence until the approval boundary is satisfied.
+- Preserve the repository's independent CI, security, and human-review requirements.
+
+## Current Contract
+
+- Learnings arise from natural-language interaction with review comments.
+- Code guidelines can be detected from files such as `CLAUDE.md` and `AGENTS.md`.
+- Path instructions guide review; path filters change scope.
+- Configuration precedence can change the effective result.
+
+## Authentication
+
+Treat Git-provider sessions, CodeRabbit web sessions, CLI credentials, and CodeRabbit API keys as separate credentials. Use only an already-approved session or secret-manager reference, never print a secret, and do not place credentials in `.coderabbit.yaml`, source files, logs, or deliverables.
 
 ## Instructions
 
-### Step 1: Configure Code Guidelines
+1. Sample accepted, rejected, and unresolved findings.
 
-CodeRabbit automatically detects coding rules from standard config files in your repo. It also reads AI agent configuration files for additional context.
+2. Separate organization guidance, repository rules, path instructions, and temporary feedback.
 
-```yaml
-# Files CodeRabbit auto-detects for coding rules:
-# - .eslintrc.* / eslint.config.*     (JavaScript/TypeScript rules)
-# - .prettierrc / prettier.config.*   (Formatting rules)
-# - biome.json / biome.jsonc          (Biome linter rules)
-# - .cursorrules                      (Cursor AI rules)
-# - CLAUDE.md                         (Claude Code instructions)
-# - .editorconfig                     (Editor settings)
-# - .rubocop.yml                      (Ruby style)
-# - ruff.toml / pyproject.toml        (Python rules)
+3. Draft one supported measurable tuning change and validate resolved config.
 
-# Add custom guidelines file:
-# Create docs/CODING_STANDARDS.md with your team's rules
-# Then reference it in .coderabbit.yaml:
-```
+4. Pilot comparable PRs and retain only improvements that preserve risky-path coverage.
 
-```yaml
-# .coderabbit.yaml - Custom code guidelines
-reviews:
-  knowledge_base:
-    code_guidelines:
-      auto_detection: true          # Auto-detect from config files
-      custom_patterns:
-        - "docs/CODING_STANDARDS.md"
-        - "docs/SECURITY_POLICY.md"
-        - "team/code-style.txt"
-```
+## Tool Discipline
 
-### Step 2: Train with Learnings via PR Feedback
+- Use **Glob** to locate candidate configuration and evidence files without widening scope.
+- Use **Grep** to find relevant fields, commands, identifiers, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use these file tools as a substitute for authenticated CodeRabbit or provider operations.
 
-Learnings are enabled by default. CodeRabbit learns from your team's review interactions:
+## Approval Boundaries
 
-```markdown
-# When CodeRabbit gives feedback you disagree with, reply:
-"We intentionally use default exports in this project for Next.js pages.
-Please don't flag default exports in files under src/pages/."
-
-# CodeRabbit remembers this preference for future reviews.
-
-# When you want to reinforce a pattern, reply positively:
-"Good catch! We always want to flag missing error boundaries in React components."
-
-# View current learnings in the CodeRabbit dashboard:
-# app.coderabbit.ai > Organization > Learnings
-```
-
-### Step 3: Customize Review Tone
-
-```yaml
-# .coderabbit.yaml - Tone configuration
-tone_instructions: |
-  Be concise and direct. Skip pleasantries.
-  Use bullet points for multiple suggestions.
-  Include code examples for non-obvious fixes.
-  Rate severity as: Critical > Warning > Suggestion > Nitpick.
-
-# Review profiles control comment volume:
-reviews:
-  profile: "chill"       # Fewer comments, only significant issues
-  # profile: "assertive" # Balanced (default, recommended for most teams)
-
-# Fun tone options (if your team appreciates them):
-# tone_instructions: "Review like a wise but slightly sarcastic senior engineer."
-# tone_instructions: "You must talk like a pirate. Arr!"
-```
-
-### Step 4: Reduce False Positives
-
-```yaml
-# .coderabbit.yaml - Noise reduction strategies
-reviews:
-  # Skip paths that generate noise
-  path_filters:
-    - "!**/*.lock"
-    - "!**/*.snap"
-    - "!**/*.generated.*"
-    - "!**/migrations/*.sql"    # DB migrations are reviewed manually
-    - "!**/__mocks__/**"
-    - "!**/fixtures/**"
-    - "!**/testdata/**"
-
-  # Give context to prevent misguided comments
-  path_instructions:
-    - path: "src/legacy/**"
-      instructions: |
-        This is legacy code being incrementally migrated.
-        Only flag security issues and bugs. Do NOT suggest refactoring.
-        Do NOT comment on naming conventions or code style.
-
-    - path: "src/generated/**"
-      instructions: |
-        This code is auto-generated by protobuf/GraphQL codegen.
-        Only review if there are manual modifications (check git blame).
-        Skip style and structure comments entirely.
-
-    - path: "scripts/**"
-      instructions: |
-        These are one-off scripts. Do not enforce production code standards.
-        Only flag: security issues, destructive operations without confirmation,
-        and missing error handling on file/network operations.
-
-  # Skip PRs from automated tools
-  auto_review:
-    ignore_title_keywords:
-      - "chore: bump"
-      - "chore(deps)"
-      - "Bump version"
-      - "auto-generated"
-```
-
-### Step 5: A/B Test Review Profiles
-
-```yaml
-# Try different profiles to find the right signal-to-noise ratio:
-#
-# Week 1-2: Run "assertive" (default)
-# - Track: comments per PR, acceptance rate, developer satisfaction
-#
-# Week 3-4: Switch to "chill"
-# - Compare same metrics
-#
-# Decision framework:
-# - Acceptance rate < 30%? → Profile too aggressive, switch to chill
-# - Acceptance rate > 70%? → Reviews are valued, keep current profile
-# - Developers ignoring reviews? → Too many nitpicks, switch to chill
-# - Security issues slipping through? → Switch to assertive
-```
-
-### Step 6: Monitor Review Effectiveness
-
-```bash
-set -euo pipefail
-# Check CodeRabbit comment acceptance rate on recent PRs
-ORG="your-org"
-REPO="your-repo"
-
-echo "=== CodeRabbit Review Effectiveness ==="
-for PR in $(gh api "repos/$ORG/$REPO/pulls?state=closed&per_page=20" --jq '.[].number'); do
-  TOTAL=$(gh api "repos/$ORG/$REPO/pulls/$PR/comments" \
-    --jq '[.[] | select(.user.login=="coderabbitai[bot]")] | length' 2>/dev/null)
-  [ "$TOTAL" -gt 0 ] && echo "PR #$PR: $TOTAL CodeRabbit comments"
-done
-```
+Require owner approval before changing shared learnings, global overrides, or exclusions. Keep analysis and drafts local until approval is explicit, and record who approved the action and its scope.
 
 ## Output
 
-- Code guidelines configured from team standards documents
-- Learnings trained through PR comment feedback
-- Review tone customized for team culture
-- False positives reduced through path filters and contextual instructions
-- Review effectiveness measured with acceptance rate metrics
+A labeled sample, hypothesis, supported change, comparison metrics, and rollback decision. Include source dates, unknowns, and the exact boundary between observed fact and recommendation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Reviews ignore custom rules | Guidelines file not referenced | Add path to `custom_patterns` in config |
-| Learnings not sticking | Organization-level vs repo-level | Check learnings scope in dashboard |
-| Too few comments | Profile set to "chill" | Switch to "assertive" for more thorough reviews |
-| Same issue flagged repeatedly | Learning not created | Reply explicitly stating the preference |
-| Tone instructions ignored | YAML formatting issue | Ensure `tone_instructions` is a proper string |
+| Condition | Response |
+|---|---|
+| Current contract is unclear or docs disagree | Stop mutation, cite both sources, and request owner resolution. |
+| Required access or approval is missing | Produce a draft and evidence plan only. |
+| Validation or pilot behavior differs from expectation | Restore the prior state and retain the failed evidence. |
+| Output contains secrets or private code | Stop, quarantine the artifact, redact it, and notify the data owner. |
 
 ## Examples
 
-Apply one path-specific guideline and a neutral tone to a pilot repository,
-review a small set of pull requests, and compare accepted versus ignored
-findings with the prior baseline. If feedback becomes less useful or repeated
-issues persist, revise the scoped instruction and verify the active config
-before changing global profile settings.
+### Example 1
+
+Move a durable convention into `AGENTS.md` and verify detection.
+
+### Example 2
+
+Replace unsupported `custom_patterns` with documented path instructions.
+
+## Validation
+
+- Confirm every claim against the dated sources in `references/official-docs.md`.
+- Verify the requested scope, owner, approval, happy path, failure path, and rollback.
+- Re-read the effective configuration or provider state after any approved change.
+- Report unsupported fields, undocumented endpoints, and unverified assumptions as failures.
 
 ## Resources
 
-- [Code Guidelines](https://www.coderabbit.ai/blog/code-guidelines-bring-your-coding-rules-to-coderabbit)
-- [Knowledge Base](https://docs.coderabbit.ai/integrations/knowledge-base)
-- [Tone Customization](https://www.coderabbit.ai/blog/tone-customizations-roast-your-code)
-- [Context Engineering](https://www.coderabbit.ai/blog/context-engineering-ai-code-reviews)
-
-## Next Steps
-
-For common errors and troubleshooting, see `coderabbit-common-errors`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

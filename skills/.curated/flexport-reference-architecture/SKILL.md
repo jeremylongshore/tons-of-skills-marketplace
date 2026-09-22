@@ -1,136 +1,103 @@
 ---
 name: flexport-reference-architecture
-description: 'Implement Flexport reference architecture for supply chain integrations
-
-  with best-practice project layout, service boundaries, and data flow.
-
-  Trigger: "flexport architecture", "flexport project structure", "flexport system
-  design".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.6.0
+description: >-
+  Analyze and design a Flexport integration that separates REST v3 resources, MCP tools, webhook ingress, approval, and reconciliation. Use when producing an architecture, threat model, or service boundary. Trigger with: "design Flexport architecture", "Flexport MCP architecture", "Flexport integration boundaries".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[capabilities-and-trust-boundaries]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - architecture
+  - design
+compatibility: 'Requires approved Flexport capabilities, account context, and organizational security/data constraints.'
 ---
-# Flexport Reference Architecture
+
+# Flexport REST, MCP, and Webhook Architecture
 
 ## Overview
 
-Production reference architecture for Flexport logistics integrations. Three core services: Ingest (webhooks + polling), Core (business logic), and Expose (API + dashboard).
+Use three explicit provider planes: REST v3 for resource operations, MCP Streamable HTTP JSON-RPC for permissioned assistant tools, and signed webhooks for notifications. Join them only through durable application policy and reconciliation.
 
 ## Prerequisites
 
-- A data-flow inventory naming system owners, approved destinations, retention rules, endpoint scopes, and trust boundaries.
-- Separate identities for ingress, workers, storage, dashboards, and integrations; use synthetic fixtures for every architecture test.
+- Capability inventory split into reads, mutations, events, and assistant tools
+- Identity, account, environment, and data-flow boundaries
+- Business approval, operation ledger, queue, and recovery requirements
 
 ## Instructions
 
-1. Verify webhook signatures at ingress and enqueue opaque event IDs for idempotent processing.
-2. Apply field allowlists and access checks before storage, dashboard exposure, or downstream notifications.
-3. Define cache freshness, rate limits, retry bounds, audit logging, and a disable/rollback switch per service boundary.
-4. Promote architecture changes through staging with fictional data and review aggregate canary evidence before production.
+### Step 1: Draw provider surfaces
+
+Show `api.flexport.com`, `mcp.flexport.com/mcp`, and public HTTPS webhook ingress as distinct external nodes.
+
+### Step 2: Place credential boundaries
+
+Use endpoint-scoped OAuth clients per REST workload, authenticated MCP sessions with documented tool roles, and a separate webhook secret.
+
+### Step 3: Separate control and data
+
+Put business approval and policy before booking/trade mutations; keep payload handling in minimized data services.
+
+### Step 4: Add durable state
+
+Persist operation keys, provider references, event dedupe state, cursor/link checkpoints, and redacted outcomes.
+
+### Step 5: Add reconciliation
+
+Connect events and uncertain outcomes to authorized REST/resource reads. Never make webhook delivery the sole source of truth.
+
+### Step 6: Prove failure paths
+
+Model token-cache failure, permission denial, additive schema change, duplicate/missing event, ambiguous mutation, and rollback.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
 
 ## Output
 
-Maintain an architecture decision record showing trust boundaries, source-of-truth assignments, data destinations, access/retention controls, owners, and rollback mechanisms. Do not include shipments, documents, commercial terms, or secrets.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
-## Error Handling
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
 
-- Quarantine events with unknown schemas, destinations, or permissions rather than forwarding them.
-- Isolate a failed service boundary, disable unsafe consumers, and preserve only redacted evidence.
-- Restore the prior routing/configuration before replaying queued work after an incident.
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
+```
 
 ## Examples
 
-Route a fictional milestone through ingress, queue, core, and a staging dashboard. Confirm duplicate suppression, denied access for an unapproved consumer, and a controlled rollback that leaves no shipment payload in logs.
+A booking assistant queries rates through MCP, sends an exact candidate to an approval service, and records one operation key before booking. Signed events enqueue notifications, while a reconciler reads provider state to close gaps.
 
-## Architecture
+## Error Handling
 
-```
-┌──────────────────────────────────────────────────────┐
-│                    Your Application                   │
-├──────────────┬──────────────────┬─────────────────────┤
-│  Ingest      │  Core            │  Expose             │
-│              │                  │                     │
-│  Webhook     │  Shipment        │  REST API           │
-│  Receiver    │  Service         │  (your clients)     │
-│              │                  │                     │
-│  Scheduled   │  Product         │  Dashboard          │
-│  Sync        │  Service         │  (Next.js/Astro)    │
-│              │                  │                     │
-│  Event       │  Invoice         │  Notifications      │
-│  Queue       │  Service         │  (email/slack)      │
-├──────────────┴──────────────────┴─────────────────────┤
-│  Infrastructure: Cache (Redis) │ DB (Postgres) │ Queue │
-├───────────────────────────────────────────────────────┤
-│  Flexport API v2 (https://api.flexport.com)           │
-└───────────────────────────────────────────────────────┘
-```
-
-## Project Layout
-
-```
-flexport-integration/
-├── src/
-│   ├── flexport/
-│   │   ├── client.ts           # Singleton API client
-│   │   ├── types.ts            # Zod schemas for API responses
-│   │   └── webhooks.ts         # Webhook signature + routing
-│   ├── services/
-│   │   ├── shipment.service.ts # Shipment CRUD + tracking
-│   │   ├── product.service.ts  # Product catalog sync
-│   │   ├── invoice.service.ts  # Commercial + freight invoices
-│   │   └── booking.service.ts  # Booking creation + amendments
-│   ├── jobs/
-│   │   ├── sync-shipments.ts   # Scheduled full sync (hourly)
-│   │   └── cache-warmup.ts     # Pre-populate caches on deploy
-│   ├── api/
-│   │   ├── routes.ts           # Express/Fastify routes
-│   │   └── middleware.ts       # Auth, logging, error handling
-│   └── config/
-│       ├── flexport.ts         # API config per environment
-│       └── cache.ts            # TTL settings per data type
-├── tests/
-│   ├── unit/                   # Mocked API tests
-│   └── integration/            # Live API tests (CI only)
-├── .env.example
-└── docker-compose.yml          # Redis + Postgres for local dev
-```
-
-## Data Flow
-
-```
-Flexport API ──webhook──> Ingest ──queue──> Core ──cache──> Expose
-                                    │                │
-                                    └── DB (Postgres) ┘
-```
-
-1. **Ingest**: Webhook receiver validates signatures, enqueues events
-2. **Core**: Services process events, sync with Flexport API, update DB
-3. **Expose**: API/dashboard reads from DB + cache, never directly from Flexport
-4. **Scheduled jobs**: Hourly full sync catches any missed webhooks
-
-## Key Design Decisions
-
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Database | PostgreSQL | Structured logistics data, JSONB for flexible fields |
-| Cache | Redis with 5min TTL | Shipment data changes infrequently |
-| Queue | BullMQ | Retry, dead letter, rate limiting built in |
-| API client | Custom fetch wrapper | No official SDK, typed with Zod |
-| Webhook processing | Async via queue | Fast 200 response, process later |
+| Failure | Response |
+| --- | --- |
+| REST and MCP contracts collapsed | Split transport, auth/session, errors, and pagination before implementation. |
+| Webhook directly mutates core state | Insert verified durable enqueue and reconciliation. |
+| Approval follows booking | Move it before the provider mutation. |
+| Architecture logs payloads | Replace them with redacted operation receipts. |
 
 ## Resources
 
-- [Flexport Developer Portal](https://developers.flexport.com/)
-- [Flexport API Reference](https://apidocs.flexport.com/)
-
-## Next Steps
-
-For multi-environment setup, see `flexport-multi-env-setup`.
+- [First-party source notes](references/official-docs.md)
+- [Flexport v3 API reference](https://apidocs.flexport.com/v3/)
+- [MCP tools](https://apidocs.flexport.com/v3/tag/MCP-Tools/)
+- [Webhook endpoints](https://apidocs.flexport.com/v3/tag/Webhook-Endpoints/)

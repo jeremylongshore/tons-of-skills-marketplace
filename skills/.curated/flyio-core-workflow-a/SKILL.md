@@ -1,149 +1,95 @@
 ---
 name: flyio-core-workflow-a
-description: 'Execute Fly.io primary workflow: deploy, scale, and manage apps with
-  flyctl and fly.toml.
-
-  Use when deploying applications, configuring regions, setting secrets,
-
-  or managing the app lifecycle on Fly.io.
-
-  Trigger: "fly deploy", "fly.io app management", "fly scale", "fly.io regions".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(fly:*), Bash(curl:*), Grep
-version: 1.7.0
+description: >-
+  Operate a Fly.io application release from configuration review through deploy, scale, secret change, and rollback. Use when shipping or changing a Fly Launch app. Trigger with: "deploy Fly app", "scale Fly Machines", "roll back Fly release".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[app-environment-and-release]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- edge-compute
-- flyio
-compatibility: Designed for Claude Code
+  - saas
+  - flyio
+  - deployments
+  - scaling
+  - secrets
+compatibility: 'Requires an existing Fly.io organization, an approved app target, a deploy-capable scoped identity, and a tested health and rollback contract.'
 ---
-# Fly.io Core Workflow A: Deploy & Scale
+
+# Fly.io Application Release Lifecycle
 
 ## Overview
 
-The primary Fly.io workflow: configure `fly.toml`, deploy apps, manage secrets, scale across regions, and control machine lifecycle.
+Treat the app release as a state transition with explicit configuration, image, capacity, health, and rollback boundaries. Fly Launch manages Machines from `fly.toml`, but production success still requires reconciliation against the running fleet.
 
 ## Prerequisites
 
-- A reviewed image and configuration, app-scoped deployment identity, health criteria, launch owner, and rollback operator.
-- Staging synthetic traffic plus an approved region/data policy.
-
-## Output
-
-Record a workflow receipt with release/image reference, app/region scope, health/canary result, scale decision, approver, and rollback outcome. Exclude secrets, config values, request bodies, and user data.
-
-## Examples
-
-Deploy a fictitious staging app to one approved region, validate a generic health response under synthetic load, then simulate a failed check and restore the prior release. Expand to another region only after the owner accepts the canary receipt.
+- Source revision, image build contract, app name, environment, and primary region
+- Reviewed `fly.toml` with process groups, services, health checks, and shutdown settings
+- Approved deploy strategy, capacity envelope, secret plan, and rollback target
 
 ## Instructions
 
-### Step 1: Configure fly.toml
+### Step 1: Inventory the current app
 
-```toml
-# fly.toml — app configuration
-app = "my-app"
-primary_region = "iad"
+Record current release, running image, Machine counts and regions, health, IP allocation, secrets digests, and attached storage.
 
-[build]
-  dockerfile = "Dockerfile"
+### Step 2: Render the desired state
 
-[env]
-  NODE_ENV = "production"
-  PORT = "3000"
+Review build, process groups, services, concurrency, autostart or autostop, VM resources, regions, mounts, release command, and deployment policy.
 
-[http_service]
-  internal_port = 3000
-  force_https = true
-  auto_stop_machines = "stop"    # Stop idle machines
-  auto_start_machines = true     # Start on request
-  min_machines_running = 1       # Always keep 1 warm
+### Step 3: Stage secrets separately
 
-[http_service.concurrency]
-  type = "requests"
-  hard_limit = 250
-  soft_limit = 200
+Use Fly secrets rather than plaintext `[env]` values. Decide whether a secret change should restart Machines immediately or be staged for the release.
 
-[[vm]]
-  cpu_kind = "shared"
-  cpus = 1
-  memory = "512mb"
-```
+### Step 4: Select the deployment strategy
 
-### Step 2: Deploy and Manage Secrets
+Use rolling by default. Use canary only when temporary extra capacity is valid and no Machine volume blocks it; use blue-green only with health checks and compatible stateless capacity.
 
-```bash
-# Set secrets (encrypted, injected as env vars)
-fly secrets set DATABASE_URL="postgres://..." API_KEY="sk_..."
+### Step 5: Deploy and wait
 
-# List secrets (values hidden)
-fly secrets list
+Bind the release to an immutable image, observe replacement, and wait for health and Machine convergence. Do not infer success from image push alone.
 
-# Deploy
-fly deploy
+### Step 6: Reconcile or roll back
 
-# Check deployment status
-fly status
-fly releases
-```
+Compare desired and actual image, count, regions, health, and service behavior. Roll back if acceptance criteria or error budgets fail.
 
-### Step 3: Scale Across Regions
+## Authentication
 
-```bash
-# Add machines in new regions
-fly scale count 2 --region iad    # 2 machines in Virginia
-fly scale count 1 --region lhr    # 1 machine in London
-fly scale count 1 --region nrt    # 1 machine in Tokyo
+Use an app-scoped deploy token for a single app and a short-lived organization token only when the operation legitimately spans apps. Fly App secrets are encrypted at rest but become environment variables inside Machines; anyone with deploy access can deploy code that reads them.
 
-# Adjust VM size
-fly scale vm shared-cpu-2x --memory 1024
+## Tool Discipline
 
-# Check current scale
-fly scale show
-```
+Use Read and Grep to inspect application configuration, deployment evidence, provider documentation, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for an approved plan, configuration, implementation, test, or redacted receipt. Do not create, deploy, scale, restart, stop, suspend, destroy, rotate, revoke, expose, or migrate live Fly.io resources without explicit operator approval.
 
-### Step 4: Manage App Lifecycle
+## Output
 
-```bash
-# Restart all machines
-fly apps restart
+- Preflight snapshot and desired-state review
+- Release plan with strategy, capacity, health, and rollback gates
+- Post-release reconciliation receipt or rollback record
 
-# Suspend an app (stop billing)
-fly apps suspend my-app
+Return the target organization, app, environment, region set, Machine or database identifiers, source-contract fingerprint, evidence, unresolved risks, rollback state, and final decision without exposing tokens, secrets, connection strings, or customer data.
 
-# Resume
-fly apps resume my-app
+## Examples
 
-# Destroy (irreversible)
-fly apps destroy my-app --yes
-```
-
-## fly.toml Key Settings
-
-| Setting | Default | Recommended |
-|---------|---------|-------------|
-| `auto_stop_machines` | `"stop"` | `"stop"` for most, `"suspend"` for fast resume |
-| `auto_start_machines` | `true` | `true` for HTTP services |
-| `min_machines_running` | `0` | `1` for production (avoid cold starts) |
-| `concurrency.soft_limit` | `200` | Tune based on app capacity |
+A stateless API with two healthy Machines uses a rolling release. The operator stages one secret, pins the image digest, deploys one Machine at a time, verifies the health endpoint and image on both Machines, and closes only after the previous image remains available for rollback.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `failed to build` | Dockerfile issue | Test locally: `docker build .` |
-| `health check failed` | App not responding on internal_port | Verify port matches app config |
-| `no machines running` | All stopped | Set `min_machines_running = 1` |
+| Failure | Response |
+| --- | --- |
+| Release command fails | Stop the release, retain its logs, and fix the migration or command contract before retrying. |
+| Replacement cannot become healthy | Preserve the failed Machine evidence and roll back rather than widening unavailable capacity. |
+| Desired and actual fleet differ | Re-read current state, identify an interrupted or concurrent change, and reconcile under one release owner. |
 
 ## Resources
 
-- [fly.toml Reference](https://fly.io/docs/reference/configuration/)
-- [Scaling](https://fly.io/docs/launch/scale-count/)
-- [Secrets](https://fly.io/docs/reference/secrets/)
-
-## Next Steps
-
-For Postgres and volumes, see `flyio-core-workflow-b`.
+- [First-party source notes](references/official-docs.md)
+- [Machines API setup](https://fly.io/docs/machines/api/working-with-machines-api/)
+- [Automation and tokens](https://fly.io/docs/flyctl/integrating/)
+- [App configuration](https://fly.io/docs/reference/configuration/)
+- [Deploy an app](https://fly.io/docs/launch/deploy/)
+- [App secrets](https://fly.io/docs/apps/secrets/)
+- [Health checks](https://fly.io/docs/reference/health-checks/)

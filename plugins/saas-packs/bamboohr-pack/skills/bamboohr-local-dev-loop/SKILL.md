@@ -1,266 +1,95 @@
 ---
 name: bamboohr-local-dev-loop
-description: 'Configure BambooHR local development with hot reload, mocking, and testing.
-
-  Use when setting up a development environment, configuring test workflows,
-
-  or establishing a fast iteration cycle with BambooHR API.
-
-  Trigger with phrases like "bamboohr dev setup", "bamboohr local development",
-
-  "bamboohr dev environment", "develop with bamboohr", "bamboohr mock".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pnpm:*), Grep
-version: 1.4.0
+description: >-
+  Create a fast BambooHR development loop with synthetic fixtures, a recording-
+  free fake transport, contract tests, and opt-in test-tenant reads. Use when
+  developing safely without copying employee data onto laptops. Trigger with
+  "BambooHR local dev", "mock BambooHR", or "BambooHR test fixtures".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <runtime>"
+version: 1.5.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- hr
-- bamboohr
-- development
+tags: [saas, hr, bamboohr, local-development, testing]
+model: inherit
+effort: high
 compatibility: Designed for Claude Code
 ---
-# BambooHR Local Dev Loop
+# BambooHR Local Development Loop
 
 ## Overview
 
-Set up a fast, reproducible local development workflow for BambooHR integrations with request mocking, hot reload, and integration testing against the real API.
+Make local iteration independent of production HR data and network availability.
+Use a fake transport whose fixtures are designed from the official schema, not
+recorded from real employees.
 
 ## Prerequisites
 
-- Completed `bamboohr-install-auth` setup
-- Node.js 18+ with npm or pnpm
-- `BAMBOOHR_API_KEY` and `BAMBOOHR_COMPANY_DOMAIN` set in `.env`
+- The target repository or integration path and the requested operator outcome.
+- The tenant, identity, and data scope only when approved live work is in scope.
+- The current evidence register plus customer-specific permissions and agreements.
+
+## Current Contract
+
+The official OpenAPI and SDK docs define operations, status codes, auth modes,
+pagination, and typed errors. They are suitable inputs for contract fixtures;
+they do not authorize copying actual BambooHR payloads into a repository.
+
+## Authentication
+
+Default local configuration uses obvious non-secret placeholders and a fake
+transport. A live test-tenant profile is separate, ignored by version control,
+loaded from an approved secret store, and never activated by ordinary test or
+watch commands.
 
 ## Instructions
 
-### Step 1: Project Structure
+1. Inspect runtime, package manager, test framework, local configuration, and
+   current BambooHR adapter.
+2. Put a transport interface behind the adapter. Implement an in-memory fake
+   with explicit scripted responses and request assertions.
+3. Create synthetic employees and HR objects with impossible domains and values.
+   Cover active/inactive/future states, missing permitted fields, pagination,
+   empty results, and schema drift without realistic government IDs or records.
+4. Add scenarios for `401`, `403`, `409`, `412`, `413`, `422`, `429`, `503`,
+   `504`, `598`, timeout, redaction, request IDs, and ambiguous mutation outcome.
+5. Add a watch command that runs offline unit/contract tests only. Keep any
+   integration test behind an explicit profile and approval gate.
+6. For webhook development, generate payloads locally, verify raw-byte HMAC
+   behavior with a synthetic key, and test replay/idempotency. Do not capture a
+   real delivery as a fixture.
+7. Document reset, seeded scenarios, schema-pin update, and the exact command
+   that proves the default loop performs no network calls.
 
-```
-my-bamboohr-project/
-├── src/
-│   ├── bamboohr/
-│   │   ├── client.ts       # Reusable API client
-│   │   ├── types.ts         # BambooHR response types
-│   │   └── employees.ts     # Employee operations
-│   └── index.ts
-├── tests/
-│   ├── mocks/
-│   │   └── bamboohr.ts      # API response fixtures
-│   ├── unit/
-│   │   └── employees.test.ts
-│   └── integration/
-│       └── bamboohr.test.ts
-├── .env.local               # Real API key (git-ignored)
-├── .env.example              # Template for team
-├── .env.test                 # Test config (sandbox key)
-└── package.json
-```
+## Tool Discipline
 
-### Step 2: Create Reusable API Client
+Use Read, Glob, and Grep to inspect code and ignored paths. Use Write/Edit for
+approved fake transport, fixtures, tests, and developer docs. Do not install
+packages or access BambooHR under this skill.
 
-```typescript
-// src/bamboohr/client.ts
-import 'dotenv/config';
+## Approval Boundaries
 
-export class BambooHRClient {
-  private baseUrl: string;
-  private authHeader: string;
-
-  constructor(companyDomain?: string, apiKey?: string) {
-    const domain = companyDomain || process.env.BAMBOOHR_COMPANY_DOMAIN!;
-    const key = apiKey || process.env.BAMBOOHR_API_KEY!;
-    this.baseUrl = `https://api.bamboohr.com/api/gateway.php/${domain}/v1`;
-    this.authHeader = `Basic ${Buffer.from(`${key}:x`).toString('base64')}`;
-  }
-
-  async request<T>(path: string, options: RequestInit = {}): Promise<T> {
-    const res = await fetch(`${this.baseUrl}${path}`, {
-      ...options,
-      headers: {
-        Authorization: this.authHeader,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-    });
-
-    if (!res.ok) {
-      const errMsg = res.headers.get('X-BambooHR-Error-Message') || res.statusText;
-      throw new BambooHRError(res.status, errMsg, path);
-    }
-
-    return res.json() as Promise<T>;
-  }
-
-  async getEmployee(id: number | string, fields: string[]): Promise<Record<string, string>> {
-    return this.request(`/employees/${id}/?fields=${fields.join(',')}`);
-  }
-
-  async getDirectory(): Promise<{ employees: BambooEmployee[] }> {
-    return this.request('/employees/directory');
-  }
-}
-
-export class BambooHRError extends Error {
-  constructor(public status: number, message: string, public path: string) {
-    super(`BambooHR ${status}: ${message} [${path}]`);
-    this.name = 'BambooHRError';
-  }
-}
-```
-
-### Step 3: Setup Hot Reload and Scripts
-
-```json
-{
-  "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "test": "vitest run",
-    "test:watch": "vitest --watch",
-    "test:integration": "DOTENV_CONFIG_PATH=.env.test vitest run tests/integration/",
-    "typecheck": "tsc --noEmit"
-  },
-  "devDependencies": {
-    "tsx": "^4.0.0",
-    "vitest": "^2.0.0",
-    "typescript": "^5.5.0",
-    "msw": "^2.0.0"
-  }
-}
-```
-
-### Step 4: Mock BambooHR API with MSW
-
-```typescript
-// tests/mocks/bamboohr.ts
-import { http, HttpResponse } from 'msw';
-
-const MOCK_COMPANY = 'testcompany';
-const BASE = `https://api.bamboohr.com/api/gateway.php/${MOCK_COMPANY}/v1`;
-
-export const bamboohrHandlers = [
-  // Employee directory
-  http.get(`${BASE}/employees/directory`, () => {
-    return HttpResponse.json({
-      fields: [{ id: 'displayName', type: 'text', name: 'Display Name' }],
-      employees: [
-        {
-          id: '1', displayName: 'Jane Smith', firstName: 'Jane',
-          lastName: 'Smith', jobTitle: 'Engineer', department: 'Engineering',
-          workEmail: 'jane@test.com', location: 'Remote',
-        },
-        {
-          id: '2', displayName: 'Bob Jones', firstName: 'Bob',
-          lastName: 'Jones', jobTitle: 'Designer', department: 'Design',
-          workEmail: 'bob@test.com', location: 'NYC',
-        },
-      ],
-    });
-  }),
-
-  // Single employee
-  http.get(`${BASE}/employees/:id/`, ({ params }) => {
-    return HttpResponse.json({
-      id: params.id, firstName: 'Jane', lastName: 'Smith',
-      jobTitle: 'Engineer', department: 'Engineering',
-      hireDate: '2023-01-15', workEmail: 'jane@test.com',
-      status: 'Active',
-    });
-  }),
-
-  // Custom report
-  http.post(`${BASE}/reports/custom`, () => {
-    return HttpResponse.json({
-      title: 'Test Report', employees: [
-        { firstName: 'Jane', lastName: 'Smith', department: 'Engineering' },
-      ],
-    });
-  }),
-];
-```
-
-### Step 5: Write Unit Tests
-
-```typescript
-// tests/unit/employees.test.ts
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
-import { setupServer } from 'msw/node';
-import { bamboohrHandlers } from '../mocks/bamboohr';
-import { BambooHRClient } from '../../src/bamboohr/client';
-
-const server = setupServer(...bamboohrHandlers);
-
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
-
-describe('BambooHRClient', () => {
-  const client = new BambooHRClient('testcompany', 'fake-key');
-
-  it('fetches the employee directory', async () => {
-    const dir = await client.getDirectory();
-    expect(dir.employees).toHaveLength(2);
-    expect(dir.employees[0].displayName).toBe('Jane Smith');
-  });
-
-  it('fetches a single employee', async () => {
-    const emp = await client.getEmployee(1, ['firstName', 'lastName', 'jobTitle']);
-    expect(emp.firstName).toBe('Jane');
-    expect(emp.jobTitle).toBe('Engineer');
-  });
-});
-```
-
-### Step 6: Integration Test Against Real API
-
-```typescript
-// tests/integration/bamboohr.test.ts
-import { describe, it, expect } from 'vitest';
-import { BambooHRClient } from '../../src/bamboohr/client';
-
-const HAS_KEY = !!process.env.BAMBOOHR_API_KEY;
-
-describe.skipIf(!HAS_KEY)('BambooHR Integration', () => {
-  const client = new BambooHRClient();
-
-  it('should fetch the real employee directory', async () => {
-    const dir = await client.getDirectory();
-    expect(dir.employees.length).toBeGreaterThan(0);
-    expect(dir.employees[0]).toHaveProperty('displayName');
-  }, 15_000);
-});
-```
+Require approval before adding a dependency, storing any live credential,
+calling a tenant, capturing traffic, or adding a fixture derived from customer
+data. Redaction does not automatically make a production payload reusable.
 
 ## Output
 
-- Reusable `BambooHRClient` with typed methods
-- MSW mocks for offline development
-- Unit tests with mocked API
-- Integration tests gated on `BAMBOOHR_API_KEY` presence
-- Hot-reload dev server via `tsx watch`
-
-## Examples
-
-Develop against mocked responses and synthetic employee fixtures by default. If a sandbox call is needed, use a dedicated least-privilege credential, request only the named test fields, avoid caching raw responses outside the protected test directory, and delete the artifact when the test completes.
+Return transport boundary, scenario inventory, fixture provenance, commands,
+no-network proof, coverage for auth/retry/pagination/webhooks, test results, and
+any optional live profile that remains disabled.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `BambooHRError 401` | Wrong key in `.env.local` | Re-copy from BambooHR dashboard |
-| MSW `onUnhandledRequest` | Unmocked endpoint hit | Add handler to `bamboohrHandlers` |
-| `ECONNREFUSED` in tests | MSW server not started | Ensure `beforeAll(() => server.listen())` |
-| Slow integration tests | Real API latency | Increase vitest timeout to 15s |
+- Test attempts network access: fail the suite and identify the unmocked operation.
+- Fixture resembles real HR data: remove it and replace with synthetic values.
+- Fake diverges from pinned OpenAPI: update through a reviewed contract diff.
+
+## Examples
+
+- "Record production responses for tests" is rejected in favor of synthetic fixtures.
+- "Make BambooHR tests fast" yields an offline fake plus targeted contract tests.
 
 ## Resources
 
-- [MSW Documentation](https://mswjs.io/)
-- [Vitest Documentation](https://vitest.dev/)
-- [BambooHR API Technical Overview](https://documentation.bamboohr.com/docs/api-details)
-
-## Next Steps
-
-See `bamboohr-sdk-patterns` for production-ready code patterns.
+Read [official evidence](references/official-docs.md) when designing scenarios.

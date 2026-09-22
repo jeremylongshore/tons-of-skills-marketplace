@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/flexport-pack",
-  "version": "1.0.2",
-  "description": "Claude Code skill pack for Flexport - 24 skills covering freight forwarding, supply chain visibility, and logistics",
+  "version": "2.0.0",
+  "description": "24 governed Flexport v3 and MCP operator workflows for freight, trade data, webhooks, and secure integrations",
   "main": "README.md",
   "type": "module",
   "files": [

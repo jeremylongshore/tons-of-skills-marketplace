@@ -1,173 +1,99 @@
 ---
 name: palantir-multi-env-setup
-description: 'Configure Palantir Foundry across development, staging, and production
-  environments.
-
-  Use when setting up multi-environment Foundry deployments, managing per-environment
-
-  credentials, or implementing environment-specific configurations.
-
-  Trigger with phrases like "palantir environments", "foundry staging",
-
-  "foundry dev prod", "palantir environment setup".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gcloud:*)
-version: 1.5.0
-license: MIT
+description: >-
+  Configure development, test, and production Foundry environments using spaces, DevOps products, Marketplace installations, and explicit parameters. Use when release-managing workflows across environments. Trigger with "Foundry environments" or "Palantir dev test prod".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[devops-store-and-product]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- environments
-- configuration
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, environments, devops]
 ---
-# Palantir Multi-Environment Setup
+# Palantir DevOps Environment Separation
 
 ## Overview
 
-Configure Foundry integrations across dev/staging/prod environments with separate credentials, enrollment hostnames, and scope policies per environment.
+Represent long-lived environments with Foundry spaces and promote versioned products through DevOps and Marketplace. Use Global Branching for isolated changes within an environment, not as a substitute for every long-lived environment boundary.
 
 ## Prerequisites
 
-- Foundry enrollments for each environment (or separate projects within one enrollment)
-- Secrets manager (AWS SM, GCP SM, or Vault)
-- Familiarity with `palantir-security-basics`
+- Identify the enrollment, DevOps store, source products, target spaces, owners, dependencies, security policies, external systems, and approval chain.
+- Inventory environment-specific sources, sinks, URLs, OAuth clients, markings, organizations, schedules, and release windows.
+- Read `references/official-docs.md` and inspect the current product dependency and parameter contracts.
+- Establish the development source product and at least one non-production installation.
+
+## Current Contract
+
+- Spaces provide environment separation for development, test, and production workflows.
+- DevOps products package resources and their dependencies; downstream products should resolve inputs from the corresponding target environment.
+- Marketplace installations can use release channels, locks, maintenance windows, and parameter inputs.
+- Supported Developer Console application parameters can be remapped during installation, but Ontology API-name behavior and source-code parameters need explicit review.
+
+## Authentication
+
+Give each environment an appropriately restricted OAuth application or mapped Developer Console application according to the supported product contract. Do not copy production client secrets into development or embed environment credentials in packaged source.
 
 ## Instructions
 
-### Step 1: Environment Configuration
+1. Define each environment as a space with owners, security policy, external integration boundary, approval workflow, and recovery objective.
 
-```python
-# src/config.py
-import os
-from dataclasses import dataclass
+2. Package the workflow into bounded DevOps products with explicit inputs, outputs, dependencies, and parameter contracts.
 
-@dataclass
-class FoundryEnvConfig:
-    hostname: str
-    client_id: str
-    client_secret: str
-    scopes: list[str]
-    ontology: str
+3. Install upstream products before downstream dependents in test, resolving every input from the matching environment.
 
-ENVIRONMENTS = {
-    "development": FoundryEnvConfig(
-        hostname=os.environ.get("DEV_FOUNDRY_HOSTNAME", "dev.palantirfoundry.com"),
-        client_id=os.environ.get("DEV_FOUNDRY_CLIENT_ID", ""),
-        client_secret=os.environ.get("DEV_FOUNDRY_CLIENT_SECRET", ""),
-        scopes=["api:read-data"],  # Read-only in dev
-        ontology="dev-ontology",
-    ),
-    "staging": FoundryEnvConfig(
-        hostname=os.environ.get("STG_FOUNDRY_HOSTNAME", "staging.palantirfoundry.com"),
-        client_id=os.environ.get("STG_FOUNDRY_CLIENT_ID", ""),
-        client_secret=os.environ.get("STG_FOUNDRY_CLIENT_SECRET", ""),
-        scopes=["api:read-data", "api:write-data"],
-        ontology="staging-ontology",
-    ),
-    "production": FoundryEnvConfig(
-        hostname=os.environ.get("PROD_FOUNDRY_HOSTNAME", "prod.palantirfoundry.com"),
-        client_id=os.environ.get("PROD_FOUNDRY_CLIENT_ID", ""),
-        client_secret=os.environ.get("PROD_FOUNDRY_CLIENT_SECRET", ""),
-        scopes=["api:read-data", "api:write-data", "api:ontology-read"],
-        ontology="production-ontology",
-    ),
-}
+4. Verify parameter remapping, OAuth/restrictions, Ontology references, markings, schedules, and external endpoints.
 
-def get_config() -> FoundryEnvConfig:
-    env = os.environ.get("ENVIRONMENT", "development")
-    return ENVIRONMENTS[env]
-```
+5. Promote an immutable product version through the approved release channel and test downgrade or prior-version rollback.
 
-### Step 2: Environment-Aware Client Factory
+## Tool Discipline
 
-```python
-import foundry
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-def create_client(config: FoundryEnvConfig) -> foundry.FoundryClient:
-    auth = foundry.ConfidentialClientAuth(
-        client_id=config.client_id,
-        client_secret=config.client_secret,
-        hostname=config.hostname,
-        scopes=config.scopes,
-    )
-    auth.sign_in_as_service_user()
-    return foundry.FoundryClient(auth=auth, hostname=config.hostname)
+## Approval Boundaries
 
-# Usage
-config = get_config()
-client = create_client(config)
-```
-
-### Step 3: Environment Variables per Platform
-
-```bash
-# Docker Compose
-# docker-compose.yml
-services:
-  app:
-    environment:
-      - ENVIRONMENT=staging
-      - STG_FOUNDRY_HOSTNAME=staging.palantirfoundry.com
-      - STG_FOUNDRY_CLIENT_ID=${STG_CLIENT_ID}
-      - STG_FOUNDRY_CLIENT_SECRET=${STG_CLIENT_SECRET}
-
-# Kubernetes
-kubectl create secret generic foundry-creds \
-  --from-literal=hostname=prod.palantirfoundry.com \
-  --from-literal=client-id=xxx \
-  --from-literal=client-secret=yyy
-
-# Cloud Run
-gcloud run deploy my-app \
-  --set-env-vars ENVIRONMENT=production \
-  --set-secrets "PROD_FOUNDRY_CLIENT_SECRET=foundry-secret:latest"
-```
-
-### Step 4: Environment Validation
-
-```python
-def validate_environment():
-    """Verify current environment configuration is valid."""
-    config = get_config()
-    env = os.environ.get("ENVIRONMENT", "development")
-
-    assert config.hostname, f"Missing hostname for {env}"
-    assert config.client_id, f"Missing client_id for {env}"
-    assert config.client_secret, f"Missing client_secret for {env}"
-
-    # Verify connectivity
-    client = create_client(config)
-    ontologies = list(client.ontologies.Ontology.list())
-    print(f"Environment {env}: connected to {config.hostname}")
-    print(f"  Accessible ontologies: {[o.api_name for o in ontologies]}")
-    return True
-```
+Space owners approve environment membership; product owners approve versions and dependencies; security/data owners approve environment-specific controls; production owners approve installation, channel, lock, and maintenance-window changes.
 
 ## Output
 
-- Per-environment configuration with separate hostnames and credentials
-- Environment-aware client factory
-- Platform-specific deployment configuration
-- Validation script for environment verification
+An environment matrix, product/dependency graph, parameter and secret map, installation order, release-channel policy, test results, promotion receipt, drift report, and rollback version.
 
 ## Error Handling
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| Wrong environment data | Misconfigured `ENVIRONMENT` var | Verify env var matches expected |
-| Cross-env credentials | Shared secrets | Ensure each env has unique credentials |
-| Dev writing to prod | Wrong hostname | Enforce read-only scopes in dev |
-| Missing secrets | Not deployed | Run validation script before deploying |
+| Condition | Response |
+|---|---|
+| A dependency resolves across environments | Stop installation and bind it to the corresponding target-space product or resource. |
+| A packaged application retains source parameters | Correct supported remapping or parameterization before promotion. |
+| Security differs unintentionally | Block the release and reconcile roles, mandatory controls, restrictions, and external integrations. |
+| Rollback dependencies are unavailable | Keep the current version locked and restore the dependency chain before proceeding. |
+
+## Examples
+
+### Example 1
+
+Create Development, Test, and Production spaces, package an upstream data product and downstream application product, and verify same-environment dependency binding before promotion.
+
+### Example 2
+
+Install a Developer Console application through Marketplace, confirm Foundry URL and OAuth parameters map to test, verify Ontology API-name handling, then promote the same product version.
+
+## Validation
+
+- Every product dependency resolves inside the intended environment.
+- Environment-specific credentials and external endpoints are isolated.
+- Parameter remapping and Ontology identifiers are verified from the installed product.
+- Release approvals, channels, locks, and maintenance windows match policy.
+- A prior product version and its dependencies can be restored.
 
 ## Resources
 
-- [Foundry Authentication](https://www.palantir.com/docs/foundry/api/general/overview/authentication)
-- [Developer Console](https://www.palantir.com/docs/foundry/ontology-sdk/create-a-new-osdk)
-
-## Next Steps
-
-For deep migration strategies, see `palantir-migration-deep-dive`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

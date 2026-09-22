@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/attio-pack",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Claude Code skill pack for Attio - 18 skills covering CRM, relationship intelligence, and deal management",
   "main": "README.md",
   "type": "module",

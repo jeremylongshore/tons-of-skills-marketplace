@@ -1,177 +1,93 @@
 ---
 name: vastai-deploy-integration
-description: 'Deploy ML training jobs and inference services on Vast.ai GPU cloud.
-
-  Use when deploying GPU workloads, configuring Docker images,
-
-  or setting up automated deployment scripts.
-
-  Trigger with phrases like "deploy vastai", "vastai deployment",
-
-  "vastai docker", "vastai production deploy".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vastai:*), Bash(docker:*), Bash(ssh:*)
-version: 1.11.0
+description: >-
+  Deploy an immutable service or batch worker to a Vast.ai instance with template, health, artifact, rollback, and cleanup controls. Use when shipping an instance-based workload rather than Serverless. Trigger with: "deploy to a Vast.ai instance", "release a Vast.ai template", "roll back a Vast.ai deployment".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[release-image-template-and-health-contract]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- deployment
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - deployment
+  - templates
+  - instances
+compatibility: 'Requires an immutable image, Vast.ai template or creation manifest, scoped deployment key, health contract, and rollback artifact.'
 ---
-# Vast.ai Deploy Integration
+
+# Immutable Vast.ai Instance Deployment
 
 ## Overview
 
-Deploy ML training jobs and inference services on Vast.ai GPU cloud. Covers Docker image optimization, automated provisioning scripts, data transfer strategies, and deployment automation.
+Make the deployment reproducible outside the console. Bind release bytes to an immutable image and versioned template hash, launch a canary under policy, validate service and GPU health, then promote or destroy.
 
 ## Prerequisites
 
-- Vast.ai CLI authenticated
-- Docker image published to a registry
-- Training/inference code tested locally
+- Release commit, image digest, template hash, ports, environment names, and startup contract
+- Offer policy, health checks, artifact/checkpoint destinations, and maximum rollout time
+- Last-known-good image/template plus rollback and teardown owners
 
 ## Instructions
 
-### Step 1: Optimized Docker Image
+### Step 1: Freeze the deployment manifest
 
-```dockerfile
-# Dockerfile.vastai — optimized for fast pulls on Vast.ai
-FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime
+Record all non-secret template settings, image digest, on-start behavior, exposed ports, disk, label, and required GPU/host constraints.
 
-# Install dependencies in a single layer
-COPY requirements.txt /tmp/
-RUN pip install --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.txt
+### Step 2: Validate outside production
 
-# Copy application code
-COPY src/ /workspace/src/
-COPY scripts/ /workspace/scripts/
+Build and scan the image, run local contract tests, and launch a disposable canary from the exact template hash.
 
-WORKDIR /workspace
-CMD ["python", "src/train.py"]
-```
+### Step 3: Verify readiness
 
-```bash
-# Build and push
-docker build -t ghcr.io/yourorg/training:v1 -f Dockerfile.vastai .
-docker push ghcr.io/yourorg/training:v1
-```
+Bound state polling, resolve current endpoints, check process and GPU health, and execute a representative request or batch assertion.
 
-### Step 2: Automated Deployment Script
+### Step 4: Promote deliberately
 
-```python
-#!/usr/bin/env python3
-"""deploy.py — Automated Vast.ai deployment with monitoring."""
-import subprocess, json, time, argparse, sys
+Create or update the production instance only after canary acceptance. Persist resource IDs and externalize important data before traffic or work begins.
 
-def deploy(args):
-    # Search for matching offer
-    query = (f"num_gpus={args.gpus} gpu_name={args.gpu} "
-             f"reliability>{args.reliability} dph_total<={args.max_price} "
-             f"disk_space>={args.disk} rentable=true")
+### Step 5: Observe the release
 
-    offers = json.loads(subprocess.run(
-        ["vastai", "search", "offers", query, "--order", "dph_total",
-         "--raw", "--limit", "5"],
-        capture_output=True, text=True, check=True).stdout)
+Track state, logs, request/job outcome, cost, disk, and checkpoint health through the acceptance window.
 
-    if not offers:
-        print(f"ERROR: No offers matching: {query}", file=sys.stderr)
-        sys.exit(1)
+### Step 6: Roll back or close
 
-    offer = offers[0]
-    print(f"Selected: {offer['gpu_name']} ${offer['dph_total']:.3f}/hr "
-          f"(ID: {offer['id']})")
+On regression, route work to the last-known-good template or recreate from it; copy evidence and destroy rejected or superseded instances.
 
-    # Create instance
-    cmd = ["vastai", "create", "instance", str(offer["id"]),
-           "--image", args.image, "--disk", str(args.disk)]
-    if args.onstart:
-        cmd.extend(["--onstart-cmd", args.onstart])
+## Authentication
 
-    result = json.loads(subprocess.run(
-        cmd, capture_output=True, text=True, check=True).stdout)
-    instance_id = result["new_contract"]
-    print(f"Instance {instance_id} provisioning...")
+Give deployment automation only search, template, and instance permissions it needs. Keep registry, model, and storage secrets in approved runtime variables and out of template descriptions and logs.
 
-    # Wait for running
-    for _ in range(30):
-        info = json.loads(subprocess.run(
-            ["vastai", "show", "instance", str(instance_id), "--raw"],
-            capture_output=True, text=True).stdout)
-        if info.get("actual_status") == "running":
-            print(f"READY: ssh -p {info['ssh_port']} root@{info['ssh_host']}")
-            return instance_id, info
-        time.sleep(10)
+## Tool Discipline
 
-    raise TimeoutError("Instance did not start")
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--gpu", default="RTX_4090")
-    parser.add_argument("--gpus", type=int, default=1)
-    parser.add_argument("--image", required=True)
-    parser.add_argument("--disk", type=int, default=50)
-    parser.add_argument("--max-price", type=float, default=0.50)
-    parser.add_argument("--reliability", type=float, default=0.95)
-    parser.add_argument("--onstart", default="")
-    deploy(parser.parse_args())
-```
-
-### Step 3: Data Transfer Strategies
-
-```bash
-# Small datasets (<5GB): SCP directly
-scp -P $PORT ./data.tar.gz root@$HOST:/workspace/
-
-# Large datasets (>5GB): Use rsync with compression
-rsync -avz --progress -e "ssh -p $PORT" ./data/ root@$HOST:/workspace/data/
-
-# Very large datasets: Pre-stage on cloud storage
-ssh -p $PORT root@$HOST "wget -q https://storage.example.com/dataset.tar.gz -O /workspace/data.tar.gz"
-```
-
-### Step 4: Health Check After Deploy
-
-```bash
-ssh -p $PORT -o StrictHostKeyChecking=no root@$HOST << 'CHECK'
-echo "=== Deploy Health Check ==="
-nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
-python -c "import torch; print(f'CUDA: {torch.cuda.is_available()}')"
-df -h /workspace | tail -1
-echo "=== Ready ==="
-CHECK
-```
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- Optimized Docker image for fast Vast.ai pulls
-- Automated deployment script with GPU/price selection
-- Data transfer patterns (SCP, rsync, cloud storage)
-- Post-deploy health check verification
+- Versioned deployment manifest and immutable identities
+- Canary and production health/acceptance evidence
+- Promotion, rollback, and superseded-resource cleanup receipt
 
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Docker pull timeout | Image too large (>10GB) | Use multi-stage builds; minimize image layers |
-| Disk space exhausted | Insufficient disk allocation | Increase `--disk` parameter |
-| SSH timeout after deploy | Instance still loading image | Wait longer or use smaller base image |
-| CUDA version mismatch | Image CUDA > host CUDA | Filter offers by `cuda_max_good` |
-
-## Resources
-
-- [Vast.ai Instance Creation](https://docs.vast.ai/api-reference/instances/create-instance)
-- [Docker Best Practices](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/)
-
-## Next Steps
-
-For event-driven workflows, see `vastai-webhooks-events`.
+Return release, image/template identities, offer and instance IDs, health result, acceptance window, decision, and cleanup status.
 
 ## Examples
 
-**One-command deploy**: `python deploy.py --gpu A100 --image ghcr.io/org/train:v1 --max-price 2.00 --disk 100`
+A model API is launched from a pinned template hash and image digest, passes GPU and request canaries, then replaces the previous instance; the rejected candidate is destroyed and the old template remains recorded for rollback.
 
-**Multi-GPU deploy**: Set `--gpus 4` and `--gpu H100_SXM` for distributed training with `torchrun`.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Template resolves different bytes | Stop and pin a new immutable hash before provisioning. |
+| Health passes but workload assertion fails | Reject the release and retain the last-known-good service. |
+| Rollback data is only on local disk | Copy it externally before destructive recovery if the incident permits. |
+| Superseded instance remains | Treat it as a cost leak and complete or escalate teardown. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [Creating templates](https://docs.vast.ai/guides/templates/creating-templates)
+- [Managing templates](https://docs.vast.ai/guides/templates/managing-templates)
+- [Manage instances](https://docs.vast.ai/guides/instances/manage-instances)

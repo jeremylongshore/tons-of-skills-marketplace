@@ -1,7 +1,7 @@
 {
   "name": "clari-pack",
-  "version": "1.6.0",
-  "description": "Claude Code skill pack for Clari (18 skills)",
+  "version": "2.0.0",
+  "description": "18 governed Clari operator workflows for Revenue API exports, v2 ingestion, Copilot, governance, and production operations",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,9 @@
   "license": "MIT",
   "keywords": [
     "clari",
-    "clari",
-    "saas",
-    "sdk",
+    "revenue-operations",
+    "forecasting",
+    "copilot",
     "integration"
   ]
 }

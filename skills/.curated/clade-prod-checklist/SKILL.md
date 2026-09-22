@@ -5,7 +5,7 @@ description: "Production readiness checklist for Claude-powered applications \u2
   \ cost controls, and security.\nTrigger with \"anthropic production\", \"claude\
   \ production ready\",\n\"anthropic launch checklist\", \"go live with claude\".\n"
 allowed-tools: Read, Write, Edit
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -97,9 +97,9 @@ Each section above is a verifiable checklist. Work through Authentication & Secu
 
 ## Resources
 
-- [API Best Practices](https://docs.anthropic.com/en/docs/build-with-claude)
-- [Error Handling](https://docs.anthropic.com/en/api/errors)
-- [Rate Limits](https://docs.anthropic.com/en/api/rate-limits)
+- [API Best Practices](https://platform.claude.com/docs/en/build-with-claude/overview)
+- [Error Handling](https://platform.claude.com/docs/en/api/errors)
+- [Rate Limits](https://platform.claude.com/docs/en/api/rate-limits)
 - Acceptable Use Policy
 
 ## Next Steps

@@ -1,258 +1,91 @@
 ---
 name: cohere-cost-tuning
-description: 'Optimize Cohere costs through model selection, token budgets, and usage
-  monitoring.
-
-  Use when analyzing Cohere billing, reducing API costs,
-
-  or implementing usage monitoring and budget alerts.
-
-  Trigger with phrases like "cohere cost", "cohere billing",
-
-  "reduce cohere costs", "cohere pricing", "cohere expensive", "cohere budget".
-
-  '
-allowed-tools: Read, Grep
-version: 1.5.0
-license: MIT
+description: >-
+  Model and reduce Cohere usage cost with current pricing, measured token or search units, quality gates, caching, and budget controls. Use when forecasting or optimizing Cohere spend. Trigger with "Cohere cost", "Cohere pricing", or "Cohere budget".
+argument-hint: "[workload] [monthly-volume] [currency]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ai
-- nlp
 - cohere
-compatibility: Designed for Claude Code
+- cost
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Cohere API key
 ---
-# Cohere Cost Tuning
+# Cohere Cost and Usage Tuning
 
 ## Overview
 
-Optimize Cohere costs through model selection, token budgets, embedding compression, and usage monitoring. Cohere pricing is token-based with separate input/output rates.
+Build a reproducible cost model from live prices and measured workload units, then optimize only within approved quality and safety thresholds.
 
 ## Prerequisites
 
-- Cohere production key (trial is free but limited)
-- Access to [dashboard.cohere.com](https://dashboard.cohere.com) billing page
+- The target repository, runtime, environment, and accountable owner
+- An approved Cohere team and key for any live verification
+- Current quality, security, privacy, capacity, and change-control requirements
 
-## Cohere Pricing Model
+## Tool Discipline
 
-**Key principle:** Cohere charges per token. Input tokens and output tokens have different rates. Embed, Rerank, and Classify have separate pricing based on search units.
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current Cohere primary documentation. Use `Write` or `Edit` only when the user requested implementation and the exact target files are known; never write credentials or customer content.
 
-| Tier | Access | Rate Limits | Cost |
-|------|--------|-------------|------|
-| Trial | Free | 5-20 calls/min, 1000/month | $0 |
-| Production | Metered | 1000 calls/min, unlimited | Per-token |
+## Current Contract
 
-### Model Cost Comparison
+- Do not embed a permanent price table; capture the pricing page date and applicable commercial terms.
+- Separate Chat input/output, Embed input, Rerank search, and platform infrastructure costs.
+- Newer model access and production capacity can have account-specific terms.
+- A cheaper model or smaller context is acceptable only after representative evaluation passes.
 
-| Model | Input (per 1M tokens) | Output (per 1M tokens) | Best For |
-|-------|----------------------|------------------------|----------|
-| `command-r7b-12-2024` | Lowest | Lowest | High-volume, simple tasks |
-| `command-r-08-2024` | Low | Low | RAG, cost-effective |
-| `command-r-plus-08-2024` | Medium | Medium | Complex reasoning |
-| `command-a-03-2025` | Higher | Higher | Best quality |
+## Authentication
 
-### Non-Chat Pricing
-
-| Endpoint | Pricing Unit | Notes |
-|----------|-------------|-------|
-| Embed | Per input token | Batch 96 texts to minimize calls |
-| Rerank | Per search unit | 1 query + N docs = 1 search unit |
-| Classify | Per classification | Charges per input classified |
+Use an environment-specific key injected from an approved secret manager. Never print, persist, commit, or place `CO_API_KEY` in an example. Confirm access with the least costly bounded operation appropriate to the task, and treat key creation, rotation, revocation, role changes, and production-capacity requests as owner-approved actions.
 
 ## Instructions
 
-### Strategy 1: Model Tiering
+1. Collect current public prices or contracted rates with effective date and currency.
+2. Measure per-request input, output, Embed, Rerank, retry, cache, and failure units by workload class.
+3. Forecast baseline, expected, and peak volume with capacity and retry assumptions.
+4. Evaluate model routing, context reduction, retrieval pruning, batching, caching, and duplicate suppression.
+5. Set per-tenant and global budgets, alerts, admission controls, and an owner-approved degradation path.
+6. Reconcile forecast with actual billing regularly and investigate material variance.
 
-```typescript
-type CostTier = 'economy' | 'standard' | 'premium';
+## Approval Boundaries
 
-function selectModel(tier: CostTier): string {
-  switch (tier) {
-    case 'economy':  return 'command-r7b-12-2024';    // ~5x cheaper
-    case 'standard': return 'command-r-08-2024';       // Good balance
-    case 'premium':  return 'command-a-03-2025';       // Best quality
-  }
-}
-
-// Route by use case
-function routeModel(task: string): string {
-  // High-volume, simple tasks → cheapest model
-  if (['classify', 'extract', 'summarize-short'].includes(task)) {
-    return selectModel('economy');
-  }
-  // RAG, moderate complexity
-  if (['rag', 'search', 'qa'].includes(task)) {
-    return selectModel('standard');
-  }
-  // Complex reasoning, user-facing
-  return selectModel('premium');
-}
-```
-
-### Strategy 2: Token Budget Controls
-
-```typescript
-import { CohereClientV2 } from 'cohere-ai';
-
-const cohere = new CohereClientV2();
-
-// Set maxTokens to prevent runaway generation costs
-async function budgetedChat(message: string, maxOutputTokens = 500) {
-  const response = await cohere.chat({
-    model: 'command-r-08-2024',
-    messages: [{ role: 'user', content: message }],
-    maxTokens: maxOutputTokens,  // Hard limit on output tokens
-  });
-
-  // Track actual usage
-  const usage = response.usage?.billedUnits;
-  console.log(`Tokens: in=${usage?.inputTokens} out=${usage?.outputTokens}`);
-
-  return response;
-}
-```
-
-### Strategy 3: Embedding Cost Reduction
-
-```typescript
-// 1. Use int8 embeddings (same quality, cheaper storage)
-const response = await cohere.embed({
-  model: 'embed-v4.0',
-  texts: documents,
-  inputType: 'search_document',
-  embeddingTypes: ['int8'],     // 75% less storage than float
-});
-
-// 2. Batch to 96 per call (minimize API calls)
-// 3. Cache embeddings (they're deterministic — embed once, use forever)
-// 4. Use embed-multilingual-v3.0 if you don't need v4 features
-```
-
-### Strategy 4: Usage Monitoring
-
-```typescript
-class CohereUsageTracker {
-  private usage: Record<string, { inputTokens: number; outputTokens: number; calls: number }> = {};
-  private dailyBudget: number;
-
-  constructor(dailyBudgetUSD: number) {
-    this.dailyBudget = dailyBudgetUSD;
-  }
-
-  track(endpoint: string, billedUnits: { inputTokens?: number; outputTokens?: number }) {
-    if (!this.usage[endpoint]) {
-      this.usage[endpoint] = { inputTokens: 0, outputTokens: 0, calls: 0 };
-    }
-    this.usage[endpoint].inputTokens += billedUnits.inputTokens ?? 0;
-    this.usage[endpoint].outputTokens += billedUnits.outputTokens ?? 0;
-    this.usage[endpoint].calls++;
-  }
-
-  getReport(): string {
-    return Object.entries(this.usage)
-      .map(([ep, u]) =>
-        `${ep}: ${u.calls} calls, ${u.inputTokens} in, ${u.outputTokens} out`
-      )
-      .join('\n');
-  }
-
-  estimateDailyCost(): number {
-    // Rough estimate — check cohere.com/pricing for exact rates
-    const chatIn = (this.usage['chat']?.inputTokens ?? 0) / 1_000_000;
-    const chatOut = (this.usage['chat']?.outputTokens ?? 0) / 1_000_000;
-    const embedIn = (this.usage['embed']?.inputTokens ?? 0) / 1_000_000;
-    // Multiply by per-million-token rates from pricing page
-    return (chatIn * 0.5) + (chatOut * 1.5) + (embedIn * 0.1); // example rates
-  }
-}
-
-// Wrap all API calls
-const tracker = new CohereUsageTracker(10); // $10/day budget
-
-async function trackedChat(params: any) {
-  const response = await cohere.chat(params);
-  tracker.track('chat', response.usage?.billedUnits ?? {});
-
-  if (tracker.estimateDailyCost() > tracker['dailyBudget'] * 0.8) {
-    console.warn('WARNING: Approaching daily Cohere budget limit');
-  }
-
-  return response;
-}
-```
-
-### Strategy 5: Rerank Before RAG (Skip Embed for Small Corpora)
-
-```typescript
-// If you have < 1000 documents, skip embedding entirely
-// Rerank is cheaper than Embed + vector search for small collections
-
-async function cheapRAG(query: string, corpus: string[]) {
-  // 1 search unit instead of N embed calls
-  const ranked = await cohere.rerank({
-    model: 'rerank-v3.5',
-    query,
-    documents: corpus,
-    topN: 3,
-  });
-
-  const docs = ranked.results.map((r, i) => ({
-    id: `doc-${i}`,
-    data: { text: corpus[r.index] },
-  }));
-
-  // Use cheaper model for generation
-  return cohere.chat({
-    model: 'command-r-08-2024', // Not command-a (cheaper)
-    messages: [{ role: 'user', content: query }],
-    documents: docs,
-    maxTokens: 300,
-  });
-}
-```
-
-## Cost Optimization Checklist
-
-- [ ] Use `command-r7b` for simple tasks, `command-a` only for complex ones
-- [ ] Set `maxTokens` on all chat calls
-- [ ] Batch embed calls (96 texts per request)
-- [ ] Cache embeddings (deterministic — compute once)
-- [ ] Use `int8` embeddings for storage
-- [ ] Monitor `usage.billedUnits` in every response
-- [ ] Set daily budget alerts
-- [ ] Use `rerank` instead of `embed` for small corpora (< 1000 docs)
+Do not expose or rotate keys, change Cohere Team roles, accept commercial terms, enable sensitive production data, increase spend or capacity, switch production models, send a support bundle, or execute model-proposed side effects without the accountable owner's approval. Keep diagnosis read-only unless implementation was requested.
 
 ## Output
 
-- Model tiering by cost/quality
-- Token budget controls preventing runaway costs
-- Usage tracking with daily budget alerts
-- Cost-effective RAG with rerank pre-filtering
+Return the resolved API and model contract, files or settings inspected, evidence collected, validation result, remaining risk, owner, and rollback or next action. Redact keys, authorization headers, prompts, retrieved documents, embeddings, customer identifiers, and unrestricted environment output.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Unexpected bill spike | No maxTokens | Set maxTokens on all chat calls |
-| High embed costs | Individual texts | Batch to 96 per call |
-| Budget exceeded | No monitoring | Track billedUnits per response |
-| Over-provisioned model | Using premium everywhere | Tier models by task complexity |
+| Condition | Response |
+|---|---|
+| Unknown contract rate | Mark the forecast incomplete and obtain the governing rate. |
+| Quality below floor | Reject the savings change. |
+| Retry amplification | Fix failure handling and include wasted units in the model. |
+| Budget exceeded | Apply approved admission control; do not silently weaken safety. |
 
 ## Examples
 
-Route a small staging classification task to the lowest approved model tier,
-set a token cap and daily budget alert, and compare quality and billed units to
-the baseline. If quality falls below the defined threshold or usage exceeds its
-guardrail, restore the prior tier and investigate scope/prompt design before
-raising model access or limits.
+Use this compact handoff shape to keep the selected scope, validation evidence, and operational result reviewable.
+
+Input:
+
+```text
+workload=rag-chat; monthly-requests=100000; prices=effective-date-snapshot
+```
+
+Expected handoff:
+
+```text
+forecast=three-scenarios; unit-cost=measured; controls=enabled; quality=pass
+```
 
 ## Resources
 
-- [Cohere Pricing](https://cohere.com/pricing)
-- [Cohere Billing Dashboard](https://dashboard.cohere.com/billing)
-- [Cohere Token Counting](https://docs.cohere.com/docs/tokens-and-tokenizers)
-
-## Next Steps
-
-For architecture patterns, see `cohere-reference-architecture`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Pricing](https://cohere.com/pricing)
+- [Rate limits](https://docs.cohere.com/docs/rate-limits)

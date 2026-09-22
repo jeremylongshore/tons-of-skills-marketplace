@@ -17,7 +17,7 @@ description: 'Compose LangChain 1.0 Python runnables with the production default
 
   '
 allowed-tools: Read, Write, Edit, Bash(python:*), Bash(pip:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

@@ -1,168 +1,94 @@
 ---
 name: flyio-deploy-integration
-description: 'Advanced Fly.io deployment strategies including blue-green deployments,
-
-  canary releases, multi-region rollouts, and Machines API orchestration.
-
-  Trigger: "fly.io blue-green", "fly.io canary deploy", "fly.io rolling update".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(fly:*), Bash(curl:*), Grep
-version: 1.7.0
+description: >-
+  Plan a Fly.io rolling, canary, or blue-green release with health, capacity, storage, and rollback constraints. Use when a release needs progressive exposure. Trigger with: "canary deploy on Fly", "use Fly blue-green", "design Fly rollout".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[app-release-and-strategy]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- edge-compute
-- flyio
-compatibility: Designed for Claude Code
+  - saas
+  - flyio
+  - progressive-delivery
+  - canary
+  - blue-green
+compatibility: 'Requires a Fly Launch app, immutable image, configured health checks, sufficient temporary capacity, and an approved deployment and rollback owner.'
 ---
-# Fly.io Deploy Integration
+
+# Fly.io Progressive Deployment Design
 
 ## Overview
 
-Deploy edge applications on Fly.io with Docker containers and the `fly.toml` configuration file. This skill covers building production images optimized for Fly's micro-VM architecture, configuring `fly.toml` for services, health checks, and multi-region placement, verifying API connectivity from edge locations, and executing rolling updates with automatic rollback. Fly.io deploys as Firecracker micro-VMs, so containers start in under a second and scale to zero when idle.
+Select a provider-supported deployment strategy based on state, volume attachment, temporary capacity, and risk. Do not implement a custom traffic switch when Fly Launch already provides rolling, canary, blue-green, and immediate strategies with defined constraints.
 
 ## Prerequisites
 
-- A deployment owner, scoped CI token, reviewed image, environment config, health criteria, and rollback operator.
-- Staging with synthetic traffic and explicit data/region requirements before any multi-region promotion.
+- Immutable candidate and previous image references
+- Healthy baseline Machines and at least one meaningful service health check
+- State and volume inventory plus temporary capacity and cost approval
 
 ## Instructions
 
-1. Build reproducibly and run as a non-root user; inject secrets only through the platform.
-2. Deploy a small canary, observe redacted health and saturation metrics, and verify graceful failure behavior.
-3. Promote region by region only when the canary succeeds; stop and roll back on health, configuration, or access failures.
-4. Retain the release reference and recovery evidence for the approved change window.
+### Step 1: Classify the workload
+
+Identify stateless and stateful process groups, attached volumes, singleton regions, release commands, connection draining, and external dependencies.
+
+### Step 2: Choose a supported strategy
+
+Use rolling for the general case. Canary creates one new Machine then rolls forward; blue-green creates replacement capacity in each region. Immediate is an emergency option with explicit downtime risk.
+
+### Step 3: Validate strategy constraints
+
+Reject canary or blue-green for Machines with attached volumes. Ensure blue-green has health checks and enough quota and capacity; account for `max-per-region` behavior.
+
+### Step 4: Define acceptance gates
+
+Set health, error, latency, saturation, business, and data-reconciliation thresholds with an observation window and named approver.
+
+### Step 5: Execute one release owner
+
+Pin image and config, serialize the release, observe Machine replacement and health, and prevent unrelated scaling or secret changes during the window.
+
+### Step 6: Promote or reverse
+
+Confirm every region and process group runs the intended image. If a gate fails, stop progression and restore the recorded prior release or configuration.
+
+## Authentication
+
+Use a scoped deploy token whose app and expiry match the rollout. Keep observation separate with read-only access where practical. Never embed the token in `fly.toml`, image layers, release metadata, or health-check output.
+
+## Tool Discipline
+
+Use Read and Grep to inspect application configuration, deployment evidence, provider documentation, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for an approved plan, configuration, implementation, test, or redacted receipt. Do not create, deploy, scale, restart, stop, suspend, destroy, rotate, revoke, expose, or migrate live Fly.io resources without explicit operator approval.
 
 ## Output
 
-Record image/release identifier, environment, regions, health criteria, canary metrics, approval, and rollback result. Exclude tokens, env values, request bodies, and user data.
+- Strategy decision with workload and volume constraints
+- Capacity, health, observation, promotion, and rollback gates
+- Per-region release and image reconciliation receipt
+
+Return the target organization, app, environment, region set, Machine or database identifiers, source-contract fingerprint, evidence, unresolved risks, rollback state, and final decision without exposing tokens, secrets, connection strings, or customer data.
 
 ## Examples
 
-Deploy a staging image to one region with synthetic traffic, simulate a failed health check, and confirm the release stops before traffic expands. Restore the previous release and verify the readiness endpoint remains generic and redacted.
-
-## Docker Configuration
-
-```dockerfile
-FROM node:20-slim AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY tsconfig.json ./
-COPY src/ ./src/
-RUN npm run build
-
-FROM node:20-slim
-RUN addgroup --system app && adduser --system --ingroup app app
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY package*.json ./
-USER app
-EXPOSE 8080
-CMD ["node", "dist/index.js"]
-```
-
-## Fly.io Configuration
-
-```toml
-# fly.toml
-app = "my-integration"
-primary_region = "iad"
-
-[build]
-  dockerfile = "Dockerfile"
-
-[env]
-  LOG_LEVEL = "info"
-  PORT = "8080"
-
-[http_service]
-  internal_port = 8080
-  force_https = true
-  auto_stop_machines = true
-  auto_start_machines = true
-
-[[http_service.checks]]
-  interval = "30s"
-  timeout = "5s"
-  grace_period = "10s"
-  method = "GET"
-  path = "/health"
-```
-
-## Environment Variables
-
-```bash
-export FLY_API_TOKEN="fo1_xxxxxxxxxxxx"
-fly secrets set FLYIO_APP_NAME="my-integration"
-fly secrets set LOG_LEVEL="info"
-```
-
-## Health Check Endpoint
-
-```typescript
-import express from 'express';
-
-const app = express();
-
-app.get('/health', async (req, res) => {
-  try {
-    const region = process.env.FLY_REGION || 'unknown';
-    const appName = process.env.FLY_APP_NAME || 'unknown';
-    res.json({ status: 'healthy', service: 'flyio-integration', region, app: appName, timestamp: new Date().toISOString() });
-  } catch (error) {
-    res.status(503).json({ status: 'unhealthy', error: (error as Error).message });
-  }
-});
-```
-
-## Deployment Steps
-
-### Step 1: Build
-
-```bash
-fly launch --no-deploy
-```
-
-### Step 2: Run
-
-```bash
-fly deploy --strategy rolling
-```
-
-### Step 3: Verify
-
-```bash
-fly status
-curl -s https://my-integration.fly.dev/health | jq .
-```
-
-### Step 4: Rolling Update
-
-```bash
-fly deploy --strategy rolling --wait-timeout 300
-fly releases --image
-fly releases rollback   # if health check fails
-```
+A stateless service with two Machines per region and HTTP health checks uses blue-green. The operator confirms no volumes, approves temporary doubled capacity, observes all new Machines healthy, verifies the image digest, and only then allows old Machines to be destroyed.
 
 ## Error Handling
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| `Machine failed to start` | Missing env vars or port mismatch | Check `fly logs` and verify `internal_port` matches `EXPOSE` |
-| `Health check failing` | App not listening on correct port | Ensure app binds to `0.0.0.0:8080` not `127.0.0.1` |
-| `No machines in region` | Region not added to app | Run `fly scale count 1 --region iad` |
-| `401 Unauthorized` | Invalid `FLY_API_TOKEN` | Regenerate token with `fly tokens create deploy` |
-| Slow cold starts | Large image or heavy startup | Use multi-stage build, set `auto_stop_machines = false` for latency-critical apps |
+| Failure | Response |
+| --- | --- |
+| Strategy is incompatible with a volume | Switch to rolling or redesign persistence; do not force canary or blue-green. |
+| New capacity cannot be placed | Stop before destroying old Machines and reassess region capacity or strategy. |
+| Health passes but business gate fails | Treat the release as failed and reverse using the pinned previous image. |
 
 ## Resources
 
-- [Fly.io Deploy Docs](https://fly.io/docs/launch/deploy/)
-- [fly.toml Reference](https://fly.io/docs/reference/configuration/)
-
-## Next Steps
-
-See `flyio-webhooks-events`.
+- [First-party source notes](references/official-docs.md)
+- [Machines API setup](https://fly.io/docs/machines/api/working-with-machines-api/)
+- [Automation and tokens](https://fly.io/docs/flyctl/integrating/)
+- [App configuration](https://fly.io/docs/reference/configuration/)
+- [Deploy strategies](https://fly.io/docs/launch/deploy/)
+- [Health checks](https://fly.io/docs/reference/health-checks/)

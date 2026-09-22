@@ -1,124 +1,96 @@
 ---
 name: flyio-upgrade-migration
-description: 'Migrate between Fly.io platform versions including Apps v1 to v2 (Machines),
-
-  flyctl upgrades, and Postgres major version upgrades.
-
-  Trigger: "fly.io upgrade", "fly.io migration", "fly apps v2", "fly postgres upgrade".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(fly:*), Grep
-version: 1.7.0
+description: >-
+  Migrate Fly.io app configuration, runtime images, Machine resources, regions, volumes, or Managed Postgres through staged change control. Use when upgrading a live workload. Trigger with: "upgrade Fly app", "migrate Fly region", "change Fly runtime safely".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[app-change-source-and-target]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- edge-compute
-- flyio
-compatibility: Designed for Claude Code
+  - saas
+  - flyio
+  - migration
+  - upgrade
+  - change-control
+compatibility: 'Requires current and target contracts, an immutable backup or export where data is involved, a representative staging boundary, and approved rollback criteria.'
 ---
-# Fly.io Upgrade & Migration
+
+# Fly.io Runtime and Platform Change Control
 
 ## Overview
 
-Guide for Fly.io platform migrations: Apps v1 (Nomad) to v2 (Machines), flyctl CLI upgrades, Postgres major version upgrades, and region migrations.
+Replace the obsolete Apps v1-to-v2 tutorial with ongoing change control for the current Machines platform. Treat flyctl, `fly.toml`, images, architecture, Machine resources, regions, volumes, and Managed Postgres as separate migration surfaces with distinct rollback and data risks.
 
 ## Prerequisites
 
-- Current platform documentation and an inventory of applications, machines, regions, volumes, databases, identities, and dependent consumers.
-- A staging environment, synthetic traffic/data, tested backup/restore, rollback owner, and explicit acceptance/reconciliation criteria.
-
-## Output
-
-Produce a migration receipt with versions reviewed, affected resources, staging/canary results, backup/restore evidence, reconciliation outcome, approver, and rollback state. Keep tokens, connection strings, and user data out of the receipt.
-
-## Error Handling
-
-- Stop promotion on health, schema, region, permission, or reconciliation mismatches and restore the prior configuration.
-- Quarantine failed migrations by opaque resource ID; do not bulk replay stateful workloads to diagnose failures.
-- Escalate potential data loss or credential exposure and retain only approved incident evidence.
-
-## Examples
-
-Migrate a disposable staging app using synthetic traffic, exercise a backup/restore of fictional data, and simulate a failed health check. Verify rollback returns routing and data access to the known-good release before considering a production canary.
+- Current and target versions, configuration, image, architecture, resources, regions, and data topology
+- Provider documentation and release notes retrieved at the change boundary
+- Backup, export, restore test, acceptance gates, owner, approver, and rollback window
 
 ## Instructions
 
-### Apps v1 to v2 Migration
+### Step 1: Classify the change surface
 
-```bash
-# Check current platform version
-fly status -a my-app  # Look for "Platform: machines" vs "nomad"
+Separate CLI behavior, config schema, API contract, image or runtime, CPU architecture, VM size, region placement, volume state, and Managed Postgres changes.
 
-# Migrate to Apps v2 (Machines)
-fly migrate-to-v2 -a my-app
+### Step 2: Freeze current state and contract
 
-# Verify
-fly status -a my-app
-fly machine list -a my-app
-```
+Record flyctl version, image, Machine instance versions, configuration hash, health, regions, volumes and snapshots, database plan and version, and dependency compatibility.
 
-### flyctl CLI Upgrade
+### Step 3: Build a staging rehearsal
 
-```bash
-# Check current version
-fly version
+Use production-like configuration with synthetic or protected copied data. Exercise application startup, release command, health, connectivity, schema compatibility, and restore.
 
-# Upgrade
-fly version update
+### Step 4: Plan data movement explicitly
 
-# Or reinstall
-curl -L https://fly.io/install.sh | sh
-```
+For a region-bound volume, create and verify the supported copy or snapshot path before Machine movement. For Managed Postgres, follow its current service features and support path; do not apply unmanaged Postgres commands.
 
-### Postgres Major Version Upgrade
+### Step 5: Canary the approved change
 
-```bash
-# Check current version
-fly postgres connect -a my-db -c "SELECT version();"
+Change one process group, Machine, or non-production database boundary first. Observe health, errors, latency, data counts, and dependent services for the agreed window.
 
-# Create new cluster with target version
-fly postgres create --name my-db-v16 --region iad --image-ref flyio/postgres-flex:16
+### Step 6: Complete or reverse
 
-# Migrate data
-fly postgres import pg_dump_url -a my-db-v16
+Roll through remaining resources only after acceptance. Reconcile every image, instance version, region, volume attachment, and data count; retain rollback assets until expiry.
 
-# Update app to point to new cluster
-fly postgres detach my-db -a my-app
-fly postgres attach my-db-v16 -a my-app
-fly deploy -a my-app  # Picks up new DATABASE_URL
-```
+## Authentication
 
-### Region Migration
+Use a scoped deploy identity for app or Machine changes and a separate least-privilege database identity for data verification. Upgrade work does not authorize exposing snapshots, connection strings, or customer data to local or unapproved systems.
 
-```bash
-# Add machines in new region
-fly scale count 1 --region fra -a my-app
+## Tool Discipline
 
-# Verify new region is healthy
-fly status -a my-app
+Use Read and Grep to inspect application configuration, deployment evidence, provider documentation, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for an approved plan, configuration, implementation, test, or redacted receipt. Do not create, deploy, scale, restart, stop, suspend, destroy, rotate, revoke, expose, or migrate live Fly.io resources without explicit operator approval.
 
-# Remove machines from old region
-fly scale count 0 --region iad -a my-app
+## Output
 
-# For volumes: create new volume, migrate data, destroy old
-fly volumes create data --size 10 --region fra -a my-app
-```
+- Current-to-target contract and compatibility matrix
+- Staging, backup, restore, canary, rollout, reconciliation, and rollback plan
+- Migration receipt with resource versions, data evidence, exceptions, and rollback-asset expiry
 
-## Migration Checklist
+Return the target organization, app, environment, region set, Machine or database identifiers, source-contract fingerprint, evidence, unresolved risks, rollback state, and final decision without exposing tokens, secrets, connection strings, or customer data.
 
-- [ ] Current state documented (`fly status`, `fly scale show`)
-- [ ] Database backed up before migration
-- [ ] Tested migration in staging app first
-- [ ] DNS/certificates transferred if changing domains
-- [ ] Monitoring confirms healthy after cutover
-- [ ] Old resources cleaned up
+## Examples
+
+An app moves to a new runtime image and VM size. The operator pins current and target images, rehearses startup and release commands, updates one stateless Machine, observes health and latency, then rolls forward. A separate volume move uses a verified snapshot and restore path.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Provider contract changed during migration | Pause, refresh documentation and client schemas, and reapprove the plan. |
+| Canary is incompatible with attached storage | Use rolling or a data-specific migration path; do not force the strategy. |
+| Data reconciliation differs | Stop writes or rollout as planned, preserve both sides, and restore or reverse before the rollback window closes. |
 
 ## Resources
 
-- [Apps v2 Migration](https://fly.io/docs/reference/apps/)
-- [Postgres Upgrades](https://fly.io/docs/postgres/)
-
-## Next Steps
-
-For CI integration, see `flyio-ci-integration`.
+- [First-party source notes](references/official-docs.md)
+- [Machines API setup](https://fly.io/docs/machines/api/working-with-machines-api/)
+- [Automation and tokens](https://fly.io/docs/flyctl/integrating/)
+- [App configuration](https://fly.io/docs/reference/configuration/)
+- [flyctl releases](https://github.com/superfly/flyctl/releases)
+- [Machine states](https://fly.io/docs/machines/machine-states/)
+- [Volume snapshots](https://fly.io/docs/volumes/snapshots/)
+- [Managed Postgres](https://fly.io/docs/mpg/)

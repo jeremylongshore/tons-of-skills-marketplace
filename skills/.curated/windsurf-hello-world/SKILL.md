@@ -1,6 +1,6 @@
 ---
 name: windsurf-hello-world
-description: 'Create your first Windsurf Cascade interaction and Supercomplete experience.
+description: 'Create a first Devin Desktop (formerly Windsurf) Cascade and Supercomplete experience.
 
   Use when starting with Windsurf, testing your setup,
 
@@ -12,7 +12,8 @@ description: 'Create your first Windsurf Cascade interaction and Supercomplete e
 
   '
 allowed-tools: Read, Write, Edit
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -23,16 +24,22 @@ tags:
 - quickstart
 compatibility: Designed for Claude Code
 ---
-# Windsurf Hello World
+# Devin Desktop Hello World
 
 ## Overview
 
-First hands-on experience with Windsurf's three AI modalities: Cascade (agentic chat), Supercomplete (inline completions), and Command (inline editing). This skill walks through real interactions, not placeholder code.
+Devin Desktop is the current name for Windsurf. This walkthrough exercises Cascade Code and Chat modes, Supercomplete, and inline Command editing with a disposable example.
 
 ## Prerequisites
 
 - Completed `windsurf-install-auth` setup
-- Windsurf open with a project folder
+- Devin Desktop open with a disposable or version-controlled project folder
+
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Write` only for a new artifact the user requested; never write credentials or unreviewed production configuration.
+- Use `Edit` for bounded, reviewable changes and preserve unrelated user work.
 
 ## Instructions
 
@@ -59,11 +66,11 @@ Key Supercomplete behaviors:
 - Press **Tab** to accept a suggestion
 - Press **Esc** to dismiss
 - Suggestions appear as gray ghost text
-- Tracks your edit history (last 30-90 seconds) for intent prediction
+- Uses recent editor activity and surrounding context for intent prediction
 
-### Step 2: Use Cascade Write Mode (Cmd/Ctrl+L)
+### Step 2: Use Cascade Code Mode
 
-Open Cascade panel and try Write mode -- Cascade modifies your codebase directly.
+Open Cascade and select Code mode. Use the visible command or current keybinding because imported editor profiles can change shortcuts.
 
 ```
 Prompt to try:
@@ -85,9 +92,9 @@ Cascade will:
 Switch to Chat mode (toggle in Cascade panel) for questions that don't need file edits:
 
 ```
-Prompt: "Explain the difference between Write and Chat mode in Cascade"
+Prompt: "Explain the difference between Code and Chat mode in Cascade"
 
-Expected response: Write mode can create/modify files and run terminal commands.
+Expected response: Code mode can create/modify files and run terminal commands.
 Chat mode answers questions without touching your codebase.
 ```
 
@@ -100,7 +107,7 @@ Select the greet function, then type:
 "Add JSDoc documentation and input validation"
 ```
 
-Cascade edits the selected code inline, showing a diff you can accept or reject.
+Cascade edits the selected code inline and presents a diff for explicit acceptance or rejection.
 
 ### Step 5: Use @ Context Mentions
 
@@ -121,7 +128,7 @@ Example prompt with context:
 ## Output
 
 - Working Supercomplete experience with Tab completions
-- Cascade Write mode: file creation and modification
+- Cascade Code mode: file creation and modification
 - Cascade Chat mode: codebase questions without edits
 - Inline Command mode: targeted code editing
 - @ context mentions for precise AI context
@@ -131,7 +138,7 @@ Example prompt with context:
 | Issue | Cause | Solution |
 |-------|-------|----------|
 | No Supercomplete suggestions | Extension disabled | Click status bar widget, enable autocomplete |
-| Cascade not editing files | In Chat mode | Switch to Write mode in Cascade panel |
+| Cascade not editing files | In Chat mode | Switch to Code mode in Cascade panel |
 | Slow Cascade response | Large workspace | Add `.codeiumignore` for build artifacts |
 | @ mention not working | File not indexed | Wait for indexing to complete (status bar) |
 
@@ -156,10 +163,11 @@ Click elements in the preview to send them back to Cascade for edits.
 
 ## Resources
 
-- [Windsurf Getting Started](https://docs.windsurf.com)
-- [Cascade Overview](https://docs.windsurf.com/windsurf/cascade/cascade)
-- [Autocomplete Tips](https://docs.windsurf.com/autocomplete/tips)
+- [Focused first-party references](references/official-docs.md)
+- [Windsurf Getting Started](https://docs.devin.ai/desktop)
+- [Cascade Overview](https://docs.devin.ai/desktop/cascade/cascade)
+- [Autocomplete Tips](https://docs.devin.ai/desktop/autocomplete/tips)
 
-## Next Steps
+## Related Skill
 
-Proceed to `windsurf-local-dev-loop` for development workflow setup.
+Continue with `windsurf-local-dev-loop` to turn this disposable exercise into a repeatable, test-gated development workflow for a real repository.

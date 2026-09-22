@@ -1,299 +1,92 @@
 ---
 name: canva-reliability-patterns
-description: "Implement reliability patterns for Canva Connect API \u2014 circuit\
-  \ breakers, idempotency, graceful degradation.\nUse when building fault-tolerant\
-  \ Canva integrations, implementing retry strategies,\nor adding resilience to production\
-  \ Canva services.\nTrigger with phrases like \"canva reliability\", \"canva circuit\
-  \ breaker\",\n\"canva resilience\", \"canva fallback\", \"canva fault tolerance\"\
-  .\n"
-allowed-tools: Read, Write, Edit
-version: 1.5.0
+description: 'Implement Canva reliability controls for transport failures, asynchronous jobs, token rotation, throttling, and dead letters. Use when preventing duplicate writes or recovering safely across timeouts and restarts. Trigger with: "Canva retries", "Canva circuit breaker", "recover Canva job".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[operation-and-failure-budget]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - reliability
+  - operations
+compatibility: 'Requires a durable operation ledger, current error contract, scoped queues, and explicit failure budgets.'
 ---
-# Canva Reliability Patterns
+
+# Canva Reconciliation and Recovery
 
 ## Overview
 
-Production-grade reliability patterns for the Canva Connect API. The API has async operations (exports, uploads, autofills) that can fail or timeout, OAuth tokens that expire every 4 hours, and rate limits that require backoff.
+Reliability begins with knowing whether an operation happened. Reconcile existing resources and jobs before replaying a mutation, and keep credential rotation outside generic request retries.
 
 ## Prerequisites
 
-- Defined SLOs, queue ownership, idempotency storage, and a protected configuration for timeouts, backoff, and circuit limits.
-- A synthetic or approved non-production workload for exercising failure paths without exposing design assets.
+- Operation types, retry classifications, and duplicate impact
+- Durable identity/job ledger and terminal-state contract
+- Endpoint/user queues, time budgets, alert owner, and rollback
 
 ## Instructions
 
-1. Bound every asynchronous operation with an idempotency key, timeout, retry budget, and redacted outcome record.
-2. Retry only explicitly transient requests; treat authorization, policy, schema, and asset-rights errors as fail-closed.
-3. Open circuits and pause dependent queues on sustained failure, then reconcile before recovery.
-4. Change reliability thresholds behind a rollback flag and measure aggregate results before rollout.
+### Step 1: Classify operations
 
-## Circuit Breaker
+Use Read and Grep to label safe read, token exchange, mutating submission, job poll, webhook delivery, and cleanup. Define retriable errors per operation.
 
-```typescript
-import CircuitBreaker from 'opossum';
+### Step 2: Persist before dispatch
 
-const canvaBreaker = new CircuitBreaker(
-  async (fn: () => Promise<any>) => fn(),
-  {
-    timeout: 30000,              // 30s before failure
-    errorThresholdPercentage: 50, // Open after 50% failure rate
-    resetTimeout: 60000,          // Try again after 60s
-    volumeThreshold: 5,           // Min 5 requests before evaluating
-  }
-);
+Create one application operation record with tenant/resource authorization and intended effect before sending a mutating request.
 
-canvaBreaker.on('open', () => {
-  console.warn('[canva] Circuit OPEN — Canva API unreachable, failing fast');
-});
+### Step 3: Handle ambiguous failure
 
-canvaBreaker.on('halfOpen', () => {
-  console.info('[canva] Circuit HALF-OPEN — testing Canva recovery');
-});
+After timeout or connection loss, use returned or recoverable identity to query existing state. Never blindly recreate a design, export, upload, or autofill.
 
-canvaBreaker.on('close', () => {
-  console.info('[canva] Circuit CLOSED — Canva API recovered');
-});
+### Step 4: Poll bounded jobs
 
-// Usage
-async function createDesignSafe(body: object, token: string) {
-  return canvaBreaker.fire(async () => {
-    return canvaAPI('/designs', token, {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
-  });
-}
-```
+Apply exponential backoff with jitter to the same job, stop at local deadline, continue later from durable state, and handle success/failed plus unknown future states safely.
 
-## Graceful Degradation
+### Step 5: Serialize credential refresh
 
-```typescript
-// When Canva is down, degrade gracefully instead of breaking the entire app
-async function getDesignWithFallback(
-  designId: string,
-  token: string,
-  cache: LRUCache<string, any>
-): Promise<{ data: any; source: 'live' | 'cache' | 'placeholder' }> {
-  try {
-    const data = await canvaBreaker.fire(async () =>
-      canvaAPI(`/designs/${designId}`, token)
-    );
-    cache.set(designId, data);
-    return { data, source: 'live' };
-  } catch {
-    // Try cached version
-    const cached = cache.get(designId);
-    if (cached) {
-      return { data: cached, source: 'cache' };
-    }
+Single-flight by Canva user, atomically store the returned replacement refresh token, wake waiting requests on success, and reauthorize rather than looping invalid credentials.
 
-    // Return placeholder
-    return {
-      data: {
-        design: {
-          id: designId,
-          title: 'Design temporarily unavailable',
-          urls: { edit_url: '#', view_url: '#' },
-        },
-      },
-      source: 'placeholder',
-    };
-  }
-}
-```
+### Step 6: Use scoped circuits and dead letters
 
-## Async Job Resilience
+Open by endpoint/failure class, preserve operations with reconciliation state, and require an owner before replay. Do not mix authorization failures with provider availability.
 
-```typescript
-// Export, upload, and autofill jobs can fail — wrap with retry
-async function resilientExport(
-  designId: string,
-  format: object,
-  token: string,
-  maxRetries = 2
-): Promise<string[]> {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      // Start export
-      const { job } = await canvaAPI('/exports', token, {
-        method: 'POST',
-        body: JSON.stringify({ design_id: designId, format }),
-      });
+### Step 7: Prove recovery
 
-      // Poll with timeout
-      const urls = await pollWithTimeout(job.id, token, 60000);
-      return urls;
-    } catch (error: any) {
-      if (attempt === maxRetries) throw error;
+Use Write or Edit to test restart, duplicate delivery, lost response, throttling, terminal failure, refresh race, circuit recovery, and dead-letter replay.
 
-      // Don't retry on client errors (400, 403, 404)
-      if (error.status && error.status < 500 && error.status !== 429) throw error;
+## Authentication
 
-      const delay = 5000 * Math.pow(2, attempt);
-      console.warn(`Export attempt ${attempt + 1} failed, retrying in ${delay / 1000}s`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error('Unreachable');
-}
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-async function pollWithTimeout(
-  exportId: string,
-  token: string,
-  timeoutMs: number
-): Promise<string[]> {
-  const deadline = Date.now() + timeoutMs;
+## Tool Discipline
 
-  while (Date.now() < deadline) {
-    const { job } = await canvaAPI(`/exports/${exportId}`, token);
-    if (job.status === 'success') return job.urls;
-    if (job.status === 'failed') throw new Error(`Export failed: ${job.error?.code}`);
-    await new Promise(r => setTimeout(r, 2000));
-  }
-
-  throw new Error('Export polling timeout');
-}
-```
-
-## Token Refresh Resilience
-
-```typescript
-// Token refresh is critical — handle every failure mode
-async function resilientTokenRefresh(
-  refreshToken: string,
-  config: { clientId: string; clientSecret: string }
-): Promise<{ accessToken: string; refreshToken: string; expiresAt: number } | null> {
-  const basicAuth = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64');
-
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const res = await fetch('https://api.canva.com/rest/v1/oauth/token', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Basic ${basicAuth}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          grant_type: 'refresh_token',
-          refresh_token: refreshToken,
-        }),
-        signal: AbortSignal.timeout(10000),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        return {
-          accessToken: data.access_token,
-          refreshToken: data.refresh_token,
-          expiresAt: Date.now() + data.expires_in * 1000,
-        };
-      }
-
-      if (res.status === 400 || res.status === 401) {
-        // Invalid refresh token — user must re-authorize
-        console.error('[canva] Refresh token invalid — user must re-authorize');
-        return null; // Signal caller to initiate new OAuth flow
-      }
-
-      // 5xx — retry
-    } catch {
-      // Network error — retry
-    }
-
-    await new Promise(r => setTimeout(r, 2000 * Math.pow(2, attempt)));
-  }
-
-  console.error('[canva] Token refresh failed after 3 attempts');
-  return null;
-}
-```
-
-## Dead Letter Queue for Failed Operations
-
-```typescript
-interface FailedOperation {
-  id: string;
-  operation: 'export' | 'autofill' | 'upload';
-  payload: any;
-  userId: string;
-  error: string;
-  attempts: number;
-  lastAttempt: Date;
-}
-
-class CanvaDeadLetterQueue {
-  constructor(private db: Database) {}
-
-  async add(op: Omit<FailedOperation, 'id' | 'lastAttempt'>): Promise<void> {
-    await this.db.dlq.insert({
-      ...op,
-      id: crypto.randomUUID(),
-      lastAttempt: new Date(),
-    });
-  }
-
-  async processNext(getToken: (userId: string) => Promise<string | null>): Promise<boolean> {
-    const entry = await this.db.dlq.findOne({ attempts: { $lt: 5 } });
-    if (!entry) return false;
-
-    const token = await getToken(entry.userId);
-    if (!token) {
-      console.warn(`DLQ: User ${entry.userId} has no valid token — skipping`);
-      return false;
-    }
-
-    try {
-      await this.retryOperation(entry, token);
-      await this.db.dlq.delete(entry.id);
-      return true;
-    } catch {
-      await this.db.dlq.update(entry.id, {
-        attempts: entry.attempts + 1,
-        lastAttempt: new Date(),
-      });
-      return false;
-    }
-  }
-
-  private async retryOperation(entry: FailedOperation, token: string) {
-    switch (entry.operation) {
-      case 'export': return canvaAPI('/exports', token, { method: 'POST', body: JSON.stringify(entry.payload) });
-      case 'autofill': return canvaAPI('/autofills', token, { method: 'POST', body: JSON.stringify(entry.payload) });
-    }
-  }
-}
-```
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-Reliability controls emit redacted operation status, retry/circuit state, aggregate latency, and reconciliation result. They do not record tokens, design contents, signed asset URLs, or raw webhook payloads.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-For a timed-out export, retain the idempotency key, check the existing job status within the approved scope, and retry only if no completed result exists. If the circuit opens, pause new exports and alert the owner; do not fan out retries or recreate designs blindly.
+A network timeout follows export submission. The worker retains the operation and job reference, resumes polling after restart, and never submits a second export merely because the response was uncertain.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Circuit stays open | Threshold too low | Increase volumeThreshold |
-| Token refresh fails | Single-use refresh token reused | Always store new token |
-| Export retries waste quota | Re-starting export | Track export job IDs |
-| DLQ growing | Persistent issue | Investigate root cause |
+| Failure | Response |
+| --- | --- |
+| No identity survived timeout | Stop automatic replay and investigate manually |
+| Refresh token was reused | Require reauthorization and fix atomic rotation |
+| Circuit hides authorization errors | Split failure classes and deny affected requests |
+| Dead letter lacks owner/state | Do not replay it |
 
 ## Resources
 
-- [Circuit Breaker Pattern](https://martinfowler.com/bliki/CircuitBreaker.html)
-- [Opossum](https://nodeshift.dev/opossum/)
-- Canva API Reference
-
-## Next Steps
-
-For policy enforcement, see `canva-policy-guardrails`.
+- [First-party source notes](references/official-docs.md)
+- [API request model](https://www.canva.dev/docs/connect/api-requests-responses/)
+- [Authentication](https://www.canva.dev/docs/connect/authentication/)

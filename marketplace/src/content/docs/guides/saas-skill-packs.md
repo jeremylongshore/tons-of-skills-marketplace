@@ -16,7 +16,7 @@ keywords:
   - "Claude Code integrations"
 officialLinks:
   - title: "Anthropic Claude Code Documentation"
-    url: "https://docs.anthropic.com/en/docs/claude-code/"
+    url: "https://code.claude.com/docs/en/"
   - title: "Tons of Skills Marketplace"
     url: "https://tonsofskills.com/explore"
 relatedDocs:

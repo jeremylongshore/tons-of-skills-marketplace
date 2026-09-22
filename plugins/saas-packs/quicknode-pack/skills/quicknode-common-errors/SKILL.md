@@ -1,157 +1,86 @@
 ---
 name: quicknode-common-errors
-description: 'Diagnose and fix QuickNode RPC errors: nonce issues, gas failures, rate
-  limits.
-
-  Use when encountering blockchain RPC errors, failed transactions, or connection
-  issues.
-
-  Trigger with phrases like "quicknode error", "RPC error", "nonce too low", "gas
-  estimation failed".
-
-  '
-allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.5.0
+description: 'Triage QuickNode transport, authentication, security-filter, capacity, chain, and application failures while preserving the original error layer. Use when RPC, SDK, or endpoint requests fail and ownership is unclear. Trigger with: "debug a QuickNode error", "QuickNode RPC failed", "classify a QuickNode error code".'
+allowed-tools: Read, Grep, Bash(qn:*)
+version: 2.0.0
+argument-hint: '[redacted-error-and-endpoint-id]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- quicknode
-- blockchain
-- web3
-- debugging
-compatibility: Designed for Claude Code
+  - saas
+  - quicknode
+  - troubleshooting
+  - json-rpc
+  - operations
+compatibility: 'Error meanings can be chain-specific; use the selected chain reference plus QuickNode infrastructure codes'
 ---
-# QuickNode Common Errors
+
+# QuickNode Error Triage
 
 ## Overview
 
-Quick reference for the top blockchain RPC errors when using QuickNode endpoints with ethers.js or viem.
+Preserve HTTP status, JSON-RPC code, chain error, method, network, and request identifier as separate facts. Do not treat every `-32000` family response as retryable or overwrite a contract revert with a provider diagnosis.
 
 ## Prerequisites
 
-- QuickNode endpoint configured
-- ethers.js or viem installed
+- A redacted failing request and response
+- Endpoint ID, chain, network, protocol, and client version
+- The expected method contract and a nearby successful request if available
 
 ## Instructions
 
-### Error 1: Nonce Too Low
+### Step 1: Capture the first failure
 
-```
-Error: nonce has already been used (error={"code":-32000,"message":"nonce too low"})
-```
+Use Read and Grep to locate the earliest complete failure before wrapper retries transform it. Redact endpoint tokens, API keys, signed transactions, addresses when sensitive, and request bodies not needed for diagnosis.
 
-**Fix:**
+### Step 2: Assign the layer
 
-```typescript
-// Get the correct nonce before sending
-const nonce = await provider.getTransactionCount(wallet.address, 'pending');
-const tx = await wallet.sendTransaction({ ...txData, nonce });
-```
+Classify DNS/TLS/timeout, HTTP authentication, QuickNode infrastructure, endpoint security, chain-node, smart-contract, or client-decoding failure. Keep nested causes intact.
 
-### Error 2: Insufficient Funds
+### Step 3: Interpret QuickNode codes
 
-```
-Error: insufficient funds for intrinsic transaction cost
-```
+Recognize `-32007` per-second limit, `-32008` per-minute limit, `-32011` method limit, `-32604` empty or unsupported method, and `-32611` endpoint security-filter rejection. Verify other codes against the chain-specific reference.
 
-**Fix:**
+### Step 4: Inspect control-plane evidence
 
-```typescript
-const balance = await provider.getBalance(wallet.address);
-const gasEstimate = await provider.estimateGas(txData);
-const feeData = await provider.getFeeData();
-const totalCost = gasEstimate * feeData.gasPrice! + txData.value;
-if (balance < totalCost) {
-  console.error(`Need ${ethers.formatEther(totalCost)} ETH, have ${ethers.formatEther(balance)}`);
-}
-```
+Use Bash(qn:*) for authenticated endpoint, metrics, or permitted error-log reads. Admin API endpoint logs are plan-gated; absence of access is not proof that no request reached QuickNode.
 
-### Error 3: Gas Estimation Failed (Call Revert)
+### Step 5: Run one discriminating test
 
-```
-Error: execution reverted (reason="ERC20: transfer amount exceeds balance")
-```
+Compare a supported read method on the same endpoint, the same method with corrected parameters, or the same request in a non-production environment. Avoid retries that could resubmit a signed transaction.
 
-**Fix:** The contract function would revert. Check contract requirements:
+### Step 6: Route ownership
 
-```typescript
-try {
-  const gas = await contract.transfer.estimateGas(to, amount);
-} catch (err) {
-  console.error('Revert reason:', err.reason);
-  // Check: sufficient token balance, approvals, contract state
-}
-```
+Assign the finding to credential owner, endpoint-security owner, capacity owner, chain integration, contract developer, or QuickNode support. Include only sanitized evidence and a reversible next action.
 
-### Error 4: Rate Limited (429)
+## Tool Discipline
 
-```
-Error: 429 Too Many Requests
-```
-
-**Fix:** Implement exponential backoff or upgrade plan:
-
-```typescript
-async function retryRpc<T>(fn: () => Promise<T>, retries = 3): Promise<T> {
-  for (let i = 0; i < retries; i++) {
-    try { return await fn(); }
-    catch (err: any) {
-      if (err.code === 'SERVER_ERROR' && i < retries - 1) {
-        await new Promise(r => setTimeout(r, 1000 * Math.pow(2, i)));
-        continue;
-      }
-      throw err;
-    }
-  }
-  throw new Error('Max retries');
-}
-```
-
-### Error 5: Method Not Found
-
-```
-Error: Method not found — qn_getTokenMetadataByContractAddress
-```
-
-**Fix:** This method requires an add-on. Enable it in QuickNode Dashboard > Endpoints > Add-ons.
-
-### Error 6: WebSocket Connection Dropped
-
-```
-Error: WebSocket connection closed unexpectedly
-```
-
-**Fix:**
-
-```typescript
-const wsProvider = new ethers.WebSocketProvider(process.env.QUICKNODE_WSS);
-wsProvider.websocket.on('close', () => {
-  console.log('WebSocket closed, reconnecting...');
-  // Reconnect logic
-});
-```
+Use Read and Grep for local evidence and Bash(qn:*) only for read-only account inspection. This diagnostic workflow does not edit code, rotate credentials, change limits, or replay writes.
 
 ## Output
 
-- Error identified from RPC response
-- Targeted fix applied
-- Transaction successfully sent or contract call succeeded
+- Layered failure classification
+- Preserved HTTP, RPC, and chain facts
+- One discriminating test result
+- Named owner and safe next action
+
+## Examples
+
+HTTP succeeds but JSON-RPC returns `-32611`; a simple allowed method works. Route the issue to endpoint filter configuration instead of increasing capacity or retrying.
 
 ## Error Handling
 
-| RPC Code | Meaning | Retryable |
-|----------|---------|-----------|
-| -32000 | Nonce/gas issue | Fix and retry |
-| -32602 | Invalid params | No — fix request |
-| -32603 | Internal error | Yes — retry |
-| 429 | Rate limited | Yes — backoff |
+| Signal | Interpretation guardrail |
+| --- | --- |
+| 401 or 403 | Check credential type and security policy |
+| 429 plus RPC code | Preserve both; use the RPC code to identify the limit |
+| Contract revert | Decode against ABI and chain state; do not auto-retry |
+| Method unsupported | Verify chain, network, add-on, and current method reference |
 
 ## Resources
 
-- [QuickNode Ethereum API](https://www.quicknode.com/docs/ethereum)
-- [ethers.js Error Handling](https://docs.ethers.org/)
-
-## Next Steps
-
-For debugging, see `quicknode-debug-bundle`.
+- [Error-triage evidence and source notes](references/official-docs.md)
+- [QuickNode error codes](https://www.quicknode.com/docs/cosmos/error-references)
+- [Admin API endpoint logs](https://www.quicknode.com/docs/admin-api/logs/v0-endpoints-id-logs)

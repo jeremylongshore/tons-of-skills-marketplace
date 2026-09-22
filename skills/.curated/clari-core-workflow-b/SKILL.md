@@ -1,181 +1,90 @@
 ---
 name: clari-core-workflow-b
-description: 'Build Clari revenue analytics: pipeline coverage, forecast accuracy,
-
-  and rep performance dashboards from exported data.
-
-  Use when analyzing forecast accuracy, building attainment reports,
-
-  or creating executive revenue dashboards.
-
-  Trigger with phrases like "clari analytics", "clari dashboard",
-
-  "clari forecast accuracy", "clari pipeline coverage".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(python3:*), Grep
-version: 1.6.0
+description: >-
+  Extract Clari Copilot calls, details, users, topics, and scorecards into a governed analytics flow. Use when building conversation or coaching datasets. Trigger with: "export Clari Copilot calls", "build conversation analytics", "load Copilot scorecards".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[workspace-time-window-and-dataset]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- revenue-intelligence
-- forecasting
-- clari
-compatibility: Designed for Claude Code
+  - saas
+  - clari
+  - copilot
+  - conversation-intelligence
+  - analytics
+compatibility: 'Requires entitlement to the Clari conversation-intelligence API, workspace integration credentials, and approval to process recordings, transcripts, and participant data.'
 ---
-# Clari Core Workflow: Revenue Analytics
+
+# Clari Copilot Conversation Intelligence Extraction
 
 ## Overview
 
-Build revenue analytics from Clari export data: forecast accuracy tracking, pipeline coverage analysis, rep performance dashboards, and forecast call change detection.
+Treat Copilot as a separate data product rather than an extension of Revenue API exports. Build a metadata-first extraction that minimizes sensitive content, joins stable identifiers, and records the exact window and pagination boundary.
 
 ## Prerequisites
 
-- Completed `clari-core-workflow-a` (export pipeline)
-- Historical forecast exports for accuracy tracking
-- Pandas/SQL for data analysis
+- Copilot API key/password pair stored in an approved secret manager
+- Authorized time window, user population, and data-classification decision
+- Destination controls suitable for call and participant data
 
 ## Instructions
 
-### Step 1: Forecast Accuracy Analysis
+### Step 1: Inventory the required resources
 
-```python
-import pandas as pd
+Choose only the calls, call details, users, topics, scorecards, and templates necessary for the approved use case.
 
-def calculate_forecast_accuracy(
-    forecasts: list[dict], actuals: list[dict]
-) -> pd.DataFrame:
-    df_forecast = pd.DataFrame(forecasts)
-    df_actual = pd.DataFrame(actuals)
+### Step 2: Freeze the extraction window
 
-    merged = df_forecast.merge(
-        df_actual[["ownerEmail", "crmClosed"]],
-        on="ownerEmail",
-        suffixes=("_forecast", "_actual"),
-    )
+Record workspace, start and end time, pagination order, and inclusion rules so reruns are deterministic.
 
-    merged["accuracy_pct"] = (
-        1 - abs(merged["forecastAmount"] - merged["crmClosed_actual"])
-        / merged["forecastAmount"]
-    ) * 100
+### Step 3: Fetch metadata first
 
-    merged["variance"] = merged["crmClosed_actual"] - merged["forecastAmount"]
+List users, topics, scorecard templates, and call summaries before requesting detailed call content.
 
-    return merged[["ownerName", "forecastAmount", "crmClosed_actual",
-                    "accuracy_pct", "variance"]].sort_values("accuracy_pct")
-```
+### Step 4: Retrieve bounded details
 
-### Step 2: Pipeline Coverage Report
+Request call details only for selected call IDs, honor both documented rate ceilings, and checkpoint pagination without duplicates.
 
-```python
-def pipeline_coverage_report(entries: list[dict]) -> dict:
-    df = pd.DataFrame(entries)
+### Step 5: Normalize with privacy controls
 
-    return {
-        "total_pipeline": df["crmTotal"].sum(),
-        "total_closed": df["crmClosed"].sum(),
-        "total_quota": df["quotaAmount"].sum(),
-        "total_forecast": df["forecastAmount"].sum(),
-        "coverage_ratio": df["crmTotal"].sum() / df["quotaAmount"].sum()
-            if df["quotaAmount"].sum() > 0 else 0,
-        "close_rate": df["crmClosed"].sum() / df["crmTotal"].sum()
-            if df["crmTotal"].sum() > 0 else 0,
-        "attainment_pct": df["crmClosed"].sum() / df["quotaAmount"].sum() * 100
-            if df["quotaAmount"].sum() > 0 else 0,
-        "at_risk_reps": len(df[df["forecastAmount"] < df["quotaAmount"] * 0.7]),
-        "on_track_reps": len(df[df["forecastAmount"] >= df["quotaAmount"] * 0.9]),
-    }
-```
+Separate identities, call metadata, scoring, and sensitive content; tokenize joins and restrict transcript or recording access.
 
-### Step 3: Forecast Change Detection
+### Step 6: Reconcile and publish
 
-```python
-def detect_forecast_changes(
-    current: list[dict], previous: list[dict], threshold_pct: float = 10.0
-) -> list[dict]:
-    curr = {e["ownerEmail"]: e for e in current}
-    prev = {e["ownerEmail"]: e for e in previous}
+Compare requested and received IDs, record missing or changed calls, and publish only the authorized dataset with lineage.
 
-    changes = []
-    for email, curr_entry in curr.items():
-        prev_entry = prev.get(email)
-        if not prev_entry:
-            continue
+## Authentication
 
-        prev_amount = prev_entry["forecastAmount"]
-        curr_amount = curr_entry["forecastAmount"]
+Send both `X-Api-Key` and `X-Api-Password` to the Copilot host over HTTPS. Do not substitute the Revenue `apikey`; redact both Copilot credentials and minimize logs containing call titles, participant data, transcripts, or recording links.
 
-        if prev_amount == 0:
-            continue
+## Tool Discipline
 
-        change_pct = ((curr_amount - prev_amount) / prev_amount) * 100
-
-        if abs(change_pct) >= threshold_pct:
-            changes.append({
-                "rep": curr_entry["ownerName"],
-                "previous_forecast": prev_amount,
-                "current_forecast": curr_amount,
-                "change_pct": round(change_pct, 1),
-                "direction": "up" if change_pct > 0 else "down",
-            })
-
-    return sorted(changes, key=lambda x: abs(x["change_pct"]), reverse=True)
-```
-
-### Step 4: SQL Analytics Queries
-
-```sql
--- Forecast accuracy by quarter
-SELECT
-    time_period,
-    owner_name,
-    forecast_amount,
-    crm_closed AS actual_closed,
-    ROUND((1 - ABS(forecast_amount - crm_closed) / NULLIF(forecast_amount, 0)) * 100, 1) AS accuracy_pct
-FROM clari_forecasts
-WHERE time_period = '2025_Q4'
-ORDER BY accuracy_pct DESC;
-
--- Pipeline coverage trend
-SELECT
-    time_period,
-    SUM(crm_total) / NULLIF(SUM(quota_amount), 0) AS coverage_ratio,
-    SUM(crm_closed) / NULLIF(SUM(quota_amount), 0) AS attainment
-FROM clari_forecasts
-GROUP BY time_period
-ORDER BY time_period;
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Division by zero | Zero quota or forecast | Add `NULLIF` guards |
-| Missing previous period | First export run | Skip change detection |
-| Accuracy > 100% | Overachievement | Cap at 100% or allow for analysis |
-| Stale data | Export not refreshed | Run `clari-core-workflow-a` first |
+Use Read and Grep to inspect configuration, provider contracts, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not issue, rotate, revoke, create, update, cancel, delete, export, ingest, or publish provider data without explicit operator approval.
 
 ## Output
 
-Return a time-bounded analytics result with source export timestamp, period,
-calculation version, aggregate counts, and any suppression applied for small
-or unauthorized cohorts. Treat forecast accuracy and rep-level variance as
-sensitive commercial data; distribute detailed views only to authorized roles.
+- Windowed extraction manifest and pagination checkpoints
+- Governed call, user, topic, and scorecard datasets
+- Reconciliation, privacy-classification, and publication receipt
+
+Return the exact surface, environment, resource or job identifiers, contract fingerprint, evidence, unresolved risks, and final decision without exposing credentials or sensitive customer data.
 
 ## Examples
 
-Compare two certified quarterly exports and flag forecast changes over the
-approved threshold, while omitting individual values from the shared summary.
-If the prior period is missing or stale, return an explicit unavailable result
-and request a fresh workflow-A export rather than inferring a change from
-incompatible data.
+A coaching dataset lists calls for one approved week, selects only calls for an authorized team, retrieves details under the documented limits, tokenizes participant joins, and records missing IDs before publication.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| One credential header is missing | Stop and validate the Copilot credential pair; do not fall back to a Revenue token. |
+| Rate ceiling is reached | Honor retry timing, checkpoint the cursor, and resume without widening concurrency. |
+| Detailed content exceeds approval | Publish metadata only and quarantine or omit transcripts and recording references. |
 
 ## Resources
 
-- [Clari API Reference](https://developer.clari.com/documentation/external_spec)
-- [Pandas Documentation](https://pandas.pydata.org/docs/)
-
-## Next Steps
-
-For error troubleshooting, see `clari-common-errors`.
+- [First-party source notes](references/official-docs.md)
+- [Clari Copilot API reference](https://api-doc.copilot.clari.com/)

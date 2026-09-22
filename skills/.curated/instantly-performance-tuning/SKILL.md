@@ -1,296 +1,90 @@
 ---
 name: instantly-performance-tuning
-description: 'Optimize Instantly.ai API performance with caching, batching, and connection
-  pooling.
-
-  Use when experiencing slow API responses, implementing caching strategies,
-
-  or optimizing high-volume lead operations.
-
-  Trigger with phrases like "instantly performance", "instantly slow",
-
-  "instantly caching", "instantly batch", "optimize instantly api".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.12.0
-license: MIT
+description: >-
+  Analyze and tune Instantly API v2 concurrency, pagination, batching, and retries against documented workspace limits. Use when a safe integration is too slow, bursty, or wasteful. Trigger with "speed up Instantly API sync", "tune Instantly pagination", or "reduce Instantly request bursts".
+argument-hint: "[workload] [target-duration]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.13.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - instantly
-- performance
-- caching
-- optimization
-compatibility: Designed for Claude Code
+- performance-tuning
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Instantly workspace and API v2 key
 ---
-# Instantly Performance Tuning
+# Instantly Throughput Engineering
 
 ## Overview
 
-Optimize Instantly API v2 integrations for speed and throughput. Key areas: caching analytics data, batching lead operations, concurrent request management, efficient pagination, and connection reuse. The email listing endpoint has a strict **20 req/min** limit that requires special handling.
+Increase throughput without violating workspace or endpoint-specific limits or duplicating mutations. Record assumptions, evidence, approval state, and rollback ownership so another operator can reproduce the result.
 
 ## Prerequisites
 
-- Completed `instantly-install-auth` setup
-- Working Instantly integration
-- Understanding of async patterns and caching strategies
+- The target repository, Instantly workspace, environment, and accountable owner
+- Current security, privacy, compliance, capacity, and change-control requirements
+- An approved API v2 key only when a bounded live verification is necessary
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current first-party Instantly documentation and package metadata. Use `Write` or `Edit` only when implementation was requested and exact target files are known; never write credentials, lead data, email content, or unrestricted environment output.
+
+## Current Contract
+
+- The general ceiling is 100 requests per second and 6,000 per minute per workspace across v1/v2 and keys.
+- Endpoint-specific limits override the general ceiling.
+- Bulk lead addition accepts up to 1,000 leads per request; asynchronous jobs require polling.
+
+## Authentication
+
+Use an API v2 key as `Authorization: Bearer <key>` against `https://api.instantly.ai/api/v2`. Grant only the endpoint-specific scopes needed, inject the key from an approved server-side secret manager, and never print, persist, commit, or place it in a URL. Treat key creation, rotation, revocation, member changes, workspace delegation, and production access as owner-approved actions.
 
 ## Instructions
 
-### Step 1: Cache Analytics Data
+1. Measure route mix, payload sizes, current latency, 429s, and shared workspace traffic.
+2. Classify reads, idempotent writes, non-idempotent writes, bulk operations, and background jobs.
+3. Implement a workspace-wide token bucket below both general ceilings.
+4. Honor endpoint overrides, jitter retryable reads, and never blindly retry non-idempotent mutations.
+5. Use cursor pagination and documented bulk endpoints with bounded page/job polling.
+6. Load-test synthetic staging data and publish before/after evidence plus rollback thresholds.
 
-Campaign analytics don't change every second — cache them for 5-15 minutes to avoid redundant API calls.
+## Approval Boundaries
 
-```typescript
-class InstantlyCache {
-  private cache = new Map<string, { data: unknown; expiry: number }>();
-
-  get<T>(key: string): T | null {
-    const entry = this.cache.get(key);
-    if (!entry || Date.now() > entry.expiry) {
-      this.cache.delete(key);
-      return null;
-    }
-    return entry.data as T;
-  }
-
-  set(key: string, data: unknown, ttlMs: number) {
-    this.cache.set(key, { data, expiry: Date.now() + ttlMs });
-  }
-}
-
-const cache = new InstantlyCache();
-
-async function getCachedAnalytics(campaignId: string) {
-  const cacheKey = `analytics:${campaignId}`;
-  const cached = cache.get<CampaignAnalytics>(cacheKey);
-  if (cached) return cached;
-
-  const data = await instantly<CampaignAnalytics>(
-    `/campaigns/analytics?id=${campaignId}`
-  );
-  cache.set(cacheKey, data, 5 * 60 * 1000); // 5 min TTL
-  return data;
-}
-
-// Cache campaign list (changes infrequently)
-async function getCachedCampaigns() {
-  const cacheKey = "campaigns:all";
-  const cached = cache.get<Campaign[]>(cacheKey);
-  if (cached) return cached;
-
-  const campaigns = await instantly<Campaign[]>("/campaigns?limit=100");
-  cache.set(cacheKey, campaigns, 15 * 60 * 1000); // 15 min TTL
-  return campaigns;
-}
-```
-
-### Step 2: Batch Lead Operations with Controlled Concurrency
-
-```typescript
-interface BatchResult<T> {
-  succeeded: T[];
-  failed: Array<{ input: unknown; error: string }>;
-  duration: number;
-}
-
-async function batchAddLeads(
-  campaignId: string,
-  leads: Array<{ email: string; first_name?: string; company_name?: string }>,
-  options = { concurrency: 5, delayMs: 200, retries: 3 }
-): Promise<BatchResult<Lead>> {
-  const start = Date.now();
-  const succeeded: Lead[] = [];
-  const failed: Array<{ input: unknown; error: string }> = [];
-  let active = 0;
-
-  const addWithRetry = async (lead: typeof leads[0]) => {
-    for (let attempt = 0; attempt <= options.retries; attempt++) {
-      try {
-        const result = await instantly<Lead>("/leads", {
-          method: "POST",
-          body: JSON.stringify({
-            campaign: campaignId,
-            email: lead.email,
-            first_name: lead.first_name,
-            company_name: lead.company_name,
-            skip_if_in_workspace: true,
-          }),
-        });
-        succeeded.push(result);
-        return;
-      } catch (err: any) {
-        if (err.status === 429) {
-          await new Promise((r) => setTimeout(r, Math.pow(2, attempt) * 1000));
-          continue;
-        }
-        if (attempt === options.retries) {
-          failed.push({ input: lead, error: err.message });
-        }
-      }
-    }
-  };
-
-  // Process in chunks
-  for (let i = 0; i < leads.length; i += options.concurrency) {
-    const chunk = leads.slice(i, i + options.concurrency);
-    await Promise.allSettled(chunk.map(addWithRetry));
-
-    if (i + options.concurrency < leads.length) {
-      await new Promise((r) => setTimeout(r, options.delayMs));
-    }
-
-    // Progress report
-    const progress = Math.min(i + options.concurrency, leads.length);
-    console.log(`Progress: ${progress}/${leads.length} (${succeeded.length} ok, ${failed.length} failed)`);
-  }
-
-  return { succeeded, failed, duration: Date.now() - start };
-}
-```
-
-### Step 3: Efficient Pagination
-
-```typescript
-// Pre-fetch next page while processing current page
-async function* prefetchPaginate<T extends { id: string }>(
-  path: string,
-  pageSize = 100
-): AsyncGenerator<T[]> {
-  let startingAfter: string | undefined;
-  let nextPagePromise: Promise<T[]> | null = null;
-
-  const fetchPage = (after?: string) => {
-    const qs = new URLSearchParams({ limit: String(pageSize) });
-    if (after) qs.set("starting_after", after);
-    return instantly<T[]>(`${path}?${qs}`);
-  };
-
-  // Fetch first page
-  let currentPage = await fetchPage();
-
-  while (currentPage.length > 0) {
-    // Start fetching next page immediately
-    if (currentPage.length === pageSize) {
-      const lastId = currentPage[currentPage.length - 1].id;
-      nextPagePromise = fetchPage(lastId);
-    } else {
-      nextPagePromise = null;
-    }
-
-    yield currentPage;
-
-    if (!nextPagePromise) break;
-    currentPage = await nextPagePromise;
-  }
-}
-
-// Usage — processes next page while current page is being handled
-for await (const batch of prefetchPaginate<Lead>("/leads/list")) {
-  for (const lead of batch) {
-    // Process lead — next page is already loading
-  }
-}
-```
-
-### Step 4: Connection Reuse with Keep-Alive
-
-```typescript
-import { Agent } from "undici";
-
-// Create a persistent connection pool
-const dispatcher = new Agent({
-  keepAliveTimeout: 30000,     // keep connections alive for 30s
-  keepAliveMaxTimeout: 60000,
-  connections: 10,             // max 10 concurrent connections
-  pipelining: 1,
-});
-
-async function instantlyPooled<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const url = `https://api.instantly.ai/api/v2${path}`;
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.INSTANTLY_API_KEY}`,
-      ...options.headers,
-    },
-    // @ts-ignore — undici dispatcher
-    dispatcher,
-  });
-
-  if (!res.ok) throw new Error(`Instantly ${res.status}: ${await res.text()}`);
-  return res.json() as Promise<T>;
-}
-```
-
-### Step 5: Throttled Email Fetcher (20 req/min limit)
-
-```typescript
-class ThrottledEmailClient {
-  private timestamps: number[] = [];
-  private readonly maxPerMinute = 18; // leave margin
-
-  private async throttle() {
-    const now = Date.now();
-    this.timestamps = this.timestamps.filter((t) => now - t < 60000);
-
-    if (this.timestamps.length >= this.maxPerMinute) {
-      const wait = 60000 - (now - this.timestamps[0]) + 500;
-      await new Promise((r) => setTimeout(r, wait));
-    }
-    this.timestamps.push(Date.now());
-  }
-
-  async listEmails(params: { campaign_id?: string; limit?: number; starting_after?: string }) {
-    await this.throttle();
-    const qs = new URLSearchParams();
-    if (params.campaign_id) qs.set("campaign_id", params.campaign_id);
-    if (params.limit) qs.set("limit", String(params.limit));
-    if (params.starting_after) qs.set("starting_after", params.starting_after);
-    return instantly(`/emails?${qs}`);
-  }
-
-  async getUnreadCount() {
-    await this.throttle();
-    return instantly("/emails/unread/count");
-  }
-}
-```
-
-## Performance Benchmarks
-
-| Operation | Unoptimized | Optimized | Improvement |
-|-----------|------------|-----------|-------------|
-| 500 lead import | ~250s (sequential) | ~30s (5 concurrent + batch) | 8x |
-| Campaign analytics (10 queries) | 10 API calls | 1 API call (cached) | 10x |
-| All campaigns page load | ~2s (no cache) | ~50ms (cached) | 40x |
-| Lead pagination (10K leads) | ~100s (sequential) | ~50s (prefetch) | 2x |
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `429` during batch import | Too many concurrent requests | Reduce concurrency, increase delay |
-| `429` on email listing | >20 req/min | Use `ThrottledEmailClient` |
-| Stale cache data | TTL too long | Reduce TTL or add cache invalidation |
-| Memory issues | Large pagination result set | Use async generators, process in chunks |
+Do not create, rotate, reveal, or revoke keys; invite or remove members; delegate across workspaces; connect sending accounts; create or activate campaigns; import or delete leads; change suppression or retention; register, patch, resume, or delete webhooks; alter plans or paid capacity; transmit diagnostics; or perform another production mutation without explicit approval from the accountable owner. Keep diagnosis read-only unless implementation was requested.
 
 ## Output
 
-Return a tuning receipt with baseline/canary latency and quota bands, cache/concurrency/schedule revisions, consent/suppression/draft assertions, owner approval, and rollback reference. Use aggregates only.
+Return the workspace-safe scope, files and contracts inspected, exact API v2 routes and required scopes, evidence collected, validation result, sensitive fields redacted, remaining risk, accountable owner, approval state, and rollback or next action.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| `401` | Stop and verify that the bearer key exists, is current, and was not revoked. |
+| `403` | Stop and compare the operation with its exact required scope; do not broaden to `all:all` by default. |
+| `429` | Coordinate the workspace-wide budget, honor endpoint overrides, and bound retries. |
+| Schema or tenant mismatch | Fail closed, preserve redacted evidence, and do not retry a mutation. |
 
 ## Examples
 
-`env=sandbox; p95=420ms->310ms; concurrency=2; quota=within-budget; consent=pass; suppression=pass; sends=0; rollback=perf-r3` documents a safe canary.
+Use a compact handoff that makes scope, mutation authority, and evidence reviewable.
+
+Input:
+
+```text
+workload=lead-import; rows=10000; workspace-rps-budget=80
+```
+
+Expected handoff:
+
+```text
+batch=1000; concurrency=measured; duplicate-writes=0
+```
 
 ## Resources
 
-- [Instantly API v2 Docs](https://developer.instantly.ai/)
-- [Instantly Rate Limits](https://developer.instantly.ai/)
-- [Node.js Undici Connection Pooling](https://undici.nodejs.org/)
-
-## Next Steps
-
-For cost optimization, see `instantly-cost-tuning`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Instantly API v2 documentation](https://developer.instantly.ai/)
+- [Instantly API v2 OpenAPI document](https://api.instantly.ai/openapi/api_v2.json)

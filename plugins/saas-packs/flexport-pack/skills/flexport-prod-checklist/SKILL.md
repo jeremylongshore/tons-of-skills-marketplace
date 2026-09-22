@@ -1,135 +1,103 @@
 ---
 name: flexport-prod-checklist
-description: 'Execute Flexport production deployment checklist for logistics integrations.
-
-  Use when deploying shipment tracking, booking automation, or supply chain
-
-  integrations to production with proper monitoring and rollback.
-
-  Trigger: "flexport production", "deploy flexport", "flexport go-live checklist".
-
-  '
-allowed-tools: Read, Bash(curl:*), Grep
-version: 1.6.0
+description: >-
+  Validate and gate a Flexport integration for production with evidence across auth, versioning, data, mutations, webhooks, recovery, and rollback. Use when preparing to enable live traffic or a new provider capability. Trigger with: "Flexport production checklist", "launch Flexport integration", "go live with Flexport".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[release-sha-and-approved-capabilities]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - production
+  - readiness
+compatibility: 'Requires accountable engineering, security, data, and business owners plus a tested rollback.'
 ---
-# Flexport Production Checklist
+
+# Flexport Production Readiness Gate
 
 ## Overview
 
-Pre-deployment and go-live checklist for Flexport logistics integrations covering API configuration, webhook setup, monitoring, and rollback procedures.
+A checklist item passes only with a receipt tied to the immutable release and configuration. Read access, bookings, trade records, and webhook processing have different risk boundaries and must be approved separately.
 
 ## Prerequisites
 
-- A launch owner, approver, rollback operator, approved data-flow inventory, and staging evidence using fictional shipments.
-- Redacted monitoring, explicit target/destination policies, and a secure path for credentials and incident evidence.
+- Immutable release SHA and environment manifest
+- Named technical, security/data, and business approvers
+- Read-only canary, reconciliation plan, incident owner, and rollback
 
 ## Instructions
 
-1. Attach evidence or an owner decision for every applicable checklist control; leave no implicit acceptance.
-2. Verify scoped secrets, signature validation, idempotent processing, redacted diagnostics, and retention/access behavior.
-3. Run a small staging or production canary with synthetic data and observe aggregate health, queue, and delivery outcomes.
-4. Stop promotion and invoke rollback on permission, policy, integrity, or safety thresholds; record the decision and recovery test.
+### Step 1: Gate identity and auth
+
+Verify account, credential alias/type, endpoint resources, token caching, secret injection, revocation, and MCP role permissions where used.
+
+### Step 2: Gate contracts
+
+Confirm v3/account version behavior, tolerant additive-field parsing, documented endpoints/tools, error classification, and pagination.
+
+### Step 3: Gate data
+
+Approve field minimization, destinations, telemetry redaction, retention/deletion, and tenant boundaries.
+
+### Step 4: Gate mutations
+
+Require durable operation keys, business approval for bookings/writes, ambiguous-outcome reconciliation, and one authoritative writer.
+
+### Step 5: Gate webhooks
+
+Prove raw-body `X-Hub-Signature-256` validation, durable enqueue before 200, deduplication, event allowlist, and gap reconciliation.
+
+### Step 6: Gate launch and rollback
+
+Run a read-only canary, expand by cohort, test rollback, and attach all receipts to the release decision.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
 
 ## Output
 
-Create a go-live receipt with completed controls, evidence links, canary metrics, exceptions, approver, launch/rollback owners, and follow-up dates. Keep documents, addresses, commercial terms, and credentials out of it.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
-## Error Handling
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
 
-- Pause unsafe automation or notifications on signature, permission, destination, or reconciliation failures.
-- Quarantine failed work by opaque ID and rotate credentials if exposure is possible.
-- Confirm rollback and no unintended replay before resolving the launch incident.
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
+```
 
 ## Examples
 
-Process a fictional shipment milestone through the canary, revoke a test destination’s access, and simulate an upstream outage. Promote only after the designated approver records that the handler paused safely, produced redacted metrics, and rolled back cleanly.
+The launch record enables shipment reads and signed webhook ingestion but leaves booking disabled because its human approval and ambiguous-outcome reconciliation evidence is incomplete.
 
-## Pre-Deployment
+## Error Handling
 
-### Authentication & Secrets
-
-- [ ] Production API key stored in secret manager (not env files)
-- [ ] Webhook secret configured and verified
-- [ ] Key rotation procedure documented
-- [ ] No keys in git history (`git log -p | grep -i flexport_api`)
-
-### API Integration
-
-- [ ] All endpoints tested against production API
-- [ ] Pagination implemented for list endpoints (`/shipments`, `/products`)
-- [ ] Rate limit handling with exponential backoff
-- [ ] Retry logic for transient 5xx errors
-- [ ] Idempotency keys on POST/PATCH operations
-- [ ] `Flexport-Version: 2` header on all requests
-
-### Webhooks
-
-- [ ] HTTPS endpoint with valid TLS certificate
-- [ ] `X-Hub-Signature` verification implemented
-- [ ] Webhook endpoint responds within 5 seconds
-- [ ] Dead letter queue for failed webhook processing
-- [ ] Idempotent webhook handlers (replay-safe)
-
-### Data Integrity
-
-- [ ] HS codes validated against customs requirements
-- [ ] UN/LOCODE port codes verified
-- [ ] Commercial invoice totals cross-checked
-- [ ] Product catalog synced with Flexport Product Library
-
-## Monitoring & Alerting
-
-```typescript
-// Health check endpoint
-app.get('/health', async (req, res) => {
-  const start = Date.now();
-  try {
-    const r = await fetch('https://api.flexport.com/shipments?per=1', {
-      headers: {
-        'Authorization': `Bearer ${process.env.FLEXPORT_API_KEY}`,
-        'Flexport-Version': '2',
-      },
-    });
-    res.json({
-      status: r.ok ? 'healthy' : 'degraded',
-      flexport: { connected: r.ok, latencyMs: Date.now() - start },
-    });
-  } catch {
-    res.status(503).json({ status: 'unhealthy', flexport: { connected: false } });
-  }
-});
-```
-
-### Alert Thresholds
-
-| Metric | Warning | Critical |
-|--------|---------|----------|
-| API error rate | > 5% | > 20% |
-| p99 latency | > 3000ms | > 10000ms |
-| 429 rate limits | > 5/hour | > 20/hour |
-| Webhook failures | > 2/hour | > 10/hour |
-| Auth failures (401/403) | Any | Any |
-
-## Rollback Procedure
-
-```bash
-# Immediate rollback
-kubectl rollout undo deployment/flexport-integration
-# Or for non-k8s: revert to last known good image/version
-```
+| Failure | Response |
+| --- | --- |
+| Evidence belongs to another SHA | Re-run the gate on the release candidate. |
+| Owner or rollback absent | Do not launch. |
+| Broad API key lacks exception | Replace it or obtain explicit risk acceptance. |
+| Mutation reconciliation unproven | Keep that capability disabled. |
 
 ## Resources
 
-- [Flexport Status](https://status.flexport.com)
-- [Flexport API Reference](https://apidocs.flexport.com/)
-
-## Next Steps
-
-For version upgrades, see `flexport-upgrade-migration`.
+- [First-party source notes](references/official-docs.md)
+- [Flexport v3 API reference](https://apidocs.flexport.com/v3/)
+- [Using API credentials](https://developers.flexport.com/tutorials/using-api-credentials/)
+- [Webhook endpoints](https://apidocs.flexport.com/v3/tag/Webhook-Endpoints/)

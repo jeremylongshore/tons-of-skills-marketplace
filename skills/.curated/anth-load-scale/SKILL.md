@@ -13,7 +13,7 @@ description: 'Implement load testing, auto-scaling, and capacity planning for Cl
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -185,8 +185,8 @@ Run 50 requests using `Respond with exactly: OK` in the sandbox, cap concurrency
 
 ## Resources
 
-- [Rate Limits](https://docs.anthropic.com/en/api/rate-limits)
-- [Service Tiers](https://docs.anthropic.com/en/api/service-tiers)
+- [Rate Limits](https://platform.claude.com/docs/en/api/rate-limits)
+- [Service Tiers](https://platform.claude.com/docs/en/api/service-tiers)
 
 ## Next Steps
 

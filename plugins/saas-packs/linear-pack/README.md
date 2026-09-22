@@ -1,69 +1,72 @@
-# Linear Skill Pack
+# Linear Operator Skill Pack
 
-> 24 production-grade skills for building Linear integrations with the `@linear/sdk` TypeScript SDK and GraphQL API
+> 24 source-grounded workflows for building and operating Linear GraphQL, SDK,
+> OAuth, webhook, migration, and enterprise integrations.
 
 **Install:** `/plugin install linear-pack@claude-code-plugins-plus`
 
-## What This Does
+## What this pack does
 
-Covers the full lifecycle of Linear integrations: SDK setup, issue/project/cycle management, webhooks, CI/CD pipelines, performance tuning, multi-environment deployment, observability, data sync, RBAC, and migration from Jira/Asana/GitHub Issues.
+The pack covers the full integration lifecycle without treating copied snippets
+as production proof. Every skill establishes the current Linear contract,
+least-privilege authentication, mutation approval boundaries, redaction rules,
+verification evidence, and a rollback or reconciliation path.
 
-Every skill uses real Linear API patterns: `LinearClient`, `rawRequest()` for custom GraphQL, cursor-based pagination (`fetchNext()`/`fetchPrevious()`), typed error handling (`LinearError`, `InvalidInputLinearError`), HMAC-SHA256 webhook verification, and OAuth 2.0 with PKCE and refresh tokens.
+The guidance was checked against Linear's first-party documentation on
+2026-09-11. Dynamic facts such as SDK releases, GraphQL schema fields, OAuth
+scopes, plan entitlements, and rate-limit headers must be rechecked before a
+production change.
 
 ## Skills
 
-### Standard (S01-S12)
+| Skill | Operator outcome |
+|---|---|
+| `linear-install-auth` | Pin the SDK, select the right auth actor, and prove read-only access |
+| `linear-hello-world` | Verify endpoint, viewer, and visible teams without creating test data |
+| `linear-local-dev-loop` | Build offline fixtures and raw-body webhook contract tests |
+| `linear-sdk-patterns` | Isolate typed SDK, pagination, raw GraphQL, and error patterns |
+| `linear-core-workflow-a` | Control issue creation, updates, relations, comments, and archival |
+| `linear-core-workflow-b` | Reconcile projects, cycles, initiatives, milestones, and teams |
+| `linear-common-errors` | Diagnose transport, GraphQL, auth, schema, and throttling failures |
+| `linear-debug-bundle` | Produce a minimal redacted escalation bundle |
+| `linear-rate-limits` | Coordinate request, endpoint, and complexity budgets |
+| `linear-security-basics` | Harden OAuth, secrets, webhook verification, logging, and rotation |
+| `linear-prod-checklist` | Issue an evidence-backed production readiness decision |
+| `linear-upgrade-migration` | Upgrade SDK and deprecated schema usage with rollback |
+| `linear-ci-integration` | Keep PR tests offline and gate live automation separately |
+| `linear-deploy-integration` | Attach approved deployment evidence and state transitions |
+| `linear-webhooks-events` | Verify, deduplicate, queue, and reconcile webhook events |
+| `linear-performance-tuning` | Reduce query complexity, fan-out, page size, and polling |
+| `linear-cost-tuning` | Budget integration compute, quota, storage, and operator load |
+| `linear-reference-architecture` | Separate auth, adapter, policy, ingress, queue, and reconciliation |
+| `linear-multi-env-setup` | Isolate apps, callbacks, credentials, webhooks, and data by environment |
+| `linear-observability` | Measure API, webhook, queue, and reconciliation health safely |
+| `linear-incident-runbook` | Contain auth, quota, delivery, and divergence incidents |
+| `linear-data-handling` | Minimize, export, retain, and delete Linear-derived data safely |
+| `linear-enterprise-rbac` | Govern roles, team access, OAuth scopes, SCIM, and audit evidence |
+| `linear-migration-deep-dive` | Pilot and reconcile supported imports into Linear |
 
-| Skill | What It Does |
-|-------|-------------|
-| `linear-install-auth` | Install `@linear/sdk`, API key setup, OAuth 2.0 with PKCE, token refresh |
-| `linear-hello-world` | First issue creation, team queries, workflow state exploration, raw GraphQL |
-| `linear-local-dev-loop` | Project scaffolding, vitest integration tests, ngrok webhook tunneling |
-| `linear-sdk-patterns` | Client singleton, cursor pagination, N+1 elimination, filtering, error types |
-| `linear-core-workflow-a` | Issue CRUD, state transitions, parent/sub-issues, relations, comments, labels |
-| `linear-core-workflow-b` | Projects, milestones, cycles, sprint planning, velocity, roadmap queries |
-| `linear-common-errors` | Error response structure, auth failures, 429 handling, complexity limits |
-| `linear-debug-bundle` | Debug client wrapper, request tracer, health check, env validator, REPL console |
-| `linear-rate-limits` | Leaky bucket model, headers, exponential backoff, request queue, batch mutations |
-| `linear-security-basics` | Key management, OAuth + PKCE, token refresh, webhook HMAC verification, rotation |
-| `linear-prod-checklist` | Pre-deploy checklist, health check endpoint, deployment verification script |
-| `linear-upgrade-migration` | SDK version upgrade, compatibility layers, breaking change patterns |
+## Verified baseline
 
-### Pro (P13-P18)
+- GraphQL endpoint: `https://api.linear.app/graphql`
+- Personal-key header: `Authorization: <API_KEY>`
+- OAuth header: `Authorization: Bearer <ACCESS_TOKEN>`
+- API-key limits: 2,500 requests and 3,000,000 complexity points per user/hour
+- OAuth limits: 5,000 requests and 2,000,000 complexity points per user or app
+  user/hour
+- Maximum single-query complexity: 10,000 points
+- Webhook verification: HMAC-SHA256 over the exact raw body
+- Webhook delivery: HTTP 200 within five seconds; failed attempts retry after
+  one minute, one hour, and six hours
+- Official TypeScript SDK: `@linear/sdk`; npm reported 95.0.0 and Node.js
+  `>=18.x` on the review date
 
-| Skill | What It Does |
-|-------|-------------|
-| `linear-ci-integration` | GitHub Actions test workflows, PR-to-issue linking, CI failure issue creation |
-| `linear-deploy-integration` | Deploy tracking with Linear comments, state transitions, rollback tracking |
-| `linear-webhooks-events` | Webhook receiver, HMAC verification, event router, idempotency, all entity types |
-| `linear-performance-tuning` | N+1 elimination, TTL caching, batch mutations, webhook cache invalidation |
-| `linear-cost-tuning` | Usage auditing, polling-to-webhook migration, complexity reduction, coalescing |
-| `linear-reference-architecture` | Simple, service-oriented, event-driven, and CQRS architecture patterns |
+## Safety model
 
-### Flagship (F19-F24)
-
-| Skill | What It Does |
-|-------|-------------|
-| `linear-multi-env-setup` | Per-environment config, secret managers (Vault/AWS/GCP), environment guards |
-| `linear-observability` | Prometheus metrics, pino logging, health checks, alerting rules |
-| `linear-incident-runbook` | SEV1-4 classification, auth/rate-limit/webhook runbooks, communication templates |
-| `linear-data-handling` | Full sync, incremental webhook sync, JSON export, consistency checks, conflict resolution |
-| `linear-enterprise-rbac` | Role-to-scope mapping, permission guards, SAML SSO, SCIM provisioning, audit logging |
-| `linear-migration-deep-dive` | Jira/Asana export, workflow mapping, markup conversion, batch import, validation |
-
-## Key Linear API Facts
-
-| Property | Value |
-|----------|-------|
-| API endpoint | `https://api.linear.app/graphql` |
-| SDK package | `@linear/sdk` on npm |
-| Auth methods | API key (`lin_api_*`), OAuth 2.0 (PKCE supported) |
-| Rate limits | 5,000 req/hr + 250,000 complexity pts/hr (leaky bucket) |
-| Max query complexity | 10,000 points per single query |
-| Webhook signature | HMAC-SHA256 in `Linear-Signature` header |
-| Webhook entities | Issues, Comments, Attachments, Documents, Projects, Cycles, Labels, Users, SLAs |
-| OAuth scopes | `read`, `write`, `issues:create`, `admin`, `initiative:*`, `customer:*` |
-| Pagination | Relay-style cursor (`first`/`after`, `last`/`before`) |
+The skills do not authorize credentials, OAuth apps, team access, production
+mutations, webhook administration, imports, exports, SCIM changes, audit
+streaming, diagnostic transmission, or commercial changes. Those operations
+remain explicit owner-approved boundaries.
 
 ## License
 

@@ -8,7 +8,7 @@ description: >-
   with "langgraph agent", "create_react_agent", "langgraph tool calling",
   "AgentExecutor migration", or "agent loop cost".
 allowed-tools: Read, Write, Edit, Bash(python:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

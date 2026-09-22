@@ -1,266 +1,97 @@
 ---
 name: coderabbit-deploy-integration
-description: 'Roll out CodeRabbit across an organization: multi-repo deployment, org-level
-  config, and team onboarding.
-
-  Use when deploying CodeRabbit org-wide, creating shared configurations,
-
-  or onboarding development teams to AI code review.
-
-  Trigger with phrases like "deploy coderabbit", "coderabbit org rollout",
-
-  "coderabbit multi-repo", "coderabbit onboarding", "coderabbit team setup".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*), Bash(git:*)
-version: 1.11.0
-license: MIT
+description: >-
+  Roll out CodeRabbit with staged installation, central configuration, ownership, evidence, and rollback. Use when this operator task needs a current, evidence-backed
+  CodeRabbit workflow. Trigger with "deploy CodeRabbit organization-wide".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[target] [evidence-or-scope]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- coderabbit
-- deployment
-- onboarding
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current CodeRabbit documentation and approved access for any live organization, repository, billing, or API change
+tags: [saas, coderabbit, deployment, central-configuration, onboarding]
 ---
-# CodeRabbit Deploy Integration
+# CodeRabbit Organization Rollout
 
 ## Overview
 
-Roll out CodeRabbit AI code review across an organization. Covers multi-repo deployment strategy, organization-level configuration, team-specific customization, and developer onboarding. CodeRabbit is a GitHub/GitLab App -- deployment means configuring the App installation, customizing review behavior, and integrating review status into merge workflows.
+Treat rollout as controlled policy deployment. Central configuration, repository config, organization settings, and global overrides have distinct precedence.
 
 ## Prerequisites
 
-- GitHub Organization admin access
-- CodeRabbit GitHub App installed (https://github.com/apps/coderabbitai)
-- CodeRabbit Pro or Enterprise plan for private repos
-- List of target repositories
+- Identify the CodeRabbit organization, Git provider, repository, plan, and accountable owner.
+- Read `references/official-docs.md` and re-check any time-sensitive contract before execution.
+- Use synthetic or read-only evidence until the approval boundary is satisfied.
+- Preserve the repository's independent CI, security, and human-review requirements.
+
+## Current Contract
+
+- A dedicated `coderabbit` repository can provide central configuration.
+- CodeRabbit must be installed on that repository.
+- Repository files can override central config; global overrides apply last.
+- Provider permissions and features vary by platform and plan.
+
+## Authentication
+
+Treat Git-provider sessions, CodeRabbit web sessions, CLI credentials, and CodeRabbit API keys as separate credentials. Use only an already-approved session or secret-manager reference, never print a secret, and do not place credentials in `.coderabbit.yaml`, source files, logs, or deliverables.
 
 ## Instructions
 
-### Step 1: Plan the Rollout
+1. Inventory providers, repositories, owners, data classes, and current gates.
 
-```markdown
-# Phase 1 (Week 1): Pilot
-- Pick 2-3 high-activity repos with receptive teams
-- Use "chill" profile to minimize disruption
-- Collect feedback from pilot teams
+2. Choose a representative pilot with success, failure, and rollback criteria.
 
-# Phase 2 (Week 2-3): Expand
-- Roll out to remaining backend/frontend repos
-- Apply learnings from pilot (path instructions, exclusions)
-- Switch to "assertive" profile
+3. Install least scope and deploy defaults without hard enforcement.
 
-# Phase 3 (Week 4+): Enforce
-- Add CodeRabbit as required status check on protected branches
-- Set up org-level defaults
-- Monitor adoption metrics
-```
+4. Measure, train maintainers, and expand in reversible cohorts.
 
-### Step 2: Create Organization-Level Configuration
+## Tool Discipline
 
-```yaml
-# .github/.coderabbit.yaml (in the .github repository)
-# This is the org-level default applied to ALL repos in the org
-# Individual repos can override by adding their own .coderabbit.yaml
+- Use **Glob** to locate candidate configuration and evidence files without widening scope.
+- Use **Grep** to find relevant fields, commands, identifiers, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use these file tools as a substitute for authenticated CodeRabbit or provider operations.
 
-language: "en-US"
-early_access: false
+## Approval Boundaries
 
-reviews:
-  profile: "assertive"
-  request_changes_workflow: false    # Start with comments-only (non-blocking)
-  high_level_summary: true
-  high_level_summary_in_walkthrough: true
-  review_status: true
-  collapse_walkthrough: false
-  sequence_diagrams: true
-  poem: false
-
-  auto_review:
-    enabled: true
-    drafts: false
-    ignore_title_keywords:
-      - "WIP"
-      - "DO NOT MERGE"
-      - "chore: bump"
-      - "chore(deps)"
-
-  path_filters:
-    - "!**/*.lock"
-    - "!**/package-lock.json"
-    - "!**/pnpm-lock.yaml"
-    - "!**/*.snap"
-    - "!**/*.generated.*"
-    - "!dist/**"
-    - "!vendor/**"
-
-chat:
-  auto_reply: true
-```
-
-### Step 3: Create Team-Specific Repo Configs
-
-```yaml
-# .coderabbit.yaml for a backend API repo
-# Inherits org defaults, adds API-specific instructions
-reviews:
-  profile: "assertive"
-  auto_review:
-    enabled: true
-    base_branches: [main, develop]
-  path_instructions:
-    - path: "src/api/**"
-      instructions: |
-        Review for: input validation, proper HTTP status codes, auth middleware.
-        Flag missing error handling and unvalidated request bodies.
-    - path: "src/db/**"
-      instructions: |
-        Review for: parameterized queries, transaction boundaries, N+1 patterns.
-        Flag string concatenation in SQL.
-    - path: "src/auth/**"
-      instructions: |
-        SECURITY-CRITICAL. Review for: token validation, password hashing (bcrypt/argon2),
-        session management, CSRF protection. Flag any security bypass.
-    - path: ".github/workflows/**"
-      instructions: |
-        Review for: pinned action versions (SHA not tag), no secrets in logs,
-        timeout-minutes on all jobs.
-```
-
-```yaml
-# .coderabbit.yaml for a frontend React repo
-reviews:
-  profile: "assertive"
-  path_instructions:
-    - path: "src/components/**"
-      instructions: |
-        Review for: accessibility (aria labels, keyboard nav), performance
-        (no inline styles, memo for expensive renders), proper prop types.
-    - path: "src/hooks/**"
-      instructions: |
-        Review for: cleanup in useEffect, dependency arrays, race conditions.
-    - path: "**/*.test.*"
-      instructions: |
-        Review for: edge cases, async handling, user interaction testing.
-        Do NOT comment on import order or test naming conventions.
-```
-
-### Step 4: Script Multi-Repo Config Deployment
-
-```bash
-#!/bin/bash
-# deploy-coderabbit-config.sh - Deploy .coderabbit.yaml to multiple repos
-set -euo pipefail
-
-ORG="your-org"
-CONFIG_TEMPLATE=".coderabbit.yaml"
-REPOS=("backend-api" "frontend-app" "mobile-api" "infrastructure")
-
-for REPO in "${REPOS[@]}"; do
-  echo "Deploying to $ORG/$REPO..."
-
-  # Clone, add config, create PR
-  TMPDIR=$(mktemp -d)
-  gh repo clone "$ORG/$REPO" "$TMPDIR" -- --depth 1
-  cp "$CONFIG_TEMPLATE" "$TMPDIR/.coderabbit.yaml"
-
-  cd "$TMPDIR"
-  git checkout -b feat/add-coderabbit-config
-  git add .coderabbit.yaml
-  git commit -m "feat: add CodeRabbit AI code review configuration"
-  git push -u origin feat/add-coderabbit-config
-  gh pr create \
-    --title "feat: enable CodeRabbit AI code review" \
-    --body "Adding .coderabbit.yaml for automated AI code reviews. See CodeRabbit docs: https://docs.coderabbit.ai"
-  cd -
-  rm -rf "$TMPDIR"
-
-  echo "PR created for $ORG/$REPO"
-done
-```
-
-### Step 5: Set Up Branch Protection with CodeRabbit
-
-```bash
-set -euo pipefail
-ORG="your-org"
-REPOS=("backend-api" "frontend-app")
-
-for REPO in "${REPOS[@]}"; do
-  echo "Setting branch protection for $ORG/$REPO..."
-
-  gh api "repos/$ORG/$REPO/branches/main/protection" \
-    --method PUT \
-    --field 'required_status_checks={"strict":true,"contexts":["coderabbitai"]}' \
-    --field 'required_pull_request_reviews={"required_approving_review_count":1}' \
-    --field 'enforce_admins=false' \
-    --field 'restrictions=null'
-
-  echo "Branch protection set: CodeRabbit required for $ORG/$REPO"
-done
-```
-
-### Step 6: Developer Onboarding Guide
-
-```markdown
-# Share with your team:
-
-## CodeRabbit Quick Reference
-
-CodeRabbit automatically reviews your PRs. No action needed on your part.
-
-### What to expect:
-1. Open a PR → CodeRabbit posts a review in 2-5 minutes
-2. Walkthrough comment summarizes all changes
-3. Line-level comments suggest improvements
-4. Reply to any comment to discuss with the AI
-
-### Useful commands (post as PR comment):
-@coderabbitai full review     → Re-review all files from scratch
-@coderabbitai summary         → Regenerate the walkthrough summary
-@coderabbitai resolve         → Mark all CodeRabbit comments as resolved
-@coderabbitai configuration   → Show current active config
-@coderabbitai help            → List all available commands
-
-### Tips:
-- Keep PRs under 500 lines for best review quality
-- Reply to CodeRabbit comments to teach it your preferences
-- Add "WIP" to PR title to skip review on work-in-progress
-```
-
-## Examples
-
-Roll out an organization configuration to one pilot repository with a named
-owner, verify the active configuration using the review command, and measure
-comment quality before expanding. Keep merge blocking scoped to reviewed
-security policy and require a rollback path; if the configuration creates
-unexpected blocking or noise, revert to the last approved profile.
+Require organization-admin approval for installation, overrides, central config, and enforcement cohorts. Keep analysis and drafts local until approval is explicit, and record who approved the action and its scope.
 
 ## Output
 
-- Organization-level CodeRabbit configuration deployed
-- Team-specific repo configs with path instructions
-- Multi-repo deployment script
-- Branch protection with CodeRabbit as required check
-- Developer onboarding guide
+A rollout inventory, precedence map, pilot plan, owners, cohort schedule, and rollback runbook. Include source dates, unknowns, and the exact boundary between observed fact and recommendation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Org config not applied | No `.github` repo | Create `.github` repo with `.coderabbit.yaml` |
-| Repo config ignored | YAML syntax error | Validate YAML, run `@coderabbitai configuration` |
-| Team resistance | Too many comments | Switch to `chill` profile initially |
-| PRs blocked by review | `request_changes_workflow: true` | Start with `false` until team is comfortable |
-| Bot accounts consuming seats | Bots opening PRs | Exclude bot accounts in seat management |
+| Condition | Response |
+|---|---|
+| Current contract is unclear or docs disagree | Stop mutation, cite both sources, and request owner resolution. |
+| Required access or approval is missing | Produce a draft and evidence plan only. |
+| Validation or pilot behavior differs from expectation | Restore the prior state and retain the failed evidence. |
+| Output contains secrets or private code | Stop, quarantine the artifact, redact it, and notify the data owner. |
+
+## Examples
+
+### Example 1
+
+Pilot `coderabbit/.coderabbit.yaml` for three repositories.
+
+### Example 2
+
+Pause rollout and restore prior settings when coverage regresses.
+
+## Validation
+
+- Confirm every claim against the dated sources in `references/official-docs.md`.
+- Verify the requested scope, owner, approval, happy path, failure path, and rollback.
+- Re-read the effective configuration or provider state after any approved change.
+- Report unsupported fields, undocumented endpoints, and unverified assumptions as failures.
 
 ## Resources
 
-- [CodeRabbit Getting Started](https://docs.coderabbit.ai/getting-started/yaml-configuration)
-- [CodeRabbit Configuration Reference](https://docs.coderabbit.ai/reference/configuration)
-- Organization-Level Config
-
-## Next Steps
-
-For multi-environment configuration, see `coderabbit-multi-env-setup`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

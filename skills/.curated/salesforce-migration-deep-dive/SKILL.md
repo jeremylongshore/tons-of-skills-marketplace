@@ -1,255 +1,79 @@
 ---
 name: salesforce-migration-deep-dive
-description: 'Execute Salesforce data migrations using Bulk API, Data Loader, and
-  ETL patterns.
-
-  Use when migrating data to/from Salesforce, performing org-to-org migrations,
-
-  or re-platforming CRM data into Salesforce.
-
-  Trigger with phrases like "migrate to salesforce", "salesforce data migration",
-
-  "salesforce import data", "salesforce ETL", "CRM migration to salesforce".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(sf:*), Bash(node:*)
-version: 1.7.0
-license: MIT
+description: 'Run a dependency-ordered Salesforce data migration with mapping, external IDs, Bulk API selection, quarantine, cutover, reconciliation, and rollback. Use when conducting large migrations. Trigger with "migrate Salesforce data".'
+argument-hint: "[source] [target-org] [dataset]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- crm
-- salesforce
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, salesforce, data-migration, bulk-api, cutover]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; data extraction, transformation, loading, deletion, and cutover require source, target, privacy, and business-owner approval
 ---
-# Salesforce Migration Deep Dive
+# Salesforce Governed Data Migration
 
 ## Overview
 
-Comprehensive guide for migrating data to/from Salesforce: ETL patterns using Bulk API 2.0, data mapping between CRM schemas, record relationship preservation, and validation.
+Move data as a controlled accounting exercise in which every source key, transformation, dependency, target result, exception, and rollback obligation is traceable.
 
 ## Prerequisites
 
-- Source and target Salesforce orgs (or external CRM)
-- jsforce with Bulk API 2.0 access
-- Understanding of sObject relationships and External IDs
-- Staging sandbox for dry runs
+- Source and target systems, objects, owners, data classes, migration scope, cutover window, and success criteria
+- Current source schema, Salesforce metadata, external IDs, relationships, validation, automation, sharing, and limits
+- Mapping and transform rules, quality thresholds, quarantine, reconciliation, rollback or compensating action, and retention plan
 
-## Migration Types
+## Tool Discipline
 
-| Type | Complexity | Duration | Tool |
-|------|-----------|----------|------|
-| CSV import (< 50K records) | Low | Hours | Data Import Wizard / Bulk API |
-| CRM-to-Salesforce | Medium | Weeks | Custom ETL with jsforce |
-| Org-to-org migration | Medium | Weeks | SFDX + Bulk API |
-| Full re-platform | High | Months | Custom ETL + change management |
+Use `Read`, `Glob`, and `Grep` to inspect approved repository and evidence files, `WebFetch` to re-check current first-party Salesforce documentation, and `Write` or `Edit` only for secretless plans, fixtures, configuration, and redacted receipts.
+
+## Current Contract
+
+Bulk API 2.0 supports asynchronous CSV ingest and query, including insert, update, upsert, and delete where documented and entitled. Data Loader and other tools have separate contracts; object behavior, automation, and limits remain org-specific.
+
+## Authentication
+
+Separate source read, transformation, target write, verification, and support access. Keep tokens and private keys out of migration files; encrypt and expire approved extracts and restrict raw personal data.
 
 ## Instructions
 
-### Step 1: Data Assessment
+1. Freeze scope, source snapshot or watermark, objects, fields, filters, counts, classifications, owners, and cutover criteria.
+2. Profile data quality and map source keys, target external IDs, required fields, lookups, parents, children, owners, picklists, and transforms.
+3. Discover target API versions, metadata, permissions, sharing, validation, automation, duplicate rules, storage, limits, and lock behavior.
+4. Order deterministic migration waves, create immutable manifests and hashes, and separate valid, rejected, and quarantined records.
+5. Run dry-run transformations, then small synthetic and representative non-production canaries with full dependency reconciliation.
+6. Execute approved production waves within limits; preserve job IDs and result files and never blindly replay uncertain batches.
+7. Re-query by stable keys, reconcile counts, values, relationships, ownership, duplicates, and downstream effects; cut over or roll back.
 
-```typescript
-const conn = await getConnection();
+## Approval Boundaries
 
-// Count records per object
-const objectCounts = await Promise.all(
-  ['Account', 'Contact', 'Lead', 'Opportunity', 'Case'].map(async (obj) => {
-    const result = await conn.query(`SELECT COUNT(Id) total FROM ${obj}`);
-    return { object: obj, count: result.records[0].total };
-  })
-);
-
-console.table(objectCounts);
-// Account:      15,234
-// Contact:      45,678
-// Lead:         23,456
-// Opportunity:  8,901
-// Case:         67,890
-
-// Check data storage limits
-const limits = await conn.request('/services/data/v59.0/limits/');
-console.log(`Data storage: ${limits.DataStorageMB.Max - limits.DataStorageMB.Remaining}/${limits.DataStorageMB.Max} MB`);
-```
-
-### Step 2: Schema Mapping
-
-```typescript
-// Map source fields to Salesforce sObject fields
-interface FieldMapping {
-  source: string;
-  target: string;
-  transform?: (value: any) => any;
-  required: boolean;
-}
-
-const accountMappings: FieldMapping[] = [
-  { source: 'company_name', target: 'Name', required: true },
-  { source: 'industry_code', target: 'Industry', required: false,
-    transform: (code) => INDUSTRY_MAP[code] || 'Other' },
-  { source: 'annual_rev', target: 'AnnualRevenue', required: false,
-    transform: (v) => typeof v === 'string' ? parseFloat(v.replace(/[$,]/g, '')) : v },
-  { source: 'website_url', target: 'Website', required: false },
-  { source: 'employee_count', target: 'NumberOfEmployees', required: false },
-  { source: 'external_id', target: 'External_ID__c', required: true },
-];
-
-function transformRecord(
-  source: Record<string, any>,
-  mappings: FieldMapping[]
-): Record<string, any> {
-  const target: Record<string, any> = {};
-  for (const mapping of mappings) {
-    let value = source[mapping.source];
-    if (value === undefined || value === null) {
-      if (mapping.required) throw new Error(`Missing required field: ${mapping.source}`);
-      continue;
-    }
-    if (mapping.transform) value = mapping.transform(value);
-    target[mapping.target] = value;
-  }
-  return target;
-}
-```
-
-### Step 3: Migration Order (Respecting Relationships)
-
-```
-Migration order matters! Parent objects must be loaded before children.
-
-1. Account          (no dependencies)
-2. Contact          (depends on Account via AccountId)
-3. Opportunity      (depends on Account via AccountId)
-4. OpportunityContactRole (depends on Opportunity + Contact)
-5. Case             (depends on Account + Contact)
-6. Task / Event     (depends on Contact via WhoId, Account via WhatId)
-
-Use External IDs to resolve relationships without knowing Salesforce IDs:
-- Create External_ID__c on Account, Contact, Opportunity
-- Use external ID references in child records
-```
-
-### Step 4: Bulk Migration with External ID Relationships
-
-```typescript
-import { getConnection } from './salesforce/connection';
-import fs from 'fs';
-
-const conn = await getConnection();
-
-// Step 4a: Load Accounts first
-const accountCsv = `Name,Industry,External_ID__c
-Acme Corp,Technology,EXT-ACME-001
-Globex Inc,Manufacturing,EXT-GLOBEX-002
-Initech LLC,Consulting,EXT-INITECH-003`;
-
-const accountResults = await conn.bulk2.loadAndWaitForResults({
-  object: 'Account',
-  operation: 'upsert',
-  externalIdFieldName: 'External_ID__c',
-  input: accountCsv,
-});
-console.log(`Accounts: ${accountResults.successfulResults.length} success, ${accountResults.failedResults.length} failed`);
-
-// Step 4b: Load Contacts with Account relationship via External ID
-const contactCsv = `FirstName,LastName,Email,Account.External_ID__c,External_ID__c
-Jane,Smith,jane@acme.com,EXT-ACME-001,EXT-CONTACT-001
-John,Doe,john@globex.com,EXT-GLOBEX-002,EXT-CONTACT-002`;
-
-const contactResults = await conn.bulk2.loadAndWaitForResults({
-  object: 'Contact',
-  operation: 'upsert',
-  externalIdFieldName: 'External_ID__c',
-  input: contactCsv,
-});
-// Account.External_ID__c resolves to the correct AccountId automatically!
-```
-
-### Step 5: Validation
-
-```typescript
-async function validateMigration(
-  sourceCount: number,
-  objectType: string
-): Promise<{ passed: boolean; details: string }> {
-  const conn = await getConnection();
-
-  // Count migrated records
-  const result = await conn.query(
-    `SELECT COUNT(Id) total FROM ${objectType} WHERE External_ID__c != null`
-  );
-  const targetCount = result.records[0].total;
-
-  // Check for orphaned relationships
-  let orphans = 0;
-  if (objectType === 'Contact') {
-    const orphanResult = await conn.query(
-      `SELECT COUNT(Id) total FROM Contact WHERE AccountId = null AND External_ID__c != null`
-    );
-    orphans = orphanResult.records[0].total;
-  }
-
-  const passed = targetCount === sourceCount && orphans === 0;
-  return {
-    passed,
-    details: `Source: ${sourceCount}, Target: ${targetCount}, Orphans: ${orphans}`,
-  };
-}
-```
-
-### Step 6: Rollback Plan
-
-```typescript
-// Delete migrated records using External ID marker
-async function rollbackMigration(objectType: string): Promise<void> {
-  const conn = await getConnection();
-
-  // Query all migrated records (identified by External_ID__c)
-  const records = await conn.query(
-    `SELECT Id FROM ${objectType} WHERE External_ID__c != null`
-  );
-
-  // Delete in reverse order (children first)
-  const ids = records.records.map((r: any) => r.Id);
-  for (let i = 0; i < ids.length; i += 200) {
-    const batch = ids.slice(i, i + 200);
-    await conn.sobject(objectType).destroy(batch);
-  }
-
-  console.log(`Rolled back ${ids.length} ${objectType} records`);
-}
-```
+Do not extract production data, disable automation, change external IDs, overwrite owners, delete records, start a load, or cut over without owners.
 
 ## Output
 
-- Data assessment with record counts and storage usage
-- Field mapping layer transforming source to Salesforce schema
-- Bulk API migration respecting parent-child relationships
-- External ID-based relationship resolution (no hardcoded IDs)
-- Validation and rollback procedures
+Return scope and snapshot, mappings, quality report, dependency graph, manifests, job results, quarantine, reconciliation, cutover decision, rollback, and expiry.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `DUPLICATE_VALUE` on External_ID__c | Re-running migration | Use upsert instead of insert |
-| `INVALID_CROSS_REFERENCE_KEY` | Parent record not found | Verify parent loaded first, check External ID values |
-| `STORAGE_LIMIT_EXCEEDED` | Org storage full | Delete test data or upgrade storage |
-| Bulk job timeout | Very large dataset | Split into smaller jobs (< 100M records) |
-| Field mapping errors | Source schema mismatch | Validate transform functions with sample data first |
+| Condition | Response |
+|---|---|
+| External IDs are not unique | Stop upsert planning and resolve the source and target identity model. |
+| Automation changes migrated values | Classify the intended behavior, revise transforms or approved automation, and rerun the canary. |
+| Job outcome is incomplete or unavailable | Do not replay; retrieve result evidence and reconcile target keys first. |
 
-## Examples
+## Example
 
-### Migrate parent-child data with an external-ID rollback plan
+A redacted completion receipt might look like this:
 
-Load a representative synthetic sample into a full or partial sandbox, map parents and children through stable External IDs, and run each Bulk API job in a recorded sequence. Reconcile processed, failed, and duplicate rows before proceeding to the next phase. Keep a manifest of inserted IDs and transformation version so the sandbox run can be reversed; production cutover requires a separately approved window, backup verification, and post-load reconciliation.
+```text
+migration=legacy-accounts; source=watermarked; rows=850000; waves=6; success=849920; quarantine=80; reconcile=exact
+```
 
 ## Resources
 
 - [Bulk API 2.0](https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/bulk_api_2_0.htm)
-- [External ID Fields](https://help.salesforce.com/s/articleView?id=sf.fields_about_external_ids.htm)
-- [Data Import Best Practices](https://help.salesforce.com/s/articleView?id=sf.importing_data.htm)
-- [Salesforce Data Loader](https://developer.salesforce.com/docs/atlas.en-us.dataLoader.meta/dataLoader/)
+- [Salesforce external IDs](https://help.salesforce.com/s/articleView?id=sf.fields_about_external_ids.htm)
 
 ## Next Steps
 
-For advanced troubleshooting, see `salesforce-advanced-troubleshooting`.
+Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.

@@ -9,7 +9,7 @@ description: "Dispatch LangChain 1.0 chain/agent events to external systems \u20
   \ kafka\",\n\"langchain pubsub\", \"langchain per-tool webhook\", \"BaseCallbackHandler\
   \ webhook\",\n\"on_tool_end webhook\", \"langchain analytics event\".\n"
 allowed-tools: Read, Write, Edit, Bash(python:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

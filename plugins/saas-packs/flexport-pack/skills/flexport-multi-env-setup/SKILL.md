@@ -1,144 +1,103 @@
 ---
 name: flexport-multi-env-setup
-description: 'Configure Flexport API across dev, staging, and production environments
-
-  with isolated API keys, separate webhook endpoints, and environment guards.
-
-  Trigger: "flexport environments", "flexport staging", "flexport multi-env".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.6.0
+description: >-
+  Separate Flexport development, test, staging, and production configuration without inventing provider hostnames or key prefixes. Use when creating environments, test credentials, receivers, or promotion rules. Trigger with: "Flexport environments", "Flexport staging setup", "separate Flexport credentials".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[environment-matrix]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - environments
+  - configuration
+compatibility: 'Requires environment owners, separate secret stores, and Flexport/account-executive coordination for any test credential.'
 ---
-# Flexport Multi-Environment Setup
+
+# Flexport Environment and Credential Isolation
 
 ## Overview
 
-Configure isolated Flexport environments for development, staging, and production with separate API keys, webhook endpoints, and safety guards to prevent production data access from dev.
+Flexport documents the same API base rather than arbitrary environment URLs. Isolation comes from accounts/credentials, receiver URLs, data policy, and mutation gates; a test credential may require coordination with the account executive.
 
 ## Prerequisites
 
-- Distinct environment identities, secret references, webhook routes, approved data destinations, and accountable owners.
-- Guardrails that prevent development/PR workloads from querying production or receiving production webhooks.
-
-## Output
-
-Record an environment-control receipt with identity references, allowed destinations, policy version, validation outcome, owner, and rollback path. Do not include keys, shipment data, or documents.
-
-## Error Handling
-
-- Deny an environment mismatch before an API call and alert the environment owner.
-- Rotate/revoke the affected credential after suspected cross-environment access.
-- Roll back configuration changes that bypass target, destination, or secret isolation.
-
-## Examples
-
-Send a fictional event to staging and verify the development key cannot authenticate there and no staging route can call a production destination. Rotate the staging credential, prove the old key is denied, and store only redacted test evidence.
+- Environment/account matrix and data classification
+- Distinct credential aliases and secret-store namespaces
+- Separate webhook URLs, queues, databases, and mutation policy
 
 ## Instructions
 
-### Environment Configuration
+### Step 1: Define each boundary
 
-```typescript
-// src/config/flexport.ts
-interface FlexportConfig {
-  apiKey: string;
-  baseUrl: string;
-  webhookSecret: string;
-  cacheTtlMs: number;
-  logLevel: 'debug' | 'info' | 'warn';
-}
+For every environment record account identity, credential type, endpoint resources, version behavior, receiver, data class, and permitted operations.
 
-const configs: Record<string, FlexportConfig> = {
-  development: {
-    apiKey: process.env.FLEXPORT_API_KEY_DEV!,
-    baseUrl: 'https://api.flexport.com',  // Same base, different key scope
-    webhookSecret: process.env.FLEXPORT_WEBHOOK_SECRET_DEV!,
-    cacheTtlMs: 30_000,   // 30s in dev for fast iteration
-    logLevel: 'debug',
-  },
-  staging: {
-    apiKey: process.env.FLEXPORT_API_KEY_STAGING!,
-    baseUrl: 'https://api.flexport.com',
-    webhookSecret: process.env.FLEXPORT_WEBHOOK_SECRET_STAGING!,
-    cacheTtlMs: 60_000,
-    logLevel: 'info',
-  },
-  production: {
-    apiKey: process.env.FLEXPORT_API_KEY!,
-    baseUrl: 'https://api.flexport.com',
-    webhookSecret: process.env.FLEXPORT_WEBHOOK_SECRET!,
-    cacheTtlMs: 300_000,  // 5min in prod
-    logLevel: 'warn',
-  },
-};
+### Step 2: Issue distinct credentials
 
-export function getFlexportConfig(): FlexportConfig {
-  const env = process.env.NODE_ENV || 'development';
-  const config = configs[env];
-  if (!config) throw new Error(`No Flexport config for env: ${env}`);
-  if (!config.apiKey) throw new Error(`Missing FLEXPORT_API_KEY for ${env}`);
-  return config;
-}
+Never share client IDs, client secrets, API keys, cached tokens, or MCP sessions across environments.
+
+### Step 3: Keep canonical hosts
+
+Use documented Flexport API/MCP hosts. Do not invent `staging` subdomains or infer an environment from a credential prefix.
+
+### Step 4: Control test access
+
+Request any Flexport test credential through the documented account-executive route and keep local/default tests fixture-only.
+
+### Step 5: Gate promotion
+
+Promote immutable artifacts while supplying environment-specific secret references and config. Production mutations remain disabled until canary approval.
+
+### Step 6: Prove non-crossing
+
+Test that each environment rejects another's credential alias, callback destination, queue, and data-store identity.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
+
+## Output
+
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
+
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
 ```
 
-### Environment Variable Template
+## Examples
 
-```bash
-# .env.example
-# Development (read-only scope, limited data access)
-FLEXPORT_API_KEY_DEV=fp_dev_...
-FLEXPORT_WEBHOOK_SECRET_DEV=whsec_dev_...
+Staging and production run the same artifact against documented hosts, but use different credential records, callback URLs, queues, stores, and mutation flags. Default developer tests use no live Flexport credential.
 
-# Staging (read-write scope, test data)
-FLEXPORT_API_KEY_STAGING=fp_stg_...
-FLEXPORT_WEBHOOK_SECRET_STAGING=whsec_stg_...
+## Error Handling
 
-# Production (full scope, real shipments)
-FLEXPORT_API_KEY=fp_prod_...
-FLEXPORT_WEBHOOK_SECRET=whsec_prod_...
-```
-
-### Production Safety Guard
-
-```typescript
-// Prevent accidental production API calls from dev/test
-function assertNotProduction(operation: string) {
-  if (process.env.NODE_ENV === 'production') return;
-  const config = getFlexportConfig();
-  if (config.apiKey.startsWith('fp_prod_')) {
-    throw new Error(`SAFETY: ${operation} blocked — production key detected in ${process.env.NODE_ENV}`);
-  }
-}
-
-// Usage in destructive operations
-async function deleteProduct(id: string) {
-  assertNotProduction('deleteProduct');
-  await flexport(`/products/${id}`, { method: 'DELETE' });
-}
-```
-
-## Environment Matrix
-
-| Aspect | Dev | Staging | Production |
-|--------|-----|---------|------------|
-| API key scope | Read-only | Read-write | Full |
-| Webhook endpoint | localhost:3000 | staging.app.com | app.com |
-| Cache TTL | 30s | 60s | 5min |
-| Rate limit budget | 10/min | 50/min | 100/min |
-| Logging | Debug (all) | Info | Warn + errors |
+| Failure | Response |
+| --- | --- |
+| Credential reused across environments | Rotate or separate it before promotion. |
+| Undocumented environment host configured | Remove it and verify the official account/credential model. |
+| Production data enters test | Contain and delete under policy, then repair routing controls. |
+| Test credential unavailable | Use sanitized fixtures; do not borrow production access. |
 
 ## Resources
 
-- [Flexport Developer Portal](https://developers.flexport.com/)
-
-## Next Steps
-
-For observability setup, see `flexport-observability`.
+- [First-party source notes](references/official-docs.md)
+- [API credential FAQ](https://developers.flexport.com/faq/api-credentials/)
+- [Using API credentials](https://developers.flexport.com/tutorials/using-api-credentials/)
+- [Flexport v3 API reference](https://apidocs.flexport.com/v3/)

@@ -1,211 +1,75 @@
 ---
 name: exa-deploy-integration
-description: 'Deploy Exa integrations to Vercel, Docker, and Cloud Run platforms.
-
-  Use when deploying Exa-powered applications to production,
-
-  configuring platform-specific secrets, or building search API endpoints.
-
-  Trigger with phrases like "deploy exa", "exa Vercel",
-
-  "exa production deploy", "exa Cloud Run", "exa Docker".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vercel:*), Bash(fly:*), Bash(gcloud:*), Bash(docker:*)
-version: 1.11.0
+description: >-
+  Deploy an Exa integration with server-side credentials, bounded concurrency, canary controls, and explicit rollback of scheduled work. Use when operating or reviewing this Exa boundary. Trigger with "Exa deploy integration", "review Exa deploy integration", or "fix Exa deploy integration".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<service> <platform> <environment>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- deployment
-- vercel
-- docker
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Deploy Integration
-
-## Output
-
-- A versioned staged deployment with scoped credentials, policy/configuration evidence, owner approval, and rollback reference.
-- A protected path that prevents unreviewed retrieval/automation changes from affecting production.
-
-## Examples
-
-Deploy a versioned integration to staging with sanitized queries and a scoped secret reference, verify health, guardrails, redacted metrics, and rollback, then promote an approved canary. Halt and restore on policy, quality, or error regression; do not deploy keys or private query fixtures in manifests.
+# Exa Reversible Deployment Workflow
 
 ## Overview
 
-Deploy applications using Exa's neural search API to production. Covers API endpoint creation, secret management per platform, caching for production traffic, and health check endpoints.
+Deploy an Exa integration with server-side credentials, bounded concurrency, canary controls, and explicit rollback of scheduled work. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- Exa API key stored in `EXA_API_KEY` environment variable
-- Application using `exa-js` SDK
-- Platform CLI installed (vercel, docker, or gcloud)
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Production workers should call Exa from trusted server runtimes. Search and Contents can be synchronous, while Agent, Monitors, Websets, and Batch require durable IDs and terminal-state reconciliation. Deployments must account for queues and scheduled resources that outlive a process release.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Vercel Edge Function
+1. Identify every runtime, queue, webhook, schedule, key, and Exa product in the release.
+2. Inject environment-specific secrets and deny them to browser or preview builds.
+3. Configure timeouts, endpoint budgets, queue bounds, and content-size limits.
+4. Deploy dark, validate configuration, then enable a small synthetic canary.
+5. Observe request IDs, error classes, latency, cost, and asynchronous backlog.
+6. Rollback code and separately pause or reconcile monitors, batches, and runs.
 
-```typescript
-// api/search.ts — Vercel API route
-import Exa from "exa-js";
+## Tool Discipline
 
-export const config = { runtime: "edge" };
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-export default async function handler(req: Request) {
-  if (req.method !== "POST") {
-    return new Response("Method not allowed", { status: 405 });
-  }
+## Approval Boundaries
 
-  const exa = new Exa(process.env.EXA_API_KEY!);
-  const { query, numResults = 5 } = await req.json();
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-  if (!query || typeof query !== "string") {
-    return Response.json({ error: "query is required" }, { status: 400 });
-  }
+## Failure Modes
 
-  try {
-    const results = await exa.searchAndContents(query, {
-      type: "auto",
-      numResults: Math.min(numResults, 20),
-      text: { maxCharacters: 1000 },
-      highlights: { maxCharacters: 300, query },
-    });
+- Rolling back code does not cancel vendor-side asynchronous work.
+- Preview environments can leak production keys or create paid schedules.
+- Autoscaling workers without a shared limiter can exceed team limits.
 
-    return Response.json({
-      results: results.results.map(r => ({
-        title: r.title,
-        url: r.url,
-        score: r.score,
-        snippet: r.text?.substring(0, 300),
-        highlights: r.highlights,
-      })),
-    });
-  } catch (err: any) {
-    const status = err.status || 500;
-    return Response.json(
-      { error: err.message, requestId: err.requestId },
-      { status }
-    );
-  }
-}
-```
+## Output
 
-```bash
-# Deploy to Vercel
-vercel env add EXA_API_KEY production
-vercel --prod
-```
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-### Step 2: Docker Deployment
+## Example
 
-```dockerfile
-FROM node:20-slim
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-RUN npm run build
-EXPOSE 3000
-CMD ["node", "dist/index.js"]
-```
+- Deploy a disabled worker, validate secrets and egress, enable one-percent traffic, and pause Monitors before rollback.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-```typescript
-// src/server.ts — Express search API
-import express from "express";
-import Exa from "exa-js";
+## Validation
 
-const app = express();
-app.use(express.json());
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-const exa = new Exa(process.env.EXA_API_KEY!);
+## References
 
-app.post("/api/search", async (req, res) => {
-  const { query, numResults = 5, type = "auto" } = req.body;
-  try {
-    const results = await exa.searchAndContents(query, {
-      type,
-      numResults,
-      text: { maxCharacters: 1000 },
-    });
-    res.json(results);
-  } catch (err: any) {
-    res.status(err.status || 500).json({ error: err.message });
-  }
-});
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-app.get("/health", async (_req, res) => {
-  try {
-    await exa.search("health", { numResults: 1 });
-    res.json({ status: "healthy", service: "exa" });
-  } catch {
-    res.status(503).json({ status: "unhealthy", service: "exa" });
-  }
-});
-
-app.listen(3000, () => console.log("Listening on :3000"));
-```
-
-### Step 3: Google Cloud Run
-
-```bash
-set -euo pipefail
-# Store API key in Secret Manager
-echo -n "$EXA_API_KEY" | gcloud secrets create exa-api-key --data-file=-
-
-# Deploy with secret mounted as env var
-gcloud run deploy exa-search-api \
-  --source . \
-  --set-secrets=EXA_API_KEY=exa-api-key:latest \
-  --allow-unauthenticated \
-  --region us-central1
-```
-
-### Step 4: Production Search with Redis Cache
-
-```typescript
-import Exa from "exa-js";
-import { Redis } from "ioredis";
-import { createHash } from "crypto";
-
-const exa = new Exa(process.env.EXA_API_KEY!);
-const redis = new Redis(process.env.REDIS_URL!);
-
-async function cachedSearch(query: string, opts: any = {}, ttl = 3600) {
-  const key = `exa:${createHash("sha256").update(JSON.stringify({ query, ...opts })).digest("hex")}`;
-  const cached = await redis.get(key);
-  if (cached) return JSON.parse(cached);
-
-  const results = await exa.searchAndContents(query, {
-    type: "auto",
-    numResults: 5,
-    text: { maxCharacters: 1000 },
-    ...opts,
-  });
-
-  await redis.set(key, JSON.stringify(results), "EX", ttl);
-  return results;
-}
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| 401 in production | API key not set | Verify env var in deployment platform |
-| Rate limited | Too many requests | Implement Redis cache + request queue |
-| Slow responses | Large content requests | Reduce `maxCharacters` or `numResults` |
-| Timeout on Edge | Query too complex | Use `type: "fast"` for edge functions |
-| Cold start latency | Serverless cold start | Keep Exa client initialization outside handler |
-
-## Resources
-
-- [Exa API Documentation](https://docs.exa.ai)
-- [exa-js SDK](https://github.com/exa-labs/exa-js)
-- [Vercel Edge Functions](https://vercel.com/docs/functions/edge-functions)
-
-## Next Steps
-
-For multi-environment setup, see `exa-multi-env-setup`. For production checklist, see `exa-prod-checklist`.
+- [Current first-party evidence map](references/official-docs.md)

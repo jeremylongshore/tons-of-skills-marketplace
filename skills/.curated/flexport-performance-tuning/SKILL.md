@@ -1,138 +1,103 @@
 ---
 name: flexport-performance-tuning
-description: 'Optimize Flexport API performance with pagination tuning, response caching,
-
-  parallel requests, and connection pooling for logistics data.
-
-  Trigger: "flexport performance", "flexport slow API", "flexport caching", "optimize
-  flexport".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*)
-version: 1.6.0
+description: >-
+  Tune Flexport integration latency and throughput from measured pagination, expansion, and concurrency evidence. Use when reads are slow, backlogs grow, or MCP browsing needs scaling. Trigger with: "speed up Flexport integration", "tune Flexport pagination", "scale shipment reads".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[operation-and-baseline]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - performance
+  - pagination
+compatibility: 'Requires representative sanitized workloads, per-operation metrics, and rollback controls.'
 ---
-# Flexport Performance Tuning
+
+# Measured Flexport Pagination and Concurrency
 
 ## Overview
 
-Optimize Flexport API integration performance. The API is rate-limited and serves logistics data that changes infrequently (shipments update hourly, products rarely). Cache aggressively for reads, batch writes, and use maximum page sizes.
+Performance tuning must preserve correctness, account boundaries, and provider stability. Change one pagination, expansion, cache, or concurrency control at a time and validate full reconciliation.
 
 ## Prerequisites
 
-- A redacted baseline for latency, error rate, queue age, and budget/rate use; define freshness requirements per data class.
-- Synthetic staging data, bounded concurrency, cache invalidation rules, and a rollback switch.
-
-## Output
-
-Publish a performance receipt with baseline/post-change aggregate metrics, cache/concurrency settings, freshness rule, policy owner, and rollback result. Do not put logistics payloads or credentials into telemetry.
-
-## Error Handling
-
-- Reduce concurrency and honor throttle responses rather than increasing retries during a limit breach.
-- Invalidate or disable a cache when access, freshness, or data-isolation controls cannot be demonstrated.
-- Quarantine unexpected results for review and revert the canary before a broad rollout.
-
-## Examples
-
-Replay a fictional shipment list in staging at low concurrency, enable a bounded cache, and compare only aggregate latency and cache-hit metrics. Simulate a permission change to ensure the cache does not serve data to an unauthorized consumer; revert if it does.
+- Baseline latency, pages, payload size, errors, and business freshness
+- Documented pagination model for the selected REST endpoint or MCP tool
+- Bounded worker pool and reversible configuration
 
 ## Instructions
 
-### Step 1: Maximize Page Size
+### Step 1: Select one bottleneck
 
-```typescript
-// Default per=25. Use per=100 (max) to reduce API calls by 4x
-async function fetchAllShipments(): Promise<Shipment[]> {
-  const all: Shipment[] = [];
-  let page = 1;
-  while (true) {
-    const res = await flexport(`/shipments?per=100&page=${page}`);
-    all.push(...res.data.records);
-    if (res.data.records.length < 100) break;
-    page++;
-  }
-  return all;
-  // 1000 shipments = 10 API calls instead of 40
-}
+Name the operation, surface, dataset window, and business objective. Exclude token acquisition from request concurrency by using a shared cache.
+
+### Step 2: Use native pagination
+
+Follow REST response links where documented; for MCP `browse_shipments`, advance `end_cursor` while `has_next_page` is true and keep `first` within 1–100.
+
+### Step 3: Control expansions
+
+Avoid expansion on freight-invoice index calls as recommended; fetch detail only for records that need it.
+
+### Step 4: Increase cautiously
+
+Raise one page-size or worker limit for read-only work, measure latency/error/backlog effects, and stop on provider or correctness degradation.
+
+### Step 5: Protect mutations
+
+Keep bookings and trade-record writes serialized by business key and outside bulk read tuning.
+
+### Step 6: Reconcile the result
+
+Compare counts and terminal cursors/links over the same bounded window, then document the chosen control and rollback.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
+
+## Output
+
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
+
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
 ```
 
-### Step 2: Cache Responses
+## Examples
 
-```typescript
-import { LRUCache } from 'lru-cache';
+A shipment-risk scanner tests MCP page sizes of 10 and 50 on the same approved window, verifies identical shipment identities and terminal cursor state, then adopts the faster setting with a bounded worker pool.
 
-const cache = new LRUCache<string, any>({
-  max: 500,
-  ttl: 5 * 60 * 1000,  // 5 min for shipment data
-});
+## Error Handling
 
-// Products change rarely — cache longer
-const productCache = new LRUCache<string, any>({
-  max: 1000,
-  ttl: 60 * 60 * 1000,  // 1 hour
-});
-
-async function cachedFlexport(path: string, ttlCache = cache): Promise<any> {
-  const cached = ttlCache.get(path);
-  if (cached) return cached;
-  const data = await flexport(path);
-  ttlCache.set(path, data);
-  return data;
-}
-```
-
-### Step 3: Parallel Requests with Concurrency Control
-
-```typescript
-import PQueue from 'p-queue';
-
-const queue = new PQueue({ concurrency: 5, interval: 1000, intervalCap: 10 });
-
-// Fetch details for multiple shipments in parallel
-async function enrichShipments(ids: string[]) {
-  return Promise.all(
-    ids.map(id => queue.add(() => flexport(`/shipments/${id}`)))
-  );
-}
-```
-
-### Step 4: Webhook-Driven Cache Invalidation
-
-```typescript
-// Instead of polling, invalidate cache on webhook events
-async function handleWebhook(event: any) {
-  if (event.type.startsWith('shipment.')) {
-    cache.delete(`/shipments/${event.data.shipment_id}`);
-    cache.delete('/shipments');  // Invalidate list cache
-  }
-  if (event.type.startsWith('product.')) {
-    productCache.delete(`/products/${event.data.product_id}`);
-  }
-}
-```
-
-## Performance Targets
-
-| Metric | Target | Strategy |
-|--------|--------|----------|
-| Shipment list load | < 500ms | Cache with 5min TTL |
-| Product lookup | < 100ms | Cache with 1hr TTL |
-| Bulk shipment fetch | < 3s for 100 | Parallel with p-queue |
-| Dashboard refresh | < 2s | Stale-while-revalidate |
+| Failure | Response |
+| --- | --- |
+| Result counts differ | Reject the tuning change and inspect cursor/link handling. |
+| Latency improves but errors rise | Roll back concurrency and reassess the bottleneck. |
+| Index expansion dominates payload | Remove it and fetch selected details separately. |
+| Mutation entered bulk pool | Drain safely, reconcile outcomes, and restore per-key serialization. |
 
 ## Resources
 
-- [Flexport API Reference](https://apidocs.flexport.com/)
-- [lru-cache](https://github.com/isaacs/node-lru-cache)
-- [p-queue](https://github.com/sindresorhus/p-queue)
-
-## Next Steps
-
-For cost optimization, see `flexport-cost-tuning`.
+- [First-party source notes](references/official-docs.md)
+- [MCP tools](https://apidocs.flexport.com/v3/tag/MCP-Tools/)
+- [Freight invoices tutorial](https://developers.flexport.com/tutorials/freight-invoices-api-tutorial/)
+- [Shipment API tutorial](https://developers.flexport.com/tutorials/shipment-api-tutorial/)

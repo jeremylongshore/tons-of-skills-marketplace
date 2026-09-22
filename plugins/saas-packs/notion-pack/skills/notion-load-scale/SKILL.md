@@ -1,157 +1,81 @@
 ---
 name: notion-load-scale
-description: |
-  Use when you must move high volumes through the Notion API without tripping
-  its 3 req/sec limit — bulk-creating pages, syncing 100K+ record databases, or
-  running background jobs. Covers parallel requests within 3 req/sec, worker
-  queues, database pagination at scale, incremental sync for large workspaces,
-  and memory management for bulk operations.
-  Trigger with phrases like "notion scale", "notion bulk operations",
-  "notion high volume", "notion worker queue", "notion incremental sync".
-allowed-tools: Read, Write, Bash(node:*), Bash(npx:*)
-version: 1.39.0
+description: >-
+  Plan and test Notion workload capacity within observed limits without evading per-connection controls. Use when scaling exports, syncs, workers, or high-volume reads. Trigger with "scale Notion integration", "capacity plan Notion", or "load test Notion safely".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<workload> <target-volume> <test-environment>"
+version: 1.40.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- productivity
-- notion
-compatibility: Designed for Claude Code
+tags: [saas, notion, capacity]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Notion actions require network access and explicit approval"
 ---
-# Notion Load & Scale
+# Notion Capacity and Backpressure Planning
 
 ## Overview
 
-Patterns for high-volume Notion API usage within the 3 requests/second rate
-limit. Covers parallel request orchestration with `p-queue`, worker queue
-architecture for background processing, full database pagination at scale
-(100K+ records), incremental sync using `last_edited_time` filters to avoid
-re-fetching unchanged data, and memory management for bulk operations via
-streaming and chunked processing.
-
-Full runnable TypeScript + Python implementations for all three steps live in
-[references/implementation.md](references/implementation.md); planning utilities
-live in [references/examples.md](references/examples.md).
+Plan and test Notion workload capacity within observed limits without evading per-connection controls.. This workflow produces an auditable decision or artifact before any live action.
 
 ## Prerequisites
 
-- `@notionhq/client` v2.x installed (`npm install @notionhq/client`)
-- `p-queue` for rate-limited concurrency (`npm install p-queue`)
-- Python: `notion-client` installed (`pip install notion-client`)
-- `NOTION_TOKEN` set (each token gets its own 3 req/s limit)
-- Test database in Notion (dedicated for load testing)
+- Current first-party Notion documentation and the selected integration's tested API-version contract.
+- A named workspace owner, content or data owner, and operation owner.
+- Synthetic or approved non-production fixtures with secrets and workspace content removed.
+
+## Current Contract
+
+Notion documents an average request rate and payload limits but may change quotas. Capacity planning must honor Retry-After, response latency, page size, pagination depth, downstream pressure, and tenant fairness. Recheck the dated evidence map before relying on mutable fields, endpoints, versions, limits, or delivery behavior.
 
 ## Authentication
 
-All operations authenticate with a Notion internal integration token in the
-`NOTION_TOKEN` environment variable; the SDKs send it as a `Bearer` token
-automatically. **Each token has an independent 3 req/s limit** — the key lever
-for horizontal scaling. Full auth notes, including raw `curl` headers, are in
-[references/implementation.md](references/implementation.md).
+Use synthetic non-production content and one approved test connection. Additional tokens are not a sharding mechanism for bypassing limits.
 
 ## Instructions
 
-The three patterns compose: rate-limited calls (Step 1) are the primitive the
-worker queue (Step 2) and the streaming paginator (Step 3) both build on. Read
-the lean summary here, then open
-[references/implementation.md](references/implementation.md) for the complete
-code.
+1. Define volume, freshness, concurrency, burst, payload, tenant, and recovery objectives.
+2. Measure a low-rate baseline by operation using synthetic fixtures.
+3. Model request amplification from pagination, block recursion, retries, reconciliation, and downstream failures.
+4. Introduce queue rate control, tenant fairness, bounded concurrency, and backpressure.
+5. Increase load in approved stages while observing 429, Retry-After, latency, errors, queue age, and completeness.
+6. Set safe operating limits, saturation alarms, degradation behavior, and rollback thresholds.
 
-### Step 1: Parallel Requests Within Rate Limits
+## Tool Discipline
 
-Notion enforces 3 requests/second per integration token. Drive every call
-through a single `p-queue` tuned to `interval: 340` / `intervalCap: 1` (~3/s
-with a safety margin) rather than relying on concurrency alone, and wrap each
-call so a `rate_limited` (429) response honors `retry-after` and retries once.
+Use Read, Glob, and Grep to inspect documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Invocation alone does not authorize network access, credentials, workspace content, user data, file transfer, deployment, capability or sharing changes, writes, spend, or deletion.
 
-```typescript
-import PQueue from 'p-queue';
+## Approval Boundaries
 
-const apiQueue = new PQueue({ concurrency: 1, interval: 340, intervalCap: 1 });
-
-// Every Notion call goes through this queue; add 429 retry inside (see refs).
-const results = await Promise.all(
-  dbIds.map(id => apiQueue.add(() =>
-    notion.databases.query({ database_id: id, page_size: 100 })
-  ))
-);
-```
-
-Full wrapper (metrics, `retry-after` handling, Python token-bucket variant) is
-in Step 1 of [references/implementation.md](references/implementation.md).
-
-### Step 2: Worker Queue Architecture for Background Processing
-
-For sustained high-volume writes, decouple API calls from user requests with a
-job queue. A `NotionWorkerQueue` wraps the same rate-limited `p-queue`, dispatches
-by job type (`create`/`update`/`query`/`append`), retries `rate_limited` jobs with
-exponential backoff, and routes jobs past `maxRetries` to a dead-letter list. See Step 2 of
-[references/implementation.md](references/implementation.md) for the full class
-plus a 500-page bulk-create example (~170s at 3/s).
-
-### Step 3: Pagination at Scale, Incremental Sync, Memory Management
-
-For 100K+ record databases, stream pages through an async generator so results
-are processed a batch at a time instead of loading everything into memory. Layer
-incremental sync on top: filter by `last_edited_time` `on_or_after` your last
-run and persist the server-returned timestamp between runs — cutting subsequent
-API calls by 90%+.
-
-```typescript
-async function* paginateDatabase(databaseId: string, filter?: any) {
-  let cursor: string | undefined;
-  do {
-    const res = await notion.databases.query({
-      database_id: databaseId, filter, page_size: 100, start_cursor: cursor,
-    });
-    yield res.results;                       // process a batch, then release it
-    cursor = res.has_more ? res.next_cursor ?? undefined : undefined;
-  } while (cursor);
-}
-```
-
-Full streaming processor, incremental-sync driver with persisted state, and the
-Python generator + multi-token scaling helper are in Step 3 of
-[references/implementation.md](references/implementation.md).
-
-## Output
-
-- Rate-limited parallel requests maximizing 3 req/s throughput
-- Worker queue with priority, retries, and dead letter handling
-- Streaming pagination for 100K+ record databases
-- Incremental sync reducing API calls by 90%+ on subsequent runs
-- Memory-efficient processing via async generators
+Require platform and workspace-owner approval for load tests; never run them against production content or multiply credentials to raise throughput.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-| ------- | ------- | ---------- |
-| Sustained 429 errors | Exceeding 3 req/s | Reduce `intervalCap` or increase `interval` |
-| Memory growing during bulk read | Loading all results into array | Use async generator streaming |
-| Stale incremental sync | Clock skew between systems | Use server-returned timestamps |
-| Queue growing unbounded | Write rate exceeds 3/s sustained | Add more integration tokens (each gets own limit) |
-| Timeout on large queries | Notion API response time | Reduce `page_size`, add retry logic |
-| Duplicate records in sync | Concurrent modifications | Deduplicate by page ID after collection |
+- Stop when error, latency, queue age, or Retry-After exceeds the stage threshold.
+- Do not treat burst success as sustained capacity.
+- Preserve unacknowledged cursors when downstream systems fail.
+
+## Output
+
+Return the workload model, measured curve, amplification factors, safe envelope, fairness policy, degradation plan, and rollback threshold. Identify assumptions, owners, expirations, and evidence gaps explicitly.
 
 ## Examples
 
-- **Capacity Calculator** — estimate whether a planned read/write mix fits your
-  token budget before a bulk run (accounts for cache hit rate + multi-token
-  scaling).
-- **Quick Throughput Benchmark** — time 10 sequential calls to measure baseline
-  per-call latency without tripping the rate limit.
+- Size a paginated export worker with bounded downstream writes.
+- Prove one noisy tenant cannot starve another queue partition.
 
-Both utilities, with full code, are in
-[references/examples.md](references/examples.md).
+## Validation
+
+Exercise and record these paths with expected and observed results:
+
+- sustained load
+- burst
+- 429 recovery
+- downstream stall
+- tenant fairness
+- checkpoint restart
 
 ## Resources
 
-- [Notion Request Limits](https://developers.notion.com/reference/request-limits)
-- [Notion Pagination](https://developers.notion.com/reference/pagination)
-- [p-queue - Promise Queue with Concurrency Control](https://github.com/sindresorhus/p-queue)
-- [Notion Database Query Filter](https://developers.notion.com/reference/post-database-query-filter)
-
-## Next Steps
-
-For reliability patterns, see `notion-reliability-patterns`.
-For architecture decisions at scale, see `notion-architecture-variants`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable behavior.
+- Treat observed tenant behavior as environment-specific evidence, never a universal Notion guarantee.

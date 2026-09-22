@@ -1,139 +1,94 @@
 ---
 name: flyio-local-dev-loop
-description: 'Configure Fly.io local development with Docker, proxy, and SSH console.
-
-  Use when setting up local dev against Fly services, testing Dockerfiles,
-
-  or establishing a fast iteration cycle.
-
-  Trigger: "fly.io dev setup", "fly.io local development", "fly proxy".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(fly:*), Bash(docker:*), Grep
-version: 1.7.0
+description: >-
+  Build a repeatable local Fly.io development loop with containers, config validation, private-service access, and disposable remote verification. Use when aligning local behavior with Fly Machines. Trigger with: "develop Fly app locally", "proxy Fly database", "test fly.toml before deploy".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[app-service-and-dev-environment]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- edge-compute
-- flyio
-compatibility: Designed for Claude Code
+  - saas
+  - flyio
+  - local-development
+  - containers
+  - proxy
+compatibility: 'Requires application source, a local container runtime where used, read access to a development Fly.io app, and explicit approval before connecting to remote data.'
 ---
-# Fly.io Local Dev Loop
+
+# Fly.io Local-to-Remote Development Loop
 
 ## Overview
 
-Fast local development workflow for Fly.io apps: build and test Docker containers locally, proxy remote Fly services (Postgres, Redis) to localhost, and use `fly deploy` for integration testing.
+Keep local unit and container checks separate from provider integration checks. Use synthetic fixtures by default, validate configuration before deployment, and treat `fly proxy` or WireGuard access to a remote service as production-adjacent even when initiated from a laptop.
 
 ## Prerequisites
 
-- Local Docker tooling, a non-production environment, synthetic fixtures, and a directory excluded from source control for runtime secrets.
-- Approved read-only/sandbox access for any remote proxy; development must not proxy production data by default.
-
-## Output
-
-Create a local validation receipt with image/config version, fixture set, health result, and redacted failures. Never commit connection strings, proxy credentials, database contents, or user data.
-
-## Error Handling
-
-- Stop a proxy or local test that targets production or exposes credentials; notify the environment owner if access was attempted.
-- Treat configuration or schema mismatches as review items and clean up temporary containers/fixtures through approved processes.
-- Revoke test credentials if they were disclosed in a terminal capture or artifact.
-
-## Examples
-
-Run a container locally with a fictional database URL and verify the health endpoint. Use an isolated staging proxy only for a read-only synthetic fixture, then stop the proxy and confirm no remote credential or data was written to the repository.
+- Local build and test commands plus expected runtime port
+- Development-only app or isolated process group and disposable test data
+- Approved remote-service access path with data handling and teardown rules
 
 ## Instructions
 
-### Step 1: Local Docker Testing
+### Step 1: Define the parity contract
 
-```bash
-# Build and run locally — same Dockerfile used by Fly
-docker build -t my-app .
-docker run -p 3000:3000 \
-  -e NODE_ENV=development \
-  -e DATABASE_URL="postgres://localhost:5432/dev" \
-  my-app
+Record runtime image, architecture, process command, port, environment names, health route, filesystem expectations, and provider-only dependencies.
 
-# Test
-curl http://localhost:3000/health
-```
+### Step 2: Build and test locally
 
-### Step 2: Proxy Remote Fly Services
+Use deterministic dependencies and synthetic fixtures. Exercise startup, health, shutdown, migration, and failure paths without Fly.io credentials.
 
-```bash
-# Proxy Fly Postgres to localhost:5432
-fly proxy 5432 -a my-db &
+### Step 3: Validate configuration separately
 
-# Now use local tools against remote Fly Postgres
-psql "$DATABASE_URL"
-npx prisma studio  # Prisma GUI works against proxied DB
+Review `fly.toml` against the app contract, including process groups, services, checks, signals, resources, and mounts. Keep secrets out of the file.
 
-# Proxy Redis
-fly proxy 6379 -a my-redis &
-redis-cli -h localhost -p 6379
-```
+### Step 4: Connect to remote services narrowly
 
-### Step 3: Development fly.toml
+If remote access is necessary, target a development service through an approved proxy or WireGuard path, bind locally, limit time, and never copy remote data into fixtures.
 
-```toml
-# fly.dev.toml — dev overrides (not committed)
-app = "my-app-dev"
-primary_region = "iad"
+### Step 5: Deploy to a disposable boundary
 
-[env]
-  NODE_ENV = "development"
-  LOG_LEVEL = "debug"
+Use a dedicated development app or temporary Machine, immutable image, modest resource size, and clear expiry. Do not reuse the production app as a test target.
 
-[http_service]
-  internal_port = 3000
-  auto_stop_machines = "off"  # Keep running for debugging
-  min_machines_running = 1
+### Step 6: Reconcile and tear down
 
-[[vm]]
-  cpu_kind = "shared"
-  cpus = 1
-  memory = "256mb"  # Smaller for dev
-```
+Compare local and remote health, logs, architecture, and timing; capture differences, then stop or remove approved disposable resources.
 
-### Step 4: Fast Deploy Cycle
+## Authentication
 
-```bash
-# Deploy to dev app
-fly deploy -a my-app-dev --config fly.dev.toml
+Use an interactive operator session or a development-app token with no production scope. Database credentials remain in the secret manager and are injected only for the bounded session. Close proxies and revoke temporary access after use.
 
-# Watch logs while testing
-fly logs -a my-app-dev --no-tail &
+## Tool Discipline
 
-# SSH in for debugging
-fly ssh console -a my-app-dev
+Use Read and Grep to inspect application configuration, deployment evidence, provider documentation, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for an approved plan, configuration, implementation, test, or redacted receipt. Do not create, deploy, scale, restart, stop, suspend, destroy, rotate, revoke, expose, or migrate live Fly.io resources without explicit operator approval.
 
-# Quick restart after config change
-fly apps restart my-app-dev
-```
+## Output
 
-### Dev Scripts
+- Local/remote parity matrix and fixture inventory
+- Reviewed development configuration and access plan
+- Disposable integration receipt with results, differences, costs, and teardown state
 
-```json
-{
-  "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "docker:build": "docker build -t my-app .",
-    "docker:run": "docker run -p 3000:3000 --env-file .env.local my-app",
-    "fly:dev": "fly deploy -a my-app-dev --config fly.dev.toml",
-    "fly:proxy:db": "fly proxy 5432 -a my-db",
-    "fly:logs": "fly logs -a my-app-dev",
-    "fly:ssh": "fly ssh console -a my-app-dev"
-  }
-}
-```
+Return the target organization, app, environment, region set, Machine or database identifiers, source-contract fingerprint, evidence, unresolved risks, rollback state, and final decision without exposing tokens, secrets, connection strings, or customer data.
+
+## Examples
+
+A developer tests the container and health route locally with synthetic data, validates `fly.toml`, opens a time-bounded proxy to a development database, runs a read-only schema check, deploys to a disposable app, and removes the app after reconciliation.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Local container passes but remote fails | Compare architecture, listening address, filesystem, environment names, health timing, and remote builder output. |
+| Proxy exposes the service broadly | Stop it, bind to the approved local interface and port, rotate if necessary, and record the exposure. |
+| Disposable app remains billable | Escalate to the owner and remove it only after confirming no data or rollback dependency. |
 
 ## Resources
 
-- [Fly.io Local Development](https://fly.io/docs/getting-started/essentials/)
+- [First-party source notes](references/official-docs.md)
+- [Machines API setup](https://fly.io/docs/machines/api/working-with-machines-api/)
+- [Automation and tokens](https://fly.io/docs/flyctl/integrating/)
+- [App configuration](https://fly.io/docs/reference/configuration/)
 - [fly proxy](https://fly.io/docs/flyctl/proxy/)
-
-## Next Steps
-
-See `flyio-sdk-patterns` for Machines API client patterns.
+- [Private networking](https://fly.io/docs/networking/private-networking/)

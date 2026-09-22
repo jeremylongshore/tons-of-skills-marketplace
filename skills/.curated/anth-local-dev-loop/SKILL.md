@@ -12,7 +12,7 @@ description: 'Configure a local development workflow for Anthropic Claude API pr
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -169,7 +169,7 @@ model = DEV_MODEL if os.getenv("ENV") == "development" else PROD_MODEL
 ## Resources
 
 - [SDK Debug Logging](https://github.com/anthropics/anthropic-sdk-python#logging)
-- [Pricing](https://docs.anthropic.com/en/docs/about-claude/pricing)
+- [Pricing](https://platform.claude.com/docs/en/about-claude/pricing)
 
 ## Next Steps
 

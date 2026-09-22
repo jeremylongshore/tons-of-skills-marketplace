@@ -1,260 +1,92 @@
 ---
 name: linear-common-errors
-description: 'Diagnose and fix common Linear API and SDK errors.
-
-  Use when encountering Linear API errors, debugging integration issues,
-
-  or troubleshooting authentication, rate limits, or query problems.
-
-  Trigger: "linear error", "linear API error", "debug linear",
-
-  "linear not working", "linear 429", "linear authentication error".
-
-  '
-allowed-tools: Read, Write, Edit, Grep, Bash(curl:*)
-version: 1.12.0
-license: MIT
+description: >-
+  Diagnose Linear GraphQL and SDK failures from transport, response, and request evidence. Use when an integration returns partial data, authentication failures, rate limits, invalid input, or missing resources. Trigger with "debug Linear GraphQL", "Linear API error", or "why did Linear SDK fail".
+argument-hint: "[repository-path] [redacted-error-or-request-id]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.13.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - linear
-- api
-- debugging
-- authentication
-compatibility: Designed for Claude Code
+- error-triage
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; live verification requires network access and an approved Linear workspace credential
 ---
-# Linear Common Errors
+# Linear Error Triage
 
 ## Overview
 
-Quick reference for diagnosing and resolving common Linear API and SDK errors. Linear's GraphQL API returns errors in `response.errors[]` with `extensions.type` and `extensions.userPresentableMessage` fields. HTTP 200 responses can still contain partial errors -- always check the `errors` array.
+Classify a failure before changing code or credentials, because Linear can return GraphQL errors with HTTP 200 and throttling errors with HTTP 400.
 
 ## Prerequisites
 
-- Linear SDK or raw API access configured
-- Access to application logs
-- Understanding of GraphQL error response format
+- The target repository, Linear workspace, environment, and accountable owner
+- Current security, privacy, compliance, capacity, and change-control requirements
+- An approved Linear credential only when a bounded live verification is necessary
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect code, configuration, and evidence. Use `WebFetch` only for current first-party Linear documentation and package metadata. Use `Write` or `Edit` only for requested implementation with known target files. Never write credentials, customer content, unrestricted environment output, or unredacted GraphQL variables.
+
+## Current Contract
+
+- Always inspect the GraphQL `errors` array; a response can include partial `data` and errors together.
+- Rate limiting is identified by `extensions.code: RATELIMITED` in an HTTP 400 GraphQL response, not by assuming HTTP 429.
+- The SDK exposes parsed `LinearError` details including query, variables, status, data, raw error, and per-error path/type when available.
+
+## Authentication
+
+Use a personal API key only for owner-controlled scripts, OAuth with PKCE for user-delegated applications, or an enabled client-credentials grant for approved automation. Personal keys use `Authorization: <API_KEY>`; OAuth tokens use `Authorization: Bearer <ACCESS_TOKEN>`. Store credentials server-side in an approved secret manager.
+
+Treat app approval, team access, scope changes, credential creation, rotation, revocation, and production access as owner-approved actions.
 
 ## Instructions
 
-### Error Response Structure
+1. Capture the operation name, HTTP status, GraphQL error code/path, SDK version, and redacted rate headers.
+2. Separate authentication, authorization, input, not-found, complexity, endpoint-budget, and service-health failures.
+3. Reproduce with the smallest read-only query using the same auth mode; do not paste tokens or full customer variables.
+4. For partial data, decide whether the caller must reject the whole response or can use explicitly safe fields.
+5. For throttling, follow reset metadata, shrink requested fields/pages, and coordinate all workers sharing the user or app budget.
+6. Return the root-cause evidence, bounded remediation, and a regression assertion.
 
-```typescript
-// Linear GraphQL error shape
-interface LinearGraphQLResponse {
-  data: Record<string, any> | null;
-  errors?: Array<{
-    message: string;
-    path?: string[];
-    extensions: {
-      type: string;  // "authentication_error", "forbidden", "ratelimited", etc.
-      userPresentableMessage?: string;
-    };
-  }>;
-}
+## Approval Boundaries
 
-// SDK throws these typed errors
-import { LinearError, InvalidInputLinearError } from "@linear/sdk";
-// LinearError includes: .status, .message, .type, .query, .variables
-// InvalidInputLinearError extends LinearError for mutation input errors
-```
+Do not create, reveal, rotate, or revoke credentials; authorize an OAuth app; change scopes or team access; create, mutate, archive, or delete workspace data; configure or re-enable webhooks; import or export data; change roles, SCIM, or audit streaming; transmit diagnostics; change paid entitlements; or perform another production mutation without explicit approval from the accountable owner. Keep diagnosis read-only unless implementation was requested.
 
-### Error 1: Authentication Failures
+## Output
 
-```typescript
-// extensions.type: "authentication_error"
-// HTTP 401 or error in response.errors
+Return the workspace and team scope, auth mode without credential value, files and contracts inspected, exact operation names, evidence collected, validation result, sensitive fields redacted, remaining risk, accountable owner, approval state, and rollback or next action.
 
-// Diagnostic check
-async function testAuth(): Promise<void> {
-  try {
-    const client = new LinearClient({ apiKey: process.env.LINEAR_API_KEY! });
-    const viewer = await client.viewer;
-    console.log(`OK: ${viewer.name} (${viewer.email})`);
-  } catch (error: any) {
-    if (error.message?.includes("Authentication")) {
-      console.error("API key is invalid or expired.");
-      console.error("Fix: Settings > Account > API > Personal API keys");
-    }
-    throw error;
-  }
-}
-```
+## Error Handling
 
-**Quick curl diagnostic:**
-
-```bash
-curl -s -X POST https://api.linear.app/graphql \
-  -H "Authorization: $LINEAR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "{ viewer { id name email } }"}' | jq .
-```
-
-### Error 2: Rate Limiting (HTTP 429)
-
-Linear uses the **leaky bucket algorithm** with two budgets:
-
-- **Request limit**: 5,000 requests/hour per API key
-- **Complexity limit**: 250,000 complexity points/hour per API key
-- **Max single query complexity**: 10,000 points
-
-```typescript
-// extensions.type: "ratelimited"
-// HTTP 429 with rate limit headers
-
-async function withRetry<T>(fn: () => Promise<T>, maxRetries = 5): Promise<T> {
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      return await fn();
-    } catch (error: any) {
-      const isRateLimited = error.status === 429 ||
-        error.message?.includes("rate") ||
-        error.type === "ratelimited";
-      if (!isRateLimited || attempt === maxRetries - 1) throw error;
-
-      const delay = 1000 * Math.pow(2, attempt) + Math.random() * 500;
-      console.warn(`Rate limited (attempt ${attempt + 1}), waiting ${Math.round(delay)}ms`);
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  throw new Error("Unreachable");
-}
-```
-
-**Check rate limit status via headers:**
-
-```typescript
-const resp = await fetch("https://api.linear.app/graphql", {
-  method: "POST",
-  headers: {
-    Authorization: process.env.LINEAR_API_KEY!,
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({ query: "{ viewer { id } }" }),
-});
-
-console.log("Requests remaining:", resp.headers.get("x-ratelimit-requests-remaining"));
-console.log("Requests limit:", resp.headers.get("x-ratelimit-requests-limit"));
-console.log("Requests reset:", resp.headers.get("x-ratelimit-requests-reset"));
-console.log("Complexity:", resp.headers.get("x-complexity"));
-```
-
-### Error 3: Query Complexity Too High
-
-Each property = 0.1 pt, each object = 1 pt, connections multiply children by the `first` argument (default 50). Max 10,000 pts per query.
-
-```typescript
-// BAD: ~12,500 complexity (250 * 50 labels)
-const heavy = await client.issues({ first: 250 });
-
-// GOOD: reduce page size and fetch relations separately
-const light = await client.issues({ first: 50 });
-```
-
-### Error 4: Entity Not Found
-
-```typescript
-// extensions.type: "not_found"
-// Cause: deleted, archived, wrong workspace, or insufficient permissions
-
-try {
-  const issue = await client.issue("nonexistent-uuid");
-} catch (error: any) {
-  if (error.message?.includes("Entity not found")) {
-    console.error("Issue may be deleted, archived, or in another workspace.");
-    console.error("Try: client.issues({ includeArchived: true })");
-  }
-}
-```
-
-### Error 5: Invalid Input on Mutations
-
-```typescript
-import { InvalidInputLinearError } from "@linear/sdk";
-
-try {
-  await client.createIssue({
-    teamId: "invalid-uuid",
-    title: "", // Empty title
-  });
-} catch (error) {
-  if (error instanceof InvalidInputLinearError) {
-    console.error("Invalid input:", error.message);
-    // error.query and error.variables contain request details
-  }
-}
-```
-
-### Error 6: Null Reference on Relations
-
-```typescript
-// SDK models lazy-load relations -- they can be null
-const issue = await client.issue("uuid");
-
-// BAD: crashes if unassigned
-// const name = (await issue.assignee).name;
-
-// GOOD: optional chaining
-const name = (await issue.assignee)?.name ?? "Unassigned";
-const projectName = (await issue.project)?.name ?? "No project";
-```
-
-### Error 7: Webhook Signature Mismatch
-
-```typescript
-// Happens when LINEAR_WEBHOOK_SECRET doesn't match the webhook config
-import crypto from "crypto";
-
-function verifyWebhook(payload: string, signature: string, secret: string): boolean {
-  const expected = crypto.createHmac("sha256", secret).update(payload).digest("hex");
-  try {
-    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
-  } catch {
-    return false; // Length mismatch
-  }
-}
-```
-
-## Error Reference Table
-
-| Error | extensions.type | HTTP | Cause | Fix |
-|-------|----------------|------|-------|-----|
-| Authentication required | `authentication_error` | 401 | Invalid/expired key | Regenerate at Settings > API |
-| Forbidden | `forbidden` | 403 | Missing OAuth scope | Re-authorize with correct scopes |
-| Rate limited | `ratelimited` | 429 | Budget exceeded | Exponential backoff, reduce complexity |
-| Query complexity too high | `query_error` | 400 | Deep nesting or large pages | Reduce `first`, flatten query |
-| Entity not found | `not_found` | 200 | Deleted/archived/wrong workspace | Verify ID, try `includeArchived` |
-| Validation error | `invalid_input` | 200 | Bad mutation input | Check field constraints |
-| Webhook sig mismatch | N/A (local) | N/A | Wrong signing secret | Match `LINEAR_WEBHOOK_SECRET` |
+| Condition | Response |
+|---|---|
+| HTTP 200 plus `errors` | Treat it as an application failure unless partial-data handling is explicitly designed. |
+| HTTP 400 plus `RATELIMITED` | Honor reset data and reduce request or complexity pressure. |
+| Forbidden | Verify team visibility and exact OAuth scope; do not broaden access by default. |
+| Unknown schema field | Check introspection, SDK version, and deprecation notices before renaming code. |
 
 ## Examples
 
-### Catch-All Error Handler
+Use a compact handoff that makes scope, mutation authority, and verification evidence reviewable.
 
-```typescript
-import { LinearError, InvalidInputLinearError } from "@linear/sdk";
+Input:
 
-async function handleLinearOp<T>(fn: () => Promise<T>): Promise<T> {
-  try {
-    return await fn();
-  } catch (error) {
-    if (error instanceof InvalidInputLinearError) {
-      console.error(`Input error: ${error.message}`);
-    } else if (error instanceof LinearError) {
-      console.error(`Linear error [${error.status}]: ${error.message}`);
-      if (error.status === 429) {
-        console.error("Rate limited — implement backoff");
-      }
-    } else {
-      console.error("Unexpected error:", error);
-    }
-    throw error;
-  }
-}
+```text
+status=200; errors[0].path=issueCreate; sdk=95.0.0; variables=redacted
+```
+
+Expected handoff:
+
+```text
+class=graphql-application-error; retry=no; regression=payload-error-check
 ```
 
 ## Resources
 
-- [SDK Error Handling](https://linear.app/developers/sdk-errors)
-- [Rate Limiting](https://linear.app/developers/rate-limiting)
-- [GraphQL API](https://linear.app/developers/graphql)
+- [Skill-specific official documentation](references/official-docs.md)
+- [Linear developer documentation index](https://linear.app/llms.txt)
+- [Linear GraphQL API](https://linear.app/developers/graphql.md)

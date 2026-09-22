@@ -1,17 +1,17 @@
 {
   "name": "clickup-pack",
-  "version": "1.6.0",
-  "description": "Claude Code skill pack for ClickUp (24 skills)",
+  "version": "1.8.0",
+  "description": "Production-grade Claude Code operator workflows for governed ClickUp integrations (24 skills)",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
   },
   "license": "MIT",
   "keywords": [
-    "clickup",
+    "project-management",
     "clickup",
     "saas",
-    "sdk",
+    "operations",
     "integration"
   ]
 }

@@ -1,133 +1,81 @@
 ---
 name: notion-policy-guardrails
-description: |
-  Use when you need to govern Notion integrations at scale — set integration
-  naming standards, enforce page sharing policies, standardize property naming
-  and database schemas, and run access audits that scan which bots can reach
-  which pages. Trigger with phrases like "notion governance", "notion policy",
-  "notion naming convention", "notion access audit", "notion schema standard".
-allowed-tools: Read, Write, Edit, Bash(npx:*), Bash(node:*)
-version: 1.39.0
+description: >-
+  Turn Notion security, privacy, access, version, and mutation rules into enforceable repository and runtime gates. Use when defining policy-as-code for integrations. Trigger with "add Notion guardrails", "enforce Notion policy", or "review Notion controls".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-or-service> <policy-scope> <environment>"
+version: 1.40.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- productivity
-- notion
-compatibility: Designed for Claude Code
+tags: [saas, notion, policy]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Notion actions require network access and explicit approval"
 ---
-# Notion Policy & Guardrails
+# Notion Integration Policy Guardrails
 
 ## Overview
 
-Governance framework for Notion integrations at scale. Covers integration
-naming standards, page sharing policy enforcement, property naming conventions,
-database schema validation, and access audit scripts. Uses `Client` from
-`@notionhq/client` for programmatic enforcement.
+Turn Notion security, privacy, access, version, and mutation rules into enforceable repository and runtime gates.. This workflow produces an auditable decision or artifact before any live action.
 
 ## Prerequisites
 
-- `@notionhq/client` v2.x installed (`npm install @notionhq/client`)
-- Python: `notion-client` installed (`pip install notion-client`)
-- `NOTION_TOKEN` environment variable set (admin-level integration recommended for audits)
-- CI/CD pipeline (GitHub Actions examples provided)
+- Current first-party Notion documentation and the selected integration's tested API-version contract.
+- A named workspace owner, content or data owner, and operation owner.
+- Synthetic or approved non-production fixtures with secrets and workspace content removed.
+
+## Current Contract
+
+Useful guardrails cover secret handling, tested versions, object-type correctness, pagination, retries, capabilities, content sharing, tenant binding, webhook verification, destructive actions, and evidence retention. Recheck the dated evidence map before relying on mutable fields, endpoints, versions, limits, or delivery behavior.
 
 ## Authentication
 
-All scripts authenticate with a Notion **internal integration token** read from
-the `NOTION_TOKEN` environment variable — never hardcode it. Create the token at
-notion.so/my-integrations, share the target pages/databases with the integration,
-and inject the token via CI secrets (e.g. `secrets.NOTION_AUDIT_TOKEN`). Audit
-scripts want a broadly-shared admin integration; runtime bots want the narrowest
-sharing scope that works. Token rotation is tracked in Step 1 (max 90 days).
+Policy checks may inspect secret names and fingerprints but never values. Runtime checks must bind a credential to its expected workspace and environment.
 
 ## Instructions
 
-The workflow has three stages. Each stage's full enforcement code (TypeScript +
-Python) lives in [references/implementation.md](references/implementation.md) —
-the skeletons below show the shape; drill into the reference for the complete
-functions.
+1. Translate each policy statement into owner, scope, machine check, human gate, evidence, and exception expiry.
+2. Add static checks for credentials, legacy object operations, unsafe logging, unbounded retries, and missing approvals.
+3. Add tests for page/data-source identity, pagination, webhook signatures, idempotency, and tenant isolation.
+4. Add runtime guards for environment, write scope, concurrency, payload size, and destructive operations.
+5. Define signed, time-bounded exceptions with compensating controls.
+6. Exercise allow, deny, bypass-expired, and rollback paths before enforcing the gate.
 
-### Step 1: Integration Naming Standards and Token Management
+## Tool Discipline
 
-Establish a `{team}-{env}-{purpose}` naming convention (e.g. `eng-prod-sync`) so
-teams can identify which bot accessed what, validate it at startup, and track
-token rotation (max 90 days). Core check:
+Use Read, Glob, and Grep to inspect documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Invocation alone does not authorize network access, credentials, workspace content, user data, file transfer, deployment, capability or sharing changes, writes, spend, or deletion.
 
-```typescript
-// Must match: /^[a-z]+-[a-z]+-[a-z]+$/  →  eng-prod-sync
-function validateIntegrationName(name: string): string[] { /* ... */ }
-```
+## Approval Boundaries
 
-Full `IntegrationConfig`, startup validation, and `checkTokenExpiry` registry:
-[references/implementation.md](references/implementation.md) § Step 1.
-
-### Step 2: Page Sharing Policies and Property Naming Conventions
-
-Standardize property names across databases (PascalCase titles, `Date`/`At`
-suffixes on dates, plural multi-selects, a banned-name list) and audit which
-pages are shared publicly. Core check:
-
-```typescript
-async function auditDatabaseSchema(notion, databaseId):
-  Promise<{ violations: string[]; recommendations: string[] }> { /* ... */ }
-```
-
-Full `PROPERTY_NAMING_RULES`, `auditPageAccess`, and the Python port:
-[references/implementation.md](references/implementation.md) § Step 2.
-
-### Step 3: Access Audit Scripts and Database Schema Standards
-
-Run a paginated, rate-limited workspace audit of everything the integration can
-reach, and gate schema drift in CI. Core check:
-
-```typescript
-async function workspaceAccessAudit(notion: Client): Promise<void> { /* ... */ }
-// Flags integrations with access to >1000 items; enumerates every database.
-```
-
-Full `validateSchemaInCI`, the GitHub Actions workflow (weekly cron + token
-scan), and the Python port: [references/implementation.md](references/implementation.md) § Step 3.
-
-## Output
-
-- Integration naming standards validated at startup
-- Token rotation tracking with expiry warnings
-- Property naming conventions audited against database schemas
-- Access audit showing all content visible to the integration
-- CI workflow enforcing schema standards and secret scanning
-- Violation report with actionable recommendations
+Security owns secret and webhook rules; data owners own content scope; release owners approve enforcement rollout; no single actor self-approves exceptions.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-| ------- | ------- | ---------- |
-| Audit shows too many pages | Integration shared at workspace level | Narrow sharing to specific pages/databases |
-| Schema validation fails | Property renamed in Notion UI | Update schema config to match |
-| Token scan false positive | Test fixtures contain example tokens | Add `--exclude` for test directories |
-| `object_not_found` during audit | Page unshared since last audit | Expected — log and continue |
-| Naming convention too strict | Legacy integrations don't match | Add exceptions list with migration deadline |
+- A warning-only secret rule is insufficient for production.
+- Do not auto-fix object identity or destructive requests.
+- Fail closed when policy evidence is missing.
+
+## Output
+
+Return the control catalog, implementation points, tests, gate outputs, exception register, owners, and rollout plan. Identify assumptions, owners, expirations, and evidence gaps explicitly.
 
 ## Examples
 
-A one-line CI secret scan and the `.env`-not-committed guard:
+- Block a credential literal before commit.
+- Reject a write job lacking an approved scope and idempotency key.
 
-```bash
-grep -rn "ntn_\|secret_" --include="*.ts" --include="*.js" src/ && echo "FAIL: Token found" || echo "PASS: No tokens"
-git ls-files | grep -E "^\.env" && echo "FAIL: .env committed" || echo "PASS"
-```
+## Validation
 
-For the full `SCHEMA_REGISTRY` (per-database required-property maps that feed
-CI validation) and more, see [references/examples.md](references/examples.md).
+Exercise and record these paths with expected and observed results:
+
+- allow path
+- deny path
+- expired exception
+- tenant mismatch
+- unsafe retry
+- rollback
 
 ## Resources
 
-- [Notion Integration Best Practices](https://developers.notion.com/docs/best-practices-for-handling-api-keys)
-- [Notion Authorization Guide](https://developers.notion.com/docs/authorization)
-- [ESLint Custom Rules](https://eslint.org/docs/latest/extend/plugins)
-- [Pre-commit Framework](https://pre-commit.com/)
-
-## Next Steps
-
-For architecture blueprints, see `notion-architecture-variants`.
-For common mistakes to avoid, see `notion-known-pitfalls`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable behavior.
+- Treat observed tenant behavior as environment-specific evidence, never a universal Notion guarantee.

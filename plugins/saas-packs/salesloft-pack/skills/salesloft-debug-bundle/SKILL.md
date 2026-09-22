@@ -1,137 +1,85 @@
 ---
 name: salesloft-debug-bundle
-description: 'Collect SalesLoft debug evidence for support tickets and troubleshooting.
-
-  Use when encountering persistent issues, preparing support tickets,
-
-  or collecting diagnostic info for SalesLoft API problems.
-
-  Trigger: "salesloft debug", "salesloft diagnostic", "salesloft support bundle".
-
-  '
-allowed-tools: Read, Bash(curl:*), Bash(tar:*), Grep
+description: >-
+  Build a minimal redacted Salesloft escalation bundle with contract, auth-state, rate, timing, deployment, and API Logs evidence. Use when a failure needs support or engineering review. Trigger with "Salesloft debug bundle", "Salesloft support evidence", or "Salesloft diagnostics".
+argument-hint: "[repository-path] [incident-id]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.6.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- sales
-- outreach
 - salesloft
+- diagnostics
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# SalesLoft Debug Bundle
+# Salesloft Redacted Debug Bundle
 
 ## Overview
 
-Collect diagnostic data for SalesLoft API issues: authentication state, rate limit usage, endpoint reachability, and API log entries. SalesLoft provides API Logs in the developer portal for request-level debugging.
+This skill produces a small evidence package that another engineer can use without receiving credentials or customer records. It separates observed facts from hypotheses.
 
 ## Prerequisites
 
-- SalesLoft API key or OAuth token
-- `curl` and `jq` available
-- Access to SalesLoft developer portal for API logs
+- Incident ID, owner, timeframe, environment, and expected behavior
+- Approved output directory and retention period
+- Access to application logs and, when authorized, Salesloft API Logs
+- A redaction review owner
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to locate bounded logs, configuration keys, and version files. Use `WebFetch` only for current official Salesloft documentation. Use `Write` or `Edit` only for the approved redacted artifact.
+
+## Current Contract
+
+- Capture method and path template, status, content type, latency, attempt count, and deployment revision.
+- Capture auth type, expiry state, scope names, and team alias, never credential values.
+- Capture `x-ratelimit-endpoint-cost` and `x-ratelimit-remaining-minute` when present.
+- Salesloft API Logs can lag about five minutes and expose up to 10,000 calls or 14 days in the UI; absence is not immediate proof that no call occurred.
+
+## Authentication
+
+Use existing approved access. The bundle must omit Authorization headers, refresh tokens, client secrets, API keys, callback tokens, cookies, raw bodies, and prospect fields.
 
 ## Instructions
 
-### Step 1: Create Debug Script
+1. Freeze incident scope, UTC window, environment, and affected operation.
+2. Collect only bounded application events for that window and correlation key.
+3. Add redacted configuration names, dependency versions, and deployment revision.
+4. Add response-envelope shape and rate metadata without record contents.
+5. If authorized, compare API Logs by integration, team, endpoint, time, and status after the documented lag.
+6. Scan the artifact for credential patterns and CRM fields, then record checksums.
+7. Require a second review before external sharing.
 
-```bash
-#!/bin/bash
-# salesloft-debug.sh
-set -euo pipefail
+## Approval Boundaries
 
-BUNDLE="salesloft-debug-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE"
-TOKEN="${SALESLOFT_API_KEY:?Set SALESLOFT_API_KEY}"
-
-echo "=== SalesLoft Debug Bundle ===" | tee "$BUNDLE/summary.txt"
-echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$BUNDLE/summary.txt"
-```
-
-### Step 2: Check Authentication & Identity
-
-```bash
-echo "--- Auth Check ---" >> "$BUNDLE/summary.txt"
-curl -s -w "\nHTTP_STATUS: %{http_code}\n" \
-  -H "Authorization: Bearer $TOKEN" \
-  https://api.salesloft.com/v2/me.json \
-  | jq '{id: .data.id, email: .data.email, name: .data.name, role: .data.role}' \
-  >> "$BUNDLE/auth.json" 2>&1
-```
-
-### Step 3: Check Rate Limit State
-
-```bash
-echo "--- Rate Limits ---" >> "$BUNDLE/summary.txt"
-curl -sI -H "Authorization: Bearer $TOKEN" \
-  https://api.salesloft.com/v2/people.json?per_page=1 \
-  | grep -iE '(ratelimit|retry-after|x-request-id)' \
-  >> "$BUNDLE/rate-limits.txt" 2>&1
-```
-
-### Step 4: Test Key Endpoints
-
-```bash
-echo "--- Endpoint Health ---" >> "$BUNDLE/summary.txt"
-for endpoint in people.json cadences.json activities/emails.json; do
-  STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-    -H "Authorization: Bearer $TOKEN" \
-    "https://api.salesloft.com/v2/$endpoint?per_page=1")
-  echo "$endpoint: HTTP $STATUS" >> "$BUNDLE/endpoints.txt"
-done
-```
-
-### Step 5: Collect Environment Info
-
-```bash
-echo "--- Environment ---" >> "$BUNDLE/summary.txt"
-echo "Node: $(node --version 2>/dev/null || echo 'N/A')" >> "$BUNDLE/env.txt"
-echo "Python: $(python3 --version 2>/dev/null || echo 'N/A')" >> "$BUNDLE/env.txt"
-echo "SALESLOFT_BASE_URL: ${SALESLOFT_BASE_URL:-default}" >> "$BUNDLE/env.txt"
-echo "SALESLOFT_API_KEY: ${SALESLOFT_API_KEY:+[SET]}" >> "$BUNDLE/env.txt"
-
-# Redact .env secrets
-cat .env 2>/dev/null | sed 's/=.*/=***REDACTED***/' >> "$BUNDLE/config-redacted.txt" || true
-```
-
-### Step 6: Check API Logs
-
-```bash
-echo "--- API Logs ---" >> "$BUNDLE/summary.txt"
-echo "View request-level logs at:" >> "$BUNDLE/summary.txt"
-echo "  https://developers.salesloft.com/docs/platform/guides/api-logs/" >> "$BUNDLE/summary.txt"
-echo "Filter by: date range, HTTP method, status code, endpoint" >> "$BUNDLE/summary.txt"
-```
-
-### Step 7: Package
-
-```bash
-tar -czf "$BUNDLE.tar.gz" "$BUNDLE"
-echo "Bundle: $BUNDLE.tar.gz ($(du -h "$BUNDLE.tar.gz" | cut -f1))"
-```
+Do not archive full environment dumps, databases, raw HTTP payloads, or unrestricted logs. External sharing requires named reviewer approval and an expiry date.
 
 ## Output
 
-- `auth.json` -- Identity and role info
-- `rate-limits.txt` -- Current rate limit headers
-- `endpoints.txt` -- Status of key API endpoints
-- `env.txt` -- Runtime environment (secrets redacted)
+Return bundle path, file inventory, redactions, checksums, evidence timeline, hypotheses, missing evidence, reviewer, and deletion date.
 
 ## Error Handling
 
-| Finding | Likely Issue | Action |
-|---------|-------------|--------|
-| auth.json shows 401 | Token expired | Refresh OAuth token |
-| rate-limits.txt shows 0 remaining | Hit rate limit | Wait for reset, reduce request volume |
-| Endpoint returns 403 | Scope mismatch | Check OAuth app scopes |
-| Endpoint returns 5xx | SalesLoft outage | Check status.salesloft.com |
+| Condition | Response |
+|---|---|
+| Secret scanner matches | Quarantine, remove the value, rotate if exposure is possible, and rebuild. |
+| API Logs empty | Wait for documented lag and verify filters; do not infer no request. |
+| Customer data present | Remove or aggregate it before the bundle leaves the system. |
+| Evidence conflicts | Preserve both observations and label the discrepancy. |
+
+## Examples
+
+The example below shows the minimum redacted evidence expected from a successful invocation of this operator workflow.
+
+```text
+incident=SL-204; files=4; secret-findings=0; pii-findings=0; reviewer=pending
+```
 
 ## Resources
 
-- [SalesLoft API Logs](https://developers.salesloft.com/docs/platform/guides/api-logs/)
-- [SalesLoft Status](https://status.salesloft.com)
-
-## Next Steps
-
-For rate limit issues, see `salesloft-rate-limits`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Salesloft API Logs](https://developers.salesloft.com/docs/platform/guides/api-logs/)
+- [Request and response format](https://developers.salesloft.com/docs/platform/api-basics/request-response-format/)

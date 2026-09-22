@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/together-pack",
-  "version": "1.0.3",
-  "description": "Claude Code skill pack for Together AI - 16 skills covering open-source model inference, fine-tuning, and GPU clusters",
+  "version": "1.0.4",
+  "description": "16 source-grounded operator skills for Together AI inference, batch, fine-tuning, deployment, security, and operations",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -13,9 +13,10 @@
     "claude-code",
     "claude-code-plugin",
     "together-ai",
-    "model-inference",
+    "inference",
+    "batch-inference",
     "fine-tuning",
-    "gpu-clusters",
+    "model-operations",
     "ai-skills",
     "saas-pack"
   ],

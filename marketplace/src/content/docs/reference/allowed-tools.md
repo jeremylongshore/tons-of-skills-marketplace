@@ -6,9 +6,9 @@ order: 4
 keywords: ["allowed-tools", "tools", "permissions", "Bash", "Read", "Write", "Edit", "Glob", "Grep", "security", "least privilege"]
 officialLinks:
   - title: "Claude Code Skills Documentation"
-    url: "https://docs.anthropic.com/en/docs/claude-code/skills"
+    url: "https://code.claude.com/docs/en/skills"
   - title: "Claude Code Tool Use"
-    url: "https://docs.anthropic.com/en/docs/claude-code/overview"
+    url: "https://code.claude.com/docs/en/overview"
 relatedDocs:
   - "concepts/skills"
   - "guides/write-a-skill"

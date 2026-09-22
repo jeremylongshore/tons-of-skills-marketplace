@@ -159,6 +159,6 @@ any layer.
 
 ## Resources
 
-- [Anthropic prompt injection guide](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/use-xml-tags)
+- [Anthropic prompt injection guide](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#structure-prompts-with-xml-tags)
 - [OWASP LLM01 — Prompt Injection](https://genai.owasp.org/llmrisk/llm01-prompt-injection/)
 - [Lakera Prompt Injection Attacks handbook](https://www.lakera.ai/blog/guide-to-prompt-injection) (reference survey)

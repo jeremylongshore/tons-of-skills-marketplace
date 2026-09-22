@@ -1,323 +1,74 @@
 ---
 name: mistral-incident-runbook
-description: 'Execute Mistral AI incident response procedures with triage, mitigation,
-  and postmortem.
-
-  Use when responding to Mistral AI-related outages, investigating errors,
-
-  or running post-incident reviews.
-
-  Trigger with phrases like "mistral incident", "mistral outage",
-
-  "mistral down", "mistral on-call", "mistral emergency".
-
-  '
-allowed-tools: Read, Grep, Bash(kubectl:*), Bash(curl:*)
-version: 1.13.0
+description: >-
+  Analyze, contain, and recover Mistral credential, outage, throttling, data, spend, and state-reconciliation incidents. Use when responding to provider-related impact. Trigger with "Mistral incident", "Mistral outage", or "rotate a leaked Mistral key".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<incident-id> <severity> <environment>"
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- mistral
-- incident-response
-compatibility: Designed for Claude Code
+tags: [saas, mistral, incident-response]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live or external Mistral actions require network access and explicit approval"
 ---
-# Mistral AI Incident Runbook
+# Mistral Incident Response
 
 ## Overview
 
-Rapid incident response procedures for Mistral AI integration failures. Covers severity classification, quick triage script, decision tree, per-error mitigations, communication templates, and postmortem process.
+Restore safety before throughput. Classify, stop amplification, protect evidence, reconcile ambiguous work, and use the smallest reversible containment action.
 
 ## Prerequisites
 
-- An assigned incident commander and a documented application severity policy
-- Read-only access to application telemetry, deployment state, and redacted logs
-- A configured `MISTRAL_API_KEY` supplied through the environment or secret manager
-- Authorization to apply the named rollback, fallback, or concurrency change
-- A secure incident workspace for evidence and stakeholder updates
+- An incident commander, severity policy, inventory, and current runbooks.
+- Content-free telemetry, deployment controls, rotation, and admin/status evidence.
+- Communication, evidence-retention, and post-incident owners.
+
+## Current Contract
+
+Provider, account, app, and data incidents differ. Workspace caps can suspend access; Files, Batch, Conversations, Agents, and Workflows may outlive a failed request and need reconciliation.
+
+## Authentication
+
+Never paste keys into incident channels. On exposure, revoke through approved admin, rotate consumers, and verify old-key denial without displaying values.
 
 ## Instructions
 
-1. Use `Read` and `Grep` on approved logs and configuration to establish impact,
-   start time, endpoint, model, HTTP status, and request IDs without copying prompts,
-   credentials, or customer content.
-2. Assign severity from observed user impact, not from the provider status page alone.
-3. Run the minimal redacted probe, follow the matching immediate-action branch, and
-   prefer a reversible mitigation over an untested production change.
-4. Verify both the provider probe and the affected application path. Keep the incident
-   open through the service's normal observation window.
-5. Produce the output contract below and follow the retained-evidence checklist in
-   [operator-checklist.md](references/operator-checklist.md).
+1. Declare scope, severity, commander, UTC timeline, environments, and impact.
+2. Stop retry storms and risky work while preserving queue/idempotency evidence.
+3. Classify credential, provider, capacity, spend, data, model, deploy, or state failure.
+4. Choose bounded containment: disable, shed, pause, rollback, rotate, or isolate.
+5. Reconcile files, jobs, runs, conversations, and app actions before replay.
+6. Recover through synthetic canary, monitor convergence, communicate, and assign actions.
 
-## Severity Levels
+## Tool Discipline
 
-| Level | Definition | Response Time | Example |
-|-------|------------|---------------|---------|
-| P1 | Complete outage | < 15 min | All Mistral requests failing |
-| P2 | Degraded service | < 1 hour | High latency, partial 429s |
-| P3 | Minor impact | < 4 hours | Occasional errors, non-critical feature |
-| P4 | No user impact | Next business day | Monitoring gaps, docs |
+Use Read, Glob, and Grep to inspect code, locks, configuration, tests, and evidence. Use Write and Edit only for approved repository changes. Invocation alone does not authorize network calls, paid usage, uploads, stateful resources, admin mutations, deployments, or deletion.
 
-## Quick Triage Script
+## Approval Boundaries
 
-```bash
-#!/bin/bash
-set -euo pipefail
-echo "=== Mistral AI Quick Triage ==="
-echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-
-# 1. API health
-echo -e "\n1. Mistral API status:"
-HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
-  -H "Authorization: Bearer ${MISTRAL_API_KEY}" \
-  https://api.mistral.ai/v1/models 2>/dev/null)
-echo "   HTTP: $HTTP"
-case $HTTP in
-  200) echo "   OK — API is reachable" ;;
-  401) echo "   AUTH FAILURE — API key invalid or revoked" ;;
-  429) echo "   RATE LIMITED — check workspace limits" ;;
-  5*) echo "   SERVER ERROR — Mistral service issue" ;;
-  000) echo "   NETWORK ERROR — cannot reach api.mistral.ai" ;;
-esac
-
-# 2. Our service health
-echo -e "\n2. App health endpoint:"
-curl -sf https://yourapp.com/health 2>/dev/null | jq '.services.mistral' || echo "   UNREACHABLE"
-
-# 3. Error rate (if Prometheus available)
-echo -e "\n3. Error rate (last 5m):"
-curl -sf "localhost:9090/api/v1/query?query=rate(mistral_errors_total[5m])" 2>/dev/null \
-  | jq -r '.data.result[] | "\(.metric.model): \(.value[1])/s"' || echo "   Prometheus unavailable"
-```
-
-## Decision Tree
-
-```
-API returning errors?
-|-- YES: curl -H "Authorization: Bearer $KEY" https://api.mistral.ai/v1/models
-|   |-- 401 → API key issue (Step 1 below)
-|   |-- 429 → Rate limited (Step 2 below)
-|   |-- 5xx → Mistral service issue (Step 3 below)
-|   +-- Timeout → Network issue (Step 4 below)
-+-- NO: Our service returning errors?
-    |-- YES → Check app logs and config
-    +-- NO → Resolved, continue monitoring
-```
-
-## Immediate Actions
-
-### Step 1: 401 — Authentication Failure (P1)
-
-```bash
-set -euo pipefail
-# Verify presence without printing key material or key metadata
-test -n "${MISTRAL_API_KEY:-}" || {
-  echo "MISTRAL_API_KEY is not set" >&2
-  exit 1
-}
-
-# Test directly; emit only the HTTP status, never verbose request headers
-curl -sS -o /dev/null -w "HTTP %{http_code}\n" \
-  -H "Authorization: Bearer ${MISTRAL_API_KEY}" \
-  https://api.mistral.ai/v1/models
-
-# If invalid: rotate key at console.mistral.ai
-# Then update in your secret manager:
-# GCP: gcloud secrets versions add mistral-api-key --data-file=-
-# AWS: aws secretsmanager put-secret-value --secret-id mistral/api-key
-# K8s: kubectl create secret generic mistral --from-literal=api-key="$NEW_KEY" --dry-run=client -o yaml | kubectl apply -f -
-```
-
-### Step 2: 429 — Rate Limited (P2)
-
-```bash
-set -euo pipefail
-# Check headers for limit info
-curl -sS -D - -o /dev/null \
-  -H "Authorization: Bearer ${MISTRAL_API_KEY}" \
-  https://api.mistral.ai/v1/models | grep -i "ratelimit\|retry-after"
-
-# Immediate mitigation: reduce concurrency
-kubectl set env deployment/app MAX_CONCURRENT_MISTRAL=3
-
-# Check workspace limits: https://admin.mistral.ai/plateforme/limits
-# Long-term: Contact Mistral to increase limits
-```
-
-### Step 3: 5xx — Mistral Service Error (P1/P2)
-
-```bash
-set -euo pipefail
-# Check Mistral status page
-echo "Check: https://status.mistral.ai/"
-
-# Enable fallback/degradation
-kubectl set env deployment/app MISTRAL_FALLBACK=true
-
-# Monitor recovery (check every 30s)
-watch -n 30 'curl -s -o /dev/null -w "%{http_code}" \
-  -H "Authorization: Bearer ${MISTRAL_API_KEY}" \
-  https://api.mistral.ai/v1/models'
-```
-
-### Step 4: Network/Timeout Error (P2)
-
-```bash
-set -euo pipefail
-# Test DNS
-nslookup api.mistral.ai
-
-# Test connectivity
-curl -v --connect-timeout 5 https://api.mistral.ai/v1/models
-
-# Check egress policies
-kubectl get networkpolicy -A | grep mistral
-
-# Temporary two-minute timeout while the network cause is investigated.
-# Revert after recovery; this does not fix upstream latency.
-kubectl set env deployment/app MISTRAL_TIMEOUT_MS=120000
-```
-
-## Communication Templates
-
-### Internal (Slack)
-
-```
-:red_circle: P[1-4] INCIDENT: Mistral AI Integration
-**Status**: INVESTIGATING | MITIGATING | RESOLVED
-**Impact**: [Description of user-facing impact]
-**Action**: [Current action being taken]
-**Next update**: [HH:MM UTC]
-**IC**: @[name]
-```
-
-### External (Status Page)
-
-```
-AI Feature Degradation
-
-We are experiencing issues with our AI-powered features.
-Some users may see slower responses or temporary unavailability.
-
-Our team is investigating with our AI provider.
-
-Affected: [list features]
-Workaround: [if any]
-Updated: [timestamp UTC]
-```
-
-## Post-Incident
-
-### Evidence Collection
-
-```bash
-#!/bin/bash
-set -euo pipefail; umask 077
-DIR="$(mktemp -d "${TMPDIR:-/tmp}/mistral-incident-evidence.XXXXXX")"
-ARCHIVE="mistral-incident-evidence-$(date -u +%Y%m%d-%H%M%S).tar.gz"
-trap 'rm -rf -- "$DIR"' EXIT
-# Closed projection excludes logs, events, annotations, container specs, messages, labels, credentials, prompts, payloads, and customer identifiers.
-kubectl get deployment mistral-service -o json | jq -e '
-  def count_or_null: if type == "number" and . >= 0 and floor == . then . else null end;
-  {
-    schema_version: "mistral-incident-evidence/v1",
-    deployment_generation: (.metadata.generation | count_or_null),
-    replicas: {
-      desired: (.spec.replicas | count_or_null), current: (.status.replicas | count_or_null),
-      updated: (.status.updatedReplicas | count_or_null), ready: (.status.readyReplicas | count_or_null),
-      available: (.status.availableReplicas | count_or_null),
-      unavailable: (.status.unavailableReplicas | count_or_null)
-    },
-    rollout_conditions: [
-      .status.conditions[]?
-      | select(.type == "Available" or .type == "Progressing" or .type == "ReplicaFailure")
-      | {type, status: (if .status == "True" or .status == "False" or .status == "Unknown"
-                        then .status else "Unknown" end)}
-    ]
-  }
-' > "$DIR/deployment-summary.json"
-# Archive only the allowlisted projection, never the working directory.
-tar -czf "$ARCHIVE" -C "$DIR" deployment-summary.json
-echo "Evidence: $ARCHIVE"; echo "Inspect it, restrict access, and record its retention deadline before sharing."
-```
-
-### Postmortem Template
-
-```markdown
-## Incident: Mistral AI [Error Type]
-**Date:** YYYY-MM-DD  |  **Duration:** Xh Ym  |  **Severity:** P[1-4]
-
-### Summary
-[1-2 sentence description]
-
-### Timeline (UTC)
-| Time | Event |
-|------|-------|
-| HH:MM | Alert fired |
-| HH:MM | IC assigned |
-| HH:MM | Root cause identified |
-| HH:MM | Mitigated |
-| HH:MM | Resolved |
-
-### Root Cause
-[Technical explanation]
-
-### Impact
-- Users affected: [N]
-- Failed requests: [N]
-- Duration: [time]
-
-### Action Items
-| Priority | Action | Owner | Due |
-|----------|--------|-------|-----|
-| P1 | [Fix] | @name | date |
-| P2 | [Prevent] | @name | date |
-```
+The commander must approve revocation, traffic, queue or job changes, deletion, limits or spend changes, rollback, and customer communication. Record the approver and exact containment scope.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| kubectl auth expired | Token expired | Re-authenticate with cloud provider |
-| Metrics unavailable | Prometheus down | Fall back to app logs |
-| Secret rotation fails | IAM permissions | Escalate to admin |
-| Fallback not working | Not implemented | Return cached responses or error page |
-
-## Resources
-
-- [Mistral AI Status](https://status.mistral.ai/)
-- [Mistral Console](https://console.mistral.ai/)
-- [Mistral error glossary](https://docs.mistral.ai/resources/error-glossary)
-- [Usage and limits](https://docs.mistral.ai/admin/billing-usage/usage-limits)
+- Blind replay can duplicate paid/stateful work.
+- Purging queues can destroy reconciliation evidence.
+- Provider recovery does not prove app backlog convergence.
 
 ## Output
 
-- Issue identified and severity classified
-- Mitigation applied per error type
-- Stakeholders notified with status updates
-- Evidence collected for postmortem
-- Action items documented
-
-The report must also name the incident commander, UTC observation window, rollback or
-fallback state, unresolved risks, and next update time. Mark the incident `RESOLVED`
-only after the affected application path—not just the provider probe—meets its normal
-health threshold through that window.
+Return scope and timeline, classification, containment approvals, affected state, reconciliation, recovery, residual risk, communications, and follow-ups. Keep unresolved ambiguity visible with a named owner.
 
 ## Examples
 
-### Provider-side degradation
+- Disable batch submission while reconciling accepted jobs.
+- Rotate an exposed key and prove old-key denial plus new-key canary.
 
-The provider probe returns intermittent `503` responses, the status page reports an
-active incident, and application error rate crosses the P2 threshold. Enable the
-pre-approved fallback, cap retries to prevent amplification, post the external
-degradation notice, and keep monitoring the primary path. Resolve only after the
-primary path is healthy for the service's observation window and the fallback has
-been safely reverted.
+## Validation
 
-### Credential failure isolated to one environment
+Tabletop key exposure, `429`, outage, cap reached, content leak, stuck stream, and ambiguous state; verify rollback/comms.
 
-Production returns `401` while staging succeeds and the provider status page is clear.
-Classify the event as an internal credential incident. Compare secret version metadata
-without exposing values, rotate the production credential through the secret manager,
-restart only affected consumers, and verify the application path. Record who approved
-the rotation and when the superseded secret was revoked.
+## Resources
+
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable endpoints, models, limits, prices, preview status, or retention.
+- Record live account observations as environment-specific evidence, not universal Mistral guarantees.

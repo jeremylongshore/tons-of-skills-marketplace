@@ -6,12 +6,12 @@
 
 ## Tier A — derived + gated (safe GENERATED label; drift caught by CI)
 
-| Artifact                                        | Generator                                          | Gate                                       |
-| ----------------------------------------------- | -------------------------------------------------- | ------------------------------------------ |
-| `.claude-plugin/marketplace.json` (468 entries) | `pnpm run sync-marketplace`                        | `validate` job: regenerate-then-diff       |
-| README `AUTO-TOC` + `KILLER-SKILL` blocks       | `generate-readme-toc.mjs` / `render-spotlight.mjs` | gated `--check`                            |
-| `skills/.curated/**` (1,915 SKILL.md)           | `promote-to-curated.py`                            | `promote-curated-check` (in `ci-required`) |
-| `.github/CODEOWNERS` generated block            | generator                                          | `codeowners-drift`                         |
+| Artifact                             | Generator                   | Gate                                       |
+| ------------------------------------ | --------------------------- | ------------------------------------------ |
+| `.claude-plugin/marketplace.json`    | `pnpm run sync-marketplace` | `validate` job: regenerate-then-diff       |
+| README `AUTO-TOC` block              | `generate-readme-toc.mjs`   | gated `--check`                            |
+| `skills/.curated/**`                 | `promote-to-curated.py`     | `promote-curated-check` (in `ci-required`) |
+| `.github/CODEOWNERS` generated block | generator                   | `codeowners-drift`                         |
 
 ## Tier B — derived but UNGATED (~31 M; drift invisible to CI)
 
@@ -28,9 +28,8 @@ no other data file has a twin (doc 722).
 
 ## Tier C — scaffolded-once then mutated (NOT pure GENERATED)
 
-- `plugins/**/package.json` corpus (488 `package.json` / 622 `.claude-plugin/plugin.json` /
-  476 plugin dirs): existence-checked only by sync-marketplace; content drifts freely. Count
-  reconciliation in doc 722.
+- `plugins/**/package.json` and `.claude-plugin/plugin.json` corpus: existence-checked only by
+  sync-marketplace; content drifts freely. Historical count reconciliation is in doc 722.
 
 ## Enforcement gaps (FIX-bead candidates — recorded, not fixed)
 

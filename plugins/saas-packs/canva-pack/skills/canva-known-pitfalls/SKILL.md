@@ -1,256 +1,92 @@
 ---
 name: canva-known-pitfalls
-description: 'Identify and avoid Canva Connect API anti-patterns and common integration
-  mistakes.
-
-  Use when reviewing Canva code, onboarding developers,
-
-  or auditing existing Canva integrations for best practices violations.
-
-  Trigger with phrases like "canva mistakes", "canva anti-patterns",
-
-  "canva pitfalls", "canva what not to do", "canva code review".
-
-  '
-allowed-tools: Read, Grep
-version: 1.5.0
+description: 'Analyze a Canva Connect implementation for recurring authorization, async-job, preview, data, and retry hazards. Use when reviewing code, preparing release, or investigating repeated failures. Trigger with: "review Canva pitfalls", "audit Canva integration", "find Canva anti-patterns".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[workflow-or-review-scope]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - review
+  - operations
+compatibility: 'Review uses repository and redacted runtime evidence; live mutation is outside this skill.'
 ---
-# Canva Known Pitfalls
+
+# Canva Integration Hazard Review
 
 ## Overview
 
-Common mistakes when integrating with the Canva Connect API. Each pitfall includes the anti-pattern, why it fails, and the correct approach with real API endpoints.
+Turn common failure patterns into evidence-backed findings rather than universal rules. Reconfirm time-sensitive provider behavior against current first-party contracts before enforcing it.
 
 ## Prerequisites
 
-- A reviewed OAuth/asset policy, test tenant, and protected configuration for rate, retention, and publication settings.
-- A redacted test/incident record to avoid using customer content as a teaching or reproduction fixture.
+- Repository scope, deployment/config version, and operation inventory
+- Pinned OpenAPI, current docs, granted scopes, and preview surfaces
+- Data policy, operation ledger, and redacted incident evidence
 
 ## Instructions
 
-1. Treat every pitfall as a pre-deployment review check against the actual scopes, asset rights, callback flow, and retention policy.
-2. Correct one control at a time in a synthetic environment, then validate redacted behavior and rollback readiness.
-3. Escalate unknown authorization, enterprise entitlement, or data-rights questions rather than assuming a workaround is permitted.
+### Step 1: Review OAuth
 
-## Pitfall #1: Not Handling Token Expiry
+Use Read and Grep to find browser-side secrets, missing state/PKCE validation, broad or implied scopes, refresh races, token logging, and incomplete disconnect cleanup.
 
-```typescript
-// WRONG — token expires after ~4 hours, then all calls fail
-const token = await getTokenOnce();
-// ... 5 hours later ...
-await canvaAPI('/designs', token); // 401 Unauthorized
+### Step 2: Review authorization
 
-// RIGHT — auto-refresh before expiry
-class CanvaClient {
-  async request(path: string, init?: RequestInit) {
-    if (Date.now() > this.tokens.expiresAt - 300_000) {
-      await this.refreshToken(); // Refresh 5 min before expiry
-    }
-    // ... make request
-  }
-}
-```
+Check tenant and resource ownership, application role, explicit scopes, capabilities, and preview availability before every Canva-side action.
 
-## Pitfall #2: Reusing Refresh Tokens
+### Step 3: Review async work
 
-```typescript
-// WRONG — refresh tokens are single-use in Canva's OAuth
-const tokens = await refreshAccessToken(storedRefreshToken);
-// Later, using the SAME refresh token again:
-const tokens2 = await refreshAccessToken(storedRefreshToken); // FAILS
+Find request handlers that block on long polling, lost job IDs, unbounded loops, duplicate submissions, and retries that do not reconcile existing state.
 
-// RIGHT — always store the new refresh token immediately
-const tokens = await refreshAccessToken(storedRefreshToken);
-await db.saveTokens(userId, {
-  accessToken: tokens.access_token,
-  refreshToken: tokens.refresh_token, // NEW token — store it!
-  expiresAt: Date.now() + tokens.expires_in * 1000,
-});
-```
+### Step 4: Review throttling
 
-## Pitfall #3: Synchronous Export Polling in Request Handler
+Find guessed global quotas, fixed sleeps, assumed response headers, cross-tenant queues, and missing endpoint/user isolation.
 
-```typescript
-// WRONG — user waits 5-30 seconds while export completes
-app.post('/api/export', async (req, res) => {
-  const { job } = await canvaAPI('/exports', token, { method: 'POST', body: ... });
-  while (job.status === 'in_progress') { // Blocks entire request
-    await sleep(2000);
-    // ... poll ...
-  }
-  res.json({ urls: job.urls }); // User waited 15+ seconds
-});
+### Step 5: Review data and telemetry
 
-// RIGHT — return job ID, poll asynchronously
-app.post('/api/export', async (req, res) => {
-  const { job } = await canvaAPI('/exports', token, { method: 'POST', body: ... });
-  res.json({ jobId: job.id, status: 'processing' }); // 200ms response
-});
+Find cached signed URLs, retained content without purpose, token/profile logs, high-cardinality labels, and debug bundles without expiry or review.
 
-app.get('/api/export/:jobId/status', async (req, res) => {
-  const { job } = await canvaAPI(`/exports/${req.params.jobId}`, token);
-  res.json({ status: job.status, urls: job.urls });
-});
-```
+### Step 6: Review release posture
 
-## Pitfall #4: Ignoring Rate Limits
+Find unpinned provider contracts, preview features on public-review paths, mutable deploys, missing rollback, and live CI on untrusted events.
 
-```typescript
-// WRONG — blast requests, crash on 429
-for (const design of designs) {
-  await canvaAPI(`/exports`, token, { method: 'POST', body: ... }); // 75/5min limit
-}
+### Step 7: Record dispositions
 
-// RIGHT — queue with rate awareness
-import PQueue from 'p-queue';
-const queue = new PQueue({ concurrency: 1, interval: 4000, intervalCap: 1 });
+Use Write or Edit to classify each finding with exact path/evidence, current provider source, severity, owner, safe fix, rollback, and verification test.
 
-for (const design of designs) {
-  await queue.add(() =>
-    canvaAPI(`/exports`, token, { method: 'POST', body: ... })
-  );
-}
-```
+## Authentication
 
-## Pitfall #5: Caching Temporary URLs
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-```typescript
-// WRONG — URLs expire silently
-const design = await canvaAPI(`/designs/${id}`, token);
-cache.set(id, design, { ttl: 86400 }); // Cache for 24 hours
-// But thumbnail URLs expire in 15 minutes!
+## Tool Discipline
 
-// RIGHT — cache metadata but refresh URLs
-const design = await canvaAPI(`/designs/${id}`, token);
-cache.set(`design:meta:${id}`, {
-  id: design.design.id,
-  title: design.design.title,
-  pageCount: design.design.page_count,
-  // DON'T cache: thumbnail.url (15 min), edit_url (30 days), view_url (30 days)
-}, { ttl: 300 }); // 5 min cache
-```
-
-## Pitfall #6: Client-Side OAuth
-
-```typescript
-// WRONG — client secret exposed in browser
-// frontend.js
-const tokens = await fetch('https://api.canva.com/rest/v1/oauth/token', {
-  body: new URLSearchParams({
-    client_secret: 'EXPOSED_TO_USERS', // Anyone can see this
-    // ...
-  }),
-});
-
-// RIGHT — token exchange MUST happen server-side
-// Canva docs: "Requests that require authenticating with your client ID
-// and client secret can't be made from a web-browser client"
-```
-
-## Pitfall #7: Not Checking Enterprise Requirements
-
-```typescript
-// WRONG — calling autofill without Enterprise, getting 403
-const result = await canvaAPI('/autofills', token, { method: 'POST', body: ... });
-// 403: "User must be a member of a Canva Enterprise organization"
-
-// RIGHT — check capabilities first
-const capabilities = await canvaAPI('/users/me/capabilities', token);
-if (!capabilities.capabilities?.includes('autofill')) {
-  throw new Error('Autofill requires Canva Enterprise subscription');
-}
-```
-
-## Pitfall #8: Not Validating Webhook Signatures
-
-```typescript
-// WRONG — accepts any POST as a valid webhook
-app.post('/webhooks/canva', (req, res) => {
-  processEvent(req.body); // Attacker can send fake events!
-  res.status(200).send();
-});
-
-// RIGHT — verify JWK signature
-app.post('/webhooks/canva', express.text({ type: '*/*' }), async (req, res) => {
-  const payload = await verifyCanvaWebhook(req.body); // JWK verification
-  if (!payload) return res.status(401).send('Invalid');
-  res.status(200).send('OK'); // Return 200 first
-  processEvent(payload).catch(console.error); // Process async
-});
-```
-
-## Pitfall #9: Ignoring Blank Design Auto-Delete
-
-```typescript
-// WRONG — create designs and expect them to persist
-const { design } = await canvaAPI('/designs', token, {
-  method: 'POST',
-  body: JSON.stringify({ design_type: { type: 'custom', width: 1080, height: 1080 } }),
-});
-// Design auto-deleted after 7 days if user never edits it!
-
-// RIGHT — warn users or track unedited designs
-await notifyUser(`Edit your design before ${sevenDaysFromNow}: ${design.urls.edit_url}`);
-```
-
-## Pitfall #10: Not Handling Export Failures
-
-```typescript
-// WRONG — assumes exports always succeed
-const { job } = await canvaAPI('/exports', token, { method: 'POST', body: ... });
-const urls = (await pollExport(job.id)).urls; // Crashes if failed
-
-// RIGHT — handle all export error codes
-const result = await pollExport(job.id);
-if (result.status === 'failed') {
-  switch (result.error?.code) {
-    case 'license_required':
-      throw new Error('Design uses premium elements — user needs Canva Pro');
-    case 'approval_required':
-      throw new Error('Design requires approval before export');
-    case 'internal_failure':
-      // Retry after delay
-      break;
-  }
-}
-```
-
-## Error Handling
-
-If a mitigation would expose a token, bypass a rate limit, broaden a scope, retain a temporary URL, or act on an unverified webhook, stop and use the approved recovery process. A missing entitlement or policy is a deny condition, not an invitation to change the integration behavior.
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-Pitfall review yields a redacted control decision, configuration version, synthetic validation result, and rollback action. It does not include design contents, OAuth data, signed URLs, or user profiles.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-Before enabling autofill, verify Enterprise entitlement, approved template rights, input data classification, and output destination in staging. If any evidence is absent, leave the feature disabled and request owner review rather than creating a fallback against a different tenant.
+A review finds automatic retry wrapping design creation. The finding requires an operation ledger and existing-job reconciliation, rather than simply increasing a retry count.
 
-## Quick Reference
+## Error Handling
 
-| Pitfall | Detection | Prevention |
-|---------|-----------|------------|
-| Token expiry | 401 errors after 4h | Auto-refresh before expiry |
-| Reused refresh token | Token exchange fails | Store new token every refresh |
-| Sync export polling | Slow API responses | Return job ID, poll separately |
-| Rate limit ignored | 429 errors | Queue with p-queue |
-| Cached expired URLs | Broken images/links | Don't cache temp URLs |
-| Client-side OAuth | Security audit | Server-side only |
-| Missing Enterprise check | 403 on autofill | Check capabilities first |
-| Unsigned webhooks | Security audit | JWK verification |
-| Blank design deleted | Design disappears | Warn about 7-day window |
-| Export error ignored | Crashes | Handle all error codes |
+| Failure | Response |
+| --- | --- |
+| Claim lacks a current source | Mark it unverified and do not enforce it |
+| Finding exposes customer data | Redact the evidence and rotate access if needed |
+| Fix expands scope | Require separate authorization and user consent |
+| Preview feature is release-critical | Escalate the public-review incompatibility |
 
 ## Resources
 
-- [Canva Authentication](https://www.canva.dev/docs/connect/authentication/)
-- Canva API Reference
-- [Canva Scopes](https://www.canva.dev/docs/connect/appendix/scopes/)
+- [First-party source notes](references/official-docs.md)
+- [Authentication](https://www.canva.dev/docs/connect/authentication/)
+- [API request model](https://www.canva.dev/docs/connect/api-requests-responses/)

@@ -1,108 +1,79 @@
 ---
 name: workhuman-hello-world
-description: 'Workhuman hello world for employee recognition and rewards API.
-
-  Use when integrating Workhuman Social Recognition,
-
-  or building recognition workflows with HRIS systems.
-
-  Trigger: "workhuman hello world".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.3.0
-license: MIT
+description: 'Verify a Workhuman tenant integration safely with entitlement discovery, a read-only capability check, and a mutation preview. Use when running a first connection or smoke test. Trigger with "test Workhuman safely".'
+argument-hint: "[tenant] [integration-purpose]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.4.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- hr
-- recognition
-- workhuman
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, workhuman, smoke-test, verification, onboarding]
+model: inherit
+effort: medium
+compatibility: Designed for Claude Code; tenant reads and recognition mutations require customer-authorized documentation and approval
 ---
-# Workhuman Hello World
+# Safe Workhuman Capability Smoke Test
 
 ## Overview
 
-Create a recognition nomination and list recent recognitions -- the two fundamental Workhuman API operations. Workhuman Social Recognition enables peer-to-peer and manager-to-employee recognition with points-based rewards.
+Prove identity, entitlement, and one read-only capability before proposing any recognition, award, worker, or integration change.
+
+## Prerequisites
+
+- An approved access path from `workhuman-install-auth`
+- Current tenant documentation for the exact capability being tested
+- A synthetic or explicitly approved test identity and a named program owner
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect configuration, `WebFetch` to verify current first-party and tenant contracts, and `Write` or `Edit` only for fixtures and redacted receipts.
+
+## Current Contract
+
+Workhuman publicly describes Social Recognition, a points-based Store, administrator controls, an open API, and managed integrations. Public material does not establish the baseline pack's `/api/v1/*` routes, payload fields, award levels, visibility values, or status sequence.
+
+## Authentication
+
+Use only the documented principal and authorization method for the selected tenant capability. Never substitute an SSO cookie or a guessed bearer-token exchange.
 
 ## Instructions
 
-### Step 1: List Recent Recognitions
+1. Freeze the test objective, tenant, principal class, expected entitlement, and zero-write boundary.
+2. Fetch the current authorized contract and record its date, owner, environment, and exact read-only operation.
+3. Validate the host and path against an allowlist; reject placeholders and production if the approval names a test environment.
+4. Use synthetic identifiers or an approved test identity and request only the minimum response fields.
+5. Execute one documented read-only probe; record status, latency, schema fingerprint, and redacted correlation identifier.
+6. Compare the response with the documented contract and distinguish empty success from authorization or eligibility failure.
+7. Draft—but do not execute—a recognition or integration mutation preview with approver, idempotency, and rollback.
 
-```typescript
-const { data: recognitions } = await api.get('/api/v1/recognitions', {
-  params: { limit: 10, sort: '-created_at' },
-});
+## Approval Boundaries
 
-recognitions.data.forEach((rec: any) => {
-  console.log(`${rec.nominator.name} recognized ${rec.recipient.name}`);
-  console.log(`  Award: ${rec.award_level} | Points: ${rec.points}`);
-  console.log(`  Message: ${rec.message}`);
-  console.log(`  Value: ${rec.company_value}`);
-});
-```
-
-### Step 2: Create a Recognition Nomination
-
-```typescript
-const nomination = await api.post('/api/v1/recognitions', {
-  recipient_id: 'emp-12345',
-  award_level: 'silver',
-  company_value: 'innovation',
-  message: 'Outstanding work on the Q1 product launch. Your innovative approach to the deployment pipeline saved the team 3 days of work.',
-  points: 500,
-  visibility: 'public',  // 'public', 'team', 'private'
-});
-
-console.log(`Recognition created: ${nomination.data.id}`);
-console.log(`Status: ${nomination.data.status}`); // pending_approval or approved
-```
-
-### Step 3: Check Recognition Status
-
-```typescript
-const { data: status } = await api.get(`/api/v1/recognitions/${nomination.data.id}`);
-console.log(`Status: ${status.status}`);
-// Status: pending_approval -> approved -> delivered
-```
-
-### Step 4: List Reward Catalog
-
-```typescript
-const { data: catalog } = await api.get('/api/v1/rewards/catalog', {
-  params: { category: 'gift_cards', country: 'US' },
-});
-
-catalog.items.forEach((item: any) => {
-  console.log(`${item.name} - ${item.points_required} points`);
-});
-```
+Do not submit recognition, approve awards, change worker data, redeem points, or enable integrations during this smoke test.
 
 ## Output
 
-```
-Jane Smith recognized Alex Johnson
-  Award: Silver | Points: 500
-  Message: Outstanding work on the Q1 product launch...
-  Value: Innovation
-Recognition created: rec-67890
-Status: pending_approval
-```
+Return the contract reference, identity and entitlement result, sanitized probe receipt, schema observations, mutation preview, and an explicit `READY` or `BLOCKED` decision.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `422` on nomination | Missing required field | Include recipient, award_level, message |
-| `404` recipient | Invalid employee ID | Verify against HRIS sync |
-| `403` award level | Insufficient budget | Check recognition budget limits |
+| Condition | Response |
+|---|---|
+| Host, route, or auth differs from documentation | Stop; resolve the contract mismatch before sending another request. |
+| Read returns no records | Confirm that empty success is valid before treating it as an access failure. |
+| Test identity is not eligible | Preserve the evidence and ask the program owner for an approved fixture. |
+
+## Example
+
+A redacted completion receipt might look like this:
+
+```text
+tenant=customer-test; capability=recognition-read; principal=service; result=200-empty-valid; mutation=preview-only; decision=READY
+```
 
 ## Resources
 
 - [Workhuman Social Recognition](https://www.workhuman.com/platform/social-recognition/)
-- [Workhuman API](https://apitracker.io/a/workhuman)
+- [Workhuman integrations](https://www.workhuman.com/capabilities/integrations/)
 
 ## Next Steps
 
-Proceed to `workhuman-local-dev-loop` for development workflow.
+Move to the applicable workflow only after the owner approves the exact mutation preview.

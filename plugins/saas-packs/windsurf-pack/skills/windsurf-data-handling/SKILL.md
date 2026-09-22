@@ -1,19 +1,12 @@
 ---
 name: windsurf-data-handling
-description: 'Control what code and data Windsurf AI can access and process in your
-  workspace.
-
-  Use when handling sensitive data, implementing data exclusion patterns,
-
-  or ensuring compliance with privacy regulations in Windsurf environments.
-
-  Trigger with phrases like "windsurf data privacy", "windsurf PII",
-
-  "windsurf GDPR", "windsurf compliance", "codeium data", "windsurf telemetry".
-
-  '
+description: 'Govern data processed through Devin Desktop (formerly Windsurf).
+  Use when mapping sensitive data, configuring context exclusions, reviewing vendor
+  controls, or preparing regulated-workload evidence. Trigger with "windsurf data
+  privacy", "windsurf PII", "GDPR", "data residency", or "AI data boundary".'
 allowed-tools: Read, Write, Edit
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -24,217 +17,85 @@ tags:
 - data-handling
 compatibility: Designed for Claude Code
 ---
-# Windsurf Data Handling
+
+# Devin Desktop Data Handling
 
 ## Overview
 
-Control what code and data Windsurf's AI (Cascade, Supercomplete) can access. Covers file exclusion patterns, telemetry controls, Codeium's data processing model, and compliance configuration for regulated environments.
+Build an evidence-backed data map for Devin Desktop. Do not infer retention, residency, training use, certification coverage, or zero-data-retention from plan names; verify mutable vendor claims against the current contract and security documentation.
 
 ## Prerequisites
 
-- Windsurf IDE installed
-- Understanding of Codeium's data processing model
-- Identified sensitive files and directories in workspace
+- Data-classification policy and approved repository inventory
+- Contract, DPA, or security evidence available to the authorized reviewer
+- Named security, privacy, and legal decision owners
+
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Write` only for a new artifact the user requested; never write credentials or unreviewed production configuration.
+- Use `Edit` for bounded, reviewable changes and preserve unrelated user work.
 
 ## Instructions
 
-### Step 1: Understand Codeium's Data Model
+### Step 1: Inventory data flows
 
-```yaml
-# What happens with your code in Windsurf
-data_flow:
-  indexed_locally:
-    what: "File contents, structure, dependencies"
-    where: "Local machine only"
-    purpose: "Supercomplete context, Cascade awareness"
-    retention: "Persists until re-indexed"
+For Cascade, autocomplete, indexing, remote indexing, MCP, Hooks, diagnostics, and App Deploys, record inputs, destination, purpose, identity, retention evidence, administrator, and applicable policy. Include metadata and logs, not only source files.
 
-  sent_to_cloud:
-    what: "Cascade prompts, code snippets around cursor"
-    where: "Codeium cloud (or self-hosted for Enterprise)"
-    purpose: "AI model inference"
-    retention: "Zero-data retention for ALL paid plans"
+### Step 2: Minimize local context
 
-  never_processed:
-    what: "Files in .codeiumignore, .gitignore, node_modules"
-    where: "N/A"
-    purpose: "N/A"
+Use `.gitignore` and repository `.codeiumignore` to exclude secrets, generated output, customer datasets, private keys, production exports, and irrelevant large files. Enterprise administrators may apply a global `.codeiumignore` under `~/.codeium/`.
 
-  compliance:
-    certifications: ["SOC 2 Type II", "FedRAMP High"]
-    hipaa: "BAA available for Enterprise customers"
-    data_retention: "Zero for paid plans, configurable for Enterprise"
-    deployment: "Cloud, Hybrid, or Self-Hosted options"
-```
+Ignored paths are context controls. They do not revoke filesystem access, rotate secrets, satisfy least privilege, or prove a regulatory requirement.
 
-### Step 2: Configure .codeiumignore for Data Protection
+### Step 3: Choose durable instructions
 
-```gitignore
-# .codeiumignore — files Windsurf AI will NEVER see or index
-# Uses gitignore syntax. Default: .gitignore and node_modules excluded.
-
-# ===== SECRETS =====
-.env
-.env.*
-.env.local
-credentials.json
-serviceAccountKey.json
-*.pem
-*.key
-*.p12
-*.pfx
-.aws/
-.gcloud/
-.azure/
-vault-config.*
-
-# ===== CUSTOMER DATA =====
-data/customers/
-data/exports/
-data/backups/
-*.sql
-*.sql.gz
-*.dump
-fixtures/production-*
-
-# ===== INFRASTRUCTURE SECRETS =====
-terraform.tfstate
-terraform.tfstate.backup
-*.tfvars
-*.auto.tfvars
-ansible/vault*
-
-# ===== COMPLIANCE BOUNDARIES =====
-# PCI zone — credit card processing code
-src/pci/
-
-# HIPAA zone — health data processing
-src/hipaa/
-
-# Financial data
-reports/financial/
-```
-
-### Step 3: Disable Telemetry (Regulated Environments)
-
-```json
-// settings.json — maximum privacy configuration
-{
-  "codeium.enableTelemetry": false,
-  "codeium.enableSnippetTelemetry": false,
-  "telemetry.telemetryLevel": "off",
-  "update.showReleaseNotes": false
-}
-```
-
-### Step 4: Configure Autocomplete Data Boundaries
-
-```json
-// Disable Supercomplete for sensitive file types
-{
-  "codeium.autocomplete.languages": {
-    "plaintext": false,
-    "env": false,
-    "dotenv": false,
-    "properties": false,
-    "ini": false,
-    "yaml": false,
-    "json": false
-  }
-}
-```
-
-**Rationale:** YAML and JSON files often contain configuration with secrets. Disabling Supercomplete for these types prevents the AI from seeing or suggesting content based on config files.
-
-### Step 5: Safe Cascade Usage with Sensitive Code
+Put shared data-handling requirements in `AGENTS.md` or `.devin/rules/*.md`, for example:
 
 ```markdown
-## Rules for using Cascade in regulated codebases
-
-1. NEVER paste secrets into Cascade chat
-   - BAD: "My API key is sk-abc123, why isn't it working?"
-   - GOOD: "I'm getting auth errors. The key is set in .env as API_KEY."
-
-2. NEVER ask Cascade to read excluded files
-   - BAD: "Read .env and tell me what's configured"
-   - GOOD: "What environment variables does src/config.ts expect?"
-
-3. Use .windsurfrules to enforce safety patterns
-   - "Always use process.env for secrets, never hardcode"
-   - "Never log PII fields: email, phone, ssn, creditCard"
-
-4. Mark compliance boundaries in .windsurfrules
-   - "Files in src/pci/ handle credit card data — extra review required"
-   - "Files in src/hipaa/ handle health data — never log patient info"
+# Regulated data boundary
+- Never paste customer records, access tokens, or production exports into prompts.
+- Use synthetic fixtures in tests and examples.
+- Require security review for changes under `src/payments/`.
+- Stop and escalate if a requested artifact contains regulated data.
 ```
 
-### Step 6: Enterprise Self-Hosted Deployment
+### Step 4: Review integrations
 
-For maximum data control:
+For every MCP server, Hook, deployment target, and analytics export, confirm an owner, authentication method, approved scopes, destination, log policy, revocation path, and incident contact. Disable integrations that lack an accountable owner.
 
-```yaml
-# Enterprise deployment options
-deployment_modes:
-  cloud:
-    data_flow: "Code snippets → Codeium cloud → AI response"
-    retention: "Zero-data retention (default for paid plans)"
-    suitable_for: "Most teams"
+### Step 5: Reconcile vendor evidence
 
-  hybrid:
-    data_flow: "Code stays on-prem, only prompts sent to cloud"
-    retention: "Configurable"
-    suitable_for: "Teams with data residency requirements"
+Capture the URL or contract section, observation date, product/plan scope, and reviewer for each claim. Where public documentation and negotiated terms differ, label the applicable authority rather than blending them.
 
-  self_hosted:
-    data_flow: "Everything on-prem or in your cloud"
-    retention: "You control"
-    suitable_for: "Highly regulated (finance, healthcare, government)"
-    requires: "Enterprise plan + infrastructure team"
-```
+### Step 6: Test and approve
 
-## Data Privacy Audit Checklist
+Use synthetic canaries to verify exclusions and policy behavior. Obtain the required security/privacy/legal approval before enabling regulated workloads, remote indexing, or external MCP access.
 
-- [ ] `.codeiumignore` covers all secret files and customer data
-- [ ] Telemetry disabled (if required by policy)
-- [ ] Autocomplete disabled for secret-containing file types
-- [ ] `.windsurfrules` includes data handling coding standards
-- [ ] Team trained: never paste secrets into Cascade
-- [ ] Enterprise: deployment mode matches compliance requirements
-- [ ] Enterprise: SSO configured, personal accounts blocked
-- [ ] Regular audit: verify no new sensitive files outside ignore patterns
+## Output
+
+Produce a data-boundary record identifying data classes, indexed and excluded paths, integrations, organization controls, telemetry and logging decisions, retention or residency evidence, open questions, approvals, and validation results. Never reproduce sensitive values.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| AI suggests hardcoded secrets | Secret was in indexed file | Add to `.codeiumignore`, rotate secret |
-| PII appears in AI suggestions | Customer data in indexed directory | Exclude data directories |
-| Telemetry still sending | Setting not applied | Verify in Settings UI, restart Windsurf |
-| Compliance audit finding | Missing ignore patterns | Audit with `find` for exposed file types |
+| Issue | Response |
+|---|---|
+| Vendor claim lacks current evidence | Mark unverified and request contract/security review |
+| Sensitive data entered Cascade | Stop, contain sharing, rotate affected secrets, and follow incident policy |
+| Ignore test fails | Correct syntax or scope, refresh indexing through current controls, and retest |
+| Integration owner is unknown | Disable or quarantine the integration until ownership is established |
 
 ## Examples
 
-### Quick Privacy Audit
-
-```bash
-set -euo pipefail
-echo "=== Windsurf Data Privacy Audit ==="
-echo "Has .codeiumignore: $([ -f .codeiumignore ] && echo 'YES' || echo 'NO')"
-echo "Potential exposed secrets:"
-find . -type f \
-  -not -path '*/node_modules/*' -not -path '*/.git/*' \
-  \( -name '*.env*' -o -name '*.key' -o -name '*.pem' -o -name 'credentials*' \) \
-  2>/dev/null | while read f; do
-    grep -q "$(basename "$f")" .codeiumignore 2>/dev/null && echo "  $f: PROTECTED" || echo "  $f: EXPOSED"
-  done
-```
+**Evidence row:** "Customer export; excluded by `.codeiumignore`; no MCP access; repository owner: Data Platform; retention claim pending DPA confirmation; synthetic canary passed during the recorded review run."
 
 ## Resources
 
-- [Codeium Privacy Policy](https://codeium.com/privacy-policy)
-- [Windsurf Security](https://windsurf.com/security)
-- [Windsurf Ignore Docs](https://docs.windsurf.com/context-awareness/windsurf-ignore)
+- [Focused first-party references](references/official-docs.md)
+- [Windsurf Ignore](https://docs.devin.ai/desktop/context-awareness/windsurf-ignore)
+- [Windsurf security](https://windsurf.com/security)
+- [Enterprise administration](https://docs.devin.ai/desktop/guide-for-admins)
 
-## Next Steps
+## Related Skill
 
-For enterprise access controls, see `windsurf-enterprise-rbac`.
+Continue with `windsurf-policy-guardrails` to turn approved data controls into enforceable repository, terminal, MCP, deployment, and organization policy.

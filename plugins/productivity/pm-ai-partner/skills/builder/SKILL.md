@@ -1,11 +1,9 @@
 ---
 name: builder
 description: "Hands-on implementation partner for creating tools, scripts, dashboards,\
-  \ and prototypes. Use when the user wants to build something tangible \u2014 apps,\
-  \ scripts, automations, or internal tools. Triggers include \"build\", \"create\
-  \ tool\", \"make app\", \"implement\", \"prototype\", \"automate\", or when the\
-  \ goal is working software."
-version: 1.8.0
+  \ and prototypes. Use when the user wants working software. Trigger with \"build\",\
+  \ \"create tool\", \"make app\", \"implement\", \"prototype\", or \"automate\"."
+version: 1.10.0
 author: Ahmed Khaled Mohamed <ahmd.khaled.a.mohamed@gmail.com>
 license: MIT
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash(npm:*), Bash(node:*)
@@ -15,8 +13,21 @@ tags:
 - dashboard
 - builder
 compatibility: Designed for Claude Code
+model: inherit
+effort: medium
+user-invocable: true
 ---
 # Builder Mode
+
+## Overview
+
+Build the smallest maintainable implementation that satisfies the user's actual use case, then
+verify it before proposing further layers. Use the
+[evidence and review checklist](references/evidence-and-review.md) when the work depends on an
+existing repository or will be reused by other people.
+
+Use `Glob` to map files, `Grep` to trace conventions, and `Read` before changing existing content.
+Choose `Write` for a new file and `Edit` for a targeted modification.
 
 ## Instructions
 
@@ -150,7 +161,7 @@ For a quick v1, I'd suggest a **single HTML file** you can open locally or host 
   </style>
 </head>
 <body>
-  <h1>Q1 2026 OKRs</h1>
+  <h1>Sample Quarterly OKRs</h1>
 
   <div class="objective on-track">
     <h3>O1: Improve push notification engagement</h3>
@@ -342,10 +353,6 @@ Want me to:
 1. Add more slides with your specific data?
 2. Add interactive charts (Chart.js)?
 3. Create a reusable template for future analyses?
-
-## Overview
-
-Hands-on implementation partner that builds working tools, scripts, dashboards, and prototypes for product managers, iterating from simple to sophisticated.
 
 ## Prerequisites
 

@@ -2,10 +2,9 @@
 name: hypothesis-tester
 description: Structured hypothesis formulation, experiment design, and results interpretation
   for Product Managers. Use when the user needs to validate an assumption, design
-  an A/B test, evaluate experiment results, or decide whether to ship based on data.
-  Triggers include "hypothesis", "A/B test", "experiment", "validate assumption",
-  "test this", "should we ship", or when making a decision that should be data-informed.
-version: 1.8.0
+  an A/B test, or evaluate results. Trigger with "hypothesis", "A/B test", "experiment",
+  "validate assumption", "test this", or "should we ship".
+version: 1.10.0
 author: Ahmed Khaled Mohamed <ahmd.khaled.a.mohamed@gmail.com>
 license: MIT
 allowed-tools: Read, Glob, Grep
@@ -15,8 +14,19 @@ tags:
 - testing
 - hypothesis-tester
 compatibility: Designed for Claude Code
+model: inherit
+effort: medium
+user-invocable: true
 ---
 # Hypothesis Tester Mode
+
+## Overview
+
+Convert assumptions into falsifiable hypotheses, design proportionate tests, and interpret
+results without overstating causality. Use the
+[evidence and review checklist](references/evidence-and-review.md) before making a ship decision.
+
+Use `Glob` to locate experiment artifacts, `Grep` to trace metrics, and `Read` to verify the design.
 
 ## Instructions
 
@@ -177,10 +187,6 @@ The core signal is strong (+4.5pp, significant, consistent across platforms). Th
 - If D30 lift is below +2pp, revisit
 
 **Do NOT declare "13% retention improvement" to leadership.** Say: "4.5pp D7 lift, monitoring for D30 confirmation. Early signs positive but effect may moderate."
-
-## Overview
-
-Experiment design partner that helps product managers formulate testable hypotheses, design rigorous A/B tests, and interpret results honestly to make data-informed ship/kill decisions.
 
 ## Prerequisites
 

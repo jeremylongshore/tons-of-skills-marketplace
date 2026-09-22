@@ -1,288 +1,97 @@
 ---
 name: coderabbit-prod-checklist
-description: 'Execute CodeRabbit production readiness checklist for org-wide deployment.
-
-  Use when preparing to enforce CodeRabbit reviews, going live with required checks,
-
-  or auditing CodeRabbit configuration before making it a merge gate.
-
-  Trigger with phrases like "coderabbit production", "coderabbit go-live",
-
-  "coderabbit launch checklist", "coderabbit readiness", "coderabbit pre-launch".
-
-  '
-allowed-tools: Read, Bash(gh:*), Bash(git:*), Grep
-version: 1.11.0
-license: MIT
+description: >-
+  Make an evidence-backed go-live decision for installation, configuration, governance, security, continuity, and operations. Use when this operator task needs a current, evidence-backed
+  CodeRabbit workflow. Trigger with "review CodeRabbit go-live".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[target] [evidence-or-scope]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- coderabbit
-- deployment
-- production
-- checklist
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current CodeRabbit documentation and approved access for any live organization, repository, billing, or API change
+tags: [saas, coderabbit, production-readiness, go-live, governance]
 ---
-# CodeRabbit Production Checklist
+# CodeRabbit Production Readiness
 
 ## Overview
 
-Complete checklist for deploying CodeRabbit as a production merge gate. Covers the transition from "optional AI review" to "required status check that blocks merges." Ensures configuration is tuned, team is onboarded, and fallback procedures are documented.
+Turn a pilot into an explicit production decision. Each gate needs an owner, evidence, failure criterion, and rollback.
 
 ## Prerequisites
 
-- CodeRabbit installed and running in non-blocking mode for 1-2 weeks
-- Team has seen CodeRabbit reviews and provided feedback
-- `.coderabbit.yaml` tuned based on pilot feedback
-- GitHub organization admin access
+- Identify the CodeRabbit organization, Git provider, repository, plan, and accountable owner.
+- Read `references/official-docs.md` and re-check any time-sensitive contract before execution.
+- Use synthetic or read-only evidence until the approval boundary is satisfied.
+- Preserve the repository's independent CI, security, and human-review requirements.
+
+## Current Contract
+
+- Configuration may resolve from multiple authorities.
+- Provider permissions, roles, seats, and plans are distinct.
+- Review state must coexist with independent CI and security.
+- Retention, exports, keys, and support need owners.
+
+## Authentication
+
+Treat Git-provider sessions, CodeRabbit web sessions, CLI credentials, and CodeRabbit API keys as separate credentials. Use only an already-approved session or secret-manager reference, never print a secret, and do not place credentials in `.coderabbit.yaml`, source files, logs, or deliverables.
 
 ## Instructions
 
-### Step 1: Pre-Launch Configuration Audit
+1. Verify scope, ownership, permissions, config, plan, seats, roles, and data.
 
-```markdown
-# Run through each item before going live:
+2. Exercise happy, skipped, invalid-config, limit, provider-failure, and rollback paths.
 
-## App Installation
-- [ ] CodeRabbit GitHub App installed on all target repos
-- [ ] Repository access scoped correctly (all repos vs select)
-- [ ] Seat assignment policy set (active committers vs manual)
-- [ ] Bot accounts excluded from seats (dependabot, renovate)
+3. Confirm dashboards, incident ownership, continuity, and recertification.
 
-## Configuration
-- [ ] `.coderabbit.yaml` committed to main branch
-- [ ] YAML syntax validated (no parse errors)
-- [ ] `auto_review.enabled: true`
-- [ ] `auto_review.drafts: false` (skip draft PRs)
-- [ ] `base_branches` includes all target branches (main, develop)
-- [ ] `path_filters` excludes generated/lock/vendor files
-- [ ] `path_instructions` configured for key directories
-- [ ] `chat.auto_reply: true`
+4. Record GO, CONDITIONAL GO, or NO-GO with evidence.
 
-## Review Behavior
-- [ ] Profile set to "assertive" (or team's preferred level)
-- [ ] `request_changes_workflow` decision documented:
-  - `true`: CodeRabbit blocks merge when issues found
-  - `false`: CodeRabbit only comments (non-blocking)
-- [ ] Org-level defaults in `.github/.coderabbit.yaml` if multi-repo
-```
+## Tool Discipline
 
-### Step 2: Validate Configuration
+- Use **Glob** to locate candidate configuration and evidence files without widening scope.
+- Use **Grep** to find relevant fields, commands, identifiers, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use these file tools as a substitute for authenticated CodeRabbit or provider operations.
 
-```bash
-set -euo pipefail
-echo "=== CodeRabbit Production Readiness Check ==="
+## Approval Boundaries
 
-# 1. YAML syntax
-echo "--- Config Validation ---"
-if [ -f .coderabbit.yaml ]; then
-  python3 -c "
-import yaml, sys
-try:
-    config = yaml.safe_load(open('.coderabbit.yaml'))
-    print('YAML syntax: PASS')
-
-    reviews = config.get('reviews', {})
-    auto = reviews.get('auto_review', {})
-
-    checks = {
-        'auto_review.enabled': auto.get('enabled', False) == True,
-        'auto_review.drafts': auto.get('drafts', True) == False,
-        'path_filters configured': len(reviews.get('path_filters', [])) > 0,
-        'path_instructions configured': len(reviews.get('path_instructions', [])) > 0,
-        'chat.auto_reply': config.get('chat', {}).get('auto_reply', False) == True,
-    }
-
-    for name, passed in checks.items():
-        status = 'PASS' if passed else 'WARN'
-        print(f'  {name}: {status}')
-
-    if all(checks.values()):
-        print('Overall: READY FOR PRODUCTION')
-    else:
-        print('Overall: Review warnings above before going live')
-
-except yaml.YAMLError as e:
-    print(f'YAML syntax: FAIL ({e})')
-    sys.exit(1)
-" 2>&1
-else
-  echo "FAIL: .coderabbit.yaml not found"
-fi
-```
-
-### Step 3: Verify Review History
-
-```bash
-set -euo pipefail
-OWNER="${1:-your-org}"
-REPO="${2:-your-repo}"
-
-echo ""
-echo "--- Review History Check ---"
-REVIEWED=0
-TOTAL=0
-
-for PR_NUM in $(gh api "repos/$OWNER/$REPO/pulls?state=all&per_page=20" --jq '.[].number'); do
-  TOTAL=$((TOTAL + 1))
-  CR=$(gh api "repos/$OWNER/$REPO/pulls/$PR_NUM/reviews" \
-    --jq '[.[] | select(.user.login=="coderabbitai[bot]")] | length' 2>/dev/null || echo "0")
-  [ "$CR" -gt 0 ] && REVIEWED=$((REVIEWED + 1))
-done
-
-echo "Coverage: $REVIEWED/$TOTAL PRs reviewed by CodeRabbit"
-if [ "$TOTAL" -gt 0 ] && [ "$((REVIEWED * 100 / TOTAL))" -lt 80 ]; then
-  echo "WARNING: Coverage below 80%. Check base_branches and ignore_title_keywords."
-else
-  echo "Coverage: PASS"
-fi
-```
-
-### Step 4: Team Readiness Checklist
-
-```markdown
-## Team Onboarding
-- [ ] Team briefed on CodeRabbit (what it does, how to interact)
-- [ ] Quick reference shared:
-  - `@coderabbitai full review` — re-review from scratch
-  - `@coderabbitai summary` — regenerate walkthrough
-  - `@coderabbitai resolve` — mark all comments resolved
-  - `@coderabbitai help` — list all commands
-- [ ] Team knows to reply to comments to train learnings
-- [ ] "WIP" in PR title skips review (documented)
-- [ ] Escalation path defined for false positives
-
-## Fallback Procedures
-- [ ] Admin merge bypass documented (for emergencies)
-- [ ] Process for temporarily disabling CodeRabbit:
-  1. Remove from branch protection required checks
-  2. Set `auto_review.enabled: false` in config
-  3. Or uninstall the GitHub App from the repo
-- [ ] Contact info for CodeRabbit support documented
-```
-
-### Step 5: Enable as Required Check
-
-```bash
-set -euo pipefail
-OWNER="${1:-your-org}"
-REPO="${2:-your-repo}"
-
-echo ""
-echo "--- Enabling CodeRabbit as Required Check ---"
-
-# Update branch protection to require CodeRabbit
-gh api "repos/$OWNER/$REPO/branches/main/protection" \
-  --method PUT \
-  --field 'required_status_checks={"strict":true,"contexts":["coderabbitai"]}' \
-  --field 'required_pull_request_reviews={"required_approving_review_count":1}' \
-  --field 'enforce_admins=false' \
-  --field 'restrictions=null'
-
-echo "DONE: CodeRabbit is now a required check on $OWNER/$REPO main branch"
-echo ""
-echo "To revert (emergency):"
-echo "  gh api repos/$OWNER/$REPO/branches/main/protection --method DELETE"
-```
-
-### Step 6: Update .coderabbit.yaml for Production
-
-```yaml
-# .coderabbit.yaml - Production configuration
-language: "en-US"
-early_access: false
-
-reviews:
-  profile: "assertive"
-  request_changes_workflow: true      # NOW blocking (was false during pilot)
-  high_level_summary: true
-  high_level_summary_in_walkthrough: true
-  review_status: true
-  collapse_walkthrough: false
-  sequence_diagrams: true
-  poem: false
-
-  auto_review:
-    enabled: true
-    drafts: false
-    base_branches:
-      - main
-      - develop
-    ignore_title_keywords:
-      - "WIP"
-      - "DO NOT MERGE"
-      - "chore: bump"
-
-  path_filters:
-    - "!**/*.lock"
-    - "!**/*.snap"
-    - "!**/generated/**"
-    - "!dist/**"
-    - "!vendor/**"
-
-  path_instructions:
-    - path: "src/api/**"
-      instructions: "Review for input validation, auth middleware, error handling."
-    - path: "src/db/**"
-      instructions: "Review for parameterized queries, transactions, N+1 patterns."
-    - path: "**/*.test.*"
-      instructions: "Review for edge cases and assertion completeness. Skip style."
-
-chat:
-  auto_reply: true
-```
-
-### Step 7: Post-Launch Monitoring
-
-```markdown
-# First 48 hours after go-live:
-
-## Monitor:
-- [ ] All PRs to main are getting CodeRabbit reviews
-- [ ] No PRs blocked by CodeRabbit timeout (> 15 min)
-- [ ] Team is not overwhelmed by review volume
-- [ ] No legitimate emergency PRs blocked
-
-## Week 1 review:
-- [ ] Review coverage > 90%
-- [ ] No team complaints about false positives
-- [ ] Learnings being created from feedback
-- [ ] Emergency bypass has not been needed (or was used correctly)
-```
+Named repository, security, privacy, billing, and operations owners approve their own gates. Keep analysis and drafts local until approval is explicit, and record who approved the action and its scope.
 
 ## Output
 
-- Configuration audited and validated
-- Review history confirms adequate coverage
-- Team onboarded with quick reference guide
-- CodeRabbit enabled as required status check
-- Fallback and emergency procedures documented
-- Post-launch monitoring plan in place
+A readiness matrix, receipts, risks, continuity plan, rollback, and decision. Include source dates, unknowns, and the exact boundary between observed fact and recommendation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| PRs stuck waiting for review | CodeRabbit outage | Check status.coderabbit.ai; use admin bypass |
-| All PRs blocked | `request_changes_workflow: true` too aggressive | Temporarily set to `false` |
-| Team pushback | Too many comments | Switch to `chill` profile |
-| Emergency PR blocked | Required check blocking | Admin merge bypass or remove required check |
-| Config not loading | YAML error | Run `@coderabbitai configuration` to diagnose |
+| Condition | Response |
+|---|---|
+| Current contract is unclear or docs disagree | Stop mutation, cite both sources, and request owner resolution. |
+| Required access or approval is missing | Produce a draft and evidence plan only. |
+| Validation or pilot behavior differs from expectation | Restore the prior state and retain the failed evidence. |
+| Output contains secrets or private code | Stop, quarantine the artifact, redact it, and notify the data owner. |
 
 ## Examples
 
-Before production rollout, validate the configuration in a pilot repository,
-open a test PR, verify the expected review and status behavior, test the
-documented emergency procedure, and record the decision. If the required check
-blocks legitimate work or quality/coverage regress, use the approved rollback
-and correct the configuration rather than weakening unrelated protections.
+### Example 1
+
+Issue conditional go-live limited to pilots.
+
+### Example 2
+
+Reject enforcement when manual continuity is untested.
+
+## Validation
+
+- Confirm every claim against the dated sources in `references/official-docs.md`.
+- Verify the requested scope, owner, approval, happy path, failure path, and rollback.
+- Re-read the effective configuration or provider state after any approved change.
+- Report unsupported fields, undocumented endpoints, and unverified assumptions as failures.
 
 ## Resources
 
-- [CodeRabbit Configuration Reference](https://docs.coderabbit.ai/reference/configuration)
-- [GitHub Branch Protection](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository)
-- [CodeRabbit Status Page](https://status.coderabbit.ai)
-
-## Next Steps
-
-For ongoing monitoring, see `coderabbit-observability`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

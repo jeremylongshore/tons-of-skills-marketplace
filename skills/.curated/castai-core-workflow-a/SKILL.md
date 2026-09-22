@@ -1,184 +1,88 @@
 ---
 name: castai-core-workflow-a
-description: 'Configure CAST AI autoscaler policies and node templates for cost optimization.
-
-  Use when enabling Phase 2 automation, setting spot instance policies,
-
-  or configuring node downscaler and evictor settings.
-
-  Trigger with phrases like "cast ai autoscaler", "cast ai policies",
-
-  "cast ai spot instances", "cast ai node optimization".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(kubectl:*), Grep
-version: 1.4.0
+description: 'Connect a Kubernetes cluster to CAST AI in observation-first mode and establish a trustworthy cost baseline before automation. Use when onboarding a new EKS, GKE, AKS, or CAST AI Anywhere cluster. Trigger with: "connect a cluster to CAST AI", "start CAST AI cost monitoring", "onboard CAST AI safely".'
+allowed-tools: Read, Grep, Write, Edit, Bash(castctl:*), Bash(kubectl:*)
+version: 2.0.0
+argument-hint: '[kube-context-or-onboarding-plan]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- kubernetes
-- cost-optimization
-- castai
-compatibility: Designed for Claude Code
+  - saas
+  - kubernetes
+  - cast-ai
+  - onboarding
+  - cost-monitoring
+compatibility: 'Supports CAST AI documented connection paths; cloud permissions and available features vary by provider and subscription'
 ---
-# CAST AI Core Workflow: Autoscaler & Policies
+
+# CAST AI Observation-First Onboarding
 
 ## Overview
 
-Primary workflow for CAST AI: configure autoscaler policies to optimize cluster costs. Covers enabling spot instances, configuring the node downscaler and evictor, setting cluster CPU/memory limits, and creating node templates for workload-specific requirements.
+Connect one approved cluster with the recommended castctl path, keep optimization automation off initially, and prove identity, telemetry, ownership, and rollback before expanding control.
 
 ## Prerequisites
 
-- Completed `castai-install-auth` with Phase 2 (cluster controller + evictor)
-- `CASTAI_API_KEY` and `CASTAI_CLUSTER_ID` set
-- Cluster in "ready" status
+- A named kube context for EKS, GKE, AKS, or a supported CAST AI Anywhere environment
+- Cluster-admin access for installation and reviewed least-privilege cloud permissions
+- metrics-server when Workload Autoscaling will be evaluated
+- An owner, maintenance window, rollback decision, and evidence location
 
 ## Instructions
 
-### Step 1: Read Current Policies
+### Step 1: Establish ownership
 
-```bash
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/policies" \
-  | jq .
-```
+Use Read and Grep to locate existing CAST AI, autoscaler, Terraform, Helm, and GitOps definitions. Stop if another controller owns node provisioning or workload HPA behavior and no coexistence decision exists.
 
-### Step 2: Enable Cost-Optimized Autoscaling
+### Step 2: Preview the connection
 
-```bash
-curl -X PUT -H "X-API-Key: ${CASTAI_API_KEY}" \
-  -H "Content-Type: application/json" \
-  "https://api.cast.ai/v1/kubernetes/clusters/${CASTAI_CLUSTER_ID}/policies" \
-  -d '{
-    "enabled": true,
-    "unschedulablePods": {
-      "enabled": true,
-      "headroom": {
-        "cpuPercentage": 10,
-        "memoryPercentage": 10,
-        "enabled": true
-      }
-    },
-    "nodeDownscaler": {
-      "enabled": true,
-      "emptyNodes": {
-        "enabled": true,
-        "delaySeconds": 180
-      }
-    },
-    "spotInstances": {
-      "enabled": true,
-      "clouds": ["aws"],
-      "spotDiversityEnabled": true,
-      "spotDiversityPriceIncreaseLimitPercent": 20
-    },
-    "clusterLimits": {
-      "enabled": true,
-      "cpu": {
-        "minCores": 4,
-        "maxCores": 100
-      }
-    }
-  }'
-```
+Use Bash(castctl:\*) to verify the installed client, authenticate interactively to the intended organization, and run the documented connection dry-run. Record detected provider, cluster, region, selected features, namespace, and proposed cloud changes without connecting.
 
-### Step 3: Configure Node Templates via Terraform
+### Step 3: Review permissions and features
 
-```hcl
-resource "castai_node_template" "spot_workers" {
-  cluster_id = castai_eks_cluster.this.id
-  name       = "spot-workers"
-  is_default = false
-  is_enabled = true
+Confirm least-privilege cloud access and the exact cluster context. Cost Monitoring is always enabled; select Node Autoscaling or Workload Autoscaling only when entitlement, metrics, disruption, and ownership prerequisites are met. Use Write or Edit to capture the approved choices in the repository runbook.
 
-  constraints {
-    min_cpu               = 2
-    max_cpu               = 16
-    min_memory            = 4096
-    max_memory            = 65536
-    spot                  = true
-    use_spot_fallbacks    = true
-    fallback_restore_rate_seconds = 600
+### Step 4: Connect the cluster
 
-    instance_families {
-      include = ["m5", "m6i", "c5", "c6i", "r5", "r6i"]
-    }
+Run the reviewed castctl connection during the approved window. Do not substitute the deprecated script flow for a supported castctl environment. Preserve the console URL and sanitized command receipt, never browser tokens or API keys.
 
-    architectures = ["amd64"]
-  }
+### Step 5: Verify observation mode
 
-  custom_labels = {
-    "workload-type" = "batch"
-  }
-}
+Use Bash(kubectl:\*) to verify namespace workloads, readiness, events, and metrics prerequisites. Confirm the console receives the intended cluster and cost data while automation remains in the approved state. Allow sufficient data before judging savings or recommendations.
 
-resource "castai_node_template" "gpu_ondemand" {
-  cluster_id = castai_eks_cluster.this.id
-  name       = "gpu-ondemand"
-  is_default = false
-  is_enabled = true
+### Step 6: Hand off automation separately
 
-  constraints {
-    spot                  = false
-    gpu_manufacturers     = ["NVIDIA"]
+Document baseline time, current controllers, policy candidates, protected workloads, and rollback owner. Make automation enablement a separate reviewed change using `castai-core-workflow-b`.
 
-    instance_families {
-      include = ["p3", "p4d", "g4dn", "g5"]
-    }
-  }
+## Tool Discipline
 
-  custom_labels = {
-    "workload-type" = "gpu"
-  }
-}
-```
-
-### Step 4: Verify Autoscaler is Working
-
-```bash
-# Check if the autoscaler is processing nodes
-curl -s -H "X-API-Key: ${CASTAI_API_KEY}" \
-  "https://api.cast.ai/v1/kubernetes/external-clusters/${CASTAI_CLUSTER_ID}/nodes" \
-  | jq '[.items[] | {name, instanceType, lifecycle, castaiManaged: .castaiManaged}]
-        | group_by(.lifecycle)
-        | map({lifecycle: .[0].lifecycle, count: length})'
-
-# Expected: mix of spot and on-demand nodes
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Policy update returns 400 | Invalid policy JSON | Validate with `jq` before sending |
-| Nodes not scaling | Policy not enabled | Verify `.enabled: true` in policy |
-| Spot instances not used | Provider not configured | Add cloud provider to `spotInstances.clouds` |
-| Evictor too aggressive | Low delay threshold | Increase `emptyNodes.delaySeconds` |
-| Cluster limit hit | `maxCores` too low | Increase `clusterLimits.cpu.maxCores` |
+Use Read and Grep to establish source-of-truth ownership. Use Write and Edit for the onboarding record and runbook. Use Bash(castctl:_) for documented auth, dry-run, connection, and status operations; use Bash(kubectl:_) for bounded verification. Never echo credentials or infer permission scope.
 
 ## Output
 
-Return a reviewed cluster-autoscaler policy, node-template scope, capacity
-limits, and before/after health evidence for the nominated environment. Keep a
-serialized copy of the previous policy and identify the operator authorized to
-disable autoscaling when node churn, workload disruption, or unexpected spend
-breaches the guardrail.
+- Reviewed dry-run and permission inventory
+- One connected cluster with documented feature state
+- Agent and telemetry health evidence
+- Baseline and automation handoff record
 
 ## Examples
 
-Apply a constrained node template to a staging cluster, create one controlled
-unschedulable workload, and observe provisioning plus PodDisruptionBudget
-behavior. Promote only when capacity, lifecycle mix, and service health match
-the approved range; otherwise disable the policy and restore the prior
-template before investigating.
+An EKS team connects Cost Monitoring first, collects a representative baseline, and delays Node Autoscaling until Karpenter ownership is decided. A GKE team verifies metrics-server before selecting Workload Autoscaling.
+
+## Error Handling
+
+| Failure                                   | Response                                              |
+| ----------------------------------------- | ----------------------------------------------------- |
+| castctl detects the wrong cluster         | Stop and correct kube context before connecting       |
+| Existing provisioner ownership is unclear | Keep optimization disabled and resolve architecture   |
+| Agent is not ready                        | Collect events and logs; do not enable automation     |
+| Cost data is incomplete                   | Verify telemetry and wait for a representative window |
 
 ## Resources
 
-- [Autoscaler Policies](https://docs.cast.ai/docs/autoscaler-settings)
-- [Node Configuration](https://docs.cast.ai/docs/node-configuration)
-- [Terraform Node Templates](https://registry.terraform.io/providers/castai/castai/latest/docs/resources/node_template)
-
-## Next Steps
-
-For workload-level autoscaling, see `castai-core-workflow-b`.
+- [Onboarding evidence and source notes](references/official-docs.md)
+- [Connect with castctl](https://docs.cast.ai/docs/connect-with-castctl)
+- [Connecting your cluster](https://docs.cast.ai/docs/connecting-your-cluster)
+- [Cost monitoring overview](https://docs.cast.ai/docs/cost-management)

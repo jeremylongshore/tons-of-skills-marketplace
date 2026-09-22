@@ -1,108 +1,85 @@
 ---
 name: together-prod-checklist
-description: 'Together AI prod checklist for inference, fine-tuning, and model deployment.
-
-  Use when working with Together AI''s OpenAI-compatible API.
-
-  Trigger: "together prod checklist".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(pip:*), Grep
-version: 1.7.0
-license: MIT
+description: >-
+  Review a Together AI production release across model policy, auth, data controls, dynamic limits, retries, observability, cost, deprecations, asynchronous recovery, and rollback. Use when reviewing go-live or a material model change. Trigger with "Together production checklist", "Together go live", or "Together readiness review".
+argument-hint: "[repository-path] [environment] [model-or-endpoint]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.9.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ai
-- inference
-- together
-compatibility: Designed for Claude Code
+- together-ai
+- production-readiness
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; verification may require deployment, telemetry, billing, and Together project access
 ---
 # Together AI Production Checklist
 
 ## Overview
 
-Together AI provides OpenAI-compatible inference across 100+ open-source models (Llama, Mixtral, Qwen, FLUX) plus fine-tuning and batch processing. A production integration routes completions, embeddings, or image generation through Together's API. Failures mean inference latency spikes, model availability gaps, or unexpected cost overruns from uncontrolled batch jobs.
+This skill produces a release decision backed by current provider, application, security, reliability, quality, and cost evidence.
 
-## Authentication & Secrets
+## Prerequisites
 
-- [ ] `TOGETHER_API_KEY` stored in secrets manager (not source code)
-- [ ] API key restricted to production workspace
-- [ ] Key rotation schedule documented (90-day cycle)
-- [ ] Separate keys for dev/staging/prod environments
-- [ ] Fine-tuning job tokens scoped separately from inference tokens
+- A pinned release artifact and environment configuration
+- Model/endpoint quality, latency, availability, and cost thresholds
+- Secret, data handling, monitoring, incident, and rollback owners
+- Current Together model, limit, pricing, and deprecation evidence
 
-## API Integration
+## Tool Discipline
 
-- [ ] Production base URL configured (`https://api.together.xyz/v1`)
-- [ ] Rate limit handling with exponential backoff
-- [ ] Model IDs validated against `client.models.list()` before deployment
-- [ ] Completion streaming implemented for real-time use cases
-- [ ] Embedding batch size optimized (max 2048 inputs per request)
-- [ ] Batch inference configured for non-real-time workloads (50% cost savings)
-- [ ] Fallback model configured if primary model is unavailable
+Use `Read`, `Glob`, and `Grep` to inspect configuration, model policy, retry logic, tests, and runbooks. Use `WebFetch` for current Together contracts. Use `Write` or `Edit` only for approved remediation or the release record.
 
-## Error Handling & Resilience
+## Current Contract
 
-- [ ] Circuit breaker configured for Together API outages
-- [ ] Retry with backoff for 429/5xx responses
-- [ ] Model-not-found errors caught before user-facing requests
-- [ ] Token usage tracked per request to prevent budget overruns
-- [ ] Fine-tuning job failure alerts configured
-- [ ] Timeout handling for long-running generation requests (>30s)
+- Resolve model IDs and deprecation status at review time; do not trust an old README.
+- Read dynamic limit headers and bound concurrency, tokens, retries, and queues.
+- Separate serverless, batch, fine-tuning, and dedicated failure/recovery paths.
+- Dedicated replicas require explicit cost shutdown; batches require output/error reconciliation.
 
-## Monitoring & Alerting
+## Authentication
 
-- [ ] API latency tracked per model and endpoint (chat, embeddings, images)
-- [ ] Error rate alerts set (threshold: >5% over 5 minutes)
-- [ ] Token consumption monitored against daily/monthly budget caps
-- [ ] Model availability checked (Together status page integration)
-- [ ] Batch job completion rate tracked
+Verify environment-specific project keys, secret-manager injection, rotation/revocation, fork isolation, and log redaction. Never prove readiness by displaying a credential or authorization header.
 
-## Validation Script
+## Instructions
 
-```typescript
-async function checkTogetherReadiness(): Promise<void> {
-  const checks: { name: string; pass: boolean; detail: string }[] = [];
-  // API connectivity
-  try {
-    const res = await fetch('https://api.together.xyz/v1/models', {
-      headers: { Authorization: `Bearer ${process.env.TOGETHER_API_KEY}` },
-    });
-    checks.push({ name: 'Together API', pass: res.ok, detail: res.ok ? 'Connected' : `HTTP ${res.status}` });
-  } catch (e: any) { checks.push({ name: 'Together API', pass: false, detail: e.message }); }
-  // Credentials present
-  checks.push({ name: 'API Key Set', pass: !!process.env.TOGETHER_API_KEY, detail: process.env.TOGETHER_API_KEY ? 'Present' : 'MISSING' });
-  // Inference test
-  try {
-    const res = await fetch('https://api.together.xyz/v1/chat/completions', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${process.env.TOGETHER_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'meta-llama/Llama-3-8b-chat-hf', messages: [{ role: 'user', content: 'ping' }], max_tokens: 5 }),
-    });
-    checks.push({ name: 'Inference', pass: res.ok, detail: res.ok ? 'Model responding' : `HTTP ${res.status}` });
-  } catch (e: any) { checks.push({ name: 'Inference', pass: false, detail: e.message }); }
-  for (const c of checks) console.log(`[${c.pass ? 'PASS' : 'FAIL'}] ${c.name}: ${c.detail}`);
-}
-checkTogetherReadiness();
-```
+1. Pin artifact, SDK major, configuration, model policy, and environment identity.
+2. Verify authentication, data classification, redaction, retention, and tenant isolation.
+3. Run offline tests and a bounded live canary for response shape, latency, quality, usage, and limits.
+4. Exercise `401`, `402`, `404`, `429`, `503`, timeout, partial batch, and model-deprecation paths.
+5. Reconcile spend forecasts with billing analytics and confirm alerts and dedicated teardown.
+6. Execute rollback/degradation evidence, assign all exceptions, and issue go, conditional-go, or no-go.
+
+## Approval Boundaries
+
+Do not waive a failed security, quality, cost, or recovery control. Conditional approval must name the owner, deadline, monitoring, and rollback trigger.
+
+## Output
+
+Return a control-by-control evidence matrix, exceptions, owners, current-provider snapshot, rollback result, cost state, and release verdict.
 
 ## Error Handling
 
-| Check | Risk if Skipped | Priority |
-|-------|----------------|----------|
-| API key rotation | Expired key halts all inference | P1 |
-| Token budget monitoring | Unexpected cost overruns | P1 |
-| Model availability check | Requests fail on deprecated models | P2 |
-| Rate limit backoff | Burst traffic triggers 429 cascade | P2 |
-| Fine-tuning job alerts | Failed jobs waste compute budget | P3 |
+| Condition | Response |
+|---|---|
+| Model is deprecated or redirected | Re-evaluate behavior and migrate before go-live. |
+| Live probe cannot run | Do not report it passed; issue an explicit exception or no-go. |
+| Cost/usage is unreconciled | Block capacity changes and assign the billing owner. |
+| Rollback fails | No-go until a recoverable path is proven. |
+
+## Examples
+
+The example below shows the minimum redacted evidence expected from a successful invocation of this operator workflow.
+
+```text
+artifact=pinned; auth=pass; model=current; limits=measured; rollback=pass; verdict=go
+```
 
 ## Resources
 
-- [Together AI Docs](https://docs.together.ai/)
-- [API Reference](https://docs.together.ai/reference/chat-completions-1)
-- [Model List](https://docs.together.ai/docs/inference-models)
-
-## Next Steps
-
-See `together-security-basics` for API key management and cost controls.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Deprecations](https://docs.together.ai/docs/deprecations)
+- [Dynamic rate limits](https://docs.together.ai/docs/serverless/rate-limits)
+- [Error codes](https://docs.together.ai/docs/error-codes)

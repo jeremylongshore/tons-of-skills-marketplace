@@ -8,7 +8,7 @@ description: 'Master Cursor Tab autocomplete, ghost text, and AI code suggestion
 
   '
 allowed-tools: Read, Write, Edit, Bash(cmd:*)
-version: 1.18.0
+version: 1.19.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

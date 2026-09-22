@@ -1,115 +1,90 @@
 ---
 name: openevidence-core-workflow-b
-description: 'Execute OpenEvidence secondary workflow: DeepConsult Research Synthesis.
-
-  Trigger: "openevidence deepconsult research synthesis", "secondary openevidence
-  workflow".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.13.0
-license: MIT
+description: >-
+  Audit an OpenEvidence answer’s EvidenceGrade, citations, and applicability before it informs clinical work. Use when working with OpenEvidence in a healthcare organization. Trigger with "openevidence core workflow b", "OpenEvidence citations", or a matching workflow request.
+argument-hint: "[response-or-notes-path] [review-question]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.14.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
 - openevidence
-- healthcare
-compatibility: Designed for Claude Code
+- citations
+- evidence-grade
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; requires authorized OpenEvidence access and qualified clinical review for patient-care use
 ---
-# OpenEvidence — Evidence Review & Citations
+# OpenEvidence EvidenceGrade and Citation Review
 
 ## Overview
 
-Search medical evidence, manage citations, and generate formatted evidence reports
-through OpenEvidence. Use this workflow to find clinical studies for a specific
-question, build citation collections for literature reviews, or produce structured
-evidence summaries with graded recommendations. This is the secondary workflow —
-for DeepConsult research synthesis, see `openevidence-core-workflow-a`.
+Treat the displayed grade as a navigation aid, then perform a source-level review of every material claim. Keep inputs minimal, separate observed facts from assumptions, and leave consequential decisions with the named accountable owner.
+
+## Prerequisites
+
+- A clearly bounded workflow, accountable clinical owner, and organizational policy
+- Current first-party OpenEvidence documentation and applicable institution agreements
+- Synthetic or properly authorized minimum-necessary data
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect supplied policies, plans, and evidence. Use `WebFetch` only for current first-party OpenEvidence documentation. Use `Write` or `Edit` only when the user requests a named deliverable with an approved destination. Never expose credentials, PHI, recordings, or unrestricted environment output.
+
+## Current Contract
+
+- The official user guide documents lettered EvidenceGrade output and links to its methodology.
+- A grade summarizes evidence strength; it is not a patient-specific recommendation or correctness guarantee.
+- Citation review must consider source type, date, population, outcome, and fit to the decision.
+
+## Authentication
+
+Use only the official OpenEvidence web/mobile sign-in or an institution-approved access path. Do not invent API keys, OAuth clients, SDK credentials, service accounts, or private endpoints. Never ask a user to reveal a password, session token, cookie, or recovery code.
 
 ## Instructions
 
-### Step 1: Search the Evidence Database
+1. List each material claim that could change diagnosis, treatment, safety, documentation, or patient communication.
+2. Capture the displayed EvidenceGrade and any caveats without treating the grade as the conclusion.
+3. Open the supporting citations and map each claim to the exact source or mark it unsupported.
+4. Check guideline authority, publication date, study population, intervention, comparator, outcomes, and limitations.
+5. Identify disagreements, indirectness, missing subgroups, or newer evidence that alters applicability.
+6. Return a clinician-review table with supported, uncertain, contradicted, and not-assessed claims.
 
-```typescript
-const results = await client.evidence.search({
-  query: 'SGLT2 inhibitors cardiovascular outcomes type 2 diabetes',
-  filters: {
-    study_type: ['rct', 'meta_analysis', 'systematic_review'],
-    year_range: { min: 2020, max: 2026 },
-    evidence_level: ['1a', '1b', '2a'],
-  },
-  limit: 25,
-  sort: 'relevance',
-});
-console.log(`Found ${results.total} studies`);
-results.items.forEach(s =>
-  console.log(`  [${s.evidence_level}] ${s.title} (${s.journal}, ${s.year}) — ${s.citations} citations`)
-);
-```
+## Approval Boundaries
 
-### Step 2: Build a Citation Collection
-
-```typescript
-const collection = await client.citations.create({
-  name: 'SGLT2i CV Outcomes Review — April 2026',
-  study_ids: results.items.slice(0, 15).map(s => s.id),
-  tags: ['cardiology', 'diabetes', 'sglt2i'],
-});
-console.log(`Collection ${collection.id}: ${collection.study_count} studies`);
-await client.citations.addByDoi(collection.id, { doi: '10.1056/NEJMoa2034577' });
-```
-
-### Step 3: Grade Evidence and Extract Key Findings
-
-```typescript
-const graded = await client.evidence.grade(collection.id, {
-  framework: 'GRADE',  // GRADE | Oxford | USPSTF
-  outcome: 'major_adverse_cardiovascular_events',
-});
-graded.findings.forEach(f =>
-  console.log(`${f.outcome}: ${f.grade} (${f.certainty}) — ${f.summary}`)
-);
-console.log(`Overall recommendation: ${graded.recommendation}`);
-```
-
-### Step 4: Generate a Formatted Evidence Report
-
-```typescript
-const report = await client.reports.generate({
-  collection_id: collection.id,
-  format: 'structured',
-  sections: ['clinical_question', 'search_strategy', 'evidence_table', 'grade_summary', 'references'],
-  citation_style: 'AMA',
-});
-console.log(`Report generated: ${report.page_count} pages`);
-console.log(`Download: ${report.download_url}`);
-```
-
-## HIPAA Notice
-
-- HIPAA-compliant and SOC 2 Type II certified — never include patient identifiers
-- Use de-identified clinical scenarios only; ensure BAA is in place before handling PHI
-
-## Error Handling
-
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| `401 Unauthorized` | Invalid API key or expired session | Regenerate key in OpenEvidence dashboard |
-| `404 Study not found` | DOI not indexed or incorrect ID | Search by title or check DOI format |
-| `422 Invalid filter` | Unsupported evidence_level or study_type | Use allowed values from `client.schema.filters()` |
-| `429 Rate limited` | Exceeded 60 queries/minute | Add backoff; batch searches where possible |
-| `503 Grading unavailable` | GRADE engine under maintenance | Retry after 5 minutes or use Oxford framework |
+Do not create or share accounts; change access, roles, agreements, consent, retention, or security settings; enter PHI; record a conversation; copy content into another system; contact a patient; make a diagnosis or treatment decision; submit billing; transmit a support packet; run a production pilot; or represent vendor capabilities without explicit approval from the accountable owner. A qualified professional remains responsible for clinical decisions.
 
 ## Output
 
-A successful workflow returns ranked evidence results with evidence levels, a curated
-citation collection, GRADE assessments with certainty ratings, and a downloadable
-structured report in AMA citation format.
+Return scope, current first-party evidence and date, data classification, workflow or findings, citations reviewed, assumptions rejected, clinical and governance owners, approval state, unresolved risk, and the exact next action. Redact patient and credential data.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Citation unavailable | Mark the linked claim unverified; do not rely on a summary alone. |
+| Grade missing | Continue source-level review and state that no grade was available. |
+| Source is indirect | Describe the inference and require clinical judgment. |
+
+## Examples
+
+This compact example shows the minimum reviewable handoff; adapt fields to the approved workflow without adding sensitive data.
+
+Input:
+
+```text
+response=de-identified excerpt; decision=screening interval; review=all material claims
+```
+
+Expected handoff:
+
+```text
+claims=6; supported=4; uncertain=2; grade=recorded; clinician-signoff=required
+```
 
 ## Resources
 
-- [OpenEvidence Platform](https://www.openevidence.com)
-
-## Next Steps
-
-See `openevidence-sdk-patterns` for authentication and HIPAA-compliant configuration.
+- [OpenEvidence official evidence register](references/official-docs.md)
+- [OpenEvidence User Guide](https://www.openevidence.com/user-guide)
+- [OpenEvidence Terms of Use](https://www.openevidence.com/policies/terms)

@@ -1,7 +1,7 @@
 {
   "name": "persona-pack",
-  "version": "1.4.0",
-  "description": "Claude Code skill pack for Persona (18 skills)",
+  "version": "2.0.0",
+  "description": "Operator-grade Persona identity workflow pack with 18 skills for inquiry lifecycles, authentic webhooks, privacy, reliability, and governed production delivery",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,10 @@
   "license": "MIT",
   "keywords": [
     "persona",
-    "persona",
-    "saas",
-    "sdk",
-    "integration"
+    "identity-verification",
+    "kyc",
+    "webhooks",
+    "privacy",
+    "saas"
   ]
 }

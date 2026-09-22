@@ -14,7 +14,7 @@ keywords:
   - "server plugin"
 officialLinks:
   - title: "Anthropic Claude Code Documentation"
-    url: "https://docs.anthropic.com/en/docs/claude-code/"
+    url: "https://code.claude.com/docs/en/"
   - title: "Model Context Protocol Specification"
     url: "https://modelcontextprotocol.io/"
   - title: "MCP TypeScript SDK"

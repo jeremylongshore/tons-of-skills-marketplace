@@ -1,189 +1,85 @@
 ---
 name: salesloft-sdk-patterns
-description: 'Apply production-ready SalesLoft API patterns for TypeScript and Python.
-
-  Use when building SalesLoft integrations, implementing pagination,
-
-  or wrapping the REST API v2 with typed clients.
-
-  Trigger: "salesloft SDK patterns", "salesloft best practices", "salesloft client
-  wrapper".
-
-  '
-allowed-tools: Read, Write, Edit
+description: >-
+  Analyze and design a typed Salesloft REST adapter with tenant-bound authentication, endpoint-specific schemas, pagination, errors, and rate metadata. Use when creating or refactoring an integration client. Trigger with "Salesloft SDK patterns", "Salesloft client wrapper", or "typed Salesloft API".
+argument-hint: "[repository-path] [language]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
 version: 1.6.0
-license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- sales
-- outreach
 - salesloft
+- api-client
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# SalesLoft SDK Patterns
+# Salesloft Typed REST Adapter
 
 ## Overview
 
-Production-ready patterns for the SalesLoft REST API v2. There is no official TypeScript/Python SDK -- build a typed wrapper around `https://api.salesloft.com/v2/` with automatic pagination, retry, and error normalization.
+This skill builds a narrow client around the endpoints an application actually uses. It avoids invented universal schemas, implicit tenant state, and unbounded recursive retries.
 
 ## Prerequisites
 
-- Completed `salesloft-install-auth` setup
-- `axios` or `node-fetch` installed
-- Familiarity with async/await and generics
+- A repository with an identified HTTP boundary
+- Endpoint, scope, request-format, and response-format inventory
+- A tenant-to-credential resolver
+- Fixture coverage for success and failure envelopes
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect package versions, call sites, and generated types. Use `WebFetch` only for official endpoint contracts. Use `Write` or `Edit` after the adapter boundary is confirmed.
+
+## Current Contract
+
+- Use `https://api.salesloft.com/v2` and documented resource paths; do not force `.json` onto every path.
+- Preserve `data`, `metadata`, `error`, and field-keyed `errors` as separate typed shapes.
+- Pagination and filters are endpoint-specific; page numbers begin at 1 and deep pages consume more rate cost.
+- Capture `x-ratelimit-endpoint-cost` and `x-ratelimit-remaining-minute` from every response that provides them.
+- Use the request content type documented by the endpoint rather than assuming all writes are JSON.
+
+## Authentication
+
+Resolve one Bearer credential from the explicit tenant context for every call. Never store a mutable global token or retry with another tenant's credential.
 
 ## Instructions
 
-### Step 1: Typed API Client Singleton
+1. Inventory exact methods, paths, scopes, query parameters, bodies, and consumed response fields.
+2. Define typed success, list metadata, singular error, validation error, and rate-state models.
+3. Centralize timeout, Bearer injection, content negotiation, and redacted error capture.
+4. Implement an iterative page iterator that stops on `metadata.paging.next_page` or an empty page.
+5. Retry only safe operations or explicitly idempotent application workflows with a bounded attempt budget.
+6. Add contract fixtures before migrating callers behind the adapter.
 
-```typescript
-// src/salesloft/client.ts
-import axios, { AxiosInstance, AxiosError } from 'axios';
+## Approval Boundaries
 
-interface SalesloftPaging {
-  per_page: number;
-  current_page: number;
-  total_pages: number;
-  total_count: number;
-}
-
-interface SalesloftListResponse<T> {
-  data: T[];
-  metadata: { paging: SalesloftPaging };
-}
-
-interface SalesloftSingleResponse<T> {
-  data: T;
-}
-
-let instance: AxiosInstance | null = null;
-
-export function getSalesloftClient(): AxiosInstance {
-  if (!instance) {
-    instance = axios.create({
-      baseURL: process.env.SALESLOFT_BASE_URL || 'https://api.salesloft.com/v2',
-      headers: { Authorization: `Bearer ${process.env.SALESLOFT_API_KEY}` },
-      timeout: 30_000,
-    });
-    // Add response interceptor for rate-limit headers
-    instance.interceptors.response.use(undefined, handleRateLimitError);
-  }
-  return instance;
-}
-```
-
-### Step 2: Automatic Pagination Iterator
-
-```typescript
-// SalesLoft paginates with page/per_page params, max 100 per page
-async function* paginate<T>(
-  endpoint: string,
-  params: Record<string, any> = {},
-): AsyncGenerator<T> {
-  const client = getSalesloftClient();
-  let page = 1;
-  let totalPages = 1;
-
-  do {
-    const { data: response } = await client.get<SalesloftListResponse<T>>(
-      endpoint, { params: { ...params, per_page: 100, page } }
-    );
-    for (const item of response.data) yield item;
-    totalPages = response.metadata.paging.total_pages;
-    page++;
-  } while (page <= totalPages);
-}
-
-// Usage: iterate all people
-for await (const person of paginate<Person>('/people.json')) {
-  console.log(person.display_name);
-}
-```
-
-### Step 3: Error Handling with Rate-Limit Awareness
-
-```typescript
-// SalesLoft uses cost-based rate limiting: 600 cost/min
-// High-page requests (page > 100) cost 3-30 points instead of 1
-async function handleRateLimitError(error: AxiosError) {
-  if (error.response?.status === 429) {
-    const retryAfter = parseInt(
-      error.response.headers['retry-after'] || '60', 10
-    );
-    console.warn(`Rate limited. Waiting ${retryAfter}s...`);
-    await new Promise(r => setTimeout(r, retryAfter * 1000));
-    return getSalesloftClient().request(error.config!);
-  }
-  throw error;
-}
-
-class SalesloftApiError extends Error {
-  constructor(
-    message: string,
-    public status: number,
-    public retryable: boolean,
-  ) {
-    super(message);
-    this.name = 'SalesloftApiError';
-  }
-}
-```
-
-### Step 4: Python Equivalent
-
-```python
-import os, time, requests
-from typing import Iterator, Any
-
-class SalesloftClient:
-    BASE_URL = "https://api.salesloft.com/v2"
-
-    def __init__(self, api_key: str | None = None):
-        self.session = requests.Session()
-        self.session.headers["Authorization"] = f"Bearer {api_key or os.environ['SALESLOFT_API_KEY']}"
-
-    def get(self, endpoint: str, **params) -> dict:
-        resp = self.session.get(f"{self.BASE_URL}/{endpoint}", params=params)
-        if resp.status_code == 429:
-            time.sleep(int(resp.headers.get("Retry-After", 60)))
-            return self.get(endpoint, **params)
-        resp.raise_for_status()
-        return resp.json()
-
-    def paginate(self, endpoint: str, **params) -> Iterator[dict]:
-        page = 1
-        while True:
-            result = self.get(endpoint, page=page, per_page=100, **params)
-            yield from result["data"]
-            if page >= result["metadata"]["paging"]["total_pages"]:
-                break
-            page += 1
-```
+Do not synthesize request fields from examples, automatically fall back to v1, or retry CRM writes without an application idempotency rule and operator approval.
 
 ## Output
 
-- Type-safe client singleton with rate-limit retry
-- Automatic pagination that handles all pages
-- Error normalization for consistent handling
-- Python and TypeScript implementations
+Return endpoint inventory, type boundaries, auth resolver, pagination behavior, retry policy, fixture coverage, and remaining direct calls.
 
 ## Error Handling
 
-| Status | Meaning | Retryable | Cost |
-|--------|---------|-----------|------|
-| `401` | Invalid/expired token | No (refresh token) | 0 |
-| `404` | Resource not found | No | 1 |
-| `422` | Validation error | No (fix payload) | 1 |
-| `429` | Rate limited | Yes (wait `Retry-After`) | 0 |
-| `5xx` | Server error | Yes (backoff) | 1 |
+| Condition | Response |
+|---|---|
+| 401 | Refresh or reacquire through the configured auth flow once. |
+| 403/404 | Preserve singular `error` and verify scope, visibility, and path. |
+| 422 | Preserve field-keyed `errors`; do not flatten away field context. |
+| 429/5xx | Respect current headers and bounded backoff; surface exhaustion. |
+
+## Examples
+
+The example below shows the minimum redacted evidence expected from a successful invocation of this operator workflow.
+
+```text
+tenant=team-42; endpoint=GET /v2/people; pages=2; rate-cost=2; retries=0
+```
 
 ## Resources
 
-- [SalesLoft API Basics](https://developers.salesloft.com/docs/platform/api-basics/)
-- [Rate Limits](https://developers.salesloft.com/docs/platform/api-basics/rate-limits/)
-- [People Endpoint](https://developers.salesloft.com/docs/api/people-index/)
-
-## Next Steps
-
-Apply patterns in `salesloft-core-workflow-a` for real-world usage.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Request and response format](https://developers.salesloft.com/docs/platform/api-basics/request-response-format/)
+- [Filtering, paging, and sorting](https://developers.salesloft.com/docs/platform/api-basics/filtering-paging-sorting/)

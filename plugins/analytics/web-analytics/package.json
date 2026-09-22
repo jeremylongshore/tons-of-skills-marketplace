@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/web-analytics",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Push-based web analytics intelligence — self-hosted Umami (primary) via MCP + GA4 (fallback). 9 specialist agents fetch data, detect anomalies, analyze funnels, verify claims, and deliver narrative re",
   "keywords": [
     "analytics",

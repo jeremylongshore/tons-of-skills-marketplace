@@ -1,179 +1,88 @@
 ---
 name: castai-deploy-integration
-description: 'Deploy CAST AI across multi-cloud Kubernetes clusters with Terraform
-  modules.
-
-  Use when onboarding EKS, GKE, or AKS clusters to CAST AI using
-
-  infrastructure-as-code patterns.
-
-  Trigger with phrases like "deploy cast ai", "cast ai eks",
-
-  "cast ai gke", "cast ai aks", "cast ai terraform module".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(terraform:*), Bash(helm:*), Bash(kubectl:*)
-version: 1.4.0
+description: 'Deploy CAST AI through a reviewable GitOps or Terraform lane with pinned artifacts, explicit control ownership, and staged promotion. Use when standardizing CAST AI across clusters or moving console-managed configuration into code. Trigger with: "deploy CAST AI with GitOps", "manage CAST AI as code", "roll out CAST AI to multiple clusters".'
+allowed-tools: Read, Grep, Write, Edit, Bash(helm:*), Bash(terraform:*), Bash(kubectl:*), Bash(castctl:*)
+version: 2.0.0
+argument-hint: '[infrastructure-root-and-cluster-ring]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- kubernetes
-- cost-optimization
-- castai
-compatibility: Designed for Claude Code
+  - saas
+  - kubernetes
+  - cast-ai
+  - gitops
+  - deployment
+compatibility: 'Requires an existing infrastructure delivery system and cloud-specific CAST AI permissions reviewed for each target cluster'
 ---
-# CAST AI Deploy Integration
+
+# CAST AI Deployment Integration
 
 ## Overview
 
-Deploy CAST AI to EKS, GKE, and AKS clusters using official Terraform modules. Each cloud provider has a dedicated CAST AI module that handles IAM roles, node configuration, and autoscaler setup.
+Make the repository the declared source of truth for CAST AI installation and policy, then promote one cluster ring at a time. Keep registration, cloud permissions, chart configuration, and automation decisions independently reviewable.
 
 ## Prerequisites
 
-- Terraform 1.0+
-- CAST AI Full Access API key
-- Cloud provider credentials configured
-- Existing Kubernetes cluster
+- Target clusters grouped into canary, staging, and production rings
+- A chosen owner: Terraform, GitOps Helm, castctl, or console
+- Pinned provider, module, chart, and policy inputs
+- Secret delivery that does not commit or render credentials into artifacts
 
 ## Instructions
 
-### EKS Deployment
+### Step 1: Inventory existing ownership
 
-```hcl
-# main.tf -- EKS cluster onboarding
-module "castai_eks" {
-  source  = "castai/eks-cluster/castai"
-  version = "~> 3.0"
+Use Read and Grep to find CAST AI resources, individual component charts, the unified `castai` chart, Terraform state addresses, Flux or Argo CD objects, and console-only settings. Stop if two systems can reconcile the same resource.
 
-  api_token           = var.castai_api_token
-  aws_account_id      = data.aws_caller_identity.current.account_id
-  aws_cluster_region  = var.region
-  aws_cluster_name    = var.cluster_name
+### Step 2: Define the repository contract
 
-  # IAM role for CAST AI to manage nodes
-  aws_instance_profile_arn = aws_iam_instance_profile.castai.arn
+Use Write or Edit to separate cluster registration, cloud IAM, Helm values, scaling policies, node templates, workload annotations, notification settings, and automation toggles. Parameterize organization, region, and cluster identity; never parameterize a secret with a committed literal.
 
-  # Autoscaler configuration
-  autoscaler_policies_json = jsonencode({
-    enabled = true
-    unschedulablePods = { enabled = true }
-    nodeDownscaler = {
-      enabled = true
-      emptyNodes = { enabled = true, delaySeconds = 300 }
-    }
-    spotInstances = {
-      enabled = true
-      spotDiversityEnabled = true
-    }
-    clusterLimits = {
-      enabled = true
-      cpu = { minCores = 4, maxCores = 200 }
-    }
-  })
+### Step 3: Render and plan
 
-  # Node templates
-  default_node_configuration = module.castai_eks.castai_node_configurations["default"]
-}
-```
+Use Bash(helm:_) to lint and render the pinned chart. Use Bash(terraform:_) to format, validate, and save a plan. Use Bash(kubectl:\*) for client-side manifest checks. Review RBAC, webhooks, CRDs, namespace, disruption behavior, deleted resources, and ownership transfers.
 
-### GKE Deployment
+### Step 4: Handle existing installations
 
-```hcl
-module "castai_gke" {
-  source  = "castai/gke-cluster/castai"
-  version = "~> 2.0"
+If the cluster uses individual CAST AI Helm releases, evaluate the documented `castctl cluster migrate` path to the unified umbrella chart. Use Bash(castctl:\*) only after recording current releases, values, rollback, and the exact cluster context.
 
-  api_token            = var.castai_api_token
-  project_id           = var.gcp_project_id
-  gke_cluster_name     = var.cluster_name
-  gke_cluster_location = var.region
+### Step 5: Promote by ring
 
-  gke_credentials = base64decode(
-    google_container_cluster.this.master_auth[0].cluster_ca_certificate
-  )
+Apply through the declared delivery controller to one canary cluster. Verify agent health, telemetry, policy state, and automation boundaries before staging and production. Require an explicit approval between rings and preserve the reviewed artifact digest.
 
-  autoscaler_policies_json = jsonencode({
-    enabled = true
-    unschedulablePods = { enabled = true }
-    nodeDownscaler = {
-      enabled = true
-      emptyNodes = { enabled = true, delaySeconds = 300 }
-    }
-  })
-}
-```
+### Step 6: Prove rollback and drift detection
 
-### AKS Deployment
+Document how to revert the Git commit or Terraform change, restore policy assignments, and detect console drift. A rollback must preserve cluster connectivity and workload availability; do not assume uninstalling is harmless.
 
-```hcl
-module "castai_aks" {
-  source  = "castai/aks/castai"
-  version = "~> 1.0"
+## Tool Discipline
 
-  api_token              = var.castai_api_token
-  aks_cluster_name       = var.cluster_name
-  aks_cluster_region     = var.region
-  node_resource_group    = azurerm_kubernetes_cluster.this.node_resource_group
-  azure_subscription_id  = data.azurerm_subscription.current.subscription_id
-  azure_tenant_id        = data.azurerm_client_config.current.tenant_id
-
-  autoscaler_policies_json = jsonencode({
-    enabled = true
-    unschedulablePods = { enabled = true }
-    spotInstances = { enabled = true }
-  })
-}
-```
-
-### Multi-Cluster Deployment Pattern
-
-```hcl
-# Deploy CAST AI across all clusters with a for_each
-variable "clusters" {
-  type = map(object({
-    name     = string
-    provider = string  # eks, gke, aks
-    region   = string
-    max_cpu  = number
-  }))
-}
-
-# Then reference the appropriate module per provider
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| IAM role error | Missing permissions | Check CAST AI IAM docs for required policies |
-| Module version conflict | Terraform lock | Run `terraform init -upgrade` |
-| Cluster not appearing | Wrong credentials | Verify cloud provider auth |
-| Policies not applying | JSON encoding error | Validate `jsonencode()` output |
+Use Read and Grep for ownership discovery. Use Write and Edit for infrastructure definitions and runbooks. Use Bash(helm:_), Bash(terraform:_), and Bash(kubectl:_) for bounded render, plan, and verification. Use Bash(castctl:_) only for documented migration or connection actions inside an approved window.
 
 ## Output
 
-Produce a reviewed infrastructure plan identifying cloud, cluster, module and
-provider versions, policy limits, secret references, and the per-cluster
-rollout decision. Deployment evidence must show the intended cluster identity
-and health after apply; never treat a successful Terraform exit code as proof
-that the autoscaler is safe to enable.
+- Source-of-truth and ownership map
+- Pinned rendered and planned artifacts
+- Ring promotion and health receipts
+- Drift and rollback procedure
 
 ## Examples
 
-Deploy one staging EKS cluster using a pinned module version and conservative
-policy limits, then verify agent health and policy state through the provider
-API. Promote separate GKE or AKS clusters only after their own plans and
-approvals pass; on a bad IAM or policy result, revert the changed state through
-the reviewed Terraform workflow rather than applying ad-hoc console changes.
+A team migrates legacy per-component releases to the unified chart in one canary cluster, then lets Argo CD own the pinned result. Terraform continues to own cloud IAM but not Helm values.
+
+## Error Handling
+
+| Failure                                       | Response                                    |
+| --------------------------------------------- | ------------------------------------------- |
+| Two reconcilers own one object                | Stop promotion and choose one authority     |
+| Plan deletes registration or IAM unexpectedly | Reject the plan and reconcile state         |
+| Rendered output includes a key                | Remove the secret from values and rotate it |
+| Canary loses telemetry                        | Roll back before promoting another cluster  |
 
 ## Resources
 
-- [EKS Module](https://registry.terraform.io/modules/castai/eks-cluster/castai/latest)
-- [GKE Module](https://registry.terraform.io/modules/castai/gke-cluster/castai/latest)
-- [AKS Module](https://registry.terraform.io/modules/castai/aks/castai/latest)
-- [CAST AI Terraform Provider](https://registry.terraform.io/providers/castai/castai/latest/docs)
-
-## Next Steps
-
-For webhook-based automation, see `castai-webhooks-events`.
+- [Deployment evidence and source notes](references/official-docs.md)
+- [Connect with castctl](https://docs.cast.ai/docs/connect-with-castctl)
+- [Connecting your cluster](https://docs.cast.ai/docs/connecting-your-cluster)
+- [Workload Autoscaler configuration](https://docs.cast.ai/docs/workload-autoscaling-configuration)

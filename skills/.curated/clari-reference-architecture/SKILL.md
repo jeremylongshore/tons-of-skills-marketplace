@@ -1,181 +1,91 @@
 ---
 name: clari-reference-architecture
-description: 'Reference architecture for Clari revenue intelligence integrations.
-
-  Use when designing a forecast data platform, planning Clari integration
-
-  architecture, or establishing team patterns for revenue analytics.
-
-  Trigger with phrases like "clari architecture", "clari data platform",
-
-  "clari integration design", "clari best practices".
-
-  '
-allowed-tools: Read, Write, Edit, Grep
-version: 1.6.0
+description: >-
+  Design a Clari architecture that separates Revenue exports, v2 ingestion, Copilot, control state, landing, validation, and publication. Use when defining or reviewing a platform boundary. Trigger with: "design Clari architecture", "review a Clari topology", "map Clari data flow".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[surfaces-destinations-and-recovery-objectives]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- revenue-intelligence
-- forecasting
-- clari
-compatibility: Designed for Claude Code
+  - saas
+  - clari
+  - architecture
+  - governance
+  - reliability
+compatibility: 'Requires approved Clari products, destination systems, data classifications, service objectives, and platform ownership.'
 ---
-# Clari Reference Architecture
+
+# Clari Governed Integration Architecture
 
 ## Overview
 
-Production architecture for Clari revenue intelligence integrations: export pipeline design, data warehouse schema, analytics layer, and alerting.
+Separate control-plane state from sensitive data and isolate each provider surface behind its own adapter. The architecture should make job identity, cursor state, source lineage, schema versions, mutations, and published datasets independently auditable.
 
 ## Prerequisites
 
-- Approved Clari export scope and a named revenue-data owner
-- Separate development, staging, and production storage/state boundaries
-- Warehouse access controls, retention policy, and audit logging
-- An orchestrator capable of idempotent exports and reviewed recovery
+- Business flows and read/write endpoint inventory
+- Data-classification, retention, residency, and access requirements
+- Recovery point, recovery time, freshness, and reconciliation objectives
 
 ## Instructions
 
-Build the pipeline in a non-production boundary first: pin the client and
-schema version, export a designated period, validate the manifest, and load
-through an idempotent warehouse operation. Promote the same reviewed design
-only after access controls, freshness alerts, and recovery behavior pass; keep
-individual forecast and owner data out of shared dashboards by default.
+### Step 1: Draw trust boundaries
 
-## Architecture Diagram
+Place Revenue, ingestion, Copilot, secrets, scheduler, state store, landing zone, validator, warehouse, and consumers in explicit zones.
 
-```
-┌──────────────┐     ┌─────────────────┐     ┌──────────────────┐
-│  Clari App   │     │  Clari Export    │     │  Data Warehouse  │
-│  (SaaS)      │────▶│  API (v4)       │────▶│  (Snowflake/BQ)  │
-└──────────────┘     └─────────────────┘     └────────┬─────────┘
-                                                       │
-                     ┌─────────────────┐     ┌────────▼─────────┐
-                     │  Change         │     │  Analytics /     │
-                     │  Detection      │────▶│  Dashboard       │
-                     └─────────────────┘     │  (Looker/Metabase)│
-                            │                └──────────────────┘
-                     ┌──────▼──────────┐
-                     │  Alerts         │
-                     │  (Slack/Email)  │
-                     └─────────────────┘
-```
+### Step 2: Separate provider adapters
 
-## Project Structure
+Use distinct hosts, credential types, schemas, limiters, and mutation policies for each surface.
 
-```
-clari-data-platform/
-├── src/
-│   ├── clari_client.py         # API client wrapper
-│   ├── export_pipeline.py      # ETL pipeline
-│   ├── change_detector.py      # Forecast change tracking
-│   ├── models.py               # Data models
-│   └── config.py               # Environment config
-├── dags/
-│   └── clari_export_dag.py     # Airflow DAG
-├── sql/
-│   ├── schema.sql              # Warehouse table definitions
-│   ├── merge.sql               # Upsert logic
-│   └── analytics/
-│       ├── forecast_accuracy.sql
-│       ├── pipeline_coverage.sql
-│       └── rep_performance.sql
-├── tests/
-│   ├── fixtures/               # Sample API responses
-│   ├── test_pipeline.py
-│   └── test_change_detector.py
-├── scripts/
-│   ├── run_export.sh
-│   └── validate_schema.py
-└── monitoring/
-    ├── alerts.yaml             # Alert rules
-    └── dashboard.json          # Grafana/Looker config
-```
+### Step 3: Design durable control state
 
-## Data Warehouse Schema
+Persist request fingerprints, provider job IDs, cursors, terminal states, contract fingerprints, and retry decisions outside ephemeral workers.
 
-```sql
--- Core tables
-CREATE TABLE clari_forecasts (
-    id BIGINT GENERATED ALWAYS AS IDENTITY,
-    owner_name VARCHAR NOT NULL,
-    owner_email VARCHAR NOT NULL,
-    forecast_amount DECIMAL(15,2),
-    quota_amount DECIMAL(15,2),
-    crm_total DECIMAL(15,2),
-    crm_closed DECIMAL(15,2),
-    adjustment_amount DECIMAL(15,2),
-    time_period VARCHAR NOT NULL,
-    forecast_name VARCHAR NOT NULL,
-    exported_at TIMESTAMP NOT NULL,
-    PRIMARY KEY (owner_email, time_period, forecast_name, exported_at)
-);
+### Step 4: Design the data path
 
--- Change tracking
-CREATE TABLE clari_forecast_changes (
-    id BIGINT GENERATED ALWAYS AS IDENTITY,
-    owner_email VARCHAR NOT NULL,
-    time_period VARCHAR NOT NULL,
-    previous_amount DECIMAL(15,2),
-    current_amount DECIMAL(15,2),
-    change_pct DECIMAL(5,2),
-    detected_at TIMESTAMP NOT NULL
-);
+Land immutable results, validate and reconcile in quarantine, normalize with lineage, then atomically publish approved versions.
 
--- Analytics views
-CREATE VIEW v_forecast_accuracy AS
-SELECT
-    time_period,
-    owner_name,
-    forecast_amount,
-    crm_closed AS actual_closed,
-    ROUND((1 - ABS(forecast_amount - crm_closed) / NULLIF(forecast_amount, 0)) * 100, 1) AS accuracy_pct
-FROM clari_forecasts
-WHERE exported_at = (SELECT MAX(exported_at) FROM clari_forecasts f2 WHERE f2.time_period = clari_forecasts.time_period);
-```
+### Step 5: Design failure containment
 
-## Key Design Decisions
+Prevent provider failure, schema drift, partial load, or unauthorized mutation from advancing consumer-facing data.
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Export frequency | Daily | Balances freshness vs API load |
-| Data format | JSON export | Structured, easy to parse |
-| Pipeline orchestration | Airflow | Retry, monitoring, DAG visualization |
-| Change detection | Snapshot comparison | Clari has no real-time webhooks |
-| Warehouse | Snowflake | SQL analytics, dbt compatibility |
+### Step 6: Prove operability
 
-## Error Handling
+Walk happy path, provider outage, quota exhaustion, credential rotation, schema drift, rollback, deletion, and support escalation.
 
-| Condition | Response |
-|---|---|
-| Export is partial or stale | Mark the dataset uncertified and halt downstream publication. |
-| Warehouse load breaks a constraint | Retain the staged input, diagnose the schema mismatch, and avoid destructive replacement. |
-| Data crosses environment or role boundaries | Restrict access, investigate the policy failure, and rotate affected credentials if needed. |
-| Freshness alert fires | Notify the data owner with the last certified period and job correlation data. |
+## Authentication
+
+Keep credential issuance and rotation in a dedicated secrets boundary. Adapters receive references for only one surface and environment, while downstream processors receive data but no provider credentials.
+
+## Tool Discipline
+
+Use Read and Grep to inspect configuration, provider contracts, fixtures, logs, schemas, and existing tests before proposing a change. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not issue, rotate, revoke, create, update, cancel, delete, export, ingest, or publish provider data without explicit operator approval.
 
 ## Output
 
-Produce an architecture decision and pipeline manifest covering environment
-boundaries, owners, schema/client pins, data classification, retention,
-monitoring, recovery, and the latest certified export. Design diagrams are
-guidance only; the reviewed implementation and observed run evidence are the
-source of operational truth.
+- Trust-boundary and data-flow diagram
+- Component ownership and contract matrix
+- Failure, recovery, rollback, retention, and deletion walkthrough
+
+Return the exact surface, environment, resource or job identifiers, contract fingerprint, evidence, unresolved risks, and final decision without exposing credentials or sensitive customer data.
 
 ## Examples
 
-Deploy the daily export into staging with a separate warehouse role, verify
-that a repeated run does not duplicate rows, and test a delayed-export alert.
-Promote only the approved equivalent configuration to production; if a report
-contains unauthorized rep-level detail, restrict it and correct the access
-model before publishing another refresh.
+The Revenue adapter writes job state to a control store and results to restricted landing storage; a validator publishes normalized snapshots. Copilot uses a different adapter and sensitive-data zone, while ingestion is isolated behind an approval-gated writer.
+
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| One component holds every credential | Split adapters and least-privilege identities before production approval. |
+| Raw landing writes directly to dashboards | Insert validation, reconciliation, versioning, and atomic publication. |
+| Mutation and read paths share retries | Separate policies so a transient read retry cannot replay a write. |
 
 ## Resources
 
-- [Clari Developer Portal](https://developer.clari.com)
-- [Clari API Reference](https://developer.clari.com/documentation/external_spec)
-- [Snowflake Documentation](https://docs.snowflake.com)
-
-## Next Steps
-
-This completes the Clari skill pack. Start with `clari-install-auth` for new integrations.
+- [First-party source notes](references/official-docs.md)
+- [Clari Revenue API reference](https://developer.clari.com/default/documentation/external_spec)
+- [Clari Copilot API reference](https://api-doc.copilot.clari.com/)

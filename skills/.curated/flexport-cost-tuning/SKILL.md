@@ -1,128 +1,103 @@
 ---
 name: flexport-cost-tuning
-description: 'Optimize Flexport API usage costs through efficient pagination, caching,
-
-  webhook-driven updates, and monitoring API call volume.
-
-  Trigger: "flexport costs", "flexport API usage", "reduce flexport calls", "flexport
-  billing".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.6.0
+description: >-
+  Reduce unnecessary Flexport traffic and processing without making unsupported API pricing claims. Use when tuning polling, pagination, payload expansion, cache freshness, or reconciliation volume. Trigger with: "optimize Flexport requests", "reduce Flexport polling", "tune shipment freshness".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[workload-freshness-objective]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - optimization
+  - operations
+compatibility: 'Requires request metrics, business freshness objectives, and current endpoint pagination/expansion documentation.'
 ---
-# Flexport Cost Tuning
+
+# Flexport Request-Volume and Freshness Tuning
 
 ## Overview
 
-Reduce Flexport API costs by minimizing unnecessary calls. Key strategies: use webhooks instead of polling, cache aggressively, maximize page sizes, and batch operations.
+Optimize volume and latency against business freshness, not a fabricated per-request bill. Prefer event-driven invalidation plus bounded reconciliation and measured page/expansion choices.
 
 ## Prerequisites
 
-- Current contract/billing data and provider limits reviewed by the account owner, not inferred from this guide.
-- Aggregate usage metrics, an approved target/data policy, and a named budget owner.
-- Synthetic staging workload plus a rollback switch for caching, polling, or batch changes.
-
-## Output
-
-Record a cost-control receipt with measurement window, aggregate usage, approved optimization, owner decision, expected effect, verification date, and rollback state. Do not include invoices, commercial terms, shipment content, or credentials.
-
-## Error Handling
-
-- Stop a change if it violates freshness, access, retention, or target policy even if it reduces calls.
-- Reduce load and use bounded retries on throttles; do not increase polling after a delivery gap.
-- Revert a cache or webhook switch if reconciliation detects missed or duplicate events.
-
-## Examples
-
-Compare a fictional webhook-driven workflow with a low-frequency staging poll using only request counts and synthetic event delivery. Promote the reduction only if reconciliation proves no missed/duplicate event and the data-access policy remains unchanged.
+- Baseline request counts by operation and outcome
+- Business-approved freshness and recovery windows
+- Metrics for pages read, expansions, cache hits, and reconciliation lag
 
 ## Instructions
 
-### Strategy 1: Webhooks Over Polling
+### Step 1: Name the outcome
 
-```typescript
-// BAD: Polling every 5 minutes (288 API calls/day per shipment)
-setInterval(async () => {
-  const shipment = await flexport(`/shipments/${id}`);
-  if (shipment.data.status !== lastStatus) updateDB(shipment);
-}, 5 * 60 * 1000);
+Tie each request to shipment tracking, trade document ingestion, invoice reconciliation, or booking—not generic synchronization.
 
-// GOOD: Webhook-driven (0 API calls — Flexport pushes updates)
-app.post('/webhooks/flexport', (req, res) => {
-  const event = req.body;
-  if (event.type === 'shipment.milestone') {
-    updateDB(event.data);  // Only processes real changes
-  }
-  res.sendStatus(200);
-});
-// Savings: 100 shipments * 288 calls/day = 28,800 calls/day eliminated
+### Step 2: Set freshness classes
+
+Define active-shipment, completed-shipment, invoice, and reference-data windows from operational need; do not hard-code invented provider change rates.
+
+### Step 3: Use events as hints
+
+Let authenticated webhooks trigger targeted reads, then run bounded periodic reconciliation for missed deliveries.
+
+### Step 4: Trim reads
+
+Stop pagination at the required window, request only supported expansions, and avoid expansion on invoice index calls where Flexport recommends against it.
+
+### Step 5: Cache safely
+
+Cache read-only reference results under an explicit TTL and invalidate on evidence; never cache credentials, authorization decisions, or mutable booking approval.
+
+### Step 6: Prove the change
+
+Compare request count, stale-result rate, reconciliation time, and provider errors before and after; roll back if correctness worsens.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
+
+## Output
+
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
+
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
 ```
 
-### Strategy 2: Maximize Page Size
+## Examples
 
-```typescript
-// BAD: Default pagination (per=25)
-// 1000 shipments = 40 API calls
+A shipment dashboard refreshes active records from verified events and a bounded reconciler, while completed shipments use a longer application TTL. The report claims fewer requests, not undocumented Flexport cost savings.
 
-// GOOD: Max pagination (per=100)
-// 1000 shipments = 10 API calls (75% reduction)
-const shipments = await flexport('/shipments?per=100&page=1');
-```
+## Error Handling
 
-### Strategy 3: Cache with Smart TTLs
-
-| Data Type | Change Frequency | Cache TTL | Impact |
-|-----------|-----------------|-----------|--------|
-| Products | Rarely | 1 hour | ~95% fewer calls |
-| Shipment list | Every few hours | 5 minutes | ~90% fewer calls |
-| Shipment detail | On milestones | Until webhook | ~99% fewer calls |
-| Purchase orders | Daily | 15 minutes | ~85% fewer calls |
-| Freight invoices | Monthly | 1 hour | ~95% fewer calls |
-
-### Strategy 4: Monitor API Usage
-
-```typescript
-// Track API call volume per endpoint
-const apiMetrics = new Map<string, { count: number; lastReset: Date }>();
-
-function trackAPICall(endpoint: string) {
-  const key = endpoint.split('?')[0];  // Strip query params
-  const metric = apiMetrics.get(key) || { count: 0, lastReset: new Date() };
-  metric.count++;
-  apiMetrics.set(key, metric);
-}
-
-// Report daily usage
-function reportUsage() {
-  console.log('=== Flexport API Usage ===');
-  for (const [endpoint, { count }] of apiMetrics) {
-    console.log(`  ${endpoint}: ${count} calls`);
-  }
-}
-```
-
-## Cost Reduction Checklist
-
-- [ ] Replace polling with webhooks for shipment tracking
-- [ ] Use `per=100` on all list endpoints
-- [ ] Cache product catalog (1hr TTL)
-- [ ] Cache shipment data, invalidate on webhooks
-- [ ] Eliminate duplicate calls in page loads
-- [ ] Monitor API call volume weekly
+| Failure | Response |
+| --- | --- |
+| Freshness objective absent | Stop optimization until the business owner defines acceptable staleness. |
+| Cache serves stale critical state | Bypass and reconcile, then shorten or event-invalidate that class. |
+| Expansion causes latency | Remove it from index calls and fetch detail only for selected records. |
+| Volume drops but gaps rise | Roll back and restore the last proven reconciliation window. |
 
 ## Resources
 
-- [Flexport Webhook Endpoints](https://apidocs.flexport.com/v2/tag/Webhook-Endpoints/)
-- [Flexport API Reference](https://apidocs.flexport.com/)
-
-## Next Steps
-
-For architecture design, see `flexport-reference-architecture`.
+- [First-party source notes](references/official-docs.md)
+- [Shipment API tutorial](https://developers.flexport.com/tutorials/shipment-api-tutorial/)
+- [Freight invoices tutorial](https://developers.flexport.com/tutorials/freight-invoices-api-tutorial/)
+- [Events](https://apidocs.flexport.com/v3/tag/Event/)

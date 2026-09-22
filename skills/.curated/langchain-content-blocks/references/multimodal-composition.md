@@ -209,7 +209,7 @@ Before composing a multi-modal message:
 ## References
 
 - LangChain multimodal concepts: <https://python.langchain.com/docs/concepts/multimodality/>
-- Anthropic vision: <https://docs.anthropic.com/en/docs/build-with-claude/vision>
-- Anthropic citations: <https://docs.anthropic.com/en/docs/build-with-claude/citations>
+- Anthropic vision: <https://platform.claude.com/docs/en/build-with-claude/vision>
+- Anthropic citations: <https://platform.claude.com/docs/en/build-with-claude/citations>
 - OpenAI vision: <https://platform.openai.com/docs/guides/vision>
 - Gemini multimodal: <https://ai.google.dev/gemini-api/docs/vision>

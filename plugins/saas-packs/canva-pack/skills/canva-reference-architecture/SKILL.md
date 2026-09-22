@@ -1,247 +1,92 @@
 ---
 name: canva-reference-architecture
-description: 'Implement Canva Connect API reference architecture with best-practice
-  project layout.
-
-  Use when designing new Canva integrations, reviewing project structure,
-
-  or establishing architecture standards for Canva applications.
-
-  Trigger with phrases like "canva architecture", "canva project structure",
-
-  "how to organize canva", "canva layout", "canva reference".
-
-  '
-allowed-tools: Read, Grep
-version: 1.5.0
+description: 'Implement a Canva Connect backend reference architecture with policy, OAuth, job reconciliation, and privacy-safe operations. Use when establishing service boundaries, ownership, storage, and recovery for production. Trigger with: "Canva reference architecture", "design Canva backend", "Canva service layout".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[requirements-and-data-classification]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - architecture
+  - operations
+compatibility: 'Requires a backend web application, durable token/job storage, approved data policy, and service ownership.'
 ---
-# Canva Reference Architecture
+
+# Canva Production Reference Architecture
 
 ## Overview
 
-Production-ready architecture for Canva Connect API integrations. All interactions use the REST API at `api.canva.com/rest/v1/*` with OAuth 2.0 PKCE authentication.
+Separate browser experience, backend OAuth/policy, provider adapter, durable operation ledger, workers, and controlled data stores. The architecture must prevent cross-tenant access and duplicate mutation by construction.
 
 ## Prerequisites
 
-- Server-side OAuth application, reviewed scopes, tenant/asset authorization model, and protected secrets/data stores.
-- Mocked tests plus a dedicated synthetic-asset integration environment.
+- Operations, tenants, traffic, data classes, and recovery objectives
+- Scopes, capabilities, preview dependencies, and public-review posture
+- Secret/token store, operation ledger, queue, observability, and rollback platform
 
 ## Instructions
 
-1. Put caller authorization, asset-rights checks, input validation, and idempotency before the Canva adapter.
-2. Keep OAuth/token exchange and signed URLs server-side, minimize stored/exported fields, and encrypt controlled artifacts.
-3. Process webhooks through signature verification and durable queues, then recheck policy before side effects.
-4. Separate liveness from readiness and pause mutations whenever authorization, reconciliation, or provider health is uncertain.
+### Step 1: Draw trust boundaries
 
-## Project Structure
+Map browser, callback, backend, policy service, token vault, Canva adapter, job ledger, worker queue, data store, telemetry, and provider edges.
 
-```
-my-canva-integration/
-├── src/
-│   ├── canva/
-│   │   ├── client.ts           # REST client wrapper with auto-refresh
-│   │   ├── auth.ts             # OAuth 2.0 PKCE flow
-│   │   ├── types.ts            # API request/response TypeScript types
-│   │   └── errors.ts           # CanvaAPIError class
-│   ├── services/
-│   │   ├── design.service.ts   # Design creation, export, listing
-│   │   ├── asset.service.ts    # Asset upload and management
-│   │   ├── template.service.ts # Brand template autofill (Enterprise)
-│   │   └── folder.service.ts   # Folder management
-│   ├── routes/
-│   │   ├── auth.ts             # OAuth callback endpoints
-│   │   ├── designs.ts          # Design CRUD routes
-│   │   ├── exports.ts          # Export trigger/download routes
-│   │   └── webhooks.ts         # Webhook receiver
-│   ├── middleware/
-│   │   ├── auth.ts             # Verify user has valid Canva token
-│   │   └── rate-limit.ts       # Client-side rate limit guard
-│   ├── store/
-│   │   └── tokens.ts           # Encrypted token storage (DB)
-│   └── index.ts
-├── tests/
-│   ├── mocks/
-│   │   └── canva-server.ts     # MSW mock server
-│   ├── unit/
-│   │   └── design.service.test.ts
-│   └── integration/
-│       └── canva-api.test.ts
-├── .env.example
-└── package.json
-```
+### Step 2: Own authorization centrally
 
-## Layer Architecture
+Resolve authenticated tenant, application role, resource ownership, explicit scope, capability, feature status, and data purpose before the adapter.
 
-```
-┌─────────────────────────────────────────┐
-│             Routes Layer                │
-│   (Express/Next.js — HTTP in/out)       │
-├─────────────────────────────────────────┤
-│           Service Layer                 │
-│  (Business logic, caching, validation)  │
-├─────────────────────────────────────────┤
-│          Canva Client Layer             │
-│   (REST calls, token refresh, retry)    │
-├─────────────────────────────────────────┤
-│         Infrastructure Layer            │
-│    (Token store, cache, queue)          │
-└─────────────────────────────────────────┘
-```
+### Step 3: Own tokens separately
 
-## Service Layer Pattern
+Keep client secret and tokens backend-only, encrypt access and refresh tokens separately, serialize per-user refresh, and atomically replace single-use refresh tokens.
 
-```typescript
-// src/services/design.service.ts
-import { CanvaClient } from '../canva/client';
-import { LRUCache } from 'lru-cache';
+### Step 4: Own mutation identity
 
-export class DesignService {
-  private cache = new LRUCache<string, any>({ max: 200, ttl: 300_000 });
+Create a durable operation record before provider dispatch, attach returned resource/job identity, and reconcile terminal state across retries and restarts.
 
-  constructor(private canva: CanvaClient) {}
+### Step 5: Own data lifecycle
 
-  async create(opts: {
-    type: 'preset' | 'custom';
-    name?: string;
-    width?: number;
-    height?: number;
-    title: string;
-    assetId?: string;
-  }) {
-    const designType = opts.type === 'preset'
-      ? { type: 'preset' as const, name: opts.name! }
-      : { type: 'custom' as const, width: opts.width!, height: opts.height! };
+Store minimum approved metadata/content, authorize every read, expire temporary references, implement consent/account deletion, and keep protected values out of telemetry.
 
-    return this.canva.request('/designs', {
-      method: 'POST',
-      body: JSON.stringify({
-        design_type: designType,
-        title: opts.title,
-        ...(opts.assetId && { asset_id: opts.assetId }),
-      }),
-    });
-  }
+### Step 6: Own failure recovery
 
-  async get(id: string) {
-    const cached = this.cache.get(id);
-    if (cached) return cached;
+Use endpoint-scoped admission, bounded retries, dead letters with reconciliation state, feature flags, immutable deploys, and exercised rollback.
 
-    const result = await this.canva.request(`/designs/${id}`);
-    this.cache.set(id, result);
-    return result;
-  }
+### Step 7: Record the blueprint
 
-  async export(designId: string, format: object): Promise<string[]> {
-    // Start export job
-    const { job } = await this.canva.request('/exports', {
-      method: 'POST',
-      body: JSON.stringify({ design_id: designId, format }),
-    });
+Use Write or Edit to document responsibilities, interfaces, schemas, threat decisions, SLOs, failure modes, and verification evidence.
 
-    // Poll for completion
-    return this.pollExport(job.id);
-  }
+## Authentication
 
-  private async pollExport(exportId: string, timeoutMs = 60000): Promise<string[]> {
-    const start = Date.now();
-    while (Date.now() - start < timeoutMs) {
-      const { job } = await this.canva.request(`/exports/${exportId}`);
-      if (job.status === 'success') return job.urls;
-      if (job.status === 'failed') throw new Error(`Export failed: ${job.error?.message}`);
-      await new Promise(r => setTimeout(r, 2000));
-    }
-    throw new Error('Export timeout');
-  }
-}
-```
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-## Data Flow
+## Tool Discipline
 
-```
-User clicks "Create Design"
-       │
-       ▼
-┌─────────────┐
-│   Route     │  POST /api/designs
-│   Handler   │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│  Design     │  Validates input, checks auth
-│  Service    │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│  Canva      │  POST api.canva.com/rest/v1/designs
-│  Client     │  (auto-refreshes token if expired)
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│  Canva      │  Returns design.id, edit_url, view_url
-│  API        │
-└─────────────┘
-       │
-       ▼
-  Redirect user to edit_url → Canva Editor
-```
-
-## Auth Middleware
-
-```typescript
-// src/middleware/auth.ts
-export function requireCanvaAuth(tokenStore: TokenStore) {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ error: 'Not authenticated' });
-
-    const tokens = await tokenStore.get(userId);
-    if (!tokens) return res.status(403).json({ error: 'Canva not connected' });
-
-    // Attach client to request for downstream use
-    req.canva = new CanvaClient({
-      clientId: process.env.CANVA_CLIENT_ID!,
-      clientSecret: process.env.CANVA_CLIENT_SECRET!,
-      tokens,
-      onTokenRefresh: (newTokens) => tokenStore.save(userId, newTokens),
-    });
-
-    next();
-  };
-}
-```
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-The architecture record identifies scope, authorization boundary, protected data stores, event/reconciliation flow, deployment version, and rollback path. It distinguishes mocked from device/API integration evidence and excludes tokens, design content, and signed URLs.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-Run an API service with server-side OAuth, a policy-resolved synthetic test asset, and an encrypted metadata-only store. A worker records an idempotency key before export, validates the authorized result, and pauses its queue if readiness or policy checks fail.
+The browser never receives a client secret or refresh token. The backend policy service authorizes an export, the ledger preserves identity, a worker polls the same job, and the application mediates result delivery.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Circular dependencies | Wrong layering | Services import client, not vice versa |
-| Token not found | User hasn't connected Canva | Redirect to OAuth flow |
-| Cache stale | Design updated in Canva | Invalidate on webhook events |
-| Service timeout | Export taking too long | Increase timeout, add job queue |
+| Failure | Response |
+| --- | --- |
+| Business roles leak into generic client | Move authorization before the adapter |
+| Refresh can run concurrently | Add a per-user lock and atomic replacement |
+| Queue lacks operation identity | Stop writes until the ledger exists |
+| Telemetry contains resource identifiers | Redesign dimensions and redact |
 
 ## Resources
 
-- [Canva Starter Kit](https://github.com/canva-sdks/canva-connect-api-starter-kit)
-- Canva API Reference
-
-## Next Steps
-
-For multi-environment setup, see `canva-multi-env-setup`.
+- [First-party source notes](references/official-docs.md)
+- [Authentication](https://www.canva.dev/docs/connect/authentication/)
+- [API request model](https://www.canva.dev/docs/connect/api-requests-responses/)

@@ -1,11 +1,10 @@
 ---
 name: meeting-prep
 description: Meeting preparation assistant for Product Managers. Use when the user
-  needs to prepare for a meeting, create talking points, anticipate questions, or
-  structure a discussion. Triggers include "prepare for meeting", "meeting prep",
-  "talking points", "get ready for", "1:1 prep", or when preparing for any scheduled
-  conversation.
-version: 1.8.0
+  needs to prepare a meeting, create talking points, anticipate questions, or structure
+  a decision. Trigger with "prepare for meeting", "meeting prep", "talking points",
+  "get ready for", or "1:1 prep".
+version: 1.10.0
 author: Ahmed Khaled Mohamed <ahmd.khaled.a.mohamed@gmail.com>
 license: MIT
 allowed-tools: Read, Glob, Grep
@@ -14,8 +13,19 @@ tags:
 - productivity
 - meeting-prep
 compatibility: Designed for Claude Code
+model: inherit
+effort: medium
+user-invocable: true
 ---
 # Meeting Prep Skill
+
+## Overview
+
+Prepare a decision-oriented brief that gives the attendee context, a clear desired outcome, and
+usable responses to likely questions. Apply the
+[evidence and review checklist](references/evidence-and-review.md) before finalizing the brief.
+
+Use `Glob` to locate prior notes, `Grep` to find decisions, and `Read` to verify current context.
 
 ## Instructions
 
@@ -37,6 +47,8 @@ Help the user prepare for meetings with clear talking points, anticipated questi
 - Respectful of the user's judgment
 
 ## Meeting Prep Template
+
+Use this structure as a starting point, then remove sections that do not affect the meeting outcome.
 
 ```markdown
 ## Meeting: [Title]
@@ -237,10 +249,6 @@ Align on realistic timeline and identify what can be cut/simplified.
 ---
 
 Want to practice any of these conversations?
-
-## Overview
-
-Meeting preparation assistant that helps product managers create talking points, anticipate questions, structure discussions, and walk into meetings with strategic clarity.
 
 ## Prerequisites
 

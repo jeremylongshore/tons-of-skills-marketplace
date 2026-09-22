@@ -17,7 +17,7 @@ officialLinks:
   - title: "Tons of Skills Marketplace"
     url: "https://tonsofskills.com"
   - title: "Anthropic Claude Code Documentation"
-    url: "https://docs.anthropic.com/en/docs/claude-code/"
+    url: "https://code.claude.com/docs/en/"
 relatedDocs:
   - "guides/build-a-plugin"
   - "reference/plugin-json-schema"

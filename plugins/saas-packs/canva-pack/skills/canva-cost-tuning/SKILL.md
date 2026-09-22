@@ -1,181 +1,88 @@
 ---
 name: canva-cost-tuning
-description: 'Optimize Canva Connect API usage costs through efficient API patterns
-  and monitoring.
-
-  Use when analyzing Canva API usage, reducing unnecessary calls,
-
-  or implementing usage monitoring and budget tracking.
-
-  Trigger with phrases like "canva cost", "canva usage",
-
-  "reduce canva calls", "canva API efficiency", "canva budget".
-
-  '
-allowed-tools: Read, Grep
-version: 1.5.0
+description: 'Reduce unnecessary Canva Connect operations using measured request, retry, cache, and premium-feature evidence. Use when reviewing usage, trial-quota pressure, deduplication, or budget guardrails. Trigger with: "reduce Canva usage", "Canva quota planning", "optimize Canva calls".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[usage-window-and-budget-guardrail]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - cost
+  - operations
+compatibility: 'Requires current tenant entitlement evidence and an approved measurement window; public pricing must not be inferred.'
 ---
-# Canva Cost Tuning
+
+# Canva Usage and Entitlement Control
 
 ## Overview
 
-Optimize Canva Connect API usage. While the Connect API itself is free to call, rate limits constrain throughput. Canva Enterprise (required for autofill) has per-seat licensing costs. Optimize by reducing unnecessary calls, caching effectively, and batching operations.
+Optimize application behavior, not an imagined universal Canva bill. Use current endpoint metadata, capability/trial responses, and local operation receipts to find duplicate calls, polling waste, and avoidable retries.
 
 ## Prerequisites
 
-- Current pricing and account-limit evidence from Canva and the organization; the examples below are not a purchase quote.
-- An approved workload scope, aggregate telemetry, and named spend/usage owner.
+- Measurement window and application operation ledger
+- Current tenant entitlement, capability, and contract evidence
+- Latency, freshness, retry, and data-retention budgets
 
 ## Instructions
 
-1. Verify current plan terms, features, and limits before estimating or changing workload behavior.
-2. Measure aggregate authorized usage, minimize requests and export fields, and set conservative budget/rate ceilings.
-3. Test one optimization behind a rollback flag and retain redacted reconciliation evidence before wider rollout.
+### Step 1: Build the baseline
 
-## Canva Pricing Model
+Use Read and Grep to count logical operations, provider requests, retries, polling reads, cache hits, failures, and premium-feature responses by endpoint pattern.
 
-| Tier | Cost | Connect API Access | Autofill API | Brand Templates |
-|------|------|-------------------|--------------|-----------------|
-| Canva Free | $0/user | Yes | No | No |
-| Canva Pro | $15/user/mo | Yes | No | No |
-| Canva Teams | $10/user/mo (5+) | Yes | No | Limited |
-| Canva Enterprise | Custom | Yes | Yes | Yes |
+### Step 2: Separate request classes
 
-**Key insight:** The REST API is free — costs come from Canva subscriptions. Autofill and brand template APIs require Enterprise.
+Distinguish user reads, metadata reads, mutating submissions, and job-status polling. Never combine them into one cost number.
 
-## API Call Reduction Strategies
+### Step 3: Remove duplicates
 
-### Cache Design Metadata
+Persist operation identity before writes, coalesce concurrent reads where safe, and reconcile existing jobs before resubmission.
 
-```typescript
-// Design metadata rarely changes — cache aggressively
-// Save: ~100 GET /designs/{id} calls/min per user
-const designMetadata = await cachedCanvaCall(
-  `design:${designId}`,
-  () => canvaAPI(`/designs/${designId}`, token),
-  300 // 5 min TTL
-);
-```
+### Step 4: Tune polling
 
-### Avoid Redundant Exports
+Apply bounded exponential backoff to existing asynchronous jobs and stop at the application timeout without creating replacements.
 
-```typescript
-// Track exported designs to prevent duplicate exports
-class ExportTracker {
-  private exportedDesigns = new Map<string, { urls: string[]; expiresAt: number }>();
+### Step 5: Tune caches safely
 
-  async exportIfNeeded(designId: string, format: object, token: string): Promise<string[]> {
-    const cached = this.exportedDesigns.get(designId);
-    // Export URLs valid for 24 hours — reuse if still valid
-    if (cached && Date.now() < cached.expiresAt) {
-      return cached.urls;
-    }
+Cache only policy-approved metadata with explicit freshness and authorization invalidation. Never cache tokens or signed result URLs as durable content.
 
-    const { job } = await canvaAPI('/exports', token, {
-      method: 'POST',
-      body: JSON.stringify({ design_id: designId, format }),
-    });
-    const urls = await pollExport(job.id, token);
+### Step 6: Gate the change
 
-    this.exportedDesigns.set(designId, {
-      urls,
-      expiresAt: Date.now() + 23 * 60 * 60 * 1000, // 23 hours (1h buffer)
-    });
+Use Write or Edit to record baseline, selected control, expected impact, experiment window, rollback threshold, and measured result.
 
-    return urls;
-  }
-}
-```
+## Authentication
 
-### Pagination with Early Exit
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-```typescript
-// Stop listing when you find what you need
-async function findDesignByTitle(title: string, token: string): Promise<any | null> {
-  let continuation: string | undefined;
+## Tool Discipline
 
-  do {
-    const params = new URLSearchParams({
-      query: title,  // Use server-side search instead of client filtering
-      limit: '25',
-      ...(continuation && { continuation }),
-    });
-
-    const data = await canvaAPI(`/designs?${params}`, token);
-    const match = data.items.find((d: any) => d.title === title);
-    if (match) return match; // Early exit — don't fetch remaining pages
-
-    continuation = data.continuation;
-  } while (continuation);
-
-  return null;
-}
-```
-
-## Usage Monitoring
-
-```typescript
-class CanvaUsageTracker {
-  private calls: Map<string, number> = new Map();
-
-  track(endpoint: string): void {
-    const key = `${new Date().toISOString().slice(0, 13)}:${endpoint}`; // Hourly bucket
-    this.calls.set(key, (this.calls.get(key) || 0) + 1);
-  }
-
-  report(): { endpoint: string; callsPerHour: number }[] {
-    const hourly: Record<string, number> = {};
-    for (const [key, count] of this.calls) {
-      const endpoint = key.split(':').slice(1).join(':');
-      hourly[endpoint] = (hourly[endpoint] || 0) + count;
-    }
-    return Object.entries(hourly)
-      .map(([endpoint, callsPerHour]) => ({ endpoint, callsPerHour }))
-      .sort((a, b) => b.callsPerHour - a.callsPerHour);
-  }
-}
-```
-
-## Optimization Checklist
-
-- [ ] Design metadata cached (5+ min TTL)
-- [ ] Brand template list cached (1+ hour TTL)
-- [ ] Export URLs reused within 24-hour window
-- [ ] Pagination uses `query` parameter for server-side search
-- [ ] Thumbnail URLs refreshed only when displayed (15-min expiry)
-- [ ] Asset uploads deduplicated (don't re-upload same file)
-- [ ] Autofill results cached by template+data hash
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-Cost tuning yields current-source assumptions, aggregate usage trend, approved budget/rate limits, optimization result, and rollback decision. It excludes design content, asset URLs, user data, and credentials.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-For an export-heavy feature, verify the account limits, run a small synthetic pilot with a ceiling, compare aggregate usage and completion metrics, then enable a cache or batching change behind a feature flag. Roll back if authorization, freshness, or reconciliation degrades.
+A review finds repeated export submissions caused by request timeouts. The service persists job identity before dispatch and resumes polling, reducing duplicate work without claiming a dollar savings percentage.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Rate limits hit frequently | Too many calls | Add caching layer |
-| Export quota exceeded | Duplicate exports | Track and reuse URLs |
-| Autofill not available | Not Enterprise tier | Upgrade Canva plan |
-| Slow list queries | No search filter | Use `query` parameter |
+| Failure | Response |
+| --- | --- |
+| No operation ledger | Add observability before claiming optimization |
+| Entitlement unknown | Report uncertainty and obtain current tenant evidence |
+| Cache crosses tenants | Disable it and correct the key/authorization boundary |
+| Savings based on list price | Replace with measured usage and current contract data |
 
 ## Resources
 
-- [Canva Pricing](https://www.canva.com/pricing/)
-- [Canva Enterprise](https://www.canva.com/enterprise/)
-- [API Rate Limits](https://www.canva.dev/docs/connect/api-requests-responses/)
-
-## Next Steps
-
-For architecture patterns, see `canva-reference-architecture`.
+- [First-party source notes](references/official-docs.md)
+- [Trial quotas](https://www.canva.dev/docs/connect/api-requests-responses/#trial-quotas)
+- [Capabilities](https://www.canva.dev/docs/connect/capabilities/)

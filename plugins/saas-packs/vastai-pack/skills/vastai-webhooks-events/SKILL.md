@@ -1,177 +1,93 @@
 ---
 name: vastai-webhooks-events
-description: 'Build event-driven workflows around Vast.ai instance lifecycle events.
-
-  Use when monitoring instance status changes, implementing auto-recovery,
-
-  or building event-driven GPU orchestration.
-
-  Trigger with phrases like "vastai events", "vastai instance monitoring",
-
-  "vastai status changes", "vastai lifecycle events".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(vastai:*), Bash(curl:*)
-version: 1.11.0
+description: >-
+  Analyze, verify, and operate Vast.ai notification webhooks with exact-body HMAC, replay protection, deduplication, durable enqueue, and failure-aware acknowledgment. Use when notification events must drive automation. Trigger with: "receive Vast.ai webhooks", "verify X-Vast-Signature-256", "handle duplicate Vast.ai events".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[client-or-host-event-keys-and-public-https-endpoint]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- webhooks
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - webhooks
+  - signatures
+  - event-processing
+compatibility: 'Requires a public HTTPS receiver, durable queue and deduplication store, secret manager, and notification webhook access.'
 ---
-# Vast.ai Webhooks & Events
+
+# Signed Vast.ai Notification Receiver
 
 ## Overview
 
-Build event-driven workflows around Vast.ai GPU instance lifecycle. Vast.ai does not provide traditional webhooks, so event detection relies on polling the REST API at `cloud.vast.ai/api/v0` and reacting to instance status transitions (loading, running, exited, error, offline).
+Vast.ai notifications are signed, at-least-once deliveries. Verify the exact raw body before JSON parsing, reject stale timestamps, deduplicate by stable event ID, enqueue durably, and return success only after acceptance.
 
 ## Prerequisites
 
-- Vast.ai CLI authenticated
-- Understanding of instance lifecycle states
-- Python 3.8+ for event loop implementation
+- Full subscription keys such as `client:low_credit` or `client:outbid`
+- Public HTTPS endpoint without redirects or private-address resolution
+- Webhook secret store, five-minute replay window, durable queue, and event ledger
 
 ## Instructions
 
-### Step 1: Instance Status Poller
+### Step 1: Create a bounded subscription
 
-```python
-import time, json, subprocess
-from typing import Callable, Dict, List
+Discover valid notification types and subscribe only the required full client or host keys. Respect the four-webhook-per-user limit and retain context-specific webhooks when short slugs overlap.
 
-class InstanceEventPoller:
-    """Poll Vast.ai API and emit events on status transitions."""
+### Step 2: Store the one-time secret
 
-    def __init__(self, api_key: str, poll_interval: int = 30):
-        self.api_key = api_key
-        self.poll_interval = poll_interval
-        self.previous_states: Dict[int, str] = {}
-        self.handlers: Dict[str, List[Callable]] = {}
+Capture the signing secret at create or rotate time because list and update responses do not return it. Test retrieval and rotation ownership.
 
-    def on(self, event: str, handler: Callable):
-        self.handlers.setdefault(event, []).append(handler)
+### Step 3: Verify raw delivery
 
-    def poll_once(self):
-        result = subprocess.run(
-            ["vastai", "show", "instances", "--raw"],
-            capture_output=True, text=True)
-        instances = json.loads(result.stdout)
+Require POST, read exact body bytes, combine integer `X-Vast-Timestamp`, a period, and raw body, then compare the HMAC-SHA256 against `X-Vast-Signature-256` in constant time.
 
-        for inst in instances:
-            inst_id = inst["id"]
-            status = inst.get("actual_status", "unknown")
-            prev = self.previous_states.get(inst_id)
+### Step 4: Reject replay and duplicates
 
-            if prev and prev != status:
-                event = f"{prev}_to_{status}"
-                for handler in self.handlers.get(event, []):
-                    handler(inst)
-                for handler in self.handlers.get("any_change", []):
-                    handler(inst, prev, status)
+Reject missing or malformed headers and timestamps older than 300 seconds. Deduplicate retries using `X-Vast-Event-Id` or payload `event_id`.
 
-            self.previous_states[inst_id] = status
+### Step 5: Acknowledge after durable enqueue
 
-    def run(self):
-        print(f"Polling every {self.poll_interval}s...")
-        while True:
-            self.poll_once()
-            time.sleep(self.poll_interval)
-```
+Persist the verified event and return 2xx quickly. Process side effects asynchronously and idempotently; the delivery timeout is ten seconds.
 
-### Step 2: Event Handlers
+### Step 6: Test and operate failure paths
 
-```python
-def on_instance_running(instance):
-    print(f"Instance {instance['id']} is RUNNING")
-    print(f"  SSH: ssh -p {instance['ssh_port']} root@{instance['ssh_host']}")
-    # Trigger: start training job, send notification, etc.
+Use the provider test delivery, verify rotation, and monitor permanent 3xx/most-4xx failures versus retryable 408, 429, 5xx, timeout, or connection errors.
 
-def on_instance_exited(instance):
-    print(f"Instance {instance['id']} EXITED")
-    # Trigger: collect results, check for errors, notify team
+## Authentication
 
-def on_spot_preemption(instance, old_status, new_status):
-    if old_status == "running" and new_status in ("exited", "offline"):
-        print(f"ALERT: Instance {instance['id']} may have been preempted")
-        # Trigger: auto-recovery, provision replacement
+Webhook configuration uses the scoped Vast.ai API key; delivery verification uses the distinct webhook secret. Never log either secret or parse/re-serialize JSON before signature verification.
 
-# Wire up handlers
-poller = InstanceEventPoller(api_key)
-poller.on("loading_to_running", on_instance_running)
-poller.on("running_to_exited", on_instance_exited)
-poller.on("any_change", on_spot_preemption)
-poller.run()
-```
+## Tool Discipline
 
-### Step 3: Auto-Recovery on Preemption
-
-```python
-def auto_recover(instance, old_status, new_status):
-    """Automatically replace preempted instances."""
-    if old_status != "running" or new_status not in ("exited", "offline", "error"):
-        return
-
-    gpu_name = instance.get("gpu_name", "RTX_4090")
-    image = instance.get("image_uuid", "pytorch/pytorch:latest")
-
-    print(f"Auto-recovering {instance['id']} ({gpu_name})...")
-
-    # Search for replacement
-    offers = json.loads(subprocess.run(
-        ["vastai", "search", "offers",
-         f"gpu_name={gpu_name} reliability>0.98 rentable=true",
-         "--order", "dph_total", "--raw", "--limit", "3"],
-        capture_output=True, text=True, check=True).stdout)
-
-    if offers:
-        new_id = json.loads(subprocess.run(
-            ["vastai", "create", "instance", str(offers[0]["id"]),
-             "--image", image, "--disk", "50", "--raw"],
-            capture_output=True, text=True, check=True).stdout)["new_contract"]
-        print(f"Replacement instance: {new_id}")
-```
-
-### Step 4: Cost Event Tracking
-
-```python
-def track_costs(instance, old_status, new_status):
-    """Log cost events for billing tracking."""
-    if new_status == "running":
-        print(f"BILLING START: Instance {instance['id']} "
-              f"at ${instance.get('dph_total', 0):.3f}/hr")
-    elif old_status == "running":
-        print(f"BILLING STOP: Instance {instance['id']}")
-```
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- Polling-based event detection for instance status changes
-- Event handlers for running, exited, preempted states
-- Auto-recovery on spot preemption
-- Cost tracking event logger
+- Subscription keys, webhook ID, and secret-rotation ownership
+- Signature, replay, deduplication, enqueue, and idempotency tests
+- Delivery health and retry/permanent-failure receipt
 
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Missed status transition | Poll interval too long | Reduce to 15-30s for critical instances |
-| False preemption alert | Instance restarted intentionally | Track expected state changes |
-| Auto-recovery loops | Same host keeps failing | Exclude failed host IDs from search |
-| API timeout during poll | Network or rate limiting | Retry with backoff; continue polling |
-
-## Resources
-
-- [Vast.ai REST API](https://vast.ai/developers/api)
-- [Instance Management](https://docs.vast.ai/api-reference/instances/create-instance)
-
-## Next Steps
-
-For performance optimization, see `vastai-performance-tuning`.
+Return webhook ID, context keys, test event ID, signature/replay/dedupe results, acknowledgment latency, queue record, and rotation date.
 
 ## Examples
 
-**Slack notifications**: Wire `on_instance_running` to send a Slack message with SSH connection details. Wire `on_spot_preemption` to alert the team.
+A `client:low_credit` delivery is verified from raw bytes, rejected if older than five minutes, deduplicated by event ID, enqueued, and acknowledged with 204 before the worker pages the billing owner.
 
-**Training monitor**: Track `running_to_exited` events. If exit was expected (job complete), collect results. If unexpected, trigger auto-recovery with checkpoint resume.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| Signature or timestamp is invalid | Return a permanent client error and do not enqueue or disclose verification details. |
+| Duplicate event arrives | Return success after confirming the original durable record; do not repeat side effects. |
+| Queue is unavailable | Return a retryable failure such as 503 rather than acknowledging data loss. |
+| Endpoint redirects | Fix the configured final HTTPS URL because redirects are permanent delivery failures. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [Notification webhooks](https://docs.vast.ai/guides/reference/notification-webhooks)
+- [List notification types](https://docs.vast.ai/api-reference/notifications/list-notification-types)
+- [Rotate webhook secret](https://docs.vast.ai/api-reference/notifications/rotate-notification-webhook-secret)

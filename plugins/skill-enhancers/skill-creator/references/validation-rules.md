@@ -58,7 +58,7 @@ Everything in Standard, plus:
 | `compatibility` | 1-500 chars if present |
 | `metadata` | Valid YAML object if present |
 | `model` | One of: `inherit`, `sonnet`, `haiku`, `opus`, or valid model ID |
-| `effort` | One of: `low`, `medium`, `high`, `max` (`max` requires Opus 4.6) |
+| `effort` | One of: `low`, `medium`, `high`, `xhigh`, `max` (availability depends on model) |
 | `argument-hint` | Non-empty string if present |
 | `disable-model-invocation` | Boolean if present |
 | `user-invocable` | Boolean if present |
@@ -70,11 +70,11 @@ Everything in Standard, plus:
 
 | Field | Warning |
 |-------|---------|
-| `when_to_use` | Deprecated - move to description |
 | `mode` | Deprecated - use `disable-model-invocation` |
+| `compatible-with` | Deprecated - replace with Agent Skills `compatibility` prose |
 
-**Note**: `version`, `author`, `license`, `tags`, and `compatible-with` are valid top-level fields.
-The marketplace 100-point validator scores them at top-level.
+**Note**: `version`, `author`, `license`, `compatibility`, and `tags` are valid
+top-level fields. The marketplace validator scores them at top level.
 
 ---
 
@@ -137,9 +137,10 @@ The marketplace 100-point validator scores them at top-level.
 ### Valid Tool Names
 
 ```
-Read, Write, Edit, Bash, Glob, Grep,
-WebFetch, WebSearch, Task, NotebookEdit,
-AskUserQuestion, Skill
+Common built-ins: Read, Write, Edit, Bash, Glob, Grep,
+WebFetch, WebSearch, Agent, NotebookEdit,
+AskUserQuestion, Skill. Use the validator's VALID_TOOLS registry for the
+current complete set.
 ```
 
 Plus MCP tools in `ServerName:tool_name` format.

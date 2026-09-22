@@ -12,7 +12,7 @@ description: 'Diagnose and fix Anthropic Claude API errors by HTTP status code.
 
   '
 allowed-tools: Read, Grep, Bash(curl:*)
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -157,8 +157,8 @@ For a sandbox probe, send `health-check-001` with a bounded `max_tokens` value, 
 
 ## Resources
 
-- [Error Types Reference](https://docs.anthropic.com/en/api/errors)
-- [Rate Limits](https://docs.anthropic.com/en/api/rate-limits)
+- [Error Types Reference](https://platform.claude.com/docs/en/api/errors)
+- [Rate Limits](https://platform.claude.com/docs/en/api/rate-limits)
 - [API Status](https://status.anthropic.com)
 
 ## Next Steps

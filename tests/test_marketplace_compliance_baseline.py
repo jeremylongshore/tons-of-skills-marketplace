@@ -29,15 +29,11 @@ class MarketplaceComplianceBaselineTests(unittest.TestCase):
         validator = load_validator()
         path = "plugins/example/skills/example/SKILL.md"
         self.assertEqual(
-            validator.baseline_finding_triple(
-                path, "[frontmatter] Missing required field: 'tags' (marketplace)"
-            ),
+            validator.baseline_finding_triple(path, "[frontmatter] Missing required field: 'tags' (marketplace)"),
             (path, "E-MISSING-REQUIRED-FIELD", "tags"),
         )
         self.assertEqual(
-            validator.baseline_finding_triple(
-                path, "[body] Required section missing: 'Overview' (marketplace tier)"
-            ),
+            validator.baseline_finding_triple(path, "[body] Required section missing: 'Overview' (marketplace tier)"),
             (path, "E-MISSING-REQUIRED-SECTION", "Overview"),
         )
 
@@ -67,7 +63,10 @@ class MarketplaceComplianceBaselineTests(unittest.TestCase):
         )
         self.assertEqual(payload["totals"]["errors"], 2)
         self.assertEqual(payload["totals"]["grade_A_plus_B_pct"], 75.0)
-        self.assertEqual(payload["rule_inventory"], ["E-FIRST", "E-SECOND"])
+        self.assertEqual(
+            payload["rule_inventory"],
+            sorted(validator.DECLARED_MARKETPLACE_RULE_INVENTORY | {"E-FIRST", "E-SECOND"}),
+        )
         self.assertEqual(
             payload["entries"],
             ["a/SKILL.md :: E-FIRST :: a", "z/SKILL.md :: E-SECOND :: b"],
@@ -99,6 +98,8 @@ class MarketplaceComplianceBaselineTests(unittest.TestCase):
         payload = json.loads(result.stdout)
         self.assertEqual(payload["entries"], [])
         self.assertEqual(payload["totals"]["errors"], 0)
+        self.assertTrue(payload["rule_inventory"])
+        self.assertIn("E-FRONTMATTER-a84c0ab5ddff", payload["rule_inventory"])
 
     def test_emit_baseline_is_json_when_findings_are_present(self):
         with tempfile.TemporaryDirectory() as directory:

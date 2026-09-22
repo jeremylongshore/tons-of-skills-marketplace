@@ -7,11 +7,14 @@ description: 'Configure CI/CD pipeline for automated Figma-to-code generation wi
 
   component generation, or integrating Anima into design handoff workflows.
 
-  Trigger: "anima CI", "anima GitHub Actions", "anima automated generation".
+  Trigger with: "anima CI", "anima GitHub Actions", "anima automated generation".
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.4.0
+version: 2.0.0
+argument-hint: "[workflow-file] [figma-file-key]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -20,7 +23,7 @@ tags:
 - figma
 - anima
 - ci-cd
-compatibility: Designed for Claude Code
+compatibility: Requires Node.js 20+, approved Anima API access, current Anima SDK documentation, and authorized Figma or website source access
 ---
 # Anima CI Integration
 
@@ -96,6 +99,7 @@ jobs:
 // scripts/generate-components.ts
 import { Anima } from '@animaapp/anima-sdk';
 import fs from 'fs';
+import path from 'path';
 
 const anima = new Anima({ auth: { token: process.env.ANIMA_TOKEN! } });
 
@@ -117,23 +121,35 @@ async function main() {
       settings: { language: 'typescript', framework: 'react', styling: 'tailwind', uiLibrary: 'shadcn' },
     });
 
-    for (const file of files) {
-      fs.writeFileSync(`${outputDir}/${file.fileName}`, file.content);
+    for (const [fileName, file] of Object.entries(files)) {
+      if (file.isBinary) throw new Error(`Binary output needs asset handling: ${fileName}`);
+      const root = path.resolve(outputDir);
+      const target = path.resolve(root, fileName);
+      if (!target.startsWith(`${root}${path.sep}`)) throw new Error('Unsafe output path');
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      fs.writeFileSync(target, file.content);
     }
     console.log(`Generated: ${comp.name}`);
-    await new Promise(r => setTimeout(r, 6000)); // Rate limit
+    // Stop on a provider/Figma rate-limit result; do not guess a safe quota.
   }
 }
 
-main().catch(err => { console.error(err); process.exit(1); });
+main().catch(() => {
+  console.error({ failureClass: 'design-sync-failed' });
+  process.exit(1);
+});
 ```
+
+## Tool Discipline
+
+Use Read and Grep to inspect the existing integration and generated diff before changing anything. Use Write or Edit only inside the approved generated-code, test, or configuration paths. Use the declared Bash commands only for the explicit install, validation, or diagnostic steps in this workflow; never print tokens, source designs, generated source, or private website captures.
 
 ## Output
 
 - Scheduled GitHub Actions workflow for design-to-code sync
 - Auto-PR creation when generated code changes
-- ESLint auto-fix on generated output
-- Rate-limited generation script for CI
+- Lint, type, secret, dependency, and visual checks on generated output
+- A bounded generation script that stops on rate-limit or authorization failure
 
 ## Examples
 
@@ -159,7 +175,3 @@ before retrying.
 
 - [Anima API](https://docs.animaapp.com/docs/anima-api)
 - [GitHub Actions Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
-
-## Next Steps
-
-For deployment, see `anima-deploy-integration`.

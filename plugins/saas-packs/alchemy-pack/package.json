@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/alchemy-pack",
-  "version": "1.0.2",
-  "description": "Claude Code skill pack for Alchemy - 18 skills covering blockchain development, NFT APIs, and web3 infrastructure",
+  "version": "2.0.0",
+  "description": "Evidence-backed Alchemy operator workflows for current Node, Data, Portfolio, NFT, Wallet, Notify, Admin, reliability, security, and migration contracts (18 skills)",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -13,9 +13,9 @@
     "claude-code",
     "claude-code-plugin",
     "alchemy",
-    "blockchain",
     "web3",
-    "nft-api",
+    "viem",
+    "wallet-apis",
     "ai-skills",
     "saas-pack"
   ],

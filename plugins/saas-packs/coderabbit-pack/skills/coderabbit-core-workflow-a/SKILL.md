@@ -1,214 +1,97 @@
 ---
 name: coderabbit-core-workflow-a
-description: 'Execute CodeRabbit primary workflow: automated PR code review with configuration.
-
-  Use when setting up automated code reviews on pull requests,
-
-  configuring review behavior, or establishing the core CodeRabbit review loop.
-
-  Trigger with phrases like "coderabbit review workflow", "coderabbit PR review",
-
-  "coderabbit auto review", "configure coderabbit reviews".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*), Bash(git:*), Grep
-version: 1.11.0
-license: MIT
+description: >-
+  Run the primary CodeRabbit review loop from eligibility through finding disposition and verification. Use when this operator task needs a current, evidence-backed
+  CodeRabbit workflow. Trigger with "run a CodeRabbit PR review".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[target] [evidence-or-scope]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- coderabbit
-- workflow
-- code-review
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current CodeRabbit documentation and approved access for any live organization, repository, billing, or API change
+tags: [saas, coderabbit, pull-requests, code-review, workflow]
 ---
-# CodeRabbit Core Workflow A: Automated PR Review
+# CodeRabbit Pull Request Review
 
 ## Overview
 
-The primary CodeRabbit workflow: a developer opens a PR, CodeRabbit automatically analyzes the diff, posts a walkthrough summary and line-level comments, and the developer addresses feedback. This skill covers configuration, review profiles, path instructions, and the full review lifecycle.
+Operate one evidence-backed review cycle. Separate walkthroughs, inline findings, incremental review, full review, CI, and human merge ownership.
 
 ## Prerequisites
 
-- CodeRabbit GitHub App installed (see `coderabbit-install-auth`)
-- `.coderabbit.yaml` in repository root
-- At least one PR-capable branch
+- Identify the CodeRabbit organization, Git provider, repository, plan, and accountable owner.
+- Read `references/official-docs.md` and re-check any time-sensitive contract before execution.
+- Use synthetic or read-only evidence until the approval boundary is satisfied.
+- Preserve the repository's independent CI, security, and human-review requirements.
+
+## Current Contract
+
+- Eligible pull requests are reviewed automatically unless configuration excludes them.
+- The walkthrough is separate from inline findings.
+- Incremental and full reviews are distinct commands.
+- CodeRabbit supplements rather than replaces required CI and human judgment.
+
+## Authentication
+
+Treat Git-provider sessions, CodeRabbit web sessions, CLI credentials, and CodeRabbit API keys as separate credentials. Use only an already-approved session or secret-manager reference, never print a secret, and do not place credentials in `.coderabbit.yaml`, source files, logs, or deliverables.
 
 ## Instructions
 
-### Step 1: Configure the Review Pipeline
+1. Verify installation, eligibility, feature-branch config, and independent CI.
 
-```yaml
-# .coderabbit.yaml - Production-ready configuration
-language: "en-US"
-early_access: false
+2. Group walkthrough and inline findings by severity, file, and evidence.
 
-reviews:
-  profile: "assertive"              # chill = less feedback, assertive = more thorough
-  request_changes_workflow: true    # CodeRabbit marks review as "changes requested" for issues
-  high_level_summary: true          # Post a walkthrough comment summarizing all changes
-  high_level_summary_in_walkthrough: true
-  review_status: true               # Show review progress status
-  collapse_walkthrough: false       # Keep walkthrough expanded
-  sequence_diagrams: true           # Generate control flow diagrams
-  poem: false                       # Disable poems in review summary
+3. Resolve valid findings in bounded commits and explain declined findings.
 
-  auto_review:
-    enabled: true
-    drafts: false                   # Skip draft PRs
-    base_branches:
-      - main
-      - develop
-    ignore_title_keywords:
-      - "WIP"
-      - "DO NOT MERGE"
-      - "chore: bump"
+4. Request the appropriate documented review and confirm closure before handoff.
 
-  path_filters:
-    - "!**/*.lock"
-    - "!**/*.snap"
-    - "!**/generated/**"
-    - "!dist/**"
-    - "!**/*.min.js"
-    - "!vendor/**"
+## Tool Discipline
 
-  path_instructions:
-    - path: "src/api/**"
-      instructions: |
-        Review for: input validation, proper HTTP status codes, auth middleware usage,
-        error response format per RFC 7807. Flag missing error handling.
-    - path: "src/db/**"
-      instructions: |
-        Review for: parameterized queries (no string concatenation), transaction boundaries,
-        proper connection cleanup, index usage. Flag N+1 query patterns.
-    - path: "**/*.test.*"
-      instructions: |
-        Review for: assertion completeness, edge case coverage, proper async handling.
-        Do NOT comment on test naming conventions or import order.
-    - path: ".github/workflows/**"
-      instructions: |
-        Review for: pinned action versions (use SHA not tag), no secrets in logs,
-        timeout-minutes on all jobs, OIDC for cloud auth.
+- Use **Glob** to locate candidate configuration and evidence files without widening scope.
+- Use **Grep** to find relevant fields, commands, identifiers, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use these file tools as a substitute for authenticated CodeRabbit or provider operations.
 
-chat:
-  auto_reply: true
+## Approval Boundaries
 
-# Finishing touches configuration
-reviews:
-  finishing_touches:
-    docstrings:
-      enabled: true       # Allow @coderabbitai generate-docstrings command
-```
-
-### Step 2: Understand the Review Lifecycle
-
-```
-Developer opens/updates PR
-         │
-         ▼
-┌─────────────────────────────────┐
-│ CodeRabbit analyzes diff        │
-│ (typically 2-5 min, up to 15   │
-│  min for 1000+ line PRs)       │
-└─────────┬───────────────────────┘
-          │
-          ├──▶ Walkthrough comment (summary + sequence diagram)
-          │
-          ├──▶ Line-level comments (bugs, suggestions, improvements)
-          │
-          └──▶ Review state (approved / changes_requested)
-                    │
-                    ▼
-         Developer addresses feedback
-                    │
-          ┌─────────┴──────────┐
-          │                    │
-    Reply to comment     Push new commits
-    (conversation)       (incremental re-review)
-          │                    │
-          ▼                    ▼
-    CodeRabbit responds  CodeRabbit reviews
-    with explanation     only changed files
-```
-
-### Step 3: Interact with Reviews
-
-```markdown
-# In any PR comment:
-@coderabbitai full review          # Re-review all files from scratch
-@coderabbitai summary              # Regenerate walkthrough summary
-@coderabbitai resolve              # Mark all CodeRabbit comments as resolved
-@coderabbitai generate-docstrings  # Auto-generate docstrings for functions
-@coderabbitai configuration        # Show current active config as YAML
-@coderabbitai help                 # List all commands
-
-# Reply to any CodeRabbit inline comment to discuss the feedback.
-# CodeRabbit maintains conversation context and will explain its reasoning.
-
-# In PR description, add instructions for this specific review:
-# "Focus on security implications of the auth changes"
-```
-
-### Step 4: Configure Finishing Touch Recipes
-
-```yaml
-# .coderabbit.yaml - Custom finishing touch recipes (open beta)
-finishing_touches:
-  recipes:
-    - name: "fix-imports"
-      description: "Sort and organize imports"
-      instructions: |
-        Sort all imports alphabetically. Group: external packages first,
-        then internal modules, then relative imports. Remove unused imports.
-
-    - name: "tighten-types"
-      description: "Replace any with specific types"
-      instructions: |
-        Replace all `any` types with proper TypeScript types.
-        Use `unknown` for truly unknown values. Add type guards where needed.
-```
-
-```markdown
-# Trigger recipes in a PR comment:
-@coderabbitai run fix-imports
-@coderabbitai run tighten-types
-
-# Or check the boxes in the Finishing Touches section of the walkthrough
-```
+Require human approval before pushing fixes, dismissing security findings, requesting approval, or merging. Keep analysis and drafts local until approval is explicit, and record who approved the action and its scope.
 
 ## Output
 
-- Automated review on every PR targeting configured branches
-- Walkthrough summary with sequence diagrams
-- Line-level feedback categorized by severity
-- Interactive conversation on review comments
-- Finishing touch recipes for automated code improvements
+A finding ledger with evidence, dispositions, commits, residual risk, and merge recommendation. Include source dates, unknowns, and the exact boundary between observed fact and recommendation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Review takes 15+ minutes | PR has 1000+ changed lines | Split into smaller PRs |
-| No review posted | PR targets non-configured branch | Add branch to `base_branches` |
-| Reviews on generated files | Missing path_filters | Add `!**/generated/**` to path_filters |
-| Too many nitpick comments | Profile set to assertive | Switch to `chill` for experienced teams |
-| Config changes not applied | YAML syntax error | Run `@coderabbitai configuration` to verify |
-| Review on draft PR | `drafts: true` in config | Set `drafts: false` to skip drafts |
+| Condition | Response |
+|---|---|
+| Current contract is unclear or docs disagree | Stop mutation, cite both sources, and request owner resolution. |
+| Required access or approval is missing | Produce a draft and evidence plan only. |
+| Validation or pilot behavior differs from expectation | Restore the prior state and retain the failed evidence. |
+| Output contains secrets or private code | Stop, quarantine the artifact, redact it, and notify the data owner. |
 
 ## Examples
 
-Configure a pilot repository to review only non-draft pull requests targeting
-its main branch, open a small test PR, and inspect the walkthrough and one
-line-level finding for relevance. If generated files or noise dominate the
-review, adjust path instructions in a follow-up change and verify the active
-configuration before widening scope.
+### Example 1
+
+Process an incremental review after a narrow bug fix.
+
+### Example 2
+
+Decline a false positive with repository evidence retained in the PR thread.
+
+## Validation
+
+- Confirm every claim against the dated sources in `references/official-docs.md`.
+- Verify the requested scope, owner, approval, happy path, failure path, and rollback.
+- Re-read the effective configuration or provider state after any approved change.
+- Report unsupported fields, undocumented endpoints, and unverified assumptions as failures.
 
 ## Resources
 
-- [Configuration Reference](https://docs.coderabbit.ai/reference/configuration)
-- [Review Commands](https://docs.coderabbit.ai/reference/review-commands)
-- [Finishing Touches](https://docs.coderabbit.ai/finishing-touches/index)
-
-## Next Steps
-
-For configuration tuning and noise reduction, see `coderabbit-core-workflow-b`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

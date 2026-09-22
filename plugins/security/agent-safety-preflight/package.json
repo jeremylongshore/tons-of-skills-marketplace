@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/agent-safety-preflight",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Generate a local repo-risk receipt before Claude Code or other AI-agent edits",
   "keywords": [
     "security",

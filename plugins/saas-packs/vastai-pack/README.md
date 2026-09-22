@@ -1,6 +1,6 @@
-# Vast.ai Skill Pack
+# Vast.ai Operator Skill Pack
 
-> Claude Code skill pack for Vast.ai GPU cloud marketplace integration (24 skills)
+> Twenty-four evidence-gated workflows for Vast.ai GPU rentals, Serverless, recovery, security, governance, and cost control.
 
 ## Installation
 
@@ -8,86 +8,61 @@
 /plugin install vastai-pack@claude-code-plugins-plus
 ```
 
-## About Vast.ai
+The standalone skills CLI can also install individual public skills from `jeremylongshore/tons-of-skills-marketplace`.
 
-[Vast.ai](https://vast.ai) is a GPU cloud marketplace where individual hosts and data centers list GPU machines at prices 50-90% below hyperscaler providers. Common use cases: ML training, inference, rendering, and any GPU-accelerated workload where cost efficiency matters.
+## Operating boundary
 
-**Key facts:**
+This pack is grounded in the first-party [Vast.ai documentation](https://docs.vast.ai/) and the provider-maintained [Vast.ai CLI and SDK repository](https://github.com/vast-ai/vast-cli). It complements the provider's command-reference skills by adding approval boundaries, failure handling, recovery evidence, and production governance.
 
-- REST API at `cloud.vast.ai/api/v0` + CLI via `pip install vastai`
-- Pricing: RTX 4090 ~$0.15-0.30/hr, A100 ~$1.00-2.00/hr, H100 ~$2.50-4.00/hr
-- Instance types: on-demand and interruptible (spot)
-- Access: SSH + Docker containers on rented GPU hardware
+Marketplace Grade A is a repository quality result. It is not Vast.ai certification, and no paid-resource success is claimed without a credentialed runtime receipt.
 
-## Skills Included
+## Skills
 
-### Standard Skills (S01-S12)
+| Skill | Operator outcome |
+| --- | --- |
+| `vastai-install-auth` | Install the supported client and prove a least-privilege key boundary. |
+| `vastai-hello-world` | Rent, verify, and destroy one GPU canary inside a cost fence. |
+| `vastai-local-dev-loop` | Promote local CPU/image tests to one disposable GPU canary. |
+| `vastai-sdk-patterns` | Implement typed, bounded high-level, sync, async, or Serverless SDK lifecycles. |
+| `vastai-core-workflow-a` | Run checkpointed training with external recovery and spend reconciliation. |
+| `vastai-core-workflow-b` | Roll out a Serverless endpoint with measured scaling and graceful worker updates. |
+| `vastai-common-errors` | Classify auth, offer, state, SSH, image, credit, and API failures. |
+| `vastai-debug-bundle` | Build a minimal redacted support manifest with hashed evidence. |
+| `vastai-rate-limits` | Bound CLI and REST traffic around endpoint/identity limits and 429 behavior. |
+| `vastai-security-basics` | Harden keys, SSH, images, host selection, data, and teardown. |
+| `vastai-prod-checklist` | Issue an evidence-backed production GO or NO-GO. |
+| `vastai-upgrade-migration` | Upgrade or roll back clients, SDK imports, and immutable templates. |
+| `vastai-ci-integration` | Run disposable GPU CI with protected secrets and unconditional cleanup. |
+| `vastai-deploy-integration` | Deploy and roll back an immutable instance-based service or worker. |
+| `vastai-webhooks-events` | Verify signed at-least-once notifications and enqueue idempotently. |
+| `vastai-performance-tuning` | Optimize measured useful-work throughput and cost. |
+| `vastai-cost-tuning` | Detect GPU, stopped-storage, volume, bandwidth, and spot-policy leakage. |
+| `vastai-reference-architecture` | Separate planning, paid mutation, execution, recovery, evidence, and teardown. |
+| `vastai-multi-env-setup` | Isolate dev, staging, and production contexts, keys, data, and budgets. |
+| `vastai-observability` | Monitor provider state, workload SLOs, balance, cost, and cleanup. |
+| `vastai-incident-runbook` | Recover from outbid, exited, offline, scheduling, and low-credit incidents. |
+| `vastai-data-handling` | Move and verify datasets, checkpoints, volumes, and cloud-copy artifacts. |
+| `vastai-enterprise-rbac` | Govern native Teams roles and scoped automation keys. |
+| `vastai-migration-deep-dive` | Migrate from another GPU provider with parity, canary, and rollback evidence. |
 
-| Skill | Description |
-|-------|-------------|
-| `vastai-install-auth` | Install CLI, configure API key, build Python client |
-| `vastai-hello-world` | Rent first GPU instance, run PyTorch workload, destroy |
-| `vastai-local-dev-loop` | Mock API, test Docker images locally, connection testing |
-| `vastai-sdk-patterns` | Typed queries, context-managed lifecycle, offer scoring |
-| `vastai-core-workflow-a` | Search, provision, execute job, collect artifacts, destroy |
-| `vastai-core-workflow-b` | Multi-instance orchestration, spot recovery, cost analysis |
-| `vastai-common-errors` | API errors, instance failures, SSH issues, CUDA problems |
-| `vastai-debug-bundle` | Account diagnostics, instance logs, GPU health, nvidia-smi |
-| `vastai-rate-limits` | Rate-limited client, adaptive polling, request optimization |
-| `vastai-security-basics` | API key management, SSH hardening, data cleanup |
-| `vastai-prod-checklist` | Production readiness audit with verification script |
-| `vastai-upgrade-migration` | CLI upgrades, CUDA migration, Docker image updates |
+## Safety defaults
 
-### Pro Skills (P13-P18)
+- Search and planning remain read-only until an operator approves paid mutation.
+- Every instance create records its ID before polling or workload execution.
+- Readiness loops have deadlines and terminal-state branches.
+- Important state is checkpointed outside disposable instance root disks.
+- Stopped instances are treated as storage-billable until destroyed.
+- Destruction and credit transfer remain explicit, reviewed actions.
+- Receipts exclude API keys, SSH private keys, webhook secrets, and storage credentials.
 
-| Skill | Description |
-|-------|-------------|
-| `vastai-ci-integration` | GitHub Actions GPU testing with budget controls |
-| `vastai-deploy-integration` | Automated deployment scripts, Docker optimization |
-| `vastai-webhooks-events` | Instance lifecycle polling, auto-recovery handlers |
-| `vastai-performance-tuning` | dlperf scoring, DataLoader tuning, batch sizing |
-| `vastai-cost-tuning` | GPU cost-efficiency, spot vs on-demand, auto-destroy |
-| `vastai-reference-architecture` | Three-tier architecture, checkpoint manager |
+## First-party references
 
-### Flagship Skills (F19-F24)
-
-| Skill | Description |
-|-------|-------------|
-| `vastai-multi-env-setup` | Dev/staging/prod API keys, GPU whitelists, budgets |
-| `vastai-observability` | Metrics collection, GPU alerts, Prometheus exporter |
-| `vastai-incident-runbook` | Triage scripts, spot recovery, billing emergency stop |
-| `vastai-data-handling` | Encrypted transfer, cloud checkpoints, secure cleanup |
-| `vastai-enterprise-rbac` | Team budgets, policy enforcement, audit logging |
-| `vastai-migration-deep-dive` | AWS/GCP to Vast.ai, cost comparison, Docker adaptation |
-
-## Quick Start
-
-```bash
-# Install CLI
-pip install vastai
-
-# Configure API key
-vastai set api-key YOUR_KEY_FROM_CLOUD_VAST_AI
-
-# Search for cheap GPUs
-vastai search offers 'num_gpus=1 gpu_ram>=24 reliability>0.95' --order dph_total --limit 5
-
-# Rent an instance
-vastai create instance OFFER_ID --image pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime --disk 20
-
-# Connect and verify
-ssh -p PORT root@HOST "nvidia-smi"
-
-# IMPORTANT: Destroy when done (stops billing)
-vastai destroy instance INSTANCE_ID
-```
-
-## Resources
-
-- [Vast.ai Documentation](https://docs.vast.ai)
-- [REST API Reference](https://vast.ai/developers/api)
-- [CLI GitHub](https://github.com/vast-ai/vast-cli)
-- [Search & Filter](https://docs.vast.ai/search-and-filter-gpu-offers)
+- [Vast.ai documentation](https://docs.vast.ai/)
+- [Vast.ai API reference](https://docs.vast.ai/api-reference/introduction)
+- [Vast.ai CLI reference](https://docs.vast.ai/cli/hello-world)
+- [Official Vast.ai CLI and SDK](https://github.com/vast-ai/vast-cli)
+- [Notification webhooks](https://docs.vast.ai/guides/reference/notification-webhooks)
+- [Serverless architecture](https://docs.vast.ai/guides/serverless/architecture)
 
 ## License
 

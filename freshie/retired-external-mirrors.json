@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "authority": {
+    "decision_date": "2026-09-10",
+    "bead": "claude-3zu7",
+    "superseded_pr": 1483,
+    "policy": "Retain attribution and disposition facts only; do not retain or publish copied upstream source bytes."
+  },
+  "mirrors": [
+    {
+      "name": "promptbook",
+      "upstream_repository": "https://github.com/promptbookgg/claude-code-plugin",
+      "upstream_commit": "67b4216174820128c4d2b82c0f5c7619877db5a0",
+      "attribution": {
+        "name": "Promptbook",
+        "github": "promptbookgg",
+        "reviewed_commit_author": "Raphael Zanglein (@solzange)"
+      },
+      "observed_license": "MIT",
+      "reason_codes": [
+        "INCOMPLETE_MIRROR",
+        "REMOTE_PIPE_UPDATE_INSTRUCTION",
+        "MARKETPLACE_CONTRACT_FAILURE"
+      ],
+      "disposition": "RETIRED",
+      "relisting_requirement": "Upstream removes the remote-pipe instruction, ships a complete internally consistent plugin, and passes current marketplace review."
+    },
+    {
+      "name": "executive-assistant-skills",
+      "upstream_repository": "https://github.com/mgonto/executive-assistant-skills",
+      "upstream_commit": "28f5065274b43360d7f564f5833c97f9377d3313",
+      "attribution": {
+        "name": "Martin Gontovnikas",
+        "github": "mgonto"
+      },
+      "observed_license": "NOASSERTION",
+      "previous_catalog_license_claim": "MIT",
+      "reason_codes": [
+        "NO_UPSTREAM_LICENSE",
+        "INCORRECT_PRIOR_LICENSE_CLAIM",
+        "MARKETPLACE_CONTRACT_FAILURE"
+      ],
+      "disposition": "RETIRED",
+      "relisting_requirement": "Upstream publishes an applicable license and the skills pass current marketplace review."
+    },
+    {
+      "name": "local-tts",
+      "upstream_repository": "https://github.com/vdk888/local-tts",
+      "upstream_commit": "9ac4bdfff741427972ad7616d44ad18d907095f1",
+      "attribution": {
+        "name": "Bubble Invest",
+        "github": "vdk888"
+      },
+      "observed_license": "Apache-2.0",
+      "reason_codes": [
+        "UNSCOPED_HIGH_RISK_TOOLS",
+        "MISSING_SAFETY_JUSTIFICATION",
+        "MARKETPLACE_CONTRACT_FAILURE"
+      ],
+      "disposition": "RETIRED",
+      "relisting_requirement": "Upstream scopes tool permissions, documents the safety boundary, and passes current marketplace review."
+    },
+    {
+      "name": "boycott-filter",
+      "upstream_repository": "https://github.com/vdk888/boycott-filter",
+      "upstream_commit": "680f7978b8eabcae8d1ed4f6ee125f1be42cedfb",
+      "attribution": {
+        "name": "Bubble Invest",
+        "github": "vdk888"
+      },
+      "observed_license": "MIT",
+      "reason_codes": [
+        "UNSCOPED_HIGH_RISK_TOOLS",
+        "MISSING_SAFETY_JUSTIFICATION",
+        "MARKETPLACE_CONTRACT_FAILURE"
+      ],
+      "disposition": "RETIRED",
+      "relisting_requirement": "Upstream scopes tool permissions, documents the safety boundary, and passes current marketplace review."
+    },
+    {
+      "name": "claude-reflect",
+      "upstream_repository": "https://github.com/bayramannakov/claude-reflect",
+      "upstream_commit": "8dc9db43c9bfaa53b567d63f3f48385bcf3d3084",
+      "attribution": {
+        "name": "Bayram Annakov",
+        "github": "BayramAnnakov"
+      },
+      "observed_license": "MIT",
+      "reason_codes": [
+        "INCOMPLETE_PERMISSION_CONTRACT",
+        "RESERVED_PROVIDER_IDENTITY",
+        "MARKETPLACE_CONTRACT_FAILURE"
+      ],
+      "disposition": "RETIRED",
+      "relisting_requirement": "Upstream provides a complete permission and metadata contract with non-confusing identity and passes current marketplace review."
+    },
+    {
+      "name": "hyperfocus",
+      "upstream_repository": "https://github.com/nextor2k/hyperfocus",
+      "upstream_commit": "f69200e5a3ff32fd929405033c442f250fdf78e1",
+      "attribution": {
+        "name": "Nestor Magalhaes",
+        "github": "nextor2k"
+      },
+      "observed_license": "MIT",
+      "reason_codes": [
+        "MARKETPLACE_CONTRACT_FAILURE"
+      ],
+      "disposition": "RETIRED",
+      "relisting_requirement": "Upstream supplies complete skill structure and metadata and passes current marketplace review."
+    }
+  ]
+}

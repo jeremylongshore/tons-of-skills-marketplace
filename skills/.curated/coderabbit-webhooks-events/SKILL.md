@@ -1,195 +1,97 @@
 ---
 name: coderabbit-webhooks-events
-description: 'Implement CodeRabbit webhook signature validation and event handling.
-
-  Use when setting up webhook endpoints, implementing signature verification,
-
-  or handling CodeRabbit event notifications securely.
-
-  Trigger with phrases like "coderabbit webhook", "coderabbit events",
-
-  "coderabbit webhook signature", "handle coderabbit events", "coderabbit notifications".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*)
-version: 1.11.0
-license: MIT
+description: >-
+  Build customer-owned automation around Git-provider events containing CodeRabbit reviews without claiming a separate CodeRabbit webhook contract. Use when this operator task needs a current, evidence-backed
+  CodeRabbit workflow. Trigger with "automate CodeRabbit review events".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[target] [evidence-or-scope]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- coderabbit
-- webhooks
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current CodeRabbit documentation and approved access for any live organization, repository, billing, or API change
+tags: [saas, coderabbit, events, webhooks, automation]
 ---
-# CodeRabbit Webhooks & Events
+# CodeRabbit Review Event Automation
 
 ## Overview
 
-Handle CodeRabbit events triggered through GitHub and GitLab integrations. CodeRabbit posts AI-powered code review comments on pull requests.
+Use the Git provider as event authority for normal PR review automation. Reviewed CodeRabbit docs do not establish a general outgoing CodeRabbit webhook and secret.
 
 ## Prerequisites
 
-- CodeRabbit installed on your GitHub or GitLab repository
-- GitHub webhook endpoint configured for PR events
-- GitHub App or personal access token for API access
-- `.coderabbit.yaml` configuration in repository root
+- Identify the CodeRabbit organization, Git provider, repository, plan, and accountable owner.
+- Read `references/official-docs.md` and re-check any time-sensitive contract before execution.
+- Use synthetic or read-only evidence until the approval boundary is satisfied.
+- Preserve the repository's independent CI, security, and human-review requirements.
 
-## Event Types
+## Current Contract
 
-| Event | Source | Payload |
-|-------|--------|---------|
-| `pull_request_review` | GitHub webhook | Review body, state (approved/changes_requested) |
-| `pull_request_review_comment` | GitHub webhook | Line comment, diff position, file path |
-| `check_run.completed` | GitHub Checks API | CodeRabbit analysis results, conclusion |
-| `issue_comment.created` | GitHub webhook | Summary comment, walkthrough |
-| `pull_request.labeled` | GitHub webhook | Labels applied by CodeRabbit |
+- CodeRabbit uses walkthrough comments, inline comments, reviews, and commands.
+- Customer receivers validate the Git provider signature and delivery.
+- Bot identity, repo, PR, action, and event type require allowlists.
+- Slack or Discord automations are separate product surfaces.
+
+## Authentication
+
+Treat Git-provider sessions, CodeRabbit web sessions, CLI credentials, and CodeRabbit API keys as separate credentials. Use only an already-approved session or secret-manager reference, never print a secret, and do not place credentials in `.coderabbit.yaml`, source files, logs, or deliverables.
 
 ## Instructions
 
-### Step 1: Configure GitHub Webhook Receiver
+1. Define provider event, identity evidence, repositories, action, idempotency, and replay window.
 
-```typescript
-import express from "express";
-import crypto from "crypto";
+2. Verify provider signature over raw body before parsing.
 
-const app = express();
+3. Normalize required fields and queue an idempotent event behind a policy gate.
 
-app.post("/webhooks/github",
-  express.raw({ type: "application/json" }),
-  async (req, res) => {
-    const signature = req.headers["x-hub-signature-256"] as string;  # 256 bytes
-    const secret = process.env.GITHUB_WEBHOOK_SECRET!;
+4. Test valid, invalid, replay, wrong-identity, duplicate, and out-of-order fixtures.
 
-    const expected = "sha256=" + crypto
-      .createHmac("sha256", secret)
-      .update(req.body)
-      .digest("hex");
+## Tool Discipline
 
-    if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
-      return res.status(401).json({ error: "Invalid signature" });  # HTTP 401 Unauthorized
-    }
+- Use **Glob** to locate candidate configuration and evidence files without widening scope.
+- Use **Grep** to find relevant fields, commands, identifiers, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use these file tools as a substitute for authenticated CodeRabbit or provider operations.
 
-    const event = req.headers["x-github-event"] as string;
-    const payload = JSON.parse(req.body.toString());
-    res.status(200).json({ received: true });  # HTTP 200 OK
-    await routeCodeRabbitEvent(event, payload);
-  }
-);
-```
+## Approval Boundaries
 
-### Step 2: Filter and Route CodeRabbit Events
-
-```typescript
-async function routeCodeRabbitEvent(event: string, payload: any) {
-  const isCodeRabbit = payload?.sender?.login === "coderabbitai[bot]";
-
-  if (!isCodeRabbit && event !== "check_run") return;
-
-  switch (event) {
-    case "pull_request_review":
-      await handleCodeRabbitReview(payload);
-      break;
-    case "pull_request_review_comment":
-      await handleReviewComment(payload);
-      break;
-    case "check_run":
-      if (payload.check_run?.app?.slug === "coderabbitai") {
-        await handleCheckRunComplete(payload);
-      }
-      break;
-    case "issue_comment":
-      await handleSummaryComment(payload);
-      break;
-  }
-}
-```
-
-### Step 3: Process Review Results
-
-```typescript
-async function handleCodeRabbitReview(payload: any) {
-  const { review, pull_request } = payload;
-  const prNumber = pull_request.number;
-  const state = review.state;
-
-  if (state === "changes_requested") {
-    const issues = parseReviewIssues(review.body);
-    await notifyTeam({
-      channel: "#code-reviews",
-      message: `CodeRabbit found ${issues.length} issues in PR #${prNumber}`,
-      prUrl: pull_request.html_url,
-    });
-  }
-
-  if (state === "approved") {
-    await checkAutoMergeEligibility(prNumber);
-  }
-}
-
-function parseReviewIssues(body: string): string[] {
-  return body.split("\n").filter(line =>
-    line.match(/^[-*]\s+(Bug|Issue|Suggestion|Security)/i)
-  );
-}
-```
-
-### Step 4: Configure CodeRabbit Behavior
-
-```yaml
-# .coderabbit.yaml
-reviews:
-  auto_review:
-    enabled: true
-    drafts: false
-  path_filters:
-    - "!**/*.test.ts"
-    - "!**/generated/**"
-  review_instructions:
-    - path: "src/api/**"
-      instructions: "Focus on security and input validation"
-chat:
-  auto_reply: true
-```
-
-## Error Handling
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| No review posted | PR too large | Split PR or adjust `max_files` in config |
-| Invalid signature | Wrong GitHub secret | Verify webhook secret in App settings |
-| Bot not responding | App not installed | Check CodeRabbit GitHub App installation |
-| Duplicate comments | Re-triggered workflow | CodeRabbit deduplicates automatically |
-
-## Examples
-
-### Track Review Metrics
-
-```typescript
-async function handleCheckRunComplete(payload: any) {
-  const { check_run } = payload;
-  await metricsDb.insert({
-    prNumber: check_run.pull_requests?.[0]?.number,
-    conclusion: check_run.conclusion,
-    issuesFound: check_run.output?.annotations_count || 0,
-    completedAt: check_run.completed_at,
-  });
-}
-```
-
-## Resources
-
-- [CodeRabbit Documentation](https://docs.coderabbit.ai)
-- [GitHub Webhooks Guide](https://docs.github.com/en/webhooks)
-- [CodeRabbit Configuration](https://docs.coderabbit.ai/configuration)
+Require security approval for webhook secrets and owner approval before any live mutation. Keep analysis and drafts local until approval is explicit, and record who approved the action and its scope.
 
 ## Output
 
-- GitHub webhook receiver with signature validation
-- CodeRabbit event routing for reviews, comments, and check runs
-- Review result processing with team notifications
-- Auto-merge eligibility check on CodeRabbit approval
-- Review metrics tracking via check run events
+An event contract, trust boundary, validation, fixtures, dead-letter policy, and mutation gate. Include source dates, unknowns, and the exact boundary between observed fact and recommendation.
 
-## Next Steps
+## Error Handling
 
-For deployment setup, see `coderabbit-deploy-integration`.
+| Condition | Response |
+|---|---|
+| Current contract is unclear or docs disagree | Stop mutation, cite both sources, and request owner resolution. |
+| Required access or approval is missing | Produce a draft and evidence plan only. |
+| Validation or pilot behavior differs from expectation | Restore the prior state and retain the failed evidence. |
+| Output contains secrets or private code | Stop, quarantine the artifact, redact it, and notify the data owner. |
+
+## Examples
+
+### Example 1
+
+Notify on a verified CodeRabbit changes-requested review.
+
+### Example 2
+
+Reject a forged comment that merely mentions `@coderabbitai`.
+
+## Validation
+
+- Confirm every claim against the dated sources in `references/official-docs.md`.
+- Verify the requested scope, owner, approval, happy path, failure path, and rollback.
+- Re-read the effective configuration or provider state after any approved change.
+- Report unsupported fields, undocumented endpoints, and unverified assumptions as failures.
+
+## Resources
+
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

@@ -1,162 +1,95 @@
 ---
 name: palantir-ci-integration
-description: 'Configure CI/CD pipelines for Palantir Foundry integrations with GitHub
-  Actions.
-
-  Use when setting up automated testing, running transforms validation,
-
-  or integrating Foundry SDK tests into your build process.
-
-  Trigger with phrases like "palantir CI", "foundry GitHub Actions",
-
-  "palantir automated tests", "CI foundry".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*)
-version: 1.5.0
-license: MIT
+description: >-
+  Design and verify Foundry-native continuous-integration and review gates for Code Repositories and transforms. Use when a team needs branch checks, unit tests, dataset-impact review, or controlled promotion. Trigger with "Palantir CI" or "Foundry repository checks".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[code-repository-or-branch]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- ci-cd
-- github-actions
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, ci, code-repositories]
 ---
-# Palantir CI Integration
+# Palantir Foundry CI and Review Gates
 
 ## Overview
 
-Set up GitHub Actions CI pipelines for Foundry integrations. Covers running transform unit tests with PySpark, SDK integration tests with mocked APIs, and linting Foundry-specific patterns.
+Build the quality gate around Foundry Code Repository branches, automatic checks, unit tests, and pull-request review. External Git hosting may mirror evidence, but it must not replace the checks that Foundry runs against repository inputs, outputs, dependencies, and platform builds.
 
 ## Prerequisites
 
-- GitHub repository with Foundry integration code
-- `foundry-platform-sdk` in requirements
-- pytest test suite
+- Identify the Foundry enrollment, Code Repository, target branch, owned datasets, and release owner.
+- Confirm whether the repository uses Python transforms, TypeScript, or another supported project type.
+- Read `references/official-docs.md` and inspect the repository's effective CI and branch settings before proposing changes.
+- Use a sandbox branch and non-production data until the checks and rollback path are proven.
+
+## Current Contract
+
+- A commit to a Code Repository branch runs automatic checks; the Checks tab is the primary result surface.
+- Python unit tests can participate in repository CI when configured according to the repository's supported build layout.
+- Transform input and output declarations are evaluated by CI and cannot be chosen dynamically at build time.
+- A pull request can require approving review before merge, and reviewers can inspect dataset impact for transform changes.
 
 ## Instructions
 
-### Step 1: GitHub Actions Workflow
+1. Inventory current branch protection, checks, unit-test wiring, build ownership, and required reviewers.
 
-```yaml
-# .github/workflows/foundry-ci.yml
-name: Foundry CI
-on:
-  push:
-    branches: [main]
-  pull_request:
+2. Create or update tests so each test isolates one unit of transform logic and avoids live external dependencies.
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+3. Run the Foundry branch checks and preserve the exact failing check, build report, and dependency evidence.
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: pip
+4. Open a Foundry pull request, review code plus dataset impact, and obtain the required independent approval.
 
-      - name: Set up Java (for PySpark)
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "11"
+5. Merge only the exact reviewed commit, then verify the main-branch checks and downstream build behavior.
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+## Tool Discipline
 
-      - name: Run unit tests
-        run: pytest tests/ -v --tb=short --junitxml=test-results.xml
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: test-results.xml
+## Approval Boundaries
 
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - run: pip install ruff
-      - run: ruff check src/ tests/
-
-  integration:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [test, lint]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - run: pip install -r requirements.txt
-      - name: Run integration smoke test
-        env:
-          FOUNDRY_HOSTNAME: ${{ secrets.FOUNDRY_HOSTNAME }}
-          FOUNDRY_CLIENT_ID: ${{ secrets.FOUNDRY_CLIENT_ID }}
-          FOUNDRY_CLIENT_SECRET: ${{ secrets.FOUNDRY_CLIENT_SECRET }}
-        run: python scripts/smoke_test.py
-```
-
-### Step 2: Secret Configuration
-
-```bash
-# Add secrets to GitHub repository
-gh secret set FOUNDRY_HOSTNAME --body "mycompany.palantirfoundry.com"
-gh secret set FOUNDRY_CLIENT_ID --body "your-client-id"
-gh secret set FOUNDRY_CLIENT_SECRET --body "your-client-secret"
-```
-
-### Step 3: Custom Linting Rules for Foundry
-
-```python
-# scripts/lint_foundry.py — catch common Foundry mistakes
-import ast, sys
-
-class FoundryLinter(ast.NodeVisitor):
-    def visit_Str(self, node):
-        # Flag hardcoded Foundry hostnames
-        if "palantirfoundry.com" in node.s:
-            print(f"  Line {node.lineno}: Hardcoded Foundry hostname — use env var")
-        # Flag hardcoded RIDs
-        if node.s.startswith("ri.foundry.main"):
-            print(f"  Line {node.lineno}: Hardcoded RID — use config/env var")
-
-for path in sys.argv[1:]:
-    tree = ast.parse(open(path).read())
-    FoundryLinter().visit(tree)
-```
+Require the Code Repository owner to approve branch-policy changes and the data owner to approve changes to dataset inputs, outputs, or production builds. Do not bypass a failed Foundry check or approving-review requirement.
 
 ## Output
 
-- GitHub Actions workflow with unit tests, linting, and integration tests
-- PySpark tests running in CI with JDK setup
-- Secrets configured securely in GitHub
-- Custom linting for Foundry-specific patterns
+A CI gate map containing repository, branch, checks, tests, dataset impact, reviewers, exact commit, result links, and rollback. Separate Foundry evidence from any external Git mirror or notification evidence.
 
 ## Error Handling
 
-| CI Issue | Cause | Fix |
-|----------|-------|-----|
-| PySpark tests fail | No JDK | Add `setup-java` step |
-| Integration test 401 | Bad secrets | Re-set `gh secret set` |
-| Slow tests | Full Spark startup | Use `local[1]` master |
-| Import errors | Missing deps | Pin all deps in requirements.txt |
+| Condition | Response |
+|---|---|
+| A check fails only in Foundry | Compare preview inputs with full-build inputs, dependency resolution, ownership, and the detailed build report. |
+| A branch is behind | Upgrade or merge the required base changes on the sandbox branch, then rerun all checks. |
+| A required dataset is not owned | Stop and resolve project/resource ownership; do not weaken the check. |
+| External CI is green but Foundry is red | Treat the Foundry result as authoritative for Foundry execution and block merge. |
+
+## Examples
+
+### Example 1
+
+Add a lightweight `pytest` suite to a Python transforms repository, prove it appears in the Foundry Checks tab, and require an approving Foundry pull-request review before merge.
+
+### Example 2
+
+Diagnose a transform that previews successfully but fails its full CI build by comparing the sampled preview with the production data, dependency set, and declared inputs.
+
+## Validation
+
+- Every required check is visible on the exact candidate commit.
+- The unit tests run in the supported Foundry repository check path.
+- Dataset inputs, outputs, owners, and lineage impact match the review record.
+- The main branch repeats the expected checks after merge.
+- The rollback commit or product version is identified before promotion.
 
 ## Resources
 
-- [GitHub Actions](https://docs.github.com/en/actions)
-- [PySpark Testing](https://spark.apache.org/docs/latest/api/python/getting_started/testing_pyspark.html)
-
-## Next Steps
-
-For deployment pipelines, see `palantir-deploy-integration`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

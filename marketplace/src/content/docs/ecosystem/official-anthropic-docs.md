@@ -6,21 +6,21 @@ order: 2
 keywords: ["Anthropic documentation", "Claude Code docs", "official docs", "Claude Code reference", "skills documentation", "plugins documentation", "MCP documentation", "Claude Code CLI"]
 officialLinks:
   - title: "Claude Code Overview"
-    url: "https://docs.anthropic.com/en/docs/claude-code/overview"
+    url: "https://code.claude.com/docs/en/overview"
   - title: "Claude Code Skills"
-    url: "https://docs.anthropic.com/en/docs/claude-code/skills"
+    url: "https://code.claude.com/docs/en/skills"
   - title: "Claude Code Plugins"
-    url: "https://docs.anthropic.com/en/docs/claude-code/plugins"
+    url: "https://code.claude.com/docs/en/plugins"
   - title: "Claude Code Agents"
-    url: "https://docs.anthropic.com/en/docs/claude-code/agents"
+    url: "https://code.claude.com/docs/en/agents"
   - title: "Claude Code Hooks"
-    url: "https://docs.anthropic.com/en/docs/claude-code/hooks"
+    url: "https://code.claude.com/docs/en/hooks"
   - title: "Claude Code MCP"
-    url: "https://docs.anthropic.com/en/docs/claude-code/mcp"
+    url: "https://code.claude.com/docs/en/mcp"
   - title: "Claude Code CLI Reference"
-    url: "https://docs.anthropic.com/en/docs/claude-code/cli-reference"
+    url: "https://code.claude.com/docs/en/cli-reference"
   - title: "Claude Code Best Practices"
-    url: "https://docs.anthropic.com/en/docs/claude-code/best-practices"
+    url: "https://code.claude.com/docs/en/best-practices"
 relatedDocs:
   - "ecosystem/marketplace-overview"
   - "ecosystem/community-resources"
@@ -35,11 +35,11 @@ This page serves as an organized directory of the official Anthropic documentati
 
 ## Official Documentation Directory
 
-The official Claude Code documentation lives at [docs.anthropic.com/en/docs/claude-code/](https://docs.anthropic.com/en/docs/claude-code/). Below is a topic-by-topic breakdown of what is covered and why it matters.
+The official Claude Code documentation lives at [code.claude.com/docs/en/](https://code.claude.com/docs/en/). Below is a topic-by-topic breakdown of what is covered and why it matters.
 
 ### Claude Code Overview
 
-**URL:** [docs.anthropic.com/en/docs/claude-code/overview](https://docs.anthropic.com/en/docs/claude-code/overview)
+**URL:** [code.claude.com/docs/en/overview](https://code.claude.com/docs/en/overview)
 
 This is the starting point for anyone new to Claude Code. It explains what Claude Code is -- an agentic coding assistant that runs in your terminal -- and covers the core capabilities: reading and editing files, running shell commands, reasoning about codebases, and interacting with developer tools.
 
@@ -55,7 +55,7 @@ This is the starting point for anyone new to Claude Code. It explains what Claud
 
 ### Skills
 
-**URL:** [docs.anthropic.com/en/docs/claude-code/skills](https://docs.anthropic.com/en/docs/claude-code/skills)
+**URL:** [code.claude.com/docs/en/skills](https://code.claude.com/docs/en/skills)
 
 Skills are the fundamental building block of the Claude Code extension system. A skill is a SKILL.md file with YAML frontmatter that tells Claude Code when to activate and what instructions to follow. Skills auto-activate based on context -- they do not require a slash command.
 
@@ -75,7 +75,7 @@ Skills are the fundamental building block of the Claude Code extension system. A
 
 ### Plugins
 
-**URL:** [docs.anthropic.com/en/docs/claude-code/plugins](https://docs.anthropic.com/en/docs/claude-code/plugins)
+**URL:** [code.claude.com/docs/en/plugins](https://code.claude.com/docs/en/plugins)
 
 Plugins are the packaging format that bundles skills, commands, and agents into a distributable unit. The plugin specification defines the directory structure, the `plugin.json` manifest, and the installation and update mechanisms.
 
@@ -93,7 +93,7 @@ Plugins are the packaging format that bundles skills, commands, and agents into 
 
 ### Agents
 
-**URL:** [docs.anthropic.com/en/docs/claude-code/agents](https://docs.anthropic.com/en/docs/claude-code/agents)
+**URL:** [code.claude.com/docs/en/agents](https://code.claude.com/docs/en/agents)
 
 Agents are autonomous personas that Claude Code can adopt for specialized tasks. Unlike skills (which provide instructions) and commands (which are user-invoked), agents define a complete behavioral profile with capabilities, tool restrictions, and iteration limits.
 
@@ -110,7 +110,7 @@ Agents are autonomous personas that Claude Code can adopt for specialized tasks.
 
 ### Hooks
 
-**URL:** [docs.anthropic.com/en/docs/claude-code/hooks](https://docs.anthropic.com/en/docs/claude-code/hooks)
+**URL:** [code.claude.com/docs/en/hooks](https://code.claude.com/docs/en/hooks)
 
 Hooks are lifecycle callbacks that run at specific points during Claude Code's operation. They let plugins execute custom logic before or after tool calls, at session start, or at other well-defined moments.
 
@@ -126,7 +126,7 @@ Hooks are lifecycle callbacks that run at specific points during Claude Code's o
 
 ### MCP (Model Context Protocol)
 
-**URL:** [docs.anthropic.com/en/docs/claude-code/mcp](https://docs.anthropic.com/en/docs/claude-code/mcp)
+**URL:** [code.claude.com/docs/en/mcp](https://code.claude.com/docs/en/mcp)
 
 MCP is a protocol for connecting Claude Code to external tools and data sources via local servers. An MCP server exposes tools that Claude Code can call, allowing integration with databases, APIs, file systems, and other services that go beyond what built-in tools provide.
 
@@ -143,7 +143,7 @@ MCP is a protocol for connecting Claude Code to external tools and data sources 
 
 ### CLI Reference
 
-**URL:** [docs.anthropic.com/en/docs/claude-code/cli-reference](https://docs.anthropic.com/en/docs/claude-code/cli-reference)
+**URL:** [code.claude.com/docs/en/cli-reference](https://code.claude.com/docs/en/cli-reference)
 
 The complete reference for the `claude` command-line interface, including all flags, environment variables, and configuration options.
 
@@ -160,7 +160,7 @@ The complete reference for the `claude` command-line interface, including all fl
 
 ### Best Practices
 
-**URL:** [docs.anthropic.com/en/docs/claude-code/best-practices](https://docs.anthropic.com/en/docs/claude-code/best-practices)
+**URL:** [code.claude.com/docs/en/best-practices](https://code.claude.com/docs/en/best-practices)
 
 Anthropic's recommendations for getting the best results from Claude Code, covering prompt engineering, project setup, and workflow patterns.
 
@@ -205,15 +205,15 @@ Use this decision framework:
 
 | Question | Go to |
 |---|---|
-| What is the SKILL.md frontmatter schema? | [Official Skills docs](https://docs.anthropic.com/en/docs/claude-code/skills) |
+| What is the SKILL.md frontmatter schema? | [Official Skills docs](https://code.claude.com/docs/en/skills) |
 | How do I install a specific plugin from the marketplace? | [Tons of Skills installation guide](/docs/getting-started/installation) |
-| What tool names can I use in `allowed-tools`? | [Official Skills docs](https://docs.anthropic.com/en/docs/claude-code/skills) |
+| What tool names can I use in `allowed-tools`? | [Official Skills docs](https://code.claude.com/docs/en/skills) |
 | How do I search for plugins that do X? | [Explore page](/explore) or [Skills page](/skills) |
-| How do I write an MCP server? | [Official MCP docs](https://docs.anthropic.com/en/docs/claude-code/mcp) |
+| How do I write an MCP server? | [Official MCP docs](https://code.claude.com/docs/en/mcp) |
 | How do I publish my plugin to the marketplace? | Tons of Skills publishing guide |
-| What does the `context: fork` field do? | [Official Skills docs](https://docs.anthropic.com/en/docs/claude-code/skills) |
+| What does the `context: fork` field do? | [Official Skills docs](https://code.claude.com/docs/en/skills) |
 | What is the compliance scoring rubric? | [Marketplace overview](/docs/ecosystem/marketplace-overview) |
-| How do hooks work? | [Official Hooks docs](https://docs.anthropic.com/en/docs/claude-code/hooks) |
+| How do hooks work? | [Official Hooks docs](https://code.claude.com/docs/en/hooks) |
 | How do I use the ccpi CLI? | [Tons of Skills CLI reference](/docs/getting-started/installation) |
 
 **General rule:** If your question is about how Claude Code works at the platform level -- format specifications, runtime behavior, built-in commands -- start with the official Anthropic docs. If your question is about the marketplace, plugin discovery, quality scoring, the `ccpi` CLI, or Cowork downloads -- start with the Tons of Skills docs.

@@ -8,7 +8,7 @@ officialLinks:
   - title: "ccpi on npm"
     url: "https://www.npmjs.com/package/@intentsolutionsio/ccpi"
   - title: "Claude Code Plugins Documentation"
-    url: "https://docs.anthropic.com/en/docs/claude-code/plugins"
+    url: "https://code.claude.com/docs/en/plugins"
 relatedDocs:
   - "getting-started/installation"
   - "getting-started/cli-reference"

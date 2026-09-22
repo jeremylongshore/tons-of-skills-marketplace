@@ -1,150 +1,103 @@
 ---
 name: flexport-data-handling
-description: 'Implement data handling for Flexport supply chain data including PII
-  redaction,
-
-  shipment data retention, GDPR compliance, and secure document management.
-
-  Trigger: "flexport data handling", "flexport PII", "flexport GDPR", "flexport data
-  retention".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.6.0
+description: >-
+  Analyze, minimize, and govern Flexport shipment, customs, invoice, purchase-order, and document data. Use when mapping fields, designing storage, exporting records, or setting retention with the real data owner. Trigger with: "handle Flexport data", "minimize shipment fields", "govern Flexport documents".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[data-flow-and-approved-purpose]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- logistics
-- flexport
-compatibility: Designed for Claude Code
+  - saas
+  - flexport
+  - data-governance
+  - privacy
+compatibility: 'Requires a data owner, approved purpose, destination controls, and organization-specific legal/security policy.'
 ---
-# Flexport Data Handling
+
+# Flexport Logistics Data Minimization
 
 ## Overview
 
-Flexport logistics data encompasses shipment records, bills of lading, customs declarations, commercial invoices, tracking events, and trade compliance documents. This data crosses international borders and regulatory jurisdictions, requiring strict handling for PII (shipper/consignee contacts), controlled export data (HS codes, ITAR items), and financial records (invoices, duty payments). All integrations must enforce GDPR/CCPA compliance, customs data retention mandates, and C-TPAT supply chain security standards.
+Flexport payloads can contain commercial, personal, customs, financial, and document content. This skill does not invent universal GDPR, CCPA, ITAR, or retention rules; it makes the accountable owner and policy explicit.
 
 ## Prerequisites
 
-- A documented data inventory, authorized processing purpose, owners, destination allowlist, retention/deletion schedule, and legal review where required.
-- Encryption, access control, redaction, and secure-evidence procedures appropriate to each classified data type.
+- Documented purpose and accountable data owner
+- Field-level source-to-destination map
+- Approved classification, residency, access, retention, and deletion policy
 
 ## Instructions
 
-1. Minimize imports to approved fields and process sensitive records only in authorized systems.
-2. Enforce access and retention at every storage and downstream handoff; use opaque IDs in diagnostics.
-3. Test mappings with fictional data, reconcile only approved aggregate values, and obtain owner approval before cutover.
-4. Quarantine unknown fields, unapproved destinations, and retention conflicts for review instead of forwarding them.
+### Step 1: Inventory exact fields
+
+Map only fields needed for the approved outcome, including identifiers embedded in routes, parties, documents, invoices, customs, tags, or MCP tracking output.
+
+### Step 2: Classify with policy
+
+Apply the organization's authoritative classification and legal guidance. Do not infer a regime from an HS code, endpoint, country, or shipment mode.
+
+### Step 3: Minimize collection
+
+Prefer opaque resource IDs and derived operational state over raw documents, addresses, names, emails, entry numbers, or charge details.
+
+### Step 4: Protect transport and storage
+
+Use approved encrypted channels and stores, workload-scoped credentials, tenant boundaries, and access logging.
+
+### Step 5: Control outputs
+
+Redact logs, metrics, prompts, tickets, debug bundles, and analytics. Never include document bodies, tokens, or full route/party payloads by default.
+
+### Step 6: Enforce lifecycle
+
+Attach retention/deletion rules to the approved data class, test deletion and backup behavior, and record exceptions with owner and expiry.
+
+## Authentication
+
+REST calls authenticate with a cached OAuth 2.0 client-credentials Bearer token using audience `https://api.flexport.com`, or an explicitly accepted broad API key. Use distinct credentials per workload and never log credentials or tokens. MCP calls use the authenticated connection to `https://mcp.flexport.com/mcp` and remain subject to each tool's documented account permissions.
+
+## Tool Discipline
+
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Flexport-side change.
 
 ## Output
 
-Create a processing receipt with source reference, field classification, approved destination, retention rule, aggregate validation outcome, owner, and exception state. Keep source payloads, documents, addresses, and credentials outside the receipt.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
+
+Return a machine-reviewable receipt in this shape; adapt the operation values, but never place credentials or provider payloads in it:
+
+```yaml
+surface: rest-v3
+operation: shipment-read
+decision: approved
+outcome: verified
+evidence:
+  release_sha: recorded-out-of-band
+  provider_reference: redacted
+rollback_owner: logistics-platform
+```
 
 ## Examples
 
-Transform a fictional shipment containing invented contact and product data using a field allowlist. Confirm the destination receives only approved fields, logs contain an opaque ID and aggregate counts, and the test data is removed on the defined schedule.
-
-## Data Classification
-
-| Data Type | Sensitivity | Retention | Encryption |
-|-----------|-------------|-----------|------------|
-| Shipment records | Medium | 1 year post-delivery | AES-256 at rest |
-| Customs declarations | High (trade compliance) | 5 years (CBP requirement) | AES-256 + TLS |
-| Commercial invoices | High (financial) | 7 years (tax/audit) | AES-256 at rest |
-| Contact PII (shipper/consignee) | High | Until deletion request | Field-level encryption |
-| Tracking events | Low | 90 days | TLS in transit |
-
-## Data Import
-
-```typescript
-interface FlexportShipment {
-  id: string; ref: string; status: string;
-  shipper: { name: string; email: string; address: string };
-  consignee: { name: string; email: string; address: string };
-  hsCode: string; incoterm: string; cargoReadyDate: string;
-}
-
-async function importShipments(cursor?: string): Promise<FlexportShipment[]> {
-  const allShipments: FlexportShipment[] = [];
-  let nextCursor = cursor;
-  do {
-    const res = await fetch(`https://api.flexport.com/v2/shipments?page[after]=${nextCursor || ''}`, {
-      headers: { Authorization: `Bearer ${process.env.FLEXPORT_API_TOKEN}` },
-    });
-    const data = await res.json();
-    for (const s of data.data) {
-      if (!s.id || !s.attributes.ref) throw new Error(`Invalid shipment: missing required fields`);
-      allShipments.push(s.attributes);
-    }
-    nextCursor = data.links?.next ? new URL(data.links.next).searchParams.get('page[after]') : null;
-  } while (nextCursor);
-  return allShipments;
-}
-```
-
-## Data Export
-
-```typescript
-async function exportShipmentsCSV(shipments: FlexportShipment[], dest: string) {
-  const REDACT_FIELDS = ['email', 'phone', 'street_address', 'tax_id'];
-  const sanitized = shipments.map(s => {
-    const copy = JSON.parse(JSON.stringify(s));
-    for (const field of REDACT_FIELDS) {
-      if (copy.shipper?.[field]) copy.shipper[field] = '[REDACTED]';
-      if (copy.consignee?.[field]) copy.consignee[field] = '[REDACTED]';
-    }
-    return copy;
-  });
-  // Validate no restricted HS codes in export payload
-  const restricted = sanitized.filter(s => s.hsCode?.startsWith('9A'));
-  if (restricted.length > 0) throw new Error(`Export blocked: ${restricted.length} ITAR-restricted items`);
-  const csv = [Object.keys(sanitized[0]).join(','), ...sanitized.map(r => Object.values(r).join(','))].join('\n');
-  await writeFile(dest, csv, 'utf-8');
-}
-```
-
-## Data Validation
-
-```typescript
-function validateShipment(s: FlexportShipment): string[] {
-  const errors: string[] = [];
-  if (!s.id) errors.push('Missing shipment ID');
-  if (!s.ref || s.ref.length > 50) errors.push('Invalid shipment reference');
-  if (!s.hsCode || !/^\d{4,10}$/.test(s.hsCode)) errors.push(`Invalid HS code: ${s.hsCode}`);
-  if (!['EXW','FOB','CIF','DDP','DAP'].includes(s.incoterm)) errors.push(`Unknown incoterm: ${s.incoterm}`);
-  if (!s.shipper?.name || !s.consignee?.name) errors.push('Missing shipper or consignee name');
-  if (s.cargoReadyDate && isNaN(Date.parse(s.cargoReadyDate))) errors.push('Invalid cargo ready date');
-  return errors;
-}
-```
-
-## Compliance
-
-- [ ] PII fields (shipper/consignee contacts) encrypted at field level, redacted in logs
-- [ ] Customs declarations retained 5 years per CBP/EU customs code requirements
-- [ ] Commercial invoices retained 7 years for tax audit compliance
-- [ ] GDPR right-to-erasure: redact PII but preserve shipment skeleton for business continuity
-- [ ] CCPA opt-out signals honored for California-origin shipments
-- [ ] ITAR/EAR restricted HS codes flagged and blocked from unauthorized export
-- [ ] C-TPAT supply chain security: validate trading partner identities before data sharing
-- [ ] Audit trail for all data access, export, and deletion operations
+A delay alert stores a shipment's opaque Flexport ID, milestone category, and alert state. It does not copy route addresses, customs entries, tags, or document content into observability systems.
 
 ## Error Handling
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| API 429 rate limit | Too many shipment fetches | Implement exponential backoff with jitter |
-| Invalid HS code rejected | Incorrect tariff classification | Validate against WCO HS nomenclature before submission |
-| GDPR deletion timeout | Large contact footprint across shipments | Batch updates in transactions of 100 records |
-| Customs data missing | Incomplete booking submission | Require mandatory fields at import validation step |
-| Export blocked by ITAR flag | Restricted HS code in payload | Route to trade compliance officer for manual review |
+| Failure | Response |
+| --- | --- |
+| Purpose cannot justify a field | Remove it before ingestion. |
+| Destination lacks approved controls | Block export and route to the data owner. |
+| Legal rule uncertain | Ask counsel or policy owner; do not encode a guessed retention period. |
+| Sensitive data reaches logs | Contain access, purge where possible, and repair redaction. |
 
 ## Resources
 
-- [Flexport API Reference](https://apidocs.flexport.com/)
-- [CBP Data Retention Requirements](https://www.cbp.gov/trade)
-
-## Next Steps
-
-See `flexport-security-basics`.
+- [First-party source notes](references/official-docs.md)
+- [Shipment API tutorial](https://developers.flexport.com/tutorials/shipment-api-tutorial/)
+- [Documents tutorial](https://developers.flexport.com/tutorials/documents-api-tutorial/)
+- [Customs entries tutorial](https://developers.flexport.com/tutorials/customs-entries-api-tutorial/)

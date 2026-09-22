@@ -1,209 +1,79 @@
 ---
 name: salesforce-performance-tuning
-description: 'Optimize Salesforce API performance with SOQL tuning, Composite API
-  batching, and caching.
-
-  Use when experiencing slow API responses, optimizing SOQL queries,
-
-  or reducing API call count for Salesforce integrations.
-
-  Trigger with phrases like "salesforce performance", "optimize salesforce",
-
-  "salesforce latency", "salesforce caching", "salesforce slow", "SOQL optimization".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.7.0
-license: MIT
+description: 'Analyze and tune Salesforce query, pagination, batching, caching, automation, and asynchronous performance using measured org evidence. Use when resolving latency or throughput problems. Trigger with "tune Salesforce performance".'
+argument-hint: "[org-alias] [workload]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- crm
-- salesforce
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, salesforce, performance, soql, query-plan]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; query, index, automation, concurrency, and production workload changes require platform and object owner approval
 ---
-# Salesforce Performance Tuning
+# Evidence-Driven Salesforce Performance Tuning
 
 ## Overview
 
-Optimize Salesforce API performance: tune SOQL queries, minimize API calls using Composite/Collections APIs, implement metadata caching, and handle large result sets efficiently.
+Optimize the end-to-end workload without trading correctness, permission enforcement, shared capacity, or recovery for a synthetic benchmark.
 
 ## Prerequisites
 
-- jsforce connection configured
-- Understanding of SOQL query plans
-- Redis or in-memory cache available (optional)
-- Access to Setup > API usage monitoring
+- Representative workload, latency and throughput objectives, business invariant, and current telemetry
+- Queries, object volumes, selectivity, pagination, automation, locks, API mode, limits, and downstream timing
+- Authorized performance org or sandbox, synthetic dataset, stop thresholds, and rollback owner
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect approved repository and evidence files, `WebFetch` to re-check current first-party Salesforce documentation, and `Write` or `Edit` only for secretless plans, fixtures, configuration, and redacted receipts.
+
+## Current Contract
+
+Salesforce offers versioned query and limits resources; query performance feedback through REST explain is explicitly Beta. Query plans, indexes, object cardinality, automation cost, and limits depend on the target org and must be measured.
+
+## Authentication
+
+Use an approved read-only performance principal first and a separately approved principal for canary writes. Do not collect broad record payloads or use administrator access to mask real permission cost.
 
 ## Instructions
 
-### Step 1: SOQL Query Optimization
+1. Define the business invariant and measure end-to-end latency, throughput, error rate, API consumption, locks, retries, and downstream lag.
+2. Trace time across client, network, authentication, query, pagination, automation, async jobs, event delivery, and reconciliation.
+3. Inspect query shape, selected fields, predicates, cardinality, selectivity, ordering, pagination, and current metadata.
+4. Use documented explain or query-plan tooling only under its current status and corroborate recommendations with measured tests.
+5. Compare bounded changes to query design, caching, conditional requests, composite or bulk modes, concurrency, and scheduling.
+6. Canary one change at a time with synthetic or approved non-production data and fixed stop thresholds.
+7. Verify correctness, permissions, limits, event and business outcomes; roll back regressions and publish the evidence.
 
-```typescript
-// BAD: SELECT * equivalent — fetches all fields
-const result = await conn.query('SELECT FIELDS(ALL) FROM Account LIMIT 100');
+## Approval Boundaries
 
-// GOOD: Only select fields you need
-const result = await conn.query(`
-  SELECT Id, Name, Industry, AnnualRevenue
-  FROM Account
-  WHERE Industry = 'Technology'
-  LIMIT 100
-`);
+Do not request indexes, change automation, increase concurrency, add caches, alter consistency, or load production for a benchmark without owners.
 
-// BAD: Non-selective WHERE clause (full table scan)
-const result = await conn.query("SELECT Id FROM Contact WHERE Title LIKE '%Engineer%'");
+## Output
 
-// GOOD: Use indexed fields in WHERE (Id, Name, CreatedDate, RecordType, lookup fields)
-const result = await conn.query(`
-  SELECT Id, Name, Title
-  FROM Contact
-  WHERE AccountId = '001xxxxxxxxxxxx'
-    AND CreatedDate >= LAST_N_DAYS:30
-  LIMIT 200
-`);
-
-// Use relationship queries to avoid N+1 pattern
-// BAD: Query Accounts, then query Contacts for each (N+1 API calls)
-const accounts = await conn.query('SELECT Id FROM Account LIMIT 50');
-for (const acct of accounts.records) {
-  await conn.query(`SELECT Id FROM Contact WHERE AccountId = '${acct.Id}'`);
-  // 50 extra API calls!
-}
-
-// GOOD: Single relationship query (1 API call)
-const accountsWithContacts = await conn.query(`
-  SELECT Id, Name,
-    (SELECT Id, FirstName, LastName, Email FROM Contacts LIMIT 20)
-  FROM Account
-  WHERE Industry = 'Technology'
-  LIMIT 50
-`);
-```
-
-### Step 2: Reduce API Call Count
-
-```typescript
-// STRATEGY 1: sObject Collections — 200 records per API call
-// Instead of 100 individual creates = 100 API calls
-const contacts = Array.from({ length: 100 }, (_, i) => ({
-  FirstName: `User${i}`,
-  LastName: `Test`,
-  Email: `user${i}@test.com`,
-}));
-await conn.sobject('Contact').create(contacts); // 1 API call
-
-// STRATEGY 2: Composite API — 25 mixed operations per API call
-// Create Account + Contact + Opportunity = 1 API call instead of 3
-// See salesforce-core-workflow-b
-
-// STRATEGY 3: queryMore for pagination — FREE (doesn't count as extra call)
-let result = await conn.query('SELECT Id, Name FROM Contact');
-let allRecords = [...result.records];
-while (!result.done) {
-  result = await conn.queryMore(result.nextRecordsUrl!);
-  allRecords.push(...result.records);
-}
-```
-
-### Step 3: Cache Metadata (Describe Calls)
-
-```typescript
-import { LRUCache } from 'lru-cache';
-
-// Describe calls are expensive and metadata rarely changes
-const describeCache = new LRUCache<string, any>({
-  max: 50,                // Cache up to 50 sObject describes
-  ttl: 1000 * 60 * 60,   // 1 hour TTL (metadata changes are rare)
-});
-
-async function cachedDescribe(sObjectType: string) {
-  const cached = describeCache.get(sObjectType);
-  if (cached) return cached;
-
-  const conn = await getConnection();
-  const describe = await conn.sobject(sObjectType).describe();
-  describeCache.set(sObjectType, describe);
-  return describe;
-}
-
-// Cache SOQL query results for frequently-accessed reference data
-const queryCache = new LRUCache<string, any>({
-  max: 100,
-  ttl: 1000 * 60 * 5,    // 5 minute TTL for query results
-});
-
-async function cachedQuery<T>(soql: string): Promise<T[]> {
-  const cached = queryCache.get(soql);
-  if (cached) return cached;
-
-  const conn = await getConnection();
-  const result = await conn.query<T>(soql);
-  queryCache.set(soql, result.records);
-  return result.records;
-}
-```
-
-### Step 4: Stream Large Result Sets
-
-```typescript
-// For large exports (100K+ records), use Bulk API 2.0 query
-// Streams results to avoid loading everything into memory
-
-const queryResults = await conn.bulk2.query(
-  'SELECT Id, Name, Email FROM Contact WHERE CreatedDate >= LAST_YEAR'
-);
-
-// Process as async iterator — constant memory usage
-let count = 0;
-for await (const record of queryResults) {
-  await processContact(record);
-  count++;
-  if (count % 10000 === 0) {
-    console.log(`Processed ${count} records...`);
-  }
-}
-```
-
-### Step 5: Connection Optimization
-
-```typescript
-// Reuse connections across requests (singleton pattern)
-// jsforce handles keep-alive internally
-
-// Pin API version to avoid version negotiation overhead
-const conn = new jsforce.Connection({
-  loginUrl: process.env.SF_LOGIN_URL,
-  version: '59.0',         // Skip version detection call
-  maxRequest: 10,           // Max concurrent requests
-});
-```
-
-## Performance Benchmarks
-
-| Operation | Typical Latency | Optimization |
-|-----------|----------------|--------------|
-| Single SOQL query | 100-300ms | Use selective filters on indexed fields |
-| sObject Create (single) | 150-400ms | Batch with Collections (up to 200) |
-| Describe call | 200-500ms | Cache for 1 hour |
-| Bulk API job creation | 500ms-2s | Use for 10K+ records |
-| Composite (25 subrequests) | 500ms-3s | Replaces 25 individual calls |
+Return the baseline trace, bottleneck evidence, tested alternatives, capacity effect, correctness checks, canary result, rollback, and recommendation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `NON_SELECTIVE_QUERY` | WHERE clause too broad | Add indexed field filters |
-| `QUERY_TOO_COMPLICATED` | Too many joins/subqueries | Simplify or split into multiple queries |
-| `50,001 row limit` | Too many results | Add LIMIT, or use Bulk API for exports |
-| Cache stampede | TTL expired, all threads miss | Use stale-while-revalidate pattern |
+| Condition | Response |
+|---|---|
+| Explain output is treated as production proof | Label it Beta guidance and require representative measured validation. |
+| Optimization changes returned records | Reject the change and restore the original business invariant. |
+| Faster client behavior consumes unsafe shared capacity | Apply backpressure or scheduling before increasing rollout. |
+
+## Example
+
+A redacted completion receipt might look like this:
+
+```text
+workload=account-sync; baseline_p95=recorded; bottleneck=query; change=selective-filter; limits=safe; correctness=exact; canary=pass
+```
 
 ## Resources
 
-- [SOQL Performance Best Practices](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/langCon_apex_SOQL_VLSQ.htm)
-- [Query Plan Tool](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/langCon_apex_SOQL_query_plan.htm)
-- [sObject Collections](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_composite_sobjects_collections.htm)
+- [REST query performance feedback](https://developer.salesforce.com/docs/platform/api-rest/guide/dome-query-explain.html)
+- [REST API limits](https://developer.salesforce.com/docs/platform/api-rest/guide/resources-limits.html)
 
 ## Next Steps
 
-For cost optimization, see `salesforce-cost-tuning`.
+Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.

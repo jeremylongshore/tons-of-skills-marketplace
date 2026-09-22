@@ -1,6 +1,6 @@
 ---
 name: windsurf-reliability-patterns
-description: 'Implement reliable Cascade workflows with checkpoints, rollback, and
+description: 'Implement reliable Devin Desktop (formerly Windsurf) Cascade workflows with checkpoints, rollback, and
   incremental editing.
 
   Use when building fault-tolerant AI coding workflows, preventing Cascade from breaking
@@ -14,7 +14,8 @@ description: 'Implement reliable Cascade workflows with checkpoints, rollback, a
 
   '
 allowed-tools: Read, Write, Edit, Bash(git:*)
-version: 1.11.0
+argument-hint: "[scope or requirements]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -36,7 +37,14 @@ Reliability patterns for safe Cascade usage: Git checkpointing, incremental task
 - Windsurf with Cascade enabled
 - Git repository initialized
 - Test suite available
-- Understanding of Cascade Write mode
+- Understanding of Cascade Code mode
+
+## Tool Use
+
+- Use `Read` to inspect only the repository files and configuration needed for the request.
+- Use `Write` only for a new artifact the user requested; never write credentials or unreviewed production configuration.
+- Use `Edit` for bounded, reviewable changes and preserve unrelated user work.
+- Use only the command-scoped `Bash` entries declared in frontmatter, with non-destructive checks before mutations.
 
 ## Instructions
 
@@ -179,6 +187,10 @@ Safety constraints:
 8. **Narrow scope** — specific files > vague descriptions
 ```
 
+## Output
+
+Return a safe execution record containing the scoped task, checkpoint or branch, tests run, diff review, failure recovery, final evidence, and unresolved risks. Route changes through the repository's normal review and protected-branch workflow.
+
 ## Error Handling
 
 | Issue | Cause | Solution |
@@ -234,9 +246,10 @@ git cherry-pick <good-commit-hash>
 
 ## Resources
 
-- [Windsurf Cascade](https://docs.windsurf.com/windsurf/cascade/cascade)
+- [Focused first-party references](references/official-docs.md)
+- [Windsurf Cascade](https://docs.devin.ai/desktop/cascade/cascade)
 - [Git Workflows](https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows)
 
-## Next Steps
+## Related Skill
 
-For policy guardrails, see `windsurf-policy-guardrails`.
+Continue with `windsurf-policy-guardrails` to convert these operator habits into enforceable terminal, repository, review, and organization controls.

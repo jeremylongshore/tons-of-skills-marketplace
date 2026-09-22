@@ -8,7 +8,7 @@ description: |
   "/agent-preflight".
 argument-hint: "[repo-path]"
 allowed-tools: Read, Bash(git:*), Bash(python3:*)
-version: 1.1.0
+version: 1.2.0
 author: Signal Loom Works <194151508+el-zachariah@users.noreply.github.com>
 license: MIT
 compatibility: Designed for Claude Code
@@ -96,4 +96,4 @@ The skill finds a destructive recursive delete pattern in an automation file, re
 - Scanner: `plugins/security/agent-safety-preflight/scripts/agent_preflight_lite.py`
 - Decision-rule reference: `references/decision-rules.md`
 - Public source workflow: https://github.com/el-zachariah/ai-agent-safety-starter-pack
-- Claude Code plugin reference: https://docs.anthropic.com/en/docs/claude-code/plugins
+- Claude Code plugin reference: https://code.claude.com/docs/en/plugins

@@ -1,66 +1,75 @@
-# Flexport Skill Pack
+# Flexport Operator Pack
 
-> 24 production-ready Claude Code skills for Flexport supply chain and logistics API -- real REST API v2 code with actual endpoints, not templates.
+> 24 governed Claude Code workflows for Flexport REST v3, the official Flexport MCP server, signed webhooks, and freight operations.
 
-## What This Is
-
-A complete skill pack for building, deploying, and operating Flexport-powered logistics integrations. Every skill contains real Flexport REST API v2 code: shipment tracking, booking creation, purchase order management, commercial invoices, product catalog, and webhook handling. No fake SDK imports -- Flexport uses direct HTTP calls with bearer token auth and `Flexport-Version: 2` header.
-
-## Installation
+## Install
 
 ```bash
 /plugin install flexport-pack@claude-code-plugins-plus
 ```
 
+The public npm package is `@intentsolutionsio/flexport-pack`. The skill slugs remain stable across the 2.0.0 quality release.
+
+## What changed in 2.0.0
+
+This release replaces the repeated v2 tutorial lattice with distinct operator outcomes grounded in current first-party documentation. It removes invented endpoints, response shapes, limits, event names, retention rules, and unsafe concurrent-production-write guidance.
+
+Key boundaries:
+
+- REST resources use `https://api.flexport.com` and the account/default `Flexport-Version` model.
+- OAuth client credentials select endpoint resources; API keys are broad and require an explicit risk decision.
+- Client-credential JWTs last 24 hours and token requests are limited to 10 per day, so tokens must be cached and refreshed with single-flight control.
+- Flexport MCP uses Streamable HTTP JSON-RPC at `https://mcp.flexport.com/mcp`; per-tool documentation paths are synthetic, not REST endpoints.
+- Webhook SHA-256 verification uses the raw request body and `X-Hub-Signature-256`.
+- Bookings and trade-record mutations require approval, durable operation identity, and reconciliation before retry.
+
 ## Skills
 
-### Standard Skills (S01-S12)
+| Skill | Operator outcome |
+| --- | --- |
+| `flexport-install-auth` | Scope OAuth clients, budget token acquisition, and rotate credentials |
+| `flexport-hello-world` | Prove v3 connectivity with one metadata-only read receipt |
+| `flexport-core-workflow-a` | Search and evaluate rates, then book only after exact approval |
+| `flexport-core-workflow-b` | Create and reconcile POs, commercial invoices, and documents |
+| `flexport-sdk-patterns` | Keep REST and MCP transports behind distinct typed adapters |
+| `flexport-common-errors` | Classify auth, permission, validation, provider, and ambiguous failures |
+| `flexport-rate-limits` | Control request volume from documented and observed evidence |
+| `flexport-webhooks-events` | Verify raw-body signatures, deduplicate, and reconcile gaps |
+| `flexport-enterprise-rbac` | Map endpoint-scoped OAuth and MCP role permissions to workloads |
+| `flexport-cost-tuning` | Tune volume and freshness without unsupported pricing claims |
+| `flexport-data-handling` | Minimize logistics, customs, financial, and document data |
+| `flexport-debug-bundle` | Produce an allowlisted metadata-only support manifest |
+| `flexport-deploy-integration` | Canary and roll back provider-neutral releases |
+| `flexport-incident-runbook` | Contain and reconcile delivery gaps and uncertain mutations |
+| `flexport-local-dev-loop` | Develop against sanitized v3, MCP, and webhook fixtures |
+| `flexport-migration-deep-dive` | Migrate through shadow reads and a single controlled writer |
+| `flexport-multi-env-setup` | Isolate credentials, callbacks, queues, stores, and mutation policy |
+| `flexport-observability` | Observe outcomes without leaking identifiers or payloads |
+| `flexport-performance-tuning` | Tune pagination and concurrency with reconciliation evidence |
+| `flexport-prod-checklist` | Gate auth, contracts, data, writes, webhooks, launch, and rollback |
+| `flexport-reference-architecture` | Separate REST, MCP, webhook, approval, ledger, and reconciliation |
+| `flexport-security-basics` | Harden credentials, tokens, signatures, data, and mutation controls |
+| `flexport-upgrade-migration` | Upgrade versions with additive-tolerant readers and canaries |
+| `flexport-ci-integration` | Run fork-safe fixture gates plus optional protected read smoke tests |
 
-| # | Skill | What It Does |
-|---|-------|-------------|
-| S01 | `flexport-install-auth` | Configure API key or OAuth credentials, verify connection with cURL and TypeScript |
-| S02 | `flexport-hello-world` | List shipments, retrieve tracking milestones, query containers |
-| S03 | `flexport-local-dev-loop` | Typed HTTP client wrapper, mock shipment data, Vitest unit tests |
-| S04 | `flexport-sdk-patterns` | Singleton client, paginated iterator, Zod validation, Python typed client |
-| S05 | `flexport-core-workflow-a` | Create purchase orders, book shipments, track milestones, retrieve documents |
-| S06 | `flexport-core-workflow-b` | Product catalog (HS codes), commercial invoices, freight invoices |
-| S07 | `flexport-common-errors` | Fix 401/403/404/422/429/5xx with real error JSON and diagnostic script |
-| S08 | `flexport-debug-bundle` | Collect API connectivity, error logs, status page check into support bundle |
-| S09 | `flexport-rate-limits` | Header monitoring, exponential backoff, p-queue throttling |
-| S10 | `flexport-security-basics` | `X-Hub-Signature` webhook verification, key rotation, least privilege |
-| S11 | `flexport-prod-checklist` | Pre-deploy checks, health endpoint, alert thresholds, rollback |
-| S12 | `flexport-upgrade-migration` | API v1 to v2 migration, Logistics API versioning, dual-version testing |
+## Operating standard
 
-### Pro Skills (P13-P18)
+Every skill includes explicit triggers, prerequisites, authentication, bounded steps, outputs, failure handling, and dated first-party source notes. Provider-side mutations are never implied by installation or a successful read.
 
-| # | Skill | What It Does |
-|---|-------|-------------|
-| P13 | `flexport-ci-integration` | GitHub Actions with unit/integration tests, API contract validation |
-| P14 | `flexport-deploy-integration` | Vercel webhook routes, Fly.io always-on receiver, Cloud Run sync worker |
-| P15 | `flexport-webhooks-events` | Milestone/booking/invoice/document events, signature verification, idempotent handlers |
-| P16 | `flexport-performance-tuning` | Max page size, LRU caching, parallel requests, webhook-driven invalidation |
-| P17 | `flexport-cost-tuning` | Webhooks over polling, cache TTL by data type, usage monitoring |
-| P18 | `flexport-reference-architecture` | Three-tier architecture, project layout, data flow, infrastructure decisions |
+Validate the pack from the repository root:
 
-### Flagship Skills (F19-F24)
+```bash
+python3 scripts/validate-skills-schema.py --marketplace --fail-on-warn --min-grade A plugins/saas-packs/flexport-pack
+python3 -m unittest tests.test_flexport_pack_contract -v
+```
 
-| # | Skill | What It Does |
-|---|-------|-------------|
-| F19 | `flexport-multi-env-setup` | Per-environment config, production safety guards, environment matrix |
-| F20 | `flexport-observability` | Prometheus metrics, pino logging, alert rules, Grafana panels |
-| F21 | `flexport-incident-runbook` | Triage decision tree, circuit breaker, postmortem template |
-| F22 | `flexport-data-handling` | PII redaction, data retention, GDPR right to erasure |
-| F23 | `flexport-enterprise-rbac` | Application-layer RBAC, multi-tenant API keys, audit logging |
-| F24 | `flexport-migration-deep-dive` | Legacy forwarder migration, strangler fig, route-by-route cutover |
+## First-party documentation
 
-## Key Flexport API Concepts
-
-- **Base URL**: `https://api.flexport.com` with `Flexport-Version: 2` header
-- **Auth**: Bearer token (API Key) or JWT (OAuth client credentials, 24h lifetime)
-- **Pagination**: `?page=N&per=M` (max 100 per page), response in `data.records`
-- **Webhooks**: HMAC-SHA256 via `X-Hub-Signature` header
-- **Core resources**: `/shipments`, `/bookings`, `/purchase_orders`, `/products`, `/commercial_invoices`, `/freight_invoices`
-- **Event types**: Milestones, transit, bookings, POs, invoices, documents, containers
+- [Flexport developer portal](https://developers.flexport.com/)
+- [Flexport API v3 reference](https://apidocs.flexport.com/v3/)
+- [Flexport MCP tools](https://apidocs.flexport.com/v3/tag/MCP-Tools/)
+- [Using API credentials](https://developers.flexport.com/tutorials/using-api-credentials/)
+- [Webhook endpoints](https://apidocs.flexport.com/v3/tag/Webhook-Endpoints/)
 
 ## License
 

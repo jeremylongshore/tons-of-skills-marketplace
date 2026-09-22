@@ -1,12 +1,12 @@
 # Ramp Skill Pack
 
-> Claude Code skill pack for Ramp — corporate card management, expense tracking, accounting integration, and spend management API (24 skills)
+> Evidence-backed Ramp operator workflows for OAuth, cards, accounting, webhooks, security, reliability, and migration (24 skills)
 
 ## What This Covers
 
-Ramp is a corporate card and spend management platform. This pack covers the **Ramp Developer API** for issuing virtual/physical cards, managing transactions, syncing accounting data, and controlling spend policies.
+This pack turns Ramp's current Developer API contract into production operator workflows. It covers application and OAuth design, read-only verification, fund-backed virtual cards, ERP accounting sync, webhook processing, sandbox development, deployment, observability, incident response, data governance, performance, and enterprise migration.
 
-**Key APIs:** Cards, Transactions, Users, Departments, Vendors, Accounting Sync, Reimbursements, Receipts. Base URL: `https://api.ramp.com/v1/` (prod) or `https://sandbox-api.ramp.com/v1/` (sandbox). Auth: OAuth2 client credentials.
+The skills use the current `/developer/v1` API contract. They distinguish the Ramp sandbox at `demo-api.ramp.com` from production at `api.ramp.com`, treat third-party Authorization Code and internal Client Credentials flows separately, and replace deprecated legacy-card assumptions with Funds and current Virtual Cards guidance.
 
 ## Installation
 
@@ -16,51 +16,50 @@ Ramp is a corporate card and spend management platform. This pack covers the **R
 
 ## Skills Included
 
-### Standard Skills (S01-S12)
+| Skill | Operator job |
+|---|---|
+| `ramp-install-auth` | Select OAuth grant, scopes, environments, and secret lifecycle |
+| `ramp-hello-world` | Prove bounded read-only transaction connectivity |
+| `ramp-local-dev-loop` | Build a fail-closed sandbox and fixture loop |
+| `ramp-sdk-patterns` | Implement a narrow typed Developer API adapter |
+| `ramp-core-workflow-a` | Issue and deliver fund-backed virtual cards safely |
+| `ramp-core-workflow-b` | Reconcile two-way Ramp-to-ERP accounting sync |
+| `ramp-common-errors` | Triage status, `error_v2`, trace IDs, and retry safety |
+| `ramp-debug-bundle` | Produce a sanitized support evidence bundle |
+| `ramp-rate-limits` | Coordinate rolling-window limits and timeout recovery |
+| `ramp-security-basics` | Establish OAuth, webhook, data, card, and write controls |
+| `ramp-prod-checklist` | Run the fail-closed production readiness gate |
+| `ramp-upgrade-migration` | Upgrade schemas, scopes, and deprecated surfaces safely |
+| `ramp-ci-integration` | Build deterministic contract and sandbox CI gates |
+| `ramp-deploy-integration` | Deploy with isolation, canary, reconciliation, and rollback |
+| `ramp-webhooks-events` | Verify raw-body HMAC, deduplicate, queue, and reconcile events |
+| `ramp-performance-tuning` | Tune pagination, batching, concurrency, and checkpoints |
+| `ramp-cost-tuning` | Reduce redundant workload without losing completeness |
+| `ramp-reference-architecture` | Design trust-separated, auditable integration components |
+| `ramp-multi-env-setup` | Isolate sandbox and production apps, hosts, and credentials |
+| `ramp-observability` | Monitor service health and financial correctness |
+| `ramp-incident-runbook` | Contain and recover through object reconciliation |
+| `ramp-data-handling` | Govern financial, identity, receipt, and card data |
+| `ramp-enterprise-rbac` | Audit effective authority across scopes, roles, and entities |
+| `ramp-migration-deep-dive` | Migrate legacy expense platforms by reconciled cohorts |
 
-| Skill | Description |
-|-------|-------------|
-| `ramp-install-auth` | OAuth2 client credentials, sandbox vs production setup |
-| `ramp-hello-world` | List cards, get transaction, check user |
-| `ramp-local-dev-loop` | Sandbox API testing, mock transactions |
-| `ramp-sdk-patterns` | API client wrapper, token refresh, pagination |
-| `ramp-core-workflow-a` | Card management: issue virtual cards, set limits, suspend |
-| `ramp-core-workflow-b` | Transaction and expense workflow: list, categorize, sync |
-| `ramp-common-errors` | Fix OAuth errors, card issuance failures, sync issues |
-| `ramp-debug-bundle` | Collect API logs, card state, transaction records |
-| `ramp-rate-limits` | Handle API rate limits with backoff |
-| `ramp-security-basics` | OAuth credential management, card data handling |
-| `ramp-prod-checklist` | Production deployment checklist |
-| `ramp-upgrade-migration` | API version migration |
+## Safety Model
 
-### Pro Skills (P13-P18)
+- Re-check each skill's dated first-party references and Ramp's current OpenAPI schema before a live request.
+- Default to synthetic fixtures and Ramp sandbox.
+- Treat access tokens, client secrets, webhook secrets, card data, receipts, identity data, and accounting payloads as sensitive.
+- Require explicit business approval for card, accounting, bill, reimbursement, user, application, or configuration writes.
+- Reconcile ambiguous writes and downstream financial effects before retrying.
+- Preserve exact artifact, environment, scope, entity, idempotency, trace, approval, and rollback evidence.
 
-| Skill | Description |
-|-------|-------------|
-| `ramp-ci-integration` | CI pipeline with sandbox Ramp API tests |
-| `ramp-deploy-integration` | Deploy expense management integration |
-| `ramp-webhooks-events` | Handle transaction, card, and receipt events |
-| `ramp-performance-tuning` | Batch transaction queries, efficient sync |
-| `ramp-cost-tuning` | Optimize API usage and sync frequency |
-| `ramp-reference-architecture` | Expense management integration architecture |
+## First-Party Documentation
 
-### Flagship Skills (F19-F24)
-
-| Skill | Description |
-|-------|-------------|
-| `ramp-multi-env-setup` | Sandbox/production environment configuration |
-| `ramp-observability` | Monitor Ramp API health and sync status |
-| `ramp-incident-runbook` | Triage card and transaction sync failures |
-| `ramp-data-handling` | PCI compliance, transaction data handling |
-| `ramp-enterprise-rbac` | Department-level card controls and approvals |
-| `ramp-migration-deep-dive` | Migrate from legacy expense systems to Ramp |
-
-## Key Documentation
-
-- [Ramp API Documentation](https://docs.ramp.com/)
+- [Ramp Developer API](https://docs.ramp.com/developer-api/v1/introduction)
 - [Authorization](https://docs.ramp.com/developer-api/v1/authorization)
-- [Cards and Funds](https://docs.ramp.com/developer-api/v1/cards-and-funds)
-- [Accounting Guide](https://docs.ramp.com/developer-api/v1/guides/accounting)
+- [OpenAPI specification](https://docs.ramp.com/openapi/developer-api.json)
+- [Webhooks](https://docs.ramp.com/developer-api/v1/webhooks)
+- [ERP integrations](https://docs.ramp.com/developer-api/v1/erp-integrations)
+- [Cards and funds](https://docs.ramp.com/developer-api/v1/cards-and-funds)
 
 ## License
 

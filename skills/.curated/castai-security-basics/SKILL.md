@@ -1,167 +1,87 @@
 ---
 name: castai-security-basics
-description: 'Secure CAST AI API keys, RBAC configuration, and Kvisor security agent.
-
-  Use when hardening CAST AI cluster access, configuring security scanning,
-
-  or implementing API key rotation procedures.
-
-  Trigger with phrases like "cast ai security", "cast ai api key rotation",
-
-  "cast ai rbac", "cast ai kvisor", "secure cast ai".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(kubectl:*), Bash(helm:*), Grep
-version: 1.4.0
+description: 'Review CAST AI identity, Kubernetes RBAC, cloud IAM, Kvisor, network, and evidence boundaries against enabled features. Use when preparing onboarding, automation expansion, or security-agent changes. Trigger with: "secure CAST AI", "audit CAST AI permissions", "review Kvisor access".'
+allowed-tools: Read, Grep, Write, Edit, Bash(kubectl:*), Bash(helm:*)
+version: 2.0.0
+argument-hint: '[cluster-and-enabled-features]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- kubernetes
-- cost-optimization
-- castai
-compatibility: Designed for Claude Code
+  - saas
+  - kubernetes
+  - cast-ai
+  - security
+  - least-privilege
+compatibility: 'Requires declared CAST AI feature mode and read access to rendered Kubernetes and cloud permission definitions'
 ---
-# CAST AI Security Basics
+
+# CAST AI Least-Privilege Review
 
 ## Overview
 
-Secure your CAST AI integration: API key management, RBAC least-privilege, Kvisor runtime security agent, and network policy configuration.
+Review permissions against the components actually enabled. Distinguish observation, optimization, operator lifecycle, Kvisor telemetry, optional cluster proxy, and cloud-provider access instead of labeling the entire installation read-only or full-access.
 
 ## Prerequisites
 
-- CAST AI agent installed on cluster
-- Cluster admin access for RBAC configuration
-- Secrets manager (AWS Secrets Manager, Vault, etc.)
+- Selected umbrella-chart mode and optional features
+- Rendered Helm resources, service accounts, RBAC, cloud IAM, and secret references
+- Organization roles, API-key inventory, network policy, and data-classification rules
 
 ## Instructions
 
-### Step 1: API Key Management
+### Step 1: Establish feature scope
 
-```bash
-# Use separate keys per environment
-# console.cast.ai > API > API Access Keys
+Use Read and Grep to map read-only, Workload Autoscaler, Node Autoscaler, full, Kvisor options, reliability metrics, GPU or storage telemetry, operator management, and cluster proxy. Flag enabled components that lack a named business owner.
 
-# Development: Read-Only key (monitoring only)
-# Staging: Full Access key with limited cluster scope
-# Production: Full Access key, rotated every 90 days
+### Step 2: Review identity boundaries
 
-# Store in secrets manager, never in code
-aws secretsmanager create-secret \
-  --name "castai/prod/api-key" \
-  --secret-string "${CASTAI_API_KEY}"
+Separate human castctl login from service API keys. Verify organization role bindings, region, enterprise child targeting, storage, rotation, and revocation. Reject keys in values, URLs, Terraform output, logs, or support artifacts.
 
-# Rotate key procedure:
-# 1. Generate new key in console
-# 2. Update secrets manager
-# 3. Restart CAST AI agent pods to pick up new key
-# 4. Verify agent reconnects
-# 5. Revoke old key in console
-```
+### Step 3: Review Kubernetes permissions
 
-### Step 2: RBAC Least-Privilege Review
+Use Bash(helm:_) to render the pinned installation and Bash(kubectl:_) for bounded RBAC inspection. Compare each service account to current documented permissions. Account for agent deployment patching, operator lifecycle permissions, Kvisor cluster reads, optional scan jobs, and feature-gated token or pod-resize permissions.
 
-```bash
-# Audit CAST AI ClusterRoles
-kubectl get clusterroles -l app.kubernetes.io/managed-by=castai -o yaml
+### Step 4: Review cloud permissions
 
-# The CAST AI agent needs these minimum permissions:
-# - get/list/watch: pods, nodes, events, namespaces, replicasets
-# - get: persistentvolumes, storageclasses
-# The cluster controller additionally needs:
-# - create/delete: nodes (for autoscaling)
-# - patch: pods/eviction (for evictor)
+Map each AWS, GCP, Azure, or other permission to monitoring, onboarding, automation, discovery, commitments, or storage telemetry. Do not reuse an automation role for read-only monitoring when the provider supports narrower access.
 
-# Check for overly broad permissions
-kubectl auth can-i --list --as=system:serviceaccount:castai-agent:castai-agent
-```
+### Step 5: Review network and data paths
 
-### Step 3: Enable Kvisor Security Agent
+Document regional egress, private connectivity, webhook destinations, telemetry classes, retention, and support-transfer controls. Do not invent a static IP allowlist or a broad `0.0.0.0/0` policy under the label of least privilege.
 
-```bash
-# Kvisor scans for CVEs, misconfigurations, and runtime threats
-helm upgrade --install castai-kvisor castai-helm/castai-kvisor \
-  -n castai-agent \
-  --set castai.apiKey="${CASTAI_API_KEY}" \
-  --set castai.clusterID="${CASTAI_CLUSTER_ID}" \
-  --set controller.extraArgs.image-scan-enabled=true \
-  --set controller.extraArgs.kube-bench-enabled=true
+### Step 6: Record disposition
 
-# Verify Kvisor is running
-kubectl get pods -n castai-agent -l app.kubernetes.io/name=castai-kvisor
-```
+Use Write or Edit to mark every finding KEEP, NARROW, REMOVE, or INVESTIGATE with owner, evidence, risk, and rollback. Treat Kvisor security documentation as evolving and verify current product scope before enabling a feature.
 
-### Step 4: Network Policies
+## Tool Discipline
 
-```yaml
-# Restrict CAST AI agent egress to only api.cast.ai
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: castai-agent-egress
-  namespace: castai-agent
-spec:
-  podSelector:
-    matchLabels:
-      app.kubernetes.io/name: castai-agent
-  policyTypes:
-    - Egress
-  egress:
-    - to:
-        - ipBlock:
-            cidr: 0.0.0.0/0  # api.cast.ai resolves dynamically
-      ports:
-        - protocol: TCP
-          port: 443
-    - to:  # Allow DNS
-        - namespaceSelector: {}
-      ports:
-        - protocol: UDP
-          port: 53
-```
-
-### Step 5: Security Checklist
-
-- [ ] API keys stored in secrets manager, not Helm values files
-- [ ] Separate keys per environment (dev/staging/prod)
-- [ ] Read-only keys for monitoring-only clusters
-- [ ] Key rotation scheduled every 90 days
-- [ ] Kvisor enabled for image scanning and CIS benchmarks
-- [ ] CAST AI namespace has network policies
-- [ ] Agent RBAC reviewed and minimized
-- [ ] Helm values files in `.gitignore`
-- [ ] Audit logs enabled in CAST AI console
-
-## Error Handling
-
-| Issue | Detection | Mitigation |
-|-------|-----------|------------|
-| API key in git history | `git log -S "CASTAI"` | Rotate key immediately |
-| Agent has cluster-admin | `kubectl auth can-i --list` | Apply scoped ClusterRole |
-| Kvisor high resource use | `kubectl top pods -n castai-agent` | Adjust scan intervals |
-| Network policy blocks agent | Agent goes offline | Allow egress to 443 |
+Use Read and Grep for configuration and permission mapping. Use Write and Edit for the review record. Use Bash(helm:_) and Bash(kubectl:_) only for rendered and effective RBAC inspection; never retrieve Secret data or mutate access.
 
 ## Output
 
-Produce a security review record listing the environment-specific key owner,
-rotation date, approved service accounts, observed RBAC exceptions, Kvisor
-health, and network-policy test result. Treat a leaked or over-privileged key
-as an incident: revoke it, issue a scoped replacement, and preserve only
-redacted evidence of the response.
+- Enabled-feature and component inventory
+- Human, service, Kubernetes, and cloud identity matrix
+- Network, telemetry, and retention boundary
+- Evidence-linked permission dispositions
 
 ## Examples
 
-For a production key rotation, create the new key in the approved secret store,
-roll the agent, verify authenticated health and least-privilege access, then
-revoke the old key. If the post-rotation check fails, restore the last known
-working secret through the change-control path and investigate before retrying.
+A read-only deployment retains agent snapshot reads but rejects node-provisioning cloud actions. Kvisor storage telemetry is held until its provider permissions and data audience are explicitly approved.
+
+## Error Handling
+
+| Failure                                    | Response                                                           |
+| ------------------------------------------ | ------------------------------------------------------------------ |
+| Feature mode is unknown                    | Inspect the release before judging permissions                     |
+| Permission has no documented feature owner | Mark it INVESTIGATE, not safe                                      |
+| A key is exposed                           | Revoke, rotate, and remove the exposure                            |
+| Current Kvisor behavior is ambiguous       | Hold the feature and verify current documentation/support guidance |
 
 ## Resources
 
-- [CAST AI Security](https://docs.cast.ai/docs/kvisor)
-- [Kvisor Agent](https://docs.cast.ai/docs/sec-runtime-security-installation)
-- [CAST AI RBAC](https://docs.cast.ai/docs/cluster-controller)
-
-## Next Steps
-
-For production deployment checklist, see `castai-prod-checklist`.
+- [Security evidence and source notes](references/official-docs.md)
+- [Kubernetes permissions](https://docs.cast.ai/docs/kubernetes-permissions)
+- [Cloud permissions](https://docs.cast.ai/docs/cloud-permissions)
+- [Kvisor](https://docs.cast.ai/docs/kvisor)

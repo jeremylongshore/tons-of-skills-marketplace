@@ -1,7 +1,7 @@
 {
   "name": "cohere-pack",
-  "version": "1.5.0",
-  "description": "Claude Code skill pack for Cohere (24 skills)",
+  "version": "1.6.0",
+  "description": "Source-grounded Cohere v2 operator workflows for Chat, Embed, Rerank, RAG, tools, security, migration, and production operations",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,9 @@
   "license": "MIT",
   "keywords": [
     "cohere",
-    "cohere",
-    "saas",
-    "sdk",
-    "integration"
+    "api-v2",
+    "rag",
+    "tool-use",
+    "model-operations"
   ]
 }

@@ -1,185 +1,93 @@
 ---
 name: vastai-reference-architecture
-description: 'Implement Vast.ai reference architecture for GPU compute workflows.
-
-  Use when designing ML training pipelines, structuring GPU orchestration,
-
-  or establishing architecture patterns for Vast.ai applications.
-
-  Trigger with phrases like "vastai architecture", "vastai design pattern",
-
-  "vastai project structure", "vastai ml pipeline".
-
-  '
-allowed-tools: Read, Grep
-version: 1.11.0
+description: >-
+  Design a governed Vast.ai GPU control plane that separates planning, paid mutation, execution, recovery, evidence, and teardown. Use when reviewing a production architecture spanning instances or Serverless. Trigger with: "design a Vast.ai architecture", "govern GPU workload lifecycles", "review a Vast.ai platform".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[workload-types-slos-data-class-and-budget]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- architecture
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - architecture
+  - governance
+  - reliability
+compatibility: 'Requires workload and data classification, Vast.ai account design, immutable artifacts, external storage, observability, and incident ownership.'
 ---
-# Vast.ai Reference Architecture
+
+# Governed Vast.ai GPU Workload Architecture
 
 ## Overview
 
-Production architecture for GPU compute workflows on Vast.ai. Covers the three-tier pattern (orchestrator, GPU workers, artifact storage), job queue design, and fault-tolerant training pipelines.
+Center the architecture on an immutable run or release manifest and a lifecycle ledger. Search and planning are read-only; paid resource creation crosses an approval boundary; execution writes recoverable state externally; teardown closes both cost and evidence.
 
 ## Prerequisites
 
-- Vast.ai account with CLI
-- Cloud storage (S3, GCS, or MinIO) for artifacts
-- Understanding of ML training pipelines
+- Batch, training, interactive, or Serverless workload inventory with SLOs
+- Data, model, image, credential, region, reliability, and spend policies
+- Owners for approval, execution, recovery, billing, security, and platform incidents
 
 ## Instructions
 
-### Architecture: Three-Tier GPU Compute
+### Step 1: Define the immutable intent
 
-```
-┌─────────────────────────────────────────────────┐
-│  ORCHESTRATOR (your server / CI / cloud function) │
-│  - Job queue management                          │
-│  - Instance provisioning via Vast.ai API         │
-│  - Status monitoring and auto-recovery           │
-│  - Cost tracking and budget enforcement          │
-└───────────────┬─────────────────────────────────┘
-                │ Vast.ai REST API
-┌───────────────▼─────────────────────────────────┐
-│  GPU WORKERS (Vast.ai rented instances)          │
-│  - Training / inference execution                │
-│  - Checkpoint saving to cloud storage            │
-│  - Health reporting back to orchestrator         │
-│  - Graceful shutdown on SIGTERM (spot preemption)│
-└───────────────┬─────────────────────────────────┘
-                │ S3 / GCS / MinIO
-┌───────────────▼─────────────────────────────────┐
-│  ARTIFACT STORAGE (persistent)                   │
-│  - Model checkpoints                             │
-│  - Training logs and metrics                     │
-│  - Dataset cache                                 │
-│  - Final model artifacts                         │
-└─────────────────────────────────────────────────┘
-```
+Create a signed or versioned manifest containing workload bytes, image/template/model identity, GPU policy, data/checkpoint routes, SLOs, budget, and expiry.
 
-### Project Structure
+### Step 2: Separate planner and mutator
 
-```
-ml-pipeline/
-  orchestrator/
-    job_queue.py         # Job definition and scheduling
-    provisioner.py       # Vast.ai instance lifecycle
-    monitor.py           # Status polling and auto-recovery
-    cost_tracker.py      # Budget enforcement
-  worker/
-    Dockerfile           # GPU worker image
-    train.py             # Training entry point
-    checkpoint.py        # Cloud storage checkpoint manager
-    health.py            # Report status back to orchestrator
-  config/
-    gpu_profiles.yaml    # GPU selection criteria per job type
-    budgets.yaml         # Cost limits per team/project
-  scripts/
-    deploy.py            # CLI for launching jobs
-    cost_report.py       # Spending analysis
-```
+Let a read-scoped planner evaluate offers or Serverless profiles. Require explicit approval before a narrowly scoped mutator creates, updates, transfers credit, or destroys.
 
-### GPU Profile Configuration
+### Step 3: Choose the executor
 
-```yaml
-# config/gpu_profiles.yaml
-profiles:
-  dev-test:
-    gpu_name: RTX_4090
-    num_gpus: 1
-    max_dph: 0.25
-    reliability_min: 0.90
-    max_duration_hours: 2
+Use an instance lifecycle for bounded jobs or dedicated services; use Serverless endpoint/workergroup control for managed inference scaling and rolling updates.
 
-  training-standard:
-    gpu_name: A100
-    num_gpus: 1
-    max_dph: 2.00
-    reliability_min: 0.98
-    max_duration_hours: 24
+### Step 4: Externalize durable state
 
-  training-distributed:
-    gpu_name: H100_SXM
-    num_gpus: 4
-    max_dph: 4.00
-    reliability_min: 0.99
-    max_duration_hours: 48
+Keep datasets, checkpoints, artifacts, event ledgers, and evidence outside disposable root disks with checksums and recovery objectives.
 
-  inference-batch:
-    gpu_name: RTX_4090
-    num_gpus: 1
-    max_dph: 0.15
-    reliability_min: 0.95
-    max_duration_hours: 4
-```
+### Step 5: Observe and reconcile
 
-### Checkpoint Manager Pattern
+Combine provider states, signed notifications, bounded polling, workload SLOs, balance, charges, and resource inventory; reconcile events against periodic reads.
 
-```python
-import boto3, os, json, time
+### Step 6: Close every lifecycle
 
-class CheckpointManager:
-    def __init__(self, bucket, prefix, interval_steps=500):
-        self.s3 = boto3.client("s3")
-        self.bucket = bucket
-        self.prefix = prefix
-        self.interval = interval_steps
+Accept output, copy evidence, destroy disposable resources, revoke temporary access, reconcile charges, and leave an auditable handoff for retained resources.
 
-    def save(self, model, optimizer, step, metrics):
-        if step % self.interval != 0:
-            return
-        checkpoint = {
-            "model_state": model.state_dict(),
-            "optimizer_state": optimizer.state_dict(),
-            "step": step, "metrics": metrics,
-            "timestamp": time.time(),
-        }
-        path = f"{self.prefix}/checkpoint-{step}.pt"
-        torch.save(checkpoint, f"/tmp/checkpoint-{step}.pt")
-        self.s3.upload_file(f"/tmp/checkpoint-{step}.pt", self.bucket, path)
+## Authentication
 
-    def load_latest(self):
-        objects = self.s3.list_objects_v2(Bucket=self.bucket, Prefix=self.prefix)
-        if not objects.get("Contents"):
-            return None
-        latest = max(objects["Contents"], key=lambda o: o["LastModified"])
-        self.s3.download_file(self.bucket, latest["Key"], "/tmp/latest.pt")
-        return torch.load("/tmp/latest.pt")
-```
+Use native Teams roles and distinct scoped keys for planning, mutation, monitoring, and administration. Workload storage and registry credentials must never inherit control-plane authority.
+
+## Tool Discipline
+
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- Three-tier architecture (orchestrator, GPU workers, artifact storage)
-- Project structure for ML pipeline on Vast.ai
-- GPU profile configuration per job type
-- Checkpoint manager with cloud storage integration
+- Trust-boundary and component decision record
+- Immutable manifest, lifecycle ledger, recovery, and observability contracts
+- Threat, failure, cost, rollback, and teardown evidence plan
 
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Orchestrator loses track of instance | API timeout | Implement heartbeat from worker |
-| Checkpoint upload fails | S3 permissions | Verify credentials on GPU instance |
-| Worker can't reach orchestrator | No public IP | Use polling model (worker pulls jobs) |
-| Budget exceeded | No cost controls | Implement profile-based max_duration_hours |
-
-## Resources
-
-- [Vast.ai REST API](https://vast.ai/developers/api)
-- [PyTorch Distributed](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html)
-
-## Next Steps
-
-For multi-environment configuration, see `vastai-multi-env-setup`.
+Return workload classes, chosen executors, authority boundaries, immutable artifacts, recovery targets, SLOs, budgets, event reconciliation, and lifecycle owners.
 
 ## Examples
 
-**Simple pipeline**: Orchestrator searches for offers matching `training-standard` profile, provisions instance, uploads data via SCP, runs training, saves checkpoints to S3, destroys instance.
+A planner selects verified offers but cannot rent; an approved mutator creates from a signed run manifest; the training executor checkpoints externally; a signed event plus reconciliation loop detects failure; a finalizer destroys the instance and closes the charge ledger.
 
-**Fault-tolerant training**: Worker saves checkpoint every 500 steps to S3. On preemption, orchestrator provisions replacement and worker resumes from latest checkpoint.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| One service can plan, fund, mutate, and erase evidence | Split authority and add independent approval and audit. |
+| Durable state exists only on an instance | Move it to an external verified store before production. |
+| Event stream is treated as complete | Add periodic resource reconciliation and idempotent processing. |
+| Resource has no expiry or cleanup owner | Reject the architecture until the lifecycle can close. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [Vast.ai concepts](https://docs.vast.ai/guides/concepts)
+- [Serverless architecture](https://docs.vast.ai/guides/serverless/architecture)
+- [API permissions](https://docs.vast.ai/api-reference/permissions)

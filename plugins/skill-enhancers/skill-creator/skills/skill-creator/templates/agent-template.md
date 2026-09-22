@@ -1,15 +1,29 @@
 ---
 name: {{AGENT_NAME}}
-description: "{{AGENT_SPECIALTY_20_200_CHARS}}"
-# Optional fields (include as needed):
-# model: sonnet                          # sonnet|haiku|opus|inherit
-# effort: medium                         # low|medium|high
+description: "{{CONCISE_AGENT_SPECIALTY_20_1536_CHARS}}"
+# IS marketplace-required fields:
+tools: [Read, Glob, Grep]                # Allowlist; scope to the actual workflow
+model: inherit                           # sonnet|haiku|opus|fable|inherit|full Claude model ID
+color: blue                              # red|blue|green|yellow|purple|orange|pink|cyan
+version: 1.0.0
+author: "{{AUTHOR_NAME}} <{{AUTHOR_EMAIL}}>"
+tags: [{{TAG_1}}, {{TAG_2}}]
+disallowedTools: []                      # IS denylist form; camelCase on agents
+skills: []                               # Skill names to preload
+background: false
+# Optional tuning fields (include as needed):
+# effort: medium                         # low|medium|high|xhigh|max
 # maxTurns: 15                           # Max agentic loop iterations
-# disallowedTools: "Write,Edit"          # Denylist — camelCase on agents (skills spell it kebab-case: disallowed-tools)
-# skills: [{{SKILL_1}}, {{SKILL_2}}]    # Skills to preload
 # memory: project                        # user|project|local
-# background: false                      # Run in background
 # isolation: worktree                    # Isolated git worktree
+# initialPrompt: "Start with the intake." # First turn when launched via --agent
+# experimental:                          # Claude Code v2.1.248+
+#   cacheTtl: 5m                         # 5m|1h
+# Standalone agents require these under the IS contract. Claude Code ignores
+# them in plugin agents, so omit them there:
+# hooks: {}
+# mcpServers: []                          # Server names or one-key inline definitions
+# permissionMode: default                 # manual is an alias for default
 ---
 
 # {{AGENT_TITLE}}

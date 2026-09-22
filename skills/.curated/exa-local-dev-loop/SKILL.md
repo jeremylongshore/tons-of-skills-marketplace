@@ -1,240 +1,75 @@
 ---
 name: exa-local-dev-loop
-description: 'Configure Exa local development with hot reload, testing, and mock responses.
-
-  Use when setting up a development environment, writing tests against Exa,
-
-  or establishing a fast iteration cycle.
-
-  Trigger with phrases like "exa dev setup", "exa local development",
-
-  "exa test setup", "develop with exa", "mock exa".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pnpm:*), Bash(npx:*), Grep
-version: 1.11.0
+description: >-
+  Build and test an Exa adapter locally using schema fixtures, recorded content-free envelopes, and an explicit opt-in live lane. Use when operating or reviewing this Exa boundary. Trigger with "Exa local dev loop", "review Exa local dev loop", or "fix Exa local dev loop".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<fixture-set> <adapter-path>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- testing
-- development
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Local Dev Loop
-
-## Output
-
-- A small reviewed local Exa integration change with focused tests and normal source-control rollback.
-- A redacted development verification receipt using sanitized queries and scoped credentials.
+# Exa Deterministic Local Development Loop
 
 ## Overview
 
-Set up a fast, reproducible local development workflow for Exa integrations. Covers project structure, mock responses for unit tests, integration test patterns, and hot-reload configuration.
+Build and test an Exa adapter locally using schema fixtures, recorded content-free envelopes, and an explicit opt-in live lane. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- `exa-js` installed and `EXA_API_KEY` configured
-- Node.js 18+ with npm/pnpm
-- `vitest` for testing (or `jest`)
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Search results, crawl output, and rankings are time-varying. Local tests should own sanitized response fixtures for request and failure shapes, while live calls remain a separately authorized integration lane with a small budget.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: Project Structure
+1. Locate the application-owned Exa boundary and its existing tests.
+2. Define typed request, response, status, and error-tag fixtures.
+3. Cover Search, Contents per-URL statuses, and one retryable failure offline.
+4. Inject a fake clock and deterministic retry schedule.
+5. Gate any live probe behind explicit credentials and an opt-in flag.
+6. Report fixture provenance, assertions, and whether a live call occurred.
 
-```
-my-exa-project/
-├── src/
-│   ├── exa/
-│   │   ├── client.ts       # Singleton Exa client
-│   │   ├── search.ts       # Search wrappers
-│   │   └── types.ts        # Typed interfaces
-│   └── index.ts
-├── tests/
-│   ├── exa.unit.test.ts    # Mock-based unit tests
-│   └── exa.integration.test.ts  # Real API tests (needs key)
-├── .env.local              # Local secrets (git-ignored)
-├── .env.example            # Template for team
-├── tsconfig.json
-├── vitest.config.ts
-└── package.json
-```
+## Tool Discipline
 
-### Step 2: Package Setup
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-```json
-{
-  "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "test": "vitest",
-    "test:unit": "vitest --testPathPattern=unit",
-    "test:integration": "vitest --testPathPattern=integration",
-    "build": "tsc"
-  },
-  "dependencies": {
-    "exa-js": "^1.0.0"
-  },
-  "devDependencies": {
-    "tsx": "^4.0.0",
-    "vitest": "^2.0.0",
-    "typescript": "^5.0.0"
-  }
-}
-```
+## Approval Boundaries
 
-### Step 3: Mock Exa for Unit Tests
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-```typescript
-// tests/exa.unit.test.ts
-import { describe, it, expect, vi, beforeEach } from "vitest";
+## Failure Modes
 
-// Mock the exa-js module
-vi.mock("exa-js", () => {
-  return {
-    default: vi.fn().mockImplementation(() => ({
-      search: vi.fn().mockResolvedValue({
-        results: [
-          { url: "https://example.com/1", title: "Test Result 1", score: 0.95 },
-          { url: "https://example.com/2", title: "Test Result 2", score: 0.87 },
-        ],
-      }),
-      searchAndContents: vi.fn().mockResolvedValue({
-        results: [
-          {
-            url: "https://example.com/1",
-            title: "Test Result 1",
-            score: 0.95,
-            text: "This is the full text content of the page.",
-            highlights: ["Key excerpt from the page"],
-            summary: "A summary of the page content.",
-          },
-        ],
-      }),
-      findSimilar: vi.fn().mockResolvedValue({
-        results: [
-          { url: "https://similar.com/1", title: "Similar Page", score: 0.82 },
-        ],
-      }),
-      getContents: vi.fn().mockResolvedValue({
-        results: [
-          { url: "https://example.com/1", title: "Page", text: "Content" },
-        ],
-      }),
-    })),
-  };
-});
+- Do not commit real page contents, queries, API keys, or presigned URLs.
+- Do not make network access a unit-test prerequisite.
+- Do not treat a sanitized fixture as proof that the current vendor contract is unchanged.
 
-import Exa from "exa-js";
+## Output
 
-describe("Exa Search", () => {
-  let exa: any;
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-  beforeEach(() => {
-    exa = new Exa("test-key");
-  });
+## Example
 
-  it("should return search results", async () => {
-    const result = await exa.search("test query", { numResults: 5 });
-    expect(result.results).toHaveLength(2);
-    expect(result.results[0].score).toBeGreaterThan(0.9);
-  });
+- An offline test returns a requestId, two URL-only results, costDollars, and a 429 Retry-After case through a fake transport.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-  it("should return content with searchAndContents", async () => {
-    const result = await exa.searchAndContents("test", { text: true });
-    expect(result.results[0].text).toBeDefined();
-    expect(result.results[0].highlights).toHaveLength(1);
-  });
-});
-```
+## Validation
 
-### Step 4: Integration Tests (Real API)
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-```typescript
-// tests/exa.integration.test.ts
-import { describe, it, expect } from "vitest";
-import Exa from "exa-js";
+## References
 
-// Skip if no API key available (CI without secrets)
-const describeWithKey = process.env.EXA_API_KEY
-  ? describe
-  : describe.skip;
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-describeWithKey("Exa Integration", () => {
-  const exa = new Exa(process.env.EXA_API_KEY!);
-
-  it("should execute a basic search", async () => {
-    const result = await exa.search("test connectivity", { numResults: 1 });
-    expect(result.results.length).toBeGreaterThanOrEqual(1);
-    expect(result.results[0].url).toMatch(/^https?:\/\//);
-  }, 10000); // 10s timeout for API calls
-
-  it("should return text content", async () => {
-    const result = await exa.searchAndContents("TypeScript tutorial", {
-      numResults: 1,
-      text: { maxCharacters: 500 },
-    });
-    expect(result.results[0].text).toBeDefined();
-    expect(result.results[0].text!.length).toBeGreaterThan(0);
-  }, 15000);
-
-  it("should find similar pages", async () => {
-    const result = await exa.findSimilar("https://nodejs.org", {
-      numResults: 3,
-    });
-    expect(result.results.length).toBeGreaterThanOrEqual(1);
-  }, 10000);
-});
-```
-
-### Step 5: Environment Configuration
-
-```bash
-set -euo pipefail
-# Create .env.example template (commit this)
-cat > .env.example << 'EOF'
-# Exa API — get key at https://dashboard.exa.ai
-EXA_API_KEY=
-EOF
-
-# Create local env (git-ignored)
-cp .env.example .env.local
-echo "EXA_API_KEY=your-key-here" > .env.local
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Cannot find module 'exa-js'` | Not installed | Run `npm install exa-js` |
-| Test timeout | Slow API response | Increase vitest timeout to 15000ms |
-| Mock not applied | Import order issue | Ensure `vi.mock()` is before imports |
-| Integration test fails in CI | No API key secret | Add `EXA_API_KEY` to CI secrets or skip |
-
-## Examples
-
-### Vitest Config for Exa Projects
-
-```typescript
-// vitest.config.ts
-import { defineConfig } from "vitest/config";
-
-export default defineConfig({
-  test: {
-    globals: true,
-    environment: "node",
-    testTimeout: 15000,   // Exa API calls can take a few seconds
-    setupFiles: ["dotenv/config"],
-  },
-});
-```
-
-## Resources
-
-- [Vitest Documentation](https://vitest.dev/)
-- [tsx Documentation](https://github.com/privatenumber/tsx)
-- [exa-js on npm](https://www.npmjs.com/package/exa-js)
-
-## Next Steps
-
-See `exa-sdk-patterns` for production-ready code patterns.
+- [Current first-party evidence map](references/official-docs.md)

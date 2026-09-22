@@ -1,7 +1,7 @@
 {
   "name": "procore-pack",
-  "version": "1.5.0",
-  "description": "Claude Code skill pack for Procore (24 skills)",
+  "version": "2.0.0",
+  "description": "24 governed Procore operator workflows for OAuth, REST, webhooks, files, permissions, health, and synchronization",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,9 @@
   "license": "MIT",
   "keywords": [
     "procore",
-    "procore",
-    "saas",
-    "sdk",
-    "integration"
+    "construction",
+    "dmsa",
+    "webhooks",
+    "operations"
   ]
 }

@@ -1,158 +1,93 @@
 ---
 name: vastai-rate-limits
-description: 'Handle Vast.ai API rate limits with backoff and request optimization.
-
-  Use when encountering 429 errors, implementing retry logic,
-
-  or optimizing API request throughput.
-
-  Trigger with phrases like "vastai rate limit", "vastai throttling",
-
-  "vastai 429", "vastai retry", "vastai backoff".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
+description: >-
+  Diagnose and design bounded Vast.ai CLI and REST traffic around per-endpoint, per-identity rate limits and the absence of Retry-After headers. Use when implementing polling, batch automation, or 429 recovery. Trigger with: "handle Vast.ai 429", "reduce Vast.ai polling", "set Vast.ai retry policy".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[client-endpoints-and-call-budget]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- vast-ai
-- api
-compatibility: Designed for Claude Code
+  - saas
+  - vastai
+  - rate-limits
+  - retries
+  - api
+compatibility: 'Requires an inventory of Vast.ai endpoints, calling identities, deadlines, and the current CLI or REST client.'
 ---
-# Vast.ai Rate Limits
+
+# Bounded Vast.ai API Traffic
 
 ## Overview
 
-Handle Vast.ai REST API rate limits gracefully. The API at `cloud.vast.ai/api/v0` returns HTTP 429 when request limits are exceeded. Most operations (search, show) are read-heavy and rarely hit limits, but automated scripts doing rapid provisioning or polling can trigger throttling.
+Prefer the CLI's built-in 429 retry for ordinary commands and add one orchestration-level call budget around it. For direct REST clients, implement capped backoff because the API does not return standard rate-limit headers.
 
 ## Prerequisites
 
-- Vast.ai CLI or REST API client
-- Understanding of exponential backoff
+- Endpoint and HTTP-method inventory with expected call volume
+- Single owner for retry count, polling interval, deadline, and concurrency
+- Metrics for calls, 429s, latency, cached hits, and abandoned work
 
 ## Instructions
 
-### Step 1: Rate-Limited HTTP Client
+### Step 1: Map the identity boundary
 
-```python
-import requests
-import time
+Group calls by endpoint, method, bearer token, session user, query key, and client IP because each can contribute to the enforced identity.
 
-class RateLimitedVastClient:
-    BASE_URL = "https://cloud.vast.ai/api/v0"
+### Step 2: Choose one retry layer
 
-    def __init__(self, api_key, min_delay=0.5, max_retries=5):
-        self.session = requests.Session()
-        self.session.headers["Authorization"] = f"Bearer {api_key}"
-        self.min_delay = min_delay
-        self.max_retries = max_retries
-        self.last_request = 0
+For CLI commands, configure `--retry` and do not wrap them in another exponential retry. For REST, retry only 429 with a capped backoff and total deadline.
 
-    def request(self, method, endpoint, **kwargs):
-        # Enforce minimum delay between requests
-        elapsed = time.time() - self.last_request
-        if elapsed < self.min_delay:
-            time.sleep(self.min_delay - elapsed)
+### Step 3: Replace tight polling
 
-        for attempt in range(self.max_retries):
-            self.last_request = time.time()
-            resp = self.session.request(method, f"{self.BASE_URL}{endpoint}", **kwargs)
+Cache stable offer and account data, poll only resources still in transitional states, stop on terminal states, and progressively lengthen the interval.
 
-            if resp.status_code == 429:
-                retry_after = int(resp.headers.get("Retry-After", 2 ** attempt))
-                print(f"Rate limited. Waiting {retry_after}s (attempt {attempt+1})")
-                time.sleep(retry_after)
-                continue
+### Step 4: Flatten bursts
 
-            resp.raise_for_status()
-            return resp.json()
+Queue work, spread scheduled jobs, and batch operations where the documented endpoint supports it. Bound concurrency per endpoint.
 
-        raise RuntimeError("Max retries exceeded due to rate limiting")
-```
+### Step 5: Honor the call budget
 
-### Step 2: Polling with Adaptive Backoff
+Stop when attempts, elapsed time, or request count reaches the approved ceiling; surface a retryable operational result instead of looping.
 
-```python
-def poll_instance_status(client, instance_id, target="running", timeout=300):
-    """Poll instance status with increasing intervals."""
-    start = time.time()
-    interval = 5  # Start at 5s, increase to max 30s
+### Step 6: Escalate sustained pressure
 
-    while time.time() - start < timeout:
-        info = client.request("GET", f"/instances/{instance_id}/")
-        status = info.get("actual_status", "unknown")
+Report endpoint, identity shape, measured call rate, 429 rate, and business need to support when production volume requires a higher limit.
 
-        if status == target:
-            return info
-        if status in ("error", "offline"):
-            raise RuntimeError(f"Instance {instance_id} failed: {status}")
+## Authentication
 
-        time.sleep(interval)
-        interval = min(interval * 1.5, 30)
+Use the narrowest key for each worker and never rotate keys merely to evade a limit. Redact tokens and query credentials from request and retry logs.
 
-    raise TimeoutError(f"Instance did not reach '{target}' within {timeout}s")
-```
+## Tool Discipline
 
-### Step 3: Batch Search with Throttling
-
-```python
-def batch_search(client, gpu_configs):
-    """Search for multiple GPU types with rate-limit-safe delays."""
-    results = {}
-    for config in gpu_configs:
-        query = GPUQuery(**config).to_filter()
-        offers = client.request("GET", "/bundles/", params={"q": str(query)})
-        results[config.get("gpu_name", "any")] = offers.get("offers", [])
-        time.sleep(1)  # Be polite between searches
-    return results
-
-# Usage
-configs = [
-    {"gpu_name": "RTX_4090", "max_dph": 0.30},
-    {"gpu_name": "A100", "max_dph": 2.00},
-    {"gpu_name": "H100_SXM", "max_dph": 4.00},
-]
-all_offers = batch_search(client, configs)
-```
-
-### Step 4: Request Optimization
-
-Strategies to reduce API calls:
-
-- **Cache search results**: Offers change slowly; cache for 60-120 seconds
-- **Use `--limit`**: Restrict search results to what you need
-- **Batch instance checks**: Use `show instances` (lists all) instead of individual `show instance ID` calls
-- **Avoid polling loops**: Use longer intervals (15-30s) for status checks
+Use Read and Grep to inspect manifests, configuration, provider output, and existing tests before proposing a mutation. Use Write or Edit only for the approved plan, implementation, test, or redacted receipt; do not create, update, destroy, or fund Vast.ai resources without explicit operator approval.
 
 ## Output
 
-- Rate-limited HTTP client with automatic retry on 429
-- Adaptive polling for instance status changes
-- Batch search with inter-request delays
-- Request optimization strategies
+- Endpoint/identity traffic inventory
+- Retry, polling, caching, concurrency, and deadline policy
+- Measured before/after call volume and 429 receipt
 
-## Error Handling
-
-| Scenario | Response |
-|----------|----------|
-| First 429 | Wait `Retry-After` header value, then retry |
-| Repeated 429s | Double wait time between retries |
-| 429 during provisioning | Instance creation is idempotent; safe to retry |
-| 429 during search | Cache previous results and use them temporarily |
-
-## Resources
-
-- [Vast.ai REST API](https://vast.ai/developers/api)
-- [API Reference](https://docs.vast.ai/api-reference/introduction)
-
-## Next Steps
-
-For security best practices, see `vastai-security-basics`.
+Return endpoints, identity partition, client type, retry owner, call ceiling, observed 429s, elapsed time, and final disposition.
 
 ## Examples
 
-**Safe multi-instance provisioning**: Create 10 instances with 2-second delays between each `create instance` call to avoid triggering rate limits during cluster setup.
+A readiness watcher uses one CLI command with `--retry 3`, polls only while state is transitional, lengthens the interval, and exits immediately on `running`, `exited`, `unknown`, or `offline`.
 
-**Efficient monitoring**: Poll all instances with a single `show instances` call every 30 seconds instead of individual calls per instance.
+## Error Handling
+
+| Failure | Response |
+| --- | --- |
+| REST response is 429 | Back off within the total deadline; do not expect `Retry-After`. |
+| Non-429 4xx occurs | Do not retry automatically; repair arguments, authentication, or permission. |
+| Retry layers multiply | Remove the outer retry or disable the inner one so only one owner controls attempts. |
+| Deadline expires | Return the last state and next safe action without another call. |
+
+## Resources
+
+- [First-party source notes](references/official-docs.md)
+- [API rate limits and errors](https://docs.vast.ai/api-reference/rate-limits-and-errors)
+- [CLI rate limits](https://docs.vast.ai/cli/rate-limits)
+- [Official CLI global flags](https://github.com/vast-ai/vast-cli/blob/master/vastai/SKILL.md#global-flags)

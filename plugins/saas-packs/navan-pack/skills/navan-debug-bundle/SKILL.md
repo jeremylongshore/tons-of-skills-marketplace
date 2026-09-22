@@ -1,155 +1,74 @@
 ---
 name: navan-debug-bundle
-description: "Use when collecting diagnostic data from a Navan API integration \u2014\
-  \ OAuth token inspection, API response capture, connectivity testing, and request/response\
-  \ logging.\nTrigger with \"navan debug bundle\" or \"debug navan api\".\n"
-allowed-tools: Read, Bash(curl:*), Bash(jq:*), Bash(tar:*), Bash(mkdir:*), Bash(date:*),
-  Grep
-version: 1.8.0
+description: >-
+  Assemble a content-free Navan integration support bundle for operators or vendor escalation. Use when triage needs reproducible evidence. Trigger with "collect Navan diagnostics", "Navan support bundle", or "sanitize Navan logs".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<surface> <time-window> <incident-id>"
+version: 1.9.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- navan
-- travel
-compatibility: Designed for Claude Code
+tags: [saas, navan, diagnostics]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live or external Navan actions require network access and explicit approval"
 ---
-# Navan Debug Bundle
+# Navan Sanitized Support Bundle
 
 ## Overview
 
-Collect diagnostic data from Navan REST API integrations into a structured, shareable debug bundle. Navan has no SDK — all debugging uses raw HTTP requests against their OAuth 2.0 REST endpoints.
+Assemble a content-free Navan integration support bundle for operators or vendor escalation. This workflow produces an auditable decision or artifact before any live action.
 
 ## Prerequisites
 
-- Navan API credentials: `client_id` and `client_secret` from Admin > Travel admin > Settings > Integrations
-- `curl` and `jq` installed locally
-- Credentials are viewable **only once** at creation — store them in a secret manager immediately
-- No sandbox environment exists; all API calls hit production
+- Access to the selected tenant's current Navan Help Center and contracted integration documentation.
+- A named business owner and data owner for the travel or expense workflow.
+- A non-production evidence set with secrets and traveler data removed.
+
+## Current Contract
+
+A useful bundle proves configuration shape, contract revision, timing, counts, checksums, and failure class without containing credentials, traveler identity, itinerary, payment, receipt, or free-text content.
+
+## Authentication
+
+Record credential source, age band, and scope label only. Never include tokens, client secrets, cookies, file-transfer keys, authorization headers, or raw identity responses.
 
 ## Instructions
 
-### Step 1 — Create Bundle Directory
+1. Define the incident window and minimum evidence questions.
+2. Collect version, tenant alias, environment, surface, operation, and contract revision.
+3. Add redacted request/response schemas, counts, timings, status class, and correlation identifiers.
+4. Hash artifacts and scan them for credentials and sensitive fields.
+5. Generate a manifest showing every included and excluded item.
+6. Require review before transmitting the bundle outside the approved boundary.
 
-```bash
-BUNDLE_DIR="navan-debug-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE_DIR"/{auth,api,connectivity,env}
-echo "Bundle initialized: $BUNDLE_DIR"
-```
+## Tool Discipline
 
-### Step 2 — Capture Environment State
+Use Read, Glob, and Grep to inspect documentation, schemas, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Invocation alone does not authorize network access, credentials, traveler or expense data, bookings, payments, policy or identity changes, file transfers, deployments, or deletion.
 
-```bash
-cat > "$BUNDLE_DIR/env/config.txt" <<ENVEOF
-Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
-NAVAN_CLIENT_ID: ${NAVAN_CLIENT_ID:+SET (not empty)}${NAVAN_CLIENT_ID:-UNSET}
-NAVAN_CLIENT_SECRET: ${NAVAN_CLIENT_SECRET:+SET (not empty)}${NAVAN_CLIENT_SECRET:-UNSET}
-NAVAN_TOKEN_URL: ${NAVAN_TOKEN_URL:-https://api.navan.com/ta-auth/oauth/token}
-curl version: $(curl --version | head -1)
-jq version: $(jq --version 2>/dev/null || echo "not installed")
-ENVEOF
-```
+## Approval Boundaries
 
-### Step 3 — Test OAuth Token Acquisition
-
-```bash
-curl -s -w "\n---HTTP_CODE:%{http_code}---\n" \
-  -X POST "https://api.navan.com/ta-auth/oauth/token" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "grant_type=client_credentials&client_id=$NAVAN_CLIENT_ID&client_secret=$NAVAN_CLIENT_SECRET" \
-  | tee "$BUNDLE_DIR/auth/token-response.json" \
-  | jq '{has_token: (.access_token != null), error: .error}'
-```
-
-If the token response returns HTTP 401, the credentials are invalid or expired. If HTTP 403, the API integration may not be enabled for your organization.
-
-### Step 4 — Probe API Endpoints
-
-Test each core endpoint and capture full response headers:
-
-```bash
-TOKEN=$(jq -r '.access_token' "$BUNDLE_DIR/auth/token-response.json")
-
-# Test the primary bookings endpoint
-ENDPOINT="v1/bookings"
-curl -s -D "$BUNDLE_DIR/api/bookings-headers.txt" \
-  -w "\n---HTTP_CODE:%{http_code}---\n" \
-  -H "Authorization: Bearer $TOKEN" \
-  "https://api.navan.com/${ENDPOINT}?page=0&size=1" \
-  > "$BUNDLE_DIR/api/bookings-body.json" 2>&1
-echo "bookings: $(grep 'HTTP_CODE' "$BUNDLE_DIR/api/bookings-body.json")"
-```
-
-### Step 5 — Connectivity and DNS Tests
-
-```bash
-curl -s -o /dev/null -w "connect_time: %{time_connect}\nttfb: %{time_starttransfer}\ntotal: %{time_total}\nhttp_code: %{http_code}\n" \
-  "https://api.navan.com/ta-auth/oauth/token" \
-  > "$BUNDLE_DIR/connectivity/timing.txt"
-
-nslookup api.navan.com > "$BUNDLE_DIR/connectivity/dns.txt" 2>&1
-```
-
-### Step 6 — Sanitize and Package
-
-Strip any raw credentials before sharing:
-
-```bash
-# Remove raw secrets from bundle files
-find "$BUNDLE_DIR" -type f -exec sed -i \
-  -e "s/$NAVAN_CLIENT_SECRET/[REDACTED]/g" \
-  -e "s/$NAVAN_CLIENT_ID/[CLIENT_ID_REDACTED]/g" {} +
-
-tar -czf "${BUNDLE_DIR}.tar.gz" "$BUNDLE_DIR"
-echo "Debug bundle ready: ${BUNDLE_DIR}.tar.gz ($(du -h "${BUNDLE_DIR}.tar.gz" | cut -f1))"
-```
-
-## Output
-
-A compressed tarball containing:
-
-| File | Contents |
-|------|----------|
-| `auth/token-response.json` | OAuth response (token redacted) |
-| `api/*-headers.txt` | HTTP response headers per endpoint |
-| `api/*-body.json` | API response bodies |
-| `connectivity/timing.txt` | Connection timing metrics |
-| `connectivity/dns.txt` | DNS resolution results |
-| `env/config.txt` | Environment variable state |
+Reading local sanitized evidence is allowed; collecting live data or sending any bundle to Navan or another party requires data-owner and incident-owner approval.
 
 ## Error Handling
 
-| HTTP Code | Meaning | Action |
-|-----------|---------|--------|
-| 401 | Invalid or expired credentials | Regenerate credentials in Admin > Integrations |
-| 403 | API not enabled for organization | Contact Navan admin to enable API access |
-| 429 | Rate limit exceeded | Wait and retry; check `Retry-After` header |
-| 500 | Navan server error | Retry after 60s; check Navan status |
-| `ECONNREFUSED` | Cannot reach Navan | Check DNS, firewall, and proxy settings |
+- Do not solve redaction by replacing only obvious email addresses.
+- Free-text support fields can contain passports, receipts, or itineraries.
+- If sensitivity cannot be established, keep the artifact local and escalate.
+
+## Output
+
+Return a bundle manifest, checksums, redaction report, evidence gaps, intended recipient, and approval record. Identify assumptions, owners, expirations, and evidence gaps explicitly.
 
 ## Examples
 
-Parse a specific error from the bundle:
+- Share a schema mismatch with field names but no values.
+- Prove repeated transfer failures using timestamps and content hashes.
 
-```bash
-# Extract error details from a failed endpoint
-jq '.error, .message, .status' "$BUNDLE_DIR/api/bookings-body.json"
+## Validation
 
-# Check if token is expired
-jq '.expires_at' "$BUNDLE_DIR/auth/token-response.json"
-
-# Review response times
-cat "$BUNDLE_DIR/connectivity/timing.txt"
-```
+Run secret, personal-data, archive-path, and recipient-boundary checks before release. Record expected and observed results, including fail-closed behavior.
 
 ## Resources
 
-- [Navan Help Center](https://app.navan.com/app/helpcenter) — Support documentation and troubleshooting
-- [Navan Security](https://navan.com/security) — SOC 2 Type II, ISO 27001 compliance details
-- [Navan Integrations](https://navan.com/integrations) — Available third-party connectors
-
-## Next Steps
-
-- Use `navan-incident-runbook` if the debug bundle reveals a production incident
-- Use `navan-rate-limits` if 429 errors appear in the bundle
-- Use `navan-common-errors` for guidance on specific HTTP error codes
+- [Current first-party evidence map](references/official-docs.md) — recheck dated sources and the selected tenant's in-account contract before relying on mutable endpoints, fields, entitlements, limits, or delivery behavior.
+- Record tenant observations as environment-specific evidence, never universal Navan guarantees.

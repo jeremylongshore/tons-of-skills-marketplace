@@ -1,200 +1,84 @@
 ---
 name: clickup-core-workflow-a
-description: 'Manage ClickUp tasks via API v2: create, read, update, delete tasks
-  with
-
-  assignees, priorities, due dates, subtasks, and statuses.
-
-  Trigger: "clickup task", "create clickup task", "update task status",
-
-  "manage clickup tasks", "clickup CRUD", "clickup task management".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Grep
-version: 1.6.0
-license: MIT
+description: >-
+  Create, reconcile, update, and retire ClickUp tasks with schema validation, durable source identity, and explicit destructive approval. Use when automating task lifecycle work through ClickUp API v2. Trigger with "ClickUp task sync", "create ClickUp tasks", or "ClickUp task CRUD".
+argument-hint: "[workspace-id] [list-id] [dry-run|apply]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- productivity
 - clickup
-compatibility: Designed for Claude Code
+- tasks
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; apply mode requires authorized ClickUp task access
 ---
-# ClickUp Core Workflow A — Task Management
+# ClickUp Task Lifecycle
 
 ## Overview
 
-CRUD operations on ClickUp tasks via API v2. Tasks live in Lists and support assignees, priorities (1-4), statuses, due dates, tags, checklists, and custom fields.
+Operate the v2 task surface without duplicate creation, silent field loss, or unsafe deletion. Preserve a durable reconciliation trail for every attempted change.
 
 ## Prerequisites
 
-- A scoped ClickUp API/OAuth token and verified workspace/list permission
-- Approved target list, task schema, assignee policy, and data classification
-- Idempotency/reconciliation approach for any create or bulk update operation
-- A non-production or limited pilot path for automation changes
+- An allow-listed Workspace and destination List with a confirmed status/assignee model
+- A personal or OAuth token authorized for the target hierarchy
+- A durable external source key, reconciliation store, and rollback policy
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect the repository, adapters, configuration names, tests, and evidence. Use `WebFetch` only for current official ClickUp documentation. Use `Write` or `Edit` after confirming the target file, Workspace boundary, and requested mode.
+
+## Current Contract
+
+- Task creation uses `POST /api/v2/list/LIST_ID/task`; update and delete use the task resource path.
+- Priorities are `1` urgent, `2` high, `3` normal, and `4` low.
+- Existing Custom Fields are changed through Set/Remove Custom Field Value, not Update Task.
+- Get Tasks returns 100 tasks per zero-based page and normally includes only home-List tasks; request Tasks in Multiple Lists explicitly with `include_timl`.
+
+## Authentication
+
+Use a personal token only for accountable individual/testing work or OAuth Authorization Code for a user-facing integration. Inject the token server-side through a governed secret reference, send it in `Authorization`, verify authorized Workspace IDs, and never print the token, OAuth client secret, or webhook secret.
 
 ## Instructions
 
-Resolve workspace, list, task, and custom-field IDs before mutation; validate
-the intended state and actor authorization, then make one bounded create/update
-or batch. Record the returned task ID and re-read its material fields to
-confirm the desired result. Fail closed on unknown status, list, assignee, or
-permission rather than falling back to a broader workspace action.
+1. Read the destination List, statuses, members, and accessible Custom Fields.
+2. Normalize source records and validate names, dates in milliseconds, priorities, assignees, and field option IDs.
+3. Search the reconciliation store before creating; never assume an undocumented idempotency header.
+4. Render a dry-run of creates, updates, Custom Field calls, skips, and proposed removals.
+5. Apply bounded writes, persist returned task IDs immediately, and stop on permission or schema drift.
+6. Re-read affected tasks and reconcile values, counts, errors, and rollback handles.
 
-## Endpoints
+## Approval Boundaries
 
-| Operation | Method | Endpoint |
-|-----------|--------|----------|
-| Create task | POST | `/api/v2/list/{list_id}/task` |
-| Get task | GET | `/api/v2/task/{task_id}` |
-| Update task | PUT | `/api/v2/task/{task_id}` |
-| Delete task | DELETE | `/api/v2/task/{task_id}` |
-| Get tasks in list | GET | `/api/v2/list/{list_id}/task` |
-| Add task to list | POST | `/api/v2/list/{list_id}/task/{task_id}` |
-| Create subtask | POST | `/api/v2/list/{list_id}/task` (with `parent` field) |
-
-## Create Task
-
-```typescript
-interface CreateTaskBody {
-  name: string;                    // Required
-  description?: string;            // Plain text
-  markdown_description?: string;   // Markdown (use instead of description)
-  assignees?: number[];            // Array of user IDs
-  tags?: string[];                 // Tag names
-  status?: string;                 // Status name (e.g., "to do", "in progress")
-  priority?: 1 | 2 | 3 | 4 | null; // 1=Urgent, 2=High, 3=Normal, 4=Low
-  due_date?: number;               // Unix timestamp in milliseconds
-  due_date_time?: boolean;         // true = show time, false = date only
-  start_date?: number;             // Unix ms
-  start_date_time?: boolean;
-  time_estimate?: number;          // Time estimate in milliseconds
-  notify_all?: boolean;            // Notify assignees
-  parent?: string;                 // Parent task ID (creates subtask)
-  links_to?: string;               // Task ID to link to
-  custom_fields?: Array<{
-    id: string;                    // Custom field UUID
-    value: any;                    // Type-dependent value
-  }>;
-}
-
-async function createTask(listId: string, task: CreateTaskBody) {
-  return clickupRequest(`/list/${listId}/task`, {
-    method: 'POST',
-    body: JSON.stringify(task),
-  });
-}
-
-// Example: Create an urgent task with assignee
-await createTask('900100200300', {
-  name: 'Fix production bug in auth module',
-  markdown_description: '## Bug\nLogin fails for SSO users\n\n## Steps\n1. Go to /login\n2. Click SSO',
-  assignees: [183],
-  priority: 1,
-  status: 'in progress',
-  due_date: Date.now() + 3600000,
-  due_date_time: true,
-  tags: ['bug', 'production'],
-});
-```
-
-## Get Tasks (with Filtering)
-
-```typescript
-async function getTasks(listId: string, params: Record<string, string> = {}) {
-  const query = new URLSearchParams({
-    archived: 'false',
-    include_closed: 'false',
-    subtasks: 'true',
-    ...params,
-  });
-  return clickupRequest(`/list/${listId}/task?${query}`);
-}
-
-// Filter by assignee and status
-const tasks = await getTasks('900100200300', {
-  'assignees[]': '183',
-  'statuses[]': 'in progress',
-  order_by: 'due_date',
-  reverse: 'true',
-  page: '0',          // Pagination: 100 tasks per page
-});
-// Response: { tasks: [...] }
-```
-
-## Update Task
-
-```typescript
-// Only include fields you want to change
-async function updateTask(taskId: string, updates: Partial<CreateTaskBody>) {
-  return clickupRequest(`/task/${taskId}`, {
-    method: 'PUT',
-    body: JSON.stringify(updates),
-  });
-}
-
-// Change status and add assignee
-await updateTask('abc123', {
-  status: 'complete',
-  assignees: { add: [456], rem: [] },  // Add/remove pattern for assignees on update
-});
-```
-
-## Create Subtask
-
-```typescript
-await createTask('900100200300', {
-  name: 'Write unit tests for auth fix',
-  parent: 'abc123',  // Parent task ID makes this a subtask
-  assignees: [183],
-  priority: 3,
-});
-```
-
-## Bulk Operations
-
-```typescript
-// Get all tasks across workspace with team-level endpoint
-async function searchTasks(teamId: string, query: string) {
-  return clickupRequest(`/team/${teamId}/task?${new URLSearchParams({
-    page: '0',
-    order_by: 'updated',
-    reverse: 'true',
-    include_closed: 'true',
-    subtasks: 'true',
-  })}`);
-}
-```
-
-## Error Handling
-
-| Status | Cause | Solution |
-|--------|-------|----------|
-| 400 | Missing `name` field | Task name is required |
-| 401 | Invalid token | Re-authenticate |
-| 404 | Invalid list_id or task_id | Verify IDs via GET endpoints |
-| 403 | No permission on this list | Check workspace membership |
+Require explicit approval before deletes, bulk status changes, reassignment, date shifts, cross-List moves, or Custom Field writes that consume plan-limited uses.
 
 ## Output
 
-Return a redacted task-operation record with target IDs, requested and observed
-state, idempotency key, actor scope, validation result, and rollback/recovery
-decision. Do not include task descriptions, tokens, private comments, or full
-member data in general logs or automation receipts.
+Return dry-run/apply mode, created/updated/skipped/deleted counts, external-to-ClickUp ID map, verification result, and rollback handles. Identify every rejected or quarantined record with its safe remediation.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Source key already maps to a task | Update or skip according to policy; do not duplicate. |
+| Status or option ID is invalid | Stop that record and refresh destination metadata. |
+| Partial write succeeds | Persist the task ID and resume idempotently. |
+| Delete is unapproved | Leave the task unchanged and report the proposed action. |
 
 ## Examples
 
-Create one staging task with a deterministic external key, re-read the task to
-verify status and assignee, then repeat the request to prove it does not create
-a duplicate. If the list or assignee is unauthorized, return a classified
-failure and ask the owner to correct scope instead of switching to an admin key.
+The example below is a redacted operator receipt; it contains no task text, member data, credential, or webhook secret.
+
+```text
+mode=dry-run; list=allow-listed; create=8; update=3; delete=0; custom-field-uses=2; conflicts=1
+```
 
 ## Resources
 
-- [Create Task API](https://developer.clickup.com/reference/createtask)
-- [Update Task API](https://developer.clickup.com/reference/updatetask)
-- [Get Tasks API](https://developer.clickup.com/reference/gettasks)
-
-## Next Steps
-
-For spaces, folders, and lists management see `clickup-core-workflow-b`.
+- [Skill-specific official documentation](references/official-docs.md)
+- [Tasks guide](https://developer.clickup.com/docs/tasks)
+- [Authentication](https://developer.clickup.com/docs/authentication)
+- [Rate limits](https://developer.clickup.com/docs/rate-limits)

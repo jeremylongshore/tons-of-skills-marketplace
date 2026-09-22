@@ -13,7 +13,7 @@ description: 'Install and configure Anthropic Claude SDK authentication for Pyth
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -152,7 +152,7 @@ client = anthropic.Anthropic(
 
 ## Resources
 
-- [Anthropic API Getting Started](https://docs.anthropic.com/en/api/getting-started)
+- [Anthropic API Getting Started](https://platform.claude.com/docs/en/api/overview)
 - [Python SDK](https://github.com/anthropics/anthropic-sdk-python)
 - [TypeScript SDK](https://github.com/anthropics/anthropic-sdk-typescript)
 - [Console](https://console.anthropic.com)

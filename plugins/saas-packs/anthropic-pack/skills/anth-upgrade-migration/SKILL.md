@@ -12,7 +12,7 @@ description: 'Upgrade Anthropic SDK versions and migrate between Claude API vers
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Bash(git:*)
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -199,7 +199,7 @@ For a synthetic migration fixture, pin `anthropic` from `0.39.0` to the reviewed
 
 - [Python SDK Changelog](https://github.com/anthropics/anthropic-sdk-python/releases)
 - [TypeScript SDK Changelog](https://github.com/anthropics/anthropic-sdk-typescript/releases)
-- [API Versioning](https://docs.anthropic.com/en/api/versioning)
+- [API Versioning](https://platform.claude.com/docs/en/api/versioning)
 
 ## Next Steps
 

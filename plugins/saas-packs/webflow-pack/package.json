@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/webflow-pack",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Claude Code skill pack for Webflow - 24 skills covering visual web development, CMS APIs, and site management",
   "main": "README.md",
   "type": "module",

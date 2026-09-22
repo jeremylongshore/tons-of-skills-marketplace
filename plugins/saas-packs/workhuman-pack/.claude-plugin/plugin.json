@@ -1,7 +1,7 @@
 {
   "name": "workhuman-pack",
-  "version": "1.3.0",
-  "description": "Claude Code skill pack for Workhuman (18 skills)",
+  "version": "1.4.0",
+  "description": "Governed Workhuman operator workflows for recognition, rewards, Workday integration, security, and production operations",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,9 +9,8 @@
   "license": "MIT",
   "keywords": [
     "workhuman",
-    "workhuman",
     "saas",
-    "sdk",
+    "recognition",
     "integration"
   ]
 }

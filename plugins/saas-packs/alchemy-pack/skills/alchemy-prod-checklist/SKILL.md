@@ -1,176 +1,81 @@
 ---
 name: alchemy-prod-checklist
-description: 'Execute production readiness checklist for Alchemy-powered dApps.
-
-  Use when deploying Web3 applications, preparing for mainnet launch,
-
-  or validating blockchain integration before go-live.
-
-  Trigger: "alchemy production", "alchemy go-live", "alchemy mainnet checklist",
-
-  "dApp production readiness".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(curl:*), Grep
-version: 1.5.0
+description: >-
+  Make an evidence-backed go or no-go decision for an Alchemy-backed production release. Use when reviewing a launch or material integration change. Trigger with "Alchemy production checklist", "Alchemy go-live review", or "is this Alchemy integration ready".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<release-sha> <environment> <change-scope>"
+version: 2.0.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- blockchain
-- web3
-- alchemy
-- production
-compatibility: Designed for Claude Code
+tags: [saas, alchemy, production, governance]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Alchemy access requires network access, an appropriate credential, account capacity, and explicit approval"
 ---
-# Alchemy Production Checklist
+# Alchemy Production Readiness Decision
 
 ## Overview
 
-Use this checklist to make a deliberate go/no-go decision for an
-Alchemy-powered application. It covers provider isolation, key custody,
-application security, contract controls, performance, monitoring, and a
-reversible launch path.
+Make an evidence-backed go or no-go decision for an Alchemy-backed production release. This workflow produces a reviewable artifact and negative-path evidence before any live side effect.
 
 ## Prerequisites
 
-- Named engineering, security, product, and operations owners who can block a
-  release, plus an approved deployment window and rollback target.
-- Separate production application and managed-secret bindings that have been
-  tested in staging without reusing local or testnet credentials.
-- A documented user-impact fallback for provider outages, contract incidents,
-  and unsafe chain-data results.
+- Current first-party Alchemy documentation for the selected product, chain, feature, client, authentication method, limit, and lifecycle.
+- Named product, application, security, data/privacy, budget, release, and operations owners appropriate to the requested scope.
+- Synthetic or approved non-production fixtures, a credential canary, explicit success criteria, and a tested rollback boundary.
+
+## Current Contract
+
+Production readiness is a signed decision over a specific artifact, environment, Alchemy application, chain and feature set, account contract, data path, SLOs, and rollback. A passing connectivity check or testnet transaction does not authorize production traffic or wallet operations.
+
+## Authentication
+
+Confirm owners and lifecycle for every application key, Admin key, Notify token, webhook signing key, and signer. Prove environment isolation, least privilege, rotation, revocation, log redaction, and break-glass access.
 
 ## Instructions
 
-1. Assign an owner and evidence link to each pre-launch item, treating an
-   unchecked security, provider, or contract control as a release blocker.
-2. Run the readiness script using the production deployment identity and
-   inspect only its redacted results.
-3. Exercise the rollback or disable flag in staging, verify operator alerts,
-   and record the owner who will make the launch decision.
-4. Enable traffic progressively and stop expansion when any listed threshold
-   or safety invariant fails.
+1. Freeze the release SHA and enumerate Node, Data, Portfolio, Wallet, Notify, Admin, chain, address/data, and transaction surfaces in scope.
+2. Recheck current first-party feature support, errors, throughput, pricing, and SDK/client guidance; record account-specific observations and dates.
+3. Verify deterministic tests, contract fixtures, chain assertions, partial/pagination handling, bounded retries, idempotency, and provider-outage behavior.
+4. Review secret, privacy, webhook, wallet-signer, dependency, artifact, and supply-chain evidence plus incident and key-rotation exercises.
+5. Review capacity, budget, alerting, runbooks, service ownership, status-page dependency, deployment canary, stop thresholds, and tested rollback.
+6. Record each gate as pass, fail, waived-by-owner with expiry, or not applicable; issue go only when blockers are resolved by named authorities.
 
-## Pre-Launch Checklist
+## Tool Discipline
 
-### API & Infrastructure
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, wallet addresses, customer data, plan changes, spend, key creation or rotation, webhook changes, deployment, replay, transaction construction, signing, broadcast, or deletion.
 
-- [ ] API key restricted to production domains in Alchemy Dashboard
-- [ ] Separate Alchemy apps for dev/staging/prod environments
-- [ ] Rate limit headroom verified (< 70% of CU/sec budget)
-- [ ] Retry logic with exponential backoff implemented
-- [ ] Error monitoring configured (Sentry, Datadog, etc.)
-- [ ] Webhook endpoints HTTPS-only with signature verification
+## Approval Boundaries
 
-### Security
-
-- [ ] API key NOT in frontend code — proxied through backend
-- [ ] Private keys in secret manager (not env files)
-- [ ] All user-supplied addresses validated and checksummed
-- [ ] No `console.log` of sensitive data in production builds
-- [ ] npm audit clean — no critical vulnerabilities
-
-### Smart Contracts (if applicable)
-
-- [ ] Contracts audited by reputable firm
-- [ ] Deployed and verified on Etherscan/Polygonscan
-- [ ] Admin keys secured in multi-sig wallet
-- [ ] Emergency pause function tested
-
-### Performance
-
-- [ ] Response caching for frequently-queried data (balances, metadata)
-- [ ] Connection pooling for provider instances
-- [ ] Batch requests where possible (NFT metadata, balances)
-- [ ] WebSocket reconnection logic for real-time subscriptions
-
-### Validation Script
-
-```typescript
-// src/prod/readiness.ts
-import { Alchemy, Network } from 'alchemy-sdk';
-
-async function checkReadiness(): Promise<void> {
-  const checks: Array<{ name: string; pass: boolean; detail: string }> = [];
-
-  // 1. API connectivity
-  const alchemy = new Alchemy({ apiKey: process.env.ALCHEMY_API_KEY, network: Network.ETH_MAINNET });
-  try {
-    const block = await alchemy.core.getBlockNumber();
-    checks.push({ name: 'API Connectivity', pass: true, detail: `Block ${block}` });
-  } catch (err: any) {
-    checks.push({ name: 'API Connectivity', pass: false, detail: err.message });
-  }
-
-  // 2. Enhanced API
-  try {
-    await alchemy.core.getTokenBalances('0x0000000000000000000000000000000000000000');
-    checks.push({ name: 'Enhanced API', pass: true, detail: 'getTokenBalances works' });
-  } catch { checks.push({ name: 'Enhanced API', pass: false, detail: 'Enhanced API unavailable' }); }
-
-  // 3. NFT API
-  try {
-    await alchemy.nft.getContractMetadata('0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D');
-    checks.push({ name: 'NFT API', pass: true, detail: 'getContractMetadata works' });
-  } catch { checks.push({ name: 'NFT API', pass: false, detail: 'NFT API unavailable' }); }
-
-  // 4. API key not in build output
-  const fs = await import('fs');
-  const buildDir = './dist';
-  if (fs.existsSync(buildDir)) {
-    const content = fs.readdirSync(buildDir, { recursive: true })
-      .filter((f: any) => f.toString().endsWith('.js'))
-      .map((f: any) => fs.readFileSync(`${buildDir}/${f}`, 'utf8'))
-      .join('');
-    const apiKeyExposed = content.includes(process.env.ALCHEMY_API_KEY || '');
-    checks.push({ name: 'API Key Safety', pass: !apiKeyExposed, detail: apiKeyExposed ? 'CRITICAL: API key found in build!' : 'API key not in build' });
-  }
-
-  // Print results
-  console.log('\n=== Alchemy Production Readiness ===\n');
-  for (const c of checks) {
-    console.log(`[${c.pass ? 'PASS' : 'FAIL'}] ${c.name}: ${c.detail}`);
-  }
-  const failures = checks.filter(c => !c.pass);
-  console.log(`\n${failures.length === 0 ? 'READY FOR PRODUCTION' : `${failures.length} BLOCKING ISSUES`}`);
-}
-
-checkReadiness().catch(console.error);
-```
-
-## Output
-
-- All checklist items validated
-- Readiness script with pass/fail reporting
-- API key exposure scan in build output
-- Multi-network connectivity verified
-
-## Examples
-
-For a mainnet release rehearsal, complete the checklist in staging with the
-production-shaped secret bindings, run the readiness script, and record the
-revision, redacted pass/fail output, rate-limit headroom, and rollback owner.
-Launch only when every required check passes and the service can be disabled
-without exposing an API key or abandoning a user operation. If the build scan
-finds a key, a contract safety control is incomplete, or provider connectivity
-fails, declare a no-go, revoke or correct the affected configuration, and rerun
-the full readiness check rather than accepting a partial result.
+Release, product, operations, security, privacy/data, and budget owners sign their scopes. A waiver names owner, risk, compensating control, expiry, and follow-up; this skill cannot self-approve.
 
 ## Error Handling
 
-| Failure | Release response |
-|---------|------------------|
-| Any required readiness check fails | Do not launch; assign remediation and retain the redacted result. |
-| API key is exposed | Revoke it, remove the exposure, audit artifacts, and deploy with a replacement. |
-| Provider is degraded or rate headroom is insufficient | Hold or throttle the release and activate the user-impact fallback. |
-| Contract emergency control is unverified | Do not enable mainnet functionality until the authorized owner validates it. |
+- Missing evidence is a failed or unresolved gate, not an assumed pass.
+- Do not reuse a testnet or staging receipt as production environment evidence.
+- Do not approve if rollback, key rotation, partial-response UX, or provider-unavailable behavior is untested.
+
+## Output
+
+Return the frozen release/environment manifest, gate matrix with evidence links, current-contract review, owner sign-offs, waivers, blockers, go/no-go decision, monitoring window, and rollback receipt. Mark assumptions, observations, source dates, environment-specific behavior, owners, and unresolved gaps explicitly.
+
+## Examples
+
+- Issue no-go when the release passes connectivity but has no explicit handling for a Portfolio HTTP 200 partial failure.
+- Issue conditional go only when an authorized, expiring waiver identifies its control and does not bypass a non-waivable security boundary.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- wrong artifact SHA
+- staging evidence substituted
+- rotation failure
+- provider outage
+- budget alert
+- rollback exercise
 
 ## Resources
 
-- [Alchemy Docs](https://www.alchemy.com/docs)
-- [Alchemy Dashboard](https://dashboard.alchemy.com)
-
-## Next Steps
-
-For version upgrades, see `alchemy-upgrade-migration`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Alchemy sources before execution.
+- Treat observed account, application, network, indexer, chain, or provider behavior as environment-specific evidence, never a universal guarantee.

@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/castai-pack",
-  "version": "1.0.1",
-  "description": "Claude Code skill pack for Cast AI - 18 skills covering Kubernetes cost optimization and cloud-native infrastructure",
+  "version": "2.0.0",
+  "description": "18 governed CAST AI operator workflows for Kubernetes cost monitoring and autoscaling",
   "main": "README.md",
   "type": "module",
   "files": [

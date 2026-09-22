@@ -1,191 +1,79 @@
 ---
 name: salesforce-debug-bundle
-description: 'Collect Salesforce debug evidence including API limits, debug logs,
-  and org info for support tickets.
-
-  Use when encountering persistent issues, preparing support tickets,
-
-  or collecting diagnostic information for Salesforce problems.
-
-  Trigger with phrases like "salesforce debug", "salesforce support bundle",
-
-  "collect salesforce logs", "salesforce diagnostic", "salesforce debug log".
-
-  '
-allowed-tools: Read, Bash(grep:*), Bash(curl:*), Bash(sf:*), Bash(tar:*), Grep
-version: 1.7.0
-license: MIT
+description: 'Build a privacy-safe Salesforce support bundle with request, limits, metadata, job, event, and change evidence. Use when escalating an integration defect. Trigger with "build a Salesforce debug bundle".'
+argument-hint: "[incident-id] [output-path]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- crm
-- salesforce
-compatibility: Designed for Claude Code
+license: MIT
+tags: [saas, salesforce, support, diagnostics, redaction]
+model: inherit
+effort: high
+compatibility: Designed for Claude Code; debug logs, event records, and org metadata require explicit support and data-owner authorization
 ---
-# Salesforce Debug Bundle
+# Privacy-Safe Salesforce Support Evidence Bundle
 
 ## Overview
 
-Collect all necessary diagnostic information for Salesforce issues: debug logs, API limits, org configuration, and error traces.
+Collect the smallest reproducible evidence set while excluding credentials, raw business records, personal data, and unrelated org configuration.
 
 ## Prerequisites
 
-- Salesforce CLI authenticated (`sf org login web`)
-- jsforce connection configured
-- Access to Setup in your Salesforce org
+- Incident identifier, time window, environment, affected operation, and support destination
+- Approved evidence classes, redaction policy, retention period, and transfer channel
+- Read-only access to the specific limits, metadata, job, event, or log evidence required
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect approved repository and evidence files, `WebFetch` to re-check current first-party Salesforce documentation, and `Write` or `Edit` only for secretless plans, fixtures, configuration, and redacted receipts.
+
+## Current Contract
+
+Salesforce diagnostic surfaces vary by product, edition, permission, and entitlement. Limits can be read through the versioned REST resource, while debug logs, Event Monitoring, async jobs, and event metrics require separate access and interpretation.
+
+## Authentication
+
+Use a dedicated read-only diagnostic principal where possible. Never include access or refresh tokens, session IDs, cookies, authorization headers, client secrets, private keys, usernames, org IDs unless approved, or raw record payloads.
 
 ## Instructions
 
-### Step 1: Collect Org Info & API Limits
+1. Create a manifest naming incident, time window, environment class, components, evidence owners, retention, and recipient.
+2. Collect application version, dependency lock, API version, redacted request ID, status, timing, retry history, and recent deployment IDs.
+3. Add only relevant limits, object metadata fingerprints, async job summaries, event channel metrics, and log excerpts.
+4. Replace record IDs, user IDs, org IDs, domains, field values, queries, and payloads with stable redaction tokens where required.
+5. Scan the bundle for credentials, authorization material, personal data, customer names, and unrelated records.
+6. Generate hashes and a manifest, then have the incident and data owners review the exact archive.
+7. Transfer through the approved support channel, record receipt, expiry, and deletion responsibility.
 
-```typescript
-import { getConnection } from './salesforce/connection';
+## Approval Boundaries
 
-const conn = await getConnection();
-
-// Org limits — most critical diagnostic info
-const limits = await conn.request('/services/data/v59.0/limits/');
-console.log('=== API Limits ===');
-console.log(`Daily API Requests: ${limits.DailyApiRequests.Remaining}/${limits.DailyApiRequests.Max}`);
-console.log(`Daily Bulk API: ${limits.DailyBulkV2QueryJobs.Remaining}/${limits.DailyBulkV2QueryJobs.Max}`);
-console.log(`Data Storage (MB): ${limits.DataStorageMB.Remaining}/${limits.DataStorageMB.Max}`);
-console.log(`File Storage (MB): ${limits.FileStorageMB.Remaining}/${limits.FileStorageMB.Max}`);
-console.log(`Single Email: ${limits.SingleEmail.Remaining}/${limits.SingleEmail.Max}`);
-
-// Org identity
-const identity = await conn.identity();
-console.log(`\n=== Org Info ===`);
-console.log(`Username: ${identity.username}`);
-console.log(`Org ID: ${identity.organization_id}`);
-console.log(`Instance: ${conn.instanceUrl}`);
-console.log(`API Version: ${conn.version}`);
-```
-
-### Step 2: Enable & Retrieve Debug Logs
-
-```bash
-# Set up a trace flag for debug logging via SF CLI
-sf apex log list --target-org my-org
-
-# Get the most recent debug log
-sf apex log get --number 1 --target-org my-org
-
-# Or tail logs in real-time during testing
-sf apex log tail --target-org my-org --debug-level SFDC_DevConsole
-```
-
-### Step 3: Query Recent API Events
-
-```typescript
-// EventLogFile — Enterprise+ orgs only
-// Contains API usage data for the last 30 days
-const eventLogs = await conn.query(`
-  SELECT Id, EventType, LogDate, LogFileLength
-  FROM EventLogFile
-  WHERE EventType = 'API'
-    AND LogDate >= LAST_N_DAYS:7
-  ORDER BY LogDate DESC
-  LIMIT 5
-`);
-
-for (const log of eventLogs.records) {
-  console.log(`Event: ${log.EventType}, Date: ${log.LogDate}, Size: ${log.LogFileLength}`);
-  // Download log content
-  const content = await conn.request(`/services/data/v59.0/sobjects/EventLogFile/${log.Id}/LogFile`);
-  console.log(content);
-}
-```
-
-### Step 4: Create Debug Bundle Script
-
-```bash
-#!/bin/bash
-# salesforce-debug-bundle.sh
-BUNDLE_DIR="sf-debug-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE_DIR"
-
-echo "=== Salesforce Debug Bundle ===" > "$BUNDLE_DIR/summary.txt"
-echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$BUNDLE_DIR/summary.txt"
-
-# Org info
-sf org display --target-org my-org --json > "$BUNDLE_DIR/org-info.json" 2>&1
-
-# API limits
-sf limits api display --target-org my-org --json > "$BUNDLE_DIR/api-limits.json" 2>&1
-
-# Recent debug logs
-sf apex log list --target-org my-org --json > "$BUNDLE_DIR/log-list.json" 2>&1
-sf apex log get --number 5 --target-org my-org > "$BUNDLE_DIR/debug-logs.txt" 2>&1
-
-# Node environment
-echo "--- Node Environment ---" >> "$BUNDLE_DIR/summary.txt"
-node --version >> "$BUNDLE_DIR/summary.txt" 2>&1
-npm list jsforce 2>/dev/null >> "$BUNDLE_DIR/summary.txt"
-
-# Salesforce system status
-curl -s "https://api.status.salesforce.com/v1/instances/$(sf org display --target-org my-org --json | jq -r '.result.instanceUrl' | sed 's|https://||;s|\..*||')/status" > "$BUNDLE_DIR/sf-status.json" 2>&1
-
-# Redact secrets from .env
-if [ -f .env ]; then
-  cat .env | sed 's/=.*/=***REDACTED***/' > "$BUNDLE_DIR/config-redacted.txt"
-fi
-
-# Package
-tar -czf "$BUNDLE_DIR.tar.gz" "$BUNDLE_DIR"
-echo "Bundle created: $BUNDLE_DIR.tar.gz"
-```
-
-### Step 5: Check Salesforce System Status
-
-```typescript
-// Check if Salesforce itself is having issues
-const statusResponse = await fetch('https://api.status.salesforce.com/v1/incidents/active');
-const incidents = await statusResponse.json();
-
-if (incidents.length > 0) {
-  console.log('ACTIVE SALESFORCE INCIDENTS:');
-  for (const incident of incidents) {
-    console.log(`  ${incident.id}: ${incident.message.maintenanceType}`);
-    console.log(`    Affected: ${incident.instanceKeys.join(', ')}`);
-  }
-} else {
-  console.log('No active Salesforce incidents — issue is likely org-specific');
-}
-```
+Do not enable broad tracing, extend log retention, retrieve EventLogFile content, export records, or send an archive without support, security, and data-owner approval.
 
 ## Output
 
-- `sf-debug-YYYYMMDD-HHMMSS.tar.gz` archive containing:
-  - `summary.txt` — Environment and SDK versions
-  - `org-info.json` — Org identity and configuration
-  - `api-limits.json` — Current API usage vs limits
-  - `debug-logs.txt` — Recent Apex debug logs
-  - `sf-status.json` — Salesforce system status
-  - `config-redacted.txt` — Configuration (secrets removed)
+Return the redacted manifest, evidence inventory, collection gaps, hashes, reviewer approvals, transfer receipt, retention deadline, and deletion owner.
 
 ## Error Handling
 
-| Item | Purpose | Included |
-|------|---------|----------|
-| API limits | Check if limits are exhausted | Yes |
-| Debug logs | Apex execution traces | Yes |
-| Org info | Instance, edition, user | Yes |
-| System status | Salesforce-side outages | Yes |
-| Environment | Node.js, jsforce versions | Yes |
+| Condition | Response |
+|---|---|
+| Required evidence is not entitled or permitted | Record the gap and ask Salesforce Support for an approved alternative. |
+| Secret or personal data is detected | Block transfer, remove the material, rotate exposed credentials if necessary, and rescan. |
+| Bundle cannot reproduce the timeline | Do not add broad data; refine the time window and correlation identifiers. |
 
-## Examples
+## Example
 
-### Assemble a support bundle with deliberate redaction
+A redacted completion receipt might look like this:
 
-Collect the sandbox org ID, platform status, API-limit snapshot, and a narrow time range of debug logs into a temporary directory. Strip access tokens, session identifiers, user email addresses, and record field values before archiving; include reproducible synthetic steps instead of customer records. Encrypt or use the approved support channel for delivery, set local bundle expiry, and retain the original deployment or sandbox configuration until the escalation is resolved.
+```text
+incident=SF-204; window=30m; files=7; records=0; secrets=0; pii=tokenized; hash=recorded; expiry=14d
+```
 
 ## Resources
 
-- [Salesforce Status API](https://api.status.salesforce.com/)
-- [Debug Log Levels](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_debugging_debug_log.htm)
-- [EventLogFile (Shield)](https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_eventlogfile.htm)
-- [API Limits Resource](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_limits.htm)
+- [Limits REST resource](https://developer.salesforce.com/docs/platform/api-rest/guide/resources-limits.html)
+- [EventLogFile object](https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_eventlogfile.htm)
 
 ## Next Steps
 
-For rate limit issues, see `salesforce-rate-limits`.
+Run the workflow first in the lowest-risk authorized org and preserve its redacted receipt. Schedule a review against the next Salesforce seasonal release and the customer change calendar.

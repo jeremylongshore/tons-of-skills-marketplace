@@ -12,7 +12,7 @@ description: 'Configure CI/CD pipelines for Anthropic Claude API integrations.
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -177,7 +177,7 @@ name in the CI log for triage.
 ## Resources
 
 - [GitHub Actions Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
-- [Anthropic Pricing](https://docs.anthropic.com/en/docs/about-claude/pricing)
+- [Anthropic Pricing](https://platform.claude.com/docs/en/about-claude/pricing)
 
 ## Next Steps
 

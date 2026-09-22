@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/posthog-pack",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Claude Code skill pack for PostHog - 24 skills covering product analytics and feature flags",
   "main": "README.md",
   "type": "module",

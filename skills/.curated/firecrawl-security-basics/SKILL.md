@@ -1,195 +1,78 @@
 ---
 name: firecrawl-security-basics
-description: 'Apply Firecrawl security best practices for API key management and webhook
-  verification.
-
-  Use when securing API keys, implementing webhook signature validation,
-
-  or auditing Firecrawl security configuration.
-
-  Trigger with phrases like "firecrawl security", "firecrawl secrets",
-
-  "secure firecrawl", "firecrawl API key security", "firecrawl webhook signature".
-
-  '
-allowed-tools: Read, Write, Grep
-version: 1.11.0
+description: >-
+  Secure Firecrawl identities, targets, request options, webhooks, untrusted content, retention, logs, and self-hosted exposure. Use when threat-modeling or hardening an integration. Trigger with "secure Firecrawl", "Firecrawl security review", or "Firecrawl secrets".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<repository-path> <environment>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- api
-- security
-- audit
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, security, privacy]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Security Basics
+# Firecrawl Security Baseline
 
 ## Overview
 
-Security best practices for Firecrawl API keys, webhook signature verification, and scraped content handling. Firecrawl API keys start with `fc-` and grant full access to scrape, crawl, map, and extract endpoints — protecting them is critical.
-
-## Output
-
-Keep a security review receipt with secret-manager reference, identity scope, approved target policy, webhook verification outcome, access-review date, and revocation/rotation owner. Never include the key, captured pages, or sensitive request headers.
-
-## Examples
-
-Use a synthetic target with a least-privilege staging key. Confirm that the handler rejects an invalid signature without revealing comparison data, then revoke the test key and verify the request is denied before granting any production access.
+Protect both directions of the integration: credentials and requests sent to Firecrawl, and hostile or sensitive content returned from target sites.
 
 ## Prerequisites
 
-- Firecrawl API key
-- Understanding of environment variables
-- Webhook endpoint (if using async crawl callbacks)
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
+
+## Current Contract
+
+Cloud uses Bearer API keys; enterprise controls can restrict key endpoints/formats and source IPs and can add threat protection and SIEM evidence. Webhooks use X-Firecrawl-Signature with sha256=hex over the raw body. Cache, ZDR, lockdown, headers/actions, profiles, screenshots, and self-hosting have distinct data and threat boundaries.
+
+## Authentication
+
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Secure API Key Storage
+1. Inventory secrets, teams/roles, key owners, environments, source networks, allowed endpoints/formats, domains, custom headers, retained data, webhooks, stores, and downstream actions.
+2. Move every key and webhook secret to an approved secret manager; use workload identity, least privilege, rotation, revocation, and separate environments.
+3. Canonicalize and authorize targets before requests. Block private/link-local networks, embedded credentials, disallowed redirects/ports, lookalike hosts, and unauthorized authenticated pages.
+4. Minimize formats, actions, headers, profiles, proxies, and retention. Apply key/IP/threat controls where available and keep application policy fail closed.
+5. Verify every webhook against raw bytes, require the sha256 prefix, decode equal-length hex, compare timing-safely, deduplicate webhookId, and acknowledge only accepted work.
+6. Treat scraped content and extracted JSON as untrusted. Sanitize active content, isolate it from privileged prompts/actions, validate schemas, and scan stored artifacts.
+7. For self-hosting, add supported authentication, network controls, TLS, durable stores, patching, backups, monitoring, and provider data-flow review before exposure.
 
-```bash
-# .env (NEVER commit to git)
-FIRECRAWL_API_KEY=fc-your-api-key-here
+## Tool Discipline
 
-# .gitignore — add these patterns
-echo -e "\n.env\n.env.local\n.env.*.local" >> .gitignore
-```
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-```typescript
-// Validate key exists before creating client
-import FirecrawlApp from "@mendable/firecrawl-js";
+## Approval Boundaries
 
-if (!process.env.FIRECRAWL_API_KEY?.startsWith("fc-")) {
-  throw new Error("FIRECRAWL_API_KEY must be set and start with 'fc-'");
-}
+Require security/data approval before authenticated scraping, custom headers, browser profiles/actions, sensitive retention, restriction changes, self-host exposure, or adding external providers.
 
-const firecrawl = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY,
-});
-```
+## Output
 
-### Step 2: Verify Webhook Signatures
-
-Firecrawl signs webhook payloads with HMAC-SHA256 via the `X-Firecrawl-Signature` header.
-
-```typescript
-import crypto from "crypto";
-
-function verifyWebhookSignature(
-  payload: string,
-  signature: string,
-  secret: string
-): boolean {
-  const expected = crypto
-    .createHmac("sha256", secret)
-    .update(payload)
-    .digest("hex");
-
-  // Timing-safe comparison prevents timing attacks
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expected)
-  );
-}
-
-// Express webhook handler with verification
-app.post("/webhooks/firecrawl", (req, res) => {
-  const signature = req.headers["x-firecrawl-signature"] as string;
-  const rawBody = JSON.stringify(req.body);
-
-  if (!verifyWebhookSignature(rawBody, signature, process.env.FIRECRAWL_WEBHOOK_SECRET!)) {
-    console.error("Invalid webhook signature — rejecting");
-    return res.status(401).json({ error: "Invalid signature" });
-  }
-
-  // Process verified webhook
-  const { type, data } = req.body;
-  console.log(`Verified webhook: ${type}`);
-  res.status(200).json({ received: true });
-});
-```
-
-### Step 3: Separate Keys per Environment
-
-```bash
-# GitHub Actions secrets
-gh secret set FIRECRAWL_API_KEY_DEV --body "fc-dev-..."
-gh secret set FIRECRAWL_API_KEY_STAGING --body "fc-staging-..."
-gh secret set FIRECRAWL_API_KEY_PROD --body "fc-prod-..."
-```
-
-```typescript
-// Load correct key based on environment
-const KEY_MAP: Record<string, string> = {
-  development: "FIRECRAWL_API_KEY_DEV",
-  staging: "FIRECRAWL_API_KEY_STAGING",
-  production: "FIRECRAWL_API_KEY_PROD",
-};
-
-const envVar = KEY_MAP[process.env.NODE_ENV || "development"];
-const apiKey = process.env[envVar] || process.env.FIRECRAWL_API_KEY;
-```
-
-### Step 4: Rotate Keys
-
-```bash
-set -euo pipefail
-# 1. Generate new key at firecrawl.dev/app
-# 2. Deploy new key alongside old key
-# 3. Verify new key works
-curl -s https://api.firecrawl.dev/v1/scrape \
-  -H "Authorization: Bearer $NEW_FIRECRAWL_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"url":"https://example.com","formats":["markdown"]}' | jq .success
-
-# 4. Remove old key from all environments
-# 5. Delete old key in Firecrawl dashboard
-```
-
-### Step 5: Sanitize Scraped Content
-
-```typescript
-// Scraped web content may contain PII, scripts, or malicious data
-function sanitizeScrapedContent(markdown: string): string {
-  return markdown
-    // Remove potential script injections
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    // Remove data URIs (potential XSS vectors)
-    .replace(/!\[.*?\]\(data:.*?\)/g, "")
-    // Remove javascript: links
-    .replace(/\[.*?\]\(javascript:.*?\)/g, "")
-    // Strip HTML comments
-    .replace(/<!--[\s\S]*?-->/g, "")
-    .trim();
-}
-```
-
-## Security Checklist
-
-- [ ] API key stored in environment variable, never hardcoded
-- [ ] `.env` files listed in `.gitignore`
-- [ ] Different keys for dev/staging/production
-- [ ] Webhook signatures verified before processing
-- [ ] Scraped content sanitized before storage/display
-- [ ] Key rotation scheduled quarterly
-- [ ] Git history scanned for leaked keys
+Return a threat model, identity and secret inventory, target and request controls, webhook verification design, content trust boundary, retention decision, self-host posture, tests, and residual risks.
 
 ## Error Handling
 
-| Security Issue | Detection | Mitigation |
-|----------------|-----------|------------|
-| Leaked API key in git | `git log -p \| grep "fc-"` | Rotate immediately, revoke old key |
-| Invalid webhook signature | Signature verification fails | Reject request, alert team |
-| Excessive scraping costs | Credit alerts from Firecrawl | Set credit limits per key |
-| PII in scraped content | Content scanning | Sanitize before storage |
+- A secret appears in logs or artifacts: revoke/rotate as required and invoke incident handling.
+- Webhook raw bytes are unavailable or signature malformed: reject the delivery.
+- Target resolution or redirect escapes policy: stop before sending headers or credentials.
+
+## Examples
+
+- "Verify Firecrawl webhooks" validates the exact signed raw body and sha256 format.
+- "Pass customer cookies to any URL" is rejected until target, secret, retention, and session controls are approved.
 
 ## Resources
 
-- [Firecrawl Dashboard](https://firecrawl.dev/app)
-- [Firecrawl Webhooks](https://docs.firecrawl.dev/webhooks/overview)
-- [GitHub Secret Scanning](https://docs.github.com/en/code-security/secret-scanning)
-
-## Next Steps
-
-For production deployment, see `firecrawl-prod-checklist`.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

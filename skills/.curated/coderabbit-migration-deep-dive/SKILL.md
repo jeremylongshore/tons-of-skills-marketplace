@@ -1,294 +1,97 @@
 ---
 name: coderabbit-migration-deep-dive
-description: 'Migrate to CodeRabbit from other code review tools or roll out across
-  a large organization.
-
-  Use when switching from another AI review tool, migrating from manual-only reviews,
-
-  or planning a phased CodeRabbit adoption strategy.
-
-  Trigger with phrases like "migrate to coderabbit", "coderabbit migration",
-
-  "switch to coderabbit", "coderabbit from reviewbot", "adopt coderabbit", "replace
-  code review tool".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(gh:*), Bash(git:*), Grep
-version: 1.11.0
-license: MIT
+description: >-
+  Migrate from another review process through measured coexistence, control mapping, and reversible cohorts. Use when this operator task needs a current, evidence-backed
+  CodeRabbit workflow. Trigger with "migrate to CodeRabbit".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[target] [evidence-or-scope]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- coderabbit
-- migration
-- adoption
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current CodeRabbit documentation and approved access for any live organization, repository, billing, or API change
+tags: [saas, coderabbit, migration, adoption, governance]
 ---
-# CodeRabbit Migration Deep Dive
+# CodeRabbit Adoption Migration
 
 ## Overview
 
-Comprehensive guide for migrating to CodeRabbit from other AI code review tools (Codacy, SonarCloud, DeepSource, Sourcery) or from manual-only code review. Covers assessment, phased rollout, configuration transfer, team buy-in, and measuring success.
+Preserve every existing control until its replacement is proven. Translate outcomes and ownership instead of assuming one-to-one fields.
 
 ## Prerequisites
 
-- GitHub/GitLab organization admin access
-- Inventory of current review tools and their configurations
-- Understanding of team review workflows
-- Budget approval for CodeRabbit seats
+- Identify the CodeRabbit organization, Git provider, repository, plan, and accountable owner.
+- Read `references/official-docs.md` and re-check any time-sensitive contract before execution.
+- Use synthetic or read-only evidence until the approval boundary is satisfied.
+- Preserve the repository's independent CI, security, and human-review requirements.
 
-## Migration Types
+## Current Contract
 
-| From | Complexity | Duration | Key Challenge |
-|------|-----------|----------|---------------|
-| Manual-only reviews | Low | 1-2 weeks | Team adoption |
-| Codacy / SonarCloud | Medium | 2-3 weeks | Rule translation |
-| DeepSource / Sourcery | Medium | 2-3 weeks | Config migration |
-| Custom review bots | High | 3-4 weeks | Workflow redesign |
-| Multiple tools | High | 4-6 weeks | Consolidation |
+- CodeRabbit spans PR, CLI or IDE, tools, knowledge, and optional actions.
+- Configuration can be centralized and inherited.
+- Plan and provider support differ.
+- Existing human, CI, security, and compliance controls remain authoritative.
+
+## Authentication
+
+Treat Git-provider sessions, CodeRabbit web sessions, CLI credentials, and CodeRabbit API keys as separate credentials. Use only an already-approved session or secret-manager reference, never print a secret, and do not place credentials in `.coderabbit.yaml`, source files, logs, or deliverables.
 
 ## Instructions
 
-### Step 1: Assess Current State
+1. Inventory current tools, rules, checks, data controls, costs, metrics, and owners.
 
-```bash
-set -euo pipefail
-ORG="${1:-your-org}"
+2. Map each control to supported capability, retained control, or gap.
 
-echo "=== Code Review Tool Assessment ==="
+3. Run coexistence in a representative pilot.
 
-# Check for existing review tools
-echo "--- Installed GitHub Apps ---"
-gh api "orgs/$ORG/installations" --jq '.installations[] | "\(.app_slug) (ID: \(.id))"' 2>/dev/null
+4. Approve cohorts only when coverage and rollback evidence pass.
 
-echo ""
-echo "--- Review Tool Config Files ---"
-for REPO in $(gh repo list "$ORG" --limit 20 --json name --jq '.[].name'); do
-  # Check for common review tool configs
-  for CONFIG in ".codacy.yml" "sonar-project.properties" ".deepsource.toml" ".sourcery.yaml" ".coderabbit.yaml"; do
-    EXISTS=$(gh api "repos/$ORG/$REPO/contents/$CONFIG" --jq '.name' 2>/dev/null || echo "")
-    if [ -n "$EXISTS" ]; then
-      echo "  $REPO: $CONFIG"
-    fi
-  done
-done
-```
+## Tool Discipline
 
-### Step 2: Map Review Rules to CodeRabbit Path Instructions
+- Use **Glob** to locate candidate configuration and evidence files without widening scope.
+- Use **Grep** to find relevant fields, commands, identifiers, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use these file tools as a substitute for authenticated CodeRabbit or provider operations.
 
-```yaml
-# Common rule translations:
+## Approval Boundaries
 
-# Codacy / SonarCloud "code smells" → CodeRabbit path_instructions
-# Before (Codacy):
-#   rules:
-#     - id: "javascript/complexity"
-#     - id: "javascript/error-handling"
-#
-# After (CodeRabbit):
-reviews:
-  path_instructions:
-    - path: "src/**/*.ts"
-      instructions: |
-        Check for:
-        - Functions with cyclomatic complexity > 10 (suggest refactoring)
-        - Missing error handling in async operations
-        - Empty catch blocks
-        - Unused variables and imports
-
-# DeepSource "analyzer" → CodeRabbit path_instructions
-# Before (DeepSource):
-#   analyzers:
-#     - name: javascript
-#       enabled: true
-#       meta:
-#         plugins: [react]
-#
-# After (CodeRabbit):
-    - path: "src/components/**"
-      instructions: |
-        React-specific checks:
-        - No conditional hooks
-        - Proper cleanup in useEffect
-        - Memoization for expensive computations
-        - Accessibility (aria labels, keyboard navigation)
-
-# Sourcery "refactoring" → CodeRabbit path_instructions
-# Before (Sourcery):
-#   refactor:
-#     skip: [dont-import-test-modules]
-#
-# After (CodeRabbit):
-    - path: "**/*.py"
-      instructions: |
-        Python best practices:
-        - Suggest list comprehensions over manual loops where appropriate
-        - Flag mutable default arguments
-        - Check for proper context manager usage
-```
-
-### Step 3: Phase 1 -- Parallel Run (Week 1-2)
-
-```yaml
-# Run CodeRabbit alongside existing tool for comparison
-# .coderabbit.yaml - Start with non-blocking mode
-reviews:
-  profile: "chill"                    # Fewer comments during evaluation
-  request_changes_workflow: false     # Don't block merges
-  high_level_summary: true            # Show walkthrough for evaluation
-
-  auto_review:
-    enabled: true
-    drafts: false
-    base_branches: [main, develop]
-
-  path_filters:
-    - "!**/*.lock"
-    - "!**/*.snap"
-    - "!dist/**"
-    - "!vendor/**"
-
-chat:
-  auto_reply: true
-```
-
-```markdown
-# During parallel run, track:
-1. Comment quality: Are CodeRabbit comments actionable?
-2. Coverage: Does it catch what the old tool catches?
-3. Speed: Is review posted before human reviewers start?
-4. Noise: Are there many false positives?
-5. Team reaction: Do developers find it helpful?
-```
-
-### Step 4: Phase 2 -- Primary Tool (Week 3-4)
-
-```yaml
-# After successful parallel run, make CodeRabbit primary
-# .coderabbit.yaml - Enable full features
-reviews:
-  profile: "assertive"                # Balanced feedback
-  request_changes_workflow: true      # Now blocking
-  high_level_summary: true
-  sequence_diagrams: true
-
-  auto_review:
-    enabled: true
-    drafts: false
-    base_branches: [main, develop]
-
-  path_instructions:
-    # Transfer your best rules from the old tool
-    - path: "src/api/**"
-      instructions: |
-        Review for: input validation, proper HTTP status codes,
-        auth middleware usage, error response format.
-    - path: "src/db/**"
-      instructions: |
-        Review for: parameterized queries, transaction boundaries,
-        connection cleanup, index usage. Flag N+1 patterns.
-    - path: "**/*.test.*"
-      instructions: |
-        Review for: assertion completeness, edge cases, async handling.
-        Do NOT comment on test naming or import order.
-
-  # Keep exclusions from old tool
-  path_filters:
-    - "!**/*.lock"
-    - "!**/*.snap"
-    - "!**/generated/**"
-    - "!dist/**"
-    - "!vendor/**"
-```
-
-### Step 5: Phase 3 -- Decommission Old Tool (Week 4-6)
-
-```bash
-set -euo pipefail
-ORG="${1:-your-org}"
-
-echo "=== Old Tool Decommission Checklist ==="
-
-# 1. Remove old tool config files
-echo "--- Config Files to Remove ---"
-for REPO in $(gh repo list "$ORG" --limit 50 --json name --jq '.[].name'); do
-  for CONFIG in ".codacy.yml" "sonar-project.properties" ".deepsource.toml" ".sourcery.yaml"; do
-    EXISTS=$(gh api "repos/$ORG/$REPO/contents/$CONFIG" --jq '.name' 2>/dev/null || echo "")
-    if [ -n "$EXISTS" ]; then
-      echo "  rm $REPO/$CONFIG"
-    fi
-  done
-done
-
-echo ""
-echo "--- Steps ---"
-echo "1. Remove old tool GitHub App from org settings"
-echo "2. Delete old tool config files from repos"
-echo "3. Update branch protection rules (replace old check with coderabbitai)"
-echo "4. Cancel old tool subscription"
-echo "5. Update team documentation and onboarding guides"
-```
-
-### Step 6: Measure Migration Success
-
-```bash
-set -euo pipefail
-ORG="${1:-your-org}"
-REPO="${2:-your-repo}"
-
-echo "=== CodeRabbit Adoption Metrics ==="
-
-# Review coverage
-TOTAL=0
-REVIEWED=0
-for PR_NUM in $(gh api "repos/$ORG/$REPO/pulls?state=closed&per_page=30" --jq '.[].number'); do
-  TOTAL=$((TOTAL + 1))
-  CR=$(gh api "repos/$ORG/$REPO/pulls/$PR_NUM/reviews" \
-    --jq '[.[] | select(.user.login=="coderabbitai[bot]")] | length' 2>/dev/null || echo "0")
-  [ "$CR" -gt 0 ] && REVIEWED=$((REVIEWED + 1))
-done
-
-echo "Review coverage: $REVIEWED/$TOTAL PRs ($(( REVIEWED * 100 / (TOTAL > 0 ? TOTAL : 1) ))%)"
-echo ""
-echo "Target metrics:"
-echo "  - Coverage > 90%: CodeRabbit reviewing most PRs"
-echo "  - Time-to-review < 5 min: Fast feedback loop"
-echo "  - Team satisfaction: Survey developers after 2 weeks"
-```
+Require security, repository, and business owners before replacing a required control. Keep analysis and drafts local until approval is explicit, and record who approved the action and its scope.
 
 ## Output
 
-- Current review tool assessment completed
-- Rule translation from old tool to CodeRabbit path_instructions
-- Phased migration plan executed
-- Old tool decommissioned
-- Adoption metrics measured
+A control inventory, capability map, gaps, pilot comparison, cohorts, and decommission approvals. Include source dates, unknowns, and the exact boundary between observed fact and recommendation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Old tool conflicts with CodeRabbit | Both posting reviews | Run parallel briefly, then disable old tool |
-| Rules don't translate 1:1 | Different analysis approaches | Focus on intent, not exact rule matching |
-| Team prefers old tool | Familiarity bias | Run parallel for 2 weeks, compare results |
-| Branch protection breaks | Old check name removed | Update to `coderabbitai` check name |
-| Higher seat cost than old tool | Per-seat vs per-repo pricing | Scope repos to reduce seat count |
+| Condition | Response |
+|---|---|
+| Current contract is unclear or docs disagree | Stop mutation, cite both sources, and request owner resolution. |
+| Required access or approval is missing | Produce a draft and evidence plan only. |
+| Validation or pilot behavior differs from expectation | Restore the prior state and retain the failed evidence. |
+| Output contains secrets or private code | Stop, quarantine the artifact, redact it, and notify the data owner. |
 
 ## Examples
 
-Run CodeRabbit and the existing reviewer in parallel on a small, representative
-repository for a defined period, measure coverage, useful findings, latency,
-and developer feedback, then migrate the reviewed rules by intent. Do not
-retire the prior protection or alter required checks until the measured rollout
-and rollback path are accepted by repository owners.
+### Example 1
+
+Migrate from manual review while retaining two-person approval.
+
+### Example 2
+
+Replace a bot only after equivalent coverage is proven.
+
+## Validation
+
+- Confirm every claim against the dated sources in `references/official-docs.md`.
+- Verify the requested scope, owner, approval, happy path, failure path, and rollback.
+- Re-read the effective configuration or provider state after any approved change.
+- Report unsupported fields, undocumented endpoints, and unverified assumptions as failures.
 
 ## Resources
 
-- CodeRabbit vs Alternatives
-- [CodeRabbit Configuration Reference](https://docs.coderabbit.ai/reference/configuration)
-- Migration from Codacy
-- [CodeRabbit Path Instructions](https://docs.coderabbit.ai/guides/review-instructions)
-
-## Next Steps
-
-For ongoing configuration tuning, see `coderabbit-core-workflow-b`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

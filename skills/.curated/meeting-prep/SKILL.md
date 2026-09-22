@@ -1,358 +1,271 @@
 ---
 name: meeting-prep
-description: "Prepare briefings for today's meetings \u2014 attendee research, email\
-  \ history, past meeting notes, LinkedIn, and company context. Use when running the\
-  \ daily meeting prep cron, or when user asks to prepare for meetings, review who\
-  \ they're meeting with, or get context on upcoming calls."
-version: 1.8.0
+description: Meeting preparation assistant for Product Managers. Use when the user
+  needs to prepare a meeting, create talking points, anticipate questions, or structure
+  a decision. Trigger with "prepare for meeting", "meeting prep", "talking points",
+  "get ready for", or "1:1 prep".
+version: 1.10.0
+author: Ahmed Khaled Mohamed <ahmd.khaled.a.mohamed@gmail.com>
 license: MIT
-author: Martin Gontovnikas <martin@hypergrowthpartners.com>
+allowed-tools: Read, Glob, Grep
+argument-hint: "meeting topic or attendee"
 tags:
-- business
+- productivity
 - meeting-prep
-allowed-tools: Read, Bash(gog:*), Bash(mcporter:*), Bash(python3:*), Bash(openclaw:*),
-  Bash(curl:*), Glob, Grep, Write, WebSearch
 compatibility: Designed for Claude Code
+model: inherit
+effort: medium
+user-invocable: true
 ---
-# Daily Meeting Prep
-
-## Config — read before starting
-
-Read `../config/user.json` (resolves to `~/executive-assistant-skills/config/user.json`).
-Extract and use throughout:
-
-- `name`, `full_name` — user's name
-- `primary_email`, `work_email` — Gmail accounts to check
-- `whatsapp` — WhatsApp number for delivery
-- `timezone` — IANA timezone (e.g. America/Argentina/Buenos_Aires)
-- `slack_username` — Slack DM target
-- `workspace` — absolute path to OpenClaw workspace (e.g. ~/.openclaw/workspace)
-
-Do not proceed until you have these values.
-
-## Debug Logging (MANDATORY)
-
-Read `../config/DEBUG_LOGGING.md` for the full convention. Use `python3 {user.workspace}/scripts/skill_log.py meeting-prep <level> "<message>" ['<details>']` at every key step. Log BEFORE and AFTER every external call (gog, mcporter, Granola, web search). On any error, log the full command and stderr before continuing.
-
-## Scope
-
-- Timezone: {user.timezone}
-- Calendars: primary of {user.primary_email} AND {user.work_email}
-- Today's meetings only
-
-**Timezone note:** Use explicit ART-bounded ISO8601 timestamps for calendar queries, NOT `--date`. Example: `gog calendar list primary --account <email> --from "2026-03-03T00:00:00-03:00" --to "2026-03-04T00:00:00-03:00" --json`. The `--date` flag uses UTC boundaries which misaligns with ART.
-
-- **ALL meetings with attendees** — both external and internal
-- Skip personal/solo events with no attendees (e.g. "Personal Trainer", "Golf", all-day reminders)
-
-## Meeting types
-
-### External meetings (attendees outside your email domains)
-
-Full research brief (email context, Granola, LinkedIn, company research) — see below.
-
-### Internal meetings (all attendees from your email domains: hypergrowthpartners.com, growth.li)
-
-Lighter brief — no LinkedIn/company research needed, but still include:
-
-- Attendee list
-- Granola context from previous instances of this recurring meeting
-- Recent email threads related to the meeting topic/agenda
-- Any open action items from last time
-- Format: same structure but skip LinkedIn/company sections
-
-### Recurring collaborative meetings (e.g. podcasts, content sessions with external co-hosts)
-
-These are external meetings — give them full briefs. Don't skip recurring meetings just because they're familiar.
-
-## Error handling
-
-- If `gog calendar` fails for one account: continue with the other account, note "⚠️ [account] calendar unavailable" in output.
-- If Granola/Grain fails: continue without meeting history, note it per meeting.
-- If WhatsApp delivery fails: attempt Slack delivery. If both fail, save to state file and report error.
-
-## For each meeting
-
-### 1. Event basics
-
-Title, local time ({user.timezone}), attendees.
-
-**RSVP status (MANDATORY):** For each attendee, check `responseStatus` from the calendar event:
-
-- `accepted` → no flag needed
-- `needsAction` → flag as "⚠️ hasn't responded"
-- `declined` → flag as "❌ declined"
-- `tentative` → flag as "❓ tentative"
-
-If ANY non-organizer external attendee has NOT accepted (`needsAction`, `tentative`, or `declined`), add a visible line in the brief:
-> ⚠️ *RSVP:* <name> hasn't accepted yet
-
-This is informational — it doesn't mean they won't join, but it's useful to know ahead of time, especially for first calls or important meetings.
-
-### 2. Email context (90-day lookback, with historical fallback)
-
-Search Gmail both accounts for exchanges with attendees. For EACH attendee, search using these strategies in order:
-
-1. **Email address** (primary — from calendar invite): `from:<email> OR to:<email>`
-2. **Full name**: `"firstname lastname"`
-3. **First name + "intro"**: `"intro firstname"` (catches informal intro subjects)
-4. **First name + company**: `"firstname companyname"`
-
-The attendee's email from the calendar invite is the most reliable identifier — always start there.
-
-**Intro discovery** (after general email search):
-5. Search for intro emails involving the attendee: `subject:intro <email>`, `subject:intro <firstname>`, `subject:introduction <email>`
-6. Also check threads where a third party CC'd/introduced the attendee
-
-**Recent email context** (after intro discovery):
-7. Pull the most recent email threads with this attendee (by email address) to surface any recent updates, asks, or context leading into today's call
-
-**Historical fallback** (if no results from 90-day search):
-8. Run a broader search with NO date filter: `from:<email> OR to:<email>` — this catches long-standing relationships where the last email was months/years ago. If older threads exist, this is NOT a first call — note the relationship history.
-
-- First call vs follow-up? Base this on ALL email history found (including historical), not just 90-day window
-- **If first call: MUST include "who introduced + when" (date) if found in email; if not found, explicitly say "No intro trail found in email"**
-- If follow-up: extract updates since last call
-- **If email contains a concrete commercial trigger** (pricing, deliverables, scope, budget, urgency, timeline, decision-maker request), include it explicitly in the brief
-
-### 3. Granola context
-
-**Search by ATTENDEE, not by meeting title.** The same recurring meeting may have different titles week to week. Always search by the attendee's name or email to find all past meetings with them.
-
-```bash
-# Primary: search by attendee name
-mcporter call granola.query_granola_meetings query="meetings with [attendee full name]"
-
-# Fallback: search by company if attendee name yields no results
-mcporter call granola.query_granola_meetings query="meetings with [company name]"
-```
-
-**Cross-check with `list_meetings`:** If the query results seem stale (oldest match is weeks old but you expect more recent), also run `list_meetings` for `last_week` or `this_week` and scan the participant lists for the attendee's email or name. This catches meetings where the title doesn't mention the attendee or company.
-
-- **Recent (< 3 weeks):** Provide a richer summary (not one-liner): decisions made, key tensions, explicit action items, owners, and unresolved questions
-- **Older (3+ weeks):** Broader context — relationship history, past decisions, recurring themes
-- **No attendee match but company match exists:** Use company-level context and label it clearly as company-level
-- **No results / first meeting:** Note that, provide email context instead
-- Preserve citation links `[[N]](url)`
-- Include a short explicit line: **"Why this meeting now"** based on prior action items or current email trigger
-- **Exact name matching**: When attributing Granola results to an attendee, verify BOTH first AND last name match exactly. Different people can share a first name — never assume a match based on first name alone.
-- **Auth failure:** If Granola returns an auth error, run `mcporter auth granola --reset` and retry once. If still failing, note "⚠️ Granola unavailable" and continue without it.
-- **Empty summary:** If Granola returns a meeting record but with no/empty summary, note "Previous meeting found but no summary available" — don't silently skip it.
-
-### 4. LinkedIn research
-
-- Search: `"[attendee name] [company] LinkedIn"`
-- Extract: current role, background, recent posts/activity
-
-### 5. Company research
-
-- Search: `"[company] recent news"`
-- Search: `"[company] funding crunchbase"` (if startup/VC relevant)
-- Extract: company stage, announcements, what they do
-
-## Research rules
-
-Read `{user.workspace}/style/MEETING_PREP_RULES.md` for additional research steps.
-
-## Output format
-
-Send via WhatsApp ({user.whatsapp}) AND Slack (DM to {user.slack_username}). **One message per meeting, chronological order, is mandatory.**
-
-**Also send to Chief of Staff:** After sending all meeting briefs, upload the markdown brief file (`{user.workspace}/state/meeting-prep-YYYY-MM-DD.md`) to {user.chief_of_staff.name}'s Slack DM. Use the Slack API `files.upload` (or `files.uploadV2`):
-
-```bash
-curl -s -F file=@{user.workspace}/state/meeting-prep-YYYY-MM-DD.md \
-  -F channels={user.chief_of_staff.slack_dm_channel} \
-  -F title="Meeting Prep — <date>" \
-  -F initial_comment="📋 *Meeting Prep — <day>*" \
-  -H "Authorization: Bearer <bot_token>" \
-  https://slack.com/api/files.upload
-```
-
-**Never collapse into a single summary block.** The user expects one standalone message per meeting. Send each meeting brief as a separate message to BOTH WhatsApp and Slack. If one channel fails, still deliver to the other.
-
-Start with a short intro: "📋 *MEETING PREP — <day>* — <N> meetings (<X> external, <Y> internal)"
-
-Then one message per meeting in this format — use bold subsections and blank lines between each section for readability:
-
-```
-*<number>. <Name/Company> — <local time>*
-
-*Who:* <Role>, <Company> (<location>). <What the company does, 1 sentence>. <Funding/stage if relevant>.
-
-*Context:* <First call vs follow-up>. <If first call: who intro'd + when (date); if unavailable: "No intro trail found in email">.
-
-*Email history:* <Key email context — include important commercial/decision triggers when present (pricing, scope, deliverables, urgency, budget, decision-maker request)>.
-
-*Granola:* <Richer recap: key decisions, action items, owners, unresolved questions, and why a follow-up was needed. If no attendee notes, use company-level notes and label it. Or "No previous meetings found in Granola">.
-
-*Why this meeting now:* <One sentence grounded in prior action items and/or current email trigger>.
-
-*Focus areas:* <ONLY items derived from prior action items and current email trigger — not generic strategy prompts>.
-
-*Links:* <LinkedIn, company site, Crunchbase>
-```
-
-Each section on its own paragraph (blank line before each bold label). Keep it concise but well-structured — readability over density.
-
-If a meeting already happened, prefix with ✅ and keep brief.
-If there's a schedule conflict, flag with ⚠️.
-
-## Save full brief
-
-Save the full detailed brief to `{user.workspace}/state/meeting-prep-YYYY-MM-DD.md` and also send it as a file attachment via WhatsApp.
-
-## ⚠️ CRON CREATION (CRITICAL — DO NOT SKIP)
-
-This section is NON-OPTIONAL. Cron creation MUST happen for every run with meetings. If you run out of context or time before completing this section, the entire run is a FAILURE.
-
-**Execution order:** Create ALL crons IMMEDIATELY after saving the brief file — BEFORE the assertions step. Do not defer cron creation to "after everything else."
-
-Log: `python3 {user.workspace}/scripts/skill_log.py meeting-prep INFO "Starting cron creation for N meetings"`
-
-## Pre-meeting reminders
-
-After generating all briefs, create a one-shot cron job for EACH meeting that fires 5 minutes before start time. The cron job should:
-
-1. Read `{user.workspace}/state/meeting-prep-YYYY-MM-DD.md`
-2. Find the section for that specific meeting
-3. Resend the FULL formatted brief for that meeting (same format as the original WhatsApp message — bold subsection labels, blank lines, links, etc.)
-4. Prefix with "⏰ *5 min reminder*\n\n" then the full brief
-
-**Hard formatting contract (no exceptions):**
-
-- The reminder body must be copied verbatim from `{user.workspace}/state/meeting-prep-YYYY-MM-DD.md` for that meeting block.
-- Do NOT rewrite, summarize, translate, normalize, or reformat any part of that block.
-- Keep language exactly as generated in the source brief.
-- Only allowed change is adding the `⏰ *5 min reminder*` prefix.
-
-Use `openclaw cron add` with `--at` set to 5 min before meeting time, `--delete-after-run`, `--no-deliver`, `--channel whatsapp`, and `--to {user.whatsapp}`. The `--no-deliver` flag prevents the announce mechanism from sending a separate message — the task sends WhatsApp directly.
-
-**Hard requirement:** after creating jobs, run `openclaw cron list` and verify the expected number of `pre-meeting-` jobs for today. If count is lower than expected, immediately retry creation and report failure explicitly.
-
-Log each created cron: `python3 {user.workspace}/scripts/skill_log.py meeting-prep INFO "Created pre-meeting cron" '{"meeting": "<name>", "fires_at": "<time>"}'`
-
-## Post-meeting action items + drafts
-
-After generating all briefs, create a one-shot cron job for EACH meeting that fires 10 minutes after the meeting END time. The cron task should reference the action-items-todoist skill:
-
-Task: "Read and follow ~/executive-assistant-skills/action-items-todoist/SKILL.md. Process ONLY the meeting titled '<meeting title>' that ended around <end time>. Send results to WhatsApp ({user.whatsapp})."
-
-Use `openclaw cron add` with `--at` set to 10 min after meeting end time, `--delete-after-run`, `--session isolated`, `--timeout-seconds 1200`, `--no-deliver`, `--channel whatsapp`, and `--to {user.whatsapp}`. Name them `post-meeting-<short-name>`.
-
-**Hard requirement:** after creating jobs, run `openclaw cron list` and verify the expected number of `post-meeting-` jobs for today. If count is lower than expected, immediately retry creation and report failure explicitly.
-
-Log each created cron: `python3 {user.workspace}/scripts/skill_log.py meeting-prep INFO "Created post-meeting cron" '{"meeting": "<name>", "fires_at": "<time>"}'`
-
-Log final count: `python3 {user.workspace}/scripts/skill_log.py meeting-prep INFO "Cron creation complete" '{"pre_meeting": N, "post_meeting": M, "expected": E}'`
-
-**If cron count doesn't match expected:** Log ERROR and send WhatsApp alert: "⚠️ Meeting prep: only created X/Y pre-meeting and A/B post-meeting crons. Some reminders/action-items may be missing."
-
-### Deduplication (MANDATORY)
-
-After processing, the cron MUST append the meeting title to `{user.workspace}/state/processed-meetings-YYYY-MM-DD.json` (array of meeting titles already processed). This lets the end-of-day catch-all skip them.
-
-**Before creating ANY Todoist task**, the cron MUST:
-
-1. Read `{user.workspace}/state/processed-meetings-YYYY-MM-DD.json` — if this meeting is already listed, SKIP entirely (another cron already handled it)
-2. Fetch all open Todoist tasks and check for duplicates by matching task content against the new task intent (same person + same action = duplicate)
-3. If a matching task already exists, do NOT create a duplicate — skip it silently
-
-This prevents the scenario where a post-meeting cron and the daily end-of-day cron both process the same meeting and create duplicate tasks.
-
-## Sanity checks
-
-- **Calendar is source of truth for meeting count**: Cross-reference email threads with the actual calendar events. If an invite was moved/rescheduled, it's still ONE meeting — don't count it as multiple. Check the calendar event ID, not email threads, to determine unique meetings.
-- **First call vs follow-up**: Verify by checking if there is an ACTUAL past Granola meeting with this specific person (exact name match). Rescheduled invites or multiple scheduling emails do NOT make it a follow-up. Only a previously held meeting does.
-- **Message count check (MANDATORY):** Number of sent meeting-brief messages must equal number of meetings with attendees (external + internal). If not equal, send missing meeting messages immediately.
-- **Cron count check (MANDATORY):** Number of `pre-meeting-` jobs and `post-meeting-` jobs created for today must each equal number of meetings with attendees (external + internal).
-
-### Automated assertions (MANDATORY)
-
-After sending all meeting messages and creating all one-shot jobs, run:
-
-```bash
-python3 {user.workspace}/scripts/meeting_prep_assertions.py \
-  --date YYYY-MM-DD \
-  --brief-file {user.workspace}/state/meeting-prep-YYYY-MM-DD.md
-```
-
-- If exit code is 0: proceed normally.
-- If exit code is non-zero: create missing cron jobs and/or send missing meeting messages, then re-run up to 2 times. If still failing after 2 retries, report the assertion output in your completion note and proceed.
-- Include the assertion result summary in your final internal completion note.
-
-## Meeting type-specific enrichment
-
-### Deal flow calls (new companies, potential clients/advisory)
-
-- Extract MORE detail from email threads: what the company does, product description, funding status, round size, investors, ARR if mentioned
-- Search Crunchbase/web for latest funding info if not in emails
-- Include company stage, team size, and key metrics when available
-
-### Investor/VC calls
-
-- Include link to the fund's profile page (website, Crunchbase, or AngelList)
-- Note their investment thesis, typical check size, and stage focus if findable
-- Helps identify fit before the call
-
-## Scheduling difficulty flag
-
-- If a meeting took a long time to schedule (intro was weeks/months before the actual meeting), flag it: "⏳ *Scheduling note:* Intro came in <date>, took <N weeks/months> to get on the books."
-- If the meeting was rescheduled multiple times, note how many times
-- This provides useful context on the relationship dynamic and signals the meeting may be higher-stakes
-
-## Rules
-
-- Executive style, concise
-- No meetings with attendees today → NO_REPLY
-- Missing data → state briefly ("No email history found"), don't invent
-- Never silently omit a data source — if something returned nothing, say so
-- **No cross-contamination**: Each meeting brief must only include information verified for THAT specific attendee. Do not mix up intro sources, email threads, or Granola notes between different meetings. Double-check that every fact in a brief belongs to the correct person.
-- **No generic focus areas**: Focus must be anchored in (a) explicit prior action items from Granola and/or (b) explicit email trigger for this meeting. If neither exists, say so and use a discovery focus.
+# Meeting Prep Skill
 
 ## Overview
 
-Prepares executive briefings for each of today's meetings, including attendee research, email history, past meeting notes from Granola/Grain, LinkedIn profiles, company research, and RSVP status, delivered as individual meeting briefs via WhatsApp and Slack.
+Prepare a decision-oriented brief that gives the attendee context, a clear desired outcome, and
+usable responses to likely questions. Apply the
+[evidence and review checklist](references/evidence-and-review.md) before finalizing the brief.
 
-## Prerequisites
-
-- `gog` CLI configured with both Gmail/Calendar accounts
-- `mcporter` with Granola and Grain MCP connections authenticated
-- Web search access for LinkedIn and company research
-- `openclaw cron` CLI for pre-meeting reminder and post-meeting action item cron jobs
-- Slack bot token for Chief of Staff file upload
-- WhatsApp delivery endpoint configured in `user.json`
-- `meeting_prep_assertions.py` script in workspace for post-run validation
+Use `Glob` to locate prior notes, `Grep` to find decisions, and `Read` to verify current context.
 
 ## Instructions
 
-See the Steps section above (For each meeting: Steps 1 through 5) and the Cron Creation section for the full workflow.
+Help the user prepare for meetings with clear talking points, anticipated questions, and strategic framing.
 
-## Output
+### Behavior
 
-- One WhatsApp message per meeting with structured brief (Who, Context, Email history, Granola, Focus areas, Links)
-- Full brief saved to `{user.workspace}/state/meeting-prep-YYYY-MM-DD.md`
-- Slack DM with brief file to Chief of Staff
-- Pre-meeting reminder crons (5 min before each meeting)
-- Post-meeting action item crons (10 min after each meeting)
+1. **Understand the meeting context** — Who, what, why, stakes
+2. **Clarify the goal** — What does success look like?
+3. **Structure talking points** — Clear, prioritized, memorable
+4. **Anticipate questions** — Prepare answers for likely pushback
+5. **Suggest materials** — What to bring or share
+
+### Tone
+
+- Practical and actionable
+- Focused on outcomes
+- Honest about difficult conversations
+- Respectful of the user's judgment
+
+## Meeting Prep Template
+
+Use this structure as a starting point, then remove sections that do not affect the meeting outcome.
+
+```markdown
+## Meeting: [Title]
+**Date:** [Date/Time]
+**Attendees:** [Who]
+**Duration:** [Time]
+
+### Goal
+What do you want to achieve in this meeting?
+
+### Key Talking Points
+1. [Most important point]
+2. [Second point]
+3. [Third point]
+
+### Anticipated Questions & Answers
+| Question | Answer |
+|----------|--------|
+| [Likely Q1] | [Your response] |
+| [Likely Q2] | [Your response] |
+
+### Materials to Bring
+- [ ] [Doc/slide/data]
+
+### Success Criteria
+How will you know the meeting went well?
+```
+
+### Advanced Patterns
+
+1. **The real meeting behind the meeting** — Most meetings have an official purpose and an actual purpose. A "project update" is often really "should we still fund this?" A "brainstorm" is often "I already decided but want buy-in." Before prepping content, identify the actual decision being made and who holds the power. Prep for that meeting, not the one on the calendar
+2. **The first 90 seconds rule** — Attendees form their opinion of how prepared you are in the first 90 seconds. If you fumble the opening, you spend the rest recovering credibility. Write your first sentence word-for-word. Practice it. Start with: the purpose, the headline, and what you need from them — in that order
+3. **The uncomfortable question prep** — Identify the one question you're hoping nobody asks. That's the question that will get asked. Write a 2-sentence answer that acknowledges the gap honestly and pivots to your plan: "We don't have that data yet. Here's how we're getting it by [date]." Honesty + plan > deflection
+4. **Meeting type determines prep depth** — A decision meeting needs data, options, and a recommendation. An alignment meeting needs empathy, shared context, and a proposal. An update needs headlines and metrics. Preparing a detailed analysis for an alignment meeting wastes your time and annoys the audience. Match prep to type
+5. **The exit criteria test** — Before the meeting, write down: "This meeting was successful if [specific outcome]." If you can't finish that sentence, you're not ready. Share the exit criteria with attendees in the invite or opening — it focuses the conversation and gives you permission to cut tangents
+
+## Meeting Type Patterns
+
+### 1:1 with Manager
+
+- Lead with your asks (don't bury them)
+- Bring specific examples for feedback discussions
+- Have your "state of me" summary ready
+- Prepare 2-3 topics, let them fill the rest
+
+### Stakeholder Alignment
+
+- Start with shared context (don't assume they remember)
+- Present options, not just your recommendation
+- Have backup data ready but don't lead with it
+- End with clear ask and next steps
+
+### Cross-Functional Planning
+
+- Acknowledge other team's priorities first
+- Frame asks as mutual benefit
+- Come with a proposal, not just a problem
+- Be ready to negotiate scope/timeline
+
+### Leadership Review
+
+- Lead with the headline (bottom line up front)
+- One slide = one idea
+- Anticipate "so what" and "why now"
+- Know your numbers cold
 
 ## Examples
 
-```bash
-# The skill queries both calendars, researches each attendee, and delivers briefs.
-# Example WhatsApp brief:
-# "1. Sarah Chen (Acme Corp) - 10:00 ART
-#  Who: VP Engineering, Acme Corp (Series B, SF). AI infrastructure platform.
-#  Context: Follow-up. Intro'd by David Park on Feb 15.
-#  Granola: Discussed POC scope, agreed on 2-week trial. Action: send proposal.
-#  Focus areas: Review POC progress, discuss pricing."
-```
+### Example 1: 1:1 Prep
+
+**User:** Help me prepare for my 1:1 with my manager tomorrow. I want to discuss my project being deprioritized.
+
+**Good Response:**
+
+Let me help you prepare. First, some questions:
+
+- Is this a new deprioritization or ongoing?
+- What outcome do you want? (Re-prioritize it? Understand why? Move to a new project?)
+- How's your relationship with your manager? (Direct ok, or need to be careful?)
+
+Here's a prep framework:
+
+---
+
+## 1:1 Prep: Project Deprioritization Discussion
+
+### Your Goal
+
+Understand the reasoning and advocate for [specific outcome you want].
+
+### Opening Frame (30 sec)
+
+> "I wanted to discuss the decision to deprioritize [Project]. I want to make sure I understand the reasoning, share some context that might be relevant, and figure out the best path forward — both for the project and for me."
+
+This framing:
+
+- Shows you're not just complaining
+- Signals you want to understand
+- Opens door for negotiation
+
+### Key Talking Points
+
+1. **Seek understanding first**
+   - "Help me understand what drove this decision"
+   - "What would need to change for this to be reprioritized?"
+
+2. **Share your perspective (with data)**
+   - "From my vantage point, I saw [X metric improving / Y user feedback]"
+   - "The team had momentum — we were on track for [milestone]"
+
+3. **Make a clear ask**
+   - "I'd like to [propose an alternative / understand the timeline / discuss my next project]"
+
+### Anticipated Questions & Answers
+
+| They might say | You could respond |
+|----------------|-------------------|
+| "Leadership decided, it's out of my hands" | "I understand. What context can you share about their reasoning? And what would help me influence future prioritization decisions?" |
+| "The project wasn't delivering impact" | "That's fair feedback. Could we discuss what metrics would have demonstrated impact? I want to learn from this." |
+| "We need you on [other project]" | "I'm open to that. Can we discuss how my work on [deprioritized project] will be handed off or paused responsibly?" |
+
+### What NOT to Do
+
+- Don't make it personal or emotional (even if you feel that way)
+- Don't badmouth the decision in the meeting
+- Don't leave without clarity on next steps
+
+### Success Criteria
+
+Meeting went well if:
+
+- [ ] You understand the real reasoning (not just the official line)
+- [ ] You made your perspective heard without damaging the relationship
+- [ ] You have clarity on what's next for you
+
+---
+
+Anything specific you want to adjust or practice?
+
+### Example 2: Stakeholder Prep
+
+**User:** I have a meeting with the design lead to discuss timeline for a feature that's running late.
+
+**Good Response:**
+
+---
+
+## Meeting Prep: Design Timeline Discussion
+
+### Context
+
+- Meeting with: Design Lead
+- Topic: Feature running late
+- Tension: They're likely feeling pressure too
+
+### Your Goal
+
+Align on realistic timeline and identify what can be cut/simplified.
+
+### Opening Frame
+
+> "I want to sync on where we are with [feature] design. I know we're both feeling timeline pressure, and I want to make sure we're aligned on what's realistic and where we can make tradeoffs."
+
+### Key Talking Points
+
+1. **Acknowledge their reality**
+   - "I know design has competing priorities right now"
+   - "I'm not here to add pressure, but to problem-solve together"
+
+2. **Share your constraints**
+   - "Engineering needs designs by [date] to hit [milestone]"
+   - "If we miss [date], here's what happens..."
+
+3. **Propose tradeoffs**
+   - "What if we simplify [X] for v1?"
+   - "Can we do [reduced scope] now and [full scope] in v2?"
+
+### Anticipated Pushback
+
+| They might say | You could respond |
+|----------------|-------------------|
+| "We can't rush quality" | "Totally agree. What's the minimum we need to ship something we're proud of? Let's define that together." |
+| "PM keeps changing requirements" | "Fair feedback. Let's lock scope today. What do you need from me to feel confident requirements are stable?" |
+| "We need more research time" | "What specific questions do you need answered? Maybe there's a faster way to get signal." |
+
+### Materials to Bring
+
+- [ ] Current timeline with milestones
+- [ ] List of design deliverables with priority (must have / nice to have)
+- [ ] Your proposed scope cuts (to discuss, not mandate)
+
+### Success Criteria
+
+- [ ] Agreed on realistic date (even if later than hoped)
+- [ ] Identified 1-2 scope cuts if needed
+- [ ] Relationship intact — they feel heard, not blamed
+
+---
+
+Want to practice any of these conversations?
+
+## Prerequisites
+
+- Claude Code with read access to project files
+- Meeting context: attendees, topic, purpose, and stakes
+- Any relevant background documents, data, or prior decisions
+
+## Output
+
+Structured meeting prep including opening frame (word-for-word first sentence), prioritized talking points, anticipated questions with prepared answers, materials checklist, and measurable success criteria.
+
+## Error Handling
+
+When meeting context is vague, ask targeted questions about attendees, goals, and stakes before generating prep materials. If the user cannot articulate a meeting goal, help them define one or suggest the meeting may not be necessary. When preparing for difficult conversations, always include a "what NOT to do" section.
 
 ## Resources
 
-- [Google Calendar API](https://developers.google.com/calendar/api)
-- [Gmail API](https://developers.google.com/gmail/api)
-- [Granola API](https://granola.ai/docs)
-- Grain API
-- [LinkedIn](https://www.linkedin.com)
-- [Crunchbase](https://www.crunchbase.com)
+- [BLUF (Bottom Line Up Front)](https://en.wikipedia.org/wiki/BLUF_(communication)) -- military-origin communication framework
+- [Crucial Conversations](https://www.vitalsmarts.com/crucial-conversations-book/) -- high-stakes discussion techniques
+- [Meeting design patterns](https://www.atlassian.com/team-playbook/plays) -- structured meeting facilitation

@@ -6,11 +6,14 @@ description: 'Implement rate limiting for Anima API code generation requests.
 
   or optimizing API throughput for large design systems.
 
-  Trigger: "anima rate limit", "anima throttling", "anima batch generation".
+  Trigger with: "anima rate limit", "anima throttling", "anima batch generation".
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*)
-version: 1.4.0
+version: 2.0.0
+argument-hint: "[figma-workload]"
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -19,90 +22,70 @@ tags:
 - figma
 - anima
 - rate-limiting
-compatibility: Designed for Claude Code
+compatibility: Requires Node.js 20+, approved Anima API access, current Anima SDK documentation, and authorized Figma or website source access
 ---
 # Anima Rate Limits
 
 ## Overview
 
-Anima API has per-minute rate limits on code generation. Each `generateCode` call processes one Figma node through AI — it's compute-intensive and rate-limited accordingly.
+Handle Figma rate limits from the current SDK's structured callback and treat any
+Anima generation quota as account-specific until the provider or agreement says
+otherwise. Never encode an invented requests-per-minute or concurrency allowance.
 
-## Rate Limit Tiers
+## Documented Signals
 
-| Tier | Generations/min | Concurrent | Notes |
-|------|----------------|------------|-------|
-| Partner (standard) | 10 | 2 | Most common |
-| Enterprise | 30 | 5 | Custom agreement |
+| Surface | Signal | Required action |
+|---------|--------|-----------------|
+| `FigmaRestApi.onRateLimited` | `retryAfter`, `figmaPlanTier`, `figmaRateLimitType` | Retry only inside a bounded elapsed-time budget |
+| `figmaRateLimitMaxWait` | 1–180 seconds; default 60 | Set explicitly for the request's latency budget |
+| Anima generation | Returned error/progress state and account contract | Stop or queue; do not infer a numeric quota |
 
 ## Prerequisites
 
-- Confirm the account's current generation quota and concurrency contract before choosing `reservoir`, `reservoirRefreshAmount`, or `maxConcurrent`; treat the table above as a starting point, not authorization to exceed a plan.
+- Confirm the account's current generation and concurrency contract before choosing worker concurrency; absence of a published number means fail closed, not guess.
 - Store `ANIMA_TOKEN`, `FIGMA_TOKEN`, and `FIGMA_FILE_KEY` in the runtime secret manager or injected environment, and verify that the token has only the scopes required for the selected file. Never put tokens in source, fixtures, logs, generated receipts, or retry payloads.
 - Define an explicit allowlist of Figma files and node IDs, a bounded batch size, a maximum retry budget, and an approved output directory. Use synthetic or sandbox designs for load tests and confirm that generated output contains no customer data before persisting it.
-- Install the pinned SDK and Bottleneck versions, and decide whether a generation is safe to repeat. If the upstream operation is not idempotent, persist a redacted request fingerprint and resume only the failed node IDs.
+- Install the pinned SDK and decide whether a generation is safe to repeat. Persist a redacted request fingerprint and resume only failed node IDs.
 
 ## Instructions
 
-### Step 1: Throttled Generator with Bottleneck
+### Step 1: Configure Structured Figma Rate Handling
 
 ```typescript
-// src/anima/throttled-generator.ts
-import Bottleneck from 'bottleneck';
-import { Anima } from '@animaapp/anima-sdk';
+// src/anima/client.ts
+import { Anima, FigmaRestApi } from '@animaapp/anima-sdk';
 
-const limiter = new Bottleneck({
-  maxConcurrent: 2,
-  minTime: 6000,          // 10 per minute = 1 every 6 seconds
-  reservoir: 10,
-  reservoirRefreshInterval: 60000,
-  reservoirRefreshAmount: 10,
+const figmaRestApi = new FigmaRestApi({
+  defaultOptions: {
+    token: process.env.FIGMA_TOKEN!,
+    onRateLimited: async ({ retryAfter, figmaPlanTier, figmaRateLimitType }) => {
+      console.warn({ retryAfter, figmaPlanTier, figmaRateLimitType });
+      return retryAfter > 0 && retryAfter <= 5; // Repository latency budget.
+    },
+  },
 });
 
-const anima = new Anima({ auth: { token: process.env.ANIMA_TOKEN! } });
-
-async function throttledGenerate(params: any) {
-  return limiter.schedule(() => anima.generateCode(params));
-}
-
-// Batch generate with automatic throttling
-async function batchGenerate(nodeIds: string[], settings: any) {
-  const results = [];
-  for (const nodeId of nodeIds) {
-    const result = await throttledGenerate({
-      fileKey: process.env.FIGMA_FILE_KEY!,
-      figmaToken: process.env.FIGMA_TOKEN!,
-      nodesId: [nodeId],
-      settings,
-    });
-    results.push({ nodeId, files: result.files });
-    console.log(`Generated ${nodeId}: ${result.files.length} files`);
-  }
-  return results;
-}
-
-export { throttledGenerate, batchGenerate };
+export const anima = new Anima({
+  auth: { token: process.env.ANIMA_TOKEN! },
+  figmaRestApi,
+});
 ```
 
-### Step 2: 429 Retry Handler
+### Step 2: Bind Each Generation to a Maximum Wait
 
 ```typescript
-async function generateWithRetry(anima: Anima, params: any, maxRetries = 3) {
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      return await anima.generateCode(params);
-    } catch (err: any) {
-      if (err.response?.status !== 429 || attempt === maxRetries) throw err;
-      const wait = Math.min(60000, 10000 * attempt); // Wait up to 60s
-      console.log(`Rate limited — waiting ${wait / 1000}s`);
-      await new Promise(r => setTimeout(r, wait));
-    }
-  }
-}
+const result = await anima.generateCode({
+  fileKey: process.env.FIGMA_FILE_KEY!,
+  nodesId: ['1:2'],
+  figmaRateLimitMaxWait: 5,
+  settings: { framework: 'react', language: 'typescript', styling: 'tailwind' },
+});
+console.log({ fileCount: Object.keys(result.files).length, sessionId: result.sessionId });
 ```
 
 ## Error Handling
 
-- For HTTP 429, honor a bounded `Retry-After` value when present; otherwise use exponential backoff with jitter and let the limiter continue to enforce the account-wide reservoir. Do not create a second uncoordinated retry loop around the same request.
+- Let `FigmaRestApi` own Figma retry decisions. Do not add a second uncoordinated retry loop around the same request.
 - Do not retry 401/403 authentication or permission failures, invalid node/file parameters, or policy rejections. Stop the batch, report the node ID and redacted status, and repair credentials or scope before resuming.
 - Retry only bounded transient 5xx and network failures. Cap attempts and total elapsed time, cancel queued work after the budget is exhausted, and preserve the successful results separately from failed node IDs so a resume cannot regenerate the whole batch accidentally.
 - Treat timeout, process restart, and partial writes as ambiguous outcomes: check the request fingerprint or cache before resubmitting, write output atomically, and quarantine incomplete files. Logs and receipts may contain counts, status classes, and hashes, but not tokens, design contents, user identifiers, or generated source.
@@ -124,7 +107,7 @@ const receipt = {
 
 for (const nodeId of nodeIds) {
   try {
-    await throttledGenerate({ fileKey: process.env.FIGMA_FILE_KEY, nodesId: [nodeId], settings });
+    await anima.generateCode({ fileKey: process.env.FIGMA_FILE_KEY!, nodesId: [nodeId], figmaRateLimitMaxWait: 5, settings });
     receipt.succeeded++;
   } catch (error) {
     receipt.failed++;
@@ -136,6 +119,10 @@ console.log(JSON.stringify({ ...receipt, tokenPresent: Boolean(process.env.ANIMA
 
 An acceptable completion receipt is `requested=2; succeeded=2; failed=0; contacts_exported=0` with the sandbox ID and limiter settings recorded separately. A production batch should use the same controls, a reviewed allowlist, and an owner-approved change record before increasing concurrency.
 
+## Tool Discipline
+
+Use Read and Grep to inspect the existing integration and generated diff before changing anything. Use Write or Edit only inside the approved generated-code, test, or configuration paths. Use the declared Bash commands only for the explicit install, validation, or diagnostic steps in this workflow; never print tokens, source designs, generated source, or private website captures.
+
 ## Output
 
 - Bottleneck-throttled code generation matching API limits
@@ -146,7 +133,3 @@ An acceptable completion receipt is `requested=2; succeeded=2; failed=0; contact
 
 - [Anima API Docs](https://docs.animaapp.com/docs/anima-api)
 - [Bottleneck npm](https://www.npmjs.com/package/bottleneck)
-
-## Next Steps
-
-For security practices, see `anima-security-basics`.

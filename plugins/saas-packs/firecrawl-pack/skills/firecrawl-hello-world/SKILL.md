@@ -1,177 +1,78 @@
 ---
 name: firecrawl-hello-world
-description: 'Create a minimal working Firecrawl example that scrapes a page to markdown.
-
-  Use when starting a new Firecrawl integration, testing your setup,
-
-  or learning the scrape/crawl/map/extract API surface.
-
-  Trigger with phrases like "firecrawl hello world", "firecrawl example",
-
-  "firecrawl quick start", "simple firecrawl code".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.11.0
+description: >-
+  Create the smallest current Firecrawl v2 scrape and verify its provenance, origin status, and output without leaking credentials. Use when testing a new installation. Trigger with "Firecrawl hello world", "first Firecrawl scrape", or "verify Firecrawl setup".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<approved-url> [node|python|curl]"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- firecrawl
-- api
-- testing
-compatibility: Designed for Claude Code
+tags: [saas, firecrawl, quickstart, verification]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; Firecrawl Cloud work requires network access"
 ---
-# Firecrawl Hello World
+# Firecrawl v2 First Verified Scrape
 
 ## Overview
 
-Four minimal examples covering Firecrawl's core endpoints: **scrape** (single page), **crawl** (multi-page), **map** (URL discovery), and **extract** (LLM structured data). Each is a standalone snippet you can run immediately.
+Prove one controlled page can be retrieved through the current v2 surface. A successful transport is not enough: verify the document came from the expected URL and did not capture an origin error page.
 
 ## Prerequisites
 
-- `@mendable/firecrawl-js` installed (`npm install @mendable/firecrawl-js`)
-- `FIRECRAWL_API_KEY` environment variable set
+- The target repository or integration path and the requested operator outcome.
+- The source authorization, data classification, and environment policy.
+- Current Firecrawl documentation, credentials only when needed, and an owner for approvals.
+
+## Current Contract
+
+For Node, install firecrawl, import the named Firecrawl client, and call scrape. For Python, install firecrawl-py, import Firecrawl, and call scrape. REST uses POST https://api.firecrawl.dev/v2/scrape with Bearer authentication. The SDK returns the document data directly; REST wraps it in success and data.
+
+## Authentication
+
+For authenticated Cloud operations, inject FIRECRAWL_API_KEY from an approved
+secret manager. REST requests use Authorization: Bearer with the key. Never print,
+commit, transmit, or place a key in a URL. Keyless access is suitable only where
+the current documentation explicitly allows it and the workload accepts its
+limits; production workflows should make identity and team ownership explicit.
 
 ## Instructions
 
-### Step 1: Single-Page Scrape
+1. Choose an approved public or synthetic URL with stable, non-sensitive content and record the expected title or marker.
+2. Install the official SDK with the repository's locked package manager, or use REST. Record the resolved package version without changing unrelated dependencies.
+3. Inject FIRECRAWL_API_KEY from the secret manager for authenticated use. Keyless evaluation is allowed only for the operations and limits currently documented.
+4. Request markdown only and avoid actions, custom headers, screenshots, raw HTML, location, proxy overrides, and retention changes in the first test.
+5. Assert the expected metadata.sourceURL, a successful metadata.statusCode, non-empty markdown, and the expected marker. Do not print the full body.
+6. Record latency, cacheState and creditsUsed when returned, SDK/API surface, and redacted result size.
+7. Remove temporary output, keep the minimal test as a synthetic smoke if useful, and document the next approved workflow.
 
-```typescript
-import FirecrawlApp from "@mendable/firecrawl-js";
+## Tool Discipline
 
-const firecrawl = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY!,
-});
+Use Read, Glob, and Grep to inspect code, configuration, tests, and evidence. Use
+Write/Edit only for approved implementation or documentation changes. Do not call
+Firecrawl, rotate keys, change account settings, scrape a target, or deploy merely
+because this skill was invoked.
 
-// Scrape one page — returns markdown, HTML, metadata, links
-const result = await firecrawl.scrapeUrl("https://docs.firecrawl.dev", {
-  formats: ["markdown"],
-});
+## Approval Boundaries
 
-console.log("Title:", result.metadata?.title);
-console.log("Markdown:", result.markdown?.substring(0, 500));
-```
-
-### Step 2: Multi-Page Crawl
-
-```typescript
-// Crawl a site recursively — follows links, respects robots.txt
-const crawlResult = await firecrawl.crawlUrl("https://docs.firecrawl.dev", {
-  limit: 10,  // max 10 pages (saves credits)
-  scrapeOptions: {
-    formats: ["markdown"],
-  },
-});
-
-console.log(`Crawled ${crawlResult.data?.length} pages`);
-for (const page of crawlResult.data || []) {
-  console.log(`  ${page.metadata?.title} — ${page.metadata?.sourceURL}`);
-}
-```
-
-### Step 3: Map a Site (URL Discovery)
-
-```typescript
-// Discover all URLs on a site in ~2-3 seconds (uses sitemap + SERP)
-const mapResult = await firecrawl.mapUrl("https://docs.firecrawl.dev");
-
-console.log(`Found ${mapResult.links?.length} URLs`);
-mapResult.links?.slice(0, 10).forEach(url => console.log(`  ${url}`));
-```
-
-### Step 4: LLM Extract (Structured Data)
-
-```typescript
-// Extract structured data from a page using an LLM + JSON schema
-const extracted = await firecrawl.scrapeUrl("https://firecrawl.dev/pricing", {
-  formats: ["extract"],
-  extract: {
-    schema: {
-      type: "object",
-      properties: {
-        plans: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              name: { type: "string" },
-              price: { type: "string" },
-              credits: { type: "number" },
-            },
-          },
-        },
-      },
-    },
-  },
-});
-
-console.log("Pricing plans:", JSON.stringify(extracted.extract, null, 2));
-```
+Require approval before using a private URL, supplying site credentials or headers, retaining the response, or turning the example into a recurring job.
 
 ## Output
 
-- Single-page markdown scraped from a live URL
-- Multi-page crawl results with titles and source URLs
-- Site map with all discovered URLs
-- Structured JSON extracted by LLM from page content
+Return the exact install/runtime surface, approved URL classification, assertion results, content-free metrics, auth mode, and a concise pass/fail receipt.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Cannot find module` | SDK not installed | `npm install @mendable/firecrawl-js` |
-| `401 Unauthorized` | Missing or invalid API key | Check `FIRECRAWL_API_KEY` env var |
-| `429 Too Many Requests` | Rate limit exceeded | Wait and retry with backoff |
-| Empty `markdown` | JS-heavy page not rendered | Add `waitFor: 5000` to scrape options |
-| `402 Payment Required` | Credits exhausted | Check balance at firecrawl.dev/app |
+- 401: verify secret injection without printing the key.
+- A returned document has origin status 403 or 404: fail the content assertion and review authorization or target behavior.
+- Output marker is absent: do not widen options blindly; inspect current scrape guidance and target behavior.
 
 ## Examples
 
-### Python Hello World
-
-```python
-from firecrawl import FirecrawlApp
-
-firecrawl = FirecrawlApp(api_key="fc-YOUR_API_KEY")
-
-# Scrape
-result = firecrawl.scrape_url("https://example.com", params={
-    "formats": ["markdown"]
-})
-print(result["markdown"][:500])
-
-# Map
-urls = firecrawl.map_url("https://example.com")
-print(f"Found {len(urls.get('links', []))} URLs")
-```
-
-### Batch Scrape Multiple URLs
-
-```typescript
-// Scrape many URLs at once — more efficient than individual scrapes
-const batchResult = await firecrawl.batchScrapeUrls(
-  [
-    "https://docs.firecrawl.dev/features/scrape",
-    "https://docs.firecrawl.dev/features/crawl",
-    "https://docs.firecrawl.dev/features/extract",
-  ],
-  { formats: ["markdown"] }
-);
-
-for (const page of batchResult.data || []) {
-  console.log(`${page.metadata?.title}: ${page.markdown?.length} chars`);
-}
-```
+- "Verify Node setup" checks the firecrawl package and one markdown scrape with content-free assertions.
+- "Use my customer portal for the demo" is blocked until target authorization and data handling are approved.
 
 ## Resources
 
-- [Firecrawl Quickstart](https://docs.firecrawl.dev/introduction)
-- [Scrape Endpoint](https://docs.firecrawl.dev/features/scrape)
-- [Crawl Endpoint](https://docs.firecrawl.dev/features/crawl)
-- [Map Endpoint](https://docs.firecrawl.dev/features/map)
-- [Extract (JSON Mode)](https://docs.firecrawl.dev/features/llm-extract)
-
-## Next Steps
-
-Proceed to `firecrawl-local-dev-loop` for development workflow setup.
+Read [official Firecrawl evidence](references/official-docs.md) before relying on
+an endpoint, SDK method, plan limit, price, retention option, or self-hosted release.

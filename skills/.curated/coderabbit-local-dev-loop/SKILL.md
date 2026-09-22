@@ -1,201 +1,97 @@
 ---
 name: coderabbit-local-dev-loop
-description: 'Configure CodeRabbit CLI for local pre-commit code reviews and fast
-  iteration.
-
-  Use when setting up local development with CodeRabbit CLI reviews,
-
-  integrating AI review into your commit workflow, or testing config changes.
-
-  Trigger with phrases like "coderabbit dev setup", "coderabbit local development",
-
-  "coderabbit CLI workflow", "coderabbit pre-commit review".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(cr:*), Bash(git:*), Bash(npm:*), Grep
-version: 1.11.0
-license: MIT
+description: >-
+  Operate CLI reviews inside an agentic coding loop with bounded diffs, current authentication, and fix verification. Use when this operator task needs a current, evidence-backed
+  CodeRabbit workflow. Trigger with "review local changes with CodeRabbit".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[target] [evidence-or-scope]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- coderabbit
-- cli
-- workflow
-- development
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current CodeRabbit documentation and approved access for any live organization, repository, billing, or API change
+tags: [saas, coderabbit, cli, local-development, agentic-loop]
 ---
-# CodeRabbit Local Dev Loop
+# CodeRabbit Local Review Loop
 
 ## Overview
 
-Use CodeRabbit CLI to review code locally before opening a PR. The CLI provides the same AI-powered review as the GitHub App but runs in your terminal against staged or unstaged changes. This creates a multi-layered review process: local CLI review before commit, then automated PR review after push.
+Use the native CLI before push and feed findings back into coding. Keep auth, scope, and spend visible.
 
 ## Prerequisites
 
-- CodeRabbit CLI installed (`curl -fsSL https://cli.coderabbit.ai/install.sh | sh`)
-- Git repository with `.coderabbit.yaml` configuration
-- CodeRabbit account (CLI uses credits: $0.25 per file reviewed)
+- Identify the CodeRabbit organization, Git provider, repository, plan, and accountable owner.
+- Read `references/official-docs.md` and re-check any time-sensitive contract before execution.
+- Use synthetic or read-only evidence until the approval boundary is satisfied.
+- Preserve the repository's independent CI, security, and human-review requirements.
+
+## Current Contract
+
+- The CLI reviews local changes before commit.
+- `coderabbit review --plain` is the agent-friendly command.
+- Interactive and Agentic-key login are distinct.
+- CLI allowances and billing follow current plan contracts.
+
+## Authentication
+
+Treat Git-provider sessions, CodeRabbit web sessions, CLI credentials, and CodeRabbit API keys as separate credentials. Use only an already-approved session or secret-manager reference, never print a secret, and do not place credentials in `.coderabbit.yaml`, source files, logs, or deliverables.
 
 ## Instructions
 
-### Step 1: Install and Verify CLI
+1. Confirm repo state, diff scope, auth mode, allowance, and excluded files.
 
-```bash
-set -euo pipefail
-# Install CodeRabbit CLI
-curl -fsSL https://cli.coderabbit.ai/install.sh | sh
+2. Run a bounded plain review and capture findings without secrets.
 
-# Verify installation
-cr --version
+3. Classify findings, fix approved items, and rerun changed scope.
 
-# Authenticate (opens browser for OAuth)
-cr auth login
-```
+4. Stop on repeats, scope expansion, auth errors, or usage limits.
 
-### Step 2: Local Review Workflow
+## Tool Discipline
 
-```bash
-set -euo pipefail
-# Review all staged changes (most common workflow)
-git add -A
-cr review
+- Use **Glob** to locate candidate configuration and evidence files without widening scope.
+- Use **Grep** to find relevant fields, commands, identifiers, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use these file tools as a substitute for authenticated CodeRabbit or provider operations.
 
-# Review specific files only
-cr review src/api/routes.ts src/middleware/auth.ts
+## Approval Boundaries
 
-# Interactive mode: ask follow-up questions about review feedback
-cr review --interactive
-
-# Plain output mode (pipe to other tools or AI agents)
-cr review --prompt-only
-```
-
-### Step 3: Git Hook Integration
-
-```bash
-#!/bin/bash
-# .git/hooks/pre-push (make executable: chmod +x .git/hooks/pre-push)
-set -euo pipefail
-
-echo "Running CodeRabbit pre-push review..."
-
-# Get list of changed files vs remote
-CHANGED_FILES=$(git diff --name-only @{push}.. 2>/dev/null || git diff --name-only HEAD~1)
-
-if [ -n "$CHANGED_FILES" ]; then
-  echo "$CHANGED_FILES" | xargs cr review
-
-  # Non-blocking: show review but don't prevent push
-  # To make blocking, check exit code:
-  # echo "$CHANGED_FILES" | xargs cr review || {
-  #   echo "CodeRabbit found issues. Push anyway? (y/n)"
-  #   read -r response
-  #   [ "$response" != "y" ] && exit 1
-  # }
-fi
-```
-
-### Step 4: Configuration for Local Development
-
-```yaml
-# .coderabbit.yaml - Settings that affect both CLI and PR reviews
-language: "en-US"
-reviews:
-  profile: "assertive"
-  path_instructions:
-    - path: "src/**"
-      instructions: "Check for proper error handling and type safety."
-    - path: "tests/**"
-      instructions: "Verify edge cases and assertion completeness."
-  path_filters:
-    - "!**/*.lock"
-    - "!dist/**"
-    - "!**/*.generated.*"
-  auto_review:
-    enabled: true
-    drafts: false
-chat:
-  auto_reply: true
-```
-
-### Step 5: IDE Integration Pattern
-
-```json
-// .vscode/tasks.json - Run CodeRabbit review from VS Code
-{
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "CodeRabbit: Review Current File",
-      "type": "shell",
-      "command": "cr review ${file}",
-      "presentation": { "reveal": "always", "panel": "shared" },
-      "problemMatcher": []
-    },
-    {
-      "label": "CodeRabbit: Review Staged Changes",
-      "type": "shell",
-      "command": "cr review",
-      "presentation": { "reveal": "always", "panel": "shared" },
-      "problemMatcher": []
-    }
-  ]
-}
-```
-
-## Two-Layer Review Strategy
-
-```
-Developer writes code
-       │
-       ▼
-┌──────────────────┐
-│ cr review (local) │  ← Layer 1: Fast feedback before commit
-│ Fix obvious issues│
-└────────┬─────────┘
-         │
-         ▼
-   git commit + push
-         │
-         ▼
-┌──────────────────┐
-│ CodeRabbit App   │  ← Layer 2: Full context review on PR
-│ (automated PR    │
-│  review)         │
-└──────────────────┘
-```
+Require approval before credits, headless keys, wider review scope, or pushing. Keep analysis and drafts local until approval is explicit, and record who approved the action and its scope.
 
 ## Output
 
-- CodeRabbit CLI installed and authenticated
-- Pre-push git hook for automated local reviews
-- VS Code task integration for on-demand reviews
-- Two-layer review workflow (local + PR)
+A receipt with scope, mode, dispositions, changed files, rerun result, and risks. Include source dates, unknowns, and the exact boundary between observed fact and recommendation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `cr: command not found` | CLI not in PATH | Re-run install script or add to PATH |
-| Auth token expired | Session timeout | Run `cr auth login` again |
-| "No credits remaining" | Usage-based billing exhausted | Purchase credits at app.coderabbit.ai |
-| Review hangs on large file | File too large for AI context | Review specific files instead of all |
-| Empty review output | No changed files detected | Stage changes with `git add` first |
+| Condition | Response |
+|---|---|
+| Current contract is unclear or docs disagree | Stop mutation, cite both sources, and request owner resolution. |
+| Required access or approval is missing | Produce a draft and evidence plan only. |
+| Validation or pilot behavior differs from expectation | Restore the prior state and retain the failed evidence. |
+| Output contains secrets or private code | Stop, quarantine the artifact, redact it, and notify the data owner. |
 
 ## Examples
 
-Run the CLI against one non-sensitive changed file in a local feature branch,
-review the output before committing, and use the pull-request app as the
-separate authoritative review layer. If the CLI lacks credits, authentication,
-or context, skip the local automation and rely on the configured PR workflow;
-do not paste repository secrets or large private files into an alternate tool.
+### Example 1
+
+Review staged changes before commit and rerun after a race fix.
+
+### Example 2
+
+Use Codex integration with injected secret auth.
+
+## Validation
+
+- Confirm every claim against the dated sources in `references/official-docs.md`.
+- Verify the requested scope, owner, approval, happy path, failure path, and rollback.
+- Re-read the effective configuration or provider state after any approved change.
+- Report unsupported fields, undocumented endpoints, and unverified assumptions as failures.
 
 ## Resources
 
-- [CodeRabbit CLI Documentation](https://docs.coderabbit.ai/cli)
-- [CLI Blog Announcement](https://www.coderabbit.ai/blog/coderabbit-cli-free-ai-code-reviews-in-your-cli)
-- [VS Code IDE Extension](https://www.coderabbit.ai/ide)
-
-## Next Steps
-
-See `coderabbit-sdk-patterns` for PR interaction automation patterns.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

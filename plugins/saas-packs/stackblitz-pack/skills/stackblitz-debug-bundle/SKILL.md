@@ -1,97 +1,82 @@
 ---
 name: stackblitz-debug-bundle
-description: 'Collect WebContainer diagnostic info: boot state, file system, process
-  list.
-
-  Use when working with WebContainers or StackBlitz SDK.
-
-  Trigger: "stackblitz debug".
-
-  '
-allowed-tools: Bash(curl:*), Grep
-version: 1.6.0
-license: MIT
+description: >-
+  Produce a privacy-safe WebContainer diagnostic bundle with browser capability, isolation-header, lifecycle, event, process-exit, dependency, and resource evidence. Use when an incident needs a shareable artifact rather than ad hoc console screenshots. Trigger with "StackBlitz debug bundle", "collect WebContainer diagnostics", or "WebContainer incident evidence".
+argument-hint: "[project-path] [output-path]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.7.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- ide
-- webcontainers
 - stackblitz
+- diagnostics
+- privacy
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# StackBlitz Debug Bundle
+# Privacy-Safe WebContainer Diagnostic Bundle
 
 ## Overview
 
-Collect WebContainer diagnostic info: boot state, file system, process list.
+This skill defines or implements a bounded diagnostic artifact for WebContainer problems. The bundle records state and outcomes, not arbitrary source, environment values, complete terminal output, browser history, cookies, or credential material.
 
-## Instructions
+## Prerequisites
 
-### Step 1: Check Boot State
+- A named incident or reproducible failure and an approved output location
+- Agreement on who may receive the bundle and how long it may be retained
+- Permission to inspect the relevant host configuration and bounded runtime evidence
 
-```typescript
-async function diagnoseWebContainer(wc: WebContainer) {
-  const report: Record<string, any> = {};
+## Tool Discipline
 
-  // File system check
-  try {
-    const entries = await wc.fs.readdir('/');
-    report.filesystem = { status: 'ok', rootEntries: entries.length };
-  } catch (e: any) {
-    report.filesystem = { status: 'error', message: e.message };
-  }
+Use `Read`, `Glob`, and `Grep` to locate existing logging, header, boot, event, and process instrumentation. Use `WebFetch` only for current official StackBlitz or WebContainers documentation. Use `Write` for a new approved bundle schema or artifact and `Edit` for narrow instrumentation changes.
 
-  // Node.js check
-  try {
-    const proc = await wc.spawn('node', ['-e', 'console.log(JSON.stringify({version: process.version, arch: process.arch}))']);
-    let output = '';
-    proc.output.pipeTo(new WritableStream({ write(data) { output += data; } }));
-    await proc.exit;
-    report.node = JSON.parse(output);
-  } catch (e: any) {
-    report.node = { status: 'error', message: e.message };
-  }
+## Current Contract
 
-  // Memory check
-  try {
-    const proc = await wc.spawn('node', ['-e', 'console.log(JSON.stringify(process.memoryUsage()))']);
-    let output = '';
-    proc.output.pipeTo(new WritableStream({ write(data) { output += data; } }));
-    await proc.exit;
-    report.memory = JSON.parse(output);
-  } catch { report.memory = 'unavailable'; }
+- Record a schema version, capture time, application release, package versions, coarse browser family/version, secure-context state, and `crossOriginIsolated` boolean.
+- Record the presence and normalized values of relevant response headers without unrelated headers or cookies.
+- Record lifecycle transitions, event names, process command identity, exit code, duration, and a bounded/redacted output tail.
+- Record only filesystem counts and tested synthetic paths; do not enumerate or copy user file contents.
+- Record resource symptoms such as out-of-memory errors without inventing a universal numeric memory quota.
+- Make every redaction and omitted evidence class visible in the bundle metadata.
 
-  return report;
-}
-```
+## Authentication
 
-### Step 2: Check Browser Support
+Never include API-key values, OAuth parameters, registry credentials, cookies, URLs carrying tokens, `.env` content, private package metadata beyond the minimum identity, or full user-agent/client fingerprint data. Record auth state as a coarse enum when relevant.
 
-```typescript
-function checkBrowserSupport() {
-  return {
-    sharedArrayBuffer: typeof SharedArrayBuffer !== 'undefined',
-    crossOriginIsolated: window.crossOriginIsolated,
-    serviceWorker: 'serviceWorker' in navigator,
-    userAgent: navigator.userAgent,
-  };
-}
-```
+## Workflow
+
+1. Define the incident ID, audience, retention, schema, byte cap, and redaction rules.
+2. Collect static package and hosting configuration from repository evidence.
+3. Collect browser capability, served-header, and lifecycle state from the failing session.
+4. Add bounded event and process evidence, preserving exit codes and timestamps.
+5. Apply automatic redaction, then perform a human review before sharing.
+6. Reproduce once with a synthetic fixture and attach the bundle hash plus collection limitations.
+
+## Approval Boundaries
+
+Require explicit authorization before adding runtime telemetry, persisting a bundle, collecting user-session evidence, or sending the artifact outside the approved audience. A human must review the final bytes before external disclosure.
+
+## Output
+
+Return the schema and bundle path, SHA-256 digest, byte count, collected and omitted fields, redaction result, reproduction link or command, audience/retention, and unresolved evidence gaps.
 
 ## Error Handling
 
-| Check | Expected | Failed Action |
-|-------|----------|---------------|
-| SharedArrayBuffer | defined | Add COOP/COEP headers |
-| crossOriginIsolated | true | Check all headers present |
-| Node.js version | v18+ | WebContainer ships its own |
-| Root FS entries | > 0 | Re-mount files |
+| Condition | Response |
+|---|---|
+| Bundle exceeds its cap | Keep structured summaries and trim repeated output deterministically. |
+| Secret-like material is detected | Refuse publication, redact from source, regenerate, and review again. |
+| Runtime is unavailable | Emit a partial bundle labeled with missing dynamic evidence. |
+| User source is requested | Substitute counts, hashes, or a synthetic reproduction. |
+
+## Examples
+
+For an intermittent boot failure, create a JSON bundle containing package versions, header values, lifecycle transitions, event names, one process exit record, redaction metadata, and a digest—without source files or secret values.
 
 ## Resources
 
-- [WebContainer API Reference](https://webcontainers.io/api)
-- [Browser Support](https://webcontainers.io/guides/browser-support)
-
-## Next Steps
-
-For resource limits, see `stackblitz-rate-limits`.
+- [Official StackBlitz and WebContainers references](references/official-docs.md)
+- [WebContainer API events](https://webcontainers.io/api)
+- [WebContainers troubleshooting](https://webcontainers.io/guides/troubleshooting)

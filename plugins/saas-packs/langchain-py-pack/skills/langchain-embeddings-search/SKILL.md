@@ -15,7 +15,7 @@ description: 'Build and query vector stores with LangChain 1.0 without getting b
 
   '
 allowed-tools: Read, Write, Edit, Bash(python:*), Bash(pip:*), Grep
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

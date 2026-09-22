@@ -1,36 +1,38 @@
 {
   "name": "@intentsolutionsio/salesforce-pack",
-  "version": "1.0.4",
-  "description": "Claude Code skill pack for Salesforce - 30 skills covering CRM, Apex development, and enterprise platform integration",
-  "main": "README.md",
-  "type": "module",
-  "files": [
-    "README.md",
-    ".claude-plugin/",
-    "skills/"
-  ],
+  "version": "1.8.0",
+  "description": "Governed Salesforce operator workflows for API access, data, events, security, delivery, and production operations. Use when authenticating to a Salesforce org, querying or moving data, deploying metadata, handling events, or operating a production change.",
   "keywords": [
-    "claude-code",
-    "claude-code-plugin",
     "salesforce",
     "crm",
-    "apex",
-    "enterprise-platform",
-    "ai-skills",
-    "saas-pack"
+    "api",
+    "pub-sub",
+    "integration",
+    "claude-code",
+    "claude-plugin",
+    "tonsofskills"
   ],
-  "author": {
-    "name": "Jeremy Longshore",
-    "email": "jeremy@intentsolutions.io"
-  },
-  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/saas-packs/salesforce-pack"
   },
-  "homepage": "https://tonsofskills.com/learn/salesforce/",
+  "homepage": "https://tonsofskills.com/plugins/salesforce-pack",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
+  "license": "MIT",
+  "author": {
+    "name": "Jeremy Longshore",
+    "email": "jeremy@intentsolutions.io"
+  },
   "publishConfig": {
     "access": "public"
+  },
+  "files": [
+    "README.md",
+    ".claude-plugin",
+    "skills"
+  ],
+  "scripts": {
+    "postinstall": "node -e \"console.log(\\\"\\\\n→ This npm package is a tracking/proof artifact. Install the plugin via:\\\\n  ccpi install salesforce-pack\\\\n  or /plugin install salesforce-pack@claude-code-plugins-plus in Claude Code\\\\n\\\")\""
   }
 }

@@ -1,146 +1,99 @@
 ---
 name: palantir-upgrade-migration
-description: 'Upgrade Palantir Foundry SDK versions and handle breaking changes.
-
-  Use when upgrading foundry-platform-sdk, migrating between API versions,
-
-  or detecting deprecations in Foundry integrations.
-
-  Trigger with phrases like "upgrade palantir", "palantir migration",
-
-  "foundry breaking changes", "update foundry SDK".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(pip:*), Bash(npm:*), Bash(git:*)
-version: 1.5.0
-license: MIT
+description: >-
+  Upgrade a Palantir OSDK, Platform SDK, generated application, or release-managed product through pinned contracts and reversible stages. Use when adopting a new SDK generation or product version. Trigger with "upgrade Palantir SDK".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[package-or-product-version]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- upgrade
-- migration
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, upgrade, migration]
 ---
-# Palantir Upgrade & Migration
+# Palantir SDK and Application Upgrade
 
 ## Overview
 
-Safely upgrade `foundry-platform-sdk` versions, handle breaking changes, and migrate between Foundry API versions. Includes a step-by-step upgrade checklist and rollback procedure.
+Treat generated OSDK changes and official Platform SDK releases as contract migrations. Freeze the old and new artifacts, read the relevant migration guide or release notes, update one boundary, and prove compatibility in a non-production environment.
 
 ## Prerequisites
 
-- Current `foundry-platform-sdk` installed
-- Git for version control
-- Test suite covering Foundry API calls
-- Staging environment
+- Identify the current and target package/product versions, generated Developer Console application, language/runtime, call sites, owners, and target environments.
+- Capture lockfiles, generated metadata, OAuth restrictions, tests, representative queries/Actions, and prior product or image version.
+- Read `references/official-docs.md` and the language-specific migration guide or official release history.
+- Prepare a branch and non-production installation with a documented downgrade.
+
+## Current Contract
+
+- Generated OSDK packages are tied to selected Ontology resources and compatible client versions.
+- TypeScript OSDK migration guides document syntax changes for object access, Actions, batch Actions, and Functions/queries.
+- Official Platform SDK repositories publish immutable releases and generated API changes.
+- DevOps/Marketplace release management can promote and roll back versioned products across environments.
+
+## Authentication
+
+Do not change grant type, scopes, resource restrictions, service-user permissions, or secrets as an incidental SDK upgrade. If an auth change is required, review and test it as a separate security migration.
 
 ## Instructions
 
-### Step 1: Check Current Version and Available Updates
+1. Freeze the old state and create a compatibility inventory of imports, generated entities, operations, scopes, runtime, and tests.
 
-```bash
-set -euo pipefail
-pip show foundry-platform-sdk | grep -E "^(Name|Version)"
-pip index versions foundry-platform-sdk 2>/dev/null | head -3
-# Check OSDK version too
-npm list @osdk/client 2>/dev/null || echo "OSDK not installed"
-```
+2. Review official migration/release evidence and classify source, generated-code, runtime, and behavior changes.
 
-### Step 2: Review Changelog
+3. Update the pinned SDK/client or product on a branch without unrelated refactors.
 
-```bash
-# Check GitHub releases for breaking changes
-python -c "
-import urllib.request, json
-url = 'https://api.github.com/repos/palantir/foundry-platform-python/releases?per_page=5'
-releases = json.loads(urllib.request.urlopen(url).read())
-for r in releases:
-    print(f'{r[\"tag_name\"]:12s} {r[\"published_at\"][:10]}')
-    body = r.get('body', '')[:200]
-    if 'BREAKING' in body.upper():
-        print(f'  *** BREAKING CHANGES DETECTED ***')
-    print()
-"
-```
+4. Run unit/contract tests plus representative reads, pagination, Actions in validation-only mode, auth denials, throttling, and error mapping.
 
-### Step 3: Create Upgrade Branch and Update
+5. Install in non-production, compare behavior and telemetry, obtain approval, promote the exact version, and retain the tested downgrade.
 
-```bash
-set -euo pipefail
-git checkout -b upgrade/foundry-sdk-$(date +%Y%m%d)
-pip install --upgrade foundry-platform-sdk
-pip show foundry-platform-sdk | grep Version
-```
+## Tool Discipline
 
-### Step 4: Run Tests and Fix Breaking Changes
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-```bash
-set -euo pipefail
-pytest tests/ -v --tb=short 2>&1 | tee upgrade-test-results.txt
-# Review failures for breaking changes
-grep -E "FAILED|ERROR" upgrade-test-results.txt
-```
+## Approval Boundaries
 
-Common breaking changes between versions:
-
-```python
-# v0.x → v1.x: Client initialization changed
-# Before:
-client = foundry.FoundryClient(auth=foundry.UserTokenAuth(token="..."))
-# After:
-client = foundry.FoundryClient(
-    auth=foundry.UserTokenAuth(hostname="...", token="..."),
-    hostname="...",
-)
-
-# v1.x → v2.x: Ontology methods moved
-# Before:
-client.ontology.list_objects(...)
-# After:
-client.ontologies.OntologyObject.list(...)
-```
-
-### Step 5: Verify in Staging
-
-```bash
-# Deploy to staging and run smoke tests
-FOUNDRY_HOSTNAME=$STAGING_HOSTNAME pytest tests/integration/ -v
-```
-
-### Step 6: Rollback Procedure
-
-```bash
-# Pin previous version
-pip install foundry-platform-sdk==0.8.0
-# Or revert the branch
-git checkout main -- requirements.txt
-pip install -r requirements.txt
-```
+Application and product owners approve the version; Ontology owners approve regenerated resources; security owners approve any separately proposed auth change; production owners approve promotion and downgrade windows.
 
 ## Output
 
-- Updated SDK version with all tests passing
-- Breaking changes identified and fixed
-- Staging verification completed
-- Rollback procedure documented
+An old/new contract inventory, release evidence, dependency diff, code changes, test matrix, non-production receipt, approvals, exact promoted version, observation, and downgrade procedure.
 
 ## Error Handling
 
-| Change Type | Detection | Fix |
-|-------------|-----------|-----|
-| Renamed method | `AttributeError` in tests | Update method calls |
-| Changed parameters | `TypeError` in tests | Update function signatures |
-| Removed feature | `ImportError` | Find replacement in changelog |
-| New required param | `ApiError: 400` | Add missing parameter |
+| Condition | Response |
+|---|---|
+| Generated symbols disappear | Confirm Developer Console selections and published Ontology changes before adapting code. |
+| Tests pass but access expands | Block promotion and compare scopes, restrictions, principal permissions, and selected resources. |
+| A transitive dependency changes runtime behavior | Pin or update the dependency deliberately and extend the contract tests. |
+| Downgrade cannot restore compatibility | Keep production on the old version and redesign the migration sequence. |
+
+## Examples
+
+### Example 1
+
+Move a TypeScript OSDK application to a new generated package by applying the documented Action/query syntax changes, pinning a compatible client, and validating reads plus validation-only Actions.
+
+### Example 2
+
+Upgrade the Python Platform SDK on a branch, compare generated endpoint models and errors, run bounded API contract tests, deploy to test, and retain the previous lockfile and product version.
+
+## Validation
+
+- The old and target artifacts are immutable and identifiable.
+- Only documented or reviewed contract changes are included.
+- Auth authority and selected resources do not expand unintentionally.
+- Representative success, denial, pagination, retry, and Action-validation paths pass.
+- The downgrade is tested against the prior compatible dependencies and environment.
 
 ## Resources
 
-- [foundry-platform-python Releases](https://github.com/palantir/foundry-platform-python/releases)
-- [PyPI Package](https://pypi.org/project/foundry-platform-sdk/)
-- [API Changelog](https://www.palantir.com/docs/foundry/api/general/overview/introduction)
-
-## Next Steps
-
-For CI integration during upgrades, see `palantir-ci-integration`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

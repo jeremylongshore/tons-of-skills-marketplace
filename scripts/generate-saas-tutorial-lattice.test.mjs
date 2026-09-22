@@ -257,6 +257,21 @@ test('refuses a curated row whose canonical source is absent', (t) => {
   assert.throws(() => buildReport({ root }), /has no tracked canonical source/);
 });
 
+test('accepts the promoter collision-safe plugin__skill curated name', (t) => {
+  const root = fixture(t);
+  const manifestPath = path.join(root, 'skills/.curated/MANIFEST.json');
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  manifest.skills[0].curated_name = 'alpha-pack__alpha-hello-world';
+  fs.renameSync(
+    path.join(root, 'skills/.curated/alpha-hello-world'),
+    path.join(root, 'skills/.curated/alpha-pack__alpha-hello-world'),
+  );
+  fs.writeFileSync(manifestPath, `${JSON.stringify(manifest)}\n`);
+  execFileSync('git', ['add', '-A'], { cwd: root });
+
+  assert.equal(buildReport({ root }).summary.tutorial_lattice_skills, 2);
+});
+
 test('refuses duplicate and traversal-shaped curated names', (t) => {
   const root = fixture(t);
   const manifestPath = path.join(root, 'skills/.curated/MANIFEST.json');

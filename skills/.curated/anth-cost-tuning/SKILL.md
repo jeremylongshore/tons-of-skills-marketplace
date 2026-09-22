@@ -14,7 +14,7 @@ description: 'Optimize Anthropic Claude API costs with model routing, prompt cac
 
   '
 allowed-tools: Read, Write, Edit, Grep
-version: 1.6.0
+version: 1.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -158,7 +158,7 @@ tracker = SpendTracker(budget_usd=50.0)
 - [ ] Set `max_tokens` to realistic values (not maximum)
 - [ ] Use prefill to reduce output preamble tokens
 - [ ] Implement spend tracking and budget alerts
-- [ ] Monitor via [Usage API](https://docs.anthropic.com/en/api/usage-cost-api)
+- [ ] Monitor via [Usage API](https://platform.claude.com/docs/en/manage-claude/usage-cost-api)
 
 ## Prerequisites
 
@@ -193,10 +193,10 @@ Evaluate 1,000 synthetic classification prompts in a sandbox with a fixed budget
 
 ## Resources
 
-- [Pricing](https://docs.anthropic.com/en/docs/about-claude/pricing)
-- [Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
-- [Usage & Cost API](https://docs.anthropic.com/en/api/usage-cost-api)
-- [Message Batches](https://docs.anthropic.com/en/api/creating-message-batches)
+- [Pricing](https://platform.claude.com/docs/en/about-claude/pricing)
+- [Prompt Caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)
+- [Usage & Cost API](https://platform.claude.com/docs/en/manage-claude/usage-cost-api)
+- [Message Batches](https://platform.claude.com/docs/en/api/messages/batches/create)
 
 ## Next Steps
 

@@ -5,7 +5,7 @@ description: "Test and validate Claude integrations in CI/CD pipelines \u2014\nU
   \ and cost control.\nTrigger with \"anthropic ci\", \"test claude in ci\", \"anthropic\
   \ github actions\",\n\"claude automated testing\".\n"
 allowed-tools: Read, Write, Edit, Bash(npm:*)
-version: 1.0.0
+version: 1.1.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

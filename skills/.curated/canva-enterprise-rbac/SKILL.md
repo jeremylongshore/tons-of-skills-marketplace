@@ -1,257 +1,88 @@
 ---
 name: canva-enterprise-rbac
-description: 'Configure Canva Enterprise organization access control and scope management.
-
-  Use when implementing per-user scope control, managing Canva Enterprise features,
-
-  or setting up organization-level Canva integration governance.
-
-  Trigger with phrases like "canva enterprise", "canva RBAC",
-
-  "canva roles", "canva permissions", "canva organization", "canva team".
-
-  '
-allowed-tools: Read, Write, Edit
-version: 1.5.0
+description: 'Implement application-owned authorization from Canva scopes, user capabilities, resource ownership, and tenant policy. Use when gating Enterprise or privileged operations without inventing a Canva custom-role API. Trigger with: "Canva RBAC", "check Canva capability", "authorize Canva action".'
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[action-and-tenant-context]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- design
-- canva
-compatibility: Designed for Claude Code
+  - saas
+  - canva
+  - authorization
+  - operations
+compatibility: 'Requires a documented application role model plus current Canva scope and capability evidence.'
 ---
-# Canva Enterprise RBAC
+
+# Canva Capability-Aware Authorization
 
 ## Overview
 
-Manage access control for Canva Connect API integrations at the organization level. The Canva API uses OAuth scopes (not roles) — your application layer implements RBAC on top of Canva's scope system.
+Use Canva scopes and capabilities as provider inputs to your own authorization decision. Do not equate OAuth consent with tenant role, resource ownership, feature entitlement, or approval to process content.
 
 ## Prerequisites
 
-- An external identity source, role/policy owner, protected mapping of subjects to approved tenants/assets/actions, and audit-retention policy.
-- Enterprise entitlement confirmation where a feature requires it; folder/team conventions alone are not authorization.
+- Application roles, actions, tenants, and deny-by-default policy
+- Current explicit Canva scopes and capability response contract
+- Resource ownership and data-classification checks
 
 ## Instructions
 
-1. Authenticate and authorize every action in the application layer before invoking Canva; default-deny unknown roles, tenants, assets, and operations.
-2. Separate read, edit, export, publish, and delete approvals, and require elevated review for destructive or externally visible actions.
-3. Audit redacted allow/deny results and regularly test revocation; OAuth consent and Enterprise membership do not replace application authorization.
+### Step 1: Define the decision tuple
 
-## Canva Enterprise Requirements
+Name subject, tenant, application role, action, resource, environment, requested Canva operation, and data class.
 
-| Feature | Canva Free/Pro | Canva Enterprise |
-|---------|----------------|------------------|
-| Design Create/Read | Yes | Yes |
-| Export Designs | Yes | Yes |
-| Asset Upload | Yes | Yes |
-| Brand Templates | No | Yes |
-| Autofill API | No | Yes |
-| Folders (advanced) | Limited | Yes |
-| Comments API | Yes | Yes |
+### Step 2: Separate provider inputs
 
-**Key:** Autofill and brand template APIs require the user to be a member of a Canva Enterprise organization.
+Treat granted scopes, capability fields, resource access, and preview availability as independent facts. Absence, unknown values, or stale evidence must deny.
 
-## Application-Level RBAC
+### Step 3: Map application policy
 
-```typescript
-// Your application controls what each user role can do with Canva
+Use Write or Edit to map each application action to minimum scopes, required capability evidence, ownership rule, approval, and audit class.
 
-interface CanvaRole {
-  name: string;
-  scopes: string[];          // OAuth scopes to request
-  allowedOperations: string[]; // Application-level operations
-}
+### Step 4: Enforce server-side
 
-const CANVA_ROLES: Record<string, CanvaRole> = {
-  viewer: {
-    name: 'Viewer',
-    scopes: ['design:meta:read'],
-    allowedOperations: ['listDesigns', 'getDesign'],
-  },
-  creator: {
-    name: 'Creator',
-    scopes: ['design:meta:read', 'design:content:write', 'design:content:read', 'asset:write', 'asset:read'],
-    allowedOperations: ['listDesigns', 'getDesign', 'createDesign', 'exportDesign', 'uploadAsset'],
-  },
-  admin: {
-    name: 'Admin',
-    scopes: [
-      'design:meta:read', 'design:content:write', 'design:content:read',
-      'asset:write', 'asset:read',
-      'brandtemplate:meta:read', 'brandtemplate:content:read',
-      'folder:read', 'folder:write',
-      'comment:read', 'comment:write',
-      'collaboration:event',
-    ],
-    allowedOperations: ['*'],
-  },
-};
+Resolve the policy after authenticated tenant identity and before dispatch. Keep the generic Canva client unaware of business roles.
 
-// Request only the scopes needed for the user's role
-function getScopesForRole(role: string): string[] {
-  return CANVA_ROLES[role]?.scopes || CANVA_ROLES.viewer.scopes;
-}
-```
+### Step 5: Handle changes
 
-## Permission Middleware
+Invalidate cached decisions after scope, membership, consent, capability, policy, or resource-owner changes; require reauthorization only when scopes changed.
 
-```typescript
-function requireCanvaOperation(operation: string) {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    const userRole = req.user?.canvaRole || 'viewer';
-    const role = CANVA_ROLES[userRole];
+### Step 6: Audit without content
 
-    if (!role) {
-      return res.status(403).json({ error: 'Unknown role' });
-    }
+Record policy version, opaque subject/resource references, decision inputs, allow/deny result, and reason code without tokens or design contents.
 
-    if (!role.allowedOperations.includes('*') && !role.allowedOperations.includes(operation)) {
-      return res.status(403).json({
-        error: 'Forbidden',
-        message: `Role '${userRole}' cannot perform '${operation}'`,
-        requiredRole: Object.entries(CANVA_ROLES)
-          .find(([, r]) => r.allowedOperations.includes(operation) || r.allowedOperations.includes('*'))
-          ?.[0],
-      });
-    }
+## Authentication
 
-    next();
-  };
-}
+Canva Connect calls use Bearer access tokens obtained by a backend through OAuth 2.0 Authorization Code with SHA-256 PKCE. Request explicit least-privilege scopes, keep client secrets and tokens out of browser-visible state, and serialize refresh so the replacement single-use refresh token is stored atomically.
 
-// Usage
-app.post('/api/designs',
-  requireCanvaOperation('createDesign'),
-  async (req, res) => {
-    const result = await req.canva.createDesign(req.body);
-    res.json(result);
-  }
-);
+## Tool Discipline
 
-app.post('/api/autofill',
-  requireCanvaOperation('autofillTemplate'),
-  async (req, res) => {
-    // Only admins can autofill — requires Enterprise + admin role
-    const result = await req.canva.createAutofill(req.body);
-    res.json(result);
-  }
-);
-```
-
-## User Capabilities Check
-
-```typescript
-// GET https://api.canva.com/rest/v1/users/me/capabilities
-// Check what the authenticated user can do
-
-async function checkUserCapabilities(token: string): Promise<{
-  canAutofill: boolean;
-  isEnterprise: boolean;
-}> {
-  try {
-    const data = await canvaAPI('/users/me/capabilities', token);
-    return {
-      canAutofill: data.capabilities?.includes('autofill') || false,
-      isEnterprise: data.capabilities?.includes('brand_template') || false,
-    };
-  } catch {
-    return { canAutofill: false, isEnterprise: false };
-  }
-}
-```
-
-## Scope-Based Access Control
-
-```typescript
-// Track which scopes each user authorized
-interface UserCanvaAuth {
-  userId: string;
-  grantedScopes: string[];   // Scopes the user consented to
-  role: string;              // Application-assigned role
-  connectedAt: Date;
-}
-
-// Check if a specific API call is authorized
-function canPerformAction(
-  userAuth: UserCanvaAuth,
-  requiredScope: string
-): boolean {
-  // 1. Check application role allows the operation
-  const role = CANVA_ROLES[userAuth.role];
-  if (!role) return false;
-
-  // 2. Check the required OAuth scope was granted by the user
-  if (!userAuth.grantedScopes.includes(requiredScope)) {
-    console.warn(`User ${userAuth.userId} missing scope: ${requiredScope}`);
-    return false;
-  }
-
-  return true;
-}
-
-// If user needs additional scopes, redirect to re-authorize
-function buildReAuthUrl(userId: string, additionalScopes: string[]): string {
-  const existingScopes = userAuth.grantedScopes;
-  const allScopes = [...new Set([...existingScopes, ...additionalScopes])];
-
-  return getAuthorizationUrl({
-    clientId: process.env.CANVA_CLIENT_ID!,
-    redirectUri: process.env.CANVA_REDIRECT_URI!,
-    scopes: allScopes,
-    codeChallenge: generatePKCE().challenge,
-    state: `reauth:${userId}`,
-  });
-}
-```
-
-## Audit Logging
-
-```typescript
-async function auditCanvaAction(entry: {
-  userId: string;
-  role: string;
-  action: string;
-  endpoint: string;
-  success: boolean;
-  designId?: string;
-}): Promise<void> {
-  await db.auditLog.insert({
-    ...entry,
-    service: 'canva-connect-api',
-    timestamp: new Date(),
-  });
-
-  // Alert on permission escalation attempts
-  if (!entry.success && entry.action === 'autofillTemplate') {
-    console.warn(`Permission denied: user ${entry.userId} (role: ${entry.role}) attempted ${entry.action}`);
-  }
-}
-```
+Use Read and Grep for discovery and evidence. Use Write or Edit only for the approved artifact, code, configuration, test, or receipt described by this workflow; do not make an unapproved Canva-side change.
 
 ## Output
 
-RBAC returns an allow/deny decision, policy version, opaque subject/scope IDs, and redacted audit event. It never treats a Canva scope, folder name, or team membership as sufficient proof of authorization by itself.
+- Scoped decision or implementation artifact
+- Redacted operation and validation receipt
+- Failure, rollback, and follow-up ownership record
 
 ## Examples
 
-Before exporting a design, resolve the caller through the identity source, require an explicit export permission for the approved asset/tenant, and write an audit decision before creating the job. A user with broad OAuth consent still receives deny if the protected policy lacks the required export right.
+An application editor requests brand-template autofill. The backend checks tenant role, explicit design and template scopes, current capability/availability, template ownership, and data approval before submitting one job.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| 403 on autofill | Not Enterprise user | Check user capabilities first |
-| Scope not granted | User rejected consent | Show scope explanation, re-auth |
-| Role mismatch | Wrong role assigned | Update user role in your DB |
-| New scope needed | Feature added | Trigger re-authorization flow |
+| Failure | Response |
+| --- | --- |
+| Capability field is unknown | Deny and update the pinned response contract |
+| Scope exists but role denies | Deny; OAuth consent does not override application policy |
+| Tenant cannot be resolved | Stop before any Canva request |
+| Policy cache is stale | Invalidate and recompute from current evidence |
 
 ## Resources
 
-- [Canva Scopes](https://www.canva.dev/docs/connect/appendix/scopes/)
-- [User Capabilities API](https://www.canva.dev/docs/connect/api-reference/users/get-user-capabilities/)
-- [Canva Enterprise](https://www.canva.com/enterprise/)
-
-## Next Steps
-
-For major migrations, see `canva-migration-deep-dive`.
+- [First-party source notes](references/official-docs.md)
+- [Capabilities](https://www.canva.dev/docs/connect/capabilities/)
+- [OAuth scopes](https://www.canva.dev/docs/connect/appendix/scopes/)

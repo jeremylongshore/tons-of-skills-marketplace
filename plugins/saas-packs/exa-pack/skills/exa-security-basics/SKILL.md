@@ -1,216 +1,75 @@
 ---
 name: exa-security-basics
-description: 'Secure Exa API keys, implement content moderation, and manage domain
-  restrictions.
-
-  Use when securing API keys, auditing Exa security configuration,
-
-  or implementing content safety filtering.
-
-  Trigger with phrases like "exa security", "exa secrets",
-
-  "secure exa", "exa API key security", "exa content moderation".
-
-  '
-allowed-tools: Read, Write, Grep
-version: 1.11.0
+description: >-
+  Threat-model Exa credentials, query intent, retrieved web content, generated output, and retained operational evidence as separate trust boundaries. Use when operating or reviewing this Exa boundary. Trigger with "Exa security basics", "review Exa security basics", or "fix Exa security basics".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<data-class> <product-surface> <retention-mode>"
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- exa
-- api
-- security
-compatibility: Designed for Claude Code
+tags: [saas, exa]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Exa work requires network access"
 ---
-# Exa Security Basics
-
-## Output
-
-- A least-privilege Exa integration with scoped credentials, approved data boundaries, policy enforcement, and incident/revocation ownership.
-- A tested security boundary for secrets, private queries/results, automation scope, and redacted logging.
+# Exa Security and Data Boundary
 
 ## Overview
 
-Security best practices for Exa API integrations. Exa authenticates via the `x-api-key` header. Key security concerns include API key protection, content moderation for search results, domain filtering to prevent exposure to malicious sources, and query sanitization.
+Threat-model Exa credentials, query intent, retrieved web content, generated output, and retained operational evidence as separate trust boundaries. Treat credentials, queries, retrieved content, generated output, spend, and destructive state as separately governed boundaries.
 
 ## Prerequisites
 
-- Exa API key from dashboard.exa.ai
-- Understanding of environment variable management
-- `.gitignore` configured for secrets
+- The target repository, environment, Exa team, product surface, and accountable owner.
+- The workload's data classification, latency and freshness promise, cost ceiling, and retention policy.
+- Current first-party documentation plus credentials only for a narrowly approved live check.
+
+## Current Contract
+
+Exa is SOC 2 Type II certified and offers enterprise controls such as Zero Data Retention and HIPAA enablement. HIPAA mode is request-scoped, supports only eligible Search and Contents cache-only retrieval, and rejects summaries or live freshness. Regional access restrictions can yield Cloudflare block pages rather than Exa JSON.
+
+## Authentication
+
+For normal REST work, inject `EXA_API_KEY` from an approved server-side secret manager and send it only as `Authorization: Bearer` to the configured first-party Exa API host. Team Management service keys, hosted MCP OAuth or enterprise managed authorization, and payment-protocol calls are separate trust models. Never print, commit, place in a URL, or expose a credential to an untrusted client.
 
 ## Instructions
 
-### Step 1: API Key Management
+1. Classify queries, URLs, retrieved content, outputs, identifiers, and credentials separately.
+2. Confirm team plan and enterprise controls before asserting compliance.
+3. Keep API and service keys server-side with narrow ownership and rotation.
+4. Apply moderation, domain policy, output validation, and prompt-injection defenses.
+5. Store only approved evidence and propagate deletion or retention decisions downstream.
+6. Test credential revocation, policy denial, regional blocks, and incident escalation.
 
-```bash
-# .env (NEVER commit to git)
-EXA_API_KEY=your-api-key-here
+## Tool Discipline
 
-# .gitignore — add these entries
-.env
-.env.local
-.env.*.local
-```
+Use Read, Glob, and Grep to inspect repository code, configuration, fixtures, and evidence. Use Write and Edit only for approved implementation or documentation changes. Do not call Exa, run paid research, create or alter a Monitor, Webset, Agent run, Batch, team, member, API key, budget, webhook, or deployment merely because this skill was invoked.
 
-```typescript
-// Validate API key exists before creating client
-import Exa from "exa-js";
+## Approval Boundaries
 
-function createSecureClient(): Exa {
-  const apiKey = process.env.EXA_API_KEY;
-  if (!apiKey) {
-    throw new Error("EXA_API_KEY not configured");
-  }
-  if (apiKey.startsWith("sk_") && apiKey.length < 20) {
-    throw new Error("EXA_API_KEY appears malformed");
-  }
-  return new Exa(apiKey);
-}
-```
+Require an accountable owner before live queries involving sensitive intent, production credentials, spend or rate-limit changes, forced live crawling, generated summaries, external delivery, deployment, member or key changes, schedule creation, or destructive cancellation, stopping, deletion, or revocation. Read-only repository inspection and synthetic offline validation do not authorize live vendor actions.
 
-### Step 2: Enable Content Moderation
+## Failure Modes
 
-```typescript
-const exa = new Exa(process.env.EXA_API_KEY);
+- SOC 2 certification does not automatically authorize a workload.
+- HIPAA mode is not a global account toggle and does not support Agent, Answer, or livecrawl.
+- Retrieved public text can still be malicious, copyrighted, personal, or policy-restricted.
 
-// Exa supports content moderation to filter unsafe results
-const results = await exa.searchAndContents(
-  "user-provided search query",
-  {
-    numResults: 10,
-    text: true,
-    moderation: true,  // filter unsafe content from results
-  }
-);
-```
+## Output
 
-### Step 3: Domain Filtering for Safety
+Return the operation scope, environment, team and product surface, authorization class, contract and policy decisions, deterministic validation results, content-free identifiers, status and cost counts, risks, cleanup or rollback state, and a concise pass or fail receipt. Exclude credentials, raw queries, prompts, presigned URLs, retrieved content, generated output, and customer-derived data unless separately approved.
 
-```typescript
-// Restrict results to trusted domains for sensitive use cases
-const TRUSTED_DOMAINS = [
-  "docs.python.org", "developer.mozilla.org", "nodejs.org",
-  "github.com", "stackoverflow.com", "arxiv.org",
-];
+## Example
 
-const BLOCKED_DOMAINS = [
-  "known-malware-site.com", "phishing-domain.net",
-];
+- An eligible HIPAA request uses instant or fast Search, cache-only text or highlights, and no summary or livecrawl.
+- Finish with request or resource IDs, assertion counts, cost and terminal state, rollback or deletion status, and the decision owner; never reproduce secrets or retrieved content.
 
-async function safeDomainSearch(query: string) {
-  return exa.searchAndContents(query, {
-    numResults: 10,
-    includeDomains: TRUSTED_DOMAINS,  // only return results from these
-    text: { maxCharacters: 1000 },
-  });
-}
+## Validation
 
-async function searchWithBlocklist(query: string) {
-  return exa.searchAndContents(query, {
-    numResults: 10,
-    excludeDomains: BLOCKED_DOMAINS,  // never return results from these
-    text: { maxCharacters: 1000 },
-  });
-}
-```
+Rerun the smallest relevant deterministic test, compare actual behavior with the requested outcome and current first-party contract, verify sensitive fields are absent from evidence, and confirm deadlines, terminal state, downstream retention, and rollback before reporting success.
 
-### Step 4: Query Sanitization
+## References
 
-```typescript
-// Sanitize user-provided queries before sending to Exa
-function sanitizeQuery(input: string): string {
-  // Remove potential injection patterns
-  let clean = input
-    .replace(/[<>{}]/g, "")           // strip HTML/template chars
-    .replace(/\0/g, "")              // remove null bytes
-    .trim()
-    .substring(0, 500);              // cap query length
+Review the dated first-party evidence map before relying on any endpoint, parameter, search type, price, limit, beta, compliance, identity, retry, or lifecycle claim.
 
-  if (!clean || clean.length < 2) {
-    throw new Error("Query too short or empty after sanitization");
-  }
-  return clean;
-}
-
-// Usage
-const userQuery = sanitizeQuery(req.body.query);
-const results = await exa.search(userQuery, {
-  numResults: 10,
-  moderation: true,
-});
-```
-
-### Step 5: Per-Environment Key Isolation
-
-```typescript
-// Use separate API keys per environment
-const KEY_MAP: Record<string, string> = {
-  development: process.env.EXA_API_KEY_DEV!,
-  staging: process.env.EXA_API_KEY_STAGING!,
-  production: process.env.EXA_API_KEY_PROD!,
-};
-
-function getExaForEnv(): Exa {
-  const env = process.env.NODE_ENV || "development";
-  const key = KEY_MAP[env];
-  if (!key) throw new Error(`No EXA key for ${env}`);
-  return new Exa(key);
-}
-```
-
-## Security Checklist
-
-- [ ] API key stored in environment variables (never hardcoded)
-- [ ] `.env` files in `.gitignore`
-- [ ] Separate API keys for dev/staging/production
-- [ ] `moderation: true` enabled for user-facing search
-- [ ] Query input sanitized before API calls
-- [ ] Domain allowlist/blocklist applied for sensitive use cases
-- [ ] API key rotation procedure documented
-- [ ] Git history scanned for accidentally committed keys
-
-## Error Handling
-
-| Security Issue | Detection | Mitigation |
-|----------------|-----------|------------|
-| Exposed API key | `git log -p` search | Rotate key immediately at dashboard.exa.ai |
-| Unsafe search results | User reports | Enable `moderation: true` |
-| Untrusted domains | Review result URLs | Apply `includeDomains` filter |
-| Query injection | Input validation | Sanitize before search |
-
-## Examples
-
-### Scan Git History for Leaked Keys
-
-```bash
-set -euo pipefail
-# Check if API key was ever committed
-git log -p --all -S "EXA_API_KEY" -- "*.ts" "*.js" "*.py" "*.env" | head -20
-```
-
-### Key Rotation Procedure
-
-```bash
-set -euo pipefail
-# 1. Generate new key in dashboard.exa.ai
-# 2. Update environment
-export EXA_API_KEY="new-key-here"
-# 3. Verify new key works
-curl -s -o /dev/null -w "%{http_code}" \
-  -X POST https://api.exa.ai/search \
-  -H "x-api-key: $EXA_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"query":"test","numResults":1}'
-# 4. Revoke old key in dashboard
-```
-
-## Resources
-
-- [Exa API Authentication](https://docs.exa.ai/reference/getting-started)
-- [Exa Error Codes](https://docs.exa.ai/reference/error-codes)
-
-## Next Steps
-
-For production deployment, see `exa-prod-checklist`.
+- [Current first-party evidence map](references/official-docs.md)

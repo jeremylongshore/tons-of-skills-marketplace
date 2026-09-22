@@ -1,211 +1,99 @@
 ---
 name: palantir-core-workflow-b
-description: 'Work with Palantir Foundry Ontology objects, actions, and queries via
-  SDK.
-
-  Use when querying objects, applying actions, linking objects,
-
-  or building Ontology-driven applications.
-
-  Trigger with phrases like "palantir ontology", "foundry objects",
-
-  "palantir actions", "ontology query", "OSDK objects".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(pip:*), Bash(npm:*), Grep
-version: 1.5.0
-license: MIT
+description: >-
+  Build and verify an Ontology-backed application with a generated OSDK, bounded object queries, and validated Actions. Use when implementing object reads, links, aggregations, Functions, or writeback. Trigger with "Palantir OSDK" or "Ontology Action".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[developer-console-application]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- palantir
-- foundry
-- ontology
-- osdk
-- actions
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current Palantir Foundry documentation and approved access for any live resource, permission, data, build, application, or deployment change
+tags: [saas, palantir, foundry, ontology, osdk]
 ---
-# Palantir Core Workflow B — Ontology Objects & Actions
+# Palantir Ontology Application Workflow
 
 ## Overview
 
-Query, filter, and mutate Ontology objects using the Foundry Platform SDK and OSDK. Covers listing objects with property filters, following links between object types, applying actions, and aggregating object data. This is the primary workflow for Ontology-driven applications.
+Use the generated Ontology SDK as the typed contract for a Developer Console application. Keep reads, Functions, and Actions distinct, and validate writeback before execution when the generated SDK and action support it.
 
 ## Prerequisites
 
-- Completed `palantir-install-auth` setup
-- An Ontology with configured object types, link types, and actions
-- Familiarity with `palantir-core-workflow-a` (data pipelines feed the Ontology)
+- Identify the Developer Console application, Foundry environment, selected Ontology entities, grant type, application restrictions, and data owner.
+- Generate or select the OSDK language and version required by the application; do not guess object, property, link, Action, or Function API names.
+- Read `references/official-docs.md` and the application-specific generated documentation in Developer Console.
+- Prepare test objects and a non-production Action path.
+
+## Current Contract
+
+- An OSDK is generated for a selected subset of an Ontology and supports TypeScript, Python, Java, and other-language generation paths.
+- Application access is the intersection of the acting user or service user, OAuth scopes, and Developer Console restrictions.
+- In TypeScript OSDK 2.x, generated definitions are passed to the client for object operations, Actions, and Functions.
+- Action validation and returned edits are explicit options; validation-only and returned-edits modes cannot be assumed interchangeable.
+
+## Authentication
+
+Use the Developer Console grant chosen for the application: authorization code for user-delegated applications or client credentials for a backend service. Never embed a client secret or bearer token. Record scopes and resource restrictions separately from the Foundry permissions of the user or service user.
 
 ## Instructions
 
-### Step 1: List and Filter Objects (REST API)
+1. Define the user job and list the minimum object types, interfaces, links, Actions, and Functions the application requires.
 
-```python
-import os, foundry
+2. Configure the Developer Console application and generate the OSDK with only those Ontology resources.
 
-client = foundry.FoundryClient(
-    auth=foundry.UserTokenAuth(
-        hostname=os.environ["FOUNDRY_HOSTNAME"],
-        token=os.environ["FOUNDRY_TOKEN"],
-    ),
-    hostname=os.environ["FOUNDRY_HOSTNAME"],
-)
+3. Implement a bounded object query with explicit filters, selected properties, deterministic ordering, and pagination.
 
-ONTOLOGY = "my-company"
+4. Add link traversal, aggregation, or Function execution only where the generated contract requires it.
 
-# List employees in Engineering, sorted by hire date
-result = client.ontologies.OntologyObject.list(
-    ontology=ONTOLOGY,
-    object_type="Employee",
-    page_size=20,
-    order_by="hireDate:asc",
-    properties={"department": "Engineering"},
-)
+5. For writeback, validate the Action against non-production objects, review edits and validation errors, then execute only after owner approval.
 
-for obj in result.data:
-    p = obj.properties
-    print(f"{p['fullName']} | {p['department']} | hired {p['hireDate']}")
-```
+## Tool Discipline
 
-### Step 2: Search Objects with Filters
+- Use **Glob** to locate candidate repositories, manifests, configurations, and evidence without widening scope.
+- Use **Grep** to find relevant identifiers, declarations, permissions, errors, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft, test, manifest, or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use file tools as a substitute for authenticated Foundry operations or owner approval.
 
-```python
-# Search with complex filters using the search endpoint
-search_result = client.ontologies.OntologyObject.search(
-    ontology=ONTOLOGY,
-    object_type="Employee",
-    where={
-        "type": "and",
-        "value": [
-            {"type": "eq", "field": "department", "value": "Engineering"},
-            {"type": "gte", "field": "salary", "value": 100000},
-        ],
-    },
-    page_size=50,
-)
-print(f"Found {len(search_result.data)} matching employees")
-```
+## Approval Boundaries
 
-### Step 3: Follow Links Between Objects
-
-```python
-# Get all projects linked to an employee
-employee_rid = "ri.ontology.main.object.employee-001"
-
-linked_projects = client.ontologies.OntologyObject.list_linked_objects(
-    ontology=ONTOLOGY,
-    object_type="Employee",
-    primary_key="EMP-001",
-    link_type="assignedProjects",
-)
-
-for project in linked_projects.data:
-    print(f"  Project: {project.properties['name']} — {project.properties['status']}")
-```
-
-### Step 4: Apply Actions to Modify Objects
-
-```python
-# Promote an employee — triggers validation rules defined in Ontology
-result = client.ontologies.Action.apply(
-    ontology=ONTOLOGY,
-    action_type="promoteEmployee",
-    parameters={
-        "employeeId": "EMP-001",
-        "newTitle": "Senior Engineer",
-        "newSalary": 150000,
-        "effectiveDate": "2026-04-01",
-    },
-)
-print(f"Validation: {result.validation}")  # VALID or INVALID with reasons
-```
-
-### Step 5: Aggregate Object Data
-
-```python
-# Aggregate salary by department
-aggregation = client.ontologies.OntologyObject.aggregate(
-    ontology=ONTOLOGY,
-    object_type="Employee",
-    aggregation=[
-        {"type": "avg", "name": "avgSalary", "field": "salary"},
-        {"type": "count", "name": "headcount"},
-    ],
-    group_by=[{"field": "department", "type": "exact"}],
-)
-
-for bucket in aggregation.data:
-    grp = bucket.group
-    vals = bucket.metrics
-    print(f"{grp['department']}: {vals['headcount']} people, avg ${vals['avgSalary']:,.0f}")
-```
-
-### Step 6: TypeScript OSDK (Generated SDK)
-
-```typescript
-import { createClient } from "@osdk/client";
-import { Employee } from "@my-app/sdk";  // generated types
-
-// Type-safe queries with auto-completion
-const engineers = await client(Employee)
-  .where({ department: { $eq: "Engineering" } })
-  .orderBy(e => e.hireDate.asc())
-  .fetchPage({ pageSize: 20 });
-
-for (const emp of engineers.data) {
-  console.log(`${emp.fullName} — ${emp.title}`);
-}
-
-// Apply action with type-safe parameters
-await client(Employee).applyAction("promoteEmployee", {
-  employeeId: "EMP-001",
-  newTitle: "Senior Engineer",
-});
-```
+The Ontology owner approves selected resources and Action semantics; the application owner approves OAuth grants and restrictions; the data owner approves production writeback. Never infer approval from SDK generation.
 
 ## Output
 
-- Filtered and sorted Ontology object queries
-- Cross-object navigation via link types
-- Action application with validation feedback
-- Server-side aggregations grouped by properties
+An application contract containing selected Ontology resources, OSDK language/version, grant type, restrictions, query bounds, Action validation evidence, observed edits, error behavior, and rollback or compensating Action.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `ObjectTypeNotFound` | Wrong api_name | Check Ontology Manager for exact type names |
-| `PropertyNotFound` | Wrong property name | Properties are camelCase in API, may differ from UI |
-| `ActionValidationFailed` | Business rule violation | Read `result.validation.messages` for details |
-| `LinkTypeNotFound` | Invalid link type name | Verify link type in Ontology Manager |
-| `PermissionDenied` | Missing Ontology scope | Add `api:ontology-read` scope to your app |
+| Condition | Response |
+|---|---|
+| A generated symbol is missing | Regenerate the OSDK after confirming the entity is selected and published; do not hand-invent API names. |
+| A query is unbounded | Add filters, property selection, ordering, and pagination before production use. |
+| Action validation fails | Preserve validation details and stop; do not bypass the Ontology rule. |
+| A migration changes call syntax | Use the language-specific OSDK migration guide and test the generated version as one atomic upgrade. |
 
 ## Examples
 
-### Batch Action Application
+### Example 1
 
-```python
-employee_ids = ["EMP-001", "EMP-002", "EMP-003"]
-for eid in employee_ids:
-    result = client.ontologies.Action.apply(
-        ontology=ONTOLOGY,
-        action_type="markReviewed",
-        parameters={"employeeId": eid, "reviewDate": "2026-03-22"},
-    )
-    status = "OK" if result.validation == "VALID" else "FAILED"
-    print(f"  {eid}: {status}")
-```
+Create a read-only service that pages through a selected object type, follows one approved link, requests only required properties, and records the continuation behavior.
+
+### Example 2
+
+Implement an update flow that invokes the generated Action with validation-only first, presents validation errors or expected edits for review, and executes after explicit approval.
+
+## Validation
+
+- The code imports only symbols generated for the current Developer Console application.
+- Queries are bounded and pagination is tested.
+- Scopes, application restrictions, and user/service-user permissions are all evidenced.
+- Action validation and execution are distinguishable in logs and tests.
+- The exact OSDK version and generated package are pinned for the release.
 
 ## Resources
 
-- [Ontology SDK Overview](https://www.palantir.com/docs/foundry/ontology-sdk/overview)
-- [Get Object API](https://www.palantir.com/docs/foundry/api/ontology-resources/objects/get-object)
-- [Python OSDK Guide](https://www.palantir.com/docs/foundry/ontology-sdk/python-osdk)
-- [Actions API](https://www.palantir.com/docs/foundry/api/ontology-resources/actions/)
-
-## Next Steps
-
-- Handle errors systematically: `palantir-common-errors`
-- Optimize query performance: `palantir-performance-tuning`
-- Secure object access with RBAC: `palantir-enterprise-rbac`
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

@@ -1,208 +1,81 @@
 ---
 name: alchemy-core-workflow-b
-description: 'Build NFT collection explorer and smart contract interaction with Alchemy.
-
-  Use when fetching NFT metadata, building galleries, reading contract state,
-
-  or implementing NFT marketplace features.
-
-  Trigger: "alchemy NFT", "alchemy smart contract", "alchemy collection",
-
-  "alchemy NFT metadata", "alchemy contract read".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(npm:*), Grep
-version: 1.5.0
+description: >-
+  Build an NFT discovery workflow with Alchemy NFT API v3 and isolate typed on-chain reads through viem. Use when creating collection explorers or ownership checks. Trigger with "Alchemy NFT API", "NFT collection explorer", or "read an NFT contract".
+allowed-tools: Read,Glob,Grep,Write,Edit
+argument-hint: "<owner-or-contract> <network> <query-purpose>"
+version: 2.0.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- blockchain
-- web3
-- alchemy
-- nft
-- smart-contracts
-compatibility: Designed for Claude Code
+tags: [saas, alchemy, nft, viem]
+model: inherit
+effort: high
+compatibility: "Designed for Claude Code; live Alchemy access requires network access, an appropriate credential, account capacity, and explicit approval"
 ---
-# Alchemy Core Workflow B — NFT & Smart Contract Interaction
+# Alchemy NFT Discovery and Contract Read Workflow
 
 ## Overview
 
-Build NFT collection explorers and smart contract read operations using Alchemy's NFT API and core JSON-RPC methods.
+Build an NFT discovery workflow with Alchemy NFT API v3 and isolate typed on-chain reads through viem. This workflow produces a reviewable artifact and negative-path evidence before any live side effect.
 
 ## Prerequisites
 
-- Completed `alchemy-install-auth` setup
-- Familiarity with `alchemy-core-workflow-a`
-- Understanding of ERC-721 and ERC-1155 standards
+- Current first-party Alchemy documentation for the selected product, chain, feature, client, authentication method, limit, and lifecycle.
+- Named product, application, security, data/privacy, budget, release, and operations owners appropriate to the requested scope.
+- Synthetic or approved non-production fixtures, a credential canary, explicit success criteria, and a tested rollback boundary.
+
+## Current Contract
+
+NFT API responses, metadata availability, spam classification, pagination, and supported networks are endpoint-specific. NFT indexing is not chain finality, and cached media is not proof of ownership. Contract state reads use the declared viem chain and ABI; ownership-sensitive decisions require an explicit block/finality policy.
+
+## Authentication
+
+Use a scoped application API key in the server boundary. Validate owner and contract addresses before lookup. Treat queried owner addresses, collections, and behavioral analytics under the product's privacy and retention policy.
 
 ## Instructions
 
-### Step 1: NFT Collection Explorer
+1. Choose owner discovery, collection enumeration, metadata lookup, or contract-state verification and confirm the endpoint's current chain support.
+2. Define the response schema, spam/filter policy, metadata and media fallbacks, page-key handling, maximum pages, and freshness label.
+3. Fetch through a narrow NFT API v3 adapter, validate every page, and retain provenance for cached versus original media without executing remote media content.
+4. For on-chain verification, create a viem public client on the same declared chain, use a reviewed minimal ABI, and record the block context.
+5. Reconcile indexer output with contract reads only where the product requires it; represent disagreement and reorganization risk explicitly.
+6. Test empty, paginated, malformed metadata, spam-filtered, unsupported-chain, and indexer-versus-chain disagreement before release.
 
-```typescript
-// src/nft/collection-explorer.ts
-import { Alchemy, Network } from 'alchemy-sdk';
+## Tool Discipline
 
-const alchemy = new Alchemy({
-  apiKey: process.env.ALCHEMY_API_KEY,
-  network: Network.ETH_MAINNET,
-});
+Use Read, Glob, and Grep to inspect current documentation, configuration, code, fixtures, and evidence. Use Write and Edit only for approved repository artifacts. Skill invocation alone does not authorize network access, credentials, wallet addresses, customer data, plan changes, spend, key creation or rotation, webhook changes, deployment, replay, transaction construction, signing, broadcast, or deletion.
 
-async function exploreCollection(contractAddress: string) {
-  const metadata = await alchemy.nft.getContractMetadata(contractAddress);
+## Approval Boundaries
 
-  return {
-    address: contractAddress,
-    name: metadata.name || 'Unknown',
-    symbol: metadata.symbol || '',
-    totalSupply: metadata.totalSupply || '0',
-    tokenType: metadata.tokenType,
-    floorPrice: metadata.openSeaMetadata?.floorPrice || null,
-    description: metadata.openSeaMetadata?.description || '',
-    imageUrl: metadata.openSeaMetadata?.imageUrl || null,
-  };
-}
-
-async function getCollectionNfts(contractAddress: string, limit: number = 20) {
-  const response = await alchemy.nft.getNftsForContract(contractAddress, { limit });
-  return response.nfts.map(nft => ({
-    tokenId: nft.tokenId,
-    name: nft.name || `#${nft.tokenId}`,
-    description: nft.description,
-    image: nft.image?.cachedUrl || nft.image?.originalUrl,
-    attributes: nft.raw?.metadata?.attributes || [],
-  }));
-}
-
-// Example: Bored Ape Yacht Club
-const BAYC = '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D';
-exploreCollection(BAYC).then(console.log).catch(console.error);
-```
-
-### Step 2: Batch NFT Metadata
-
-```typescript
-// src/nft/batch-metadata.ts
-import { Alchemy, Network } from 'alchemy-sdk';
-
-const alchemy = new Alchemy({
-  apiKey: process.env.ALCHEMY_API_KEY,
-  network: Network.ETH_MAINNET,
-});
-
-async function batchGetNftMetadata(
-  tokens: Array<{ contractAddress: string; tokenId: string }>
-) {
-  const results = await alchemy.nft.getNftMetadataBatch(
-    tokens.map(t => ({ contractAddress: t.contractAddress, tokenId: t.tokenId }))
-  );
-  return results.map(nft => ({
-    contract: nft.contract.address,
-    tokenId: nft.tokenId,
-    name: nft.name,
-    image: nft.image?.cachedUrl,
-    tokenType: nft.tokenType,
-    collection: nft.contract.name,
-  }));
-}
-```
-
-### Step 3: Smart Contract Read via Ethers + Alchemy Provider
-
-```typescript
-// src/contracts/read-contract.ts
-import { Alchemy, Network } from 'alchemy-sdk';
-import { ethers } from 'ethers';
-
-const alchemy = new Alchemy({
-  apiKey: process.env.ALCHEMY_API_KEY,
-  network: Network.ETH_MAINNET,
-});
-
-async function readErc20Contract(contractAddress: string) {
-  const provider = await alchemy.config.getProvider();
-  const erc20Abi = [
-    'function name() view returns (string)',
-    'function symbol() view returns (string)',
-    'function decimals() view returns (uint8)',
-    'function totalSupply() view returns (uint256)',
-    'function balanceOf(address) view returns (uint256)',
-  ];
-
-  const contract = new ethers.Contract(contractAddress, erc20Abi, provider);
-  const [name, symbol, decimals, totalSupply] = await Promise.all([
-    contract.name(), contract.symbol(), contract.decimals(), contract.totalSupply(),
-  ]);
-
-  return { address: contractAddress, name, symbol, decimals, totalSupply: ethers.formatUnits(totalSupply, decimals) };
-}
-
-// Example: Read USDC contract
-readErc20Contract('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48').then(console.log);
-```
-
-### Step 4: NFT Ownership Verification
-
-```typescript
-// src/nft/verify-ownership.ts
-import { Alchemy, Network } from 'alchemy-sdk';
-
-const alchemy = new Alchemy({
-  apiKey: process.env.ALCHEMY_API_KEY,
-  network: Network.ETH_MAINNET,
-});
-
-async function verifyNftOwnership(
-  ownerAddress: string,
-  contractAddress: string,
-  tokenId?: string,
-): Promise<boolean> {
-  if (tokenId) {
-    const owners = await alchemy.nft.getOwnersForNft(contractAddress, tokenId);
-    return owners.owners.some(o => o.toLowerCase() === ownerAddress.toLowerCase());
-  }
-  const nfts = await alchemy.nft.getNftsForOwner(ownerAddress, {
-    contractAddresses: [contractAddress],
-  });
-  return nfts.totalCount > 0;
-}
-```
-
-## Output
-
-- NFT collection explorer with OpenSea metadata and floor price
-- Batch metadata fetching for gallery views
-- Smart contract read operations via Ethers.js provider
-- NFT ownership verification for token-gating
-
-## Examples
-
-Use a known public testnet collection or a contract you control to fetch a
-small page of metadata, then render the collection address, token IDs, and
-cached-image fallback without treating metadata as verified financial or
-ownership advice. For token gating, call `verifyNftOwnership` only after the
-user has proved control of the wallet through your application’s own signed
-challenge; an address submitted in a form is not authentication. If an RPC
-call reverts, metadata is absent, or image retrieval times out, preserve the
-valid fields, label the unavailable item, and retry only within the configured
-rate-limit budget.
+Product/privacy owners approve address use and analytics. Security approves remote-media handling and ABI/source provenance. Transactions, approvals, mints, or marketplace writes are outside this read-only workflow.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Contract not found` | Wrong address or chain | Verify contract on correct network |
-| `call revert exception` | ABI mismatch | Verify contract implements the interface |
-| Rate limit on batch | Too many requests | Reduce batch size; add delay |
-| Empty NFT images | IPFS timeout | Use Alchemy's `cachedUrl` field |
+- Do not infer ownership from an image URL or stale cached metadata.
+- Do not silently exclude assets without recording the configured spam/filter policy.
+- If the NFT index and contract read disagree, show an indeterminate state and reconcile at an approved block/finality point.
+
+## Output
+
+Return the query purpose, chain/endpoint proof, schema and pagination contract, filter policy, media safety rules, optional viem read evidence, disagreement behavior, tests, and rollback. Mark assumptions, observations, source dates, environment-specific behavior, owners, and unresolved gaps explicitly.
+
+## Examples
+
+- Page through a public test collection and retain the next-page token until exhaustion while labeling cached media provenance.
+- Verify an ownership-sensitive result with a typed `ownerOf` read at a recorded block and surface disagreement instead of choosing one source silently.
+
+## Validation
+
+Exercise and record expected and observed results for:
+
+- empty collection
+- multi-page owner
+- missing metadata
+- unsafe media URL
+- unsupported network
+- indexer/contract disagreement
 
 ## Resources
 
-- [Alchemy NFT API](https://www.alchemy.com/docs/reference/nft-api-quickstart)
-- [Alchemy SDK GitHub](https://github.com/alchemyplatform/alchemy-sdk-js)
-- [Ethers.js v6](https://docs.ethers.org/v6/)
-
-## Next Steps
-
-For common errors and debugging, see `alchemy-common-errors`.
+- [Current first-party evidence map](references/official-docs.md) — recheck dated Alchemy sources before execution.
+- Treat observed account, application, network, indexer, chain, or provider behavior as environment-specific evidence, never a universal guarantee.

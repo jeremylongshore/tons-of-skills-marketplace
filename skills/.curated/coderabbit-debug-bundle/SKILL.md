@@ -1,243 +1,97 @@
 ---
 name: coderabbit-debug-bundle
-description: 'Collect CodeRabbit debug evidence for support tickets and troubleshooting.
-
-  Use when encountering persistent issues, preparing support tickets,
-
-  or collecting diagnostic information for CodeRabbit problems.
-
-  Trigger with phrases like "coderabbit debug", "coderabbit support bundle",
-
-  "coderabbit diagnostic", "coderabbit not working evidence".
-
-  '
-allowed-tools: Read, Bash(gh:*), Bash(git:*), Bash(python3:*), Grep
-version: 1.11.0
-license: MIT
+description: >-
+  Assemble a minimal redacted diagnostic package for configuration, review, CLI, or provider failures. Use when this operator task needs a current, evidence-backed
+  CodeRabbit workflow. Trigger with "build a CodeRabbit debug bundle".
+allowed-tools: Read,Glob,Grep,Write,Edit
+version: 2.0.0
+argument-hint: "[target] [evidence-or-scope]"
+model: inherit
+effort: high
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-tags:
-- saas
-- coderabbit
-- debugging
-- support
-compatibility: Designed for Claude Code
+license: MIT
+compatibility: Requires current CodeRabbit documentation and approved access for any live organization, repository, billing, or API change
+tags: [saas, coderabbit, diagnostics, support, redaction]
 ---
 # CodeRabbit Debug Bundle
 
 ## Overview
 
-Collect all diagnostic information needed to troubleshoot CodeRabbit issues or file a support request. Since CodeRabbit is a GitHub/GitLab App (not an SDK), debugging focuses on: App installation status, `.coderabbit.yaml` configuration validity, PR review history, and GitHub webhook delivery logs.
+Collect only evidence needed to reproduce the failing boundary. Preserve timestamps and provenance while excluding code, credentials, private comments, and unrelated users.
 
 ## Prerequisites
 
-- GitHub CLI (`gh`) authenticated
-- Repository admin access (for webhook logs)
-- Access to the GitHub repository where CodeRabbit is installed
+- Identify the CodeRabbit organization, Git provider, repository, plan, and accountable owner.
+- Read `references/official-docs.md` and re-check any time-sensitive contract before execution.
+- Use synthetic or read-only evidence until the approval boundary is satisfied.
+- Preserve the repository's independent CI, security, and human-review requirements.
+
+## Current Contract
+
+- Feature-branch YAML, resolved config, eligibility, commands, and limit state are primary evidence.
+- CLI failures have separate auth and network contracts.
+- Provider permission state must be captured without tokens.
+- Service health is evidence, not a substitute for local checks.
+
+## Authentication
+
+Treat Git-provider sessions, CodeRabbit web sessions, CLI credentials, and CodeRabbit API keys as separate credentials. Use only an already-approved session or secret-manager reference, never print a secret, and do not place credentials in `.coderabbit.yaml`, source files, logs, or deliverables.
 
 ## Instructions
 
-### Step 1: Check CodeRabbit Installation Status
+1. Define symptom, time window, surface, expected behavior, and reproduction boundary.
 
-```bash
-set -euo pipefail
-OWNER="${1:-your-org}"
-REPO="${2:-your-repo}"
+2. Collect redacted IDs, config hash, eligibility fields, timestamps, and CI state.
 
-echo "=== CodeRabbit Debug Bundle ==="
-echo "Repository: $OWNER/$REPO"
-echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-echo ""
+3. Remove source, secrets, emails, tokens, payloads, and unrelated comments.
 
-# Check if CodeRabbit App is installed
-echo "--- Installation Status ---"
-INSTALL=$(gh api "repos/$OWNER/$REPO/installation" --jq '.app_slug' 2>/dev/null)
-if [ "$INSTALL" = "coderabbitai" ]; then
-  echo "CodeRabbit App: INSTALLED"
-else
-  echo "CodeRabbit App: NOT INSTALLED"
-  echo "Fix: Visit https://github.com/apps/coderabbitai to install"
-fi
-```
+4. Reproduce once safely and list included and excluded evidence.
 
-### Step 2: Validate Configuration
+## Tool Discipline
 
-```bash
-set -euo pipefail
-echo ""
-echo "--- Configuration Validation ---"
+- Use **Glob** to locate candidate configuration and evidence files without widening scope.
+- Use **Grep** to find relevant fields, commands, identifiers, and stale claims.
+- Use **Read** to inspect the smallest required files and authoritative evidence.
+- Use **Write** only for a new approved local draft or evidence artifact.
+- Use **Edit** only for a bounded approved change whose rollback is known.
+- Do not use these file tools as a substitute for authenticated CodeRabbit or provider operations.
 
-# Check if .coderabbit.yaml exists
-if [ -f .coderabbit.yaml ]; then
-  echo ".coderabbit.yaml: FOUND ($(wc -l < .coderabbit.yaml) lines)"
+## Approval Boundaries
 
-  # Validate YAML syntax
-  python3 -c "
-import yaml, sys
-try:
-    config = yaml.safe_load(open('.coderabbit.yaml'))
-    print('YAML syntax: VALID')
-
-    # Check key configuration fields
-    reviews = config.get('reviews', {})
-    auto_review = reviews.get('auto_review', {})
-    print(f'auto_review.enabled: {auto_review.get(\"enabled\", \"not set\")}')
-    print(f'auto_review.drafts: {auto_review.get(\"drafts\", \"not set\")}')
-    print(f'profile: {reviews.get(\"profile\", \"not set\")}')
-
-    base_branches = auto_review.get('base_branches', [])
-    if base_branches:
-        print(f'base_branches: {base_branches}')
-    else:
-        print('base_branches: not set (reviews all branches)')
-
-    path_filters = reviews.get('path_filters', [])
-    print(f'path_filters: {len(path_filters)} rules')
-
-    path_instructions = reviews.get('path_instructions', [])
-    print(f'path_instructions: {len(path_instructions)} rules')
-
-    chat = config.get('chat', {})
-    print(f'chat.auto_reply: {chat.get(\"auto_reply\", \"not set\")}')
-
-except yaml.YAMLError as e:
-    print(f'YAML syntax: INVALID')
-    print(f'Error: {e}')
-    sys.exit(1)
-" 2>&1
-else
-  echo ".coderabbit.yaml: NOT FOUND"
-  echo "Fix: Create .coderabbit.yaml in repository root"
-fi
-```
-
-### Step 3: Check Recent PR Review History
-
-```bash
-set -euo pipefail
-OWNER="${1:-your-org}"
-REPO="${2:-your-repo}"
-
-echo ""
-echo "--- Recent PR Review History ---"
-
-# Check last 10 closed PRs for CodeRabbit reviews
-for PR_NUM in $(gh api "repos/$OWNER/$REPO/pulls?state=all&per_page=10&sort=created&direction=desc" \
-  --jq '.[].number'); do
-
-  PR_TITLE=$(gh api "repos/$OWNER/$REPO/pulls/$PR_NUM" --jq '.title' 2>/dev/null)
-  PR_STATE=$(gh api "repos/$OWNER/$REPO/pulls/$PR_NUM" --jq '.state' 2>/dev/null)
-
-  CR_REVIEWS=$(gh api "repos/$OWNER/$REPO/pulls/$PR_NUM/reviews" \
-    --jq '[.[] | select(.user.login=="coderabbitai[bot]")] | length' 2>/dev/null || echo "0")
-
-  CR_COMMENTS=$(gh api "repos/$OWNER/$REPO/pulls/$PR_NUM/comments" \
-    --jq '[.[] | select(.user.login=="coderabbitai[bot]")] | length' 2>/dev/null || echo "0")
-
-  echo "PR #$PR_NUM ($PR_STATE): $CR_REVIEWS reviews, $CR_COMMENTS comments - $PR_TITLE"
-done
-```
-
-### Step 4: Check Active Configuration via PR Comment
-
-```markdown
-# On any open PR, post this comment:
-@coderabbitai configuration
-
-# CodeRabbit will reply with the active configuration as YAML.
-# Compare this with your .coderabbit.yaml to find discrepancies.
-# Discrepancies usually mean:
-# 1. YAML syntax error causing config to be ignored
-# 2. Org-level config overriding repo config
-# 3. Config not on the base branch (CodeRabbit reads from base branch)
-```
-
-### Step 5: Check GitHub Webhook Deliveries
-
-```markdown
-# In GitHub UI:
-1. Go to repo > Settings > Webhooks
-2. Find the CodeRabbit webhook (coderabbit.ai endpoint)
-3. Click "Recent Deliveries"
-4. Look for:
-   - 200 response codes (success)
-   - 4xx/5xx codes (errors)
-   - Missing deliveries for PR events
-
-# Common webhook issues:
-# - 401: App credentials expired → reinstall
-# - 404: Webhook URL changed → reinstall
-# - No deliveries: Webhook was deleted → reinstall App
-```
-
-### Step 6: Compile Support Bundle
-
-```bash
-set -euo pipefail
-OWNER="${1:-your-org}"
-REPO="${2:-your-repo}"
-BUNDLE="coderabbit-debug-$(date +%Y%m%d-%H%M%S).txt"
-
-{
-  echo "=== CodeRabbit Debug Bundle ==="
-  echo "Repository: $OWNER/$REPO"
-  echo "Generated: $(date -u)"
-  echo "Git branch: $(git branch --show-current 2>/dev/null || echo 'N/A')"
-  echo "Git remote: $(git remote get-url origin 2>/dev/null || echo 'N/A')"
-  echo ""
-
-  echo "--- .coderabbit.yaml ---"
-  cat .coderabbit.yaml 2>/dev/null || echo "NOT FOUND"
-  echo ""
-
-  echo "--- App Installation ---"
-  gh api "repos/$OWNER/$REPO/installation" 2>/dev/null || echo "NOT INSTALLED"
-  echo ""
-
-  echo "--- Last 5 PRs ---"
-  gh api "repos/$OWNER/$REPO/pulls?state=all&per_page=5" \
-    --jq '.[] | "#\(.number) [\(.state)] \(.title) (by \(.user.login))"' 2>/dev/null
-  echo ""
-
-  echo "--- GitHub Actions Status ---"
-  gh run list --repo "$OWNER/$REPO" --limit 5 2>/dev/null || echo "N/A"
-} > "$BUNDLE"
-
-echo "Debug bundle saved: $BUNDLE"
-echo "Review for sensitive data before sharing with support."
-```
+Require owner approval before reading private PR content, audit data, or transmitting a bundle. Keep analysis and drafts local until approval is explicit, and record who approved the action and its scope.
 
 ## Output
 
-- Installation status verified
-- Configuration validated for syntax and completeness
-- PR review history showing CodeRabbit activity
-- Active configuration compared with file on disk
-- Debug bundle file ready for support ticket
+A redacted manifest, timeline, config hash, reproduction, classification, and support summary. Include source dates, unknowns, and the exact boundary between observed fact and recommendation.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `gh api` returns 404 | Wrong org/repo or no access | Verify repo name and `gh auth status` |
-| No CodeRabbit reviews found | App not installed on repo | Install from github.com/apps/coderabbitai |
-| YAML validation fails | Syntax error in config | Fix YAML syntax, validate before committing |
-| Webhook deliveries empty | App was uninstalled/reinstalled | Check webhook exists in repo settings |
+| Condition | Response |
+|---|---|
+| Current contract is unclear or docs disagree | Stop mutation, cite both sources, and request owner resolution. |
+| Required access or approval is missing | Produce a draft and evidence plan only. |
+| Validation or pilot behavior differs from expectation | Restore the prior state and retain the failed evidence. |
+| Output contains secrets or private code | Stop, quarantine the artifact, redact it, and notify the data owner. |
 
 ## Examples
 
-For a missing review, collect the sanitized app/configuration state and recent
-review metadata into a local bundle, inspect it for repository secrets or
-private diffs, then attach only the approved version to a support case. If the
-bundle contains sensitive material, regenerate it with a narrower collection
-scope instead of editing or transmitting the original archive.
+### Example 1
+
+Prepare skipped-draft evidence without exporting source.
+
+### Example 2
+
+Separate a CLI proxy failure from a rate-limit response.
+
+## Validation
+
+- Confirm every claim against the dated sources in `references/official-docs.md`.
+- Verify the requested scope, owner, approval, happy path, failure path, and rollback.
+- Re-read the effective configuration or provider state after any approved change.
+- Report unsupported fields, undocumented endpoints, and unverified assumptions as failures.
 
 ## Resources
 
-- [CodeRabbit FAQ](https://docs.coderabbit.ai/faq)
-- [CodeRabbit Status Page](https://status.coderabbit.ai)
-- [CodeRabbit Discord](https://discord.gg/coderabbit)
-- [CodeRabbit Support Email](mailto:support@coderabbit.ai)
-
-## Next Steps
-
-For common error patterns and fixes, see `coderabbit-common-errors`.
+- [Official documentation and contract notes](references/official-docs.md)
+- Re-check the dated contract before any live operation.
+- Treat unresolved or changed vendor behavior as a stop condition.

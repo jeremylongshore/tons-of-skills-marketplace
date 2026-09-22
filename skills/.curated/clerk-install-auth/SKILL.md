@@ -12,7 +12,7 @@ description: 'Install and configure Clerk SDK/CLI authentication.
 
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pnpm:*), Grep
-version: 1.14.0
+version: 1.15.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

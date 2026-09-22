@@ -8,7 +8,7 @@ description: "Rate-limit LangChain 1.0 calls correctly across multi-worker deplo
   , \"langchain semaphore\",\n\"langchain token bucket\", \"anthropic rpm\", \"openai\
   \ rpm throttling\",\n\"InMemoryRateLimiter\", \"redis rate limiter\".\n"
 allowed-tools: Read, Write, Edit, Bash(python:*), Bash(redis-cli:*)
-version: 2.6.0
+version: 2.7.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -291,7 +291,7 @@ Always pair with `asyncio.Semaphore(N)` per-worker for in-flight concurrency.
 
 | Provider | Free tier RPM | Tier-1 RPM | High tier RPM | Source |
 |---|---|---|---|---|
-| Anthropic | 5 | 50 (Build 1) | 4000 (Build 4) | https://docs.anthropic.com/en/api/rate-limits |
+| Anthropic | 5 | 50 (Build 1) | 4000 (Build 4) | https://platform.claude.com/docs/en/api/rate-limits |
 | OpenAI | 3 | 500 | 10000 (Tier 5) | https://platform.openai.com/docs/guides/rate-limits |
 | Google Gemini | 15 | 2000 (Paid 1) | 30000 (Paid 3) | https://ai.google.dev/gemini-api/docs/rate-limits |
 
@@ -397,7 +397,7 @@ Do not carry this into production without re-reading Step 2.
 
 - [LangChain how-to: Chat model rate limiting](https://python.langchain.com/docs/how_to/chat_model_rate_limiting/)
 - [`InMemoryRateLimiter` API](https://python.langchain.com/api_reference/core/rate_limiters/langchain_core.rate_limiters.InMemoryRateLimiter.html)
-- [Anthropic rate limits](https://docs.anthropic.com/en/api/rate-limits)
+- [Anthropic rate limits](https://platform.claude.com/docs/en/api/rate-limits)
 - [OpenAI rate limits](https://platform.openai.com/docs/guides/rate-limits)
 - [Google Gemini rate limits](https://ai.google.dev/gemini-api/docs/rate-limits)
 - [Redis `CL.THROTTLE` (redis-cell module)](https://github.com/brandur/redis-cell)

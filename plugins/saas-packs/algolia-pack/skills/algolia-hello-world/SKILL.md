@@ -1,160 +1,93 @@
 ---
 name: algolia-hello-world
-description: "Create a minimal working Algolia example \u2014 index records and search\
-  \ them.\nUse when starting a new Algolia integration, testing your setup,\nor learning\
-  \ the saveObjects/searchSingleIndex pattern.\nTrigger: \"algolia hello world\",\
-  \ \"algolia example\", \"algolia quick start\", \"first algolia search\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(node:*), Bash(npx:*)
-version: 1.7.0
-license: MIT
+description: >-
+  Create a minimal Algolia JavaScript v5 indexing and search proof using a disposable index. Use when verifying credentials, learning the client boundary, or proving first connectivity. Trigger with "Algolia hello world", "first Algolia search", or "test Algolia setup".
+argument-hint: "[project-path] [disposable-index]"
+allowed-tools: Read, Glob, Grep, WebFetch, Write, Edit
+version: 1.8.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
+license: MIT
 tags:
 - saas
-- search
 - algolia
+- getting-started
+model: inherit
+effort: medium
 compatibility: Designed for Claude Code
 ---
-# Algolia Hello World
+# Algolia Verified First Search
 
 ## Overview
 
-Index records into Algolia and search them back — the two fundamental operations. Uses the `algoliasearch` v5 client where all methods live on the client directly (no `initIndex`).
+This skill proves the smallest complete write-read-cleanup cycle: create known records, wait for the indexing task, query one record, and remove the disposable index after review.
 
 ## Prerequisites
 
-- `algoliasearch` v5 installed (`npm install algoliasearch`)
-- `ALGOLIA_APP_ID` and `ALGOLIA_ADMIN_KEY` environment variables set
-- See `algolia-install-auth` for setup
+- A named repository, environment, and Algolia application or index in scope
+- The local lockfile and installed client types as implementation authority
+- A safe read-only query or explicitly disposable test target
+- Current first-party documentation for any provider behavior that affects the change
+
+## Tool Discipline
+
+Use `Read`, `Glob`, and `Grep` to inspect local code, configuration names, tests, and dependency versions. Use `WebFetch` only for current official Algolia documentation. Use `Write` or `Edit` only after identifying the target files, constraints, and verification plan.
+
+## Current Contract
+
+- Use the installed `algoliasearch` v5 client; methods such as `saveObjects`, `waitForTask`, and `searchSingleIndex` are called on the client.
+- Assign explicit `objectID` values so verification is deterministic.
+- Use a new disposable index, never an existing production index.
+- Treat cleanup as an observed task with its own result.
+
+## Authentication
+
+Use a custom backend key restricted to the disposable index and necessary operations. The browser should never receive this write credential.
 
 ## Instructions
 
-### Step 1: Index Records with saveObjects
+1. Confirm the package version, application ID, credential source, and validated disposable index name.
+2. Create two non-sensitive records with stable object IDs.
+3. Save the records and retain the returned task ID.
+4. Wait for that task, then search for one unique value with `searchSingleIndex`.
+5. Assert the expected object ID and record the request metadata without secrets.
+6. After human confirmation, delete the disposable index and verify cleanup.
 
-```typescript
-import { algoliasearch } from 'algoliasearch';
+## Approval Boundaries
 
-const client = algoliasearch(
-  process.env.ALGOLIA_APP_ID!,
-  process.env.ALGOLIA_ADMIN_KEY!
-);
-
-// saveObjects adds or replaces records. Each must have objectID
-// (or Algolia auto-generates one).
-const { taskID } = await client.saveObjects({
-  indexName: 'movies',
-  objects: [
-    { objectID: '1', title: 'The Matrix', year: 1999, genre: 'sci-fi' },
-    { objectID: '2', title: 'Inception', year: 2010, genre: 'sci-fi' },
-    { objectID: '3', title: 'Pulp Fiction', year: 1994, genre: 'crime' },
-  ],
-});
-
-// Wait for indexing to complete before searching
-await client.waitForTask({ indexName: 'movies', taskID });
-console.log('Indexing complete.');
-```
-
-### Step 2: Search with searchSingleIndex
-
-```typescript
-// Basic search — Algolia searches all searchableAttributes by default
-const { hits } = await client.searchSingleIndex({
-  indexName: 'movies',
-  searchParams: { query: 'matrix' },
-});
-
-console.log(`Found ${hits.length} results:`);
-hits.forEach(hit => {
-  // _highlightResult shows which parts matched
-  console.log(`  ${hit.title} (${hit.year})`);
-});
-```
-
-### Step 3: Configure Index Settings
-
-```typescript
-// Settings define how Algolia ranks results
-await client.setSettings({
-  indexName: 'movies',
-  indexSettings: {
-    searchableAttributes: ['title', 'genre'],       // Fields to search
-    attributesForFaceting: ['genre', 'year'],        // Filterable fields
-    customRanking: ['desc(year)'],                   // Tie-breaker: newer first
-    attributesToRetrieve: ['title', 'year', 'genre'],// Fields returned in hits
-  },
-});
-```
+Do not use a production index, copy an Admin key into source, or delete an index until its exact disposable name is displayed and approved.
 
 ## Output
 
-```
-Indexing complete.
-Found 1 results:
-  The Matrix (1999)
-```
+Return package and API evidence, the redacted configuration, write and wait task IDs, search assertion, cleanup result, and next recommended integration step.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Invalid Application-ID or API key` | Wrong credentials | Verify in dashboard > Settings > API Keys |
-| `Record is too big` | Object > 10KB (free) or 100KB (paid) | Reduce record size or split into smaller records |
-| `Index does not exist` (on search) | Index not created yet | `saveObjects` auto-creates the index |
-| `taskID` never resolves | Indexing queue backlog | Check dashboard > Indices > Operations |
+| Condition | Response |
+|---|---|
+| Authentication fails | Verify application/key pairing and required ACL. |
+| Search is empty after write | Wait for the recorded task and confirm index name. |
+| Unexpected existing records | Stop; the index is not disposable. |
+| Cleanup not approved | Leave the index and report its exact name. |
 
 ## Examples
 
-### Multi-Index Search (federated)
+Use this compact input and expected handoff to calibrate scope and evidence quality.
 
-```typescript
-// Search multiple indices in one API call
-const { results } = await client.search({
-  requests: [
-    { indexName: 'movies', query: 'inception' },
-    { indexName: 'actors', query: 'inception' },
-  ],
-});
+Input:
 
-results.forEach(result => {
-  if ('hits' in result) {
-    console.log(`${result.index}: ${result.hits.length} hits`);
-  }
-});
+```text
+app=APP…9X; index=skill-smoke-20260910; records=2
 ```
 
-### Browse All Records (no query, iterate everything)
+Expected handoff:
 
-```typescript
-// browse returns up to 1000 records per call — use for data export
-const { hits, cursor } = await client.browse({
-  indexName: 'movies',
-  browseParams: { hitsPerPage: 1000 },
-});
-
-console.log(`First page: ${hits.length} records`);
-// Use cursor to fetch next pages
-```
-
-### Delete Records
-
-```typescript
-// Delete by objectID
-await client.deleteObject({ indexName: 'movies', objectID: '3' });
-
-// Delete by query match
-await client.deleteBy({
-  indexName: 'movies',
-  deleteByParams: { filters: 'genre:crime' },
-});
+```text
+save-task=complete; expected-object=movie-1; search=pass; cleanup=approved-and-complete
 ```
 
 ## Resources
 
-- [saveObjects Reference](https://www.algolia.com/doc/libraries/javascript/v5/methods/search/save-object/)
-- [searchSingleIndex Reference](https://www.algolia.com/doc/libraries/javascript/v5/methods/search/search-single-index/)
-- [Index Settings](https://www.algolia.com/doc/api-reference/api-methods/set-settings/)
-- [Algolia Quick Start](https://www.algolia.com/doc/guides/getting-started/quick-start/)
-
-## Next Steps
-
-Proceed to `algolia-local-dev-loop` for development workflow setup.
+- [Skill-specific official documentation](references/official-docs.md)
+- [JavaScript API client](https://www.algolia.com/doc/libraries/javascript)
+- [JavaScript v5 upgrade](https://www.algolia.com/doc/libraries/sdk/upgrade/javascript)
+- [API keys](https://www.algolia.com/doc/guides/security/api-keys)
