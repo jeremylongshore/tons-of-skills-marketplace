@@ -1,6 +1,6 @@
 ---
 title: "Building a Deterministic DXF Comparison Engine in One Day"
-description: "Four PRs, 5000+ lines, 1875 tests. How to compare two versions of an engineering drawing when the coordinates might be slightly different."
+description: "Four PRs and 5000+ lines. How to compare two versions of an engineering drawing when the coordinates might be slightly different."
 date: "2026-02-26"
 tags: ["ai-agents", "python", "testing", "architecture", "cad"]
 featured: false
@@ -167,7 +167,6 @@ During PR review, the overlay and changelog rendering got delegated back to `Com
 |--------|-------|
 | PRs merged | 4 (#47–#50) |
 | Lines added | ~5,000+ |
-| Total tests | 1,875 (all passing) |
 | Time | 1 day |
 | Flaky tests | 0 (deterministic by design) |
 
