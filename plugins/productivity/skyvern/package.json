@@ -10,18 +10,15 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jeremylongshore/claude-code-plugins-plus-skills.git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/productivity/skyvern"
   },
   "homepage": "https://tonsofskills.com/plugins/skyvern",
-  "bugs": "https://github.com/jeremylongshore/claude-code-plugins-plus-skills/issues",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
   "license": "AGPL-3.0",
   "author": {
     "name": "Skyvern-AI",
     "url": "https://github.com/Skyvern-AI"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "files": [
     ".claude-plugin"

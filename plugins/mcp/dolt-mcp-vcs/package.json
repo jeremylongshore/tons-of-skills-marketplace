@@ -20,19 +20,16 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jeremylongshore/claude-code-plugins-plus-skills.git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/mcp/dolt-mcp-vcs"
   },
   "homepage": "https://tonsofskills.com/plugins/dolt-mcp-vcs",
-  "bugs": "https://github.com/jeremylongshore/claude-code-plugins-plus-skills/issues",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
   "license": "Apache-2.0",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io",
     "url": "https://github.com/jeremylongshore"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "files": [
     "README.md",

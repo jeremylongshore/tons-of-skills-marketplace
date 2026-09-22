@@ -10,19 +10,16 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jeremylongshore/claude-code-plugins-plus-skills.git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/community/ejentum-memory"
   },
   "homepage": "https://tonsofskills.com/plugins/ejentum-memory",
-  "bugs": "https://github.com/jeremylongshore/claude-code-plugins-plus-skills/issues",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
   "license": "MIT",
   "author": {
     "name": "Ejentum",
     "url": "https://github.com/ejentum",
     "email": "info@ejentum.com"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "files": [
     ".claude-plugin"

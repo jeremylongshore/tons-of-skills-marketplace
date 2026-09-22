@@ -1,118 +1,99 @@
 ---
 name: runway-hello-world
-description: "Runway hello world \u2014 AI video generation and creative AI platform.\n\
-  Use when working with Runway for video generation, image editing, or creative AI.\n\
-  Trigger with phrases like \"runway hello world\", \"runway-hello-world\", \"AI video\
-  \ generation\".\n"
-allowed-tools: Read, Write, Edit, Bash(pip:*), Bash(npm:*), Bash(curl:*), Grep
-version: 1.4.0
+description: >-
+  Create, observe, and preserve one approved Runway text-to-video task using the current per-model contract. Use when proving the first billable generation path. Trigger with: "Runway hello world", "first Runway video", "smoke test Runway generation".
+allowed-tools: Read, Grep, Write, Edit
+version: 2.0.0
+argument-hint: '[prompt-and-model-policy]'
+model: inherit
+effort: high
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- runway
-- ai
-- video-generation
-- creative
-compatibility: Designed for Claude Code
+  - saas
+  - runway
+  - video-generation
+  - smoke-test
+  - tasks
+compatibility: 'Requires server-side Runway Dev access, current first-party documentation, an approved credit budget, and controlled media storage.'
 ---
-# Runway Hello World
+
+# One Controlled Runway Generation
 
 ## Overview
 
-Generate your first AI video from a text prompt using Runway's Gen-3 Alpha model.
+Prove the minimum asynchronous generation path without pretending that task creation is completion. A Runway generation consumes credits and may be moderated, so the smoke test requires an explicit cost ceiling, safe prompt, terminal-state evidence, and owned output storage.
 
 ## Prerequisites
 
-- Completed `runway-install-auth`
-- API credits available in your Runway account
+- Server-side Runway authentication and available organization credits
+- An operator-approved model, prompt, duration, ratio, and maximum credit budget
+- Durable task storage and an output bucket with retention controls
 
 ## Instructions
 
-### Step 1: Text-to-Video Generation
+### Step 1: Read the current model schema
 
-```python
-from runwayml import RunwayML
+Open the current models guide and the exact `text_to_video` model variant in the API reference. Confirm model identifier, required fields, prompt limit, ratio set, duration range, and price immediately before the test.
 
-client = RunwayML()
+### Step 2: Freeze the billable intent
 
-# Create a text-to-video generation task
-task = client.image_to_video.create(
-    model='gen3a_turbo',
-    prompt_text='A golden retriever running through a field of sunflowers, cinematic lighting, slow motion',
-    duration=5,  # 5 or 10 seconds
-    ratio='16:9',  # 16:9 or 9:16
-)
-print(f"Task created: {task.id}")
-```
+Record a unique operation ID, normalized request fingerprint, model, duration, ratio, estimated ceiling, and approval. Use `gen4.5` only when its current schema still matches the request; never revive retired `gen3a_turbo`.
 
-### Step 2: Poll for Completion
+### Step 3: Create one task
 
-```python
-import time
+Submit one server-side request. Persist the returned task ID before waiting. Treat the create response as acceptance into the task system, not a generated asset.
 
-# The SDK has a built-in helper for polling
-task_result = client.tasks.retrieve(task.id)
+### Step 4: Wait with a bound
 
-# Or poll manually
-while task_result.status not in ('SUCCEEDED', 'FAILED'):
-    time.sleep(5)
-    task_result = client.tasks.retrieve(task.id)
-    print(f"  Status: {task_result.status}")
+Use the SDK wait helper or poll `GET /v1/tasks/<task-id>` no more frequently than every five seconds with jitter and backoff. Set a deadline. Remember that a client timeout does not cancel the provider task.
 
-if task_result.status == 'SUCCEEDED':
-    print(f"Video URL: {task_result.output[0]}")
-else:
-    print(f"Failed: {task_result.failure}")
-```
+### Step 5: Classify the terminal state
 
-### Step 3: Download the Video
+Accept output only from `SUCCEEDED`. For `FAILED`, retain redacted `failureCode` and diagnostic text; for `CANCELLED`, record who cancelled. Treat `THROTTLED` as queued, not failed.
 
-```python
-import urllib.request
+### Step 6: Own the output
 
-if task_result.status == 'SUCCEEDED':
-    video_url = task_result.output[0]
-    urllib.request.urlretrieve(video_url, 'output.mp4')
-    print("Video saved to output.mp4")
-```
+Download successful output promptly, validate type and size, store it under the operation ID, and retain the source URL only as sensitive temporary evidence because Runway output URLs expire.
 
-### Step 4: Using the Built-in Wait Helper
+## Authentication
 
-```python
-# Simpler approach — SDK polls automatically
-task = client.image_to_video.create(
-    model='gen3a_turbo',
-    prompt_text='Ocean waves crashing on rocky cliffs at sunset, aerial view',
-    duration=5,
-)
-# Wait for completion (default timeout: 10 minutes)
-result = task.wait_for_task_output()
-print(f"Video: {result.output[0]}")
-```
+Create and task-read requests use the server-side bearer secret and reviewed Runway API version. Never expose the key or temporary signed output URL to an untrusted browser, log stream, or ticket.
+
+## Tool Discipline
+
+Use Read and Grep to inspect application configuration, provider documentation, lockfiles, fixtures, schemas, tests, and redacted operational evidence before proposing a change. Use Write or Edit only for an approved implementation, configuration, test, runbook, or redacted receipt. Do not create, cancel, delete, retry, deploy, rotate, revoke, publish, or otherwise mutate production Runway resources without explicit operator approval.
 
 ## Output
 
-- Video generation task created
-- Task polled until completion
-- Generated video URL retrieved
-- Video downloaded to local file
+- Task ID, request fingerprint, approval, and observed state timeline
+- Terminal-state classification with cost and moderation evidence
+- Owned output object and checksum, or a redacted failure receipt
+
+Return the environment, organization alias, operation and task identifiers, API and SDK versions, model or router policy, source-contract fingerprint, task-state evidence, credit boundary, output disposition, unresolved risk, rollback state, and final decision without exposing API secrets, prompt or media contents, or temporary signed URLs.
+
+## Examples
+
+An operator approves one five-second `gen4.5` test under a fixed credit ceiling. The worker persists the task ID, observes `PENDING`, `RUNNING`, and `SUCCEEDED`, copies the video into private storage, and records its checksum without publishing the temporary provider URL.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Task `FAILED` | Content policy violation | Adjust prompt to comply with content policy |
-| `402 Insufficient credits` | No API credits | Add credits at dev.runwayml.com |
-| Timeout | Generation taking too long | Increase timeout or use shorter duration |
-| Low quality output | Prompt too vague | Add style keywords: "cinematic", "4K", "professional" |
+| Failure | Response |
+| --- | --- |
+| Task stays `THROTTLED` | Keep the task queued, observe concurrency and daily limits, and do not submit duplicates. |
+| Wait helper times out | Retrieve the saved task ID later or explicitly cancel it; timeout did not cancel the task. |
+| Task fails moderation | Do not retry the same prompt; record the safety code without exposing unsafe content and review policy. |
+
+## Validation
+
+Replay the workflow with a safe approved canary, prove task ID persistence before polling, exercise one mocked failure and timeout path, and confirm the stored output remains available after discarding the temporary URL.
 
 ## Resources
 
-- [API Getting Started](https://docs.dev.runwayml.com/guides/using-the-api/)
-- [API Reference](https://docs.dev.runwayml.com/api/)
-- [Input Parameters](https://docs.dev.runwayml.com/assets/inputs/)
-
-## Next Steps
-
-Advanced text-to-video: `runway-core-workflow-a`
+- [First-party source notes](references/official-docs.md)
+- [Runway agent context](https://docs.dev.runwayml.com/ai-context.md)
+- [API reference](https://docs.dev.runwayml.com/api.md)
+- [Models](https://docs.dev.runwayml.com/guides/models.md)
+- [Usage tiers](https://docs.dev.runwayml.com/usage/tiers.md)
+- [Pricing](https://docs.dev.runwayml.com/guides/pricing.md)
+- [Production checklist](https://docs.dev.runwayml.com/guides/go-live.md)

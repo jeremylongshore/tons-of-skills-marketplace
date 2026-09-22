@@ -46,22 +46,29 @@ tests/e2e/
 
 ### All E2E Tests
 ```bash
-pnpm test:e2e
+pnpm --dir tests/e2e test
 ```
 
 ### Specific Test Suite
 ```bash
-pnpm test:e2e -- scenarios/plugin-install.test.ts
+pnpm --dir tests/e2e exec vitest run scenarios/plugin-install.test.ts
 ```
 
 ### Watch Mode (Development)
 ```bash
-pnpm test:e2e -- --watch
+pnpm --dir tests/e2e run test:watch
 ```
 
 ### Coverage Report
 ```bash
-pnpm test:e2e -- --coverage
+pnpm --dir tests/e2e run test:coverage
+```
+
+### Validate the Marketplace Skill Fixture
+
+```bash
+python3 scripts/validate-skills-schema.py --marketplace \
+  tests/e2e/fixtures/test-plugin/skills/test-skill/SKILL.md
 ```
 
 ## Test Scenarios
@@ -143,7 +150,7 @@ test-plugin/
 ├── README.md                 # Basic documentation
 ├── skills/
 │   └── test-skill/
-│       └── SKILL.md          # 2025-compliant skill with triggers
+│       └── SKILL.md          # Current marketplace skill with triggers
 └── commands/
     └── test-command.md       # Simple slash command
 ```
@@ -167,11 +174,14 @@ test-plugin/
 ---
 name: test-skill
 description: |
-  Test skill for E2E validation. Trigger with "run test skill" or "execute test".
-allowed-tools: Read, Write, Bash
+  Test skill for E2E validation. Use when testing skill activation and tool
+  permissions. Trigger with "run test skill" or "execute test".
+allowed-tools: Read, Write, Bash(pnpm:*)
 version: 1.0.0
 license: MIT
 author: Test Author <test@example.com>
+compatibility: Works with model-agnostic agents that support Agent Skills frontmatter.
+tags: [testing, e2e]
 ---
 ```
 
@@ -288,19 +298,19 @@ Tests must be:
 ### Running Single Test
 
 ```bash
-pnpm test:e2e -- scenarios/plugin-install.test.ts -t "should install plugin"
+pnpm --dir tests/e2e exec vitest run scenarios/plugin-install.test.ts -t "should install plugin"
 ```
 
 ### Verbose Output
 
 ```bash
-E2E_DEBUG=true pnpm test:e2e
+E2E_DEBUG=true pnpm --dir tests/e2e test
 ```
 
 ### Keep Test Artifacts
 
 ```bash
-E2E_KEEP_ARTIFACTS=true pnpm test:e2e
+E2E_KEEP_ARTIFACTS=true pnpm --dir tests/e2e test
 # Check /tmp/claude-e2e-test-* directories
 ```
 
@@ -321,19 +331,24 @@ it('should debug environment', async () => {
 
 ## CI/CD Integration
 
-Tests run automatically in GitHub Actions:
+Tests run automatically in `.github/workflows/standalone-e2e.yml`:
 
 ```yaml
-name: E2E Tests
+name: Standalone E2E Harness
 on: [push, pull_request]
 jobs:
   e2e:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-      - run: pnpm install
-      - run: pnpm test:e2e
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: pnpm install --ignore-workspace --frozen-lockfile --ignore-scripts
+        working-directory: tests/e2e
+      - run: pnpm test
+        working-directory: tests/e2e
 ```
 
 ## Contributing

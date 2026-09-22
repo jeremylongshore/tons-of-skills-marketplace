@@ -1,6 +1,6 @@
 {
   "name": "a2a-client",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Security-hardened Agent2Agent (A2A) client as an MCP server — discover cards, send and stream messages, and use confirmation-gated task control",
   "author": {
     "name": "Jeremy Longshore",

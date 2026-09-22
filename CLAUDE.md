@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Tons of Skills — Claude Code plugins marketplace. Live at https://tonsofskills.com
 
-**Runtime:** Node `>=20.0.0`, pnpm `>=9.15.9`. Node 18 causes silent workspace-resolution failures.
+**Runtime:** Node `>=22.12.0`, pnpm `>=9.15.9`. The Astro marketplace build requires Node 22.12+. Node 18 causes silent workspace-resolution failures. Package-local lower floors remain valid only for independently run packages that do not enter the repository build or verification path; see `000-docs/814-DR-STND-node-runtime-contract.md`.
 
 **Package manager:** `pnpm` everywhere **except** `marketplace/` which uses `npm` (CI-enforced).
 
@@ -57,13 +57,14 @@ cd marketplace/ && npm run dev    # localhost:4321
 cd marketplace/ && npm run build
 cd marketplace/ && npx playwright test
 
-# Single test
-cd packages/cli && pnpm test -- --grep "pattern"
+# Single test (vitest has no --grep; filter by test name with -t, or pass a file path)
+cd packages/cli && pnpm exec vitest run -t "pattern"
+node --test scripts/<name>.test.mjs                            # a root script's suite
 
 # JRig behavioral eval — the published @intentsolutions/jrig-cli (bin `j-rig`),
 # pinned as a root devDep. Invoke via `pnpm exec j-rig` so it resolves the
 # repo's pinned version (node_modules/.bin/j-rig), NOT a global shim.
-pnpm exec j-rig --version         # → 0.1.2 (the real 7-layer CLI)
+pnpm exec j-rig --version         # → 0.2.0 (the real 7-layer CLI)
 pnpm exec j-rig check <skill-dir> # Tier 3A: deterministic (~seconds, free, no API key, no DB)
 
 # Real behavioral eval (opt-in, ~$2-5/skill) — needs the native better-sqlite3
@@ -132,7 +133,7 @@ Performance budgets (CI-enforced; authority is `scripts/check-performance.mjs` `
 
 Adopted model: **mirror by default · upstream improvements · never clobber.** Decision record: `000-docs/694-AT-DECR-external-sync-mirror-by-default-model.md`; pipeline audit + hardening: `000-docs/691-AT-AUDT-sync-external-pipeline-audit-and-hardening.md`.
 
-**Scale first — external is a minority augment, not the core.** 443 entries in `marketplace.extended.json` (the `measure:e1` catalog-entry cohort is measured separately — regenerate with `pnpm run measure:e1` rather than quoting a number from here), but only 36 are externally synced (30 third-party sources + 6 of Jeremy's own repos, per `sources.yaml`; the mirror plugins are the 36 dirs carrying a `.source.json`). The overwhelming majority is in-repo Intent Solutions work. The sync is a curated side-channel, not the marketplace — treat external contributors as a respected minority augment, never the center of gravity.
+**Scale first — external is a minority augment, not the core.** 437 entries in `marketplace.extended.json` (the `measure:e1` catalog-entry cohort is measured separately — regenerate with `pnpm run measure:e1` rather than quoting a number from here), but only 37 are externally synced (31 third-party sources + 6 of Jeremy's own repos, per `sources.yaml`; the mirror plugins are the 37 dirs carrying a `.source.json`). The overwhelming majority is in-repo Intent Solutions work. The sync is a curated side-channel, not the marketplace — treat external contributors as a respected minority augment, never the center of gravity.
 
 **How sync works.** `sources.yaml` registers each external source. `.github/workflows/sync-external.yml` runs weekly (Mondays 06:00 UTC) and on demand (`workflow_dispatch` / `repository_dispatch`), invoking `scripts/sync-external.mjs` to mirror a source's files into `plugins/` and open an automated PR. A human reviews every auto-PR — historically ~1 in 10 sync PRs merges. The contributor's own repo is the source of truth; we do NOT locally edit a pure-mirror plugin.
 
@@ -329,7 +330,7 @@ python3 freshie/scripts/batch-remediate.py --dry-run && python3 freshie/scripts/
 
 **skills.sh curated mirror** (`freshie/scripts/promote-to-curated.py`): rebuilds
 `skills/.curated/` as a generated mirror of the repo's best **A+B** plugin skills (our own;
-external `.source.json` mirrors excluded — 2,392 promoted dirs at this writing; the promote gate message
+external `.source.json` mirrors excluded — 2,628 promoted dirs at this writing; the promote gate message
 is the live count) so skills.sh can index them — it only
 crawls root `skills/` / `.curated/`, never `plugins/**/skills/`. The plugin skill stays the
 source of truth; the mirror is wipe-and-rebuilt from the tracked `grades.csv` (not the

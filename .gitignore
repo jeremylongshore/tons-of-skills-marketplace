@@ -188,6 +188,7 @@ marketplace/src/data/cowork-manifest.json
 node_modules/
 npm-debug.log
 package-lock.json
+!marketplace/package-lock.json
 !plugins/mcp/governed-second-brain/plugin-runtime/package-lock.json
 playwright-report/
 playwright/.cache/

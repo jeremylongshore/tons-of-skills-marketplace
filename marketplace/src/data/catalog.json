@@ -7392,7 +7392,7 @@
       "name": "mattyp-changelog",
       "displayName": "mattyp changelog",
       "description": "Automates changelog generation from git history with config validation and quality scoring. Use when publishing weekly updates, release notes, or PR summaries. Trigger with /changelog-weekly, /changelog-custom, or /changelog-validate.",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "category": "devops",
       "keywords": [
         "changelog",
@@ -10137,14 +10137,17 @@
       "slug": "runway-pack",
       "name": "runway-pack",
       "displayName": "runway pack",
-      "description": "Claude Code skill pack for Runway (18 skills)",
-      "version": "1.4.0",
+      "description": "Operator-grade Runway Dev workflows for secure, model-aware, asynchronous media generation (18 skills)",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "runway",
         "saas",
         "sdk",
-        "integration"
+        "integration",
+        "video-generation",
+        "task-lifecycle",
+        "media-governance"
       ],
       "hasSkills": true,
       "skillCount": 18,
@@ -10539,7 +10542,7 @@
       "name": "a2a-client",
       "displayName": "a2a client",
       "description": "Security-hardened MCP client for Agent2Agent card discovery, messaging, streaming, and confirmation-gated task control",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "category": "mcp",
       "keywords": [
         "a2a",

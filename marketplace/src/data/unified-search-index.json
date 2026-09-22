@@ -1096,6 +1096,7 @@
       "mcp",
       "mcp-directories",
       "media",
+      "media-governance",
       "media-production",
       "meeting-data",
       "meeting-intelligence",
@@ -1545,6 +1546,7 @@
       "tags",
       "takeoff",
       "task-breakdown",
+      "task-lifecycle",
       "task-management",
       "task-router",
       "task-tracking",
@@ -10125,7 +10127,7 @@
         "name": "Mattyp"
       },
       "authorType": "community",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -13249,13 +13251,16 @@
       "slug": "runway-pack",
       "name": "runway-pack",
       "displayName": "runway pack",
-      "description": "Claude Code skill pack for Runway (18 skills)",
+      "description": "Operator-grade Runway Dev workflows for secure, model-aware, asynchronous media generation (18 skills)",
       "category": "saas-packs",
       "keywords": [
         "runway",
         "saas",
         "sdk",
-        "integration"
+        "integration",
+        "video-generation",
+        "task-lifecycle",
+        "media-governance"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -13263,15 +13268,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.4.0",
+      "version": "2.0.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 18,
-      "verificationScore": 86,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "runway pack claude code skill pack for runway (18 skills) saas-packs runway saas sdk integration"
+      "verificationScore": 95,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "runway pack operator-grade runway dev workflows for secure, model-aware, asynchronous media generation (18 skills) saas-packs runway saas sdk integration video-generation task-lifecycle media-governance"
     },
     {
       "type": "plugin",
@@ -13724,7 +13729,7 @@
         "email": "jeremy@intentsolutions.io"
       },
       "authorType": "official",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -24949,7 +24954,7 @@
         "Bash(date:*)"
       ],
       "compatibleWith": [],
-      "version": "0.3.0",
+      "version": "0.4.0",
       "parentPlugin": {
         "name": "mattyp-changelog",
         "category": "devops"
@@ -67568,432 +67573,378 @@
       "id": "runway-ci-integration",
       "slug": "runway-ci-integration",
       "name": "runway-ci-integration",
-      "description": "Runway ci integration — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway ci integration\", \"runway-ci-integration\", \"AI video generation\".",
+      "description": "Gate Runway client changes in CI with offline schema fixtures and a separately approved canary lane. Use when preventing API drift without paying on every commit. Trigger with: \"test Runway in CI\", \"Runway contract gate\", \"Runway canary workflow\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-ci-integration runway ci integration — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway ci integration\", \"runway-ci-integration\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-ci-integration gate runway client changes in ci with offline schema fixtures and a separately approved canary lane. use when preventing api drift without paying on every commit. trigger with: \"test runway in ci\", \"runway contract gate\", \"runway canary workflow\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "runway-common-errors",
       "slug": "runway-common-errors",
       "name": "runway-common-errors",
-      "description": "Runway common errors — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway common errors\", \"runway-common-errors\", \"AI video generation\".",
+      "description": "Diagnose Runway transport errors, queued states, moderation failures, and malformed model requests without duplicate generation. Use when a task or API call fails. Trigger with: \"debug Runway error\", \"Runway task failed\", \"Runway 429\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-common-errors runway common errors — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway common errors\", \"runway-common-errors\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-common-errors diagnose runway transport errors, queued states, moderation failures, and malformed model requests without duplicate generation. use when a task or api call fails. trigger with: \"debug runway error\", \"runway task failed\", \"runway 429\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "runway-core-workflow-a",
       "slug": "runway-core-workflow-a",
       "name": "runway-core-workflow-a",
-      "description": "Runway core workflow a — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway core workflow a\", \"runway-core-workflow-a\", \"AI video generation\".",
+      "description": "Design a Runway text-to-video job from the current model-discriminated API contract and preserve its asynchronous evidence. Use when implementing direct model generation. Trigger with: \"Runway text to video\", \"choose Runway video model\", \"submit Runway generation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-core-workflow-a runway core workflow a — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway core workflow a\", \"runway-core-workflow-a\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-core-workflow-a design a runway text-to-video job from the current model-discriminated api contract and preserve its asynchronous evidence. use when implementing direct model generation. trigger with: \"runway text to video\", \"choose runway video model\", \"submit runway generation\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "runway-core-workflow-b",
       "slug": "runway-core-workflow-b",
       "name": "runway-core-workflow-b",
-      "description": "Runway core workflow b — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway core workflow b\", \"runway-core-workflow-b\", \"AI video generation\".",
+      "description": "Prepare, submit, and preserve Runway image-to-video or video-to-video work with validated media provenance. Use when a generation begins from an asset. Trigger with: \"Runway image to video\", \"Runway video transformation\", \"upload media to Runway\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-core-workflow-b runway core workflow b — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway core workflow b\", \"runway-core-workflow-b\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-core-workflow-b prepare, submit, and preserve runway image-to-video or video-to-video work with validated media provenance. use when a generation begins from an asset. trigger with: \"runway image to video\", \"runway video transformation\", \"upload media to runway\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "runway-cost-tuning",
       "slug": "runway-cost-tuning",
       "name": "runway-cost-tuning",
-      "description": "Runway cost tuning — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway cost tuning\", \"runway-cost-tuning\", \"AI video generation\".",
+      "description": "Reduce Runway credit waste through current pricing, duplicate prevention, model policy, and measured usage without publishing stale price tables. Use when reviewing spend. Trigger with: \"optimize Runway cost\", \"Runway credit usage\", \"reduce Runway spend\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-cost-tuning runway cost tuning — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway cost tuning\", \"runway-cost-tuning\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-cost-tuning reduce runway credit waste through current pricing, duplicate prevention, model policy, and measured usage without publishing stale price tables. use when reviewing spend. trigger with: \"optimize runway cost\", \"runway credit usage\", \"reduce runway spend\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "runway-debug-bundle",
       "slug": "runway-debug-bundle",
       "name": "runway-debug-bundle",
-      "description": "Runway debug bundle — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway debug bundle\", \"runway-debug-bundle\", \"AI video generation\".",
+      "description": "Assemble a support-ready Runway failure bundle with task, contract, timing, and media metadata while excluding secrets and signed URLs. Use when escalating a reproducible issue. Trigger with: \"Runway debug bundle\", \"collect Runway evidence\", \"escalate Runway task\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-debug-bundle runway debug bundle — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway debug bundle\", \"runway-debug-bundle\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-debug-bundle assemble a support-ready runway failure bundle with task, contract, timing, and media metadata while excluding secrets and signed urls. use when escalating a reproducible issue. trigger with: \"runway debug bundle\", \"collect runway evidence\", \"escalate runway task\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "runway-deploy-integration",
       "slug": "runway-deploy-integration",
       "name": "runway-deploy-integration",
-      "description": "Runway deploy integration — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway deploy integration\", \"runway-deploy-integration\", \"AI video generation\".",
+      "description": "Deploy a restart-safe Runway generation service with durable tasks, bounded polling, cancellation, and output ownership. Use when moving an integration to production. Trigger with: \"deploy Runway worker\", \"productionize Runway API\", \"Runway job architecture\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-deploy-integration runway deploy integration — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway deploy integration\", \"runway-deploy-integration\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-deploy-integration deploy a restart-safe runway generation service with durable tasks, bounded polling, cancellation, and output ownership. use when moving an integration to production. trigger with: \"deploy runway worker\", \"productionize runway api\", \"runway job architecture\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "runway-hello-world",
       "slug": "runway-hello-world",
       "name": "runway-hello-world",
-      "description": "Runway hello world — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway hello world\", \"runway-hello-world\", \"AI video generation\".",
+      "description": "Create, observe, and preserve one approved Runway text-to-video task using the current per-model contract. Use when proving the first billable generation path. Trigger with: \"Runway hello world\", \"first Runway video\", \"smoke test Runway generation\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-hello-world runway hello world — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway hello world\", \"runway-hello-world\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-hello-world create, observe, and preserve one approved runway text-to-video task using the current per-model contract. use when proving the first billable generation path. trigger with: \"runway hello world\", \"first runway video\", \"smoke test runway generation\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "runway-install-auth",
       "slug": "runway-install-auth",
       "name": "runway-install-auth",
-      "description": "Runway install auth — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway install auth\", \"runway-install-auth\", \"AI video generation\".",
+      "description": "Install and verify a server-side Runway Dev client without spending generation credits or exposing an organization key. Use when bootstrapping or rotating an integration. Trigger with: \"configure Runway API\", \"install Runway SDK\", \"verify Runway authentication\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-install-auth runway install auth — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway install auth\", \"runway-install-auth\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-install-auth install and verify a server-side runway dev client without spending generation credits or exposing an organization key. use when bootstrapping or rotating an integration. trigger with: \"configure runway api\", \"install runway sdk\", \"verify runway authentication\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "runway-local-dev-loop",
       "slug": "runway-local-dev-loop",
       "name": "runway-local-dev-loop",
-      "description": "Runway local dev loop — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway local dev loop\", \"runway-local-dev-loop\", \"AI video generation\".",
+      "description": "Build and test a Runway integration locally with recorded contracts, deterministic task states, and an opt-in paid canary. Use when shortening iteration without duplicate spend. Trigger with: \"develop Runway locally\", \"mock Runway tasks\", \"Runway dev loop\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-local-dev-loop runway local dev loop — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway local dev loop\", \"runway-local-dev-loop\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-local-dev-loop build and test a runway integration locally with recorded contracts, deterministic task states, and an opt-in paid canary. use when shortening iteration without duplicate spend. trigger with: \"develop runway locally\", \"mock runway tasks\", \"runway dev loop\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "runway-performance-tuning",
       "slug": "runway-performance-tuning",
       "name": "runway-performance-tuning",
-      "description": "Runway performance tuning — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway performance tuning\", \"runway-performance-tuning\", \"AI video generation\".",
+      "description": "Analyze and improve Runway submission, queue, generation, download, and storage latency without unsafe polling or duplicate tasks. Use when an integration is slow. Trigger with: \"speed up Runway\", \"Runway latency\", \"tune Runway performance\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-performance-tuning runway performance tuning — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway performance tuning\", \"runway-performance-tuning\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-performance-tuning analyze and improve runway submission, queue, generation, download, and storage latency without unsafe polling or duplicate tasks. use when an integration is slow. trigger with: \"speed up runway\", \"runway latency\", \"tune runway performance\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "runway-prod-checklist",
       "slug": "runway-prod-checklist",
       "name": "runway-prod-checklist",
-      "description": "Runway prod checklist — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway prod checklist\", \"runway-prod-checklist\", \"AI video generation\".",
+      "description": "Approve or reject a Runway launch using contract, billing, capacity, moderation, storage, observability, and rollback evidence. Use when preparing go-live. Trigger with: \"Runway production checklist\", \"launch Runway integration\", \"Runway readiness review\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-prod-checklist runway prod checklist — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway prod checklist\", \"runway-prod-checklist\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-prod-checklist approve or reject a runway launch using contract, billing, capacity, moderation, storage, observability, and rollback evidence. use when preparing go-live. trigger with: \"runway production checklist\", \"launch runway integration\", \"runway readiness review\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "runway-rate-limits",
       "slug": "runway-rate-limits",
       "name": "runway-rate-limits",
-      "description": "Runway rate limits — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway rate limits\", \"runway-rate-limits\", \"AI video generation\".",
+      "description": "Analyze and control Runway generation concurrency, rolling daily quota, spend limits, and queued tasks without inventing an RPM cap. Use when production traffic is throttled or scaling. Trigger with: \"Runway rate limits\", \"Runway THROTTLED tasks\", \"Runway concurrency\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-rate-limits runway rate limits — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway rate limits\", \"runway-rate-limits\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-rate-limits analyze and control runway generation concurrency, rolling daily quota, spend limits, and queued tasks without inventing an rpm cap. use when production traffic is throttled or scaling. trigger with: \"runway rate limits\", \"runway throttled tasks\", \"runway concurrency\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "runway-reference-architecture",
       "slug": "runway-reference-architecture",
       "name": "runway-reference-architecture",
-      "description": "Runway reference architecture — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway reference architecture\", \"runway-reference-architecture\", \"AI video generation\".",
+      "description": "Design a Runway integration that separates admission, provider execution, reconciliation, media storage, and governance. Use when reviewing system boundaries. Trigger with: \"Runway architecture\", \"design Runway service\", \"Runway production topology\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-reference-architecture runway reference architecture — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway reference architecture\", \"runway-reference-architecture\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-reference-architecture design a runway integration that separates admission, provider execution, reconciliation, media storage, and governance. use when reviewing system boundaries. trigger with: \"runway architecture\", \"design runway service\", \"runway production topology\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "runway-sdk-patterns",
       "slug": "runway-sdk-patterns",
       "name": "runway-sdk-patterns",
-      "description": "Runway sdk patterns — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway sdk patterns\", \"runway-sdk-patterns\", \"AI video generation\".",
+      "description": "Implement a typed Runway SDK boundary that survives timeouts, restarts, throttling, and task failures. Use when consolidating production client behavior. Trigger with: \"Runway SDK pattern\", \"wrap Runway client\", \"recover Runway task\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-sdk-patterns runway sdk patterns — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway sdk patterns\", \"runway-sdk-patterns\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-sdk-patterns implement a typed runway sdk boundary that survives timeouts, restarts, throttling, and task failures. use when consolidating production client behavior. trigger with: \"runway sdk pattern\", \"wrap runway client\", \"recover runway task\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "runway-security-basics",
       "slug": "runway-security-basics",
       "name": "runway-security-basics",
-      "description": "Runway security basics — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway security basics\", \"runway-security-basics\", \"AI video generation\".",
+      "description": "Harden Runway keys, organization access, prompts, media, generated outputs, and support evidence. Use when threat-modeling an integration. Trigger with: \"secure Runway API\", \"Runway key rotation\", \"Runway media privacy\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-security-basics runway security basics — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway security basics\", \"runway-security-basics\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-security-basics harden runway keys, organization access, prompts, media, generated outputs, and support evidence. use when threat-modeling an integration. trigger with: \"secure runway api\", \"runway key rotation\", \"runway media privacy\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "runway-upgrade-migration",
       "slug": "runway-upgrade-migration",
       "name": "runway-upgrade-migration",
-      "description": "Runway upgrade migration — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway upgrade migration\", \"runway-upgrade-migration\", \"AI video generation\".",
+      "description": "Migrate Runway SDK, API, model, or request contracts through inventory, compatibility fixtures, canaries, and reversible rollout. Use when removing retired behavior. Trigger with: \"upgrade Runway SDK\", \"migrate gen3a_turbo\", \"Runway API migration\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-upgrade-migration runway upgrade migration — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway upgrade migration\", \"runway-upgrade-migration\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-upgrade-migration migrate runway sdk, api, model, or request contracts through inventory, compatibility fixtures, canaries, and reversible rollout. use when removing retired behavior. trigger with: \"upgrade runway sdk\", \"migrate gen3a_turbo\", \"runway api migration\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
       "id": "runway-webhooks-events",
       "slug": "runway-webhooks-events",
       "name": "runway-webhooks-events",
-      "description": "Runway webhooks events — AI video generation and creative AI platform. Use when working with Runway for video generation, image editing, or creative AI. Trigger with phrases like \"runway webhooks events\", \"runway-webhooks-events\", \"AI video generation\".",
+      "description": "Convert authoritative Runway task polling into durable internal events or signed customer callbacks without claiming native provider webhooks. Use when downstream systems need completion notifications. Trigger with: \"Runway task events\", \"Runway completion webhook\", \"notify when Runway finishes\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Grep",
         "Write",
-        "Edit",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(curl:*)",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.4.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "runway-pack",
         "category": "saas-packs"
       },
-      "searchText": "runway-webhooks-events runway webhooks events — ai video generation and creative ai platform. use when working with runway for video generation, image editing, or creative ai. trigger with phrases like \"runway webhooks events\", \"runway-webhooks-events\", \"ai video generation\". saas-packs read write edit bash(pip:*) bash(npm:*) bash(curl:*) grep "
+      "searchText": "runway-webhooks-events convert authoritative runway task polling into durable internal events or signed customer callbacks without claiming native provider webhooks. use when downstream systems need completion notifications. trigger with: \"runway task events\", \"runway completion webhook\", \"notify when runway finishes\". saas-packs read grep write edit "
     },
     {
       "type": "skill",
