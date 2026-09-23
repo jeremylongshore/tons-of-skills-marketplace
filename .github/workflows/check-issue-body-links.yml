@@ -71,3 +71,21 @@ jobs:
             echo ""
             cat issue-body-link-report.md
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Alert Slack on audit failure or broken references
+        if: always() && !cancelled() && (failure() || steps.audit.outputs.audit_exit != '0')
+        env:
+          WEBHOOK: ${{ secrets.SLACK_OPERATION_HIRED_WEBHOOK_URL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ALERT_TEXT: 'check-issue-body-links.yml failed or found broken references; inspect the report.'
+        run: |
+          set -euo pipefail
+          if [ -z "$WEBHOOK" ]; then
+            echo "::error::Slack alert cannot be delivered: webhook is not configured."
+            exit 1
+          fi
+          PAYLOAD=$(jq -n --arg text "$ALERT_TEXT <$RUN_URL|View run>" '{text: $text}')
+          curl --silent --show-error --fail --connect-timeout 10 --max-time 30 \
+            --header 'Content-Type: application/json' --data "$PAYLOAD" \
+            -- "$WEBHOOK" > /dev/null
+          echo "Slack alert delivered."

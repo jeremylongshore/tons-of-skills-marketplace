@@ -184,3 +184,21 @@ jobs:
           else
             echo "✓ No stats changes; nothing to do." >> "$GITHUB_STEP_SUMMARY"
           fi
+
+      - name: Alert Slack on failure
+        if: failure()
+        env:
+          WEBHOOK: ${{ secrets.SLACK_OPERATION_HIRED_WEBHOOK_URL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ALERT_TEXT: 'update-npm-stats.yml failed; daily statistics did not complete.'
+        run: |
+          set -euo pipefail
+          if [ -z "$WEBHOOK" ]; then
+            echo "::error::Slack alert cannot be delivered: webhook is not configured."
+            exit 1
+          fi
+          PAYLOAD=$(jq -n --arg text "$ALERT_TEXT <$RUN_URL|View run>" '{text: $text}')
+          curl --silent --show-error --fail --connect-timeout 10 --max-time 30 \
+            --header 'Content-Type: application/json' --data "$PAYLOAD" \
+            -- "$WEBHOOK" > /dev/null
+          echo "Slack alert delivered."

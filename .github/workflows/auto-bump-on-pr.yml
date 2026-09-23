@@ -111,7 +111,37 @@ jobs:
             echo "count=$COUNT" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Install pinned generator dependencies
+        if: steps.bump.outputs.changed == 'true'
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile --filter "claude-code-plugins-monorepo" --ignore-scripts
+
+      - name: Prepare Python for canonical curated grading
+        if: steps.bump.outputs.changed == 'true'
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install curated grader YAML dependency
+        if: steps.bump.outputs.changed == 'true'
+        run: python3 -m pip install 'PyYAML==6.0.1'
+
+      - name: Regenerate release projections
+        if: steps.bump.outputs.changed == 'true'
+        run: node scripts/regenerate-after-bump.mjs --stage
+
+      - name: Validate all staged release projections
+        if: steps.bump.outputs.changed == 'true'
+        run: |
+          git add -A
+          node scripts/regenerate-after-bump.mjs --check
+          pnpm run measure:e1
+          git add 000-docs/742-RA-DATA-epic-1-scorecard.json
+          node scripts/measure-epic-1.mjs --check
+
       - name: Commit + push to PR branch
+        id: push
         if: steps.bump.outputs.changed == 'true'
         # `--no-verify` skips local pre-commit hooks (husky / lint-staged)
         # which can OOM on prettier across the staged set in CI. Same
@@ -140,8 +170,10 @@ jobs:
         run: |
           echo "## 🔢 Auto-bump on PR" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          if [ "${{ steps.bump.outputs.changed }}" = "true" ]; then
+          if [ "${{ steps.push.outcome }}" = "success" ]; then
             echo "✅ Bumped ${{ steps.bump.outputs.count }} plugin(s); commit pushed to \`$HEAD_REF\`." >> "$GITHUB_STEP_SUMMARY"
+          elif [ "${{ steps.bump.outputs.changed }}" = "true" ]; then
+            echo "❌ Bump prepared but regeneration, validation, or push failed; no successful publication claimed." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "✓ No plugin source changes that warrant a patch bump." >> "$GITHUB_STEP_SUMMARY"
           fi

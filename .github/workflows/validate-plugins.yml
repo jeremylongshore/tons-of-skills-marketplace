@@ -141,6 +141,12 @@ jobs:
       - name: Verify the SaaS tutorial-lattice denominator
         run: pnpm run validate:saas-lattice
 
+      - name: Verify auto-bump projection orchestration
+        run: node --test scripts/auto-bump-changed-plugins.test.mjs scripts/regenerate-after-bump.test.mjs
+
+      - name: Verify scheduled-workflow alert delivery contract
+        run: node --test scripts/scheduled-workflow-alerts.test.mjs
+
       - name: Keep quarantined external mirrors off publishable grade surfaces
         run: pnpm run validate:mirror-quarantine
 

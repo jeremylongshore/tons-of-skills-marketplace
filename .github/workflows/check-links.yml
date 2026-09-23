@@ -110,3 +110,26 @@ jobs:
             ./lychee-marketplace-report.md
           if-no-files-found: ignore
           retention-days: 30
+
+      # Lychee deliberately exits successfully on findings. Inspect its output
+      # too; never send secrets or notifications from a contributor PR run.
+      - name: Alert Slack on scheduled failure or broken links
+        if: >-
+          always() && !cancelled() && github.event_name != 'pull_request' &&
+          (failure() || steps.lychee_repo.outputs.exit_code != '0' ||
+          steps.lychee_marketplace.outputs.exit_code != '0')
+        env:
+          WEBHOOK: ${{ secrets.SLACK_OPERATION_HIRED_WEBHOOK_URL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ALERT_TEXT: 'check-links.yml failed or found broken links; inspect the report.'
+        run: |
+          set -euo pipefail
+          if [ -z "$WEBHOOK" ]; then
+            echo "::error::Slack alert cannot be delivered: webhook is not configured."
+            exit 1
+          fi
+          PAYLOAD=$(jq -n --arg text "$ALERT_TEXT <$RUN_URL|View run>" '{text: $text}')
+          curl --silent --show-error --fail --connect-timeout 10 --max-time 30 \
+            --header 'Content-Type: application/json' --data "$PAYLOAD" \
+            -- "$WEBHOOK" > /dev/null
+          echo "Slack alert delivered."
