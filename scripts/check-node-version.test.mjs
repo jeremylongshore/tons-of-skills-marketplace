@@ -84,4 +84,9 @@ test('the standalone CLI retains its separate compatibility floor and matrix', (
   const workflow = readFileSync(join(repoRoot, '.github/workflows/cli-test.yml'), 'utf8');
   assert.equal(cli.engines.node, '>=18.0.0');
   assert.match(workflow, /node-version: \[18, 20, 22\]/);
+  const installation = readFileSync(
+    join(repoRoot, 'marketplace/src/content/docs/getting-started/installation.md'),
+    'utf8',
+  );
+  assert.match(installation, /`ccpi` CLI retains its separate Node\.js 18\+ compatibility floor/);
 });
