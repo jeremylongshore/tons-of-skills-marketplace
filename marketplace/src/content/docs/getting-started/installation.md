@@ -26,21 +26,21 @@ This guide walks you through every step required to go from a bare terminal to a
 
 Before you begin, confirm that the following are in place.
 
-### Node.js 18 or later
+### Node.js 22.12 or later (recommended)
 
-Claude Code and its plugin tooling require Node.js 18+. Check your version:
+Use Node.js 22.12 or later for the marketplace tooling described here. Repository development and website builds require this minimum. The independently installed `ccpi` CLI retains its separate Node.js 18+ compatibility floor; that does not make Node.js 18 suitable for building this repository. Check your version:
 
 ```bash
 node --version
-# Expected output: v18.x.x or higher (v20+ recommended)
+# Expected output: v22.12.0 or higher
 ```
 
 If you need to install or upgrade Node.js, use [nvm](https://github.com/nvm-sh/nvm) (macOS / Linux) or download the LTS installer from [nodejs.org](https://nodejs.org).
 
 ```bash
 # Using nvm (recommended)
-nvm install 20
-nvm use 20
+nvm install 22
+nvm use 22
 ```
 
 ### npm 9 or later

@@ -65,3 +65,23 @@ test('full-repository workflows invoke the runtime preflight explicitly', () => 
     assert.equal(matches.length, expectedCount, `${workflow} explicit preflight count`);
   }
 });
+
+test('onboarding and repository troubleshooting recommend the repository Node line', () => {
+  for (const path of [
+    'marketplace/src/content/docs/getting-started/installation.md',
+    'marketplace/src/content/playbooks/14-troubleshooting.md',
+  ]) {
+    const source = readFileSync(join(repoRoot, path), 'utf8');
+    assert.match(source, /22\.12/, path);
+    assert.match(source, /nvm install 22/, path);
+    assert.match(source, /nvm use 22/, path);
+    assert.doesNotMatch(source, /nvm (?:install|use) (?:18|20)\b/, path);
+  }
+});
+
+test('the standalone CLI retains its separate compatibility floor and matrix', () => {
+  const cli = JSON.parse(readFileSync(join(repoRoot, 'packages/cli/package.json'), 'utf8'));
+  const workflow = readFileSync(join(repoRoot, '.github/workflows/cli-test.yml'), 'utf8');
+  assert.equal(cli.engines.node, '>=18.0.0');
+  assert.match(workflow, /node-version: \[18, 20, 22\]/);
+});

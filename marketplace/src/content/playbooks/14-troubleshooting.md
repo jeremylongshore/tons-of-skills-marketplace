@@ -240,12 +240,12 @@ npm install</code></pre>
 
 <h3>3. Check Node.js version</h3>
 
-<pre><code class="language-bash"># Requires Node.js 18+
+<pre><code class="language-bash"># Repository builds require Node.js 22.12+
 node --version
 
 # If outdated, update via nvm
-nvm install 20
-nvm use 20</code></pre>
+nvm install 22
+nvm use 22</code></pre>
 
 <h3>4. MCP plugin build issues</h3>
 
