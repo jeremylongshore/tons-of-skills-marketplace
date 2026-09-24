@@ -49,7 +49,7 @@ const faq = [
       <h2 id="different">What makes Tons of Skills different</h2>
       <div class="ruled-list">
         <div><h3>Portable skills, with verified harness claims</h3><p>SKILL.md instructions are designed as portable operating knowledge rather than model-specific marketing copy. Claude Code is the current verified-native harness, and the site does not claim equal support for another harness without corresponding integration evidence.</p></div>
-        <div><h3>Current counts come from the catalog</h3><p>This page reads {fmt(totalSkills)} skills, {fmt(totalPlugins)} plugins, and {fmt(totalAgents)} agents from the generated search index at build time. The numbers update with the catalog instead of becoming stale claims in page copy.</p></div>
+        <div><h3>Current counts come from the catalog</h3><p>This page reads {fmt(totalSkills)} marketplace-visible skills, {fmt(totalPlugins)} catalog plugins, and {fmt(totalAgents)} catalog agents from the generated search index at build time. The numbers update with the catalog instead of becoming stale claims in page copy.</p></div>
         <div><h3>Eight-field manifest discipline</h3><p>Plugin manifests use a strict eight-field schema, and CI rejects fields outside the allowlist. The smaller contract limits metadata drift and keeps the catalog compatible with its installation and indexing tools.</p></div>
         <div><h3>Source before installation</h3><p>The repository, validators, documentation, and marketplace site are publicly inspectable. Users can judge instructions, tools, permissions, and maintenance signals before introducing an artifact into a project.</p></div>
         <div><h3>Skills, agents, plugins, hooks, and MCP in one system</h3><p>The marketplace treats these artifact types as parts of an operating workflow instead of isolated prompts. That lets a team connect durable instructions to specialized agents, event hooks, and external tools while retaining a source trail.</p></div>
@@ -96,7 +96,7 @@ const faq = [
         <tr><th scope="row">Founder</th><td>Jeremy Longshore</td></tr>
         <tr><th scope="row">Headquarters</th><td>Gulf Shores, Alabama, United States</td></tr>
         <tr><th scope="row">Website</th><td><a href="https://tonsofskills.com">tonsofskills.com</a></td></tr>
-        <tr><th scope="row">Core Offering</th><td>{fmt(totalSkills)} skills, {fmt(totalPlugins)} plugins, and {fmt(totalAgents)} agents in the current build</td></tr>
+        <tr><th scope="row">Core Offering</th><td>{fmt(totalSkills)} marketplace-visible skills, {fmt(totalPlugins)} catalog plugins, and {fmt(totalAgents)} catalog agents in the current build</td></tr>
         <tr><th scope="row">Pricing</th><td>Free and open source; individual artifact licenses apply</td></tr>
         <tr><th scope="row">Contract Terms</th><td>[[CONTRACT_TERMS]]</td></tr>
         <tr><th scope="row">Services</th><td>Discovery, installation paths, documentation, validation, and public contribution workflows</td></tr>

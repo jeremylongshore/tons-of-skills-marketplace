@@ -50,6 +50,15 @@
       "status": "enforced"
     },
     {
+      "path": "marketplace/src/pages/about.astro",
+      "classification": "live-global",
+      "cohort": "marketplace-visible",
+      "expression": "fmt(totalSkills)",
+      "label": "marketplace-visible",
+      "provenance": "<CountProvenance cohort=\"marketplace-visible\" />",
+      "status": "enforced"
+    },
+    {
       "path": "marketplace/src/pages/explore.astro",
       "classification": "live-global",
       "cohort": "marketplace-visible",
