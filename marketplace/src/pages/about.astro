@@ -1,0 +1,154 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CountProvenance from '../components/CountProvenance.astro';
+import searchIndex from '../data/unified-search-index.json';
+
+const totalSkills = searchIndex.stats.totalSkills;
+const totalPlugins = searchIndex.stats.totalPlugins;
+const totalAgents = searchIndex.stats.totalAgents || 0;
+const fmt = (value: number) => value.toLocaleString('en-US');
+const title = 'About Tons of Skills';
+const description = `Tons of Skills is an open-source marketplace of ${fmt(totalSkills)} portable skills, ${fmt(totalPlugins)} plugins, and ${fmt(totalAgents)} agents for AI coding agents.`;
+
+const faq = [
+  { question: 'What is Tons of Skills, exactly?', answer: `Tons of Skills is a public marketplace for AI coding-agent extensions. Its current catalog contains ${fmt(totalSkills)} marketplace-visible skills, ${fmt(totalPlugins)} plugins, and ${fmt(totalAgents)} agents, with the source and validation machinery available on GitHub.` },
+  { question: 'Who is Tons of Skills for?', answer: 'It is for engineers and teams that want inspectable agent capabilities they can evaluate before installation. It is a poor fit for buyers who need a managed, closed-box automation service with no interest in source or operating details.' },
+  { question: 'How is this different from a prompt library?', answer: 'A prompt library usually stops at reusable text. Tons of Skills catalogs structured SKILL.md instructions plus plugins, agents, hooks, and MCP integrations, then exposes source, metadata, installation paths, and validation evidence.' },
+  { question: 'How do I start?', answer: 'Browse the catalog, inspect the source and metadata, and install the marketplace from inside Claude Code. Claude Code is the current verified-native harness; portability to other agent systems depends on the integration evidence available for that harness.' },
+  { question: 'What does it cost and are there contracts?', answer: 'The marketplace and its public source are free to browse and use. Each plugin carries its own license, so review that license before modifying or redistributing it; commercial support terms are [[CONTRACT_TERMS]].' },
+  { question: 'How does Tons of Skills relate to Intent Solutions?', answer: 'Tons of Skills is built and operated by Intent Solutions. It sits beside the company’s learning, demo, desktop-plugin, implementation-journal, and product properties as the public distribution layer for agent-native capabilities.' },
+  { question: 'Where can I inspect the evidence?', answer: 'Start with the public GitHub repository, the marketplace documentation, and the source page for any listed artifact. The catalog counts on this page are regenerated from the same build-time index used by the marketplace rather than typed into the copy.' },
+];
+---
+
+<BaseLayout title={title} description={description}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((item) => ({ '@type': 'Question', name: item.question, acceptedAnswer: { '@type': 'Answer', text: item.answer } })) })} />
+  </Fragment>
+
+  <article class="about-page">
+    <header class="about-hero">
+      <p class="eyebrow">Intent Solutions network / open-source marketplace</p>
+      <h1>About Tons of Skills</h1>
+      <p class="lead">Tons of Skills is a marketplace of plugins, agents, and portable skills that extends AI coding agents for engineers and teams building repeatable agent workflows.</p>
+      <p class="support">The catalog is public, inspectable, and validated in the open. Claude Code is the current verified-native harness; other agent systems are supported only where integration evidence exists.</p>
+      <a class="primary-action" href="/explore/">Inspect the marketplace</a>
+    </header>
+
+    <section aria-labelledby="what-we-do">
+      <h2 id="what-we-do">What Tons of Skills does</h2>
+      <div class="section-grid">
+        <div><h3>Catalogs agent-native work</h3><p>The marketplace indexes {fmt(totalSkills)} marketplace-visible skills across {fmt(totalPlugins)} plugins, plus {fmt(totalAgents)} agent definitions. Search and category filters help practitioners find an artifact by the job it performs instead of scrolling through repository lists.</p></div>
+        <div><h3>Makes source inspectable</h3><p>Each listing connects the install path to source, metadata, and related documentation. A buyer or maintainer can inspect what an artifact tells the agent to do before adding it to a working environment.</p></div>
+        <div><h3>Validates marketplace submissions</h3><p>The repository applies schema, frontmatter, content, and secret checks through its public CI lanes. That produces reviewable evidence about conformance while leaving runtime suitability for each team to evaluate in its own environment.</p></div>
+        <div><h3>Documents the operating model</h3><p>Guides explain skills, plugins, agents, hooks, MCP servers, installation, and contribution. Teams can use those references to adopt an existing capability or build one that fits the same inspectable structure.</p></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="different">
+      <h2 id="different">What makes Tons of Skills different</h2>
+      <div class="ruled-list">
+        <div><h3>Portable skills, with verified harness claims</h3><p>SKILL.md instructions are designed as portable operating knowledge rather than model-specific marketing copy. Claude Code is the current verified-native harness, and the site does not claim equal support for another harness without corresponding integration evidence.</p></div>
+        <div><h3>Current counts come from the catalog</h3><p>This page reads {fmt(totalSkills)} marketplace-visible skills, {fmt(totalPlugins)} catalog plugins, and {fmt(totalAgents)} catalog agents from the generated search index at build time. The numbers update with the catalog instead of becoming stale claims in page copy.</p></div>
+        <div><h3>Eight-field manifest discipline</h3><p>Plugin manifests use a strict eight-field schema, and CI rejects fields outside the allowlist. The smaller contract limits metadata drift and keeps the catalog compatible with its installation and indexing tools.</p></div>
+        <div><h3>Source before installation</h3><p>The repository, validators, documentation, and marketplace site are publicly inspectable. Users can judge instructions, tools, permissions, and maintenance signals before introducing an artifact into a project.</p></div>
+        <div><h3>Skills, agents, plugins, hooks, and MCP in one system</h3><p>The marketplace treats these artifact types as parts of an operating workflow instead of isolated prompts. That lets a team connect durable instructions to specialized agents, event hooks, and external tools while retaining a source trail.</p></div>
+      </div>
+      <CountProvenance cohort="marketplace-visible" />
+    </section>
+
+    <section aria-labelledby="who-uses">
+      <h2 id="who-uses">Who uses Tons of Skills</h2>
+      <ul class="audience-list">
+        <li>Engineers extending Claude Code with inspectable plugins, skills, agents, hooks, or MCP servers.</li>
+        <li>Platform teams standardizing repeatable agent workflows across multiple repositories.</li>
+        <li>AI coding-agent users who want to inspect source and permissions before installation.</li>
+        <li>Plugin maintainers who need a public distribution path with schema and CI checks.</li>
+        <li>Teams evaluating portable SKILL.md instructions for more than one model or agent harness.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="team">
+      <h2 id="team">The team behind Tons of Skills</h2>
+      <h3>Jeremy Longshore, founder</h3>
+      <p>Jeremy Longshore founded Intent Solutions in Gulf Shores, Alabama, and built Tons of Skills from his work on production AI systems and the Claude Code ecosystem. He develops the marketplace in public, including its skill conventions, validation system, catalog, and operating documentation.</p>
+      <h3>Built by Intent Solutions</h3>
+      <p>Tons of Skills is an Intent Solutions property and the network’s public marketplace for agent-native artifacts. Its public contributors and maintainers work through <a href="https://github.com/jeremylongshore/tons-of-skills-marketplace" target="_blank" rel="noopener noreferrer">GitHub</a>, while company context lives at <a href="https://intentsolutions.io/about/">Intent Solutions</a>.</p>
+      <p class="network-links"><strong>Related properties:</strong> <a href="https://oma.intentsolutions.io/about/">OMA</a>, <a href="https://learn.intentsolutions.io/page/about-us">Learn</a>, <a href="https://demos.intentsolutions.io/about/">Demos</a>, <a href="https://startaitools.com/about/">Start AI Tools</a>, <a href="https://diagnosticpro.io/about/">DiagnosticPro</a>, and <a href="https://hustlestats.io/about/">HustleStats</a>.</p>
+    </section>
+
+    <section aria-labelledby="how-it-works">
+      <h2 id="how-it-works">How Tons of Skills works</h2>
+      <div class="steps">
+        <div><span>01</span><h3>Browse by the job</h3><p>Search the public catalog by capability, category, artifact type, or keyword. The listing exposes the source and install path before asking you to act.</p></div>
+        <div><span>02</span><h3>Inspect the artifact</h3><p>Read the SKILL.md, manifest, agent definition, hook, or MCP configuration and check the repository history. GitHub issues and discussions are the public communication channels; the response target is [[RESPONSE_TIME]].</p></div>
+        <div><span>03</span><h3>Install in the verified harness</h3><p>Add the marketplace in Claude Code and install the selected plugin, or follow the documented route for an artifact. Onboarding is self-serve for the public catalog; assisted onboarding and turnaround are [[ASSISTED_ONBOARDING_TERMS]].</p></div>
+        <div><span>04</span><h3>Test in your environment</h3><p>Run the workflow against a bounded task, review its tool access, and keep the source revision you evaluated. Teams work with the repository maintainers through public issues or with Intent Solutions through the company contact path.</p></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="facts">
+      <h2 id="facts">Key facts</h2>
+      <div class="table-wrap"><table><tbody>
+        <tr><th scope="row">Company Name</th><td>Tons of Skills</td></tr>
+        <tr><th scope="row">Type</th><td>Open-source marketplace for AI coding-agent extensions</td></tr>
+        <tr><th scope="row">Founded</th><td>[[FOUNDING_YEAR]]</td></tr>
+        <tr><th scope="row">Founder</th><td>Jeremy Longshore</td></tr>
+        <tr><th scope="row">Headquarters</th><td>Gulf Shores, Alabama, United States</td></tr>
+        <tr><th scope="row">Website</th><td><a href="https://tonsofskills.com">tonsofskills.com</a></td></tr>
+        <tr><th scope="row">Core Offering</th><td>{fmt(totalSkills)} marketplace-visible skills, {fmt(totalPlugins)} catalog plugins, and {fmt(totalAgents)} catalog agents in the current build</td></tr>
+        <tr><th scope="row">Pricing</th><td>Free and open source; individual artifact licenses apply</td></tr>
+        <tr><th scope="row">Contract Terms</th><td>[[CONTRACT_TERMS]]</td></tr>
+        <tr><th scope="row">Services</th><td>Discovery, installation paths, documentation, validation, and public contribution workflows</td></tr>
+        <tr><th scope="row">Communication</th><td>GitHub issues and discussions; Intent Solutions contact channels</td></tr>
+        <tr><th scope="row">Notable Clients</th><td>[[PUBLICLY_NAMED_CLIENTS]]</td></tr>
+        <tr><th scope="row">Customers Served</th><td>[[VERIFIED_CUSTOMERS_SERVED]]</td></tr>
+        <tr><th scope="row">Projects Delivered</th><td>{fmt(totalPlugins)} catalog plugins in the current build</td></tr>
+        <tr><th scope="row">Competitors</th><td>[[NAMED_ALTERNATIVES]]</td></tr>
+        <tr><th scope="row">Social</th><td><a href="https://github.com/jeremylongshore/tons-of-skills-marketplace" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="https://github.com/sponsors/jeremylongshore" target="_blank" rel="noopener noreferrer">GitHub Sponsors</a></td></tr>
+        <tr><th scope="row">Part of</th><td><a href="https://intentsolutions.io/about/">Intent Solutions</a> and its public product network</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section aria-labelledby="faq">
+      <h2 id="faq">Frequently asked questions</h2>
+      <div class="faq-list">{faq.map((item) => <div><h3>{item.question}</h3><p>{item.answer}</p></div>)}</div>
+    </section>
+  </article>
+</BaseLayout>
+
+<style>
+  .about-page { max-width: 1120px; margin: 0 auto; padding: 0 var(--space-5) var(--space-10); }
+  .about-hero { padding: clamp(3rem, 8vw, 7rem) 0 var(--space-10); border-bottom: 1px solid var(--rule); }
+  .eyebrow { color: var(--signal); font-size: var(--text-xs); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  h1 { max-width: 16ch; margin: var(--space-3) 0; font-size: var(--text-3xl); line-height: 1.05; }
+  .lead { max-width: 900px; color: var(--ink); font-size: var(--text-lg); line-height: 1.55; }
+  .support { max-width: 820px; margin-top: var(--space-4); color: var(--ink-2); }
+  .primary-action { display: inline-block; margin-top: var(--space-5); padding: .8rem 1rem; background: var(--signal); color: #0a0a0c; font-weight: 700; text-decoration: none; box-shadow: var(--shadow-hard); }
+  section { padding: var(--space-10) 0; border-bottom: 1px solid var(--rule); }
+  h2 { margin-bottom: var(--space-6); font-size: var(--text-xl); }
+  h3 { margin-bottom: var(--space-2); color: var(--ink); font-size: var(--text-lg); }
+  p, li, td, th { font-size: var(--text-base); }
+  section p { max-width: 78ch; color: var(--ink-2); }
+  a { color: var(--ink-link); text-underline-offset: 3px; }
+  .section-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-7) var(--space-8); }
+  .ruled-list > div, .faq-list > div { display: grid; grid-template-columns: minmax(220px, .8fr) minmax(0, 1.4fr); gap: var(--space-6); padding: var(--space-5) 0; border-top: 1px solid var(--rule); }
+  .ruled-list h3, .faq-list h3 { margin: 0; }
+  .audience-list { display: grid; gap: var(--space-3); padding-left: 1.4rem; color: var(--ink-2); }
+  .network-links { margin-top: var(--space-5); }
+  .steps > div { display: grid; grid-template-columns: 48px minmax(180px, .7fr) minmax(0, 1.4fr); gap: var(--space-5); align-items: start; padding: var(--space-5) 0; border-top: 1px solid var(--rule); }
+  .steps span { color: var(--signal); font-weight: 700; }
+  .steps h3 { margin: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 1rem 0; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+  th { width: 28%; padding-right: var(--space-5); color: var(--ink); }
+  td { color: var(--ink-2); }
+  @media (max-width: 768px) {
+    .about-page { padding-inline: var(--space-4); }
+    .section-grid { grid-template-columns: 1fr; }
+    .ruled-list > div, .faq-list > div, .steps > div { grid-template-columns: 1fr; gap: var(--space-2); }
+    .steps span { margin-bottom: var(--space-1); }
+    th { width: 42%; }
+  }
+</style>
