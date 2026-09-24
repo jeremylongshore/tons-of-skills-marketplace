@@ -28,7 +28,6 @@ const faq = [
 
   <article class="about-page">
     <header class="about-hero">
-      <p class="eyebrow">Intent Solutions network / open-source marketplace</p>
       <h1>About Tons of Skills</h1>
       <p class="lead">Tons of Skills is a marketplace of plugins, agents, and portable skills that extends AI coding agents for engineers and teams building repeatable agent workflows.</p>
       <p class="support">The catalog is public, inspectable, and validated in the open. Claude Code is the current verified-native harness; other agent systems are supported only where integration evidence exists.</p>
@@ -103,16 +102,17 @@ const faq = [
         <tr><th scope="row">Communication</th><td>GitHub issues and discussions; Intent Solutions contact channels</td></tr>
         <tr><th scope="row">Notable Clients</th><td>[[PUBLICLY_NAMED_CLIENTS]]</td></tr>
         <tr><th scope="row">Customers Served</th><td>[[VERIFIED_CUSTOMERS_SERVED]]</td></tr>
-        <tr><th scope="row">Projects Delivered</th><td>{fmt(totalPlugins)} catalog plugins in the current build</td></tr>
+        <tr><th scope="row">Projects Delivered</th><td>[[VERIFIED_PROJECTS_DELIVERED]]</td></tr>
         <tr><th scope="row">Competitors</th><td>[[NAMED_ALTERNATIVES]]</td></tr>
         <tr><th scope="row">Social</th><td><a href="https://github.com/jeremylongshore/tons-of-skills-marketplace" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="https://github.com/sponsors/jeremylongshore" target="_blank" rel="noopener noreferrer">GitHub Sponsors</a></td></tr>
-        <tr><th scope="row">Part of</th><td><a href="https://intentsolutions.io/about/">Intent Solutions</a> and its public product network</td></tr>
+        <tr><th scope="row">Part of</th><td><a href="https://intentsolutions.io/about/">Intent Solutions</a>, <a href="https://learn.intentsolutions.io/page/about-us">Learn</a>, <a href="https://demos.intentsolutions.io/about/">Demos</a>, <a href="https://oma.intentsolutions.io/about/">Omarchy</a>, <a href="https://tonsofskills.com/about/">Tons of Skills</a>, <a href="https://startaitools.com/about/">Start AI Tools</a>, <a href="https://diagnosticpro.io/about/">DiagnosticPro</a>, and <a href="https://hustlestats.io/about">HustleStats</a></td></tr>
       </tbody></table></div>
     </section>
 
     <section aria-labelledby="faq">
       <h2 id="faq">Frequently asked questions</h2>
       <div class="faq-list">{faq.map((item) => <div><h3>{item.question}</h3><p>{item.answer}</p></div>)}</div>
+      <p class="network-links">Explore <a href="https://intentsolutions.io/about/">Intent Solutions</a>, <a href="https://learn.intentsolutions.io/page/about-us">Learn</a>, <a href="https://demos.intentsolutions.io/about/">Demos</a>, <a href="https://oma.intentsolutions.io/about/">Omarchy</a>, <a href="https://tonsofskills.com/about/">Tons of Skills</a>, <a href="https://startaitools.com/about/">Start AI Tools</a>, <a href="https://diagnosticpro.io/about/">DiagnosticPro</a>, and <a href="https://hustlestats.io/about">HustleStats</a>.</p>
     </section>
   </article>
 </BaseLayout>
@@ -120,7 +120,6 @@ const faq = [
 <style>
   .about-page { max-width: 1120px; margin: 0 auto; padding: 0 var(--space-5) var(--space-10); }
   .about-hero { padding: clamp(3rem, 8vw, 7rem) 0 var(--space-10); border-bottom: 1px solid var(--rule); }
-  .eyebrow { color: var(--signal); font-size: var(--text-xs); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
   h1 { max-width: 16ch; margin: var(--space-3) 0; font-size: var(--text-3xl); line-height: 1.05; }
   .lead { max-width: 900px; color: var(--ink); font-size: var(--text-lg); line-height: 1.55; }
   .support { max-width: 820px; margin-top: var(--space-4); color: var(--ink-2); }
@@ -130,14 +129,14 @@ const faq = [
   h3 { margin-bottom: var(--space-2); color: var(--ink); font-size: var(--text-lg); }
   p, li, td, th { font-size: var(--text-base); }
   section p { max-width: 78ch; color: var(--ink-2); }
-  a { color: var(--ink-link); text-underline-offset: 3px; }
+  a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
   .section-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-7) var(--space-8); }
   .ruled-list > div, .faq-list > div { display: grid; grid-template-columns: minmax(220px, .8fr) minmax(0, 1.4fr); gap: var(--space-6); padding: var(--space-5) 0; border-top: 1px solid var(--rule); }
   .ruled-list h3, .faq-list h3 { margin: 0; }
   .audience-list { display: grid; gap: var(--space-3); padding-left: 1.4rem; color: var(--ink-2); }
   .network-links { margin-top: var(--space-5); }
   .steps > div { display: grid; grid-template-columns: 48px minmax(180px, .7fr) minmax(0, 1.4fr); gap: var(--space-5); align-items: start; padding: var(--space-5) 0; border-top: 1px solid var(--rule); }
-  .steps span { color: var(--signal); font-weight: 700; }
+  .steps span { color: var(--ink-2); font-weight: 700; }
   .steps h3 { margin: 0; }
   .table-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; }
