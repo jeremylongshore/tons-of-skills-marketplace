@@ -1,4 +1,4 @@
-mcp>=0.9.0,<2  # 2.x removed the Server.list_tools()/call_tool() decorators this server uses
+mcp>=2,<3  # 2.x API: handlers are passed to Server(...); see the server module
 aiohttp>=3.9.0
 jsonschema>=4.20.0
 PyYAML>=6.0.1
