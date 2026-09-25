@@ -10566,7 +10566,7 @@
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 98,
+      "verificationScore": 96,
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "fireflies pack operator-grade fireflies.ai graphql and webhooks v2 pack with 24 governed workflows for meeting data, askfred, ingestion, security, reliability, and production operations. saas-packs fireflies graphql webhooks-v2 meeting-data askfred governance"
@@ -11100,7 +11100,7 @@
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 99,
+      "verificationScore": 100,
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "linear pack operator-grade linear pack with 24 source-grounded skills for graphql, oauth, issue and project workflows, webhooks, reliability, data governance, and enterprise access. saas-packs linear graphql oauth issue-operations webhooks data-governance"
@@ -11430,7 +11430,7 @@
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 98,
+      "verificationScore": 99,
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "openevidence pack operator-grade openevidence pack with 24 source-grounded skills for clinical evidence review, safe adoption, privacy, security, and product workflow governance. saas-packs openevidence clinical-evidence evidence-review healthcare-governance privacy clinical-safety"
@@ -11759,7 +11759,7 @@
       "skillCount": 30,
       "verificationScore": 98,
       "verificationGrade": "A",
-      "verificationBadge": "verified",
+      "verificationBadge": "gold",
       "searchText": "adobe pack operate adobe firefly, photoshop v2, pdf services, i/o events, app builder, and enterprise access through 30 evidence-backed skills with safe auth, data, spend, deployment, and recovery boundaries. saas-packs adobe firefly photoshop-api pdf-services adobe-io-events app-builder oauth enterprise-integration"
     },
     {
@@ -11789,9 +11789,9 @@
       "isNew": false,
       "badges": [],
       "skillCount": 18,
-      "verificationScore": 98,
+      "verificationScore": 99,
       "verificationGrade": "A",
-      "verificationBadge": "verified",
+      "verificationBadge": "gold",
       "searchText": "alchemy pack evidence-backed alchemy operator workflows for current node, data, portfolio, nft, wallet, notify, admin, reliability, security, and migration contracts (18 skills) saas-packs alchemy web3 saas viem wallet-apis integration"
     },
     {
@@ -12062,9 +12062,9 @@
       "isNew": false,
       "badges": [],
       "skillCount": 18,
-      "verificationScore": 81,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
+      "verificationScore": 97,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
       "searchText": "bamboohr pack operator-grade bamboohr pack with 18 source-grounded skills for authentication, hr data pipelines, webhooks, security, reliability, and release governance. saas-packs bamboohr saas hr-integrations employee-data oauth webhooks"
     },
     {
@@ -12279,7 +12279,7 @@
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 98,
+      "verificationScore": 99,
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "cohere pack source-grounded cohere v2 operator workflows for chat, embed, rerank, rag, tools, security, migration, and production operations saas-packs cohere api-v2 rag tool-use model-operations"
@@ -12460,7 +12460,7 @@
       "isNew": false,
       "badges": [],
       "skillCount": 24,
-      "verificationScore": 93,
+      "verificationScore": 94,
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "flexport pack 24 governed flexport v3 and mcp operator workflows for freight, trade data, webhooks, and secure integrations saas-packs flexport freight supply-chain mcp operations"
@@ -12492,7 +12492,7 @@
       "isNew": false,
       "badges": [],
       "skillCount": 18,
-      "verificationScore": 95,
+      "verificationScore": 96,
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "flyio pack operator-grade fly.io skill pack for controlled app, machine, data, security, deployment, and observability workflows (18 skills) saas-packs flyio fly.io saas machines-api deployment operations"

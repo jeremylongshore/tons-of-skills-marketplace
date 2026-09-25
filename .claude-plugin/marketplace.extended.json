@@ -7367,10 +7367,10 @@
         "skills": 24
       },
       "verification": {
-        "score": 98,
+        "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-12T00:00:00.000Z"
+        "lastValidated": "2026-09-25T00:00:00.000Z"
       }
     },
     {
@@ -7853,10 +7853,10 @@
         "skills": 24
       },
       "verification": {
-        "score": 99,
+        "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "lastValidated": "2026-09-25T00:00:00.000Z"
       }
     },
     {
@@ -8153,10 +8153,10 @@
         "skills": 24
       },
       "verification": {
-        "score": 98,
+        "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "lastValidated": "2026-09-25T00:00:00.000Z"
       }
     },
     {
@@ -8464,8 +8464,8 @@
       "verification": {
         "score": 98,
         "grade": "A",
-        "badge": "verified",
-        "lastValidated": "2026-09-12T00:00:00.000Z"
+        "badge": "gold",
+        "lastValidated": "2026-09-25T00:00:00.000Z"
       }
     },
     {
@@ -8491,10 +8491,10 @@
         "skills": 18
       },
       "verification": {
-        "score": 98,
+        "score": 99,
         "grade": "A",
-        "badge": "verified",
-        "lastValidated": "2026-09-12T00:00:00.000Z"
+        "badge": "gold",
+        "lastValidated": "2026-09-25T00:00:00.000Z"
       }
     },
     {
@@ -8737,10 +8737,10 @@
         "skills": 18
       },
       "verification": {
-        "score": 81,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "score": 97,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-09-25T00:00:00.000Z"
       }
     },
     {
@@ -8933,10 +8933,10 @@
         "skills": 24
       },
       "verification": {
-        "score": 98,
+        "score": 99,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "lastValidated": "2026-09-25T00:00:00.000Z"
       }
     },
     {
@@ -9096,10 +9096,10 @@
         "skills": 24
       },
       "verification": {
-        "score": 93,
+        "score": 94,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-13T00:00:00.000Z"
+        "lastValidated": "2026-09-25T00:00:00.000Z"
       }
     },
     {
@@ -9125,10 +9125,10 @@
         "skills": 18
       },
       "verification": {
-        "score": 95,
+        "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-13T00:00:00.000Z"
+        "lastValidated": "2026-09-25T00:00:00.000Z"
       }
     },
     {
