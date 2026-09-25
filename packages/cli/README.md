@@ -18,21 +18,25 @@
 You don't need to install this package globally. Just use your preferred package manager:
 
 ### npm / npx
+
 ```bash
 npx @intentsolutionsio/ccpi install <plugin-name>
 ```
 
 ### Bun
+
 ```bash
 bunx @intentsolutionsio/ccpi install <plugin-name>
 ```
 
 ### pnpm
+
 ```bash
 pnpx @intentsolutionsio/ccpi install <plugin-name>
 ```
 
 ### Deno
+
 ```bash
 deno run -A npm:@intentsolutionsio/ccpi install <plugin-name>
 ```
@@ -70,10 +74,12 @@ npx @intentsolutionsio/ccpi search terraform
 Install a plugin from the marketplace.
 
 **Options:**
+
 - `-y, --yes` - Skip confirmation prompts
 - `--global` - Install globally for all projects (default: project-local if in a project)
 
 **Example:**
+
 ```bash
 npx @intentsolutionsio/ccpi install python-pro
 ```
@@ -83,11 +89,13 @@ npx @intentsolutionsio/ccpi install python-pro
 Check for and install plugin updates.
 
 **Options:**
+
 - `--check` - Check for available updates without upgrading
 - `--all` - Upgrade all plugins with available updates
 - `--plugin <name>` - Upgrade a specific plugin
 
 **Examples:**
+
 ```bash
 # Check for available updates
 npx @intentsolutionsio/ccpi upgrade --check
@@ -100,6 +108,7 @@ npx @intentsolutionsio/ccpi upgrade --plugin python-pro
 ```
 
 **Sample Output (Updates Available):**
+
 ```
 Plugin Upgrade Manager
 
@@ -131,9 +140,11 @@ To pin a plugin to a specific version, simply keep the current version installed
 List installed plugins.
 
 **Options:**
+
 - `-a, --all` - Show all available plugins (not just installed)
 
 **Example:**
+
 ```bash
 npx @intentsolutionsio/ccpi list --all
 ```
@@ -143,14 +154,17 @@ npx @intentsolutionsio/ccpi list --all
 Run diagnostics on your Claude Code installation and plugins.
 
 **Options:**
+
 - `--json` - Output results as JSON
 
 **Example:**
+
 ```bash
 npx @intentsolutionsio/ccpi doctor
 ```
 
 **Sample Output:**
+
 ```
 Claude Code Plugins - System Diagnostics
 
@@ -182,17 +196,19 @@ All checks passed! Your Claude Code setup is healthy.
 Search for plugins in the marketplace.
 
 **Example:**
+
 ```bash
 npx @intentsolutionsio/ccpi search terraform
 ```
 
-*Note: Search functionality coming soon. For now, visit [tonsofskills.com](https://tonsofskills.com) to browse plugins.*
+_Note: Search functionality coming soon. For now, visit [tonsofskills.com](https://tonsofskills.com) to browse plugins._
 
 ### `ccpi analytics`
 
 View plugin usage analytics (Coming Soon).
 
 **Options:**
+
 - `--json` - Output as JSON
 
 ### `ccpi marketplace`
@@ -200,9 +216,11 @@ View plugin usage analytics (Coming Soon).
 Manage marketplace connection and setup.
 
 **Options:**
+
 - `--verify` - Verify marketplace installation and show detailed status
 
 **Example:**
+
 ```bash
 # Check marketplace status
 npx @intentsolutionsio/ccpi marketplace
@@ -212,6 +230,7 @@ npx @intentsolutionsio/ccpi marketplace --verify
 ```
 
 **Sample Output (Not Installed):**
+
 ```
 Claude Code Plugins Marketplace
 
@@ -231,6 +250,7 @@ Setup Instructions:
 ```
 
 **Sample Output (Installed):**
+
 ```
 Claude Code Plugins Marketplace
 
@@ -251,6 +271,7 @@ Installation:
 Guide you through adding the marketplace to Claude Code.
 
 **Example:**
+
 ```bash
 npx @intentsolutionsio/ccpi marketplace-add
 ```
@@ -260,6 +281,7 @@ npx @intentsolutionsio/ccpi marketplace-add
 Guide you through removing the marketplace from Claude Code.
 
 **Example:**
+
 ```bash
 npx @intentsolutionsio/ccpi marketplace-remove
 ```
@@ -267,11 +289,11 @@ npx @intentsolutionsio/ccpi marketplace-remove
 ## Package Manager Performance
 
 | Package Manager | Startup Time | Market Share |
-|----------------|--------------|--------------|
-| Bun (bunx)     | ~0.05s       | ~5%          |
-| Deno           | ~0.1s        | ~5%          |
-| pnpm (pnpx)    | ~0.5s        | ~10%         |
-| npm (npx)      | ~2-5s        | ~80%         |
+| --------------- | ------------ | ------------ |
+| Bun (bunx)      | ~0.05s       | ~5%          |
+| Deno            | ~0.1s        | ~5%          |
+| pnpm (pnpx)     | ~0.5s        | ~10%         |
+| npm (npx)       | ~2-5s        | ~80%         |
 
 **Recommendation**: For fastest performance, use `bunx` if you have Bun installed.
 
@@ -287,18 +309,20 @@ No configuration required! The CLI automatically:
 ### Supported Paths
 
 **Linux & macOS:**
+
 - Config: `~/.claude`
 - Plugins: `~/.claude/plugins`
 - Marketplaces: `~/.claude/marketplaces`
 
 **Windows:**
+
 - Config: `%APPDATA%\Claude`
 - Plugins: `%APPDATA%\Claude\plugins`
 - Marketplaces: `%APPDATA%\Claude\marketplaces`
 
 ## Requirements
 
-- Node.js 18.0.0 or higher
+- Node.js 22 or higher (18 and 20 are end of life)
 - Claude Code installed and run at least once
 
 ## Troubleshooting
@@ -306,6 +330,7 @@ No configuration required! The CLI automatically:
 ### "Claude Code config directory not found"
 
 Ensure Claude Code is installed and has been run at least once. The CLI looks for:
+
 - Linux/macOS: `~/.claude`
 - Windows: `%APPDATA%\Claude`
 

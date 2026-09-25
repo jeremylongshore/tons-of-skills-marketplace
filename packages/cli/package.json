@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/ccpi",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Command-line tool for Tons of Skills portable skills and marketplace plugins",
   "type": "module",
   "main": "./dist/index.js",
@@ -44,7 +44,7 @@
     "url": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "dependencies": {
     "axios": "^1.16.1",
