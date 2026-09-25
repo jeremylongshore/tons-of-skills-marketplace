@@ -22,15 +22,15 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         package-manager: [npm, bun, pnpm]
-        node-version: [18, 20, 22]
+        # Maintained Node lines only. 18 reached end of life 2025-04-30 and 20 on
+        # 2026-04-30; the CLI stopped claiming them on 2026-09-25.
+        node-version: [22, 24]
 
         # Exclude some combinations to reduce CI time
         exclude:
-          # Only test Node 20 on Windows (faster)
+          # Only test Node 22 on Windows (faster)
           - os: windows-latest
-            node-version: 18
-          - os: windows-latest
-            node-version: 22
+            node-version: 24
 
           # Only test bun on Ubuntu and macOS (not Windows compatible)
           - os: windows-latest
