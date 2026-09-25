@@ -35,7 +35,8 @@ pnpm run sync-marketplace
 pnpm install && pnpm build
 pnpm test && pnpm typecheck
 pnpm lint
-pnpm run verify                   # Full pipeline — what CI's `verify` job runs
+pnpm run verify                   # Rewrite recorded plugin verification results (score/grade/badge)
+node scripts/run-verification-pipeline.mjs --check   # What CI's `verify` job runs: fails on drift, writes nothing
 
 # Validator (schema 4.1.0 — see 000-docs/SCHEMA_CHANGELOG.md)
 python3 scripts/validate-skills-schema.py --verbose
