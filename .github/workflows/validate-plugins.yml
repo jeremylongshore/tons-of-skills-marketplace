@@ -56,6 +56,13 @@ jobs:
       - name: Check repository Node.js runtime
         run: node scripts/check-node-version.mjs
 
+      # The runtime contract's own tests assert that the floor, the workflows,
+      # the CLI's declared floor, and the public installation page agree. They
+      # ran only from the root `pnpm test` script, which no CI job invokes, so
+      # #1569 changed the CLI floor and left them failing unnoticed.
+      - name: Test the repository Node.js runtime contract
+        run: node --test scripts/check-node-version.test.mjs
+
       - name: Install root dev dependencies
         run: pnpm install --frozen-lockfile --filter "claude-code-plugins-monorepo"
 
@@ -1828,7 +1835,7 @@ jobs:
 
       - name: Check deterministic marketplace projections
         run: |
-          node --test scripts/generated-content-ci.test.mjs marketplace/scripts/discover-skills.test.mjs marketplace/scripts/md-to-html.test.mjs marketplace/scripts/truncate-html.test.mjs marketplace/scripts/sync-catalog.test.mjs marketplace/scripts/generate-unified-search.test.mjs
+          node --test scripts/generated-content-ci.test.mjs marketplace/scripts/discover-skills.test.mjs marketplace/scripts/md-to-html.test.mjs marketplace/scripts/truncate-html.test.mjs marketplace/scripts/sync-catalog.test.mjs marketplace/scripts/generate-unified-search.test.mjs marketplace/scripts/copy-public-data.test.mjs
           node marketplace/scripts/discover-skills.mjs --level=full --check
           node marketplace/scripts/sync-catalog.mjs --check
           node marketplace/scripts/generate-unified-search.mjs --check

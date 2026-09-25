@@ -20,8 +20,10 @@ import {
   matchesSignature,
   parseSkillRows,
   parseTerminalSummary,
+  persistedReport,
   stableJson,
   trackedPaths,
+  UNPERSISTED_VALUES,
   withIndexSnapshot,
 } from './measure-epic-1.mjs';
 
@@ -398,4 +400,62 @@ test('intentional failure', (t) => {
 
   assert.equal(child.status, 1, child.stderr || child.stdout);
   assert.deepEqual(readdirSync(proofRoot), ['failure-probe.test.mjs']);
+});
+
+function persistenceFixture() {
+  return {
+    schema_version: 2,
+    rows: {
+      1: {
+        dimension: 'Tracked files, plugin SKILL.md, and plugin agent files',
+        values: { plugin_agent_files: 3, raw_tracked_plugin_skill_files: 7, tracked_files: 90 },
+      },
+      2: { dimension: 'untouched', values: { entries: 4 } },
+      46: {
+        dimension: 'Tracked files invisible to gitleaks',
+        values: { invisible_files: 1, target_invisible_files: 0, tracked_files: 90 },
+      },
+    },
+  };
+}
+
+test('the persisted scorecard omits whole-tree file counts and says so', () => {
+  const report = persistenceFixture();
+  const persisted = persistedReport(report);
+  assert.deepEqual(persisted.rows[1].values, {
+    plugin_agent_files: 3,
+    raw_tracked_plugin_skill_files: 7,
+  });
+  assert.deepEqual(persisted.rows[1].unpersisted_values, ['tracked_files']);
+  assert.deepEqual(persisted.rows[46].values, { invisible_files: 1, target_invisible_files: 0 });
+  assert.deepEqual(persisted.rows[46].unpersisted_values, ['tracked_files']);
+  assert.deepEqual(persisted.rows[2], report.rows[2]);
+  assert.equal(report.rows[1].values.tracked_files, 90, 'the live report is not mutated');
+});
+
+test('adding an unrelated file does not change the persisted scorecard', () => {
+  const before = persistenceFixture();
+  const after = persistenceFixture();
+  after.rows[1].values.tracked_files = 91;
+  after.rows[46].values.tracked_files = 91;
+  assert.equal(stableJson(persistedReport(after)), stableJson(persistedReport(before)));
+});
+
+test('a measured row that stops producing an unpersisted value fails closed', () => {
+  const report = persistenceFixture();
+  delete report.rows[46].values.tracked_files;
+  assert.throws(() => persistedReport(report), /row 46 no longer measures tracked_files/);
+});
+
+test('an unmeasured row has nothing to omit', () => {
+  const report = persistenceFixture();
+  report.rows[46].values = null;
+  assert.equal(persistedReport(report).rows[46].values, null);
+});
+
+test('only rows 1 and 46 drop values, and only the whole-tree count', () => {
+  assert.deepEqual(JSON.parse(JSON.stringify(UNPERSISTED_VALUES)), {
+    1: ['tracked_files'],
+    46: ['tracked_files'],
+  });
 });

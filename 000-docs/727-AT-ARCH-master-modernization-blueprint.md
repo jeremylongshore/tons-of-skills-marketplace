@@ -1206,6 +1206,26 @@ existing unconditional generated-content job invokes the same renderer with `--c
 deterministic local projections now have executable content-drift gates without a new required
 context or path filter.
 
+**E1.8 determinism completion (2026-09-25).** At exact base
+`96d59a6ff0c9d3fb33a10425ec28508568babe0f`, two projections still were not byte-stable: the first two
+E1.8 slices kept a wall-clock `generatedAt` in `skills-index.json` and `skills-catalog.json` and made
+`--check` pass by copying the committed value. Two regenerations from identical inputs produced
+different bytes, and over the preceding 30 days (708 commits on `main`) that line changed in 112 of
+the 113 commits touching each file, so any two pull requests that regenerated them conflicted. The
+producer now writes neither field, matching the third and fourth slices' removal of wall-clock
+fields from `catalog.json` and `unified-search-index.json`. The public `/data/skills-catalog.json`
+keeps the schema 3.4.0 `generatedAt` field, now stamped at build time by `copy-public-data.mjs`
+(honoring `SOURCE_DATE_EPOCH`). No consumer read the tracked value: the sitemap emits no
+`lastmod`, `skills-index.json` is not publicly served, and row 23 is `not_reproducible` because a
+timestamp cannot establish staleness. In the same change the committed scorecard stops persisting
+the whole-tree `tracked_files` value of rows 1 and 46; § 1 row 1's definition is unchanged and
+`pnpm run measure:e1 --row=1 --stdout` still reports all three values. The count is a pure function
+of the commit that contains it, and it changed in 132 of the 146 commits touching the scorecard (38
+of them changed nothing else). Each affected committed row names the omitted value under
+`unpersisted_values`, and `persistedReport` fails closed if a measured row stops producing it.
+Real collisions remain conflicts by design: `.harness-hash` tamper evidence, Freshie run and Dolt
+identities, and content-derived counts.
+
 **E1.13 measurement correction (2026-08-16).** The earlier 341/121 headline used a case-sensitive grep and treated all non-6767 files as one population. At exact base `3543d5d167bd4e8d27666c8893080bca3bd72950`, `git grep -I -i -o "$(printf '%s%s' claudecode plugins.io)" <SHA> -- | wc -l` reports 356 occurrences and the corresponding `-l` command reports 125 files. Running `node scripts/check-dead-domain.mjs --json --root <clean-checkout-of-SHA>` separates 292 actionable occurrences (260 editable first-party + 32 registered generated projections) from 64 retained occurrences (3 in frozen 6767-h + 1 in its byte-pinned anchor manifest + 60 in the registered Freshie run-1 snapshot + 0 provenance mirrors). The 292/64 correction supersedes the earlier 293/63 partition, which incorrectly treated the frozen anchor manifest as editable. These populations are not interchangeable. The gate targets zero actionable occurrences and requires every retained class to remain byte-identical.
 
 **E1.6 first-slice progress (2026-08-17).** At exact base
