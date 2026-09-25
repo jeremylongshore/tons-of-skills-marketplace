@@ -39,10 +39,10 @@
       "source": "git write-tree + git ls-tree over the exact index tree",
       "status": "measured",
       "target_status": "informational",
+      "unpersisted_values": ["tracked_files"],
       "values": {
         "plugin_agent_files": 352,
-        "raw_tracked_plugin_skill_files": 2991,
-        "tracked_files": 25941
+        "raw_tracked_plugin_skill_files": 2991
       }
     },
     "2": {
@@ -3117,12 +3117,12 @@
       "reproduce": "pnpm run measure:e1 --row=46 --stdout",
       "source": [".gitleaks.toml"],
       "status": "measured",
+      "unpersisted_values": ["tracked_files"],
       "values": {
         "allowlist_patterns": 5,
         "invalid_patterns": 0,
         "invisible_files": 5,
-        "target_invisible_files": 0,
-        "tracked_files": 25941
+        "target_invisible_files": 0
       }
     },
     "47": {

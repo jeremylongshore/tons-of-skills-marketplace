@@ -50,12 +50,9 @@
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { createRequire } from 'node:module';
 import * as nodePath from 'node:path';
-import { join, dirname, relative } from 'node:path';
+import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'url';
-import {
-  assertGeneratedContentCurrent,
-  readIndexedArtifact,
-} from '../../scripts/check-generated-artifacts.mjs';
+import { assertGeneratedContentCurrent } from '../../scripts/check-generated-artifacts.mjs';
 import { resolveCorpus } from '../../scripts/corpus-resolver.mjs';
 import { parseSkillFrontmatter } from '../../scripts/skill-frontmatter.mjs';
 import { mdToHtml } from './md-to-html.mjs';
@@ -91,20 +88,6 @@ export function compareSkillNamesOrdinal(left, right) {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
-function preservedGeneratedAt(path, label) {
-  let value;
-  try {
-    value = JSON.parse(
-      readIndexedArtifact(relative(ROOT_DIR, path), { root: ROOT_DIR }).toString('utf8'),
-    ).generatedAt;
-  } catch (error) {
-    throw new Error(`cannot preserve ${label} generatedAt from ${path}: ${error.message}`);
-  }
-  if (typeof value !== 'string' || !Number.isFinite(Date.parse(value))) {
-    throw new Error(`cannot preserve invalid ${label} generatedAt in ${path}`);
-  }
-  return value;
-}
 if (!LEVELS.has(LEVEL)) {
   console.error(`❌ Unknown --level=${LEVEL}. Expected: metadata | full | file`);
   process.exit(2);
@@ -525,13 +508,11 @@ function main() {
     console.log('');
   }
 
-  const generatedAt = new Date().toISOString();
-  const indexGeneratedAt = CHECK
-    ? preservedGeneratedAt(INDEX_FILE, 'skills index')
-    : generatedAt;
-  const catalogGeneratedAt = CHECK && !metadataOnly
-    ? preservedGeneratedAt(OUTPUT_FILE, 'skills catalog')
-    : generatedAt;
+  // The tracked projections carry no wall-clock timestamp. A timestamp changed
+  // the bytes on every regeneration, so any two pull requests that regenerated
+  // conflicted on it even when their content did not overlap. The public copy
+  // gets its generatedAt at build time in copy-public-data.mjs, which keeps the
+  // schema 3.4.0 consumer contract for /data/skills-catalog.json.
   const categories = [...new Set(skills.map(s => s.parentPlugin.category))].sort();
 
   // L0 index — always emitted. ~150 bytes per skill, ~3-10 KB gzipped at our
@@ -542,7 +523,6 @@ function main() {
     level: 'metadata',
     skills: skills.map(projectL0),
     count: skills.length,
-    generatedAt: indexGeneratedAt,
     categories,
   };
   const indexBytes = JSON.stringify(index, null, 2);
@@ -559,7 +539,6 @@ function main() {
       level: 'full',
       skills,
       count: skills.length,
-      generatedAt: catalogGeneratedAt,
       categories,
       allowedToolsUsed: [...new Set(skills.flatMap(s => s.allowedTools))].sort()
     };

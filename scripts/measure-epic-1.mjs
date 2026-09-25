@@ -1006,6 +1006,38 @@ export function stableJson(value) {
   return rendered;
 }
 
+/**
+ * Row values that are measured and reproducible but are not written to the
+ * committed scorecard. Each one is a pure function of the commit that would
+ * contain it, so storing it records nothing Git cannot already answer, and it
+ * changes with every added or deleted file anywhere in the repository. Kept in
+ * the file, it made every pair of file-adding pull requests conflict on the
+ * same line. `--stdout` still reports the full live row; the committed row
+ * names what it omits under `unpersisted_values`.
+ */
+export const UNPERSISTED_VALUES = Object.freeze({
+  1: Object.freeze(['tracked_files']),
+  46: Object.freeze(['tracked_files']),
+});
+
+/** Project a full measurement report into the form persisted in the scorecard. */
+export function persistedReport(report) {
+  const rows = { ...report.rows };
+  for (const [id, keys] of Object.entries(UNPERSISTED_VALUES)) {
+    const measured = rows[id];
+    // A row that was not measured in this tree (values null) has nothing to omit.
+    if (!measured || measured.values === null) continue;
+    if (typeof measured.values !== 'object') fail(`row ${id} has no values to omit`);
+    const values = { ...measured.values };
+    for (const key of keys) {
+      if (!Object.hasOwn(values, key)) fail(`row ${id} no longer measures ${key}`);
+      delete values[key];
+    }
+    rows[id] = { ...measured, unpersisted_values: [...keys], values };
+  }
+  return { ...report, rows };
+}
+
 export function artifactMatches(actual, expected) {
   return actual === expected;
 }
@@ -1064,11 +1096,11 @@ function main() {
         : report.rows[options.row];
     if (!selected) fail(`unknown row: ${options.row}`);
   }
-  const rendered = stableJson(selected);
   if (options.stdout) {
-    process.stdout.write(rendered);
+    process.stdout.write(stableJson(selected));
     return;
   }
+  const rendered = stableJson(persistedReport(report));
   const artifact = file(options.root, ARTIFACT_PATH);
   if (options.check) {
     if (indexed.artifact === null || !artifactMatches(indexed.artifact, rendered)) {
