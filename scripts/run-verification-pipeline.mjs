@@ -154,6 +154,25 @@ function aggregateByPlugin(skillResults) {
   return pluginVerifications;
 }
 
+/**
+ * Write each plugin's verification result into the catalog. `lastValidated` is
+ * the date the recorded result was established: an entry whose score, grade,
+ * and badge are unchanged keeps its existing block, date included. Re-running
+ * the pipeline on an unchanged tree therefore changes nothing. Before this, every
+ * run restamped all entries with the current date, so any two pull requests that
+ * ran it conflicted across the whole catalog even when no result had changed.
+ * Returns the number of entries whose result changed.
+ */
+function sameResult(current, next) {
+  return (
+    current !== null &&
+    typeof current === 'object' &&
+    current.score === next.score &&
+    current.grade === next.grade &&
+    current.badge === next.badge
+  );
+}
+
 function applyVerifications(catalog, pluginVerifications, requestedPlugin, validatedAt) {
   let updated = 0;
   for (const plugin of catalog.plugins) {
@@ -165,12 +184,14 @@ function applyVerifications(catalog, pluginVerifications, requestedPlugin, valid
     const verification = pluginVerifications.get(plugin.source);
     if (!verification) continue;
 
-    plugin.verification = {
+    const next = {
       score: verification.score,
       grade: verification.grade,
       badge: verification.badge,
-      lastValidated: validatedAt,
     };
+    if (sameResult(plugin.verification, next)) continue;
+
+    plugin.verification = { ...next, lastValidated: validatedAt };
     updated++;
   }
   return updated;
@@ -198,7 +219,9 @@ function updateCatalog(pluginVerifications) {
   const now = new Date().toISOString().replace(/T.*/, 'T00:00:00.000Z');
   const updated = applyVerifications(catalog, pluginVerifications, targetPlugin, now);
 
-  if (!dryRun) {
+  if (!dryRun && updated === 0) {
+    console.log('   No verification result changed; catalog left untouched.');
+  } else if (!dryRun) {
     writeFileSync(extendedPath, JSON.stringify(catalog, null, 2) + '\n');
     console.log(`   Updated ${updated} plugin entries.`);
   } else {
