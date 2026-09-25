@@ -46,19 +46,22 @@ test.describe('P5: Cowork Downloads', () => {
   test('Plugin search filter works', async ({ page }) => {
     await page.goto('/cowork');
 
+    // A missing search box is a regression, so it fails rather than skips.
     const searchInput = page.locator('#plugin-search');
-    if (!(await searchInput.isVisible().catch(() => false))) {
-      test.skip();
-      return;
-    }
+    await expect(searchInput).toBeVisible();
 
     await searchInput.fill('security');
 
-    // The count label reads "Showing all N plugins" until the filter runs,
-    // then "Showing X of N plugins" — assert the filtered form with a
-    // retrying web-first assertion instead of a fixed sleep.
+    // The label reads "Showing all N Cowork-package-local plugins" until the
+    // filter runs, then "Showing X of N Cowork-package-local plugins". Counts
+    // use toLocaleString, so they may carry thousands separators.
     const countLabel = page.locator('#plugin-count');
-    await expect(countLabel).toContainText(/Showing \d+ of \d+ plugins/);
+    const filtered = /Showing ([\d,]+) of ([\d,]+) Cowork-package-local plugins/;
+    await expect(countLabel).toContainText(filtered);
+    const [, shown, total] = (await countLabel.textContent())!.match(filtered)!;
+    const toNumber = (value: string) => Number(value.replaceAll(',', ''));
+    expect(toNumber(shown)).toBeGreaterThan(0);
+    expect(toNumber(shown)).toBeLessThan(toNumber(total));
   });
 
   test('Setup guide has 4 steps', async ({ page }) => {

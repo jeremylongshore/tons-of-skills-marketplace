@@ -58,6 +58,19 @@ test.describe('P7: Performance', () => {
       });
       if (isHidden) continue;
 
+      // A loading="lazy" image below the fold is never fetched, so its
+      // naturalWidth stays 0 on short viewports. Bring it into view and wait
+      // for it to settle before judging it.
+      await img.scrollIntoViewIfNeeded();
+      await img.evaluate(
+        (el: HTMLImageElement) =>
+          el.complete
+            ? undefined
+            : new Promise((resolve) => {
+                el.addEventListener('load', resolve, { once: true });
+                el.addEventListener('error', resolve, { once: true });
+              }),
+      );
       const naturalWidth = await img.evaluate((el: HTMLImageElement) => el.naturalWidth);
       expect(naturalWidth, `Broken image: ${src}`).toBeGreaterThan(0);
     }

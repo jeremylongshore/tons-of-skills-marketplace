@@ -18,18 +18,17 @@ async function waitForSearchIndex(page: Page): Promise<void> {
 const RESULTS_INFO_PATTERN = /Showing \d+ of \d+/;
 
 test.describe('P2: Search Flow', () => {
-  test('Homepage search redirects to /explore on click', async ({ page }) => {
+  // Search is reached from the homepage through Browse since the #1152
+  // redesign removed the homepage search box.
+  test('Homepage Browse reaches a working explore search', async ({ page }) => {
     await page.goto('/');
 
-    const searchInput = page.locator('#hero-search-input');
-    await expect(searchInput).toBeVisible();
-
     await Promise.all([
-      page.waitForURL(/\/explore/),
-      searchInput.click({ force: true }),
+      page.waitForURL(/\/explore\/?$/),
+      page.locator('a.btn-browse').first().click(),
     ]);
 
-    await expect(page).toHaveURL(/\/explore/);
+    await expect(page.locator('.hero-search-input').first()).toBeVisible();
   });
 
   test('Explore page search input is functional', async ({ page }) => {
