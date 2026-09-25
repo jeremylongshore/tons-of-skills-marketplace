@@ -10,7 +10,15 @@ from typing import Any, Optional
 
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
-from mcp.types import Tool, TextContent
+from mcp.types import (
+    CallToolRequestParams,
+    CallToolResult,
+    ListToolsResult,
+    TextContent,
+    Tool,
+)
+
+SERVER_NAME = "lumera-agent-memory"
 
 from security.redact import redact_session
 from security.encrypt import encrypt_data, decrypt_data
@@ -23,7 +31,7 @@ class LumeraMemoryServer:
     """MCP server for durable agent memory."""
 
     def __init__(self):
-        self.server = Server("lumera-agent-memory")
+        self.server: Server
         self.index = MemoryIndex()
         self.cascade_mock = MockCascadeFS()
         self.cascade_live: Optional[CascadeInterface] = None
@@ -34,7 +42,6 @@ class LumeraMemoryServer:
     def _register_tools(self):
         """Register the 4 required MCP tools."""
 
-        @self.server.list_tools()
         async def list_tools() -> list[Tool]:
             return [
                 Tool(
@@ -96,7 +103,6 @@ class LumeraMemoryServer:
                 ),
             ]
 
-        @self.server.call_tool()
         async def call_tool(name: str, arguments: Any) -> list[TextContent]:
             """Route tool calls to handlers."""
 
@@ -112,6 +118,24 @@ class LumeraMemoryServer:
                 result = {"ok": False, "error": f"Unknown tool: {name}"}
 
             return [TextContent(type="text", text=json.dumps(result, indent=2))]
+
+        async def _on_list_tools(ctx: Any, params: Any) -> ListToolsResult:
+            return ListToolsResult(tools=await list_tools())
+
+        async def _on_call_tool(ctx: Any, params: CallToolRequestParams) -> CallToolResult:
+            # The 1.x decorator turned a raised exception into an isError result;
+            # keep that contract instead of surfacing a protocol error.
+            try:
+                content = await call_tool(params.name, dict(params.arguments or {}))
+                return CallToolResult(content=content)
+            except Exception as exc:  # noqa: BLE001 - every failure becomes a tool error result
+                payload = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+                text = TextContent(type="text", text=json.dumps(payload, indent=2))
+                return CallToolResult(content=[text], is_error=True)
+
+        # MCP Python SDK 2.x: handlers are passed to the constructor; the 1.x
+        # @server.list_tools() / @server.call_tool() decorators no longer exist.
+        self.server = Server(SERVER_NAME, on_list_tools=_on_list_tools, on_call_tool=_on_call_tool)
 
     async def _store_session(self, args: dict) -> dict:
         """Store session to Cascade with redaction, encryption, and indexing."""

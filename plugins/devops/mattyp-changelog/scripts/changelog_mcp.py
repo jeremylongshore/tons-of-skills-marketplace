@@ -9,7 +9,15 @@ from typing import Any
 
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
-from mcp.types import Tool, TextContent
+from mcp.types import (
+    CallToolRequestParams,
+    CallToolResult,
+    ListToolsResult,
+    TextContent,
+    Tool,
+)
+
+SERVER_NAME = "mattyp-changelog"
 
 
 def _safe_relpath(path_str: str) -> Path:
@@ -23,11 +31,10 @@ def _safe_relpath(path_str: str) -> Path:
 
 class MattypChangelogMcp:
     def __init__(self) -> None:
-        self.server = Server("mattyp-changelog")
+        self.server: Server
         self._register()
 
     def _register(self) -> None:
-        @self.server.list_tools()
         async def list_tools() -> list[Tool]:
             return [
                 Tool(
@@ -101,7 +108,6 @@ class MattypChangelogMcp:
                 ),
             ]
 
-        @self.server.call_tool()
         async def call_tool(name: str, arguments: Any) -> list[TextContent]:
             if name == "get_changelog_config":
                 result = await self._get_config(arguments or {})
@@ -119,6 +125,24 @@ class MattypChangelogMcp:
                 result = {"ok": False, "error": f"Unknown tool: {name}"}
 
             return [TextContent(type="text", text=json.dumps(result, indent=2))]
+
+        async def _on_list_tools(ctx: Any, params: Any) -> ListToolsResult:
+            return ListToolsResult(tools=await list_tools())
+
+        async def _on_call_tool(ctx: Any, params: CallToolRequestParams) -> CallToolResult:
+            # The 1.x decorator turned a raised exception into an isError result;
+            # keep that contract instead of surfacing a protocol error.
+            try:
+                content = await call_tool(params.name, dict(params.arguments or {}))
+                return CallToolResult(content=content)
+            except Exception as exc:  # noqa: BLE001 - every failure becomes a tool error result
+                payload = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+                text = TextContent(type="text", text=json.dumps(payload, indent=2))
+                return CallToolResult(content=[text], is_error=True)
+
+        # MCP Python SDK 2.x: handlers are passed to the constructor; the 1.x
+        # @server.list_tools() / @server.call_tool() decorators no longer exist.
+        self.server = Server(SERVER_NAME, on_list_tools=_on_list_tools, on_call_tool=_on_call_tool)
 
     async def _get_config(self, args: dict) -> dict:
         path = Path(args.get("config_path") or ".changelog-config.json")
@@ -302,7 +326,7 @@ class MattypChangelogMcp:
 async def main() -> None:
     server = MattypChangelogMcp().server
     async with stdio_server() as (read_stream, write_stream):
-        await server.run(read_stream, write_stream)
+        await server.run(read_stream, write_stream, server.create_initialization_options())
 
 
 if __name__ == "__main__":
