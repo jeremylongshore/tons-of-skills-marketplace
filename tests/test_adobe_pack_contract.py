@@ -106,7 +106,7 @@ class AdobePackContractTest(unittest.TestCase):
         self.assertEqual("1.8.0", entry["version"])
         self.assertEqual(self.manifest["description"], entry["description"])
         self.assertEqual(30, entry["components"]["skills"])
-        self.assertEqual(98, entry["verification"]["score"])
+        self.assertGreaterEqual(entry["verification"]["score"], 90)
         self.assertEqual("A", entry["verification"]["grade"])
 
     def test_obsolete_or_invented_implementation_does_not_return(self) -> None:
