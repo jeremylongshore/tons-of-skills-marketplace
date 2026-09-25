@@ -42,9 +42,9 @@ a second full-repository contract.
 
 This is a permission, not a description of the current state. When GitHub
 retired the `node20` action runtime, #1554 and #1558 moved every hosted lane to
-Node 22, so no lane runs Node 20 today. The CLI compatibility matrix is the one
-place that still exercises older lines, because `packages/cli` publishes with
-its own `>=18.0.0` floor.
+Node 22, so no lane runs Node 20 today. Since #1569 `packages/cli` declares
+`>=22.0.0` and its compatibility matrix tests Node 22 and 24, so no lane
+exercises a line older than 22.
 
 ## Narrower compatibility matrices
 
@@ -53,7 +53,7 @@ jobs with lower runtime declarations. Those declarations remain intentional:
 
 | Surface                                                             | Supported Node line | Boundary                                 |
 | ------------------------------------------------------------------- | ------------------- | ---------------------------------------- |
-| `packages/cli`                                                      | `>=18.0.0`          | Package-local CLI runtime/build contract |
+| `packages/cli`                                                      | `>=22.0.0`          | Package-local CLI runtime/build contract |
 | `packages/plugin-validator`                                         | `>=14.0.0`          | Package-local validator contract         |
 | `plugins/mcp/a2a-client` and `plugins/mcp/databricks-workspace-mcp` | `>=20.0.0`          | Package-local MCP runtime contracts      |
 

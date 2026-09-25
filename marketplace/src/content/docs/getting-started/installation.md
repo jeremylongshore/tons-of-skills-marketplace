@@ -28,7 +28,7 @@ Before you begin, confirm that the following are in place.
 
 ### Node.js 22.12 or later (recommended)
 
-Use Node.js 22.12 or later for the marketplace tooling described here. Repository development and website builds require this minimum. The independently installed `ccpi` CLI retains its separate Node.js 18+ compatibility floor; that does not make Node.js 18 suitable for building this repository. Check your version:
+Use Node.js 22.12 or later for the marketplace tooling described here. Repository development and website builds require this minimum. The independently installed `ccpi` CLI also requires Node.js 22 or later. Check your version:
 
 ```bash
 node --version
