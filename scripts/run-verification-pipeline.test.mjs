@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { aggregateByPlugin, applyVerifications } from './run-verification-pipeline.mjs';
+import {
+  aggregateByPlugin,
+  applyVerifications,
+  buildSummary,
+  describeResult,
+  findDrift,
+} from './run-verification-pipeline.mjs';
 
 test('aggregates repository-relative and absolute validator paths', () => {
   const result = aggregateByPlugin([
@@ -120,4 +126,77 @@ test('a plugin without a verification block receives its first result', () => {
     badge: 'bronze',
     lastValidated: 'new',
   });
+});
+
+function driftFixture() {
+  return {
+    plugins: [
+      {
+        name: 'stale',
+        source: './plugins/x/stale',
+        verification: { score: 81, grade: 'B', badge: 'silver', lastValidated: 'old' },
+      },
+      {
+        name: 'current',
+        source: './plugins/x/current',
+        verification: { score: 95, grade: 'A', badge: 'gold', lastValidated: 'old' },
+      },
+      { name: 'unscored', source: './plugins/x/unscored' },
+    ],
+  };
+}
+
+const COMPUTED = new Map([
+  ['./plugins/x/stale', { score: 97, grade: 'A', badge: 'gold', skillCount: 4 }],
+  ['./plugins/x/current', { score: 95, grade: 'A', badge: 'gold', skillCount: 2 }],
+]);
+
+test('findDrift names only scored plugins whose recorded result differs', () => {
+  const drift = findDrift(driftFixture(), COMPUTED);
+  assert.deepEqual(
+    drift.map(({ plugin, recorded, computed }) => [plugin.name, recorded.score, computed.score]),
+    [['stale', 81, 97]],
+  );
+});
+
+test('findDrift and the writer share one definition of drift', () => {
+  const catalog = driftFixture();
+  const expected = findDrift(catalog, COMPUTED).map(({ plugin }) => plugin.name);
+  assert.equal(applyVerifications(catalog, COMPUTED, null, 'new'), expected.length);
+  assert.deepEqual(findDrift(catalog, COMPUTED), [], 'after writing, nothing drifts');
+});
+
+test('a hand-set badge that the validator does not compute is drift', () => {
+  const catalog = driftFixture();
+  catalog.plugins[1].verification.badge = 'verified';
+  assert.deepEqual(
+    findDrift(catalog, COMPUTED).map(({ plugin }) => plugin.name),
+    ['stale', 'current'],
+  );
+});
+
+test('findDrift respects a targeted plugin', () => {
+  assert.deepEqual(findDrift(driftFixture(), COMPUTED, 'current'), []);
+  assert.equal(findDrift(driftFixture(), COMPUTED, './plugins/x/stale').length, 1);
+});
+
+test('the summary lists scored plugins with their drift flag and adds no generation timestamp', () => {
+  const catalog = driftFixture();
+  const summary = buildSummary(catalog, COMPUTED, findDrift(catalog, COMPUTED));
+  assert.equal(summary.scored, 2);
+  assert.equal(summary.catalogEntries, 3);
+  assert.equal(summary.drift, 1);
+  assert.deepEqual(
+    summary.plugins.map(({ name, drift, computed }) => [name, drift, computed.skillCount]),
+    [
+      ['stale', true, 4],
+      ['current', false, 2],
+    ],
+  );
+  assert.doesNotMatch(JSON.stringify(summary), /generatedAt|"\d{4}-\d{2}-\d{2}T/);
+});
+
+test('describeResult renders missing and badge-less results readably', () => {
+  assert.equal(describeResult(null), 'none');
+  assert.equal(describeResult({ score: 40, grade: 'F', badge: null }), '40/F/no badge');
 });

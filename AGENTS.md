@@ -12,13 +12,15 @@ Use Node 22.12+ and pnpm 9.15.9+ for repository-level commands; `.node-version` 
 pnpm install
 ./scripts/quick-test.sh                 # fast repository sanity check
 pnpm test && pnpm typecheck && pnpm lint
-pnpm run verify                         # CI-equivalent verification pipeline
+pnpm run verify                         # rewrite recorded plugin verification results
 pnpm run sync-marketplace               # regenerate catalog-derived files
 cd marketplace && npm run dev           # local Astro site, port 4321
 cd marketplace && npx playwright test   # website end-to-end tests
 ```
 
 Do not hand-edit generated catalog artifacts. Run `pnpm run sync-marketplace` before committing catalog or plugin changes. Validate skill metadata with `python3 scripts/validate-skills-schema.py --marketplace --verbose`; use `python3 scripts/validate-unicode-hygiene.py` for changed skill content.
+
+When a change alters skill scores (plugin skill content or the validator), run `pnpm run verify` and commit the updated `.claude-plugin/marketplace.extended.json` with regenerated projections (`node scripts/regenerate-after-bump.mjs`). CI's `verify` job fails when a plugin's recorded score, grade, or badge no longer matches the validator. Same-repo plugin PRs get this commit automatically from the auto-bump workflow; fork and external-sync PRs need it by hand.
 
 ## Style and Naming
 

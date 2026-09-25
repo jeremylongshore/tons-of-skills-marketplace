@@ -708,8 +708,10 @@ jobs:
         with:
           python-version: '3.12'
 
+      # Pinned to the version auto-bump-on-pr.yml uses to write the same
+      # results, so the writer and this gate always parse frontmatter the same way.
       - name: Install Python dependencies
-        run: pip install pyyaml
+        run: pip install 'PyYAML==6.0.1'
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -719,14 +721,18 @@ jobs:
       - name: Check repository Node.js runtime
         run: node scripts/check-node-version.mjs
 
-      - name: Run verification pipeline
-        run: node scripts/run-verification-pipeline.mjs
+      # Fails when a plugin's recorded score, grade, or badge in
+      # marketplace.extended.json no longer matches the validator. It used to run
+      # the writer here and discard the result, so recorded results drifted.
+      - name: Check recorded verification results
+        run: node scripts/run-verification-pipeline.mjs --check --summary "$RUNNER_TEMP/verification-summary.json"
 
       - name: Upload verification results
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: verification-results
-          path: .claude-plugin/verification-summary.json
+          path: ${{ runner.temp }}/verification-summary.json
           retention-days: 90
 
   test:

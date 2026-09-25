@@ -18,6 +18,13 @@
  *   node scripts/run-verification-pipeline.mjs
  *   node scripts/run-verification-pipeline.mjs --dry-run    # Preview without writing
  *   node scripts/run-verification-pipeline.mjs --plugin snowflake-pack
+ *   node scripts/run-verification-pipeline.mjs --check    # CI gate: fail on drift, write nothing
+ *   node scripts/run-verification-pipeline.mjs --check --summary <file>
+ *
+ * --check recomputes every result and exits 1, naming each plugin whose
+ * recorded score, grade, or badge no longer matches the validator. Fix drift by
+ * running `pnpm run verify` and committing the catalog. --summary writes the
+ * per-plugin results as JSON (CI uploads it as an artifact).
  */
 
 import { execSync } from 'node:child_process';
@@ -34,6 +41,18 @@ const syncScript = join(repoRoot, 'scripts', 'sync-marketplace.cjs');
 const validatorScript = join(repoRoot, 'scripts', 'validate-skills-schema.py');
 
 const dryRun = process.argv.includes('--dry-run');
+const checkMode = process.argv.includes('--check');
+const summaryFlagIndex = process.argv.indexOf('--summary');
+const summaryPath = summaryFlagIndex >= 0 ? process.argv[summaryFlagIndex + 1] : null;
+
+if (summaryFlagIndex >= 0 && (!summaryPath || summaryPath.startsWith('--'))) {
+  console.error('--summary requires an output file path');
+  process.exit(2);
+}
+if (checkMode && dryRun) {
+  console.error('--check never writes; do not combine it with --dry-run');
+  process.exit(2);
+}
 const pluginFlagIndex = process.argv.indexOf('--plugin');
 const targetPlugin = pluginFlagIndex >= 0 ? process.argv[pluginFlagIndex + 1] : null;
 
@@ -173,8 +192,13 @@ function sameResult(current, next) {
   );
 }
 
-function applyVerifications(catalog, pluginVerifications, requestedPlugin, validatedAt) {
-  let updated = 0;
+/**
+ * The single definition of drift, shared by the writer and the --check gate so
+ * the two can never disagree: a scored plugin whose recorded score, grade, or
+ * badge differs from what the validator computes now.
+ */
+function findDrift(catalog, pluginVerifications, requestedPlugin = null) {
+  const drift = [];
   for (const plugin of catalog.plugins) {
     if (!plugin || !plugin.source) continue;
     if (requestedPlugin && plugin.name !== requestedPlugin && plugin.source !== requestedPlugin) {
@@ -184,24 +208,61 @@ function applyVerifications(catalog, pluginVerifications, requestedPlugin, valid
     const verification = pluginVerifications.get(plugin.source);
     if (!verification) continue;
 
-    const next = {
+    const computed = {
       score: verification.score,
       grade: verification.grade,
       badge: verification.badge,
     };
-    if (sameResult(plugin.verification, next)) continue;
-
-    plugin.verification = { ...next, lastValidated: validatedAt };
-    updated++;
+    if (sameResult(plugin.verification, computed)) continue;
+    drift.push({ plugin, recorded: plugin.verification ?? null, computed });
   }
-  return updated;
+  return drift;
+}
+
+function applyVerifications(catalog, pluginVerifications, requestedPlugin, validatedAt) {
+  const drift = findDrift(catalog, pluginVerifications, requestedPlugin);
+  for (const { plugin, computed } of drift) {
+    plugin.verification = { ...computed, lastValidated: validatedAt };
+  }
+  return drift.length;
+}
+
+function describeResult(result) {
+  if (!result) return 'none';
+  return `${result.score}/${result.grade}/${result.badge ?? 'no badge'}`;
+}
+
+/** Per-plugin results for the CI artifact. Deterministic; no timestamps. */
+function buildSummary(catalog, pluginVerifications, drift) {
+  const drifted = new Set(drift.map(({ plugin }) => plugin.source));
+  const plugins = catalog.plugins
+    .filter((plugin) => plugin?.source && pluginVerifications.has(plugin.source))
+    .map((plugin) => {
+      const computed = pluginVerifications.get(plugin.source);
+      return {
+        name: plugin.name,
+        source: plugin.source,
+        computed: {
+          score: computed.score,
+          grade: computed.grade,
+          badge: computed.badge,
+          skillCount: computed.skillCount,
+        },
+        recorded: plugin.verification ?? null,
+        drift: drifted.has(plugin.source),
+      };
+    });
+  return {
+    scored: plugins.length,
+    catalogEntries: catalog.plugins.length,
+    drift: drift.length,
+    plugins,
+  };
 }
 
 // === Step 3: Update marketplace.extended.json ===
 
-function updateCatalog(pluginVerifications) {
-  console.log('Step 3: Updating marketplace.extended.json...');
-
+function readCatalog() {
   const raw = readFileSync(extendedPath, 'utf-8');
   let catalog;
   try {
@@ -215,7 +276,13 @@ function updateCatalog(pluginVerifications) {
     console.error('Invalid catalog format: expected "plugins" array.');
     process.exit(1);
   }
+  return catalog;
+}
 
+function updateCatalog(pluginVerifications) {
+  console.log('Step 3: Updating marketplace.extended.json...');
+
+  const catalog = readCatalog();
   const now = new Date().toISOString().replace(/T.*/, 'T00:00:00.000Z');
   const updated = applyVerifications(catalog, pluginVerifications, targetPlugin, now);
 
@@ -320,6 +387,11 @@ function main() {
   const pluginVerifications = aggregateByPlugin(skillResults);
   console.log(`   Aggregated to ${pluginVerifications.size} plugins.\n`);
 
+  if (checkMode) {
+    runCheck(pluginVerifications);
+    return;
+  }
+
   const catalogStats = updateCatalog(pluginVerifications);
   console.log('');
 
@@ -328,12 +400,50 @@ function main() {
   printSummary(pluginVerifications, catalogStats);
 }
 
+function runCheck(pluginVerifications) {
+  console.log('Step 3: Comparing recorded results with the validator (--check, no writes)...');
+  const catalog = readCatalog();
+  const drift = findDrift(catalog, pluginVerifications, targetPlugin);
+  if (summaryPath) {
+    writeFileSync(
+      summaryPath,
+      JSON.stringify(buildSummary(catalog, pluginVerifications, drift), null, 2) + '\n',
+    );
+    console.log(`   Wrote per-plugin summary to ${summaryPath}`);
+  }
+  printSummary(pluginVerifications, { updated: drift.length, total: catalog.plugins.length });
+  if (drift.length === 0) {
+    console.log('\nverification-drift: OK (recorded results match the validator)');
+    return;
+  }
+  console.error(`\nverification-drift: FAIL — ${drift.length} plugin(s) record a stale result:`);
+  for (const { plugin, recorded, computed } of drift) {
+    console.error(
+      `  ${plugin.name}: recorded ${describeResult(recorded)}, validator ${describeResult(computed)}`,
+    );
+  }
+  console.error(
+    '\nFix: run `pnpm run verify` and commit .claude-plugin/marketplace.extended.json ' +
+      '(then regenerate projections, e.g. `node scripts/regenerate-after-bump.mjs`). ' +
+      'Same-repo plugin PRs get this automatically from the auto-bump workflow.',
+  );
+  process.exitCode = 1;
+}
+
 function sep(title) {
   const line = '='.repeat(60);
   return `${line}\n ${title}\n${line}`;
 }
 
-export { aggregateByPlugin, applyVerifications, scoreToBadge, scoreToGrade };
+export {
+  aggregateByPlugin,
+  applyVerifications,
+  buildSummary,
+  describeResult,
+  findDrift,
+  scoreToBadge,
+  scoreToGrade,
+};
 
 if (process.argv[1] && resolve(process.argv[1]) === __filename) {
   main();

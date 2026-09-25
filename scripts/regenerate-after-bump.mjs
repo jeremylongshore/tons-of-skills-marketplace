@@ -7,6 +7,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 export const GENERATORS = [
+  // First: it rewrites recorded plugin verification results in the canonical
+  // catalog, which every later projection reads. The verify job's --check
+  // fails a pull request whose recorded results have drifted.
+  ['node', ['scripts/run-verification-pipeline.mjs']],
   ['pnpm', ['run', 'sync-marketplace']],
   ['node', ['marketplace/scripts/discover-skills.mjs', '--level=full']],
   ['node', ['marketplace/scripts/sync-catalog.mjs']],
@@ -17,6 +21,7 @@ export const GENERATORS = [
   ['pnpm', ['run', 'normalize:dead-domain-projections']],
 ];
 export const CHECKS = [
+  ['node', ['scripts/run-verification-pipeline.mjs', '--check']],
   ['node', ['marketplace/scripts/discover-skills.mjs', '--level=full', '--check']],
   ['node', ['marketplace/scripts/sync-catalog.mjs', '--check']],
   ['node', ['marketplace/scripts/generate-unified-search.mjs', '--check']],

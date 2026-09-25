@@ -15,8 +15,11 @@ test('regeneration invokes every canonical writer in dependency order without sh
     },
   });
   assert.deepEqual(calls, GENERATORS);
+  // The verification refresh writes the catalog, so it must precede every reader.
+  assert.deepEqual(calls[0], ['node', ['scripts/run-verification-pipeline.mjs']]);
+  assert.deepEqual(calls[1], ['pnpm', ['run', 'sync-marketplace']]);
   assert.deepEqual(
-    calls.slice(1, 4).map(([, args]) => args[0]),
+    calls.slice(2, 5).map(([, args]) => args[0]),
     [
       'marketplace/scripts/discover-skills.mjs',
       'marketplace/scripts/sync-catalog.mjs',
