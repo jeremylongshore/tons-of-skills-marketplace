@@ -13,9 +13,9 @@ test.describe('P6: Mobile Responsive', () => {
     const heading = page.locator('h1').first();
     await expect(heading).toBeVisible();
 
-    // Search should be visible on mobile
-    const search = page.locator('#hero-search-input');
-    await expect(search).toBeVisible();
+    // The homepage's one action and its path to search both fit on mobile
+    await expect(page.locator('button.install-copy').first()).toBeVisible();
+    await expect(page.locator('a.btn-browse').first()).toBeVisible();
 
     // No horizontal overflow
     const body = page.locator('body');

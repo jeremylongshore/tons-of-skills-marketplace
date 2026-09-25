@@ -26,4 +26,7 @@ pnpm-debug.log*
 # playwright test artifacts
 test-results/
 playwright-report/
+# Output of playwright.production.config.ts (screenshots, videos, HTML report)
+production-test-results/
+production-e2e-report/
 playwright/.cache/

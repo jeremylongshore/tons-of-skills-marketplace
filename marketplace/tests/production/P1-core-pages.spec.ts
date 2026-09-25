@@ -35,16 +35,24 @@ test.describe('P1: Core Pages Smoke Tests', () => {
     await expect(heading).toBeVisible();
   });
 
-  test('Homepage renders search input', async ({ page }) => {
+  // The homepage has one action since the #1152 redesign: copy the install
+  // command. Search moved to /explore, reached through the Browse link. The
+  // install slug is a frozen public identifier, so it is asserted exactly.
+  test('Homepage leads with the copyable install command', async ({ page }) => {
     await page.goto('/');
-    const search = page.locator('#hero-search-input');
-    await expect(search).toBeVisible();
+    const copy = page.locator('button.install-copy').first();
+    await expect(copy).toBeVisible();
+    await expect(copy).toHaveAttribute(
+      'data-copy',
+      '/plugin marketplace add jeremylongshore/claude-code-plugins',
+    );
   });
 
-  test('Homepage renders install command box', async ({ page }) => {
+  test('Homepage Browse link leads to the explore page', async ({ page }) => {
     await page.goto('/');
-    const installBox = page.locator('.install-cmd, [data-install], code').first();
-    await expect(installBox).toBeVisible();
+    const browse = page.locator('a.btn-browse').first();
+    await expect(browse).toBeVisible();
+    await expect(browse).toHaveAttribute('href', /^\/explore\/?$/);
   });
 
   test('Navigation bar is present on all pages', async ({ page }) => {
