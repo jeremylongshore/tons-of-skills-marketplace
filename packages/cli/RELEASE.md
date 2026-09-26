@@ -158,7 +158,9 @@ The test workflow runs on:
 - 22.x
 - 24.x
 
-**Total Combinations**: 18, minus exclusions (Windows runs Node 22 only and skips bun) = 14 test runs. Source of truth: `.github/workflows/cli-test.yml`.
+**Total Combinations**: 18, minus exclusions (Windows runs Node 22 only and skips bun) = 14 test runs.
+
+**Deno**: a separate job runs a `--version` smoke test with Deno v1.x on ubuntu-latest and macos-latest (2 runs), for 16 runs in all. Source of truth: `.github/workflows/cli-test.yml`.
 
 ## Troubleshooting
 
