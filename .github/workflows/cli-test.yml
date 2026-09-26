@@ -71,10 +71,7 @@ jobs:
       - name: Build CLI
         run: pnpm -C packages/cli build
 
-      # Vitest 4 supports Node 20+. Node 18 remains a runtime smoke target until
-      # the next CLI major, but contract tests run on every supported test runtime.
       - name: Run CLI contract and unit tests
-        if: matrix.node-version != 18
         run: pnpm -C packages/cli test
 
       - name: Verify build output

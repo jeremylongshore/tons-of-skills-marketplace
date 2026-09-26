@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-09-26
+
+- **feat(cli)!: `@intentsolutionsio/ccpi` 3.0.0 requires Node.js 22 or later.**
+  Breaking: Node 18 and 20 are no longer supported (both are end of life);
+  `engines.node` is `>=22.0.0` and the CLI is tested on Node 22 and 24. On
+  Node 18 or 20, stay on `@intentsolutionsio/ccpi@2`. `ccpi doctor` now reports
+  those runtimes as unsupported and names the 2.x fallback. 3.0.0 also carries
+  every change made since the last published release, 2.0.3; versions 2.1.0
+  through 2.1.2 were never published.
+
 ## 2026-08-18
 
 - **docs(governance):** correct every live documented number that disagreed

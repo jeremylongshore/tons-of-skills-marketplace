@@ -20,7 +20,7 @@ interface DiagnosticResult {
   checks: CheckResult[];
 }
 
-interface CheckResult {
+export interface CheckResult {
   name: string;
   status: 'pass' | 'warn' | 'fail' | 'fixed';
   message: string;
@@ -113,21 +113,32 @@ export async function doctorCheck(options: DoctorOptions): Promise<void> {
 }
 
 /**
+ * Oldest supported Node.js major. Must match `engines.node` in package.json;
+ * a test enforces that. ccpi 3.0.0 dropped Node 18 and 20 (both end of life).
+ */
+export const MIN_NODE_MAJOR = 22;
+
+/** Classify a Node.js version string such as `v20.11.1` against MIN_NODE_MAJOR. */
+export function checkNodeVersion(nodeVersion: string): CheckResult {
+  const majorVersion = Number.parseInt(nodeVersion.replace(/^v/, '').split('.')[0], 10);
+  const supported = Number.isFinite(majorVersion) && majorVersion >= MIN_NODE_MAJOR;
+  return {
+    name: 'Node.js Version',
+    status: supported ? 'pass' : 'warn',
+    message: `${nodeVersion} ${supported ? '(supported)' : '(unsupported)'}`,
+    details: supported
+      ? undefined
+      : `ccpi 3 requires Node.js ${MIN_NODE_MAJOR} or later. On older runtimes, use @intentsolutionsio/ccpi@2.`,
+  };
+}
+
+/**
  * Run system environment checks
  */
 async function runSystemChecks(): Promise<DiagnosticResult> {
   const checks: CheckResult[] = [];
 
-  // Node.js version
-  const nodeVersion = process.version;
-  const majorVersion = parseInt(nodeVersion.slice(1).split('.')[0]);
-
-  checks.push({
-    name: 'Node.js Version',
-    status: majorVersion >= 18 ? 'pass' : 'warn',
-    message: `${nodeVersion} ${majorVersion >= 18 ? '(supported)' : '(upgrade recommended)'}`,
-    details: majorVersion < 18 ? 'Node.js 18+ recommended for best compatibility' : undefined,
-  });
+  checks.push(checkNodeVersion(process.version));
 
   // Platform
   checks.push({

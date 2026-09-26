@@ -1,10 +1,10 @@
 # CLI Release Process
 
-This document describes how to release new versions of `@claude-code-plugins/ccp` to npm.
+This document describes how to release new versions of `@intentsolutionsio/ccpi` to npm.
 
 ## Prerequisites
 
-1. **npm account** with publish access to `@claude-code-plugins` org
+1. **npm account** with publish access to the `@intentsolutionsio` npm scope
 2. **npm token** stored in GitHub secrets as `NPM_TOKEN`
 3. **Write access** to the repository
 4. **All tests passing** on main branch
@@ -14,7 +14,7 @@ This document describes how to release new versions of `@claude-code-plugins/ccp
 ### 1. Prepare Release
 
 - [ ] Update version in `packages/cli/package.json`
-- [ ] Update `000-docs/247-OD-CHNG-changelog.md` with changes
+- [ ] Add a dated entry to the root `CHANGELOG.md` (the GitHub Release notes link to it); flag breaking changes
 - [ ] Test locally: `npm run build && node dist/index.js doctor`
 - [ ] Commit changes: `git commit -am "chore(cli): bump version to X.Y.Z"`
 - [ ] Push to main: `git push origin main`
@@ -28,12 +28,15 @@ git push origin cli-vX.Y.Z
 ```
 
 **Example**:
+
 ```bash
 git tag cli-v1.0.1
 git push origin cli-v1.0.1
 ```
 
 ### 3. Automated Workflow Triggers
+
+The publish job runs in the `npm-production` environment, so it waits for a maintainer to approve the deployment in GitHub Actions before anything reaches npm.
 
 Once you push the tag, GitHub Actions will:
 
@@ -57,11 +60,13 @@ Once you push the tag, GitHub Actions will:
 ### 4. Monitor Release
 
 Watch the GitHub Actions workflow:
+
 ```
-https://github.com/jeremylongshore/claude-code-plugins/actions
+https://github.com/jeremylongshore/tons-of-skills-marketplace/actions
 ```
 
 **Expected timeline**:
+
 - Quality Gate: ~2 minutes
 - npm Publish: ~1 minute
 - Verification: ~2 minutes
@@ -73,15 +78,16 @@ After workflow completes:
 
 ```bash
 # Test installation
-npx @claude-code-plugins/ccp@latest --version
+npx @intentsolutionsio/ccpi@latest --version
 
 # Should show new version
-npx @claude-code-plugins/ccp@X.Y.Z doctor
+npx @intentsolutionsio/ccpi@X.Y.Z doctor
 ```
 
 Check npm package page:
+
 ```
-https://www.npmjs.com/package/@claude-code-plugins/ccp
+https://www.npmjs.com/package/@intentsolutionsio/ccpi
 ```
 
 ## Version Scheme (Semantic Versioning)
@@ -91,6 +97,7 @@ https://www.npmjs.com/package/@claude-code-plugins/ccp
 - **Patch** (0.0.X): Bug fixes
 
 **Examples**:
+
 - `1.0.0` → `1.0.1`: Bug fix (patch)
 - `1.0.1` → `1.1.0`: New feature (minor)
 - `1.1.0` → `2.0.0`: Breaking change (major)
@@ -100,11 +107,13 @@ https://www.npmjs.com/package/@claude-code-plugins/ccp
 If a release has critical bugs:
 
 ### Option 1: Deprecate on npm
+
 ```bash
-npm deprecate @claude-code-plugins/ccp@X.Y.Z "Critical bug, use X.Y.Z-1"
+npm deprecate @intentsolutionsio/ccpi@X.Y.Z "Critical bug, use X.Y.Z-1"
 ```
 
 ### Option 2: Publish Hotfix
+
 ```bash
 # Fix the bug
 # Bump to X.Y.Z+1
@@ -123,8 +132,9 @@ git push origin cli-vX.Y.Z-beta.1
 ```
 
 Install pre-release:
+
 ```bash
-npx @claude-code-plugins/ccp@X.Y.Z-beta.1 doctor
+npx @intentsolutionsio/ccpi@X.Y.Z-beta.1 doctor
 ```
 
 ## CI/CD Matrix
@@ -132,22 +142,23 @@ npx @claude-code-plugins/ccp@X.Y.Z-beta.1 doctor
 The test workflow runs on:
 
 **Operating Systems**:
+
 - ubuntu-latest
 - macos-latest
 - windows-latest
 
 **Package Managers**:
+
 - npm
 - bun
 - pnpm
-- deno
 
 **Node Versions**:
-- 18.x
-- 20.x
-- 22.x
 
-**Total Combinations**: 24 test runs (optimized to ~15 with exclusions)
+- 22.x
+- 24.x
+
+**Total Combinations**: 18, minus exclusions (Windows runs Node 22 only and skips bun) = 14 test runs. Source of truth: `.github/workflows/cli-test.yml`.
 
 ## Troubleshooting
 
@@ -156,6 +167,7 @@ The test workflow runs on:
 **Problem**: Git tag doesn't match package.json version
 
 **Solution**:
+
 ```bash
 # Delete local tag
 git tag -d cli-vX.Y.Z
@@ -174,6 +186,7 @@ git push origin cli-vX.Y.Z
 **Problem**: Package already exists at this version
 
 **Solution**:
+
 - Bump version to next patch (X.Y.Z+1)
 - Never reuse version numbers
 
@@ -182,6 +195,7 @@ git push origin cli-vX.Y.Z
 **Problem**: Tests failing
 
 **Solution**:
+
 1. Check GitHub Actions logs
 2. Fix failing tests locally
 3. Commit fixes
@@ -220,23 +234,28 @@ git push origin cli-v1.0.1
 When creating manual release notes:
 
 ```markdown
-## @claude-code-plugins/ccp vX.Y.Z
+## @intentsolutionsio/ccpi vX.Y.Z
 
 ### ✨ New Features
+
 - Feature description
 
 ### 🐛 Bug Fixes
+
 - Bug fix description
 
 ### 📚 Documentation
+
 - Doc updates
 
 ### 🔧 Internal
+
 - Internal changes
 
 ### 📦 Installation
+
 \`\`\`bash
-npx @claude-code-plugins/ccp@X.Y.Z doctor
+npx @intentsolutionsio/ccpi@X.Y.Z doctor
 \`\`\`
 ```
 
@@ -257,6 +276,6 @@ After successful release:
 
 ## Links
 
-- **npm Package**: https://www.npmjs.com/package/@claude-code-plugins/ccp
-- **GitHub Actions**: https://github.com/jeremylongshore/claude-code-plugins/actions
+- **npm Package**: https://www.npmjs.com/package/@intentsolutionsio/ccpi
+- **GitHub Actions**: https://github.com/jeremylongshore/tons-of-skills-marketplace/actions
 - **Issues**: https://github.com/jeremylongshore/claude-code-plugins/issues
