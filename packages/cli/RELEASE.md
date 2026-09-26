@@ -280,4 +280,4 @@ After successful release:
 
 - **npm Package**: https://www.npmjs.com/package/@intentsolutionsio/ccpi
 - **GitHub Actions**: https://github.com/jeremylongshore/tons-of-skills-marketplace/actions
-- **Issues**: https://github.com/jeremylongshore/claude-code-plugins/issues
+- **Issues**: https://github.com/jeremylongshore/tons-of-skills-marketplace/issues
