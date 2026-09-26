@@ -69,8 +69,9 @@ pnpm exec j-rig --version         # → 0.2.0 (the real 7-layer CLI)
 pnpm exec j-rig check <skill-dir> # Tier 3A: deterministic (~seconds, free, no API key, no DB)
 
 # Real behavioral eval (opt-in, ~$2-5/skill) — needs the native better-sqlite3
-# build (run `pnpm rebuild better-sqlite3` once; the build script is not
-# auto-run on install). ALWAYS route through the wrapper — it runs j-rig
+# build. A default pnpm install runs its build script; an install that skips
+# scripts (CI's --ignore-scripts, or a user-level pnpm only-built-dependencies
+# setting) does not — then run `pnpm rebuild better-sqlite3` once. ALWAYS route through the wrapper — it runs j-rig
 # against a /dev/shm scratch DB and records the verdict into forge_proofs via
 # scripts/record-jrig-proofs.mjs. NEVER pass freshie/inventory.sqlite to
 # `j-rig eval --db` directly: j-rig writes its own run tables into whatever
