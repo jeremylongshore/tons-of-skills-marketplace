@@ -257,6 +257,31 @@
         "skills/dolt-mcp-vcs/safety-eval.yaml": "sha256:7c167aba635dedf2296b78b063939a989873946815f74ad4ba327cc72e20b981"
       }
     },
+    "dvera": {
+      "repo": "SuresoftTechnologies/dvera-plugin",
+      "resolved_ref": "92e1256bdcf4fb26f035e7933d990e921ca5b66c",
+      "locked_at": "2026-09-23T00:41:40.177Z",
+      "files": {
+        ".claude-plugin/marketplace.json": "sha256:ff298378f2818d49d2ddbafb4df3941b83f58fcac1b466173cdece194d1b9bdd",
+        ".claude-plugin/plugin.json": "sha256:e5bedf202a02fb4bdafdc91d98fc041fa0e0475b5aaba84daef8557b66bd72e9",
+        "LICENSE": "sha256:61f23eb18302318a4090c52ed35f542ea8894ff2be45a1bc501819e8f77edc9a",
+        "README.md": "sha256:6be520abb75a514705318399b703cb011d7cfc49875f41e2bc8256d64897b40f",
+        "skills/ct-analysis-loop/SKILL.md": "sha256:d3a2c8ce50d2b5916b5c23cd212cbb47d741dddaa9e64bae37f3ffa8725a2ad6",
+        "skills/ct-extract-macro/SKILL.md": "sha256:ac0e076765c89b4dd2e2ca046b845012039eff1ef0e24941b6e7759189473608",
+        "skills/ct-init-project/SKILL.md": "sha256:3c06c74eef76c609bc724de837477e1cdfd3ef70c78ee64256ce11c55c46f01f",
+        "skills/ct-kb-update/SKILL.md": "sha256:2e127acbaed92a48dc68a8520ed39e4cfd079fdbe42fa0269ab89ed1d64436d4",
+        "skills/ct-make-conf/SKILL.md": "sha256:1b37a24941ffca3a3c5c8d7ac255abac8d45991a72bb804eed8f2a1e1a3c9094",
+        "skills/ct-open/SKILL.md": "sha256:a25417d5bcc92c4c49c383554916eacf3a2029097b3660149de49390ea0ae147",
+        "skills/ct-orchestrator/SKILL.md": "sha256:f645b500f5008699cf1a370e5df7f3528e852684eb943af70887b0d25f8c2034",
+        "skills/ct-regression/SKILL.md": "sha256:af9abb383c059c59a83b12874c618c1cd545537723aab9220b6b8695600e20dd",
+        "skills/ct-report/SKILL.md": "sha256:eddadefbf452cc705139e26cacf33f1dd346de5b44f7af2ee5fd72bef16b3ff7",
+        "skills/ct-req-to-test/SKILL.md": "sha256:91391580fdce46deabdbe1da11a3a8769c33d5a0861632ffb60b22b5fdacc3c2",
+        "skills/ct-run-gtest/SKILL.md": "sha256:5825c97a7c25f2dd7a7112a2b200019e7ce0acab06405762ad147f429fb6c23a",
+        "skills/ct-self-healing/SKILL.md": "sha256:117d0eca42b4fbcf46271c04b361a74e21505209f428b1e0bab36b46a095474a",
+        "skills/ct-setup-project/SKILL.md": "sha256:1d0b249929e97f698100f08ea9a984f78c0b5d5ab6ab51a2c2b96d7662e9bea2",
+        "skills/ct-test-loop/SKILL.md": "sha256:ee8bf6ef616c4dba1efe54ce2dbf802f8061e565c41cc280b633a902a0196c56"
+      }
+    },
     "ejentum-anti-deception": {
       "repo": "ejentum/ejentum-mcp",
       "resolved_ref": "5cd30e877ada820118ee960ebd717f939b57e105",
