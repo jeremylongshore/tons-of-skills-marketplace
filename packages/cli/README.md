@@ -322,7 +322,7 @@ No configuration required! The CLI automatically:
 
 ## Requirements
 
-- Node.js 22 or higher (18 and 20 are end of life)
+- Node.js 22 or higher (18 and 20 are end of life). ccpi 3.0.0 dropped them; on Node 18 or 20, stay on `@intentsolutionsio/ccpi@2`.
 - Claude Code installed and run at least once
 
 ## Troubleshooting

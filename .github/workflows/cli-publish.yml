@@ -30,7 +30,7 @@ jobs:
         run: corepack enable
 
       - name: Install dependencies
-        # Keep the Node 20 CLI compatibility lane scoped to the CLI package;
+        # Keep the install scoped to the CLI package;
         # the marketplace workspace requires the repository Node 22 floor.
         run: pnpm install --frozen-lockfile --filter '@intentsolutionsio/ccpi...'
 
