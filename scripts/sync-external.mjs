@@ -133,19 +133,83 @@ function logVerbose(message) {
  *
  * Caller must clean up the returned tmpdir.
  */
-function sparseCheckout(repo, sourcePath, branch = 'main', licensePath = 'LICENSE') {
-  const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), `sync-${repo.replace('/', '-')}-`));
-  // Authenticated clone bumps rate limits when GITHUB_TOKEN is present.
-  // Format: https://x-access-token:TOKEN@github.com/owner/repo.git
-  const authUrl = process.env.GITHUB_TOKEN
-    ? `https://x-access-token:${process.env.GITHUB_TOKEN}@github.com/${repo}.git`
-    : `https://github.com/${repo}.git`;
+const SAFE_REPO = /^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/;
+const SAFE_BRANCH = /^[A-Za-z0-9._/-]+$/;
+// Names the engine owns inside every mirror; upstream may never supply them.
+const RESERVED_MIRROR_FILES = new Set(['.source.json']);
 
-  // Normalize source_path: '' or '.' means "whole repo root". Anything
-  // else is treated as a path prefix. `--no-cone` mode treats patterns
-  // as gitignore-style, so `/*` matches every entry at root recursively.
-  const wholeRepo = !sourcePath || sourcePath === '.' || sourcePath === './';
-  const sparsePatterns = wholeRepo ? ['/*'] : [sourcePath, `/${licensePath.replace(/^\/+/, '')}`];
+function hasGitSegment(rel) {
+  return rel.split('/').some((segment) => segment.toLowerCase() === '.git');
+}
+
+/**
+ * Validate every sources.yaml field that reaches git or the filesystem BEFORE
+ * any clone. Returns normalized values; throws with a clear message otherwise.
+ *   repo         owner/name only (it builds the clone URL and the temp name)
+ *   branch       plain ref characters, never an option, never `..`
+ *   sourceRel    '' for the whole repository, else a validated relative path
+ *                that never names or enters `.git` (which holds clone config)
+ *   licenseRel   a single root LICENSE/COPYING file name
+ *   targetRel    plugins/<category>/<name>
+ */
+export function validateSourceSpec(source, defaultBranch = 'main') {
+  const repo = String(source?.repo ?? '');
+  if (!SAFE_REPO.test(repo) || repo.split('/').some((part) => part === '.' || part === '..')) {
+    throw new Error(`repo "${repo}" must be owner/name`);
+  }
+  const branch = String(source?.branch || defaultBranch || 'main');
+  if (!SAFE_BRANCH.test(branch) || branch.startsWith('-') || branch.includes('..')) {
+    throw new Error(`branch "${branch}" is not a plain ref name`);
+  }
+  const rawSource = source?.source_path;
+  const wholeRepo = !rawSource || rawSource === '.' || rawSource === './';
+  const sourceRel = wholeRepo ? '' : normalizeRelative(rawSource);
+  if (sourceRel && (sourceRel.startsWith('-') || hasGitSegment(sourceRel))) {
+    throw new Error(`source_path "${rawSource}" may not start with "-" or enter .git`);
+  }
+  const licensePath = source?.license_path || 'LICENSE';
+  const licenseRel = normalizeRelative(licensePath);
+  if (licenseRel.includes('/') || !isRootLicenseFile(licenseRel)) {
+    throw new Error(
+      `license_path "${licensePath}" must name a root LICENSE/COPYING file; refusing sync`,
+    );
+  }
+  return { repo, branch, sourceRel, licenseRel, targetRel: mirrorTargetRel(source?.target_path) };
+}
+
+/**
+ * Environment for git that authenticates through an HTTP header instead of
+ * the URL. A token in the URL is written into the clone's .git/config and is
+ * visible in the process list; this keeps it in memory only.
+ */
+function gitEnv() {
+  const env = { ...process.env, GIT_TERMINAL_PROMPT: '0' };
+  if (process.env.GITHUB_TOKEN) {
+    const basic = Buffer.from(`x-access-token:${process.env.GITHUB_TOKEN}`).toString('base64');
+    env.GIT_CONFIG_COUNT = '1';
+    env.GIT_CONFIG_KEY_0 = 'http.https://github.com/.extraheader';
+    env.GIT_CONFIG_VALUE_0 = `AUTHORIZATION: basic ${basic}`;
+  }
+  return env;
+}
+
+/**
+ * Sparse-clone a repo into a temp dir and return the local path.
+ * The clone uses --depth=1 --filter=blob:none, then sparse-checkout
+ * restricts blob materialization to the source_path subtree. Result:
+ * ONE git fetch per source, zero REST API calls. Arguments come from
+ * validateSourceSpec, so none can be read as a git option.
+ *
+ * Caller must clean up the returned tmpdir.
+ */
+function sparseCheckout({ repo, branch, sourceRel, licenseRel }) {
+  const tmpdir = fs.mkdtempSync(
+    path.join(os.tmpdir(), `sync-${repo.replace(/[^A-Za-z0-9._-]/g, '-')}-`),
+  );
+  const env = gitEnv();
+  // `--no-cone` patterns are gitignore-style. Anchor with a leading `/` so
+  // only the exact subtree we read (plus the root license) is fetched.
+  const sparsePatterns = sourceRel ? [`/${sourceRel}`, `/${licenseRel}`] : ['/*'];
 
   try {
     execFileSync(
@@ -158,15 +222,18 @@ function sparseCheckout(repo, sourcePath, branch = 'main', licensePath = 'LICENS
         '--branch',
         branch,
         '--quiet',
-        authUrl,
+        '--end-of-options',
+        `https://github.com/${repo}.git`,
         tmpdir,
       ],
-      { stdio: ['ignore', 'pipe', 'pipe'] },
+      { stdio: ['ignore', 'pipe', 'pipe'], env },
     );
 
-    execFileSync('git', ['-C', tmpdir, 'sparse-checkout', 'set', '--no-cone', ...sparsePatterns], {
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
+    execFileSync(
+      'git',
+      ['-C', tmpdir, 'sparse-checkout', 'set', '--no-cone', '--end-of-options', ...sparsePatterns],
+      { stdio: ['ignore', 'pipe', 'pipe'], env },
+    );
 
     return tmpdir;
   } catch (err) {
@@ -192,21 +259,63 @@ function sparseCheckout(repo, sourcePath, branch = 'main', licensePath = 'LICENS
 export function readUpstreamFiles(checkoutDir, sourcePath) {
   const wholeRepo = !sourcePath || sourcePath === '.' || sourcePath === './';
   const rel = wholeRepo ? '' : normalizeRelative(sourcePath);
+  if (rel && hasGitSegment(rel)) {
+    throw new Error(`source_path "${sourcePath}" may not enter .git`);
+  }
   return safeReadTree(checkoutDir, rel, { exclude: ['.git'] });
 }
 
 /**
- * Validate a sources.yaml target_path and return it normalized. Mirrors may
- * only land under plugins/: a target such as `.github/workflows` would let
- * upstream bytes become CI configuration.
+ * Validate a sources.yaml target_path and return it normalized. Mirrors land
+ * only at plugins/<category>/<name>: a target such as `.github/workflows`
+ * would let upstream bytes become CI configuration, and `plugins/<category>`
+ * would let one upstream overwrite its in-repo neighbours.
  */
 export function mirrorTargetRel(targetPath) {
   const rel = normalizeRelative(targetPath);
   const segments = rel.split('/');
-  if (segments[0] !== 'plugins' || segments.length < 2) {
-    throw new Error(`target_path "${targetPath}" must be a directory under plugins/`);
+  if (segments[0] !== 'plugins' || segments.length !== 3) {
+    throw new Error(`target_path "${targetPath}" must be plugins/<category>/<name>`);
   }
   return rel;
+}
+
+/**
+ * The engine owns `.source.json` at every mirror root. An upstream file of
+ * that name would let the upstream choose what the next orphan prune deletes,
+ * so a source that ships one is refused.
+ */
+export function assertNoReservedMirrorFiles(files) {
+  const reserved = files.find((file) => RESERVED_MIRROR_FILES.has(file.path.toLowerCase()));
+  if (reserved) {
+    throw new Error(`upstream ships reserved engine file "${reserved.path}"; refusing sync`);
+  }
+}
+
+/**
+ * Return the names of sources whose mirror targets are equal to or nested in
+ * another source's target. Overlapping mirrors could overwrite or prune each
+ * other's files, so those sources are refused.
+ */
+export function findTargetOverlaps(sources) {
+  const targets = [];
+  for (const source of sources) {
+    try {
+      targets.push({ name: source.name, rel: mirrorTargetRel(source.target_path) });
+    } catch {
+      // Invalid targets are reported by the per-source validation.
+    }
+  }
+  const overlapping = new Set();
+  for (const a of targets) {
+    for (const b of targets) {
+      if (a !== b && (a.rel === b.rel || `${b.rel}/`.startsWith(`${a.rel}/`))) {
+        overlapping.add(a.name);
+        overlapping.add(b.name);
+      }
+    }
+  }
+  return overlapping;
 }
 
 /**
@@ -264,7 +373,11 @@ export function mirrorFiles({
       if (!existing.content.equals(file.content)) {
         needsUpdate = true;
         reason = 'modified';
-      } else if (typeof file.mode === 'number' && (existing.mode & 0o111) !== (file.mode & 0o111)) {
+      } else if (
+        process.platform !== 'win32' &&
+        typeof file.mode === 'number' &&
+        (existing.mode & 0o111) !== (file.mode & 0o111)
+      ) {
         // Same bytes, different executable bit: self-heal the stale mode.
         needsUpdate = true;
         reason = 'mode';
@@ -751,16 +864,17 @@ async function syncSource(source, config, lock) {
   let tmpdir = null;
 
   try {
-    const licensePath = source.license_path || 'LICENSE';
-    // Validate the destination before any network or disk work.
-    const targetRel = mirrorTargetRel(source.target_path);
-    tmpdir = sparseCheckout(source.repo, source.source_path, branch, licensePath);
+    // Validate every field that reaches git or the filesystem before any
+    // network or disk work.
+    const spec = validateSourceSpec(source, branch);
+    const { targetRel, licenseRel } = spec;
+    tmpdir = sparseCheckout(spec);
     logVerbose(`Sparse-cloned ${source.repo}@${branch} → ${tmpdir}`);
 
     // Walk the sourcePath subtree (or repo root when source_path is '.' / '')
     // through the hardened reader: upstream links and special files are
     // reported and never followed.
-    const { files, skipped } = readUpstreamFiles(tmpdir, source.source_path);
+    const { files, skipped } = readUpstreamFiles(tmpdir, spec.sourceRel);
     for (const skip of skipped) {
       log(`   ⚠️  Not mirrored (${skip.reason}): ${skip.path}`, colors.yellow);
     }
@@ -814,7 +928,7 @@ async function syncSource(source, config, lock) {
     }
     // Read through the hardened reader: an upstream LICENSE that is a link
     // (for example to a runner file) is refused, never followed.
-    const license = readUpstreamLicense(tmpdir, licensePath);
+    const license = readUpstreamLicense(tmpdir, licenseRel);
     if (!filteredFiles.some((file) => isRootLicenseFile(file.path))) {
       filteredFiles.push(license);
     }
@@ -929,6 +1043,22 @@ async function syncSource(source, config, lock) {
       };
     }
 
+    assertNoReservedMirrorFiles(filteredFiles);
+
+    // Read the PRIOR provenance manifest before writing anything, so the prune
+    // below is driven only by what the engine itself recorded last time.
+    const sourceJsonRel = `${targetRel}/.source.json`;
+    // Throws for a planted link or special file, failing this source closed.
+    const priorSourceFile = options.dryRun ? null : safeReadFileIfExists(ROOT_DIR, sourceJsonRel);
+    let priorSource = null;
+    if (priorSourceFile) {
+      try {
+        priorSource = JSON.parse(priorSourceFile.content.toString('utf8'));
+      } catch {
+        // Unreadable prior manifest: skip the prune rather than guess.
+      }
+    }
+
     changes.push(
       ...mirrorFiles({
         root: ROOT_DIR,
@@ -943,17 +1073,6 @@ async function syncSource(source, config, lock) {
     // owns under target_path (NOT the synthesized README/plugin.json, which the
     // engine generates separately). Drives the orphan prune on the next run.
     const ownedFiles = filteredFiles.map((file) => file.path).sort();
-    const sourceJsonRel = `${targetRel}/.source.json`;
-    // Throws for a planted link or special file, failing this source closed.
-    const priorSourceFile = options.dryRun ? null : safeReadFileIfExists(ROOT_DIR, sourceJsonRel);
-    let priorSource = null;
-    if (priorSourceFile) {
-      try {
-        priorSource = JSON.parse(priorSourceFile.content.toString('utf8'));
-      } catch {
-        // Unreadable prior manifest: skip the prune rather than guess.
-      }
-    }
 
     // Orphan prune: delete files a PRIOR sync owned but upstream has since
     // removed/renamed. Driven off the persisted manifest so the engine only
@@ -1033,7 +1152,7 @@ async function syncSource(source, config, lock) {
       // `git add -A` would silently drop it, producing an incomplete mirror.
       try {
         const targets = ownedFiles.map((file) => `${targetRel}/${file}`);
-        const ignored = execFileSync('git', ['-C', ROOT_DIR, 'check-ignore', ...targets], {
+        const ignored = execFileSync('git', ['-C', ROOT_DIR, 'check-ignore', '--', ...targets], {
           stdio: ['ignore', 'pipe', 'ignore'],
         })
           .toString()
@@ -1137,8 +1256,17 @@ async function main() {
     process.exit(1);
   }
 
+  // Overlap is judged across ALL sources, not just the ones selected by
+  // --source, because an unselected neighbour's files are still on disk.
+  const overlapping = findTargetOverlaps(sources);
   const results = [];
   for (const source of sourcesToSync) {
+    if (overlapping.has(source.name)) {
+      const error = `target_path "${source.target_path}" overlaps another source's mirror; refusing sync`;
+      log(`\n📦 Syncing: ${source.name}\n   ❌ Error: ${error}`, colors.red);
+      results.push({ source: source.name, changes: [], error });
+      continue;
+    }
     const result = await syncSource(source, config, lock);
     results.push(result);
   }
