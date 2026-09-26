@@ -1,3 +1,19 @@
 # reason: retired Firebase browser configuration; GitHub secret alert #1
 # scope: one historical commit, path, rule, and line — no value or path blanket
 44933759526a1241cee690f8aa5b95bec9dae61e:marketplace/src/layouts/BaseLayout.astro:gcp-api-key:52
+
+# reason: demonstrably synthetic teaching-example strings in SaaS skills (claude-vggd.1.3).
+# Each classified from masked character shape plus surrounding lines, never from the value.
+# scope: exact historical commit, path, rule and line only; no value, path or rule blanket.
+713fe265f78ad3be9ce5bf27ece42a115a5a0aa0:plugins/saas-packs/hootsuite-pack/skills/hootsuite-security-basics/SKILL.md:generic-api-key:88
+713fe265f78ad3be9ce5bf27ece42a115a5a0aa0:plugins/saas-packs/hootsuite-pack/skills/hootsuite-security-basics/SKILL.md:generic-api-key:96
+5274ff27c70568e5af279b02b67e3c3ff59eee33:skills/.curated/hootsuite-security-basics/SKILL.md:generic-api-key:88
+5274ff27c70568e5af279b02b67e3c3ff59eee33:skills/.curated/hootsuite-security-basics/SKILL.md:generic-api-key:96
+ea77fdc774e55f116f8b9be7ba25f10439b433d4:plugins/saas-packs/hootsuite-pack/skills/hootsuite-security-basics/SKILL.md:generic-api-key:88
+ea77fdc774e55f116f8b9be7ba25f10439b433d4:plugins/saas-packs/hootsuite-pack/skills/hootsuite-security-basics/SKILL.md:generic-api-key:96
+f17dd517208acfd502e6b761605690fffe837230:plugins/saas-packs/langchain-pack/skills/langchain-multi-env-setup/SKILL.md:generic-api-key:117
+beb72d802ca2202a63f1631651eb5617af0e52b7:plugins/saas-packs/customerio-pack/skills/customerio-prod-checklist/SKILL.md:generic-api-key:33
+beb72d802ca2202a63f1631651eb5617af0e52b7:plugins/saas-packs/exa-pack/skills/exa-multi-env-setup/SKILL.md:generic-api-key:135
+beb72d802ca2202a63f1631651eb5617af0e52b7:plugins/saas-packs/firecrawl-pack/skills/firecrawl-multi-env-setup/SKILL.md:generic-api-key:147
+beb72d802ca2202a63f1631651eb5617af0e52b7:plugins/saas-packs/posthog-pack/skills/posthog-multi-env-setup/SKILL.md:generic-api-key:156
+beb72d802ca2202a63f1631651eb5617af0e52b7:plugins/saas-packs/vastai-pack/skills/vastai-multi-env-setup/SKILL.md:generic-api-key:134
