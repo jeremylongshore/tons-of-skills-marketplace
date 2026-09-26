@@ -1,0 +1,54 @@
+name: External-sync filesystem contract (macOS + Windows)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/external-sync-fs-contract.yml'
+      - 'scripts/safe-fs.mjs'
+      - 'scripts/safe-fs.test.mjs'
+      - 'scripts/sync-external.mjs'
+      - 'scripts/sync-external-fs.test.mjs'
+      - 'scripts/sync-lockfile.mjs'
+
+# Real macOS and Windows evidence for the contained I/O boundary the external
+# sync uses (junctions, case-insensitive paths, no O_NOFOLLOW on Windows). The
+# same suites run on Linux inside the required ci-required aggregate. This
+# lane stays advisory, like windows-path-contract.yml, because hosted-runner
+# availability is provider-dependent.
+permissions:
+  contents: read
+
+concurrency:
+  group: external-sync-fs-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fs-contract:
+    name: External-sync fs contract (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      # The boundary module and its own suite are dependency-free; the sync
+      # suite imports sync-external.mjs, which needs js-yaml.
+      - name: Install locked dependencies without lifecycle scripts
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Run the contained-I/O and hostile-repository suites
+        run: node --test scripts/safe-fs.test.mjs scripts/sync-external-fs.test.mjs scripts/sync-lockfile.test.mjs

@@ -31,8 +31,16 @@
  * Tests: node --test scripts/sync-lockfile.test.mjs
  */
 
-import fs from 'fs';
 import crypto from 'crypto';
+import path from 'path';
+import { safeReadFileIfExists, safeWriteFileAtomic } from './safe-fs.mjs';
+
+// The lock is addressed as (its directory, its file name) so a symlinked or
+// special-file lock is refused and the write is atomic (see safe-fs.mjs).
+function lockLocation(lockPath) {
+  const abs = path.resolve(lockPath);
+  return { root: path.dirname(abs), rel: path.basename(abs) };
+}
 
 export const LOCK_VERSION = 1;
 
@@ -97,12 +105,15 @@ export function buildLockEntry(source, resolvedRef, currentFiles, lockedAt) {
  * treating a corrupted lock as "nothing is pinned".
  */
 export function loadLock(lockPath) {
-  if (!fs.existsSync(lockPath)) {
+  const { root, rel } = lockLocation(lockPath);
+  // Throws (fails closed) for a symlinked, directory or special-file lock.
+  const existing = safeReadFileIfExists(root, rel);
+  if (!existing) {
     return { $comment: LOCK_COMMENT, version: LOCK_VERSION, sources: {} };
   }
   let parsed;
   try {
-    parsed = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
+    parsed = JSON.parse(existing.content.toString('utf8'));
   } catch (err) {
     throw new Error(
       `sources lock at ${lockPath} exists but is not valid JSON (${err.message}) — ` +
@@ -169,11 +180,10 @@ export function serializeLock(lock) {
  */
 export function saveLock(lockPath, lock) {
   const serialized = serializeLock(lock);
-  if (fs.existsSync(lockPath)) {
-    const existing = fs.readFileSync(lockPath, 'utf8');
-    if (existing === serialized) return false;
-  }
-  fs.writeFileSync(lockPath, serialized);
+  const { root, rel } = lockLocation(lockPath);
+  const existing = safeReadFileIfExists(root, rel);
+  if (existing && existing.content.toString('utf8') === serialized) return false;
+  safeWriteFileAtomic(root, rel, serialized);
   return true;
 }
 

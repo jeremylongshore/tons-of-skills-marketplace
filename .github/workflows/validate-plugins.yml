@@ -157,6 +157,13 @@ jobs:
       - name: Keep quarantined external mirrors off publishable grade surfaces
         run: pnpm run validate:mirror-quarantine
 
+      # The external sync runs with write access and reads hostile upstream
+      # checkouts. These suites prove every sync read, write and prune stays
+      # inside its target and refuses links, junctions and special files.
+      # macOS and Windows evidence runs in external-sync-fs-contract.yml.
+      - name: Contain external-sync filesystem I/O
+        run: node --test scripts/safe-fs.test.mjs scripts/sync-external-fs.test.mjs
+
       # E4.13: a denylist (disallowed-tools) posture is enforced by the
       # Claude Code runtime only. This gate forbids silent-drop: a
       # denylist-bearing skill may not claim a foreign harness in

@@ -19,6 +19,7 @@ on:
     paths:
       - 'scripts/sync-lockfile.mjs'
       - 'scripts/sync-lockfile.test.mjs'
+      - 'scripts/safe-fs.mjs'
       - 'scripts/sync-external.mjs'
       - 'sources.lock.json'
       - 'sources.yaml'
