@@ -22,14 +22,24 @@
  *     no inode, the operation fails closed.
  *   - No-follow: O_NOFOLLOW is added where the platform defines it, and
  *     O_NONBLOCK on reads so a FIFO can never hang the process.
+ *   - Pinned directory: Node has no openat/renameat/unlinkat, so every write
+ *     and removal first changes the working directory into the verified parent
+ *     and confirms that `.` is the same directory (device + inode) the walk
+ *     checked. The temp open, rename, unlink and directory fsync then use bare
+ *     names relative to that directory, so swapping any path component for a
+ *     link afterwards cannot redirect them. The previous working directory is
+ *     always restored. Where chdir is unavailable (worker threads) the
+ *     operation fails closed.
  *   - Writes: bytes go to an exclusive (O_EXCL) sibling temp file, written in
  *     a loop that tolerates short writes, fsynced, chmodded through the
  *     descriptor, re-verified, then renamed over the target. Readers never see
  *     partial content, and any failure removes the temp file and leaves the
  *     original untouched.
+ *   - Tree reads are capped in file count and total bytes.
  *
- * Node exposes no openat/unlinkat, so a removal is pathname-based. It is
- * bracketed by a fresh walk and an identity check immediately before unlink.
+ * Residual, by design: a racer that MOVES the pinned directory itself (rename,
+ * not link) takes our write with it; the bytes and the file name are still
+ * ours and no existing file outside the root can be targeted.
  *
  * Dependency-free on purpose: it is imported by zero-install unit workflows.
  */
@@ -48,7 +58,14 @@ const O_DIRECTORY = typeof C.O_DIRECTORY === 'number' ? C.O_DIRECTORY : 0;
 /** True where the kernel refuses to follow a final symlink on open. */
 export const NOFOLLOW_SUPPORTED = O_NOFOLLOW !== 0;
 
-const WINDOWS_DEVICE = /^(con|prn|aux|nul|com[0-9]|lpt[0-9]|conin\$|conout\$)(\.[^.]*)?$/i;
+const WINDOWS_DEVICE =
+  /^(con|prn|aux|nul|com[0-9\u00b9\u00b2\u00b3]|lpt[0-9\u00b9\u00b2\u00b3]|conin\$|conout\$)(\..*)?$/i;
+// C0/C1 controls, DEL, zero-width and bidirectional formatting characters: a
+// name containing them can render as a different, trusted-looking name.
+const HIDDEN_CHARACTER = new RegExp(
+  // eslint-disable-next-line no-control-regex -- matching control characters is the point
+  '[\\u0000-\\u001f\\u007f-\\u009f\\u200b-\\u200f\\u202a-\\u202e\\u2060-\\u2069\\ufeff]',
+);
 
 export class UnsafePathError extends Error {
   constructor(message, relPath) {
@@ -84,8 +101,9 @@ export function splitSafeRelative(relPath) {
     if (WINDOWS_DEVICE.test(seg)) {
       throw new UnsafePathError('path segment is a reserved device name', relPath);
     }
-    // eslint-disable-next-line no-control-regex
-    if (/[\x00-\x1f]/.test(seg)) throw new UnsafePathError('path has a control character', relPath);
+    if (HIDDEN_CHARACTER.test(seg)) {
+      throw new UnsafePathError('path has a control or invisible formatting character', relPath);
+    }
   }
   return segments;
 }
@@ -147,6 +165,7 @@ function describeKind(st) {
  */
 function walkParents(rootReal, segments, relPath, { create = false } = {}) {
   let current = rootReal;
+  let currentStat = fs.lstatSync(rootReal, { bigint: true });
   for (let i = 0; i < segments.length - 1; i += 1) {
     current = path.join(current, segments[i]);
     let st = lstatOrNull(current);
@@ -169,12 +188,43 @@ function walkParents(rootReal, segments, relPath, { create = false } = {}) {
         relPath,
       );
     }
+    currentStat = st;
   }
   // Belt and braces for reparse points Node does not surface as links.
   if (segments.length > 1 && !samePath(fs.realpathSync(current), current)) {
     throw new UnsafePathError('parent directory resolves elsewhere', relPath);
   }
-  return { parent: current, target: path.join(current, segments[segments.length - 1]) };
+  return {
+    parent: current,
+    parentIdentity: currentStat,
+    target: path.join(current, segments[segments.length - 1]),
+  };
+}
+
+/**
+ * Run `fn` with the working directory pinned to a verified directory. After
+ * chdir, `.` must be the exact directory the walk checked; bare names used by
+ * `fn` then resolve inside it no matter what happens to the path later.
+ */
+function withPinnedDirectory(dirAbs, identity, relPath, fn) {
+  const previous = process.cwd();
+  try {
+    process.chdir(dirAbs);
+  } catch (error) {
+    if (error.code === 'ERR_WORKER_UNSUPPORTED_OPERATION') {
+      throw new UnsafePathError('cannot pin a directory in a worker thread; refusing', relPath);
+    }
+    throw error;
+  }
+  try {
+    const here = fs.lstatSync('.', { bigint: true });
+    if (!here.isDirectory() || !sameIdentity(here, identity)) {
+      throw new UnsafePathError('directory changed before it could be pinned', relPath);
+    }
+    return fn();
+  } finally {
+    process.chdir(previous);
+  }
 }
 
 /** lstat the final entry: null when absent, bigint Stats when a regular file, else throw. */
@@ -191,8 +241,8 @@ function lstatRegularOrNull(target, relPath) {
 function resolve(root, relPath, opts) {
   const segments = splitSafeRelative(relPath);
   const rootReal = realRoot(root);
-  const { parent, target } = walkParents(rootReal, segments, relPath, opts);
-  return { rootReal, segments, parent, target };
+  const walked = walkParents(rootReal, segments, relPath, opts);
+  return { rootReal, segments, base: segments[segments.length - 1], ...walked };
 }
 
 /**
@@ -266,17 +316,23 @@ export function safeReadFileIfExists(root, relPath, options) {
   }
 }
 
+/** Sibling temp name, bounded in BYTES (not characters) so it never exceeds NAME_MAX. */
 function tempName(base) {
-  const tag = `${process.pid}.${crypto.randomBytes(6).toString('hex')}`;
-  const room = 200 - tag.length;
-  return `.${base.slice(0, Math.max(1, room))}.${tag}.tmp`;
+  const tag = `${process.pid}.${crypto.randomBytes(8).toString('hex')}`;
+  let prefix = '';
+  for (const ch of base) {
+    if (Buffer.byteLength(prefix + ch) > 120) break;
+    prefix += ch;
+  }
+  return `.${prefix || 'f'}.${tag}.tmp`;
 }
 
-function fsyncDirectory(dir, io) {
+/** fsync the pinned working directory so the rename is durable. */
+function fsyncWorkingDirectory(io) {
   if (IS_WINDOWS) return;
   let fd;
   try {
-    fd = io.openSync(dir, C.O_RDONLY | O_DIRECTORY | O_NOFOLLOW);
+    fd = io.openSync('.', C.O_RDONLY | O_DIRECTORY | O_NOFOLLOW);
     io.fsyncSync(fd);
   } catch (error) {
     if (!['EINVAL', 'ENOTSUP', 'EPERM', 'EISDIR', 'EBADF'].includes(error.code)) throw error;
@@ -298,74 +354,80 @@ export function safeWriteFileAtomic(root, relPath, data, options = {}) {
   const { createParents = false, hooks = {} } = options;
   const io = { ...fs, ...(options.io ?? {}) };
   const buffer = Buffer.isBuffer(data) ? data : Buffer.from(String(data), 'utf8');
-  const { rootReal, segments, parent, target } = resolve(root, relPath, { create: createParents });
+  const { parent, parentIdentity, target, base } = resolve(root, relPath, {
+    create: createParents,
+  });
   const existing = lstatRegularOrNull(target, relPath);
   const mode = options.mode ?? (existing ? Number(existing.mode) & 0o777 : 0o644);
-
-  const tmp = path.join(parent, tempName(segments[segments.length - 1]));
   hooks.afterValidate?.(target);
-  let fd = io.openSync(tmp, C.O_WRONLY | C.O_CREAT | C.O_EXCL | O_NOFOLLOW, mode);
-  let tmpIdentity = null;
-  let committed = false;
-  try {
-    tmpIdentity = fs.fstatSync(fd, { bigint: true });
-    if (!tmpIdentity.isFile())
-      throw new UnsafePathError('temp descriptor is not a regular file', relPath);
-    assertIdentityAvailable(tmpIdentity, relPath);
 
-    let offset = 0;
-    while (offset < buffer.length) {
-      const written = io.writeSync(fd, buffer, offset, buffer.length - offset, null);
-      if (!Number.isInteger(written) || written <= 0) {
-        throw new Error(`write made no progress at byte ${offset} of ${buffer.length}: ${relPath}`);
+  return withPinnedDirectory(parent, parentIdentity, relPath, () => {
+    // From here on every name is relative to the pinned, verified directory.
+    const tmp = tempName(base);
+    let fd = io.openSync(tmp, C.O_WRONLY | C.O_CREAT | C.O_EXCL | O_NOFOLLOW, mode);
+    let tmpIdentity = null;
+    let committed = false;
+    try {
+      tmpIdentity = fs.fstatSync(fd, { bigint: true });
+      if (!tmpIdentity.isFile()) {
+        throw new UnsafePathError('temp descriptor is not a regular file', relPath);
       }
-      offset += written;
-    }
-    if (!IS_WINDOWS) fs.fchmodSync(fd, mode);
-    io.fsyncSync(fd);
-    fs.closeSync(fd);
-    fd = undefined;
+      assertIdentityAvailable(tmpIdentity, relPath);
 
-    hooks.beforeCommit?.(target);
-    // Re-verify the whole path right before the rename.
-    const again = walkParents(rootReal, segments, relPath);
-    const tmpNow = lstatOrNull(path.join(again.parent, path.basename(tmp)));
-    if (!tmpNow || tmpNow.isSymbolicLink() || !sameIdentity(tmpNow, tmpIdentity)) {
-      throw new UnsafePathError('temp file changed before commit', relPath);
-    }
-    const targetNow = lstatRegularOrNull(again.target, relPath);
-    if (existing ? !targetNow || !sameIdentity(targetNow, existing) : targetNow) {
-      throw new UnsafePathError('target changed while writing', relPath);
-    }
-
-    io.renameSync(tmp, target);
-    committed = true;
-    const landed = lstatOrNull(target);
-    if (!landed || !sameIdentity(landed, tmpIdentity)) {
-      throw new UnsafePathError('target does not hold the written file after rename', relPath);
-    }
-    fsyncDirectory(parent, io);
-    return true;
-  } catch (error) {
-    if (fd !== undefined) {
-      try {
-        fs.closeSync(fd);
-      } catch {
-        // already closed
+      let offset = 0;
+      while (offset < buffer.length) {
+        const written = io.writeSync(fd, buffer, offset, buffer.length - offset, null);
+        if (!Number.isInteger(written) || written <= 0) {
+          throw new Error(
+            `write made no progress at byte ${offset} of ${buffer.length}: ${relPath}`,
+          );
+        }
+        offset += written;
       }
-    }
-    if (!committed && tmpIdentity) {
-      const leftover = lstatOrNull(tmp);
-      if (leftover && !leftover.isSymbolicLink() && sameIdentity(leftover, tmpIdentity)) {
+      if (!IS_WINDOWS) fs.fchmodSync(fd, mode);
+      io.fsyncSync(fd);
+      fs.closeSync(fd);
+      fd = undefined;
+
+      hooks.beforeCommit?.(target);
+      const tmpNow = lstatOrNull(tmp);
+      if (!tmpNow || tmpNow.isSymbolicLink() || !sameIdentity(tmpNow, tmpIdentity)) {
+        throw new UnsafePathError('temp file changed before commit', relPath);
+      }
+      const targetNow = lstatRegularOrNull(base, relPath);
+      if (existing ? !targetNow || !sameIdentity(targetNow, existing) : targetNow) {
+        throw new UnsafePathError('target changed while writing', relPath);
+      }
+
+      io.renameSync(tmp, base);
+      committed = true;
+      const landed = lstatOrNull(base);
+      if (!landed || !sameIdentity(landed, tmpIdentity)) {
+        throw new UnsafePathError('target does not hold the written file after rename', relPath);
+      }
+      fsyncWorkingDirectory(io);
+      return true;
+    } catch (error) {
+      if (fd !== undefined) {
         try {
-          fs.unlinkSync(tmp);
+          fs.closeSync(fd);
         } catch {
-          // best effort; the identity check above means we only remove our own file
+          // already closed
         }
       }
+      if (!committed && tmpIdentity) {
+        const leftover = lstatOrNull(tmp);
+        if (leftover && !leftover.isSymbolicLink() && sameIdentity(leftover, tmpIdentity)) {
+          try {
+            fs.unlinkSync(tmp);
+          } catch {
+            // best effort; the identity check means we only ever remove our own file
+          }
+        }
+      }
+      throw error;
     }
-    throw error;
-  }
+  });
 }
 
 /**
@@ -384,13 +446,15 @@ export function safeRemoveFile(root, relPath, { hooks = {} } = {}) {
   const before = lstatRegularOrNull(resolved.target, relPath);
   if (!before) return false;
   hooks.afterValidate?.(resolved.target);
-  const again = walkParents(resolved.rootReal, resolved.segments, relPath);
-  const now = lstatRegularOrNull(again.target, relPath);
-  if (!now || !sameIdentity(now, before)) {
-    throw new UnsafePathError('file changed before removal', relPath);
-  }
-  fs.unlinkSync(again.target);
-  return true;
+  return withPinnedDirectory(resolved.parent, resolved.parentIdentity, relPath, () => {
+    hooks.beforeUnlink?.(resolved.target);
+    const now = lstatRegularOrNull(resolved.base, relPath);
+    if (!now || !sameIdentity(now, before)) {
+      throw new UnsafePathError('file changed before removal', relPath);
+    }
+    fs.unlinkSync(resolved.base);
+    return true;
+  });
 }
 
 /**
@@ -399,9 +463,15 @@ export function safeRemoveFile(root, relPath, { hooks = {} } = {}) {
  * Links, junctions and special files are never followed or read; they are
  * returned in `skipped` with a reason so the caller can report them.
  */
-export function safeReadTree(root, relDir = '', { exclude = ['.git'], maxBytes } = {}) {
+export function safeReadTree(
+  root,
+  relDir = '',
+  { exclude = ['.git'], maxBytes, maxFiles = 20_000, maxTotalBytes = 512 * 1024 * 1024 } = {},
+) {
   const files = [];
   const skipped = [];
+  const excluded = new Set(exclude.map((name) => name.toLowerCase()));
+  let totalBytes = 0;
   const rootReal = realRoot(root);
   const startSegments = relDir ? splitSafeRelative(relDir) : [];
   const startPath = path.join(rootReal, ...startSegments);
@@ -429,7 +499,8 @@ export function safeReadTree(root, relDir = '', { exclude = ['.git'], maxBytes }
       throw new UnsafePathError('directory changed during walk', relPrefix || '.');
     }
     for (const name of entries.sort()) {
-      if (exclude.includes(name)) continue;
+      // Case-insensitive, so `.GIT` on a case-insensitive filesystem is excluded too.
+      if (excluded.has(name.toLowerCase())) continue;
       const rel = relPrefix ? `${relPrefix}/${name}` : name;
       try {
         splitSafeRelative(rel);
@@ -446,7 +517,14 @@ export function safeReadTree(root, relDir = '', { exclude = ['.git'], maxBytes }
         visit(abs, rel, st);
       } else if (st.isFile()) {
         const relFromRoot = [...startSegments, ...rel.split('/')].join('/');
+        if (files.length >= maxFiles) {
+          throw new UnsafePathError(`tree has more than ${maxFiles} files`, relDir || '.');
+        }
         const { content, mode } = safeReadFile(rootReal, relFromRoot, { maxBytes });
+        totalBytes += content.length;
+        if (totalBytes > maxTotalBytes) {
+          throw new UnsafePathError(`tree exceeds ${maxTotalBytes} bytes`, relDir || '.');
+        }
         files.push({ path: rel, content, mode });
       } else {
         skipped.push({ path: rel, reason: describeKind(st) });

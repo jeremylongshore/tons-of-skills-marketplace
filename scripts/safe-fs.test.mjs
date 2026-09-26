@@ -469,6 +469,123 @@ test('race: file swapped before removal is not removed', () => {
   }
 });
 
+test('race: parent swapped for a link AFTER validation cannot redirect the rename', () => {
+  const s = sandbox();
+  try {
+    fs.mkdirSync(path.join(s.root, 'ssh'));
+    const aside = path.join(s.root, 'ssh-real');
+    const hooks = {
+      beforeCommit() {
+        // Racer wins the window the reviewer found: move the verified
+        // directory aside and put a link to an outside directory in its place.
+        fs.renameSync(path.join(s.root, 'ssh'), aside);
+        linkDir(s.outside, path.join(s.root, 'ssh'));
+      },
+    };
+    safeWriteFileAtomic(s.root, 'ssh/authorized_keys', 'ours', { hooks });
+    assert.equal(fs.existsSync(path.join(s.outside, 'authorized_keys')), false);
+    assert.deepEqual(fs.readdirSync(s.outside), ['secret.txt']);
+    // The bytes landed in the pinned directory (now moved aside), nowhere else.
+    assert.equal(fs.readFileSync(path.join(aside, 'authorized_keys'), 'utf8'), 'ours');
+    assert.equal(process.cwd() === aside, false, 'working directory restored');
+  } finally {
+    s.cleanup();
+  }
+});
+
+test('race: parent swapped for a link AFTER validation cannot redirect an unlink', () => {
+  const s = sandbox();
+  try {
+    fs.mkdirSync(path.join(s.root, 'd'));
+    fs.writeFileSync(path.join(s.root, 'd', 'secret.txt'), 'inside');
+    const cwdBefore = process.cwd();
+    const hooks = {
+      beforeUnlink() {
+        fs.renameSync(path.join(s.root, 'd'), path.join(s.root, 'd-real'));
+        linkDir(s.outside, path.join(s.root, 'd'));
+      },
+    };
+    assert.equal(safeRemoveFile(s.root, 'd/secret.txt', { hooks }), true);
+    assert.equal(fs.readFileSync(path.join(s.outside, 'secret.txt'), 'utf8'), 'SECRET');
+    assert.equal(fs.existsSync(path.join(s.root, 'd-real', 'secret.txt')), false);
+    assert.equal(process.cwd(), cwdBefore);
+  } finally {
+    s.cleanup();
+  }
+});
+
+test('the working directory is restored after success and after failure', () => {
+  const s = sandbox();
+  try {
+    const cwdBefore = process.cwd();
+    safeWriteFileAtomic(s.root, 'a.txt', 'x');
+    assert.equal(process.cwd(), cwdBefore);
+    const io = { writeSync: () => 0 };
+    assert.throws(() => safeWriteFileAtomic(s.root, 'a.txt', 'y', { io }));
+    assert.equal(process.cwd(), cwdBefore);
+  } finally {
+    s.cleanup();
+  }
+});
+
+test('hidden characters and extended device names are refused', () => {
+  for (const rel of [
+    'evil‮gpj.sh',
+    'zero​width',
+    'del\u007fname',
+    'c1\u0085name',
+    'bom﻿name',
+    'COM¹',
+    'con.a.b',
+    'LPT1.txt.bak',
+  ]) {
+    assert.throws(() => splitSafeRelative(rel), UnsafePathError, `accepted ${JSON.stringify(rel)}`);
+  }
+  assert.deepEqual(splitSafeRelative('résumé/日本語.md'), ['résumé', '日本語.md']);
+});
+
+test('a long multibyte name still gets a valid temp file (byte-bounded)', () => {
+  const s = sandbox();
+  try {
+    const name = `${'語'.repeat(84)}.md`;
+    assert.equal(Buffer.byteLength(name), 255);
+    safeWriteFileAtomic(s.root, name, 'ok');
+    assert.equal(fs.readFileSync(path.join(s.root, name), 'utf8'), 'ok');
+  } catch (error) {
+    // Some filesystems (for example eCryptfs) allow fewer than 255 bytes.
+    if (error.code !== 'ENAMETOOLONG') throw error;
+  } finally {
+    s.cleanup();
+  }
+});
+
+test('tree walk enforces file-count and total-byte caps', () => {
+  const s = sandbox();
+  try {
+    for (let i = 0; i < 5; i += 1) fs.writeFileSync(path.join(s.root, `f${i}`), 'abcd');
+    assert.throws(() => safeReadTree(s.root, '', { maxFiles: 3 }), /more than 3 files/);
+    assert.throws(() => safeReadTree(s.root, '', { maxTotalBytes: 10 }), /exceeds 10 bytes/);
+    assert.equal(safeReadTree(s.root).files.length, 5);
+  } finally {
+    s.cleanup();
+  }
+});
+
+test('tree walk excludes .git case-insensitively', () => {
+  const s = sandbox();
+  try {
+    fs.mkdirSync(path.join(s.root, 'x', '.GIT'), { recursive: true });
+    fs.writeFileSync(path.join(s.root, 'x', '.GIT', 'config'), 'token');
+    fs.writeFileSync(path.join(s.root, 'x', 'ok.md'), 'ok');
+    assert.deepEqual(
+      safeReadTree(s.root, 'x').files.map((f) => f.path),
+      ['ok.md'],
+    );
+  } finally {
+    s.cleanup();
+  }
+});
+
 // ---------------------------------------------------------------- remove + tree
 
 test('remove deletes only a regular file and reports absence', () => {

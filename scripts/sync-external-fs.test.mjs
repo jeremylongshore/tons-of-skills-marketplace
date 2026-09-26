@@ -14,12 +14,15 @@ import path from 'node:path';
 import test from 'node:test';
 
 import {
+  assertNoReservedMirrorFiles,
   ensureCatalogEntry,
+  findTargetOverlaps,
   mirrorFiles,
   mirrorTargetRel,
   pruneOrphans,
   readUpstreamFiles,
   readUpstreamLicense,
+  validateSourceSpec,
 } from './sync-external.mjs';
 import { loadLock, saveLock } from './sync-lockfile.mjs';
 
@@ -71,9 +74,11 @@ function outsideUntouched(s) {
 
 // ------------------------------------------------------------ target_path
 
-test('target_path must be a directory under plugins/', () => {
+test('target_path must be exactly plugins/<category>/<name>', () => {
   assert.equal(mirrorTargetRel('./plugins/community/x/'), 'plugins/community/x');
   for (const bad of [
+    'plugins/mcp',
+    'plugins/community/x/nested',
     '.github/workflows',
     'plugins',
     '../plugins/x',
@@ -83,6 +88,79 @@ test('target_path must be a directory under plugins/', () => {
   ]) {
     assert.throws(() => mirrorTargetRel(bad), `accepted ${bad}`);
   }
+});
+
+// ------------------------------------------------------------ source spec
+
+test('source spec: every field that reaches git or disk is validated before cloning', () => {
+  const ok = {
+    repo: 'owner/repo.name',
+    branch: 'release/1.x',
+    source_path: './skills/code/',
+    license_path: 'LICENSE',
+    target_path: 'plugins/community/x',
+  };
+  assert.deepEqual(validateSourceSpec(ok), {
+    repo: 'owner/repo.name',
+    branch: 'release/1.x',
+    sourceRel: 'skills/code',
+    licenseRel: 'LICENSE',
+    targetRel: 'plugins/community/x',
+  });
+  assert.equal(validateSourceSpec({ ...ok, source_path: '.' }).sourceRel, '');
+  assert.equal(validateSourceSpec({ ...ok, branch: undefined }, 'main').branch, 'main');
+  const bad = [
+    { repo: '../../tmp/x' },
+    { repo: 'owner/repo/extra' },
+    { repo: 'owner/..' },
+    { branch: '--upload-pack=touch /tmp/pwned' },
+    { branch: 'a..b' },
+    { source_path: '.git' },
+    { source_path: 'sub/.GIT/hooks' },
+    { source_path: '--stdin' },
+    { source_path: '../outside' },
+    { license_path: '.git/config' },
+    { license_path: 'docs/LICENSE' },
+    { target_path: '.github/workflows' },
+  ];
+  for (const patch of bad) {
+    assert.throws(
+      () => validateSourceSpec({ ...ok, ...patch }),
+      `accepted ${JSON.stringify(patch)}`,
+    );
+  }
+});
+
+test('a .git source path is refused by the reader too', () => {
+  const s = sandbox();
+  try {
+    put(s.checkout, '.git/config', 'url = https://x-access-token:ghs_secret@github.com/o/r.git');
+    assert.throws(() => readUpstreamFiles(s.checkout, '.git'), /\.git/);
+    assert.throws(() => readUpstreamFiles(s.checkout, 'a/.Git'), /\.git/);
+    assert.deepEqual(readUpstreamFiles(s.checkout, '.').files, []);
+  } finally {
+    s.cleanup();
+  }
+});
+
+test('an upstream .source.json is refused so upstream cannot steer the prune', () => {
+  for (const name of ['.source.json', '.SOURCE.json']) {
+    assert.throws(
+      () => assertNoReservedMirrorFiles([{ path: 'a.md' }, { path: name }]),
+      /reserved/,
+    );
+  }
+  assert.doesNotThrow(() => assertNoReservedMirrorFiles([{ path: 'docs/.source.json' }]));
+});
+
+test('overlapping mirror targets are detected across all sources', () => {
+  const overlaps = findTargetOverlaps([
+    { name: 'a', target_path: 'plugins/c/a' },
+    { name: 'b', target_path: './plugins/c/a/' },
+    { name: 'c', target_path: 'plugins/c/c' },
+    { name: 'bad', target_path: '../x' },
+  ]);
+  assert.deepEqual([...overlaps].sort(), ['a', 'b']);
 });
 
 // ------------------------------------------------------------ upstream reads
