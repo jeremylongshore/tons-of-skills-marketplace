@@ -29,6 +29,18 @@
         "skills/sync-status/SKILL.md": "sha256:98a7aaec07bf527f1f728754980232cdfb459201e9fd87dd64f657d565f32c1f"
       }
     },
+    "agent-memory-discipline": {
+      "repo": "mnemoverse/agent-memory-discipline",
+      "resolved_ref": "77578ac18f29c69b1b45f34268ac0ed16df72fca",
+      "locked_at": "2026-09-18T11:56:55.473Z",
+      "files": {
+        ".claude-plugin/plugin.json": "sha256:5402b715898140d4a39c343414e57220776ab5b624661d4c3da19edbc6050389",
+        "LICENSE": "sha256:f4e7f373b9b996950337e8d41a4a2939c2d90b7725e9baf3d5084a22717ad328",
+        "README.md": "sha256:ad380761066d0df66f3ac7240f219256ed5ded50fdc87d00c402651be145893f",
+        "skills/agent-memory-discipline/SKILL.md": "sha256:d3e307b87457d954fa26cd03022c24ae433ce348321e5bc0f8b6d0c0e2514474",
+        "skills/agent-memory-discipline/references/entry-format.md": "sha256:971757819ad9d90406cc9eb42955d269154651fdf055ffe74ef22c00c293b27c"
+      }
+    },
     "aomi": {
       "repo": "aomi-labs/skills",
       "resolved_ref": "74b90bc7b9fb3b5a31676bbbba5a1ca64886125d",

@@ -1295,6 +1295,33 @@ sources:
       - '**/node_modules/**'
       - '**/*.log'
 
+  # ============================================================
+  # Mnemoverse (mnemoverse/agent-memory-discipline)
+  # https://github.com/mnemoverse/agent-memory-discipline
+  # Backend-neutral skill: when to recall memory and when to save decisions
+  # ============================================================
+
+  - name: agent-memory-discipline
+    description: Standing rules for when an agent recalls from long-term memory before acting and when it saves decisions, corrections and failures afterwards
+    repo: mnemoverse/agent-memory-discipline
+    source_path: .
+    target_path: plugins/community/agent-memory-discipline
+    author:
+      name: Mnemoverse
+      github: mnemoverse
+    license: CC0-1.0
+    category: community
+    verified: false
+    include:
+      - '/.claude-plugin/plugin.json'
+      - '/README.md'
+      - '/LICENSE'
+      - '/skills/**'
+    exclude:
+      - '/.git/**'
+      - '**/node_modules/**'
+      - '**/*.log'
+
 # Sync configuration
 config:
   # Branch to sync from (default: main)
