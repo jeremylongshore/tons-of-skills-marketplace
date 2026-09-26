@@ -32,7 +32,9 @@ jobs:
       - name: Install dependencies
         # Keep the install scoped to the CLI package;
         # the marketplace workspace requires the repository Node 22 floor.
-        run: pnpm install --frozen-lockfile --filter '@intentsolutionsio/ccpi...'
+        # Same install as cli-test.yml, which proves it on every OS: the CLI
+        # needs no dependency install scripts, so none run on release day.
+        run: pnpm install --frozen-lockfile --ignore-scripts --filter '@intentsolutionsio/ccpi...'
 
       - name: Run TypeScript type check
         run: pnpm -C packages/cli typecheck
@@ -122,14 +124,27 @@ jobs:
 
       - name: Install dependencies
         # Publish only the independently supported CLI package dependency graph.
-        run: pnpm install --frozen-lockfile --filter '@intentsolutionsio/ccpi...'
+        # Same install as cli-test.yml, which proves it on every OS: the CLI
+        # needs no dependency install scripts, so none run on release day.
+        run: pnpm install --frozen-lockfile --ignore-scripts --filter '@intentsolutionsio/ccpi...'
 
       - name: Build for production
         run: pnpm -C packages/cli build
 
+      # A pre-release version (one with a hyphen, e.g. 3.1.0-beta.1) publishes
+      # under the `next` dist-tag. Without --tag, npm would make it `latest`,
+      # and every `npx @intentsolutionsio/ccpi` user would get the pre-release.
       - name: Publish to npm (with provenance)
         working-directory: packages/cli
-        run: npm publish --provenance --access public
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./package.json').version")
+          case "$VERSION" in
+            *-*) DIST_TAG=next ;;
+            *) DIST_TAG=latest ;;
+          esac
+          echo "Publishing $VERSION with dist-tag $DIST_TAG"
+          npm publish --provenance --access public --tag "$DIST_TAG"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -169,9 +184,14 @@ jobs:
             echo "Release $GITHUB_REF_NAME already exists; leaving it as is."
             exit 0
           fi
+          PRERELEASE_ARGS=()
+          case "$VERSION" in
+            *-*) PRERELEASE_ARGS=(--prerelease) ;;
+          esac
           gh release create "$GITHUB_REF_NAME" \
             --title "CLI v${VERSION}" \
             --verify-tag \
+            "${PRERELEASE_ARGS[@]}" \
             --notes-file - <<NOTES
           ## @intentsolutionsio/ccpi v${VERSION}
 
