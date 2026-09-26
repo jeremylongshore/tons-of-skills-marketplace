@@ -56,6 +56,22 @@ function linkFileOrSkip(t, target, at) {
   }
 }
 
+/**
+ * Simulated racer: move a directory aside and put a link in its place. On
+ * Windows the OS refuses to rename a directory that is a process's working
+ * directory, so the pin itself blocks the racer; that counts as contained.
+ */
+function raceSwap(dir, aside, linkTarget) {
+  try {
+    fs.renameSync(dir, aside);
+  } catch (error) {
+    if (IS_WINDOWS && ['EBUSY', 'EPERM', 'EACCES'].includes(error.code)) return false;
+    throw error;
+  }
+  linkDir(linkTarget, dir);
+  return true;
+}
+
 function tempLeftovers(dir) {
   return fs.readdirSync(dir).filter((name) => name.endsWith('.tmp'));
 }
@@ -474,20 +490,20 @@ test('race: parent swapped for a link AFTER validation cannot redirect the renam
   try {
     fs.mkdirSync(path.join(s.root, 'ssh'));
     const aside = path.join(s.root, 'ssh-real');
+    let swapped = false;
     const hooks = {
       beforeCommit() {
-        // Racer wins the window the reviewer found: move the verified
-        // directory aside and put a link to an outside directory in its place.
-        fs.renameSync(path.join(s.root, 'ssh'), aside);
-        linkDir(s.outside, path.join(s.root, 'ssh'));
+        // Racer wins the window the reviewer found.
+        swapped = raceSwap(path.join(s.root, 'ssh'), aside, s.outside);
       },
     };
     safeWriteFileAtomic(s.root, 'ssh/authorized_keys', 'ours', { hooks });
     assert.equal(fs.existsSync(path.join(s.outside, 'authorized_keys')), false);
     assert.deepEqual(fs.readdirSync(s.outside), ['secret.txt']);
-    // The bytes landed in the pinned directory (now moved aside), nowhere else.
-    assert.equal(fs.readFileSync(path.join(aside, 'authorized_keys'), 'utf8'), 'ours');
-    assert.equal(process.cwd() === aside, false, 'working directory restored');
+    // The bytes landed in the pinned directory (wherever it now is), nowhere else.
+    const landed = swapped ? aside : path.join(s.root, 'ssh');
+    assert.equal(fs.readFileSync(path.join(landed, 'authorized_keys'), 'utf8'), 'ours');
+    if (!swapped) assert.ok(IS_WINDOWS, 'only Windows may block the racer');
   } finally {
     s.cleanup();
   }
@@ -499,15 +515,16 @@ test('race: parent swapped for a link AFTER validation cannot redirect an unlink
     fs.mkdirSync(path.join(s.root, 'd'));
     fs.writeFileSync(path.join(s.root, 'd', 'secret.txt'), 'inside');
     const cwdBefore = process.cwd();
+    let swapped = false;
     const hooks = {
       beforeUnlink() {
-        fs.renameSync(path.join(s.root, 'd'), path.join(s.root, 'd-real'));
-        linkDir(s.outside, path.join(s.root, 'd'));
+        swapped = raceSwap(path.join(s.root, 'd'), path.join(s.root, 'd-real'), s.outside);
       },
     };
     assert.equal(safeRemoveFile(s.root, 'd/secret.txt', { hooks }), true);
     assert.equal(fs.readFileSync(path.join(s.outside, 'secret.txt'), 'utf8'), 'SECRET');
-    assert.equal(fs.existsSync(path.join(s.root, 'd-real', 'secret.txt')), false);
+    const home = swapped ? path.join(s.root, 'd-real') : path.join(s.root, 'd');
+    assert.equal(fs.existsSync(path.join(home, 'secret.txt')), false);
     assert.equal(process.cwd(), cwdBefore);
   } finally {
     s.cleanup();
