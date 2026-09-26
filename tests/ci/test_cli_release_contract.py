@@ -32,8 +32,10 @@ def test_every_cli_install_skips_dependency_install_scripts() -> None:
         for step in _steps(path):
             for match in CLI_INSTALL.finditer(step.get("run", "")):
                 installs.append((path.name, match.group(0)))
-    # cli-test: matrix + Deno; cli-publish: quality gate + publish.
-    assert len(installs) == 4, installs
+    # Known sites: cli-test matrix + Deno, cli-publish quality gate + publish.
+    # A lower bound, not an exact count: a new install step is allowed, and each
+    # one is checked below. It still fails if the pattern stops matching.
+    assert len(installs) >= 4, installs
     for name, command in installs:
         assert "--ignore-scripts" in command, f"{name}: {command}"
         assert "--frozen-lockfile" in command, f"{name}: {command}"
