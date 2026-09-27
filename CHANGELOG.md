@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-09-27
+
+- **docs(incident):** file `000-docs/815`, the incident record for the
+  tonsofskills.com security-warning reports. Origin TLS, chain and content
+  were cleared: SSL Labs A+, chain valid for ISRG Root X1-only and X2-only
+  stores, 40/40 global probes OK, no compromise found. The warnings trace to
+  domain classification by DNS4EU/Whalebone and CIRA Canadian Shield. The
+  missing `www.claudecoworkskills.io` DNS record was fixed, ending a Caddy
+  ACME failure loop. Vendor false-positive submissions and trigger-surface
+  changes are prepared for owner approval, not shipped.
+
 ## 2026-09-26
 
 - **feat(cli)!: `@intentsolutionsio/ccpi` 3.0.0 requires Node.js 22 or later.**
