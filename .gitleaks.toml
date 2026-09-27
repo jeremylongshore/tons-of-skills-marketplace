@@ -20,6 +20,12 @@
 #     "reason: ... expiry: YYYY-MM-DD" comment (or an explained permanent
 #     self-reference); the shape gate rejects missing, invalid, or expired
 #     metadata and any reintroduced type blanket.
+#   - .gitleaksignore holds EXACT commit:path:rule:line fingerprints only,
+#     for gcp-api-key and generic-api-key findings, each under a "# reason:"
+#     header recording why it is dead or synthetic. The fingerprinted commit
+#     must be in published history: an ancestor of the pinned release tag or
+#     of a pinned commit already on main (TRUSTED_MAIN_ANCHOR), so a PR can
+#     never suppress a finding it introduces. Other rules cannot be ignored.
 
 [extend]
 useDefault = true

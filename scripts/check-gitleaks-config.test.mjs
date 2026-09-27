@@ -11,6 +11,7 @@ import {
   formatIssue,
   verifyFingerprintInRepository,
   validateFingerprintSourceLine,
+  SUPPORTED_FINGERPRINT_RULES,
   APPROVED_PATH_PATTERNS,
   BANNED_FRAGMENTS,
 } from './check-gitleaks-config.mjs';
@@ -310,4 +311,174 @@ test('fingerprint provenance failures fail closed', () => {
     result.issues.map((issue) => issue.code),
     ['FINGERPRINT_SOURCE_MISSING'],
   );
+});
+
+// ---- generic-api-key fingerprints and the main-branch provenance anchor
+
+const NO_RELEASE_ANCHOR = { ref: 'refs/tags/does-not-exist', object: '0'.repeat(40) };
+
+function git(root, args) {
+  return execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim();
+}
+
+// A repo whose `main` branch plays protected main. `fingerprintAfterAnchor`
+// lands the fingerprinted commit after the pinned anchor; `anchorOffMain`
+// pins an anchor that only exists on a side branch (a PR's own commit).
+function mainAnchorFixture({ fingerprintAfterAnchor = false, anchorOffMain = false, line } = {}) {
+  const root = mkdtempSync(join(tmpdir(), 'gitleaks-main-anchor-'));
+  git(root, ['init', '--quiet', '-b', 'main']);
+  git(root, ['config', 'user.name', 'Test Author']);
+  git(root, ['config', 'user.email', 'test@example.invalid']);
+  const path = 'fixtures/example.md';
+  mkdirSync(join(root, 'fixtures'), { recursive: true });
+  const commitFile = (text, message) => {
+    writeFileSync(join(root, path), text);
+    git(root, ['add', path]);
+    git(root, ['commit', '--quiet', '-m', message]);
+    return git(root, ['rev-parse', 'HEAD']);
+  };
+  commitFile('baseline\n', 'baseline');
+  // Built at runtime (like the Google-key fixture above) so the scanner does
+  // not flag this test file's own source.
+  const exampleLine =
+    line ??
+    `${['EXAMPLE', 'API', 'KEY', 'PROD'].join('_')}=${['vendor', 'prod', 'xyz789'].join('-')}`;
+  let fingerprinted;
+  let anchor;
+  if (fingerprintAfterAnchor) {
+    anchor = git(root, ['rev-parse', 'HEAD']);
+    fingerprinted = commitFile(`${exampleLine}\n`, 'example');
+  } else {
+    fingerprinted = commitFile(`${exampleLine}\n`, 'example');
+    anchor = commitFile(`${exampleLine}\nmore\n`, 'later');
+  }
+  if (anchorOffMain) {
+    git(root, ['checkout', '--quiet', '-b', 'pr-branch']);
+    anchor = commitFile(`${exampleLine}\npr\n`, 'pr-only');
+    git(root, ['checkout', '--quiet', 'main']);
+  }
+  return {
+    root,
+    entry: `${fingerprinted}:${path}:generic-api-key:1`,
+    mainAnchor: { commit: anchor, branch: 'refs/heads/main' },
+  };
+}
+
+function withFixture(options, fn) {
+  const fixture = mainAnchorFixture(options);
+  try {
+    return fn(fixture);
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+}
+
+test('only gcp-api-key and generic-api-key may be fingerprint-suppressed', () => {
+  deepEqual([...SUPPORTED_FINGERPRINT_RULES], ['gcp-api-key', 'generic-api-key']);
+  withFixture({}, (fixture) => {
+    const other = fixture.entry.replace(':generic-api-key:', ':aws-access-token:');
+    deepEqual(
+      verifyFingerprintInRepository(other, fixture.root, NO_RELEASE_ANCHOR, fixture.mainAnchor),
+      {
+        ok: false,
+        code: 'UNSUPPORTED_FINGERPRINT_RULE',
+      },
+    );
+  });
+});
+
+test('a generic fingerprint verifies when its commit is in the history of a main anchor', () => {
+  withFixture({}, (fixture) => {
+    deepEqual(
+      verifyFingerprintInRepository(
+        fixture.entry,
+        fixture.root,
+        NO_RELEASE_ANCHOR,
+        fixture.mainAnchor,
+      ),
+      { ok: true },
+    );
+  });
+});
+
+test('a commit newer than the main anchor cannot establish provenance', () => {
+  withFixture({ fingerprintAfterAnchor: true }, (fixture) => {
+    deepEqual(
+      verifyFingerprintInRepository(
+        fixture.entry,
+        fixture.root,
+        NO_RELEASE_ANCHOR,
+        fixture.mainAnchor,
+      ),
+      { ok: false, code: 'FINGERPRINT_SOURCE_UNREACHABLE' },
+    );
+  });
+});
+
+test('an anchor that is not on main (a PR-only commit) cannot establish provenance', () => {
+  withFixture({ anchorOffMain: true }, (fixture) => {
+    deepEqual(
+      verifyFingerprintInRepository(
+        fixture.entry,
+        fixture.root,
+        NO_RELEASE_ANCHOR,
+        fixture.mainAnchor,
+      ),
+      { ok: false, code: 'FINGERPRINT_SOURCE_UNREACHABLE' },
+    );
+  });
+});
+
+test('a missing main anchor fails closed', () => {
+  withFixture({}, (fixture) => {
+    const missing = { commit: 'f'.repeat(40), branch: 'refs/heads/main' };
+    deepEqual(
+      verifyFingerprintInRepository(fixture.entry, fixture.root, NO_RELEASE_ANCHOR, missing),
+      {
+        ok: false,
+        code: 'FINGERPRINT_SOURCE_UNREACHABLE',
+      },
+    );
+    deepEqual(verifyFingerprintInRepository(fixture.entry, fixture.root, NO_RELEASE_ANCHOR, null), {
+      ok: false,
+      code: 'FINGERPRINT_SOURCE_UNREACHABLE',
+    });
+  });
+});
+
+test('a generic fingerprint must point at a line the rule could match', () => {
+  equal(validateFingerprintSourceLine('EXAMPLE_API_KEY=placeholder', 'generic-api-key').ok, true);
+  equal(
+    validateFingerprintSourceLine('Domain authenticated, bounce handling', 'generic-api-key').ok,
+    true,
+  );
+  deepEqual(validateFingerprintSourceLine('## Overview', 'generic-api-key'), {
+    ok: false,
+    code: 'FINGERPRINT_FINDING_MISMATCH',
+  });
+  deepEqual(validateFingerprintSourceLine(undefined, 'generic-api-key'), {
+    ok: false,
+    code: 'FINGERPRINT_FINDING_MISMATCH',
+  });
+  withFixture({ line: 'plain prose with no trigger words' }, (fixture) => {
+    deepEqual(
+      verifyFingerprintInRepository(
+        fixture.entry,
+        fixture.root,
+        NO_RELEASE_ANCHOR,
+        fixture.mainAnchor,
+      ),
+      { ok: false, code: 'FINGERPRINT_FINDING_MISMATCH' },
+    );
+  });
+});
+
+test('the Google-key line check is unchanged for gcp-api-key entries', () => {
+  const key = ['AI', 'za', 'A'.repeat(35)].join('');
+  equal(validateFingerprintSourceLine(`k=${key}`).ok, true);
+  equal(validateFingerprintSourceLine(`k=${key}`, 'gcp-api-key').ok, true);
+  deepEqual(validateFingerprintSourceLine('EXAMPLE_API_KEY=x', 'gcp-api-key'), {
+    ok: false,
+    code: 'FINGERPRINT_FINDING_MISMATCH',
+  });
 });
