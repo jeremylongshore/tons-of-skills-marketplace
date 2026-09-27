@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-09-27
+
+- **docs(docs-governance):** file `000-docs/815`, the incident record for the
+  tonsofskills.com security-warning reports. It covers a reputation matrix,
+  per-symptom root cause, and compromise checks for both the site and the VPS
+  (no evidence of compromise), with IPv4/IPv6, TLS and regional analysis. The
+  cause is domain classification: 12 VirusTotal engines plus 1 suspicious,
+  Cisco Talos "Untrusted", and DNS4EU/Whalebone and CIRA blocks. Appeals and
+  hardening proposals are prepared for owner approval, not submitted or
+  shipped.
+
 ## 2026-09-26
 
 - **feat(cli)!: `@intentsolutionsio/ccpi` 3.0.0 requires Node.js 22 or later.**
