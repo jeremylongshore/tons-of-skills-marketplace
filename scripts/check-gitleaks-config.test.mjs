@@ -338,7 +338,11 @@ function mainAnchorFixture({ fingerprintAfterAnchor = false, anchorOffMain = fal
     return git(root, ['rev-parse', 'HEAD']);
   };
   commitFile('baseline\n', 'baseline');
-  const exampleLine = line ?? 'EXAMPLE_API_KEY_PROD=vendor-prod-xyz789';
+  // Built at runtime (like the Google-key fixture above) so the scanner does
+  // not flag this test file's own source.
+  const exampleLine =
+    line ??
+    `${['EXAMPLE', 'API', 'KEY', 'PROD'].join('_')}=${['vendor', 'prod', 'xyz789'].join('-')}`;
   let fingerprinted;
   let anchor;
   if (fingerprintAfterAnchor) {
