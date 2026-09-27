@@ -33,6 +33,17 @@ export const TRUSTED_PROVENANCE_ANCHOR = Object.freeze({
   object: '742d4d45d090027618569f6ad1c82498535e8ca3',
 });
 
+// Second provenance anchor for history that landed after the release tag: a
+// pinned commit that must itself already be on protected main. A pull request
+// cannot make its own commit an ancestor of a commit that is already on main,
+// and if it re-pins this constant to one of its own commits, the anchor is not
+// yet on main during the PR run, so the required check fails. Advance it only
+// in a reviewed change, to a commit that is already on main.
+export const TRUSTED_MAIN_ANCHOR = Object.freeze({
+  commit: '22e2983eeb1fb142489cf8027992813956c4b92f',
+  branch: 'refs/remotes/origin/main',
+});
+
 // A path entry containing any of these re-creates a type blanket. Substring
 // match against the raw TOML literal-string entry.
 export const BANNED_FRAGMENTS = [
@@ -49,6 +60,9 @@ export const BANNED_FRAGMENTS = [
 
 const GOOGLE_API_KEY_LITERAL = /AIza[0-9A-Za-z_-]{35}/;
 const GOOGLE_API_KEY_GLOBAL = /AIza[0-9A-Za-z_-]{35}/g;
+// Gitleaks' generic-api-key rule only fires on a line carrying one of these
+// keywords, so a fingerprint whose line has none cannot point at the finding.
+const GENERIC_KEY_KEYWORD = /access|auth|api|credential|creds|key|passw(or)?d|secret|token/i;
 
 // Path exceptions are security policy, not an extensible regex language. A new
 // exception therefore requires an explicit validator review in the same diff.
@@ -282,69 +296,88 @@ function isNormalizedRepositoryPath(path) {
   );
 }
 
-export function validateFingerprintSourceLine(sourceLine) {
+export function validateFingerprintSourceLine(sourceLine, rule = 'gcp-api-key') {
+  if (rule === 'generic-api-key') {
+    // A generic finding is suppressed only after it is classified synthetic
+    // and documented under a "# reason:" header; this check only proves the
+    // entry still points at a line the rule could have matched.
+    return typeof sourceLine === 'string' && GENERIC_KEY_KEYWORD.test(sourceLine)
+      ? { ok: true }
+      : { ok: false, code: 'FINGERPRINT_FINDING_MISMATCH' };
+  }
   const findings = sourceLine?.match(GOOGLE_API_KEY_GLOBAL) ?? [];
   if (findings.length === 0) return { ok: false, code: 'FINGERPRINT_FINDING_MISMATCH' };
   if (findings.length > 1) return { ok: false, code: 'AMBIGUOUS_FINGERPRINT_LINE' };
   return { ok: true };
 }
 
+// Rules that may be suppressed by an exact fingerprint. Anything else fails.
+export const SUPPORTED_FINGERPRINT_RULES = Object.freeze(['gcp-api-key', 'generic-api-key']);
+
+function git(root, args) {
+  return execFileSync('git', ['-C', root, ...args], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+    maxBuffer: 10 * 1024 * 1024,
+  });
+}
+
+function reachableFromReleaseAnchor(root, commit, anchor) {
+  try {
+    git(root, ['cat-file', '-e', `${anchor.ref}^{tag}`]);
+    if (git(root, ['rev-parse', anchor.ref]).trim() !== anchor.object) return false;
+    git(root, ['merge-base', '--is-ancestor', commit, `${anchor.ref}^{commit}`]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function reachableFromMainAnchor(root, commit, anchor) {
+  if (!anchor) return false;
+  try {
+    git(root, ['cat-file', '-e', `${anchor.commit}^{commit}`]);
+    // The anchor must already be on protected main...
+    git(root, ['merge-base', '--is-ancestor', anchor.commit, anchor.branch]);
+    // ...and the fingerprinted commit must be in the anchor's history.
+    git(root, ['merge-base', '--is-ancestor', commit, anchor.commit]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function verifyFingerprintInRepository(
   entry,
   root = ROOT,
   trustedAnchor = TRUSTED_PROVENANCE_ANCHOR,
+  mainAnchor = TRUSTED_MAIN_ANCHOR,
 ) {
   const fingerprint = parseFingerprint(entry);
   if (!fingerprint) return { ok: false, code: 'NON_COMMIT_BOUND_FINGERPRINT' };
   if (!isNormalizedRepositoryPath(fingerprint.path)) {
     return { ok: false, code: 'INVALID_FINGERPRINT_PATH' };
   }
-  if (fingerprint.rule !== 'gcp-api-key') {
+  if (!SUPPORTED_FINGERPRINT_RULES.includes(fingerprint.rule)) {
     return { ok: false, code: 'UNSUPPORTED_FINGERPRINT_RULE' };
   }
 
   let content;
   try {
-    execFileSync('git', ['-C', root, 'cat-file', '-e', `${fingerprint.commit}^{commit}`], {
-      stdio: 'ignore',
-    });
-    execFileSync('git', ['-C', root, 'cat-file', '-e', `${trustedAnchor.ref}^{tag}`], {
-      stdio: 'ignore',
-    });
-    const anchorObject = execFileSync('git', ['-C', root, 'rev-parse', trustedAnchor.ref], {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    }).trim();
-    if (anchorObject !== trustedAnchor.object) {
+    git(root, ['cat-file', '-e', `${fingerprint.commit}^{commit}`]);
+    if (
+      !reachableFromReleaseAnchor(root, fingerprint.commit, trustedAnchor) &&
+      !reachableFromMainAnchor(root, fingerprint.commit, mainAnchor)
+    ) {
       return { ok: false, code: 'FINGERPRINT_SOURCE_UNREACHABLE' };
     }
-    execFileSync(
-      'git',
-      [
-        '-C',
-        root,
-        'merge-base',
-        '--is-ancestor',
-        fingerprint.commit,
-        `${trustedAnchor.ref}^{commit}`,
-      ],
-      { stdio: 'ignore' },
-    );
-    content = execFileSync(
-      'git',
-      ['-C', root, 'show', `${fingerprint.commit}:${fingerprint.path}`],
-      {
-        encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'ignore'],
-        maxBuffer: 10 * 1024 * 1024,
-      },
-    );
+    content = git(root, ['show', `${fingerprint.commit}:${fingerprint.path}`]);
   } catch {
     return { ok: false, code: 'FINGERPRINT_SOURCE_UNREACHABLE' };
   }
 
   const sourceLine = content.split(/\r?\n/)[fingerprint.line - 1];
-  return validateFingerprintSourceLine(sourceLine);
+  return validateFingerprintSourceLine(sourceLine, fingerprint.rule);
 }
 
 export function analyzeIgnore(text, verifyEntry = (entry) => verifyFingerprintInRepository(entry)) {
