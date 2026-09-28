@@ -62,7 +62,9 @@ def test_validator_category_maxes_match_expected() -> None:
 
     # Map function name → declared max from the source
     pattern = re.compile(
-        r"def\s+(score_[a-z_]+)\s*\([^)]*\)[^{]*?:\s*\n(?:.*?\n)*?\s*return\s*\{[^}]*\"max\"\s*:\s*(\d+)",
+        # One lazy [\s\S]*? instead of the nested (?:.*?\n)*?, which could
+        # backtrack exponentially; with DOTALL both match the same text.
+        r"def\s+(score_[a-z_]+)\s*\([^)]*\)[^{]*?:\s*\n[\s\S]*?\s*return\s*\{[^}]*\"max\"\s*:\s*(\d+)",
         re.DOTALL,
     )
     func_to_max = {m.group(1): int(m.group(2)) for m in pattern.finditer(text)}

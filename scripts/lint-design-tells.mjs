@@ -148,10 +148,14 @@ function countEmDashesVisible(file) {
     return 0;
   }
   // Strip all comments (HTML, JS/CSS block, JS line) before counting
-  // 1. HTML comments
-  text = text.replace(/<!--[\s\S]*?-->/g, '');
-  // 2. JS/CSS block comments (incl JSDoc /** ... */)
-  text = text.replace(/\/\*[\s\S]*?\*\//g, '');
+  // 1 + 2. HTML comments and JS/CSS block comments (incl JSDoc /** ... */).
+  // Repeat until nothing changes: one pass over `<!-<!-- x -->-` or a
+  // similarly nested block can leave a fresh comment opener behind.
+  let previous;
+  do {
+    previous = text;
+    text = text.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
+  } while (text !== previous);
   // 3. JS line comments (only standalone — not inside strings, but good enough for our heuristic)
   text = text.replace(/^\s*\/\/.*$/gm, '');
   const m = text.match(/—/g);

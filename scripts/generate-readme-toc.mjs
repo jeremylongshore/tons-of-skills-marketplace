@@ -164,7 +164,14 @@ function githubSlug(text) {
 
 function escapeTable(text) {
   if (!text) return '';
-  return text.replace(/\|/g, '\\|').replace(/\r?\n/g, ' ').replace(/\s+/g, ' ').trim();
+  // Escape backslashes first, then pipes: an input ending in `\` must not
+  // turn the escaping `\|` into a literal backslash plus a column break.
+  return text
+    .replace(/\\/g, '\\\\')
+    .replace(/\|/g, '\\|')
+    .replace(/\r?\n/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function truncate(text, max = 120) {
