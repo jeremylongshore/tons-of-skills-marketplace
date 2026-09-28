@@ -7,7 +7,7 @@
  */
 
 import { createHash } from 'node:crypto';
-import { readFileSync, realpathSync } from 'node:fs';
+import { realpathSync } from 'node:fs';
 import { dirname, extname, isAbsolute, normalize, relative, resolve, sep } from 'node:path';
 import yaml from 'js-yaml';
 import { safeReadFile, UnsafePathError } from './safe-fs.mjs';

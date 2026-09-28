@@ -85,12 +85,27 @@ function freshDb(dir) {
   return db;
 }
 
+// The recorder labels a run "github-actions:<actor>" whenever GITHUB_ACTOR is
+// set, which CI always does. Tests that assert the local-run identity must
+// not inherit that, or they pass on a laptop and fail in CI.
+function localEnv(extra = {}) {
+  const env = { ...process.env, ...extra };
+  delete env.GITHUB_ACTOR;
+  return env;
+}
+
 function record(args) {
-  return execFileSync(process.execPath, [RECORD_SCRIPT, ...args], { encoding: 'utf8' });
+  return execFileSync(process.execPath, [RECORD_SCRIPT, ...args], {
+    encoding: 'utf8',
+    env: localEnv(),
+  });
 }
 
 function recordExpectFail(args) {
-  const result = spawnSync(process.execPath, [RECORD_SCRIPT, ...args], { encoding: 'utf8' });
+  const result = spawnSync(process.execPath, [RECORD_SCRIPT, ...args], {
+    encoding: 'utf8',
+    env: localEnv(),
+  });
   assert.notEqual(
     result.status,
     0,
