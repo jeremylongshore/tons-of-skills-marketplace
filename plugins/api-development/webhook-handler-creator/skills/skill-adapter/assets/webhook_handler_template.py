@@ -251,4 +251,9 @@ if __name__ == "__main__":
     #   "user_id": "123"
     # }
 
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    # Debug mode is opt-in only (never default-on): the Flask debugger exposes
+    # an interactive Werkzeug console that allows arbitrary code execution if
+    # reachable. Set WEBHOOK_DEBUG=1 for local development only; never enable
+    # it while bound to 0.0.0.0 or in production.
+    debug_mode = os.environ.get("WEBHOOK_DEBUG", "").lower() in ("1", "true", "yes")
+    app.run(debug=debug_mode, host="0.0.0.0", port=5000)
