@@ -64,8 +64,20 @@ async function fileMetrics(args: z.infer<typeof FileMetricsSchema>) {
   const { filePath } = args;
 
   try {
-    const stats = await fs.stat(filePath);
-    const content = await fs.readFile(filePath, 'utf-8');
+    // Stat and read via a single open file handle instead of two separate
+    // path-based calls (fs.stat then fs.readFile): two path lookups leave a
+    // TOCTOU window where the path can be deleted, replaced, or swapped for
+    // a symlink between calls. A shared handle stats and reads the same
+    // inode.
+    const handle = await fs.open(filePath, 'r');
+    let stats;
+    let content: string;
+    try {
+      stats = await handle.stat();
+      content = await handle.readFile('utf-8');
+    } finally {
+      await handle.close();
+    }
 
     // Basic metrics
     const lines = content.split('\n').length;
