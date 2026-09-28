@@ -589,7 +589,12 @@ async function makeRepro(args: z.infer<typeof MakeReproSchema>) {
       const body = typeof log.requestBody === 'string'
         ? log.requestBody
         : JSON.stringify(log.requestBody);
-      parts.push(`-d '${body.replace(/'/g, "\\'")}'`);
+      // POSIX single-quoted strings have no escape character, so a bare
+      // backslash before a quote does not escape it -- it terminates the
+      // quoted string early and lets whatever follows be interpreted as
+      // shell syntax. Close the quote, emit a literal quote, then reopen:
+      // ' -> '\''
+      parts.push(`-d '${body.replace(/'/g, "'\\''")}'`);
     }
 
     // Add URL (must be last)

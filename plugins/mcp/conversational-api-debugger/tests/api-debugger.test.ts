@@ -496,11 +496,13 @@ describe('API Debugger MCP Server', () => {
       expect(curl).toContain('-H "Accept: application/json"');
     });
 
-    it('should escape single quotes in body', () => {
+    it('should escape single quotes in body for safe shell single-quoting', () => {
       const body = "{ \"name\": \"O'Brien\" }";
-      const escaped = body.replace(/'/g, "\\'");
+      // Matches servers/api-debugger.ts: a bare backslash cannot escape a
+      // quote inside a single-quoted shell string, so close/escape/reopen.
+      const escaped = body.replace(/'/g, "'\\''");
 
-      expect(escaped).toBe("{ \"name\": \"O\\'Brien\" }");
+      expect(escaped).toBe("{ \"name\": \"O'\\''Brien\" }");
     });
 
     it('should format with line breaks for readability', () => {
