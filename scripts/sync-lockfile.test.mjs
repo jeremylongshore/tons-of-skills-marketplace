@@ -351,3 +351,14 @@ test('a bare README.md include silently matches a deep README (the hazard being 
   assert.equal(matchesPattern('examples/x/README.md', ['README.md']), true);
   assert.ok(unanchoredIncludes(['README.md']).length === 1);
 });
+
+test('matchesPattern: regex metacharacters in a pattern are literal, never regex syntax', () => {
+  assert.equal(matchesPattern('docs/a+b.md', ['/docs/a+b.md']), true);
+  assert.equal(matchesPattern('docs/aab.md', ['/docs/a+b.md']), false, '+ is not a quantifier');
+  assert.equal(matchesPattern('x/(v1).md', ['**/(v1).md']), true);
+  assert.equal(matchesPattern('x/v1.md', ['**/(v1).md']), false, '() is not a group');
+  assert.equal(matchesPattern('lib/[a].js', ['/lib/[a].js']), true);
+  assert.equal(matchesPattern('lib/a.js', ['/lib/[a].js']), false, '[] is not a class');
+  assert.equal(matchesPattern('a\\b', ['/a\\b']), true, 'backslash is literal');
+  assert.equal(matchesPattern('$HOME/x', ['/$HOME/x']), true, '$ is literal');
+});

@@ -263,6 +263,30 @@ export function diffSource(lock, sourceName, currentFiles) {
  * the strict match dropped real files. Auto-prefixing fixes that without
  * needing every sources.yaml entry rewritten.
  */
+function globToRegexSource(pattern) {
+  let out = '';
+  let i = 0;
+  while (i < pattern.length) {
+    if (pattern.startsWith('**/', i)) {
+      out += '(?:.*/)?';
+      i += 3;
+    } else if (pattern.startsWith('**', i)) {
+      out += '.*';
+      i += 2;
+    } else if (pattern[i] === '*') {
+      out += '[^/]*';
+      i += 1;
+    } else if (pattern[i] === '?') {
+      out += '.';
+      i += 1;
+    } else {
+      out += pattern[i].replace(/[\\^$.|+()[\]{}]/g, '\\$&');
+      i += 1;
+    }
+  }
+  return out;
+}
+
 export function matchesPattern(filePath, patterns) {
   if (!patterns || patterns.length === 0) return true;
 
@@ -278,20 +302,11 @@ export function matchesPattern(filePath, patterns) {
         ? rawPattern.slice(1)
         : `**/${rawPattern}`;
 
-    // Order matters: handle `?` (single-char glob) BEFORE we insert any
-    // literal `?` chars (like `(?:.*/)?`) into the regex pattern. Then
-    // substitute glob tokens left-to-right via unique placeholders so
-    // they don't overlap.
-    const escaped = pattern
-      .replace(/\?/g, '<<<Q>>>') // glob `?` placeholder (before we add literal `?`)
-      .replace(/\./g, '\\.') // escape literal dots (`.md` etc)
-      .replace(/\*\*\//g, '<<<DSS>>>') // `**/` → zero or more dirs
-      .replace(/\*\*/g, '<<<DS>>>') // bare `**` → anything
-      .replace(/\*/g, '[^/]*') // `*` → single segment
-      .replace(/<<<DSS>>>/g, '(?:.*/)?') // ← contains literal `?`, must come AFTER /\?/g
-      .replace(/<<<DS>>>/g, '.*')
-      .replace(/<<<Q>>>/g, '.');
-
+    // Translate glob tokens left to right and escape every other character,
+    // so a pattern can never smuggle regex syntax (`(`, `+`, `[`, `\`, ...)
+    // into the matcher. `**/` = zero or more directories, `**` = anything,
+    // `*` = one path segment, `?` = one character.
+    const escaped = globToRegexSource(pattern);
     const regex = new RegExp('^' + escaped + '$');
     return regex.test(filePath);
   });
