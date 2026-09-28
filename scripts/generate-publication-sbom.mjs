@@ -11,11 +11,15 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-function purl(name, version) {
-  const encoded = name.startsWith('@')
-    ? `@${encodeURIComponent(name.slice(1)).replace('%2F', '/')}`
-    : encodeURIComponent(name);
-  return `pkg:npm/${encoded}@${encodeURIComponent(version)}`;
+// Package URL per the purl spec's npm type: a scope is the namespace segment
+// and its "@" is percent-encoded (pkg:npm/%40scope/name@1.0.0). Each segment
+// is encoded on its own, so no separator ever needs to be un-escaped.
+export function purl(name, version) {
+  const segments = name.startsWith('@') ? name.split('/') : [name];
+  if (segments.length > 2 || segments.some((segment) => segment.length === 0)) {
+    throw new Error(`invalid npm package name for purl: ${name}`);
+  }
+  return `pkg:npm/${segments.map(encodeURIComponent).join('/')}@${encodeURIComponent(version)}`;
 }
 
 export function buildBom(tree) {
