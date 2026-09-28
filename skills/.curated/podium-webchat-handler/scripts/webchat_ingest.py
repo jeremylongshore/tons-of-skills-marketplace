@@ -144,13 +144,15 @@ def _partial_state_path(phone_e164: str, location_uid: str) -> Path:
     # verify the resolved path stays inside PARTIAL_STATE_DIR before use.
     safe_phone = re.sub(r"[^0-9A-Za-z]", "p", phone_e164)
     safe_location = re.sub(r"[^0-9A-Za-z_-]", "_", location_uid)
-    base = PARTIAL_STATE_DIR.resolve()
-    candidate = (base / f"{safe_phone}__{safe_location}.json").resolve()
-    if not candidate.is_relative_to(base):
+    # Normalize lexically (no filesystem access with untrusted input) and
+    # require the result to stay directly under the state directory.
+    base = os.path.normpath(os.path.abspath(PARTIAL_STATE_DIR))
+    candidate = os.path.normpath(os.path.join(base, f"{safe_phone}__{safe_location}.json"))
+    if not candidate.startswith(base + os.sep):
         raise WebchatError(
             f"ERR_WEBCHAT_009 refusing to escape partial-state dir: phone={phone_e164!r} location_uid={location_uid!r}"
         )
-    return candidate
+    return Path(candidate)
 
 
 def persist_partial_state(s: WebchatSession) -> None:
