@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
 import { resolvePluginProvenance } from './plugin-provenance.mjs';
+import { safeReadFile } from './safe-fs.mjs';
 
 const ROOT_FILES = new Set(['AGENTS.md', 'CLAUDE.md', 'README.md', 'STANDARDS.md']);
 const ACTIVE_ROOTS = ['.github/', 'plugins/', 'scripts/'];
@@ -945,7 +946,11 @@ function isActiveSurface(filePath) {
 export function auditJrigDbBoundary({
   root = process.cwd(),
   paths,
-  readFile = fs.readFileSync,
+  // Default read is the verified safe-fs read (no follow, regular file, same
+  // inode before and after open), so the lstat below is no longer a
+  // check-then-read gap. Tests inject both functions for fault cases.
+  readFile = (absolute) =>
+    safeReadFile(path.resolve(root), path.relative(root, absolute)).content.toString('utf8'),
   lstat = fs.lstatSync,
   provenance = resolvePluginProvenance,
 } = {}) {

@@ -291,8 +291,14 @@ function applyDisplayBumps(plans) {
     }
     for (const rel of p.skillFiles) {
       const abs = join(ROOT, rel);
-      if (!existsSync(abs)) continue;
-      const res = editSkillFrontmatter(readFileSync(abs, 'utf-8'), p.to);
+      let current;
+      try {
+        current = readFileSync(abs, 'utf-8');
+      } catch (error) {
+        if (error.code === 'ENOENT') continue; // removed in this PR: nothing to stamp
+        throw error;
+      }
+      const res = editSkillFrontmatter(current, p.to);
       if (res.out) writeFileSync(abs, res.out);
     }
   }

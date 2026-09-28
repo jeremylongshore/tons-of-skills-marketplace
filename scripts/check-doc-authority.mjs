@@ -6,9 +6,10 @@
  * Usage: node scripts/check-doc-authority.mjs [repository-root]
  */
 import { execFileSync } from 'node:child_process';
-import { lstatSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { dirname, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { safeReadFile, UnsafePathError } from './safe-fs.mjs';
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const STATUS_FIELD =
@@ -242,10 +243,14 @@ export function scanRepository(root = repositoryRoot) {
     throw new Error('Git reported no tracked Markdown documents in 000-docs');
 
   const documents = markdownDocs.map((path) => {
-    const absolute = resolve(root, path);
-    if (!lstatSync(absolute).isFile())
-      throw new Error(`tracked document is not a regular file: ${path}`);
-    return { path, contents: readFileSync(absolute, 'utf8') };
+    try {
+      return { path, contents: safeReadFile(resolve(root), path).content.toString('utf8') };
+    } catch (error) {
+      if (error instanceof UnsafePathError) {
+        throw new Error(`tracked document is not a regular file: ${path}`);
+      }
+      throw error;
+    }
   });
   return checkAuthorityGraph({
     standardsText: readFileSync(resolve(root, 'STANDARDS.md'), 'utf8'),

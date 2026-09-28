@@ -60,12 +60,6 @@ pluginsToProcess.forEach(plugin => {
   const filename = `${plugin.name}.json`;
   const outputPath = path.join(outputDir, filename);
 
-  // Skip if file already exists
-  if (fs.existsSync(outputPath)) {
-    console.log(`⏭️  Skipped ${filename} (already exists)`);
-    skipped++;
-    return;
-  }
 
   // Map the category
   const category = mapCategory(plugin.category, plugin.source);
@@ -90,8 +84,16 @@ pluginsToProcess.forEach(plugin => {
     screenshots: []
   };
 
-  // Write the file
-  fs.writeFileSync(outputPath, JSON.stringify(marketplaceJson, null, 2) + '\n');
+  // Create exclusively ('wx'): an existing file is skipped, never overwritten,
+  // with no existence check that could go stale before the write.
+  try {
+    fs.writeFileSync(outputPath, JSON.stringify(marketplaceJson, null, 2) + '\n', { flag: 'wx' });
+  } catch (error) {
+    if (error.code !== 'EEXIST') throw error;
+    console.log(`⏭️  Skipped ${filename} (already exists)`);
+    skipped++;
+    return;
+  }
   console.log(`✅ Created ${filename}`);
   created++;
 });

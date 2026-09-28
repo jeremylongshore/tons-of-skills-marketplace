@@ -7,9 +7,10 @@
  */
 
 import { createHash } from 'node:crypto';
-import { lstatSync, readFileSync, realpathSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { dirname, extname, isAbsolute, normalize, relative, resolve, sep } from 'node:path';
 import yaml from 'js-yaml';
+import { safeReadFile, UnsafePathError } from './safe-fs.mjs';
 
 import { canonicalDocumentLinks, inspectAuthorityMetadata } from './check-doc-authority.mjs';
 import { CORPUS_COHORTS, resolveCorpus } from './corpus-resolver.mjs';
@@ -353,12 +354,17 @@ function makeReader(root, paths) {
     if (rel === '..' || rel.startsWith(`..${sep}`) || isAbsolute(rel)) {
       throw new Error(`scorecard path escapes repository: ${normalizedPath}`);
     }
-    const metadata = lstatSync(candidate);
-    if (metadata.isSymbolicLink() || !metadata.isFile()) {
+    // One verified read: a link, directory or special file reads as absent,
+    // exactly as the former lstat check did, but with no check-then-read gap.
+    // A missing file still throws, as before.
+    let value;
+    try {
+      value = safeReadFile(repository, normalizedPath).content.toString('utf8');
+    } catch (error) {
+      if (!(error instanceof UnsafePathError)) throw error;
       cache.set(normalizedPath, null);
       return null;
     }
-    const value = readFileSync(candidate, 'utf8');
     cache.set(normalizedPath, value);
     return value;
   }

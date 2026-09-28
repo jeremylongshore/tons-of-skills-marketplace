@@ -2,9 +2,10 @@
 
 /** Validate completed supersession records without interpreting frozen documents. */
 import { spawnSync } from 'node:child_process';
-import { lstatSync, readFileSync, realpathSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { dirname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { safeReadFile, UnsafePathError } from './safe-fs.mjs';
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DEFAULT_TEMPLATE = '000-docs/746-DR-TMPL-document-supersession.md';
@@ -495,18 +496,20 @@ export function trackedDocumentationPaths(root = repositoryRoot) {
 
 export function readTrackedDocumentation(root = repositoryRoot) {
   const lexicalRoot = resolve(root);
-  const physicalRoot = realpathSync(lexicalRoot);
   return trackedDocumentationPaths(root).map((path) => {
     const absolute = resolve(lexicalRoot, path);
     if (!absolute.startsWith(`${lexicalRoot}${sep}`))
       throw new Error(`tracked documentation path escapes repository: ${path}`);
-    const metadata = lstatSync(absolute);
-    if (!metadata.isFile() || metadata.isSymbolicLink())
-      throw new Error(`tracked documentation path is not a regular file: ${path}`);
-    const physicalPath = realpathSync(absolute);
-    if (!physicalPath.startsWith(`${physicalRoot}${sep}`))
-      throw new Error(`tracked documentation path resolves outside repository: ${path}`);
-    return { path, markdown: readFileSync(absolute, 'utf8') };
+    // safe-fs refuses links anywhere under the root, special files, and a path
+    // swapped between check and open, in one verified read.
+    try {
+      return { path, markdown: safeReadFile(lexicalRoot, path).content.toString('utf8') };
+    } catch (error) {
+      if (error instanceof UnsafePathError) {
+        throw new Error(`tracked documentation path is not a regular file: ${path}`);
+      }
+      throw error;
+    }
   });
 }
 

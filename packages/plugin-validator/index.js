@@ -414,7 +414,17 @@ class PluginValidator {
 
     scripts.forEach(script => {
       const scriptPath = path.join(scriptsDir, script);
-      const stats = fs.statSync(scriptPath);
+      // Stat and read through one descriptor so the mode checked belongs to
+      // the bytes scanned. O_NONBLOCK keeps a FIFO from hanging the validator.
+      const fd = fs.openSync(scriptPath, fs.constants.O_RDONLY | (fs.constants.O_NONBLOCK || 0));
+      let stats;
+      let content;
+      try {
+        stats = fs.fstatSync(fd);
+        content = stats.isFile() ? fs.readFileSync(fd, 'utf8') : '';
+      } finally {
+        fs.closeSync(fd);
+      }
 
       const isExecutable = (stats.mode & 0o111) !== 0;
 
@@ -425,7 +435,6 @@ class PluginValidator {
         this.addFix('script-not-executable', { script, scriptPath });
       }
 
-      const content = fs.readFileSync(scriptPath, 'utf8');
 
       if (content.includes('rm -rf /')) {
         this.error(`✗ Script ${script} contains dangerous command: rm -rf /`, 'hardcoded-secret', 20);

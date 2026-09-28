@@ -474,8 +474,17 @@ test('(g) runner atomically retains primary JSON outside /dev/shm and records it
     assert.equal(result.status, 0, result.stderr);
 
     const artifact = path.join(artifactDir, 'retained-pack.jrig-run-55.json');
-    assert.ok(fs.existsSync(artifact), 'primary JSON is retained outside the scratch directory');
-    assert.equal(fs.statSync(artifact).mode & 0o777, 0o600);
+    // Stat and hash through one descriptor so the file checked is the file hashed.
+    const artifactFd = fs.openSync(artifact, 'r');
+    let artifactMode;
+    let artifactBytes;
+    try {
+      artifactMode = fs.fstatSync(artifactFd).mode;
+      artifactBytes = fs.readFileSync(artifactFd);
+    } finally {
+      fs.closeSync(artifactFd);
+    }
+    assert.equal(artifactMode & 0o777, 0o600, 'primary JSON is retained with owner-only mode');
     const [row] = queryRows(
       db,
       "SELECT evidence FROM forge_proofs WHERE plugin_name='retained-pack';",
@@ -484,7 +493,7 @@ test('(g) runner atomically retains primary JSON outside /dev/shm and records it
     assert.equal(evidence.artifact_uri, artifact);
     assert.equal(
       evidence.artifact_sha256,
-      createHash('sha256').update(fs.readFileSync(artifact)).digest('hex'),
+      createHash('sha256').update(artifactBytes).digest('hex'),
     );
   } finally {
     fs.rmSync(db, { force: true });

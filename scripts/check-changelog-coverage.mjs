@@ -5,9 +5,10 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { lstatSync, readdirSync, readFileSync } from 'node:fs';
+import { readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { safeReadFile, UnsafePathError } from './safe-fs.mjs';
 
 export const FLOOR = '4.14.0';
 const VERSION = /^\d+\.\d+\.\d+$/;
@@ -90,18 +91,19 @@ export function checkChangelogCoverage({ root = ROOT, readTags = defaultTagReade
   for (const entry of entries) {
     const relativePath = String(entry);
     if (!relativePath.endsWith('.md')) continue;
-    const absolutePath = join(notesDirectory, relativePath);
-    let fileType;
+    // One verified read (no follow, regular file, same inode before and after
+    // open) instead of an lstat check followed by a separate read by name.
+    let contents;
     try {
-      fileType = lstatSync(absolutePath);
+      contents = safeReadFile(notesDirectory, relativePath).content.toString('utf8');
     } catch (error) {
+      if (error instanceof UnsafePathError) {
+        throw new Error(`${relativePath}: release-note path is not a regular file`);
+      }
       const detail = error instanceof Error ? error.message : String(error);
       throw new Error(`${relativePath}: release-note metadata unavailable: ${detail}`);
     }
-    if (!fileType.isFile()) {
-      throw new Error(`${relativePath}: release-note path is not a regular file`);
-    }
-    const version = parseFrontmatterVersion(readFileSync(absolutePath, 'utf8'), relativePath);
+    const version = parseFrontmatterVersion(contents, relativePath);
     if (!version) continue;
     const previous = documentedByVersion.get(version);
     if (previous) {

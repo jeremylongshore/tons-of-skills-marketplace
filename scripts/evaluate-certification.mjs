@@ -69,21 +69,28 @@ function parseArgs(argv) {
 }
 
 function readInput(label, file, maxAgeMs) {
-  let stat;
+  // Open once and take metadata and bytes from the same descriptor, so the
+  // file checked is the file read. O_NONBLOCK keeps a FIFO from hanging.
+  let fd;
   try {
-    stat = fs.statSync(file);
+    fd = fs.openSync(file, fs.constants.O_RDONLY | (fs.constants.O_NONBLOCK ?? 0));
   } catch (error) {
     return { label, code: 'MISSING_OR_UNREADABLE', detail: error.message };
-  }
-  if (!stat.isFile()) return { label, code: 'MISSING_OR_UNREADABLE', detail: 'not a regular file' };
-  if (Date.now() - stat.mtimeMs > maxAgeMs) {
-    return { label, code: 'STALE', detail: `mtime ${new Date(stat.mtimeMs).toISOString()}` };
   }
   let raw;
   try {
-    raw = fs.readFileSync(file, 'utf8');
+    const stat = fs.fstatSync(fd);
+    if (!stat.isFile()) {
+      return { label, code: 'MISSING_OR_UNREADABLE', detail: 'not a regular file' };
+    }
+    if (Date.now() - stat.mtimeMs > maxAgeMs) {
+      return { label, code: 'STALE', detail: `mtime ${new Date(stat.mtimeMs).toISOString()}` };
+    }
+    raw = fs.readFileSync(fd, 'utf8');
   } catch (error) {
     return { label, code: 'MISSING_OR_UNREADABLE', detail: error.message };
+  } finally {
+    fs.closeSync(fd);
   }
   try {
     return { label, value: JSON.parse(raw) };

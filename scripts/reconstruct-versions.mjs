@@ -128,8 +128,15 @@ export function collectHistory() {
 // plugin.json: exact `"version": "X.Y.Z"` line replacement (applyPatchBump pattern).
 function editPluginJson(dir, newVersion) {
   const abs = join(ROOT, dir, '.claude-plugin', 'plugin.json');
-  if (!existsSync(abs)) return { skipped: 'no plugin.json' };
-  const raw = readFileSync(abs, 'utf-8');
+  // Read directly and treat ENOENT as absent, instead of an existence check
+  // followed by a separate read of the same path.
+  let raw;
+  try {
+    raw = readFileSync(abs, 'utf-8');
+  } catch (error) {
+    if (error.code === 'ENOENT') return { skipped: 'no plugin.json' };
+    throw error;
+  }
   let old;
   try {
     old = JSON.parse(raw).version;
