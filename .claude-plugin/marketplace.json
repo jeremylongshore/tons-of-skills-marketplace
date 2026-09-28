@@ -4610,7 +4610,7 @@
       "name": "webhook-handler-creator",
       "source": "./plugins/api-development/webhook-handler-creator",
       "description": "Create secure webhook endpoints with signature verification and retry logic",
-      "version": "1.25.0",
+      "version": "1.26.0",
       "category": "api-development",
       "keywords": [
         "webhook",
@@ -7052,7 +7052,7 @@
       "name": "podium-pack",
       "source": "./plugins/saas-packs/podium-pack",
       "description": "Claude Code skill pack for Podium (10 production-engineer skills covering OAuth, webhook reliability, rate-limit survival, call transcripts, webchat, review automation, history export, RAG context, multi-location routing, contact dedup)",
-      "version": "2.9.0",
+      "version": "2.10.0",
       "category": "saas-packs",
       "keywords": [
         "podium",

@@ -11,7 +11,7 @@ description: Deduplicate Podium contacts in production and survive the data-qual
   "podium duplicate contacts", "podium merge contacts", "podium opt-out preservation",
   "podium cross-location dedup".
 allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(jq:*), Bash(python3:*), Bash(sqlite3:*), Grep
-version: 2.9.0
+version: 2.10.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 compatibility: Designed for Claude Code

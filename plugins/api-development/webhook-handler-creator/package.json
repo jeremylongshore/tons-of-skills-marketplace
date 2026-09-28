@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/webhook-handler-creator",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Create secure webhook endpoints with signature verification and retry logic",
   "keywords": [
     "webhook",

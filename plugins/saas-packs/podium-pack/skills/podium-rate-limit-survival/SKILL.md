@@ -8,7 +8,7 @@ description: Survive the rate-limit failure modes that crater production Podium 
   "podium rate limit", "podium 429", "podium token bucket", "podium quota monitor", "podium burst
   smoothing", "podium retry-after".
 allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(jq:*), Bash(python3:*), Bash(redis-cli:*), Grep
-version: 2.9.0
+version: 2.10.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 compatibility: Designed for Claude Code
