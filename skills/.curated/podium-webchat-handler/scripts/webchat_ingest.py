@@ -28,6 +28,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import re
 import time
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
@@ -136,8 +137,20 @@ active_sessions: dict[str, WebchatSession] = {}
 
 
 def _partial_state_path(phone_e164: str, location_uid: str) -> Path:
-    safe_phone = phone_e164.replace("+", "p")
-    return PARTIAL_STATE_DIR / f"{safe_phone}__{location_uid}.json"
+    # phone_e164 and location_uid both derive from the inbound webhook
+    # payload, so they are untrusted. Replacing "+" is not enough to stop
+    # path traversal (e.g. a location_uid of "../../etc/passwd") — build the
+    # filename from a character-restricted form of each component, then
+    # verify the resolved path stays inside PARTIAL_STATE_DIR before use.
+    safe_phone = re.sub(r"[^0-9A-Za-z]", "p", phone_e164)
+    safe_location = re.sub(r"[^0-9A-Za-z_-]", "_", location_uid)
+    base = PARTIAL_STATE_DIR.resolve()
+    candidate = (base / f"{safe_phone}__{safe_location}.json").resolve()
+    if not candidate.is_relative_to(base):
+        raise WebchatError(
+            f"ERR_WEBCHAT_009 refusing to escape partial-state dir: phone={phone_e164!r} location_uid={location_uid!r}"
+        )
+    return candidate
 
 
 def persist_partial_state(s: WebchatSession) -> None:
