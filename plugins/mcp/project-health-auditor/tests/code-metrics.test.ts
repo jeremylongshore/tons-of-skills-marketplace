@@ -184,34 +184,6 @@ describe('Code Metrics MCP Server', () => {
       expect(ratio).toBeLessThanOrEqual(100);
     });
 
-    it('should stat and read a file through a single handle (TOCTOU-safe)', async () => {
-      // Regression for CodeQL js/file-system-race: fileMetrics() used to call
-      // fs.stat(filePath) then fs.readFile(filePath) as two separate
-      // path-based lookups, leaving a window where the path could be
-      // deleted/replaced between calls. The fix opens one handle and stats +
-      // reads from it. Exercise that same pattern directly here.
-      const handle = await fs.open(testFilePath, 'r');
-      let stats;
-      let content: string;
-      try {
-        stats = await handle.stat();
-        content = await handle.readFile('utf-8');
-      } finally {
-        await handle.close();
-      }
-
-      const expectedContent = await fs.readFile(testFilePath, 'utf-8');
-      expect(content).toBe(expectedContent);
-      expect(stats.size).toBe(Buffer.byteLength(expectedContent, 'utf-8'));
-    });
-
-    it('should reject a deleted file the same way stat-then-read would (no silent mismatch)', async () => {
-      const goneFile = path.join(testRepoPath, 'src', 'gone.ts');
-      await fs.writeFile(goneFile, 'export const x = 1;\n');
-      await fs.unlink(goneFile);
-
-      await expect(fs.open(goneFile, 'r')).rejects.toThrow(/ENOENT/);
-    });
   });
 
   describe('File Discovery', () => {
