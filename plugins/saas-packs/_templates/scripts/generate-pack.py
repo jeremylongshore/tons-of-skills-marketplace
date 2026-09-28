@@ -247,8 +247,14 @@ def generate_pack(company: str, dry_run: bool = False) -> bool:
     skills_dir.mkdir(parents=True, exist_ok=True)
     plugin_dir.mkdir(parents=True, exist_ok=True)
 
-    # Setup Jinja2 environment
-    env = Environment(loader=FileSystemLoader(str(SLOTS_DIR)))
+    # Setup Jinja2 environment.
+    # autoescape is intentionally left off (CodeQL py/jinja2/autoescape-false):
+    # every template under SLOTS_DIR renders a SKILL.md (Markdown), never
+    # HTML, and the rendered output is written straight to a Markdown file,
+    # not served or interpreted as a web page. HTML-escaping would corrupt
+    # Markdown syntax and vendor config values (e.g. quotes/ampersands in
+    # display names) with spurious `&quot;`/`&amp;` entities.
+    env = Environment(loader=FileSystemLoader(str(SLOTS_DIR)), autoescape=False)
 
     # Generate each skill from template
     for slot in slots:
