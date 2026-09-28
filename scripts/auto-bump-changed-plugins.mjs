@@ -266,7 +266,15 @@ function planDisplayBump(dir, changedFiles) {
 
 function applyDisplayBumps(plans) {
   let extendedRaw = readFileSync(EXTENDED_CATALOG, 'utf-8');
-  let cliRaw = existsSync(CLI_CATALOG) ? readFileSync(CLI_CATALOG, 'utf-8') : null;
+  // Read once; ENOENT means there is no CLI catalog to stamp. An existence
+  // check followed by a read and a later write could act on a replaced file.
+  let cliRaw;
+  try {
+    cliRaw = readFileSync(CLI_CATALOG, 'utf-8');
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+    cliRaw = null;
+  }
   let extendedDirty = false;
   let cliDirty = false;
   for (const p of plans) {
