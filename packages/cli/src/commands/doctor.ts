@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import ora from 'ora';
 import * as os from 'node:os';
+import { randomBytes } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import { existsSync } from 'node:fs';
 import { detectClaudePaths, isMarketplaceInstalled, type ClaudePaths } from '../utils/paths.js';
@@ -386,6 +387,32 @@ async function runMarketplaceChecks(fixMode: boolean = false): Promise<Diagnosti
   };
 }
 
+/** Read a UTF-8 file, returning null only when it does not exist. */
+export async function readIfPresent(path: string): Promise<string | null> {
+  try {
+    return await fs.readFile(path, 'utf-8');
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
+    throw error;
+  }
+}
+
+/**
+ * Replace a file atomically: write an exclusive sibling temp file, then rename
+ * it over the target. A crash or a concurrent writer can never leave a
+ * half-written catalog, and a stale check can never redirect the write.
+ */
+export async function writeFileAtomic(target: string, data: string): Promise<void> {
+  const temp = `${target}.${process.pid}.${randomBytes(6).toString('hex')}.tmp`;
+  await fs.writeFile(temp, data, { flag: 'wx', mode: 0o644 });
+  try {
+    await fs.rename(temp, target);
+  } catch (error) {
+    await fs.rm(temp, { force: true });
+    throw error;
+  }
+}
+
 /**
  * Check marketplace catalog integrity
  */
@@ -402,8 +429,12 @@ async function checkMarketplaceIntegrity(
     const catalogPath = `${marketplacePath}/.claude-plugin/marketplace.json`;
     const extendedPath = `${marketplacePath}/.claude-plugin/marketplace.extended.json`;
 
-    const catalogExists = existsSync(catalogPath);
-    const extendedExists = existsSync(extendedPath);
+    // Read each file once; "missing" is an ENOENT from that read, not a
+    // separate existence check that could go stale before the parse.
+    const catalogRaw = await readIfPresent(catalogPath);
+    const extendedRaw = await readIfPresent(extendedPath);
+    const catalogExists = catalogRaw !== null;
+    const extendedExists = extendedRaw !== null;
 
     if (!catalogExists || !extendedExists) {
       checks.push({
@@ -420,8 +451,7 @@ async function checkMarketplaceIntegrity(
     let extended: MarketplaceCatalog;
 
     try {
-      const catalogContent = await fs.readFile(catalogPath, 'utf-8');
-      catalog = JSON.parse(catalogContent);
+      catalog = JSON.parse(catalogRaw as string);
     } catch (error) {
       if (fixMode) {
         try {
@@ -429,7 +459,7 @@ async function checkMarketplaceIntegrity(
             timeout: 15000,
           });
           catalog = JSON.parse(freshCatalog);
-          await fs.writeFile(catalogPath, freshCatalog);
+          await writeFileAtomic(catalogPath, freshCatalog);
           checks.push({
             name: 'Catalog Structure',
             status: 'fixed',
@@ -456,12 +486,11 @@ async function checkMarketplaceIntegrity(
     }
 
     try {
-      const extendedContent = await fs.readFile(extendedPath, 'utf-8');
-      extended = JSON.parse(extendedContent);
+      extended = JSON.parse(extendedRaw as string);
     } catch (error) {
       if (fixMode) {
         // Copy catalog as a baseline for extended
-        await fs.writeFile(extendedPath, JSON.stringify(catalog, null, 2));
+        await writeFileAtomic(extendedPath, JSON.stringify(catalog, null, 2));
         extended = catalog;
         checks.push({
           name: 'Extended Catalog Structure',
@@ -509,7 +538,7 @@ async function checkMarketplaceIntegrity(
           const freshData = JSON.parse(freshCatalog);
           const freshCount = freshData.plugins?.length || 0;
           if (freshCount > catalogCount) {
-            await fs.writeFile(catalogPath, freshCatalog);
+            await writeFileAtomic(catalogPath, freshCatalog);
             checks.push({
               name: 'Catalog Size',
               status: 'fixed',

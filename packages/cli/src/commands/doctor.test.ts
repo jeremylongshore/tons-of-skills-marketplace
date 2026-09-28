@@ -30,3 +30,54 @@ describe('doctor Node.js version check', () => {
     expect(checkNodeVersion('not-a-version').status).toBe('warn');
   });
 });
+
+describe('doctor catalog file helpers', () => {
+  it('readIfPresent returns null only for a missing file', async () => {
+    const { mkdtemp, writeFile, rm } = await import('node:fs/promises');
+    const { tmpdir } = await import('node:os');
+    const { join } = await import('node:path');
+    const { readIfPresent } = await import('./doctor.js');
+    const dir = await mkdtemp(join(tmpdir(), 'doctor-'));
+    try {
+      expect(await readIfPresent(join(dir, 'absent.json'))).toBeNull();
+      await writeFile(join(dir, 'present.json'), '{"plugins":[]}');
+      expect(await readIfPresent(join(dir, 'present.json'))).toBe('{"plugins":[]}');
+      await expect(readIfPresent(dir)).rejects.toThrow(); // a directory is an error, not "missing"
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('writeFileAtomic replaces content and leaves no temp file behind', async () => {
+    const { mkdtemp, writeFile, readFile, readdir, rm } = await import('node:fs/promises');
+    const { tmpdir } = await import('node:os');
+    const { join } = await import('node:path');
+    const { writeFileAtomic } = await import('./doctor.js');
+    const dir = await mkdtemp(join(tmpdir(), 'doctor-'));
+    try {
+      const target = join(dir, 'marketplace.json');
+      await writeFile(target, 'old');
+      await writeFileAtomic(target, 'new');
+      expect(await readFile(target, 'utf-8')).toBe('new');
+      expect((await readdir(dir)).filter((name) => name.endsWith('.tmp'))).toEqual([]);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('writeFileAtomic removes its temp file when the rename fails', async () => {
+    const { mkdtemp, mkdir, readdir, rm } = await import('node:fs/promises');
+    const { tmpdir } = await import('node:os');
+    const { join } = await import('node:path');
+    const { writeFileAtomic } = await import('./doctor.js');
+    const dir = await mkdtemp(join(tmpdir(), 'doctor-'));
+    try {
+      const target = join(dir, 'occupied');
+      await mkdir(join(target, 'child'), { recursive: true }); // rename over a non-empty dir fails
+      await expect(writeFileAtomic(target, 'data')).rejects.toThrow();
+      expect((await readdir(dir)).filter((name) => name.endsWith('.tmp'))).toEqual([]);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+});
