@@ -718,6 +718,15 @@
         "skills/schedule-after-usage-reset/SKILL.md": "sha256:c7d6d232358a10733271c22dcc22de182493e3327df67502379a7fbcc7f8d94a"
       }
     },
+    "schliff": {
+      "repo": "Zandereins/schliff",
+      "resolved_ref": "9f9d58c4d456b1aff73479a91b2cb02d722bc06b",
+      "locked_at": "2026-09-29T18:16:43.939Z",
+      "files": {
+        "LICENSE": "sha256:2e9e59c101e3bb2678f5c745555e3fba08b02a62b1e0907372153631ef4e17a2",
+        "SKILL.md": "sha256:c0cb9d17fb10241c464a876dda9b2915370c8fcb6df054db9b671d1c4e762b79"
+      }
+    },
     "servicegraph": {
       "repo": "nostrband/ServiceGraph",
       "resolved_ref": "df4648a40426762c4001d064e9f39d1ebabf1540",

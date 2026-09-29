@@ -1295,6 +1295,30 @@ sources:
       - '**/node_modules/**'
       - '**/*.log'
 
+  # ============================================================
+  # schliff (Zandereins)
+  # https://github.com/Zandereins/schliff
+  # ============================================================
+
+  - name: schliff
+    description: Deterministic linter and scorer for SKILL.md, AGENTS.md and CLAUDE.md - no model in the loop, same bytes score the same everywhere; also checks whether the commands a file promises actually resolve in the repo.
+    repo: Zandereins/schliff
+    source_path: skills/schliff
+    target_path: plugins/community/schliff
+    author:
+      name: Zandereins
+      github: Zandereins
+    license: MIT
+    category: community
+    verified: false
+    include:
+      - '/SKILL.md'
+      - '/LICENSE'
+    exclude:
+      - 'node_modules/**'
+      - '.git/**'
+      - '*.log'
+
 # Sync configuration
 config:
   # Branch to sync from (default: main)
