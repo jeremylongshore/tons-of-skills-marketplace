@@ -48,7 +48,7 @@
     "@a2a-js/sdk": "1.0.1",
     "@modelcontextprotocol/sdk": "1.29.0",
     "ipaddr.js": "2.5.0",
-    "undici": "6.28.0",
+    "undici": "6.28.1",
     "zod": "4.4.3"
   },
   "devDependencies": {

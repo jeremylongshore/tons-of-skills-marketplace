@@ -33,7 +33,8 @@
     "axe-core": "^4.11.4"
   },
   "overrides": {
-    "svgo": "4.1.0"
+    "svgo": "4.1.0",
+    "brace-expansion@2": "2.1.7"
   },
   "engines": {
     "node": ">=22.12.0"
