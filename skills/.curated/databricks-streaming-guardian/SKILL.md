@@ -15,7 +15,7 @@ description: |
   broke", "vacuum broke my stream", "autoloader UnknownFieldException", "dlt full
   refresh".
 allowed-tools: Read, Write, Edit, Bash(databricks:*), Bash(jq:*), Bash(python3:*), Bash(bash:*), Glob, mcp__databricks-workspace-mcp__clusters_events, mcp__databricks-workspace-mcp__clusters_list, mcp__databricks-workspace-mcp__pipelines_get
-version: 2.27.0
+version: 2.28.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code

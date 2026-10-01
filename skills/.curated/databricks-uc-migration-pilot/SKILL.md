@@ -10,7 +10,7 @@ description: |
   Trigger with "migrate to unity catalog", "hive metastore migration", "uc
   migration", "which tables can migrate", "unity catalog permission".
 allowed-tools: Read, Write, Edit, Bash(databricks:*), Bash(jq:*), Bash(aws:*), Bash(python3:*), Glob
-version: 2.27.0
+version: 2.28.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code
