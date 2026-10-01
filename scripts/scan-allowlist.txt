@@ -931,3 +931,18 @@ plugins/devops/mattyp-changelog/scripts/changelog_mcp.py:secret-exfil-cooccur  r
 plugins/community/skills-janitor/scripts/security.sh:outbound-network  curl appears only inside detection regexes (sh-curlpipe/sh-http/sh-postout, IMPERATIVE); no network I/O in the script
 plugins/community/skills-janitor/scripts/security.sh:secret-exfil-cooccur  credential-path and network tokens are both regex/pattern literals for the scanner; no credential read, no network sink
 plugins/community/skills-janitor/skills/janitor-security/SKILL.md:pipe-to-shell  documentation listing `curl … | bash` as a pattern the scan detects; not an install instruction
+
+# 2026-10-01 reviewed drift relock: findings in mirror files this relock touches.
+# All pre-exist on main and were reviewed in the per-source drift review; each
+# reason below records what was checked.
+plugins/community/hermes-tweet/hermes_tweet/client.py:outbound-network  API client for its own service; the only endpoint is https://xquik.com (client.py:15)
+plugins/community/hermes-tweet/hermes_tweet/catalog.py:outbound-network  catalog lookups against the same xquik.com client; no other host
+plugins/community/mnemos/README.md:hook-definition  JSON example in README documentation, not an installed hook
+plugins/community/portaljs/skills/arcgis-to-portaljs/SKILL.md:allowed-tools-network  WebFetch to read ArcGIS/portal docs for the migration the skill performs
+plugins/community/portaljs/skills/portaljs-migrate/SKILL.md:allowed-tools-network  WebFetch to read the source portal being migrated; no Bash/network shell grant
+plugins/mcp/slack-channel/lib.ts:secret-exfil-cooccur  match is the outbound secret GUARD that blocks live secret values from leaving (lib.ts ~1316); Slack token goes only to the Slack API
+plugins/mcp/slack-channel/server.ts:secret-exfil-cooccur  match is local state-dir constants (~/.claude/channels/slack/.env, access.json); no network sink
+plugins/mcp/x-bug-triage/.claude-plugin/plugin.json:hook-definition  points at hooks/hooks.json, which is empty ({"hooks": {}}) at the relocked 06f262b
+plugins/productivity/box-cloud-filesystem/.claude-plugin/plugin.json:hook-definition  registers the queue-only hooks reviewed below
+plugins/productivity/box-cloud-filesystem/hooks/hooks.json:hook-definition  PostToolUse/Stop run box-sync-on-write.sh / box-sync-summary.sh: opt-in (queue_changes=true) local queueing only, no upload; upload needs a human --apply
+plugins/productivity/publishing-skills/skills/blog-figure-svg/SKILL.md:allowed-tools-network  WebFetch for reference research when drafting figures; no shell/network write
