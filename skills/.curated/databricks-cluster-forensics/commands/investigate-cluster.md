@@ -1,6 +1,6 @@
 ---
 name: investigate-cluster
-description: Triage a failed or slow Databricks cluster by fanning out parallel root-cause threads over its live event stream and returning the single most-likely cause with evidence.
+description: Triage a failed or slow Databricks cluster via parallel root-cause threads
 aliases: [cluster-triage, why-cluster-failed]
 ---
 

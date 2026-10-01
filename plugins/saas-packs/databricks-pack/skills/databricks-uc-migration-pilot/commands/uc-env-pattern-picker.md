@@ -1,6 +1,6 @@
 ---
 name: uc-env-pattern-picker
-description: Interactive decision tree that recommends a dev/test/prod isolation pattern under the one-UC-metastore-per-region constraint and emits a matching Databricks Asset Bundle target stub.
+description: Recommend a dev/test/prod UC isolation pattern and emit a DAB target stub
 aliases: [uc-env-picker, env-isolation]
 ---
 

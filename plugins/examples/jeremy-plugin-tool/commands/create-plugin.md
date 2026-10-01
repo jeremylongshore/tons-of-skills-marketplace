@@ -1,6 +1,6 @@
 ---
 name: create-plugin
-description: Interactive plugin creator with marketplace-grade validation - guides you through...
+description: Interactive plugin creator with marketplace-grade validation and scaffolding
 shortcut: cp
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 version: 2.0.0

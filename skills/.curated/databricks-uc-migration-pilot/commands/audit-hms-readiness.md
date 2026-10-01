@@ -1,6 +1,6 @@
 ---
 name: audit-hms-readiness
-description: Run the HMS-readiness audit for a Hive Metastore schema and classify every table as UC-migration READY / BLOCKED / ORPHAN, then surface the blocker playbook.
+description: Audit a Hive Metastore schema and classify tables for UC migration readiness
 aliases: [hms-audit, uc-readiness]
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: recover-bundle-state
-description: Recover a Databricks Asset Bundle whose deploy fails with "unexpected EOF reading terraform.tfstate" — restore the guarded backup or switch to the direct engine.
+description: Recover a Databricks Asset Bundle deploy stuck on an EOF tfstate read error
 aliases: [fix-bundle-eof, bundle-state-recovery]
 ---
 
