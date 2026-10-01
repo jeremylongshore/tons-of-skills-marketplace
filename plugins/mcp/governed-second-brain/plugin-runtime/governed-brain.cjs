@@ -41857,6 +41857,9 @@ var init_dist6 = __esm({
 });
 
 // src/config.ts
+function resolveQmdIndexPath(basePath, tenantId) {
+  return (0, import_node_path16.join)(basePath, "qmd-index", tenantId);
+}
 function resolveConfig() {
   const tenantId = (process.env["TEAMKB_TENANT_ID"] ?? "local").trim() || "local";
   const basePath = getTeamKbBasePath();
@@ -41867,7 +41870,8 @@ function resolveConfig() {
     spoolPath: (0, import_node_path16.join)(basePath, "spool"),
     dbPath: (0, import_node_path16.join)(basePath, "teamkb.db"),
     feedbackPath: (0, import_node_path16.join)(basePath, "feedback"),
-    exportDir: envExport && envExport.length > 0 ? envExport : (0, import_node_path16.join)(basePath, "kb-export")
+    exportDir: envExport && envExport.length > 0 ? envExport : (0, import_node_path16.join)(basePath, "kb-export"),
+    qmdIndexPath: resolveQmdIndexPath(basePath, tenantId)
   };
 }
 var import_node_path16;
@@ -44154,6 +44158,36 @@ var init_govern = __esm({
   }
 });
 
+// src/govern-message.ts
+function formatGovernMessage(s) {
+  const idle = s.ingested === 0 && s.processed === 0 && s.promoted === 0 && s.rejected === 0 && s.flagged === 0 && s.duplicates === 0 && s.quarantined === 0 && s.skipped === 0;
+  if (idle) {
+    let message2 = "Nothing to govern \u2014 spool and inbox are empty (not a failure). Capture something first with /brain-save (or brain_capture), then run brain_govern again.";
+    if (!s.indexUpdated) {
+      message2 += " Search index not refreshed \u2014 install qmd 2.x on PATH and re-run brain_govern to make new memories searchable.";
+    }
+    return message2;
+  }
+  const parts = [
+    `${s.promoted} promoted`,
+    `${s.quarantined} quarantined`,
+    `${s.rejected} rejected`,
+    `${s.duplicates} duplicate`,
+    `${s.flagged} flagged`
+  ];
+  if (s.skipped > 0) parts.push(`${s.skipped} skipped`);
+  let message = `Governed ${s.processed} inbox candidate(s) (${s.ingested} newly ingested): ${parts.join(", ")}.`;
+  if (!s.indexUpdated) {
+    message += " Search index not refreshed \u2014 install qmd 2.x on PATH and re-run brain_govern to make new memories searchable.";
+  }
+  return message;
+}
+var init_govern_message = __esm({
+  "src/govern-message.ts"() {
+    "use strict";
+  }
+});
+
 // src/local-server.ts
 var local_server_exports = {};
 __export(local_server_exports, {
@@ -44161,6 +44195,15 @@ __export(local_server_exports, {
 });
 function jsonResult2(obj) {
   return { content: [{ type: "text", text: JSON.stringify(obj, null, 2) }] };
+}
+function localConfigReceipt() {
+  return {
+    mode: "local",
+    tenantId: config.tenantId,
+    basePath: config.basePath,
+    exportDir: config.exportDir,
+    qmdIndexPath: config.qmdIndexPath
+  };
 }
 function isMissingNativeDep(e) {
   const msg = e instanceof Error ? e.message : String(e);
@@ -44219,7 +44262,7 @@ async function startLocalServer() {
   process.on("SIGTERM", () => void shutdown("SIGTERM"));
   await server2.connect(transport);
   process.stderr.write(
-    `[governed-brain:local] started \u2014 tenant=${config.tenantId} base=${config.basePath} (local, in-process, no network)
+    `[governed-brain:local] started \u2014 tenant=${config.tenantId} base=${config.basePath} qmd=${config.qmdIndexPath} (local, in-process, no network)
 `
   );
 }
@@ -44240,6 +44283,7 @@ var init_local_server = __esm({
     init_dist();
     init_config3();
     init_govern();
+    init_govern_message();
     init_anchor();
     init_write_lock();
     VERSION2 = "1.2.0";
@@ -44327,14 +44371,15 @@ var init_local_server = __esm({
     );
     server2.tool(
       "brain_status",
-      "Report the health of your governed brain \u2014 counts of memories by lifecycle state and category. Read-only.",
+      "Report the health and local storage routing of your governed brain \u2014 counts by lifecycle/category plus tenant and qmd paths. Read-only.",
       async () => {
         let db;
         try {
           db = createDatabase({ path: config.dbPath, readonly: true });
         } catch (e) {
-          if (isMissingNativeDep(e)) return jsonResult2({ total: 0, note: NATIVE_DEP_HINT });
+          if (isMissingNativeDep(e)) return jsonResult2({ ...localConfigReceipt(), total: 0, note: NATIVE_DEP_HINT });
           return jsonResult2({
+            ...localConfigReceipt(),
             total: 0,
             byLifecycle: {},
             byCategory: {},
@@ -44344,6 +44389,7 @@ var init_local_server = __esm({
         try {
           const repo = new MemoryRepository(db);
           return jsonResult2({
+            ...localConfigReceipt(),
             total: repo.count(),
             byLifecycle: repo.countByLifecycle(),
             byCategory: repo.countByCategory()
@@ -44476,19 +44522,9 @@ var init_local_server = __esm({
           if (isMissingNativeDep(e)) return jsonResult2({ ok: false, error: "native-store-unavailable", message: NATIVE_DEP_HINT });
           throw e;
         }
-        const parts = [
-          `${s.promoted} promoted`,
-          `${s.quarantined} quarantined`,
-          `${s.rejected} rejected`,
-          `${s.duplicates} duplicate`,
-          `${s.flagged} flagged`
-        ];
-        if (s.skipped > 0) parts.push(`${s.skipped} skipped`);
-        let message = `Governed ${s.processed} inbox candidate(s) (${s.ingested} newly ingested): ${parts.join(", ")}.`;
-        if (!s.indexUpdated) {
-          message += " Search index not refreshed \u2014 install qmd 2.x on PATH and re-run brain_govern to make new memories searchable.";
-        }
-        return jsonResult2({ ok: true, ...s, message });
+        const message = formatGovernMessage(s);
+        const idle = s.ingested === 0 && s.processed === 0 && s.promoted === 0 && s.rejected === 0 && s.flagged === 0 && s.duplicates === 0 && s.quarantined === 0 && s.skipped === 0;
+        return jsonResult2({ ok: true, ...s, idle, message });
       }
     );
     server2.tool(

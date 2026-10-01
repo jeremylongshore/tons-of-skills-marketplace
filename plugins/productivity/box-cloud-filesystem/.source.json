@@ -4,15 +4,16 @@
     "path": ".",
     "branch": "main"
   },
-  "last_sync": "2026-07-13T17:26:48.923Z",
+  "last_sync": "2026-10-01T05:13:23.857Z",
   "author": {
     "name": "Jeremy Longshore",
     "github": "jeremylongshore",
     "email": "jeremy@intentsolutions.io"
   },
   "license": "MIT",
-  "files_synced": 11,
+  "files_synced": 12,
   "files": [
+    ".claude-plugin/marketplace.json",
     ".claude-plugin/plugin.json",
     "LICENSE",
     "README.md",

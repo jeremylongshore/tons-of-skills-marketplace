@@ -269,9 +269,17 @@ render_card() {
     local dtok="${DESC_TOKENS[$i]:-0}"
     local body_tok=$((tokens - dtok))
     [ "$body_tok" -lt 0 ] && body_tok=0
-    # "always" = description tokens, permanently in the system prompt;
-    # "on trigger" = the body, loaded only when the skill fires.
-    card_line "$(printf 'Context    %s always · %s on trigger' "$dtok" "$body_tok")"
+    case "$scope" in
+        mcp-*)
+            # MCP schemas live server-side — no token guesses, just the fact
+            card_line "Context    tool schemas load while connected"
+            ;;
+        *)
+            # "always" = description tokens, permanently in the system prompt;
+            # "on trigger" = the body, loaded only when the skill fires.
+            card_line "$(printf 'Context    %s always · %s on trigger' "$dtok" "$body_tok")"
+            ;;
+    esac
 
     local use_label
     if [ "$uses" -eq 0 ]; then
@@ -397,6 +405,7 @@ do_apply() {
     # shellcheck disable=SC2064
     trap "rm -f '$DECK_TSV' '$plugin_delete_tmp' '$plugin_total_tmp'; restore_term 2>/dev/null || true" EXIT
 
+    local -a mcp_names mcp_origins
     for ((i=0; i<TOTAL; i++)); do
         local s="${SCOPES[$i]}"
         if [[ "$s" == "plugin" ]] || [[ "$s" == "plugin-source" ]]; then
@@ -410,6 +419,12 @@ do_apply() {
                 deleted_desc_tokens=$((deleted_desc_tokens + ${DESC_TOKENS[$i]:-0}))
                 if [[ "$s" == "plugin" ]] || [[ "$s" == "plugin-source" ]]; then
                     echo "${NAMESPACES[$i]}" >> "$plugin_delete_tmp"
+                elif [[ "$s" == "mcp-plugin" ]]; then
+                    # plugin-bundled MCP: can't edit the plugin — flag it
+                    echo "${NAMESPACES[$i]#plugin:}" >> "$plugin_delete_tmp"
+                elif [[ "$s" == mcp-* ]]; then
+                    mcp_names+=("${NAMES[$i]}")
+                    mcp_origins+=("${PATHS[$i]}")
                 else
                     delete_paths+=("${PATHS[$i]}")
                     delete_names+=("${NAMES[$i]}")
@@ -444,6 +459,14 @@ do_apply() {
         printf "${BOLD}Deletions (user/project/codex scope):${RESET}\n"
         for ((j=0; j<${#delete_paths[@]}; j++)); do
             printf "  ${RED}✗${RESET}  %-30s ${DIM}%-8s %s${RESET}\n" "${delete_names[$j]}" "${delete_scopes[$j]}" "${delete_paths[$j]}"
+        done
+        printf "\n"
+    fi
+
+    if [[ ${mcp_names[@]+x} ]] && [[ "${#mcp_names[@]}" -gt 0 ]]; then
+        printf "${BOLD}MCP entries to remove${RESET} ${DIM}(config edit with .bak backup):${RESET}\n"
+        for ((j=0; j<${#mcp_names[@]}; j++)); do
+            printf "  ${RED}✗${RESET}  %-24s ${DIM}%s${RESET}\n" "${mcp_names[$j]}" "${mcp_origins[$j]}"
         done
         printf "\n"
     fi
@@ -494,6 +517,43 @@ do_apply() {
                 printf '{"ts":"%s","action":"delete","name":"%s","scope":"%s","path":"%s","tokens":%s}\n' \
                     "$ts" "$n" "$s" "$p" "${delete_tokens_per[$j]:-0}" >> "$LOG_FILE"
             done
+            # MCP entries: remove from their config file (with .bak backup)
+            if [[ ${mcp_names[@]+x} ]]; then
+            for ((j=0; j<${#mcp_names[@]}; j++)); do
+                if python3 - "${mcp_names[$j]}" "${mcp_origins[$j]}" <<'PYMCP'
+import json, shutil, sys, time
+name, origin = sys.argv[1], sys.argv[2]
+proj = None
+if " [projects -> " in origin:
+    cfg_path, rest = origin.split(" [projects -> ", 1)
+    proj = rest.rstrip("]")
+else:
+    cfg_path = origin
+try:
+    with open(cfg_path) as f:
+        data = json.load(f)
+except Exception as e:
+    sys.exit(f"cannot read {cfg_path}: {e}")
+target = data
+if proj is not None:
+    target = data.get("projects", {}).get(proj, {})
+servers = target.get("mcpServers", {})
+if name not in servers:
+    sys.exit(f"{name} not present in {cfg_path}")
+shutil.copy2(cfg_path, cfg_path + ".bak-janitor-" + time.strftime("%Y%m%d%H%M%S"))
+del servers[name]
+with open(cfg_path, "w") as f:
+    json.dump(data, f, indent=2)
+PYMCP
+                then
+                    printf "${GREEN}removed${RESET}  MCP %s ${DIM}(%s)${RESET}\n" "${mcp_names[$j]}" "${mcp_origins[$j]}"
+                    printf '{"ts":"%s","action":"mcp-remove","name":"%s","origin":"%s"}\n' \
+                        "$ts" "${mcp_names[$j]}" "${mcp_origins[$j]}" >> "$LOG_FILE"
+                else
+                    printf "${YELLOW}skipped${RESET}  MCP %s ${DIM}(edit failed — config untouched)${RESET}\n" "${mcp_names[$j]}"
+                fi
+            done
+            fi
             printf "\n${DIM}Log: %s${RESET}\n" "$LOG_FILE"
             ;;
         save)

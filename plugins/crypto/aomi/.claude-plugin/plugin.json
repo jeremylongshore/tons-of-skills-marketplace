@@ -1,7 +1,7 @@
 {
   "name": "aomi",
-  "description": "Aomi for AI agents \u2014 drive the Aomi CLI from natural-language prompts (chat, simulate, sign on-chain transactions with account-abstraction-first execution) and scaffold new Aomi apps from API specs. Bundle ships two skills: aomi-transact (run on-chain across 40+ DeFi/perps/CEX/social apps on EVM mainnets and L2s) and aomi-build (scaffold Rust SDK crates from OpenAPI/Swagger specs).",
-  "version": "0.10",
+  "description": "Aomi for AI agents \u2014 drive the Aomi CLI from natural-language prompts (chat, simulate, sign on-chain transactions with account-abstraction-aware execution) and scaffold new Aomi apps from API specs. Bundle ships two skills: aomi-transact (run on-chain across 40+ DeFi/perps/CEX/social apps on EVM mainnets and L2s) and aomi-build (scaffold Rust SDK crates from OpenAPI/Swagger specs).",
+  "version": "0.11",
   "author": {
     "name": "Aomi Labs",
     "url": "https://aomi.dev",

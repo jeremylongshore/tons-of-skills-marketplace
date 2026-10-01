@@ -1,109 +1,97 @@
 ---
 name: repo-scanning
 description: |
-  Internal process for the repo-scanner agent. Defines the step-by-step
-  procedure for scanning GitHub repos for evidence that supports or explains
-  bug clusters. Not user-invocable — loaded by the repo-scanner agent
-  through its skills frontmatter.
-allowed-tools: "Read, Bash(cat:*), Grep, Glob"
-user-invocable: false
-version: 0.1.0
+    Exercise the triage server's synthetic repository-evidence contracts and
+    label every result as unverified prototype output. Use when testing evidence
+    schemas, tier assignment, or downstream display behavior without GitHub.
+    Trigger with "simulate a repo scan for this cluster".
+allowed-tools: "Read, mcp__triage__search_issues, mcp__triage__inspect_recent_commits, mcp__triage__inspect_code_paths, mcp__triage__check_recent_deploys"
+version: 0.2.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-license: SEE LICENSE IN LICENSE
+license: MIT
+compatibility: "Designed for Claude Code with the x-bug-triage-plugin MCP server; current repo tools generate synthetic evidence objects and perform no GitHub or repository access."
+tags: [triage, repository, evidence, simulation, prototype]
+argument-hint: "<owner/repo> <symptom-or-error> [surface] [feature-area]"
 model: inherit
 effort: medium
-compatibility: "Designed for Claude Code; internal agent-loaded skill (not user-invocable)"
-tags: [triage, repo-scanning, evidence, github, internal-agent-skill]
 ---
 
-# Repo Scanning Process
+# Repository Scanning
 
-Step-by-step procedure for scanning GitHub repos to gather corroborating evidence for bug clusters, assigning confidence tiers to each finding.
+Generate deterministic prototype evidence objects for testing. Nothing returned by these tools proves
+that an issue, commit, path, or deployment exists.
 
 ## Overview
 
-Loaded by the `repo-scanner` agent inside the `x-bug-triage` plugin. Walks each clustered bug through a fixed evidence-gathering pipeline against the up-to-three repos most likely to host the bug: matching open/recent issues, recent commits in the impact window, affected code paths, and recent deploys correlated to the cluster's first_seen timestamp. Each finding is graded against the evidence-tier policy and recorded as cluster evidence.
+The four MCP tools accept repository-shaped inputs and return schema-valid synthetic records with
+fixed confidence values. They do not use GitHub credentials or inspect local repositories. Read
+[the runtime contract](references/runtime-contract.md) before presenting results.
 
 ## Prerequisites
 
-- Cluster table populated upstream by the bug-clustering stage
-- `surface_repo_mapping` configured for every product_surface present in clusters
-- Triage MCP server reachable for `mcp__triage__search_issues`, `mcp__triage__inspect_recent_commits`, `mcp__triage__inspect_code_paths`, and `mcp__triage__check_recent_deploys`
-- GitHub access tokens with read scope on the target repos
+- Start the triage MCP server from this repository.
+- Provide an owner/repo string plus symptoms or error strings.
+- Decide whether synthetic results are useful for the requested test. For real investigation, stop and
+  use a separate authenticated GitHub workflow.
 
 ## Instructions
 
-### Step 1: Select Repos
-
-For each cluster:
-1. Look up repos from surface_repo_mapping using the cluster's product_surface
-2. Cap at top 3 repos per cluster (hard limit — never scan more)
-3. If no mapping exists, note it as a warning and skip
-
-### Step 2: Search Issues
-
-For each repo, call `mcp__triage__search_issues` with the cluster's symptoms and error_strings:
-- Match error strings against open/recent issues
-- Assign evidence tier based on match confidence
-
-### Step 3: Inspect Recent Commits
-
-Call `mcp__triage__inspect_recent_commits` for each repo:
-- 7-day window from current date
-- Filter by affected paths if known from the cluster's feature_area
-- Look for commits that touch relevant code paths
-
-### Step 4: Inspect Code Paths
-
-Call `mcp__triage__inspect_code_paths` with the cluster's surface and feature_area:
-- Identify likely affected code paths
-- Check for recent changes or known fragile areas
-
-### Step 5: Check Recent Deploys
-
-Call `mcp__triage__check_recent_deploys` for each repo:
-- Correlate deploy/release timing with cluster's first_seen timestamp
-- Recent deploy near first_seen is a stronger signal
-
-### Step 6: Assign Evidence Tiers
-
-For each piece of evidence, assign a tier:
-
-| Tier | Name | Criteria |
-|------|------|----------|
-| 1 | Exact | issue_match at >=0.9 confidence |
-| 2 | Strong | issue_match >=0.7, recent_commit >=0.8, affected_path >=0.7, recent_deploy >=0.8 |
-| 3 | Moderate | Lower confidence matches, sibling_failure |
-| 4 | Weak | external_dependency, heuristic proximity |
-
-### Step 7: Handle Degradation
-
-If a repo is inaccessible or an API call fails:
-1. Log a degraded scan result with the error reason
-2. Continue scanning remaining repos — never abort the whole scan
-3. Include degradation warnings in output
+1. Select no more than three repo strings supplied by the operator.
+2. Call search_issues with up to five combined symptoms and error strings. Treat each returned
+   Potential match as a generated search prompt, not a found issue.
+3. Call inspect_recent_commits with optional paths. Treat its single record as a stub receipt; no commit
+   history was read.
+4. Call inspect_code_paths with surface and optional feature area. Treat its path-analysis record as a
+   stub; no filesystem or repository was inspected.
+5. Call check_recent_deploys with an optional ISO timestamp. Treat its deploy record as a stub; no tags
+   or releases were queried.
+6. Preserve the runtime tier and confidence values, but prefix the final evidence summary with
+   Synthetic and unverified.
+7. If real corroboration is required, return no-evidence and state the authenticated integration gap.
 
 ## Output
 
-- `cluster_evidence` rows tagged with tier (1–4), source kind, repo, and finding link
-- `cluster_scan_warnings` rows for any repo skipped or degraded during scanning
-- Updated cluster `evidence_summary` field with per-tier counts
+Return:
 
-## Error Handling
-
-- Missing surface→repo mapping: warn, skip the cluster's scan, proceed with remaining clusters
-- GitHub API rate limit hit: pause and resume, or degrade to "rate_limited" warning if budget exhausted
-- Single tool call failure: capture error reason, continue to next step, never abort a multi-step scan
-- All four signal sources empty for a cluster: record evidence_summary="empty" — downstream stages still run
+- requested repos and supplied inputs;
+- synthetic records grouped by tool;
+- fixed confidence and derived tier for each record;
+- an explicit no-network/no-GitHub statement;
+- a recommendation for real follow-up when factual evidence is required.
 
 ## Examples
 
-Triggered automatically after owner-routing for each clustered bug. Typical output for a 12-cluster batch against 3 repos each: "12 clusters scanned, 7 with Tier 1 evidence, 3 with Tier 2 only, 2 with no evidence (Tier 4 weak only). 1 repo skipped (rate limit)."
+```text
+Synthetic repo scan: example/product
+search_issues: 2 generated prompts, confidence 0.6, Tier 3
+recent commits: 1 stub, confidence 0.5, Tier 3
+code paths: 1 stub, confidence 0.5, Tier 3
+deploys: 1 stub, confidence 0.4, Tier 3
+Verified GitHub evidence: none
+```
+
+```text
+Stopped: the user requested proof of a live regression. This prototype does not access GitHub.
+```
+
+## Error Handling
+
+| Situation                       | Response                                                                          |
+| ------------------------------- | --------------------------------------------------------------------------------- |
+| More than three repos supplied  | Use the first three only and report the cap.                                      |
+| MCP call fails                  | Mark that synthetic stage failed; continue only if partial test output is useful. |
+| Empty symptoms and errors       | Skip search_issues instead of manufacturing a term.                               |
+| Real issue URL requested        | Stop; these tools never return real issue URLs.                                   |
+| Output is mistaken for evidence | Correct the record and label every item synthetic.                                |
+
+## Guardrails
+
+- Never say scanned, found, matched, checked, or inspected without the synthetic qualifier.
+- Never attach these records to a real issue as corroborating evidence.
+- Never claim GitHub authentication is configured; the handlers do not consume it.
+- Never upgrade a result to Tier 1 or 2 beyond the runtime's deterministic rule.
 
 ## Resources
 
-Load evidence tier definitions for proper tier assignment:
-
-```
-!cat skills/x-bug-triage/references/evidence-policy.md
-```
+- [Runtime contract](references/runtime-contract.md)
+- [Repository source](https://github.com/jeremylongshore/x-bug-triage-plugin/tree/main/mcp/triage-server)

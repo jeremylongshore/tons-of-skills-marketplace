@@ -16,10 +16,11 @@ If you only remember one thing: **the user gives intent in plain English; aomi c
 
 A term you'll see throughout: a **drain vector** is the calldata field where a malicious prompt could redirect funds to a wrong recipient — `recipient` in Uniswap, `onBehalfOf` in Aave, `mintRecipient` in CCTP, `_to` in OP-stack bridges. The agent blocks these at simulation time when they don't equal the user's own address. The skill's job is to surface the block, not bypass it. Full per-protocol table in [drain-vectors.md](drain-vectors.md).
 
-Two notes on what you'll see in the terminal:
+Three notes on what you'll see in the terminal:
 
-- The `Internal trace` blocks below show what the agent does silently between chat and the queued-tx output. Users only see this with `--verbose` or by replaying via `aomi thread log`. Without `--verbose`, the user sees just the assistant prose followed by `⚡ Wallet request queued: tx-N`.
+- The `Internal trace` blocks below show what the agent does silently between chat and the queued-tx output. Users only see this with `--verbose` or by replaying via `aomi session log`. Without `--verbose`, the user sees just the assistant prose followed by `⚡ Wallet request queued: tx-N`.
 - The shortest one-shot form is `aomi --prompt "<message>"`. The examples below use `aomi chat "<message>"` for readability — both behave the same.
+- **Signing output in these captures predates v0.4.2.** Transcripts showing `Exec: aa (alchemy, 7702)` were recorded when the CLI still attempted account abstraction locally. On v0.4.2, `aomi tx sign` executes as a plain EOA and AA runs in the backend lane — expect `executionKind: "eoa"` and the EOA-batched dual-hash shape described at the end of this file. The calldata composition, simulation, and drain-vector behavior shown here are unchanged.
 
 ---
 
@@ -57,7 +58,7 @@ Run `aomi tx simulate tx-1 tx-2` to dry-run, then `aomi tx sign tx-1 tx-2` to se
    chain: 1
 ```
 
-### Internal trace (visible with `--verbose` or `aomi thread log`)
+### Internal trace (visible with `--verbose` or `aomi session log`)
 
 The agent activates the skill, reads balance/allowance, then stages two txs and simulates:
 
@@ -260,7 +261,7 @@ Please approve the request in your wallet to broadcast the transaction.
 
 The two assistant messages around the queued-tx event is real CLI behavior — the agent narrates before staging and confirms after. Don't treat the second message as a duplicate.
 
-### Internal trace (visible with `--verbose` or `aomi thread log`)
+### Internal trace (visible with `--verbose` or `aomi session log`)
 
 The actual silent tool sequence captured from `current.json`:
 
@@ -489,7 +490,7 @@ aomi tx sign tx-1
 - **Gas is unusually high (~600k+).** The L1 portion is cheap, but the OP-stack `depositETHTo` includes creating the L2 deposit ticket — the gas estimate accounts for that. Don't be alarmed.
 - **`_to = address(0)` is a hard block, not just a warning.** OP-stack bridges to `0x0` permanently lock funds (no recovery on L2). The agent fails simulation with the message *"Bridge recipient is address(0). L2 funds will be permanently unrecoverable."* If the user typo'd a zero address, do **not** retry — surface the block.
 - **Optimism is identical** with target `0x99c9fc46f92e8a1c0dec1b1747d010903e884be1` (OP L1StandardBridge). zkSync uses `requestL2Transaction` on the Mailbox `0x32400084c286cf3e17e7b677ea9583e60a000324` with both `_contractL2` (L2 target) and `_refundRecipient` (L2 gas refund) as drain vectors.
-- **Returning from Base/OP back to mainnet requires native gas unless sponsorship is actually configured** — if the EOA has 0 ETH on the L2, auto mode may still fail with `insufficient funds for transfer` after AA attempts. See [account-abstraction.md → Sponsorship in practice](account-abstraction.md#sponsorship-in-practice-verified-against-v0142-source-behavior).
+- **Returning from Base/OP back to mainnet requires native gas on the L2** — local signing is EOA-only in v0.4.2, so an EOA with 0 ETH on the L2 fails with `insufficient funds for transfer` and has no sponsorship path to fall back on. See [account-abstraction.md → Gas](account-abstraction.md#gas-the-rule-the-skill-must-follow).
 
 ---
 
@@ -507,9 +508,9 @@ aomi tx sign tx-1
   > - *"supply 1000 USDC on Aave"* (verb amount asset protocol)
   > - *"stake 1 ETH on Rocket Pool"* (verb amount asset protocol)
   > - *"bridge 50 USDC from Ethereum to Base via CCTP, recipient my wallet, approve first"* (full template)
-- **Things the agent does silently before staging** — balance check, allowance check, ABI verification (proxy unwrap if applicable), selector verification. Visible to the user only with `--verbose` or via `aomi thread log`. Don't bypass these by feeding raw calldata unless you're red-team testing the guard.
-- **The simulator is the gate, not the wallet.** If simulation reports `Batch success: false` (or you see a guard-block annotation in `aomi thread events`), **do not** attempt `aomi tx sign` — surface the failure to the user and either rebuild (allowance retry pattern) or stop.
-- **Multi-tx batches return one hash on 7702 (AA), two hashes on EOA-batched.** Both `tx-1` and `tx-2` share the same `txHash` in `aomi tx list` after signing under the AA 7702 atomic-batch path — that's expected. On the EOA path with `batched: true` (e.g. when AA falls through or the user passes `--eoa`), each `tx-N` carries a **`txHashes: [hash1, hash2]`** array — the operation produces two on-chain transactions, with the second being the canonical one shown as `txHash`. Reference: real captures in `~/.aomi/sessions/session-*.json` show `executionKind: "eoa"`, `batched: true`, and the dual-hash array. If you see two hashes, that's not a duplicate-broadcast bug — that's the EOA-batched signing pattern.
+- **Things the agent does silently before staging** — balance check, allowance check, ABI verification (proxy unwrap if applicable), selector verification. Visible to the user only with `--verbose` or via `aomi session log`. Don't bypass these by feeding raw calldata unless you're red-team testing the guard.
+- **The simulator is the gate, not the wallet.** If simulation reports `Batch success: false` (or you see a guard-block annotation in `aomi session events`), **do not** attempt `aomi tx sign` — surface the failure to the user and either rebuild (allowance retry pattern) or stop.
+- **Multi-tx batches return two hashes on the EOA path, one on the older 7702 AA path.** On v0.4.2 the local path is always EOA: with `batched: true`, each `tx-N` carries a **`txHashes: [hash1, hash2]`** array — the operation produces two on-chain transactions, with the second being the canonical one shown as `txHash`. Reference: real captures in `~/.aomi/sessions/session-*.json` show `executionKind: "eoa"`, `batched: true`, and the dual-hash array. If you see two hashes, that's not a duplicate-broadcast bug — that's the EOA-batched signing pattern.
 
 ## Verification provenance
 

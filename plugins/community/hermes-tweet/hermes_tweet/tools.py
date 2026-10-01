@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Xquik Contributors
+# SPDX-License-Identifier: MIT
+
 from __future__ import annotations
 
 from typing import Any, cast
@@ -6,15 +9,16 @@ from .catalog import explore as explore_catalog
 from .catalog import find_endpoint, matches_path, normalize_method, normalize_path
 from .client import action_enabled, check_api_available, dumps, normalize_query_params, request
 
-ARGS_ERROR = "Tool arguments must be a JSON object."
-ACTION_REASON_ERROR = "Action reason is required."
+ARGS_ERROR = "Invalid tool arguments. Pass a JSON object."
+ACTION_REASON_ERROR = "Action reason missing. Add a user-visible reason."
 ACTION_DISABLED_ERROR = (
-    "tweet_action is disabled. Set HERMES_TWEET_ENABLE_ACTIONS=true to enable it."
+    "Action disabled. Set HERMES_TWEET_ENABLE_ACTIONS=true to enable tweet_action."
 )
-PATH_QUERY_ERROR = "Pass query parameters through the query object, not in path."
+PATH_QUERY_ERROR = "Query parameters misplaced. Pass them through the query object."
 BLOCKED_ACTION_ERROR = (
-    "Endpoint is blocked: account-connection challenges are not callable through Hermes Tweet."
+    "Endpoint blocked. Complete account-connection challenges outside Hermes Tweet."
 )
+TOOL_FAILURE_ERROR = "Tool call failed. Review the request and retry."
 BLOCKED_ACTION_ENDPOINTS: tuple[tuple[str, str], ...] = (
     ("POST", "/api/v1/x/account-connection-challenges/{id}/submit"),
 )
@@ -65,7 +69,7 @@ def _validate_action(tool_args: dict[str, Any]) -> tuple[str, str, str]:
     if _is_blocked_action(method, catalog_path):
         return "", "", BLOCKED_ACTION_ERROR
     if find_endpoint(method, catalog_path) is None:
-        error = f"Endpoint is not in the Hermes Tweet catalog: {method} {path}"
+        error = f"Endpoint unavailable. Choose a catalog-listed route: {method} {path}"
         return "", "", error
     return method, catalog_path, ""
 
@@ -76,8 +80,8 @@ def explore(args: Any, **_: Any) -> str:
         if tool_args is None:
             return _args_error()
         return dumps({"success": True, "endpoints": explore_catalog(tool_args)})
-    except Exception as exc:
-        return dumps({"success": False, "error": str(exc)})
+    except Exception:
+        return dumps({"success": False, "error": TOOL_FAILURE_ERROR})
 
 
 def call_read(args: Any, **_: Any) -> str:
@@ -95,21 +99,21 @@ def call_read(args: Any, **_: Any) -> str:
             return dumps(
                 {
                     "success": False,
-                    "error": f"Endpoint is not in the Hermes Tweet catalog: GET {path}",
+                    "error": f"Endpoint unavailable. Choose a catalog-listed route: GET {path}",
                 }
             )
         if endpoint.action:
             return dumps(
                 {
                     "success": False,
-                    "error": "Use tweet_action for private or write-like endpoints.",
+                    "error": "Read blocked. Use tweet_action for private or write-like endpoints.",
                 }
             )
         return dumps(
             request("GET", catalog_path, query=normalize_query_params(tool_args.get("query")))
         )
-    except Exception as exc:
-        return dumps({"success": False, "error": str(exc)})
+    except Exception:
+        return dumps({"success": False, "error": TOOL_FAILURE_ERROR})
 
 
 def call_action(args: Any, **_: Any) -> str:
@@ -128,8 +132,8 @@ def call_action(args: Any, **_: Any) -> str:
                 body=tool_args.get("body"),
             )
         )
-    except Exception as exc:
-        return dumps({"success": False, "error": str(exc)})
+    except Exception:
+        return dumps({"success": False, "error": TOOL_FAILURE_ERROR})
 
 
 def xstatus(raw_args: Any = "") -> str:

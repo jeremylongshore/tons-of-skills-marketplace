@@ -3,7 +3,7 @@ name: janitor-swipe
 description: "Tinder for your Claude Code skills. Reviews a sorted deck of every installed skill and lets you swipe keep / delete / skip on each one. Use when the user wants to bulk-clean their skill collection, triage unused skills, or do interactive skill cleanup. Trigger with '/janitor-swipe'."
 allowed-tools: Read, Bash(bash:*)
 argument-hint: "[--deck <file>] [--apply <decisions.json>]"
-version: 1.5.1
+version: 1.7.0
 author: Krzysztof Hendzel <krzysztoff.hendzel@gmail.com>
 license: MIT
 compatibility: Designed for Claude Code. The TUI itself requires an interactive terminal (the user runs it with the '!' prefix); requires bash 3.2+ and a terminal of at least 50x22.
@@ -67,6 +67,10 @@ Controls:
 |---|---|
 | `user`, `project`, `codex-user`, `codex-project` | Path is staged for `rm -rf` (or unlink if symlink) |
 | `plugin`, `plugin-source` | NOT deleted — flagged under "Plugins to review" at the apply screen, with a hint to run `/plugin uninstall <plugin>` if enough skills from that plugin were swiped |
+| `mcp-user`, `mcp-project` (v1.7) | Server entry is removed from its config file (`~/.claude.json` / `.mcp.json`) with a timestamped `.bak` backup — reversible |
+| `mcp-plugin` | NOT edited — flagged for plugin review like plugin skills |
+
+MCP server cards show real call counts from session transcripts instead of token guesses (schemas live server-side). An unused connected server ranks high — its tool schemas load into context for nothing.
 
 ## Output
 

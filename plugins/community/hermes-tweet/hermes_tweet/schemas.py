@@ -1,16 +1,17 @@
+# SPDX-FileCopyrightText: 2026 Xquik Contributors
+# SPDX-License-Identifier: MIT
+
 from __future__ import annotations
 
 _METHOD_ENUM = ["GET", "POST", "PATCH", "PUT", "DELETE"]
 _API_PATH_PATTERN = r"^(?:/api/v1/|https?://[^/]+/api/v1/)"
-_API_PATH_DESCRIPTION = (
-    "Concrete /api/v1/... endpoint path or copied API URL whose path starts with /api/v1/."
-)
+_API_PATH_DESCRIPTION = "Use a /api/v1/... path or copied API URL with that path prefix."
 
 TWEET_EXPLORE = {
     "name": "tweet_explore",
     "description": (
-        "Search the bundled Xquik endpoint catalog. Use this before calling "
-        "tweet_read or tweet_action. This tool does not make network calls."
+        "Search the bundled Xquik endpoint catalog before other calls. "
+        "This tool makes no network request."
     ),
     "parameters": {
         "type": "object",
@@ -20,8 +21,7 @@ TWEET_EXPLORE = {
                 "minLength": 1,
                 "pattern": "\\S",
                 "description": (
-                    "Keyword search across endpoint paths, summaries, parameters, "
-                    "and response shapes."
+                    "Search endpoint paths, summaries, parameters, and response shapes."
                 ),
             },
             "category": {
@@ -42,7 +42,7 @@ TWEET_EXPLORE = {
                 "description": "Exact or partial /api/v1 path filter.",
             },
             "free": {"type": "boolean", "description": "Filter free or paid endpoints."},
-            "mpp": {"type": "boolean", "description": "Filter MPP eligible endpoints."},
+            "mpp": {"type": "boolean", "description": "Filter endpoints by MPP eligibility."},
             "include_actions": {
                 "type": "boolean",
                 "description": "Include write-like and private endpoints in catalog results.",
@@ -63,8 +63,8 @@ TWEET_EXPLORE = {
 TWEET_READ = {
     "name": "tweet_read",
     "description": (
-        "Invoke one catalog-listed read-only Xquik endpoint. Use concrete /api/v1 paths "
-        "from tweet_explore. This tool rejects write-like and private endpoints."
+        "Call one catalog-listed read-only Xquik endpoint from tweet_explore. "
+        "Private and write-like endpoints are rejected."
     ),
     "parameters": {
         "type": "object",
@@ -90,9 +90,8 @@ TWEET_READ = {
 TWEET_ACTION = {
     "name": "tweet_action",
     "description": (
-        "Invoke one catalog-listed Xquik action endpoint, including writes and private reads. "
-        "Disabled unless HERMES_TWEET_ENABLE_ACTIONS=true. Show the endpoint and payload "
-        "to the user first."
+        "Call one catalog-listed Xquik write or private-read endpoint. "
+        "Set HERMES_TWEET_ENABLE_ACTIONS=true and show the user the request first."
     ),
     "parameters": {
         "type": "object",

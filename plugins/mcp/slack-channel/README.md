@@ -6,9 +6,13 @@ The Slack-native governance substrate for Claude Code — the kernel other gover
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/jeremylongshore/claude-code-slack-channel/badge)](https://scorecard.dev/viewer/?uri=github.com/jeremylongshore/claude-code-slack-channel)
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U5S225PTME)
+
 **Links:** [Roadmap & Scope](ROADMAP.md) · [Gist One-Pager](https://gist.github.com/jeremylongshore/2bef9c630d4269d2858a666ae75fca53) · [GitHub Pages](https://jeremylongshore.github.io/claude-code-slack-channel/) · [Release Notes](https://github.com/jeremylongshore/claude-code-slack-channel/releases/tag/v0.12.0)
 
-> **Research Preview** — Channels require Claude Code v2.1.80+ and `claude.ai` login.
+> **Research Preview** — Channels require a current Claude Code build and
+> Anthropic authentication through either `claude.ai` or a Console API key.
+> Team and Enterprise organizations must enable Channels before use.
 
 ## How It Works
 
@@ -31,8 +35,11 @@ Socket Mode means **no public URL needed** — works behind firewalls, NAT, anyw
 Before step 1, confirm you have:
 
 - **Bun ≥ 1.0** — install with `curl -fsSL https://bun.sh/install | bash`. Node.js / Docker fallbacks are documented in [Option B](#option-b-nodejs--npx) / [Option C](#option-c-docker) below.
-- **Claude Code ≥ v2.1.80** — see https://docs.claude.com/claude-code/install for upgrade.
-- **`claude.ai` login** — this is a Research Preview constraint. API-key-only auth (`ANTHROPIC_API_KEY` set with no `claude.ai` session) does NOT work for Channels. Run `claude login` to complete the browser flow.
+- **A current Claude Code build with Channels support** — upgrade through the
+  [official install guide](https://code.claude.com/docs/en/setup).
+- **Supported Anthropic authentication** — use either a `claude.ai` account or
+  an Anthropic Console API key. On Team and Enterprise plans, an Owner must
+  enable Channels in Admin settings (or deploy `channelsEnabled: true`).
 
 ### 1. Create a Slack App
 
@@ -125,8 +132,12 @@ The bot should reply within 10 seconds. If you get silence, run `/slack-channel:
 The five silent-failure modes that cover ~95% of fresh-install issues:
 
 1. **Bot is not in the channel** — see step 3.5 above. Channel test messages hit silence because the bot can't see the event.
-2. **Claude Code version too old** — run `claude --version`; need ≥ v2.1.80.
-3. **`claude.ai` login missing** — `ANTHROPIC_API_KEY` alone is not accepted (Research Preview constraint). Run `claude login`.
+2. **Claude Code lacks Channels support** — run `claude --version`, upgrade
+   through the official install path, and retry with `--channels`.
+3. **Authentication or organization policy blocks Channels** — authenticate
+   with `claude.ai` or a Console API key. Team and Enterprise Owners must also
+   enable Channels; Bedrock, Google Cloud Agent Platform, and Microsoft
+   Foundry authentication are not supported for Channels.
 4. **Bun not installed** — `bun: command not found`. Install with `curl -fsSL https://bun.sh/install | bash` or use the Node.js fallback in Option B.
 5. **Wrong file permissions on `.env`** — must be `0600`. Run `chmod 0600 ~/.claude/channels/slack/.env`, or run `/slack-channel:install repair`.
 

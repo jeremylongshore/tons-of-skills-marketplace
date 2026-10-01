@@ -347,6 +347,40 @@ export function readUpstreamLicense(checkoutDir, licensePath) {
 }
 
 /**
+ * Publication boundary for mirrored manifests. A source that mirrors its own
+ * root package.json would otherwise overwrite the local `"private": true`
+ * quarantine on every sync (seen on cli-power-skills and slack-channel), and
+ * check-mirror-packages-private.mjs would then fail. Enforce the invariant as
+ * the file is written, without hand-patching mirrors after each run. Only the
+ * mirror-root package.json is touched. Every other byte is mirrored verbatim.
+ * An unparseable manifest refuses the source, because we cannot prove it is
+ * unpublishable.
+ */
+export function enforceMirrorPackagePrivacy(file) {
+  if (file.path !== 'package.json') return file.content;
+  let manifest;
+  try {
+    manifest = JSON.parse(file.content.toString('utf8'));
+  } catch (error) {
+    throw new Error(
+      `mirrored package.json is not valid JSON (${error.message}); refusing sync rather than shipping a manifest that may be publishable`,
+    );
+  }
+  if (manifest === null || typeof manifest !== 'object' || Array.isArray(manifest)) {
+    throw new Error('mirrored package.json is not a JSON object; refusing sync');
+  }
+  if (manifest.private === true) return file.content;
+  // Keep `name` first, then `private`, matching the quarantine commit's layout.
+  const ordered = {};
+  if ('name' in manifest) ordered.name = manifest.name;
+  ordered.private = true;
+  for (const [key, value] of Object.entries(manifest)) {
+    if (key !== 'name' && key !== 'private') ordered[key] = value;
+  }
+  return Buffer.from(`${JSON.stringify(ordered, null, 2)}\n`, 'utf8');
+}
+
+/**
  * Write mirrored files under root/targetRel. Every read, comparison and write
  * goes through safe-fs, so a planted link or special file in the mirror tree
  * refuses the whole source instead of redirecting a write. Returns changes.
@@ -360,8 +394,9 @@ export function mirrorFiles({
   report = log,
 }) {
   const changes = [];
-  for (const file of files) {
-    splitSafeRelative(file.path);
+  for (const upstreamFile of files) {
+    splitSafeRelative(upstreamFile.path);
+    const file = { ...upstreamFile, content: enforceMirrorPackagePrivacy(upstreamFile) };
     const rel = `${targetRel}/${file.path}`;
     const wantMode = typeof file.mode === 'number' && file.mode & 0o111 ? 0o755 : 0o644;
     let reason = 'new';

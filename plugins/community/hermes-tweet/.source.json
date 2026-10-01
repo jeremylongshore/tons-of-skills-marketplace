@@ -4,18 +4,19 @@
     "path": ".",
     "branch": "master"
   },
-  "last_sync": "2026-07-13T17:27:00.724Z",
+  "last_sync": "2026-10-01T05:33:39.822Z",
   "author": {
     "name": "Xquik",
     "github": "Xquik-dev"
   },
   "license": "MIT",
-  "files_synced": 30,
+  "files_synced": 31,
   "files": [
     ".claude-plugin/plugin.json",
     "LICENSE",
     "README.md",
     "assets/icon.svg",
+    "assets/screenshot.svg",
     "docs/CONTEXT7.md",
     "docs/ECOSYSTEM.md",
     "docs/GITHUB_METADATA.md",

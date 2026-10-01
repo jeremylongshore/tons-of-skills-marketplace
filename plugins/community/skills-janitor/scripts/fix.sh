@@ -62,6 +62,16 @@ fix_skill() {
         return
     fi
 
+    # Any other symlink resolves outside this scan root - to a plugin
+    # marketplace clone, the codex dir, or a user repo. The "/plugins/" check
+    # below inspects this path string only, so it never sees the real target
+    # and writing would dirty the upstream source instead.
+    if [[ -L "$path" ]]; then
+        echo "  [SKIP]    $name: symlink -> $(readlink "$path") - edit at source"
+        ((SKIPPED++)) || true
+        return
+    fi
+
     # Find skill file
     local skill_file=""
     [[ -f "$path/SKILL.md" ]] && skill_file="$path/SKILL.md"
@@ -87,7 +97,10 @@ fix_skill() {
 
     # Fix 1: Add missing opening frontmatter delimiter
     local first_line
-    first_line=$(head -1 "$skill_file")
+    # tr -d '\r': a CRLF file's first line is "---\r", which is a perfectly good
+    # opening delimiter. Comparing it raw made this branch fire on every CRLF
+    # skill and prepend a second "---" above the real one.
+    first_line=$(head -1 "$skill_file" | tr -d '\r')
     if [[ "$first_line" != "---" ]]; then
         # Check if it looks like frontmatter without delimiters (has name: or description:)
         if head -5 "$skill_file" | grep -qE '^(name|description|version):'; then
@@ -97,7 +110,7 @@ $new_content"
             # awk, not `sed Na\` — BSD sed glues the appended line onto the
             # following one (no trailing newline), corrupting the file.
             local fm_end
-            fm_end=$(echo "$new_content" | awk 'NR==1{next} NR>1 && !/^[a-z_]+:/ && !/^---$/ && !/^[[:space:]]*$/{print NR-1; exit}')
+            fm_end=$(echo "$new_content" | awk 'NR==1{next} NR>1 && !/^[a-z_]+:/ && !/^---\r?$/ && !/^[[:space:]]*$/{print NR-1; exit}')
             if [[ -n "$fm_end" && "$fm_end" -gt 1 ]]; then
                 new_content=$(echo "$new_content" | awk -v n="$fm_end" 'NR==n {print; print "---"; next} {print}')
             fi
@@ -109,7 +122,7 @@ $new_content"
     # Fix 2: Add missing closing frontmatter delimiter
     if head -1 "$skill_file" | grep -q '^---'; then
         local has_close
-        has_close=$(awk 'NR>1 && /^---$/{print "yes"; exit}' "$skill_file")
+        has_close=$(awk 'NR>1 && /^---\r?$/{print "yes"; exit}' "$skill_file")
         if [[ -z "$has_close" ]]; then
             # Find end of the LEADING frontmatter run only. The old version
             # scanned the whole file for `key:` lines, so a body line like
@@ -137,7 +150,7 @@ $new_content"
     # Re-parse after potential delimiter fixes
     if echo "$new_content" | head -1 | grep -q '^---'; then
         local frontmatter
-        frontmatter=$(echo "$new_content" | awk 'NR==1 && /^---$/{next} /^---$/{exit} {print}')
+        frontmatter=$(echo "$new_content" | awk 'NR==1 && /^---\r?$/{next} /^---\r?$/{exit} {print}')
 
         local has_desc
         if echo "$frontmatter" | grep -q '^description:' 2>/dev/null; then has_desc=1; else has_desc=0; fi
@@ -157,7 +170,7 @@ $new_content"
             if echo "$frontmatter" | grep -q '^name:' 2>/dev/null; then has_name=1; else has_name=0; fi
             if [[ "$has_name" -gt 0 ]]; then
                 new_content=$(echo "$new_content" | awk -v tmpl="$desc_template" '
-                    NR>1 && /^---$/ { fm_done=1 }
+                    NR>1 && /^---\r?$/ { fm_done=1 }
                     !fm_done && !ins && /^name:/ { print; print tmpl; ins=1; next }
                     { print }
                 ')
@@ -176,7 +189,7 @@ $new_content"
             if [[ -z "$desc_value" ]]; then
                 # Replace only the first frontmatter description line
                 new_content=$(echo "$new_content" | awk -v tmpl="$desc_template" '
-                    NR>1 && /^---$/ { fm_done=1 }
+                    NR>1 && /^---\r?$/ { fm_done=1 }
                     !fm_done && !rep && /^description:/ { print tmpl; rep=1; next }
                     { print }
                 ')
@@ -205,21 +218,30 @@ $new_content"
             # Surface this for manual review instead of attempting a fix.
             log_change "$name" "metadata: block exists but version missing — add 'version: \"1.0.0\"' under it manually"
         elif [[ "$has_version" -eq 0 ]]; then
-            # No version anywhere — inject the canonical nested form via awk.
+            # Insert before the frontmatter's closing `---` rather than after a
+            # named key. `description: >` and `description: |` are block-scalar
+            # headers: splicing a new key directly after one ends the scalar
+            # early, so the original description lines fold into the injected
+            # mapping and the frontmatter stops being valid YAML.
             # awk is used instead of `sed a\` because BSD sed (macOS) does not
             # insert a trailing newline after the appended block, which makes
             # the following line (typically `---`) collide with the inserted text.
-            local anchor=""
-            if echo "$new_content" | grep -q '^description:'; then
-                anchor="description:"
-            elif echo "$new_content" | grep -q '^name:'; then
-                anchor="name:"
-            fi
-            if [[ -n "$anchor" ]]; then
-                new_content=$(echo "$new_content" | awk -v a="^$anchor" '
-                    $0 ~ a && !done { print; print "metadata:"; print "  version: \"1.0.0\""; done=1; next }
-                    { print }
-                ')
+            # [[:space:]]* rather than a bare $ so the delimiter is still found
+            # in a CRLF file, where the line reads `---\r`. CR is in the POSIX
+            # space class, so this matches LF and CRLF alike.
+            local patched
+            patched=$(echo "$new_content" | awk '
+                NR > 1 && /^---[[:space:]]*$/ && !done {
+                    print "metadata:"
+                    print "  version: \"1.0.0\""
+                    done = 1
+                }
+                { print }
+            ')
+            # No closing delimiter (Fix 2 could not locate one) leaves the
+            # content untouched; only report a fix when something changed.
+            if [[ "$patched" != "$new_content" ]]; then
+                new_content="$patched"
                 modified=true
                 log_change "$name" "Added missing metadata.version field (1.0.0)"
             fi

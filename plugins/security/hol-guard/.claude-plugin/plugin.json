@@ -1,0 +1,20 @@
+{
+  "name": "hol-guard",
+  "version": "0.1.0",
+  "description": "Local pre-execution security controls and pre-install scanning for AI agent tools, packages, skills, plugins, and MCP servers.",
+  "author": {
+    "name": "Hashgraph Online",
+    "url": "https://github.com/hashgraph-online"
+  },
+  "homepage": "https://github.com/hashgraph-online/hol-guard",
+  "repository": "https://github.com/hashgraph-online/hol-guard-plugin",
+  "license": "Apache-2.0",
+  "keywords": [
+    "hol-guard",
+    "ai-security",
+    "agent-security",
+    "plugin-security",
+    "mcp-security",
+    "supply-chain-security"
+  ]
+}

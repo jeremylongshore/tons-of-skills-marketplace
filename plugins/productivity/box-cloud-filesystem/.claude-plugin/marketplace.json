@@ -1,0 +1,38 @@
+{
+  "name": "box-cloud-filesystem",
+  "version": "2.0.0",
+  "description": "Reviewed Box CLI workflows with queue-only local workspace hooks.",
+  "license": "MIT",
+  "homepage": "https://github.com/jeremylongshore/box-cloud-filesystem",
+  "keywords": [
+    "box",
+    "cloud-storage",
+    "file-management",
+    "document-management"
+  ],
+  "owner": {
+    "name": "Jeremy Longshore",
+    "email": "jeremy@intentsolutions.io"
+  },
+  "plugins": [
+    {
+      "name": "box-cloud-filesystem",
+      "description": "Reviewed Box CLI workflows with queue-only local workspace hooks.",
+      "source": "./",
+      "category": "productivity",
+      "homepage": "https://github.com/jeremylongshore/box-cloud-filesystem",
+      "repository": "https://github.com/jeremylongshore/box-cloud-filesystem",
+      "license": "MIT",
+      "keywords": [
+        "box",
+        "cloud-storage",
+        "file-management",
+        "document-management"
+      ],
+      "author": {
+        "name": "Jeremy Longshore",
+        "email": "jeremy@intentsolutions.io"
+      }
+    }
+  ]
+}

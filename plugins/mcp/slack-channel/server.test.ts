@@ -33,10 +33,13 @@ import {
   chunkText,
   classifyDeliveryError,
   computeBackoffMs,
+  createConsumedClickStore,
   DELIVERY_METADATA_EVENT_TYPE,
   type DeliveryObligation,
+  decideInteractionRoute,
   declaredSecretNames,
   defaultAccess,
+  deliveredThreadKey,
   deliveryIdempotencyKey,
   detectNewAllowFrom,
   EVENT_DEDUP_TTL_MS,
@@ -44,6 +47,7 @@ import {
   enforceAuditReceiptCap,
   escMrkdwn,
   extractSlackErrorCode,
+  findReservedActionId,
   findSecretDeclaration,
   type GateOptions,
   gate,
@@ -65,6 +69,7 @@ import {
   parseSendableRoots,
   pruneExpired,
   redactSecretValues,
+  replaceClickedActionsBlock,
   resolveJournalPath,
   SECRET_DECLARATIONS,
   type SecretDeclaration,
@@ -656,6 +661,21 @@ describe('gate', () => {
   test('no-user drop carries dropReason event.no_user (ccsc-apj.2)', async () => {
     const result = await gate({ channel_type: 'channel', channel: 'C1' }, makeOpts())
     expect(result.dropReason).toBe('event.no_user')
+  })
+
+  test('prototype-chain channel id is dropped, not read off the prototype (Object.hasOwn guard)', async () => {
+    // A channel id equal to an inherited Object.prototype member must be
+    // treated as not-opted-in. A bare `access.channels[channel]` lookup
+    // would read a truthy function (e.g. Object.prototype.constructor) and
+    // either bypass the opt-in gate or crash on `policy.allowFrom`.
+    for (const protoKey of ['constructor', 'toString', 'valueOf']) {
+      const result = await gate(
+        { user: 'U1', channel_type: 'channel', channel: protoKey },
+        makeOpts(),
+      )
+      expect(result.action).toBe('drop')
+      expect(result.dropReason).toBe('channel.not_opted')
+    }
   })
 
   test('closed-DM drop carries dropReason dm.policy_closed (ccsc-apj.2)', async () => {
@@ -1638,6 +1658,19 @@ describe('assertOutboundAllowed', () => {
     const delivered = new Set([deliveredThreadKey('C_SHARED', 'T_A')])
     expect(() => assertOutboundAllowed('C_SHARED', 'T_A', access, delivered)).not.toThrow()
     expect(() => assertOutboundAllowed('C_SHARED', 'T_B', access, delivered)).toThrow(/thread T_B/)
+  })
+
+  test('does NOT treat a prototype-chain channel id as opted-in (Object.hasOwn guard)', () => {
+    // A channel id that shadows an inherited Object.prototype member must
+    // NOT pass the gate via a truthy prototype-chain read. With a bare
+    // `access.channels[chatId]` check, 'constructor'/'toString' would read
+    // a truthy function off the prototype and silently authorize the send.
+    const access = makeAccess()
+    for (const protoKey of ['constructor', 'toString', 'hasOwnProperty', 'valueOf']) {
+      expect(() => assertOutboundAllowed(protoKey, 'T1', access, new Set())).toThrow(
+        'Outbound gate',
+      )
+    }
   })
 
   test('blocks top-level post when only a thread has delivered', async () => {
@@ -2815,6 +2848,46 @@ describe('loadSession', () => {
     await expect(loadSession(tmpRoot, p)).rejects.toThrow()
   })
 
+  test('S4: unknown OBLIGATION key loads and is preserved — tolerant reader (#270 condition 3, ccsc-ngn Option B)', async () => {
+    // Obligation records grow by additive optional fields. A strict reader
+    // makes every addition a downgrade landmine: a session file written by a
+    // newer version would fail here, quarantining the WHOLE file and silently
+    // stopping redelivery of every pending obligation in it. The tolerant
+    // reader loads it, ignores the unknown field, and preserves it on
+    // round-trip (must-ignore, must-preserve). The top-level session object
+    // stays strict (previous test).
+    const key = { channel: 'C_S4_TOL', thread: 'T1.0' }
+    const p = sessionPath(tmpRoot, key)
+    const fromNewerVersion = {
+      v: 1,
+      key,
+      createdAt: 1_700_000_000_000,
+      lastActiveAt: 1_700_000_001_000,
+      ownerId: 'U_OWNER',
+      data: {},
+      outbox: [
+        {
+          id: 'ob-1',
+          channel: key.channel,
+          thread: key.thread,
+          payload: 'pending reply',
+          attempts: 0,
+          state: 'pending',
+          createdAt: 1_700_000_000_500,
+          futureField: { added: 'by a newer version' }, // unknown obligation key
+        },
+      ],
+    }
+    await writeFile(p, JSON.stringify(fromNewerVersion), { mode: 0o600 })
+
+    const loaded = await loadSession(tmpRoot, p)
+    expect(loaded.outbox?.length).toBe(1)
+    expect(loaded.outbox?.[0]?.payload).toBe('pending reply')
+    expect((loaded.outbox?.[0] as unknown as Record<string, unknown>).futureField).toEqual({
+      added: 'by a newer version',
+    })
+  })
+
   test('S4: non-JSON bytes throw before Zod validation (JSON.parse fires first)', async () => {
     // Confirms JSON.parse still throws on garbage input — Zod never sees it.
     const p = sessionPath(tmpRoot, { channel: 'C_S4_JSON', thread: 'T1.0' })
@@ -3384,7 +3457,7 @@ describe('PolicyRule schema (29-A.1)', () => {
     ).toThrow()
   })
 
-  // ── thread_ts predicate (schema-only until Epic 29-B wires evaluate()) ─
+  // ── thread_ts predicate (schema validation; enforcement wired 29-B) ────
 
   test('MatchSpec accepts a valid Slack thread_ts', async () => {
     const { PolicyRule } = await loadPolicyModule()
@@ -3767,6 +3840,70 @@ describe('evaluate() — policy engine (29-A.3)', () => {
       ttlMs: 60_000,
       approvers: 1,
     })
+  })
+
+  // ── thread_ts predicate enforcement (Epic 29-B wiring; regression) ──────
+  // Guards the fix for the hazard where a thread_ts-scoped rule silently
+  // matched EVERY thread because matchApplies() ignored match.thread_ts.
+
+  test('thread_ts rule applies only to the matching thread', async () => {
+    const { evaluate } = await import('./policy.ts')
+    const rules = [
+      rule({
+        id: 'r1',
+        effect: 'auto_approve',
+        match: { thread_ts: '1712345678.001100' },
+      } as never),
+    ]
+    const decision = evaluate(
+      baseCall({ sessionKey: { channel: 'C_CHAN', thread: '1712345678.001100' } }),
+      rules,
+      0,
+    )
+    expect(decision).toEqual({ kind: 'allow', rule: 'r1' })
+  })
+
+  test('thread_ts rule does NOT apply to a different thread (no longer matches everything)', async () => {
+    const { evaluate } = await import('./policy.ts')
+    const rules = [
+      rule({
+        id: 'r1',
+        effect: 'auto_approve',
+        match: { thread_ts: '1712345678.001100' },
+      } as never),
+    ]
+    // A call in a different thread must fall through to the default allow
+    // with NO rule id — proving the auto_approve did not fire globally.
+    const decision = evaluate(
+      baseCall({ sessionKey: { channel: 'C_CHAN', thread: '9999999999.000000' } }),
+      rules,
+      0,
+    )
+    expect(decision).toEqual({ kind: 'allow' })
+  })
+
+  test('thread_ts deny scopes to one thread and leaves others unaffected', async () => {
+    const { evaluate } = await import('./policy.ts')
+    const rules = [
+      rule({
+        id: 'block-thread',
+        effect: 'deny',
+        reason: 'thread quarantined',
+        match: { thread_ts: '1712345678.001100' },
+      } as never),
+    ]
+    const denied = evaluate(
+      baseCall({ sessionKey: { channel: 'C_CHAN', thread: '1712345678.001100' } }),
+      rules,
+      0,
+    )
+    expect(denied).toEqual({ kind: 'deny', rule: 'block-thread', reason: 'thread quarantined' })
+    const other = evaluate(
+      baseCall({ sessionKey: { channel: 'C_CHAN', thread: '2222222222.000000' } }),
+      rules,
+      0,
+    )
+    expect(other).toEqual({ kind: 'allow' })
   })
 
   // ── Approval flow ──────────────────────────────────────────────────────
@@ -4234,6 +4371,78 @@ describe('checkMonotonicity() — hot-reload invariant (29-A.6)', () => {
       rule('r2', 'auto_approve', { tool: 'upload_file' }),
     ]
     expect(checkMonotonicity([], next)).toEqual([])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// thread_ts in matchSubsetOrEqual (ccsc-x0t.1) — detectShadowing and
+// checkMonotonicity must stop false-flagging thread-DISJOINT rules.
+//
+// matchSubsetOrEqual (the subset check both linters use) omitted thread_ts,
+// so a thread-scoped rule was treated as covering EVERY thread: a rule scoped
+// to thread B looked "shadowed" by one scoped to thread A, and a reload adding
+// a thread-B auto_approve alongside a thread-A deny was refused as weakening.
+// matchesIntersect already honored thread_ts; this binds the mirror fix.
+// (evaluate()/matchApplies already compared thread_ts — this is the linter gap.)
+// ---------------------------------------------------------------------------
+
+describe('thread_ts in the subset linters (ccsc-x0t.1)', () => {
+  const THREAD_A = '1712345678.001100'
+  const THREAD_B = '1712999999.002200'
+  const rule = (
+    id: string,
+    effect: string,
+    match: Record<string, unknown> = {},
+    extras: Record<string, unknown> = {},
+  ): import('./policy.ts').PolicyRule =>
+    ({ id, effect, match, priority: 100, ...extras }) as import('./policy.ts').PolicyRule
+
+  test('checkMonotonicity: thread-disjoint auto_approve does NOT weaken a thread-A deny', async () => {
+    const { checkMonotonicity } = await import('./policy.ts')
+    const prev = [rule('deny-a', 'deny', { tool: 'Bash', thread_ts: THREAD_A }, { reason: 'x' })]
+    const next = [
+      rule('deny-a', 'deny', { tool: 'Bash', thread_ts: THREAD_A }, { reason: 'x' }),
+      rule('allow-b', 'auto_approve', { tool: 'Bash', thread_ts: THREAD_B }),
+    ]
+    // Pre-fix: the deny's match was treated as thread-agnostic, so allow-b
+    // looked like a subset → false "reload refused" violation.
+    expect(checkMonotonicity(prev, next)).toEqual([])
+  })
+
+  test('checkMonotonicity: SAME-thread auto_approve under a deny still violates (no over-suppression)', async () => {
+    const { checkMonotonicity } = await import('./policy.ts')
+    const prev = [rule('deny-a', 'deny', { tool: 'Bash', thread_ts: THREAD_A }, { reason: 'x' })]
+    const next = [
+      rule('deny-a', 'deny', { tool: 'Bash', thread_ts: THREAD_A }, { reason: 'x' }),
+      rule('allow-a', 'auto_approve', { tool: 'Bash', thread_ts: THREAD_A }),
+    ]
+    const violations = checkMonotonicity(prev, next)
+    expect(violations).toHaveLength(1)
+    expect(violations[0]!.newRule).toBe('allow-a')
+  })
+
+  test('detectShadowing: two thread-disjoint rules do NOT shadow each other', async () => {
+    const { detectShadowing } = await import('./policy.ts')
+    // Same tier, same tool, disjoint threads: the earlier rule cannot cover the
+    // later rule's thread, so there is no within-tier subset shadow.
+    const rules = [
+      rule('a', 'auto_approve', { tool: 'Bash', thread_ts: THREAD_A }),
+      rule('b', 'deny', { tool: 'Bash', thread_ts: THREAD_B }, { reason: 'x' }),
+    ]
+    expect(detectShadowing(rules)).toEqual([])
+  })
+
+  test('detectShadowing: SAME-thread broad-then-narrow still shadows (no over-suppression)', async () => {
+    const { detectShadowing } = await import('./policy.ts')
+    // Earlier {thread A} (tool wildcard) covers later {thread A, tool Bash}.
+    const rules = [
+      rule('broad-a', 'auto_approve', { thread_ts: THREAD_A }),
+      rule('narrow-a', 'deny', { thread_ts: THREAD_A, tool: 'Bash' }, { reason: 'x' }),
+    ]
+    const warnings = detectShadowing(rules)
+    expect(warnings).toHaveLength(1)
+    expect(warnings[0]!.later).toBe('narrow-a')
+    expect(warnings[0]!.earlier).toBe('broad-a')
   })
 })
 
@@ -6648,6 +6857,141 @@ describe('computeBackoffMs (ccsc-o7x.2.2)', () => {
 })
 
 // ---------------------------------------------------------------------------
+// Boot-path testability seams (ccsc-x0t.10, binding #267 + #268; also closes
+// the code-ACs of ccsc-x0t.3 and ccsc-x0t.4, which #268 shipped without tests).
+// These are the pure decisions extracted out of server.ts's main()-scope boot
+// wiring (which runs on import and so can't be unit-tested directly). A later
+// refactor that silently reverted #267/#268 now reddens a test.
+// ---------------------------------------------------------------------------
+
+describe('boot-path testability seams (ccsc-x0t.10)', () => {
+  test('#267: defaultLog writes to STDERR, never STDOUT (stdout is the MCP channel)', async () => {
+    const { defaultLog } = await import('./supervisor.ts')
+    const errChunks: string[] = []
+    const outChunks: string[] = []
+    const origErr = process.stderr.write
+    const origOut = process.stdout.write
+    process.stderr.write = ((chunk: unknown) => {
+      errChunks.push(String(chunk))
+      return true
+    }) as typeof process.stderr.write
+    process.stdout.write = ((chunk: unknown) => {
+      outChunks.push(String(chunk))
+      return true
+    }) as typeof process.stdout.write
+    try {
+      defaultLog('session.activate', { channel: 'C1', thread: 'T1' })
+    } finally {
+      process.stderr.write = origErr
+      process.stdout.write = origOut
+    }
+    // A structured log on stdout arrives as an invalid JSON-RPC frame and kills
+    // the transport — the exact #267 regression. stdout MUST stay clean.
+    expect(outChunks).toEqual([])
+    expect(errChunks).toHaveLength(1)
+    expect(JSON.parse(errChunks[0]!.trim())).toEqual({
+      event: 'session.activate',
+      channel: 'C1',
+      thread: 'T1',
+    })
+  })
+
+  test('#268: classifySocketStartError → fatal on a structured non-retryable code', async () => {
+    const { classifySocketStartError } = await import('./lib.ts')
+    expect(classifySocketStartError({ data: { error: 'invalid_auth' } })).toBe('fatal')
+    expect(classifySocketStartError({ data: { error: 'account_inactive' } })).toBe('fatal')
+  })
+
+  test('#268: classifySocketStartError → fatal on a message-regex match (wrapped error)', async () => {
+    const { classifySocketStartError } = await import('./lib.ts')
+    expect(classifySocketStartError(new Error('An API error occurred: token_revoked'))).toBe(
+      'fatal',
+    )
+    expect(classifySocketStartError(new Error('team_disabled'))).toBe('fatal')
+    // A plain error-like object (not an Error instance) carrying the fatal code
+    // only in its .message must still classify fatal, not "[object Object]" →
+    // retryable (Gemini review, PR #274).
+    expect(classifySocketStartError({ message: 'token_revoked' })).toBe('fatal')
+  })
+
+  test('#268: classifySocketStartError → retryable on transient errors (loop keeps trying)', async () => {
+    const { classifySocketStartError } = await import('./lib.ts')
+    expect(classifySocketStartError(new Error('ECONNRESET'))).toBe('retryable')
+    expect(classifySocketStartError({ data: { error: 'service_unavailable' } })).toBe('retryable')
+    expect(classifySocketStartError('a bare string')).toBe('retryable')
+  })
+
+  test('#268: nextSocketStartBackoffMs doubles then caps at 60s', async () => {
+    const { nextSocketStartBackoffMs, SOCKET_START_BACKOFF_CAP_MS } = await import('./lib.ts')
+    expect(nextSocketStartBackoffMs(2_000)).toBe(4_000)
+    expect(nextSocketStartBackoffMs(30_000)).toBe(60_000)
+    expect(nextSocketStartBackoffMs(40_000)).toBe(60_000) // min(80k, cap)
+    expect(SOCKET_START_BACKOFF_CAP_MS).toBe(60_000)
+  })
+
+  test('ccsc-x0t.3: assertManifestIdentityResolved fails closed on every invalid identity', async () => {
+    const { assertManifestIdentityResolved, MANIFEST_IDENTITY_UNRESOLVED_MSG } = await import(
+      './lib.ts'
+    )
+    // Empty, nullable, and whitespace-only identities are all invalid — a
+    // security guard must fail closed on each, not just the exact '' (Gemini
+    // review, PR #274).
+    expect(() => assertManifestIdentityResolved('')).toThrow(MANIFEST_IDENTITY_UNRESOLVED_MSG)
+    expect(() => assertManifestIdentityResolved(null)).toThrow(MANIFEST_IDENTITY_UNRESOLVED_MSG)
+    expect(() => assertManifestIdentityResolved(undefined)).toThrow(
+      MANIFEST_IDENTITY_UNRESOLVED_MSG,
+    )
+    expect(() => assertManifestIdentityResolved('   ')).toThrow(MANIFEST_IDENTITY_UNRESOLVED_MSG)
+  })
+
+  test('ccsc-x0t.3: assertManifestIdentityResolved does not throw once identity is resolved', async () => {
+    const { assertManifestIdentityResolved } = await import('./lib.ts')
+    expect(() => assertManifestIdentityResolved('U0BOT')).not.toThrow()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// getChannelPolicy — one fail-closed channel-policy accessor (ccsc-x0t.8).
+// Every gate/read routes through it; a bare access.channels[id] index would
+// read inherited Object.prototype members for prototype-key ids.
+// ---------------------------------------------------------------------------
+
+describe('getChannelPolicy (ccsc-x0t.8)', () => {
+  test('returns the policy for an own channel id', async () => {
+    const { getChannelPolicy } = await import('./lib.ts')
+    const policy = { requireMention: false, allowFrom: [] }
+    const access = makeAccess({ channels: { C_OPT: policy } })
+    expect(getChannelPolicy(access, 'C_OPT')).toBe(policy)
+  })
+
+  test('returns undefined for a missing channel id', async () => {
+    const { getChannelPolicy } = await import('./lib.ts')
+    const access = makeAccess({ channels: { C_OPT: { requireMention: false, allowFrom: [] } } })
+    expect(getChannelPolicy(access, 'C_MISSING')).toBeUndefined()
+  })
+
+  test('fails closed on prototype-key ids (never reads off the prototype chain)', async () => {
+    const { getChannelPolicy } = await import('./lib.ts')
+    const access = makeAccess({ channels: {} })
+    // A bare access.channels['constructor'] would return Object's constructor
+    // (a truthy function) and could slip past a truthiness gate. hasOwn refuses.
+    for (const key of ['constructor', 'toString', 'hasOwnProperty', '__proto__', 'valueOf']) {
+      expect(getChannelPolicy(access, key)).toBeUndefined()
+    }
+  })
+
+  test('fails closed (does not throw) when access.channels is absent', async () => {
+    const { getChannelPolicy } = await import('./lib.ts')
+    // Loaded-from-disk Access can lack `channels` (the pre-x0t.8 admin site
+    // used `channels?.[id]`). Object.hasOwn(undefined, …) would throw — the
+    // helper must return undefined instead (Gemini review, PR #275).
+    const access = { ...makeAccess(), channels: undefined } as unknown as Access
+    expect(() => getChannelPolicy(access, 'C_ANY')).not.toThrow()
+    expect(getChannelPolicy(access, 'C_ANY')).toBeUndefined()
+  })
+})
+
+// ---------------------------------------------------------------------------
 // Delivery poller — drainOutbox (ccsc-o7x.2.2)
 // ---------------------------------------------------------------------------
 
@@ -7566,6 +7910,29 @@ describe('deliverReplyDurably (ccsc-o7x.3 pt2)', () => {
   }
 
   const reply = { id: 'r-1', channel: 'C_DUR', thread: 'T1', text: 'hello' }
+
+  test('blocks ride the obligation: recorded before send and handed to the poster', async () => {
+    await seedSession()
+    const sup = makeSupervisor()
+    const theBlocks = [{ type: 'section', text: { type: 'mrkdwn', text: '*pick*' } }]
+    const seen: Array<Record<string, unknown>[] | undefined> = []
+    const poster: ReplyPoster = async (obligation, _key) => {
+      seen.push(obligation.blocks)
+      return 'ts-b'
+    }
+
+    const result = await deliverReplyDurably(
+      { supervisor: sup, post: poster },
+      { ...reply, id: 'r-blocks', blocks: theBlocks },
+    )
+
+    expect(result).toEqual({ status: 'delivered', ts: 'ts-b' })
+    expect(seen).toEqual([theBlocks])
+    // The persisted obligation carries the blocks, so poller redelivery after
+    // a crash re-sends the same rich message.
+    const reloaded = await loadSession(tmpRoot, sessionPath(tmpRoot, key))
+    expect(reloaded.outbox?.[0]).toMatchObject({ id: 'r-blocks', blocks: theBlocks })
+  })
 
   test('success: posts under the obligation key, marks delivered, returns the ts', async () => {
     await seedSession()
@@ -9121,37 +9488,47 @@ describe('JournalWriter', () => {
   })
 
   test('reopen recovers correctly when the last line straddles 64 KiB chunk boundaries', async () => {
-    // Write a chain whose body is large enough that the tail scan has to
-    // pull multiple 64 KiB chunks to find the boundary newline. We do
-    // this by writing many events until the file is comfortably over
-    // 192 KiB (three chunks). Exercises the loop in readLastLine.
+    // The adjacent 80 KiB test covers a final line that needs two reverse
+    // chunks. This fixture deliberately needs at least three: the final
+    // line itself is larger than two 64 KiB chunks, so readLastLine must
+    // cross multiple chunk boundaries before it can find the preceding
+    // newline. Keep the fixture bounded at two production writes (and two
+    // fsyncs); the old 1,000-event loop made this test hit Bun's 5 s limit.
     const { JournalWriter } = await import('./journal.ts')
     const w1 = await JournalWriter.open({
       path: logPath,
       initialPrevHash: stableAnchor,
       now: () => fixedNow,
     })
+    const chunkSize = 64 * 1024
+    const multiChunkCorrelationId = 'x'.repeat(2 * chunkSize)
+    let firstWritten!: Awaited<ReturnType<typeof w1.writeEvent>>
     let lastWritten!: Awaited<ReturnType<typeof w1.writeEvent>>
     try {
-      // Each session.activate event is ~250-350 bytes framed. 1,000
-      // events ⇒ ~300 KiB file, well past a single 64 KiB chunk.
-      for (let i = 0; i < 1_000; i++) {
-        lastWritten = await w1.writeEvent({
-          kind: 'session.activate',
-          correlationId: `chunk-straddle-${i.toString().padStart(6, '0')}`,
-        })
-      }
+      firstWritten = await w1.writeEvent({
+        kind: 'session.activate',
+        correlationId: 'chunk-straddle-prefix',
+      })
+      lastWritten = await w1.writeEvent({
+        kind: 'session.activate',
+        correlationId: multiChunkCorrelationId,
+      })
     } finally {
       await w1.close()
     }
-    expect(lastWritten.seq).toBe(1_000)
+    expect(lastWritten.seq).toBe(2)
+    expect(Buffer.byteLength(JSON.stringify(lastWritten))).toBeGreaterThan(2 * chunkSize)
 
     // Reopen and verify the recovered head is the last-written event,
     // not something the tail scanner misattributed from an earlier chunk.
     const w2 = await JournalWriter.open({ path: logPath })
     try {
       expect(w2.headHash).toBe(lastWritten.hash)
-      expect(w2.nextSequenceNumber).toBe(1_001)
+      expect(w2.nextSequenceNumber).toBe(lastWritten.seq + 1)
+      const recovered = await w2.writeEvent({ kind: 'session.quiesce' })
+      expect(recovered.prevHash).toBe(lastWritten.hash)
+      expect(recovered.seq).toBe(lastWritten.seq + 1)
+      expect(lastWritten.prevHash).toBe(firstWritten.hash)
     } finally {
       await w2.close()
     }
@@ -10319,6 +10696,112 @@ describe('formatVerifyResult', () => {
     expect(out.text).not.toContain('expected:')
     expect(out.text).not.toContain('actual:')
   })
+
+  // ── eventsVerified floor (ccsc-x0t.9) ──────────────────────────────────
+  test('minEvents floor: a hash-clean log below the floor FAILS (wiped log ≠ clean)', async () => {
+    const { formatVerifyResult } = await loadLib()
+    // The x0t.9 case: verifyJournal(empty log) → { ok:true, eventsVerified:0 }.
+    const out = formatVerifyResult({ ok: true, eventsVerified: 0 }, '/tmp/audit.log', 5)
+    expect(out.exitCode).toBe(1)
+    expect(out.text).toContain('FAIL: audit journal too short')
+    expect(out.text).toContain('verified 0 event(s), expected at least 5')
+  })
+
+  test('minEvents floor: at or above the floor is OK', async () => {
+    const { formatVerifyResult } = await loadLib()
+    expect(formatVerifyResult({ ok: true, eventsVerified: 5 }, '/tmp/audit.log', 5).exitCode).toBe(
+      0,
+    )
+    expect(formatVerifyResult({ ok: true, eventsVerified: 9 }, '/tmp/audit.log', 5).exitCode).toBe(
+      0,
+    )
+  })
+
+  test('minEvents floor: omitting it preserves the prior behavior (0 events → OK exit 0)', async () => {
+    const { formatVerifyResult } = await loadLib()
+    const out = formatVerifyResult({ ok: true, eventsVerified: 0 }, '/tmp/audit.log')
+    expect(out.exitCode).toBe(0)
+    expect(out.text).toBe('OK: 0 event(s) verified in /tmp/audit.log')
+  })
+
+  test('minEvents floor: a genuinely-broken log still reports the break, not the floor', async () => {
+    const { formatVerifyResult } = await loadLib()
+    const out = formatVerifyResult(
+      {
+        ok: false,
+        eventsVerified: 2,
+        break: { lineNumber: 3, seq: 3, ts: null, reason: 'hash mismatch' },
+      },
+      '/tmp/audit.log',
+      10,
+    )
+    expect(out.exitCode).toBe(1)
+    expect(out.text).toContain('FAIL: audit journal broken') // the break wins over the floor message
+  })
+})
+
+describe('parseMinEventsArg (ccsc-x0t.9)', () => {
+  const loadLib = async () => await import('./lib.ts')
+
+  test('space form and equals form parse the integer', async () => {
+    const { parseMinEventsArg } = await loadLib()
+    expect(parseMinEventsArg(['--min-events', '5'])).toBe(5)
+    expect(parseMinEventsArg(['--min-events=12'])).toBe(12)
+    expect(parseMinEventsArg(['--min-events', '0'])).toBe(0)
+  })
+
+  test('absent flag → null (the floor is optional)', async () => {
+    const { parseMinEventsArg } = await loadLib()
+    expect(parseMinEventsArg(['--verify-audit-log', '/x'])).toBeNull()
+    expect(parseMinEventsArg([])).toBeNull()
+  })
+
+  test('present-but-malformed values THROW (fail closed — never silently disable the floor)', async () => {
+    // A typo like `--min-events 1OO` (letter O) must not silently no-op the very
+    // tamper-check the flag exists for (Gemini review, PR #277). The invariant
+    // that matters: a present-but-broken flag always throws, never returns null.
+    const { parseMinEventsArg } = await loadLib()
+    // Garbage values (incl. a negative number) → the accurate "invalid value".
+    expect(() => parseMinEventsArg(['--min-events', '1.5'])).toThrow(/invalid --min-events/)
+    expect(() => parseMinEventsArg(['--min-events', '1OO'])).toThrow(/invalid --min-events/)
+    expect(() => parseMinEventsArg(['--min-events', 'abc'])).toThrow(/invalid --min-events/)
+    expect(() => parseMinEventsArg(['--min-events='])).toThrow(/invalid --min-events/)
+    // A negative number routes to the value validator for the accurate error
+    // (Gemini review, PR #278) — a floor is non-negative by definition.
+    expect(() => parseMinEventsArg(['--min-events', '-3'])).toThrow(/invalid --min-events/)
+    // A genuinely-absent value or the NEXT flag → "missing value".
+    expect(() => parseMinEventsArg(['--min-events'])).toThrow(/missing value/)
+    expect(() => parseMinEventsArg(['--min-events', '--verify-audit-log'])).toThrow(/missing value/)
+  })
+})
+
+describe('parseV2FloorSeqArg + parseExpectedGenesisArg (ccsc-x0t.7)', () => {
+  const loadLib = async () => await import('./lib.ts')
+
+  test('parseV2FloorSeqArg: valid, absent, and fail-closed on malformed', async () => {
+    const { parseV2FloorSeqArg } = await loadLib()
+    expect(parseV2FloorSeqArg(['--v2-floor-seq', '42'])).toBe(42)
+    expect(parseV2FloorSeqArg(['--v2-floor-seq=7'])).toBe(7)
+    expect(parseV2FloorSeqArg([])).toBeNull()
+    expect(() => parseV2FloorSeqArg(['--v2-floor-seq', 'abc'])).toThrow(/invalid --v2-floor-seq/)
+    expect(() => parseV2FloorSeqArg(['--v2-floor-seq'])).toThrow(/missing value/)
+  })
+
+  test('parseExpectedGenesisArg: accepts a 64-hex value, absent → null, malformed → throw', async () => {
+    const { parseExpectedGenesisArg } = await loadLib()
+    const hex = 'a'.repeat(64)
+    expect(parseExpectedGenesisArg(['--expected-genesis-hash', hex])).toBe(hex)
+    expect(parseExpectedGenesisArg([`--expected-genesis-hash=${hex}`])).toBe(hex)
+    expect(parseExpectedGenesisArg([])).toBeNull()
+    // Too short / non-hex / uppercase all fail closed rather than disable the anchor.
+    expect(() => parseExpectedGenesisArg(['--expected-genesis-hash', 'abc'])).toThrow(
+      /invalid --expected-genesis-hash/,
+    )
+    expect(() => parseExpectedGenesisArg(['--expected-genesis-hash', 'A'.repeat(64)])).toThrow(
+      /invalid --expected-genesis-hash/,
+    )
+    expect(() => parseExpectedGenesisArg(['--expected-genesis-hash'])).toThrow(/missing value/)
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -10641,6 +11124,34 @@ describe('permission-route journal builders bind production code (ccsc-175)', ()
       const events = permissionRouteJournalEvents(route, ctx)
       expect(events.map((e) => e.kind as string)).toEqual(kinds)
     }
+  })
+
+  test('honest journaling (ccsc-x0t.5): a fail-safe failsafeReason survives into the policy.require event', async () => {
+    // server.ts merges decision.reason into the require input echo as
+    // `failsafeReason` when evaluate() fail-safed an indeterminate rule to a
+    // human. This binds that the builder preserves it — the audit chain must
+    // record WHY the human was asked, without a policy.allow ever being written.
+    const { permissionRouteJournalEvents } = await import('./policy-dispatch.ts')
+    const { INDETERMINATE_PREDICATE_REASON } = await import('./policy.ts')
+    const [ev] = permissionRouteJournalEvents(
+      { type: 'require_human', ruleId: 'deny-etc' },
+      {
+        sessionKey: { channel: 'C1', thread: 'T1' },
+        toolName: 'Bash',
+        input: {
+          tool: 'Bash',
+          channel: 'C1',
+          thread_ts: 'T1',
+          failsafeReason: INDETERMINATE_PREDICATE_REASON,
+        },
+        approversNeeded: 1,
+      },
+    )
+    expect(ev!.kind).toBe('policy.require')
+    expect(ev!.outcome).toBe('require')
+    expect((ev!.input as Record<string, unknown>).failsafeReason).toBe(
+      INDETERMINATE_PREDICATE_REASON,
+    )
   })
 
   test('auto_allow events carry the route ruleId and the ctx correlationId', async () => {
@@ -11042,6 +11553,278 @@ describe('detectBroadAutoApprove', () => {
       { id: 'bad-2', effect: 'auto_approve', match: { actor: 'session_owner' } },
     ])
     const warnings = detectBroadAutoApprove(rules)
+    expect(warnings.map((w) => w.ruleId).sort()).toEqual(['bad-1', 'bad-2'])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Input-unavailable fail-safe (ccsc-x0t.5) — the crown-jewel fail-open fix.
+//
+// The sole production caller of evaluate() is the MCP permission_request
+// handler, which carries only a preview STRING (no structured args), so it
+// builds the ToolCall with input:{} and inputAvailable:false. Before this fix
+// a deny/require rule scoped by pathPrefix/argEquals silently NEVER FIRED at
+// that gate (empty input → no-match), and a later broad auto_approve swallowed
+// the call — a silent allow with no human in the loop. These tests bind the
+// fail-safe: revert policy.ts and every test in this block goes red.
+//
+// Design: 000-docs/policy-evaluation-flow.md § Input-unavailable fail-safe.
+// ---------------------------------------------------------------------------
+
+describe('input-unavailable fail-safe — evaluate() (ccsc-x0t.5)', () => {
+  const loadPolicy = async () => await import('./policy.ts')
+
+  const gateCall = (
+    tool: string,
+    overrides: Partial<import('./policy.ts').ToolCall> = {},
+  ): import('./policy.ts').ToolCall => ({
+    tool,
+    input: {},
+    inputAvailable: false, // the production permission_request condition
+    sessionKey: { channel: 'C_CHAN', thread: 'T1.0' },
+    actor: 'claude_process',
+    ...overrides,
+  })
+
+  test('CROWN JEWEL: {deny, pathPrefix:/etc} under {auto_approve, tool:Bash} → require, NOT silent allow', async () => {
+    const {
+      evaluate,
+      parsePolicyRules,
+      INDETERMINATE_PREDICATE_REASON,
+      FAILSAFE_APPROVAL_TTL_MS,
+      FAILSAFE_APPROVAL_QUORUM,
+    } = await loadPolicy()
+    const rules = parsePolicyRules([
+      { id: 'deny-etc', effect: 'deny', match: { pathPrefix: '/etc' }, reason: 'no /etc' },
+      { id: 'trust-bash', effect: 'auto_approve', match: { tool: 'Bash' } },
+    ])
+    // The exact exploit from the risk ledger: a Bash call to /etc/shadow.
+    const decision = evaluate(gateCall('Bash'), rules, 0)
+    // Pre-fix this returned { kind: 'allow', rule: 'trust-bash' } — the
+    // fail-open. The indeterminate deny now preempts the broad auto_approve.
+    expect(decision).toEqual({
+      kind: 'require',
+      rule: 'deny-etc',
+      approver: 'human_approver',
+      ttlMs: FAILSAFE_APPROVAL_TTL_MS,
+      approvers: FAILSAFE_APPROVAL_QUORUM,
+      reason: INDETERMINATE_PREDICATE_REASON,
+    })
+  })
+
+  test('argEquals is also unevaluable at the gate → deny fails safe to require', async () => {
+    const { evaluate, parsePolicyRules, INDETERMINATE_PREDICATE_REASON } = await loadPolicy()
+    const rules = parsePolicyRules([
+      {
+        id: 'deny-rm-rf',
+        effect: 'deny',
+        match: { tool: 'Bash', argEquals: { command: 'rm -rf /' } },
+        reason: 'no rm -rf',
+      },
+      { id: 'trust-bash', effect: 'auto_approve', match: { tool: 'Bash' } },
+    ])
+    const decision = evaluate(gateCall('Bash'), rules, 0)
+    expect(decision.kind).toBe('require')
+    if (decision.kind === 'require') {
+      expect(decision.rule).toBe('deny-rm-rf')
+      expect(decision.reason).toBe(INDETERMINATE_PREDICATE_REASON)
+    }
+  })
+
+  test("indeterminate require_approval uses the RULE's own ttlMs/approvers (not the deny defaults)", async () => {
+    const { evaluate, parsePolicyRules, INDETERMINATE_PREDICATE_REASON } = await loadPolicy()
+    const rules = parsePolicyRules([
+      {
+        id: 'gate-secret',
+        effect: 'require_approval',
+        match: { pathPrefix: '/secret' },
+        ttlMs: 123_456,
+        approvers: 2,
+      },
+    ])
+    const decision = evaluate(gateCall('upload_file'), rules, 0)
+    expect(decision).toEqual({
+      kind: 'require',
+      rule: 'gate-secret',
+      approver: 'human_approver',
+      ttlMs: 123_456,
+      approvers: 2,
+      reason: INDETERMINATE_PREDICATE_REASON,
+    })
+  })
+
+  test('indeterminate auto_approve is SKIPPED — a later genuine deny still wins', async () => {
+    const { evaluate, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      { id: 'trust-safe-dir', effect: 'auto_approve', match: { pathPrefix: '/safe' } },
+      { id: 'deny-bash', effect: 'deny', match: { tool: 'Bash' }, reason: 'blocked' },
+    ])
+    // The auto_approve can't be confirmed (pathPrefix unevaluable) so it is
+    // skipped; evaluation continues to the deny, which fully matches on tool.
+    const decision = evaluate(gateCall('Bash'), rules, 0)
+    expect(decision).toEqual({ kind: 'deny', rule: 'deny-bash', reason: 'blocked' })
+  })
+
+  test('indeterminate auto_approve alone → falls through to default (rule did NOT fire)', async () => {
+    const { evaluate, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      { id: 'trust-safe-dir', effect: 'auto_approve', match: { pathPrefix: '/safe' } },
+    ])
+    // 'reply' is not in requireAuthoredPolicy → default allow with NO rule id,
+    // proving the auto_approve did not silently fire on an unconfirmable path.
+    const decision = evaluate(gateCall('reply'), rules, 0)
+    expect(decision).toEqual({ kind: 'allow' })
+  })
+
+  test('precise: a deny scoped to a DIFFERENT tool does NOT spuriously fail-safe', async () => {
+    const { evaluate, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      // pathPrefix present, but tool is 'Write' — an enforceable mismatch for
+      // a 'Bash' call short-circuits to no_match BEFORE the indeterminate path.
+      {
+        id: 'deny-write-etc',
+        effect: 'deny',
+        match: { tool: 'Write', pathPrefix: '/etc' },
+        reason: 'no writes to /etc',
+      },
+      { id: 'trust-bash', effect: 'auto_approve', match: { tool: 'Bash' } },
+    ])
+    const decision = evaluate(gateCall('Bash'), rules, 0)
+    // The deny genuinely does not apply to a Bash call, so the auto_approve
+    // legitimately wins — the fail-safe is precise, not a blanket block.
+    expect(decision).toEqual({ kind: 'allow', rule: 'trust-bash' })
+  })
+
+  test('a fresh (rule, session) approval flips an indeterminate deny to allow', async () => {
+    const { evaluate, parsePolicyRules, approvalKey } = await loadPolicy()
+    const rules = parsePolicyRules([
+      { id: 'deny-etc', effect: 'deny', match: { pathPrefix: '/etc' }, reason: 'no /etc' },
+    ])
+    const sessionKey = { channel: 'C_CHAN', thread: 'T1.0' }
+    const approvals = new Map([[approvalKey('deny-etc', sessionKey), { ttlExpires: 10_000 }]])
+    const decision = evaluate(gateCall('Bash', { sessionKey }), rules, 0, { approvals })
+    // Human already cleared this hold within the window → not re-prompted.
+    expect(decision).toEqual({ kind: 'allow', rule: 'deny-etc' })
+  })
+
+  // ── Backward compatibility: inputAvailable defaults true ────────────────
+
+  test('BACKWARD-COMPAT: omitting inputAvailable defaults true → argEquals evaluated normally', async () => {
+    const { evaluate, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      {
+        id: 'deny-danger',
+        effect: 'deny',
+        match: { tool: 'Bash', argEquals: { danger: true } },
+        reason: 'dangerous',
+      },
+      { id: 'trust-bash', effect: 'auto_approve', match: { tool: 'Bash' } },
+    ])
+    const base = {
+      tool: 'Bash',
+      sessionKey: { channel: 'C_CHAN', thread: 'T1.0' },
+      actor: 'claude_process' as const,
+      // inputAvailable intentionally OMITTED → defaults to true.
+    }
+    // danger:true → deny fires exactly as authored.
+    expect(evaluate({ ...base, input: { danger: true } }, rules, 0)).toEqual({
+      kind: 'deny',
+      rule: 'deny-danger',
+      reason: 'dangerous',
+    })
+    // danger:false → deny no-match, auto_approve allows. Unchanged pre/post fix.
+    expect(evaluate({ ...base, input: { danger: false } }, rules, 0)).toEqual({
+      kind: 'allow',
+      rule: 'trust-bash',
+    })
+  })
+
+  test('explicit inputAvailable:true behaves identically to omitting it', async () => {
+    const { evaluate, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      {
+        id: 'deny-danger',
+        effect: 'deny',
+        match: { tool: 'Bash', argEquals: { danger: true } },
+        reason: 'dangerous',
+      },
+    ])
+    const call = {
+      tool: 'Bash',
+      input: { danger: true },
+      inputAvailable: true,
+      sessionKey: { channel: 'C_CHAN', thread: 'T1.0' },
+      actor: 'claude_process' as const,
+    }
+    expect(evaluate(call, rules, 0)).toEqual({
+      kind: 'deny',
+      rule: 'deny-danger',
+      reason: 'dangerous',
+    })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// detectUnenforceablePredicates() — boot honesty linter (ccsc-x0t.5)
+// ---------------------------------------------------------------------------
+
+describe('detectUnenforceablePredicates (ccsc-x0t.5)', () => {
+  const loadPolicy = async () => await import('./policy.ts')
+
+  test('warns on a deny+pathPrefix rule, naming FAIL-SAFE behavior', async () => {
+    const { detectUnenforceablePredicates, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      { id: 'deny-etc', effect: 'deny', match: { pathPrefix: '/etc' }, reason: 'no /etc' },
+    ])
+    const warnings = detectUnenforceablePredicates(rules)
+    expect(warnings).toHaveLength(1)
+    expect(warnings[0]!.ruleId).toBe('deny-etc')
+    expect(warnings[0]!.predicates).toEqual(['pathPrefix'])
+    expect(warnings[0]!.message).toMatch(/FAILS SAFE to human approval/)
+  })
+
+  test('warns on an auto_approve+pathPrefix rule, naming SKIPPED behavior', async () => {
+    const { detectUnenforceablePredicates, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      { id: 'trust-safe', effect: 'auto_approve', match: { pathPrefix: '/safe' } },
+    ])
+    const warnings = detectUnenforceablePredicates(rules)
+    expect(warnings).toHaveLength(1)
+    expect(warnings[0]!.message).toMatch(/is SKIPPED/)
+  })
+
+  test('warns on argEquals, and lists BOTH predicates when a rule has both', async () => {
+    const { detectUnenforceablePredicates, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      {
+        id: 'both',
+        effect: 'require_approval',
+        match: { pathPrefix: '/x', argEquals: { k: 'v' } },
+      },
+    ])
+    const warnings = detectUnenforceablePredicates(rules)
+    expect(warnings).toHaveLength(1)
+    expect(warnings[0]!.predicates.sort()).toEqual(['argEquals', 'pathPrefix'])
+  })
+
+  test('no warning for rules constrained only by enforceable fields', async () => {
+    const { detectUnenforceablePredicates, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      { id: 'r1', effect: 'auto_approve', match: { tool: 'reply' } },
+      { id: 'r2', effect: 'deny', match: { channel: 'C0000000000' }, reason: 'x' },
+      { id: 'r3', effect: 'require_approval', match: { actor: 'claude_process' } },
+    ])
+    expect(detectUnenforceablePredicates(rules)).toEqual([])
+  })
+
+  test('flags every offender in one pass', async () => {
+    const { detectUnenforceablePredicates, parsePolicyRules } = await loadPolicy()
+    const rules = parsePolicyRules([
+      { id: 'ok', effect: 'auto_approve', match: { tool: 'reply' } },
+      { id: 'bad-1', effect: 'deny', match: { pathPrefix: '/etc' }, reason: 'x' },
+      { id: 'bad-2', effect: 'require_approval', match: { argEquals: { k: 'v' } } },
+    ])
+    const warnings = detectUnenforceablePredicates(rules)
     expect(warnings.map((w) => w.ruleId).sort()).toEqual(['bad-1', 'bad-2'])
   })
 })
@@ -11473,6 +12256,178 @@ describe('verifyJournal', () => {
       // expected.
       expect(result.break.lineNumber).toBe(3)
     }
+  })
+
+  test('detects head truncation: shearing the seq=1 event is caught by the genesis-seq pin', async () => {
+    const { verifyJournal } = await import('./journal.ts')
+    await writeN(4)
+    const content = readFileSync(logPath, 'utf8')
+    const lines = content.split('\n').filter(Boolean)
+    // Delete the genesis event (seq=1). The surviving prefix (seq=2..4)
+    // chains cleanly among itself, and the new first event's prevHash is
+    // trusted as genesis — without the seq pin this would verify OK.
+    lines.splice(0, 1)
+    writeFileSync(logPath, `${lines.join('\n')}\n`, { mode: 0o600 })
+
+    const result = await verifyJournal(logPath)
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.break.lineNumber).toBe(1)
+      expect(result.break.seq).toBe(2)
+      expect(result.break.reason).toMatch(/head truncated/)
+    }
+  })
+
+  // ── ccsc-x0t.2 — known-limitation + scope proof ─────────────────────────
+  // The genesis-seq pin (above) catches a NAIVE head-shear (drop seq=1, leave
+  // survivors at seq=2..). But it defeats head-truncation only for SIGNED (v2)
+  // chains. On an UNSIGNED v1 chain the hash chain is a bare keyless SHA-256,
+  // so a writer-capable attacker shears the head, renumbers survivors to
+  // seq=1.., and recomputes the whole chain with no secret — verifying clean.
+  // These two tests bind that scope (the wording in journal.ts + the #264
+  // CHANGELOG entry now says "signed chains"; the full fix is a v2-floor
+  // anchor, ccsc-x0t.7).
+
+  test('KNOWN LIMITATION (ccsc-x0t.2): v1 head-truncation + renumber + rechain verifies clean (no secret needed)', async () => {
+    const { verifyJournal, canonicalJson, sha256Hex } = await import('./journal.ts')
+    await writeN(4) // keyless writer → unsigned v1 events, seq 1..4
+    const events = readFileSync(logPath, 'utf8')
+      .split('\n')
+      .filter(Boolean)
+      .map((l) => JSON.parse(l) as Record<string, unknown>)
+    // Shear the genesis event, then renumber survivors to seq 1.. and recompute
+    // the keyless chain exactly as the writer/verifier does. The first
+    // survivor's prevHash is trusted as the genesis anchor by the verifier.
+    expect(events.length).toBe(4) // assert setup before slicing (no unsafe `!`)
+    const survivors = events.slice(1)
+    let prevHash = survivors[0].prevHash as string
+    const forged = survivors.map((ev, i) => {
+      const { hash: _drop, ...rest } = ev
+      // Build a fresh object rather than mutating `rest` in the map (Gemini
+      // review, #273). canonicalJson sorts keys, so the bytes are identical.
+      const updated = { ...rest, seq: i + 1, prevHash }
+      const hash = sha256Hex(prevHash + canonicalJson(updated))
+      prevHash = hash
+      return { ...updated, hash }
+    })
+    writeFileSync(logPath, `${forged.map((e) => JSON.stringify(e)).join('\n')}\n`, { mode: 0o600 })
+
+    const result = await verifyJournal(logPath)
+    // THE LIMITATION: an unsigned v1 chain has no signatures, so the rechained
+    // sheared file verifies clean. This is why the pin is scoped to signed
+    // chains; the residual full fix is a pinned v2-floor anchor (ccsc-x0t.7).
+    expect(result.ok).toBe(true)
+    if (result.ok) expect(result.eventsVerified).toBe(3)
+  })
+
+  test("SCOPE PROOF (ccsc-x0t.2): the SAME rechain on a SIGNED v2 chain is rejected (signatures can't be reforged)", async () => {
+    const { generateKeyPair } = await import('./crypto.ts')
+    const { JournalWriter, verifyJournal, canonicalJson, sha256Hex } = await import('./journal.ts')
+    const kp = generateKeyPair()
+    const w = await JournalWriter.open({ path: logPath, signingKey: kp, now: () => fixedNow })
+    for (let i = 0; i < 4; i++)
+      await w.writeEvent({ kind: 'session.activate', correlationId: `req-${i}` })
+    await w.close()
+
+    const events = readFileSync(logPath, 'utf8')
+      .split('\n')
+      .filter(Boolean)
+      .map((l) => JSON.parse(l) as Record<string, unknown>)
+    // Same shear + renumber + rechain — but the attacker holds no signing key,
+    // so it can only keep each survivor's ORIGINAL signature (over the old seq).
+    expect(events.length).toBe(4) // assert setup before slicing (no unsafe `!`)
+    const survivors = events.slice(1)
+    let prevHash = survivors[0].prevHash as string
+    const forged = survivors.map((ev, i) => {
+      const { hash: _drop, signature, ...rest } = ev
+      // Fresh object, not a mutated `rest` (Gemini review, #273). Recompute the
+      // hash over the same bytes verify strips (no hash, no sig).
+      const updated = { ...rest, seq: i + 1, prevHash }
+      const hash = sha256Hex(prevHash + canonicalJson(updated))
+      prevHash = hash
+      return { ...updated, hash, signature } // stale signature over the old bytes
+    })
+    writeFileSync(logPath, `${forged.map((e) => JSON.stringify(e)).join('\n')}\n`, { mode: 0o600 })
+
+    const result = await verifyJournal(logPath, { initialPublicKey: kp.publicKey })
+    // The hash check passes (attacker recomputed it), but the Ed25519 signature
+    // was over the pre-renumber bytes → verification fails. Signed chains resist
+    // the exact attack the v1 chain fell to.
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.break.reason).toMatch(/signature verification failed/)
+  })
+
+  // ── Verification anchors (ccsc-x0t.7) — close the x0t.2 residuals ────────
+
+  test('pinnedGenesisHash: a clean chain verifies with the correct anchor', async () => {
+    const { verifyJournal } = await import('./journal.ts')
+    await writeN(3) // genesis prevHash === stableAnchor (writeN's initialPrevHash)
+    expect((await verifyJournal(logPath, { pinnedGenesisHash: stableAnchor })).ok).toBe(true)
+  })
+
+  test('pinnedGenesisHash: a wrong anchor fails at genesis', async () => {
+    const { verifyJournal } = await import('./journal.ts')
+    await writeN(3)
+    const result = await verifyJournal(logPath, { pinnedGenesisHash: 'b'.repeat(64) })
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.break.reason).toMatch(/genesis prevHash does not match/)
+  })
+
+  test('pinnedGenesisHash: DEFEATS the v1 renumber+rechain that x0t.2 documented as residual', async () => {
+    const { verifyJournal, canonicalJson, sha256Hex } = await import('./journal.ts')
+    await writeN(4)
+    const events = readFileSync(logPath, 'utf8')
+      .split('\n')
+      .filter(Boolean)
+      .map((l) => JSON.parse(l) as Record<string, unknown>)
+    expect(events.length).toBe(4)
+    // The exact x0t.2 forgery: shear the genesis, renumber survivors, rechain.
+    const survivors = events.slice(1)
+    let prevHash = survivors[0].prevHash as string // = original events[0].hash, NOT stableAnchor
+    const forged = survivors.map((ev, i) => {
+      const { hash: _drop, ...rest } = ev
+      const updated = { ...rest, seq: i + 1, prevHash }
+      const hash = sha256Hex(prevHash + canonicalJson(updated))
+      prevHash = hash
+      return { ...updated, hash }
+    })
+    writeFileSync(logPath, `${forged.map((e) => JSON.stringify(e)).join('\n')}\n`, { mode: 0o600 })
+    // Unanchored: verifies clean (the documented x0t.2 residual).
+    expect((await verifyJournal(logPath)).ok).toBe(true)
+    // Anchored to the TRUE genesis: the forged genesis prevHash ≠ anchor → break.
+    const anchored = await verifyJournal(logPath, { pinnedGenesisHash: stableAnchor })
+    expect(anchored.ok).toBe(false)
+    if (!anchored.ok) expect(anchored.break.reason).toMatch(/genesis prevHash does not match/)
+  })
+
+  test('v2FloorSeq: a v1 event at/after the floor is a downgrade break', async () => {
+    const { verifyJournal } = await import('./journal.ts')
+    await writeN(3) // unsigned v1 events, seq 1..3
+    const result = await verifyJournal(logPath, { v2FloorSeq: 2 })
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.break.seq).toBe(2)
+      expect(result.break.reason).toMatch(/downgrade below v2 floor/)
+    }
+  })
+
+  test('v2FloorSeq: a floor above every seq leaves a v1 chain valid', async () => {
+    const { verifyJournal } = await import('./journal.ts')
+    await writeN(3)
+    expect((await verifyJournal(logPath, { v2FloorSeq: 10 })).ok).toBe(true)
+  })
+
+  test('v2FloorSeq: a fully-signed v2 chain passes its floor', async () => {
+    const { generateKeyPair } = await import('./crypto.ts')
+    const { JournalWriter, verifyJournal } = await import('./journal.ts')
+    const kp = generateKeyPair()
+    const w = await JournalWriter.open({ path: logPath, signingKey: kp, now: () => fixedNow })
+    for (let i = 0; i < 3; i++)
+      await w.writeEvent({ kind: 'session.activate', correlationId: `r${i}` })
+    await w.close()
+    expect(
+      (await verifyJournal(logPath, { initialPublicKey: kp.publicKey, v2FloorSeq: 1 })).ok,
+    ).toBe(true)
   })
 
   test('parse error: invalid JSON on a middle line is reported with line number', async () => {
@@ -12033,6 +12988,7 @@ describe('MCP tool input schemas (S5)', () => {
       text: z.string().min(1),
       thread_ts: z.string().optional(),
       files: z.array(z.string()).optional(),
+      blocks: z.array(z.record(z.string(), z.unknown())).optional(),
     })
     .strict()
 
@@ -12152,6 +13108,36 @@ describe('MCP tool input schemas (S5)', () => {
         chat_id: 'C123',
         text: 'hello',
         files: '/tmp/a.txt',
+      })
+      expect(result.success).toBe(false)
+    })
+
+    test('accepts optional blocks array of objects', () => {
+      const result = ReplyInput.safeParse({
+        chat_id: 'C123',
+        text: 'fallback',
+        blocks: [{ type: 'section', text: { type: 'mrkdwn', text: '*hi*' } }],
+      })
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.blocks?.length).toBe(1)
+      }
+    })
+
+    test('rejects non-array blocks', () => {
+      const result = ReplyInput.safeParse({
+        chat_id: 'C123',
+        text: 'fallback',
+        blocks: { type: 'section' },
+      })
+      expect(result.success).toBe(false)
+    })
+
+    test('rejects non-object element in blocks array', () => {
+      const result = ReplyInput.safeParse({
+        chat_id: 'C123',
+        text: 'fallback',
+        blocks: ['not-a-block'],
       })
       expect(result.success).toBe(false)
     })
@@ -18360,5 +19346,296 @@ describe('ccsc-l1f — runAuditKeyCli (dispatch + defaults)', () => {
     if (result.kind !== 'error') throw new Error('expected error')
     expect(result.message).toContain('Unknown subcommand')
     expect(errs.some((m) => m.toLowerCase().includes('usage'))).toBe(true)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Option-button click relay — pure pieces
+// ---------------------------------------------------------------------------
+
+describe('decideInteractionRoute', () => {
+  const access = (over: Partial<Access> = {}): Access => ({
+    dmPolicy: 'pairing',
+    allowFrom: [],
+    channels: {},
+    pending: {},
+    ...over,
+  })
+  const click = { actionType: 'button', userId: 'U_HUMAN', channelId: 'C_OPS', actionTs: '1.23' }
+
+  test('delivers a button click in an opted-in channel with open allowFrom', () => {
+    const a = access({ channels: { C_OPS: { requireMention: false, allowFrom: [] } } })
+    expect(decideInteractionRoute(click, a)).toEqual({ action: 'deliver' })
+  })
+
+  test('requireMention channel DROPS a click on an unengaged thread (same gate as messages — #270 design call 1)', () => {
+    const a = access({ channels: { C_OPS: { requireMention: true, allowFrom: [] } } })
+    expect(decideInteractionRoute({ ...click, messageTs: '9.99' }, a, new Set())).toEqual({
+      action: 'drop',
+      dropReason: 'channel.require_mention',
+    })
+    // No engagedThreads set supplied at all → still fail closed.
+    expect(decideInteractionRoute({ ...click, messageTs: '9.99' }, a)).toEqual({
+      action: 'drop',
+      dropReason: 'channel.require_mention',
+    })
+  })
+
+  test('requireMention channel delivers a click on an ENGAGED thread (mention-stickiness, keyed thread_ts ?? messageTs)', () => {
+    const a = access({ channels: { C_OPS: { requireMention: true, allowFrom: [] } } })
+    // Top-level message: engagement keyed by the message ts.
+    const topLevel = new Set([deliveredThreadKey('C_OPS', '9.99')])
+    expect(decideInteractionRoute({ ...click, messageTs: '9.99' }, a, topLevel)).toEqual({
+      action: 'deliver',
+    })
+    // Threaded message: engagement keyed by the thread ts, not the message ts.
+    const threaded = new Set([deliveredThreadKey('C_OPS', '5.55')])
+    expect(
+      decideInteractionRoute({ ...click, messageTs: '9.99', threadTs: '5.55' }, a, threaded),
+    ).toEqual({ action: 'deliver' })
+  })
+
+  test('requireMention drops an ephemeral-button click (no message ts → no thread identity → fail closed)', () => {
+    const a = access({ channels: { C_OPS: { requireMention: true, allowFrom: [] } } })
+    const engaged = new Set([deliveredThreadKey('C_OPS', undefined)])
+    expect(decideInteractionRoute(click, a, engaged)).toEqual({
+      action: 'deliver', // key channel\0'' matches only an explicit undefined-thread engagement
+    })
+    expect(decideInteractionRoute(click, a, new Set())).toEqual({
+      action: 'drop',
+      dropReason: 'channel.require_mention',
+    })
+  })
+
+  test('drops when the channel is not opted in', () => {
+    expect(decideInteractionRoute(click, access())).toEqual({
+      action: 'drop',
+      dropReason: 'channel.not_opted',
+    })
+  })
+
+  test('drops a clicker missing from a non-empty channel allowFrom', () => {
+    const a = access({ channels: { C_OPS: { requireMention: false, allowFrom: ['U_OTHER'] } } })
+    expect(decideInteractionRoute(click, a)).toEqual({
+      action: 'drop',
+      dropReason: 'channel.allowfrom_miss',
+    })
+  })
+
+  test('DM click delivers only for a paired user', () => {
+    const dmClick = { ...click, channelId: 'D_DM1' }
+    expect(decideInteractionRoute(dmClick, access({ allowFrom: ['U_HUMAN'] }))).toEqual({
+      action: 'deliver',
+    })
+    expect(decideInteractionRoute(dmClick, access())).toEqual({
+      action: 'drop',
+      dropReason: 'dm.not_paired',
+    })
+  })
+
+  test('DM click honors dmPolicy for the drop reason (closed policy journals dm.policy_closed, as the message gate does)', () => {
+    const dmClick = { ...click, channelId: 'D_DM1' }
+    for (const dmPolicy of ['allowlist', 'disabled'] as const) {
+      expect(decideInteractionRoute(dmClick, access({ dmPolicy }))).toEqual({
+        action: 'drop',
+        dropReason: 'dm.policy_closed',
+      })
+      // A paired user still delivers under a closed policy, same as DM text.
+      expect(decideInteractionRoute(dmClick, access({ dmPolicy, allowFrom: ['U_HUMAN'] }))).toEqual(
+        { action: 'deliver' },
+      )
+    }
+  })
+
+  test('legacy access.json without a channels key DROPS (journaled) instead of throwing — #270 condition 2', () => {
+    // A loaded-from-disk Access can lack `channels` entirely (pre-x0t.8 files).
+    // A bare Object.hasOwn(undefined, …) would THROW, and the throw would beat
+    // the gate.inbound.drop journal write — routing through getChannelPolicy
+    // fails closed instead (#275).
+    const { channels: _dropped, ...legacy } = access()
+    expect(decideInteractionRoute(click, legacy as unknown as Access)).toEqual({
+      action: 'drop',
+      dropReason: 'channel.not_opted',
+    })
+  })
+
+  test('drops non-button action types', () => {
+    const a = access({ channels: { C_OPS: { requireMention: false, allowFrom: [] } } })
+    expect(decideInteractionRoute({ ...click, actionType: 'static_select' }, a)).toEqual({
+      action: 'drop',
+      dropReason: 'interaction.unsupported_type',
+    })
+  })
+
+  test('drops malformed payloads (missing user / channel / action_ts)', () => {
+    const a = access({ channels: { C_OPS: { requireMention: false, allowFrom: [] } } })
+    expect(decideInteractionRoute({ ...click, userId: '' }, a)).toEqual({
+      action: 'drop',
+      dropReason: 'interaction.malformed',
+    })
+    expect(decideInteractionRoute({ ...click, actionTs: '' }, a)).toEqual({
+      action: 'drop',
+      dropReason: 'interaction.malformed',
+    })
+  })
+})
+
+describe('replaceClickedActionsBlock', () => {
+  const section = { type: 'section', text: { type: 'mrkdwn', text: 'Pick one:' } }
+  const actions = {
+    type: 'actions',
+    elements: [
+      { type: 'button', action_id: 'opt_a', text: { type: 'plain_text', text: 'A' } },
+      { type: 'button', action_id: 'opt_b', text: { type: 'plain_text', text: 'B' } },
+    ],
+  }
+
+  test('replaces only the actions block containing the clicked action_id', () => {
+    const out = replaceClickedActionsBlock([section, actions], 'opt_a', 'A', 'U123')
+    expect(out.length).toBe(2)
+    expect((out[0] as { type: string }).type).toBe('section')
+    const ctxBlock = out[1] as { type: string; elements: Array<{ text: string }> }
+    expect(ctxBlock.type).toBe('context')
+    expect(ctxBlock.elements[0]!.text).toContain('*A*')
+    expect(ctxBlock.elements[0]!.text).toContain('<@U123>')
+  })
+
+  test('leaves unrelated actions blocks untouched', () => {
+    const other = {
+      type: 'actions',
+      elements: [{ type: 'button', action_id: 'other', text: { type: 'plain_text', text: 'X' } }],
+    }
+    const out = replaceClickedActionsBlock([actions, other], 'opt_b', 'B', 'U123')
+    expect((out[0] as { type: string }).type).toBe('context')
+    expect((out[1] as { type: string }).type).toBe('actions')
+  })
+
+  test('no-op when the action_id matches nothing', () => {
+    const out = replaceClickedActionsBlock([section, actions], 'missing', 'X', 'U123')
+    expect((out[0] as { type: string }).type).toBe('section')
+    expect((out[1] as { type: string }).type).toBe('actions')
+  })
+})
+
+describe('findReservedActionId (perm-namespace forgery guard)', () => {
+  test('null for a clean blocks payload', () => {
+    const blocks = [
+      { type: 'section', text: { type: 'mrkdwn', text: 'pick' } },
+      {
+        type: 'actions',
+        elements: [{ type: 'button', action_id: 'opt_a', text: { type: 'plain_text', text: 'A' } }],
+      },
+    ]
+    expect(findReservedActionId(blocks)).toBeNull()
+  })
+
+  test('finds a perm: action_id in any actions block', () => {
+    const blocks = [
+      {
+        type: 'actions',
+        elements: [{ type: 'button', action_id: 'opt_a', text: { type: 'plain_text', text: 'A' } }],
+      },
+      {
+        type: 'actions',
+        elements: [
+          {
+            type: 'button',
+            action_id: 'perm:allow:abc12',
+            text: { type: 'plain_text', text: 'Show details' },
+          },
+        ],
+      },
+    ]
+    expect(findReservedActionId(blocks)).toBe('perm:allow:abc12')
+  })
+
+  test('finds a perm: action_id in a section accessory — the disguise the guard exists to reject (#270 condition 1)', () => {
+    // Slack routes block_actions clicks from section accessories too, and the
+    // interactive handler is container-agnostic — so the guard must be.
+    const blocks = [
+      {
+        type: 'section',
+        text: { type: 'mrkdwn', text: 'Deployment summary' },
+        accessory: {
+          type: 'button',
+          action_id: 'perm:allow:abc12',
+          text: { type: 'plain_text', text: 'Show details' },
+        },
+      },
+    ]
+    expect(findReservedActionId(blocks)).toBe('perm:allow:abc12')
+  })
+
+  test('finds a perm: action_id in an input element and in an overflow accessory', () => {
+    expect(
+      findReservedActionId([
+        {
+          type: 'input',
+          label: { type: 'plain_text', text: 'Pick' },
+          element: { type: 'static_select', action_id: 'perm:deny:zzz99' },
+        },
+      ]),
+    ).toBe('perm:deny:zzz99')
+    expect(
+      findReservedActionId([
+        {
+          type: 'section',
+          text: { type: 'mrkdwn', text: 'row' },
+          accessory: { type: 'overflow', action_id: 'perm:more:qq111', options: [] },
+        },
+      ]),
+    ).toBe('perm:more:qq111')
+  })
+
+  test('perm: as text content or a non-string action_id stays clean (only action_id KEYS are inspected)', () => {
+    const blocks = [
+      { type: 'section', text: { type: 'mrkdwn', text: 'perm:allow:decoy in text is fine' } },
+      { type: 'actions', elements: [{ type: 'button', action_id: 42 }] },
+      { type: 'context', elements: [{ type: 'plain_text', text: 'perm:deny:decoy' }] },
+    ]
+    expect(findReservedActionId(blocks)).toBeNull()
+  })
+})
+
+describe('createConsumedClickStore', () => {
+  test('consume returns true exactly once per key', () => {
+    const store = createConsumedClickStore()
+    expect(store.consume('C1:ts1:opt_a')).toBe(true)
+    expect(store.consume('C1:ts1:opt_a')).toBe(false)
+    expect(store.consume('C1:ts1:opt_b')).toBe(true)
+  })
+
+  test('evicts the oldest key at capacity', () => {
+    const store = createConsumedClickStore(2)
+    expect(store.consume('k1')).toBe(true)
+    expect(store.consume('k2')).toBe(true)
+    expect(store.consume('k3')).toBe(true) // evicts k1
+    expect(store.consume('k1')).toBe(true) // k1 forgotten, consumable again
+    expect(store.consume('k3')).toBe(false) // k3 still remembered
+  })
+})
+
+describe('button-relay hardening details', () => {
+  test('replaceClickedActionsBlock escapes the label before echoing into live mrkdwn', () => {
+    const actions = {
+      type: 'actions',
+      elements: [
+        { type: 'button', action_id: 'opt_x', text: { type: 'plain_text', text: '<!channel>' } },
+      ],
+    }
+    const out = replaceClickedActionsBlock([actions], 'opt_x', '<!channel>', 'U123')
+    const ctxBlock = out[0] as { type: string; elements: Array<{ text: string }> }
+    expect(ctxBlock.type).toBe('context')
+    expect(ctxBlock.elements[0]!.text).not.toContain('<!channel>')
+    expect(ctxBlock.elements[0]!.text).toContain('&lt;!channel&gt;')
+  })
+
+  test('invalid_blocks is a non-retryable delivery error (no poison obligations)', () => {
+    // Assert through the classifier the poller actually calls, not just set
+    // membership (#270 review cleanup) — binds the behavior, not the constant.
+    expect(classifyDeliveryError('invalid_blocks')).toBe('non-retryable')
+    expect(classifyDeliveryError('invalid_blocks_format')).toBe('non-retryable')
+    expect(NON_RETRYABLE_SLACK_ERRORS.has('invalid_blocks')).toBe(true)
+    expect(NON_RETRYABLE_SLACK_ERRORS.has('invalid_blocks_format')).toBe(true)
   })
 })

@@ -24,14 +24,20 @@ bash "$SCRIPT_DIR/tokencost.sh" --json > "$TMP_TOKEN" 2>/dev/null
 
 # Get raw scan output for the scope + path detail (tokencost flattens these)
 TMP_SCAN=$(mktemp)
-trap "rm -f $TMP_TOKEN $TMP_SCAN" EXIT
+TMP_MCP=$(mktemp)
+trap "rm -f $TMP_TOKEN $TMP_SCAN $TMP_MCP" EXIT
 bash "$SCRIPT_DIR/scan.sh" > "$TMP_SCAN" 2>/dev/null
 
-python3 - "$TMP_TOKEN" "$TMP_SCAN" "$OUTPUT" <<'PYEOF'
+# MCP servers join the deck too (v1.7) — their tool schemas are always
+# loaded, so an unused server is prime swipe material.
+bash "$SCRIPT_DIR/mcp.sh" --json > "$TMP_MCP" 2>/dev/null || echo '{}' > "$TMP_MCP"
+
+python3 - "$TMP_TOKEN" "$TMP_SCAN" "$OUTPUT" "$TMP_MCP" <<'PYEOF'
 import json, sys, os
 from datetime import datetime, timezone
 
 token_file, scan_file, out_file = sys.argv[1], sys.argv[2], sys.argv[3]
+mcp_file = sys.argv[4] if len(sys.argv) > 4 else ""
 
 with open(token_file) as f:
     tcost = json.load(f)
@@ -126,6 +132,57 @@ for s in tcost.get("skills", []):
             "label": verdict_label,
             "tone": verdict_tone,
         },
+    })
+
+# --- MCP server cards (v1.7) ---
+# No token guesses (schemas live server-side): the deck shows call counts
+# from real transcripts. Unused servers rank high — their schemas are the
+# always-loaded cost you can't see.
+mcp = {}
+if mcp_file:
+    try:
+        mcp = json.load(open(mcp_file))
+    except Exception:
+        mcp = {}
+for srv in mcp.get("servers", []):
+    scope = srv.get("scope", "mcp-user").split(",")[0]
+    calls = srv.get("calls", 0)
+    lu = srv.get("last_used", "never")
+    days_since = None
+    if lu and lu != "never":
+        try:
+            days_since = (datetime.now(timezone.utc) - datetime.strptime(lu, "%Y-%m-%d").replace(tzinfo=timezone.utc)).days
+        except Exception:
+            pass
+    score = 40.0            # connected server = always-loaded tool schemas
+    if calls == 0:
+        score += 45
+    if days_since is not None and days_since > 30:
+        score += 15
+    score -= calls * 2
+    if score >= 70:
+        label, tone = "Connected but unused — schemas load for nothing", "warn"
+    elif score >= 40:
+        label, tone = "Rarely called MCP server", "neutral"
+    else:
+        label, tone = "Actively used MCP server — keep", "good"
+    tools_used = srv.get("distinct_tools_used", 0)
+    desc = f"MCP server ({srv.get('transport','stdio')}). {calls} calls, {tools_used} distinct tools used in the lookback window. Configured in: {srv.get('origin','?')}"
+    cards.append({
+        "id": f"{scope}::{srv['name']}",
+        "name": srv["name"],
+        "scope": scope,
+        "namespace": srv.get("origin") if scope == "mcp-plugin" else None,
+        "path": srv.get("origin", ""),
+        "tokens": 0,
+        "desc_tokens": 0,
+        "body_tokens": 0,
+        "tokens_pct_budget": 0.0,
+        "invocations": calls,
+        "last_used": lu,
+        "days_since_use": days_since,
+        "description": desc,
+        "verdict": {"score": round(score, 1), "label": label, "tone": tone},
     })
 
 # Sort by score descending (most waste first)

@@ -1,6 +1,6 @@
-# Hermes Tweet Skill Card
+# Hermes Tweet Skill card
 
-Status: public self-assessment. Not NVIDIA-verified.
+This is a public self-assessment, not NVIDIA verification.
 
 Do not present Hermes Tweet as NVIDIA-verified unless the release also includes
 a clean SkillSpector scan report, Tier-3 eval data, `BENCHMARK.md`,
@@ -9,13 +9,13 @@ skill directory.
 
 ## Owner
 
-- Publisher: Xquik
-- Repository: https://github.com/Xquik-dev/hermes-tweet
-- License: MIT
-- Version: 0.1.6
-- Primary skill file: `SKILL.md`
+- Published by Xquik.
+- **Repository.** https://github.com/Xquik-dev/hermes-tweet
+- Licensed under MIT.
+- **Version.** 0.1.13
+- **Primary Skill.** `SKILL.md`
 
-## Use Case
+## Use case
 
 Hermes Tweet helps Hermes Agent users find X/Twitter endpoints, perform
 authenticated X/Twitter reads, and run explicitly approved X/Twitter workflow
@@ -31,28 +31,28 @@ Use it for:
 Do not use it for account connection, re-authentication, billing, credit top-up,
 support tickets, or direct HTTP fallback routes.
 
-## Inputs and Configuration
+## Inputs and configuration
 
-- Required configuration: `XQUIK_API_KEY` must be configured in the runtime
+- **Required configuration.** Set `XQUIK_API_KEY` in the runtime
   environment. Never request, echo, log, or store the value.
-- Action gate: `HERMES_TWEET_ENABLE_ACTIONS=true` is required before
+- **Action gate.** Set `HERMES_TWEET_ENABLE_ACTIONS=true` before
   write-capable tool calls.
-- Project plugin gate: `HERMES_ENABLE_PROJECT_PLUGINS=true` is required for
+- **Project plugin gate.** Set `HERMES_ENABLE_PROJECT_PLUGINS=true` for
   trusted local Hermes project plugin loading.
-- User input: natural language requests, endpoint choices, and explicit action
+- **User input.** Accept natural language, endpoint choices, and explicit action
   payload approval.
 
 ## Capabilities
 
-- Tools: `tweet_explore`, `tweet_read`, `tweet_action`.
-- Network: required only through catalog-listed Xquik API routes reached by
+- **Tools.** `tweet_explore`, `tweet_read`, and `tweet_action`.
+- **Network.** Required only through catalog-listed Xquik API routes reached by
   those tools.
-- Shell: not required for normal operation. Use Hermes CLI commands only for
+- **Shell.** Not required for normal operation. Use Hermes CLI commands only for
   installation and registry diagnostics.
-- Files: not required for normal operation. Do not write reports, credentials,
+- **Files.** Not required for normal operation. Do not write reports, credentials,
   logs, screenshots, or cached payloads unless the user asks for an explicit
   export workflow.
-- MCP: not required.
+- **MCP.** Not required.
 
 ## Outputs
 
@@ -62,29 +62,25 @@ support tickets, or direct HTTP fallback routes.
   user-approved `tweet_action` calls.
 - Troubleshooting guidance for missing configuration or disabled action gates.
 
-## Side Effects
+## Side effects
 
 - `tweet_explore` has no external side effects.
 - `tweet_read` performs authenticated reads.
 - `tweet_action` may change account or workflow state only after explicit user
   approval and only when the action gate is enabled.
 
-## Known Risks and Mitigations
+## Known risks and mitigations
 
-- Risk: a broad X/Twitter request may map to a write-capable route.
-  Mitigation: start with `tweet_explore`, prefer `tweet_read`, and require a
+- **Broad requests.** Start with `tweet_explore`, prefer `tweet_read`, and require a
   user-approved endpoint plus payload before `tweet_action`.
-- Risk: secrets may appear in chat or examples.
-  Mitigation: ask only for environment configuration, never key values, and
+- **Exposed secrets.** Ask only for environment configuration, never key values, and
   never put credentials in tool arguments.
-- Risk: endpoint guessing may bypass catalog review.
-  Mitigation: accept only catalog-listed `/api/v1/...` paths and reject direct
+- **Guessed endpoints.** Accept only catalog-listed `/api/v1/...` paths. Reject direct
   HTTP fallbacks.
-- Risk: automated X/Twitter actions can affect real accounts.
-  Mitigation: keep `HERMES_TWEET_ENABLE_ACTIONS=false` by default and summarize
+- **Account changes.** Keep `HERMES_TWEET_ENABLE_ACTIONS=false` by default. Summarize
   side effects before any account-changing call.
 
-## Release Trust Gate
+## Release trust gate
 
 Before broad enterprise release or any NVIDIA-verified claim:
 

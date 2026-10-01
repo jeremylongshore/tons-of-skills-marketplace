@@ -10,13 +10,13 @@
 #   4. Use the functions below. Each handles a complete flow with safety checks.
 #
 # Dependencies:
-#   - @aomi-labs/client v0.1.42+ (`aomi --version` or `npx @aomi-labs/client@latest --version`)
+#   - @aomi-labs/client v0.4.2+ (`aomi --version` or `npx @aomi-labs/client@latest --version`)
 #   - jq (for tx-list parsing)
 #
 # Conventions:
 #   - All functions return non-zero on failure.
 #   - Functions never auto-sign without confirmation.
-#   - Credential setup is NOT automated — `aomi wallet dev-key`, `aomi secret add`,
+#   - Credential setup is NOT automated — `aomi wallet set`, `aomi secret add`,
 #     `--api-key`, `--private-key` must be run by the user, never by this script.
 
 set -euo pipefail
@@ -49,10 +49,11 @@ aomi_check_version() {
     echo "[aomi-workflow] CLI version: $version" >&2
 
     case "$version" in
-        0.1.4[2-9]*|0.1.[5-9][0-9]*|0.[2-9].*|[1-9].*)
+        0.4.[2-9]*|0.4.[1-9][0-9]*|0.[5-9].*|[1-9].*)
             ;;
         *)
-            echo "[aomi-workflow] WARNING: version is $version, this script assumes 0.1.42+" >&2
+            echo "[aomi-workflow] WARNING: version is $version, this script requires 0.4.2+" >&2
+            echo "[aomi-workflow] on older builds the account commands and local AA signing differ" >&2
             echo "[aomi-workflow] upgrade with: npm install -g @aomi-labs/client@latest" >&2
             ;;
     esac
@@ -75,7 +76,7 @@ aomi_chat() {
         "$@"
 }
 
-# Same, but force a fresh thread (use on the FIRST command of a new task).
+# Same, but force a fresh session (use on the FIRST command of a new task).
 aomi_chat_new() {
     aomi_chat "$@" --new-session
 }
@@ -110,7 +111,7 @@ aomi_simulate() {
 # Usage: aomi_sign tx-1 tx-2 [extra-flags...]
 aomi_sign() {
     if [ $# -eq 0 ]; then
-        echo "[aomi-workflow] usage: aomi_sign tx-1 [tx-2 ...] [--rpc-url <url>] [--eoa]" >&2
+        echo "[aomi-workflow] usage: aomi_sign tx-1 [tx-2 ...] [--rpc-url <url>]" >&2
         return 2
     fi
 
@@ -149,57 +150,57 @@ aomi_run_pending() {
 }
 
 # ============================================================================
-# Thread helpers
+# Session helpers
 # ============================================================================
 
-# List threads with topics + pending counts.
-aomi_threads() {
-    $AOMI_CMD thread list
+# List sessions with topics + pending counts.
+aomi_sessions() {
+    $AOMI_CMD session list
 }
 
-# Resume + read pending in one shell call (active-thread pointer survives).
+# Resume + read pending in one shell call (active-session pointer survives).
 #
 # Usage: aomi_resume 43
 aomi_resume() {
-    local tid="${1:?thread id required}"
-    $AOMI_CMD thread resume "$tid" > /dev/null && $AOMI_CMD tx list
+    local sid="${1:?session id required}"
+    $AOMI_CMD session resume "$sid" > /dev/null && $AOMI_CMD tx list
 }
 
-# Find a thread by topic substring and resume it.
+# Find a session by topic substring and resume it.
 #
 # Usage: aomi_resume_by_topic "bridge to Base"
 aomi_resume_by_topic() {
     local topic="${1:?topic substring required}"
-    local tid
+    local sid
 
-    tid=$($AOMI_CMD thread list \
+    sid=$($AOMI_CMD session list \
         | awk -v topic="$topic" 'index($0, topic) {print $1}' \
         | head -1 \
-        | sed 's/thread-//')
+        | sed 's/session-//')
 
-    if [ -z "$tid" ]; then
-        echo "[aomi-workflow] no thread matching: $topic" >&2
+    if [ -z "$sid" ]; then
+        echo "[aomi-workflow] no session matching: $topic" >&2
         return 1
     fi
 
-    aomi_resume "$tid"
+    aomi_resume "$sid"
 }
 
-# Clear the active thread pointer (next chat starts fresh).
+# Clear the active session pointer (next chat starts fresh).
 aomi_close() {
-    $AOMI_CMD thread close
+    $AOMI_CMD session close
 }
 
 # ============================================================================
 # Inspection / debug
 # ============================================================================
 
-# Show a brief summary of every thread state file (session-N.json) under ~/.aomi/sessions.
-aomi_thread_dump() {
+# Show a brief summary of every session state file (session-N.json) under ~/.aomi/sessions.
+aomi_session_dump() {
     local dir="${AOMI_STATE_DIR:-$HOME/.aomi}/sessions"
 
     if [ ! -d "$dir" ]; then
-        echo "[aomi-workflow] no thread state dir at $dir" >&2
+        echo "[aomi-workflow] no session state dir at $dir" >&2
         return 1
     fi
 
@@ -209,9 +210,9 @@ aomi_thread_dump() {
     done
 }
 
-# Replay the active thread's conversation (backend-sourced).
+# Replay the active session's conversation (backend-sourced).
 aomi_log() {
-    $AOMI_CMD thread log
+    $AOMI_CMD session log
 }
 
 # ============================================================================
@@ -236,14 +237,14 @@ aomi_log() {
 #   aomi_chat_new "bridge 50 USDC from Ethereum to Base via CCTP"
 #   aomi_run_pending --rpc-url https://ethereum-rpc.publicnode.com
 #
-# Recovery — pending txs from a thread that closed:
+# Recovery — pending txs from a session that closed:
 #
 #   aomi_resume_by_topic "bridge to Base"
 #   aomi_run_pending
 #
 # Inspect what's on disk:
 #
-#   aomi_thread_dump
+#   aomi_session_dump
 #   aomi_log
 
 # ============================================================================
@@ -256,8 +257,8 @@ if [ "${BASH_SOURCE[0]}" = "$0" ]; then
     echo "[aomi-workflow] sourced functions:"
     echo "  - aomi_chat / aomi_chat_new / aomi_pending / aomi_pending_passing"
     echo "  - aomi_simulate / aomi_sign / aomi_run_pending"
-    echo "  - aomi_threads / aomi_resume / aomi_resume_by_topic / aomi_close"
-    echo "  - aomi_thread_dump / aomi_log"
+    echo "  - aomi_sessions / aomi_resume / aomi_resume_by_topic / aomi_close"
+    echo "  - aomi_session_dump / aomi_log"
     echo
     echo "Usage: source ${BASH_SOURCE[0]:-$0}"
 fi

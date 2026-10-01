@@ -19,16 +19,16 @@
       "ab_error_total": 172,
       "ab_failing": 22,
       "b_failing": 14,
-      "error_files": 279,
-      "error_total": 2800,
+      "error_files": 283,
+      "error_total": 2832,
       "grade_distribution": {
-        "A": 2875,
-        "B": 326,
+        "A": 2878,
+        "B": 322,
         "C": 132,
-        "D": 154,
-        "F": 4
+        "D": 157,
+        "F": 5
       },
-      "rows": 3491
+      "rows": 3494
     }
   },
   "rows": {
@@ -42,7 +42,7 @@
       "unpersisted_values": ["tracked_files"],
       "values": {
         "plugin_agent_files": 352,
-        "raw_tracked_plugin_skill_files": 2991
+        "raw_tracked_plugin_skill_files": 2994
       }
     },
     "2": {
@@ -53,9 +53,9 @@
       "status": "measured",
       "target_status": "pass",
       "values": {
-        "distinct_names": 437,
+        "distinct_names": 438,
         "duplicate_names": [],
-        "entries": 437
+        "entries": 438
       }
     },
     "3": {
@@ -79,29 +79,29 @@
       "target_status": "informational",
       "values": {
         "agent_lane": {
-          "error_total_all_validated_surfaces": 236,
-          "fully_compliant_surfaces": 769,
+          "error_total_all_validated_surfaces": 232,
+          "fully_compliant_surfaces": 774,
           "terminal_denominator": {
             "agents": 363,
-            "files": 951,
+            "files": 952,
             "label": "agents_plus_plugin_manifests",
-            "plugin_manifests": 588
+            "plugin_manifests": 589
           },
-          "validator_reported_mixed_denominator_percent": 80.9
+          "validator_reported_mixed_denominator_percent": 81.3
         },
         "marketplace_terminal": {
-          "error_total_all_validated_surfaces": 3037,
-          "fully_compliant_surfaces": 2074,
+          "error_total_all_validated_surfaces": 3065,
+          "fully_compliant_surfaces": 2085,
           "terminal_denominator": {
             "agents": 363,
             "commands": 370,
-            "files": 4812,
+            "files": 4816,
             "label": "skills_plus_commands_plus_agents_plus_plugin_manifests",
-            "plugin_manifests": 588,
-            "skills": 3491
+            "plugin_manifests": 589,
+            "skills": 3494
           },
-          "validated_plugin_manifests": 595,
-          "validator_reported_mixed_denominator_percent": 43.1
+          "validated_plugin_manifests": 596,
+          "validator_reported_mixed_denominator_percent": 43.3
         },
         "skill_rows": {
           "a_error_total": 25,
@@ -109,16 +109,16 @@
           "ab_error_total": 172,
           "ab_failing": 22,
           "b_failing": 14,
-          "error_files": 279,
-          "error_total": 2800,
+          "error_files": 283,
+          "error_total": 2832,
           "grade_distribution": {
-            "A": 2875,
-            "B": 326,
+            "A": 2878,
+            "B": 322,
             "C": 132,
-            "D": 154,
-            "F": 4
+            "D": 157,
+            "F": 5
           },
-          "rows": 3491
+          "rows": 3494
         }
       }
     },
@@ -129,22 +129,22 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "average_score": 91.8,
+        "average_score": 91.7,
         "grade_distribution": {
-          "A": 2875,
-          "B": 326,
+          "A": 2878,
+          "B": 322,
           "C": 132,
-          "D": 154,
-          "F": 4
+          "D": 157,
+          "F": 5
         },
         "grade_percentages": {
           "A": 82.4,
-          "B": 9.3,
+          "B": 9.2,
           "C": 3.8,
-          "D": 4.4,
+          "D": 4.5,
           "F": 0.1
         },
-        "rows": 3491
+        "rows": 3494
       }
     },
     "6": {
@@ -161,7 +161,7 @@
         "b_error_total": 147,
         "b_failing": 14,
         "certified_target": 0,
-        "skill_summary_rows": 3491
+        "skill_summary_rows": 3494
       }
     },
     "7": {
@@ -210,9 +210,9 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "partial",
       "values": {
-        "agent_errors": 236,
+        "agent_errors": 232,
         "agent_files": 363,
-        "reported_compliance_percent": 80.9,
+        "reported_compliance_percent": 81.3,
         "target_errors": 0,
         "target_percent_max": 100
       }
@@ -270,12 +270,12 @@
       ],
       "status": "partial",
       "values": {
-        "declared": 3480,
+        "declared": 3483,
         "folded_scalar": 5,
         "malformed_frontmatter": 0,
         "malformed_shape": 0,
         "missing": 11,
-        "rows": 3491,
+        "rows": 3494,
         "target_malformed": 0
       }
     },
@@ -286,7 +286,7 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "distinct_values": 441,
+        "distinct_values": 445,
         "invalid_or_empty": 0,
         "target_free_text_values": 0,
         "values": [
@@ -391,7 +391,7 @@
             "value": "Cross-platform — talks WebDriver HTTP directly via Node's built-in node:https; no platform-specific binary dependency. Requires Node.js >= 18, a persistent local filesystem (the observe-decide-act loop passes state through local turn files), and ~/.kobiton/.credentials written by /automate:setup — scripts/appium.js reads that file directly and never calls the MCP getCredential tool, so it is required, not a fallback. An authenticated Kobiton MCP connection is additionally useful for device selection."
           },
           {
-            "count": 2231,
+            "count": 2234,
             "value": "Designed for Claude Code"
           },
           {
@@ -404,6 +404,26 @@
           },
           {
             "count": 1,
+            "value": "Designed for Claude Code with Bun and a local x-bug-triage-plugin checkout; operates on supplied post data and a caller-selected SQLite database."
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code with Bun, the bundled triage MCP server, and X_BEARER_TOKEN for live X intake. GitHub scanning, owner lookup, filing, severity automation, Slack delivery, and unified orchestration are not live."
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code with the x-bug-triage-plugin MCP server; current lookup tools are offline contract stubs and do not query GitHub, on-call, or service catalogs."
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code with the x-bug-triage-plugin MCP server; current repo tools generate synthetic evidence objects and perform no GitHub or repository access."
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code with the x-bug-triage-plugin MCP server; formatting is model-authored and the only exposed display helper is a syntax parser."
+          },
+          {
+            "count": 1,
             "value": "Designed for Claude Code · Output works in any surface that loads CLAUDE.md"
           },
           {
@@ -411,7 +431,7 @@
             "value": "Designed for Claude Code, Codex, Cursor, and GitHub Copilot; works in any agent that can read project files and fetch a URL."
           },
           {
-            "count": 2,
+            "count": 1,
             "value": "Designed for Claude Code, also compatible with Codex and OpenClaw"
           },
           {
@@ -425,6 +445,10 @@
           {
             "count": 1,
             "value": "Designed for Claude Code. Requires bash 3.2+ (macOS default works). Reads local Claude Code data only (~/.claude/skills, ~/.claude/agents, session history)."
+          },
+          {
+            "count": 1,
+            "value": "Designed for Claude Code. Requires bash 3.2+ (macOS default works). Reads local skill files only; no network access."
           },
           {
             "count": 1,
@@ -557,10 +581,6 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; capacity checks require account authorization and production concurrency changes require operator approval"
-          },
-          {
-            "count": 1,
-            "value": "Designed for Claude Code; claims require current sources, and CMS writes, schedules, publication, destructive edits, and credential use require content-owner approval"
           },
           {
             "count": 1,
@@ -720,10 +740,6 @@
           },
           {
             "count": 1,
-            "value": "Designed for Claude Code; file creation is local by default, while brand changes, data claims, uploads, overwrites, and publication require owner approval"
-          },
-          {
-            "count": 1,
             "value": "Designed for Claude Code; generated clients and production calls require customer-authorized contracts and credentials"
           },
           {
@@ -737,10 +753,6 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; implementation may require cloud, queue, secret-store, and Together AI access"
-          },
-          {
-            "count": 4,
-            "value": "Designed for Claude Code; internal agent-loaded skill (not user-invocable)"
           },
           {
             "count": 1,
@@ -1140,14 +1152,6 @@
           },
           {
             "count": 1,
-            "value": "Designed for Claude Code; scheduling, publication, CMS reconciliation, and backlog mutation require the content owner's approval and current platform access"
-          },
-          {
-            "count": 1,
-            "value": "Designed for Claude Code; search evidence changes over time, and backlog writes require editorial approval plus revalidation of source currency"
-          },
-          {
-            "count": 1,
             "value": "Designed for Claude Code; security review defaults to repository and fixture evidence"
           },
           {
@@ -1164,7 +1168,7 @@
           },
           {
             "count": 1,
-            "value": "Designed for Claude Code; ships with the governed-second-brain plugin. Single-user local — you own the brain. Requires qmd on PATH for the index refresh after govern."
+            "value": "Designed for Claude Code; ships with the governed-second-brain plugin. Local mode governs in-process and requires qmd 2.x on PATH for search refresh. Team mode proxies to an authenticated team brain when TEAMKB_API_URL, TEAMKB_API_TOKEN, and TEAMKB_TENANT_ID are configured."
           },
           {
             "count": 1,
@@ -1264,6 +1268,10 @@
           },
           {
             "count": 1,
+            "value": "Explicit operations require Node.js 18+, Box CLI 4.x, Box authentication, and network access. Claude Code workspace queue hooks additionally require Bash and jq. Other Agent Skills hosts can use explicit Box CLI mode."
+          },
+          {
+            "count": 1,
             "value": "JWT, referrer allowlists, domain masking, and advanced rate controls can be plan-specific"
           },
           {
@@ -1348,10 +1356,6 @@
           },
           {
             "count": 1,
-            "value": "Requires Claude Code >= v2.1.80 with a claude.ai login (Channels research preview rejects API-key-only auth), Bun >= 1.0 (Node.js fallback supported), and a Slack workspace where you can create apps. Doctor mode additionally shells out to curl and jq."
-          },
-          {
-            "count": 1,
             "value": "Requires Claude Code with the slack-channel plugin and a Slack app that already exists (tokens come from api.slack.com/apps); POSIX shell for chmod/mkdir."
           },
           {
@@ -1373,6 +1377,10 @@
           {
             "count": 18,
             "value": "Requires Node.js 20+, approved Anima API access, current Anima SDK documentation, and authorized Figma or website source access"
+          },
+          {
+            "count": 1,
+            "value": "Requires Node.js 20+, the pr-to-spec CLI on PATH, and a Git repository; remote pull-request analysis also requires GitHub read access."
           },
           {
             "count": 1,
@@ -1496,6 +1504,10 @@
           },
           {
             "count": 1,
+            "value": "Requires a current Claude Code build with Channels support and either claude.ai or Anthropic Console authentication, Bun >= 1.0 (Node.js fallback supported), and a Slack workspace where you can create apps. Doctor mode additionally uses curl and jq."
+          },
+          {
+            "count": 1,
             "value": "Requires a data owner, approved purpose, destination controls, and organization-specific legal/security policy."
           },
           {
@@ -1509,6 +1521,10 @@
           {
             "count": 1,
             "value": "Requires a legacy contract inventory, current Flexport account version context, and an authorized cutover owner."
+          },
+          {
+            "count": 1,
+            "value": "Requires a local Python CLI environment with pipx for optional installation; scans local agent skills, plugins, MCP servers, packages, and repositories without executing the target."
           },
           {
             "count": 1,
@@ -1972,10 +1988,6 @@
           },
           {
             "count": 1,
-            "value": "Requires the pr-to-spec CLI on PATH (Node.js 18+; ships with this plugin) and a git repository to analyze. Runs in Claude Code or any agent runtime with shell access."
-          },
-          {
-            "count": 1,
             "value": "Requires timing telemetry by stage, provider capacity evidence, representative workloads, and a rollbackable tuning boundary."
           },
           {
@@ -2028,6 +2040,10 @@
           },
           {
             "count": 1,
+            "value": "Supports local harness workflows including Claude Code, Codex, Copilot CLI, Cursor, Gemini CLI, Hermes, OpenClaw, OpenCode, and Antigravity; requires a local Python CLI environment with pipx for optional HOL Guard installation."
+          },
+          {
+            "count": 1,
             "value": "The live lane requires a protected environment and dedicated low-privilege test user; forked code must never receive secrets."
           },
           {
@@ -2040,7 +2056,7 @@
           },
           {
             "count": 1,
-            "value": "Verified against @aomi-labs/client v0.1.42 and the current aomi-widget/packages/client TypeScript CLI. Install globally via npm install -g @aomi-labs/client@latest, or run on demand via npx @aomi-labs/client@latest. The CLI defaults to https://api.aomi.dev; pass --backend-url https://api-staging.aomi.dev when explicitly targeting staging. viem and Solana signing dependencies are bundled by the package. Designed for claude-code; also works with Cursor, Codex CLI, Gemini, and any agent runtime that supports the Anthropic skill spec."
+            "value": "Verified against @aomi-labs/client v0.4.2. Install globally via npm install -g @aomi-labs/client@latest, or run on demand via npx @aomi-labs/client@latest. A pre-existing global aomi binary is NOT upgraded by installing this skill — check aomi --version and upgrade if it is below 0.4.2, since the account command group and local AA signing behavior changed in 0.4.x. The CLI defaults to https://chat.aomi.dev (api.aomi.dev is the legacy host). viem and Solana signing dependencies are bundled by the package. Designed for claude-code; also works with Cursor, Codex CLI, Gemini, and any agent runtime that supports the Anthropic skill spec."
           },
           {
             "count": 1,
@@ -2394,11 +2410,11 @@
           },
           {
             "cohort": "graded",
-            "value": 3491
+            "value": 3494
           },
           {
             "cohort": "marketplace-visible",
-            "value": 2900
+            "value": 2903
           }
         ],
         "distinct_numeric_answers": 5,
@@ -2506,22 +2522,23 @@
         "plugins/productivity/publishing-skills/.source.json",
         "plugins/productivity/schedule-after-usage-reset/.source.json",
         "plugins/productivity/skyvern/.source.json",
+        "plugins/security/hol-guard/.source.json",
         "plugins/testing/cli-ux-tester/.source.json",
         "plugins/testing/kobiton-automate/.source.json"
       ],
       "status": "measured",
       "values": {
-        "mirrors_shipping_license_text": 37,
+        "mirrors_shipping_license_text": 38,
         "missing_license_text": [],
-        "provenance_marked_mirrors": 37,
-        "target_shipping_license_text": 37
+        "provenance_marked_mirrors": 38,
+        "target_shipping_license_text": 38
       }
     },
     "29": {
       "cohort": "provenance-marked mirrors",
       "dimension": "Mirror SKILL.md contradicting upstream license",
       "measured_proxy": {
-        "local_source_records_with_parseable_json": 37
+        "local_source_records_with_parseable_json": 38
       },
       "reason_code": "MISSING_PINNED_UPSTREAM_LICENSE_EVIDENCE",
       "reproduce": "pnpm run measure:e1 --row=29 --stdout",
@@ -2565,6 +2582,7 @@
         "plugins/productivity/publishing-skills/.source.json",
         "plugins/productivity/schedule-after-usage-reset/.source.json",
         "plugins/productivity/skyvern/.source.json",
+        "plugins/security/hol-guard/.source.json",
         "plugins/testing/cli-ux-tester/.source.json",
         "plugins/testing/kobiton-automate/.source.json"
       ],
@@ -2649,6 +2667,8 @@
         "plugins/productivity/schedule-after-usage-reset/package.json",
         "plugins/productivity/skyvern/.source.json",
         "plugins/productivity/skyvern/package.json",
+        "plugins/security/hol-guard/.source.json",
+        "plugins/security/hol-guard/package.json",
         "plugins/testing/cli-ux-tester/.source.json",
         "plugins/testing/cli-ux-tester/package.json",
         "plugins/testing/kobiton-automate/.source.json",
@@ -2657,9 +2677,9 @@
       "status": "partial",
       "values": {
         "non_private": [],
-        "private_packages": 37,
-        "repository_package_mirrors": 37,
-        "scoped_packages": 32,
+        "private_packages": 38,
+        "repository_package_mirrors": 38,
+        "scoped_packages": 33,
         "target_publishable": 0
       }
     },
@@ -2741,6 +2761,8 @@
         "plugins/productivity/schedule-after-usage-reset/package.json",
         "plugins/productivity/skyvern/.source.json",
         "plugins/productivity/skyvern/package.json",
+        "plugins/security/hol-guard/.source.json",
+        "plugins/security/hol-guard/package.json",
         "plugins/testing/cli-ux-tester/.source.json",
         "plugins/testing/cli-ux-tester/package.json",
         "plugins/testing/kobiton-automate/.source.json",
@@ -3407,7 +3429,7 @@
       "values": {
         "adoption_percent": 1.07,
         "curated_copies": 32,
-        "plugin_skill_rows": 2991,
+        "plugin_skill_rows": 2994,
         "source_eval_specs": 32,
         "tracked_eval_specs": 64
       }

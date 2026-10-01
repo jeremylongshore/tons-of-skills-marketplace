@@ -1,13 +1,14 @@
 {
   "name": "pr-to-spec",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "The flight envelope for agentic coding. Convert PRs and local diffs into structured, agent-consumable specs with intent drift detection.",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
   },
-  "repository": "https://github.com/jeremylongshore/pr-to-spec",
-  "homepage": "https://tonsofskills.com",
+  "repository": "https://github.com/jeremylongshore/pr-to-prompt",
+  "homepage": "https://jeremylongshore.github.io/pr-to-prompt/",
   "license": "MIT",
+  "skills": "./.claude/skills/",
   "keywords": ["mcp", "pr-analysis", "code-review", "intent-drift", "agent-protocol", "spec-generation", "drift-detection"]
 }
