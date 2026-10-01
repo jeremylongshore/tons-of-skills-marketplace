@@ -15,7 +15,7 @@ description: |
   external location", "User does not have CREATE TABLE on Schema", "rotate CMK",
   "privatelink still using NAT".
 allowed-tools: Read, Write, Edit, Bash(databricks:*), Bash(terraform:*), Bash(jq:*), Bash(python3:*), Bash(bash:*), Glob, mcp__databricks-workspace-mcp__external_locations_list, mcp__databricks-workspace-mcp__storage_credentials_list
-version: 2.27.0
+version: 2.28.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code

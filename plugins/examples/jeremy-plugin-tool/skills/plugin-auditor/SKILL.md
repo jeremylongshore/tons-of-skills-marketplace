@@ -8,7 +8,7 @@ description: 'Audit automatically audits AI assistant code plugins for security 
 
   '
 allowed-tools: Read, Grep, Bash(cmd:*)
-version: 2.19.0
+version: 2.20.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

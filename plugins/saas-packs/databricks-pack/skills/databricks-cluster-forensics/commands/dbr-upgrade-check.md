@@ -1,6 +1,6 @@
 ---
 name: dbr-upgrade-check
-description: Scan a job's code and JARs for the Databricks Runtime upgrade landmines (DBR-14 CWD 500MB cap, DBR-15.1 JDK-11 removal) before bumping the runtime.
+description: Scan a job's code and JARs for known Databricks Runtime upgrade landmines
 aliases: [dbr-check, runtime-upgrade-check]
 ---
 

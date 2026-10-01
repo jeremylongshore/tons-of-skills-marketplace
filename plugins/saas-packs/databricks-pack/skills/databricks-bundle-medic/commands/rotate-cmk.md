@@ -1,6 +1,6 @@
 ---
 name: rotate-cmk
-description: Run the customer-managed-key rotation runbook for a Databricks workspace — drain all compute idempotently, rotate the key per cloud, then resume exactly what was drained.
+description: Run the CMK rotation runbook - drain all Databricks compute, rotate, resume
 aliases: [cmk-rotation, drain-and-rotate]
 ---
 

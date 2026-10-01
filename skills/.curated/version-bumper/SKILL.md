@@ -7,7 +7,7 @@ description: 'Execute automatically handles semantic version updates across plug
 
   '
 allowed-tools: Read, Write, Edit, Grep, Bash(cmd:*)
-version: 2.19.0
+version: 2.20.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

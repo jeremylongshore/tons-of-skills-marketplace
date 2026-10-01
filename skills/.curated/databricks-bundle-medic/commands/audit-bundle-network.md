@@ -1,6 +1,6 @@
 ---
 name: audit-bundle-network
-description: Audit a Databricks data-plane VPC for the PrivateLink cost leak — missing S3/STS/Kinesis endpoints that still traverse the NAT — and emit remediation Terraform.
+description: Audit a Databricks VPC for missing PrivateLink endpoints that leak NAT cost
 aliases: [audit-privatelink-cost, vpc-endpoint-audit]
 ---
 

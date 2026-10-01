@@ -1,6 +1,6 @@
 ---
 name: audit-photon-fallback
-description: Find Databricks queries paying the Photon DBU premium while silently falling back to the Spark engine, and surface the plan seam + UDF-rewrite fix.
+description: Find Databricks queries that fall back to Spark despite Photon's premium
 aliases: [photon-audit, photon-fallback]
 ---
 

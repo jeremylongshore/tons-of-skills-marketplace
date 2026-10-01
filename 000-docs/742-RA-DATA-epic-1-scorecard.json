@@ -91,7 +91,7 @@
         },
         "marketplace_terminal": {
           "error_total_all_validated_surfaces": 3037,
-          "fully_compliant_surfaces": 2064,
+          "fully_compliant_surfaces": 2074,
           "terminal_denominator": {
             "agents": 363,
             "commands": 370,
@@ -101,7 +101,7 @@
             "skills": 3491
           },
           "validated_plugin_manifests": 595,
-          "validator_reported_mixed_denominator_percent": 42.9
+          "validator_reported_mixed_denominator_percent": 43.1
         },
         "skill_rows": {
           "a_error_total": 25,

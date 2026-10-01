@@ -1,6 +1,6 @@
 {
   "name": "jeremy-plugin-tool",
-  "version": "2.19.0",
+  "version": "2.20.0",
   "description": "Ultimate plugin management toolkit with 4 auto-invoked Skills for creating, validating, auditing, and versioning plugins in the claude-code-plugins marketplace",
   "author": {
     "name": "Claude Code Plugins",

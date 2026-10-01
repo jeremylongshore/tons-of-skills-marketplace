@@ -8,7 +8,7 @@ description: |
   Trigger with "databricks cost", "why is my databricks bill",
   "find wasted spend", "cost leak".
 allowed-tools: Read, Write, Edit, Bash(databricks:*), Bash(jq:*), Glob, mcp__databricks-workspace-mcp__clusters_get, mcp__databricks-workspace-mcp__clusters_events, mcp__databricks-workspace-mcp__clusters_list, mcp__databricks-workspace-mcp__instance_pools_list, mcp__databricks-workspace-mcp__pipelines_get
-version: 2.27.0
+version: 2.28.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code

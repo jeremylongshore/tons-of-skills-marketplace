@@ -1,6 +1,6 @@
 {
   "name": "databricks-pack",
-  "version": "2.27.0",
+  "version": "2.28.0",
   "description": "5 live-detection Databricks skills — cost-leak-hunter, cluster-forensics, uc-migration-pilot, streaming-guardian, bundle-medic — backed by the databricks-workspace-mcp server.",
   "author": {
     "name": "Jeremy Longshore",

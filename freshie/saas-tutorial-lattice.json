@@ -4,10 +4,10 @@
   "semantics": "Family-name matches are review candidates, not automatic quality or retirement verdicts.",
   "sources": {
     "catalog": ".claude-plugin/marketplace.extended.json",
-    "catalog_sha256": "6934a9c6bcee1d66b726dd3636ef0022670225514abc72f90c0ae172efd5b9db",
+    "catalog_sha256": "bb4c74ccfc668ff67232ac5a4185c18a28943656709c81b01dd6572fd64ced65",
     "curated_manifest": "skills/.curated/MANIFEST.json",
     "curated_manifest_sha256": "7dbacaf80d7f702e9386fcaafa836d340c279e98c7f4e18096116fea92fefd40",
-    "tracked_inventory_sha256": "7a513f93899c2c62ca5703622d0fe15c28f0839720d824cdac8cd82fd641cf6f"
+    "tracked_inventory_sha256": "b69339b6ec1bb901502877997665b7071806bce74f360e71c7cba9eaaa18526a"
   },
   "family_definition": [
     "advanced-troubleshooting",
@@ -11276,14 +11276,14 @@
     {
       "name": "databricks-pack",
       "source": "plugins/saas-packs/databricks-pack",
-      "version": "2.27.0",
+      "version": "2.28.0",
       "verification": {
         "grade": "A",
         "score": 91
       },
       "npm_candidate": {
         "name": "@intentsolutionsio/databricks-pack",
-        "version": "2.0.0",
+        "version": "2.0.1",
         "private": false,
         "files_include_skills": true,
         "live_registry_check": "REQUIRED_BEFORE_MUTATION"
@@ -11292,7 +11292,7 @@
       "ownership": {
         "status": "first-party"
       },
-      "pack_inventory_sha256": "f8f27a21570ade9a088ee24f8bf4e08e23d05ed6d58555a0a7adcd89011eea4d",
+      "pack_inventory_sha256": "a23a1c04cc801f2ee0716fc0e639c9545fbf72b9166f7f3ebf0fd9e50e43277d",
       "candidate_set_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "skill_count": 5,
       "catalog_declared_skill_count": 5,

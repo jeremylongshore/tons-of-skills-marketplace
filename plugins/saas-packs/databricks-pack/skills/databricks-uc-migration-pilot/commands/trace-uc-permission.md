@@ -1,6 +1,6 @@
 ---
 name: trace-uc-permission
-description: Trace Unity Catalog's two-level access model for a user + error and return the exact missing group membership, grant, and who must run it.
+description: Trace a Unity Catalog permission error to the exact missing grant or group
 aliases: [uc-perm, trace-permission]
 ---
 

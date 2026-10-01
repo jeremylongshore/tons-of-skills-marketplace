@@ -8256,7 +8256,7 @@
         "email": "[email protected]"
       },
       "authorType": "official",
-      "version": "2.19.0",
+      "version": "2.20.0",
       "isFeatured": true,
       "isNew": false,
       "badges": [],
@@ -11129,7 +11129,7 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "2.27.0",
+      "version": "2.28.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -32191,7 +32191,7 @@
         "mcp__databricks-workspace-mcp__storage_credentials_list"
       ],
       "compatibleWith": [],
-      "version": "2.27.0",
+      "version": "2.28.0",
       "parentPlugin": {
         "name": "databricks-pack",
         "category": "saas-packs"
@@ -32219,7 +32219,7 @@
         "mcp__databricks-workspace-mcp__clusters_list"
       ],
       "compatibleWith": [],
-      "version": "2.27.0",
+      "version": "2.28.0",
       "parentPlugin": {
         "name": "databricks-pack",
         "category": "saas-packs"
@@ -32247,7 +32247,7 @@
         "mcp__databricks-workspace-mcp__pipelines_get"
       ],
       "compatibleWith": [],
-      "version": "2.27.0",
+      "version": "2.28.0",
       "parentPlugin": {
         "name": "databricks-pack",
         "category": "saas-packs"
@@ -32275,7 +32275,7 @@
         "mcp__databricks-workspace-mcp__pipelines_get"
       ],
       "compatibleWith": [],
-      "version": "2.27.0",
+      "version": "2.28.0",
       "parentPlugin": {
         "name": "databricks-pack",
         "category": "saas-packs"
@@ -32300,7 +32300,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "2.27.0",
+      "version": "2.28.0",
       "parentPlugin": {
         "name": "databricks-pack",
         "category": "saas-packs"
@@ -62815,7 +62815,7 @@
         "Bash(cmd:*)"
       ],
       "compatibleWith": [],
-      "version": "2.19.0",
+      "version": "2.20.0",
       "parentPlugin": {
         "name": "jeremy-plugin-tool",
         "category": "examples"
@@ -62836,7 +62836,7 @@
         "Bash(cmd:*)"
       ],
       "compatibleWith": [],
-      "version": "2.19.0",
+      "version": "2.20.0",
       "parentPlugin": {
         "name": "jeremy-plugin-tool",
         "category": "examples"
@@ -62856,7 +62856,7 @@
         "Bash(cmd:*)"
       ],
       "compatibleWith": [],
-      "version": "2.19.0",
+      "version": "2.20.0",
       "parentPlugin": {
         "name": "jeremy-plugin-tool",
         "category": "examples"
@@ -77455,7 +77455,7 @@
         "Bash(cmd:*)"
       ],
       "compatibleWith": [],
-      "version": "2.19.0",
+      "version": "2.20.0",
       "parentPlugin": {
         "name": "jeremy-plugin-tool",
         "category": "examples"

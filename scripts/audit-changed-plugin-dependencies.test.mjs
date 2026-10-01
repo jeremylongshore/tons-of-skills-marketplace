@@ -503,6 +503,47 @@ test('pnpm commands disable executable hooks and pin the trusted audit registry'
   assert.ok(calls.every((call) => call.options.env.COREPACK_NPM_REGISTRY === undefined));
 });
 
+test('blocking mode fails a changed package with a high or critical advisory', () => {
+  // validate-plugins.yml passes --blocking since the claude-4l09.6 report-only
+  // deadline lapsed (2026-10-01). Pin that the same finding report-only mode
+  // tolerates is a hard failure here.
+  const repoRoot = fixture();
+  const packageInfo = {
+    root: 'plugins/skill-enhancers/vulnerable',
+    manifest: { dependencies: { risky: '1.0.0' } },
+  };
+  writePackage(repoRoot, packageInfo.root, packageInfo.manifest, 'pnpm-lock.yaml');
+  const audit = JSON.stringify({
+    vulnerabilities: {
+      risky: {
+        severity: 'high',
+        via: [
+          {
+            source: 67890,
+            severity: 'high',
+            title: 'prototype pollution',
+            url: 'https://github.com/advisories/GHSA-test-5678',
+          },
+        ],
+        nodes: ['node_modules/risky'],
+      },
+    },
+  });
+  const result = auditStandalonePackage({
+    repoRoot,
+    packageInfo,
+    run: scriptedRunner([
+      { status: 0, stdout: '' },
+      { status: 1, stdout: audit },
+      { status: 1, stdout: audit },
+    ]),
+    reportOnly: false,
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.reportOnlyFailure, false);
+  assert.ok(result.findings.some((finding) => finding.id === 'GHSA-test-5678'));
+});
+
 test('an audit transport or registry failure cannot masquerade as a clean report-only result', () => {
   const repoRoot = fixture();
   const packageInfo = {

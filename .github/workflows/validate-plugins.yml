@@ -569,13 +569,20 @@ jobs:
               # the honest middle — audit at --audit-level=high and SURFACE
               # findings as a CI ::warning:: annotation, without failing.
               #
-              # REPORT-ONLY-UNTIL: 2026-09-30 (npm-audit policy revisit; #927)
-              # When this lapses, check-ci-deadlines.py fails the build — revisit
-              # whether to flip to blocking (e.g. scoped to the changed plugin's
-              # deps only) or extend with a documented reason.
+              # REPORT-ONLY-UNTIL: 2026-10-31 (whole-corpus npm-audit inventory; #927)
+              # 2026-10-01 revisit: the "scoped to the changed plugin's deps"
+              # block now exists. The changed-standalone-package audit below runs
+              # with --blocking, so a PR can no longer add or change a vulnerable
+              # plugin dependency graph. This whole-corpus loop stays a loud
+              # inventory because blocking it would fail PRs on state they never
+              # touched. Measured 2026-10-01: exactly one plugin reports
+              # high/critical, the external mirror plugins/mcp/pr-to-spec (4).
+              # Its fix lands upstream and arrives through the weekly sync. By
+              # this date, either that mirror is clean and the loop flips to
+              # blocking, or the extension is re-justified with a fresh count.
               if command -v npm &> /dev/null; then
                 if ! npm audit --production --audit-level=high; then
-                  echo "::warning file=$dir/package.json::npm audit found high/critical advisories in $dir — report-only until 2026-09-30 (npm-audit policy, #927)"
+                  echo "::warning file=$dir/package.json::npm audit found high/critical advisories in $dir — report-only until 2026-10-31 (whole-corpus npm-audit inventory, #927)"
                 fi
               fi
 
@@ -587,9 +594,10 @@ jobs:
       # Non-workspace plugin packages are installed and tested in isolation by
       # the widened loop below, so the root lock cannot attest their dependency
       # graph. Audit only package roots changed by this PR/push: a missing or
-      # stale package-local lock blocks immediately, while high/critical audit
-      # findings remain loud report-only signals under the existing deadline.
-      # REPORT-ONLY-UNTIL: 2026-09-30 (standalone package audit policy; claude-4l09.6)
+      # stale package-local lock blocks, and since 2026-10-01 (report-only
+      # deadline from claude-4l09.6 reached) so do high/critical audit findings:
+      # the step passes --blocking. Scoping to changed packages is what makes
+      # blocking fair, because a PR fails only on a dependency graph it touched.
       - name: Test changed standalone plugin dependency audit
         run: node --test scripts/audit-changed-plugin-dependencies.test.mjs
 
@@ -622,7 +630,7 @@ jobs:
             echo "::error::Unsupported audit event without a complete comparison range: $AUDIT_EVENT"
             exit 1
           fi
-          node scripts/audit-changed-plugin-dependencies.mjs --base="$audit_base" --diff-mode="$audit_diff_mode"
+          node scripts/audit-changed-plugin-dependencies.mjs --base="$audit_base" --diff-mode="$audit_diff_mode" --blocking
 
   # Blueprint 727 E6.4/E6.7: R1 plus the post-observation R2/R4 monotone metric
   # checks need an independently visible, always-reporting blocking job.  It
@@ -1061,15 +1069,23 @@ jobs:
           # since GROWN to 317 — the campaign did NOT finish and this gate was
           # never flipped. Re-tracked under #927.
           #
-          # REPORT-ONLY-UNTIL: 2026-09-30 (frontmatter --strict campaign; #927)
+          # 2026-10-01 re-measure: 728 frontmatter items, 9 errors (down from 317).
+          # Every remaining error is in an external mirror, which is fixed
+          # upstream and never edited locally: brand-forge 4, x-bug-triage 4,
+          # hermes-tweet 2 (one file counted twice), hyperflow 1. Making this
+          # blocking now would fail every PR on mirror state no PR can change,
+          # so the date is extended. The 10 first-party errors were fixed in the
+          # same PR that set this date.
+          #
+          # REPORT-ONLY-UNTIL: 2026-10-31 (frontmatter --strict; 9 mirror-only errors; #927)
           # The check-ci-deadlines job (above) FAILS the build once this date
           # passes, so this mitigation cannot rot silently into a permanent
           # bypass. Before the date: clear the errors and flip `|| true` →
           # `|| exit 1` in one PR (the real fix), or extend the date with a
           # documented reason. Flipping now would red-wall every PR (317 errors).
-          echo "Running ccpi validate (reporting mode until frontmatter cleanup — see #927; 317 errors as of 2026-07-01)..."
+          echo "Running ccpi validate (reporting mode until frontmatter cleanup — see #927; 9 mirror-only errors as of 2026-10-01)..."
           node packages/cli/dist/index.js validate --strict || true
-          echo "✅ ccpi validate complete (non-blocking; report-only until 2026-09-30 — see check-ci-deadlines)"
+          echo "✅ ccpi validate complete (non-blocking; report-only until 2026-10-31 — see check-ci-deadlines)"
 
           echo "✅ All validation tests passed"
 

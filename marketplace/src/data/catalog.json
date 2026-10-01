@@ -5730,7 +5730,7 @@
       "name": "jeremy-plugin-tool",
       "displayName": "jeremy plugin tool",
       "description": "Production-grade plugin creator with marketplace-validated quality standards. 4 Agent Skills automate creating, validating, auditing, and versioning plugins in the claude-code-plugins marketplace",
-      "version": "2.19.0",
+      "version": "2.20.0",
       "category": "examples",
       "keywords": [
         "skills",
@@ -8270,7 +8270,7 @@
       "name": "databricks-pack",
       "displayName": "databricks pack",
       "description": "5 live-detection Databricks skills — cost-leak-hunter, cluster-forensics, uc-migration-pilot, streaming-guardian, bundle-medic — backed by the databricks-workspace-mcp server (npm). The v2 rebuild: real workspace detection over static docs.",
-      "version": "2.27.0",
+      "version": "2.28.0",
       "category": "saas-packs",
       "keywords": [
         "databricks",

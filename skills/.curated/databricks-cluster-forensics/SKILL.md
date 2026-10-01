@@ -10,7 +10,7 @@ description: |
   "databricks cluster won't start", "cluster failed", "why is my cluster slow",
   "NPIP_TUNNEL_SETUP_FAILURE", "databricks runtime upgrade", "photon not helping".
 allowed-tools: Read, Write, Edit, Bash(databricks:*), Bash(jq:*), Bash(python3:*), Bash(bash:*), Glob, mcp__databricks-workspace-mcp__clusters_get, mcp__databricks-workspace-mcp__clusters_events, mcp__databricks-workspace-mcp__clusters_list
-version: 2.27.0
+version: 2.28.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code
