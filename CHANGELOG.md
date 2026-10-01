@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-10-01
+
+### Changed
+
+- **`@intentsolutions/jrig-cli` 0.2.0 → 0.3.0** (root devDep, exact pin). Brings
+  eval headroom reporting (`metadata.headroom`), `j-rig scaffold-spec --draft`,
+  `j-rig eval --require-reviewed`, and replacements for the retired Groq and NVIDIA
+  default models; it now resolves `@intentsolutions/refiner` 0.4.0. The CLI depends on
+  exactly `@intentsolutions/core@0.10.0`, the kernel already pinned here, so this is a
+  coupling update only: no second kernel copy, no DR-049 soak re-baseline. The lockfile
+  also moves `plugins/mcp/x-bug-triage`'s MCP SDK zod peer from 4.5.4 to 4.6.5 (pnpm
+  dedupes to the copy jrig-cli brings). `.harness-hash` re-pinned for `package.json`.
+
 ## 2026-09-27
 
 - **docs(docs-governance):** file `000-docs/815`, the incident record for the
