@@ -252,7 +252,7 @@ The validator itself does a kernel-loaded **shadow read** of `ALWAYS_REQUIRED` (
 
 **The kernel pin and the authority flip are two SEPARATE axes — do not conflate them.** The pin is _intended_ to track the latest published kernel; bumping it keeps the shadow lane reading a current, byte-frozen `authoring/v1` contract and is a routine governance/coupling update, not an authority change.
 
-> **Current coupling receipt (2026-08-30).** The root pins are exactly `@intentsolutions/core@0.10.0` and `@intentsolutions/jrig-cli@0.3.0` (bumped 2026-10-01); jrig-cli 0.3.0 itself depends on exactly `core@0.10.0`, so the lockfile resolves one kernel version natively, and the root override stays as a guard. `@intentsolutions/audit-harness` is exactly `1.4.0` (verify against `package.json`, not this line — it has drifted before). The pin bump is complete, but it is **not** an authority flip: both kernel lanes remain advisory and `validate-skills-schema.py` remains authoritative.
+> **Current coupling receipt (2026-10-01).** The root pins are exactly `@intentsolutions/core@0.10.0` and `@intentsolutions/jrig-cli@0.3.0` (bumped 2026-10-01); jrig-cli 0.3.0 itself depends on exactly `core@0.10.0`, so the lockfile resolves one kernel version natively, and the root override stays as a guard. `@intentsolutions/audit-harness` is exactly `1.4.0` (verify against `package.json`, not this line — it has drifted before). The pin bump is complete, but it is **not** an authority flip: both kernel lanes remain advisory and `validate-skills-schema.py` remains authoritative.
 
 What stays frozen is the **authority**: do **NOT** flip the kernel-shadow lane from advisory to authoritative (blocking) until ALL of these hold:
 
