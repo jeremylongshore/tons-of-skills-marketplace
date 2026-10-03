@@ -34,7 +34,8 @@
   },
   "overrides": {
     "svgo": "4.1.0",
-    "brace-expansion@2": "2.1.7"
+    "brace-expansion@2": "2.1.7",
+    "devalue": "5.9.3"
   },
   "engines": {
     "node": ">=22.12.0"

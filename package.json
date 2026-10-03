@@ -120,6 +120,7 @@
       "ajv>fast-uri": "3.1.7",
       "axios": "1.20.0",
       "browserslist": "4.28.7",
+      "devalue": "5.9.3",
       "esbuild": "0.28.2",
       "express@4.22.2>body-parser": "1.20.6",
       "express@5.2.1>body-parser": "2.3.0",
