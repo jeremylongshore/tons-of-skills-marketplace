@@ -93,6 +93,13 @@
 
         let websocket;
 
+        // Strips CR/LF/control characters from a server-provided value before
+        // it is written to the console, preventing log-injection / forged
+        // console entries.
+        function sanitizeForLog(value) {
+            return String(value).replace(/[\r\n\t\x00-\x1f\x7f]/g, '');
+        }
+
         function connectWebSocket() {
             websocket = new WebSocket(websocketUrl);
 
@@ -102,7 +109,7 @@
             };
 
             websocket.onmessage = (event) => {
-                console.log('Received message:', event.data);
+                console.log('Received message:', sanitizeForLog(event.data));
                 appendMessage('Server: ' + event.data);
             };
 

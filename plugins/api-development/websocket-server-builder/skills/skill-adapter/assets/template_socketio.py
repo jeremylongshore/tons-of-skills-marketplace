@@ -9,11 +9,29 @@ and follows PEP 8 style guidelines.
 
 import os
 import logging
+import re
 import socketio
 from aiohttp import web
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+_CONTROL_CHARS = re.compile(r"[\r\n\t\x00-\x1f\x7f]")
+
+
+def sanitize_for_log(value):
+    """
+    Strips CR/LF/control characters from a user-controlled value before it is
+    written to the log, preventing log-injection / forged log entries.
+
+    Args:
+        value: Any value destined for a log message.
+
+    Returns:
+        str: A single-line, control-character-free representation of value.
+    """
+    return _CONTROL_CHARS.sub("", str(value))
+
 
 # Initialize Socket.IO server
 sio = socketio.AsyncServer(async_mode="aiohttp", cors_allowed_origins="*")
@@ -62,7 +80,7 @@ async def my_message(sid, message):
         sid (str): Session ID of the client.
         message (str): The received message.
     """
-    logging.info(f"Received message from {sid}: {message}")
+    logging.info(f"Received message from {sanitize_for_log(sid)}: {sanitize_for_log(message)}")
     try:
         await sio.emit("my_response", {"data": message}, room=sid)
     except Exception as e:
@@ -78,7 +96,7 @@ async def my_broadcast_event(sid, message):
         sid (str): Session ID of the client.
         message (str): The message to broadcast.
     """
-    logging.info(f"Received broadcast request from {sid}: {message}")
+    logging.info(f"Received broadcast request from {sanitize_for_log(sid)}: {sanitize_for_log(message)}")
     try:
         await sio.emit("my_response", {"data": message})  # Broadcast to all clients
     except Exception as e:
@@ -94,7 +112,7 @@ async def join_room(sid, room):
         sid (str): Session ID of the client.
         room (str): The room to join.
     """
-    logging.info(f"Client {sid} joining room {room}")
+    logging.info(f"Client {sanitize_for_log(sid)} joining room {sanitize_for_log(room)}")
     try:
         sio.enter_room(sid, room)
         await sio.emit("my_response", {"data": "Entered room: " + room}, room=sid)
@@ -111,7 +129,7 @@ async def leave_room(sid, room):
         sid (str): Session ID of the client.
         room (str): The room to leave.
     """
-    logging.info(f"Client {sid} leaving room {room}")
+    logging.info(f"Client {sanitize_for_log(sid)} leaving room {sanitize_for_log(room)}")
     try:
         sio.leave_room(sid, room)
         await sio.emit("my_response", {"data": "Left room: " + room}, room=sid)
@@ -134,9 +152,9 @@ async def index(request):
             return web.Response(content_type="text/html", text=f.read())
     except FileNotFoundError:
         return web.Response(status=404, text="index.html not found")
-    except Exception as e:
-        logging.error(f"Error serving index.html: {e}")
-        return web.Response(status=500, text=f"Internal Server Error: {e}")
+    except Exception:
+        logging.exception("Error serving index.html")
+        return web.Response(status=500, text="Internal Server Error")
 
 
 if __name__ == "__main__":
