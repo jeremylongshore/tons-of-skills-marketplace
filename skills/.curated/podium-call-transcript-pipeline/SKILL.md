@@ -10,7 +10,7 @@ description: Durable, idempotent ingest pipeline for Podium call transcripts —
   webhook", "podium transcript ingest", "podium transcript pii redact", "podium transcript
   chunking", "podium transcript queue".
 allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(jq:*), Bash(python3:*), Bash(redis-cli:*), Grep
-version: 2.10.0
+version: 2.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 compatibility: Designed for Claude Code
