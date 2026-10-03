@@ -1143,6 +1143,9 @@ jobs:
       - name: Validate Internal Links (dist)
         run: node marketplace/scripts/validate-internal-links.mjs
 
+      - name: Check retired-path redirect map is current
+        run: node marketplace/scripts/build-retired-path-redirects.mjs --check
+
       - name: Run marketplace regression tests
         run: >-
           node --test

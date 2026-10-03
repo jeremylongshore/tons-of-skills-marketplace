@@ -2312,6 +2312,7 @@
       ],
       "reproduce": "pnpm run measure:e1 --row=22 --stdout",
       "source": [
+        "marketplace/scripts/build-retired-path-redirects.mjs",
         "marketplace/scripts/discover-skills.mjs",
         "marketplace/scripts/generate-unified-search.mjs",
         "marketplace/scripts/sync-catalog.mjs"
@@ -2324,6 +2325,12 @@
             "path": "marketplace/src/data/catalog.json",
             "producers": ["marketplace/scripts/sync-catalog.mjs"],
             "wired_checkers": ["marketplace/scripts/sync-catalog.mjs"]
+          },
+          {
+            "content_drift_gate": true,
+            "path": "marketplace/src/data/retired-path-redirects.json",
+            "producers": ["marketplace/scripts/build-retired-path-redirects.mjs"],
+            "wired_checkers": ["marketplace/scripts/build-retired-path-redirects.mjs"]
           },
           {
             "content_drift_gate": true,
@@ -2360,6 +2367,7 @@
       ],
       "source": [
         "marketplace/src/data/catalog.json",
+        "marketplace/src/data/retired-path-redirects.json",
         "marketplace/src/data/skills-catalog.json",
         "marketplace/src/data/skills-index.json",
         "marketplace/src/data/unified-search-index.json"
