@@ -1,44 +1,47 @@
 ---
 title: "Rehearse the deploy, not the test suite"
-description: "A production deploy rehearsal runs the deploy as the deploy user. It caught a folder-permission bug in catalyst-onboarding the test suite could not."
+description: "A production deploy rehearsal runs the real deploy scripts against the production Compose file. In catalyst-onboarding it caught a database data-directory permission bug the test suite could not."
 date: "2026-10-01"
 tags: ["deployment", "release-engineering", "devops", "production", "rehearsal"]
 featured: false
 canonical: "https://startaitools.com/posts/rehearse-before-production-catches-what-tests-cant/"
 ---
+
+*Correction, 2026-10-03: An earlier version of this post misdescribed the bug and the rehearsal. The bug was in the production Compose file, not in a folder the deploy script created: `PGDATA` pointed at a subdirectory of a bind mount whose root was owned by root with mode 0700, so the postgres user could not reach it and the database never became healthy. The rehearsal caught it on its first attempt, outside the scripted steps. The rehearsal had ten steps, not six cases plus a seventh, and two of the cases (the failed redeploy and the bad version) were described wrongly. The run used real SOPS decryption with a throwaway key, not the production secrets. It took about nine minutes, not an hour, and the 4 a.m. page described in the cost section never happened; that section is now framed as a possibility. The record shows one pre-production review, not two independent reviewers, and the third should-fix item was a runbook note, not image versioning. The details below have been corrected.*
+
 ## The finding
 
-A ten-scenario rehearsal on the dev box caught a real production-breaking bug before it left the staging network. The bug was a folder-permission mistake in the deploy script: the directory the database process needed to write to was created with the wrong owner, and the database would not have started on the VPS. The test suite had nothing to say about it. The rehearsal said it on attempt two.
+A ten-step deploy rehearsal on the dev box caught a production-breaking bug before production. The production Compose file pointed Postgres's data directory at a subfolder of a root-owned, locked-down mount, and the database never started. Had it shipped, the database would not have started on the VPS either. The test suite had nothing to say about it. The rehearsal's first attempt failed on it.
 
 The rest of this post is the discipline behind that rehearsal: what to script, what to run, and what to refuse to merge until the rehearsal passes.
 
 ## What the rehearsal actually was
 
-A production deploy package for `catalyst-onboarding` had shipped a full self-hosted runner: a deploy check, a staging test, a restore drill. The CI was green. Two independent reviewers still stopped the PR with two blockers and three should-fix items:
+A production deploy package for `catalyst-onboarding` had shipped a full self-hosted runner: a deploy check, a staging test, a restore drill. The CI was green. A pre-production review still stopped the PR with two blockers and three should-fix items:
 
 - Rollback after migration. The readiness probe would refuse to come up unless the schema matched the migration head baked into the image. Roll back a migrating deploy and the app is half-switched, reading a new schema from an old binary.
 - Backup step with no time limit. The new database backup command had no timeout, so a wedged backup could hang the nightly server backup, which would also hang, which would also fail the morning check.
 
-The three should-fix items: a backdoor that could turn email sending on without a recorded approval, a failed redeploy that would roll back onto the same broken version, and image versioning hygiene (no tag that pinned the version, so the runner could drift).
+The three should-fix items: a path that could turn an outward flag on (document signing, which emails links) without a recorded approval, a failed redeploy that would roll back onto the same broken version, and the runbook did not say that Docker keeps env-file values in the container's stored config.
 
-The builder fixed all five. CI was green again. Then the real test: the deploy package ran, in full, on the dev box, with the real encrypted secrets, against a clean staging instance. The cases:
+The builder fixed all five. CI was green again. Then the real test: the deploy package ran, in full, on the dev box, with real SOPS decryption (a throwaway key), as a non-root user, on paths kept off the production ones. The steps, condensed:
 
-1. Deploy. Upgrade with a database change. Roll back. Verify the older image accepts the new schema exactly one revision forward, and the new image refuses the old one.
-2. Sending switch. Try to turn email sending on without the recorded approval. The deploy script refused.
-3. Failed redeploy. Cut the network mid-deploy. The runner stopped safely. The previous version stayed up.
-4. Bad version. Push a tag that does not exist. The deploy rolled itself back inside the time budget.
-5. Backup under a locked database. The backup step gave up in 3 seconds. The nightly backup continued.
-6. Restore drill from the encrypted dump. Rebuilt the database from the backup, verified row counts, swapped it in, and rolled the change back cleanly.
+1. Deploy. Upgrade with a database change. Roll back. Verify the older image accepts the new schema exactly one revision forward, then deploy forward again.
+2. Outward flag. Try to turn document signing on without the recorded approval. The Compose wrapper refused and the running app was untouched.
+3. Failed redeploy. Turn the signing flag on with approval but without the signing config, so the new web cannot start. The deploy stopped the worker, raised an urgent alert and did not roll back onto the same broken image. Turning the flag off and redeploying brought it back.
+4. Broken version. Deploy a version that migrates the schema and whose web app crashes on import. The deploy rolled itself back to the previous version.
+5. Backup under a locked database. The backup step gave up in 3.4 seconds (and in 8.2 seconds under a session timeout) and kept the previous good dump. A failed backup hook does not stop the nightly backup.
+6. Restore drill. After the lock released, a normal dump ran, and the restore drill restored it into a disposable database and verified it.
 
-And case seven is the one I remember. The deploy script, on a clean target directory, created the data folder, the journal folder, the temp folder, and the upload folder. The data folder had the wrong owner. The deploy script wrote the right thing, then the systemd unit started, and the database process died on the first write with permission denied, on a path the test suite had never touched. The test suite ran as the test user, which owned everything.
+The bug that mattered was not one of those steps. The first rehearsal attempt never got that far. The production Compose file set `PGDATA` to a subfolder of the bind mount. On the server that mount root is owned by root with mode 0700, so the postgres user cannot even enter it, and the database never became healthy. The fix made the bind mount itself the data directory, which the Postgres image's entrypoint takes ownership of.
 
-No test would have caught it. All four layers ran as one identity. The unit tests, the integration tests, and the CI runner all used the same test-user. The deploy script runs as a different user, on a fresh directory, with permissions the test environment never reproduced. The rehearsal reproduces them, because the rehearsal runs the deploy script the way production will.
+Nothing in the test suite creates that mount, so nothing in the test suite could see it. The rehearsal could, because it runs the production Compose file through the real deploy scripts the way production will.
 
 That is the lesson. Tests check what the code does. The rehearsal checks what the deploy does. Those are not the same question.
 
 ## Why the discipline exists
 
-A deploy is not a single command. It is a sequence of side effects: a directory created, a service file installed, a port opened, a database migration applied, a health check called, the old version stopped, the new version started, the load balancer re-pointed, the old version left running for a window in case the new one is bad. Every one of those steps has a small chance of failing in a way no test layer exercises. A unit test cannot simulate a half-applied schema migration because it sees a single schema, applied once, never rolled back. An integration test cannot simulate a deploy that creates a directory owned by a different user because the integration test assumes the same identity throughout. The rehearsal is the only place where the deploy runs the way it will run, with the permissions it will have, against the filesystem state it will have to create.
+A deploy is not a single command. It is a sequence of side effects: a directory created, a service file installed, a port opened, a database migration applied, a health check called, the old version stopped, the new version started, the load balancer re-pointed, the old version left running for a window in case the new one is bad. Every one of those steps has a small chance of failing in a way no test layer exercises. A unit test cannot simulate a half-applied schema migration because it sees a single schema, applied once, never rolled back. An integration test does not mount the production data directory with the production owner and mode, so it cannot see a database that is unable to reach its own data. The rehearsal is the only place where the deploy runs the way it will run, with the permissions it will have, against the filesystem state it will have to create.
 
 ## What the rehearsal script should cover
 
@@ -55,13 +58,13 @@ If the rehearsal cannot script one of those cases, the deploy is not ready.
 
 ## The cost
 
-The full rehearsal took about an hour, on top of the time spent on the original PR. That is real time. The cost of not running the rehearsal, on a single production-breaking bug, was a 4 a.m. page, a manual restore, and an apology to whoever had to fix the database on the VPS at 4 a.m. The trade is not close.
+The rehearsal ran in about nine minutes, on top of the time spent on the review fixes. Without it, the first production deploy would have come up with a database that could not start. That is a possibility, not something that happened, but it is the kind of failure that lands at a bad hour and ends in a manual fix on the server. The trade is not close.
 
 ## Use this
 
 - Rehearse the deploy, not the test. The deploy script creates the production state. The test suite only checks the code. If they disagree, the deploy script wins, and the rehearsal is the only way to find that out before production.
-- Script the cases the test suite cannot reach. New directories with the deploy user's permissions. Migrations applied and rolled back. Sending switches that need an approval record. The backup step under a locked database. Each of these is one bug the rehearsal catches and the test suite never will.
-- Block the merge on the rehearsal, not on the test suite. Green CI is necessary, not sufficient. The deploy package is not done until it has run end to end, with the real encrypted secrets, against a clean staging instance, and every case in the script has a recorded outcome.
+- Script the cases the test suite cannot reach. The production data directory with its real owner and mode. Migrations applied and rolled back. Outward flags that need an approval record. The backup step under a locked database. Each of these is one bug the rehearsal catches and the test suite never will.
+- Block the merge on the rehearsal, not on the test suite. Green CI is necessary, not sufficient. The deploy package is not done until it has run end to end, through the real secrets-decryption path, on paths kept off production, and every case in the script has a recorded outcome.
 
 ## Also shipped
 

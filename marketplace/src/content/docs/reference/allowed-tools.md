@@ -17,9 +17,13 @@ relatedDocs:
 
 ## Overview
 
-The `allowed-tools` field in SKILL.md frontmatter controls which tools a skill may invoke at runtime. Claude Code enforces this list strictly -- if a skill attempts to call a tool not in its `allowed-tools`, the call is blocked. This mechanism implements the principle of least privilege: every skill should request only the tools it actually needs to perform its task.
+> **Correction, 2026-10-03:** An earlier version of this page said Claude Code enforces `allowed-tools` and blocks any tool not listed. That is not the documented behavior. Per the [Claude Code skills documentation](https://code.claude.com/docs/en/skills) (checked 2026-10-03), `allowed-tools` pre-approves the listed tools so Claude can use them without asking, and it does not restrict which tools are available. To remove tools while a skill is active, use `disallowed-tools`. The text below has been corrected.
 
-The `allowed-tools` field accepts a comma-separated string of tool names. Tool names are case-sensitive and must match exactly.
+The `allowed-tools` field in SKILL.md frontmatter lists tools Claude can use without asking for permission during the turn that invokes the skill. It does not restrict which tools are available: every tool remains callable, and the user's permission settings still govern tools that are not listed. The grant clears when the user sends the next message. Listing only the tools a skill actually needs keeps that pre-approval narrow, which is the principle of least privilege applied to this field.
+
+To remove tools from Claude's available pool while a skill is active, list them in `disallowed-tools` (see [Restricting Tools with disallowed-tools](#restricting-tools-with-disallowed-tools)).
+
+The `allowed-tools` field accepts a space- or comma-separated string, or a YAML list. Tool names are case-sensitive and must match exactly.
 
 ```yaml
 allowed-tools: Read, Glob, Grep
@@ -67,9 +71,17 @@ The following table lists every valid tool name that can appear in the `allowed-
 | `TodoWrite` | Create and manage to-do items in the workspace. | The skill tracks pending tasks, generates checklists, or manages work items. |
 | `NotebookEdit` | Edit Jupyter notebook cells. Can modify code cells, markdown cells, and cell outputs. | The skill works with `.ipynb` files and needs to create or modify notebook content. |
 
+## Restricting Tools with disallowed-tools
+
+`disallowed-tools` removes the listed tools from Claude's available pool while the skill is active. Use it for skills that must never call certain tools, such as `AskUserQuestion` in a background loop. Like `allowed-tools`, it accepts a space- or comma-separated string, or a YAML list, and the restriction clears when the user sends the next message.
+
+```yaml
+disallowed-tools: AskUserQuestion
+```
+
 ## Bash Scoping
 
-The `Bash` tool supports scoped patterns that restrict which commands the skill can execute. This provides finer-grained control than a blanket `Bash` permission.
+The `Bash` tool supports scoped patterns that narrow which commands are pre-approved. This provides finer-grained pre-approval than a blanket `Bash` entry; commands outside the pattern still go through the user's normal permission settings.
 
 ### Syntax
 
@@ -77,7 +89,7 @@ The `Bash` tool supports scoped patterns that restrict which commands the skill 
 allowed-tools: Read, Bash(prefix:*)
 ```
 
-The pattern `Bash(prefix:*)` allows the skill to run any bash command that starts with the specified prefix. The `*` wildcard matches any characters after the prefix.
+The pattern `Bash(prefix:*)` pre-approves any bash command that starts with the specified prefix. The `*` wildcard matches any characters after the prefix.
 
 ### Common Bash Scoping Patterns
 
@@ -102,17 +114,17 @@ allowed-tools: Read, Write, Bash(npm:*), Bash(git:*), Bash(docker:*)
 
 ### Unscoped Bash
 
-Using `Bash` without a pattern allows unrestricted command execution:
+Using `Bash` without a pattern pre-approves every shell command:
 
 ```yaml
 allowed-tools: Read, Bash
 ```
 
-This grants the skill access to any shell command. Use unscoped `Bash` only when the skill genuinely needs broad command access (e.g., a debugging skill that may need to run arbitrary diagnostic commands).
+This lets Claude run any shell command without asking while the skill is active. Use unscoped `Bash` only when the skill genuinely needs broad command access (e.g., a debugging skill that may need to run arbitrary diagnostic commands).
 
 ## Principle of Least Privilege
 
-Every skill should request the minimum set of tools required to accomplish its task. Over-permissioning creates several risks:
+Every skill should pre-approve the minimum set of tools required to accomplish its task. Over-listing removes permission prompts the user would otherwise see, which creates several risks:
 
 - **Accidental side effects.** A skill with `Write` access that only needs to read files could accidentally overwrite data.
 - **Security surface.** A skill with unscoped `Bash` could execute any command on the user's system.
@@ -315,7 +327,7 @@ Required tools: `Read, Edit, Glob, Grep, WebFetch, WebSearch`
 
 The `allowed-tools` field is validated at multiple levels:
 
-1. **YAML parsing.** The field must be a valid string. Syntax errors in YAML prevent the skill from loading.
+1. **YAML parsing.** The field must be a valid string or YAML list. Syntax errors in YAML prevent the skill from loading.
 
 2. **Tool name validation.** The universal validator (`validate-skills-schema.py`) checks that every tool name in the `allowed-tools` list is a recognized tool. Invalid tool names produce warnings or errors depending on the validation tier.
 
