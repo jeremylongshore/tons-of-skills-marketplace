@@ -9,7 +9,14 @@ if [[ ${1:-} == "--check" ]]; then
   CHECK_ONLY=1
   shift
 fi
-SOURCE=${1:-"$SCRIPT_DIR/snowflake-v2-redirects.caddy"}
+# With no SOURCE argument (the deploy path), install every generated fragment the repository
+# owns, in a fixed order: the Snowflake v2 skill tombstones, then the retired-path map.
+DEFAULT_SOURCES=("$SCRIPT_DIR/snowflake-v2-redirects.caddy" "$SCRIPT_DIR/retired-path-redirects.caddy")
+if [[ -n ${1:-} ]]; then
+  SOURCES=("$1")
+else
+  SOURCES=("${DEFAULT_SOURCES[@]}")
+fi
 TARGET=${2:-/etc/caddy/tonsofskills-redirects.caddy}
 MAIN_CONFIG=${3:-/etc/caddy/Caddyfile}
 BEGIN_MARKER='# BEGIN tons-of-skills generated skill redirects'
@@ -19,7 +26,7 @@ if [[ $CHECK_ONLY -eq 0 && ${EUID} -ne 0 ]]; then
   echo "install-skill-redirects: must run as root" >&2
   exit 77
 fi
-for path in "$SOURCE" "$TARGET" "$MAIN_CONFIG"; do
+for path in "${SOURCES[@]}" "$TARGET" "$MAIN_CONFIG"; do
   [[ -f "$path" ]] || { echo "install-skill-redirects: missing file: $path" >&2; exit 66; }
 done
 
@@ -44,6 +51,9 @@ rollback_on_error() {
 }
 trap cleanup EXIT
 trap rollback_on_error ERR
+
+SOURCE="$TMP_DIR/generated.caddy"
+cat -- "${SOURCES[@]}" > "$SOURCE"
 
 python3 - "$TARGET" "$TMP_DIR/base.caddy" "$BEGIN_MARKER" "$END_MARKER" <<'PY'
 import sys
@@ -74,8 +84,13 @@ if inside or seen_begin != seen_end or seen_begin > 1:
 Path(output).write_text("\n".join(kept).rstrip() + "\n", encoding="utf-8")
 PY
 
-grep -oE '@redir[0-9]+' "$TMP_DIR/base.caddy" | sort -u > "$TMP_DIR/existing.ids" || true
-grep -oE '@redir[0-9]+' "$SOURCE" | sort -u > "$TMP_DIR/new.ids" || true
+grep -oE '@(redir|retired)[0-9]+' "$TMP_DIR/base.caddy" | sort -u > "$TMP_DIR/existing.ids" || true
+grep -oE '@(redir|retired)[0-9]+' "$SOURCE" | sort -u > "$TMP_DIR/new.ids" || true
+DUPLICATES=$(grep -oE '^@(redir|retired)[0-9]+' "$SOURCE" | sort | uniq -d)
+if [[ -n "$DUPLICATES" ]]; then
+  echo "install-skill-redirects: duplicate generated matcher(s): $DUPLICATES" >&2
+  exit 65
+fi
 COLLISIONS=$(comm -12 "$TMP_DIR/existing.ids" "$TMP_DIR/new.ids")
 if [[ -n "$COLLISIONS" ]]; then
   echo "install-skill-redirects: matcher collision(s): $COLLISIONS" >&2

@@ -54,3 +54,32 @@ test('installer refuses a matcher collision before touching live state', () => {
     rmSync(paths.directory, { recursive: true, force: true });
   }
 });
+
+test('installer defaults to every generated fragment, in order, without matcher collisions', () => {
+  const paths = fixture();
+  try {
+    const result = spawnSync('bash', [installer, '--check', '', paths.target, paths.main], {
+      encoding: 'utf8',
+      env: { ...process.env, PATH: `${paths.bin}:${process.env.PATH}` },
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /candidate valid; sha256=[0-9a-f]{64}/);
+  } finally {
+    rmSync(paths.directory, { recursive: true, force: true });
+  }
+});
+
+test('installer refuses a retired-path matcher already present in the live file', () => {
+  const paths = fixture();
+  try {
+    writeFileSync(paths.target, '@retired0001 path /collision\nredir @retired0001 /new permanent\n');
+    const result = spawnSync('bash', [installer, '--check', '', paths.target, paths.main], {
+      encoding: 'utf8',
+      env: { ...process.env, PATH: `${paths.bin}:${process.env.PATH}` },
+    });
+    assert.equal(result.status, 65);
+    assert.match(result.stderr, /matcher collision/);
+  } finally {
+    rmSync(paths.directory, { recursive: true, force: true });
+  }
+});

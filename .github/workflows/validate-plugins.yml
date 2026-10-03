@@ -1147,6 +1147,7 @@ jobs:
         run: >-
           node --test
           marketplace/scripts/skill-redirects.test.mjs
+          marketplace/scripts/retired-path-redirects.test.mjs
           marketplace/scripts/install-skill-redirects.test.mjs
           marketplace/scripts/internal-link-utils.test.mjs
           marketplace/scripts/sitemap-xml.test.mjs

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "description": "Reviewed decisions the rules cannot make. A row with `to` is a 301 to that live page; a row without `to` deliberately stays a 404. Keys are normalized paths (no trailing slash).",
+  "overrides": {
+    "/docs/contributing/submit-to-marketplace": {
+      "to": "/docs/guides/publish-to-marketplace/",
+      "reason": "The contributing guide moved into the docs guides section under this name."
+    },
+    "/submit": {
+      "to": "/docs/guides/publish-to-marketplace/",
+      "reason": "Submission instructions now live in the publish-to-marketplace guide."
+    },
+    "/pricing": {
+      "reason": "The site has no pricing page (/pro itself redirects home); a redirect would mislead."
+    },
+    "/pricing.html": {
+      "reason": "The site has no pricing page (/pro itself redirects home); a redirect would mislead."
+    },
+    "/plans": {
+      "reason": "The site has no plans or pricing page; a redirect would mislead."
+    },
+    "/deployment-thesis": {
+      "reason": "Never a tonsofskills.com page; a dual-published blog post linked it relative to the wrong host."
+    }
+  }
+}
