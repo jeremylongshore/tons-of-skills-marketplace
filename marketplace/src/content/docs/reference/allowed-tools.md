@@ -47,7 +47,7 @@ The following table lists every valid tool name that can appear in the `allowed-
 
 | Tool | Description | Use When |
 |------|-------------|----------|
-| `Bash` | Execute shell commands. Can run any CLI tool, build system, package manager, or script available on the user's system. | The skill needs to run commands (npm, git, docker, make, curl, etc.) or execute scripts. See [Bash Scoping](#bash-scoping) for restricted patterns. |
+| `Bash` | Execute shell commands. Can run any CLI tool, build system, package manager, or script available on the user's system. | The skill needs to run commands (npm, git, docker, make, curl, etc.) or execute scripts. See [Bash Scoping](#bash-scoping) for scoped patterns. |
 
 ### Web Tools
 
@@ -126,25 +126,25 @@ This lets Claude run any shell command without asking while the skill is active.
 
 Every skill should pre-approve the minimum set of tools required to accomplish its task. Over-listing removes permission prompts the user would otherwise see, which creates several risks:
 
-- **Accidental side effects.** A skill with `Write` access that only needs to read files could accidentally overwrite data.
-- **Security surface.** A skill with unscoped `Bash` could execute any command on the user's system.
+- **Accidental side effects.** A skill that pre-approves `Write` when it only needs to read files lets Claude overwrite data without asking.
+- **Security surface.** A skill that pre-approves unscoped `Bash` lets Claude run any command on the user's system without a prompt.
 - **User trust.** Users reviewing installed plugins can see the `allowed-tools` list. Minimal permissions signal that the skill is well-scoped and safe.
 
-### Permission Levels
+### Pre-approval Levels
 
-Think of tools in terms of ascending permission levels:
+Think of the tools a skill pre-approves in terms of ascending risk:
 
 | Level | Tools | Risk Profile |
 |-------|-------|-------------|
 | **Read-only** | `Read`, `Glob`, `Grep` | No modifications to the filesystem or external state. Safest level. |
 | **Read + Search** | `Read`, `Glob`, `Grep`, `WebFetch`, `WebSearch` | Adds network access but no local modifications. |
 | **Read + Write** | `Read`, `Write`, `Edit`, `Glob`, `Grep` | Can modify local files. Moderate risk. |
-| **Full local** | `Read`, `Write`, `Edit`, `Glob`, `Grep`, `Bash` | Full filesystem and command access. Higher risk. |
-| **Full + Network** | All tools | Complete access to local system and network. Use only when necessary. |
+| **Full local** | `Read`, `Write`, `Edit`, `Glob`, `Grep`, `Bash` | Pre-approves filesystem changes and shell commands. Higher risk. |
+| **Full + Network** | All tools | Pre-approves every local and network action. Use only when necessary. |
 
 ### Auditing Permissions
 
-When reviewing a plugin before installation, check the `allowed-tools` field in each SKILL.md to understand what the skill can do:
+When reviewing a plugin before installation, check the `allowed-tools` field in each SKILL.md to see what Claude can do without asking while the skill runs (use `disallowed-tools` for what it must not do):
 
 ```bash
 # Find all SKILL.md files and show their allowed-tools
@@ -351,6 +351,6 @@ python3 scripts/validate-skills-schema.py --enterprise --verbose plugins/categor
 | Listing tools the skill never uses | Unnecessary permission scope | Audit the skill body and remove unused tools |
 | Using unscoped `Bash` when only npm is needed | Over-permissioning | Use `Bash(npm:*)` instead of `Bash` |
 | Omitting `Read` when `Edit` is listed | Edit requires reading first | Always include `Read` alongside `Edit` |
-| Forgetting `Glob` for file discovery | Skill cannot find files by pattern | Add `Glob` if the skill searches for files |
+| Forgetting `Glob` for file discovery | Claude has to ask permission before using `Glob` | Add `Glob` if the skill searches for files |
 | Using `WebFetch` without `WebSearch` (or vice versa) for research | Incomplete research capability | Include both if the skill does general web research |
 | Typos in tool names (e.g., `Readfile`, `Search`) | Tool not recognized | Check this reference for exact names |

@@ -57,8 +57,8 @@ The new format requires a nested `hooks` array with explicit `type`:
 ```
 
 Key changes:
-1. **`matcher`** - Filters when the hook fires. `"*"`, `""` or leaving it out matches everything. A plain tool name such as `Bash`, or a list such as `Edit|Write`, matches exactly. Anything with other characters is treated as a regex. `Stop` and several other events ignore the matcher, so the example above leaves it out; it matters on tool events such as `PreToolUse` and `PostToolUse`
-2. **`hooks`** - Now an array inside the matcher object
+1. **`matcher`** - Filters when the hook fires. `"*"`, `""` or leaving it out matches everything. A plain tool name such as `Bash`, or a list such as `Edit|Write`, matches exactly. Anything with other characters is treated as a regex. `Stop` and several other events ignore the matcher, so the example above leaves it out; it matters on tool events such as `PreToolUse` and `PostToolUse`.
+2. **`hooks`** - Now an array inside each matcher group (the object that can hold a `matcher`)
 3. **`type`** - Required field, set to `"command"` for shell commands
 
 ## Quick Migration

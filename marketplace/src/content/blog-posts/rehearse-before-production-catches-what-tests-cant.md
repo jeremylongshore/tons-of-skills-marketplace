@@ -11,7 +11,7 @@ canonical: "https://startaitools.com/posts/rehearse-before-production-catches-wh
 
 ## The finding
 
-A ten-step deploy rehearsal on the dev box caught a production-breaking bug before production. The production Compose file pointed Postgres's data directory at a subfolder of a root-owned, locked-down mount, and the database never started. Had it shipped, the database would not have started on the VPS either. The test suite had nothing to say about it. The rehearsal's first attempt failed on it.
+A ten-step deploy rehearsal on a non-production host caught a production-breaking bug before production. The production Compose file pointed Postgres's data directory at a subfolder of a root-owned, locked-down mount, and the database never started. Had it shipped, the database would likely not have started on the VPS either. The test suite had nothing to say about it. The rehearsal's first attempt failed on it.
 
 The rest of this post is the discipline behind that rehearsal: what to script, what to run, and what to refuse to merge until the rehearsal passes.
 
@@ -20,7 +20,7 @@ The rest of this post is the discipline behind that rehearsal: what to script, w
 A production deploy package for `catalyst-onboarding` had shipped a full self-hosted runner: a deploy check, a staging test, a restore drill. The CI was green. A pre-production review still stopped the PR with two blockers and three should-fix items:
 
 - Rollback after migration. The readiness probe would refuse to come up unless the schema matched the migration head baked into the image. Roll back a migrating deploy and the app is half-switched, reading a new schema from an old binary.
-- Backup step with no time limit. The new database backup command had no timeout, so a wedged backup could hang the nightly server backup, which would also hang, which would also fail the morning check.
+- Backup step with no time limit. The new database backup command had no timeout, so a wedged backup could hang the nightly server backup.
 
 The three should-fix items: a path that could turn an outward flag on (document signing, which emails links) without a recorded approval, a failed redeploy that would roll back onto the same broken version, and the runbook did not say that Docker keeps env-file values in the container's stored config.
 
@@ -33,7 +33,7 @@ The builder fixed all five. CI was green again. Then the real test: the deploy p
 5. Backup under a locked database. The backup step gave up in 3.4 seconds (and in 8.2 seconds under a session timeout) and kept the previous good dump. A failed backup hook does not stop the nightly backup.
 6. Restore drill. After the lock released, a normal dump ran, and the restore drill restored it into a disposable database and verified it.
 
-The bug that mattered was not one of those steps. The first rehearsal attempt never got that far. The production Compose file set `PGDATA` to a subfolder of the bind mount. On the server that mount root is owned by root with mode 0700, so the postgres user cannot even enter it, and the database never became healthy. The fix made the bind mount itself the data directory, which the Postgres image's entrypoint takes ownership of.
+The bug that mattered was not one of those steps. The first rehearsal attempt never got that far. The production Compose file set `PGDATA` to a subfolder of the bind mount. With a mount root owned by root with mode 0700, the postgres user cannot even enter it, and the database never became healthy. The fix made the bind mount itself the data directory, which the Postgres image's entrypoint takes ownership of.
 
 Nothing in the test suite creates that mount, so nothing in the test suite could see it. The rehearsal could, because it runs the production Compose file through the real deploy scripts the way production will.
 
@@ -62,7 +62,7 @@ The rehearsal ran in about nine minutes, on top of the time spent on the review 
 
 ## Use this
 
-- Rehearse the deploy, not the test. The deploy script creates the production state. The test suite only checks the code. If they disagree, the deploy script wins, and the rehearsal is the only way to find that out before production.
+- Rehearse the deploy, not the test. The deploy scripts and the production Compose file create the production state. The test suite only checks the code. If they disagree, the deployed configuration wins, and the rehearsal is the only way to find that out before production.
 - Script the cases the test suite cannot reach. The production data directory with its real owner and mode. Migrations applied and rolled back. Outward flags that need an approval record. The backup step under a locked database. Each of these is one bug the rehearsal catches and the test suite never will.
 - Block the merge on the rehearsal, not on the test suite. Green CI is necessary, not sufficient. The deploy package is not done until it has run end to end, through the real secrets-decryption path, on paths kept off production, and every case in the script has a recorded outcome.
 
