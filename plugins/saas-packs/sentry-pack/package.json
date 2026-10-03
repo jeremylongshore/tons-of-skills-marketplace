@@ -1,13 +1,15 @@
 {
   "name": "@intentsolutionsio/sentry-pack",
-  "version": "1.0.4",
-  "description": "Claude Code skill pack for Sentry - 30 skills covering error tracking, performance monitoring, release management, and production operations",
+  "version": "2.0.0",
+  "description": "5 live-detection Sentry skills (quota-leak-hunter, event-forensics, release-medic, issue-triage, pii-scrub-enforcer). v2 rebuild draft scaffold — not published.",
   "main": "README.md",
   "type": "module",
   "files": [
     "README.md",
     "LICENSE",
+    "CHANGELOG.md",
     ".claude-plugin/",
+    "hooks/",
     "skills/",
     "000-docs/"
   ],
@@ -32,11 +34,9 @@
     "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/saas-packs/sentry-pack"
   },
-  "bugs": {
-    "url": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues"
-  },
   "homepage": "https://tonsofskills.com/learn/sentry/",
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "private": true
 }

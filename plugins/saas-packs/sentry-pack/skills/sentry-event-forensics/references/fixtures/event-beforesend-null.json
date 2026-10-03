@@ -1,0 +1,8 @@
+{
+  "event_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "platform": "javascript",
+  "release": "frontend@1.4.0",
+  "sdk": {"name": "sentry.javascript.browser", "version": "8.9.0"},
+  "init_excerpt": "Sentry.init({ dsn: 'https://public@o123.ingest.sentry.io/1', beforeSend() { return null; } })",
+  "note": "No event was accepted. The DSN host is reachable. beforeSend returns null for every event."
+}

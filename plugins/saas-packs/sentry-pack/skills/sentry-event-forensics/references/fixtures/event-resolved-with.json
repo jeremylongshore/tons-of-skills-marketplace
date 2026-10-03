@@ -1,0 +1,24 @@
+{
+  "event_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "platform": "javascript",
+  "release": "frontend@1.4.0",
+  "debug_meta": {
+    "images": [
+      {"type": "sourcemap", "debug_id": "11111111-1111-1111-1111-111111111111", "code_file": "https://cdn.example/static/app.js"}
+    ]
+  },
+  "exception": {
+    "values": [
+      {
+        "type": "TypeError",
+        "value": "x is undefined",
+        "stacktrace": {
+          "frames": [
+            {"filename": "app.js", "function": "onClick", "in_app": true, "data": {"resolved_with": "debug-id"}},
+            {"filename": "vendor.js", "function": "?", "in_app": false, "data": {"resolved_with": "scraping"}}
+          ]
+        }
+      }
+    ]
+  }
+}

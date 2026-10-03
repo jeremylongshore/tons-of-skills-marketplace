@@ -1,0 +1,5 @@
+{
+  "hooks": {
+    "_comment": "Hooks are NOT default for sentry-pack v2. ADR Decision 4: no PreToolUse hook that blocks SDK edits in this version. Read-only toward Sentry. Add hooks only via a later ADR."
+  }
+}

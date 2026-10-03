@@ -8,18 +8,18 @@
     "run_id": 134,
     "total": 3491,
     "grades": {
-      "A": 2875,
-      "B": 326,
+      "A": 2855,
+      "B": 346,
       "C": 132,
       "D": 154,
       "F": 4
     },
-    "grades_csv_sha256": "8885b69405419047c6902fee11c96745859aeb4b03c40e2c9cb6cd47260536d7"
+    "grades_csv_sha256": "5af8839c865c7d9b9a497ac71785f6e7e1d1655e349d8660b0eab0919dc22484"
   },
   "selection": {
     "resolver": "graded∩first-party",
     "count": 2628,
-    "sha256": "408a182e2967127fa29cf91a19b33c8b53063403bf8cb3c5d0ef4d958a26f2c1"
+    "sha256": "2b80088926e96aafec8a85e023afce51b7024ef22e57236fbba08043fa683cdb"
   },
   "count": 2628,
   "skills": [
@@ -32652,16 +32652,7 @@
       "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/breadcrumbs-issues.md",
-        "references/diagnostic-script.md",
-        "references/errors.md",
-        "references/events-not-appearing.md",
-        "references/examples.md",
-        "references/performance-data-missing.md",
-        "references/sdk-conflicts-network-transport.md",
-        "references/sdk-conflicts.md",
-        "references/source-maps-not-working.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32669,22 +32660,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-architecture-variants",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "92",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/errors.md",
-        "references/event-driven-architecture.md",
-        "references/examples.md",
-        "references/frontend-spa-architecture.md",
-        "references/hybrid-architecture.md",
-        "references/microservices-architecture.md",
-        "references/mobile-architecture.md",
-        "references/monolith-architecture.md",
-        "references/multi-tenant-architecture.md",
-        "references/serverless-architecture.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32697,12 +32678,7 @@
       "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/circleci.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/github-actions.md",
-        "references/gitlab-ci.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32710,15 +32686,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-common-errors",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "92",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/common-issues-and-solutions.md",
-        "references/errors.md",
-        "references/examples.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32726,18 +32699,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-cost-tuning",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "93",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/cost-effective-architecture.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/optimize-what-you-send.md",
-        "references/reduce-error-volume.md",
-        "references/reduce-transaction-volume.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32745,18 +32712,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-data-handling",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "95",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "eval-spec.yaml",
-        "references/errors.md",
-        "references/examples.md",
-        "references/gdpr-compliance.md",
-        "references/pii-scrubbing.md",
-        "references/server-side-data-scrubbing.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32764,17 +32725,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-debug-bundle",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "91",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/debug-information-checklist.md",
-        "references/debug-script.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/sentry-debug-bundle.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32782,15 +32738,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-deploy-integration",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "90",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/deployment-tracking.md",
-        "references/errors.md",
-        "references/examples.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32798,17 +32751,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-enterprise-rbac",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "91",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/api-token-management.md",
-        "references/best-practices.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/sso-integration.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32816,16 +32764,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-error-capture",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "90",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/advanced-techniques.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/implementation.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32833,15 +32777,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-hello-world",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "92",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/implementation.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32849,17 +32790,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-incident-runbook",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "100",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/common-issue-patterns.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/incident-communication-template.md",
-        "references/incident-severity-classification.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32867,15 +32803,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-install-auth",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "92",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/implementation.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32883,19 +32816,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-known-pitfalls",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "96",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/configuration-pitfalls.md",
-        "references/error-capture-pitfalls.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/integration-pitfalls.md",
-        "references/monitoring-pitfalls.md",
-        "references/sdk-initialization-pitfalls.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32908,13 +32834,7 @@
       "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/buffering-and-batching.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/high-volume-sampling-strategies.md",
-        "references/quota-management-at-scale.md",
-        "references/resource-optimization.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32922,15 +32842,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-local-dev-loop",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "90",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/implementation.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32938,16 +32855,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-migration-deep-dive",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "96",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/migration-from-bugsnag.md",
-        "references/migration-from-rollbar.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32960,11 +32873,7 @@
       "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/environment-configuration.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/project-structure-options.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32977,12 +32886,7 @@
       "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/apm-tool-integration.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/logging-integration.md",
-        "references/metrics-integration.md"
+        "SKILL.md"
       ]
     },
     {
@@ -32995,11 +32899,7 @@
       "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/best-practices.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/implementation.md"
+        "SKILL.md"
       ]
     },
     {
@@ -33007,17 +32907,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-performance-tuning",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "91",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/reduce-sdk-overhead.md",
-        "references/sample-rate-optimization.md",
-        "references/transaction-optimization.md"
+        "SKILL.md"
       ]
     },
     {
@@ -33030,14 +32925,7 @@
       "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/alert-policies.md",
-        "references/audit-and-compliance.md",
-        "references/compliance-enforcement.md",
-        "references/configuration-standards.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/project-naming-standards.md"
+        "SKILL.md"
       ]
     },
     {
@@ -33045,17 +32933,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-prod-checklist",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "90",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/pre-deployment-checklist.md",
-        "references/production-configuration-template.md",
-        "references/verification-steps.md"
+        "SKILL.md"
       ]
     },
     {
@@ -33068,10 +32951,7 @@
       "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/strategies-to-reduce-event-volume.md"
+        "SKILL.md"
       ]
     },
     {
@@ -33079,18 +32959,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-reference-architecture",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "91",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/alerting-architecture.md",
-        "references/configuration-patterns.md",
-        "references/distributed-tracing-architecture.md",
-        "references/error-handling-architecture.md",
-        "references/errors.md",
-        "references/examples.md"
+        "SKILL.md"
       ]
     },
     {
@@ -33098,16 +32972,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-release-management",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "94",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/best-practices.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/release-workflow.md"
+        "SKILL.md"
       ]
     },
     {
@@ -33115,20 +32985,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-reliability-patterns",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "96",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/circuit-breaker-pattern.md",
-        "references/dual-write-pattern.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/graceful-degradation.md",
-        "references/health-checks.md",
-        "references/network-failure-handling.md",
-        "references/timeout-handling.md"
+        "SKILL.md"
       ]
     },
     {
@@ -33141,10 +33003,7 @@
       "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/implementation.md"
+        "SKILL.md"
       ]
     },
     {
@@ -33157,11 +33016,7 @@
       "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/data-scrubbing.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/secure-configuration.md"
+        "SKILL.md"
       ]
     },
     {
@@ -33169,16 +33024,12 @@
       "source_path": "plugins/saas-packs/sentry-pack/skills/sentry-upgrade-migration",
       "category": "saas-packs",
       "plugin": "sentry-pack",
-      "recorded_grade": "A",
+      "recorded_grade": "B",
       "recorded_score": "92",
-      "fresh_grade": "A",
+      "fresh_grade": "B",
       "run_id": 134,
       "files": [
-        "SKILL.md",
-        "references/errors.md",
-        "references/examples.md",
-        "references/major-version-migrations.md",
-        "references/testing-after-upgrade.md"
+        "SKILL.md"
       ]
     },
     {

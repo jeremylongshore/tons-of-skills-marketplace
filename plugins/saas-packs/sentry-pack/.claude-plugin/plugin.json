@@ -1,7 +1,7 @@
 {
   "name": "sentry-pack",
-  "version": "1.51.0",
-  "description": "Claude Code skill pack for Sentry (30 skills)",
+  "version": "2.0.0",
+  "description": "Sentry pack v2: 5 live-detection skills (quota-leak-hunter, event-forensics, release-medic, issue-triage, pii-scrub-enforcer) plus thin v1 stub redirects until a follow-up delete. Read-only toward the Sentry API. Not the v1 30-skill curriculum.",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -11,6 +11,8 @@
     "sentry",
     "error-tracking",
     "monitoring",
+    "performance",
+    "observability",
     "saas",
     "sdk",
     "integration"
