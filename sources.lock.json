@@ -1572,6 +1572,15 @@
         "references/webhooks.md": "sha256:438da7371c6c607d6f2f777113a2f8e40e70f4e3e15ad48e6058d0af1c907f27",
         "references/workflows.md": "sha256:13b7fdbe8b5e070d8bb36cee770284cdf1e0ae1510fa539d8f6b662f6c989cb5"
       }
+    },
+    "schliff": {
+      "repo": "Zandereins/schliff",
+      "resolved_ref": "9f9d58c4d456b1aff73479a91b2cb02d722bc06b",
+      "locked_at": "2026-10-03T20:01:11.679Z",
+      "files": {
+        "LICENSE": "sha256:2e9e59c101e3bb2678f5c745555e3fba08b02a62b1e0907372153631ef4e17a2",
+        "SKILL.md": "sha256:c0cb9d17fb10241c464a876dda9b2915370c8fcb6df054db9b671d1c4e762b79"
+      }
     }
   }
 }
