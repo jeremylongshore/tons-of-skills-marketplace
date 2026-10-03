@@ -6,6 +6,16 @@ import type { AnalyticsServer } from './server.js';
 import type { AttributionEngine } from './attribution.js';
 
 /**
+ * Strip CR/LF and other control characters before a request-derived value is
+ * written to the console. `req.method` / `req.path` are client-controlled,
+ * so logging them raw risks forged/injected log lines (CodeQL
+ * js/log-injection).
+ */
+function sanitizeForLog(value: unknown): string {
+  return String(value).replace(/[\r\n\x00-\x1f\x7f]/g, '');
+}
+
+/**
  * HTTP API for analytics data access
  */
 export class AnalyticsAPI {
@@ -45,7 +55,7 @@ export class AnalyticsAPI {
 
     // Request logging
     this.app.use((req, res, next) => {
-      console.log(`[API] ${req.method} ${req.path}`);
+      console.log(`[API] ${sanitizeForLog(req.method)} ${sanitizeForLog(req.path)}`);
       next();
     });
   }
