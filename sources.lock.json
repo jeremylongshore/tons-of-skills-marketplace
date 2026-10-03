@@ -1581,6 +1581,18 @@
         "LICENSE": "sha256:2e9e59c101e3bb2678f5c745555e3fba08b02a62b1e0907372153631ef4e17a2",
         "SKILL.md": "sha256:c0cb9d17fb10241c464a876dda9b2915370c8fcb6df054db9b671d1c4e762b79"
       }
+    },
+    "agent-memory-discipline": {
+      "repo": "mnemoverse/agent-memory-discipline",
+      "resolved_ref": "77578ac18f29c69b1b45f34268ac0ed16df72fca",
+      "locked_at": "2026-10-03T20:01:12.431Z",
+      "files": {
+        ".claude-plugin/plugin.json": "sha256:dc322cffa37775449cd559cd6565ba0ea29a2bb793cd3ef852ef04735c8be88b",
+        "LICENSE": "sha256:a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499",
+        "README.md": "sha256:4a4b338a22d7fdd7772ae08af12a2b9e94dff865d81fbf6647b3a66e330fa4ed",
+        "skills/agent-memory-discipline/references/entry-format.md": "sha256:097dd075d4288e97c7a4e9cba49273e0f770ec91d3e8896dbc95bec79122f363",
+        "skills/agent-memory-discipline/SKILL.md": "sha256:4a865359a58cf87283a1239f0485926b3d1945d15f55bedc89de0a2cdbbc3fa2"
+      }
     }
   }
 }
