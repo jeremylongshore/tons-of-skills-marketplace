@@ -221,7 +221,6 @@ class ExchangeClient:
         hours_since_midnight = now.hour
         next_funding_hour = ((hours_since_midnight // 8) + 1) * 8
         if next_funding_hour >= 24:
-            next_funding_hour = 0
             next_payment = now.replace(hour=0, minute=0, second=0) + timedelta(days=1)
         else:
             next_payment = now.replace(hour=next_funding_hour, minute=0, second=0)

@@ -31,6 +31,7 @@ COMMANDS = (
     ["liquidations", "BTC"],
     ["options", "BTC"],
     ["basis", "BTC"],
+    ["basis", "ETH"],
     ["dashboard", "BTC", "ETH"],
 )
 
