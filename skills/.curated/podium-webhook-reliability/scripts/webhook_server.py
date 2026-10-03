@@ -19,6 +19,7 @@ import hmac
 import hashlib
 import json
 import os
+import re
 import sys
 import time
 import logging
@@ -47,6 +48,21 @@ REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 
 logging.basicConfig(level=logging.INFO, format='{"ts": "%(asctime)s", "lvl": "%(levelname)s", "msg": "%(message)s"}')
 log = logging.getLogger("podium-webhook")
+
+_LOG_CONTROL_CHARS_RE = re.compile(r"[\r\n\x00-\x1f\x7f]")
+
+
+def safe_log_value(value: object) -> str:
+    """Strip CR/LF and other control characters from a value before it is
+    interpolated into a log message. Webhook payload fields (event type, event
+    id) are attacker-influenced even when the request signature is valid, so
+    they must never reach the logger unsanitized (CodeQL py/log-injection)."""
+    # Explicit CR/LF removal first: CodeQL models str.replace of newlines as a
+    # log-injection sanitizer but not a regex substitution. The regex then
+    # strips the remaining control characters.
+    text = str(value).replace("\r", "").replace("\n", "")
+    return _LOG_CONTROL_CHARS_RE.sub("", text)
+
 
 app = FastAPI()
 
@@ -127,7 +143,7 @@ async def dlq_persist(entry: dict) -> None:
 async def dispatch(event: dict) -> None:
     """Application-specific. Override in your deployment.
     Default no-op logs the event type."""
-    log.info(f"dispatch event_type={event.get('type')} event_id={event.get('id')}")
+    log.info(f"dispatch event_type={safe_log_value(event.get('type'))} event_id={safe_log_value(event.get('id'))}")
 
 
 async def safe_dispatch(event: dict, raw: bytes, sig_header: str) -> None:

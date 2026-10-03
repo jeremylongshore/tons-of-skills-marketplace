@@ -10,7 +10,7 @@ description: Operate a Podium webhook receiver that survives the delivery-side f
   "podium webhook", "podium hmac", "podium signature", "podium webhook idempotency",
   "podium webhook replay", "podium dlq", "podium webhook retries".
 allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(jq:*), Bash(python3:*), Bash(redis-cli:*), Grep
-version: 2.10.0
+version: 2.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 compatibility: Designed for Claude Code

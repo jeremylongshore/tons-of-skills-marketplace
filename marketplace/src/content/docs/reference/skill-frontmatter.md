@@ -19,7 +19,7 @@ relatedDocs:
 
 Every skill in a Claude Code plugin is defined by a single `SKILL.md` file located at `skills/<skill-name>/SKILL.md` within a plugin directory. The file consists of two parts: YAML frontmatter (delimited by `---`) and a markdown body containing the skill's instructions.
 
-The frontmatter declares metadata that Claude Code uses to determine when and how to activate the skill, which tools it may access, and how it appears in the user interface. The markdown body below the frontmatter contains the actual instructions Claude follows when the skill is activated.
+The frontmatter declares metadata that Claude Code uses to determine when and how to activate the skill, which tools it pre-approves, and how it appears in the user interface. The markdown body below the frontmatter contains the actual instructions Claude follows when the skill is activated.
 
 This reference documents every frontmatter field, path variable, string substitution, and dynamic context injection (DCI) pattern supported by the 2026 AgentSkills.io specification.
 
@@ -31,7 +31,7 @@ This reference documents every frontmatter field, path variable, string substitu
 |-------|------|-------------|
 | `name` | `string` | Unique skill identifier in kebab-case. Must match the parent directory name (e.g., `skills/code-review/SKILL.md` uses `name: code-review`). |
 | `description` | `string` | Explains when Claude should activate this skill. Include specific trigger phrases so Claude can match user intent accurately. Use the YAML `\|` literal block scalar for multi-line descriptions. |
-| `allowed-tools` | `string` | Comma-separated list of tools this skill may use. Implements the principle of least privilege. See [Allowed Tools Reference](/docs/reference/allowed-tools) for the complete list. |
+| `allowed-tools` | `string` or `array` | Tools Claude can use without asking permission during the turn that invokes this skill. It pre-approves; it does not restrict. Keep the list minimal (least privilege). See [Allowed Tools Reference](/docs/reference/allowed-tools) for the complete list. |
 
 ### Optional Metadata Fields
 
@@ -53,6 +53,7 @@ This reference documents every frontmatter field, path variable, string substitu
 | `agent` | `string` | none | Subagent type when `context: fork` is set. Example: `"Explore"`. Determines the subagent's base capabilities. |
 | `user-invocable` | `boolean` | `true` | When `false`, hides the skill from the `/` slash command menu. The skill can still be activated programmatically or by other skills via the `Skill` tool. Use for helper skills that should not be called directly. |
 | `argument-hint` | `string` | none | Autocomplete hint shown in the slash command menu (e.g., `"<file-path>"`, `"<component-name>"`). Helps users understand what input the skill expects. |
+| `disallowed-tools` | `string` or `array` | none | Tools removed from Claude's available pool while this skill is active. See [allowed-tools](#allowed-tools) below. |
 | `hooks` | `object` | none | Lifecycle hooks that execute at specific points. Currently supports `pre-tool-call`. See [Hooks](#hooks) below. |
 
 ## Field Details and Examples
@@ -94,7 +95,15 @@ The `|` block scalar is recommended for multi-line descriptions. It preserves ne
 
 ### allowed-tools
 
-A comma-separated string listing every tool the skill is permitted to use. Claude Code enforces this list at runtime — the skill cannot call any tool not listed here.
+> **Correction, 2026-10-03:** An earlier version of this page said Claude Code enforces `allowed-tools` and blocks any tool not listed. That is not the documented behavior. Per the [Claude Code skills documentation](https://code.claude.com/docs/en/skills) (checked 2026-10-03), `allowed-tools` pre-approves the listed tools so Claude can use them without asking, and it does not restrict which tools are available. To remove tools while a skill is active, use `disallowed-tools`. The text below has been corrected.
+
+A space- or comma-separated string, or a YAML list, of tools Claude can use without asking for permission during the turn that invokes the skill. It does not restrict which tools are available: unlisted tools remain callable under the user's permission settings. To remove tools while the skill is active, list them in `disallowed-tools`:
+
+```yaml
+disallowed-tools: AskUserQuestion
+```
+
+Pre-approving tools:
 
 ```yaml
 allowed-tools: Read, Glob, Grep

@@ -7,7 +7,7 @@ description: Bulk-export Podium conversation, review, and contact history into a
   against attachment expiry. Trigger with "podium history export", "podium rag corpus", "podium
   cdc sync", "podium incremental export", "podium chunk for embedding".
 allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(jq:*), Bash(python3:*), Bash(sqlite3:*), Bash(gzip:*), Grep
-version: 2.10.0
+version: 2.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 compatibility: Designed for Claude Code

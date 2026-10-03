@@ -1295,6 +1295,130 @@ sources:
       - '**/node_modules/**'
       - '**/*.log'
 
+  # ============================================================
+  # schliff (Zandereins)
+  # https://github.com/Zandereins/schliff
+  # ============================================================
+
+  - name: schliff
+    description: Deterministic linter and scorer for SKILL.md, AGENTS.md and CLAUDE.md - no model in the loop, same bytes score the same everywhere; also checks whether the commands a file promises actually resolve in the repo.
+    repo: Zandereins/schliff
+    source_path: skills/schliff
+    target_path: plugins/community/schliff
+    author:
+      name: Zandereins
+      github: Zandereins
+    license: MIT
+    category: community
+    verified: false
+    include:
+      - '/SKILL.md'
+      - '/LICENSE'
+    exclude:
+      - 'node_modules/**'
+      - '.git/**'
+      - '*.log'
+
+  # ============================================================
+  # Mnemoverse (mnemoverse/agent-memory-discipline)
+  # https://github.com/mnemoverse/agent-memory-discipline
+  # Backend-neutral skill: when to recall memory and when to save decisions
+  # ============================================================
+
+  - name: agent-memory-discipline
+    description: Standing rules for when an agent recalls from long-term memory before acting and when it saves decisions, corrections and failures afterwards
+    repo: mnemoverse/agent-memory-discipline
+    source_path: .
+    target_path: plugins/community/agent-memory-discipline
+    author:
+      name: Mnemoverse
+      github: mnemoverse
+    license: CC0-1.0
+    category: community
+    verified: false
+    include:
+      - '/.claude-plugin/plugin.json'
+      - '/README.md'
+      - '/LICENSE'
+      - '/skills/**'
+    exclude:
+      - '/.git/**'
+      - '**/node_modules/**'
+      - '**/*.log'
+
+  # ============================================================
+  # DVERA (Suresoft Technologies)
+  # https://github.com/SuresoftTechnologies/dvera-plugin
+  # ============================================================
+
+  - name: dvera
+    description: Prepare and coordinate C/C++ verification with CT (Controller Tester) for mission-critical software - project setup, analysis, test generation and execution, MC-DC coverage review, GoogleTest reuse, and regression follow-up.
+    repo: SuresoftTechnologies/dvera-plugin
+    source_path: .
+    target_path: plugins/testing/dvera
+    author:
+      name: Suresoft Technologies
+      github: SuresoftTechnologies
+      email: bizcenter@suresofttech.com
+    license: MIT
+    category: testing
+    verified: false
+    include:
+      - '/skills/**'
+      - '/.claude-plugin/**'
+      - '/README.md'
+      - '/LICENSE'
+    exclude:
+      - '.git/**'
+      - 'scripts/**'
+      - 'resources/**'
+      - '__pycache__/**'
+
+  # ============================================================
+  # OrcaReplay (Continuum AI)
+  # https://github.com/Continuum-AI-Corp/OrcaReplay
+  # ============================================================
+
+  - name: orca-replay
+    description: Answer questions about a past agent run from its recording instead of from memory - which step changed a file, why a command ran, where the build broke - and replay or fork that run offline. Requires the orcareplay npm package with its MCP server registered as orca, and at least one recorded run.
+    repo: Continuum-AI-Corp/OrcaReplay
+    source_path: skills/orca-replay
+    target_path: plugins/skill-enhancers/orca-replay
+    author:
+      name: Continuum AI
+      github: Continuum-AI-Corp
+    license: Apache-2.0
+    category: skill-enhancers
+    verified: false
+    include:
+      - '/SKILL.md'
+      - '/LICENSE'
+    exclude:
+      - 'node_modules/**'
+      - '.git/**'
+
+  - name: swift-ship
+    description: Five Agent Skills for shipping Swift/macOS apps — .icns icons, .app/DMG packaging, CI portability traps, OSS readiness audit, release flow
+    repo: chsistrying/swift-ship-skills
+    source_path: .
+    target_path: plugins/community/swift-ship
+    author:
+      name: chsistrying
+      github: chsistrying
+      email: h431523595@gmail.com
+    license: MIT
+    category: community
+    verified: false
+    include:
+      - '/.claude-plugin/**'
+      - '/skills/**'
+      - '/README.md'
+      - '/LICENSE'
+    exclude:
+      - 'node_modules/**'
+      - '.git/**'
+      - '*.log'
+
 # Sync configuration
 config:
   # Branch to sync from (default: main)

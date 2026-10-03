@@ -8,7 +8,7 @@ description: Authenticate production Podium integrations and survive the auth-si
   "podium oauth", "podium token refresh", "podium scope drift", "podium credential rotation",
   "podium multi-location auth".
 allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(jq:*), Bash(python3:*), Bash(openssl:*), Grep
-version: 2.10.0
+version: 2.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 compatibility: Designed for Claude Code

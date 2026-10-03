@@ -19,6 +19,12 @@ on:
     paths:
       - '.github/workflows/**'
 
+concurrency:
+  # #1450: a superseded push to a PR branch cancels its stale run; main and
+  # scheduled runs are never cancelled.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   actionlint:
     runs-on: ubuntu-latest

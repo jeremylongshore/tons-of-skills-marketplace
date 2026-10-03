@@ -4,10 +4,10 @@
   "semantics": "Family-name matches are review candidates, not automatic quality or retirement verdicts.",
   "sources": {
     "catalog": ".claude-plugin/marketplace.extended.json",
-    "catalog_sha256": "6fa0780326f0a82ef40ba5081b1de56fa8633adb6875803a13d34f81564d9bf9",
+    "catalog_sha256": "f6ad825084e2823eae32c2a9cd921d1a4b86472eb3dd1f822eb080a051124c05",
     "curated_manifest": "skills/.curated/MANIFEST.json",
     "curated_manifest_sha256": "be51518e5db184e7828ff23b375a39043a038645504041513b49693c436a48a6",
-    "tracked_inventory_sha256": "59e01c9faa72b4fe700376b4b4a5124b46130ca4c4093d96e89aa41e4493a761"
+    "tracked_inventory_sha256": "3eab6abed54eb895964bd94b90054a74a19b0ddf764977a334bbe8998e2c0f45"
   },
   "family_definition": [
     "advanced-troubleshooting",
@@ -28778,14 +28778,14 @@
     {
       "name": "podium-pack",
       "source": "plugins/saas-packs/podium-pack",
-      "version": "2.10.0",
+      "version": "2.11.0",
       "verification": {
         "grade": "A",
         "score": 93
       },
       "npm_candidate": {
         "name": "@intentsolutionsio/podium-pack",
-        "version": "2.0.6",
+        "version": "2.0.7",
         "private": false,
         "files_include_skills": true,
         "live_registry_check": "REQUIRED_BEFORE_MUTATION"
@@ -28794,7 +28794,7 @@
       "ownership": {
         "status": "first-party"
       },
-      "pack_inventory_sha256": "b9150155e4c9a602f20b17230e40f9ffeb82c405eec19e569a25dbb0bee93aaa",
+      "pack_inventory_sha256": "8098ccbe4f72a3e60fcc6fa407cdea2836267f8fef47336b1977428ebe45f185",
       "candidate_set_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "skill_count": 10,
       "catalog_declared_skill_count": 10,
