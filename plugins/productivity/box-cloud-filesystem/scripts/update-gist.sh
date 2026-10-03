@@ -17,7 +17,7 @@ if [ ! -f "$GIST_ID_FILE" ]; then
   exit 1
 fi
 
-GIST_ID=$(cat "$GIST_ID_FILE" | tr -d '[:space:]')
+GIST_ID=$(tr -d '[:space:]' < "$GIST_ID_FILE")
 echo "Updating gist $GIST_ID..."
 
 # Build a temp dir with all gist files
@@ -47,19 +47,22 @@ cp "$REPO_ROOT/skills/box-cloud-filesystem/SKILL.md" "$TMPDIR/SKILL.md"
 cp "$REPO_ROOT/skills/box-cloud-filesystem/references/operations-guide.md" "$TMPDIR/operations-guide.md"
 cp "$REPO_ROOT/skills/box-cloud-filesystem/references/sync-pattern.md" "$TMPDIR/sync-pattern.md"
 
-# Delete old gist and recreate (gh gist edit can't add/remove files cleanly)
-gh gist delete "$GIST_ID" --yes 2>/dev/null || true
-
-NEW_GIST_URL=$(gh gist create "$TMPDIR"/* \
-  --public \
-  --desc "box-cloud-filesystem — one-pager + operator audit + changelog + full plugin source")
-
-NEW_GIST_ID=$(echo "$NEW_GIST_URL" | grep -oE '[a-f0-9]{32}$')
-
-# Update .gist-id if it changed
-if [ "$NEW_GIST_ID" != "$GIST_ID" ]; then
-  echo "$NEW_GIST_ID" > "$GIST_ID_FILE"
-  echo "Gist ID changed: $GIST_ID -> $NEW_GIST_ID"
+echo "Review the prepared files in $TMPDIR before publishing."
+if [ "${1:-}" != "--apply" ]; then
+  echo "No external change made. Re-run with --apply after explicit approval."
+  exit 0
 fi
 
-echo "Gist updated: $NEW_GIST_URL"
+for source_path in "$TMPDIR"/*; do
+  filename="$(basename "$source_path")"
+  if gh gist view "$GIST_ID" --files | grep -Fqx -- "$filename"; then
+    gh gist edit "$GIST_ID" --filename "$filename" "$source_path"
+  else
+    gh gist edit "$GIST_ID" --add "$source_path"
+  fi
+done
+
+
+gh gist edit "$GIST_ID" \
+  --desc "box-cloud-filesystem — reviewed one-pager, changelog, and plugin source"
+echo "Gist updated in place: https://gist.github.com/$GIST_ID"

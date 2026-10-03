@@ -3,7 +3,7 @@ name: janitor-value
 description: "Show whether each skill is earning its context-window cost — combined tokens-used view sorted by waste. Use when the user asks 'are my skills worth it', 'what's my context budget', 'which skills are dead weight', or wants to audit skill value, token cost, or usage. Trigger with '/janitor-value'."
 allowed-tools: Read, Bash(bash:*)
 argument-hint: "[--weeks N] [--budget N] [--json]"
-version: 1.5.1
+version: 1.7.0
 author: Krzysztof Hendzel <krzysztoff.hendzel@gmail.com>
 license: MIT
 compatibility: Designed for Claude Code. Requires bash 3.2+ (macOS default works). Reads local Claude Code data only (~/.claude/skills, ~/.claude/agents, session history).
@@ -100,6 +100,10 @@ Followed by a summary:
 **Input**: "Give me the raw skill value data."
 
 **Output**: Run the script with `--json` and return the JSON payload unmodified.
+
+### MCP servers (v1.7)
+
+For the MCP side of context cost, run `bash {baseDir}/../../scripts/mcp.sh [--weeks N]` — inventories every configured server (user, project, plugin) with REAL call counts from session transcripts, and lists servers unused in the window. No token guesses: schemas live server-side, so the janitor reports calls, distinct tools used, and last-used instead.
 
 ## Resources
 

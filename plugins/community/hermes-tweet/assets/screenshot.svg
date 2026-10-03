@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" viewBox="0 0 1200 675">
+  <title id="title">Hermes Tweet plugin overview</title>
+  <desc id="desc">Hermes Tweet searches public X posts and requires approval for account changes.</desc>
+  <rect width="1200" height="675" rx="36" fill="#0B1120"/>
+  <rect x="44" y="44" width="1112" height="587" rx="28" fill="#111827" stroke="#334155" stroke-width="2"/>
+  <rect x="84" y="84" width="88" height="88" rx="20" fill="#0F172A"/>
+  <path d="M106 108h44v8h-18v34h-8v-34h-18z" fill="#F9FAFB"/>
+  <path d="M108 139c9-1 16-5 22-11 6-7 13-11 20-13v10c-6 2-12 5-16 10-7 8-16 13-26 14z" fill="#38BDF8"/>
+  <text x="196" y="124" fill="#F9FAFB" font-family="system-ui, sans-serif" font-size="34" font-weight="700">Hermes Tweet</text>
+  <text x="196" y="158" fill="#94A3B8" font-family="system-ui, sans-serif" font-size="19">Twitter search and approved X actions</text>
+  <rect x="84" y="216" width="496" height="322" rx="24" fill="#0F172A"/>
+  <text x="116" y="264" fill="#38BDF8" font-family="system-ui, sans-serif" font-size="18" font-weight="700">RESEARCH</text>
+  <text x="116" y="310" fill="#F8FAFC" font-family="system-ui, sans-serif" font-size="28" font-weight="650">Read public X posts</text>
+  <text x="116" y="350" fill="#CBD5E1" font-family="system-ui, sans-serif" font-size="18">Search tweets, inspect replies, and summarize</text>
+  <text x="116" y="380" fill="#CBD5E1" font-family="system-ui, sans-serif" font-size="18">threads through catalog-listed read routes.</text>
+  <rect x="116" y="430" width="186" height="48" rx="24" fill="#082F49" stroke="#38BDF8"/>
+  <text x="209" y="461" text-anchor="middle" fill="#7DD3FC" font-family="system-ui, sans-serif" font-size="17" font-weight="650">Read-first by default</text>
+  <rect x="620" y="216" width="496" height="322" rx="24" fill="#0F172A"/>
+  <text x="652" y="264" fill="#A78BFA" font-family="system-ui, sans-serif" font-size="18" font-weight="700">ACTIONS</text>
+  <text x="652" y="310" fill="#F8FAFC" font-family="system-ui, sans-serif" font-size="28" font-weight="650">Keep users in control</text>
+  <text x="652" y="350" fill="#CBD5E1" font-family="system-ui, sans-serif" font-size="18">Prepare posting and engagement actions only</text>
+  <text x="652" y="380" fill="#CBD5E1" font-family="system-ui, sans-serif" font-size="18">after explicit enablement and approval.</text>
+  <rect x="652" y="430" width="214" height="48" rx="24" fill="#2E1065" stroke="#A78BFA"/>
+  <text x="759" y="461" text-anchor="middle" fill="#C4B5FD" font-family="system-ui, sans-serif" font-size="17" font-weight="650">Approval-gated writes</text>
+  <text x="84" y="586" fill="#64748B" font-family="system-ui, sans-serif" font-size="16">Not affiliated with X Corp.</text>
+</svg>

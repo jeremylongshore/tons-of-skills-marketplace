@@ -110,6 +110,7 @@ Produces an 816×1056 one-pager with a primary header band, then title and body 
 ## Resources
 
 - `references/layout-grids.md` — every kind's size, the shared grid, per-kind layout, editable zones, and how to add a kind.
+- Rendered previews — `lib/context/letterhead.png` and `slide.png`. Some marketplaces omit binary assets from that directory; if your copy did, view them at [localplugins/plugins](https://github.com/localplugins/plugins/tree/main/brand-forge/lib/context).
 - Sibling skills: generate-logo for marks, and generate-social for platform posts — route between them with the `/brand-make` command.
 - [Paper sizes reference (ISO 216)](https://en.wikipedia.org/wiki/ISO_216) — background on the print dimensions used.
 - [Agent Skills documentation](https://code.claude.com/docs/en/skills) — how skills are authored and invoked.

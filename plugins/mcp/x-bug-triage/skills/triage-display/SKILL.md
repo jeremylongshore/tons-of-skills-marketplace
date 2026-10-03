@@ -1,121 +1,105 @@
 ---
 name: triage-display
 description: |
-  Internal process for the triage-summarizer agent. Defines the step-by-step
-  procedure for formatting triage results as terminal markdown and parsing
-  review commands. Not user-invocable — loaded by the triage-summarizer
-  agent through its skills frontmatter.
-allowed-tools: "Read, Bash(cat:*), Grep, Glob"
-user-invocable: false
-version: 0.1.0
+    Format supplied cluster data as bounded terminal Markdown and parse one
+    review-command string with the triage MCP parser. Use when previewing triage
+    output or validating command syntax without mutating cluster state.
+    Trigger with "format this triage summary" or "parse this review command".
+allowed-tools: "Read, mcp__triage__parse_review_command"
+version: 0.2.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
-license: SEE LICENSE IN LICENSE
+license: MIT
+compatibility: "Designed for Claude Code with the x-bug-triage-plugin MCP server; formatting is model-authored and the only exposed display helper is a syntax parser."
+tags: [triage, terminal, markdown, command-parser, preview]
+argument-hint: "<cluster-json-or-command-text>"
 model: inherit
 effort: medium
-compatibility: "Designed for Claude Code; internal agent-loaded skill (not user-invocable)"
-tags: [triage, display, terminal, review-commands, internal-agent-skill]
 ---
 
-# Triage Display Process
+# Triage Display
 
-Step-by-step procedure for formatting triage results as terminal-ready markdown and handling interactive review command parsing.
+Render data already supplied by the caller or validate review-command syntax. This skill does not
+load clusters, execute commands, mutate SQLite, send Slack messages, or file issues.
 
 ## Overview
 
-Loaded by the `triage-summarizer` agent inside the `x-bug-triage` plugin. Renders the orchestrator's triage results as compact terminal markdown (summary view, detail view, action confirmations) and parses interactive review commands (`details`, `file`, `dismiss`, `merge`, `escalate`, `monitor`, `snooze`, `split`, `reroute`, `full-report`). The skill is purely formatting + parsing — it never mutates triage state directly; it returns parsed commands to the orchestrator for execution.
+The MCP server exposes parse_review_command. It recognizes command shape and numeric cluster tokens,
+but it does not know the current run and cannot confirm that a cluster number exists. Formatting and
+confirmation text are library helpers, not separate MCP tools. Read
+[the runtime contract](references/runtime-contract.md) for exact limits.
 
 ## Prerequisites
 
-- Cluster + evidence + routing rows produced upstream by bug-clustering, repo-scanning, and owner-routing
-- Triage MCP server reachable for `mcp__triage__parse_review_command`
-- Helper library `mcp/triage-server/lib.ts` available for `formatActionConfirmation()`
+- Start the triage MCP server when command parsing is requested.
+- Supply already-redacted cluster, evidence, routing, and source-status data for display.
+- Omit raw X text and secret-bearing URLs. This skill does not perform redaction.
+
+## Authentication
+
+No external authentication is used. The local MCP parser accepts text and performs no network call.
 
 ## Instructions
 
-### Step 1: Render Summary
+### Format a summary
 
-Produce the initial triage summary as terminal markdown:
+1. Validate that every cluster record has an identifier, severity, report count, and state.
+2. Sort by the caller-provided severity ordering; do not compute or raise severity here.
+3. Show no more than five clusters in the compact view and state how many remain.
+4. Label synthetic repo evidence as synthetic. Omit an owner when routing is uncertain.
+5. Keep the compact result near 20 lines when the input permits it.
 
-```
-X Bug Triage — Run {date} {time} UTC
-Account: @{account} · Window: last {window} · {count} posts ({unique} unique, {dedup_groups} duplicate groups)
-[warning] Data quality: {warning}                  ← show ONLY when date_confidence is low or medium
+### Parse a command
 
---- Sources ---                             ← show ALWAYS between header and clusters
-{source_name}      {status}    {count} posts   (rate limit: {remaining}/{limit})
-...
-
---- {n} clusters ({new} new, {existing} existing) ---
-
-{icon} {#} · {bug_signature}
-     {report_count} reports · {severity} severity · {status_note}
-     Owner: {team}
-     Evidence: {t1} Tier 1, {t2} Tier 2, {t3} Tier 3, {t4} Tier 4 · Top: {description}
-
---- Commands ---
-details <#>  ·  file <#>  ·  dismiss <#>  ·  merge <#> <issue>
-escalate <#>  ·  monitor <#>  ·  snooze <#> <duration>
-split <#>  ·  reroute <#>  ·  full-report
-```
-
-### Step 2: Render Detail View (for `details` command)
-
-When showing a single cluster in detail:
-- Family, surface, feature area
-- Report count, confidence percentage
-- Severity + rationale (always show rationale for high/critical)
-- Status and time range (first_seen to last_seen)
-- Evidence summary line (omit tiers with 0 count)
-- Evidence listed by tier (all tiers, highest first)
-- 3 representative posts (highest quality, most distinct, most recent) — truncate at 100 chars
-- Routing with ranked assignees and confidence percentages
-
-### Step 3: Parse Review Commands
-
-When receiving a command string, call `mcp__triage__parse_review_command`:
-- Returns structured ParsedCommand with command, clusterNumber, args, valid, error
-- If invalid: display the error message to the user
-- If valid: return the parsed command to the orchestrator for execution
-
-### Step 4: Render Action Confirmation
-
-After each successfully executed review command, display a confirmation line using `formatActionConfirmation()` from `mcp/triage-server/lib.ts`. Examples:
-- `dismiss 1 noise` → "Cluster #1 dismissed (noise). Suppression rule created."
-- `file 2` → 'Draft issue created for cluster #2. Use "confirm file 2" to submit.'
-- `escalate 3` → "Cluster #3 escalated. Severity raised."
-
-## Formatting Rules
-
-- **Severity icons**: red_circle = critical/high, yellow_circle = medium, green_circle = low
-- **Cluster cap**: Show top 5 by severity. If >5, append "{N} more — type full-report"
-- **Line budget**: Max 20 lines for <=5 clusters in summary view
-- **Post truncation**: Representative posts capped at 100 chars with "..." suffix
-- **Large clusters**: >50 reports — show count + top 3 posts only
-- **Evidence display**: Summary shows per-tier counts + top evidence description. Detail shows per-tier counts + full evidence list, ranked. Omit tiers with 0 count from the summary line.
-- **Routing display**: Summary shows team name only. Detail shows ranked assignees with source and confidence.
+1. Call parse_review_command with message_text.
+2. Return the parsed command, cluster number, optional lower-cased arguments, validity, and error.
+3. Validate the cluster number against the caller's current displayed list; the MCP parser cannot.
+4. Treat a valid parse as syntax only. Never claim the requested action ran.
 
 ## Output
 
-- Markdown-formatted summary view (≤20 lines for ≤5 clusters)
-- Markdown-formatted detail view (per-cluster, on-demand)
-- ParsedCommand object passed back to the orchestrator after a review command
-- Action-confirmation lines after each successfully executed command
+Return either terminal Markdown or a command parse receipt. Include:
 
-## Error Handling
-
-- Invalid command string: render the parser's error message to the terminal, do NOT pass to orchestrator
-- Cluster number out of range: parser flags valid=false with reason "cluster N not in current run"
-- Empty cluster list: emit "No clusters in this run." instead of headers
-- Render failure on a single cluster row: skip that row with a "[render error]" stub line, continue with the rest
+- input cluster count and displayed count;
+- source/degradation warnings provided by the caller;
+- evidence provenance labels;
+- parser validity plus separate current-run validation;
+- a clear no-mutation statement for commands.
 
 ## Examples
 
-Used by the triage-summarizer agent at the end of every triage run, then re-used for each interactive review turn until the user types `done` or session times out. Typical summary output is 12–18 lines covering 3–5 clusters.
+```text
+X Bug Triage - supplied preview
+3 clusters
+1. API timeout - low - 4 reports - owner uncertain
+   Evidence: synthetic Tier 3 records only
+2 more clusters shown...
+```
+
+```text
+Input: dismiss 3 false positive
+Parser: valid syntax; clusterNumber=3; args=false positive
+Execution: not performed
+Current-run validation: required
+```
+
+## Error Handling
+
+| Situation                             | Response                                                                |
+| ------------------------------------- | ----------------------------------------------------------------------- |
+| Missing cluster fields                | Mark the row incomplete; do not fabricate values.                       |
+| Parser reports invalid                | Show its error and stop.                                                |
+| Parser accepts an out-of-range number | Reject it during current-run validation.                                |
+| Command requests a mutation           | Return syntax only and require a separate implementation/approval path. |
+| Unredacted sensitive text is supplied | Refuse to display it.                                                   |
+
+## Guardrails
+
+- Never emit action-confirmation prose unless an external executor supplies a successful receipt.
+- Never say a cluster was dismissed, filed, merged, escalated, snoozed, split, or rerouted from parser
+  output alone.
+- Never claim Slack delivery; no Slack tool is exposed by this plugin.
 
 ## Resources
 
-Load override and memory policy for review command processing:
-
-```
-!cat skills/x-bug-triage/references/review-memory-policy.md
-```
+- [Runtime contract](references/runtime-contract.md)
+- [Repository source](https://github.com/jeremylongshore/x-bug-triage-plugin/tree/main/mcp/triage-server)

@@ -65,6 +65,7 @@ extend-exclude = [
   "plugins/productivity/publishing-skills",
   "plugins/productivity/schedule-after-usage-reset",
   "plugins/productivity/skyvern",
+  "plugins/security/hol-guard",
   "plugins/testing/cli-ux-tester",
   "plugins/testing/kobiton-automate",
   # >>> END sync-lint-ignores <<<

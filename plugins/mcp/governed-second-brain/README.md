@@ -15,6 +15,8 @@
 
 ---
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U5S225PTME)
+
 ## 📍 This product lives in two homes
 
 | | Repo | What it is |
@@ -125,6 +127,44 @@ prompt). Requires Node 20+, a C/C++ toolchain (for `better-sqlite3`), and `qmd` 
 
 After it finishes, start a new Claude Code session — the `governed-brain` tools are live. For the
 `/brain` and `/brain-save` skills too, `claude plugin install governed-second-brain`.
+
+### Forker/local mode — bring your own brain
+
+A fork does not need the team API, a bearer token, or a shared corpus. Leave
+`TEAMKB_API_URL` unset (or empty) and point the local runtime at the fork's own
+brain root and tenant:
+
+```bash
+export TEAMKB_API_URL=""
+export TEAMKB_BASE_PATH="$HOME/.teamkb-my-fork"
+export TEAMKB_TENANT_ID="my-fork"
+
+# Optional: keep the governed Markdown export somewhere else. This is the qmd
+# source tree, not the qmd index itself.
+export TEAMKB_EXPORT_DIR="$TEAMKB_BASE_PATH/kb-export"
+```
+
+The qmd index is derived and tenant-scoped at
+`$TEAMKB_BASE_PATH/qmd-index/$TEAMKB_TENANT_ID`. The plugin sets qmd's XDG
+registry/cache paths to that directory, so personal and forked brains do not
+share an index. `brain_govern` exports governed Markdown and refreshes the
+index; do not point `TEAMKB_EXPORT_DIR` at the index directory.
+
+For a new brain, the installer applies the same contract and registers it with
+Claude Code:
+
+```bash
+npx governed-second-brain init "$HOME/my-notes" \
+  --index-only \
+  --base "$HOME/.teamkb-my-fork" \
+  --tenant "my-fork"
+```
+
+For an existing brain, set the two path components so the derived qmd path
+matches the index you want to use. `brain_status` reports `mode`, `tenantId`,
+`basePath`, `exportDir`, and `qmdIndexPath`; then `/brain "a few distinctive
+keywords"` should return a `qmd://` citation. A non-empty `TEAMKB_API_URL`
+switches to team mode, so do not set it for BYO/local grounding.
 
 ### Team mode — point it at a shared brain
 

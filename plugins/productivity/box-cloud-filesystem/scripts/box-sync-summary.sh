@@ -1,29 +1,22 @@
 #!/usr/bin/env bash
-# Stop hook: report Box sync activity when Claude finishes responding.
-# Reads the sync log written by box-sync-on-write.sh and prints a summary.
+# Stop hook: report local changes awaiting an explicit reviewed Box sync.
 
 set -euo pipefail
 
-BOX_CONFIG="${HOME}/.box-cloud-filesystem.json"
-[ ! -f "$BOX_CONFIG" ] && exit 0
+config_root="${XDG_CONFIG_HOME:-${HOME}/.config}/box-cloud-filesystem"
+config_path="${config_root}/config.json"
+[ -f "$config_path" ] || exit 0
 
-WORKSPACE=$(jq -r '.workspace' "$BOX_CONFIG" 2>/dev/null)
-LOG_FILE="$WORKSPACE/.box-sync.log"
+workspace_path="$(jq -r '.workspace // empty' "$config_path" 2>/dev/null)"
+[ -n "$workspace_path" ] && [ -d "$workspace_path" ] || exit 0
 
-[ ! -f "$LOG_FILE" ] && exit 0
+canonical_workspace="$(cd "$workspace_path" && pwd -P)"
+pending_path="${canonical_workspace}/.box-sync-pending"
+[ -s "$pending_path" ] || exit 0
 
-SYNC_COUNT=$(wc -l < "$LOG_FILE" | tr -d ' ')
-[ "$SYNC_COUNT" -eq 0 ] && exit 0
-
-echo ""
-echo "Box Sync Summary: $SYNC_COUNT file(s) synced to Box"
-while read -r ts action file id; do
-  case "$action" in
-    version_upload) echo "  - updated: $file (ID: $id)" ;;
-    new_upload)     echo "  - uploaded: $file (ID: $id)" ;;
-    *)              echo "  - $action: $file (ID: $id)" ;;
-  esac
-done < "$LOG_FILE"
-
-# Clear log for next session
-> "$LOG_FILE"
+pending_count="$(wc -l < "$pending_path" | tr -d ' ')"
+echo "Box sync review required: ${pending_count} local file(s) are pending."
+while IFS= read -r relative_path; do
+  printf '  - %s\n' "$relative_path"
+done < "$pending_path"
+echo "No Box upload was performed. Review remote state and explicitly sync approved files."

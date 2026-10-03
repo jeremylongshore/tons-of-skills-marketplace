@@ -1,6 +1,6 @@
 # Prerequisites — detailed checks
 
-Reference for the `install` mode's Step 0. Three checks; each has a
+Reference for the `install` mode's Step 0. Each check has a
 deterministic detection command and a copy-pasteable recovery.
 
 ## 1. Bun ≥ 1.0
@@ -61,7 +61,7 @@ Edit `.mcp.json`:
 + "args": ["run", "--rm", "-i", "-v", "~/.claude/channels/slack:/state", "claude-slack-channel"]
 ```
 
-## 2. Claude Code ≥ v2.1.80
+## 2. Claude Code with Channels support
 
 **Detect:**
 
@@ -69,12 +69,13 @@ Edit `.mcp.json`:
 claude --version
 ```
 
-Channels require **v2.1.80** at minimum (Research Preview floor). Older
-versions silently fail to load the plugin with non-obvious errors.
+Use a current Claude Code build and confirm that `claude --help` exposes the
+`--channels` option. Version `2.1.80` was the original research-preview floor,
+not a permanent statement of the current support boundary.
 
 **Upgrade:**
 
-Follow the official install / upgrade path at https://docs.claude.com/claude-code/install.
+Follow the official install / upgrade path at https://code.claude.com/docs/en/setup.
 On most systems:
 
 ```bash
@@ -87,7 +88,7 @@ npm install -g @anthropic-ai/claude-code@latest
 
 Re-check with `claude --version` after upgrading.
 
-## 3. `claude.ai` login (NOT API-key-only)
+## 3. Supported Anthropic authentication and organization policy
 
 **Detect:**
 
@@ -95,30 +96,30 @@ Re-check with `claude --version` after upgrading.
 claude auth status
 ```
 
-(Or whatever the current command surface is — the exact subcommand has
-evolved across Claude Code versions. Look for indication of an active
-`claude.ai` session in the output.)
+(If the installed build exposes a different auth-status command, trust its
+current `--help` output.)
 
-If the output shows only `ANTHROPIC_API_KEY` set with no `claude.ai`
-session, Channels will fail to load. **This is a Research Preview
-constraint** — API-key-only auth does not work for Channels.
+The current Channels contract accepts either a `claude.ai` account or an
+Anthropic Console API key. It does not support authentication through Amazon
+Bedrock, Google Cloud's Agent Platform, or Microsoft Foundry.
 
-**Fix:**
+For a `claude.ai` login:
 
 ```bash
 claude login
 ```
 
-Complete the browser flow. After login completes, `claude auth status`
-should show an active `claude.ai` session.
+Complete the browser flow, then confirm the authenticated session. Console API
+key users should confirm that Claude Code is using their Console credential.
 
 ### Why this matters
 
-Channels uses features that gate on `claude.ai` session identity (per
-the Research Preview constraint). When the only auth signal is
-`ANTHROPIC_API_KEY`, the plugin loader rejects the channel registration
-with a non-obvious error in `~/.claude/logs/`. The user sees "the bot
-just doesn't work."
+On claude.ai Team and Enterprise plans, an Owner must enable Channels under
+**Admin settings → Claude Code → Channels**, or deploy
+`channelsEnabled: true` in managed settings. Console organizations permit
+Channels by default unless managed settings disable them. A policy block can
+look like a plugin-registration failure, so check it before rotating Slack
+tokens.
 
 ## Optional: `jq` (only needed for `doctor` / `repair` modes)
 
@@ -145,8 +146,9 @@ sudo dnf install jq
 # Other: https://jqlang.org/download/
 ```
 
-## All three green? Proceed to Step 1
+## All required checks green? Proceed to Step 1
 
-When `bun --version`, `claude --version`, and `claude auth status` all
-report acceptable values, you have the prerequisites in place. Continue
-to the Slack app creation step.
+When the runtime, Channels option, authentication, and organization policy all
+report acceptable values, continue to the Slack app creation step.
+
+Authoritative source: [Claude Code Channels](https://code.claude.com/docs/en/channels).

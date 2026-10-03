@@ -30,10 +30,6 @@ import {
 const AnalyzePRSchema = z.object({
 	repo: z.string().describe("GitHub repo in owner/name format, e.g. 'facebook/react'"),
 	pr: z.number().int().positive().describe("Pull request number"),
-	token: z
-		.string()
-		.optional()
-		.describe("GitHub personal access token (falls back to GITHUB_TOKEN env)"),
 });
 
 const ScanLocalSchema = z.object({
@@ -88,9 +84,9 @@ const AnalyzeAssumptionsSchema = z.object({
 // ---------------------------------------------------------------------------
 
 async function analyzePR(args: z.infer<typeof AnalyzePRSchema>) {
-	const token = args.token ?? process.env.GITHUB_TOKEN;
+	const token = process.env.GITHUB_TOKEN;
 	if (!token) {
-		throw new Error("GitHub token required. Pass 'token' argument or set GITHUB_TOKEN env var.");
+		throw new Error("GitHub token required. Set GITHUB_TOKEN in the MCP server environment.");
 	}
 
 	const [owner, repo] = args.repo.split("/");
@@ -233,7 +229,7 @@ function analyzeAssumptionsTool(args: z.infer<typeof AnalyzeAssumptionsSchema>) 
 const server = new Server(
 	{
 		name: "pr-spec-analyzer",
-		version: "0.8.0",
+		version: "0.8.1",
 	},
 	{
 		capabilities: {
@@ -259,10 +255,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 						pr: {
 							type: "number",
 							description: "Pull request number",
-						},
-						token: {
-							type: "string",
-							description: "GitHub personal access token (falls back to GITHUB_TOKEN env var)",
 						},
 					},
 					required: ["repo", "pr"],

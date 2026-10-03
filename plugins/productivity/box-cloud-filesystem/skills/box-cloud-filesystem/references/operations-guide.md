@@ -43,7 +43,7 @@ box files:download FILE_ID --destination /tmp/box-workspace/
 Download an entire folder:
 
 ```bash
-box folders:download FOLDER_ID --destination /tmp/box-workspace/
+box folders:download FOLDER_ID --destination /tmp/box-workspace/ --create-path
 ```
 
 After downloading, read and process with standard tools. The local copy is the working copy.
@@ -95,7 +95,7 @@ These operations change file locations. Confirm the destination folder ID is cor
 box files:move FILE_ID DESTINATION_FOLDER_ID
 box files:copy FILE_ID DESTINATION_FOLDER_ID
 box folders:move FOLDER_ID DESTINATION_FOLDER_ID
-box files:delete FILE_ID       # Moves to trash (recoverable 30 days)
+box files:delete FILE_ID       # Moves to trash; retention depends on enterprise policy
 box folders:delete FOLDER_ID   # Recursive — confirm with user first
 ```
 
@@ -107,7 +107,7 @@ Sharing is an **exposure operation** — it changes who can see a file. Treat it
 
 | Level | Who can access | When to use | Default? |
 |-------|---------------|-------------|----------|
-| `collaborators` | Only users explicitly invited | Most tasks — internal handoff, team work | **Yes — always default** |
+| `collaborators` | Only users explicitly invited | Most tasks — internal handoff, team work | **Narrow example** |
 | `company` | Anyone in the same Box enterprise | Org-wide docs, internal wiki links | When user says "share with the team/org" |
 | `open` | Anyone with the link, no login required | **Only when user explicitly says "public" or "open"** | **Never default** |
 
@@ -118,7 +118,10 @@ box files:share FILE_ID --access collaborators
 box folders:share FOLDER_ID --access collaborators
 ```
 
-If the user says "share this file" without specifying access, use `collaborators`. If they say "make it public" or "open link," use `open` — but confirm first: "This will make the file accessible to anyone with the link. Proceed?"
+If the user says "share this file" without specifying access, ask who should
+receive it rather than inferring an audience. If they say "make it public" or
+"open link," confirm first: "This will make the file accessible to anyone with
+the link. Proceed?"
 
 Always report: the access level used, the URL generated, and who can access it.
 
@@ -135,11 +138,11 @@ box files:unshare FILE_ID
 | `Not Found` (404) | Wrong file/folder ID, or item deleted/trashed | Verify the ID with `box search` or re-list the parent folder |
 | `Conflict` (409) on upload | File with same name exists in target folder | Use `box files:versions:upload FILE_ID` to update, or `--name` to upload as distinct file |
 | `Forbidden` (403) | Auth token lacks permission | Re-run `box login` or check JWT scopes; ensure collaborator access to target folder |
-| `Rate Limited` (429) | Too many API calls in succession | CLI retries automatically; for bulk ops, use `--bulk-file-path` to batch via CSV |
-| `Auth expired` | Developer token (60 min) or OAuth refresh failed | Run `box login` again; for production use JWT or CCG |
+| `Rate Limited` (429) | Too many API calls in succession | Honor returned retry guidance; reduce repeated calls and use supported bulk input where appropriate |
+| `Auth expired` | Interactive or application authentication is no longer valid | Run `box login` again for interactive use; application auth requires an approved Box Platform configuration |
 | `File too large` | Box enforces per-file size limits by plan | Split large files or check Box plan limits |
-| `box: command not found` | CLI not installed or not in PATH | Run `npm install --global @box/cli` and ensure npm global bin is in PATH |
-| Empty search results | Box indexes asynchronously; new files may take 5-10 min | Wait and retry, or use `box folders:items` to browse directly |
+| `box: command not found` | CLI not installed or not in PATH | Review the official Box CLI installation instructions and obtain approval before installing packages |
+| Empty search results | Search may not show the expected item | Use `box folders:items` to inspect the verified parent directly before retrying |
 | `Name collision` | Multiple files with same name in different folders | Always use file ID, never filename, to identify targets |
 | `Partial upload failure` | Network interruption during multi-file upload | Re-list target folder to see what succeeded; retry only failed files by ID |
 | `Forbidden share` | Cannot create shared link at requested level | Enterprise admin may restrict sharing; fall back to `collaborators` or check admin settings |

@@ -1,0 +1,21 @@
+{
+  "synced_from": {
+    "repo": "hashgraph-online/hol-guard-plugin",
+    "path": "distributions/tons-of-skills-marketplace",
+    "branch": "main"
+  },
+  "last_sync": "2026-10-01T05:35:03.634Z",
+  "author": {
+    "name": "Hashgraph Online",
+    "github": "hashgraph-online"
+  },
+  "license": "Apache-2.0",
+  "files_synced": 5,
+  "files": [
+    ".claude-plugin/plugin.json",
+    "LICENSE",
+    "README.md",
+    "skills/hol-guard/SKILL.md",
+    "skills/plugin-scanner/SKILL.md"
+  ]
+}

@@ -24,6 +24,7 @@ The people who would otherwise quit alone: no affordable professional help, no i
 
 This is a standard Agent Skills folder (the SKILL.md format), so it works in any tool that reads the standard.
 
+- ClawHub: `clawhub install quit-sponsor` ([skill page](https://clawhub.ai/skill/quit-sponsor)).
 - Claude Code: clone this repo into `~/.claude/skills/quit-sponsor/`, or add the repo as a plugin marketplace and install from it (a manifest is included).
 - Other Agent Skills readers (various CLI agents and IDE assistants): place the folder where your tool discovers skills.
 

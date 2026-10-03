@@ -10236,10 +10236,10 @@
         "hooks": 2
       },
       "verification": {
-        "score": 93,
+        "score": 100,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "lastValidated": "2026-10-01T00:00:00.000Z"
       }
     },
     {
@@ -10292,10 +10292,10 @@
         "agent-protocol"
       ],
       "verification": {
-        "score": 94,
+        "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "lastValidated": "2026-10-01T00:00:00.000Z"
       }
     },
     {
@@ -10327,10 +10327,10 @@
         "skills": 2
       },
       "verification": {
-        "score": 90,
+        "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "lastValidated": "2026-10-01T00:00:00.000Z"
       }
     },
     {
@@ -10362,10 +10362,10 @@
         "agents": 4
       },
       "verification": {
-        "score": 88,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-10-01T00:00:00.000Z"
       }
     },
     {
@@ -10739,10 +10739,10 @@
       "repository": "https://github.com/jeremylongshore/x-bug-triage-plugin",
       "license": "MIT",
       "verification": {
-        "score": 88,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-10-01T00:00:00.000Z"
       }
     },
     {
@@ -10973,10 +10973,10 @@
       "repository": "https://github.com/jeremylongshore/bobs-big-brain-plugin",
       "license": "Apache-2.0",
       "verification": {
-        "score": 90,
+        "score": 96,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "lastValidated": "2026-10-01T00:00:00.000Z"
       }
     },
     {
@@ -11028,10 +11028,10 @@
       "repository": "https://github.com/jeremylongshore/dolt-mcp-vcs",
       "license": "Apache-2.0",
       "verification": {
-        "score": 98,
+        "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "lastValidated": "2026-10-01T00:00:00.000Z"
       }
     },
     {
@@ -11056,10 +11056,10 @@
       "repository": "https://github.com/AutomateLab-tech/publishing-skills",
       "license": "MIT-0",
       "verification": {
-        "score": 95,
-        "grade": "A",
-        "badge": "gold",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "score": 61,
+        "grade": "D",
+        "badge": "bronze",
+        "lastValidated": "2026-10-01T00:00:00.000Z"
       }
     },
     {
@@ -11089,10 +11089,10 @@
       "repository": "https://github.com/jeremylongshore/dolt-mcp-vcs",
       "license": "Apache-2.0",
       "verification": {
-        "score": 98,
+        "score": 95,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "lastValidated": "2026-10-01T00:00:00.000Z"
       }
     },
     {
@@ -11118,10 +11118,10 @@
       "repository": "https://github.com/Xquik-dev/hermes-tweet",
       "license": "MIT",
       "verification": {
-        "score": 100,
+        "score": 98,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "lastValidated": "2026-10-01T00:00:00.000Z"
       }
     },
     {
@@ -11414,10 +11414,10 @@
       "repository": "https://github.com/khendzel/skills-janitor",
       "license": "MIT",
       "verification": {
-        "score": 93,
+        "score": 92,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "lastValidated": "2026-10-01T00:00:00.000Z"
       }
     },
     {
@@ -11619,6 +11619,34 @@
         "grade": "A",
         "badge": "gold",
         "lastValidated": "2026-09-11T00:00:00.000Z"
+      }
+    },
+    {
+      "name": "hol-guard",
+      "source": "./plugins/security/hol-guard",
+      "description": "Local pre-execution security controls and pre-install scanning for AI agent tools, packages, skills, plugins, and MCP servers.",
+      "version": "0.1.0",
+      "category": "security",
+      "keywords": [
+        "hol-guard",
+        "ai-security",
+        "agent-security",
+        "plugin-security",
+        "mcp-security",
+        "supply-chain-security"
+      ],
+      "author": {
+        "name": "Hashgraph Online",
+        "url": "https://github.com/hashgraph-online"
+      },
+      "homepage": "https://github.com/hashgraph-online/hol-guard",
+      "repository": "https://github.com/hashgraph-online/hol-guard-plugin",
+      "license": "Apache-2.0",
+      "verification": {
+        "score": 90,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-10-01T00:00:00.000Z"
       }
     }
   ]

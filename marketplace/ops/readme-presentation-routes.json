@@ -4,7 +4,34 @@
     "source_commit": "f3540e47cc58e22b0b762e3db71d3b5f4a6b2524",
     "captured_at": "2026-09-02",
     "intentional_raw_html_tag_tokens": 178,
-    "method": "Post-paragraph-buffer renderer audit. Fenced and inline code are opaque; literal documentation is not presentation loss."
+    "method": "Post-paragraph-buffer renderer audit. Fenced and inline code are opaque; literal documentation is not presentation loss.",
+    "reaudits": [
+      {
+        "date": "2026-10-01",
+        "entries": [
+          "hermes-tweet",
+          "portaljs",
+          "slack-channel"
+        ],
+        "source_commit": "55673cc969654a5f41b70c16d006717f17efcbde",
+        "reason": "Reviewed drift relock (#1595) changed these mirrored READMEs; each stays byte-identical to its locked upstream bytes.",
+        "renderer_escaped_opening_tags_before_after": {
+          "hermes-tweet": [
+            2,
+            0
+          ],
+          "portaljs": [
+            21,
+            21
+          ],
+          "slack-channel": [
+            3,
+            3
+          ]
+        },
+        "note": "intentional_raw_html_tag_tokens (178) remains the 2026-09-02 figure for the original audit commit. Under a reproducible proxy (opening tags escaped by marketplace mdToHtml outside code) these three READMEs went 26 -> 24; none gained raw HTML."
+      }
+    ]
   },
   "entries": [
     {
@@ -29,7 +56,9 @@
       "provenance": "plugins/community/portaljs/.source.json",
       "upstream": "datopian/portaljs",
       "route": "https://github.com/datopian/portaljs/issues/new",
-      "limitation": "The safe marketplace renderer cannot preserve the upstream centered logo, title, line breaks, or linked badge row from raw HTML."
+      "limitation": "The safe marketplace renderer cannot preserve the upstream centered logo, title, line breaks, or linked badge row from raw HTML.",
+      "source_commit": "55673cc969654a5f41b70c16d006717f17efcbde",
+      "reaudited_at": "2026-10-01"
     },
     {
       "plugin": "databricks-workspace-mcp",
@@ -45,14 +74,16 @@
     {
       "plugin": "slack-channel",
       "readme": "plugins/mcp/slack-channel/README.md",
-      "source_sha256": "b1cdf0830036fcbb08284324dc5ab5661ee2bcb450dac011f88a59b08b1b62c7",
-      "current_sha256": "b1cdf0830036fcbb08284324dc5ab5661ee2bcb450dac011f88a59b08b1b62c7",
+      "source_sha256": "b5c775a121a037cfd3e1186ebc4d5fd4ceaf3c5e646b15aa56f70f90a3b32de6",
+      "current_sha256": "b5c775a121a037cfd3e1186ebc4d5fd4ceaf3c5e646b15aa56f70f90a3b32de6",
       "ownership": "upstream-mirror",
       "sources_lock_key": "slack-channel",
       "provenance": "plugins/mcp/slack-channel/.source.json",
       "upstream": "jeremylongshore/claude-code-slack-channel",
       "route": "https://github.com/jeremylongshore/claude-code-slack-channel/issues/new",
-      "limitation": "The safe marketplace renderer displays the three upstream named installation anchors as escaped text until their source uses heading-derived Markdown anchors."
+      "limitation": "The safe marketplace renderer displays the three upstream named installation anchors as escaped text until their source uses heading-derived Markdown anchors.",
+      "source_commit": "55673cc969654a5f41b70c16d006717f17efcbde",
+      "reaudited_at": "2026-10-01"
     },
     {
       "plugin": "servicegraph",
@@ -93,14 +124,16 @@
     {
       "plugin": "hermes-tweet",
       "readme": "plugins/community/hermes-tweet/README.md",
-      "source_sha256": "9696bc20f7f6982b66510236e1802088ddba89563ea1367800c1d6d51d98fccf",
-      "current_sha256": "9696bc20f7f6982b66510236e1802088ddba89563ea1367800c1d6d51d98fccf",
+      "source_sha256": "a6c9329e4ace1f42a009f5f3eab87102ed46a85b1d2d52e8726819f3c9df8e49",
+      "current_sha256": "a6c9329e4ace1f42a009f5f3eab87102ed46a85b1d2d52e8726819f3c9df8e49",
       "ownership": "upstream-mirror",
       "sources_lock_key": "hermes-tweet",
       "provenance": "plugins/community/hermes-tweet/.source.json",
       "upstream": "Xquik-dev/hermes-tweet",
       "route": "https://github.com/Xquik-dev/hermes-tweet/issues/new",
-      "limitation": "The safe marketplace renderer cannot preserve the upstream linked agent-readiness badge from raw HTML."
+      "limitation": "None since the 2026-10-01 reviewed relock (upstream 916edf4): upstream replaced its raw-HTML agent-readiness badge with Markdown badges, which the safe renderer preserves.",
+      "source_commit": "55673cc969654a5f41b70c16d006717f17efcbde",
+      "reaudited_at": "2026-10-01"
     }
   ]
 }

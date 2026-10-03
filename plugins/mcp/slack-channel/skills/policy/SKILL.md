@@ -1,14 +1,16 @@
 ---
 name: policy
-description: Author MCP tool-call policy rules without hand-editing access.json. Use when adding, linting, or removing auto_approve/deny/require_approval rules for the Slack channel's policy engine. Trigger with "/slack-channel:policy", "add a policy rule", "lint my slack policy", or "remove a policy rule".
-version: 1.0.1
+description: Analyze and author MCP tool-call policy rules without hand-editing access.json. Use when adding, linting, or removing auto_approve/deny/require_approval rules for the Slack channel's policy engine. Trigger with "/slack-channel:policy", "add a policy rule", "lint my slack policy", or "remove a policy rule".
+version: 1.1.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: Apache-2.0
 compatibility: Requires Claude Code with the slack-channel plugin installed and paired (state under ~/.claude/channels/slack/), plus Bun to run the in-repo policy validator script.
 tags: [slack, policy, access-control, mcp]
 user-invocable: true
-argument-hint: "list | lint | add <id> <effect> <json-match> [--reason \"...\"] [--ttl-ms N] [--approvers N] [--priority N] | remove <id>"
+argument-hint: 'list | lint | add <id> <effect> <json-match> [--reason "..."] [--ttl-ms N] [--approvers N] [--priority N] | remove <id>'
 allowed-tools: [Read, Write, "Bash(bun:*)", "Bash(chmod:*)", "Bash(mv:*)"]
+model: inherit
+effort: high
 ---
 
 # /slack-channel:policy
@@ -49,11 +51,11 @@ must be populated; the validator rejects empty matches.
 
 ### Options by effect
 
-| Effect             | Required               | Optional                                   |
-|--------------------|------------------------|--------------------------------------------|
-| `auto_approve`     | —                      | `--priority`                               |
-| `deny`             | `--reason "…"` (1-200) | `--priority`                               |
-| `require_approval` | —                      | `--ttl-ms`, `--approvers`, `--priority`    |
+| Effect             | Required               | Optional                                |
+| ------------------ | ---------------------- | --------------------------------------- |
+| `auto_approve`     | —                      | `--priority`                            |
+| `deny`             | `--reason "…"` (1-200) | `--priority`                            |
+| `require_approval` | —                      | `--ttl-ms`, `--approvers`, `--priority` |
 
 Defaults: `priority=100`, `ttl-ms=300000` (5 min), `approvers=1`.
 
@@ -179,6 +181,7 @@ Common rule-authoring flows, from permissive to strict:
 
 ## Resources
 
+- [`references/rule-safety.md`](references/rule-safety.md) — pre-write decision and rollback checklist
 - [`ACCESS.md` §Policy schema](https://github.com/jeremylongshore/claude-code-slack-channel/blob/main/ACCESS.md#policy-schema-v050) — full rule shape, defaults, and evaluator semantics
 - [`README.md` § Policy Engine](https://github.com/jeremylongshore/claude-code-slack-channel/blob/main/README.md#policy-engine-v060) — the policy engine's place in the five-layer defense
 - [`skills/access/SKILL.md`](https://github.com/jeremylongshore/claude-code-slack-channel/blob/main/skills/access/SKILL.md) — pairing, allowlist, and channel opt-in (the rest of `access.json`)
