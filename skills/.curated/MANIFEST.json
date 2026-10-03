@@ -36236,6 +36236,7 @@
         "references/implementation.md",
         "scripts/basis_calculator.py",
         "scripts/derivatives_tracker.py",
+        "scripts/exchange_client.py",
         "scripts/formatters.py",
         "scripts/funding_tracker.py",
         "scripts/liquidation_monitor.py",
