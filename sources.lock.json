@@ -1627,6 +1627,28 @@
         "LICENSE": "sha256:c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
         "SKILL.md": "sha256:63ec141afb1468c877dc5c8c240672a27ffec0328011f3e9d6db4fa4d4cf5bf7"
       }
+    },
+    "swift-ship": {
+      "repo": "chsistrying/swift-ship-skills",
+      "resolved_ref": "b2b0b9b5de94877cbcf2764234234a4334517e68",
+      "locked_at": "2026-10-03T20:01:35.695Z",
+      "files": {
+        ".claude-plugin/marketplace.json": "sha256:df166c32a924c475f750c59cf91d0ec4deb4e358c9219ee208f16042e7372259",
+        ".claude-plugin/plugin.json": "sha256:aee9a6ed9213c15aa4b839d3a8effec7688c7fdd92889f2d7602183bc5969e03",
+        "LICENSE": "sha256:8b58d717add03a779c13f70bb665d8ea68be4fdd71e22fc3992e7f91c649b086",
+        "README.md": "sha256:3359fc2774c2d9b0f418e7511b51be5cc43a8f7c94aa52a6665126ef158c1583",
+        "skills/macos-app-icon/scripts/make_icns.sh": "sha256:86b3e5e3690394a993b001e526c33227bb699c84245a1c82d6389fad2388f07a",
+        "skills/macos-app-icon/SKILL.md": "sha256:c870e99e4c874407581db11956a8e316d4c68a620b93f1ef3957be6824dc34b4",
+        "skills/oss-readiness-audit/SKILL.md": "sha256:a0997d8ecfd4213686409f03478c5ce65705b0928518d189480e57d078f34c7c",
+        "skills/swift-ci-portability/assets/ci.yml.template": "sha256:473fa7814e421a02c69434363023189460082375a1683a81176cf083d32da88f",
+        "skills/swift-ci-portability/references/portability-traps.md": "sha256:1c39b5dc8b700ff435ab137313a73b3207ef7ad5c013e7e475ab09a3f6699455",
+        "skills/swift-ci-portability/SKILL.md": "sha256:2c58f22eeb0725d659839ae045b336d4162db36cc50eb4a5115b3a55db62de30",
+        "skills/swift-release-flow/SKILL.md": "sha256:eb5e57a7357fa6f455a961d8583a0e55db611f490dfc7471249bb746a57bcdd8",
+        "skills/swiftpm-app-bundle/assets/Info.plist.template": "sha256:4c2b6922ccd63aaf30574534c701a3d2bf0ecc2cfdcff8940359cfe427021044",
+        "skills/swiftpm-app-bundle/references/signing-notarization.md": "sha256:c44ab7066620abf406f0b44cbe235d64fb8b34b283ddf25a178b74f10da6b1f5",
+        "skills/swiftpm-app-bundle/scripts/package_app.sh": "sha256:3192eeee90d1ea6cb2f11da5726036f139991f4d88af745660fbd9a12ea4c18a",
+        "skills/swiftpm-app-bundle/SKILL.md": "sha256:484ad1981681ca30c1893b3536f41b46b980f11ce7465914e7fd5fb0f04b8229"
+      }
     }
   }
 }
