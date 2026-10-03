@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/file-to-code",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Enhances file reading Skills by generating production-ready code from requirements documents",
   "keywords": [
     "code-generation",
