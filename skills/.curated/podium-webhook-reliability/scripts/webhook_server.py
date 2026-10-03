@@ -57,7 +57,11 @@ def safe_log_value(value: object) -> str:
     interpolated into a log message. Webhook payload fields (event type, event
     id) are attacker-influenced even when the request signature is valid, so
     they must never reach the logger unsanitized (CodeQL py/log-injection)."""
-    return _LOG_CONTROL_CHARS_RE.sub("", str(value))
+    # Explicit CR/LF removal first: CodeQL models str.replace of newlines as a
+    # log-injection sanitizer but not a regex substitution. The regex then
+    # strips the remaining control characters.
+    text = str(value).replace("\r", "").replace("\n", "")
+    return _LOG_CONTROL_CHARS_RE.sub("", text)
 
 
 app = FastAPI()
