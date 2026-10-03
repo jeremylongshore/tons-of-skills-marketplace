@@ -1618,6 +1618,15 @@
         "skills/ct-setup-project/SKILL.md": "sha256:1d0b249929e97f698100f08ea9a984f78c0b5d5ab6ab51a2c2b96d7662e9bea2",
         "skills/ct-test-loop/SKILL.md": "sha256:ee8bf6ef616c4dba1efe54ce2dbf802f8061e565c41cc280b633a902a0196c56"
       }
+    },
+    "orca-replay": {
+      "repo": "Continuum-AI-Corp/OrcaReplay",
+      "resolved_ref": "a9178ca26af95cfd3231b8eb2da4ae11dbbd0a84",
+      "locked_at": "2026-10-03T20:01:34.974Z",
+      "files": {
+        "LICENSE": "sha256:c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+        "SKILL.md": "sha256:63ec141afb1468c877dc5c8c240672a27ffec0328011f3e9d6db4fa4d4cf5bf7"
+      }
     }
   }
 }
