@@ -1289,7 +1289,7 @@
       "name": "crypto-derivatives-tracker",
       "source": "./plugins/crypto/crypto-derivatives-tracker",
       "description": "Track crypto futures, options, perpetual swaps with funding rates, open interest, and derivatives market analysis",
-      "version": "1.28.0",
+      "version": "1.29.0",
       "category": "crypto",
       "keywords": [
         "crypto",

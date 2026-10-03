@@ -32202,7 +32202,7 @@
       "slug": "tracking-crypto-derivatives",
       "name": "tracking-crypto-derivatives",
       "description": "Track cryptocurrency futures, options, and perpetual swaps with funding rates, open interest, liquidations, and comprehensive derivatives market analysis. Use when monitoring derivatives markets, analyzing funding rates, tracking open interest, finding liquidation levels, or researching options flow. Trigger with phrases like \"funding rate\", \"open interest\", \"perpetual swap\", \"futures basis\", \"liquidation levels\", \"options flow\", \"put call ratio\", \"derivatives analysis\", or \"BTC perps\".",
-      "version": "1.28.0",
+      "version": "1.29.0",
       "category": "crypto",
       "parentPlugin": "crypto-derivatives-tracker",
       "requires_env": [],

@@ -3813,7 +3813,7 @@
         "email": "[email protected]"
       },
       "authorType": "official",
-      "version": "1.28.0",
+      "version": "1.29.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -75120,7 +75120,7 @@
         "Bash(crypto:derivatives-*)"
       ],
       "compatibleWith": [],
-      "version": "1.28.0",
+      "version": "1.29.0",
       "parentPlugin": {
         "name": "crypto-derivatives-tracker",
         "category": "crypto"
