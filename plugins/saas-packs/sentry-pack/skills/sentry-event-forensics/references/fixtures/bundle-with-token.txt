@@ -1,0 +1,5 @@
+SDK @sentry/browser 8.9.0
+DSN host: o123.ingest.sentry.io
+SENTRY_AUTH_TOKEN=sntrys_exampleSecretValue_do_not_print
+Authorization: Bearer sntrys_anotherSecret
+init: Sentry.init({ dsn: "https://publickey@o123.ingest.sentry.io/1" })

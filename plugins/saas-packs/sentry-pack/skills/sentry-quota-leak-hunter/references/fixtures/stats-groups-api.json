@@ -1,0 +1,11 @@
+{
+  "org": "acme",
+  "start": "2026-09-03T00:00:00Z",
+  "end": "2026-10-03T00:00:00Z",
+  "groups": [
+    {"by": {"category": "error", "outcome": "accepted"}, "totals": {"sum(quantity)": 100}},
+    {"by": {"category": "error", "outcome": "filtered"}, "totals": {"sum(quantity)": 40}},
+    {"by": {"category": "error", "outcome": "rate_limited"}, "totals": {"sum(quantity)": 5}},
+    {"by": {"category": "transaction", "outcome": "accepted"}, "totals": {"sum(quantity)": 20}}
+  ]
+}

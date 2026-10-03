@@ -1,0 +1,9 @@
+{
+  "org": "acme",
+  "window": "30d",
+  "subscription_screen_usd": 4200,
+  "per_event_usd": 0.029,
+  "categories": {
+    "error": {"accepted": 10, "filtered": 1, "dropped": 2}
+  }
+}

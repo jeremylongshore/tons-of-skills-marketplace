@@ -1,0 +1,10 @@
+{
+  "comment": "Example written standard for settings-diff.py. Replace with the org's standard. Do not treat this file as the customer's live config.",
+  "sendDefaultPii": false,
+  "dataScrubber": true,
+  "scrubIPAddresses": true,
+  "sensitiveFields": ["password", "secret", "token", "credit_card", "ssn", "email"],
+  "maskAllText": true,
+  "blockAllMedia": true,
+  "networkCaptureBodies": false
+}

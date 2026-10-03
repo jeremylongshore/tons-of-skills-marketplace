@@ -1,0 +1,19 @@
+{
+  "event_id": "cccccccccccccccccccccccccccccccc",
+  "platform": "javascript",
+  "release": "frontend@1.4.0",
+  "debug_meta": {"images": []},
+  "exception": {
+    "values": [
+      {
+        "type": "Error",
+        "value": "minified",
+        "stacktrace": {
+          "frames": [
+            {"filename": "app.min.js", "function": "a", "in_app": true, "data": {"resolved_with": "release-old"}}
+          ]
+        }
+      }
+    ]
+  }
+}
