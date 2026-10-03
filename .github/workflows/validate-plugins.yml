@@ -1853,10 +1853,10 @@ jobs:
         shell: bash
         run: >-
           set -euo pipefail;
-          source_commit="$(node -e "const r=require('./marketplace/ops/readme-presentation-routes.json'); process.stdout.write(r.audit.source_commit)")";
-          readonly source_commit;
-          [[ "$source_commit" =~ ^[0-9a-f]{40}$ ]];
-          git fetch --no-tags --depth=1 origin "$source_commit"
+          source_commits="$(node -e "const r=require('./marketplace/ops/readme-presentation-routes.json'); process.stdout.write([...new Set([r.audit.source_commit, ...r.entries.map((e) => e.source_commit).filter(Boolean)])].join(' '))")";
+          readonly source_commits;
+          for c in $source_commits; do [[ "$c" =~ ^[0-9a-f]{40}$ ]]; done;
+          git fetch --no-tags --depth=1 origin $source_commits
 
       - name: Setup Node.js
         uses: actions/setup-node@v6

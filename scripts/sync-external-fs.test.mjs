@@ -284,7 +284,6 @@ test('mirror package privacy keeps an already-private manifest byte-identical an
   assert.equal(enforceMirrorPackagePrivacy({ path: 'README.md', content: other }), other);
 });
 
-
 test('mirror writes land atomically with canonical modes, and a re-run is a no-op', () => {
   const s = sandbox();
   try {
