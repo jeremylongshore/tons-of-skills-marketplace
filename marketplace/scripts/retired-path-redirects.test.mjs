@@ -10,6 +10,7 @@ import {
   SECTION_INDEXES,
   buildMap,
   loadLiveUniverse,
+  matcherId,
   normalize,
   renderCaddy,
 } from './build-retired-path-redirects.mjs';
@@ -61,6 +62,26 @@ test('every redirect target exists in the built site when a build is present', (
   }
 });
 
+// Caddy evaluates `redir` before the static file handler, so a retired path that later
+// becomes a real page again would be silently shadowed. Fail the build instead.
+test('no redirected path is a live route in the current catalog or build', (t) => {
+  for (const e of map.entries) {
+    assert.equal(live.routes.has(`${e.from}/`), false, `${e.from}: retired path is a live catalog route`);
+  }
+  if (!existsSync(join(dist, 'index.html'))) {
+    assert.ok(!process.env.CI, 'CI must build the marketplace before this test');
+    t.skip('no marketplace/dist build present');
+    return;
+  }
+  // Mirrors the site's try_files order: {path}, {path}/, {path}.html.
+  for (const e of redirects) {
+    const rel = e.from.slice(1);
+    for (const candidate of [rel, join(rel, 'index.html'), `${rel}.html`]) {
+      assert.equal(existsSync(join(dist, candidate)), false, `${e.from}: shadows built file ${candidate}`);
+    }
+  }
+});
+
 test('no redirect chains or loops', () => {
   const sources = new Set([
     ...map.entries.map((e) => e.from),
@@ -82,13 +103,14 @@ test('nothing redirects to the home page outside the explicit allowlist', () => 
 });
 
 test('Caddy fragment preserves query strings and covers both slash forms', () => {
-  const matchers = [...caddy.matchAll(/^(@retired\d{4}) path (\S+) (\S+)$/gm)];
-  const redirs = [...caddy.matchAll(/^redir (@retired\d{4}) (\S+) permanent$/gm)];
+  const matchers = [...caddy.matchAll(/^(@retired[0-9a-f]{12}) path (\S+) (\S+)$/gm)];
+  const redirs = [...caddy.matchAll(/^redir (@retired[0-9a-f]{12}) (\S+) permanent$/gm)];
   assert.equal(matchers.length, redirects.length);
   assert.equal(redirs.length, redirects.length);
   assert.equal(new Set(matchers.map((m) => m[1])).size, matchers.length, 'duplicate matcher ids');
   redirects.forEach((e, i) => {
     assert.deepEqual([matchers[i][2], matchers[i][3]], [e.from, `${e.from}/`]);
+    assert.equal(matchers[i][1], matcherId(e.from), `${e.from}: matcher id is not path-stable`);
     assert.equal(redirs[i][1], matchers[i][1]);
     assert.equal(redirs[i][2], `${e.to}{?query}`, `${e.from}: query string would be dropped`);
   });

@@ -42,9 +42,17 @@ rollback_on_error() {
   set +e
   if [[ $INSTALLED -eq 1 && -f "$BACKUP" ]]; then
     cp --preserve=mode,ownership,timestamps -- "$BACKUP" "$TARGET"
-    sudo -n -u caddy caddy validate --config "$MAIN_CONFIG" >/dev/null 2>&1
-    systemctl reload caddy
-    echo "install-skill-redirects: rolled back to $BACKUP" >&2
+    # Reload only a configuration that validates. If the restored file does not validate,
+    # leave the running Caddy process on its last good in-memory config and fail loudly.
+    if sudo -n -u caddy caddy validate --config "$MAIN_CONFIG" >/dev/null 2>&1; then
+      systemctl reload caddy
+      echo "install-skill-redirects: rolled back to $BACKUP" >&2
+    else
+      echo "install-skill-redirects: CRITICAL: restored $BACKUP does not validate; NOT reloading Caddy." >&2
+      echo "install-skill-redirects: the running process keeps its last good config; fix $TARGET by hand before any reload." >&2
+      cleanup
+      exit 70
+    fi
   fi
   cleanup
   exit "$status"
@@ -84,9 +92,10 @@ if inside or seen_begin != seen_end or seen_begin > 1:
 Path(output).write_text("\n".join(kept).rstrip() + "\n", encoding="utf-8")
 PY
 
-grep -oE '@(redir|retired)[0-9]+' "$TMP_DIR/base.caddy" | sort -u > "$TMP_DIR/existing.ids" || true
-grep -oE '@(redir|retired)[0-9]+' "$SOURCE" | sort -u > "$TMP_DIR/new.ids" || true
-DUPLICATES=$(grep -oE '^@(redir|retired)[0-9]+' "$SOURCE" | sort | uniq -d)
+MATCHER_ID='@(redir[0-9]+|retired[0-9a-f]+)'
+grep -oE "$MATCHER_ID" "$TMP_DIR/base.caddy" | sort -u > "$TMP_DIR/existing.ids" || true
+grep -oE "$MATCHER_ID" "$SOURCE" | sort -u > "$TMP_DIR/new.ids" || true
+DUPLICATES=$(grep -oE "^$MATCHER_ID" "$SOURCE" | sort | uniq -d)
 if [[ -n "$DUPLICATES" ]]; then
   echo "install-skill-redirects: duplicate generated matcher(s): $DUPLICATES" >&2
   exit 65
