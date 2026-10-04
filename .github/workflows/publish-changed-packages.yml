@@ -42,6 +42,17 @@ jobs:
   guard:
     name: Guard — trusted Validate Plugins completion
     runs-on: ubuntu-latest
+    # Cheap pre-filter (#1450): every Validate Plugins completion, including
+    # every PR run, fires this workflow, and the guard used to take a runner
+    # (checkout + node) just to say "not eligible". Only a successful push to
+    # main can ever publish, so skip the job otherwise. A skipped guard skips
+    # every downstream job (they all need it). This is fail-safe: the guard
+    # script below is still the authority (canonical repo, exact SHA, trusted
+    # workflow path) for runs that pass this filter.
+    if: >-
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.conclusion == 'success'
     outputs:
       eligible: ${{ steps.guard.outputs.eligible }}
       sha: ${{ steps.guard.outputs.sha }}

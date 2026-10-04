@@ -14,7 +14,7 @@ description: 'Generates production-ready code from file specifications such as C
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(pip:*), Bash(node:*), Bash(python3:*),
   Glob, Grep
-version: 0.16.0
+version: 0.17.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

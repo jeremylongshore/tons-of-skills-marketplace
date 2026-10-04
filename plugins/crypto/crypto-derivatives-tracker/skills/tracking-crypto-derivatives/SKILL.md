@@ -12,7 +12,7 @@ description: 'Track cryptocurrency futures, options, and perpetual swaps with fu
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(crypto:derivatives-*)
-version: 1.28.0
+version: 1.29.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

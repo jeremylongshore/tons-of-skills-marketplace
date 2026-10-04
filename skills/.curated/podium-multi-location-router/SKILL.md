@@ -10,7 +10,7 @@ description: Route Podium API calls across multiple physical locations with stri
   multi-location", "podium location router", "podium per-location", "podium
   location audit", "podium bulk onboarding", "podium location_uid verification".
 allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(jq:*), Bash(python3:*), Bash(sqlite3:*), Grep
-version: 2.10.0
+version: 2.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 compatibility: Designed for Claude Code

@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/crypto-derivatives-tracker",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Track crypto futures, options, perpetual swaps with funding rates, open interest, and derivatives market analysis",
   "keywords": [
     "crypto",

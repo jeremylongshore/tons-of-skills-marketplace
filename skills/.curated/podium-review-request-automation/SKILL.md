@@ -8,7 +8,7 @@ description: Trigger Podium review requests from Shopify order-shipped events an
   across flows. Trigger with "podium review request", "shopify review automation", "podium
   cooldown", "review response webhook", "podium opt-out audit", "review platform routing".
 allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(jq:*), Bash(python3:*), Bash(redis-cli:*), Grep
-version: 2.10.0
+version: 2.11.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 compatibility: Designed for Claude Code

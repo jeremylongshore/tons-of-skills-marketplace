@@ -70,8 +70,11 @@ export function createHttpServer(): http.Server {
       await server.connect(transport);
       await transport.handleRequest(req, res, body);
     } catch (err) {
+      // Log full detail server-side only; never return stack-trace/error-message
+      // internals to the HTTP client (CodeQL js/stack-trace-exposure).
+      console.error(`${SERVER_NAME} request error:`, err);
       if (!res.headersSent) res.writeHead(500, { "content-type": "application/json" });
-      res.end(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+      res.end(JSON.stringify({ error: "Internal server error" }));
     }
   });
 }

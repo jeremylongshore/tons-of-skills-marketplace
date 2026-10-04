@@ -1,6 +1,6 @@
 {
   "name": "file-to-code",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "description": "Enhances file reading Skills by generating production-ready code from requirements documents",
   "author": {
     "name": "Claude Code Plugins Team",
