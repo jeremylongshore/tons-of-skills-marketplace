@@ -13109,7 +13109,7 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "2.11.0",
+      "version": "2.12.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -62881,7 +62881,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.11.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -62906,7 +62906,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.11.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -62931,7 +62931,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.11.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -62957,7 +62957,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.11.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -62982,7 +62982,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.11.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -63007,7 +63007,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.11.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -63032,7 +63032,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.11.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -63057,7 +63057,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.11.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -63081,7 +63081,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.11.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -63106,7 +63106,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.11.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"

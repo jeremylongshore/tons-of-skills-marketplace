@@ -9,7 +9,7 @@ description: Ingest Podium webchat messages in production and survive the webcha
   "podium phone validation", "podium contact dedup", "podium webchat session", "podium opt-out",
   "podium location routing".
 allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(jq:*), Bash(python3:*), Grep
-version: 2.11.0
+version: 2.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 compatibility: Designed for Claude Code
