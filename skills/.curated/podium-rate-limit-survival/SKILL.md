@@ -8,7 +8,7 @@ description: Survive the rate-limit failure modes that crater production Podium 
   "podium rate limit", "podium 429", "podium token bucket", "podium quota monitor", "podium burst
   smoothing", "podium retry-after".
 allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(jq:*), Bash(python3:*), Bash(redis-cli:*), Grep
-version: 2.11.0
+version: 2.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 compatibility: Designed for Claude Code
@@ -38,11 +38,11 @@ The six production failures this skill prevents:
 
 ## Authentication
 
-This skill **does not** mint, refresh, or hold Podium credentials — those concerns live in the sibling `podium-auth` skill. Every wrapped HTTP call in this skill calls `auth.get_token()` immediately after the bucket releases, where `auth` is a `PodiumAuth` instance constructed by the consumer per the [podium-auth SKILL.md](../podium-auth/SKILL.md) instructions (OAuth2 refresh-token grant against `https://accounts.podium.com/oauth/token`). The bearer token is passed in the `Authorization: Bearer {token}` header on every `api.podium.com` request. If `auth.get_token()` raises, this skill propagates the auth error to the caller without retry — auth recovery is `podium-auth`'s responsibility, not this skill's.
+This skill **does not** mint, refresh, or hold Podium credentials — those concerns live in the sibling `podium-auth` skill. Every wrapped HTTP call in this skill calls `auth.get_token()` immediately after the bucket releases, where `auth` is a `PodiumAuth` instance constructed by the consumer per the `podium-auth` skill instructions (OAuth2 refresh-token grant against `https://accounts.podium.com/oauth/token`). The bearer token is passed in the `Authorization: Bearer {token}` header on every `api.podium.com` request. If `auth.get_token()` raises, this skill propagates the auth error to the caller without retry — auth recovery is `podium-auth`'s responsibility, not this skill's.
 
 ## Prerequisites
 
-- A working `podium-auth` integration (this skill assumes a `PodiumAuth` instance is available — see the [podium-auth skill](../podium-auth/SKILL.md) in this pack)
+- A working `podium-auth` integration (this skill assumes a `PodiumAuth` instance is available — see the `podium-auth` skill in this pack)
 - Python 3.10+ with `asyncio` (the patterns translate to Node.js; see references/implementation.md)
 - A token-bucket library — `aiolimiter` recommended, or hand-rolled on `asyncio.sleep`
 - A daily-quota counter store — Redis preferred (atomic INCR + TTL), local SQLite acceptable for single-process integrations

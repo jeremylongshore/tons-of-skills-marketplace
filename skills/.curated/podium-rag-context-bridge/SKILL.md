@@ -10,7 +10,7 @@ description: Bridge a live Podium call transcript or webchat turn to an LLM by f
   Trigger with "podium rag", "podium llm context", "podium transcript to llm", "podium retrieval",
   "podium vector search", "podium real-time context", "podium agent grounding".
 allowed-tools: Read, Write, Edit, Bash(curl:*), Bash(jq:*), Bash(python3:*), Bash(psql:*), Grep
-version: 2.11.0
+version: 2.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 compatibility: Designed for Claude Code

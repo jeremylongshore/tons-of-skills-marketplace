@@ -9997,7 +9997,7 @@
       "name": "podium-pack",
       "displayName": "podium pack",
       "description": "Claude Code skill pack for Podium (10 production-engineer skills covering OAuth, webhook reliability, rate-limit survival, call transcripts, webchat, review automation, history export, RAG context, multi-location routing, contact dedup)",
-      "version": "2.11.0",
+      "version": "2.12.0",
       "category": "saas-packs",
       "keywords": [
         "podium",

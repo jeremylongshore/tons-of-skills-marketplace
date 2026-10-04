@@ -7,7 +7,7 @@ Thank you for your interest in contributing to the Claude Code Plugins marketpla
 > Every plugin and skill in this marketplace is graded against a single
 > authoritative specification:
 >
-> **→ [`000-docs/6767-b-SPEC-DR-STND-claude-skills-standard.md`](../000-docs/6767-b-SPEC-DR-STND-claude-skills-standard.md)** — the **Global Master Standard for Claude Skills** (v3.6.0 baseline; the validator currently enforces schema **3.15.2** — see [`000-docs/SCHEMA_CHANGELOG.md`](../000-docs/SCHEMA_CHANGELOG.md) for every change since that baseline).
+> **→ [`000-docs/6767-b-SPEC-DR-STND-claude-skills-standard.md`](../000-docs/6767-b-SPEC-DR-STND-claude-skills-standard.md)** — the **Global Master Standard for Claude Skills** (v3.6.0 baseline; the schema the validator currently enforces is the latest entry in `000-docs/SCHEMA_CHANGELOG.md` — see [`000-docs/SCHEMA_CHANGELOG.md`](../000-docs/SCHEMA_CHANGELOG.md) for every change since that baseline).
 >
 > It documents:
 >
@@ -216,7 +216,7 @@ Run the marketplace-tier validator on your plugin plus `./scripts/quick-test.sh`
 
 ### What happens when you open the PR
 
-1. GitHub runs the CI gate: 17 jobs aggregated into the **`ci-required`** check (`validate-plugins.yml`), plus the `gitleaks` secret scan. **Those two required checks are the gate** — your PR is mergeable once they're green.
+1. GitHub runs the CI gate. Three checks are required: **`ci-required`** (aggregates every gate job in `validate-plugins.yml`), **`gitleaks`** (secret scan) and **`skill-conform`** (its own workflow, run over the whole skill corpus). **Those three are the gate**: your PR is mergeable once they're green.
 2. **Greptile** (the repo's AI reviewer) posts inline comments. Treat its findings like any review: address them, or reply if you think it got something wrong and a human will weigh in. If you've installed your own Codex connector on your fork it may also comment — that's contributor-side, not repo-controlled, so maintainers don't act on it.
 3. A maintainer gets a Slack ping and follows up.
 4. Push fixes; the required checks re-run on each push.
