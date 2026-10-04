@@ -188,7 +188,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           set -euo pipefail
-          git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+          git fetch --no-tags origin "${{ github.base_ref }}"
           node scripts/sync-lint-ignores.mjs --check-source-anchoring --base="origin/${{ github.base_ref }}"
 
       # @intentsolutions/audit-harness verify — exit 0 when policy hashes
@@ -302,7 +302,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           set -euo pipefail
-          git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+          git fetch --no-tags origin "${{ github.base_ref }}"
           python3 scripts/check-catalog-format.py "origin/${{ github.base_ref }}"
 
       - name: Verify README TOC is in sync with catalog
@@ -1635,7 +1635,7 @@ jobs:
           HEAD_REF: ${{ github.head_ref }}
         run: |
           set -euo pipefail
-          git fetch --no-tags --depth=1 origin "$BASE_REF"
+          git fetch --no-tags origin "$BASE_REF"
           # The bot's own sync PR already REFUSE-scanned upstream at sync time;
           # re-grade it with --warn-only so dual-use CHALLENGE churn doesn't wall
           # the automated PR (REFUSE still hard-blocks). Human PRs get full grading.
@@ -1721,7 +1721,7 @@ jobs:
           BASE_REF: ${{ github.base_ref }}
         run: |
           set -euo pipefail
-          git fetch --no-tags --depth=1 origin "$BASE_REF"
+          git fetch --no-tags origin "$BASE_REF"
           node scripts/check-submission-docs.mjs --changed-only --base "origin/$BASE_REF"
 
   # Conventional-commit gate. This repo squash-merges, so the PR TITLE is the

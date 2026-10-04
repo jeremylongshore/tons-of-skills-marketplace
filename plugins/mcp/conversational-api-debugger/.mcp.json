@@ -2,7 +2,9 @@
   "mcpServers": {
     "api-debugger": {
       "command": "node",
-      "args": ["dist/servers/api-debugger.js"]
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/dist/servers/api-debugger.js"
+      ]
     }
   }
 }
